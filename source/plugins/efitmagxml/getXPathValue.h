@@ -5,6 +5,7 @@
 #include <clientserver/udaStructs.h>
 
 #define XPATHARRAYMAXLOOP 1024
+#define XMLFILEPATHLENGTH 1024
 
 char* getXPathValue(const char* xmlfile, const char* path, unsigned short cleanup, int *err);
 

@@ -11,6 +11,7 @@
 
 #include <logging/logging.h>
 #include <client/udaClient.h>
+#include <client/udaClientHostList.h>
 
 #ifdef FATCLIENT
 #  include <server/udaServer.h>
@@ -66,6 +67,10 @@ int idamClosedown(int type, SOCKETLIST* socket_list)
         closeServerSockets(socket_list);    // Close the Socket Connections to Other Data Servers
     }
 #endif
+
+    // Close the host list
+    
+    udaClientFreeHostList();
 
     // Close the SSL binding and context
 

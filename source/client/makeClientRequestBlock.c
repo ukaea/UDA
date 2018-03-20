@@ -24,6 +24,9 @@ Interprets the API arguments and assembles a Request data structure.
 #include <clientserver/udaErrors.h>
 #include <clientserver/errorLog.h>
 #include <clientserver/expand_path.h>
+#include <clientserver/stringUtils.h>
+
+int shotRequestTest(const char* source);
 
 int makeClientRequestBlock(const char* data_object, const char* data_source, REQUEST_BLOCK* request_block)
 {
@@ -125,21 +128,59 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     Any attempted expansion of a server URL will result in a meaningless path. These are ignored by the server.  *** the original source is always retained !    
     */
 
-// Does the source string contain the delimiter string or function parenthesis pair characters?
+// Path expansion disabled - applications must provide the full path to data resources.
+// XXXX::12345		shot number  
+// XXXX::12345/a 	keyword or pass number
+// XXXX::12345/a,b,c	keywords or substitution values
+// XXXX::12345/a=b,c=d	name-value pairs
+// XXXX::a 
+// XXXX::a,b,c
+// XXXX::a=b,c=d
+// XXXX::/path/to/data/resource
 
     if ((test = strstr(request_block->source, request_block->api_delim)) == NULL) {
         if (strchr(request_block->source, '(') == NULL &&
-            strchr(request_block->source, ')') == NULL) {        // source is not a function call
+            strchr(request_block->source, ')') == NULL) {			// source is not a function call
             strcpy(request_block->path, request_block->source);
-            err = expandFilePath(request_block->path, environment);
+            //if(!shotRequestTest(request_block->source))
+	    //   err = expandFilePath(request_block->path, environment);	// test if pattern NOT shot/pass or shot/text pattern
         }
     } else {
-        if (strchr(test, '(') == NULL && strchr(test, ')') == NULL) {        // source is not a function call
+        if (strchr(test, '(') == NULL && strchr(test, ')') == NULL) {		// Prefixed and not a function call
             ldelim = (int)strlen(request_block->api_delim);
             strcpy(request_block->path, &test[ldelim]);
-            err = expandFilePath(request_block->path, environment);
+            //err = expandFilePath(request_block->path, environment);
         }
     }
 
     return err;
 }
+
+int shotRequestTest(const char* source)
+{
+
+// Return 1 (TRUE) if the source is shot nuumber based , 0 (FALSE) otherwise
+
+    char* token = NULL;
+    char work[STRING_LENGTH];
+
+    if (source[0] == '\0') return 0;
+    if (source[0] == '/') return 0;        // Directory based data
+
+//------------------------------------------------------------------------------
+// Check if the source has one of these forms:
+
+// pulse		plasma shot number - an integer
+// pulse/pass		include a pass or sequence number - this may be a text based component, e.g. LATEST
+
+    if (IsNumber((char*) source)) return 1;		// The source an integer number 
+        
+    strcpy(work, source);
+    
+    if ((token = strtok(work, "/")) != NULL) {		// Tokenise the remaining string
+       if (IsNumber(token)) return 1;			// Is the First token an integer number?
+    }
+
+    return 0;
+}
+

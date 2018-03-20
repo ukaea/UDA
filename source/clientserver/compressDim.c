@@ -25,7 +25,7 @@
 int compressDim(DIMS* ddim)
 {
 
-    double d0, ddif, pddif = 0, precision, mddif;
+    double d0, ddif = 0, pddif = 0, precision, mddif;
     int ndata;
     int i, ndif = 1;
 
@@ -224,10 +224,8 @@ int compressDim(DIMS* ddim)
 
 int uncompressDim(DIMS* ddim)
 {
-
     double d0, diff;
-    int ndata;
-    int i, j, count;
+    int j, count;
 
     float* fp;
     double* dp;
@@ -243,9 +241,11 @@ int uncompressDim(DIMS* ddim)
     if (!ddim || ddim->compressed == 0) return 0;    // Nothing to Uncompress!
     if (ddim->dim_n == 0) return 0;    // Nothing to Uncompress!
 
-    ndata = ddim->dim_n;
+    size_t ndata = (size_t)ddim->dim_n;
     d0 = ddim->dim0;        // Default Compression Method
     diff = ddim->diff;
+
+    unsigned int i;
 
     switch (ddim->data_type) {
 

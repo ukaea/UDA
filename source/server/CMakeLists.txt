@@ -17,7 +17,6 @@ add_subdirectory( modules )
 set( SRC_FILES
   serverGetData.c
   freeIdamPut.c
-  serverPlugin.c
   serverLegacyPlugin.c
   makeServerRequestBlock.c
   writer.c
@@ -33,6 +32,7 @@ set( SRC_FILES
   serverStartup.c
   getServerEnvironment.c
   getPluginAddress.c
+  nameValueSubstitution.c
 )
 
 set( HEADER_FILES
@@ -47,10 +47,8 @@ set( HEADER_FILES
   manageFiles.h
   managePluginFiles.h
   mastArchiveFilePath.h
-  pluginStructs.h
   serverGetData.h
   serverLegacyPlugin.h
-  serverPlugin.h
   serverProcessing.h
   serverStartup.h
   serverSubsetData.h
@@ -110,6 +108,7 @@ add_executable( server-exe serverMain.c )
 
 target_link_libraries( server-shared LINK_PRIVATE
   client-shared
+  plugins-static
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
@@ -190,6 +189,7 @@ set( ETC_FILES
   uda-fat-client.pc
   uda-cpp.pc
   uda-fat-cpp.pc
+  uda-plugins.pc
   README.md
 )
 
@@ -240,4 +240,8 @@ install(
   FILES
     ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
   DESTINATION etc
+)
+
+install( FILES ${HEADER_FILES}
+  DESTINATION include/uda/server
 )

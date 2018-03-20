@@ -8,6 +8,10 @@
 #include <ncidef.h>
 #include <mdsshr.h>
 #include <mds_stdarg.h>
+#ifdef __APPLE__
+#  include <pthread.h>
+#endif
+
 #include "ual_low_level_mdsplus.h"
 #include "ual_low_level_remote.h"
 

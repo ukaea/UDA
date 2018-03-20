@@ -1,6 +1,5 @@
-import logging
+from __future__ import (division, unicode_literals, print_function, absolute_import)
 
-from six import add_metaclass
 from . import c_uda
 from ._signal import Signal
 from ._string import String
@@ -9,6 +8,19 @@ from ._structuredWritable import StructuredWritable
 from ._geometryFiles import GeometryFiles
 from ._geometry import GeometryData
 from ._signalGeometry import SignalGeometryData
+
+import logging
+import itertools
+from collections import namedtuple
+try:
+    from enum import Enum
+except ImportError:
+    Enum = object
+
+from builtins import (range, int, bytes, str)
+from future import standard_library
+from future.utils import with_metaclass
+standard_library.install_aliases()
 
 
 class ClientMeta(type):
@@ -36,8 +48,13 @@ class ClientMeta(type):
         cls.C_Client.setServerHostName(value)
 
 
-@add_metaclass(ClientMeta)
-class Client(object):
+class ListType(Enum):
+    SIGNALS = 1
+    SOURCES = 2
+    SHOTS = 3
+
+
+class Client(with_metaclass(ClientMeta, object)):
     """
     A class representing the IDAM client.
 
@@ -47,9 +64,7 @@ class Client(object):
 
     def __init__(self, debug_level=logging.ERROR):
         self._cclient = c_uda.Client()
-
-        logging.basicConfig(level = debug_level)
-
+        logging.basicConfig(level=debug_level)
         self.logger = logging.getLogger(__name__)
         
     def get(self, signal, source, **kwargs):
@@ -64,11 +79,70 @@ class Client(object):
         # Standard signal
         result = self._cclient.get(str(signal), str(source))
 
+        if 'raw' in kwargs and kwargs['raw']:
+            data = result.data()
+            byte_array = c_uda.ByteArray.frompointer(data.byte_data())
+            return bytes(itertools.islice(byte_array, data.byte_length()))
+
         if result.isTree():
             return StructuredData(result.tree())
         elif result.type() == 'string':
             return String(result)
         return Signal(result)
+
+    def list(self, list_type, shot=None, alias=None, signal_type=None):
+        """
+        Query the server for available data.
+
+        :param list_type: the type of data to list, must be one of pyuda.ListType
+        :param shot: the shot number, or None to return for all shots
+        :param alias: the device alias, or None to return for all devices
+        :param signal_type: the signal types {A|R\M|I}, or None to return for all types
+        :return: A list of namedtuples containing the query data
+        """
+        if list_type == ListType.SIGNALS:
+            list_arg = ""
+        elif list_type == ListType.SOURCES:
+            list_arg = "/listSources"
+        else:
+            raise ValueError("unknown list_type: " + str(list_type))
+
+        args = ""
+        if shot is not None:
+            args += "shot=%s, " % str(shot)
+        if alias is not None:
+            args += "alias=%s, " % alias
+        if signal_type is not None:
+            if signal_type not in ("A", "R", "M", "I"):
+                raise ValueError("unknown signal_type " + signal_type)
+            args += "type=%s, " % signal_type
+
+        args += list_arg
+
+        result = self._cclient.get("meta::list(context=data, cast=column, %s)" % args, "")
+        if not result.isTree():
+            raise RuntimeError("UDA list data failed")
+
+        data = StructuredData(result.tree())
+        names = list(el for el in data["data"]._imported_attrs if el not in ("count", "shot", "pass_"))
+        ListData = namedtuple("ListData", names)
+
+        vals = []
+        for i in range(data["data"].count):
+            row = {}
+            for name in names:
+                row[name] = getattr(data["data"], name)[i]
+            vals.append(ListData(**row))
+        return vals
+
+    def list_signals(self, **kwargs):
+        """
+        List available signals.
+
+        See Client.list for arguments.
+        :return: A list of namedtuples returned signals
+        """
+        return self.list(ListType.SIGNALS, **kwargs)
 
     def _get_signal_filenames(self, geom_signals, shot, **kwargs):
         """

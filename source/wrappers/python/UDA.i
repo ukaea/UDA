@@ -3,9 +3,20 @@
 %include "std_string.i"
 %include "std_vector.i"
 %include "std_map.i"
+%include "carrays.i"
+
+%array_class(unsigned char, ByteArray)
 
 %{
 #include "UDA.hpp"
+
+static PyObject* UDA_Exception;
+%}
+
+%init %{
+    UDA_Exception = PyErr_NewException("pyuda.UDAException", NULL, NULL);
+    Py_INCREF(UDA_Exception);
+    PyModule_AddObject(m, "UDAException", UDA_Exception);
 %}
 
 %naturalvar;
@@ -37,6 +48,16 @@
         PyErr_SetString(PyExc_RuntimeError, "Unknown type_info");
         $result = NULL;
     }
+}
+
+%exception {
+  try {
+    $action
+  }
+  catch (uda::UDAException& e) {
+    PyErr_SetString(UDA_Exception, const_cast<char*>(e.what()));
+    SWIG_fail;
+  }
 }
 
 %include "data.hpp"
@@ -77,13 +98,6 @@
 }
 
 %include "client.hpp"
-
-%extend uda::UDAException {
-    char * __str__() {
-        return const_cast<char *>(self->what());
-    }
-}
-
 %include "array.hpp"
 %include "scalar.hpp"
 %include "structdata.hpp"

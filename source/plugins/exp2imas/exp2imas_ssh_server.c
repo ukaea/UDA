@@ -2,10 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
+#include <string.h>
 #include <errno.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include <clientserver/stringUtils.h>
 
 #include "exp2imas_ssh_gui.h"
 #include "exp2imas_ssh.h"
@@ -85,7 +87,7 @@ static int verify_knownhost(ssh_session session)
     return 0;
 }
 
-static ssh_session create_session()
+static ssh_session create_session(const char* experiment, const char* ssh_host)
 {
     ssh_session session = ssh_new();
     if (session == NULL) {
@@ -93,11 +95,11 @@ static ssh_session create_session()
         return NULL;
     }
 
-    ssh_options_set(session, SSH_OPTIONS_HOST, "lac911.epfl.ch");
+    ssh_options_set(session, SSH_OPTIONS_HOST, ssh_host);
 
     int rc = ssh_connect(session);
     if (rc != SSH_OK) {
-        fprintf(stderr, "failed to connect to lac911.epfl.ch\n");
+        fprintf(stderr, "failed to connect to %s\n", ssh_host);
         ssh_free(session);
         return NULL;
     }
@@ -110,22 +112,44 @@ static ssh_session create_session()
         return NULL;
     }
 
-#ifdef HAVE_GTK3
     char* username = NULL; // itmmds
     char* password = NULL;
-    rc = ssh_open_dialog(&username, &password);
-    if (rc < 0) {
-        fprintf(stderr, "Failed to get authentication details");
-        return NULL;
+
+    char* home = getenv("HOME");
+    if (home != NULL) {
+        char fname[1024];
+        sprintf(fname, "%s/.exp2imas", home);
+        if (access(fname, F_OK) != -1) {
+            FILE* fid = fopen(fname, "r");
+            char exp[1024];
+            char user[1024];
+            char pass[1024];
+            while (fscanf(fid, "%s %s %s", exp, user, pass) == 3) {
+                if (StringEquals(exp, experiment)) {
+                    username = strdup(user);
+                    password = strdup(pass);
+                    break;
+                }
+            }
+            fclose(fid);
+        }
+    }
+
+#ifdef HAVE_GTK3
+    if (username == NULL || password == NULL) {
+        rc = ssh_open_dialog(&username, &password);
+        if (rc < 0) {
+            fprintf(stderr, "Failed to get authentication details");
+            return NULL;
+        }
     }
 #else
     fprintf(stdout, "username: ");
-    char* username = NULL;
     size_t len = 0;
     getline(&username, &len, stdin);
     username = TrimString(username);
 
-    char* password = getpass("password: ");
+    password = getpass("password: ");
 #endif
 
     // Authenticate ourselves
@@ -148,7 +172,7 @@ static ssh_session create_session()
     return session;
 }
 
-static ssh_channel create_forwarding_channel(ssh_session session, int32_t client_port)
+static ssh_channel create_forwarding_channel(ssh_session session, const char* remote_host, int32_t client_port)
 {
     ssh_channel forwarding_channel = ssh_channel_new(session);
     if (forwarding_channel == NULL) {
@@ -156,7 +180,7 @@ static ssh_channel create_forwarding_channel(ssh_session session, int32_t client
         return NULL;
     }
 
-    int rc = ssh_channel_open_forward(forwarding_channel, "tcvdata.epfl.ch", 8000, "localhost", client_port);
+    int rc = ssh_channel_open_forward(forwarding_channel, remote_host, 8000, "localhost", client_port);
     if (rc != SSH_OK) {
         fprintf(stderr, "failed to open SSH channel\n");
         ssh_channel_free(forwarding_channel);
@@ -229,7 +253,7 @@ static socket_t listen_for_client(int32_t* client_port)
     return client_sock;
 }
 
-int ssh_run_server()
+int ssh_run_server(const char* experiment, const char* ssh_host, const char* remote_host)
 {
     int32_t client_port;
     socket_t client_sock = listen_for_client(&client_port);
@@ -239,15 +263,18 @@ int ssh_run_server()
 
     fcntl(client_sock, F_SETFL, O_NONBLOCK);
 
-    ssh_session session = create_session();
+    ssh_session session = create_session(experiment, ssh_host);
     if (session == NULL) {
         return -1;
     }
 
-    ssh_channel forwarding_channel = create_forwarding_channel(session, client_port);
+    ssh_channel forwarding_channel = create_forwarding_channel(session, remote_host, client_port);
     if (forwarding_channel == NULL) {
         return -1;
     }
+
+    fprintf(stderr, "channel created, listening\n");
+    fflush(stderr);
 
     while (!ssh_channel_is_eof(forwarding_channel)) {
         ssize_t size_recv;
@@ -264,7 +291,7 @@ int ssh_run_server()
                 }
             }
         } else if (!size_recv) {
-            puts("Local client disconnected, SSH forwarding server exiting");
+            fprintf(stderr, "Local client disconnected, SSH forwarding server exiting\n");
             break;
         }
 
@@ -277,3 +304,4 @@ int ssh_run_server()
 
     return 0;
 }
+

@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 find_package( LibXml2 QUIET )
 find_package( MDSplus QUIET )
 find_package( LibSSH QUIET )
@@ -28,6 +26,7 @@ set( SOURCES
   exp2imas_xml.c
   exp2imas_ssh_server.c
   exp2imas_ssh.c
+  exp2imas_ramCache.c
 )
 
 if( GTK3_FOUND )
@@ -55,4 +54,6 @@ uda_plugin(
     ${MDSPLUS_LIBRARIES}
     ${LIBSSH_LIBRARIES}
     ${GTK3_LIBRARIES}
+    pthread
+    resolv
 )

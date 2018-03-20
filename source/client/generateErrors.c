@@ -28,8 +28,8 @@
 //--------------------------------------------------------------------------------------------------------------
 // Generate Error Data
 
-int idamErrorModel(int model, int param_n, float * params, int data_n, float * data, int * asymmetry, char * errhi,
-                   char * errlo)
+int idamErrorModel(int model, int param_n, float * params, int data_n, float * data, int * asymmetry, float* errhi,
+    float* errlo)
 {
 
     int i;
@@ -636,7 +636,7 @@ int generateIdamDataError(int handle)
 //--------------------------------------------------------------------------------------------------------------
 // Generate Error Data
 
-    err = idamErrorModel(model, param_n, params, getIdamDataNum(handle), data, &asymmetry, errhi, errlo);
+    err = idamErrorModel(model, param_n, params, getIdamDataNum(handle), data, &asymmetry, (float*)errhi, (float*)errlo);
 
     if (err != 0) {
         free((void *) data);
@@ -888,7 +888,7 @@ int generateIdamDimDataError(int handle, int ndim)
 //--------------------------------------------------------------------------------------------------------------
 // Generate Model Data
 
-    err = idamErrorModel(model, param_n, params, getIdamDimNum(handle, ndim), data, &asymmetry, errhi, errlo);
+    err = idamErrorModel(model, param_n, params, getIdamDimNum(handle, ndim), data, &asymmetry, (float*)errhi, (float*)errlo);
 
     if (err != 0) {
         free((void *) data);

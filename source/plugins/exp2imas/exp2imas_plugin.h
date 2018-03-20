@@ -1,7 +1,7 @@
 #ifndef UDA_PLUGIN_EXP2IMAS_EXP2IMAS_PLUGIN_H
 #define UDA_PLUGIN_EXP2IMAS_EXP2IMAS_PLUGIN_H
 
-#include <server/pluginStructs.h>
+#include <plugins/pluginStructs.h>
 
 #ifdef __cplusplus
 extern "C" {

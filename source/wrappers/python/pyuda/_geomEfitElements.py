@@ -1,17 +1,22 @@
-"""
-Manipulation class for efit elements (ie. rectangles and parallelograms!).
-
-Plotting:
-
-Plot the positions of the elements
-"""
+from __future__ import (division, unicode_literals, print_function, absolute_import)
 
 import math
-
-import matplotlib.pyplot as plt
 import numpy as np
 
-class GeomEfitElements():
+from builtins import (zip, object)
+from future import standard_library
+standard_library.install_aliases()
+
+
+class GeomEfitElements(object):
+    """
+    Manipulation class for efit elements (ie. rectangles and parallelograms!).
+
+    Plotting:
+
+    Plot the positions of the elements
+    """
+
     def __init__(self):
         pass
 
@@ -162,6 +167,7 @@ class GeomEfitElements():
         :param ax_2d: Axis on which to plot elements in R-Z (2D) plane.
                       If None, then an axis will be created.
         """
+        import matplotlib.pyplot as plt
 
         # Create axes if necessary
         if ax_2d is None:

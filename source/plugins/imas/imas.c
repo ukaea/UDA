@@ -45,7 +45,7 @@
 #include <logging/logging.h>
 #include <server/makeServerRequestBlock.h>
 #include <server/managePluginFiles.h>
-#include <server/serverPlugin.h>
+#include <plugins/serverPlugin.h>
 #include <structures/genStructs.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/printStructs.h>

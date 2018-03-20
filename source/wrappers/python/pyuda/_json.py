@@ -1,9 +1,16 @@
+from __future__ import (division, unicode_literals, print_function, absolute_import)
+
 import pyuda
 import json
 import base64
 import numpy as np
+
 from ._signal import Signal
 from ._dim import Dim
+
+from builtins import super
+from future import standard_library
+standard_library.install_aliases()
 
 
 class DimEncoder(json.JSONEncoder):

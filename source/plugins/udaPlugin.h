@@ -6,7 +6,7 @@
 #include <clientserver/udaStructs.h>
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
-#include <server/pluginStructs.h>
+#include <plugins/pluginStructs.h>
 
 #ifdef __cplusplus
 extern "C" {

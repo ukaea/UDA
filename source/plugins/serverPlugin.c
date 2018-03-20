@@ -17,12 +17,11 @@
 #include <clientserver/protocol.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaErrors.h>
-#include <modules/ida/parseIdaPath.h>
+#include <server/modules/ida/parseIdaPath.h>
 #include <structures/struct.h>
-
-#include "getPluginAddress.h"
-#include "makeServerRequestBlock.h"
-#include "getServerEnvironment.h"
+#include <server/getPluginAddress.h>
+#include <server/makeServerRequestBlock.h>
+#include <server/getServerEnvironment.h>
 
 #define REQUEST_READ_START      1000
 #define REQUEST_PLUGIN_MCOUNT   100    // Maximum initial number of plugins that can be registered

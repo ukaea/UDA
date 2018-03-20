@@ -135,7 +135,7 @@ int allocDim(DATA_BLOCK* data_block)
     char* ebh = NULL;
     char* ebl = NULL;
 
-    int i;
+    unsigned int i;
     for (i = 0; i < data_block->rank; i++) {
 
         ndata = (unsigned int)data_block->dims[i].dim_n;

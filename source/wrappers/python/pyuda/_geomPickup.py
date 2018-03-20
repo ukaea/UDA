@@ -1,32 +1,36 @@
-"""
-Manipulation class for pickup coils.
-
-Manipulation:
-The do_manip method will take the pickup coil StructuredData
-object and look for geometry and orientation information.
-
-It will then:
-- Project the length onto the poloidal plane
-- Calculate the angle of the coils in the poloidal plane
-- Calculate the fraction in which the coils measure in the R, Z & Phi directions
-
-Plotting:
-The plot method will plot the pickup coil locations (in the R-Z plane and in (x,y,z)).
-Pickup coils that measure only toroidally are coloured red.
-"""
+from __future__ import (division, unicode_literals, print_function, absolute_import)
 
 import math
 import numpy as np
-
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 from ._geometryUtils import length_poloidal_projection
 from ._geometryUtils import vector_to_bR_bZ_bPhi
 from ._geometryUtils import unit_vector_to_poloidal_angle
 from ._geometryUtils import cylindrical_cartesian
 
-class GeomPickup():
+from builtins import (zip, range, object)
+from future import standard_library
+standard_library.install_aliases()
+
+
+class GeomPickup(object):
+    """
+    Manipulation class for pickup coils.
+
+    Manipulation:
+    The do_manip method will take the pickup coil StructuredData
+    object and look for geometry and orientation information.
+
+    It will then:
+    - Project the length onto the poloidal plane
+    - Calculate the angle of the coils in the poloidal plane
+    - Calculate the fraction in which the coils measure in the R, Z & Phi directions
+
+    Plotting:
+    The plot method will plot the pickup coil locations (in the R-Z plane and in (x,y,z)).
+    Pickup coils that measure only toroidally are coloured red.
+    """
+
     def __init__(self):
         self.pol_type = ""
         pass
@@ -109,6 +113,9 @@ class GeomPickup():
                       If None, then an axis will be created.
         :return:
         """
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import Axes3D
+    
         # Get co-ordiantes
         r_z_to_plot = []
         x_y_z_to_plot = []

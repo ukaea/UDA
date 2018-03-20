@@ -86,7 +86,6 @@ void printServerBlock(SERVER_BLOCK str)
 
 void printDataBlock(DATA_BLOCK str)
 {
-    int i, j, k;
     UDA_LOG(UDA_LOG_DEBUG, "\nData Block Contents\n\n");
     UDA_LOG(UDA_LOG_DEBUG, "handle       : %d\n", str.handle);
     UDA_LOG(UDA_LOG_DEBUG, "error code   : %d\n", str.errcode);
@@ -112,32 +111,52 @@ void printDataBlock(DATA_BLOCK str)
             break;
     }
 
-    k = 10;
-    if (str.data_n < 10) k = str.data_n;
+    int k = 10;
+    if (str.data_n < 10) {
+        k = str.data_n;
+    }
 
     if (str.data_type == UDA_TYPE_FLOAT) {
-        for (j = 0; j < k; j++)UDA_LOG(UDA_LOG_DEBUG, "data[%d]: %f\n", j, *((float*) str.data + j));
+        int j;
+        for (j = 0; j < k; j++) {
+            UDA_LOG(UDA_LOG_DEBUG, "data[%d]: %f\n", j, *((float*)str.data + j));
+        }
     }
     if (str.data_type == UDA_TYPE_DOUBLE) {
-        for (j = 0; j < k; j++)UDA_LOG(UDA_LOG_DEBUG, "data[%d]: %f\n", j, *((double*) str.data + j));
+        int j;
+        for (j = 0; j < k; j++) {
+            UDA_LOG(UDA_LOG_DEBUG, "data[%d]: %f\n", j, *((double*)str.data + j));
+        }
     }
 
     if (str.error_type == UDA_TYPE_FLOAT && str.errhi != NULL) {
-        for (j = 0; j < k; j++)UDA_LOG(UDA_LOG_DEBUG, "errhi[%d]: %f\n", j, *((float*) str.errhi + j));
+        int j;
+        for (j = 0; j < k; j++) {
+            UDA_LOG(UDA_LOG_DEBUG, "errhi[%d]: %f\n", j, *((float*)str.errhi + j));
+        }
     }
 
     if (str.error_type == UDA_TYPE_FLOAT && str.errlo != NULL && str.errasymmetry) {
-        for (j = 0; j < k; j++)UDA_LOG(UDA_LOG_DEBUG, "errlo[%d]: %f\n", j, *((float*) str.errlo + j));
+        int j;
+        for (j = 0; j < k; j++) {
+            UDA_LOG(UDA_LOG_DEBUG, "errlo[%d]: %f\n", j, *((float*)str.errlo + j));
+        }
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "error model : %d\n", str.error_model);
     UDA_LOG(UDA_LOG_DEBUG, "asymmetry   : %d\n", str.errasymmetry);
     UDA_LOG(UDA_LOG_DEBUG, "error model no. params : %d\n", str.error_param_n);
-    for (i = 0; i < str.error_param_n; i++)UDA_LOG(UDA_LOG_DEBUG, "param[%d] = %f \n", i, str.errparams[i]);
+
+    int i;
+    for (i = 0; i < str.error_param_n; i++) {
+        UDA_LOG(UDA_LOG_DEBUG, "param[%d] = %f \n", i, str.errparams[i]);
+    }
+    
     UDA_LOG(UDA_LOG_DEBUG, "data_units  : %s\n", str.data_units);
     UDA_LOG(UDA_LOG_DEBUG, "data_label  : %s\n", str.data_label);
     UDA_LOG(UDA_LOG_DEBUG, "data_desc   : %s\n", str.data_desc);
-    for (i = 0; i < str.rank; i++) {
+
+    for (i = 0; i < (int)str.rank; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "\nDimension #%d Contents\n\n", i);
         UDA_LOG(UDA_LOG_DEBUG, "data_type    : %d\n", str.dims[i].data_type);
         UDA_LOG(UDA_LOG_DEBUG, "error_type   : %d\n", str.dims[i].error_type);
@@ -146,10 +165,16 @@ void printDataBlock(DATA_BLOCK str)
         UDA_LOG(UDA_LOG_DEBUG, "error model  : %d\n", str.dims[i].error_model);
         UDA_LOG(UDA_LOG_DEBUG, "asymmetry    : %d\n", str.dims[i].errasymmetry);
         UDA_LOG(UDA_LOG_DEBUG, "error model no. params : %d\n", str.dims[i].error_param_n);
-        for (j = 0; j < str.dims[i].error_param_n; j++)UDA_LOG(UDA_LOG_DEBUG, "param[%d] = %f \n", j, str.dims[i].errparams[j]);
+
+        int j;
+        for (j = 0; j < str.dims[i].error_param_n; j++) {
+            UDA_LOG(UDA_LOG_DEBUG, "param[%d] = %f \n", j, str.dims[i].errparams[j]);
+        }
+        
         UDA_LOG(UDA_LOG_DEBUG, "data_number : %d\n", str.dims[i].dim_n);
         UDA_LOG(UDA_LOG_DEBUG, "compressed? : %d\n", str.dims[i].compressed);
         UDA_LOG(UDA_LOG_DEBUG, "method      : %d\n", str.dims[i].method);
+        
         if (str.dims[i].method == 0) {
             if (str.dims[i].compressed) {
                 UDA_LOG(UDA_LOG_DEBUG, "starting val: %f\n", str.dims[i].dim0);

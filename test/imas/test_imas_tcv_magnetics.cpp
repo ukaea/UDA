@@ -592,7 +592,7 @@ TEST_CASE( "Test flux_loop name", "[IMAS][TCV][FLUX]" )
     REQUIRE( str != nullptr );
     REQUIRE( !str->isNull() );
 
-    REQUIRE( str->str().empty() );
+    REQUIRE( str->str() == "001" );
 }
 
 TEST_CASE( "Test flux_loop identifier", "[IMAS][TCV][FLUX]" )

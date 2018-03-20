@@ -164,8 +164,10 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     if (data_block->rank > 0) {    // Check if there are Dimensional Data to Receive
 
-                        int i;
-                        for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+                        unsigned int i;
+                        for (i = 0; i < data_block->rank; i++) {
+                            initDimBlock(&data_block->dims[i]);
+                        }
 
                         if (!xdr_data_dim1(xdrs, data_block)) {
                             err = PROTOCOL_ERROR_63;
@@ -255,7 +257,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         // Check client/server understands new data types
 
                         if (protocolVersion < 3) {
-                            int i;
+                            unsigned int i;
                             for (i = 0; i < data_block->rank; i++) {
                                 dim = &data_block->dims[i];
                                 if (protocolVersionTypeTest(protocolVersion, dim->data_type) ||
@@ -266,7 +268,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             }
                         }
 
-                        int i;
+                        unsigned int i;
                         for (i = 0; i < data_block->rank; i++) {
                             compressDim(&(data_block->dims[i]));        // Minimise Data Transfer if Regular
                         }
@@ -335,7 +337,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     UDA_LOG(UDA_LOG_DEBUG, "receive: putDataBlockList Count: %d\n", blockCount);
 
-                    int i;
+                    unsigned int i;
                     for (i = 0; i < blockCount; i++) {        // Fetch multiple put blocks
 
                         initIdamPutDataBlock(&putData);

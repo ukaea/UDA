@@ -1,7 +1,10 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+#include "test_helpers.h"
 
 #include <uda.h>
+
+using uda::test::format;
 
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)
@@ -15,10 +18,44 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
 
     std::vector<std::string> tests;
 
+    for (int i = 1; i <= 36; ++i) {
+        tests.emplace_back(format("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/%d/identifier', type=string, rank=0, shot=84600, )", i));
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/Shape_of', type=int, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/1/r', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/1/r_error_upper', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/1/r_error_lower', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/1/r_error_index', type=int, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/1/z', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/1/z_error_upper', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/1/z_error_lower', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/1/z_error_index', type=int, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/1/phi', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/1/phi_error_upper', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/1/phi_error_lower', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/1/phi_error_index', type=int, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/2/r', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/2/r_error_upper', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/2/r_error_lower', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/2/r_error_index', type=int, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/2/z', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/2/z_error_upper', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/2/z_error_lower', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/2/z_error_index', type=int, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/2/phi', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/2/phi_error_upper', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/2/phi_error_lower', type=double, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/2/phi_error_index', type=int, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/flux/data', type=double, rank=1, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/flux/data_error_upper', type=double, rank=1, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/flux/data_error_lower', type=double, rank=1, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/flux/data_error_index', type=int, rank=0, shot=84600, )");
+        tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/flux/time', type=double, rank=1, shot=84600, )");
+    }
+
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='ids_properties/comment', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='ids_properties/homogeneous_time', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/Shape_of', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/position/1/r', type=double, rank=0, shot=84600, )");
@@ -50,7 +87,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/1/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/2/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/2/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/2/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/2/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/2/position/1/r', type=double, rank=0, shot=84600, )");
@@ -82,7 +119,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/2/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/2/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/2/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/3/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/3/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/3/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/3/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/3/position/1/r', type=double, rank=0, shot=84600, )");
@@ -114,7 +151,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/3/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/3/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/3/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/4/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/4/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/4/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/4/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/4/position/1/r', type=double, rank=0, shot=84600, )");
@@ -146,7 +183,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/4/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/4/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/4/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/5/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/5/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/5/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/5/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/5/position/1/r', type=double, rank=0, shot=84600, )");
@@ -178,7 +215,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/5/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/5/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/5/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/6/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/6/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/6/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/6/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/6/position/1/r', type=double, rank=0, shot=84600, )");
@@ -210,7 +247,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/6/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/6/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/6/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/7/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/7/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/7/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/7/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/7/position/1/r', type=double, rank=0, shot=84600, )");
@@ -242,7 +279,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/7/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/7/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/7/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/8/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/8/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/8/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/8/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/8/position/1/r', type=double, rank=0, shot=84600, )");
@@ -274,7 +311,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/8/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/8/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/8/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/9/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/9/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/9/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/9/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/9/position/1/r', type=double, rank=0, shot=84600, )");
@@ -306,7 +343,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/9/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/9/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/9/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/10/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/10/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/10/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/10/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/10/position/1/r', type=double, rank=0, shot=84600, )");
@@ -338,7 +375,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/10/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/10/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/10/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/11/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/11/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/11/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/11/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/11/position/1/r', type=double, rank=0, shot=84600, )");
@@ -370,7 +407,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/11/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/11/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/11/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/12/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/12/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/12/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/12/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/12/position/1/r', type=double, rank=0, shot=84600, )");
@@ -402,7 +439,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/12/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/12/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/12/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/13/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/13/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/13/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/13/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/13/position/1/r', type=double, rank=0, shot=84600, )");
@@ -434,7 +471,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/13/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/13/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/13/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/14/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/14/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/14/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/14/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/14/position/1/r', type=double, rank=0, shot=84600, )");
@@ -466,7 +503,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/14/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/14/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/14/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/15/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/15/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/15/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/15/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/15/position/1/r', type=double, rank=0, shot=84600, )");
@@ -498,7 +535,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/15/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/15/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/15/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/16/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/16/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/16/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/16/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/16/position/1/r', type=double, rank=0, shot=84600, )");
@@ -530,7 +567,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/16/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/16/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/16/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/17/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/17/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/17/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/17/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/17/position/1/r', type=double, rank=0, shot=84600, )");
@@ -562,7 +599,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/17/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/17/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/17/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/18/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/18/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/18/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/18/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/18/position/1/r', type=double, rank=0, shot=84600, )");
@@ -594,7 +631,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/18/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/18/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/18/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/19/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/19/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/19/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/19/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/19/position/1/r', type=double, rank=0, shot=84600, )");
@@ -626,7 +663,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/19/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/19/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/19/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/20/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/20/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/20/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/20/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/20/position/1/r', type=double, rank=0, shot=84600, )");
@@ -658,7 +695,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/20/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/20/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/20/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/21/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/21/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/21/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/21/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/21/position/1/r', type=double, rank=0, shot=84600, )");
@@ -690,7 +727,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/21/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/21/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/21/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/22/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/22/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/22/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/22/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/22/position/1/r', type=double, rank=0, shot=84600, )");
@@ -722,7 +759,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/22/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/22/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/22/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/23/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/23/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/23/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/23/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/23/position/1/r', type=double, rank=0, shot=84600, )");
@@ -754,7 +791,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/23/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/23/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/23/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/24/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/24/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/24/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/24/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/24/position/1/r', type=double, rank=0, shot=84600, )");
@@ -786,7 +823,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/24/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/24/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/24/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/25/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/25/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/25/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/25/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/25/position/1/r', type=double, rank=0, shot=84600, )");
@@ -818,7 +855,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/25/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/25/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/25/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/26/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/26/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/26/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/26/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/26/position/1/r', type=double, rank=0, shot=84600, )");
@@ -850,7 +887,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/26/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/26/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/26/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/27/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/27/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/27/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/27/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/27/position/1/r', type=double, rank=0, shot=84600, )");
@@ -882,7 +919,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/27/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/27/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/27/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/28/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/28/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/28/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/28/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/28/position/1/r', type=double, rank=0, shot=84600, )");
@@ -914,7 +951,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/28/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/28/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/28/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/29/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/29/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/29/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/29/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/29/position/1/r', type=double, rank=0, shot=84600, )");
@@ -946,7 +983,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/29/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/29/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/29/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/30/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/30/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/30/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/30/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/30/position/1/r', type=double, rank=0, shot=84600, )");
@@ -978,7 +1015,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/30/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/30/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/30/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/31/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/31/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/31/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/31/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/31/position/1/r', type=double, rank=0, shot=84600, )");
@@ -1010,7 +1047,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/31/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/31/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/31/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/32/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/32/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/32/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/32/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/32/position/1/r', type=double, rank=0, shot=84600, )");
@@ -1042,7 +1079,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/32/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/32/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/32/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/33/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/33/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/33/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/33/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/33/position/1/r', type=double, rank=0, shot=84600, )");
@@ -1074,7 +1111,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/33/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/33/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/33/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/34/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/34/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/34/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/34/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/34/position/1/r', type=double, rank=0, shot=84600, )");
@@ -1106,7 +1143,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/34/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/34/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/34/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/35/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/35/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/35/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/35/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/35/position/1/r', type=double, rank=0, shot=84600, )");
@@ -1138,7 +1175,7 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/35/flux/data_error_lower', type=double, rank=1, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/35/flux/data_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/35/flux/time', type=double, rank=1, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/name', type=string, rank=0, shot=84600, )");
+//    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/name', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/identifier', type=string, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/position/Shape_of', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/position/1/r', type=double, rank=0, shot=84600, )");
@@ -1149,10 +1186,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/position/1/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/position/1/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/position/1/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/position/1/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/position/1/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/position/1/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/position/1/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/position/2/r', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/position/2/r_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='flux_loop/36/position/2/r_error_lower', type=double, rank=0, shot=84600, )");
@@ -1181,10 +1214,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/1/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/1/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/1/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/1/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/1/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/1/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/1/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/1/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/1/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/1/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1217,10 +1246,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/2/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/2/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/2/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/2/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/2/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/2/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/2/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/2/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/2/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/2/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1253,10 +1278,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/3/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/3/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/3/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/3/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/3/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/3/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/3/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/3/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/3/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/3/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1289,10 +1310,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/4/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/4/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/4/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/4/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/4/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/4/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/4/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/4/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/4/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/4/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1325,10 +1342,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/5/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/5/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/5/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/5/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/5/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/5/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/5/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/5/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/5/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/5/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1361,10 +1374,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/6/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/6/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/6/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/6/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/6/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/6/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/6/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/6/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/6/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/6/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1397,10 +1406,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/7/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/7/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/7/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/7/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/7/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/7/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/7/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/7/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/7/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/7/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1433,10 +1438,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/8/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/8/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/8/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/8/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/8/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/8/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/8/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/8/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/8/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/8/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1469,10 +1470,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/9/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/9/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/9/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/9/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/9/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/9/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/9/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/9/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/9/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/9/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1505,10 +1502,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/10/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/10/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/10/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/10/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/10/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/10/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/10/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/10/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/10/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/10/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1541,10 +1534,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/11/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/11/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/11/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/11/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/11/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/11/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/11/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/11/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/11/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/11/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1577,10 +1566,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/12/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/12/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/12/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/12/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/12/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/12/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/12/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/12/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/12/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/12/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1613,10 +1598,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/13/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/13/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/13/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/13/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/13/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/13/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/13/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/13/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/13/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/13/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1649,10 +1630,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/14/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/14/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/14/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/14/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/14/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/14/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/14/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/14/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/14/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/14/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1685,10 +1662,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/15/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/15/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/15/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/15/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/15/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/15/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/15/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/15/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/15/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/15/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1721,10 +1694,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/16/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/16/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/16/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/16/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/16/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/16/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/16/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/16/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/16/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/16/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1757,10 +1726,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/17/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/17/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/17/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/17/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/17/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/17/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/17/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/17/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/17/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/17/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1793,10 +1758,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/18/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/18/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/18/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/18/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/18/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/18/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/18/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/18/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/18/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/18/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1829,10 +1790,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/19/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/19/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/19/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/19/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/19/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/19/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/19/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/19/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/19/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/19/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1865,10 +1822,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/20/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/20/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/20/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/20/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/20/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/20/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/20/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/20/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/20/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/20/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1901,10 +1854,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/21/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/21/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/21/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/21/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/21/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/21/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/21/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/21/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/21/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/21/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1937,10 +1886,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/22/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/22/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/22/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/22/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/22/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/22/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/22/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/22/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/22/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/22/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -1973,10 +1918,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/23/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/23/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/23/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/23/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/23/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/23/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/23/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/23/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/23/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/23/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2009,10 +1950,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/24/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/24/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/24/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/24/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/24/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/24/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/24/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/24/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/24/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/24/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2045,10 +1982,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/25/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/25/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/25/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/25/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/25/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/25/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/25/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/25/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/25/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/25/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2081,10 +2014,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/26/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/26/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/26/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/26/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/26/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/26/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/26/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/26/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/26/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/26/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2117,10 +2046,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/27/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/27/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/27/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/27/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/27/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/27/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/27/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/27/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/27/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/27/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2153,10 +2078,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/28/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/28/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/28/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/28/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/28/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/28/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/28/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/28/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/28/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/28/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2189,10 +2110,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/29/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/29/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/29/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/29/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/29/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/29/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/29/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/29/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/29/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/29/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2225,10 +2142,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/30/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/30/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/30/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/30/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/30/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/30/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/30/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/30/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/30/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/30/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2261,10 +2174,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/31/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/31/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/31/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/31/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/31/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/31/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/31/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/31/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/31/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/31/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2297,10 +2206,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/32/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/32/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/32/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/32/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/32/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/32/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/32/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/32/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/32/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/32/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2333,10 +2238,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/33/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/33/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/33/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/33/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/33/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/33/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/33/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/33/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/33/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/33/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2369,10 +2270,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/34/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/34/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/34/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/34/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/34/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/34/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/34/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/34/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/34/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/34/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2405,10 +2302,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/35/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/35/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/35/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/35/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/35/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/35/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/35/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/35/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/35/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/35/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2441,10 +2334,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/36/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/36/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/36/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/36/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/36/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/36/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/36/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/36/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/36/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/36/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2477,10 +2366,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/37/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/37/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/37/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/37/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/37/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/37/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/37/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/37/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/37/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/37/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2513,10 +2398,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/38/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/38/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/38/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/38/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/38/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/38/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/38/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/38/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/38/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/38/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2549,10 +2430,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/39/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/39/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/39/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/39/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/39/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/39/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/39/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/39/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/39/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/39/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2585,10 +2462,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/40/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/40/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/40/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/40/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/40/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/40/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/40/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/40/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/40/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/40/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2621,10 +2494,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/41/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/41/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/41/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/41/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/41/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/41/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/41/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/41/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/41/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/41/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2657,10 +2526,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/42/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/42/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/42/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/42/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/42/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/42/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/42/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/42/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/42/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/42/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2693,10 +2558,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/43/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/43/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/43/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/43/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/43/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/43/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/43/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/43/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/43/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/43/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2729,10 +2590,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/44/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/44/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/44/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/44/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/44/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/44/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/44/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/44/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/44/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/44/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2765,10 +2622,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/45/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/45/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/45/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/45/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/45/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/45/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/45/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/45/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/45/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/45/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2801,10 +2654,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/46/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/46/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/46/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/46/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/46/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/46/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/46/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/46/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/46/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/46/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2837,10 +2686,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/47/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/47/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/47/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/47/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/47/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/47/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/47/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/47/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/47/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/47/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2873,10 +2718,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/48/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/48/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/48/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/48/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/48/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/48/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/48/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/48/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/48/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/48/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2909,10 +2750,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/49/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/49/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/49/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/49/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/49/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/49/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/49/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/49/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/49/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/49/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2945,10 +2782,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/50/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/50/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/50/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/50/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/50/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/50/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/50/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/50/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/50/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/50/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -2981,10 +2814,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/51/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/51/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/51/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/51/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/51/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/51/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/51/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/51/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/51/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/51/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3017,10 +2846,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/52/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/52/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/52/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/52/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/52/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/52/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/52/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/52/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/52/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/52/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3053,10 +2878,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/53/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/53/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/53/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/53/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/53/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/53/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/53/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/53/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/53/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/53/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3089,10 +2910,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/54/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/54/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/54/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/54/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/54/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/54/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/54/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/54/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/54/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/54/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3125,10 +2942,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/55/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/55/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/55/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/55/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/55/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/55/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/55/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/55/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/55/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/55/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3161,10 +2974,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/56/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/56/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/56/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/56/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/56/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/56/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/56/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/56/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/56/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/56/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3197,10 +3006,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/57/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/57/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/57/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/57/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/57/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/57/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/57/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/57/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/57/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/57/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3233,10 +3038,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/58/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/58/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/58/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/58/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/58/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/58/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/58/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/58/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/58/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/58/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3269,10 +3070,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/59/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/59/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/59/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/59/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/59/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/59/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/59/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/59/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/59/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/59/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3305,10 +3102,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/60/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/60/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/60/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/60/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/60/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/60/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/60/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/60/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/60/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/60/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3341,10 +3134,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/61/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/61/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/61/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/61/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/61/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/61/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/61/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/61/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/61/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/61/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3377,10 +3166,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/62/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/62/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/62/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/62/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/62/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/62/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/62/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/62/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/62/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/62/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3413,10 +3198,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/63/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/63/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/63/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/63/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/63/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/63/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/63/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/63/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/63/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/63/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3449,10 +3230,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/64/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/64/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/64/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/64/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/64/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/64/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/64/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/64/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/64/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/64/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3485,10 +3262,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/65/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/65/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/65/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/65/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/65/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/65/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/65/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/65/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/65/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/65/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3521,10 +3294,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/66/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/66/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/66/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/66/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/66/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/66/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/66/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/66/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/66/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/66/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3557,10 +3326,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/67/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/67/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/67/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/67/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/67/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/67/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/67/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/67/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/67/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/67/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3593,10 +3358,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/68/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/68/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/68/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/68/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/68/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/68/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/68/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/68/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/68/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/68/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3629,10 +3390,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/69/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/69/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/69/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/69/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/69/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/69/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/69/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/69/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/69/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/69/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3665,10 +3422,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/70/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/70/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/70/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/70/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/70/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/70/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/70/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/70/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/70/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/70/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");
@@ -3701,10 +3454,6 @@ TEST_CASE( "Test all IDS magnetics", "[IMAS][JET]" )
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/71/position/z_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/71/position/z_error_lower', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/71/position/z_error_index', type=int, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/71/position/phi', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/71/position/phi_error_upper', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/71/position/phi_error_lower', type=double, rank=0, shot=84600, )");
-    tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/71/position/phi_error_index', type=int, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/71/poloidal_angle', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/71/poloidal_angle_error_upper', type=double, rank=0, shot=84600, )");
     tests.emplace_back("imas::get(expName='JET', idx=0, group='magnetics', variable='bpol_probe/71/poloidal_angle_error_lower', type=double, rank=0, shot=84600, )");

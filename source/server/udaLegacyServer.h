@@ -9,8 +9,7 @@
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
 #include <clientserver/socketStructs.h>
-
-#include "pluginStructs.h"
+#include <plugins/pluginStructs.h>
 
 int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
                      USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list);

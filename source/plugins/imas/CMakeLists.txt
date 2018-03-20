@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 find_package( LibXml2 QUIET )
 find_package( MDSplus QUIET )
 find_package( HDF5 COMPONENTS C HL QUIET )
@@ -39,7 +37,6 @@ uda_plugin(
   EXAMPLE "IMAS::put()"
   LIBNAME imas_plugin
   SOURCES
-    #imas.c
     imas_common.c
     imas_mds.c
     imas_hdf5.c
@@ -55,9 +52,9 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${MDSPLUS_LIBRARIES}
+    MdsObjectsCppShr
     ${HDF5_LIBRARIES}
     ${HDF5_HL_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     client-static
-    pthread
 )

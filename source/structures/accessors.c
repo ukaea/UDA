@@ -592,7 +592,9 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
 
         // Write new data array to Original Tree Nodes
 
-        for (i = 0; i < vlen->len; i++) tree->children[i]->data = newnew + i * size;
+        for (i = 0; i < vlen->len; i++) {
+            tree->children[i]->data = (char*)newnew + i * size;
+        }
 
         resetBranches = vlen->len;  // Flag requirement to add extra tree nodes
 
@@ -620,11 +622,11 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
         // Update All new Child Nodes with array element addresses
 
         for (i = resetBranches; i < count; i++) {
-            memcpy(newnew + i * size, newnew, size);   // write extra array items: use the first array element
+            memcpy((char*)newnew + i * size, newnew, size);   // write extra array items: use the first array element
         }
 
         for (i = resetBranches; i < count; i++) {
-            tree->children[i]->data = newnew + i * size;
+            tree->children[i]->data = (char*)newnew + i * size;
         }
 
     }

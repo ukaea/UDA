@@ -101,10 +101,10 @@ pro createdb
    crud = 'create' ; 'update'  ; 'delete' 
   
 ;----------------------------------------------------------------------------------------------------------------------------------
-; Location of the XML file
+; Name of the XML file
 
-   ;xmlfile = '/home/dgm/ITER/efit++/MAST/magnetics/idam.xml'		; MAST
-   xmlfile = '/home/dgm/IDAM/test/source/plugins/efitxml/jet.xml'	; JET
+   ;xmlfile = 'idam.xml'		; MAST
+   xmlfile = 'jet.xml'	; JET
 
 ;----------------------------------------------------------------------------------------------------------------------------------
 ; Begin the SQL transaction block

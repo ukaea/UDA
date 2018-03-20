@@ -367,12 +367,20 @@ Notes: there are three pathways depending on the request pattern
         sprintf(source, "%s::%d", data_source->device_name, data_source->exp_number);
 
         if (data_source->server[0] != '\0') {
-            char* p = NULL;
-            if ((p = strstr(data_source->server, ":")) == NULL) {
-                // look for a port number in the server name
-                p = strstr(data_source->server, " ");
-            }
-            if (p != NULL) {
+            char* p = NULL, *s = NULL;
+            if((s = strstr(data_source->server, "SSL://")) != NULL){
+                 if ((p = strstr(s+6, ":")) == NULL) {
+                    // look for a port number in the server name
+                    p = strstr(s+6, " ");
+                }
+             } else {
+                if ((p = strstr(data_source->server, ":")) == NULL) {
+                    // look for a port number in the server name
+                    p = strstr(data_source->server, " ");
+                }
+             } 
+          
+             if (p != NULL) {
                 p[0] = '\0';
                 if (strcasecmp(oldServerHost, data_source->server) != 0) {
                     strcpy(oldServerHost, data_source->server);
@@ -413,19 +421,38 @@ Notes: there are three pathways depending on the request pattern
         // Device redirect or server protocol
 
         strcpy(request_block->server, request_block->path);        // Extract the Server Name and Port
-        char* p = NULL;
-        if ((p = strchr(request_block->server, '/')) != NULL) {
-            // Isolate the Server from the source server:port/source
-            p[0] = '\0';                            // Break the String (work)
-            strcpy(source, p + 1);                // Extract the Source URL Argument
+        char* p = NULL, *s=NULL;
+        
+        if((s = strstr(data_source->server, "SSL://")) != NULL){
+            if ((p = strchr(s+6, '/')) != NULL) {
+                // Isolate the Server from the source server:port/source
+                p[0] = '\0';                            // Break the String (work)
+                strcpy(source, p + 1);                // Extract the Source URL Argument
+            } else {
+                THROW_ERROR(999, "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
+            }
         } else {
-            THROW_ERROR(999, "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
+            if ((p = strchr(request_block->server, '/')) != NULL) {
+                // Isolate the Server from the source server:port/source
+                p[0] = '\0';                            // Break the String (work)
+                strcpy(source, p + 1);                // Extract the Source URL Argument
+            } else {
+                THROW_ERROR(999, "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
+            }
         }
 
-        if ((p = strstr(request_block->server, ":")) == NULL) {
-            // look for a port number in the server name
-            p = strstr(request_block->server, " ");
+        if((s = strstr(request_block->server, "SSL://")) != NULL){
+            if ((p = strstr(s+6, ":")) == NULL) {
+                // look for a port number in the server name skipping SSL:// prefix
+                p = strstr(s+6, " ");
+            }
+        } else {
+            if ((p = strstr(request_block->server, ":")) == NULL) {
+                // look for a port number in the server name skipping SSL:// prefix
+                p = strstr(request_block->server, " ");
+            }
         }
+
         if (p != NULL) {
             p[0] = '\0';
             if (strcasecmp(oldServerHost, request_block->server) != 0) {
@@ -507,10 +534,18 @@ Notes: there are three pathways depending on the request pattern
 
         strcpy(source, request_block->file);                // The Source URL Argument
 
-        char* p = NULL;
-        if ((p = strstr(request_block->server, ":")) == NULL) {
-            // look for a port number in the server name
-            p = strstr(request_block->server, " ");
+        char* p = NULL, *s=NULL;
+
+        if((s = strstr(request_block->server, "SSL://")) != NULL){
+            if ((p = strstr(s+6, ":")) == NULL) {
+                // look for a port number in the server name
+                p = strstr(s+6, " ");
+            }
+        } else {
+            if ((p = strstr(request_block->server, ":")) == NULL) {
+                // look for a port number in the server name
+                p = strstr(request_block->server, " ");
+            }
         }
 
         if (p != NULL) {                            // look for a port number in the server name

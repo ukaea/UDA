@@ -25,42 +25,71 @@ include_directories(
   ${Boost_INCLUDE_DIR}
 )
 
-add_definitions( -D__USE_XOPEN2K8 )
+if( ITER_CI )
+  add_definitions( -D__USE_XOPEN2K8 )
+endif()
 
 include_directories( SYSTEM "${Boost_INCLUDE_DIR}" )
 
 add_library( cpp-objects OBJECT ${SRC_FILES} )
 
-add_library( ${LIB_NAME} SHARED $<TARGET_OBJECTS:cpp-objects> )
-target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-shared ${Boost_LIBRARIES} )
+set( CLIENT_OBJS
+  $<TARGET_OBJECTS:client-objects>
+  $<TARGET_OBJECTS:clientserver-client-objects>
+  $<TARGET_OBJECTS:cache-objects>
+  $<TARGET_OBJECTS:logging-client-objects>
+  $<TARGET_OBJECTS:structures-client-objects>
+  $<TARGET_OBJECTS:authentication-client-objects>
+)
+
+add_library( ${LIB_NAME} STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
+target_link_libraries( ${LIB_NAME} LINK_PRIVATE ${Boost_LIBRARIES} )
+if( WIN32 )
+  target_link_libraries( ${LIB_NAME} LINK_PRIVATE xdr )
+endif()
 
 if( NOT CLIENT_ONLY )
   add_library( fatcpp-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( fatcpp-objects PRIVATE -DFATCLIENT )
-  add_library( fat${LIB_NAME} SHARED $<TARGET_OBJECTS:fatcpp-objects> )
-  target_link_libraries( fat${LIB_NAME} LINK_PRIVATE fatclient-shared ${Boost_LIBRARIES} )
+
+  set( FATCLIENT_OBJS
+    $<TARGET_OBJECTS:fatclient-objects>
+    $<TARGET_OBJECTS:fatserver-objects>
+    $<TARGET_OBJECTS:fatclientserver-objects>
+    $<TARGET_OBJECTS:structures-server-objects>
+    $<TARGET_OBJECTS:fatmodules-objects>
+    $<TARGET_OBJECTS:cache-objects>
+    $<TARGET_OBJECTS:logging-server-objects>
+    $<TARGET_OBJECTS:plugins-objects>
+  )
+
+  add_library( fat${LIB_NAME} STATIC $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
+  target_link_libraries( fat${LIB_NAME} LINK_PRIVATE ${Boost_LIBRARIES} )
+  if( WIN32 )
+    target_link_libraries( fat${LIB_NAME} LINK_PRIVATE xdr )
+  endif()
 endif()
 
 set_target_properties( ${LIB_NAME}
   PROPERTIES
     VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
+)
 
 install( TARGETS ${LIB_NAME}
   DESTINATION lib
-  )
+)
 
 if( NOT CLIENT_ONLY )
   set_target_properties( fat${LIB_NAME}
     PROPERTIES
     VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     SOVERSION ${PROJECT_VERSION_MAJOR}
-    )
+  )
 
   install( TARGETS fat${LIB_NAME}
     DESTINATION lib
-    )
+  )
 endif()
 
 set( INSTALL_FILES
@@ -78,4 +107,5 @@ set( INSTALL_FILES
 )
 
 install( FILES ${INSTALL_FILES}
-  DESTINATION include/uda/c++ )
+  DESTINATION include/uda/c++
+)

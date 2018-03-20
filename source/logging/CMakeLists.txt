@@ -11,4 +11,13 @@ endif()
 include_directories( ${CMAKE_SOURCE_DIR}/source )
 
 add_library( logging-client-objects OBJECT ${SRC_FILES} )
-add_library( logging-server-objects OBJECT accessLog.c ${SRC_FILES} )
+
+if( NOT CLIENT_ONLY )
+  add_library( logging-server-objects OBJECT accessLog.c ${SRC_FILES} )
+endif()
+
+file( GLOB HEADER_FILES "*.h" )
+
+install( FILES ${HEADER_FILES}
+  DESTINATION include/uda/logging
+)

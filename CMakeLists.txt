@@ -23,7 +23,8 @@ include( GetGitRevisionDescription )
 git_describe( GIT_TAG --tags )
 
 if( "${GIT_TAG}" MATCHES "^.*NOTFOUND$" )
-  message( FATAL_ERROR "Failed to get git revision: ${GIT_TAG}" )
+  message( "Failed to get git revision: ${GIT_TAG}" )
+  set( GIT_TAG "0.0.0" )
 endif()
 
 # Strip off the SHA1 tag element if it exists
@@ -62,15 +63,20 @@ endif()
 
 if( APPLE )
   set( CMAKE_MACOSX_RPATH ON )
-  set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup" )
+  set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Qunused-arguments -undefined dynamic_lookup" )
+  set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Qunused-arguments" )
 endif( APPLE )
 
-
-if( NOT WIN32 )
-  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC" )
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11" )
+if( NOT WIN32 OR MINGW )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -pthread" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11 -pthread" )
+  
+  if( GOPTION )
+    message( "Compiling with g option to generate and embed debug information" )
+    set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g" )
+  endif() 
 endif()
-
 
 add_definitions(
   -DOSTYPE=${CMAKE_SYSTEM_NAME}
@@ -78,9 +84,11 @@ add_definitions(
 
 if( WIN32 )
   add_definitions( -D_CRT_SECURE_NO_WARNINGS )
+  include_directories( ${CMAKE_SOURCE_DIR}/extlib/include/rpc )
+  link_directories( ${CMAKE_SOURCE_DIR}/extlib/lib )
 endif()
 
-if( NOT APPLE AND NOT WIN32 )
+if( ITER_CI )
   add_definitions(
     -D_XOPEN_SOURCE=700
     -D_POSIX_C_SOURCE=200809L
@@ -93,16 +101,21 @@ endif()
 option( CLIENT_ONLY "Only build UDA client" OFF )
 option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )
 option( NO_MODULES "Don't build any UDA server modules" OFF )
+option( FAT_IDL "Build IDL wrapper using fatclient" OFF )
 
 if( SSLAUTHENTICATION )
-   message( "Including SSL/RTL X509 User Authentication" )
-   add_definitions( -DSSLAUTHENTICATION )
+  message( "Including SSL/RTL X509 User Authentication" )
+  add_definitions( -DSSLAUTHENTICATION )
+endif() 
+
+if( NOTGENERICENABLED )
+  message( "No Generic name mapping service using the internal legacy Postgres plugin" )
+  add_definitions( -DNOTGENERICENABLED )
 endif()   
 
 ########################################################################################################################
 # Source directories
 
-#add_subdirectory( extlib )
 add_subdirectory( source )
 if( NOT CLIENT_ONLY )
   add_subdirectory( test )

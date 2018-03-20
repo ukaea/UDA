@@ -1,5 +1,12 @@
-import numpy as np
+from __future__ import (division, unicode_literals, print_function, absolute_import)
+
 from .c_uda import UDAException
+
+import numpy as np
+
+from builtins import range
+from future import standard_library
+standard_library.install_aliases()
 
 
 def cdata_scalar_to_value(scalar):
@@ -64,7 +71,7 @@ def cdata_vector_to_value(vector):
         return np.array(vector.uldata(), dtype=vector.type())
     elif vector.type() == 'string':
         vec = vector.string()
-        return [vec[i] for i in range(len(vec))] # converting SWIG vector<char*> to list of strings
+        return [vec[i] for i in range(len(vec))]  # converting SWIG vector<char*> to list of strings
     else:
         raise UDAException("Unknown data type " + vector.type())
 

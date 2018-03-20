@@ -3,7 +3,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <windows.h>
+#include <Windows.h>
+#include <io.h>
 
 /* mkstemp extracted from libc/sysdeps/posix/tempname.c.  Copyright
    (C) 1991-1999, 2000, 2001, 2006 Free Software Foundation, Inc.
@@ -23,7 +24,7 @@ static const char letters[] =
 int
 mkstemp(char *tmpl)
 {
-    int len;
+    size_t len;
     char *XXXXXX;
     static unsigned long long value;
     unsigned long long random_time_bits;
@@ -93,7 +94,7 @@ mkstemp(char *tmpl)
         v /= 62;
         XXXXXX[5] = letters[v % 62];
 
-        fd = open(tmpl, O_RDWR | O_CREAT | O_EXCL, _S_IREAD | _S_IWRITE);
+        fd = _open(tmpl, O_RDWR | O_CREAT | O_EXCL, _S_IREAD | _S_IWRITE);
         if (fd >= 0)
         {
             errno = save_errno;

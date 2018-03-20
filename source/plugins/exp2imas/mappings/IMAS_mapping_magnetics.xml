@@ -4,7 +4,7 @@
   <mapping key="magnetics/ids_properties/homogeneous_time" value="0" type="constant"/>
 
   <mapping key="magnetics/flux_loop/Shape_of" value="//magdiag/flux_loops/setup_floops/position/r/@dim" type="static" index="1"/>
-  <mapping key="magnetics/flux_loop/#/name" value="" type="constant"/>
+  <mapping key="magnetics/flux_loop/#/name" value="//magdiag/flux_loops/setup_floops/name" type="static"/>
   <mapping key="magnetics/flux_loop/#/identifier" value="#" type="constant"/>
   <mapping key="magnetics/flux_loop/#/position/Shape_of" value="//magdiag/flux_loops/setup_floops/npoints" type="static"/>
   <mapping key="magnetics/flux_loop/#/position/#/r" value="//magdiag/flux_loops/setup_floops/position/r" type="static"/>
@@ -62,9 +62,9 @@
   <mapping key="magnetics/method/#/ip/time" value="//magdiag/ip[#]/value/name" type="dynamic"/>
 
   <mapping key="magnetics/method/#/diamagnetic_flux/data" value="//magdiag/diamagflux[#]/value/name" type="dynamic"/>
-  <mapping key="magnetics/method/#/diamagnetic_flux/data_error_index" value="1" type="dynamic"/>
-  <mapping key="magnetics/method/#/diamagnetic_flux/data_error_upper" value="//magdiag/diamagflux[#]/value/name" type="dynamic"/>
-  <mapping key="magnetics/method/#/diamagnetic_flux/data_error_lower" value="//magdiag/diamagflux[#]/value/name" type="dynamic"/>
+  <mapping key="magnetics/method/#/diamagnetic_flux/data_error_index" value="1" type="constant"/>
+  <mapping key="magnetics/method/#/diamagnetic_flux/data_error_upper" value="//magdiag/diamagflux[#]/value/name" type="error"/>
+  <mapping key="magnetics/method/#/diamagnetic_flux/data_error_lower" value="//magdiag/diamagflux[#]/value/name" type="error"/>
   <mapping key="magnetics/method/#/diamagnetic_flux/time" value="//magdiag/diamagflux[#]/value/name" type="dynamic"/>
 
   <mapping key="magnetics/code/output_flag" value="//magdiag/code/output_flag/name" type="dynamic"/>

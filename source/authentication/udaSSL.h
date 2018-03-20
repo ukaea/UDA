@@ -14,6 +14,7 @@
 #include <openssl/crypto.h>
 #include <openssl/x509.h>
 #include <openssl/pem.h>
+#include <openssl/asn1.h>
 
 #define VERIFY_DEPTH	4
 #define X509STRINGSIZE	256

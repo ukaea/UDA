@@ -121,7 +121,30 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     
     bool isXPath = findValue(&idam_plugin_interface->request_block->nameValueList, "XPath");
 
+//----------------------------------------------------------------------------------------
+// Cache file for XPath function
 
+    static unsigned int wasXPath = 0;			// If initialised with XPath then set TRUE
+    static char priorFile[XMLFILEPATHLENGTH] = "";
+    
+    const char* xmlFile = NULL;
+    int isXMLFile = FIND_STRING_VALUE(request_block->nameValueList, xmlFile);
+	
+    if(isXMLFile){
+       const char* dir = getenv("UDA_EFITMAGXML_XMLDIR");
+       char* fullpath = strdup(xmlFile);
+       if (dir != NULL) {
+          fullpath = FormatString("%s/%s", dir, xmlFile);
+       }
+    
+       // Reset if change of XML file  
+       if (fullpath[0] != '\0' && priorFile[0] != '\0' && !STR_IEQUALS(priorFile, fullpath)) {
+	   priorFile[0] = '\0';
+	   isReset = 1;
+       }
+       if(fullpath) free(fullpath); 	 
+   }
+       
 //----------------------------------------------------------------------------------------
 // Heap Housekeeping 
 
@@ -142,9 +165,13 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Free Heap & reset counters
 
-        if(isXPath)
+        if(wasXPath){
+
+           UDA_LOG(UDA_LOG_DEBUG, "reseting XPath\n");
+	
 	   getXPathValue("", "", 1, &err);
-	else
+	   
+	} else
 	   freeEfit(&efit);
 
         init = 0;
@@ -163,28 +190,39 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         initEfit(&efit);
 
+        // Parse the XML - must be provided
+	
         const char* xmlFile = NULL;
         FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, xmlFile);
 	
         const char* dir = getenv("UDA_EFITMAGXML_XMLDIR");
         char* fullpath = strdup(xmlFile);
         if (dir != NULL) {
-            fullpath = FormatString("%s/%s", dir, xmlFile);
+           fullpath = FormatString("%s/%s", dir, xmlFile);
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "loading XML file %s\n", fullpath);
-
-        // Parse the XML if the file has been identified
+        UDA_LOG(UDA_LOG_DEBUG, "Initialising XML file %s\n", fullpath);
+	
+	wasXPath = 0;
 	
 	if(isXPath){
+		   
 	   getXPathValue(fullpath, "", 0, &err);		// Parse the XML and create the XPath context 
+	   
 	   if(err != 0){
-	      THROW_ERROR(err, "EFIT++ Magnetics XML could Not be Parsed");
+	      if(fullpath) free(fullpath);
+	      THROW_ERROR(err, "EFIT++ XML could Not be Parsed");
 	   }
+	   
+	   wasXPath = 1;
+	   strcpy(priorFile, fullpath);
+
 	} else
         if (parseEfitXML(fullpath, &efit) != 0) {
-            THROW_ERROR(999, "EFIT++ Magnetics XML could Not be Parsed");
+            THROW_ERROR(999, "EFIT++ XML could Not be Parsed");
         }
+	
+	if(fullpath) free(fullpath);
 
         init = 1;
         if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
@@ -395,17 +433,20 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
         if (isObjectId) objectId = objectId - 1;
         if (isIndex) index = index - 1;
     }
-
-    
+      
     if(isXPath){
+       
        int err = 0;
        const char* xPath = NULL;
        FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, xPath);
-   
+       
+       const char* xmlFile = NULL;
+       FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, xmlFile);
+	  
        char *value = getXPathValue("", xPath, 0, &err);
-       //if(xPath != NULL) free(xPath);
+       
        if(err != 0){
-          THROW_ERROR(err, "EFIT++ Magnetics XML could Not be Parsed");
+          THROW_ERROR(err, "EFIT++ [1] XML could Not be Parsed");
        }
        UDA_LOG(UDA_LOG_DEBUG, "XPath %s\n", xPath);
        UDA_LOG(UDA_LOG_DEBUG, "Value %s\n", value);
@@ -450,7 +491,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
              }
 	  } else {
 	     err = 999;
-             THROW_ERROR(err, "EFIT++ Magnetics XML could Not be Parsed");
+             THROW_ERROR(err, "EFIT++ [2] XML could Not be Parsed");
           }	     
        } else
        if(!strcasecmp(type, "double")){
@@ -471,8 +512,9 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
              }
              return 0;
           } else {
+	     UDA_LOG(UDA_LOG_DEBUG, "dataArray Values: %s\n", value);
 	     err = 999;
-             THROW_ERROR(err, "EFIT++ Magnetics XML could Not be Parsed");
+             THROW_ERROR(err, "EFIT++ [3] XML could Not be Parsed");
           }	     
        } else
        if(!strcasecmp(type, "int")){
@@ -493,11 +535,11 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
              return 0;
           } else {
 	     err = 999;
-             THROW_ERROR(err, "EFIT++ Magnetics XML could Not be Parsed");
+             THROW_ERROR(err, "EFIT++ [4] XML could Not be Parsed");
           }	     
        } else {
           err = 999;
-          THROW_ERROR(err, "EFIT++ Magnetics XML could Not be Parsed");        
+          THROW_ERROR(err, "EFIT++ [5] XML could Not be Parsed");        
        }
     
     } // isXPath
@@ -739,7 +781,7 @@ static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
          data_block->data_type = UDA_TYPE_STRING;
 	 char *data = strdup(value);
          data_block->data = data;
-         data_block->data_n = strlen(value);
+         data_block->data_n = strlen(value)+1;
          return 0;
     } else
     if(!strcasecmp(type, "int")){

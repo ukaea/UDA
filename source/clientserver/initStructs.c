@@ -57,6 +57,9 @@ void initClientBlock(CLIENT_BLOCK* str, int version, char* clientname)
 {
     str->version = version;
     str->timeout = TIMEOUT;
+    if (getenv("UDA_TIMEOUT")) {
+        str->timeout = (int)strtol(getenv("UDA_TIMEOUT"), NULL, 10);
+    }
     str->pid = (int)getpid();
     strcpy(str->uid, clientname);        // Global userid
     str->compressDim = COMPRESS_DIM;

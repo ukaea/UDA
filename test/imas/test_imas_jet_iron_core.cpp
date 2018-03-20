@@ -101,7 +101,7 @@ TEST_CASE( "Test iron_core number of segments", "[IMAS][JET][IRON_CORE]" )
     REQUIRE( val != nullptr );
     REQUIRE( !val->isNull() );
 
-    REQUIRE( val->as<int>() == 10 );
+    REQUIRE( val->as<int>() == 31 );
 }
 
 TEST_CASE( "Test iron_core segment name", "[IMAS][JET][IRON_CORE]" )
