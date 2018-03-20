@@ -62,6 +62,7 @@ else()
   add_subdirectory( viewport )
   add_subdirectory( west )
   add_subdirectory( xpadtree )
+  add_subdirectory( west_tunnel )
 endif( DEFINED BUILD_PLUGINS )
 
 add_definitions( -DSERVERBUILD )
