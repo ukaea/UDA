@@ -1556,6 +1556,23 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
         strcpy((char*)plugin_args.path, tmp_path);
         free(tmp_path);
 
+        if (plugin_args.clientIdx < 0) {
+            static int cache_shot = 0;
+            static int cache_run = 0;
+            static int cache_idx = 0;
+
+	    if (cache_shot == plugin_args.shotNumber && cache_run == plugin_args.runNumber) {
+                idx = cache_idx;
+            } else {
+                if (mdsimasOpen((char*)"ids", plugin_args.shotNumber, plugin_args.runNumber, &idx) < 0) {
+                    THROW_ERROR(999, "Data OPEN method failed!");
+                }
+                cache_shot = plugin_args.shotNumber;
+                cache_run = plugin_args.runNumber;
+                cache_idx = idx;
+            }
+        }
+
         UDA_LOG(UDA_LOG_ERROR, "CPOPath: %s, path: %s, type: %d, rank: %d, shape[0]: %d\n", (char*)plugin_args.CPOPath,
                 (char*)plugin_args.path, type,
                 plugin_args.rank,
@@ -2146,6 +2163,12 @@ retIdx	- returned data file index number
         UDA_LOG(UDA_LOG_ERROR, "imas: create not allowed\n");
         THROW_ERROR(999, "create not allowed");
 	}
+
+    char* env = getenv("UDA_IMAS_CAN_CREATE");
+    if (env == NULL || StringEquals(env, "0")) {
+        UDA_LOG(UDA_LOG_ERROR, "imas: create not allowed on this server\n");
+        THROW_ERROR(999, "create not allowed on this server");
+    }
 
     if (!plugin_args.isFileName || !plugin_args.isShotNumber || !plugin_args.isRunNumber) {
         UDA_LOG(UDA_LOG_ERROR, "imas: A Filename, Shot number and Run number are required!\n");
