@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <strings.h>
 
+
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
@@ -34,6 +35,8 @@
 
 #include "west_tunnel_ssh.h"
 #include "west_tunnel_ssh_server.h"
+
+static char* convertIdam2StringType(int type);
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
@@ -217,11 +220,35 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int dtype;
     FIND_REQUIRED_INT_VALUE(request_block->nameValueList, dtype);
 
-    char request[1024];
-    //sprintf(request, "imas::get(idx=0, group='%s', variable='%s', expName='%s', type=%s, rank=%d, shot=%d", ...);
-    //sprintf(request, "imas::get(idx=0, group='%s', variable='%s', expName='%s', type=%s, rank=%d, shot=%d", group, group, expName, type, rank, shot);
+    const char* expName = request_block->archive;
 
-    sprintf(request, "imas::get(expName='WEST', idx=-1, group='magnetics', variable='bpol_probe/Shape_of', type='int', rank=0, shot=52682, run=0)");
+    char* copy = strdup(element);
+
+    int i;
+    for (i = 0; i < nindices; i++) {
+        char replace[10];
+        sprintf(replace, "%d", indices[i] + 1);
+        char* old = copy;
+        copy = StringReplace(copy, "#", replace);
+        free(old);
+    }
+
+    char* found = strchr(copy, '/');
+
+    *found = '\0';
+    char* group = strdup(copy);
+    char* variable = strdup(found + 1);
+    free(copy);
+
+    char* type = convertIdam2StringType(dtype);
+
+    char request[1024];
+    sprintf(request, "imas::get(idx=-1, group='%s', variable='%s', expName='%s', type=%s, rank=%d, shot=%d, run=0)", group, variable, expName, type, rank, shot);
+
+    free(group);
+    free(variable);
+
+    //fprintf(stderr, "request: %s\n", request);
 
     REQUEST_BLOCK new_request_block;
     initRequestBlock(&new_request_block);
@@ -237,13 +264,30 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     int handle = idamClient(&new_request_block);
     if (handle < 0) {
-        fprintf(stderr, "UDA call failed");
+        //fprintf(stderr, "UDA call failed\n");
         return handle;
     }
 
     *idam_plugin_interface->data_block = *getIdamDataBlock(handle);
 
-    fprintf(stderr, "UDA handle %d\n", handle);
+    //fprintf(stderr, "UDA handle %d\n", handle);
 
     return 0;
 }
+
+char* convertIdam2StringType(int type) {
+    switch (type) {
+        case UDA_TYPE_INT:
+            return "int";
+        case UDA_TYPE_FLOAT:
+            return "double";
+        case UDA_TYPE_DOUBLE:
+            return "double";
+        case UDA_TYPE_STRING:
+            return "string";
+        default:
+            return "unknown";
+    }
+    return "unknown";
+}
+

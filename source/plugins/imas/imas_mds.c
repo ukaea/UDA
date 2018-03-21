@@ -1569,9 +1569,12 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             const char* expName = NULL;
             FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, expName);
 
-            //const char* pluginName = "WEST";
-            const char* pluginName = "WEST_TUNNEL";
-            //const char* pluginName = "EXP2IMAS";
+            const char* pluginName = NULL;
+            if (StringEquals(expName, "WEST")) {
+                pluginName = "WEST_TUNNEL";
+            } else {
+                pluginName = "EXP2IMAS";
+            }
 
             int id = findPluginIdByFormat(pluginName, idam_plugin_interface->pluginList);
             if (id < 0) {
