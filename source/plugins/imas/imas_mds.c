@@ -1598,8 +1598,8 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                 copyRequestBlock(&new_request, *idam_plugin_interface->request_block);
 
                 const char* fmt = path[0] == '/'
-                    ? "%s%sread(element=%s%s, indices=%s, shot=%d, dtype=%d, rank=%d%s)"
-                    : "%s%sread(element=%s/%s, indices=%s, shot=%d, dtype=%d, rank=%d%s)";
+                    ? "%s%sread(element=%s%s, indices=%s, shot=%d, dtype=%d, rank=%d%s, IDS_version=3.15.1)"
+                    : "%s%sread(element=%s/%s, indices=%s, shot=%d, dtype=%d, rank=%d%s, IDS_version=3.15.1)";
 
                 int shot = plugin_args.isShotNumber
                            ? plugin_args.shotNumber
