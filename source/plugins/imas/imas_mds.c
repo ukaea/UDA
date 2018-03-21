@@ -1569,7 +1569,12 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             const char* expName = NULL;
             FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, expName);
 
-            const char* pluginName = "WEST";
+            const char* pluginName = NULL;
+            if (StringEquals(expName, "WEST")) {
+                pluginName = "WEST_TUNNEL";
+            } else {
+                pluginName = "EXP2IMAS";
+            }
 
             int id = findPluginIdByFormat(pluginName, idam_plugin_interface->pluginList);
             if (id < 0) {
@@ -1593,8 +1598,8 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                 copyRequestBlock(&new_request, *idam_plugin_interface->request_block);
 
                 const char* fmt = path[0] == '/'
-                                  ? "%s%sread(element=%s%s, indices=%s, shot=%d, dtype=%d, IDS_version=3.7.4%s)"
-                                  : "%s%sread(element=%s/%s, indices=%s, shot=%d, dtype=%d, IDS_version=3.7.4%s)";
+                    ? "%s%sread(element=%s%s, indices=%s, shot=%d, dtype=%d, rank=%d%s, IDS_version=3.15.1)"
+                    : "%s%sread(element=%s/%s, indices=%s, shot=%d, dtype=%d, rank=%d%s, IDS_version=3.15.1)";
 
                 int shot = plugin_args.isShotNumber
                            ? plugin_args.shotNumber
@@ -1603,7 +1608,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                 int uda_type = findIMASIDAMType(type);
 
                 sprintf(new_request.signal, fmt, expName, new_request.api_delim, (char*)plugin_args.CPOPath, path,
-                        indices_string, shot, uda_type, get_shape ? ", get_shape" : "");
+                        indices_string, shot, uda_type, plugin_args.rank, get_shape ? ", get_shape" : "");
 
                 UDA_LOG(UDA_LOG_DEBUG, "imas: %s", new_request.signal);
 
