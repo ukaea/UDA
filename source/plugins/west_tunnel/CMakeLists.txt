@@ -4,7 +4,7 @@ find_package( LibSSH QUIET )
 if( NOT LIBXML2_FOUND )
   message( WARNING "Libxml2 not found - skipping west_tunnel plugin" )
   return()
-if( NOT LIBSSH_FOUND )
+elseif( NOT LIBSSH_FOUND )
   message( WARNING "Libssh not found - skipping west_tunnel plugin" )
   return()
 endif()
@@ -22,4 +22,6 @@ uda_plugin(
     ${LIBXML2_INCLUDE_DIR}
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
+    pthread
+    resolv
 )
