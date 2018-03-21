@@ -2140,6 +2140,12 @@ refShot - not used
 refRun  - not used
 retIdx	- returned data file index number
 */
+	char* env = getenv("UDA_IMAS_CAN_CREATE");
+
+	if (env == NULL || StringEquals(env, "0")) {
+        UDA_LOG(UDA_LOG_ERROR, "imas: create not allowed\n");
+        THROW_ERROR(999, "create not allowed");
+	}
 
     if (!plugin_args.isFileName || !plugin_args.isShotNumber || !plugin_args.isRunNumber) {
         UDA_LOG(UDA_LOG_ERROR, "imas: A Filename, Shot number and Run number are required!\n");
