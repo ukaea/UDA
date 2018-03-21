@@ -9,12 +9,7 @@
 #include <fcntl.h>
 #include <clientserver/stringUtils.h>
 
-#include "exp2imas_ssh_gui.h"
 #include "west_tunnel_ssh.h"
-
-#ifndef HAVE_GTK3
-#  include <clientserver/stringUtils.h>
-#endif
 
 static int verify_knownhost(ssh_session session)
 {
@@ -118,7 +113,7 @@ static ssh_session create_session(const char* experiment, const char* ssh_host)
     char* home = getenv("HOME");
     if (home != NULL) {
         char fname[1024];
-        sprintf(fname, "%s/.exp2imas", home);
+        sprintf(fname, "%s/.west_tunnel", home);
         if (access(fname, F_OK) != -1) {
             FILE* fid = fopen(fname, "r");
             char exp[1024];
@@ -135,32 +130,24 @@ static ssh_session create_session(const char* experiment, const char* ssh_host)
         }
     }
 
-#ifdef HAVE_GTK3
-    if (username == NULL || password == NULL) {
-        rc = ssh_open_dialog(&username, &password);
-        if (rc < 0) {
-            fprintf(stderr, "Failed to get authentication details");
-            return NULL;
-        }
-    }
-#else
-    fprintf(stdout, "username: ");
-    size_t len = 0;
-    getline(&username, &len, stdin);
-    username = TrimString(username);
 
-    password = getpass("password: ");
-#endif
+    if (username == NULL || password == NULL) {
+        fprintf(stdout, "username: ");
+        size_t len = 0;
+        getline(&username, &len, stdin);
+        username = TrimString(username);
+        if (username[strlen(username)-1] == '\n') {
+            username[strlen(username)-1] = '\0';
+        }
+
+        password = getpass("password: ");
+    }
 
     // Authenticate ourselves
     rc = ssh_userauth_password(session, username, password);
 
     free(username);
-#ifdef HAVE_GTK3
-    free(password);
-#else
     memset(password, '\0', strlen(password));
-#endif
 
     if (rc != SSH_AUTH_SUCCESS) {
         fprintf(stderr, "Error authenticating with password: %s\n", ssh_get_error(session));
@@ -180,7 +167,7 @@ static ssh_channel create_forwarding_channel(ssh_session session, const char* re
         return NULL;
     }
 
-    int rc = ssh_channel_open_forward(forwarding_channel, remote_host, 8000, "localhost", client_port);
+    int rc = ssh_channel_open_forward(forwarding_channel, remote_host, 56565, "localhost", client_port);
     if (rc != SSH_OK) {
         fprintf(stderr, "failed to open SSH channel\n");
         ssh_channel_free(forwarding_channel);
@@ -231,13 +218,13 @@ static socket_t listen_for_client(int32_t* client_port)
 
     fprintf(stdout, "listening on port %d\n", port);
 
-    pthread_mutex_lock(&g_initialised_mutex);
+    pthread_mutex_lock(&g_west_tunnel_initialised_mutex);
 
-    g_server_port = port;
-    g_initialised = true;
-    pthread_cond_signal(&g_initialised_cond);
+    g_west_tunnel_server_port = port;
+    g_west_tunnel_initialised = true;
+    pthread_cond_signal(&g_west_tunnel_initialised_cond);
 
-    pthread_mutex_unlock(&g_initialised_mutex);
+    pthread_mutex_unlock(&g_west_tunnel_initialised_mutex);
 
     socket_t client_sock = accept(sock, (struct sockaddr*)&client_addr, &client_name_len);
     if (client_sock == -1) {

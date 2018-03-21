@@ -20,8 +20,11 @@ uda_plugin(
   SOURCES west_tunnel.c west_tunnel_ssh.c west_tunnel_ssh_server.c
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
+    ${LIBSSH_INCLUDE_DIRS}
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
+    ${LIBSSH_LIBRARIES}
+    client-static
     pthread
     resolv
 )
