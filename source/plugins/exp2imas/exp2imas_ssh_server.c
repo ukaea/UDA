@@ -104,6 +104,8 @@ static ssh_session create_session(const char* experiment, const char* ssh_host)
         return NULL;
     }
 
+    fprintf(stdout, "connected to %s\n", ssh_host);
+
     // Verify the server's identity
     // For the source code of verify_knowhost(), check previous example
     if (verify_knownhost(session) < 0) {
@@ -188,6 +190,8 @@ static ssh_channel create_forwarding_channel(ssh_session session, const char* re
         return NULL;
     }
 
+    fprintf(stdout, "forwarding %s:%d to %s:%d\n", "localhost", client_port, remote_host, 8000);
+
     return forwarding_channel;
 }
 
@@ -248,7 +252,6 @@ static socket_t listen_for_client(int32_t* client_port)
     char buf[100];
     inet_net_ntop(AF_INET, &client_addr.sin_addr, 32, buf, sizeof(buf));
     *client_port = ntohs(client_addr.sin_port);
-    fprintf(stdout, "connected to client %s %d\n", buf, port);
 
     return client_sock;
 }

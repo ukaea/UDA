@@ -77,7 +77,7 @@ int mds_get(const char* experiment, const char* signalName, int shot, float** ti
                 thread_data.ssh_host = "lac911.epfl.ch";
                 thread_data.mds_host = "tcvdata.epfl.ch";
             } else if (StringIEquals(experiment, "AUG")) {
-                thread_data.ssh_host = "gate1.aug.ipp.mpg.de";
+                thread_data.ssh_host = "gate2.aug.ipp.mpg.de";
                 thread_data.mds_host = "mdsplus.aug.ipp.mpg.de";
             }
 

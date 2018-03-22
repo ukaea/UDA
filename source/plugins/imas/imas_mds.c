@@ -1633,8 +1633,8 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                     } else {
                         imasData = data_block->data;
                     }
-                    imas_mds_putData(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, plugin_args.rank,
-                                     shape, PUT_OPERATION, (void*)imasData, 0.0);
+                    //imas_mds_putData(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, plugin_args.rank,
+                    //                 shape, PUT_OPERATION, (void*)imasData, 0.0);
                 }
             }
         }

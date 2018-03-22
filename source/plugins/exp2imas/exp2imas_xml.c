@@ -10,7 +10,7 @@
 #include <clientserver/stringUtils.h>
 #include <plugins/udaPlugin.h>
 
-static int convertToInt(char* value);
+static int convertTypeStringToUDAType(char* value);
 static double* getContent(xmlNode* node, size_t* n_vals);
 
 static char* get_type(const xmlChar* xpathExpr, xmlXPathContextPtr xpathCtx)
@@ -388,7 +388,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
         return -1;
     }
 
-    xml_data->data_type = convertToInt(type);
+    xml_data->data_type = convertTypeStringToUDAType(type);
     int i;
 
     if (xml_data->dims == NULL && index == -1) {
@@ -600,7 +600,7 @@ double* getContent(xmlNode* node, size_t* n_vals)
     return vals;
 }
 
-int convertToInt(char* value)
+int convertTypeStringToUDAType(char* value)
 {
     int i = UDA_TYPE_UNKNOWN;
     int err = 0;
@@ -612,7 +612,7 @@ int convertToInt(char* value)
                || StringEquals(value, "array3dflt_type") || StringEquals(value, "xs:float")
                || StringEquals(value, "FLT_0D")) {
         i = UDA_TYPE_FLOAT;
-    } else if (StringEquals(value, "matint_type") || StringEquals(value, "vecint_type")
+    } else if (StringEquals(value, "matint_type") || StringEquals(value, "vecint_type") || StringEquals(value, "array3dint_type")
                || StringEquals(value, "xs:integer") || StringEquals(value, "INT_0D")) {
         i = UDA_TYPE_INT;
     } else {
