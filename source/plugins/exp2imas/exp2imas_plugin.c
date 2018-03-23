@@ -30,6 +30,7 @@ typedef struct XMLMapping {
     MAPPING_TYPE request_type;
     int index;
     int adjust;
+    const xmlChar* dim;
 } XML_MAPPING;
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
@@ -259,6 +260,25 @@ static int handle_static(DATA_BLOCK* data_block, const char* experiment_mapping_
         return status;
     }
 
+    int resize = 0;
+    if (mapping->dim != NULL) {
+        XML_DATA resize_data;
+        status = execute_xpath_expression(experiment_mapping_file_name, mapping->dim, mapping->index, &resize_data);
+        if (status != 0) {
+            RAISE_PLUGIN_ERROR("Failed to get resize data");
+        }
+        if (resize_data.rank != 1) {
+            RAISE_PLUGIN_ERROR("Resize data has incorrect rank");
+        }
+        if (resize_data.data_type != UDA_TYPE_INT) {
+            RAISE_PLUGIN_ERROR("Resize data is not integer data");
+        }
+        if (nindices != 1 || indices[0] < 1) {
+            RAISE_PLUGIN_ERROR("Cannot use resize data without specified indices");
+        }
+        resize = ((int*)resize_data.data)[indices[0]-1];
+    }
+
     if (xml_data.rank > 1 && mapping->index != -1) {
         indices = realloc(indices, (nindices + 1) * sizeof(int));
         indices[nindices] = mapping->index;
@@ -288,6 +308,32 @@ static int handle_static(DATA_BLOCK* data_block, const char* experiment_mapping_
                 setReturnDataFloatArray(data_block, &((float*)xml_data.data)[idx], 1, shape, NULL);
             } else if (xml_data.data_type == UDA_TYPE_INT) {
                 setReturnDataIntArray(data_block, &((int*)xml_data.data)[idx], 1, shape, NULL);
+            } else {
+                RAISE_PLUGIN_ERROR("Unsupported data type");
+            }
+        } else if (xml_data.rank == 3 && nindices == 1) {
+            int idx = (indices[0] - 1) * xml_data.dims[1] * xml_data.dims[2];
+
+            size_t dy = (size_t)xml_data.dims[1];
+            size_t dz = (size_t)xml_data.dims[2];
+
+            int* data_in = &((int*)xml_data.data)[idx];
+
+            if (xml_data.data_type == UDA_TYPE_INT) {
+                size_t shape[] = { dy, dz };
+                if (resize > 0) {
+                    shape[0] = (size_t)resize;
+                }
+                int* data = malloc(shape[0] * shape[1] * sizeof(int));
+                int n = 0;
+                int i, j;
+                for (j = 0; j < shape[1]; ++j) {
+                    for (i = 0; i < shape[0]; ++i) {
+                        data[n] = data_in[i * shape[1] + j];
+                        ++n;
+                    }
+                }
+                setReturnDataIntArray(data_block, data, 2, shape, NULL);
             } else {
                 RAISE_PLUGIN_ERROR("Unsupported data type");
             }
@@ -382,14 +428,15 @@ static size_t get_signal_name_index(const XML_DATA* xml_data, const int* indices
 }
 
 static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping_file_name, const xmlChar* xPath,
-                          const char* experiment, const char* element, int index, int shot, const int* indices,
+                          XML_MAPPING* mapping,
+                          const char* experiment, const char* element, int shot, const int* indices,
                           size_t nindices)
 {
     // DYNAMIC case
 
     XML_DATA xml_data;
 
-    int status = execute_xpath_expression(experiment_mapping_file_name, xPath, index, &xml_data);
+    int status = execute_xpath_expression(experiment_mapping_file_name, xPath, mapping->index, &xml_data);
     if (status != 0) {
         return status;
     }
@@ -508,7 +555,8 @@ static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping
 #endif
 
 static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_file_name, const xmlChar* xPath,
-                        const char* experiment, const char* element, int index, int shot, const int* indices,
+                        XML_MAPPING* mapping,
+                        const char* experiment, const char* element, int shot, const int* indices,
                         size_t nindices)
 {
     // ERROR case
@@ -517,7 +565,7 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
 
     XML_DATA xml_abserror;
 
-    int status = execute_xpath_expression(experiment_mapping_file_name, (const xmlChar*)abserror, index, &xml_abserror);
+    int status = execute_xpath_expression(experiment_mapping_file_name, (const xmlChar*)abserror, mapping->index, &xml_abserror);
     if (status != 0) {
         xml_abserror.values = NULL;
     }
@@ -526,14 +574,14 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
 
     XML_DATA xml_relerror;
 
-    status = execute_xpath_expression(experiment_mapping_file_name, (const xmlChar*)relerror, index, &xml_relerror);
+    status = execute_xpath_expression(experiment_mapping_file_name, (const xmlChar*)relerror, mapping->index, &xml_relerror);
     if (status != 0) {
         xml_relerror.values = NULL;
     }
 
     XML_DATA xml_data;
 
-    status = execute_xpath_expression(experiment_mapping_file_name, xPath, index, &xml_data);
+    status = execute_xpath_expression(experiment_mapping_file_name, xPath, mapping->index, &xml_data);
     if (status != 0) {
         return status;
     }
@@ -723,10 +771,10 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             err = handle_static(data_block, experiment_mapping_file_name, xPath, mapping, indices, nindices);
             break;
         case DYNAMIC:
-            err = handle_dynamic(data_block, experiment_mapping_file_name, xPath, experiment, element, mapping->index, shot, indices, nindices);
+            err = handle_dynamic(data_block, experiment_mapping_file_name, xPath, mapping, experiment, element, shot, indices, nindices);
             break;
         case ERROR:
-            err = handle_error(data_block, experiment_mapping_file_name, xPath, experiment, element, mapping->index, shot, indices, nindices);
+            err = handle_error(data_block, experiment_mapping_file_name, xPath, mapping, experiment, element, shot, indices, nindices);
             break;
         default:
             free(xPath);
@@ -769,6 +817,44 @@ char* getMachineMappingFileName(const char* experiment, const char* element)
     free(token);
 
     return name;
+}
+
+xmlChar* xmlAttributeValue(xmlXPathContextPtr xpath_ctx, const char* request, const char* attribute)
+{
+    // Creating the Xpath request
+    const char* fmt = "//mapping[@key='%s']/@%s";
+    size_t len = strlen(request) + strlen(attribute) + strlen(fmt) + 1;
+    xmlChar* xpath_expr = malloc(len * sizeof(xmlChar));
+    xmlStrPrintf(xpath_expr, (int)len, (XML_FMT_TYPE)fmt, request, attribute);
+
+    /*
+     * Evaluate xpath expression for the attribute
+     */
+    xmlXPathObjectPtr xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
+
+    if (xpath_obj == NULL) {
+        addIdamError(CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
+        UDA_LOG(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
+        free(xpath_expr);
+        return NULL;
+    }
+
+    free(xpath_expr);
+
+    xmlNodeSetPtr nodes = xpath_obj->nodesetval;
+
+    xmlNodePtr current_node = NULL;
+
+    if (nodes != NULL && nodes->nodeNr > 0) {
+        current_node = nodes->nodeTab[0];
+        current_node = current_node->children;
+        xmlChar* content = xmlStrdup(current_node->content);
+        xmlXPathFreeObject(xpath_obj);
+        return content;
+    } else {
+        xmlXPathFreeObject(xpath_obj);
+        return NULL;
+    }
 }
 
 XML_MAPPING* getMappingValue(const char* mapping_file_name, const char* request)
@@ -817,70 +903,18 @@ XML_MAPPING* getMappingValue(const char* mapping_file_name, const char* request)
         }
     }
 
-    // Creating the Xpath request
-    const char* fmt = "//mapping[@key='%s']/@value";
-    size_t len = strlen(request) + strlen(fmt) + 1;
-    xmlChar* xpath_expr = malloc(len + sizeof(xmlChar));
-    xmlStrPrintf(xpath_expr, (int)len, (XML_FMT_TYPE)fmt, request);
-
-    /*
-     * Evaluate xpath expression for the type
-     */
-    xmlXPathObjectPtr xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
-    if (xpath_obj == NULL) {
-        addIdamError(CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
-        UDA_LOG(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
-        free(xpath_expr);
-        return NULL;
-    }
-
-    xmlNodeSetPtr nodes = xpath_obj->nodesetval;
-
     XML_MAPPING* mapping = calloc(1, sizeof(XML_MAPPING));
     mapping->index = -1;
 
-    xmlNodePtr current_node = NULL;
-    int err = 0;
-
-    if (nodes != NULL && nodes->nodeNr > 0) {
-        current_node = nodes->nodeTab[0];
-        current_node = current_node->children;
-        mapping->value = xmlStrdup(current_node->content);
+    xmlChar* value = xmlAttributeValue(xpath_ctx, request, "value");
+    if (value != NULL) {
+        mapping->value = value;
     } else {
-        err = 998;
-        addIdamError(CODEERRORTYPE, __func__, err, "no result on XPath request, no key attribute defined?");
-    }
-
-    fmt = "//mapping[@key='%s']/@type";
-    len = strlen(request) + strlen(fmt) + 1;
-    free(xpath_expr);
-    xpath_expr = malloc(len + sizeof(xmlChar));
-    xmlStrPrintf(xpath_expr, (int)len, (XML_FMT_TYPE)fmt, request);
-
-    /*
-     * Evaluate xpath expression for the type
-     */
-    xmlXPathFreeObject(xpath_obj);
-    xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
-    if (xpath_obj == NULL) {
-        addIdamError(CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
-        UDA_LOG(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
-        free(xpath_expr);
+        addIdamError(CODEERRORTYPE, __func__, 999, "no result on XPath request, no key attribute defined?");
         return NULL;
     }
 
-    nodes = xpath_obj->nodesetval;
-    char* type_str = NULL;
-
-    if (nodes != NULL && nodes->nodeNr > 0) {
-        current_node = nodes->nodeTab[0];
-        current_node = current_node->children;
-        type_str = strdup((char*)current_node->content);
-    } else {
-        err = 998;
-        addIdamError(CODEERRORTYPE, __func__, err, "no result on XPath request, no key attribute defined?");
-        return NULL;
-    }
+    char* type_str = (char*)xmlAttributeValue(xpath_ctx, request, "type");
 
     if (type_str == NULL) {
         mapping->request_type = NONE;
@@ -896,52 +930,24 @@ XML_MAPPING* getMappingValue(const char* mapping_file_name, const char* request)
         addIdamError(CODEERRORTYPE, __func__, 999, "unknown mapping type");
         UDA_LOG(UDA_LOG_ERROR, "unknown mapping type \"%s\"\n", type_str);
         free(mapping);
-        mapping = NULL;
-    }
-
-    fmt = "//mapping[@key='%s']/@index";
-    len = strlen(request) + strlen(fmt) + 1;
-    free(xpath_expr);
-    xpath_expr = malloc(len + sizeof(xmlChar));
-    xmlStrPrintf(xpath_expr, (int)len, (XML_FMT_TYPE)fmt, request);
-
-    xmlXPathFreeObject(xpath_obj);
-    xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
-    if (xpath_obj == NULL) {
-        addIdamError(CODEERRORTYPE, __func__, 999, "unable to evaluate xpath expression");
-        UDA_LOG(UDA_LOG_ERROR, "unable to evaluate xpath expression \"%s\"\n", xpath_expr);
-        free(xpath_expr);
         return NULL;
     }
 
-    nodes = xpath_obj->nodesetval;
+    free(type_str);
 
-    if (nodes != NULL && nodes->nodeNr > 0) {
-        current_node = nodes->nodeTab[0];
-        current_node = current_node->children;
-        mapping->index = (int)strtol((char*)current_node->content, NULL, 10);
+    xmlChar* index = xmlAttributeValue(xpath_ctx, request, "index");
+    if (index != NULL) {
+        mapping->index = (int)strtol((char*)index, NULL, 10);
+        free(index);
     }
 
-    fmt = "//mapping[@key='%s']/@adjust";
-    len = strlen(request) + strlen(fmt) + 1;
-    free(xpath_expr);
-    xpath_expr = malloc(len + sizeof(xmlChar));
-    xmlStrPrintf(xpath_expr, (int)len, (XML_FMT_TYPE)fmt, request);
-
-    xmlXPathFreeObject(xpath_obj);
-    xpath_obj = xmlXPathEvalExpression(xpath_expr, xpath_ctx);
-    if (xpath_obj != NULL) {
-        nodes = xpath_obj->nodesetval;
-
-        if (nodes != NULL && nodes->nodeNr > 0) {
-            current_node = nodes->nodeTab[0];
-            current_node = current_node->children;
-            mapping->adjust = (int)strtol((char*)current_node->content, NULL, 10);
-        }
+    xmlChar* adjust = xmlAttributeValue(xpath_ctx, request, "adjust");
+    if (adjust != NULL) {
+        mapping->adjust = (int)strtol((char*)adjust, NULL, 10);
+        free(adjust);
     }
 
-    free(xpath_expr);
-    xmlXPathFreeObject(xpath_obj);
+    mapping->dim = xmlAttributeValue(xpath_ctx, request, "dim");
 
     return mapping;
 }
@@ -957,7 +963,7 @@ char* deblank(char* input)
             j--;
         }
     }
-    output[j] = 0;
+    output[j] = '\0';
     return output;
 }
 

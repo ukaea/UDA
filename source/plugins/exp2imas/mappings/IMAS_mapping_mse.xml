@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings>
+  <mapping key="mse/ids_properties/comment" value="JET data mapped using UDA and exp2itm mappings 4.10b" type="constant"/>
+  <mapping key="mse/ids_properties/homogeneous_time" value="0" type="constant"/>
+  <!--<mapping key="tf/ids_properties/source" value="0" type="constant"/>-->
+  <!--<mapping key="tf/ids_properties/provider" value="0" type="constant"/>-->
+  <!--<mapping key="tf/ids_properties/creation_date" value="0" type="constant"/>-->
+
+  <!--<mapping key="mse/channel/Shape_of" value="1" type="constant"/>-->
+  <mapping key="mse/channel/Shape_of" value="//msediag/polarimetry/setup/rzgamma/r/@dim" type="static"/>
+
+  <!--<mapping key="mse/channel/#/name" value="" type=""/>-->
+
+  <!--<mapping key="mse/channel/#/detector/geometry_type" value="1" type="constant"/>-->
+
+  <!--<mapping key="mse/channel/#/detector/centre/r" value="//msediag/polarimetry/setup/rzgamma/r" type="static"/>-->
+  <!--<mapping key="mse/channel/#/detector/centre/r_error_upper" value="" type=""/>-->
+  <!--<mapping key="mse/channel/#/detector/centre/r_error_lower" value="" type=""/>-->
+  <!--<mapping key="mse/channel/#/detector/centre/r_error_index" value="" type=""/>-->
+
+  <!--<mapping key="mse/channel/#/detector/centre/z" value="//msediag/polarimetry/setup/rzgamma/z" type="static"/>-->
+  <!--<mapping key="mse/channel/#/detector/centre/z" value="" type=""/>-->
+  <!--<mapping key="mse/channel/#/detector/centre/z" value="" type=""/>-->
+  <!--<mapping key="mse/channel/#/detector/centre/z" value="" type=""/>-->
+
+  <!--<mapping key="mse/channel/#/detector/centre/phi" value="//msediag/polarimetry/syyetup/rzgamma/phi" type="static"/>-->
+  <!--<mapping key="mse/channel/#/detector/centre/phi" value="" type=""/>-->
+  <!--<mapping key="mse/channel/#/detector/centre/phi" value="" type=""/>-->
+  <!--<mapping key="mse/channel/#/detector/centre/phi" value="" type=""/>-->
+  
+  <mapping key="mse/channel/#/active_spacial_resolution/Shape_of" value="1" type="constant"/>
+  <mapping key="mse/channel/#/active_spatial_resolution/#/centre/r" value="//msediag/polarimetry/syyetup/rzgamma/r" type="static"/>
+  <mapping key="mse/channel/#/active_spatial_resolution/#/centre/z" value="//msediag/polarimetry/syyetup/rzgamma/z" type="static"/>
+  <mapping key="mse/channel/#/active_spatial_resolution/#/centre/phi" value="//msediag/polarimetry/syyetup/rzgamma/phi" type="static"/>
+  <mapping key="mse/channel/#/active_spatial_resolution/#/geometric_coefficients" value="//msediag/polarimetry/syyetup/rzgamma/geom_coef" type="static"/>
+
+<!--
+  <mapping key="mse/channel/#/aperture/Shape_of" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/radius" value="" type=""/>
+  <mapping key="mse/channel/#/detector/radius_error_upper" value="" type=""/>
+  <mapping key="mse/channel/#/detector/radius_error_lower" value="" type=""/>
+  <mapping key="mse/channel/#/detector/radius_error_index" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/x1_unit_vector/x" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x1_unit_vector/x_error_upper" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x1_unit_vector/x_error_lower" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x1_unit_vector/x_error_index" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/x1_unit_vector/y" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x1_unit_vector/y_error_upper" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x1_unit_vector/y_error_lower" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x1_unit_vector/y_error_index" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/x1_unit_vector/z" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x1_unit_vector/z_error_upper" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x1_unit_vector/z_error_lower" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x1_unit_vector/z_error_index" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/x2_unit_vector/x" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x2_unit_vector/x_error_upper" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x2_unit_vector/x_error_lower" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x2_unit_vector/x_error_index" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/x2_unit_vector/y" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x2_unit_vector/y_error_upper" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x2_unit_vector/y_error_lower" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x2_unit_vector/y_error_index" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/x2_unit_vector/z" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x2_unit_vector/z_error_upper" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x2_unit_vector/z_error_lower" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x2_unit_vector/z_error_index" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/x3_unit_vector/x" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x3_unit_vector/x_error_upper" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x3_unit_vector/x_error_lower" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x3_unit_vector/x_error_index" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/x3_unit_vector/y" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x3_unit_vector/y_error_upper" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x3_unit_vector/y_error_lower" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x3_unit_vector/y_error_index" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/x3_unit_vector/z" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x3_unit_vector/z_error_upper" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x3_unit_vector/z_error_lower" value="" type=""/>
+  <mapping key="mse/channel/#/detector/x3_unit_vector/z_error_index" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/outline/x1" value="" type=""/>
+  <mapping key="mse/channel/#/detector/outline/x1_error_upper" value="" type=""/>
+  <mapping key="mse/channel/#/detector/outline/x1_error_lower" value="" type=""/>
+  <mapping key="mse/channel/#/detector/outline/x1_error_index" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/outline/x2" value="" type=""/>
+  <mapping key="mse/channel/#/detector/outline/x2_error_upper" value="" type=""/>
+  <mapping key="mse/channel/#/detector/outline/x2_error_lower" value="" type=""/>
+  <mapping key="mse/channel/#/detector/outline/x2_error_index" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/line_of_sight/first_point/r" value="" type=""/>
+  <mapping key="mse/channel/#/detector/line_of_sight/first_point/z" value="" type=""/>
+  <mapping key="mse/channel/#/detector/line_of_sight/first_point/phi" value="" type=""/>
+
+  <mapping key="mse/channel/#/detector/line_of_sight/second_point/r" value="" type=""/>
+  <mapping key="mse/channel/#/detector/line_of_sight/second_point/z" value="" type=""/>
+  <mapping key="mse/channel/#/detector/line_of_sight/second_point/phi" value="" type=""/>
+
+  -->
+
+  <mapping key="mse/channel/#/polarisation_angle/data" value="//msediag/polarimetry/measure/value/name" type="dynamic"/>
+  <mapping key="mse/channel/#/polarisation_angle/data_error_upper" value="//msediag/polarimetry/measure/value/name" type="error"/>
+  <mapping key="mse/channel/#/polarisation_angle/data_error_lower" value="//msediag/polarimetry/measure/value/name" type="error"/>
+  <mapping key="mse/channel/#/polarisation_angle/data_error_index" value="0" type="constant"/>
+
+  <mapping key="mse/channel/#/polarisation_angle/time" value="//msediag/polarimetry/measure/value/name" type="dynamic"/>
+  <!--
+  <mapping key="mse/channel/#/polarisation_angle_validity" value="" type=""/>
+
+  <mapping key="mse/code/name" value="" type=""/>
+  <mapping key="mse/code/commit" value="" type=""/>
+  <mapping key="mse/code/version" value="" type=""/>
+  <mapping key="mse/code/repository" value="" type=""/>
+  <mapping key="mse/code/parameters" value="" type=""/>
+  <mapping key="mse/code/output_flag" value="" type=""/>
+
+  -->
+  <mapping key="mse/time" value="0" type="constant"/>
+</mappings>
