@@ -1,9 +1,10 @@
 #!/bin/bash
 
-eval `tclsh /work/imas/opt/modules-tcl/modulecmd.tcl $(basename $SHELL) autoinit`
-
-module purge
+# Set up environment for compilation
+. /usr/share/Modules/init/sh
+module use /work/imas/etc/modulefiles
 module use /work/imas/etc/modules/all
+module purge
 module load Python/3.4.5-foss-2016a
 module load libmemcached/1.0.18
 module load cmake/3.0.2
