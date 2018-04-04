@@ -127,5 +127,5 @@
   <mapping key="tf/b_field_tor_vacuum_r/data_error_index" value="//toroidfield/bvac_r/value/name" type="error"/>
   <mapping key="tf/b_field_tor_vacuum_r/time" value="//toroidfield/bvac_r/value/name" type="dynamic"/>
 
-  <mapping key="tf/time" value="" type=""/>
+  <!--<mapping key="tf/time" value="" type=""/>-->
 </mappings>

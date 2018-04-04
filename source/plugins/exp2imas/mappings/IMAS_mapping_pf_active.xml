@@ -130,12 +130,13 @@
   <mapping key="pf_active/vertical_force/#/force/time" value="" type=""/>
   -->
 
-  <mapping key="pf_active/circuit/Shape_of" value="0" type="constant"/>
+  <mapping key="pf_active/circuit/Shape_of" value="//pfsystems/pfcircuits/name/@dim" type="static"/>
+  <mapping key="pf_active/circuit/#/name" value="//pfsystems/pfcircuits/name" type="static"/>
+  <mapping key="pf_active/circuit/#/identifier" value="//pfsystems/pfcircuits/id" type=""/>
+  <mapping key="pf_active/circuit/#/type" value="//pfsystems/pfcircuits/type" type="static"/>
+  <mapping key="pf_active/circuit/#/connections" value="//pfsystems/pfcircuits/connections" type="static" dim="//pfsystems/pfcircuits/nnodes"/>
+
   <!--
-         <mapping key="pf_active/circuit/#/name" value="" type=""/>
-  <mapping key="pf_active/circuit/#/identifier" value="" type=""/>
-  <mapping key="pf_active/circuit/#/type" value="" type=""/>
-  <mapping key="pf_active/circuit/#/connections" value="" type=""/>
   <mapping key="pf_active/circuit/#/voltage/data" value="" type=""/>
   <mapping key="pf_active/circuit/#/voltage/data_error_upper" value="" type=""/>
   <mapping key="pf_active/circuit/#/voltage/data_error_lower" value="" type=""/>
@@ -148,15 +149,15 @@
   <mapping key="pf_active/circuit/#/current/time" value="" type=""/>
   -->
 
-  <mapping key="pf_active/supply/Shape_of" value="0" type="constant"/>
+  <mapping key="pf_active/supply/Shape_of" value="//pfsystems/pfsupplies/desc_supply/name/@dim" type="static"/>
+  <mapping key="pf_active/supply/#/name" value="//pfsystems/pfsupplies/desc_supply/name" type="static"/>
+  <mapping key="pf_active/supply/#/identifier" value="//pfsystems/pfsupplies/desc_supply/id" type="static"/>
+  <mapping key="pf_active/supply/#/type" value="//pfsystems/pfsupplies/desc_supply/type" type="static"/>
+  <mapping key="pf_active/supply/#/resistance" value="//pfsystem/pfsupplies/desc_supply/res" type="res"/>
+  <!--<mapping key="pf_active/supply/#/resistance_error_upper" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/resistance_error_lower" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/resistance_error_index" value="" type=""/>-->
   <!--
-         <mapping key="pf_active/supply/#/name" value="" type=""/>
-  <mapping key="pf_active/supply/#/identifier" value="" type=""/>
-  <mapping key="pf_active/supply/#/type" value="" type=""/>
-  <mapping key="pf_active/supply/#/resistance" value="" type=""/>
-  <mapping key="pf_active/supply/#/resistance_error_upper" value="" type=""/>
-  <mapping key="pf_active/supply/#/resistance_error_lower" value="" type=""/>
-  <mapping key="pf_active/supply/#/resistance_error_index" value="" type=""/>
   <mapping key="pf_active/supply/#/delay" value="" type=""/>
   <mapping key="pf_active/supply/#/delay_error_upper" value="" type=""/>
   <mapping key="pf_active/supply/#/delay_error_lower" value="" type=""/>
@@ -169,22 +170,24 @@
   <mapping key="pf_active/supply/#/filter_denominator_error_upper" value="" type=""/>
   <mapping key="pf_active/supply/#/filter_denominator_error_lower" value="" type=""/>
   <mapping key="pf_active/supply/#/filter_denominator_error_index" value="" type=""/>
-  <mapping key="pf_active/supply/#/current_limit_max" value="" type=""/>
-  <mapping key="pf_active/supply/#/current_limit_max_error_upper" value="" type=""/>
-  <mapping key="pf_active/supply/#/current_limit_max_error_lower" value="" type=""/>
-  <mapping key="pf_active/supply/#/current_limit_max_error_index" value="" type=""/>
-  <mapping key="pf_active/supply/#/current_limit_min" value="" type=""/>
-  <mapping key="pf_active/supply/#/current_limit_min_error_upper" value="" type=""/>
-  <mapping key="pf_active/supply/#/current_limit_min_error_lower" value="" type=""/>
-  <mapping key="pf_active/supply/#/current_limit_min_error_index" value="" type=""/>
-  <mapping key="pf_active/supply/#/voltage_limit_max" value="" type=""/>
-  <mapping key="pf_active/supply/#/voltage_limit_max_error_upper" value="" type=""/>
-  <mapping key="pf_active/supply/#/voltage_limit_max_error_lower" value="" type=""/>
-  <mapping key="pf_active/supply/#/voltage_limit_max_error_index" value="" type=""/>
-  <mapping key="pf_active/supply/#/voltage_limit_min" value="" type=""/>
-  <mapping key="pf_active/supply/#/voltage_limit_min_error_upper" value="" type=""/>
-  <mapping key="pf_active/supply/#/voltage_limit_min_error_lower" value="" type=""/>
-  <mapping key="pf_active/supply/#/voltage_limit_min_error_index" value="" type=""/>
+  -->
+  <mapping key="pf_active/supply/#/current_limit_max" value="//pfsystems/pfsupplies/desc_supply/imax" type="static"/>
+  <!--<mapping key="pf_active/supply/#/current_limit_max_error_upper" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/current_limit_max_error_lower" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/current_limit_max_error_index" value="" type=""/>-->
+  <mapping key="pf_active/supply/#/current_limit_min" value="//pfsystems/pfsupplies/desc_supply/imin" type="static"/>
+  <!--<mapping key="pf_active/supply/#/current_limit_min_error_upper" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/current_limit_min_error_lower" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/current_limit_min_error_index" value="" type=""/>-->
+  <mapping key="pf_active/supply/#/voltage_limit_max" value="//pfsystems/pfsupplies/desc_supply/umin" type="static"/>
+  <!--<mapping key="pf_active/supply/#/voltage_limit_max_error_upper" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/voltage_limit_max_error_lower" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/voltage_limit_max_error_index" value="" type=""/>-->
+  <mapping key="pf_active/supply/#/voltage_limit_min" value="//pfsystems/pfsupplies/desc_supply/umax" type="static"/>
+  <!--<mapping key="pf_active/supply/#/voltage_limit_min_error_upper" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/voltage_limit_min_error_lower" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/voltage_limit_min_error_index" value="" type=""/>-->
+  <!--
   <mapping key="pf_active/supply/#/current_limiter_gain" value="" type=""/>
   <mapping key="pf_active/supply/#/current_limiter_gain_error_upper" value="" type=""/>
   <mapping key="pf_active/supply/#/current_limiter_gain_error_lower" value="" type=""/>
@@ -194,24 +197,25 @@
   <mapping key="pf_active/supply/#/energy_limit_max_error_lower" value="" type=""/>
   <mapping key="pf_active/supply/#/energy_limit_max_error_index" value="" type=""/>
   <mapping key="pf_active/supply/#/nonlinear_model" value="" type=""/>
-  <mapping key="pf_active/supply/#/voltage/data" value="" type=""/>
-  <mapping key="pf_active/supply/#/voltage/data_error_upper" value="" type=""/>
-  <mapping key="pf_active/supply/#/voltage/data_error_lower" value="" type=""/>
-  <mapping key="pf_active/supply/#/voltage/data_error_index" value="" type=""/>
-  <mapping key="pf_active/supply/#/voltage/time" value="" type=""/>
-  <mapping key="pf_active/supply/#/current/data" value="" type=""/>
-  <mapping key="pf_active/supply/#/current/data_error_upper" value="" type=""/>
-  <mapping key="pf_active/supply/#/current/data_error_lower" value="" type=""/>
-  <mapping key="pf_active/supply/#/current/data_error_index" value="" type=""/>
-  <mapping key="pf_active/supply/#/current/time" value="" type=""/>
   -->
-
+  <mapping key="pf_active/supply/#/voltage/data" value="//pfsystems/pfsupplies/voltage/value/name" type="dynamic"/>
+  <!--<mapping key="pf_active/supply/#/voltage/data_error_upper" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/voltage/data_error_lower" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/voltage/data_error_index" value="" type=""/>-->
+  <mapping key="pf_active/supply/#/voltage/time" value="//pfsystems/time_base/time/name" type="dynamic"/>
+  <mapping key="pf_active/supply/#/current/data" value="//pfsystems/pfsupplies/current/value/name" type="dynamic"/>
+  <!--<mapping key="pf_active/supply/#/current/data_error_upper" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/current/data_error_lower" value="" type=""/>-->
+  <!--<mapping key="pf_active/supply/#/current/data_error_index" value="" type=""/>-->
+  <mapping key="pf_active/supply/#/current/time" value="//pfsystems/time_base/time/name" type="dynamic"/>
+  <!--
   <mapping key="pf_active/code/name" value="" type="constant"/>
   <mapping key="pf_active/code/commit" value="" type="constant"/>
   <mapping key="pf_active/code/version" value="" type="constant"/>
   <mapping key="pf_active/code/repository" value="" type="constant"/>
   <mapping key="pf_active/code/parameters" value="" type="constant"/>
   <mapping key="pf_active/code/output_flag" value="" type="constant"/>
+  -->
 
   <!--<mapping key="pf_active/time" value="" type=""/>-->
 </mappings>

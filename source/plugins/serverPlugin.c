@@ -53,17 +53,17 @@ int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, 
     for (i = 0; i < rank; ++i) {
         initDimBlock(&data_block->dims[i]);
 
-        data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
-        data_block->dims[0].dim_n = (int)shape[i];
-        data_block->dims[0].compressed = 1;
-        data_block->dims[0].dim0 = 0.0;
-        data_block->dims[0].diff = 1.0;
-        data_block->dims[0].method = 0;
+        data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
+        data_block->dims[i].dim_n = (int)shape[i];
+        data_block->dims[i].compressed = 1;
+        data_block->dims[i].dim0 = 0.0;
+        data_block->dims[i].diff = 1.0;
+        data_block->dims[i].method = 0;
 
         len *= shape[i];
     }
 
-    double* data = malloc(len * sizeof(float));
+    float* data = malloc(len * sizeof(float));
     memcpy(data, values, len * sizeof(float));
 
     data_block->data_type = UDA_TYPE_FLOAT;
@@ -92,18 +92,18 @@ int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank
     for (i = 0; i < rank; ++i) {
         initDimBlock(&data_block->dims[i]);
 
-        data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
-        data_block->dims[0].dim_n = (int)shape[i];
-        data_block->dims[0].compressed = 1;
-        data_block->dims[0].dim0 = 0.0;
-        data_block->dims[0].diff = 1.0;
-        data_block->dims[0].method = 0;
+        data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
+        data_block->dims[i].dim_n = (int)shape[i];
+        data_block->dims[i].compressed = 1;
+        data_block->dims[i].dim0 = 0.0;
+        data_block->dims[i].diff = 1.0;
+        data_block->dims[i].method = 0;
 
         len *= shape[i];
     }
 
-    double* data = malloc(len * sizeof(float));
-    memcpy(data, values, len * sizeof(float));
+    double* data = malloc(len * sizeof(double));
+    memcpy(data, values, len * sizeof(double));
 
     data_block->data_type = UDA_TYPE_DOUBLE;
     data_block->data = (char*)data;
@@ -131,18 +131,18 @@ setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const si
     for (i = 0; i < rank; ++i) {
         initDimBlock(&data_block->dims[i]);
 
-        data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
-        data_block->dims[0].dim_n = (int)shape[i];
-        data_block->dims[0].compressed = 1;
-        data_block->dims[0].dim0 = 0.0;
-        data_block->dims[0].diff = 1.0;
-        data_block->dims[0].method = 0;
+        data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
+        data_block->dims[i].dim_n = (int)shape[i];
+        data_block->dims[i].compressed = 1;
+        data_block->dims[i].dim0 = 0.0;
+        data_block->dims[i].diff = 1.0;
+        data_block->dims[i].method = 0;
 
         len *= shape[i];
     }
 
-    double* data = malloc(len * sizeof(float));
-    memcpy(data, values, len * sizeof(float));
+    int* data = malloc(len * sizeof(int));
+    memcpy(data, values, len * sizeof(int));
 
     data_block->data_type = UDA_TYPE_INT;
     data_block->data = (char*)data;

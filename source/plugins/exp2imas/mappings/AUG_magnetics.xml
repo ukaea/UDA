@@ -1302,7 +1302,7 @@
           <name documentation="Name of the signal in the local database" type="xs:string">relerror</name>
           <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
             <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">fixed</download>
-            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">-9e40</fixed_value>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
             <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">62</fixed_repeat>
           </download>
           <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
