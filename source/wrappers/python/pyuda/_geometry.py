@@ -324,7 +324,6 @@ class GeometryData(Data):
         import matplotlib.pyplot as plt
         from mpl_toolkits.mplot3d import Axes3D
     
-        self._manip
         if len(self._manip) > 1:
             fig = plt.figure()
             ax_2d = fig.add_subplot(121)
@@ -345,7 +344,8 @@ class GeometryData(Data):
                 ax_2d = fig.add_subplot(121)
                 ax_3d = fig.add_subplot(122, projection='3d')
 
-            self._manip[0].plot(self.data, ax_2d=ax_2d, ax_3d=ax_3d, show=show, color=color)
+            if self._manip[0] is not None:
+                self._manip[0].plot(self.data, ax_2d=ax_2d, ax_3d=ax_3d, show=show, color=color)
 
     def widget(self):
         raise NotImplementedError("widget function not implemented for GeometryData objects")
