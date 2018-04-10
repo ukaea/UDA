@@ -19,6 +19,13 @@
 #include <clientserver/stringUtils.h>
 #include <server/getServerEnvironment.h>
 
+#include "put.h"
+#include "help.h"
+#include "get.h"
+#include "putSignal.h"
+#include "status.h"
+#include "listSignals.h"
+
 const char* pghost = NULL;
 char pgport[56];
 char* dbname = NULL;

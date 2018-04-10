@@ -1459,11 +1459,14 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
                          char* logRecord)
 {
 
-    if (strcmp(client_block->DOI, "") || strlen(client_block->DOI) == 0) return 0;    // No Provenance to Capture
+    if (strcmp(client_block->DOI, "") || strlen(client_block->DOI) == 0) {
+        // No Provenance to Capture
+        return 0;
+    }
 
     // Identify the Provenance Gathering plugin (must be a function library type plugin)
 
-    static short plugin_id = -2;
+    static int plugin_id = -2;
     static int execMethod = 1;        // The default method used to write efficiently to the backend SQL server
     char* env = NULL;
 
@@ -1475,8 +1478,8 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
     if (plugin_id == -2) {        // On initialisation
         plugin_id = -1;
-        if ((env = getenv("UDA_PROVENANCE_PLUGIN")) !=
-            NULL) {                // Must be set in the server startup script
+        if ((env = getenv("UDA_PROVENANCE_PLUGIN")) != NULL) {
+            // Must be set in the server startup script
             UDA_LOG(UDA_LOG_DEBUG, "Plugin name: %s\n", env);
             int id = findPluginIdByFormat(env, plugin_list); // Must be defined in the server plugin configuration file
             UDA_LOG(UDA_LOG_DEBUG, "Plugin id: %d\n", id);
@@ -1500,7 +1503,9 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
                 plugin_id = id;
             }
         }
-        if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL) execMethod = atoi(env);
+        if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL) {
+            execMethod = atoi(env);
+        }
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "Plugin id: %d\n", plugin_id);

@@ -5,8 +5,16 @@
 
 #include <structures/genStructs.h>
 
-int xdrUserDefinedData(XDR *xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                       USERDEFINEDTYPE *userdefinedtype, void **data, int datacount, int structRank, int* structShape,
-                       int index, NTREE **NTree);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                       USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank, int* structShape,
+                       int index, NTREE** NTree);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // IDAM_STRUCTURES_XDRUSERDEFINEDDATA_H

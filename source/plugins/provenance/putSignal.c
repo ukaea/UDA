@@ -58,9 +58,6 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     char sql[MAXSQL];
     int stringLength;
 
-//----------------------------------------------------------------------------------------
-// Standard v1 Plugin Interface
-
     DATA_BLOCK* data_block;
     REQUEST_BLOCK* request_block;
 
@@ -83,13 +80,13 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     UDA_LOG(UDA_LOG_DEBUG, "Provenance: Plugin Interface transferred\n");
 
-//----------------------------------------------------------------------------------------
-// Common Name Value pairs
+    //----------------------------------------------------------------------------------------
+    // Common Name Value pairs
 
-// Keywords have higher priority
+    // Keywords have higher priority
 
-//----------------------------------------------------------------------------------------
-// Error trap
+    //----------------------------------------------------------------------------------------
+    // Error trap
 
     err = 0;
 
@@ -101,15 +98,26 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         UDA_LOG(UDA_LOG_DEBUG, "Provenance: entering function record\n");
 
         char empty[1] = "";
-        char* uuid = empty, * requestedSignal = empty, * requestedSource = empty,
-                * trueSignal = empty, * trueSource = empty, * trueSourceUUID = empty,
-                * logRecord = empty;
+        char* uuid = empty;
+        char* requestedSignal = empty;
+        char* requestedSource = empty;
+        char* trueSignal = empty;
+        char* trueSource = empty;
+        char* trueSourceUUID = empty;
+        char* logRecord = empty;
         char status = '?';
-        unsigned short uuidOK = 0, requestedSignalOK = 0, requestedSourceOK = 0, trueSignalOK = 0,
-                trueSourceOK = 0, trueSourceUUIDOK = 0, logRecordOK = 0, statusOK = 0, execMethodOK = 0;
-        unsigned short execMethod = 0;
+        bool uuidOK = false;
+        bool requestedSignalOK = false;
+        bool requestedSourceOK = false;
+        bool trueSignalOK = false;
+        bool trueSourceOK = false;
+        bool trueSourceUUIDOK = false;
+        bool logRecordOK = false;
+        bool statusOK = false;
+        bool execMethodOK = false;
+        unsigned execMethod = 0;
 
-// Name Value pairs (Keywords have higher priority)
+        // Name Value pairs (Keywords have higher priority)
 
         for (i = 0; i < request_block->nameValueList.pairCount; i++) {
             UDA_LOG(UDA_LOG_DEBUG, "[%d] %s = %s\n", i, request_block->nameValueList.nameValue[i].name,
@@ -168,8 +176,10 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "execMethod")) {
                 execMethod = (short) atoi(request_block->nameValueList.nameValue[i].value);
 
-                if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL)
-                    execMethod = (short) atoi(env);        // server environment has priority
+                if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL) {
+                    // server environment has priority
+                    execMethod = (short)atoi(env);
+                }
 
                 execMethodOK = 1;
                 continue;
@@ -178,23 +188,21 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
 
         if (!execMethodOK && (env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL) {
-            execMethod = (short) atoi(env);        // server environment sets an alternative default value
+            execMethod = (unsigned short)atoi(env);        // server environment sets an alternative default value
             execMethodOK = 1;
         }
 
         if (!uuidOK || strlen(uuid) == 0) {
             err = 999;
             UDA_LOG(UDA_LOG_ERROR, "ERROR Provenance add: The client provenance UUID must be specified!\n");
-            addIdamError(CODEERRORTYPE, "Provenance add", err,
-                         "The client provenance UUID must be specified!");
+            addIdamError(CODEERRORTYPE, "Provenance add", err, "The client provenance UUID must be specified!");
             break;
         }
 
         if (!statusOK) {
             err = 999;
             UDA_LOG(UDA_LOG_ERROR, "ERROR Provenance add: The record status must be specified!\n");
-            addIdamError(CODEERRORTYPE, "Provenance add", err,
-                         "The record status must be specified!");
+            addIdamError(CODEERRORTYPE, "Provenance add", err, "The record status must be specified!");
             break;
         }
 
@@ -209,9 +217,9 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (statusOK) UDA_LOG(UDA_LOG_DEBUG, "Status = %c\n", status);
         if (execMethodOK) UDA_LOG(UDA_LOG_DEBUG, "execMethod = %d\n", execMethod);
 
-// 1> Create a new record if status == new 
-// 2> add log data to an existing record if status == update 
-// 3> close status for all records if status == close
+        // 1> Create a new record if status == new
+        // 2> add log data to an existing record if status == update
+        // 3> close status for all records if status == close
 
         static FILE* sqlSet = NULL;
         static char* key = NULL;
@@ -222,7 +230,8 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         char cmd[2048];
         static char sqlBuffer[1024];
 
-        do {            // Transaction Block Error Trap
+        do {
+            // Transaction Block Error Trap
 
             if (status == 'n') {    // Create a new record and reset the current primary key in scope
                 UDA_LOG(UDA_LOG_DEBUG, "Provenance: record() Create a new record\n");
@@ -234,20 +243,21 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 if (execMethodOK) {
 
-// No Primary Key returned so must create a unique key - use the randomised component of the file name + User's UUID	    
+                    // No Primary Key returned so must create a unique key - use the randomised component of the
+                    // file name + User's UUID
 
                     sprintf(work, "%s/%d/%d", uuid, initTime, keySeq++);    // Create a unique key
-                    key = (char*) malloc((strlen(work) + 1) * sizeof(char));
-                    strcpy(key, work);
+                    key = strdup(work);
 
                     if (execMethod == 1) {
 
-// Login password is stored in .pgpass for POSTGRESQL database so no need to set	       
+                        // Login password is stored in .pgpass for POSTGRESQL database so no need to set
 
-                        if ((env = getenv("UDA_CLI_SQL")) != NULL)
+                        if ((env = getenv("UDA_CLI_SQL")) != NULL) {
                             strcpy(cmd, env);                    // Command line sql utility
-                        else
+                        } else {
                             strcpy(cmd, "psql");
+                        }
 
                         sprintf(&cmd[strlen(cmd)],
                                 " -d %s -U %s -h %s -p %s -c \""
@@ -267,11 +277,10 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         ph = popen(cmd, "r");
 
                         if (ph == NULL || errno != 0) {
-                            execMethodOK = 0;        // Disable exec method
+                            execMethodOK = false;        // Disable exec method
                             err = 999;
                             if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
-                            addIdamError(CODEERRORTYPE, "Provenance", err,
-                                         "Cannot execute background SQL command");
+                            addIdamError(CODEERRORTYPE, "Provenance", err, "Cannot execute background SQL command");
                             break;
                         }
 
@@ -285,11 +294,11 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         tv_start = tv_stop;
                     } else if (execMethod == 2) {
 
-// File directory 
+                        // File directory
 
                         char* tmpdir = getenv("UDA_WORK_DIR");
 
-// Create a temporary file to collect the SQL commands
+                        // Create a temporary file to collect the SQL commands
 
                         if (tmpdir != NULL) {
                             tmpfile = (char*) malloc((strlen(tmpdir) + 11) * sizeof(char));
@@ -303,22 +312,24 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                         errno = 0;
                         if (mkstemp(tmpfile) < 0 || errno != 0) {
-                            execMethodOK = 0;        // Disable SQL collection
+                            execMethodOK = false;        // Disable SQL collection
                             err = 999;
-                            if (errno != 0) err = errno;
-                            addIdamError(SYSTEMERRORTYPE, "Provenance", err,
-                                         "Unable to Obtain a Temporary File Name");
+                            if (errno != 0) {
+                                err = errno;
+                            }
+                            addIdamError(SYSTEMERRORTYPE, "Provenance", err, "Unable to Obtain a Temporary File Name");
                             UDA_LOG(UDA_LOG_ERROR, "ERROR Provenance: Unable to Obtain a Temporary File Name\n");
                             addIdamError(CODEERRORTYPE, "Provenance", err, tmpdir);
                             break;
                         }
 
                         if ((sqlSet = fopen(tmpfile, "w")) == NULL) {
-                            execMethodOK = 0;        // Disable collection
+                            execMethodOK = false;        // Disable collection
                             err = 999;
-                            if (errno != 0) err = errno;
-                            addIdamError(SYSTEMERRORTYPE, "Provenance", err,
-                                         "Unable to Open a Temporary File");
+                            if (errno != 0) {
+                                err = errno;
+                            }
+                            addIdamError(SYSTEMERRORTYPE, "Provenance", err, "Unable to Open a Temporary File");
                             UDA_LOG(UDA_LOG_ERROR, "ERROR Provenance: Unable to Open a Temporary File\n");
                             addIdamError(CODEERRORTYPE, "Provenance", err, tmpfile);
                             break;
@@ -338,6 +349,40 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         UDA_LOG(UDA_LOG_DEBUG, "Provenance: update() execMethod 2 Cost A = %d (ms), %d (microsecs)\n",
                                 msecs, usecs);
                         tv_start = tv_stop;
+                    } else if (execMethod == 99) {
+
+                        // File directory
+
+                        char* tmpdir = getenv("UDA_WORK_DIR");
+                        char file[1024];
+
+                        // Create a temporary file to collect the SQL commands
+
+                        if (tmpdir != NULL) {
+                            sprintf(file, "%s/%s", tmpdir, uuid);
+                        } else {
+                            sprintf(file, "/tmp/%s", uuid);
+                        }
+
+                        FILE* fid = NULL;
+                        if ((fid = fopen(file, "w")) == NULL) {
+                            execMethodOK = false;        // Disable collection
+                            err = 999;
+                            if (errno != 0) {
+                                err = errno;
+                            }
+                            addIdamError(SYSTEMERRORTYPE, "Provenance", err, "Unable to Open a Temporary File");
+                            UDA_LOG(UDA_LOG_ERROR, "ERROR Provenance: Unable to Open a Temporary File\n");
+                            addIdamError(CODEERRORTYPE, "Provenance", err, tmpfile);
+                            break;
+                        }
+
+                        fprintf(fid, "{\"uuid\":\"%s\", \"requestedSignal\":\"%s\", \"requestedSource\":\"%s\","
+                                        " \"trueSignal\":\"%s\", \"trueSource\":\"%s\", \"trueSourceUUID\":\"%s\","
+                                        " \"key\":\"%s\"}",
+                                uuid, requestedSignal, requestedSource, trueSignal, trueSource, trueSourceUUID, key);
+                        fclose(fid);
+
                     } else if (execMethod == 3) {
 
                         gettimeofday(&tv_start, NULL);
@@ -365,7 +410,8 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     }
 
 
-                } else {                // Expensive & blocking database write method
+                } else {
+                    // Expensive & blocking database write method
 
                     sprintf(sql, "BEGIN; "
                                     "INSERT INTO signals_log "
@@ -374,7 +420,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             uuid, requestedSignal, requestedSource, trueSignal, trueSource, trueSourceUUID);
                     UDA_LOG(UDA_LOG_DEBUG, "Provenance: record() SQL\n%s\n", sql);
 
-// Execute the SQL
+                    // Execute the SQL
 
                     if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                         err = 1;        // Roll back transaction
@@ -383,7 +429,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     PQclear(DBQuery);
 
-// Return the Primary Key
+                    // Return the Primary Key
 
                     strcpy(sql, "SELECT signals_log_id FROM signals_log WHERE "
                             "signals_log_id=currval('signals_log_id_seq');");
@@ -405,7 +451,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         break;
                     }
 
-// Extract the SQL data
+                    // Extract the SQL data
 
                     stringLength = strlen(PQgetvalue(DBQuery, 0, 0)) + 1;
                     key = (char*) malloc(stringLength * sizeof(char));
@@ -414,7 +460,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     UDA_LOG(UDA_LOG_DEBUG, "Provenance key: %s\n", key);
 
-// Complete the transaction
+                    // Complete the transaction
 
                     sprintf(sql, "END;");
 
@@ -428,9 +474,8 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     PQclear(DBQuery);
                 }
 
-            } else
-
-            if (status == 'u') {    // update an existing record using the key from the ADD step
+            } else if (status == 'u') {
+                // update an existing record using the key from the ADD step
 
                 UDA_LOG(UDA_LOG_DEBUG, "Provenance: record() update an existing record with the Server Log record\n");
 
@@ -462,7 +507,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         ph = popen(cmd, "r");
 
                         if (ph == NULL || errno != 0) {
-                            execMethodOK = 0;        // Disable exec method
+                            execMethodOK = false;        // Disable exec method
                             err = 999;
                             if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
                             addIdamError(CODEERRORTYPE, "Provenance", err,
@@ -524,7 +569,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         ph = popen(cmd, "r");
 
                         if (ph == NULL || errno != 0) {
-                            execMethodOK = 0;        // Disable exec method
+                            execMethodOK = false;        // Disable exec method
                             err = 999;
                             if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
                             addIdamError(CODEERRORTYPE, "Provenance", err,
@@ -541,11 +586,9 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 msecs, usecs);
                         tv_start = tv_stop;
 
-// Delete the SQL collection
+                        // Delete the SQL collection
 
-                    } else
-
-                    if (execMethod == 3) {
+                    } else if (execMethod == 3) {
 
                         gettimeofday(&tv_start, NULL);
 
@@ -574,7 +617,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         ph = popen(cmd, "r");
 
                         if (ph == NULL || errno != 0) {
-                            execMethodOK = 0;        // Disable exec method
+                            execMethodOK = false;        // Disable exec method
                             err = 999;
                             if (errno != 0) addIdamError(SYSTEMERRORTYPE, "Provenance", errno, "");
                             addIdamError(CODEERRORTYPE, "Provenance", err,
@@ -600,7 +643,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     UDA_LOG(UDA_LOG_DEBUG, "Provenance: record() SQL\n%s\n", sql);
 
-// Execute the SQL
+                    // Execute the SQL
 
                     if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                         PQclear(DBQuery);
@@ -622,7 +665,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 UDA_LOG(UDA_LOG_DEBUG, "Provenance: record() SQL\n%s\n", sql);
 
-// Execute the SQL
+                // Execute the SQL
 
                 if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                     PQclear(DBQuery);
@@ -642,7 +685,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 UDA_LOG(UDA_LOG_DEBUG, "Provenance: record() SQL\n%s\n", sql);
 
-// Execute the SQL
+                // Execute the SQL
 
                 if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                     PQclear(DBQuery);
@@ -680,7 +723,7 @@ int putSignal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             break;
         }
 
-// Return 
+        // Return
 
         data_block->data_type = UDA_TYPE_INT;
         data_block->rank = 0;

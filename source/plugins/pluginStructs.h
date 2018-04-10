@@ -6,6 +6,10 @@
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct PluginList;              // Forward declaration
 typedef struct PluginList PLUGINLIST;
 
@@ -61,5 +65,9 @@ struct PluginList {
     int mcount;             // malloc count allocated
     PLUGIN_DATA* plugin;
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_SERVER_IDAMPLUGINSTRUCTS_H

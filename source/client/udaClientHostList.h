@@ -5,6 +5,10 @@
 #define HOST_MSTEP		10		// Increase heap by 10 records once the maximum is exceeded
 #define HOST_STRING		256
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     char hostalias[HOST_STRING];
     char hostname[HOST_STRING];
@@ -36,5 +40,9 @@ char* udaClientGetHostCAPath(int id);
 int udaClientGetHostSSL(int id);
 void udaClientPutHostNameId(int id);
 int udaClientGetHostNameId(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_CLIENT_HOSTLIST_H

@@ -1,8 +1,16 @@
-#ifndef IDAM_PLUGINS_PROVENANCE_STATUS_H
-#define IDAM_PLUGINS_PROVENANCE_STATUS_H
+#ifndef UDA_PLUGINS_PROVENANCE_STATUS_H
+#define UDA_PLUGINS_PROVENANCE_STATUS_H
 
 #include <plugins/udaPlugin.h>
 
-int status(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#endif // IDAM_PLUGINS_PROVENANCE_STATUS_H
+int status(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // UDA_PLUGINS_PROVENANCE_STATUS_H

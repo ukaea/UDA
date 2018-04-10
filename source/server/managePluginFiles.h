@@ -3,6 +3,10 @@
 
 #include <plugins/udaPluginFiles.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void initIdamPluginFileList(IDAMPLUGINFILELIST* idamfiles);
 
 void registerIdamPluginFileClose(IDAMPLUGINFILELIST* idamfiles, void* fptr);
@@ -28,5 +32,9 @@ int findIdamPluginFileByName(IDAMPLUGINFILELIST* idamfiles, const char* filename
 int findIdamPluginFileByLong(IDAMPLUGINFILELIST* idamfiles, long handle);
 
 void setIdamPluginFileClosed(IDAMPLUGINFILELIST* idamfiles, int record);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //IDAM_SERVER_MANAGEPLUGINFILES_H
