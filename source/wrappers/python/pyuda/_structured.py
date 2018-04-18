@@ -1,4 +1,4 @@
-from __future__ import (division, unicode_literals, print_function, absolute_import)
+from __future__ import (division, print_function, absolute_import)
 
 from ._utils import (cdata_scalar_to_value, cdata_vector_to_value)
 from ._data import Data

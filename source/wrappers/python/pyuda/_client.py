@@ -1,4 +1,4 @@
-from __future__ import (division, unicode_literals, print_function, absolute_import)
+from __future__ import (division, print_function, absolute_import)
 
 from . import c_uda
 from ._signal import Signal
@@ -17,7 +17,7 @@ try:
 except ImportError:
     Enum = object
 
-from builtins import (range, int, bytes, str)
+from builtins import (range, int, bytes)
 from future import standard_library
 from future.utils import with_metaclass
 standard_library.install_aliases()

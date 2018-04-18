@@ -1,4 +1,4 @@
-from __future__ import (division, unicode_literals, print_function, absolute_import)
+from __future__ import (division, print_function, absolute_import)
 
 import numpy as np
 from ._geomPickup import GeomPickup
