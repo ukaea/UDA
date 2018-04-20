@@ -34,6 +34,8 @@
 #include <clientserver/udaTypes.h>
 #include <structures/struct.h>
 
+#include <server/getServerEnvironment.h>
+
 #ifdef USEREADSOAP
 #include "soapStub.h"
 int readSOAP(char *filename, struct _ns1__device *device);
