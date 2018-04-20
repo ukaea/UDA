@@ -6,16 +6,17 @@
 #include <clientserver/copyStructs.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/makeRequestBlock.h>
 #include <clientserver/manageSockets.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/protocolXML.h>
+#include <clientserver/sqllib.h>
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
+#include <plugins/serverPlugin.h>
 #include <structures/parseIncludeFile.h>
 #include <structures/struct.h>
-#include <plugins/serverPlugin.h>
-#include <clientserver/makeRequestBlock.h>
 
 #include "makeServerRequestBlock.h"
 #include "serverGetData.h"
@@ -329,7 +330,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
 #ifndef NOTGENERICENABLED
     if (request_block->request == REQUEST_READ_GENERIC || (client_block->clientFlags & CLIENTFLAG_ALTDATA)) {
         if (DBConnect == NULL) {
-            if (!(DBConnect = startSQL())) {
+            if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
                 if (DBConnect != NULL) {
                     PQfinish(DBConnect);
                 }

@@ -8,8 +8,10 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
+#include <clientserver/sqllib.h>
 #include <clientserver/udaErrors.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/xdrlib.h>
@@ -17,8 +19,6 @@
 #include <logging/logging.h>
 #include <plugins/serverPlugin.h>
 #include <structures/struct.h>
-#include <clientserver/makeRequestBlock.h>
-#include <clientserver/sqllib.h>
 
 #include "closeServerSockets.h"
 #include "freeIdamPut.h"
@@ -331,7 +331,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
 #ifndef NOTGENERICENABLED
             if (request_block.request == REQUEST_READ_GENERIC || (client_block.clientFlags & CLIENTFLAG_ALTDATA)) {
                 if (DBConnect == NULL) {
-                    if (!(DBConnect = startSQL())) {
+                    if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
                         err = 777;
                         addIdamError(CODEERRORTYPE, "idamServer", err,
                                      "Unable to Connect to the SQL Database Server");

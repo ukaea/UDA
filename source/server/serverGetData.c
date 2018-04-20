@@ -17,6 +17,7 @@
 #include <clientserver/udaErrors.h>
 #include <structures/struct.h>
 
+#include <clientserver/sqllib.h>
 #include <modules/bytes/readBytesNonOptimally.h>
 #include <modules/hdata/readHData.h>
 #include <modules/hdf58/readHDF58.h>
@@ -30,7 +31,6 @@
 #include <modules/readsql/readSQL.h>
 #include <modules/ufile/readUFile.h>
 #include <plugins/serverPlugin.h>
-#include <clientserver/sqllib.h>
 
 #include "serverGetData.h"
 #include "dumpFile.h"
@@ -284,7 +284,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                     if (DBConnect == NULL && (request_block2.request == REQUEST_READ_GENERIC ||
                                               request_block2.request == REQUEST_READ_SQL)) {
                         if ((DBConnect = gDBConnect) == NULL) {
-                            if (!(DBConnect = startSQL())) {
+                            if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
                                 if (DBConnect != NULL) {
                                     PQfinish(DBConnect);
                                 }

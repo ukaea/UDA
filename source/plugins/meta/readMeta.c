@@ -32,11 +32,11 @@ Issues:
 #include <string.h>
 #include <strings.h>
 
-#include <clientserver/stringUtils.h>
-#include <structures/struct.h>
-#include <structures/accessors.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/sqllib.h>
+#include <clientserver/stringUtils.h>
+#include <structures/accessors.h>
+#include <structures/struct.h>
 
 // Prevent SQL injection malicious intent
 // Not required if the server is Read Only!
@@ -219,9 +219,6 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             strcpy(environment.sql_dbname, "cpf");        // Case Sensitive!!!
             if ((env = getenv("UDA_CPFDBNAME")) != NULL) strcpy(environment.sql_dbname, env);
             if ((env = getenv("CPF_SQLDBNAME")) != NULL) strcpy(environment.sql_dbname, env);
-
-            //DBConnect = (PGconn *)startSQL();		// Picking up startSQL from somewhere!
-            // preload of liblastshot.so & libidamNotify.so for MDS+ sandbox !!!!
 
             DBConnect = startSQL_CPF(&environment);        // Ignore prior connection to IDAM Postgres SQL Database
             if (DBConnect != NULL) {

@@ -687,7 +687,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
 #ifndef NOTGENERICENABLED
     if (request_block->request == REQUEST_READ_GENERIC || (client_block->clientFlags & CLIENTFLAG_ALTDATA)) {
         if (DBConnect == NULL) {
-            if (!(DBConnect = startSQL())) {
+            if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
                 if (DBConnect != NULL) PQfinish(DBConnect);
                 THROW_ERROR(777, "Unable to Connect to the SQL Database Server");
             }
