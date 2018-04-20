@@ -31,6 +31,7 @@ set( SRC_FILES
   getServerEnvironment.c
   getPluginAddress.c
   initPluginList.c
+  initPluginList.c
 )
 
 set( HEADER_FILES
