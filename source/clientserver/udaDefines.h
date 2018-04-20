@@ -85,10 +85,10 @@ extern unsigned int privateFlags;
 // Client Flags: Client specified local properties (32 bits)
 
 #define CLIENTFLAG_FULLRESET -1    // ffff        Reset flags
-#define CLIENTFLAG_ALTDATA    1    // 0001
-#define CLIENTFLAG_XDRFILE    2    // 0010        Use an intermediate file with the XDR data rather than a data stream
-#define CLIENTFLAG_CACHE      4    // 0100        Access data from the local cache and write new data to cache
-#define CLIENTFLAG_CLOSEDOWN  8    // 1000        Immediate Closedown
+#define CLIENTFLAG_ALTDATA    1u    // 0001
+#define CLIENTFLAG_XDRFILE    2u    // 0010        Use an intermediate file with the XDR data rather than a data stream
+#define CLIENTFLAG_CACHE      4u    // 0100        Access data from the local cache and write new data to cache
+#define CLIENTFLAG_CLOSEDOWN  8u    // 1000        Immediate Closedown
 
 #define CLIENTFLAG_XDROBJECT    16  // 10000        Use a XDR object in memory
 
