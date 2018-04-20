@@ -1611,6 +1611,8 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                 idam_plugin_interface->request_block = &new_request;
 
                 rc = plugin->idamPlugin(idam_plugin_interface);
+                sprintf(data_block->data_desc, (plugin_args.path[0] == '/') ? "%s%s" : "%s/%s",
+                        plugin_args.CPOPath, plugin_args.path);
 
                 if (rc == 0) {
                     for (i = 0; i < data_block->rank; ++i) {

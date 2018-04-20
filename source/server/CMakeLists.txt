@@ -5,6 +5,7 @@ cmake_minimum_required( VERSION 2.8 )
 
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
+find_package( PostgreSQL REQUIRED )
 
 include( modules )
 find_modules()
@@ -98,6 +99,9 @@ set( SERVER_OBJ
 
 add_library( server-shared SHARED ${SERVER_OBJ} )
 add_library( server-static STATIC ${SERVER_OBJ} )
+
+target_link_libraries( server-shared LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
+target_link_libraries( server-static LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
 
 add_executable( server-exe serverMain.c )
 

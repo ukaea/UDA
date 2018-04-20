@@ -22,7 +22,7 @@
 
 // Open the Connection with the PostgreSQL IDAM Database
 
-#ifndef NOTGENERICENABLED
+#if !defined(NOTGENERICENABLED) && defined(SERVERBUILD)
 
 static void nameIDA(const char* alias, int pulno, char* filename)
 {
