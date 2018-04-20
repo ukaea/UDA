@@ -971,8 +971,7 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT*
 
     char* env = NULL;
     if ((env = getenv("UDA_METADATA_PLUGIN")) != NULL) {        // Must be set in the server startup script
-        int id = findPluginIdByFormat(env,
-                                      plugin_list);        // Must be defined in the server plugin configuration file
+        int id = findPluginIdByFormat(env, plugin_list);        // Must be defined in the server plugin configuration file
         if (id >= 0 &&
             plugin_list->plugin[id].plugin_class == PLUGINFUNCTION &&
             plugin_list->plugin[id].status == PLUGINOPERATIONAL &&

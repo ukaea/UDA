@@ -27,6 +27,7 @@
 #include "serverProcessing.h"
 #include "serverStartup.h"
 #include "udaLegacyServer.h"
+#include "getServerEnvironment.h"
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>

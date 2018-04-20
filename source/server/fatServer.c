@@ -24,6 +24,7 @@
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
 #include "getServerEnvironment.h"
+#include "getServerEnvironment.h"
 
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {
