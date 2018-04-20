@@ -7,6 +7,10 @@ find_package( OpenSSL REQUIRED )
 if( NOT CLIENT_ONLY )
   find_package( PostgreSQL REQUIRED )
   find_package( LibXml2 REQUIRED )
+
+  include_directories( ${PostgreSQL_INCLUDE_DIRS} )
+else()
+  add_definitions( -DNOTGENERICENABLED )
 endif()
 
 include_directories(
@@ -37,6 +41,7 @@ set( SRC_FILES
   udaTypes.c
   userid.c
   xdrlib.c
+  sqllib.c
 #  utils.c
 )
 
@@ -78,6 +83,7 @@ set( HEADER_FILES
   xdrHData.h
   xdrlib.h
   xmlStructs.h
+  sqllib.h
 )
 
 if( APPLE )

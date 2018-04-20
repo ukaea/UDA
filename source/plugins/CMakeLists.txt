@@ -70,8 +70,19 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/source
 )
 
-file( GLOB SOURCE_FILES "*.c" )
-file( GLOB HEADER_FILES "*.h" )
+set( SOURCE_FILES
+  managePluginFiles.c
+  serverPlugin.c
+  udaPlugin.c
+)
+
+set( HEADER_FILES
+  managePluginFiles.h
+  pluginStructs.h
+  serverPlugin.h
+  udaPlugin.h
+  udaPluginFiles.h
+)
 
 add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
 add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )

@@ -25,7 +25,6 @@
 
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>
-#include <server/makeServerRequestBlock.h>
 #include <clientserver/stringUtils.h>
 #include <structures/accessors.h>
 #include <clientserver/makeRequestBlock.h>
@@ -3196,7 +3195,7 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int err = 0;
 
     IDAM_PLUGIN_INTERFACE next_plugin_interface;
-    REQUEST_BLOCK next_request_block;
+    REQUEST_BLOCK next_request_block = {};
 
     const PLUGINLIST* pluginList = idam_plugin_interface->pluginList;
 
@@ -3217,13 +3216,12 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         next_plugin_interface = *idam_plugin_interface;    // New plugin interface
 
         next_plugin_interface.request_block = &next_request_block;
-        initServerRequestBlock(&next_request_block);
         strcpy(next_request_block.api_delim, request_block->api_delim);
 
         strcpy(next_request_block.signal, signal);
         strcpy(next_request_block.source, source);
 
-        makeServerRequestBlock(&next_request_block, *pluginList);
+        makeRequestBlock(&next_request_block, *pluginList, idam_plugin_interface->environment);
 
         int i;
         for (i = 0; i < pluginList->count; i++) {

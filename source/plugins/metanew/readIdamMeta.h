@@ -2,7 +2,7 @@
 #define IDAM_PLUGINS_READMETANEW_READIDAMMETA_H
 
 #include <plugins/udaPlugin.h>
-#include <server/sqllib.h>
+#include <clientserver/sqllib.h>
 
 struct DATALASTSHOT
 {

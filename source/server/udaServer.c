@@ -24,7 +24,6 @@
 #include "udaLegacyServer.h"
 #include "serverLegacyPlugin.h"
 #include "makeServerRequestBlock.h"
-#include "sqllib.h"
 #include "createXDRStream.h"
 #include "getServerEnvironment.h"
 

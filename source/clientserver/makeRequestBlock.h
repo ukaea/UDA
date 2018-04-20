@@ -12,11 +12,11 @@ extern "C" {
 #define MAXMAPDEPTH     10  // Maximum number of chained signal name mappings (Recursive depth)
 #define MAXREQDEPTH     4   // Maximum number of Device Name to Server Protocol and Host substitution
 
-int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, ENVIRONMENT* environment);
+int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment);
 void extractFunctionName(char* str, REQUEST_BLOCK* request_block);
-int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList, ENVIRONMENT* environment);
+int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment);
 int genericRequestTest(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList);
-int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, ENVIRONMENT* environment);
+int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRONMENT* environment);
 void expandEnvironmentVariables(REQUEST_BLOCK *request_block);
 int extractSubset(REQUEST_BLOCK *request_block);
 void freeNameValueList(NAMEVALUELIST *nameValueList);

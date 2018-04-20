@@ -1,5 +1,5 @@
-#ifndef IDAM_SERVER_IDAMPLUGINFILES_H
-#define IDAM_SERVER_IDAMPLUGINFILES_H
+#ifndef UDA_PLUGINS_UDAPLUGINFILES_H
+#define UDA_PLUGINS_UDAPLUGINFILES_H
 
 #include <time.h>
 #include <sys/time.h>
@@ -39,4 +39,4 @@ typedef struct IDAMPluginFileList {
 }
 #endif
 
-#endif // IDAM_SERVER_IDAMPLUGINFILES_H
+#endif // UDA_PLUGINS_UDAPLUGINFILES_H

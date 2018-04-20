@@ -30,13 +30,13 @@
 #include <modules/readsql/readSQL.h>
 #include <modules/ufile/readUFile.h>
 #include <plugins/serverPlugin.h>
+#include <clientserver/sqllib.h>
 
 #include "serverGetData.h"
 #include "dumpFile.h"
 #include "applyXML.h"
 #include "mastArchiveFilePath.h"
 #include "makeServerRequestBlock.h"
-#include "sqllib.h"
 #include "getServerEnvironment.h"
 
 int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action);

@@ -5,7 +5,6 @@
 #include <libxml/parser.h>
 
 #include <plugins/udaPlugin.h>
-#include <server/makeServerRequestBlock.h>
 #include <plugins/serverPlugin.h>
 #include <client/udaClient.h>
 #include <clientserver/compressDim.h>

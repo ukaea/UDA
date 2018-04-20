@@ -17,7 +17,6 @@
 
 #include <structures/struct.h>
 #include <clientserver/stringUtils.h>
-#include <server/getServerEnvironment.h>
 
 #include "put.h"
 #include "help.h"

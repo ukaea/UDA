@@ -21,7 +21,6 @@
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
-#include "sqllib.h"
 #include "getServerEnvironment.h"
 
 #ifdef NONETCDFPLUGIN

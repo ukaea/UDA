@@ -32,13 +32,11 @@ Issues:
 #include <string.h>
 #include <strings.h>
 
-#include <server/udaServer.h>
 #include <clientserver/stringUtils.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <clientserver/initStructs.h>
-#include <server/sqllib.h>
-#include <server/getServerEnvironment.h>
+#include <clientserver/sqllib.h>
 
 // Prevent SQL injection malicious intent
 // Not required if the server is Read Only!
@@ -197,7 +195,8 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (context != CONTEXT_CPF) {
             if (DBConnect == NULL && (DBType == PLUGINSQLPOSTGRES || DBType == PLUGINSQLNOTKNOWN)) {
-                DBConnect = startSQL(idam_plugin_interface->environment);        // No prior connection to IDAM Postgres SQL Database
+                DBConnect = startSQL(
+                        idam_plugin_interface->environment);        // No prior connection to IDAM Postgres SQL Database
                 if (DBConnect != NULL) {
                     DBType = PLUGINSQLPOSTGRES;
                     sqlPrivate = 1;
@@ -474,68 +473,68 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (STR_IEQUALS(request_block->function, "help")) {
 
             strcpy(work, "\nMETA: The META server side function library provides access to the IDAM Metadata registry. "
-                    "This registry records different classes of metadata. "
-                    "Access to these classes depends on the data request context. "
-                    "There are three contexts: META means the metadata recorded in the registy. DATA means the metadata "
-                    "recorded in the data respository. And CPF means the high level plasma classification data recorded in "
-                    "the CPF database. The default context is DATA. "
-                    "The library provides functions (list and get methods) to retrieve the required information as well as describing "
-                    "what information is available, enabling Data Discovery.\n\n"
+                         "This registry records different classes of metadata. "
+                         "Access to these classes depends on the data request context. "
+                         "There are three contexts: META means the metadata recorded in the registy. DATA means the metadata "
+                         "recorded in the data respository. And CPF means the high level plasma classification data recorded in "
+                         "the CPF database. The default context is DATA. "
+                         "The library provides functions (list and get methods) to retrieve the required information as well as describing "
+                         "what information is available, enabling Data Discovery.\n\n"
 
-                    "Function: list(context={meta|data|cpf} [,{cast|align}={row|column}] [,class=class] [,system=system]\n"
-                    "               [,{Config|configuration}=configuration] [,device=device]\n"
-                    "               [,{shot|pulno|exp_number}=shot]\n"
-                    "               [,version=version] [,revision=revision]\n"
-                    "               [,{source|alias|source_alias}=source_alias] [,type={A|R|M|P|I|*}] [,pass=pass]\n"
-                    "               [,description=description] [,table=table]\n"
-                    "               [,/listclasses] [,/listsources] [,/structure])\n\n"
-                    "This function is used for data discovery and returns a list of the meta data available "
-                    "for a specific shot and/or class etc.\n"
-                    "The meanings of keywords are:\n"
-                    "\tlistdevices (with context=meta}) - return a list of device names for which metadata exists.\n"
-                    "\tlistclasses (with context={meta|cpf}) - return a list of metadata classes available.\n"
-                    "\tlistsources (with context=data) - return a list of data sources metadata available for a specific shot.\n"
-                    "\tstructure (with context=meta) - return the associated data structure definitions (work in progress!).\n\n"
+                         "Function: list(context={meta|data|cpf} [,{cast|align}={row|column}] [,class=class] [,system=system]\n"
+                         "               [,{Config|configuration}=configuration] [,device=device]\n"
+                         "               [,{shot|pulno|exp_number}=shot]\n"
+                         "               [,version=version] [,revision=revision]\n"
+                         "               [,{source|alias|source_alias}=source_alias] [,type={A|R|M|P|I|*}] [,pass=pass]\n"
+                         "               [,description=description] [,table=table]\n"
+                         "               [,/listclasses] [,/listsources] [,/structure])\n\n"
+                         "This function is used for data discovery and returns a list of the meta data available "
+                         "for a specific shot and/or class etc.\n"
+                         "The meanings of keywords are:\n"
+                         "\tlistdevices (with context=meta}) - return a list of device names for which metadata exists.\n"
+                         "\tlistclasses (with context={meta|cpf}) - return a list of metadata classes available.\n"
+                         "\tlistsources (with context=data) - return a list of data sources metadata available for a specific shot.\n"
+                         "\tstructure (with context=meta) - return the associated data structure definitions (work in progress!).\n\n"
 
-                    "IDL Examples:\n"
-                    "\tList all available data sources for a given MAST shot\n"
-                    "\t\tstr=getdata('meta::list(context=data, /listSources)', '17300') or\n"
-                    "\t\tstr=getdata('meta::list(context=data, shot=17300, /listSources)', '')\n"
-                    "\tList all available data signals (Raw, Analysed, Modelled, etc.) for a given MAST shot\n"
-                    "\t\tstr=getdata('meta::list(context=data, shot=23456), type=A', 'MAST::')\n"
-                    "\tList metadata classes for a specific context\n"
-                    "\t\tstr=getdata('meta::list(context=meta, /listClasses)','') or\n"
-                    "\t\tstr=getdata('meta::list(context=cpf, /listClasses)','')\n"
-                    "\tList all available metadata\n"
-                    "\t\tstr=getdata('meta::list(context=meta)','')\n"
+                         "IDL Examples:\n"
+                         "\tList all available data sources for a given MAST shot\n"
+                         "\t\tstr=getdata('meta::list(context=data, /listSources)', '17300') or\n"
+                         "\t\tstr=getdata('meta::list(context=data, shot=17300, /listSources)', '')\n"
+                         "\tList all available data signals (Raw, Analysed, Modelled, etc.) for a given MAST shot\n"
+                         "\t\tstr=getdata('meta::list(context=data, shot=23456), type=A', 'MAST::')\n"
+                         "\tList metadata classes for a specific context\n"
+                         "\t\tstr=getdata('meta::list(context=meta, /listClasses)','') or\n"
+                         "\t\tstr=getdata('meta::list(context=cpf, /listClasses)','')\n"
+                         "\tList all available metadata\n"
+                         "\t\tstr=getdata('meta::list(context=meta)','')\n"
 
-                    "\n\nFunction: get(context={meta|cpf|data} [,{cast|align}={row|column}] [,class=class] [,system=system]\n"
-                    "                  [,configuration=configuration] [,device=device]\n"
-                    "                  [,{shot|pulno|exp_number}=shot]\n"
-                    "                  [,version=version] [,revision=revision]\n"
-                    "                  [,names=\"var1,var2,var3,...\"] [,table=table] [,where=where] [,limit=limit]\n"
-                    "                  [,/lastshot] [,/shotdatetime] [,/latest])\n\n"
-                    "This function is used to return a data structure populated with the metadata requested. If the context is 'meta', "
-                    "the selection criteria must be sufficient to identify a single metadata registry record, "
-                    "otherwise the ambiguity will cause an error.\n"
-                    "The meanings of keywords are:\n"
-                    "\tlastshot (with context=data) - return the last shot number recorded for the default device.\n"
-                    "\tshotdatetime (with context=data) - return the date and time of a specific plasma shot for the default device.\n"
-                    "\tlatest (with context=meta) - return the latest metadata version and revision.\n\n"
-                    "IDL Examples:\n"
-                    "\tGet the Soft X-Ray camera configuration data\n"
-                    "\t\tstr=getdata('meta::get(context=meta,class=diagnostic,system=sxr)', '')\n"
-                    "\tGet the Omaha magnetic coil names and locations\n"
-                    "\t\tstr=getdata('meta::get(context=meta,class=magnetic,system=omaha,configuration=specview,version=1,revision=1,shot=17301)', '')\n"
-                    "\tGet the set of coordinates that map out the limiting surfaces inside the MAST vessel\n"
-                    "\t\tstr=getdata('meta::get(context=meta,class=structure,configuration=limiter)','')\n"
-                    "\tGet the last shot number\n"
-                    "\t\tstr=getdata('meta::get(context=data,/lastshot)','')\n"
-                    "\tGet the data and time of a shot\n"
-                    "\t\tstr=getdata('meta::get(context=data,shot=13500,/shotdatetime)','')\n"
-                    "\tGet plasma classification data from the CPF\n"
-                    "\t\tstr=getdata('meta::get(context=cpf,names=\"exp_number,tstart,tend\",table=mast0,"
-                    "where=\"tend>=0.4 ORDER BY exp_number desc\",limit=99,cast=column)','')\n"
+                         "\n\nFunction: get(context={meta|cpf|data} [,{cast|align}={row|column}] [,class=class] [,system=system]\n"
+                         "                  [,configuration=configuration] [,device=device]\n"
+                         "                  [,{shot|pulno|exp_number}=shot]\n"
+                         "                  [,version=version] [,revision=revision]\n"
+                         "                  [,names=\"var1,var2,var3,...\"] [,table=table] [,where=where] [,limit=limit]\n"
+                         "                  [,/lastshot] [,/shotdatetime] [,/latest])\n\n"
+                         "This function is used to return a data structure populated with the metadata requested. If the context is 'meta', "
+                         "the selection criteria must be sufficient to identify a single metadata registry record, "
+                         "otherwise the ambiguity will cause an error.\n"
+                         "The meanings of keywords are:\n"
+                         "\tlastshot (with context=data) - return the last shot number recorded for the default device.\n"
+                         "\tshotdatetime (with context=data) - return the date and time of a specific plasma shot for the default device.\n"
+                         "\tlatest (with context=meta) - return the latest metadata version and revision.\n\n"
+                         "IDL Examples:\n"
+                         "\tGet the Soft X-Ray camera configuration data\n"
+                         "\t\tstr=getdata('meta::get(context=meta,class=diagnostic,system=sxr)', '')\n"
+                         "\tGet the Omaha magnetic coil names and locations\n"
+                         "\t\tstr=getdata('meta::get(context=meta,class=magnetic,system=omaha,configuration=specview,version=1,revision=1,shot=17301)', '')\n"
+                         "\tGet the set of coordinates that map out the limiting surfaces inside the MAST vessel\n"
+                         "\t\tstr=getdata('meta::get(context=meta,class=structure,configuration=limiter)','')\n"
+                         "\tGet the last shot number\n"
+                         "\t\tstr=getdata('meta::get(context=data,/lastshot)','')\n"
+                         "\tGet the data and time of a shot\n"
+                         "\t\tstr=getdata('meta::get(context=data,shot=13500,/shotdatetime)','')\n"
+                         "\tGet plasma classification data from the CPF\n"
+                         "\t\tstr=getdata('meta::get(context=cpf,names=\"exp_number,tstart,tend\",table=mast0,"
+                         "where=\"tend>=0.4 ORDER BY exp_number desc\",limit=99,cast=column)','')\n"
             );
 
             UDA_LOG(UDA_LOG_DEBUG, "readMeta:\n%s\n", work);
@@ -758,7 +757,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (deviceDependent >= 0) {
                 sprintf(sql, "SELECT class,system,device,ro,description FROM Meta_Alias "
-                        "WHERE device ILIKE '%s' ORDER BY device, class, system ASC",
+                             "WHERE device ILIKE '%s' ORDER BY device, class, system ASC",
                         request_block->nameValueList.nameValue[deviceDependent].value);
             } else {
                 strcpy(sql,
@@ -969,12 +968,12 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (isStructure) {
                 strcpy(sql,
                        "SELECT class, system, device, configuration, version, revision, status, description, comment, "
-                               "range_start, range_stop, type_name, structure_description, definition FROM "
-                               "Meta_Source_Structure_View ");
+                       "range_start, range_stop, type_name, structure_description, definition FROM "
+                       "Meta_Source_Structure_View ");
             } else {
                 strcpy(sql,
                        "SELECT class, system, device, configuration, version, revision, status, description, comment, "
-                               "range_start, range_stop FROM Meta_Source_View ");
+                       "range_start, range_stop FROM Meta_Source_View ");
             }
 
             wCount = 0;
@@ -1711,7 +1710,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: Too many Meta Data files identified.!\n");
                 err = 999;
                 addIdamError(CODEERRORTYPE, "readMeta", err, "Too many Meta Data files identified. "
-                        "Please refine your selection");
+                                                             "Please refine your selection");
                 break;
             }
 
@@ -2095,9 +2094,9 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 if (pass > -1) {
                     sprintf(sql,
                             "SELECT signal_alias, generic_name, source_alias, type, description, signal_status, mds_name FROM Signal_Desc as D, "
-                                    "(SELECT DISTINCT signal_desc_id, signal_status from Signal as A, (SELECT source_id FROM Data_Source WHERE "
-                                    "exp_number = %d AND pass = %d %s) as B WHERE A.source_id = B.source_id) as C WHERE "
-                                    "D.signal_desc_id = C.signal_desc_id ", exp_number, pass, work);
+                            "(SELECT DISTINCT signal_desc_id, signal_status from Signal as A, (SELECT source_id FROM Data_Source WHERE "
+                            "exp_number = %d AND pass = %d %s) as B WHERE A.source_id = B.source_id) as C WHERE "
+                            "D.signal_desc_id = C.signal_desc_id ", exp_number, pass, work);
 
                     if (signalMatchDependent >= 0) {
                         strcat(sql, " AND D.signal_alias ILIKE '%");
@@ -2115,10 +2114,10 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 } else {
                     sprintf(sql,
                             "SELECT signal_alias, generic_name, source_alias, type, description, signal_status, mds_name FROM Signal_Desc as D, "
-                                    "(SELECT DISTINCT signal_desc_id, signal_status from Signal as A, "
-                                    " (SELECT source_id FROM Data_Source WHERE exp_number = %d %s) "
-                                    " as B WHERE A.source_id = B.source_id) as C "
-                                    " WHERE D.signal_desc_id = C.signal_desc_id ", exp_number, work);
+                            "(SELECT DISTINCT signal_desc_id, signal_status from Signal as A, "
+                            " (SELECT source_id FROM Data_Source WHERE exp_number = %d %s) "
+                            " as B WHERE A.source_id = B.source_id) as C "
+                            " WHERE D.signal_desc_id = C.signal_desc_id ", exp_number, work);
 
                     if (signalMatchDependent >= 0) {
                         strcat(sql, " AND D.signal_alias ILIKE '%");
@@ -2136,7 +2135,8 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             } else {
                 if (work[0] == '\0') {
-                    sprintf(sql, "SELECT signal_alias, generic_name, source_alias, type, description, mds_name FROM Signal_Desc");
+                    sprintf(sql,
+                            "SELECT signal_alias, generic_name, source_alias, type, description, mds_name FROM Signal_Desc");
                     if (signalMatchDependent >= 0) {
                         strcat(sql, " AND signal_alias ILIKE '%");
                         strcat(sql, signal_match_escaped);
@@ -2152,7 +2152,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 } else {
                     sprintf(sql,
                             "SELECT signal_alias, generic_name, source_alias, type, description, mds_name FROM Signal_Desc WHERE "
-                                    "%s", &work[4]);  // skip the AND
+                            "%s", &work[4]);  // skip the AND
                     if (signalMatchDependent >= 0) {
                         strcat(sql, " AND signal_alias ILIKE '%");
                         strcat(sql, signal_match_escaped);
@@ -2355,15 +2355,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     if (!PQgetisnull(DBQuery, i, next_num)) {
                         stringLength = strlen(PQgetvalue(DBQuery, i, next_num)) + 1;
-                        data[i].mds_name = (char *) malloc(stringLength * sizeof(char));
+                        data[i].mds_name = (char*)malloc(stringLength * sizeof(char));
                         strcpy(data[i].mds_name, PQgetvalue(DBQuery, i, next_num));
-                        addMalloc(logmalloclist, (void *) data[i].mds_name, 1, stringLength * sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data[i].mds_name, 1, stringLength * sizeof(char), "char");
                     } else {
-                        data[i].mds_name = (char *) malloc(sizeof(char));
+                        data[i].mds_name = (char*)malloc(sizeof(char));
                         strcpy(data[i].mds_name, "");
-                        addMalloc(logmalloclist, (void *) data[i].mds_name, 1, sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data[i].mds_name, 1, sizeof(char), "char");
                     }
-
 
                     UDA_LOG(UDA_LOG_DEBUG, "signal_name : %s\n", data[i].signal_name);
                     UDA_LOG(UDA_LOG_DEBUG, "generic_name: %s\n", data[i].generic_name);
@@ -2524,57 +2523,57 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 if (pass > -1) {
                     sprintf(sql,
                             "SELECT source_alias, pass, source_status, format, filename, type, run_id FROM Data_Source WHERE "
-                                    "exp_number=%d AND pass=%d %s ORDER BY source_alias ASC, pass DESC", exp_number,
+                            "exp_number=%d AND pass=%d %s ORDER BY source_alias ASC, pass DESC", exp_number,
                             pass, work);
                 } else {
                     sprintf(sql,
                             "SELECT source_alias, pass, source_status, format, filename, type, run_id FROM Data_Source WHERE "
-                                    "exp_number=%d %s ORDER BY source_alias ASC, pass DESC", exp_number, work);
+                            "exp_number=%d %s ORDER BY source_alias ASC, pass DESC", exp_number, work);
                 }
 
-            // Execute the SQL
-            if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
-                err = 999;
-                UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
-                addIdamError(CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
-                break;
-            }
+                // Execute the SQL
+                if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+                    err = 999;
+                    UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: Database Query Failed!\n");
+                    addIdamError(CODEERRORTYPE, "readMeta", err, "Database Query Failed!");
+                    break;
+                }
 
-            if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
-                UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
-                err = 999;
-                addIdamError(CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
-                break;
-            }
+                if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
+                    UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: %s\n", PQresultErrorMessage(DBQuery));
+                    err = 999;
+                    addIdamError(CODEERRORTYPE, "readMeta", err, PQresultErrorMessage(DBQuery));
+                    break;
+                }
 
-            nrows = PQntuples(DBQuery);
+                nrows = PQntuples(DBQuery);
 
-            if (nrows == 0) {
-                UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
-                err = 999;
-                addIdamError(CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
-                break;
-            }
+                if (nrows == 0) {
+                    UDA_LOG(UDA_LOG_ERROR, "ERROR Meta: No Meta Data available!\n");
+                    err = 999;
+                    addIdamError(CODEERRORTYPE, "readMeta", err, "No Meta Data available!");
+                    break;
+                }
 
-            // Create the Returned Structure Definition
+                // Create the Returned Structure Definition
 
-            initUserDefinedType(&usertype);            // New structure definition
+                initUserDefinedType(&usertype);            // New structure definition
 
-            if (castTypeId == CASTROW) {
-                strcpy(usertype.name, "DATALISTSOURCES_R");        // Default is Row Oriented
-                usertype.size = sizeof(DATALISTSOURCES_R);
-            } else if (castTypeId == CASTCOLUMN) {
-                strcpy(usertype.name, "DATALISTSOURCES_C");
-                usertype.size = sizeof(DATALISTSOURCES_C);
-            }
+                if (castTypeId == CASTROW) {
+                    strcpy(usertype.name, "DATALISTSOURCES_R");        // Default is Row Oriented
+                    usertype.size = sizeof(DATALISTSOURCES_R);
+                } else if (castTypeId == CASTCOLUMN) {
+                    strcpy(usertype.name, "DATALISTSOURCES_C");
+                    usertype.size = sizeof(DATALISTSOURCES_C);
+                }
 
-            strcpy(usertype.source, "readMeta");
-            usertype.ref_id = 0;
-            usertype.imagecount = 0;                // No Structure Image data
-            usertype.image = NULL;
-            usertype.idamclass = UDA_TYPE_COMPOUND;
+                strcpy(usertype.source, "readMeta");
+                usertype.ref_id = 0;
+                usertype.imagecount = 0;                // No Structure Image data
+                usertype.image = NULL;
+                usertype.idamclass = UDA_TYPE_COMPOUND;
 
-            offset = 0;
+                offset = 0;
 
                 if (castTypeId == CASTCOLUMN) {
                     defineField(&field, "count", "Array element count", &offset, SCALARUINT);
@@ -2626,7 +2625,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     field.count = 1;
                     field.rank = 0;
                     field.shape = NULL;
-                    field.size = field.count * sizeof(DATALISTSOURCES_R *);
+                    field.size = field.count * sizeof(DATALISTSOURCES_R*);
                     field.offset = newoffset(offset, field.type);
                     field.offpad = padding(offset, field.type);
                     field.alignment = getalignmentof(field.type);
@@ -2636,7 +2635,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     addUserDefinedType(userdefinedtypelist, usertype);
                 }
 
-                USERDEFINEDTYPE *udt = findUserDefinedType(userdefinedtypelist, "DATALISTSOURCES_R", 0);
+                USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "DATALISTSOURCES_R", 0);
                 int size = getStructureSize(userdefinedtypelist, udt);
                 UDA_LOG(UDA_LOG_DEBUG, "sizeof(DATALISTSOURCES_R) = %zu [%d]\n", sizeof(DATALISTSOURCES_R), size);
                 printUserDefinedTypeListTable(*userdefinedtypelist);
@@ -2648,14 +2647,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 if (castTypeId == CASTROW) {                // Row oriented
 
-                    DATALISTSOURCES_RR *dataR;
-                    dataR = (DATALISTSOURCES_RR *) malloc(sizeof(DATALISTSOURCES_RR));
-                    addMalloc(logmalloclist, (void *) dataR, 1, sizeof(DATALISTSOURCES_RR), "DATALISTSOURCES_RR");
-                    structData = (void *) dataR;
+                    DATALISTSOURCES_RR* dataR;
+                    dataR = (DATALISTSOURCES_RR*)malloc(sizeof(DATALISTSOURCES_RR));
+                    addMalloc(logmalloclist, (void*)dataR, 1, sizeof(DATALISTSOURCES_RR), "DATALISTSOURCES_RR");
+                    structData = (void*)dataR;
 
-                    DATALISTSOURCES_R *data;
-                    data = (DATALISTSOURCES_R *) malloc(nrows * sizeof(DATALISTSOURCES_R));
-                    addMalloc(logmalloclist, (void *) data, nrows, sizeof(DATALISTSOURCES_R), "DATALISTSOURCES_R");
+                    DATALISTSOURCES_R* data;
+                    data = (DATALISTSOURCES_R*)malloc(nrows * sizeof(DATALISTSOURCES_R));
+                    addMalloc(logmalloclist, (void*)data, nrows, sizeof(DATALISTSOURCES_R), "DATALISTSOURCES_R");
 
                     dataR->list = data;
                     dataR->count = nrows;
@@ -2664,22 +2663,22 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     for (i = 0; i < nrows; i++) {
 
                         stringLength = strlen(PQgetvalue(DBQuery, i, 0)) + 1;
-                        data[i].source_alias = (char *) malloc(stringLength * sizeof(char));
+                        data[i].source_alias = (char*)malloc(stringLength * sizeof(char));
                         strcpy(data[i].source_alias, PQgetvalue(DBQuery, i, 0));
-                        addMalloc(logmalloclist, (void *) data[i].source_alias, 1, stringLength * sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data[i].source_alias, 1, stringLength * sizeof(char), "char");
 
-                        data[i].pass = (int) atoi(PQgetvalue(DBQuery, i, 1));
-                        data[i].status = (short) atoi(PQgetvalue(DBQuery, i, 2));
+                        data[i].pass = (int)atoi(PQgetvalue(DBQuery, i, 1));
+                        data[i].status = (short)atoi(PQgetvalue(DBQuery, i, 2));
 
                         stringLength = strlen(PQgetvalue(DBQuery, i, 3)) + 1;
-                        data[i].format = (char *) malloc(stringLength * sizeof(char));
+                        data[i].format = (char*)malloc(stringLength * sizeof(char));
                         strcpy(data[i].format, PQgetvalue(DBQuery, i, 3));
-                        addMalloc(logmalloclist, (void *) data[i].format, 1, stringLength * sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data[i].format, 1, stringLength * sizeof(char), "char");
 
                         stringLength = strlen(PQgetvalue(DBQuery, i, 4)) + 1;
-                        data[i].filename = (char *) malloc(stringLength * sizeof(char));
+                        data[i].filename = (char*)malloc(stringLength * sizeof(char));
                         strcpy(data[i].filename, PQgetvalue(DBQuery, i, 4));
-                        addMalloc(logmalloclist, (void *) data[i].filename, 1, stringLength * sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data[i].filename, 1, stringLength * sizeof(char), "char");
 
                         p = PQgetvalue(DBQuery, i, 5);
                         if (p[0] == 'A') {
@@ -2694,12 +2693,12 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             strcpy(work, p);
 
                         stringLength = strlen(work) + 1;
-                        data[i].type = (char *) malloc(stringLength * sizeof(char));
+                        data[i].type = (char*)malloc(stringLength * sizeof(char));
                         strcpy(data[i].type, work);
-                        addMalloc(logmalloclist, (void *) data[i].type, 1, stringLength * sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data[i].type, 1, stringLength * sizeof(char), "char");
 
                         if (!PQgetisnull(DBQuery, i, 6)) {
-                            data[i].run_id = (int) atoi(PQgetvalue(DBQuery, i, 6));
+                            data[i].run_id = (int)atoi(PQgetvalue(DBQuery, i, 6));
                         } else {
                             data[i].run_id = -1;
                         }
@@ -2715,27 +2714,27 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     UDA_LOG(UDA_LOG_DEBUG, "Cast as column\n");
 
-                    DATALISTSOURCES_C *data;
-                    data = (DATALISTSOURCES_C *) malloc(sizeof(DATALISTSOURCES_C));
-                    addMalloc(logmalloclist, (void *) data, 1, sizeof(DATALISTSOURCES_C), "DATALISTSOURCES_C");
-                    structData = (void *) data;
+                    DATALISTSOURCES_C* data;
+                    data = (DATALISTSOURCES_C*)malloc(sizeof(DATALISTSOURCES_C));
+                    addMalloc(logmalloclist, (void*)data, 1, sizeof(DATALISTSOURCES_C), "DATALISTSOURCES_C");
+                    structData = (void*)data;
 
-                    data->pass = (int *) malloc(nrows * sizeof(int));
-                    addMalloc(logmalloclist, (void *) data->pass, nrows, sizeof(int), "int");
-                    data->status = (short *) malloc(nrows * sizeof(short));
-                    addMalloc(logmalloclist, (void *) data->status, nrows, sizeof(short), "short");
+                    data->pass = (int*)malloc(nrows * sizeof(int));
+                    addMalloc(logmalloclist, (void*)data->pass, nrows, sizeof(int), "int");
+                    data->status = (short*)malloc(nrows * sizeof(short));
+                    addMalloc(logmalloclist, (void*)data->status, nrows, sizeof(short), "short");
 
-                    data->source_alias = (char **) malloc(nrows * sizeof(char *));
-                    addMalloc(logmalloclist, (void *) data->source_alias, nrows, sizeof(char *), "STRING *");
-                    data->format = (char **) malloc(nrows * sizeof(char *));
-                    addMalloc(logmalloclist, (void *) data->format, nrows, sizeof(char *), "STRING *");
-                    data->filename = (char **) malloc(nrows * sizeof(char *));
-                    addMalloc(logmalloclist, (void *) data->filename, nrows, sizeof(char *), "STRING *");
-                    data->type = (char **) malloc(nrows * sizeof(char *));
-                    addMalloc(logmalloclist, (void *) data->type, nrows, sizeof(char *), "STRING *");
+                    data->source_alias = (char**)malloc(nrows * sizeof(char*));
+                    addMalloc(logmalloclist, (void*)data->source_alias, nrows, sizeof(char*), "STRING *");
+                    data->format = (char**)malloc(nrows * sizeof(char*));
+                    addMalloc(logmalloclist, (void*)data->format, nrows, sizeof(char*), "STRING *");
+                    data->filename = (char**)malloc(nrows * sizeof(char*));
+                    addMalloc(logmalloclist, (void*)data->filename, nrows, sizeof(char*), "STRING *");
+                    data->type = (char**)malloc(nrows * sizeof(char*));
+                    addMalloc(logmalloclist, (void*)data->type, nrows, sizeof(char*), "STRING *");
 
-                    data->run_id = (int *) malloc(nrows * sizeof(int));
-                    addMalloc(logmalloclist, (void *) data->run_id, nrows, sizeof(int), "int");
+                    data->run_id = (int*)malloc(nrows * sizeof(int));
+                    addMalloc(logmalloclist, (void*)data->run_id, nrows, sizeof(int), "int");
 
                     data->count = nrows;
                     data->shot = exp_number;
@@ -2743,23 +2742,22 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     for (i = 0; i < nrows; i++) {
 
                         stringLength = strlen(PQgetvalue(DBQuery, i, 0)) + 1;
-                        data->source_alias[i] = (char *) malloc(stringLength * sizeof(char));
+                        data->source_alias[i] = (char*)malloc(stringLength * sizeof(char));
                         strcpy(data->source_alias[i], PQgetvalue(DBQuery, i, 0));
-                        addMalloc(logmalloclist, (void *) data->source_alias[i], stringLength, sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data->source_alias[i], stringLength, sizeof(char), "char");
 
-                        data->pass[i] = (unsigned int) atoi(PQgetvalue(DBQuery, i, 1));
-                        data->status[i] = (short) atoi(PQgetvalue(DBQuery, i, 2));
-
+                        data->pass[i] = (unsigned int)atoi(PQgetvalue(DBQuery, i, 1));
+                        data->status[i] = (short)atoi(PQgetvalue(DBQuery, i, 2));
 
                         stringLength = strlen(PQgetvalue(DBQuery, i, 3)) + 1;
-                        data->format[i] = (char *) malloc(stringLength * sizeof(char));
+                        data->format[i] = (char*)malloc(stringLength * sizeof(char));
                         strcpy(data->format[i], PQgetvalue(DBQuery, i, 3));
-                        addMalloc(logmalloclist, (void *) data->format[i], stringLength, sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data->format[i], stringLength, sizeof(char), "char");
 
                         stringLength = strlen(PQgetvalue(DBQuery, i, 4)) + 1;
-                        data->filename[i] = (char *) malloc(stringLength * sizeof(char));
+                        data->filename[i] = (char*)malloc(stringLength * sizeof(char));
                         strcpy(data->filename[i], PQgetvalue(DBQuery, i, 4));
-                        addMalloc(logmalloclist, (void *) data->filename[i], stringLength, sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data->filename[i], stringLength, sizeof(char), "char");
 
                         p = PQgetvalue(DBQuery, i, 5);
                         if (p[0] == 'A') {
@@ -2775,9 +2773,9 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         }
 
                         stringLength = strlen(work) + 1;
-                        data->type[i] = (char *) malloc(stringLength * sizeof(char));
+                        data->type[i] = (char*)malloc(stringLength * sizeof(char));
                         strcpy(data->type[i], work);
-                        addMalloc(logmalloclist, (void *) data->type[i], stringLength, sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data->type[i], stringLength, sizeof(char), "char");
 
                         if (!PQgetisnull(DBQuery, i, 6)) {
                             data->run_id[i] = atoi(PQgetvalue(DBQuery, i, 6));
@@ -2794,7 +2792,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 data_block->data_type = UDA_TYPE_COMPOUND;
                 data_block->rank = 0;
                 data_block->data_n = 1;
-                data_block->data = (char *) structData;
+                data_block->data = (char*)structData;
 
                 strcpy(data_block->data_desc, "listSources");
                 strcpy(data_block->data_label, "");
@@ -2803,11 +2801,11 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                 data_block->opaque_count = 1;
                 if (castTypeId == CASTROW) {
-                    data_block->opaque_block = (void *) findUserDefinedType(userdefinedtypelist, "DATALISTSOURCES_RR",
-                                                                            0);
+                    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATALISTSOURCES_RR",
+                                                                          0);
                 } else if (castTypeId == CASTCOLUMN) {
-                    data_block->opaque_block = (void *) findUserDefinedType(userdefinedtypelist, "DATALISTSOURCES_C",
-                                                                            0);
+                    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATALISTSOURCES_C",
+                                                                          0);
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "readMeta: Function listSources called\n");
@@ -2826,7 +2824,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 sprintf(sql,
                         "SELECT distinct(source_alias), type FROM Data_Source "
-                                "%s ORDER BY source_alias ASC", work);
+                        "%s ORDER BY source_alias ASC", work);
 
                 // Execute the SQL
                 if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
@@ -2907,7 +2905,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     field.count = 1;
                     field.rank = 0;
                     field.shape = NULL;
-                    field.size = field.count * sizeof(DATALISTALLSOURCES_R *);
+                    field.size = field.count * sizeof(DATALISTALLSOURCES_R*);
                     field.offset = newoffset(offset, field.type);
                     field.offpad = padding(offset, field.type);
                     field.alignment = getalignmentof(field.type);
@@ -2917,7 +2915,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     addUserDefinedType(userdefinedtypelist, usertype);
                 }
 
-                USERDEFINEDTYPE *udt = findUserDefinedType(userdefinedtypelist, "DATALISTALLSOURCES_R", 0);
+                USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "DATALISTALLSOURCES_R", 0);
                 int size = getStructureSize(userdefinedtypelist, udt);
                 UDA_LOG(UDA_LOG_DEBUG, "sizeof(DATALISTALLSOURCES_R) = %zu [%d]\n", sizeof(DATALISTALLSOURCES_R), size);
                 printUserDefinedTypeListTable(*userdefinedtypelist);
@@ -2928,14 +2926,14 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 if (castTypeId == CASTROW) {                // Row oriented
 
-                    DATALISTALLSOURCES_RR *dataR;
-                    dataR = (DATALISTALLSOURCES_RR *) malloc(sizeof(DATALISTALLSOURCES_RR));
-                    addMalloc(logmalloclist, (void *) dataR, 1, sizeof(DATALISTALLSOURCES_RR), "DATALISTALLSOURCES_RR");
-                    structData = (void *) dataR;
+                    DATALISTALLSOURCES_RR* dataR;
+                    dataR = (DATALISTALLSOURCES_RR*)malloc(sizeof(DATALISTALLSOURCES_RR));
+                    addMalloc(logmalloclist, (void*)dataR, 1, sizeof(DATALISTALLSOURCES_RR), "DATALISTALLSOURCES_RR");
+                    structData = (void*)dataR;
 
-                    DATALISTALLSOURCES_R *data;
-                    data = (DATALISTALLSOURCES_R *) malloc(nrows * sizeof(DATALISTALLSOURCES_R));
-                    addMalloc(logmalloclist, (void *) data, nrows, sizeof(DATALISTALLSOURCES_R), "DATALISTALLSOURCES_R");
+                    DATALISTALLSOURCES_R* data;
+                    data = (DATALISTALLSOURCES_R*)malloc(nrows * sizeof(DATALISTALLSOURCES_R));
+                    addMalloc(logmalloclist, (void*)data, nrows, sizeof(DATALISTALLSOURCES_R), "DATALISTALLSOURCES_R");
 
                     dataR->list = data;
                     dataR->count = nrows;
@@ -2943,9 +2941,9 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     for (i = 0; i < nrows; i++) {
 
                         stringLength = strlen(PQgetvalue(DBQuery, i, 0)) + 1;
-                        data[i].source_alias = (char *) malloc(stringLength * sizeof(char));
+                        data[i].source_alias = (char*)malloc(stringLength * sizeof(char));
                         strcpy(data[i].source_alias, PQgetvalue(DBQuery, i, 0));
-                        addMalloc(logmalloclist, (void *) data[i].source_alias, 1, stringLength * sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data[i].source_alias, 1, stringLength * sizeof(char), "char");
 
                         p = PQgetvalue(DBQuery, i, 1);
                         if (p[0] == 'A') {
@@ -2960,34 +2958,34 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             strcpy(work, p);
 
                         stringLength = strlen(work) + 1;
-                        data[i].type = (char *) malloc(stringLength * sizeof(char));
+                        data[i].type = (char*)malloc(stringLength * sizeof(char));
                         strcpy(data[i].type, work);
-                        addMalloc(logmalloclist, (void *) data[i].type, 1, stringLength * sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data[i].type, 1, stringLength * sizeof(char), "char");
 
                     }
                 } else if (castTypeId == CASTCOLUMN) {                // Column oriented
 
                     UDA_LOG(UDA_LOG_DEBUG, "Cast as column\n");
 
-                    DATALISTALLSOURCES_C *data;
-                    data = (DATALISTALLSOURCES_C *) malloc(sizeof(DATALISTALLSOURCES_C));
-                    addMalloc(logmalloclist, (void *) data, 1, sizeof(DATALISTALLSOURCES_C), "DATALISTALLSOURCES_C");
-                    structData = (void *) data;
+                    DATALISTALLSOURCES_C* data;
+                    data = (DATALISTALLSOURCES_C*)malloc(sizeof(DATALISTALLSOURCES_C));
+                    addMalloc(logmalloclist, (void*)data, 1, sizeof(DATALISTALLSOURCES_C), "DATALISTALLSOURCES_C");
+                    structData = (void*)data;
 
-                    data->source_alias = (char **) malloc(nrows * sizeof(char *));
-                    addMalloc(logmalloclist, (void *) data->source_alias, nrows, sizeof(char *), "STRING *");
+                    data->source_alias = (char**)malloc(nrows * sizeof(char*));
+                    addMalloc(logmalloclist, (void*)data->source_alias, nrows, sizeof(char*), "STRING *");
 
-                    data->type = (char **) malloc(nrows * sizeof(char *));
-                    addMalloc(logmalloclist, (void *) data->type, nrows, sizeof(char *), "STRING *");
+                    data->type = (char**)malloc(nrows * sizeof(char*));
+                    addMalloc(logmalloclist, (void*)data->type, nrows, sizeof(char*), "STRING *");
 
                     data->count = nrows;
 
                     for (i = 0; i < nrows; i++) {
 
                         stringLength = strlen(PQgetvalue(DBQuery, i, 0)) + 1;
-                        data->source_alias[i] = (char *) malloc(stringLength * sizeof(char));
+                        data->source_alias[i] = (char*)malloc(stringLength * sizeof(char));
                         strcpy(data->source_alias[i], PQgetvalue(DBQuery, i, 0));
-                        addMalloc(logmalloclist, (void *) data->source_alias[i], stringLength, sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data->source_alias[i], stringLength, sizeof(char), "char");
 
                         p = PQgetvalue(DBQuery, i, 1);
                         if (p[0] == 'A') {
@@ -3003,9 +3001,9 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         }
 
                         stringLength = strlen(work) + 1;
-                        data->type[i] = (char *) malloc(stringLength * sizeof(char));
+                        data->type[i] = (char*)malloc(stringLength * sizeof(char));
                         strcpy(data->type[i], work);
-                        addMalloc(logmalloclist, (void *) data->type[i], stringLength, sizeof(char), "char");
+                        addMalloc(logmalloclist, (void*)data->type[i], stringLength, sizeof(char), "char");
                     }
                 }
 
@@ -3016,7 +3014,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 data_block->data_type = UDA_TYPE_COMPOUND;
                 data_block->rank = 0;
                 data_block->data_n = 1;
-                data_block->data = (char *) structData;
+                data_block->data = (char*)structData;
 
                 strcpy(data_block->data_desc, "LISTALLSOURCES");
                 strcpy(data_block->data_label, "");
@@ -3025,11 +3023,11 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                 data_block->opaque_count = 1;
                 if (castTypeId == CASTROW) {
-                    data_block->opaque_block = (void *) findUserDefinedType(userdefinedtypelist, "DATALISTALLSOURCES_RR",
-                                                                            0);
+                    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATALISTALLSOURCES_RR",
+                                                                          0);
                 } else if (castTypeId == CASTCOLUMN) {
-                    data_block->opaque_block = (void *) findUserDefinedType(userdefinedtypelist, "DATALISTALLSOURCES_C",
-                                                                            0);
+                    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATALISTALLSOURCES_C",
+                                                                          0);
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "readMeta: Function LISTALLSOURCES called\n");
@@ -3273,10 +3271,10 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (wCount > 0)
                 sprintf(sql, "SELECT name, cpf_table, data_class, source, description, label, units FROM dictionary "
-                        "WHERE %s ORDER by data_class, name;", work);
+                             "WHERE %s ORDER by data_class, name;", work);
             else
                 strcpy(sql, "SELECT name, cpf_table, data_class, source, description, label, units FROM dictionary "
-                        "ORDER by data_class, name;");
+                            "ORDER by data_class, name;");
 
             UDA_LOG(UDA_LOG_DEBUG, "Meta sql: %s\n", sql);
 

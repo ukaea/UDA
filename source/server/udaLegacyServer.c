@@ -18,6 +18,7 @@
 #include <plugins/serverPlugin.h>
 #include <structures/struct.h>
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/sqllib.h>
 
 #include "closeServerSockets.h"
 #include "freeIdamPut.h"
@@ -27,7 +28,6 @@
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
 #include "sleepServer.h"
-#include "sqllib.h"
 #include "udaServer.h"
 
 #ifdef LEGACYSERVER

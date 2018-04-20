@@ -59,10 +59,11 @@ Issues: MAST data specific
 #include <structures/accessors.h>
 #include <clientserver/stringUtils.h>
 #include <client/udaClient.h>
-#include <server/makeServerRequestBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/errorLog.h>
+#include <plugins/udaPlugin.h>
 
 void defineIDSStructures(USERDEFINEDTYPELIST* userdefinedtypelist)
 {
@@ -4028,7 +4029,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
             sprintf(idam_plugin_interface2.request_block->signal, "%s%stest9%s", request_block->format,
                     request_block->api_delim, p);    // Request Flux_Loop Data
 
-            makeServerRequestBlock(&plugin_request_block, *pluginList);
+            makeRequestBlock(&plugin_request_block, *pluginList, idam_plugin_interface->environment);
 
             rc = livedisplay(&idam_plugin_interface2);
 
@@ -4059,7 +4060,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
             sprintf(idam_plugin_interface2.request_block->signal, "%s%stest9%s", request_block->format,
                     request_block->api_delim, p);    // Request Flux_Loop Data Count
 
-            makeServerRequestBlock(&plugin_request_block, *pluginList);
+            makeRequestBlock(&plugin_request_block, *pluginList, idam_plugin_interface->environment);
 
             rc = livedisplay(&idam_plugin_interface2);
 
@@ -4085,7 +4086,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
             sprintf(idam_plugin_interface2.request_block->signal, "%s%stest10%s", request_block->format,
                     request_block->api_delim, p);    // Request Bpol Probe Data
 
-            makeServerRequestBlock(&plugin_request_block, *pluginList);
+            makeRequestBlock(&plugin_request_block, *pluginList, idam_plugin_interface->environment);
 
             rc = livedisplay(&idam_plugin_interface2);
 
@@ -4112,7 +4113,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
             sprintf(idam_plugin_interface2.request_block->signal, "%s%stest10%s", request_block->format,
                     request_block->api_delim, p);    // Request Bpol Probe Data Count
 
-            makeServerRequestBlock(&plugin_request_block, *pluginList);
+            makeRequestBlock(&plugin_request_block, *pluginList, idam_plugin_interface->environment);
 
             rc = livedisplay(&idam_plugin_interface2);
 

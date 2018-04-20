@@ -7,7 +7,6 @@
 //-------------------------------------------------------------------------------------------------------------------
 
 #include "sqllib.h"
-#include "getServerEnvironment.h"
 
 #include <stdlib.h>
 
@@ -16,14 +15,64 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
-#include <modules/ida/nameIda.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/udaErrors.h>
+#include <clientserver/makeRequestBlock.h>
 
 // Open the Connection with the PostgreSQL IDAM Database
 
 #ifndef NOTGENERICENABLED
+
+static void nameIDA(const char* alias, int pulno, char* filename)
+{
+    char strint[7];
+    int pulno_lhs, pulno_rhs;
+
+    sprintf(strint, "%d", pulno);
+
+    strncpy(filename, alias, 3);
+    filename[3] = '\0';
+    TrimString(filename);
+
+    pulno_lhs = pulno / 100;
+    pulno_rhs = pulno - 100 * (pulno / 100);
+
+    sprintf(strint, "%d", pulno_lhs);
+    strcat(filename, "0000");
+
+    if (pulno_lhs < 10 && pulno_lhs > 0) {
+        filename[6] = strint[0];
+    } else {
+        if (pulno_lhs < 100) {
+            filename[5] = strint[0];
+            filename[6] = strint[1];
+        } else {
+            if (pulno_lhs < 1000) {
+                filename[4] = strint[0];
+                filename[5] = strint[1];
+                filename[6] = strint[2];
+            } else {
+                filename[3] = strint[0];
+                filename[4] = strint[1];
+                filename[5] = strint[2];
+                filename[6] = strint[3];
+            }
+        }
+    }
+
+    sprintf(strint, "%d", pulno_rhs);
+
+    strcat(filename, ".");
+    if (pulno_rhs < 10) {
+        strcat(filename, "0");
+    }
+    strcat(filename, strint);
+
+    UDA_LOG(UDA_LOG_DEBUG, "IDA_Filename: %s\n", filename);
+
+    return;
+}
 
 PGconn* openDatabase(const char* host, int port, const char* dbname, const char* user)
 {

@@ -28,7 +28,6 @@
 
 #include <string.h>
 
-#include <server/udaServer.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/errorLog.h>

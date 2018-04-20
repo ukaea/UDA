@@ -27,12 +27,11 @@ set( SRC_FILES
   applyXML.c
   manageFiles.c
   serverProcessing.c
-  sqllib.c
-  managePluginFiles.c
   serverStartup.c
   getServerEnvironment.c
   getPluginAddress.c
   nameValueSubstitution.c
+  initPluginList.c
 )
 
 set( HEADER_FILES
@@ -45,7 +44,6 @@ set( HEADER_FILES
   getServerEnvironment.h
   makeServerRequestBlock.h
   manageFiles.h
-  managePluginFiles.h
   mastArchiveFilePath.h
   serverGetData.h
   serverLegacyPlugin.h
@@ -53,10 +51,10 @@ set( HEADER_FILES
   serverStartup.h
   serverSubsetData.h
   sleepServer.h
-  sqllib.h
   udaLegacyServer.h
   udaServer.h
   writer.h
+  initPluginList.h
 )
 
 include_directories(

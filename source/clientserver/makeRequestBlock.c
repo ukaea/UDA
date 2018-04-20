@@ -16,7 +16,7 @@
 #include "udaErrors.h"
 #include "udaStructs.h"
 
-int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, ENVIRONMENT* environment)
+int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment)
 {
     int i, rc, ldelim, err = 0;
     char work[MAXMETA];
@@ -713,7 +713,8 @@ void extractFunctionName(char* str, REQUEST_BLOCK* request_block)
     free((void*)work);
 }
 
-int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList, ENVIRONMENT* environment)
+int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList,
+                         const ENVIRONMENT* environment)
 {
 
     // returns 1 (TRUE) if a format was identified, 0 (FALSE) otherwise.
@@ -995,7 +996,7 @@ int genericRequestTest(const char* source, REQUEST_BLOCK* request_block, PLUGINL
 // Input Argument: reduceSignal - If TRUE (1) then extract the archive name and return the data object name
 //                                without the prefixed archive name.
 
-int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, ENVIRONMENT* environment)
+int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRONMENT* environment)
 {
 
     int err = 0, test1, test2;

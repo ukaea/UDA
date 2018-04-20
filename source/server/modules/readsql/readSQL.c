@@ -26,7 +26,6 @@
 #include <strings.h>
 
 #include <clientserver/errorLog.h>
-#include <server/sqllib.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>

@@ -25,14 +25,13 @@
 #include <strings.h>
 
 #include <clientserver/initStructs.h>
-#include <server/makeServerRequestBlock.h>
 #include <client/accAPI.h>
 #include <plugins/serverPlugin.h>
-#include <server/sqllib.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
 #include <client/udaClient.h>
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/sqllib.h>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
@@ -106,8 +105,9 @@ int mastImasPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         || STR_IEQUALS(request_block->function, "initialise")) {
 
         init = 1;
-        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
             return 0;
+        }
     }
 
     //----------------------------------------------------------------------------------------
@@ -141,14 +141,14 @@ int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    char* p = (char*) malloc(sizeof(char) * 2 * 1024);
+    char* p = (char*)malloc(sizeof(char) * 2 * 1024);
 
     strcpy(p, "\ntemplatePlugin: Add Functions Names, Syntax, and Descriptions\n\n");
 
     initDataBlock(data_block);
 
     data_block->rank = 1;
-    data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
     int i;
     for (i = 0; i < data_block->rank; i++) {
@@ -183,9 +183,9 @@ int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = UDA_TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = THISPLUGIN_VERSION;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     strcpy(data_block->data_desc, "Plugin version number");
     strcpy(data_block->data_label, "version");
     strcpy(data_block->data_units, "");
@@ -202,7 +202,7 @@ int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = UDA_TYPE_STRING;
     data_block->rank = 0;
     data_block->data_n = strlen(__DATE__) + 1;
-    char* data = (char*) malloc(data_block->data_n * sizeof(char));
+    char* data = (char*)malloc(data_block->data_n * sizeof(char));
     strcpy(data, __DATE__);
     data_block->data = data;
     strcpy(data_block->data_desc, "Plugin build date");
@@ -221,7 +221,7 @@ int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = UDA_TYPE_STRING;
     data_block->rank = 0;
     data_block->data_n = strlen(THISPLUGIN_DEFAULT_METHOD) + 1;
-    char* data = (char*) malloc(data_block->data_n * sizeof(char));
+    char* data = (char*)malloc(data_block->data_n * sizeof(char));
     strcpy(data, THISPLUGIN_DEFAULT_METHOD);
     data_block->data = data;
     strcpy(data_block->data_desc, "Plugin default method");
@@ -240,9 +240,9 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_type = UDA_TYPE_INT;
     data_block->rank = 0;
     data_block->data_n = 1;
-    int* data = (int*) malloc(sizeof(int));
+    int* data = (int*)malloc(sizeof(int));
     data[0] = THISPLUGIN_MAX_INTERFACE_VERSION;
-    data_block->data = (char*) data;
+    data_block->data = (char*)data;
     strcpy(data_block->data_desc, "Maximum Interface Version");
     strcpy(data_block->data_label, "version");
     strcpy(data_block->data_units, "");
@@ -308,7 +308,7 @@ static int get_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, const char* 
 
     IDAM_PLUGIN_INTERFACE next_plugin_interface;
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
-    REQUEST_BLOCK next_request_block;
+    REQUEST_BLOCK next_request_block = {};
 
     const PLUGINLIST* plugin_list = idam_plugin_interface->pluginList; // List of all data reader plugins (internal and external shared libraries)
 
@@ -322,7 +322,6 @@ static int get_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, const char* 
     next_plugin_interface = *idam_plugin_interface; // New plugin interface
 
     next_plugin_interface.request_block = &next_request_block;
-    initServerRequestBlock(&next_request_block);
     strcpy(next_request_block.api_delim, request_block->api_delim);
 
     sprintf(next_request_block.source, "%d", shot_number); // Re-Use the original source argument
@@ -342,7 +341,7 @@ static int get_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, const char* 
     next_request_block.source[0] = '\0';
     strcpy(next_request_block.signal, work);
 
-    makeServerRequestBlock(&next_request_block, *plugin_list);
+    makeRequestBlock(&next_request_block, *plugin_list, idam_plugin_interface->environment);
 
     // Call the IDAM client via the IDAM plugin (ignore the request identified)
 
@@ -391,7 +390,7 @@ int do_read_magnetics(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     PGconn* db;
     if (idam_plugin_interface->sqlConnection != NULL && idam_plugin_interface->sqlConnectionType == PLUGINSQLPOSTGRES) {
-        db = (PGconn*) idam_plugin_interface->sqlConnection;
+        db = (PGconn*)idam_plugin_interface->sqlConnection;
     } else {
         db = startSQL(idam_plugin_interface->environment);
     }
