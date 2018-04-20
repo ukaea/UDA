@@ -19,8 +19,6 @@
 #include <logging/logging.h>
 #include <plugins/serverPlugin.h>
 #include <structures/struct.h>
-#include <clientserver/makeRequestBlock.h>
-#include <clientserver/sqllib.h>
 
 #include "closeServerSockets.h"
 #include "freeIdamPut.h"

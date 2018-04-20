@@ -31,7 +31,6 @@
 #include <modules/readsql/readSQL.h>
 #include <modules/ufile/readUFile.h>
 #include <plugins/serverPlugin.h>
-#include <clientserver/sqllib.h>
 
 #include "serverGetData.h"
 #include "dumpFile.h"
