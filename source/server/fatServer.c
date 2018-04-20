@@ -17,6 +17,7 @@
 #include <plugins/serverPlugin.h>
 #include <structures/parseIncludeFile.h>
 #include <structures/struct.h>
+#include <clientserver/makeRequestBlock.h>
 
 #include "makeServerRequestBlock.h"
 #include "serverGetData.h"

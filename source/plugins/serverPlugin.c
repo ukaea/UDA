@@ -19,6 +19,7 @@
 #include <clientserver/udaErrors.h>
 #include <structures/struct.h>
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/makeRequestBlock.h>
 
 #define REQUEST_READ_START      1000
 #define REQUEST_PLUGIN_MCOUNT   100    // Maximum initial number of plugins that can be registered
@@ -970,7 +971,8 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT*
 
     char* env = NULL;
     if ((env = getenv("UDA_METADATA_PLUGIN")) != NULL) {        // Must be set in the server startup script
-        int id = findPluginIdByFormat(env, plugin_list);        // Must be defined in the server plugin configuration file
+        int id = findPluginIdByFormat(env,
+                                      plugin_list);        // Must be defined in the server plugin configuration file
         if (id >= 0 &&
             plugin_list->plugin[id].plugin_class == PLUGINFUNCTION &&
             plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
@@ -980,7 +982,7 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT*
         }
 
         if (id >= 0 && plugin_list->plugin[id].is_private == PLUGINPRIVATE &&
-            environment->external_user) {
+(??)            getIdamServerEnvironment()->external_user) {
             plugin_id = -1;
         }        // Not available to external users
 
