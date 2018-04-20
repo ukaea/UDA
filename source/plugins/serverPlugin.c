@@ -22,6 +22,7 @@
 #include <server/getPluginAddress.h>
 #include <server/makeServerRequestBlock.h>
 #include <server/getServerEnvironment.h>
+#include <clientserver/makeRequestBlock.h>
 
 #define REQUEST_READ_START      1000
 #define REQUEST_PLUGIN_MCOUNT   100    // Maximum initial number of plugins that can be registered
@@ -501,22 +502,23 @@ void initPluginList(PLUGINLIST* plugin_list)
 
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data is accessed from an internal or external IDAM server. The server the client is connected to "
-                   "acts as a proxy and passes the access request forward. Multiple servers can be chained "
-                   "together.");
+           "acts as a proxy and passes the access request forward. Multiple servers can be chained "
+           "together.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"ip\",\"IDAM::server:port/12345\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "SERVER");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_IDAM;
     plugin_list->plugin[plugin_list->count].plugin_class = PLUGINSERVER;
-    if (environment->server_proxy[0] != '\0')
-        plugin_list->plugin[plugin_list->count].is_private = PLUGINPUBLIC;        // Public service if running as a PROXY
+    if (environment->server_proxy[0] != '\0') {
+        plugin_list->plugin[plugin_list->count].is_private = PLUGINPUBLIC;
+    }        // Public service if running as a PROXY
     if (!environment->external_user)
         plugin_list->plugin[plugin_list->count].is_private = PLUGINPUBLIC;        // Public service for internal requests only
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data is accessed from an internal or external IDAM server. The server the client is connected to "
-                   "acts as a proxy and passes the access request forward. Multiple servers can be chained "
-                   "together.");
+           "acts as a proxy and passes the access request forward. Multiple servers can be chained "
+           "together.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"ip\",\"SERVER::server:port/12345\")");
     allocPluginList(plugin_list->count++, plugin_list);
 #endif
@@ -533,7 +535,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     plugin_list->plugin[plugin_list->count].plugin_class = PLUGINSERVER;
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data accessed via an internal or external http Web server. Access to external "
-                   "html web pages is subject to authentication with the proxy web server.");
+           "html web pages is subject to authentication with the proxy web server.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"trweb/idam_menu.html\",\"WEB::fuslwn.culham.ukaea.org.uk\")");
     allocPluginList(plugin_list->count++, plugin_list);
@@ -544,7 +546,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     plugin_list->plugin[plugin_list->count].plugin_class = PLUGINSERVER;
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Data accessed via an internal or external http Web server. Access to external "
-                   "html web pages is subject to authentication with the proxy web server.");
+           "html web pages is subject to authentication with the proxy web server.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"trweb/idam_menu.html\",\"HTTP::fuslwn.culham.ukaea.org.uk\")");
     allocPluginList(plugin_list->count++, plugin_list);
@@ -593,25 +595,26 @@ void initPluginList(PLUGINLIST* plugin_list)
 #endif
 
 #ifndef NOPPFPLUGIN
-    strcpy(plugin_list->plugin[plugin_list->count].format,  "PPF");
+    strcpy(plugin_list->plugin[plugin_list->count].format, "PPF");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_PPF;
-    plugin_list->plugin[plugin_list->count].plugin_class   = PLUGINSERVER;	// Treat pathname as a URL
-    strcpy(plugin_list->plugin[plugin_list->count].desc,  "Data accessed from the JET PPF server. This is the default data archive on JET so does not need to be explictly "
+    plugin_list->plugin[plugin_list->count].plugin_class = PLUGINSERVER;    // Treat pathname as a URL
+    strcpy(plugin_list->plugin[plugin_list->count].desc,
+           "Data accessed from the JET PPF server. This is the default data archive on JET so does not need to be explictly "
            "stated in the signal argument.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"ipla\",\"magn/12345\")\n"
-           "idamGetAPI(\"PPF::ipla\",\"magn/12345/\") - PPF is the default data archive on JET so does not need to be explictly stated\n"
-           "idamGetAPI(\"ipla\",\"magn/12345\")\n"
-           "idamGetAPI(\"ipla\",\"magn/12345/120\")  - use a specific sequence number\n"
-           "idamGetAPI(\"ipla\",\"magn/12345/JETABC\")  - use a specific userid for private PPF files\n"
-           "idamGetAPI(\"ipla\",\"magn/12345/JETABC\")  - combined use of specific sequence number and userid for private PPF files");
+                                                            "idamGetAPI(\"PPF::ipla\",\"magn/12345/\") - PPF is the default data archive on JET so does not need to be explictly stated\n"
+                                                            "idamGetAPI(\"ipla\",\"magn/12345\")\n"
+                                                            "idamGetAPI(\"ipla\",\"magn/12345/120\")  - use a specific sequence number\n"
+                                                            "idamGetAPI(\"ipla\",\"magn/12345/JETABC\")  - use a specific userid for private PPF files\n"
+                                                            "idamGetAPI(\"ipla\",\"magn/12345/JETABC\")  - combined use of specific sequence number and userid for private PPF files");
     allocPluginList(plugin_list->count++, plugin_list);
 #endif
 
 #ifndef NOJPFPLUGIN
-    strcpy(plugin_list->plugin[plugin_list->count].format,  "JPF");
+    strcpy(plugin_list->plugin[plugin_list->count].format, "JPF");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_JPF;
-    plugin_list->plugin[plugin_list->count].plugin_class   = PLUGINSERVER;	// Treat pathname as a URL
-    strcpy(plugin_list->plugin[plugin_list->count].desc,  "Data accessed from a JET JPF server.");
+    plugin_list->plugin[plugin_list->count].plugin_class = PLUGINSERVER;    // Treat pathname as a URL
+    strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a JET JPF server.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"DA/C1-IPLA\", \"JPF::/56000\")");
     allocPluginList(plugin_list->count++, plugin_list);
 #endif
@@ -648,10 +651,10 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a netCDF-3 or netCDF-4 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.nc\")\n"
-                   "idamGetAPI(\"/group/group/variable\", \"NETCDF::/path/to/my/file.nc\")\n"
-                   "idamGetAPI(\"/group/group/attribute\", \"/path/to/my/file.nc\")\treturns the value of a group attribute\n"
-                   "idamGetAPI(\"/group/group/variable.attribute\", \"/path/to/my/file.nc\")\treturns the value of a variable attribute\n"
-                   "idamGetAPI(\"/group/group\", \"/path/to/my/file.nc\")\treturns a sub tree data structure with the group contents");
+           "idamGetAPI(\"/group/group/variable\", \"NETCDF::/path/to/my/file.nc\")\n"
+           "idamGetAPI(\"/group/group/attribute\", \"/path/to/my/file.nc\")\treturns the value of a group attribute\n"
+           "idamGetAPI(\"/group/group/variable.attribute\", \"/path/to/my/file.nc\")\treturns the value of a variable attribute\n"
+           "idamGetAPI(\"/group/group\", \"/path/to/my/file.nc\")\treturns a sub tree data structure with the group contents");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "CDF");
@@ -662,10 +665,10 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a netCDF-3 or netCDF-4 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.nc\")\n"
-                   "idamGetAPI(\"/group/group/variable\", \"CDF::/path/to/my/file.nc\")\n"
-                   "idamGetAPI(\"/group/group/attribute\", \"/path/to/my/file.nc\")\treturns the value of a group attribute\n"
-                   "idamGetAPI(\"/group/group/variable.attribute\", \"/path/to/my/file.nc\")\treturns the value of a variable attribute\n"
-                   "idamGetAPI(\"/group/group\", \"/path/to/my/file.nc\")\treturns a sub tree data structure with the group contents");
+           "idamGetAPI(\"/group/group/variable\", \"CDF::/path/to/my/file.nc\")\n"
+           "idamGetAPI(\"/group/group/attribute\", \"/path/to/my/file.nc\")\treturns the value of a group attribute\n"
+           "idamGetAPI(\"/group/group/variable.attribute\", \"/path/to/my/file.nc\")\treturns the value of a variable attribute\n"
+           "idamGetAPI(\"/group/group\", \"/path/to/my/file.nc\")\treturns a sub tree data structure with the group contents");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "NETCDF");
@@ -676,10 +679,10 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a netCDF-3 or netCDF-4 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.cdf\")\n"
-                   "idamGetAPI(\"/group/group/variable\", \"NETCDF::/path/to/my/file.cdf\")\n"
-                   "idamGetAPI(\"/group/group/attribute\", \"/path/to/my/file.cdf\")\treturns the value of a group attribute\n"
-                   "idamGetAPI(\"/group/group/variable.attribute\", \"/path/to/my/file.cdf\")\treturns the value of a variable attribute\n"
-                   "idamGetAPI(\"/group/group\", \"/path/to/my/file.cdf\")\treturns a sub tree data structure with the group contents");
+           "idamGetAPI(\"/group/group/variable\", \"NETCDF::/path/to/my/file.cdf\")\n"
+           "idamGetAPI(\"/group/group/attribute\", \"/path/to/my/file.cdf\")\treturns the value of a group attribute\n"
+           "idamGetAPI(\"/group/group/variable.attribute\", \"/path/to/my/file.cdf\")\treturns the value of a variable attribute\n"
+           "idamGetAPI(\"/group/group\", \"/path/to/my/file.cdf\")\treturns a sub tree data structure with the group contents");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "CDF");
@@ -690,10 +693,10 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a netCDF-3 or netCDF-4 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.cdf\")\n"
-                   "idamGetAPI(\"/group/group/variable\", \"CDF::/path/to/my/file.cdf\")\n"
-                   "idamGetAPI(\"/group/group/attribute\", \"/path/to/my/file.cdf\")\treturns the value of a group attribute\n"
-                   "idamGetAPI(\"/group/group/variable.attribute\", \"/path/to/my/file.cdf\")\treturns the value of a variable attribute\n"
-                   "idamGetAPI(\"/group/group\", \"/path/to/my/file.cdf\")\treturns a sub tree data structure with the group contents");
+           "idamGetAPI(\"/group/group/variable\", \"CDF::/path/to/my/file.cdf\")\n"
+           "idamGetAPI(\"/group/group/attribute\", \"/path/to/my/file.cdf\")\treturns the value of a group attribute\n"
+           "idamGetAPI(\"/group/group/variable.attribute\", \"/path/to/my/file.cdf\")\treturns the value of a variable attribute\n"
+           "idamGetAPI(\"/group/group\", \"/path/to/my/file.cdf\")\treturns a sub tree data structure with the group contents");
     allocPluginList(plugin_list->count++, plugin_list);
 #endif
 
@@ -706,7 +709,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.hf\")\n"
-                   "idamGetAPI(\"/group/group/variable\", \"HDF5::/path/to/my/file.hf\")");
+           "idamGetAPI(\"/group/group/variable\", \"HDF5::/path/to/my/file.hf\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF");
@@ -717,7 +720,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.hf\")\n"
-                   "idamGetAPI(\"/group/group/variable\", \"HDF::/path/to/my/file.hf\")");
+           "idamGetAPI(\"/group/group/variable\", \"HDF::/path/to/my/file.hf\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF5");
@@ -728,7 +731,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.h5\")\n"
-                   "idamGetAPI(\"/group/group/variable\", \"HDF5::/path/to/my/file.h5\")");
+           "idamGetAPI(\"/group/group/variable\", \"HDF5::/path/to/my/file.h5\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF");
@@ -739,7 +742,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.h5\")\n"
-                   "idamGetAPI(\"/group/group/variable\", \"HDF::/path/to/my/file.h5\")");
+           "idamGetAPI(\"/group/group/variable\", \"HDF::/path/to/my/file.h5\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF5");
@@ -750,7 +753,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.hdf5\")\n"
-                   "idamGetAPI(\"/group/group/variable\", \"HDF5::/path/to/my/file.hdf5\")");
+           "idamGetAPI(\"/group/group/variable\", \"HDF5::/path/to/my/file.hdf5\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF");
@@ -761,7 +764,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.hdf5\")\n"
-                   "idamGetAPI(\"/group/group/variable\", \"HDF::/path/to/my/file.hdf5\")");
+           "idamGetAPI(\"/group/group/variable\", \"HDF::/path/to/my/file.hdf5\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF5");
@@ -772,7 +775,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.hd5\")\n"
-                   "idamGetAPI(\"/group/group/variable\", \"HDF5::/path/to/my/file.hd5\")");
+           "idamGetAPI(\"/group/group/variable\", \"HDF5::/path/to/my/file.hd5\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "HDF");
@@ -783,7 +786,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Data accessed from a HDF5 file.");
     strcpy(plugin_list->plugin[plugin_list->count].example,
            "idamGetAPI(\"/group/group/variable\", \"/path/to/my/file.hd5\")\n"
-                   "idamGetAPI(\"/group/group/variable\", \"HDF::/path/to/my/file.hd5\")");
+           "idamGetAPI(\"/group/group/variable\", \"HDF::/path/to/my/file.hd5\")");
     allocPluginList(plugin_list->count++, plugin_list);
 #endif
 
@@ -826,7 +829,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     plugin_list->plugin[plugin_list->count].plugin_class = PLUGINFILE;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Return a JPG file.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"\", \"/path/to/my/file.jpg\")\n"
-            "idamGetAPI(\"\", \"JPG::/path/to/my/file.jpg\")");
+                                                            "idamGetAPI(\"\", \"JPG::/path/to/my/file.jpg\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "NIDA");
@@ -842,7 +845,7 @@ void initPluginList(PLUGINLIST* plugin_list)
     plugin_list->plugin[plugin_list->count].plugin_class = PLUGINFILE;
     strcpy(plugin_list->plugin[plugin_list->count].desc, "Return a CSV ASCII file.");
     strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"\", \"/path/to/my/file.csv\")\n"
-            "idamGetAPI(\"\", \"CSV::/path/to/my/file.csv\")");
+                                                            "idamGetAPI(\"\", \"CSV::/path/to/my/file.csv\")");
     allocPluginList(plugin_list->count++, plugin_list);
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "TIF");
@@ -1522,7 +1525,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
     if (logRecord == NULL || strlen(logRecord) == 0) {
         sprintf(request_block.signal, "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
-                "trueSignal='%s', trueSource='%s', trueSourceDOI='%s', execMethod=%d, status=new)",
+                                      "trueSignal='%s', trueSource='%s', trueSourceDOI='%s', execMethod=%d, status=new)",
                 plugin_list->plugin[plugin_id].format, client_block->DOI,
                 original_request_block->signal, original_request_block->source,
                 signal_desc->signal_name, data_source->path, "", execMethod);
@@ -1660,7 +1663,8 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
 
     char* env = NULL;
     if ((env = getenv("UDA_METADATA_PLUGIN")) != NULL) {        // Must be set in the server startup script
-        int id = findPluginIdByFormat(env, plugin_list);        // Must be defined in the server plugin configuration file
+        int id = findPluginIdByFormat(env,
+                                      plugin_list);        // Must be defined in the server plugin configuration file
         if (id >= 0 &&
             plugin_list->plugin[id].plugin_class == PLUGINFUNCTION &&
             plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
@@ -1671,7 +1675,7 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
 
         if (id >= 0 && plugin_list->plugin[id].is_private == PLUGINPRIVATE &&
             getIdamServerEnvironment()->external_user) {
-                plugin_id = -1;
+            plugin_id = -1;
         }        // Not available to external users
 
 

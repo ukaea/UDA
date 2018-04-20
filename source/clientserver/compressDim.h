@@ -3,6 +3,10 @@
 
 #include "udaStructs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int compressDim(DIMS * ddim);
 
 /*---------------------------------------------------------------
@@ -21,5 +25,9 @@ int compressDim(DIMS * ddim);
 *
 *--------------------------------------------------------------*/
 int uncompressDim(DIMS * ddim);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // IDAM_CLIENTSERVER_COMPRESSDIM_H

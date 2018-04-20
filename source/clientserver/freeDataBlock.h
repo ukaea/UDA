@@ -6,8 +6,16 @@
 
 // Forward declarations
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void freeDataBlock(DATA_BLOCK* data_block);
 void freeReducedDataBlock(DATA_BLOCK* data_block);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_CLIENTSERVER_FREEDATABLOCK_H
 

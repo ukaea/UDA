@@ -14,6 +14,7 @@
 #include <clientserver/xdrlib.h>
 #include <clientserver/freeDataBlock.h>
 #include <plugins/serverPlugin.h>
+#include <clientserver/makeRequestBlock.h>
 
 #include "serverStartup.h"
 #include "closeServerSockets.h"

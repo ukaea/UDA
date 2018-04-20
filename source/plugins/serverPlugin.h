@@ -35,6 +35,8 @@ void initPluginList(PLUGINLIST* plugin_list);
 
 int idamServerRedirectStdStreams(int reset);
 
+int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
+
 // 1. open configuration file
 // 2. read plugin details
 //   2.1 format

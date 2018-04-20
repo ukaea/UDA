@@ -32,6 +32,7 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
 #include <client/udaClient.h>
+#include <clientserver/makeRequestBlock.h>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
@@ -357,7 +358,7 @@ static int get_signal(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, const char* 
         return 999;
     }
 
-// Locate and Execute the IDAM plugin
+    // Locate and Execute the UDA plugin
 
     int err = 0;
     int id = findPluginIdByRequest(next_request_block.request, plugin_list);

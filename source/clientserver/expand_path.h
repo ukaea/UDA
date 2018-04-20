@@ -2,6 +2,11 @@
 #define UDA_CLIENTSERVER_EXPAND_PATH_H
 
 #include "udaStructs.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*! The workstation (client host) name is obtained using the operating system command 'hostname'.
 
 @param host The name of the client host workstation. The string is pre-allocated with length STRING_LENGTH
@@ -92,5 +97,9 @@ int pathReplacement(char *path, const ENVIRONMENT* environment);
 int linkReplacement(char *path);
 
 #endif // NOEXPANDPATH
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_CLIENTSERVER_EXPAND_PATH_H

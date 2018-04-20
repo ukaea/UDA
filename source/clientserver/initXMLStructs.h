@@ -5,6 +5,10 @@
 
 #include <clientserver/xmlStructs.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void initEfit(EFIT* str);
 void initInstance(INSTANCE* str);
 void initFluxLoop(FLUXLOOP* str);
@@ -32,5 +36,9 @@ void printDiaMagnetic(DIAMAGNETIC str);
 void printToroidalField(TOROIDALFIELD str);
 void printLimiter(LIMITER str);
 void printEFIT(EFIT str);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // IDAM_CLIENTSERVER_INITXMLSTRUCTS_H

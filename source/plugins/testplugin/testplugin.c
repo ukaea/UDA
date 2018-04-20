@@ -28,6 +28,7 @@
 #include <server/makeServerRequestBlock.h>
 #include <clientserver/stringUtils.h>
 #include <structures/accessors.h>
+#include <clientserver/makeRequestBlock.h>
 
 #ifdef PUTDATAENABLED
 #  include <structures/accessors.h>
@@ -3142,17 +3143,15 @@ static int do_test50(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     int i;
     
-    //THROW_ERROR(999, "test50 forced error");
-
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     
-// Name substitution and additional name-value pairs
+    // Name substitution and additional name-value pairs
 
     int err = nameValueSubstitution(&(request_block->nameValueList), request_block->tpass);
     if(err != 0) return err;
     
-// Return an array of strings with all passed parameters and substitutions
+    // Return an array of strings with all passed parameters and substitutions
 
     int count = 10*1024;
     char *work = (char *)malloc(count*sizeof(char));

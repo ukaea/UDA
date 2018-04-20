@@ -95,8 +95,6 @@ bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* 
 
 bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** values, size_t* nvalues, const char* name);
 
-int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
-
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)
 #define CONCAT_(X, Y) X##Y

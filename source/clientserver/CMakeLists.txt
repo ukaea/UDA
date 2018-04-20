@@ -14,28 +14,29 @@ include_directories(
 )
 
 set( SRC_FILES
-  freeDataBlock.c
-  errorLog.c
   allocData.c
+  compressDim.c
+  copyStructs.c
+  errorLog.c
+  expand_path.c
+  freeDataBlock.c
+  initStructs.c
+  makeRequestBlock.c
+  manageSockets.c
+  md5Sum.c
+  parseOperation.c
+  parseXML.c
+  printStructs.c
   protocol.c
   protocol2.c
   protocolXML.c
   protocolXML2.c
   protocolXML2Put.c
-  compressDim.c
-  initStructs.c
-  manageSockets.c
-  md5Sum.c
-  printStructs.c
+  readXDRFile.c
+  stringUtils.c
+  udaTypes.c
   userid.c
   xdrlib.c
-  readXDRFile.c
-  expand_path.c
-  stringUtils.c
-  parseOperation.c
-  parseXML.c
-  copyStructs.c
-  udaTypes.c
 #  utils.c
 )
 
@@ -46,6 +47,7 @@ set( HIERARCHICAL_SRC_FILES
 )
 
 set( HEADER_FILES
+  #parseXML.h
   allocData.h
   allocXMLData.h
   compressDim.h
@@ -55,11 +57,11 @@ set( HEADER_FILES
   freeDataBlock.h
   initStructs.h
   initXMLStructs.h
+  makeRequestBlock.h
   manageSockets.h
   md5Sum.h
   memstream.h
   parseOperation.h
-  #parseXML.h
   printStructs.h
   protocol.h
   protocolXML.h

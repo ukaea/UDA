@@ -62,6 +62,7 @@ Issues: MAST data specific
 #include <server/makeServerRequestBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>
+#include <clientserver/makeRequestBlock.h>
 
 void defineIDSStructures(USERDEFINEDTYPELIST* userdefinedtypelist)
 {

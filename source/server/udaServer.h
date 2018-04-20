@@ -3,9 +3,6 @@
 
 #define MAXOPENFILEDESC 50  // Maximum number of Open File Descriptors
 
-#define MAXMAPDEPTH     10  // Maximum number of chained signal name mappings (Recursive depth)
-#define MAXREQDEPTH     4   // Maximum number of Device Name to Server Protocol and Host substitutions
-
 #define XDEBUG          0   // Socket Streams
 
 #include <plugins/pluginStructs.h>
