@@ -149,8 +149,7 @@ extern int issueDOI(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         UDA_LOG(UDA_LOG_DEBUG, "init function called.\n");
 
-        const ENVIRONMENT* environment = getIdamServerEnvironment();
-
+        const ENVIRONMENT* environment = idam_plugin_interface->environment;
         dbhost = environment->sql_host;
         dbname = environment->sql_dbname;
         dbuser = environment->sql_user;

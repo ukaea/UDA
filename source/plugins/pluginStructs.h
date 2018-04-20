@@ -27,7 +27,7 @@ typedef struct IdamPluginInterface {    // Standard Plugin interface
     CLIENT_BLOCK* client_block;
     DATA_SOURCE* data_source;
     SIGNAL_DESC* signal_desc;
-    ENVIRONMENT* environment;           // Server environment
+    const ENVIRONMENT* environment;           // Server environment
     LOGMALLOCLIST* logmalloclist;
     USERDEFINEDTYPELIST* userdefinedtypelist;
     void* sqlConnection;                // Opaque structure

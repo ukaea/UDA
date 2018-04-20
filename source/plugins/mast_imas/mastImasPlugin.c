@@ -393,10 +393,8 @@ int do_read_magnetics(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (idam_plugin_interface->sqlConnection != NULL && idam_plugin_interface->sqlConnectionType == PLUGINSQLPOSTGRES) {
         db = (PGconn*) idam_plugin_interface->sqlConnection;
     } else {
-        db = startSQL();
+        db = startSQL(idam_plugin_interface->environment);
     }
-
-//    int get_shape = findValue(idam_plugin_interface->request_block->nameValueList, "get_shape");
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 

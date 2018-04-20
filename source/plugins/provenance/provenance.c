@@ -33,10 +33,8 @@ char* user = NULL;
 char* pswrd = NULL;
 int initTime = 0;
 
-PGconn* startSQL_Provenance()
+PGconn* startSQL_Provenance(const ENVIRONMENT* environment)
 {
-    const ENVIRONMENT* environment = getIdamServerEnvironment();
-
     pghost = environment->sql_host;
     pswrd = NULL;
     sprintf(pgport, "%d", environment->sql_port);
@@ -51,21 +49,20 @@ PGconn* startSQL_Provenance()
     char* pgoptions = NULL;    //"connect_timeout=5";
     char* pgtty = NULL;
 
-// Login password is stored in .pgpass for POSTGRESQL database so no need to set
+    // Login password is stored in .pgpass for POSTGRESQL database so no need to set
 
     PGconn* DBConnect = NULL;
 
-//------------------------------------------------------------- 
-// Debug Trace Queries
+    //-------------------------------------------------------------
+    // Debug Trace Queries
 
-//        PQtrace(DBConnect, dbgout);
-        UDA_LOG(UDA_LOG_DEBUG, "Provenance SQL Connection: host %s\n", pghost);
-        UDA_LOG(UDA_LOG_DEBUG, "                           port %s\n", pgport);
-        UDA_LOG(UDA_LOG_DEBUG, "                           db   %s\n", dbname);
-        UDA_LOG(UDA_LOG_DEBUG, "                           user %s\n", user);
+    UDA_LOG(UDA_LOG_DEBUG, "Provenance SQL Connection: host %s\n", pghost);
+    UDA_LOG(UDA_LOG_DEBUG, "                           port %s\n", pgport);
+    UDA_LOG(UDA_LOG_DEBUG, "                           db   %s\n", dbname);
+    UDA_LOG(UDA_LOG_DEBUG, "                           user %s\n", user);
 
-//-------------------------------------------------------------
-// Connect to the Database Server
+    //-------------------------------------------------------------
+    // Connect to the Database Server
 
     if ((DBConnect = PQsetdbLogin(pghost, pgport, pgoptions, pgtty, dbname, user, pswrd)) == NULL) {
         addIdamError(CODEERRORTYPE, "startSQL_Provenance", 1, "SQL Server Connect Error");
@@ -162,7 +159,7 @@ int admin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Is there an Open SQL Connection? If not then open a private connection
 
         if (DBConnect == NULL && (DBType == PLUGINSQLPOSTGRES || DBType == PLUGINSQLNOTKNOWN)) {
-            DBConnect = startSQL_Provenance();        // No prior connection to Postgres SQL Database
+            DBConnect = startSQL_Provenance(idam_plugin_interface->environment);        // No prior connection to Postgres SQL Database
             if (DBConnect != NULL) {
                 DBType = PLUGINSQLPOSTGRES;
                 sqlPrivate = 1;

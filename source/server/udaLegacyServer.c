@@ -277,7 +277,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             //----------------------------------------------------------------------
             // Write to the Access Log
 
-            idamAccessLog(TRUE, client_block, request_block, server_block, pluginlist);
+            idamAccessLog(TRUE, client_block, request_block, server_block, pluginlist, getIdamServerEnvironment());
 
             //----------------------------------------------------------------------
             // Initialise Data Structures
@@ -315,7 +315,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             // Decide on Authentication procedure
 
             if (protocolVersion >= 6) {
-                if ((err = idamServerPlugin(&request_block, &data_source, &signal_desc, pluginlist)) != 0) break;
+                if ((err = idamServerPlugin(&request_block, &data_source, &signal_desc, pluginlist, getIdamServerEnvironment())) != 0) break;
             } else {
                 if ((err = idamServerLegacyPlugin(&request_block, &data_source, &signal_desc)) != 0) break;
             }
@@ -673,7 +673,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
         //----------------------------------------------------------------------
         // Complete & Write the Access Log Record
 
-        idamAccessLog(0, client_block, request_block, server_block, pluginlist);
+        idamAccessLog(0, client_block, request_block, server_block, pluginlist, getIdamServerEnvironment());
 
         //----------------------------------------------------------------------------
         // Server Shutdown ? Next Instruction from Client

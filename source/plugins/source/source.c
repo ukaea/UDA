@@ -27,6 +27,7 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/xmlStructs.h>
+#include <clientserver/makeRequestBlock.h>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 

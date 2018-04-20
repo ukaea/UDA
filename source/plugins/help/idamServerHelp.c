@@ -195,7 +195,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // Total Number of registered plugins available
 
-    const ENVIRONMENT* environment = getIdamServerEnvironment();
+    const ENVIRONMENT* environment = idam_plugin_interface->environment;
 
     const PLUGINLIST* pluginList = idam_plugin_interface->pluginList;
 

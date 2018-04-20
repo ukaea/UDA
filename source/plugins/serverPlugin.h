@@ -31,7 +31,7 @@ int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list)
 
 int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list);
 
-void initPluginList(PLUGINLIST* plugin_list);
+void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment);
 
 int idamServerRedirectStdStreams(int reset);
 
@@ -50,7 +50,7 @@ int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLU
 // 7. close the file
 
 int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
-                     const PLUGINLIST* plugin_list);
+                     const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
 
 //------------------------------------------------------------------------------------------------
 // Provenance gathering plugin with a separate database.
@@ -70,12 +70,13 @@ int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIG
 
 int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_request_block,
                          DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list,
-                         char* logRecord);
+                         char* logRecord, const ENVIRONMENT* environment);
 
-int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list);
+int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
 
 int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
-                             SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source, LOGMALLOCLIST* logmalloclist);
+                             SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source, LOGMALLOCLIST* logmalloclist,
+                             const ENVIRONMENT* environment);
 
 #ifdef __cplusplus
 }

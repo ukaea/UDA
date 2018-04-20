@@ -235,11 +235,11 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     err = 0;
     do {        // Error Trap
 
-//----------------------------------------------------------------------------------------
-// Plugin Functions 
-//----------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------
+        // Plugin Functions
+        //----------------------------------------------------------------------------------------
 
-// Help: A Description of library functionality
+        // Help: A Description of library functionality
 
         if (!strcasecmp(request_block->function, "help")) {
 
@@ -273,12 +273,12 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             break;
         } else
 
-//====================================================================================== 
-// SW NBI Power Correction 
+        //======================================================================================
+        // SW NBI Power Correction
 
         if (!strcasecmp(request_block->function, "chequerBoardPower")) {
 
-// correction coefficients
+            // correction coefficients
 
             int coeffCount = 5;
             float chequerBoardCoeffs[3][5] = {{ -3.3909E-3f, 1.8803E-2f,  -3.7006E-4f, 3.3039E-6f,  -1.2755E-8f },
@@ -295,7 +295,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 break;
             }
 
-// Check source is a shot number
+            // Check source is a shot number
 
             if (!IsNumber(source)) {
                 err = 999;
@@ -315,12 +315,12 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 break;
             }
 
-// New or previous shot with static data ?	 
+            // New or previous shot with static data ?
 
             if (exp_number == old_exp_number && !freeOldData) {    // use saved power fractions from previous request
 
-// Use previously prepared data - no need to recalculate
-// All typed as float data, double time
+                // Use previously prepared data - no need to recalculate
+                // All typed as float data, double time
 
                 if (!strcasecmp(signal, "ANB_SW_FULL_POWER")) {
                     copyANBDataBlock(data_block, &data_block_e, dataCountSW);    // MW
@@ -336,7 +336,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             } else {                        // calculate new power fractions
 
-// free old data
+                // free old data
 
                 if (freeOldData) {
                     freeDataBlock(&data_block_e);
@@ -357,8 +357,8 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 initDataBlock(&data_block_t);
                 initDataBlock(&data_block_tt);
 
-// Read SW beam current (xnb_sw_beam_current), beam voltage (xnb_sw_beam_voltage) 
-// If either is missing, then assume No Data. Copy legacy pattern and return arrays of length 2. data=[0,0], time=[0,1] 
+                // Read SW beam current (xnb_sw_beam_current), beam voltage (xnb_sw_beam_voltage)
+                // If either is missing, then assume No Data. Copy legacy pattern and return arrays of length 2. data=[0,0], time=[0,1]
 
                 unsigned short noSWBeam = 0;
                 unsigned short noSSBeam = 0;
@@ -371,11 +371,13 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 const char* port = getenv("CORRECTIONS_UDA_PORT");
 
                 if (host) {
-                    sprintf(idam_plugin_interface->environment->server_host, "%s", host);
+                    // TODO: If this needs to happen then we need to changed how the plugin_interface struct
+                    // sprintf(idam_plugin_interface->environment->server_host, "%s", host);
                 }
 
                 if (port) {
-                    idam_plugin_interface->environment->server_port = atoi(port);
+                    // TODO: If this needs to happen then we need to changed how the plugin_interface struct
+                    //idam_plugin_interface->environment->server_port = atoi(port);
                 }
 
                 h1 = idamGetAPI("xnb_sw_beam_current", source);        // current (Amps assumed)

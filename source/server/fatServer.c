@@ -22,6 +22,7 @@
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
 #include "sqllib.h"
+#include "getServerEnvironment.h"
 
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {
@@ -135,7 +136,7 @@ int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLO
         return err;
     }
 
-    idamAccessLog(FALSE, client_block, request_block, *server_block, &pluginList);
+    idamAccessLog(FALSE, client_block, request_block, *server_block, &pluginList, getIdamServerEnvironment());
 
     err = doFatServerClosedown(server_block, &data_block, &actions_desc, &actions_sig, data_block0);
 
@@ -313,7 +314,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     protocolVersion = serverVersion;
 
     if (protocolVersion >= 6) {
-        if ((err = idamServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc, &pluginList)) != 0) return err;
+        if ((err = idamServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc, &pluginList, getIdamServerEnvironment())) != 0) return err;
     } else {
         if ((err = idamServerLegacyPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc)) != 0) return err;
     }
@@ -484,7 +485,7 @@ int startupFatServer(SERVER_BLOCK* server_block)
 
     if (!plugin_list_initialised) {
         pluginList.count = 0;
-        initPluginList(&pluginList);
+        initPluginList(&pluginList, getIdamServerEnvironment());
         plugin_list_initialised = 1;
 
         UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");

@@ -63,10 +63,8 @@ PGconn* openDatabase(const char* host, int port, const char* dbname, const char*
 
 }
 
-PGconn* startSQL()
+PGconn* startSQL(const ENVIRONMENT* environment)
 {
-    const ENVIRONMENT* environment = getIdamServerEnvironment();
-
     const char* pghost = environment->sql_host;
     const char* dbname = environment->sql_dbname;
     const char* user = environment->sql_user;
@@ -110,10 +108,8 @@ PGconn* startSQL()
     return DBConnect;
 }
 
-PGconn* startSQL_CPF()
+PGconn* startSQL_CPF(const ENVIRONMENT* environment)
 {
-    const ENVIRONMENT* environment = getIdamServerEnvironment();
-
     const char* pghost = environment->sql_host;
     const char* dbname = environment->sql_dbname;
     const char* user = environment->sql_user;
@@ -3417,12 +3413,12 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
 //==============================================================================================================
 #else
 
-PGconn* startSQL()
+PGconn* startSQL(const ENVIRONMENT* environment)
 {
     return NULL;
 }
 
-PGconn* startSQL_CPF()
+PGconn* startSQL_CPF(const ENVIRONMENT* environment)
 {
     return NULL;
 }

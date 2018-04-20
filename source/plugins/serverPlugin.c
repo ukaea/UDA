@@ -450,7 +450,7 @@ int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin
     return REQUEST_READ_UNKNOWN;
 }
 
-void initPluginList(PLUGINLIST* plugin_list)
+void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
 {
 
     int i;
@@ -489,8 +489,6 @@ void initPluginList(PLUGINLIST* plugin_list)
     strcpy(plugin_list->plugin[plugin_list->count].format, "IDAM");
     plugin_list->plugin[plugin_list->count].request = REQUEST_READ_IDAM;
     plugin_list->plugin[plugin_list->count].plugin_class = PLUGINSERVER;
-
-    ENVIRONMENT* environment = getIdamServerEnvironment();
 
     if (environment->server_proxy[0] != '\0') {
         plugin_list->plugin[plugin_list->count].is_private = PLUGINPUBLIC;
@@ -1329,7 +1327,7 @@ int idamServerRedirectStdStreams(int reset)
 // 6. get plugin function address
 // 7. close the file
 int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
-                     const PLUGINLIST* plugin_list)
+                     const PLUGINLIST* plugin_list, const ENVIRONMENT* environment)
 {
     int err = 0;
     char* token = NULL;
@@ -1356,7 +1354,7 @@ int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIG
 
         if (strlen(request_block->server) == 0 && request_block->request != REQUEST_READ_SERVERSIDE) {
             // Must be a File plugin
-            if ((err = pathReplacement(request_block->path, getIdamServerEnvironment())) != 0) break;
+            if ((err = pathReplacement(request_block->path, environment)) != 0) break;
         }
 
         //----------------------------------------------------------------------
@@ -1459,7 +1457,7 @@ int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIG
 
 int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_request_block,
                          DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list,
-                         char* logRecord)
+                         char* logRecord, const ENVIRONMENT* environment)
 {
 
     if (strcmp(client_block->DOI, "") || strlen(client_block->DOI) == 0) {
@@ -1476,8 +1474,6 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     struct timeval tv_start, tv_stop;
 
     gettimeofday(&tv_start, NULL);
-
-    ENVIRONMENT* environment = getIdamServerEnvironment();
 
     if (plugin_id == -2) {        // On initialisation
         plugin_id = -1;
@@ -1648,7 +1644,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 //------------------------------------------------------------------------------------------------
 // Identify the Plugin to use to resolve Generic Name mappings and return its ID 
 
-int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
+int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* environment)
 {
     static unsigned short noPluginRegistered = 0;
     static int plugin_id = -1;
@@ -1663,8 +1659,7 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
 
     char* env = NULL;
     if ((env = getenv("UDA_METADATA_PLUGIN")) != NULL) {        // Must be set in the server startup script
-        int id = findPluginIdByFormat(env,
-                                      plugin_list);        // Must be defined in the server plugin configuration file
+        int id = findPluginIdByFormat(env, plugin_list);        // Must be defined in the server plugin configuration file
         if (id >= 0 &&
             plugin_list->plugin[id].plugin_class == PLUGINFUNCTION &&
             plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
@@ -1674,17 +1669,16 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
         }
 
         if (id >= 0 && plugin_list->plugin[id].is_private == PLUGINPRIVATE &&
-            getIdamServerEnvironment()->external_user) {
+            environment->external_user) {
             plugin_id = -1;
         }        // Not available to external users
-
 
         UDA_LOG(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: %s\n", env);
         UDA_LOG(UDA_LOG_DEBUG, "PLUGINFUNCTION?: %d\n", plugin_list->plugin[id].plugin_class == PLUGINFUNCTION);
         UDA_LOG(UDA_LOG_DEBUG, "PLUGINPRIVATE?: %d\n", plugin_list->plugin[id].is_private == PLUGINPRIVATE);
-        UDA_LOG(UDA_LOG_DEBUG, "External User?: %d\n", getIdamServerEnvironment()->external_user);
+        UDA_LOG(UDA_LOG_DEBUG, "External User?: %d\n", environment->external_user);
         UDA_LOG(UDA_LOG_DEBUG, "Private?: %d\n",
-                plugin_list->plugin[id].is_private == PLUGINPRIVATE && getIdamServerEnvironment()->external_user);
+                plugin_list->plugin[id].is_private == PLUGINPRIVATE && environment->external_user);
         UDA_LOG(UDA_LOG_DEBUG, "PLUGINOPERATIONAL?: %d\n", plugin_list->plugin[id].status == PLUGINOPERATIONAL);
         UDA_LOG(UDA_LOG_DEBUG, "Plugin OK?: %d\n",
                 plugin_list->plugin[id].pluginHandle != NULL && plugin_list->plugin[id].idamPlugin != NULL);
@@ -1703,7 +1697,8 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list)
 // Execute the Generic Name mapping Plugin
 
 int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
-                             SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source, LOGMALLOCLIST* logmalloclist)
+                             SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source, LOGMALLOCLIST* logmalloclist,
+                             const ENVIRONMENT* environment)
 {
     int err, reset, rc;
     IDAM_PLUGIN_INTERFACE idam_plugin_interface;
@@ -1728,7 +1723,7 @@ int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUE
     idam_plugin_interface.request_block = request_block;
     idam_plugin_interface.data_source = data_source;
     idam_plugin_interface.signal_desc = signal_desc;
-    idam_plugin_interface.environment = getIdamServerEnvironment();    // Legacy Global variable
+    idam_plugin_interface.environment = environment;    // Legacy Global variable
     idam_plugin_interface.sqlConnection = NULL;        // Private to the plugin
     idam_plugin_interface.housekeeping = 0;
     idam_plugin_interface.changePlugin = 0;

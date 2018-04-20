@@ -24,9 +24,10 @@ typedef int PGconn;
 
 extern PGconn *gDBConnect;
 
-PGconn *startSQL();
+PGconn *startSQL(const ENVIRONMENT* environment);
 PGconn *openDatabase(const char* host, int port, const char* dbname, const char* user);
-PGconn *startSQL_CPF();
+PGconn *startSQL_CPF(const ENVIRONMENT* environment);
+
 void sqlReason(PGconn *DBConnect, char *reason_id, char *reason);
 void sqlMeta(PGconn *DBConnect, char *table, char *meta_id, char *xml, char *creation);
 int sqlGeneric(PGconn *DBConnect, char *signal, int exp_number, int pass, char *tpass,

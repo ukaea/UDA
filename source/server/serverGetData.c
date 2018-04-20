@@ -1196,7 +1196,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
         // Identify the required Plugin
 
-        int plugin_id = idamServerMetaDataPluginId(pluginlist);
+        int plugin_id = idamServerMetaDataPluginId(pluginlist, getIdamServerEnvironment());
         if (plugin_id < 0) {
             // No plugin so not possible to identify the requested data item
             THROW_ERROR(778, "Unable to identify requested data item");
@@ -1210,7 +1210,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
         // Execute the plugin to resolve the identity of the data requested
 
-        int err = idamServerMetaDataPlugin(pluginlist, plugin_id, &request_block, signal_desc, data_source, logmalloclist);
+        int err = idamServerMetaDataPlugin(pluginlist, plugin_id, &request_block, signal_desc, data_source, logmalloclist, getIdamServerEnvironment());
 
         if (err != 0) {
             THROW_ERROR(err, "No Record Found for this Generic Signal");
@@ -1372,7 +1372,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                 // Save Provenance with socket stream protection
 
                 idamServerRedirectStdStreams(0);
-                idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, NULL);
+                idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, NULL, getIdamServerEnvironment());
                 idamServerRedirectStdStreams(1);
 
                 // If no structures to pass back (only regular data) then free the user defined type list
@@ -1489,7 +1489,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
     // Save Provenance with socket stream protection
 
     idamServerRedirectStdStreams(0);
-    idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, NULL);
+    idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, NULL, getIdamServerEnvironment());
     idamServerRedirectStdStreams(1);
 
     //----------------------------------------------------------------------------

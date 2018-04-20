@@ -8,7 +8,8 @@
 
 unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_block);
 
-void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block, const PLUGINLIST* pluginlist);
+void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block,
+                   const PLUGINLIST* pluginlist, const ENVIRONMENT* environment);
 
 #endif // UDA_LOGGING_IDAMACCESSLOG_H
 

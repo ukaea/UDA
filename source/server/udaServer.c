@@ -26,6 +26,7 @@
 #include "makeServerRequestBlock.h"
 #include "sqllib.h"
 #include "createXDRStream.h"
+#include "getServerEnvironment.h"
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -628,7 +629,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     //----------------------------------------------------------------------
     // Write to the Access Log
 
-    idamAccessLog(TRUE, *client_block, *request_block, *server_block, &pluginList);
+    idamAccessLog(TRUE, *client_block, *request_block, *server_block, &pluginList, getIdamServerEnvironment());
 
     //----------------------------------------------------------------------
     // Initialise Data Structures
@@ -666,7 +667,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
 
     if (protocolVersion >= 6) {
         if ((err = idamServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc,
-                                    &pluginList)) != 0) {
+                                    &pluginList, getIdamServerEnvironment())) != 0) {
                                         return err;
         }
     } else {
@@ -831,7 +832,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
         UDA_LOG(UDA_LOG_DEBUG, "Data structures sent to client\n");
         UDA_LOG(UDA_LOG_DEBUG, "Report To Client Error: %d [%d]\n", err, *fatal);
 
-        idamAccessLog(FALSE, *client_block, *request_block, *server_block, &pluginList);
+        idamAccessLog(FALSE, *client_block, *request_block, *server_block, &pluginList, getIdamServerEnvironment());
 
         err = 0;
         next_protocol = PROTOCOL_SLEEP;
@@ -1175,7 +1176,7 @@ int startupServer(SERVER_BLOCK* server_block)
 
     if (!plugin_list_initialised) {
         pluginList.count = 0;
-        initPluginList(&pluginList);
+        initPluginList(&pluginList, getIdamServerEnvironment());
         plugin_list_initialised = 1;
 
         UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");

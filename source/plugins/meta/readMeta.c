@@ -197,7 +197,7 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (context != CONTEXT_CPF) {
             if (DBConnect == NULL && (DBType == PLUGINSQLPOSTGRES || DBType == PLUGINSQLNOTKNOWN)) {
-                DBConnect = startSQL();        // No prior connection to IDAM Postgres SQL Database
+                DBConnect = startSQL(idam_plugin_interface->environment);        // No prior connection to IDAM Postgres SQL Database
                 if (DBConnect != NULL) {
                     DBType = PLUGINSQLPOSTGRES;
                     sqlPrivate = 1;
@@ -210,31 +210,28 @@ extern int readMeta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             UDA_LOG(UDA_LOG_DEBUG, "Meta: Connecting to the CPF database\n");
 
-            ENVIRONMENT* environment = getIdamServerEnvironment();
-            ENVIRONMENT oldenviron = *environment;
+            ENVIRONMENT environment = *idam_plugin_interface->environment;
 
-            int lstr = strlen(environment->sql_dbname) + 1;
+            int lstr = strlen(environment.sql_dbname) + 1;
             char* env;
             char* old_dbname = (char*)malloc(lstr * sizeof(char));
-            strcpy(old_dbname, environment->sql_dbname);
+            strcpy(old_dbname, environment.sql_dbname);
 
-            strcpy(environment->sql_dbname, "cpf");        // Case Sensitive!!!
-            if ((env = getenv("UDA_CPFDBNAME")) != NULL) strcpy(environment->sql_dbname, env);
-            if ((env = getenv("CPF_SQLDBNAME")) != NULL) strcpy(environment->sql_dbname, env);
-            putIdamServerEnvironment(environment);        // Copy the change to the server library
+            strcpy(environment.sql_dbname, "cpf");        // Case Sensitive!!!
+            if ((env = getenv("UDA_CPFDBNAME")) != NULL) strcpy(environment.sql_dbname, env);
+            if ((env = getenv("CPF_SQLDBNAME")) != NULL) strcpy(environment.sql_dbname, env);
 
             //DBConnect = (PGconn *)startSQL();		// Picking up startSQL from somewhere!
             // preload of liblastshot.so & libidamNotify.so for MDS+ sandbox !!!!
 
-            DBConnect = startSQL_CPF();        // Ignore prior connection to IDAM Postgres SQL Database
+            DBConnect = startSQL_CPF(&environment);        // Ignore prior connection to IDAM Postgres SQL Database
             if (DBConnect != NULL) {
                 DBType = PLUGINSQLPOSTGRES;
                 sqlPrivate = 1;
                 UDA_LOG(UDA_LOG_DEBUG, "Meta: Private CPF database connection made.\n");
             }
-            strcpy(environment->sql_dbname, old_dbname);
+            strcpy(environment.sql_dbname, old_dbname);
             free((void*)old_dbname);
-            putIdamServerEnvironment(&oldenviron);    // Return the original
         }
         if (DBConnect == NULL) {        // No connection!
             RAISE_PLUGIN_ERROR("SQL Database Server Connect Error");
