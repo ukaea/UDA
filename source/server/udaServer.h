@@ -17,6 +17,10 @@ int udaServer(CLIENT_BLOCK client_block);
 
 int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0, DATA_BLOCK* data_block0);
 
+#ifdef __cplusplus
+}
+#endif
+
 //--------------------------------------------------------------
 // Static Global variables
 

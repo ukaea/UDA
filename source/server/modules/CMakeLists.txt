@@ -26,12 +26,14 @@ set( SRC_FILES
   mdsplus/readMDS.c
 )
 
+set( EXTRA_SRC_FILES )
+
 if( MDSplus_FOUND )
-  list( APPEND SRC_FILES mdsplus/readMDSDim.c )
+  list( APPEND EXTRA_SRC_FILES mdsplus/readMDSDim.c )
 endif()
 
 if( NETCDF_FOUND )
-  list( APPEND SRC_FILES
+  list( APPEND EXTRA_SRC_FILES
     netcdf4/readCDF4SubTree.c
     netcdf4/readCDFAtts.c
     netcdf4/readCDFMeta.c
@@ -47,8 +49,17 @@ include_directories(
 ########################################################################################################################
 # Targets
 
-add_library( modules-objects OBJECT ${SRC_FILES} )
+add_library( modules-objects OBJECT ${SRC_FILES} ${EXTRA_SRC_FILES} )
 target_compile_definitions( modules-objects PRIVATE -DSERVERBUILD )
 
 add_library( fatmodules-objects OBJECT ${SRC_FILES} )
-target_compile_definitions( fatmodules-objects PRIVATE -DFATCLIENT )
+target_compile_definitions( fatmodules-objects PRIVATE
+  -DFATCLIENT
+  -DNOIDAPLUGIN
+  -DNOPPFPLUGIN
+  -DNOJPFPLUGIN
+  -DNOHDF5PLUGIN
+  -DNONETCDFPLUGIN
+  -DNOMDSPLUSPLUGIN
+  -DNOTGENERICENABLED
+)

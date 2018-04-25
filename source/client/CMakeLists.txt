@@ -60,7 +60,16 @@ add_library( client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
 if( NOT CLIENT_ONLY )
   add_library( fatclient-objects OBJECT ${SRC_FILES} )
 
-  target_compile_definitions( fatclient-objects PRIVATE -DFATCLIENT )
+  target_compile_definitions( fatclient-objects PRIVATE
+    -DFATCLIENT
+    -DNOIDAPLUGIN
+    -DNOPPFPLUGIN
+    -DNOJPFPLUGIN
+    -DNOHDF5PLUGIN
+    -DNONETCDFPLUGIN
+    -DNOMDSPLUSPLUGIN
+    -DNOTGENERICENABLED
+  )
   target_include_directories( fatclient-objects PRIVATE ${PostgreSQL_INCLUDE_DIRS} )
 endif()
 
