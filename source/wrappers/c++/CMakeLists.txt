@@ -50,7 +50,16 @@ endif()
 
 if( NOT CLIENT_ONLY )
   add_library( fatcpp-objects OBJECT ${SRC_FILES} )
-  target_compile_definitions( fatcpp-objects PRIVATE -DFATCLIENT )
+  target_compile_definitions( fatcpp-objects PRIVATE
+    -DFATCLIENT
+    -DNOIDAPLUGIN
+    -DNOPPFPLUGIN
+    -DNOJPFPLUGIN
+    -DNOHDF5PLUGIN
+    -DNONETCDFPLUGIN
+    -DNOMDSPLUSPLUGIN
+    -DNOTGENERICENABLED
+  )
 
   set( FATCLIENT_OBJS
     $<TARGET_OBJECTS:fatclient-objects>

@@ -114,7 +114,16 @@ if( NOT CLIENT_ONLY )
   target_compile_definitions( clientserver-server-objects PRIVATE -DSERVERBUILD )
 
   add_library( fatclientserver-objects OBJECT ${SRC_FILES} )
-  target_compile_definitions( fatclientserver-objects PRIVATE -DFATCLIENT )
+  target_compile_definitions( fatclientserver-objects PRIVATE
+    -DFATCLIENT
+    -DNOIDAPLUGIN
+    -DNOPPFPLUGIN
+    -DNOJPFPLUGIN
+    -DNOHDF5PLUGIN
+    -DNONETCDFPLUGIN
+    -DNOMDSPLUSPLUGIN
+    -DNOTGENERICENABLED
+  )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )

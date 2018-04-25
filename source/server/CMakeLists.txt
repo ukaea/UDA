@@ -85,8 +85,16 @@ add_library( fatserver-objects OBJECT
   ${HEADER_FILES}
 )
 
-target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
-
+target_compile_definitions( fatserver-objects PRIVATE
+  -DFATCLIENT
+  -DNOIDAPLUGIN
+  -DNOPPFPLUGIN
+  -DNOJPFPLUGIN
+  -DNOHDF5PLUGIN
+  -DNONETCDFPLUGIN
+  -DNOMDSPLUSPLUGIN
+  -DNOTGENERICENABLED
+)
 
 set( SERVER_OBJ
   $<TARGET_OBJECTS:server-objects>
