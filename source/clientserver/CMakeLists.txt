@@ -42,6 +42,7 @@ set( SRC_FILES
   userid.c
   xdrlib.c
   sqllib.c
+  nameValueSubstitution.c
 #  utils.c
 )
 

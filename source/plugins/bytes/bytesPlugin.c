@@ -1,7 +1,8 @@
 #include "bytesPlugin.h"
 
 #include <clientserver/stringUtils.h>
-#include <readBytesNonOptimally.h>
+
+#include "readBytesNonOptimally.h"
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
@@ -152,5 +153,5 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     StringCopy(data_source->path, path, MAXPATH);
 
-    return readBytes(*data_source, *signal_desc, data_block);
+    return readBytes(*data_source, *signal_desc, data_block, idam_plugin_interface->environment);
 }

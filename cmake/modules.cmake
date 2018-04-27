@@ -78,6 +78,7 @@ macro( link_modules TARGET_NAME )
 
     find_package( HDF5 COMPONENTS C HL QUIET )
     if( HDF5_FOUND )
+      link_directories( ${HDF5_LIBRARY_DIRS} )
       target_link_libraries( ${TARGET_NAME} LINK_PRIVATE ${HDF5_C_LIBRARIES} ${HDF5_HL_LIBRARIES} )
     endif()
 
@@ -93,6 +94,7 @@ macro( link_modules TARGET_NAME )
 
     find_package( PostgreSQL QUIET )
     if( PostgreSQL_FOUND )
+      link_directories( ${PostgreSQL_LIBRARY_DIRS} )
       target_link_libraries( ${TARGET_NAME} LINK_PRIVATE ${PostgreSQL_LIBRARY} )
     endif()
 
