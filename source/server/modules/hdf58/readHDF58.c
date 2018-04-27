@@ -37,6 +37,7 @@ int readHDF5(DATA_SOURCE data_source,
 }
 
 void H5Fclose(int fh) {
+    return;
 }
 
 #else
