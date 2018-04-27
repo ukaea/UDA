@@ -1,4 +1,4 @@
-#include "makeServerRequestBlock.h"
+#include "makeRequestBlock.h"
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -9,6 +9,8 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/errorLog.h>
+#include <logging/logging.h>
 
 // Deconstruct the text pass parameter for name valaue placeholder substitution 
 // and for additional name-value pairs and keywords

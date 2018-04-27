@@ -21,9 +21,8 @@ uda_plugin(
   DESCRIPTION "HDF5 Data Reader"
   EXAMPLE "NEWHDF5::read()"
   LIBNAME hdf5_plugin
-  SOURCES hdf5plugin.c hdf5plugin.h
+  SOURCES hdf5plugin.c hdf5plugin.h readHDF58.c readHDF58.h
   EXTRA_INCLUDE_DIRS
-    ${CMAKE_SOURCE_DIR}/source/server/modules/hdf58
     ${LIBXML2_INCLUDE_DIR}
     ${PostgreSQL_INCLUDE_DIRS}
     ${HDF5_INCLUDE_DIRS}
