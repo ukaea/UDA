@@ -2,10 +2,12 @@
 # Creates the Environment needed by the UDA Server.
 #------------------------------------------------------------------------------------------------------
 
+export UDA_ROOT=@CMAKE_INSTALL_PREFIX@
+
 #------------------------------------------------------------------------------------------------------
 # UDA Logging mode
 
-export UDA_LOG=@CMAKE_INSTALL_PREFIX@/etc
+export UDA_LOG=$UDA_ROOT/etc
 export UDA_LOG_MODE=a
 export UDA_LOG_LEVEL=DEBUG  # Options: INFO, DEBUG, WARN, ERROR, ACCESS
 export UDA_DEBUG_APPEND=a
@@ -33,8 +35,8 @@ export UDA_SQLUSER=readonly			# SQL Database User
 #------------------------------------------------------------------------------------------------------
 # Plugin Registration + Structure Passing configuration
 
-export UDA_PLUGIN_CONFIG=@CMAKE_INSTALL_PREFIX@/etc/plugins/udaPlugins.conf
-export UDA_SARRAY_CONFIG=@CMAKE_INSTALL_PREFIX@/etc/udagenstruct.conf
+export UDA_PLUGIN_CONFIG=$UDA_ROOT/etc/plugins/udaPlugins.conf
+export UDA_SARRAY_CONFIG=/etc/udagenstruct.conf
 
 #------------------------------------------------------------------------------------------------------
 # Setup required dynamic library paths
@@ -42,5 +44,5 @@ export UDA_SARRAY_CONFIG=@CMAKE_INSTALL_PREFIX@/etc/udagenstruct.conf
 export MAST_DATA=/mnt/data/MAST_Data/
 export UDA_METADATA_PLUGIN=POSTGRES
 
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@CMAKE_INSTALL_PREFIX@/lib:@CMAKE_INSTALL_PREFIX@/lib/plugins"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$UDA_ROOT/lib:$UDA_ROOT/lib/plugins"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@EXTRA_LD_LIBRARY_PATHS@"

@@ -184,12 +184,15 @@ set( ETC_FILES
   udaserver.cfg
   xinetd.conf
   rc.uda
+  README.md
+)
+
+set( PKGCONFIG_FILES
   uda-client.pc
   uda-fat-client.pc
   uda-cpp.pc
   uda-fat-cpp.pc
   uda-plugins.pc
-  README.md
 )
 
 set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )
@@ -203,6 +206,14 @@ foreach( ETC_FILE ${ETC_FILES} )
   list( APPEND GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/${ETC_FILE} )
 endforeach()
 
+foreach( PKGCONFIG_FILE ${PKGCONFIG_FILES} )
+  configure_file(
+    "${CMAKE_SOURCE_DIR}/source/etc/${PKGCONFIG_FILE}.in"
+    "${CMAKE_BINARY_DIR}/lib/pkgconfig/${PKGCONFIG_FILE}"
+    @ONLY
+  )
+endforeach()
+
 configure_file(
   "${CMAKE_SOURCE_DIR}/source/etc/udagenstruct.conf"
   "${CMAKE_BINARY_DIR}/etc/udagenstruct.conf"
@@ -213,6 +224,12 @@ install(
   FILES
     ${GEN_ETC_FILES}
   DESTINATION etc
+)
+
+install(
+  DIRECTORY
+    ${CMAKE_BINARY_DIR}/lib/pkgconfig
+  DESTINATION lib
 )
 
 install(

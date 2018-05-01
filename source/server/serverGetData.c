@@ -1220,8 +1220,8 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
         // Plugin? Create a new Request Block to identify the request_id
 
         if(signal_desc->type == 'P') {
-            strcpy(request_block.signal,signal_desc->signal_name);
-            strcpy(request_block.source,data_source->path);
+            strcpy(request_block.signal, signal_desc->signal_name);
+            strcpy(request_block.source, data_source->path);
             makeServerRequestBlock(&request_block, *pluginlist);	// Includes placeholder substitution
         }
 #endif // NOTGENERICENABLED
@@ -1382,14 +1382,6 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                     if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES && data_block->opaque_count > 0) {
                         THROW_ERROR(999, "Opaque Data Block is Null Pointer");
                     }
-
-                    //freeMallocLogList(logmalloclist);
-                    //free((void*)logmalloclist);
-                    //logmalloclist = NULL;
-		    
-                    //freeUserDefinedTypeList(userdefinedtypelist);
-                    //free((void*)userdefinedtypelist);
-                    //userdefinedtypelist = NULL;
                 }
 
                 if (!idam_plugin_interface.changePlugin) {

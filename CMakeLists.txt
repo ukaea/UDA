@@ -111,7 +111,7 @@ endif()
 if( NOTGENERICENABLED )
   message( "No Generic name mapping service using the internal legacy Postgres plugin" )
   add_definitions( -DNOTGENERICENABLED )
-endif()   
+endif()
 
 ########################################################################################################################
 # Source directories
