@@ -1,0 +1,48 @@
+#------------------------------------------------------------------------------------------------------
+# Creates the Environment needed by the UDA Server.
+#------------------------------------------------------------------------------------------------------
+
+export UDA_ROOT=@CMAKE_INSTALL_PREFIX@
+
+#------------------------------------------------------------------------------------------------------
+# UDA Logging mode
+
+export UDA_LOG=$UDA_ROOT/etc
+export UDA_LOG_MODE=a
+export UDA_LOG_LEVEL=DEBUG  # Options: INFO, DEBUG, WARN, ERROR, ACCESS
+export UDA_DEBUG_APPEND=a
+
+#------------------------------------------------------------------------------------------------------
+# UDA DUMP Program Locations
+
+export UDA_DUMP_MDSPLUS=`which idl 2>/dev/null`
+export UDA_DUMP_IDA=`which idadump 2>/dev/null`
+export UDA_DUMP_NETCDF=`which /usr/bin/ncdump 2>/dev/null`
+export UDA_DUMP_HDF5=`which h5dump 2>/dev/null`
+
+#------------------------------------------------------------------------------------------------------
+# UDA Server Host
+#------------------------------------------------------------------------------------------------------
+
+export UDA_HOST=`hostname`
+export UDA_PORT=56565
+
+export UDA_SQLHOST=idam1.mast.ccfe.ac.uk	# UDA SQL Server Host
+export UDA_SQLPORT=56566			# SQL Server Port
+export UDA_SQLDBNAME=idam			# SQL Database Name
+export UDA_SQLUSER=readonly			# SQL Database User
+
+#------------------------------------------------------------------------------------------------------
+# Plugin Registration + Structure Passing configuration
+
+export UDA_PLUGIN_CONFIG=$UDA_ROOT/etc/plugins/udaPlugins.conf
+export UDA_SARRAY_CONFIG=$UDA_ROOT/etc/udagenstruct.conf
+
+#------------------------------------------------------------------------------------------------------
+# Setup required dynamic library paths
+
+export MAST_DATA=/mnt/data/MAST_Data/
+export UDA_METADATA_PLUGIN=POSTGRES
+
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$UDA_ROOT/lib:$UDA_ROOT/lib/plugins"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@EXTRA_LD_LIBRARY_PATHS@"
