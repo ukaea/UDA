@@ -36,7 +36,7 @@ export UDA_SQLUSER=readonly			# SQL Database User
 # Plugin Registration + Structure Passing configuration
 
 export UDA_PLUGIN_CONFIG=$UDA_ROOT/etc/plugins/udaPlugins.conf
-export UDA_SARRAY_CONFIG=/etc/udagenstruct.conf
+export UDA_SARRAY_CONFIG=$UDA_ROOT/etc/udagenstruct.conf
 
 #------------------------------------------------------------------------------------------------------
 # Setup required dynamic library paths

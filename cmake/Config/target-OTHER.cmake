@@ -1,5 +1,8 @@
+set( UDA_HOST rca.fusion.org.uk )
+set( UDA_PORT 56565 )
+
 add_definitions(
-  -DUDA_SERVER_HOST="mast.fusion.org.uk"
+  -DUDA_SERVER_HOST="rca.fusion.org.uk"
   -DUDA_SERVER_HOST2=""
   -DUDA_SERVER_PORT=56565
   -DUDA_SERVER_PORT2=0

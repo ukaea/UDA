@@ -32,8 +32,6 @@ string( REGEX REPLACE "^([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1" GIT_VERSION "${GIT_T
 
 project( uda VERSION ${GIT_VERSION} )
 
-cmake_host_system_information( RESULT UDA_HOST QUERY FQDN )
-
 set( USER $ENV{USER} )
 
 ########################################################################################################################

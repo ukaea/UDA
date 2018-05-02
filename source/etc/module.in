@@ -4,23 +4,13 @@
 
 module-whatis   "Loads the UDA version @PROJECT_VERSION@ environment"
 
-# Load prerequisites
-
-if { ! [ is-loaded ida ] } {
-   module load ida
-}
-
-#if { ! [ is-loaded idlcodes-rmartin ] } {
-#   module load idlcodes-rmartin
-#}
-
 conflict            uda
 conflict            idam
 
 set                 UDA_DIR             @CMAKE_INSTALL_PREFIX@
 setenv              UDA_DIR             $UDA_DIR
 setenv              UDA_HOST            @UDA_HOST@
-setenv              UDA_PORT            56567
+setenv              UDA_PORT            @UDA_PORT@
 
 prepend-path        PYTHONPATH          $UDA_DIR/include
 prepend-path        LD_LIBRARY_PATH     $UDA_DIR/lib:$UDA_DIR/include/pyidam
