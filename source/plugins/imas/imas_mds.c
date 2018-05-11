@@ -1587,15 +1587,16 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, expName);
 
             const char* pluginName = NULL;
-            if (StringEquals(expName, "WEST")) {
+            /*if (StringEquals(expName, "WEST")) {
                 pluginName = "WEST_TUNNEL";
             } else {
                 pluginName = "EXP2IMAS";
-            }
+            }*/
+            pluginName = "WEST";
 
             int id = findPluginIdByFormat(pluginName, idam_plugin_interface->pluginList);
             if (id < 0) {
-                UDA_LOG(UDA_LOG_ERROR, "Specified IDAM data plugin not found\n");
+                UDA_LOG(UDA_LOG_ERROR, "Specified IDAM data plugin (%s) not found\n", pluginName);
             } else {
                 PLUGIN_DATA* plugin = &idam_plugin_interface->pluginList->plugin[id];
 
