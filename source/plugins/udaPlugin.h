@@ -6,7 +6,7 @@
 #include <clientserver/udaStructs.h>
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
-#include <server/pluginStructs.h>
+#include <plugins/pluginStructs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,8 +94,6 @@ bool findIntArray(const NAMEVALUELIST* namevaluelist, int** values, size_t* nval
 bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name);
 
 bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** values, size_t* nvalues, const char* name);
-
-int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
 
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)

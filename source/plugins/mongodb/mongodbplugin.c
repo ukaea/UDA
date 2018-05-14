@@ -136,7 +136,7 @@ extern int query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (!STR_IEQUALS(request_block->function, "help") && (!init || STR_IEQUALS(request_block->function, "init")
                                                           || STR_IEQUALS(request_block->function, "initialise"))) {
 
-        ENVIRONMENT* environment = idam_plugin_interface->environment;
+        ENVIRONMENT environment = *idam_plugin_interface->environment;
 
         // Is there an Open Database Connection? If not then open a private (within scope of this plugin only) connection
 
@@ -160,22 +160,24 @@ extern int query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             static char uri[MAXURILENGTH + 1];
 
             char* env;
-            if (environment->sql_user[0] == '\0' && (env = getenv("UDA_SQLUSER")) != NULL) {
-                strcpy(environment->sql_user, env);
+            if (environment.sql_user[0] == '\0' && (env = getenv("UDA_SQLUSER")) != NULL) {
+                strcpy(environment.sql_user, env);
             }
-            if (environment->sql_host[0] == '\0' && (env = getenv("UDA_SQLHOST")) != NULL) {
-                strcpy(environment->sql_host, env);
+            if (environment.sql_host[0] == '\0' && (env = getenv("UDA_SQLHOST")) != NULL) {
+                strcpy(environment.sql_host, env);
             }
-            if (environment->sql_dbname[0] == '\0' && (env = getenv("UDA_SQLDBNAME")) != NULL) {
-                strcpy(environment->sql_dbname, env);
+            if (environment.sql_dbname[0] == '\0' && (env = getenv("UDA_SQLDBNAME")) != NULL) {
+                strcpy(environment.sql_dbname, env);
             }
-            if (environment->sql_port == 0 && (env = getenv("UDA_SQLPORT")) != NULL) environment->sql_port = atoi(env);
+            if (environment.sql_port == 0 && (env = getenv("UDA_SQLPORT")) != NULL) {
+                environment.sql_port = atoi(env);
+            }
             char* password = getenv("UDA_SQLPASSWORD");
 
-            if (environment->sql_user[0] != '\0' && environment->sql_host[0] != '\0' &&
-                environment->sql_dbname[0] != '\0' && environment->sql_port > 0 && password != NULL) {
-                sprintf(uri, "mongodb://%s:%s@%s:%d/%s", environment->sql_user, password, environment->sql_host,
-                        environment->sql_port, environment->sql_dbname);
+            if (environment.sql_user[0] != '\0' && environment.sql_host[0] != '\0' &&
+                environment.sql_dbname[0] != '\0' && environment.sql_port > 0 && password != NULL) {
+                sprintf(uri, "mongodb://%s:%s@%s:%d/%s", environment.sql_user, password, environment.sql_host,
+                        environment.sql_port, environment.sql_dbname);
             } else {
                 RAISE_PLUGIN_ERROR("Insufficient Connection and Authentication details!");
             }
@@ -197,7 +199,7 @@ extern int query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             RAISE_PLUGIN_ERROR("No connection to Database server made!");
         }
 
-        database = mongoc_client_get_database(client, environment->sql_dbname);
+        database = mongoc_client_get_database(client, environment.sql_dbname);
 
         if (!database) {
             RAISE_PLUGIN_ERROR("No connection to Database cluster made!");
@@ -205,9 +207,9 @@ extern int query(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         char* env;
         if ((env = getenv("UDA_SQLTABLE")) != NULL) {
-            collection = mongoc_client_get_collection(client, environment->sql_dbname, env);
+            collection = mongoc_client_get_collection(client, environment.sql_dbname, env);
         } else {
-            collection = mongoc_client_get_collection(client, environment->sql_dbname,
+            collection = mongoc_client_get_collection(client, environment.sql_dbname,
                                                       "maps");
         }    // Get a handle on the database and collection
 

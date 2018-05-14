@@ -13,6 +13,10 @@
 #define XDR_RECEIVE     1
 #define XDR_FREE_HEAP   2
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //-----------------------------------------------------------------------
 // Test version's type passing capability
 
@@ -66,6 +70,10 @@ bool_t xdr_signal(XDR* xdrs, SIGNAL* str);
 bool_t xdr_signal_desc(XDR* xdrs, SIGNAL_DESC* str);
 
 extern unsigned int XDRstdioFlag;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_CLIENTSERVER_XDRLIB_H
 

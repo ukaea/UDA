@@ -14,7 +14,24 @@ include_directories(
   ${IDL_INCLUDES}
 )
 
-add_library( ${LIB_NAME} SHARED ${SRC_FILES} )
+if( FAT_IDL )
+  add_definitions( -DFATCLIENT )
+
+  set( FATCLIENT_OBJS
+    $<TARGET_OBJECTS:fatclient-objects>
+    $<TARGET_OBJECTS:fatserver-objects>
+    $<TARGET_OBJECTS:fatclientserver-objects>
+    $<TARGET_OBJECTS:structures-server-objects>
+    $<TARGET_OBJECTS:fatmodules-objects>
+    $<TARGET_OBJECTS:cache-objects>
+    $<TARGET_OBJECTS:logging-server-objects>
+    $<TARGET_OBJECTS:plugins-objects>
+  )
+
+  add_library( ${LIB_NAME} SHARED ${SRC_FILES} ${FATCLIENT_OBJS} )
+else()
+  add_library( ${LIB_NAME} SHARED ${SRC_FILES} )
+endif()
 
 if( PostgreSQL_FOUND )
   add_subdirectory( mastcpf )
@@ -22,19 +39,14 @@ else()
   message( WARNING "PostgreSQL not found - IDL mastcpf library not building" )
 endif()
 
-if( PostgreSQL_FOUND AND LibXml2_FOUND )
-  add_subdirectory( roidam )
+if( FAT_IDL )
+  include( modules )
+
+  target_link_libraries( ${LIB_NAME} LINK_PRIVATE ${IDL_LIBRARIES} ${LIBXML2_LIBRARIES} )
+  link_modules( ${LIB_NAME} )
 else()
-  message( WARNING "PostgreSQL or LibXml2 not found - IDL roidam library not building" )
+  target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} )
 endif()
-
-#if( NetCDF_FOUND )
-#   add_subdirectory( putdata )
-#else()
-#  message( WARNING "NetCDF not found - IDL putdata library not building")
-#endif()
-
-target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} )
 
 set_target_properties( ${LIB_NAME}
   PROPERTIES
@@ -44,16 +56,23 @@ set_target_properties( ${LIB_NAME}
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-install( TARGETS ${LIB_NAME}
-  DESTINATION dlm
-)
+if( FAT_IDL )
+  install( TARGETS ${LIB_NAME}
+    DESTINATION fatdlm
+  )
 
-set( INSTALL_FILES
-  ${PROJECT_NAME}.dlm
-)
+  install( FILES ${PROJECT_NAME}.dlm
+    DESTINATION fatdlm
+  )
+else()
+  install( TARGETS ${LIB_NAME}
+    DESTINATION dlm
+  )
 
-install( FILES ${INSTALL_FILES}
-  DESTINATION dlm )
+  install( FILES ${PROJECT_NAME}.dlm
+    DESTINATION dlm
+  )
+endif()
 
 set( INSTALL_FILES
   getstruct.pro
@@ -68,7 +87,14 @@ set( INSTALL_FILES
   geometry/strnumber.pro
   putdata/putdata.pro
   putdata/putdata__define.pro
+  list/listsignals.pro
+  list/listsources.pro
+  list/listallsources.pro
+  list/getidamlastshot.pro
+  list/getidamshotdatetime.pro
+  list/getidamlatestsourcepass.pro
 )
 
 install( FILES ${INSTALL_FILES}
-  DESTINATION idl )
+  DESTINATION idl
+)

@@ -19,7 +19,11 @@ public:
     {}
 
     template <typename T>
-    std::vector<T*> as()
+#ifndef SWIG
+    std::vector<T*> as() const
+#else
+    std::vector<T*> _as() const
+#endif
     {
         int status;
         std::string tname = typeid(T).name();

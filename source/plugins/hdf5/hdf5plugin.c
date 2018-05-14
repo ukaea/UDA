@@ -20,9 +20,10 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "hdf5plugin.h"
 
-#include <server/managePluginFiles.h>
 #include <clientserver/stringUtils.h>
-#include <readHDF58.h>
+#include <plugins/managePluginFiles.h>
+
+#include "readHDF58.h"
 
 IDAMPLUGINFILELIST pluginFileList;    // Private list of open data file handles
 

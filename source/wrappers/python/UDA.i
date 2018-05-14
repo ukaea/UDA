@@ -3,9 +3,20 @@
 %include "std_string.i"
 %include "std_vector.i"
 %include "std_map.i"
+%include "carrays.i"
+
+%array_class(unsigned char, ByteArray)
 
 %{
 #include "UDA.hpp"
+
+static PyObject* UDA_Exception;
+%}
+
+%init %{
+    UDA_Exception = PyErr_NewException("pyuda.UDAException", NULL, NULL);
+    Py_INCREF(UDA_Exception);
+    PyModule_AddObject(m, "UDAException", UDA_Exception);
 %}
 
 %naturalvar;
@@ -37,6 +48,16 @@
         PyErr_SetString(PyExc_RuntimeError, "Unknown type_info");
         $result = NULL;
     }
+}
+
+%exception {
+  try {
+    $action
+  }
+  catch (uda::UDAException& e) {
+    PyErr_SetString(UDA_Exception, const_cast<char*>(e.what()));
+    SWIG_fail;
+  }
 }
 
 %include "data.hpp"
@@ -77,13 +98,6 @@
 }
 
 %include "client.hpp"
-
-%extend uda::UDAException {
-    char * __str__() {
-        return const_cast<char *>(self->what());
-    }
-}
-
 %include "array.hpp"
 %include "scalar.hpp"
 %include "structdata.hpp"
@@ -91,62 +105,62 @@
 %include "string.hpp"
 %include "result.hpp"
 
-%template(fdata) uda::Array::as<float>;
-%template(ddata) uda::Array::as<double>;
-%template(cdata) uda::Array::as<char>;
-%template(ucdata) uda::Array::as<unsigned char>;
-%template(sdata) uda::Array::as<short>;
-%template(usdata) uda::Array::as<unsigned short>;
-%template(idata) uda::Array::as<int>;
-%template(uidata) uda::Array::as<unsigned int>;
-%template(ldata) uda::Array::as<long>;
-%template(uldata) uda::Array::as<unsigned long>;
-%template(string) uda::Array::as<char *>;
+%template(fdata) uda::Array::_as<float>;
+%template(ddata) uda::Array::_as<double>;
+%template(cdata) uda::Array::_as<char>;
+%template(ucdata) uda::Array::_as<unsigned char>;
+%template(sdata) uda::Array::_as<short>;
+%template(usdata) uda::Array::_as<unsigned short>;
+%template(idata) uda::Array::_as<int>;
+%template(uidata) uda::Array::_as<unsigned int>;
+%template(ldata) uda::Array::_as<long>;
+%template(uldata) uda::Array::_as<unsigned long>;
+%template(string) uda::Array::_as<char *>;
 
-%template(fdata) uda::Vector::as<float>;
-%template(ddata) uda::Vector::as<double>;
-%template(cdata) uda::Vector::as<char>;
-%template(ucdata) uda::Vector::as<unsigned char>;
-%template(sdata) uda::Vector::as<short>;
-%template(usdata) uda::Vector::as<unsigned short>;
-%template(idata) uda::Vector::as<int>;
-%template(uidata) uda::Vector::as<unsigned int>;
-%template(ldata) uda::Vector::as<long>;
-%template(uldata) uda::Vector::as<unsigned long>;
-%template(string) uda::Vector::as<char *>;
+%template(fdata) uda::Vector::_as<float>;
+%template(ddata) uda::Vector::_as<double>;
+%template(cdata) uda::Vector::_as<char>;
+%template(ucdata) uda::Vector::_as<unsigned char>;
+%template(sdata) uda::Vector::_as<short>;
+%template(usdata) uda::Vector::_as<unsigned short>;
+%template(idata) uda::Vector::_as<int>;
+%template(uidata) uda::Vector::_as<unsigned int>;
+%template(ldata) uda::Vector::_as<long>;
+%template(uldata) uda::Vector::_as<unsigned long>;
+%template(string) uda::Vector::_as<char *>;
 
-%template(fdata) uda::Scalar::as<float>;
-%template(ddata) uda::Scalar::as<double>;
-%template(cdata) uda::Scalar::as<char>;
-%template(ucdata) uda::Scalar::as<unsigned char>;
-%template(sdata) uda::Scalar::as<short>;
-%template(usdata) uda::Scalar::as<unsigned short>;
-%template(idata) uda::Scalar::as<int>;
-%template(uidata) uda::Scalar::as<unsigned int>;
-%template(ldata) uda::Scalar::as<long>;
-%template(uldata) uda::Scalar::as<unsigned long>;
-%template(string) uda::Scalar::as<char *>;
+%template(fdata) uda::Scalar::_as<float>;
+%template(ddata) uda::Scalar::_as<double>;
+%template(cdata) uda::Scalar::_as<char>;
+%template(ucdata) uda::Scalar::_as<unsigned char>;
+%template(sdata) uda::Scalar::_as<short>;
+%template(usdata) uda::Scalar::_as<unsigned short>;
+%template(idata) uda::Scalar::_as<int>;
+%template(uidata) uda::Scalar::_as<unsigned int>;
+%template(ldata) uda::Scalar::_as<long>;
+%template(uldata) uda::Scalar::_as<unsigned long>;
+%template(string) uda::Scalar::_as<char *>;
 
-%template(fdata) uda::StructData::as<float>;
-%template(ddata) uda::StructData::as<double>;
-%template(cdata) uda::StructData::as<char>;
-%template(ucdata) uda::StructData::as<unsigned char>;
-%template(sdata) uda::StructData::as<short>;
-%template(usdata) uda::StructData::as<unsigned short>;
-%template(idata) uda::StructData::as<int>;
-%template(uidata) uda::StructData::as<unsigned int>;
-%template(ldata) uda::StructData::as<long>;
-%template(uldata) uda::StructData::as<unsigned long>;
-%template(string) uda::StructData::as<char *>;
+%template(fdata) uda::StructData::_as<float>;
+%template(ddata) uda::StructData::_as<double>;
+%template(cdata) uda::StructData::_as<char>;
+%template(ucdata) uda::StructData::_as<unsigned char>;
+%template(sdata) uda::StructData::_as<short>;
+%template(usdata) uda::StructData::_as<unsigned short>;
+%template(idata) uda::StructData::_as<int>;
+%template(uidata) uda::StructData::_as<unsigned int>;
+%template(ldata) uda::StructData::_as<long>;
+%template(uldata) uda::StructData::_as<unsigned long>;
+%template(string) uda::StructData::_as<char *>;
 
-%template(fdata) uda::Dim::as<float>;
-%template(ddata) uda::Dim::as<double>;
-%template(cdata) uda::Dim::as<char>;
-%template(ucdata) uda::Dim::as<unsigned char>;
-%template(sdata) uda::Dim::as<short>;
-%template(usdata) uda::Dim::as<unsigned short>;
-%template(idata) uda::Dim::as<int>;
-%template(uidata) uda::Dim::as<unsigned int>;
-%template(ldata) uda::Dim::as<long>;
-%template(uldata) uda::Dim::as<unsigned long>;
-%template(string) uda::Dim::as<char *>;
+%template(fdata) uda::Dim::_as<float>;
+%template(ddata) uda::Dim::_as<double>;
+%template(cdata) uda::Dim::_as<char>;
+%template(ucdata) uda::Dim::_as<unsigned char>;
+%template(sdata) uda::Dim::_as<short>;
+%template(usdata) uda::Dim::_as<unsigned short>;
+%template(idata) uda::Dim::_as<int>;
+%template(uidata) uda::Dim::_as<unsigned int>;
+%template(ldata) uda::Dim::_as<long>;
+%template(uldata) uda::Dim::_as<unsigned long>;
+%template(string) uda::Dim::_as<char *>;

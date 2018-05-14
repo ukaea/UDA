@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 find_package( LibXml2 QUIET )
 find_package( PostgreSQL QUIET )
 
@@ -27,4 +25,5 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${PostgreSQL_LIBRARY}
+    client-static
 )

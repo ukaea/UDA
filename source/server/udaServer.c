@@ -3,28 +3,30 @@
 #include <rpc/rpc.h>
 #include <strings.h>
 
-#include <clientserver/udaErrors.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/manageSockets.h>
-#include <clientserver/protocol.h>
-#include <clientserver/printStructs.h>
-#include <structures/struct.h>
-#include <structures/parseIncludeFile.h>
-#include <logging/accessLog.h>
-#include <clientserver/xdrlib.h>
 #include <clientserver/freeDataBlock.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/makeRequestBlock.h>
+#include <clientserver/manageSockets.h>
+#include <clientserver/printStructs.h>
+#include <clientserver/protocol.h>
+#include <clientserver/sqllib.h>
+#include <clientserver/udaErrors.h>
+#include <clientserver/xdrlib.h>
+#include <logging/accessLog.h>
+#include <plugins/serverPlugin.h>
+#include <structures/parseIncludeFile.h>
+#include <structures/struct.h>
 
-#include "serverStartup.h"
 #include "closeServerSockets.h"
-#include "serverProcessing.h"
-#include "serverGetData.h"
-#include "freeIdamPut.h"
-#include "udaLegacyServer.h"
-#include "serverPlugin.h"
-#include "serverLegacyPlugin.h"
-#include "makeServerRequestBlock.h"
-#include "sqllib.h"
 #include "createXDRStream.h"
+#include "freeIdamPut.h"
+#include "getServerEnvironment.h"
+#include "makeServerRequestBlock.h"
+#include "serverGetData.h"
+#include "serverLegacyPlugin.h"
+#include "serverProcessing.h"
+#include "serverStartup.h"
+#include "udaLegacyServer.h"
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -36,7 +38,6 @@
 
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {
-    return;
 }
 #endif
 
@@ -64,8 +65,6 @@ static int legacyServerVersion = 6;
 NTREELIST NTreeList;
 NTREE* fullNTree = NULL;
 LOGSTRUCTLIST logstructlist;
-
-char serverUsername[STRING_LENGTH] = "server";
 
 int server_timeout = TIMEOUT;        // user specified Server Lifetime
 
@@ -152,7 +151,7 @@ int udaServer(CLIENT_BLOCK client_block)
     err = handshakeClient(&client_block, &server_block, &request_block, &server_closedown);
 #endif
 
-    if (!err & !server_closedown) {
+    if (!err && !server_closedown) {
         int fatal = 0;
         doServerLoop(&request_block, &data_block, &client_block, &server_block, &metadata_block,
                      &actions_desc, &actions_sig, &fatal);
@@ -443,7 +442,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
 
     // Test for an immediate CLOSEDOWN instruction
 
-    if (client_block->timeout == 0 || client_block->clientFlags & CLIENTFLAG_CLOSEDOWN) {
+    if (client_block->timeout == 0 || (client_block->clientFlags & CLIENTFLAG_CLOSEDOWN)) {
         *server_closedown = 1;
         return err;
     }
@@ -628,7 +627,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     //----------------------------------------------------------------------
     // Write to the Access Log
 
-    idamAccessLog(TRUE, *client_block, *request_block, *server_block, &pluginList);
+    idamAccessLog(TRUE, *client_block, *request_block, *server_block, &pluginList, getIdamServerEnvironment());
 
     //----------------------------------------------------------------------
     // Initialise Data Structures
@@ -666,7 +665,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
 
     if (protocolVersion >= 6) {
         if ((err = idamServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc,
-                                    &pluginList)) != 0) {
+                                    &pluginList, getIdamServerEnvironment())) != 0) {
                                         return err;
         }
     } else {
@@ -687,7 +686,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
 #ifndef NOTGENERICENABLED
     if (request_block->request == REQUEST_READ_GENERIC || (client_block->clientFlags & CLIENTFLAG_ALTDATA)) {
         if (DBConnect == NULL) {
-            if (!(DBConnect = startSQL())) {
+            if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
                 if (DBConnect != NULL) PQfinish(DBConnect);
                 THROW_ERROR(777, "Unable to Connect to the SQL Database Server");
             }
@@ -805,7 +804,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
 {
     int err = 0;
 
-    int next_protocol = PROTOCOL_SLEEP;
+    int next_protocol;
 
     do {
         UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Start of Server Wait Loop\n");
@@ -835,7 +834,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
         UDA_LOG(UDA_LOG_DEBUG, "Data structures sent to client\n");
         UDA_LOG(UDA_LOG_DEBUG, "Report To Client Error: %d [%d]\n", err, *fatal);
 
-        idamAccessLog(FALSE, *client_block, *request_block, *server_block, &pluginList);
+        idamAccessLog(FALSE, *client_block, *request_block, *server_block, &pluginList, getIdamServerEnvironment());
 
         err = 0;
         next_protocol = PROTOCOL_SLEEP;
@@ -1181,7 +1180,7 @@ int startupServer(SERVER_BLOCK* server_block)
 
     if (!plugin_list_initialised) {
         pluginList.count = 0;
-        initPluginList(&pluginList);
+        initPluginList(&pluginList, getIdamServerEnvironment());
         plugin_list_initialised = 1;
 
         UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");

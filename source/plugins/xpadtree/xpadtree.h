@@ -9,7 +9,7 @@
 #define XPADTREE_H_
 
 #include <libpq-fe.h>
-#include <server/pluginStructs.h>
+#include <plugins/pluginStructs.h>
 
 #include <plugins/udaPlugin.h>
 

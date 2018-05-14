@@ -49,7 +49,11 @@ public:
     }
 
     template <typename T>
+#ifndef SWIG
     std::vector<T> as() const
+#else
+    std::vector<T> _as() const
+#endif
     {
         T* data = boost::any_cast<T*>(data_);
         return std::vector<T>(data, data + size());

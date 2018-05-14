@@ -23,6 +23,7 @@ typedef struct XMLData {
     char* download;
     double* values;
     size_t n_values;
+    int resize;
 } XML_DATA;
 
 int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int index, XML_DATA* xml_data);

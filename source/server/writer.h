@@ -8,6 +8,10 @@
 #define MIN_BLOCK_TIME	1000
 #define MAX_BLOCK_TIME	10000
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int server_tot_block_time;
 extern int server_timeout;
 

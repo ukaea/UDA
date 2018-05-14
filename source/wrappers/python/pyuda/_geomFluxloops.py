@@ -1,14 +1,21 @@
-"""
-Manipulation class for fluxloops.
-
-Plotting:
-
-Plot the positions of fluxloops
-"""
+from __future__ import (division, print_function, absolute_import)
 
 import numpy as np
 
-class GeomFluxloops():
+from builtins import (range, object)
+from future import standard_library
+standard_library.install_aliases()
+
+
+class GeomFluxloops(object):
+    """
+    Manipulation class for fluxloops.
+
+    Plotting:
+
+    Plot the positions of fluxloops
+    """
+
     def __init__(self):
         pass
 

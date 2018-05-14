@@ -6,6 +6,8 @@
 
 static LOG_LEVEL log_level = UDA_LOG_NONE;
 
+int reopen_logs = 0;        // No need to Re-Open Logs
+
 void idamSetLogLevel(LOG_LEVEL mode)
 {
     log_level = mode;

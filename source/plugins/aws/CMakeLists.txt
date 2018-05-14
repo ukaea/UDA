@@ -1,6 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
-#find_package( AWS3 QUIET )
 find_package( AWS3 )
 
 if( NOT LIBAWS3_FOUND )

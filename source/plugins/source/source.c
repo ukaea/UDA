@@ -27,6 +27,7 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/xmlStructs.h>
+#include <clientserver/makeRequestBlock.h>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
@@ -315,7 +316,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCa
     char work[MAXMETA];
 
     IDAM_PLUGIN_INTERFACE next_plugin_interface;
-    REQUEST_BLOCK next_request_block;
+    REQUEST_BLOCK next_request_block = {};
 
     PLUGINLIST* pluginList = (PLUGINLIST*)idam_plugin_interface->pluginList;    // List of all data reader plugins (internal and external shared libraries)
 
@@ -326,7 +327,6 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCa
     next_plugin_interface = *idam_plugin_interface;        // New plugin interface
 
     next_plugin_interface.request_block = &next_request_block;
-    initServerRequestBlock(&next_request_block);
     strcpy(next_request_block.api_delim, request_block->api_delim);
 
     strcpy(next_request_block.signal, signal);            // Prepare the API arguments
@@ -480,7 +480,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCa
     UDA_LOG(UDA_LOG_DEBUG, "SOURCE:signal #1 = %s\n", next_request_block.signal);
     UDA_LOG(UDA_LOG_DEBUG, "SOURCE:source #1 = %s\n", next_request_block.source);
 
-    makeServerRequestBlock(&next_request_block, *pluginList);
+    makeRequestBlock(&next_request_block, *pluginList, idam_plugin_interface->environment);
 
     strcpy(api_signal,
            next_request_block.signal);            // These are what are used to access data - retain as cache keys

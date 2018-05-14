@@ -1,12 +1,16 @@
+from __future__ import (division, print_function, absolute_import)
+
 import abc
 
+from future import standard_library
+from future.utils import with_metaclass
+standard_library.install_aliases()
 
-class Data():
+
+class Data(with_metaclass(abc.ABCMeta, object)):
     """
     The base class of data that can be returned by the pyuda Client.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def plot(self):

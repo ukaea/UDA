@@ -1,6 +1,10 @@
 #ifndef IDAM_CLIENTSERVER_XDRHDATA_H
 #define IDAM_CLIENTSERVER_XDRHDATA_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef HIERARCHICAL_DATA
 
 #include "idamclientserver.h"
@@ -60,6 +64,10 @@ bool_t xdr_limiter2(XDR *xdrs, LIMITER *str);
 bool_t xdr_efit(XDR *xdrs, EFIT *str);
 
 #endif // HIERARCHICAL_DATA
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // IDAM_CLIENTSERVER_XDRHDATA_H
 

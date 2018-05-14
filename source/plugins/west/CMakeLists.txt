@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 link_directories(/Home/devarc/PortageMatlab7/tslib_client2013)
 
 find_package( LibXml2 QUIET )

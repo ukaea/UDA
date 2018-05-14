@@ -3,6 +3,10 @@
 
 #include <sys/time.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef NOHDF5PLUGIN
 #  include <hdf5.h>
 #else
@@ -65,6 +69,10 @@ int getClosedIdamFile(IDAMFILELIST *idamfiles, int type, char *filename);
 void closeIdamFile(IDAMFILELIST *idamfiles, char *filename);
 void closeIdamFiles(IDAMFILELIST *idamfiles);
 void purgeStalestIdamFile(IDAMFILELIST *idamfiles);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // IDAM_SERVER_MANAGEFILES_H
 

@@ -16,7 +16,6 @@
 #include <strings.h>
 
 #include <client/udaGetAPI.h>
-#include <server/udaServer.h>
 #include <client/udaClient.h>
 #include <clientserver/initStructs.h>
 #include <client/accAPI.h>

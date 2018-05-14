@@ -50,6 +50,10 @@ char* strlwr(char* a);
 // Trim Internal Space Characters from a String
 char* MidTrimString(char* str);
 
+// Replace all instances of string `find` with string `replace` in the given string
+char* StringReplaceAll(const char* string, const char* find, const char* replace);
+
+// Replace the first instance of string `find` with string `replace` in the given string
 char* StringReplace(const char* string, const char* find, const char* replace);
 
 // Is the String an Integer Number? (Simple but not exhaustive Check)

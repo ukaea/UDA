@@ -3,6 +3,10 @@
 
 #include <clientserver/socketStructs.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Initialise
 void initSocketList(SOCKETLIST *socks);
 
@@ -18,6 +22,10 @@ int getSocketRecordId(SOCKETLIST *socks, int fh);
 void closeClientSockets(SOCKETLIST* socks);
 
 void closeClientSocket(SOCKETLIST* socks, int fh);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // IDAM_CLIENTSERVER_MANAGESOCKETS_H
 

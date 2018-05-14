@@ -8,8 +8,6 @@
 #define QUOTE(X) QUOTE_(X)
 #define SHOT_NUM "84600"
 
-#define MAPPINGS_DIR "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings"
-
 /*
  * wall/description_2d/Shape_of
  */
@@ -18,8 +16,6 @@ TEST_CASE( "Test wall description count", "[IMAS][JET][TF]" )
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -51,8 +47,6 @@ TEST_CASE( "Test wall vessel unit annular outline", "[IMAS][JET][WALL]" )
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 

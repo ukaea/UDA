@@ -9,11 +9,18 @@
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
 #include <clientserver/socketStructs.h>
+#include <plugins/pluginStructs.h>
 
-#include "pluginStructs.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
                      USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_SERVER_IDAMLEGACYSERVER_H
 

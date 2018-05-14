@@ -6,6 +6,10 @@
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct PluginList;              // Forward declaration
 typedef struct PluginList PLUGINLIST;
 
@@ -23,7 +27,7 @@ typedef struct IdamPluginInterface {    // Standard Plugin interface
     CLIENT_BLOCK* client_block;
     DATA_SOURCE* data_source;
     SIGNAL_DESC* signal_desc;
-    ENVIRONMENT* environment;           // Server environment
+    const ENVIRONMENT* environment;           // Server environment
     LOGMALLOCLIST* logmalloclist;
     USERDEFINEDTYPELIST* userdefinedtypelist;
     void* sqlConnection;                // Opaque structure
@@ -61,5 +65,9 @@ struct PluginList {
     int mcount;             // malloc count allocated
     PLUGIN_DATA* plugin;
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_SERVER_IDAMPLUGINSTRUCTS_H

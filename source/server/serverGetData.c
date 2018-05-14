@@ -17,6 +17,7 @@
 #include <clientserver/udaErrors.h>
 #include <structures/struct.h>
 
+#include <clientserver/sqllib.h>
 #include <modules/bytes/readBytesNonOptimally.h>
 #include <modules/hdata/readHData.h>
 #include <modules/hdf58/readHDF58.h>
@@ -29,14 +30,13 @@
 #include <modules/readNothing/readNothing.h>
 #include <modules/readsql/readSQL.h>
 #include <modules/ufile/readUFile.h>
+#include <plugins/serverPlugin.h>
 
 #include "serverGetData.h"
 #include "dumpFile.h"
 #include "applyXML.h"
-#include "serverPlugin.h"
 #include "mastArchiveFilePath.h"
 #include "makeServerRequestBlock.h"
-#include "sqllib.h"
 #include "getServerEnvironment.h"
 
 int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action);
@@ -284,7 +284,7 @@ int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK request_block
                     if (DBConnect == NULL && (request_block2.request == REQUEST_READ_GENERIC ||
                                               request_block2.request == REQUEST_READ_SQL)) {
                         if ((DBConnect = gDBConnect) == NULL) {
-                            if (!(DBConnect = startSQL())) {
+                            if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
                                 if (DBConnect != NULL) {
                                     PQfinish(DBConnect);
                                 }
@@ -1196,7 +1196,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
         // Identify the required Plugin
 
-        int plugin_id = idamServerMetaDataPluginId(pluginlist);
+        int plugin_id = idamServerMetaDataPluginId(pluginlist, getIdamServerEnvironment());
         if (plugin_id < 0) {
             // No plugin so not possible to identify the requested data item
             THROW_ERROR(778, "Unable to identify requested data item");
@@ -1210,7 +1210,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
         // Execute the plugin to resolve the identity of the data requested
 
-        int err = idamServerMetaDataPlugin(pluginlist, plugin_id, &request_block, signal_desc, data_source, logmalloclist);
+        int err = idamServerMetaDataPlugin(pluginlist, plugin_id, &request_block, signal_desc, data_source, logmalloclist, getIdamServerEnvironment());
 
         if (err != 0) {
             THROW_ERROR(err, "No Record Found for this Generic Signal");
@@ -1220,8 +1220,8 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
         // Plugin? Create a new Request Block to identify the request_id
 
         if(signal_desc->type == 'P') {
-            strcpy(request_block.signal,signal_desc->signal_name);
-            strcpy(request_block.source,data_source->path);
+            strcpy(request_block.signal, signal_desc->signal_name);
+            strcpy(request_block.source, data_source->path);
             makeServerRequestBlock(&request_block, *pluginlist);	// Includes placeholder substitution
         }
 #endif // NOTGENERICENABLED
@@ -1273,7 +1273,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
     // Test for known File formats and Server protocols
 
     {
-        int id, reset;
+        int id;
         IDAM_PLUGIN_INTERFACE idam_plugin_interface;
 
         UDA_LOG(UDA_LOG_DEBUG, "creating the plugin interface structure\n");
@@ -1333,11 +1333,14 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
                 // Redirect Output to temporary file if no file handles passed
 
-                reset = 0;
                 int err;
+
+#ifndef FATCLIENT
+                int reset = 0;
                 if ((err = idamServerRedirectStdStreams(reset)) != 0) {
                     THROW_ERROR(err, "Error Redirecting Plugin Message Output");
                 }
+#endif
 
                 // Call the plugin
 
@@ -1345,6 +1348,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 
                 // Reset Redirected Output
 
+#ifndef FATCLIENT
                 reset = 1;
                 int rc;
                 if ((rc = idamServerRedirectStdStreams(reset)) != 0 || err != 0) {
@@ -1357,13 +1361,18 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                     }
                     return rc;
                 }
+#else
+                if (err != 0) {
+                    return err;
+                }
+#endif
 
                 UDA_LOG(UDA_LOG_DEBUG, "returned from plugin called\n");
 
                 // Save Provenance with socket stream protection
 
                 idamServerRedirectStdStreams(0);
-                idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, NULL);
+                idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, NULL, getIdamServerEnvironment());
                 idamServerRedirectStdStreams(1);
 
                 // If no structures to pass back (only regular data) then free the user defined type list
@@ -1373,14 +1382,6 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
                     if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES && data_block->opaque_count > 0) {
                         THROW_ERROR(999, "Opaque Data Block is Null Pointer");
                     }
-
-                    //freeMallocLogList(logmalloclist);
-                    //free((void*)logmalloclist);
-                    //logmalloclist = NULL;
-		    
-                    //freeUserDefinedTypeList(userdefinedtypelist);
-                    //free((void*)userdefinedtypelist);
-                    //userdefinedtypelist = NULL;
                 }
 
                 if (!idam_plugin_interface.changePlugin) {
@@ -1480,7 +1481,7 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
     // Save Provenance with socket stream protection
 
     idamServerRedirectStdStreams(0);
-    idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, NULL);
+    idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, NULL, getIdamServerEnvironment());
     idamServerRedirectStdStreams(1);
 
     //----------------------------------------------------------------------------

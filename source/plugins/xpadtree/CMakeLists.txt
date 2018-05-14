@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 find_package( PostgreSQL QUIET )
 
 if( NOT PostgreSQL_FOUND )

@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 
 #include <clientserver/stringUtils.h>
-#include <server/serverPlugin.h>
+#include <plugins/serverPlugin.h>
 #include <server/udaServer.h>
 #include <clientserver/udaTypes.h>
 
@@ -79,7 +79,7 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
 
 
 void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block,
-                   const PLUGINLIST* pluginlist)
+                   const PLUGINLIST* pluginlist, const ENVIRONMENT* environment)
 {
 
     int err = 0;
@@ -216,7 +216,7 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
 // Save Provenance with socket stream protection
 
         idamServerRedirectStdStreams(0);
-        idamProvenancePlugin(&client_block, &request, NULL, NULL, pluginlist, work);
+        idamProvenancePlugin(&client_block, &request, NULL, NULL, pluginlist, work, environment);
         idamServerRedirectStdStreams(1);
 
         free((void*)work);

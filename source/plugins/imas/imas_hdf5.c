@@ -70,7 +70,6 @@ Investigate the object system - is this just a local cache?
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
 #include <logging/logging.h>
-#include <server/managePluginFiles.h>
 
 #define MAX_FILES   10000
 #define MAX_STRINGS 20000

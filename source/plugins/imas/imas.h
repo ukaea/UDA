@@ -1,7 +1,7 @@
 #ifndef UDA_PLUGINS_IMAS_PLUGIN_IMAS_H
 #define UDA_PLUGINS_IMAS_PLUGIN_IMAS_H
 
-#include <server/pluginStructs.h>
+#include <plugins/pluginStructs.h>
 
 #define THISPLUGIN_VERSION                  1
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1        // Interface versions higher than this will not be understood!

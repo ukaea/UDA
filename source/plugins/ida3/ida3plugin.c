@@ -171,5 +171,6 @@ int do_readIda(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     char type = '\0';
     FIND_CHAR_VALUE(idam_plugin_interface->request_block->nameValueList, type);
 
-    return readIda3(data_block, exp_number, pass, source_alias, signal_name, filename, path, type);
+    return readIda3(data_block, exp_number, pass, source_alias, signal_name, filename, path, type,
+                    idam_plugin_interface->environment);
 }

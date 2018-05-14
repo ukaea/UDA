@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 find_package( LibXml2 QUIET )
 
 if( NOT LIBXML2_FOUND )
@@ -26,5 +24,6 @@ uda_plugin(
     ${CMAKE_SOURCE_DIR}/structures
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
+    client-static
   EXTRA_INSTALL_FILES
 )

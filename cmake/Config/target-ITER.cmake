@@ -1,3 +1,6 @@
+set( UDA_HOST localhost )
+set( UDA_PORT 56565 )
+
 add_definitions(
   -DUDA_SERVER_HOST="localhost"
   -DUDA_SERVER_HOST2=""

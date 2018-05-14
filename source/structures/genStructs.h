@@ -2,6 +2,7 @@
 #define UDA_STRUCTURES_GENSTRUCTS_H
 
 #include <stdlib.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,12 +45,12 @@ extern "C" {
 #define ARRAYVOID       21
 
 #ifdef A64
-typedef long long           VOIDTYPE;       // Pointer arithmentic type for 64 bit architecture (8 byte pointer type)
-typedef unsigned long long  UVOIDTYPE;
+typedef int64_t             VOIDTYPE;       // Pointer arithmentic type for 64 bit architecture (8 byte pointer type)
+typedef uint64_t            UVOIDTYPE;
 #define ALIGNMENT           1               // Default Byte Boundary used for Structure Packing
 #else
-typedef int                 VOIDTYPE;       // Pointer arithmentic type for 32 bit architecture (4 byte pointer type)
-typedef unsigned int        UVOIDTYPE;
+typedef int32_t             VOIDTYPE;       // Pointer arithmentic type for 32 bit architecture (4 byte pointer type)
+typedef uint32_t            UVOIDTYPE;
 #define ALIGNMENT           1               // Default Byte Boundary used for Structure Packing
 #endif
 

@@ -18,7 +18,7 @@ export BOOST_ROOT=/work/imas/opt/boost/1.58
 export OPENSSL_ROOT_DIR=/work/imas/opt/openssl/1.0.2g
 export HDF5_ROOT=$H5DIR
 
-CC=gcc CXX=g++ cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Debug -DTARGET_TYPE=OTHER \
--DPYTHON_INCLUDE_DIR=${EBROOTPYTHON}/include/python3.4m/ \
--DPYTHON_LIBRARY=${EBROOTPYTHON}/lib/libpython3.4m.so \
-$*
+CC=gcc CXX=g++ cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Debug -DTARGET_TYPE=ITER \
+  -DPYTHON_INCLUDE_DIR=${EBROOTPYTHON}/include/python3.4m/ \
+  -DPYTHON_LIBRARY=${EBROOTPYTHON}/lib/libpython3.4m.so \
+  $*

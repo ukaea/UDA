@@ -43,9 +43,7 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
 #include <logging/logging.h>
-#include <server/makeServerRequestBlock.h>
-#include <server/managePluginFiles.h>
-#include <server/serverPlugin.h>
+#include <plugins/serverPlugin.h>
 #include <structures/genStructs.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/printStructs.h>
@@ -2273,7 +2271,7 @@ do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCache, cha
     next_request_block.source[0] = '\0';
     strcpy(next_request_block.signal, work);
 
-    makeServerRequestBlock(&next_request_block, *pluginList);
+    makeRequestBlock(&next_request_block, *pluginList, idam_plugin_interface->environment);
 
     // These are what are used to access data - retain as cache keys
     strcpy(api_signal, next_request_block.signal);

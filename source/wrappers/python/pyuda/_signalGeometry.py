@@ -1,12 +1,18 @@
-"""
-Class to import signal geometry data
-"""
-
-import inspect
+from __future__ import (division, print_function, absolute_import)
 
 from ._data import Data
 
+import inspect
+
+from future import standard_library
+standard_library.install_aliases()
+
+
 class SignalGeometryData(Data):
+    """
+    Class to import signal geometry data
+    """
+
     def __init__(self, sigData, signal, all=False):
         """
         Initialisation

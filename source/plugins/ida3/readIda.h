@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 int readIda3(DATA_BLOCK* data_block, int exp_number, int pass, const char* source_alias, const char* signal_name,
-                   const char* filename, const char* path, char type);
+                   const char* filename, const char* path, char type, const ENVIRONMENT* environment);
 
 #ifdef __cplusplus
 }

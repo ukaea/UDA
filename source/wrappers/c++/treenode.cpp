@@ -286,22 +286,17 @@ uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std
     return uda::Vector(data, (size_t)count);
 }
 
-uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, int count)
+uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target)
 {
-    // Scalar String in an array of data structures
-    auto data = static_cast<char**>(malloc(count * sizeof(char*))); // Managed by IDAM
-    addMalloc(logmalloclist, data, count, sizeof(char*), (char*)"char *");
+    auto data = static_cast<char**>(malloc(sizeof(char*)));
     if (data == nullptr) {
         return uda::Vector::Null;
     }
 
-    auto val = reinterpret_cast<char**>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
+    auto val = reinterpret_cast<char*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
+    data[0] = val;
 
-    for (int j = 0; j < count; j++) {
-        data[j] = val[j];
-    }
-
-    return uda::Vector(data, (size_t)count);
+    return uda::Vector(data, (size_t)1);
 }
 
 uda::Vector uda::TreeNode::atomicVector(const std::string& target)
@@ -340,7 +335,8 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
                 if (std::string("unsigned int *") == atypes[i]) return getVector<unsigned int>(logmalloclist, node, target, count);
                 if (std::string("unsigned short *") == atypes[i]) return getVector<unsigned short>(logmalloclist, node, target, count);
             } else if (arank[i] == 1) {
-                if (std::string("STRING") == atypes[i]) return getVector<char*>(logmalloclist, node, target, ashape[i][0]);
+//                if (std::string("STRING") == atypes[i]) return getVector<char>(logmalloclist, node, target, ashape[i][0]);
+                if (std::string("STRING") == atypes[i]) return getStringVector(logmalloclist, node, target);
                 if (std::string("short") == atypes[i]) return getVector<short>(logmalloclist, node, target, ashape[i][0]);
                 if (std::string("double") == atypes[i]) return getVector<double>(logmalloclist, node, target, ashape[i][0]);
                 if (std::string("float") == atypes[i]) return getVector<float>(logmalloclist, node, target, ashape[i][0]);

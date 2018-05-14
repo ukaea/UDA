@@ -74,10 +74,12 @@ void nameIDA(const char* alias, int pulno, char* filename)
 #else
 
 #include <assert.h>
+#include <stdio.h>
 
 void nameIDA(const char* alias, int pulno, char* filename)
 {
-    assert(0 && "Cannot access IDA files");
+    fputs("Cannot access IDA files", stderr);
+    assert(0);
 }
 
 #endif

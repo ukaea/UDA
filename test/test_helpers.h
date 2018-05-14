@@ -1,6 +1,12 @@
 #ifndef UDA_TEST_HELPERS_H
 #define UDA_TEST_HELPERS_H
 
+#include <string>
+#include <vector>
+#include <sstream>
+
+#include "catch.hpp"
+
 namespace Catch {
 namespace Detail {
 
@@ -9,6 +15,12 @@ public:
     explicit ApproxVector(std::vector<double> vector)
             : vector_(std::move(vector))
     {}
+
+    explicit ApproxVector(std::vector<float> vector)
+            : vector_()
+    {
+        std::copy(vector.begin(), vector.end(), std::back_inserter(vector_));
+    }
 
     ApproxVector(ApproxVector const& other)
             : vector_(other.vector_)
@@ -64,5 +76,11 @@ inline std::string toString<Detail::ApproxVector>( Detail::ApproxVector const& v
 }
 
 using Catch::Detail::ApproxVector;
+
+namespace uda {
+namespace test {
+std::string format(const char* fmt, ...);
+}
+}
 
 #endif //UDA_TEST_HELPERS_H

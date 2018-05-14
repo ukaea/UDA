@@ -1,10 +1,16 @@
-from ._utils import cdata_scalar_to_value, cdata_vector_to_value
+from __future__ import (division, print_function, absolute_import)
+
+from ._utils import (cdata_scalar_to_value, cdata_vector_to_value)
 from ._data import Data
 
 import json
 import itertools
 import numpy as np
 import base64
+
+from builtins import (super, int, chr, range)
+from future import standard_library
+standard_library.install_aliases()
 
 
 class StructuredDataEncoder(json.JSONEncoder):
@@ -23,7 +29,7 @@ class StructuredDataEncoder(json.JSONEncoder):
                 },
             }
             return obj
-        return super().default(obj)
+        return super(StructuredDataEncoder, self).default(obj)
 
 
 class StructuredData(Data):
@@ -95,22 +101,14 @@ class StructuredData(Data):
         if len(tokens) == 0:
             return self
         name = tokens[0]
-        index = None
-        if "@" in name:
-            (name, index) = name.split("@")
         found = tuple(c for c in self.children if c.name == name)
         if len(found) == 0:
             raise KeyError("Cannot find child " + name + " in node " + self.name)
-        if index is None:
-            if len(found) > 1:
-                raise KeyError("Multiple children found with name " + name + " in node " + self.name)
+        if len(found) == 1:
             child = found[0]
+            return child["/".join(tokens[1:])]
         else:
-            if not (0 <= int(index) < len(found)):
-                print(len(found))
-                raise IndexError("Index " + index + " out of range for child " + name + " in node " + self.name)
-            child = found[int(index)]
-        return child["/".join(tokens[1:])]
+            return [child["/".join(tokens[1:])] for child in found]
 
     @property
     def children(self):

@@ -159,6 +159,7 @@ find_library(PostgreSQL_LIBRARY
    ${PostgreSQL_ROOT_DIRECTORIES}
  PATH_SUFFIXES
    lib
+   lib64
    ${PostgreSQL_LIBRARY_ADDITIONAL_SEARCH_SUFFIXES}
  # Help the user find it if we cannot.
  DOC "The ${PostgreSQL_LIBRARY_DIR_MESSAGE}"

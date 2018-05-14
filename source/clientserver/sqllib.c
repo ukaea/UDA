@@ -7,7 +7,6 @@
 //-------------------------------------------------------------------------------------------------------------------
 
 #include "sqllib.h"
-#include "getServerEnvironment.h"
 
 #include <stdlib.h>
 
@@ -16,14 +15,64 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
-#include <modules/ida/nameIda.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/udaErrors.h>
+#include <clientserver/makeRequestBlock.h>
 
 // Open the Connection with the PostgreSQL IDAM Database
 
-#ifndef NOTGENERICENABLED
+#if !defined(NOTGENERICENABLED) && defined(SERVERBUILD)
+
+static void nameIDA(const char* alias, int pulno, char* filename)
+{
+    char strint[7];
+    int pulno_lhs, pulno_rhs;
+
+    sprintf(strint, "%d", pulno);
+
+    strncpy(filename, alias, 3);
+    filename[3] = '\0';
+    TrimString(filename);
+
+    pulno_lhs = pulno / 100;
+    pulno_rhs = pulno - 100 * (pulno / 100);
+
+    sprintf(strint, "%d", pulno_lhs);
+    strcat(filename, "0000");
+
+    if (pulno_lhs < 10 && pulno_lhs > 0) {
+        filename[6] = strint[0];
+    } else {
+        if (pulno_lhs < 100) {
+            filename[5] = strint[0];
+            filename[6] = strint[1];
+        } else {
+            if (pulno_lhs < 1000) {
+                filename[4] = strint[0];
+                filename[5] = strint[1];
+                filename[6] = strint[2];
+            } else {
+                filename[3] = strint[0];
+                filename[4] = strint[1];
+                filename[5] = strint[2];
+                filename[6] = strint[3];
+            }
+        }
+    }
+
+    sprintf(strint, "%d", pulno_rhs);
+
+    strcat(filename, ".");
+    if (pulno_rhs < 10) {
+        strcat(filename, "0");
+    }
+    strcat(filename, strint);
+
+    UDA_LOG(UDA_LOG_DEBUG, "IDA_Filename: %s\n", filename);
+
+    return;
+}
 
 PGconn* openDatabase(const char* host, int port, const char* dbname, const char* user)
 {
@@ -63,10 +112,8 @@ PGconn* openDatabase(const char* host, int port, const char* dbname, const char*
 
 }
 
-PGconn* startSQL()
+PGconn* startSQL(const ENVIRONMENT* environment)
 {
-    const ENVIRONMENT* environment = getIdamServerEnvironment();
-
     const char* pghost = environment->sql_host;
     const char* dbname = environment->sql_dbname;
     const char* user = environment->sql_user;
@@ -110,10 +157,8 @@ PGconn* startSQL()
     return DBConnect;
 }
 
-PGconn* startSQL_CPF()
+PGconn* startSQL_CPF(const ENVIRONMENT* environment)
 {
-    const ENVIRONMENT* environment = getIdamServerEnvironment();
-
     const char* pghost = environment->sql_host;
     const char* dbname = environment->sql_dbname;
     const char* user = environment->sql_user;
@@ -3417,78 +3462,96 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
 //==============================================================================================================
 #else
 
-PGconn* startSQL() {
+PGconn* startSQL(const ENVIRONMENT* environment)
+{
     return NULL;
 }
 
-PGconn* startSQL_CPF() {
+PGconn* startSQL_CPF(const ENVIRONMENT* environment)
+{
     return NULL;
 }
 
-void sqlReason(PGconn *DBConnect, char *reason_id, char *reason) {
+void sqlReason(PGconn* DBConnect, char* reason_id, char* reason)
+{
 }
 
-void sqlResult(PGconn *DBConnect, char *run_id, char *desc) {
+void sqlResult(PGconn* DBConnect, char* run_id, char* desc)
+{
 }
 
-void sqlStatusDesc(PGconn *DBConnect, char *status_desc_id, char *desc) {
+void sqlStatusDesc(PGconn* DBConnect, char* status_desc_id, char* desc)
+{
 }
 
-void sqlMeta(PGconn *DBConnect, char * table, char *meta_id, char *xml, char *creation) {
+void sqlMeta(PGconn* DBConnect, char* table, char* meta_id, char* xml, char* creation)
+{
 }
 
-int sqlGeneric(PGconn *DBConnect, char *signal, int exp_number, int pass, char *tpass,
-               SIGNAL *signal_str,  SIGNAL_DESC *signal_desc_str,
-               DATA_SOURCE *data_source_str) {
+int sqlGeneric(PGconn* DBConnect, char* signal, int exp_number, int pass, char* tpass,
+               SIGNAL* signal_str, SIGNAL_DESC* signal_desc_str,
+               DATA_SOURCE* data_source_str)
+{
     return 0;
 }
 
-int sqlNoIdamSignal(PGconn *DBConnect, char *signal, int exp_number, int pass, char *tpass,
-                    SIGNAL *signal_str,  SIGNAL_DESC *signal_desc_str,
-                    DATA_SOURCE *data_source_str) {
+int sqlNoIdamSignal(PGconn* DBConnect, char* signal, int exp_number, int pass, char* tpass,
+                    SIGNAL* signal_str, SIGNAL_DESC* signal_desc_str,
+                    DATA_SOURCE* data_source_str)
+{
     return 0;
 }
 
-int sqlComposite(PGconn *DBConnect, char *signal, int exp_number, SIGNAL_DESC *signal_desc_str) {
+int sqlComposite(PGconn* DBConnect, char* signal, int exp_number, SIGNAL_DESC* signal_desc_str)
+{
     return 0;
 }
 
-int sqlDocument(PGconn *DBConnect, char *signal, int exp_number, int pass,
-                SIGNAL_DESC *signal_desc_str, DATA_SOURCE *data_source_str) {
+int sqlDocument(PGconn* DBConnect, char* signal, int exp_number, int pass,
+                SIGNAL_DESC* signal_desc_str, DATA_SOURCE* data_source_str)
+{
     return 0;
 }
 
-int sqlExternalGeneric(PGconn *DBConnect, char *archive, char *device, char *signal, int exp_number, int pass,
-                       SIGNAL *signal_str, SIGNAL_DESC *signal_desc_str, DATA_SOURCE *data_source_str) {
+int sqlExternalGeneric(PGconn* DBConnect, char* archive, char* device, char* signal, int exp_number, int pass,
+                       SIGNAL* signal_str, SIGNAL_DESC* signal_desc_str, DATA_SOURCE* data_source_str)
+{
     return 0;
 }
 
-int sqlNoSignal(PGconn *DBConnect, char *archive, char *device, char *signal, int exp_number, int pass,
-                SIGNAL *signal_str, SIGNAL_DESC *signal_desc_str, DATA_SOURCE *data_source_str) {
+int sqlNoSignal(PGconn* DBConnect, char* archive, char* device, char* signal, int exp_number, int pass,
+                SIGNAL* signal_str, SIGNAL_DESC* signal_desc_str, DATA_SOURCE* data_source_str)
+{
     return 0;
 }
 
-int sqlDataSystem(PGconn *DBConnect, int pkey, DATA_SYSTEM *str) {
+int sqlDataSystem(PGconn* DBConnect, int pkey, DATA_SYSTEM* str)
+{
     return 0;
 }
 
-int sqlSystemConfig(PGconn *DBConnect, int pkey, SYSTEM_CONFIG *str) {
+int sqlSystemConfig(PGconn* DBConnect, int pkey, SYSTEM_CONFIG* str)
+{
     return 0;
 }
 
-int sqlArchive(PGconn *DBConnect, char *archive, DATA_SOURCE *data_source_str) {
+int sqlArchive(PGconn* DBConnect, char* archive, DATA_SOURCE* data_source_str)
+{
     return 0;
 }
 
-int sqlLatestPass(PGconn *DBConnect, char *source_alias, char type, int exp_number, char *maxpass) {
+int sqlLatestPass(PGconn* DBConnect, char* source_alias, char type, int exp_number, char* maxpass)
+{
     return -1;
 }
 
-int sqlAltData(PGconn *DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_DESC *signal_desc,char *mapping) {
+int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_DESC* signal_desc, char* mapping)
+{
     return 0;
 }
 
-int sqlMapPrivateData(PGconn *DBConnect, REQUEST_BLOCK request_block, SIGNAL_DESC *signal_desc) {
+int sqlMapPrivateData(PGconn* DBConnect, REQUEST_BLOCK request_block, SIGNAL_DESC* signal_desc)
+{
     return 0;
 }
 

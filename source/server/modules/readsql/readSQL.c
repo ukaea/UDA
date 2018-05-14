@@ -26,13 +26,15 @@
 #include <strings.h>
 
 #include <clientserver/errorLog.h>
-#include <server/sqllib.h>
-#include <clientserver/udaTypes.h>
-#include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>
+#include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
+#include <clientserver/sqllib.h>
 #include <clientserver/udaErrors.h>
+#include <clientserver/udaTypes.h>
 #include <structures/struct.h>
+
+#include <server/getServerEnvironment.h>
 
 #ifdef USEREADSOAP
 #include "soapStub.h"
@@ -92,7 +94,7 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
 // Open SQL Connection
 
     if ((DBConnect = gDBConnect) == NULL) {        // No connection to IDAM SQL Database
-        if (!(DBConnect = startSQL())) {
+        if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
             if (DBConnect != NULL) PQfinish(DBConnect);
             err = 777;
             addIdamError(CODEERRORTYPE, "readSQL", err, "SQL Database Server Connect Error");
@@ -568,7 +570,7 @@ int readSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_sou
     DBConnect2 = DBConnect;        // Use IDAM database connection if passed
 
     if (DBConnect2 == NULL) {
-        if (!(DBConnect2 = (PGconn*)startSQL())) {
+        if (!(DBConnect2 = (PGconn*)startSQL(getIdamServerEnvironment()))) {
             if (DBConnect2 != NULL) PQfinish(DBConnect2);
             err = 777;
             addIdamError(CODEERRORTYPE, "readSQL", err, "SQL Database Server Connect Error");

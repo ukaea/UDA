@@ -6,25 +6,26 @@
 #include <clientserver/copyStructs.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/makeRequestBlock.h>
 #include <clientserver/manageSockets.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/protocolXML.h>
+#include <clientserver/sqllib.h>
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
+#include <plugins/serverPlugin.h>
 #include <structures/parseIncludeFile.h>
 #include <structures/struct.h>
 
 #include "makeServerRequestBlock.h"
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
-#include "serverPlugin.h"
 #include "serverProcessing.h"
-#include "sqllib.h"
+#include "getServerEnvironment.h"
 
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {
-    return;
 }
 #endif
 
@@ -135,7 +136,7 @@ int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLO
         return err;
     }
 
-    idamAccessLog(FALSE, client_block, request_block, *server_block, &pluginList);
+    idamAccessLog(FALSE, client_block, request_block, *server_block, &pluginList, getIdamServerEnvironment());
 
     err = doFatServerClosedown(server_block, &data_block, &actions_desc, &actions_sig, data_block0);
 
@@ -313,7 +314,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     protocolVersion = serverVersion;
 
     if (protocolVersion >= 6) {
-        if ((err = idamServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc, &pluginList)) != 0) return err;
+        if ((err = idamServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc, &pluginList, getIdamServerEnvironment())) != 0) return err;
     } else {
         if ((err = idamServerLegacyPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc)) != 0) return err;
     }
@@ -329,7 +330,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
 #ifndef NOTGENERICENABLED
     if (request_block->request == REQUEST_READ_GENERIC || (client_block->clientFlags & CLIENTFLAG_ALTDATA)) {
         if (DBConnect == NULL) {
-            if (!(DBConnect = startSQL())) {
+            if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
                 if (DBConnect != NULL) {
                     PQfinish(DBConnect);
                 }
@@ -484,7 +485,7 @@ int startupFatServer(SERVER_BLOCK* server_block)
 
     if (!plugin_list_initialised) {
         pluginList.count = 0;
-        initPluginList(&pluginList);
+        initPluginList(&pluginList, getIdamServerEnvironment());
         plugin_list_initialised = 1;
 
         UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");

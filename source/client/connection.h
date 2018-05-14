@@ -4,6 +4,10 @@
 #include <clientserver/socketStructs.h>
 #include <clientserver/udaStructs.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int clientVersion;                   // Client Library Version
 extern char clientUsername[STRING_LENGTH];  // Only obtain userid once
 
@@ -14,5 +18,9 @@ void closeConnection(int type);
 
 int clientWriteout(void* iohandle, char* buf, int count);
 int clientReadin(void* iohandle, char* buf, int count);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_CLIENT_CONNECTION_H

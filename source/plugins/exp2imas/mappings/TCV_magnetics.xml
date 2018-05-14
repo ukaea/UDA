@@ -1,0 +1,275 @@
+<mappings machine="TCV">
+  <!-- dynamic -->
+  <magdiag documentation="Magnetic diagnostics. Time-dependent CPO" type="CPO">
+    <ip documentation="Plasma current [A]. Positive sign means anti-clockwise when viewed from above.  Time-dependent. Scalar" type="structure">
+      <value documentation="Signal value; Time-dependent; Scalar" list="no" path="ip/value" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" type="exp0D">
+        <name documentation="Name of the signal in the local database" type="xs:string">\magnetics::iplasma:trapeze</name>
+        <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+          <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">mds+</download>
+          <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+          <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+        </download>
+        <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+        <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+        <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">3</interpolation>
+        <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">1</dimension>
+        <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+        <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">1</time_dim>
+      </value>
+      <abserror documentation="Absolute error on signal; Time-dependent; Scalar" list="no" path="ip/abserror" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" type="exp0D">
+        <name documentation="Name of the signal in the local database" type="xs:string">abserror</name>
+        <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+          <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">fixed</download>
+          <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">2.4e3</fixed_value>
+          <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">1</fixed_repeat>
+        </download>
+        <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+        <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+        <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">2</interpolation>
+        <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">1</dimension>
+        <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+        <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+      </abserror>
+      <relerror documentation="Relative error on signal (normalised to signal value); Time-dependent; Scalar" list="no" path="ip/relerror" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" type="exp0D">
+        <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+        <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+          <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+          <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+          <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+        </download>
+        <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+        <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+        <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+        <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+        <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+        <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+      </relerror>
+    </ip>
+    <diamagflux documentation="Diamagnetic flux [Wb]; Time-dependent; Scalar" type="structure">
+      <value documentation="Signal value; Time-dependent; Scalar" list="no" path="diamagflux/value" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" type="exp0D">
+        <name documentation="Name of the signal in the local database" type="xs:string">\results::dmlcor</name>
+        <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+          <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">mds+</download>
+          <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+          <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+        </download>
+        <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+        <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+        <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">3</interpolation>
+        <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">1</dimension>
+        <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+        <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">1</time_dim>
+      </value>
+      <abserror documentation="Absolute error on signal; Time-dependent; Scalar" list="no" path="diamagflux/abserror" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" type="exp0D">
+        <name documentation="Name of the signal in the local database" type="xs:string">abserror</name>
+        <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+          <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">fixed</download>
+          <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">0.01</fixed_value>
+          <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">1</fixed_repeat>
+        </download>
+        <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+        <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+        <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">2</interpolation>
+        <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">1</dimension>
+        <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+        <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+      </abserror>
+      <relerror documentation="Relative error on signal (normalised to signal value); Time-dependent; Scalar" list="no" path="diamagflux/relerror" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" type="exp0D">
+        <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+        <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+          <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+          <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+          <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+        </download>
+        <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+        <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+        <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+        <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+        <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+        <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+      </relerror>
+    </diamagflux>
+    <diamagener documentation="Diamagnetic energy [J]; Time-dependent; Scalar" type="structure">
+      <value documentation="Signal value; Time-dependent; Scalar" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="exp0D" path="diamagener/value">
+        <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+        <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+          <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+          <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+          <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+        </download>
+        <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+        <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+        <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+        <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+        <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+        <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+      </value>
+      <abserror documentation="Absolute error on signal; Time-dependent; Scalar" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="exp0D" path="diamagener/abserror">
+        <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+        <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+          <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+          <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+          <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+        </download>
+        <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+        <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+        <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+        <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+        <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+        <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+      </abserror>
+      <relerror documentation="Relative error on signal (normalised to signal value); Time-dependent; Scalar" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" list="no" type="exp0D" path="diamagener/relerror">
+        <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+        <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+          <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+          <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+          <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+        </download>
+        <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+        <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+        <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+        <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+        <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+        <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+      </relerror>
+    </diamagener>
+    <flux_loops documentation="Poloidal flux loops RZ coordinates have 1 component for the full loop and two if there is a negative reference loop" type="structure">
+      <measure documentation="Measured flux [Wb]; Time-dependent; Vector (nloops)" type="structure">
+        <value documentation="Signal value; Time-dependent; Vector" list="yes" path="flux_loops/measure/value" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" type="exp1D">
+          <name documentation="Name of the signal in the local database" type="xs:string">tcv_idealloop('FLUX')</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">mds+</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">3</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">2</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">38</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">1</time_dim>
+        </value>
+        <abserror documentation="Absolute error on signal; Time-dependent; Vector" list="yes" path="flux_loops/measure/abserror" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" type="exp1D">
+          <name documentation="Name of the signal in the local database" type="xs:string">abserror</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">fixed</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">0.001200000056997</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">38</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">2</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">2</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">38</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </abserror>
+        <relerror documentation="Relative error on signal (normalised to signal value); Time-dependent; Vector" list="yes" path="flux_loops/measure/relerror" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" type="exp1D">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </relerror>
+      </measure>
+    </flux_loops>
+    <bpol_probes documentation="Poloidal field probes" type="structure">
+      <measure documentation="Measured value [T]; Time-dependent; Vector (nprobes)" type="structure">
+        <value documentation="Signal value; Time-dependent; Vector" list="yes" path="bpol_probes/measure/value" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" type="exp1D">
+          <name documentation="Name of the signal in the local database" type="xs:string">\magnetics::bpol_003</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">mds+</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">3</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">2</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">38</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">1</time_dim>
+        </value>
+        <abserror documentation="Absolute error on signal; Time-dependent; Vector" list="yes" path="bpol_probes/measure/abserror" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" type="exp1D">
+          <name documentation="Name of the signal in the local database" type="xs:string">abserror</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">fixed</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble"> 0.009999999776483</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">38</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">2</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">2</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">38</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </abserror>
+        <relerror documentation="Relative error on signal (normalised to signal value); Time-dependent; Vector" list="yes" path="bpol_probes/measure/relerror" reminder="Enter in the structure below how to retrieve this variable from the experimental database. Replicate this element if more than one signal needs to be read in the local database" type="exp1D">
+          <name documentation="Name of the signal in the local database" type="xs:string">Put value here</name>
+          <download documentation="Description of the method for calculating the signal. Fill the relevant elements below." type="structure">
+            <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name. In case of a constant value, put 'fixed' here and fill the 'fixed-value' element below." type="xs:string">Put value here</download>
+            <fixed_value documentation="Fixed value of the signal in case 'download' = 'fixed'. NB : this value will be repeated in all time slices of the ITM signal, except if 'interpolation' = 0. Optional." type="Vect1DDouble">Put value here</fixed_value>
+            <fixed_repeat documentation="Repeat factor for the fixed value given above; this tag contains the same number of values than fixed_value. Optional." type="Vect1DInt">Put value here</fixed_repeat>
+          </download>
+          <coefa documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefa>
+          <coefb documentation="After download, the signal can be transformed as coefa * signal + coefb. Optional." type="xs:float">Put value here</coefb>
+          <interpolation documentation="Interpolation method : 2 for previous sample, 3 for linear interpolation (as in the UAL), 0 if no interpolation required (also useful for a string or signal that does not depend on time in ITM format)." type="xs:integer">Put value here</interpolation>
+          <dimension documentation="Dimension of the local DB signal : 1 for vector, 2 for matrix, ... s for string, 0 if non-time dependent in the local DB (may need to be repeated at each time slice in ITM format, though)" type="xs:integer">Put value here</dimension>
+          <size documentation="Size of the local DB signal (number of columns in the data matrix) mandatory only for 2D signals" type="xs:integer">Put value here</size>
+          <time_dim documentation="Specifies which of the above dimension represents time (in the local DB)." type="xs:integer">Put value here</time_dim>
+        </relerror>
+      </measure>
+    </bpol_probes>
+    <time_base documentation="Declaration of the multiple time bases in the experimental database, used for calculating the common (CPO) one" type="structure">
+      <sampling_rate documentation="String 'min' or 'max' : Use the highest sampling rate (min) or the lowest sampling rate (max) of all experimental time bases to define the common time base" type="xs:string">Put value here</sampling_rate>
+      <time documentation="List of the experimental time bases used for this CPO (replicate this element if more than one must be used)" list="yes" type="structure">
+        <name documentation="Name of the time base in the experimental database" type="xs:string">\magnetics::iplasma:trapeze</name>
+        <download documentation="Name of the download method, as listed in the top element mapping_info/download_method/name" type="xs:string">mds+</download>
+      </time>
+    </time_base>
+  </magdiag>
+
+  <!-- static -->
+  <magdiag type="CPO" documentation="Magnetic diagnostics. Time-dependent CPO" occurrence="0">
+    <datainfo documentation="Generic information on a data item" type="structure">
+      <dataprovider documentation="Name of the actual data provider (the person who filled the data)" path="datainfo/dataprovider" type="xs:string">H. Reimerdes, J.-M. Moret</dataprovider>
+      <putdate documentation="Date at which the data has been put in the DB" path="datainfo/putdate" type="xs:string">02-July-2012</putdate>
+      <source documentation="Exact reference of the data source (e.g. original reference in the native machine data base)" path="datainfo/source" type="xs:string">TCV static and magnetics trees.</source>
+      <comment documentation="Any additional comment" path="datainfo/comment" type="xs:string">Bpol measurements are taken in sector 3 (corresponds to the poloidal field measurements used for LIUQE). Flux loops are described as axisymmetric loops with geometric corrections being applied during data retrival. Detailed information can be found in J.-M. Moret, et al, Rev. Sci. Instrum. 69 (1998) 2333.</comment>
+      <cocos documentation="COordinates COnventionS followed by this CPO" path="datainfo/cocos" type="xs:integer">17</cocos>
+      <id documentation="CPO id for checking its provenance in the workflow" path="datainfo/id" type="xs:integer"> Put value here</id>
+    </datainfo>
+    <flux_loops documentation="Poloidal flux loops RZ coordinates have 1 component for the full loop and two if there is a negative reference loop" type="structure">
+      <setup_floops documentation="diagnostic setup information" type="structure">
+        <name dim="38" documentation="Name of loop. Array of strings (nloops)." path="flux_loops/setup_floops/name" type="vecstring_type">'001','002','003','004','005','006','007','008','009','010','011','012','013','014','015','016','017','018','019','020','021','022','023','024','025','026','027','028','029','030','031','032','033','034','035','036','037','038'</name>
+        <id dim="Put dimension here" documentation="ID of loop. Array of strings (nloops)." path="flux_loops/setup_floops/id" type="vecstring_type"> Put value here</id>
+        <position documentation="List of (R,Z,phi) points defining the position of the loop (see data structure documentation FLUXLOOPposition.pdf); Matrices (nloops, max_npoints)" type="structure">
+          <r dim="38,1" documentation="Major radius [m]" path="flux_loops/setup_floops/position/r" type="matflt_type">5.840000E-01, 5.840000E-01, 5.840000E-01, 5.840000E-01, 5.840000E-01, 5.840000E-01, 5.840000E-01, 6.000000E-01, 6.950000E-01, 7.900000E-01, 8.850000E-01, 9.800000E-01, 1.059500E+00, 1.136100E+00, 1.176000E+00, 1.176000E+00, 1.176000E+00, 1.176000E+00, 1.176000E+00, 1.176000E+00, 1.176000E+00, 1.176000E+00, 1.176000E+00, 1.176000E+00, 1.176000E+00, 1.136100E+00, 1.059500E+00, 9.800000E-01, 8.850000E-01, 7.900000E-01, 6.950000E-01, 6.000000E-01, 5.840000E-01, 5.840000E-01, 5.840000E-01, 5.840000E-01, 5.840000E-01, 5.840000E-01</r>
+          <z dim="38,1" documentation="Altitude [m]" path="flux_loops/setup_floops/position/z" type="matflt_type">0.000000E+00, 1.150000E-01, 2.300000E-01, 3.450000E-01, 4.600000E-01, 5.750000E-01, 6.900000E-01, 7.720000E-01, 7.910000E-01, 7.910000E-01, 7.910000E-01, 7.910000E-01, 7.555000E-01, 6.912000E-01, 5.750000E-01, 4.600000E-01, 3.450000E-01, 2.300000E-01, 1.150000E-01, 0.000000E+00, -1.150000E-01, -2.300000E-01, -3.450000E-01, -4.600000E-01, -5.750000E-01, -6.912000E-01, -7.555000E-01, -7.910000E-01, -7.910000E-01, -7.910000E-01, -7.910000E-01, -7.720000E-01, -6.900000E-01, -5.750000E-01, -4.600000E-01, -3.450000E-01, -2.300000E-01, -1.150000E-01</z>
+          <phi dim="Put dimension here" documentation="Toroidal angle [rad]" path="flux_loops/setup_floops/position/phi" type="matflt_type"> Put value here</phi>
+        </position>
+        <npoints dim="38" documentation="Number of points describing each loop in the &#34;position&#34; matrices. Vector (nloops)" path="flux_loops/setup_floops/npoints" type="vecint_type">1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1</npoints>
+      </setup_floops>
+    </flux_loops>
+    <bpol_probes documentation="Poloidal field probes" type="structure">
+      <setup_bprobe documentation="diagnostic setup information" type="structure">
+        <name dim="38" documentation="Name of the probe.  Array of strings (nprobes)." path="bpol_probes/setup_bprobe/name" type="vecstring_type">'001','002','003','004','005','006','007','008','009','010','011','012','013','014','015','016','017','018','019','020','021','022','023','024','025','026','027','028','029','030','031','032','033','034','035','036','037','038'</name>
+        <id dim="Put dimension here" documentation="ID of the probe.  Array of strings (nprobes)." path="bpol_probes/setup_bprobe/id" type="vecstring_type"> Put value here</id>
+        <position documentation="RZ of coil centre [m]; Vector (nprobes)" type="structure">
+          <r dim="38" documentation="Major radius [m]" path="bpol_probes/setup_bprobe/position/r" type="vecflt_type">6.060000E-01, 6.060000E-01, 6.060000E-01, 6.060000E-01, 6.060000E-01, 6.060000E-01, 6.060000E-01, 6.294400E-01, 6.950000E-01, 7.900000E-01, 8.850000E-01, 9.800000E-01, 1.042140E+00, 1.118750E+00, 1.154000E+00, 1.154000E+00, 1.154000E+00, 1.154000E+00, 1.154000E+00, 1.154000E+00, 1.154000E+00, 1.154000E+00, 1.154000E+00, 1.154000E+00, 1.154000E+00, 1.118750E+00, 1.042140E+00, 9.800000E-01, 8.850000E-01, 7.900000E-01, 6.950000E-01, 6.294400E-01, 6.060000E-01, 6.060000E-01, 6.060000E-01, 6.060000E-01, 6.060000E-01, 6.060000E-01</r>
+          <z dim="38" documentation="Altitude [m]" path="bpol_probes/setup_bprobe/position/z" type="vecflt_type">0.000000E+00, 1.150000E-01, 2.300000E-01, 3.450000E-01, 4.600000E-01, 5.750000E-01, 6.900000E-01, 7.455600E-01, 7.640000E-01, 7.640000E-01, 7.640000E-01, 7.640000E-01, 7.348200E-01, 6.705400E-01, 5.750000E-01, 4.600000E-01, 3.450000E-01, 2.300000E-01, 1.150000E-01, 0.000000E+00, -1.150000E-01, -2.300000E-01, -3.450000E-01, -4.600000E-01, -5.750000E-01, -6.705400E-01, -7.348200E-01, -7.640000E-01, -7.640000E-01, -7.640000E-01, -7.640000E-01, -7.455600E-01, -6.900000E-01, -5.750000E-01, -4.600000E-01, -3.450000E-01, -2.300000E-01, -1.150000E-01</z>
+        </position>
+        <polangle dim="38" documentation="Poloidal angle of coil orientation (w.r.t. horizontal ?? to be checked) [rad]; Vector (nprobes)" path="bpol_probes/setup_bprobe/polangle" type="vecflt_type">1.570796E+00, 1.570796E+00, 1.570796E+00, 1.570796E+00, 1.570796E+00, 1.570796E+00, 1.570796E+00, 7.853982E-01, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, -6.981317E-01, -6.981317E-01, -1.570796E+00, -1.570796E+00, -1.570796E+00, -1.570796E+00, -1.570796E+00, -1.570796E+00, -1.570796E+00, -1.570796E+00, -1.570796E+00, -1.570796E+00, -1.570796E+00, -2.443461E+00, -2.443461E+00, -3.141593E+00, -3.141593E+00, -3.141593E+00, -3.141593E+00, 2.356194E+00, 1.570796E+00, 1.570796E+00, 1.570796E+00, 1.570796E+00, 1.570796E+00, 1.570796E+00</polangle>
+        <torangle dim="38" documentation="Toroidal angle of coil orientation (0 if fully in the poloidal plane) [rad] ; Vector (nprobes)" path="bpol_probes/setup_bprobe/torangle" type="vecflt_type">0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00</torangle>
+        <area dim="38" documentation="Area of coil [m^2]; Vector (nprobes)" path="bpol_probes/setup_bprobe/area" type="vecflt_type">9.200040E-03, 9.126160E-03, 9.163320E-03, 9.158160E-03, 9.147700E-03, 9.141400E-03, 9.155220E-03, 9.160560E-03, 9.058100E-03, 9.228630E-03, 9.251260E-03, 9.149670E-03, 9.271000E-03, 9.112610E-03, 9.114790E-03, 9.180870E-03, 9.131410E-03, 9.120490E-03, 9.154670E-03, 9.115670E-03, 9.190590E-03, 9.176150E-03, 9.186540E-03, 9.207520E-03, 9.176340E-03, 9.085060E-03, 9.155950E-03, 9.135940E-03, 9.112780E-03, 9.059920E-03, 9.316970E-03, 9.114470E-03, 9.132330E-03, 9.086280E-03, 9.122720E-03, 9.045430E-03, 9.106670E-03, 9.124440E-03</area>
+        <length dim="38" documentation="Length of coil [m]; Vector (nprobes)" path="bpol_probes/setup_bprobe/length" type="vecflt_type">2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02, 2.400000E-02</length>
+        <turns dim="Put dimension here" documentation="Turns in the coil; Vector (nprobes)" path="bpol_probes/setup_bprobe/turns" type="vecint_type"> Put value here</turns>
+      </setup_bprobe>
+    </bpol_probes>
+  </magdiag>
+</mappings>

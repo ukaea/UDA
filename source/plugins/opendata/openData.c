@@ -27,7 +27,6 @@
 #include <errno.h>
 #include <strings.h>
 
-#include <server/udaServer.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/stringUtils.h>

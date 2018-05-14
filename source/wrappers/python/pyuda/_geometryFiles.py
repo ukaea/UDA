@@ -1,8 +1,4 @@
-"""
-Class to return signals that should be read in for top-level groups
-(ie. groups that come from more than one file).
-Also returns the appropriate manipulation classes for the signals requested.
-"""
+from __future__ import (division, print_function, absolute_import)
 
 import numpy as np
 from ._geomPickup import GeomPickup
@@ -10,7 +6,18 @@ from ._geomFluxloops import GeomFluxloops
 from ._geomEfitElements import GeomEfitElements
 from ._geomEfitLimiter import GeomEfitLimiter
 
-class GeometryFiles:
+from builtins import object
+from future import standard_library
+standard_library.install_aliases()
+
+
+class GeometryFiles(object):
+    """
+    Class to return signals that should be read in for top-level groups
+    (ie. groups that come from more than one file).
+    Also returns the appropriate manipulation classes for the signals requested.
+    """
+
     def __init__(self):
         """
         Init function

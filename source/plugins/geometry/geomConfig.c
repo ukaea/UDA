@@ -6,7 +6,7 @@
 #include <clientserver/initStructs.h>
 #include <structures/accessors.h>
 #include <structures/struct.h>
-
+#include <plugins/serverPlugin.h>
 
 int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBConnect)
 {

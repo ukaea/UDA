@@ -17,7 +17,6 @@ add_subdirectory( modules )
 set( SRC_FILES
   serverGetData.c
   freeIdamPut.c
-  serverPlugin.c
   serverLegacyPlugin.c
   makeServerRequestBlock.c
   writer.c
@@ -28,12 +27,10 @@ set( SRC_FILES
   applyXML.c
   manageFiles.c
   serverProcessing.c
-  sqllib.c
-  managePluginFiles.c
   serverStartup.c
   getServerEnvironment.c
   getPluginAddress.c
-  nameValueSubstitution.c
+  initPluginList.c
 )
 
 set( HEADER_FILES
@@ -46,20 +43,17 @@ set( HEADER_FILES
   getServerEnvironment.h
   makeServerRequestBlock.h
   manageFiles.h
-  managePluginFiles.h
   mastArchiveFilePath.h
-  pluginStructs.h
   serverGetData.h
   serverLegacyPlugin.h
-  serverPlugin.h
   serverProcessing.h
   serverStartup.h
   serverSubsetData.h
   sleepServer.h
-  sqllib.h
   udaLegacyServer.h
   udaServer.h
   writer.h
+  initPluginList.h
 )
 
 include_directories(
@@ -91,7 +85,6 @@ add_library( fatserver-objects OBJECT
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
-
 set( SERVER_OBJ
   $<TARGET_OBJECTS:server-objects>
   $<TARGET_OBJECTS:clientserver-server-objects>
@@ -104,6 +97,9 @@ set( SERVER_OBJ
 add_library( server-shared SHARED ${SERVER_OBJ} )
 add_library( server-static STATIC ${SERVER_OBJ} )
 
+#target_link_libraries( server-shared LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
+#target_link_libraries( server-static LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
+
 add_executable( server-exe serverMain.c )
 
 ########################################################################################################################
@@ -111,6 +107,7 @@ add_executable( server-exe serverMain.c )
 
 target_link_libraries( server-shared LINK_PRIVATE
   client-shared
+  plugins-static
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
@@ -187,11 +184,15 @@ set( ETC_FILES
   udaserver.cfg
   xinetd.conf
   rc.uda
+  README.md
+)
+
+set( PKGCONFIG_FILES
   uda-client.pc
   uda-fat-client.pc
   uda-cpp.pc
   uda-fat-cpp.pc
-  README.md
+  uda-plugins.pc
 )
 
 set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )
@@ -205,6 +206,14 @@ foreach( ETC_FILE ${ETC_FILES} )
   list( APPEND GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/${ETC_FILE} )
 endforeach()
 
+foreach( PKGCONFIG_FILE ${PKGCONFIG_FILES} )
+  configure_file(
+    "${CMAKE_SOURCE_DIR}/source/etc/${PKGCONFIG_FILE}.in"
+    "${CMAKE_BINARY_DIR}/lib/pkgconfig/${PKGCONFIG_FILE}"
+    @ONLY
+  )
+endforeach()
+
 configure_file(
   "${CMAKE_SOURCE_DIR}/source/etc/udagenstruct.conf"
   "${CMAKE_BINARY_DIR}/etc/udagenstruct.conf"
@@ -215,6 +224,12 @@ install(
   FILES
     ${GEN_ETC_FILES}
   DESTINATION etc
+)
+
+install(
+  DIRECTORY
+    ${CMAKE_BINARY_DIR}/lib/pkgconfig
+  DESTINATION lib
 )
 
 install(
@@ -241,4 +256,8 @@ install(
   FILES
     ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
   DESTINATION etc
+)
+
+install( FILES ${HEADER_FILES}
+  DESTINATION include/uda/server
 )

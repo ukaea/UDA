@@ -1,6 +1,9 @@
+set( UDA_HOST idam3.mast.ccfe.ac.uk )
+set( UDA_PORT 56565 )
+
 add_definitions(
-  -DUDA_SERVER_HOST="fuslw"
-  -DUDA_SERVER_HOST2="fuslw"
+  -DUDA_SERVER_HOST="idam3.mast.ccfe.ac.uk"
+  -DUDA_SERVER_HOST2="idam3.mast.ccfe.ac.uk"
   -DUDA_SERVER_PORT=56565
   -DUDA_SERVER_PORT2=56565
   -DAPI_DEVICE="MAST"

@@ -32,8 +32,6 @@ string( REGEX REPLACE "^([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1" GIT_VERSION "${GIT_T
 
 project( uda VERSION ${GIT_VERSION} )
 
-cmake_host_system_information( RESULT UDA_HOST QUERY FQDN )
-
 set( USER $ENV{USER} )
 
 ########################################################################################################################
@@ -63,12 +61,13 @@ endif()
 
 if( APPLE )
   set( CMAKE_MACOSX_RPATH ON )
-  set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup" )
+  set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Qunused-arguments -undefined dynamic_lookup" )
+  set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Qunused-arguments" )
 endif( APPLE )
 
 if( NOT WIN32 OR MINGW )
-  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC" )
-  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11" )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -pthread" )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11 -pthread" )
   
   if( GOPTION )
     message( "Compiling with g option to generate and embed debug information" )
@@ -97,8 +96,10 @@ endif()
 ########################################################################################################################
 # Build options
 
-option( CLIENT_ONLY "Only build IDAM client" OFF )
-option( NO_WRAPPERS "Don't build any IDAM client wrappers" OFF )
+option( CLIENT_ONLY "Only build UDA client" OFF )
+option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )
+option( NO_MODULES "Don't build any UDA server modules" OFF )
+option( FAT_IDL "Build IDL wrapper using fatclient" OFF )
 
 if( SSLAUTHENTICATION )
   message( "Including SSL/RTL X509 User Authentication" )
@@ -108,7 +109,7 @@ endif()
 if( NOTGENERICENABLED )
   message( "No Generic name mapping service using the internal legacy Postgres plugin" )
   add_definitions( -DNOTGENERICENABLED )
-endif()   
+endif()
 
 ########################################################################################################################
 # Source directories

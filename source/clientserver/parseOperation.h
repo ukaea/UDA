@@ -3,6 +3,14 @@
 
 #include "parseXML.h"
 
-int idamParseOperation(SUBSET *sub);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int idamParseOperation(SUBSET* sub);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // IDAM_CLIENTSERVER_PARSEOPERATION_H

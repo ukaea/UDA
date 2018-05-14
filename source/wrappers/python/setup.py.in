@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+
+import os
+import sys
+from distutils.core import setup, Extension
+
+extra_link_args = []
+
+root = os.environ.get('UDA_DIR', '@CMAKE_INSTALL_PREFIX@')
+
+if sys.platform.lower() == 'darwin':
+    # On Mac OS we have to force setting of rpath
+    extra_link_args.append('-Wl,-rpath,%s/lib' % root)
+
+ext = Extension(
+    '_c_uda',
+    ['@PY_WRAPPER_CODE@'],
+    define_macros=[('SWIG', None),],
+    include_dirs=[
+        root + '/include/uda',
+        root + '/include/uda/c++',
+        '@Boost_INCLUDE_DIRS@',
+    ],
+    libraries = ['@PROJECT_NAME@_cpp', 'ssl', 'crypto'],
+    library_dirs = [
+        root + '/lib',
+        '@OPENSSL_LIB_DIR@',
+    ],
+    runtime_library_dirs = [
+        root + '/lib',
+        '@OPENSSL_LIB_DIR@',
+    ],
+    extra_link_args=extra_link_args,
+    extra_compile_args=['-std=c++11']
+)
+
+setup(
+    name='@PROJECT_NAME@',
+    version='@PROJECT_VERSION@',
+    description='Unified Data Access (UDA)',
+    author='Jonathan Hollocombe',
+    author_email='jonathan.hollocombe@ukaea.uk',
+    url='https://git.iter.org/projects/IMAS/repos/uda/browse',
+    packages=['pyuda'],
+    ext_modules=[ext]
+)
+

@@ -38,9 +38,8 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
 #include <logging/logging.h>
-#include <server/makeServerRequestBlock.h>
-#include <server/managePluginFiles.h>
-#include <server/serverPlugin.h>
+#include <plugins/serverPlugin.h>
+#include <clientserver/makeRequestBlock.h>
 
 IDAMPLUGINFILELIST pluginFileList_mds;
 
@@ -1273,11 +1272,10 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
     }
 
     IDAM_PLUGIN_INTERFACE next_plugin_interface = *idam_plugin_interface;        // New plugin interface
-    REQUEST_BLOCK next_request_block;
+    REQUEST_BLOCK next_request_block = {};
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
     next_plugin_interface.request_block = &next_request_block;
-    initServerRequestBlock(&next_request_block);
     strcpy(next_request_block.api_delim, request_block->api_delim);
 
     strcpy(next_request_block.signal, plugin_args.signal);            // Prepare the API arguments
@@ -1397,7 +1395,7 @@ static int do_source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PLUGIN_ARGS p
     next_request_block.source[0] = '\0';
     strcpy(next_request_block.signal, work);
 
-    makeServerRequestBlock(&next_request_block, *plugin_list);
+    makeRequestBlock(&next_request_block, *plugin_list, idam_plugin_interface->environment);
 
 // Call the IDAM client via the IDAM plugin (ignore the request identified)
 
@@ -1607,12 +1605,14 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
 
                 UDA_LOG(UDA_LOG_DEBUG, "imas: %s", new_request.signal);
 
-                makeServerRequestBlock(&new_request, *idam_plugin_interface->pluginList);
+                makeRequestBlock(&new_request, *idam_plugin_interface->pluginList, idam_plugin_interface->environment);
                 printRequestBlock(new_request);
 
                 idam_plugin_interface->request_block = &new_request;
 
                 rc = plugin->idamPlugin(idam_plugin_interface);
+                sprintf(data_block->data_desc, (plugin_args.path[0] == '/') ? "%s%s" : "%s/%s",
+                        plugin_args.CPOPath, plugin_args.path);
 
                 if (rc == 0) {
                     for (i = 0; i < data_block->rank; ++i) {
@@ -1633,8 +1633,8 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                     } else {
                         imasData = data_block->data;
                     }
-                    imas_mds_putData(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, plugin_args.rank,
-                                     shape, PUT_OPERATION, (void*)imasData, 0.0);
+                    //imas_mds_putData(idx, (char*)plugin_args.CPOPath, (char*)plugin_args.path, type, plugin_args.rank,
+                    //                 shape, PUT_OPERATION, (void*)imasData, 0.0);
                 }
             }
         }

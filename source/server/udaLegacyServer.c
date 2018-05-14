@@ -5,29 +5,30 @@
 
 #include "udaLegacyServer.h"
 
-#include <logging/logging.h>
 #include <clientserver/errorLog.h>
-#include <clientserver/protocol.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/printStructs.h>
-#include <logging/accessLog.h>
-#include <clientserver/xdrlib.h>
 #include <clientserver/freeDataBlock.h>
-#include <clientserver/udaTypes.h>
+#include <clientserver/initStructs.h>
+#include <clientserver/makeRequestBlock.h>
+#include <clientserver/printStructs.h>
+#include <clientserver/protocol.h>
+#include <clientserver/sqllib.h>
 #include <clientserver/udaErrors.h>
+#include <clientserver/udaTypes.h>
+#include <clientserver/xdrlib.h>
+#include <logging/accessLog.h>
+#include <logging/logging.h>
+#include <plugins/serverPlugin.h>
 #include <structures/struct.h>
 
-#include "udaServer.h"
+#include "closeServerSockets.h"
+#include "freeIdamPut.h"
+#include "getServerEnvironment.h"
+#include "makeServerRequestBlock.h"
 #include "serverGetData.h"
+#include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
 #include "sleepServer.h"
-#include "serverPlugin.h"
-#include "closeServerSockets.h"
-#include "serverLegacyPlugin.h"
-#include "makeServerRequestBlock.h"
-#include "freeIdamPut.h"
-#include "sqllib.h"
-#include "getServerEnvironment.h"
+#include "udaServer.h"
 
 #ifdef LEGACYSERVER
 int idamLegacyServer(CLIENT_BLOCK client_block) {
@@ -276,7 +277,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             //----------------------------------------------------------------------
             // Write to the Access Log
 
-            idamAccessLog(TRUE, client_block, request_block, server_block, pluginlist);
+            idamAccessLog(TRUE, client_block, request_block, server_block, pluginlist, getIdamServerEnvironment());
 
             //----------------------------------------------------------------------
             // Initialise Data Structures
@@ -314,7 +315,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             // Decide on Authentication procedure
 
             if (protocolVersion >= 6) {
-                if ((err = idamServerPlugin(&request_block, &data_source, &signal_desc, pluginlist)) != 0) break;
+                if ((err = idamServerPlugin(&request_block, &data_source, &signal_desc, pluginlist, getIdamServerEnvironment())) != 0) break;
             } else {
                 if ((err = idamServerLegacyPlugin(&request_block, &data_source, &signal_desc)) != 0) break;
             }
@@ -330,7 +331,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
 #ifndef NOTGENERICENABLED
             if (request_block.request == REQUEST_READ_GENERIC || (client_block.clientFlags & CLIENTFLAG_ALTDATA)) {
                 if (DBConnect == NULL) {
-                    if (!(DBConnect = startSQL())) {
+                    if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
                         err = 777;
                         addIdamError(CODEERRORTYPE, "idamServer", err,
                                      "Unable to Connect to the SQL Database Server");
@@ -672,7 +673,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
         //----------------------------------------------------------------------
         // Complete & Write the Access Log Record
 
-        idamAccessLog(0, client_block, request_block, server_block, pluginlist);
+        idamAccessLog(0, client_block, request_block, server_block, pluginlist, getIdamServerEnvironment());
 
         //----------------------------------------------------------------------------
         // Server Shutdown ? Next Instruction from Client

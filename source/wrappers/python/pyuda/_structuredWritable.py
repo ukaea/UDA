@@ -1,9 +1,16 @@
+from __future__ import (division, print_function, absolute_import)
+
+from ._structured import StructuredData
+
+from builtins import (range, zip)
+from future import standard_library
+standard_library.install_aliases()
+
+
 """
 Extension of StructuredData class, with additional
 methods for adding/removing attributes & children.
 """
-
-from ._structured import StructuredData
 
 
 class StructuredWritable(StructuredData):

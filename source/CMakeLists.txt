@@ -28,3 +28,4 @@ if( NOT CLIENT_ONLY )
 endif()
 
 install( FILES uda.h DESTINATION include/uda )
+install( PROGRAMS bin/install_plugin DESTINATION bin )

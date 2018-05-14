@@ -1,16 +1,22 @@
-"""
-Manipulation class for efit limiter
+from __future__ import (division, print_function, absolute_import)
 
-Plotting:
-
-Plot the limiting surface (2D only atm)
-"""
+from builtins import object
+from future import standard_library
+standard_library.install_aliases()
 
 import math
-
 import numpy as np
 
-class GeomEfitLimiter():
+
+class GeomEfitLimiter(object):
+    """
+    Manipulation class for efit limiter
+
+    Plotting:
+
+    Plot the limiting surface (2D only atm)
+    """
+
     def __init__(self):
         pass
 

@@ -7,15 +7,11 @@
 #define QUOTE(X) QUOTE_(X)
 #define SHOT_NUM "84600"
 
-#define MAPPINGS_DIR "/Users/jhollocombe/Projects/uda/source/plugins/exp2imas/mappings"
-
 TEST_CASE( "Test pf_active coil count", "[IMAS][JET][PF_ACTIVE]" )
 {
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -45,8 +41,6 @@ TEST_CASE( "Test pf_active coil name", "[IMAS][JET][PF_ACTIVE]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/name', expName='JET', type=string, rank=0, shot=" SHOT_NUM ", )", "");
@@ -73,8 +67,6 @@ TEST_CASE( "Test pf_active coil identifier", "[IMAS][JET][PF_ACTIVE]" )
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -104,8 +96,6 @@ TEST_CASE( "Test pf_active coil element count", "[IMAS][JET][PF_ACTIVE]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/element/Shape_of', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
@@ -134,8 +124,6 @@ TEST_CASE( "Test pf_active coil element name", "[IMAS][JET][PF_ACTIVE]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/element/1/name', expName='JET', type=string, rank=0, shot=" SHOT_NUM ", )", "");
@@ -162,8 +150,6 @@ TEST_CASE( "Test pf_active coil element identifier", "[IMAS][JET][PF_ACTIVE]" )
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -193,8 +179,6 @@ TEST_CASE( "Test pf_active coil element number of turns", "[IMAS][JET][PF_ACTIVE
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/element/1/turns_with_sign', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
@@ -222,8 +206,6 @@ TEST_CASE( "Test pf_active coil element geometry type", "[IMAS][JET][PF_ACTIVE]"
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -253,8 +235,6 @@ TEST_CASE( "Test pf_active coil element geometry r", "[IMAS][JET][PF_ACTIVE]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/element/1/geometry/rectangle/r', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
@@ -283,8 +263,6 @@ TEST_CASE( "Test pf_active coil element geometry z", "[IMAS][JET][PF_ACTIVE]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/element/1/geometry/rectangle/z', expName='JET', type=double, rank=0, shot=" SHOT_NUM ", )", "");
@@ -312,8 +290,6 @@ TEST_CASE( "Test pf_active coil element geometry width", "[IMAS][JET][PF_ACTIVE]
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -370,8 +346,6 @@ TEST_CASE( "Test pf_active coil element geometry height", "[IMAS][JET][PF_ACTIVE
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     {
@@ -427,8 +401,6 @@ TEST_CASE( "Test pf_active coil current", "[IMAS][JET][PF_ACTIVE]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/current/data', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
@@ -457,8 +429,6 @@ TEST_CASE( "Test pf_active coil current error upper", "[IMAS][JET][PF_ACTIVE]" )
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -489,8 +459,6 @@ TEST_CASE( "Test pf_active coil current error lower", "[IMAS][JET][PF_ACTIVE]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='coil/1/current/data_error_lower', expName='JET', type=double, rank=1, shot=" SHOT_NUM ", )", "");
@@ -519,8 +487,6 @@ TEST_CASE( "Test pf_active coil current time", "[IMAS][JET][PF_ACTIVE]" )
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 
@@ -551,8 +517,6 @@ TEST_CASE( "Test pf_active coil force count", "[IMAS][JET][PF_ACTIVE]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='vertical_force/Shape_of', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
@@ -581,8 +545,6 @@ TEST_CASE( "Test pf_active coil circuit count", "[IMAS][JET][PF_ACTIVE]" )
 #  include "setup.inc"
 #endif
 
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
-
     uda::Client client;
 
     const uda::Result& result = client.get("imas::get(idx=0, group='pf_active', variable='circuit/Shape_of', expName='JET', type=int, rank=0, shot=" SHOT_NUM ", )", "");
@@ -610,8 +572,6 @@ TEST_CASE( "Test pf_active coil supply count", "[IMAS][JET][PF_ACTIVE]" )
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
-
-    setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", MAPPINGS_DIR, 1);
 
     uda::Client client;
 

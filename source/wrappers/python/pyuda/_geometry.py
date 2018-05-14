@@ -1,25 +1,31 @@
-"""
-Class to import geometry data.
-1. Combines configuration and calibration data
-2. Applies any manipulations required for that file.
-   (a class must be passed in with methods do_manip to
-    do the manipulation and plot to plot the components)
-
-PROBLEMS:
- 1. Enums come back as longs... Not very useful for telling people
-    stuff. Also, bad since then they are treated as numbers and code
-    will try to add them when calibrating... Perhaps should ditch the
-    enums and use strings instead?
-"""
-
-import inspect
-import logging
-
-import numpy as np
+from __future__ import (division, print_function, absolute_import)
 
 from ._data import Data
 
+import numpy as np
+import inspect
+import logging
+
+from builtins import zip
+from future import standard_library
+standard_library.install_aliases()
+
+
 class GeometryData(Data):
+    """
+    Class to import geometry data.
+    1. Combines configuration and calibration data
+    2. Applies any manipulations required for that file.
+       (a class must be passed in with methods do_manip to
+        do the manipulation and plot to plot the components)
+
+    PROBLEMS:
+     1. Enums come back as longs... Not very useful for telling people
+        stuff. Also, bad since then they are treated as numbers and code
+        will try to add them when calibrating... Perhaps should ditch the
+        enums and use strings instead?
+    """
+
     def __init__(self, structData, signal_config, manip, **kwargs):
         """
         Initialisation
@@ -318,7 +324,6 @@ class GeometryData(Data):
         import matplotlib.pyplot as plt
         from mpl_toolkits.mplot3d import Axes3D
     
-        self._manip
         if len(self._manip) > 1:
             fig = plt.figure()
             ax_2d = fig.add_subplot(121)
@@ -339,8 +344,8 @@ class GeometryData(Data):
                 ax_2d = fig.add_subplot(121)
                 ax_3d = fig.add_subplot(122, projection='3d')
 
-            self._manip[0].plot(self.data, ax_2d=ax_2d, ax_3d=ax_3d, show=show, color=color)
-
+            if self._manip[0] is not None:
+                self._manip[0].plot(self.data, ax_2d=ax_2d, ax_3d=ax_3d, show=show, color=color)
 
     def widget(self):
         raise NotImplementedError("widget function not implemented for GeometryData objects")
