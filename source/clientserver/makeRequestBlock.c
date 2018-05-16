@@ -197,6 +197,21 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
                 rc = sourceFileFormatTest(request_block->source, request_block, pluginList, environment);
 
+#ifdef JETSERVER
+                if (rc < 0) {
+                    strcpy(request_block->format, "PPF");       // Assume the Default Format (PPF?)
+                    for (i = 0; i < pluginList.count; i++) {
+                        if (STR_IEQUALS(request_block->format, pluginList.plugin[i].format)) {
+                            request_block->request = pluginList.plugin[i].request;
+                            break;
+                        }
+                    }
+                    test = request_block->source;   // No prefix nor delimiter
+                    ldelim = 0;                     // No offset required
+                    rc = 1;
+                }
+#endif
+
                 if (rc <= 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "File Format NOT identified from name extension!\n");
                     //if(rc < 0) return -rc;
