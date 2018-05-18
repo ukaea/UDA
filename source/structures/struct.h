@@ -392,6 +392,17 @@ void addUserDefinedType(USERDEFINEDTYPELIST* str, USERDEFINEDTYPE type);
 */
 void updateUserDefinedType(USERDEFINEDTYPELIST* str, int typeId, USERDEFINEDTYPE type);
 
+/** Change a structure element's property in the structure definition
+*
+* @param str The list of structure definitions.
+* @param typeId The definition list entry to be modified
+* @param element The structure element to be modified
+* @param property The structure element's definition property to be modified
+* @param value The new property value
+* @return void.
+*/
+void changeUserDefinedTypeElementProperty(USERDEFINEDTYPELIST* str, int typeId, char *element, char *property, void *value);
+
 /** The number of Structure Definitions or User Defined Types in the structure list  
 * 
 * @param str The list of structure definitions.

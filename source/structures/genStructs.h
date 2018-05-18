@@ -77,7 +77,10 @@ typedef struct EnumList {
     int type;                       // The integer base type
     int count;                      // The number of members of this enumeration class
     ENUMMEMBER* enummember;         // Array of enum members
-    void* data;                     // Data with this enumerated type (properties are held by regular DATA_BLOCK structure)
+    unsigned long long* enumarray;  // Widest integer class to transport all integer type arrays
+    int enumarray_rank;
+    int enumarray_count;
+    int *enumarray_shape; 
 } ENUMLIST;
 
 typedef struct VLenType {           // Variable length (ragged) arrays

@@ -40,6 +40,7 @@
 #include "struct.h"
 
 #include <stdlib.h>
+#include <stddef.h>
 #ifdef __GNUC__
 #  include <strings.h>
 #elif defined(_WIN32)
@@ -1210,48 +1211,45 @@ void getInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
 // ENUMMEMBER
 
     initUserDefinedType(&usertype);		// New structure definition
-    initCompoundField(&field);
-
     strcpy(usertype.name, "ENUMMEMBER");
-    strcpy(usertype.source, "getInitialUserDefinedTypeList");
+    strcpy(usertype.source, "ENUMMEMBER structure: for labels and values");
     usertype.ref_id = 0;
     usertype.imagecount = 0;			// No Structure Image data
     usertype.image = NULL;
-    usertype.size = sizeof(ENUMMEMBER);		// Structure size
+    usertype.size = sizeof(ENUMMEMBER);	// Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
     offset = 0;
     
-    initCompoundField(&field);    
+    initCompoundField(&field);
     strcpy(field.name, "name");
-    field.atomictype = UDA_TYPE_CHAR;
-    strcpy(field.type, "char");  
-    strcpy(field.desc, "The Enumeration member name");
+    field.atomictype = UDA_TYPE_STRING;
+    strcpy(field.type, "STRING");            // convert atomic type to a string label
+    strcpy(field.desc, "The ENUM label");
     field.pointer = 0;
     field.count = MAXELEMENTNAME;
     field.rank = 1;
-    field.shape = (int*)malloc(field.rank * sizeof(int));  
-    field.shape[0] = field.count;   
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape[0] = field.count;
     field.size = field.count * sizeof(char);
-    field.offset = newoffset(offset, field.type);
+    field.offset = offsetof(ENUMMEMBER, name);
+    offset = field.offset + field.size;
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size;  
-    addCompoundField(&usertype, field); 
-    
-    defineField(&field, "value", "The value of the member", &offset, SCALARLONG64);
     addCompoundField(&usertype, field);
 
-    addUserDefinedType(list, usertype);
+    initCompoundField(&field);
+    defineField(&field, "value", "The ENUM value", &offset, SCALARLONG64);
+    addCompoundField(&usertype, field);
+
+    addUserDefinedType(list, usertype);    
 
 //----------------------------------------------------------------------------------------------------------------
 // ENUMLIST
-
+ 
     initUserDefinedType(&usertype);		// New structure definition
-    initCompoundField(&field);
-
     strcpy(usertype.name, "ENUMLIST");
-    strcpy(usertype.source, "getInitialUserDefinedTypeList");
+    strcpy(usertype.source, "Array of ENUM values with properties");
     usertype.ref_id = 0;
     usertype.imagecount = 0;			// No Structure Image data
     usertype.image = NULL;
@@ -1260,49 +1258,69 @@ void getInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
 
     offset = 0;
     
-    initCompoundField(&field);    
+    initCompoundField(&field);
     strcpy(field.name, "name");
-    field.atomictype = UDA_TYPE_CHAR;
-    strcpy(field.type, "char");  
-    strcpy(field.desc, "The Enumeration name");
+    field.atomictype = UDA_TYPE_STRING;
+    strcpy(field.type, "STRING");            // convert atomic type to a string label
+    strcpy(field.desc, "The ENUM name");
     field.pointer = 0;
     field.count = MAXELEMENTNAME;
     field.rank = 1;
-    field.shape = (int*)malloc(field.rank * sizeof(int));  
-    field.shape[0] = field.count;   
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape[0] = field.count;
     field.size = field.count * sizeof(char);
-    field.offset = newoffset(offset, field.type);
+    field.offset = offsetof(ENUMLIST, name);
+    offset = field.offset + field.size;
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size;  
-    addCompoundField(&usertype, field); 
-    
-    defineField(&field, "type", "The integer base type", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-    defineField(&field, "count", "The number of members of this enumeration class", &offset, SCALARINT);
     addCompoundField(&usertype, field);
 
-    initCompoundField(&field);    
+    initCompoundField(&field);
+    defineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);
+    defineField(&field, "count", "The number of ENUM values", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+    
+    initCompoundField(&field);
     strcpy(field.name, "enummember");
     field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "ENUMMEMBER");  
-    strcpy(field.desc, "Array of enum members");
+    strcpy(field.desc, "The ENUM list members: labels and value");
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;  
-    field.size = field.count * sizeof(ENUMMEMBER *);
-    field.offset = newoffset(offset, field.type);
+    field.shape = NULL;
+    field.size = sizeof(ENUMMEMBER *);
+    field.offset = offsetof(ENUMLIST, enummember);		// Different to newoffset
+    offset = field.offset + field.size;
     field.offpad = padding(offset, field.type);
     field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size;  
-    addCompoundField(&usertype, field); 
-
-    defineField(&field, "data", "Data with this enumerated type (properties are held by regular DATA_BLOCK structure)", &offset, ARRAYVOID);
+    addCompoundField(&usertype, field);
+    
+    // defineField(&field, "data", "Generalised data pointer for all integer type arrays", &offset, ARRAYVOID);
+    // ARRAYVOID doesn't work - not implemented in the middleware!
+    // Naming the field "data" hits a bug and garbage is returned!
+    // Don't know the correct type until the structure is used!!!! - so cannot pre-define!
+    // Make the necessary changes to the structure definition when ENUMLIST is used or
+    // Convert data to standard unsigned long64    
+     
+    initCompoundField(&field); 
+    defineField(&field, "enumarray", "Data with this enumerated type", &offset, ARRAYULONG64);	// Data need to be converted to this type  
+    addCompoundField(&usertype, field);
+    initCompoundField(&field);
+    defineField(&field, "enumarray_rank", "The rank of arraydata", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+    initCompoundField(&field);
+    defineField(&field, "enumarray_count", "The count of arraydata", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+    initCompoundField(&field);
+    defineField(&field, "enumarray_shape", "The shape of arraydata", &offset, ARRAYINT);
     addCompoundField(&usertype, field);
 
     addUserDefinedType(list, usertype);
-
+    
    *anew = list;
    
 }
@@ -1336,10 +1354,10 @@ void addUserDefinedType(USERDEFINEDTYPELIST* str, USERDEFINEDTYPE type)
     str->userdefinedtype[str->listCount++] = type;
 }
 
-/** Replace/Update the structure definition list with an different structure type.
+/** Replace the structure definition list with an different structure type.
 *
 * @param str The list of structure definitions.
-* @param typeId The definition list entry to be replaced/updated
+* @param typeId The definition list entry to be replaced 
 * @param type The definition to add into the list.
 * @return void.
 */
@@ -1347,6 +1365,34 @@ void updateUserDefinedType(USERDEFINEDTYPELIST* str, int typeId, USERDEFINEDTYPE
 {
     str->userdefinedtype[typeId] = type;  // replace existing entry
 }
+
+/** Change a structure element's property in the structure definition
+*
+* @param str The list of structure definitions.
+* @param typeId The definition list entry to be modified
+* @param element The structure element to be modified
+* @param property The structure element's definition property to be modified
+* @param value The new property value
+* @return void.
+*/
+void changeUserDefinedTypeElementProperty(USERDEFINEDTYPELIST* str, int typeId, char *element, char *property, void *value)
+{
+    USERDEFINEDTYPE* userdefinedtype = str->userdefinedtype; // Target this definition
+    int i;
+    for (i=0; i<userdefinedtype[typeId].fieldcount; i++){
+        if(!strcmp(userdefinedtype[typeId].compoundfield[i].name, element)){
+	   if(!strcmp("atomictype", property))
+	       userdefinedtype[typeId].compoundfield[i].atomictype = *(int *)value;
+	   else if(!strcmp("type", property))
+	       strcpy(userdefinedtype[typeId].compoundfield[i].type, (char *)value);
+	   else if(!strcmp("name", property))
+	       strcpy(userdefinedtype[typeId].compoundfield[i].name, (char *)value);
+	   else if(!strcmp("desc", property))
+	       strcpy(userdefinedtype[typeId].compoundfield[i].desc, (char *)value);
+	} 
+    }
+}
+
 
 /** The number of Structure Definitions or User Defined Types in the structure list
 *

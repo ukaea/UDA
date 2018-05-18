@@ -74,6 +74,9 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 #endif // PUTDATAENABLED
 static int do_test50(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_test60(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_test61(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_test62(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_errortest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
@@ -268,6 +271,12 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 #endif 
     } else if (STR_IEQUALS(request_block->function, "test50")) {
         err = do_test50(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "test60")) {	// ENUM Type Data tests
+        err = do_test60(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "test61")) { 
+        err = do_test61(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "test62")) { 
+        err = do_test62(idam_plugin_interface);
     } else {
         err = 999;
         addIdamError(CODEERRORTYPE, "testplugin", err, "Unknown function requested!");
@@ -339,7 +348,9 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             "***test40-test40: put data block receiving tests\n"
 	    
-	    "\ttest50: Passing parameters into plugins via the source argument\n\n"
+	    "\ttest50: Passing parameters into plugins via the source argument\n"
+	    
+	    "\ttest60-62: ENUMLIST structures\n\n"
 
             "plugin: test calling other plugins\n"
 
@@ -3180,6 +3191,462 @@ static int do_test50(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     return 0;
 }
+
+//======================================================================================
+// Returning ENUM data: Values with labels
+//
+// Unless the ENUM structures are defined when the ENUM data are accessed, the integer type cannot be pre-specified.
+// A void pointer type is used as the placeholder in the structure 
+// When the type is known the structure definition can be created with the correct type
+// otherwise, an unsigned long long array can be returned as this will provide for all integer types. The application will have to deal with the type conversion.
+ 
+typedef struct EnumMember60 {
+    char name[MAXELEMENTNAME];      // The Enumeration member name
+    long long value;                // The value of the member
+} ENUMMEMBER60;
+
+typedef struct EnumList60 {
+    char name[MAXELEMENTNAME];		// The Enumeration name
+    int type;				// The original integer base type
+    int count;				// The number of members of this enumeration class
+    ENUMMEMBER60* enummember;		// Array of enum members
+    void* arraydata;			// Generalised data pointer for all integer type arrays
+    int arraydata_rank;
+    int arraydata_count;
+    int *arraydata_shape;
+} ENUMLIST60;
+ 
+static int do_test60(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    ENUMLIST60 *enumlist = (ENUMLIST60 *)malloc(sizeof(ENUMLIST60));
+    strcpy(enumlist->name, "TEST60 ENUM of type unsigned short");
+    enumlist->type = UDA_TYPE_UNSIGNED_SHORT;
+    enumlist->count = 3;
+    enumlist->enummember = (ENUMMEMBER60 *)malloc(enumlist->count*sizeof(ENUMMEMBER60));
+    strcpy(enumlist->enummember[0].name, "ENUM Value 1");
+    strcpy(enumlist->enummember[1].name, "ENUM Value 2");
+    strcpy(enumlist->enummember[2].name, "ENUM Value 3");
+    enumlist->enummember[0].value = (long long) 1;
+    enumlist->enummember[1].value = (long long) 2;
+    enumlist->enummember[2].value = (long long) 3;
+    addMalloc(idam_plugin_interface->logmalloclist, (void *) enumlist, 1, sizeof(ENUMLIST60), "ENUMLIST60");	    
+    addMalloc(idam_plugin_interface->logmalloclist, (void *) enumlist->enummember, enumlist->count, sizeof(ENUMMEMBER60), "ENUMMEMBER60");
+ 
+    int count = 10;
+    unsigned short *data = (unsigned short *)malloc(count*sizeof(unsigned short));
+    data[0] = 3;
+    data[1] = 2;
+    data[2] = 1;
+    data[3] = 2;
+    data[4] = 3;
+    data[5] = 2;
+    data[6] = 1;
+    data[7] = 2;
+    data[8] = 3;
+    data[9] = 2;
+    enumlist->arraydata = (void *)data;
+    enumlist->arraydata_rank = 1;
+    enumlist->arraydata_count = count;
+    enumlist->arraydata_shape = (int *)malloc(sizeof(int));
+    enumlist->arraydata_shape[0] = count;
+    
+    addMalloc(idam_plugin_interface->logmalloclist, (void *)enumlist->arraydata, count, sizeof(unsigned short), "unsigned short");
+    
+    count = 1;
+    int rank = 1;
+    int shape[] = {1};		// Shape of the shape array!
+    addMalloc2(idam_plugin_interface->logmalloclist, (void*)enumlist->arraydata_shape, count, sizeof(int), "int", rank, shape);
+    
+    USERDEFINEDTYPE usertype;
+    int offset;    
+    COMPOUNDFIELD field;    
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;   
+    
+    initUserDefinedType(&usertype);		// New structure definition
+    strcpy(usertype.name, "ENUMMEMBER60");
+    strcpy(usertype.source, "Test #60 ENUMMEMBER structure");
+    usertype.ref_id = 0;
+    usertype.imagecount = 0;			// No Structure Image data
+    usertype.image = NULL;
+    usertype.size = sizeof(ENUMMEMBER60);	// Structure size
+    usertype.idamclass = UDA_TYPE_COMPOUND;
+
+    offset = 0;
+    
+    initCompoundField(&field);
+    strcpy(field.name, "name");
+    field.atomictype = UDA_TYPE_STRING;
+    strcpy(field.type, "STRING");            // convert atomic type to a string label
+    strcpy(field.desc, "The ENUM label");
+    field.pointer = 0;
+    field.count = MAXELEMENTNAME;
+    field.rank = 1;
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape[0] = field.count;
+    field.size = field.count * sizeof(char);
+    field.offset = offsetof(ENUMMEMBER60, name);
+    offset = field.offset + field.size;
+    field.offpad = padding(offset, field.type);
+    field.alignment = getalignmentof(field.type);
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);
+    defineField(&field, "value", "The ENUM value", &offset, SCALARLONG64);
+    addCompoundField(&usertype, field);
+
+    addUserDefinedType(userdefinedtypelist, usertype);    
+     
+
+    initUserDefinedType(&usertype);		// New structure definition
+    strcpy(usertype.name, "ENUMLIST60");
+    strcpy(usertype.source, "Test #60 ENUMLIST structure");
+    usertype.ref_id = 0;
+    usertype.imagecount = 0;			// No Structure Image data
+    usertype.image = NULL;
+    usertype.size = sizeof(ENUMLIST60);		// Structure size
+    usertype.idamclass = UDA_TYPE_COMPOUND;
+
+    offset = 0;
+    
+    initCompoundField(&field);
+    strcpy(field.name, "name");
+    field.atomictype = UDA_TYPE_STRING;
+    strcpy(field.type, "STRING");            // convert atomic type to a string label
+    strcpy(field.desc, "The ENUM name");
+    field.pointer = 0;
+    field.count = MAXELEMENTNAME;
+    field.rank = 1;
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape[0] = field.count;
+    field.size = field.count * sizeof(char);
+    field.offset = offsetof(ENUMLIST60, name);
+    offset = field.offset + field.size;
+    field.offpad = padding(offset, field.type);
+    field.alignment = getalignmentof(field.type);
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);
+    defineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);
+    defineField(&field, "count", "The number of ENUM values", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+    
+    initCompoundField(&field);
+    strcpy(field.name, "enummember");
+    field.atomictype = UDA_TYPE_UNKNOWN;
+    strcpy(field.type, "ENUMMEMBER60");  
+    strcpy(field.desc, "The ENUM list members: labels and value");
+    field.pointer = 1;
+    field.count = 1;
+    field.rank = 0;
+    field.shape = NULL;
+    field.size = sizeof(ENUMMEMBER60 *);
+    field.offset = offsetof(ENUMLIST60, enummember);		// Different to newoffset
+    offset = field.offset + field.size;
+    field.offpad = padding(offset, field.type);
+    field.alignment = getalignmentof(field.type);
+    addCompoundField(&usertype, field);
+     
+    initCompoundField(&field); 
+    switch(enumlist->type)
+    {
+       case(UDA_TYPE_UNSIGNED_SHORT):
+       {
+          defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYUSHORT);
+	  break;
+       }
+       case(UDA_TYPE_SHORT):
+       {
+          defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYSHORT);
+	  break;
+       }
+       case(UDA_TYPE_UNSIGNED_INT):
+       {
+          defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYUINT);
+	  break;
+       }
+       case(UDA_TYPE_INT):
+       {
+          defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYINT);
+	  break;
+       }
+       case(UDA_TYPE_UNSIGNED_LONG64):
+       {
+          defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYULONG64);
+	  break;
+       }
+       case(UDA_TYPE_LONG64):
+       {
+          defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYLONG64);
+	  break;
+       }
+    }     
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);
+    defineField(&field, "arraydata_rank", "The rank of arraydata", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+    initCompoundField(&field);
+    defineField(&field, "arraydata_count", "The count of arraydata", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+    initCompoundField(&field);
+    defineField(&field, "arraydata_shape", "The shape of arraydata", &offset, ARRAYINT);
+    addCompoundField(&usertype, field);
+
+    addUserDefinedType(userdefinedtypelist, usertype);
+        
+        
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;	       
+    initDataBlock(data_block);
+
+    data_block->rank = 0;
+    data_block->data_n = 1;
+    data_block->data_type = UDA_TYPE_COMPOUND;
+    strcpy(data_block->data_desc, "testplugins:test60 = ENUM Values");
+
+    data_block->data = (char *)enumlist;
+
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_count = 1;
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "ENUMLIST60", 0);
+
+    return 0;
+}
+
+static int do_test61(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    ENUMLIST60 *enumlist = (ENUMLIST60 *)malloc(sizeof(ENUMLIST60));
+    strcpy(enumlist->name, "TEST61 ENUM of type unsigned long long");
+    enumlist->type = UDA_TYPE_UNSIGNED_SHORT;
+    enumlist->count = 3;
+    enumlist->enummember = (ENUMMEMBER60 *)malloc(enumlist->count*sizeof(ENUMMEMBER60));
+    strcpy(enumlist->enummember[0].name, "ENUM Value 1");
+    strcpy(enumlist->enummember[1].name, "ENUM Value 2");
+    strcpy(enumlist->enummember[2].name, "ENUM Value 3");
+    enumlist->enummember[0].value = (long long) 1;
+    enumlist->enummember[1].value = (long long) 2;
+    enumlist->enummember[2].value = (long long) 3;
+    addMalloc(idam_plugin_interface->logmalloclist, (void *) enumlist, 1, sizeof(ENUMLIST60), "ENUMLIST60");	    
+    addMalloc(idam_plugin_interface->logmalloclist, (void *) enumlist->enummember, enumlist->count, sizeof(ENUMMEMBER60), "ENUMMEMBER60");
+ 
+    int count = 10;
+    unsigned long long *data = (unsigned long long *)malloc(count*sizeof(unsigned long long));
+    data[0] = 3;
+    data[1] = 2;
+    data[2] = 1;
+    data[3] = 2;
+    data[4] = 3;
+    data[5] = 2;
+    data[6] = 1;
+    data[7] = 2;
+    data[8] = 3;
+    data[9] = 2;
+    enumlist->arraydata = (void *)data;
+    enumlist->arraydata_rank = 1;
+    enumlist->arraydata_count = count;
+    enumlist->arraydata_shape = (int *)malloc(sizeof(int));
+    enumlist->arraydata_shape[0] = count;
+    
+    addMalloc(idam_plugin_interface->logmalloclist, (void *)enumlist->arraydata, count, sizeof(unsigned long long), "unsigned long long");
+    
+    count = 1;
+    int rank = 1;
+    int shape[] = {1};		// Shape of the shape array!
+    addMalloc2(idam_plugin_interface->logmalloclist, (void*)enumlist->arraydata_shape, count, sizeof(int), "int", rank, shape);
+    
+    USERDEFINEDTYPE usertype;
+    int offset;    
+    COMPOUNDFIELD field;    
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;   
+    
+    initUserDefinedType(&usertype);		// New structure definition
+    strcpy(usertype.name, "ENUMMEMBER60");
+    strcpy(usertype.source, "Test #61 ENUMMEMBER structure");
+    usertype.ref_id = 0;
+    usertype.imagecount = 0;			// No Structure Image data
+    usertype.image = NULL;
+    usertype.size = sizeof(ENUMMEMBER60);	// Structure size
+    usertype.idamclass = UDA_TYPE_COMPOUND;
+
+    offset = 0;
+    
+    initCompoundField(&field);
+    strcpy(field.name, "name");
+    field.atomictype = UDA_TYPE_STRING;
+    strcpy(field.type, "STRING");            // convert atomic type to a string label
+    strcpy(field.desc, "The ENUM label");
+    field.pointer = 0;
+    field.count = MAXELEMENTNAME;
+    field.rank = 1;
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape[0] = field.count;
+    field.size = field.count * sizeof(char);
+    field.offset = offsetof(ENUMMEMBER60, name);
+    offset = field.offset + field.size;
+    field.offpad = padding(offset, field.type);
+    field.alignment = getalignmentof(field.type);
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);
+    defineField(&field, "value", "The ENUM value", &offset, SCALARLONG64);
+    addCompoundField(&usertype, field);
+
+    addUserDefinedType(userdefinedtypelist, usertype);    
+     
+
+    initUserDefinedType(&usertype);		// New structure definition
+    strcpy(usertype.name, "ENUMLIST60");
+    strcpy(usertype.source, "Test #61 ENUMLIST structure");
+    usertype.ref_id = 0;
+    usertype.imagecount = 0;			// No Structure Image data
+    usertype.image = NULL;
+    usertype.size = sizeof(ENUMLIST60);		// Structure size
+    usertype.idamclass = UDA_TYPE_COMPOUND;
+
+    offset = 0;
+    
+    initCompoundField(&field);
+    strcpy(field.name, "name");
+    field.atomictype = UDA_TYPE_STRING;
+    strcpy(field.type, "STRING");            // convert atomic type to a string label
+    strcpy(field.desc, "The ENUM name");
+    field.pointer = 0;
+    field.count = MAXELEMENTNAME;
+    field.rank = 1;
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
+    field.shape[0] = field.count;
+    field.size = field.count * sizeof(char);
+    field.offset = offsetof(ENUMLIST60, name);
+    offset = field.offset + field.size;
+    field.offpad = padding(offset, field.type);
+    field.alignment = getalignmentof(field.type);
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);
+    defineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+
+    initCompoundField(&field);
+    defineField(&field, "count", "The number of ENUM values", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+    
+    initCompoundField(&field);
+    strcpy(field.name, "enummember");
+    field.atomictype = UDA_TYPE_UNKNOWN;
+    strcpy(field.type, "ENUMMEMBER60");  
+    strcpy(field.desc, "The ENUM list members: labels and value");
+    field.pointer = 1;
+    field.count = 1;
+    field.rank = 0;
+    field.shape = NULL;
+    field.size = sizeof(ENUMMEMBER60 *);
+    field.offset = offsetof(ENUMLIST60, enummember);		// Different to newoffset
+    offset = field.offset + field.size;
+    field.offpad = padding(offset, field.type);
+    field.alignment = getalignmentof(field.type);
+    addCompoundField(&usertype, field);
+     
+    initCompoundField(&field); 
+    defineField(&field, "arraydata", "Data with this enumerated type", &offset, ARRAYULONG64);	// Data need to be converted to this type  
+    addCompoundField(&usertype, field);
+    initCompoundField(&field);
+    defineField(&field, "arraydata_rank", "The rank of arraydata", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+    initCompoundField(&field);
+    defineField(&field, "arraydata_count", "The count of arraydata", &offset, SCALARINT);
+    addCompoundField(&usertype, field);
+    initCompoundField(&field);
+    defineField(&field, "arraydata_shape", "The shape of arraydata", &offset, ARRAYINT);
+    addCompoundField(&usertype, field);
+
+    addUserDefinedType(userdefinedtypelist, usertype);
+        
+        
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;	       
+    initDataBlock(data_block);
+
+    data_block->rank = 0;
+    data_block->data_n = 1;
+    data_block->data_type = UDA_TYPE_COMPOUND;
+    strcpy(data_block->data_desc, "testplugins:test61 = ENUM Values");
+
+    data_block->data = (char *)enumlist;
+
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_count = 1;
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "ENUMLIST60", 0);
+
+    return 0;
+}
+
+static int do_test62(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    ENUMLIST *enumlist = (ENUMLIST *)malloc(sizeof(ENUMLIST));
+    strcpy(enumlist->name, "TEST62 ENUM of type unsigned long long");
+    enumlist->type = UDA_TYPE_UNSIGNED_SHORT;
+    enumlist->count = 3;
+    enumlist->enummember = (ENUMMEMBER *)malloc(enumlist->count*sizeof(ENUMMEMBER));
+    strcpy(enumlist->enummember[0].name, "ENUM Value 1");
+    strcpy(enumlist->enummember[1].name, "ENUM Value 2");
+    strcpy(enumlist->enummember[2].name, "ENUM Value 3");
+    enumlist->enummember[0].value = (long long) 1;
+    enumlist->enummember[1].value = (long long) 2;
+    enumlist->enummember[2].value = (long long) 3;
+    addMalloc(idam_plugin_interface->logmalloclist, (void *) enumlist, 1, sizeof(ENUMLIST), "ENUMLIST");	    
+    addMalloc(idam_plugin_interface->logmalloclist, (void *) enumlist->enummember, enumlist->count, sizeof(ENUMMEMBER), "ENUMMEMBER");
+ 
+    int count = 10;
+    unsigned long long *data = (unsigned long long *)malloc(count*sizeof(unsigned long long));
+    data[0] = 3;
+    data[1] = 2;
+    data[2] = 1;
+    data[3] = 2;
+    data[4] = 3;
+    data[5] = 2;
+    data[6] = 1;
+    data[7] = 2;
+    data[8] = 3;
+    data[9] = 2;
+    enumlist->enumarray = (void *)data;
+    enumlist->enumarray_rank = 1;
+    enumlist->enumarray_count = count;
+    enumlist->enumarray_shape = (int *)malloc(sizeof(int));
+    enumlist->enumarray_shape[0] = count;
+    
+    addMalloc(idam_plugin_interface->logmalloclist, (void *)enumlist->enumarray, count, sizeof(unsigned long long), "unsigned long long");
+    
+    //count = 1;
+    //int rank = 1;
+    //int shape[] = {1};		// Shape of the shape array!
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)enumlist->enumarray_shape, 1, sizeof(int), "int");
+
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;	       
+    initDataBlock(data_block);
+
+    data_block->rank = 0;
+    data_block->data_n = 1;
+    data_block->data_type = UDA_TYPE_COMPOUND;
+    strcpy(data_block->data_desc, "testplugins:test62 = ENUM Values");
+
+    data_block->data = (char *)enumlist;
+
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_count = 1;
+    data_block->opaque_block = (void*)findUserDefinedType(idam_plugin_interface->userdefinedtypelist, "ENUMLIST", 0);
+
+    /*
+    int id = findUserDefinedTypeId(userdefinedtypelist, "ENUMLIST");
+    changeUserDefinedTypeElementProperty(userdefinedtypelist, id, "data", "name", (void *)"arraydata");
+    int value = UDA_TYPE_UNSIGNED_LONG64;
+    changeUserDefinedTypeElementProperty(userdefinedtypelist, id, "arraydata", "atomictype", (void *)&value);
+    changeUserDefinedTypeElementProperty(userdefinedtypelist, id, "arraydata", "type", (void *)"unsigned long long");    
+    */
+    return 0;
+}
+
+
 
 //======================================================================================
 // Test direct calling of plugins from this plugin

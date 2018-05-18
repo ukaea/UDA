@@ -114,6 +114,10 @@ int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLO
     initDataBlock(&data_block);
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
+    
+    getInitialUserDefinedTypeList(&userdefinedtypelist);
+    parseduserdefinedtypelist = *userdefinedtypelist;
+    //printUserDefinedTypeList(*userdefinedtypelist);
 
     logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
     initLogMallocList(logmalloclist);
@@ -448,7 +452,7 @@ int startupFatServer(SERVER_BLOCK* server_block)
 {
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;
-    static int fileParsed = 0;
+    //static int fileParsed = 0;
 
     //-------------------------------------------------------------------------
     // Open and Initialise the Socket List (Once Only)
@@ -461,11 +465,19 @@ int startupFatServer(SERVER_BLOCK* server_block)
     //----------------------------------------------------------------------
     // Initialise General Structure Passing
 
+    getInitialUserDefinedTypeList(&userdefinedtypelist);
+    parseduserdefinedtypelist = *userdefinedtypelist;
+    printUserDefinedTypeList(*userdefinedtypelist);
+    userdefinedtypelist = NULL;                                     // Startup State
+
+
+    /*
     // this step needs doing once only - the first time a generalised user defined structure is encountered.
     // For FAT clients use a static state variable to prevent multiple parsing
 
     if (!fileParsed) {
         fileParsed = 1;
+	
         initUserDefinedTypeList(&parseduserdefinedtypelist);
         userdefinedtypelist = &parseduserdefinedtypelist; // Switch before Parsing input file
 
@@ -479,6 +491,7 @@ int startupFatServer(SERVER_BLOCK* server_block)
         parseduserdefinedtypelist = *userdefinedtypelist; // Switch back
         printUserDefinedTypeList(parseduserdefinedtypelist);
     }
+    */
 
     //----------------------------------------------------------------------
     // Initialise the Data Reader Plugin list
