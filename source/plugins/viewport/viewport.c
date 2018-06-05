@@ -14,6 +14,7 @@
 
 #include <stdlib.h>
 #include <strings.h>
+#include <float.h>
 
 #include <client/udaGetAPI.h>
 #include <client/udaClient.h>
@@ -476,14 +477,14 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Range of Y data
 
                 if (!isStartValueY) {
-                    minValueY = 9.999E99;
+                    minValueY = FLT_MAX;
                     for (j = 0; j < count; j++) if (values[j] < minValueY) minValueY = values[j];
                 } else {
                     minValueY = startValueY;
                 }
 
                 if (!isEndValueY) {
-                    maxValueY = -9.999E99;
+                    maxValueY = -FLT_MAX;
                     for (j = 0; j < count; j++) if (values[j] > maxValueY) maxValueY = values[j];
                 } else {
                     maxValueY = endValueY;
