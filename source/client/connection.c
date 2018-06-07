@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <signal.h>
+#include <stdbool.h>
 
 #ifdef __GNUC__
 #  ifndef _WIN32
@@ -79,8 +80,7 @@ int reconnect(ENVIRONMENT* environment)
     if (environment->server_change_socket) {
         if ((socketId = getSocketRecordId(&client_socketlist, environment->server_socket)) < 0) {
             err = NO_SOCKET_CONNECTION;
-            addIdamError(CODEERRORTYPE, "idamClient", err,
-                         "The User Specified Socket Connection does not exist");
+            addIdamError(CODEERRORTYPE, __func__, err, "The User Specified Socket Connection does not exist");
             return err;
         }
 
@@ -114,12 +114,30 @@ int reconnect(ENVIRONMENT* environment)
 int createConnection()
 {
     int window_size = DB_READ_BLOCK_SIZE;        // 128K
-    int on = 1;
-    int rc, serrno;
-    char* hostname;
+    int rc;
+
+    static int max_socket_delay = -1;
+    static int max_socket_attempts = -1;
+
+    if (max_socket_delay < 0) {
+        char* env = getenv("UDA_MAX_SOCKET_DELAY");
+        if (env == NULL) {
+            max_socket_delay = 10;
+        } else {
+            max_socket_delay = (int)strtol(env, NULL, 10);
+        }
+    }
+
+    if (max_socket_attempts < 0) {
+        char* env = getenv("UDA_MAX_SOCKET_ATTEMPTS");
+        if (env == NULL) {
+            max_socket_attempts = 3;
+        } else {
+            max_socket_attempts = (int)strtol(env, NULL, 10);
+        }
+    }
 
     struct sockaddr_in server;
-    struct hostent* host;
 
     ENVIRONMENT* environment = getIdamClientEnvironment();
 
@@ -144,37 +162,39 @@ int createConnection()
 
     errno = 0;
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);        // create an unbound socket
-    serrno = errno;
+    int serrno = errno;
 
     if (clientSocket < 0 || serrno != 0) {
         if (serrno != 0) {
-            addIdamError(SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
+            addIdamError(SYSTEMERRORTYPE, __func__, serrno, "");
         } else {
-            addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Problem Opening Socket");
+            addIdamError(CODEERRORTYPE, __func__, -1, "Problem Opening Socket");
         }
         return -1;
     }
 
-// IDAM server host
+    // UDA server host
 
     server.sin_family = AF_INET;
-    hostname = environment->server_host;
+    const char* hostname = environment->server_host;
 
-// Check if the hostname is an alias for an IP address or domain name in the client configuration - replace if found
+    // Check if the hostname is an alias for an IP address or domain name in the client configuration - replace if found
 
     int hostId = udaClientFindHostByAlias(hostname);
     if (hostId >= 0) {
         if ((hostname = udaClientGetHostName(hostId)) == NULL) {
-            addIdamError(CODEERRORTYPE, "idamCreateConnection", -1,
-                         "The hostname is not recognised for the host alias provided!");
+            addIdamError(CODEERRORTYPE, __func__, -1, "The hostname is not recognised for the host alias provided!");
             return -1;
         }
-        if (strcasecmp(environment->server_host, hostname) != 0)
+        if (strcasecmp(environment->server_host, hostname) != 0) {
             strcpy(environment->server_host, hostname);    // Replace
+        }
         int port = udaClientGetHostPort(hostId);
-        if (port > 0 && environment->server_port != port) environment->server_port = port;
-    } else if ((hostId = udaClientFindHostByName(hostname)) >=
-               0) {    // No alias found, maybe the domain name or ip address is listed
+        if (port > 0 && environment->server_port != port) {
+            environment->server_port = port;
+        }
+    } else if ((hostId = udaClientFindHostByName(hostname)) >= 0) {
+        // No alias found, maybe the domain name or ip address is listed
         int port = udaClientGetHostPort(hostId);
         if (port > 0 && environment->server_port != port) {
             environment->server_port = port;
@@ -182,7 +202,7 @@ int createConnection()
     }
     udaClientPutHostNameId(hostId);
 
-// Does the host name contain the SSL protocol prefix? If so strip this off
+    // Does the host name contain the SSL protocol prefix? If so strip this off
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     if(!strncasecmp(hostname, "SSL://", 6)){		// Should be stripped already if via the HOST client configuration file
@@ -197,17 +217,17 @@ int createConnection()
     }
 #endif
 
-// Resolve host
+    // Resolve host
 
     errno = 0;
-    host = gethostbyname(hostname);
+    struct hostent* host = gethostbyname(hostname);
     serrno = errno;
 
     if (host == NULL || serrno != 0) {
         if (serrno != 0) {
-            addIdamError(SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
+            addIdamError(SYSTEMERRORTYPE, __func__, serrno, "");
         } else {
-            addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Unknown Server Host");
+            addIdamError(CODEERRORTYPE, __func__, -1, "Unknown Server Host");
         }
 #ifndef _WIN32
         if (clientSocket != -1) close(clientSocket);
@@ -220,12 +240,11 @@ int createConnection()
 
     memcpy(&server.sin_addr, host->h_addr_list[0], host->h_length);
 
-
-// IDAM server Port
+    // UDA server Port
 
     server.sin_port = htons(environment->server_port);
 
-// Connect to server
+    // Connect to server
 
     errno = 0;
     while ((rc = connect(clientSocket, (struct sockaddr*)&server, sizeof(server))) && errno == EINTR) {}
@@ -233,22 +252,23 @@ int createConnection()
 
     if (rc < 0 || (serrno != 0 && serrno != EINTR)) {
 
-// Try again for a maximum number of tries with a random time delay between attempts
+        // Try again for a maximum number of tries with a random time delay between attempts
 
         int i, ps;
-        float delay;
         ps = getpid();
         srand((unsigned int)ps);                                                // Seed the random number generator with the process id
-        delay = MAX_SOCKET_DELAY * ((float)rand() / (float)RAND_MAX);           // random delay
+        unsigned int delay = max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0;         // random delay
         sleep(delay);                                                           // wait period
-        for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {                             // try again
+        for (i = 0; i < max_socket_attempts; i++) {                             // try again
             errno = 0;
             while ((rc = connect(clientSocket, (struct sockaddr*)&server, sizeof(server))) && errno == EINTR) {}
             serrno = errno;
 
-            if (rc == 0) break;
+            if (rc == 0) {
+                break;
+            }
 
-            delay = MAX_SOCKET_DELAY * ((float)rand() / (float)RAND_MAX);
+            delay = max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0;
             sleep(delay);                            // wait period
         }
 
@@ -261,17 +281,22 @@ int createConnection()
             int hostId = udaClientFindHostByAlias(hostname);
             if (hostId >= 0) {
                 if ((hostname = udaClientGetHostName(hostId)) == NULL) {
-                    addIdamError(CODEERRORTYPE, "idamCreateConnection", -1,
-                                 "The hostname2 is not recognised for the host alias provided!");
+                    addIdamError(CODEERRORTYPE, __func__, -1, "The hostname2 is not recognised for the host alias provided!");
                     return -1;
                 }
-                if (strcasecmp(environment->server_host2, hostname) != 0) strcpy(environment->server_host2, hostname);
+                if (strcasecmp(environment->server_host2, hostname) != 0) {
+                    strcpy(environment->server_host2, hostname);
+                }
                 int port = udaClientGetHostPort(hostId);
-                if (port > 0 && environment->server_port2 != port) environment->server_port2 = port;
+                if (port > 0 && environment->server_port2 != port) {
+                    environment->server_port2 = port;
+                }
                 udaClientPutHostNameId(hostId);
             } else if ((hostId = udaClientFindHostByName(hostname)) >= 0) {    // No alias found
                 int port = udaClientGetHostPort(hostId);
-                if (port > 0 && environment->server_port2 != port) environment->server_port2 = port;
+                if (port > 0 && environment->server_port2 != port) {
+                    environment->server_port2 = port;
+                }
             }
 
             // Does the host name contain the SSL protocol prefix? If so strip this off
@@ -289,16 +314,16 @@ int createConnection()
             }
 #endif
 
-// Resolve host
+            // Resolve host
 
             errno = 0;
             host = gethostbyname(hostname);
 
             if (host == NULL || errno != 0) {
                 if (errno != 0) {
-                    addIdamError(SYSTEMERRORTYPE, "idamCreateConnection", errno, "");
+                    addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
                 } else {
-                    addIdamError(CODEERRORTYPE, "idamCreateConnection", -1, "Unknown Server Host");
+                    addIdamError(CODEERRORTYPE, __func__, -1, "Unknown Server Host");
                 }
                 if (clientSocket != -1) {
                     close(clientSocket);
@@ -308,7 +333,7 @@ int createConnection()
             }
             memcpy(&server.sin_addr, host->h_addr_list[0], host->h_length);
             server.sin_port = htons(environment->server_port2);
-            for (i = 0; i < MAX_SOCKET_ATTEMPTS; i++) {
+            for (i = 0; i < max_socket_attempts; i++) {
                 errno = 0;
                 while ((rc = connect(clientSocket, (struct sockaddr*)&server, sizeof(server))) && errno == EINTR) {}
                 serrno = errno;
@@ -325,17 +350,16 @@ int createConnection()
                     free((void*)name);
                     break;
                 }
-                delay = MAX_SOCKET_DELAY * ((float)rand() / (float)RAND_MAX);
+                delay = max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0;
                 sleep(delay);                            // wait period
             }
         }
 
         if (rc < 0) {
             if (serrno != 0) {
-                addIdamError(SYSTEMERRORTYPE, "idamCreateConnection", serrno, "");
+                addIdamError(SYSTEMERRORTYPE, __func__, serrno, "");
             } else {
-                addIdamError(CODEERRORTYPE, "idamCreateConnection", -1,
-                             "Unable to Connect to Server Stream Socket");
+                addIdamError(CODEERRORTYPE, __func__, -1, "Unable to Connect to Server Stream Socket");
             }
             if (clientSocket != -1) {
                 close(clientSocket);
@@ -345,32 +369,30 @@ int createConnection()
         }
     }
 
-// Set the receive and send buffer sizes
+    // Set the receive and send buffer sizes
 
-    setsockopt(clientSocket, SOL_SOCKET, SO_SNDBUF,
-               (char*)&window_size, sizeof(window_size));
+    setsockopt(clientSocket, SOL_SOCKET, SO_SNDBUF, (char*)&window_size, sizeof(window_size));
 
-    setsockopt(clientSocket, SOL_SOCKET, SO_RCVBUF,
-               (char*)&window_size, sizeof(window_size));
+    setsockopt(clientSocket, SOL_SOCKET, SO_RCVBUF, (char*)&window_size, sizeof(window_size));
 
-// Other Socket Options
+    // Other Socket Options
 
-    on = 1;
+    int on = 1;
     if (setsockopt(clientSocket, SOL_SOCKET, SO_KEEPALIVE, (char*)&on, sizeof(on)) < 0) {
-        addIdamError(CODEERRORTYPE, "createConnection", -1, "Error Setting KEEPALIVE on Socket");
+        addIdamError(CODEERRORTYPE, __func__, -1, "Error Setting KEEPALIVE on Socket");
         close(clientSocket);
         clientSocket = -1;
         return -1;
     }
     on = 1;
     if (setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&on, sizeof(on)) < 0) {
-        addIdamError(CODEERRORTYPE, "createConnection", -1, "Error Setting NODELAY on Socket");
+        addIdamError(CODEERRORTYPE, __func__, -1, "Error Setting NODELAY on Socket");
         close(clientSocket);
         clientSocket = -1;
         return -1;
     }
 
-// Add New Socket to the Socket's List
+    // Add New Socket to the Socket's List
 
     addSocket(&client_socketlist, TYPE_IDAM_SERVER, 1, environment->server_host, environment->server_port,
               clientSocket);
@@ -380,7 +402,7 @@ int createConnection()
     environment->server_change_socket = 0;
     environment->server_socket = clientSocket;
 
-// Write the socket number to the SSL functions
+    // Write the socket number to the SSL functions
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     putUdaClientSSLSocket(clientSocket);
@@ -419,20 +441,17 @@ int clientWriteout(void* iohandle, char* buf, int count)
 
         if (errno == ECONNRESET || errno == ENETUNREACH || errno == ECONNREFUSED) {
             if (errno == ECONNRESET) {
-                UDA_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ECONNRESET error!\n");
-                addIdamError(CODEERRORTYPE, "idamClientWriteout", -2,
-                             "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
+                UDA_LOG(UDA_LOG_DEBUG, "ECONNRESET error!\n");
+                addIdamError(CODEERRORTYPE, __func__, -2, "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
                 return -2;
             } else {
                 if (errno == ENETUNREACH) {
-                    UDA_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ENETUNREACH error!\n");
-                    addIdamError(CODEERRORTYPE, "idamClientWriteout", -3,
-                                 "Server Unavailable: ENETUNREACH");
+                    UDA_LOG(UDA_LOG_DEBUG, "ENETUNREACH error!\n");
+                    addIdamError(CODEERRORTYPE, __func__, -3, "Server Unavailable: ENETUNREACH");
                     return -3;
                 } else {
-                    UDA_LOG(UDA_LOG_DEBUG, "idamClientWriteout: ECONNREFUSED error!\n");
-                    addIdamError(CODEERRORTYPE, "idamClientWriteout", -4,
-                                 "Server Unavailable: ECONNREFUSED");
+                    UDA_LOG(UDA_LOG_DEBUG, "ECONNREFUSED error!\n");
+                    addIdamError(CODEERRORTYPE, __func__, -4, "Server Unavailable: ECONNREFUSED");
                     return -4;
                 }
             }
@@ -451,7 +470,7 @@ int clientWriteout(void* iohandle, char* buf, int count)
 
 #ifndef _WIN32
     if ((OldSIGPIPEHandler = signal(SIGPIPE, SIG_IGN)) == SIG_ERR) {
-        addIdamError(CODEERRORTYPE, "idamClientWriteout", -1, "Error attempting to ignore SIG_PIPE");
+        addIdamError(CODEERRORTYPE, __func__, -1, "Error attempting to ignore SIG_PIPE");
         return -1;
     }
 #endif
@@ -472,7 +491,7 @@ int clientWriteout(void* iohandle, char* buf, int count)
 
 #ifndef _WIN32
     if (signal(SIGPIPE, OldSIGPIPEHandler) == SIG_ERR) {
-        addIdamError(CODEERRORTYPE, "idamClientWriteout", -1, "Error attempting to restore SIG_PIPE handler");
+        addIdamError(CODEERRORTYPE, __func__, -1, "Error attempting to restore SIG_PIPE handler");
         return -1;
     }
 #endif
@@ -513,9 +532,10 @@ int clientReadin(void* iohandle, char* buf, int count)
 
     if (!rc) {
         rc = -1;
-        if (serrno != 0 && serrno != EINTR) addIdamError(SYSTEMERRORTYPE, "idamClientReadin", rc, "");
-        addIdamError(CODEERRORTYPE, "idamClientReadin", rc,
-                     "No Data waiting at Socket when Data Expected!");
+        if (serrno != 0 && serrno != EINTR) {
+            addIdamError(SYSTEMERRORTYPE, __func__, rc, "");
+        }
+        addIdamError(CODEERRORTYPE, __func__, rc, "No Data waiting at Socket when Data Expected!");
     }
 
     return rc;

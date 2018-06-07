@@ -30,9 +30,6 @@ extern "C" {
 
 #define NO_EXP_NUMBER_SPECIFIED         (-18005)
 
-#define MAX_SOCKET_DELAY        10      // maximum random delay (secs) between attempts to connect a socket
-#define MAX_SOCKET_ATTEMPTS     3       // maximum number of attempts to connect a socket per host
-
 #define MIN_STATUS          (-1)        // Deny Access to Data if this Status Value
 #define DATA_STATUS_BAD     (-17000)    // Error Code if Status is Bad
 

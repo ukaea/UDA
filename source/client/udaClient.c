@@ -318,9 +318,11 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         ENVIRONMENT *environment = getIdamClientEnvironment();
 	
-	if (environment->server_reconnect || environment->server_change_socket) {
+        if (environment->server_reconnect || environment->server_change_socket) {
             err = reconnect(environment);
-            if (err) break;
+            if (err) {
+                break;
+            }
         }
 
         //-------------------------------------------------------------------------
