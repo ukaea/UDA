@@ -205,13 +205,16 @@ int GetDynData(int shotNumber, float** data_time, float** data, int* len, int* n
 
 	UDA_LOG(UDA_LOG_DEBUG, "End of reading signal\n");
 
-	//	UDA_LOG(UDA_LOG_DEBUG, "%s\n", "First time values...");
-	//	int j;
-	//	for (j=0; j <10; j++) {
-	//		UDA_LOG(UDA_LOG_DEBUG, "time : %f\n", *time[j]);
-	//	}
+	UDA_LOG(UDA_LOG_DEBUG, "signal length: %d\n", *len);
 
-	if (len == 0) {
+	/*UDA_LOG(UDA_LOG_DEBUG, "%s\n", "First time values...");
+		int j;
+		for (j=0; j <10; j++) {
+			UDA_LOG(UDA_LOG_DEBUG, "time : %f\n", *data_time[j]);
+		}*/
+
+	if (*len == 0) {
+		UDA_LOG(UDA_LOG_DEBUG, "signal length is 0");
 		int err = 901;
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: dynamic data empty !", err, "");
 		status = -1;
@@ -275,7 +278,7 @@ int getArcadeSignal(char* nomsigp, int shotNumber, int extractionIndex, float** 
 
 	if (extractionIndex > 0) {
 		addExtractionChars(nomsigp_to_extract, nomsigp,
-				extractionIndex); //Concatenate nomsigp_to_extract avec !extractionIndex, example: !1, !2, ...
+				extractionIndex); //Concatenate nomsigp_to_extract with !extractionIndex, example: !1, !2, ...
 	}
 	else {
 		strcpy(nomsigp_to_extract, nomsigp);
@@ -284,7 +287,10 @@ int getArcadeSignal(char* nomsigp, int shotNumber, int extractionIndex, float** 
 	UDA_LOG(UDA_LOG_DEBUG, "signal: %s\n", nomsigp_to_extract);
 	int rang[2] = { 0, 0 };
 	int status = readSignal(nomsigp_to_extract, shotNumber, 0, rang, data_time, data, len);
-	multiplyFloat(*data, normalizationFactor, *len);
+	UDA_LOG(UDA_LOG_DEBUG, "readSignal status: %d\n", status);
+	if (*len != 0)
+	  multiplyFloat(*data, normalizationFactor, *len);
+	UDA_LOG(UDA_LOG_DEBUG, "returning from getArcadeSignal");
 	return status;
 }
 
@@ -454,5 +460,28 @@ int multiplySignals(float **result, float *p, float *q, int len) {
 	for (i = 0; i < len; i++)
 		*(*result + i) = p[i]*q[i];
 	return 0;
+}
+
+void setReturnData2DFloat (DATA_BLOCK* data_block, int dim1_shape, int dim2_shape, float* data)
+{
+	//IDAM data block initialization
+	initDataBlock(data_block);
+	data_block->rank = 2;
+	data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+
+	int i;
+	for (i = 0; i < data_block->rank; i++) {
+		initDimBlock(&data_block->dims[i]);
+		data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
+		data_block->dims[i].compressed = 1;
+		data_block->dims[i].dim0 = 0.0;
+		data_block->dims[i].diff = 1.0;
+		data_block->dims[i].method = 0;
+	}
+	data_block->data_type = UDA_TYPE_FLOAT;
+	data_block->dims[0].dim_n = dim1_shape;
+	data_block->dims[1].dim_n = dim2_shape;
+	data_block->data_n = dim1_shape*dim2_shape;
+	data_block->data = (char*)data;
 }
 
