@@ -18,6 +18,7 @@
 #include "west_pf_active.h"
 #include "west_soft_x_rays.h"
 #include "west_summary.h"
+#include "west_lh_antennas.h"
 
 int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, int* nodeIndices)
 {
@@ -113,6 +114,36 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		return summary_heating_current_drive_ec_power(shotNumber, data_block, nodeIndices); //TODO
 	} else if (strcmp(fun_name, "summary_time") == 0) {
 		return summary_time(shotNumber, data_block, nodeIndices); //TODO
+	}else if (strcmp(fun_name, "lh_antennas_power") == 0) {
+		lh_antennas_power(shotNumber, data_block, nodeIndices);
+		return 0;
+	}else if (strcmp(fun_name, "lh_antennas_power_forward") == 0) {
+		lh_antennas_power_forward(shotNumber, data_block, nodeIndices);
+	}else if (strcmp(fun_name, "lh_antennas_power_reflected") == 0) {
+		lh_antennas_power_reflected(shotNumber, data_block, nodeIndices);
+	}else if (strcmp(fun_name, "lh_antennas_reflection_coefficient") == 0) {
+		lh_antennas_reflection_coefficient(shotNumber, data_block, nodeIndices);
+	}else if (strcmp(fun_name, "lh_antennas_modules_power") == 0) {
+		lh_antennas_modules_power(shotNumber, data_block, nodeIndices);
+	}else if (strcmp(fun_name, "lh_antennas_modules_power_forward") == 0) {
+		lh_antennas_modules_power_forward(shotNumber, data_block, nodeIndices);
+	}else if (strcmp(fun_name, "lh_antennas_modules_power_reflected") == 0) {
+		lh_antennas_modules_power_reflected(shotNumber, data_block, nodeIndices);
+	}else if (strcmp(fun_name, "lh_antennas_modules_reflection_coefficient") == 0) {
+		lh_antennas_modules_reflection_coefficient(shotNumber, data_block, nodeIndices);
+	}else if (strcmp(fun_name, "lh_antennas_modules_phase") == 0) {
+		lh_antennas_modules_phase(shotNumber, data_block, nodeIndices);
+	}else if (strcmp(fun_name, "lh_antennas_phase_average") == 0) {
+		lh_antennas_phase_average(shotNumber, data_block, nodeIndices);
+		return 0;
+	}else if (strcmp(fun_name, "lh_antennas_n_parallel_peak") == 0) {
+		lh_antennas_n_parallel_peak(shotNumber, data_block, nodeIndices);
+	}else if (strcmp(fun_name, "lh_antennas_position_r") == 0) {
+		lh_antennas_position_r(shotNumber, data_block, nodeIndices);
+	}else if (strcmp(fun_name, "lh_antennas_position_z") == 0) {
+		lh_antennas_position_z(shotNumber, data_block, nodeIndices);
+	}else if (strcmp(fun_name, "lh_antennas_pressure_tank") == 0) {
+		lh_antennas_pressure_tank(shotNumber, data_block, nodeIndices); //TODO
 	}else if (strcmp(fun_name, "test_fun") == 0) {
 		return test_fun(shotNumber, data_block, nodeIndices); //TODO
 	}
@@ -138,6 +169,26 @@ int flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int*
 	int extractionIndex;
 	tokenize1DArcadeParameters(mappingValue, &diagnostic, &object_name, &extractionIndex);
 	int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, 1);
+	if (status != 0) {
+		int err = 901;
+		char* errorMsg = "WEST:ERROR: unable to get object ";
+		strcat(errorMsg, object_name);
+		strcat(errorMsg, " in west_dynamic_data_data.c:flt1D method.");
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+	}
+	free(diagnostic);
+	free(object_name);
+	return status;
+}
+
+int flt1D_normalize(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, float normalizationFactor)
+{
+	UDA_LOG(UDA_LOG_DEBUG, "Calling flt1D\n");
+	char* diagnostic = NULL;
+	char* object_name = NULL;
+	int extractionIndex;
+	tokenize1DArcadeParameters(mappingValue, &diagnostic, &object_name, &extractionIndex);
+	int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, normalizationFactor);
 	if (status != 0) {
 		int err = 901;
 		char* errorMsg = "WEST:ERROR: unable to get object ";

@@ -156,4 +156,25 @@
 <mapping key="summary/local/magnetic_axis/position/z" value="flt1D_contrib;DMAG:GMAG_BARYFB:2:DMAG:GMAG_BARY:2" type="dynamic"/>
 <mapping key="summary/time" value="tsbase_time;DMAG:SMAG_IP;1:float:1" type="dynamic"/>
 
+<mapping key="lh_antennas/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
+<mapping key="lh_antennas/antenna/Shape_of" value="set_value;2;0:int" type="static"/>
+<mapping key="lh_antennas/power/data" value="lh_antennas_power" type="dynamic"/>
+<mapping key="lh_antennas/antenna/#/power/data" value="lh_antennas_power_forward" type="dynamic"/>
+<mapping key="lh_antennas/antenna/#/power_forward/data" value="lh_antennas_power_forward" type="dynamic"/>
+<mapping key="lh_antennas/antenna/#/power_reflected/data" value="lh_antennas_power_reflected" type="dynamic"/>
+<mapping key="lh_antennas/antenna/#/reflection_coefficient/data" value="lh_antennas_reflection_coefficient" type="dynamic"/>
+<mapping key="lh_antennas/antenna/#/module/Shape_of" value="set_value;16;0:int" type="static"/>
+<mapping key="lh_antennas/antenna/#/module/#/power/data" value="lh_antennas_modules_power" type="dynamic"/>
+<mapping key="lh_antennas/antenna/#/module/#/power_forward/data" value="lh_antennas_modules_power_forward" type="dynamic"/>
+<mapping key="lh_antennas/antenna/#/module/#/power_reflected/data" value="lh_antennas_modules_power_reflected" type="dynamic"/>
+<mapping key="lh_antennas/antenna/#/module/#/reflection_coefficient/data" value="lh_antennas_modules_reflection_coefficient" type="dynamic"/>
+<mapping key="lh_antennas/antenna/#/module/#/phase/data" value="lh_antennas_modules_phase" type="dynamic"/>
+<mapping key="lh_antennas/antenna/#/phase_average/data" value="lh_antennas_phase_average" type="dynamic"/>
+<mapping key="lh_antennas/antenna/#/n_parallel_peak/data" value="lh_antennas_n_parallel_peak" type="dynamic"/>
+<mapping key="lh_antennas/antenna/#/position/r/data" value="lh_antennas_position_r" type="dynamic"/>
+<!-- mapping key="lh_antennas/antenna/#/position/z/data" value="lh_antennas_position_z" type="dynamic"/ -->
+<mapping key="lh_antennas/antenna/#/position/definition" value="lh_antennas_position_definition" type="static"/>
+<mapping key="lh_antennas/antenna/#/pressure_tank/data" value="lh_antennas_pressure_tank" type="dynamic"/>
+<mapping key="lh_antennas/time" value="tsbase_time;DHYB:SHYBPTOT;1:float:1" type="dynamic"/>
+
 </mappings>

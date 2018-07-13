@@ -21,6 +21,7 @@
 #include "west_pf_active.h"
 #include "west_soft_x_rays.h"
 #include "west_summary.h"
+#include "west_lh_antennas.h"
 
 char* setBuffer(int data_type, char* value);
 void getShapeOf(const char* command, int shotNumber, int* nb_val);
@@ -193,6 +194,9 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	else if (strcmp(fun_name, "summary_heating_current_drive_ec_power_source") == 0) {
 		fun = 301;
 	}
+	else if (strcmp(fun_name, "lh_antennas_position_definition") == 0) {
+		fun = 400;
+    }
 
 	UDA_LOG(UDA_LOG_DEBUG, "Case: %d", fun);
 
@@ -533,6 +537,12 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	case 301: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of summary_heating_current_drive_ec_power_source from WEST plugin\n");
 		return summary_heating_current_drive_ec_power_source(shotNumber, data_block, nodeIndices);
+		break;
+	}
+	case 400: {
+		UDA_LOG(UDA_LOG_DEBUG, "Case of lh_antennas_position_definition from WEST plugin\n");
+		lh_antennas_position_definition(shotNumber, data_block, nodeIndices);
+		return 0;
 		break;
 	}
 

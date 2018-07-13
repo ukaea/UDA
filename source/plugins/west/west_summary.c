@@ -15,7 +15,7 @@
 
 #include "west_utilities.h"
 #include "west_dyn_data_utilities.h"
-
+#include "west_dynamic_data.h"
 #include "west_static_data_utilities.h"
 
 int summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
