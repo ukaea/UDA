@@ -167,8 +167,11 @@ int flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int*
 	char* diagnostic = NULL;
 	char* object_name = NULL;
 	int extractionIndex;
-	tokenize1DArcadeParameters(mappingValue, &diagnostic, &object_name, &extractionIndex);
-	int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, 1);
+	char* normalizationAttributes = NULL;
+	tokenize1DArcadeParameters(mappingValue, &diagnostic, &object_name, &extractionIndex, &normalizationAttributes);
+	float normalizationFactor = 1.0;
+	getNormalizationFactor(&normalizationFactor, normalizationAttributes);
+	int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, normalizationFactor);
 	if (status != 0) {
 		int err = 901;
 		char* errorMsg = "WEST:ERROR (flt1D): unable to get object : ";
@@ -184,30 +187,7 @@ int flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int*
 	return status;
 }
 
-int flt1D_normalize(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, float normalizationFactor)
-{
-	UDA_LOG(UDA_LOG_DEBUG, "Calling flt1D\n");
-	char* diagnostic = NULL;
-	char* object_name = NULL;
-	int extractionIndex;
-	tokenize1DArcadeParameters(mappingValue, &diagnostic, &object_name, &extractionIndex);
-	int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, normalizationFactor);
-	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR (flt1D_normalize): unable to get object : ";
-		strcat(errorMsg, object_name);
-		strcat(errorMsg, " for shot : ");
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
-	}
-	free(diagnostic);
-	free(object_name);
-	return status;
-}
-
-int flt1D_contrib(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+/*int flt1D_contrib(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	UDA_LOG(UDA_LOG_DEBUG, "Calling flt1D_contrib\n");
 	char* diagnostic = NULL;
@@ -239,5 +219,5 @@ int flt1D_contrib(const char* mappingValue, int shotNumber, DATA_BLOCK* data_blo
 	free(diagnostic2);
 	free(object_name2);
 	return status;
-}
+}*/
 

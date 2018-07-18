@@ -332,7 +332,7 @@ int setUDABlockSignalFromArcade(char* sigName, int shotNumber, int extractionInd
 
 	if (status != 0) {
 		int err = 901;
-		char* errorMsg = "WEST:ERROR (setUDABlockSignalFromArcade2): unable to get Arcade signal: ";
+		char* errorMsg = "WEST:ERROR (setUDABlockSignalFromArcade): unable to get Arcade signal: ";
 		strcat(errorMsg, sigName);
 		strcat(errorMsg, " for shot:");
 		char shotStr[6];
