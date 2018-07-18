@@ -171,9 +171,12 @@ int flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int*
 	int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, 1);
 	if (status != 0) {
 		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
+		char* errorMsg = "WEST:ERROR (flt1D): unable to get object : ";
 		strcat(errorMsg, object_name);
-		strcat(errorMsg, " in west_dynamic_data_data.c:flt1D method.");
+		strcat(errorMsg, " for shot : ");
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 	free(diagnostic);
@@ -191,9 +194,12 @@ int flt1D_normalize(const char* mappingValue, int shotNumber, DATA_BLOCK* data_b
 	int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, normalizationFactor);
 	if (status != 0) {
 		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
+		char* errorMsg = "WEST:ERROR (flt1D_normalize): unable to get object : ";
 		strcat(errorMsg, object_name);
-		strcat(errorMsg, " in west_dynamic_data_data.c:flt1D method.");
+		strcat(errorMsg, " for shot : ");
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 	free(diagnostic);
@@ -220,9 +226,12 @@ int flt1D_contrib(const char* mappingValue, int shotNumber, DATA_BLOCK* data_blo
 	UDA_LOG(UDA_LOG_DEBUG, "after setting UDA block in flt1D_contrib\n");
 	if (status != 0) {
 		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
+		char* errorMsg = "WEST:ERROR (flt1D_contrib): unable to get object : ";
 		strcat(errorMsg, object_name);
-		strcat(errorMsg, " in west_dynamic_data_data.c:flt1D_contrib method.");
+		strcat(errorMsg, " for shot : ");
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 	free(diagnostic);

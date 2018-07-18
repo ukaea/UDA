@@ -109,7 +109,11 @@ int soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_blo
 	if (status != 0) {
 		UDA_LOG(UDA_LOG_DEBUG, "reading channels_power_density, error status...\n");
 		int err = 901;
-		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get channels_power_density_data for west_soft_x_rays IDS", err, "");
+		char* errorMsg = "WEST:ERROR (soft_x_rays_channels_power_density_data): error calling channels_power_density for shot : ";
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		if (time != NULL)
 			free(time);
 		if (data != NULL)
@@ -147,7 +151,11 @@ int soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_blo
 
 	if (status != 0) {
 		int err = 901;
-		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get channels_power_density_time for west_soft_x_rays IDS", err, "");
+		char* errorMsg = "WEST:ERROR (soft_x_rays_channels_power_density_time): error calling channels_power_density for shot : ";
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		if (time != NULL)
 			free(time);
 		if (data != NULL)

@@ -137,7 +137,11 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 
 		if (status != 0) {
 			int err = 901;
-			addIdamError(CODEERRORTYPE, "WEST:ERROR: error calling getECEModeHarmonic()", err, "");
+			char* errorMsg = "WEST:ERROR (ece_frequencies): error calling getECEModeHarmonic() for shot : ";
+			char shotStr[6];
+			sprintf(shotStr, "%d", shotNumber);
+			strcat(errorMsg, shotStr);
+			addIdamError(CODEERRORTYPE, errorMsg, err, "");
 			free(data);
 			free(frequencies_time);
 			return status;
@@ -175,7 +179,11 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 				}
 			} else {
 				int err = 901;
-				addIdamError(CODEERRORTYPE, "WEST:ERROR: unexpected ECE mode", err, "");
+				char* errorMsg = "WEST:ERROR (ece_frequencies): unexpected ECE mode for shot : ";
+				char shotStr[6];
+				sprintf(shotStr, "%d", shotNumber);
+				strcat(errorMsg, shotStr);
+				addIdamError(CODEERRORTYPE, errorMsg, err, "");
 				free(data);
 				free(TOP_collections_parameters);
 				return -1;
@@ -293,7 +301,11 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 
 		if (status != 0) {
 			int err = 901;
-			addIdamError(CODEERRORTYPE, "WEST:ERROR: error calling getECEModeHarmonic()", err, "");
+			char* errorMsg = "WEST:ERROR (ece_frequencies): error calling getECEModeHarmonic() for shot : ";
+			char shotStr[6];
+			sprintf(shotStr, "%d", shotNumber);
+			strcat(errorMsg, shotStr);
+			addIdamError(CODEERRORTYPE, errorMsg, err, "");
 			free(frequencies_time);
 			free(data);
 			return status;
@@ -377,8 +389,11 @@ int getECEModeFromNPZFile(int shotNumber)
 
 	if (shotNumber >= ARCADE_GECEMODE_EXISTS_FROM_SHOT) {
 		int err = 901;
-		addIdamError(CODEERRORTYPE, "WEST:ERROR: getECEModeFromNPZFile() should not be called for this shot number",
-				err, "");
+		char* errorMsg = "WEST:ERROR (getECEModeFromNPZFile): getECEModeFromNPZFile() should not be called for shot : ";
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		return -1;
 	}
 
@@ -397,7 +412,12 @@ int getECEModeFromNPZFile(int shotNumber)
 
 	if (pFile == NULL) {
 		int err = 901;
-		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to read ECE mode file", err, "");
+		char* errorMsg = "WEST:ERROR (getECEModeFromNPZFile): unable to read ECE mode file for shot : ";
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+
 		UDA_LOG(UDA_LOG_ERROR, "Error opening ECE mode file\n");
 		return -1;
 	} else {
@@ -419,7 +439,11 @@ int getECEModeFromNPZFile(int shotNumber)
 
 	if (s == NULL) {
 		int err = 901;
-		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to found ECE mode", err, "");
+		char* errorMsg = "WEST:ERROR (getECEModeFromNPZFile): unable to found ECE mode for shot : ";
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		UDA_LOG(UDA_LOG_ERROR, "ECE mode not found for shot: %d\n", shotNumber);
 	} else {
 		searchedMode = s->ECE_mode;
@@ -441,11 +465,12 @@ int getECEModeHarmonic(int shotNumber, float** time, float** data, int* len)
 	if (status != 0) {
 		UDA_LOG(UDA_LOG_ERROR, "An error has occurred !\n");
 		int err = 901;
-		UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: unable to get ECE mode\n");
-		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get signal", err, "");
-		//free(time);
-		//free(data);
-		//free(objectName);
+		UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR (getECEModeHarmonic): unable to get ECE mode\n");
+		char* errorMsg = "WEST:ERROR (getECEModeHarmonic): unable to get ECE mode for shot : ";
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		return status;
 	}
 

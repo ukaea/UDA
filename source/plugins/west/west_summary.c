@@ -18,6 +18,15 @@
 #include "west_dynamic_data.h"
 #include "west_static_data_utilities.h"
 
+void summary_error(char* errorMsg, int shotNumber) {
+	int err = 901;
+	strcat(errorMsg, " for shot : ");
+	char shotStr[6];
+	sprintf(shotStr, "%d", shotNumber);;
+	strcat(errorMsg, shotStr);
+	addIdamError(CODEERRORTYPE, errorMsg, err, "");
+}
+
 int summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	int extractions [4];
@@ -37,11 +46,7 @@ int summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_bloc
 	int status = getArcadeSignal("GMAG_FV", shotNumber, 2, &time2, &data2, &len2, 1.0);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, "GMAG_FV");
-		strcat(errorMsg, " in west_summary:summary_global_quantities_v_loop_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_v_loop_value) : unable to get GMAG_FV", shotNumber);
 		return status;
 	}
 
@@ -52,11 +57,7 @@ int summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_bloc
 	status = getArcadeSignal("SMAG_IP", shotNumber, 1, &ip_time, &ip_data, &ip_len, 1.0);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, "SMAG_IP");
-		strcat(errorMsg, " in west_summary:summary_global_quantities_v_loop_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_v_loop_value) : unable to get SMAG_IP", shotNumber);
 		return status;
 	}
 
@@ -87,11 +88,7 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 			&volume_time, &volume_data, &volume_len, 1.0);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, volume_sigName);
-		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_beta_tor_value) : unable to get GMAG_GEOM", shotNumber);
 		if (volume_time != NULL)
 			free(volume_time);
 		if (volume_data != NULL)
@@ -109,11 +106,7 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 			&total_energy_time, &total_energy_data, &total_energy_len, 1.0);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, total_energy_sigName);
-		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_beta_tor_value) : unable to get GMAG_BILAN", shotNumber);
 		if (total_energy_time != NULL)
 			free(total_energy_time);
 		if (total_energy_data != NULL)
@@ -126,10 +119,7 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 	status = signalsRatio(&ratio, total_energy_data, volume_data, total_energy_len, volume_len);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get ratio total_energy/volume";
-		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_beta_tor_value) : unable to get ratio total_energy/volume", shotNumber);
 		if (ratio != NULL)
 			free(ratio);
 		return status;
@@ -146,11 +136,7 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 	status = getArcadeSignal(itor_sigName, shotNumber, itor_extractionIndex, &itor_time, &itor_data, &itor_len, normalizationFactor);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, itor_sigName);
-		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_beta_tor_value) : unable to get GMAG_ITOR", shotNumber);
 		if (itor_time != NULL)
 			free(itor_time);
 		if (itor_data != NULL)
@@ -191,11 +177,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 			&volume_time, &volume_data, &volume_len, 1.0);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, volume_sigName);
-		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_beta_tor_norm_value) : unable to get GMAG_GEOM", shotNumber);
 		if (volume_time != NULL)
 			free(volume_time);
 		if (volume_data != NULL)
@@ -215,11 +197,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 			&total_energy_time, &total_energy_data, &total_energy_len, 1.0);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, total_energy_sigName);
-		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_beta_tor_norm_value) : unable to get GMAG_BILAN", shotNumber);
 		if (volume_time != NULL)
 			free(volume_time);
 		if (volume_data != NULL)
@@ -243,11 +221,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 	status = getArcadeSignal(itor_sigName, shotNumber, itor_extractionIndex, &itor_time, &itor_data, &itor_len, normalizationFactor);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, itor_sigName);
-		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_beta_tor_norm_value) : unable to get GMAG_ITOR", shotNumber);
 		if (volume_time != NULL)
 			free(volume_time);
 		if (volume_data != NULL)
@@ -300,11 +274,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 			&minor_radius_time, &minor_radius_data, &minor_radius_len, 1.0);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, minor_radius_sigName);
-		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_beta_tor_norm_value) : unable to get GMAG_GEOM", shotNumber);
 		if (volume_time != NULL)
 			free(volume_time);
 		if (volume_data != NULL)
@@ -340,9 +310,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 	status = signalsRatio(&total_enery_times_minor_radius_by_volume, total_enery_times_minor_radius, ip_data, total_energy_len, volume_len);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to compute ratio in in west_summary:summary_global_quantities_beta_tor_norm_value method.";
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_beta_tor_norm_value) : unable to compute ratio", shotNumber);
 		if (volume_time != NULL)
 			free(volume_time);
 		if (volume_data != NULL)
@@ -374,9 +342,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 	status = signalsRatio(&total_enery_times_minor_radius_by_volume_by_b0, total_enery_times_minor_radius_by_volume, itor_data, total_energy_len, itor_len);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to compute second ratio in in west_summary:summary_global_quantities_beta_tor_norm_value method.";
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_beta_tor_norm_value) : unable to compute second ratio", shotNumber);
 		if (volume_time != NULL)
 			free(volume_time);
 		if (volume_data != NULL)
@@ -410,9 +376,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 	status = signalsRatio(&total_enery_times_minor_radius_by_volume_by_b0_by_ip, total_enery_times_minor_radius_by_volume_by_b0, ip_data, total_energy_len, ip_len);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to compute third ratio in in west_summary:summary_global_quantities_beta_tor_norm_value method.";
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_beta_tor_norm_value) : unable to compute third ratio", shotNumber);
 		if (volume_time != NULL)
 			free(volume_time);
 		if (volume_data != NULL)
@@ -463,11 +427,7 @@ int summary_global_quantities_b0_value(int shotNumber, DATA_BLOCK* data_block, i
 	int status = getArcadeSignal(itor_sigName, shotNumber, itor_extractionIndex, &itor_time, &itor_data, &itor_len, normalizationFactor);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, itor_sigName);
-		strcat(errorMsg, " in west_summary:summary_global_quantities_b0_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (summary_global_quantities_b0_value) : unable to get object GMAG_ITOR", shotNumber);
 		if (itor_time != NULL)
 			free(itor_time);
 		if (itor_data != NULL)
@@ -576,11 +536,7 @@ int ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_
 	int status = getArcadeSignal(ifreeb_sigName, shotNumber, ifreeb_extractionIndex, &ifreeb_time, &ifreeb_data, &ifreeb_len, normalizationFactor);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, ifreeb_sigName);
-		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (ip_value) : unable to get object GMAG_IFREEB", shotNumber);
 		if (ifreeb_time != NULL)
 			free(ifreeb_time);
 		if (ifreeb_data != NULL)
@@ -598,11 +554,7 @@ int ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_
 	status = getArcadeSignal(smagip_sigName, shotNumber, smagip_extractionIndex, &smagip_time, &smagip_data, &smagip_len, normalizationFactor);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: unable to get object ";
-		strcat(errorMsg, smagip_sigName);
-		strcat(errorMsg, " in west_summary:summary_global_quantities_beta_tor_norm_value method.");
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		summary_error("WEST:ERROR (ip_value) : unable to get object SMAG_IP", shotNumber);
 		if (smagip_time != NULL)
 			free(smagip_time);
 		if (smagip_data != NULL)

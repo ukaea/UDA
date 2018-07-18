@@ -25,7 +25,8 @@
 <!-- mapping key="magnetics/bpol_probe/#/field/time" value="tsbase_time;DMAG:GMAG_BNORM,DMAG:GMAG_BTANG,DMAG:GMAG_BTORO1,DMAG:GMAG_BTORO2;1:float:#0" type="dynamic"/ -->
 <mapping key="magnetics/method/Shape_of" value="set_value;1;0:int" type="static"/>
 <mapping key="magnetics/method/#/name" value="set_value;IP;0:string" type="static"/>
-<mapping key="magnetics/method/#/ip/data" value="flt1D_contrib;DMAG:GMAG_IFREEB:1:DMAG:SMAG_IP:0" type="dynamic"/>
+<!-- mapping key="magnetics/method/#/ip/data" value="flt1D_contrib;DMAG:GMAG_IFREEB:1:DMAG:SMAG_IP:0" type="dynamic"/ -->
+<mapping key="magnetics/method/#/ip/data" value="flt1D;DMAG:GMAG_IFREEB:1" type="dynamic"/>
 <!-- mapping key="magnetics/method/#/ip/time" value="tsbase_time;DMAG:SMAG_IP;1:float:#0" type="dynamic"/ -->
 <mapping key="magnetics/method/#/diamagnetic_flux/data" value="tsbase_collect;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/>
 <!-- mapping key="magnetics/method/#/diamagnetic_flux/time" value="tsbase_time;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/ -->
@@ -135,7 +136,8 @@
 <mapping key="soft_x_rays/channel/#/power_density/time" value="soft_x_rays_channels_power_density_time" type="dynamic"/>
 
 <mapping key="summary/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
-<mapping key="summary/global_quantities/ip/value" value="flt1D_contrib;DMAG:GMAG_IFREEB:1:DMAG:SMAG_IP:0" type="dynamic"/>
+<!-- mapping key="summary/global_quantities/ip/value" value="flt1D_contrib;DMAG:GMAG_IFREEB:1:DMAG:SMAG_IP:0" type="dynamic"/ -->
+<mapping key="summary/global_quantities/ip/value" value="flt1D;DMAG:GMAG_IFREEB:1" type="dynamic"/>
 <mapping key="summary/global_quantities/current_ohm/value" value="flt1D;DMAG:GMAG_BILAN:1" type="dynamic"/>
 <mapping key="summary/global_quantities/v_loop/value" value="summary_global_quantities_v_loop_value" type="dynamic"/>
 <mapping key="summary/global_quantities/li/value" value="flt1D;DMAG:GMAG_BELI:2" type="dynamic"/>

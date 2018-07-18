@@ -73,7 +73,11 @@ int pf_active_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndi
 	}
 	if (status != 0) {
 		int err = 901;
-		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get pf_active current", err, "");
+		char* errorMsg = "WEST:ERROR (pf_active_current_data): unable to get pf_active current for shot : ";
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(time);
 		free(data);
 		return status;
@@ -106,7 +110,11 @@ int pf_active_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndi
 	}
 	if (status != 0) {
 		int err = 901;
-		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get time for pf_active current", err, "");
+		char* errorMsg = "WEST:ERROR (pf_active_current_time): unable to get pf_active_current_time for shot : ";
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(time);
 		free(data);
 		return status;
