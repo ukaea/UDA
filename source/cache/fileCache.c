@@ -222,7 +222,7 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
     unsigned short status;
     unsigned long dbkey, validRecordCount = 0;
 
-    unsigned long long timestamp;
+    unsigned long long timestamp = 0;
     char filename[MAXFILENAME];
 
     char csvChar = ';';
@@ -445,7 +445,7 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
 
     unsigned int key, dbkey;
 
-    unsigned long long timestamp;
+    unsigned long long timestamp = 0;
     char filename[MAXFILENAME];
     //unsigned long long properties = 0;
 
@@ -604,7 +604,7 @@ int idamClientWriteCache(char* filename)
     unsigned short status = CACHE_LIVERECORD;
     unsigned long key, recordCount, deadCount, endOffset;
 
-    unsigned long long timestamp;
+    unsigned long long timestamp = 0;
     unsigned long long properties = 0;
 
     char csvChar = ';';
