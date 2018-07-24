@@ -77,6 +77,7 @@ int pf_active_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndi
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(time);
 		free(data);
@@ -114,6 +115,7 @@ int pf_active_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndi
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(time);
 		free(data);

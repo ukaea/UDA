@@ -141,6 +141,7 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 			char shotStr[6];
 			sprintf(shotStr, "%d", shotNumber);
 			strcat(errorMsg, shotStr);
+			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 			addIdamError(CODEERRORTYPE, errorMsg, err, "");
 			free(data);
 			free(frequencies_time);
@@ -183,6 +184,7 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 				char shotStr[6];
 				sprintf(shotStr, "%d", shotNumber);
 				strcat(errorMsg, shotStr);
+				UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 				addIdamError(CODEERRORTYPE, errorMsg, err, "");
 				free(data);
 				free(TOP_collections_parameters);
@@ -305,6 +307,7 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 			char shotStr[6];
 			sprintf(shotStr, "%d", shotNumber);
 			strcat(errorMsg, shotStr);
+			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 			addIdamError(CODEERRORTYPE, errorMsg, err, "");
 			free(frequencies_time);
 			free(data);
@@ -393,6 +396,7 @@ int getECEModeFromNPZFile(int shotNumber)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		return -1;
 	}
@@ -416,9 +420,8 @@ int getECEModeFromNPZFile(int shotNumber)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
-
-		UDA_LOG(UDA_LOG_ERROR, "Error opening ECE mode file\n");
 		return -1;
 	} else {
 
@@ -443,8 +446,8 @@ int getECEModeFromNPZFile(int shotNumber)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
-		UDA_LOG(UDA_LOG_ERROR, "ECE mode not found for shot: %d\n", shotNumber);
 	} else {
 		searchedMode = s->ECE_mode;
 	}
@@ -463,13 +466,13 @@ int getECEModeHarmonic(int shotNumber, float** time, float** data, int* len)
 	int status = readSignal(objectName, shotNumber, 0, rang, time, data, len);
 
 	if (status != 0) {
-		UDA_LOG(UDA_LOG_ERROR, "An error has occurred !\n");
 		int err = 901;
 		UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR (getECEModeHarmonic): unable to get ECE mode\n");
 		char* errorMsg = "WEST:ERROR (getECEModeHarmonic): unable to get ECE mode for shot : ";
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		return status;
 	}

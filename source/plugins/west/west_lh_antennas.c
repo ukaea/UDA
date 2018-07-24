@@ -31,6 +31,7 @@ void lh_antennas_power(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 	UDA_LOG(UDA_LOG_DEBUG, "Returning from lh_antennas_power\n");
@@ -58,6 +59,7 @@ void lh_antennas_power_forward(int shotNumber, DATA_BLOCK* data_block, int* node
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 }
@@ -84,6 +86,7 @@ void lh_antennas_power_reflected(int shotNumber, DATA_BLOCK* data_block, int* no
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 }
@@ -110,6 +113,7 @@ void lh_antennas_reflection_coefficient(int shotNumber, DATA_BLOCK* data_block, 
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 }
@@ -132,6 +136,7 @@ void lh_antennas_pressure_tank(int shotNumber, DATA_BLOCK* data_block, int* node
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 }
@@ -149,6 +154,7 @@ void lh_antennas_phase_average(int shotNumber, DATA_BLOCK* data_block, int* node
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 }
@@ -166,6 +172,7 @@ void lh_antennas_n_parallel_peak(int shotNumber, DATA_BLOCK* data_block, int* no
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 }
@@ -183,6 +190,7 @@ void lh_antennas_position_r(int shotNumber, DATA_BLOCK* data_block, int* nodeInd
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 }
@@ -213,6 +221,7 @@ void lh_antennas_modules_power(int shotNumber, DATA_BLOCK* data_block, int* node
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 }
@@ -239,6 +248,7 @@ void lh_antennas_modules_power_forward(int shotNumber, DATA_BLOCK* data_block, i
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 }
@@ -265,6 +275,7 @@ void lh_antennas_modules_power_reflected(int shotNumber, DATA_BLOCK* data_block,
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 }
@@ -291,6 +302,7 @@ void lh_antennas_modules_reflection_coefficient(int shotNumber, DATA_BLOCK* data
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 }
@@ -317,6 +329,7 @@ void lh_antennas_modules_phase(int shotNumber, DATA_BLOCK* data_block, int* node
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 }

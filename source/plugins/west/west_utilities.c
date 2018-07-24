@@ -339,6 +339,7 @@ void getReturnType(char* attributes, int* dataType)
 		i = UDA_TYPE_INT;
 	} else {
 		err = 901;
+		UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: convertToInt(): Unsupported data type");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: convertToInt(): Unsupported data type", err, "");
 	}
 	*dataType = i;

@@ -113,6 +113,7 @@ int soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_blo
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		if (time != NULL)
 			free(time);
@@ -155,6 +156,7 @@ int soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_blo
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		if (time != NULL)
 			free(time);

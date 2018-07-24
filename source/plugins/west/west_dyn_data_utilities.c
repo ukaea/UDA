@@ -55,6 +55,7 @@ int SetNormalizedDynData(int shotNumber, DATA_BLOCK* data_block, int* nodeIndice
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(time);
 		free(data);
@@ -86,6 +87,7 @@ int GetNormalizedDynamicData(int shotNumber, float** data_time, float** data, in
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	} else {
 		UDA_LOG(UDA_LOG_DEBUG, "Getting normalization factor, if any\n");
@@ -180,6 +182,7 @@ int GetDynData(int shotNumber, float** data_time, float** data, int* len, int* n
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		return status;
 	}
@@ -214,6 +217,7 @@ int GetDynData(int shotNumber, float** data_time, float** data, int* len, int* n
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		if (command != NULL)
 			free(command);
@@ -244,6 +248,7 @@ int GetDynData(int shotNumber, float** data_time, float** data, int* len, int* n
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		status = -1;
 	} else {
@@ -338,6 +343,7 @@ int setUDABlockSignalFromArcade(char* sigName, int shotNumber, int extractionInd
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(data_time);
 		free(data);
@@ -365,6 +371,7 @@ int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIn
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(time1);
 		free(data1);
@@ -385,6 +392,7 @@ int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIn
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(time1);
 		free(data1);
@@ -407,6 +415,7 @@ int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIn
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(time1);
 		free(data1);
@@ -461,6 +470,7 @@ void averageArcadeSignal(char* sigName, int shotNumber, int extractions[], int e
 			char shotStr[6];
 			sprintf(shotStr, "%d", shotNumber);
 			strcat(errorMsg, shotStr);
+			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 			addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		}
 	}

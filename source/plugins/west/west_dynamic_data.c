@@ -148,7 +148,9 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		return test_fun(shotNumber, data_block, nodeIndices); //TODO
 	}
 	else {
-		UDA_LOG(UDA_LOG_DEBUG, "WEST:ERROR: mapped C function not found in west_dynamic_data.c !\n");
+		const char* errorMsg = "WEST:ERROR: mapped C function not found in west_dynamic_data.c !\n";
+		UDA_LOG(UDA_LOG_DEBUG, "%s", errorMsg);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 	}
 
 
@@ -180,6 +182,7 @@ int flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int*
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 	free(diagnostic);

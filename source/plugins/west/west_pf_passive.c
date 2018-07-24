@@ -228,6 +228,7 @@ int passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(data);
 		free(time);
@@ -306,6 +307,7 @@ int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(data);
 		free(time);
@@ -328,6 +330,7 @@ int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 			char shotStr[6];
 			sprintf(shotStr, "%d", shotNumber);
 			strcat(errorMsg, shotStr);
+			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 			addIdamError(CODEERRORTYPE, errorMsg, err, "");
 			free(data);
 			free(time);
@@ -403,6 +406,7 @@ float factUpper(int shotNumber)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(I_case_upper_data);
 		free(I_case_upper_time);
@@ -418,6 +422,7 @@ float factUpper(int shotNumber)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(I_case_upper_data);
 		free(I_case_upper_time);
@@ -433,6 +438,7 @@ float factUpper(int shotNumber)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(I_case_upper_data);
 		free(I_case_upper_time);
@@ -450,6 +456,7 @@ float factUpper(int shotNumber)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(I_case_upper_data);
 		free(I_case_upper_time);
@@ -481,6 +488,7 @@ float factLower(int shotNumber)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(I_case_lower_data);
 		free(I_case_lower_time);
@@ -496,6 +504,7 @@ float factLower(int shotNumber)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(I_case_lower_data);
 		free(I_case_lower_time);
@@ -512,6 +521,7 @@ float factLower(int shotNumber)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(I_case_lower_data);
 		free(I_case_lower_time);
@@ -530,6 +540,7 @@ float factLower(int shotNumber)
 		char shotStr[6];
 		sprintf(shotStr, "%d", shotNumber);
 		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		free(I_case_lower_data);
 		free(I_case_lower_time);
