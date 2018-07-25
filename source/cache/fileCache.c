@@ -50,14 +50,16 @@ REQUEST_BLOCK* request_block_ptr = NULL;
 
 int idamClientLockCache(FILE** db, short type)
 {
-
     // Types of Lock: F_RDLCK, F_WRLCK, or F_UNLCK
 
-    FILE* fh;
+    FILE* fh = NULL;
     struct flock lock;
     struct timespec requested;
     struct timespec remaining;
-    int err, rc, delay, count = 0;
+    int err = 0;
+    int rc = 0;
+    int delay = 0;
+    int count = 0;
 
     // Open the Cache database table on locking and close on unlocking
 
@@ -80,9 +82,9 @@ int idamClientLockCache(FILE** db, short type)
         if (fh == NULL || errno != 0) {
             err = 999;
             if (errno != 0) {
-                addIdamError(SYSTEMERRORTYPE, "idamClientLockCache", errno, "");
+                addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
             }
-            addIdamError(CODEERRORTYPE, "idamClientLockCache", err, "Unable to Open the Cache Database");
+            addIdamError(CODEERRORTYPE, __func__, err, "Unable to Open the Cache Database");
             if (fh != NULL) {
                 fclose(fh);
             }
@@ -113,8 +115,7 @@ int idamClientLockCache(FILE** db, short type)
 
     if (type == F_UNLCK) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "idamClientLockCache", err,
-                     "Cache file lock not released indicating problem with cache");
+        addIdamError(CODEERRORTYPE, __func__, err, "Cache file lock not released indicating problem with cache");
         return err;
     }
 
@@ -131,7 +132,7 @@ int idamClientLockCache(FILE** db, short type)
 
     if (rc == -1 || count >= CACHE_MAXCOUNT) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "idamClientLockCache", err, "Unable to Lock the Cache Database");
+        addIdamError(CODEERRORTYPE, __func__, err, "Unable to Lock the Cache Database");
         *db = NULL;
         fclose(fh);
         return err;
@@ -146,7 +147,10 @@ int idamClientCacheTimeValid(unsigned long long timestamp)
 {
     struct timeval current;
     gettimeofday(&current, NULL);
-    if (timestamp >= (unsigned long long)current.tv_sec) return 1;        // Timestamp OK
+    if (timestamp >= (unsigned long long)current.tv_sec) {
+        // Timestamp OK
+        return 1;
+    }
     return 0;
 }
 
@@ -156,7 +160,10 @@ int idamClientCacheLockedTimeValid(unsigned long long timestamp)
 {
     struct timeval current;
     gettimeofday(&current, NULL);
-    if ((timestamp + CACHE_MAXLOCKTIME) >= (unsigned long long)current.tv_sec) return 1;        // Timestamp OK
+    if ((timestamp + CACHE_MAXLOCKTIME) >= (unsigned long long)current.tv_sec) {
+        // Timestamp OK
+        return 1;
+    }
     return 0;
 }
 
@@ -173,8 +180,9 @@ int idamClientCacheFileValid(const char* filename)
 int idamClientGetCacheStats(FILE* db, unsigned long* recordCount, unsigned long* deadCount, unsigned long* endOffset,
                             char csvChar)
 {
-    int err;
-    char* csv, * next;
+    int err = 0;
+    char* csv = NULL;
+    char* next = NULL;
     char work[CACHE_FIRSTRECORDLENGTH + 1];
     rewind(db);
     if (fgets(work, CACHE_FIRSTRECORDLENGTH, db) == NULL) {
@@ -184,8 +192,9 @@ int idamClientGetCacheStats(FILE* db, unsigned long* recordCount, unsigned long*
     LeftTrimString(TrimString(work));
     next = work;
     if ((csv = strchr(next, csvChar)) != NULL) {
+        // Split the record into fields using delimiter character
         csv[0] = '\0';
-    }    // Split the record into fields using delimiter character
+    }
     TrimString(next);
     LeftTrimString(next);
     *recordCount = (unsigned int)strtoul(next, NULL, 10);
@@ -202,14 +211,16 @@ int idamClientGetCacheStats(FILE* db, unsigned long* recordCount, unsigned long*
 void idamClientUpdateCacheStats(FILE* db, unsigned long recordCount, unsigned long deadCount, unsigned long endOffset,
                                 char csvChar)
 {
-    int i, lstr;
+    int i;
     char work[CACHE_FIRSTRECORDLENGTH + 1];
     rewind(db);
-    sprintf(work, "%lu%c%lu%c%lu", recordCount, csvChar, deadCount, csvChar,
-            endOffset);        // Updated statistics record
-    lstr = (int)strlen(work);
-    for (i = lstr; i < CACHE_FIRSTRECORDLENGTH; i++)
-        work[i] = ' ';                    // Pack remaining record with space chars
+    // Updated statistics record
+    sprintf(work, "%lu%c%lu%c%lu", recordCount, csvChar, deadCount, csvChar, endOffset);
+    int lstr = (int)strlen(work);
+    for (i = lstr; i < CACHE_FIRSTRECORDLENGTH; i++) {
+        // Pack remaining record with space chars
+        work[i] = ' ';
+    }
     work[CACHE_FIRSTRECORDLENGTH - 1] = '\n';
     work[CACHE_FIRSTRECORDLENGTH] = '\0';
     fwrite(work, sizeof(char), CACHE_FIRSTRECORDLENGTH, db);                    // Update
@@ -218,19 +229,22 @@ void idamClientUpdateCacheStats(FILE* db, unsigned long recordCount, unsigned lo
 
 int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* endOffset)
 {
-    int lstr;
-    unsigned short status;
-    unsigned long dbkey, validRecordCount = 0;
+    int lstr = 0;
+    unsigned short status = 0;
+    unsigned long dbkey = 0;
+    unsigned long validRecordCount = 0;
 
     unsigned long long timestamp = 0;
     char filename[MAXFILENAME];
 
     char csvChar = ';';
     char buffer[STRING_LENGTH];
-    char* p, * csv, * next, * work;
+    char* p = NULL;
+    char* csv = NULL;
+    char* next = NULL;
+    char* work = NULL;
 
-    char** table;
-    unsigned long long* timestamplist;
+    unsigned long long* timestamplist = NULL;
 
     char* dir = getenv("UDA_CACHE_DIR");        // Where the files are located
 
@@ -238,11 +252,12 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
 
     fseek(db, CACHE_FIRSTRECORDLENGTH, SEEK_SET);        // rewind the file to the beginning of the second record
 
-    table = (char**)malloc(recordCount * sizeof(char*));
+    char** table = (char**)malloc(recordCount * sizeof(char*));
     timestamplist = (unsigned long long*)malloc(recordCount * sizeof(unsigned long long));
 
     unsigned long count = 0;
-    while (count++ < recordCount && !feof(db) && fgets(buffer, STRING_LENGTH, db) != NULL) {    // Read each record
+    while (count++ < recordCount && !feof(db) && fgets(buffer, STRING_LENGTH, db) != NULL) {
+        // Read each record
 
         LeftTrimString(TrimString(buffer));
         dbkey = 0;
@@ -285,7 +300,8 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
             if (status == CACHE_DEADRECORD) break;    // Skip this record - it's marked as dead! purge by ignoring it
             if (csv != NULL) next = &csv[1];    // Next element starting point
         }
-        if (dbkey != 0) {                // Check the records is valid (always if locked by a process)
+        if (dbkey != 0) {
+            // Check the records is valid (always if locked by a process)
             if ((status == CACHE_LOCKEDRECORD && idamClientCacheLockedTimeValid(timestamp)) ||
                 (idamClientCacheTimeValid(timestamp) && idamClientCacheFileValid(filename))) {
                 table[validRecordCount] = work;            // reuse this heap allocation
@@ -312,7 +328,7 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
     int i;
     for (i = 0; i < validRecordCount; i++) {
         lstr = (int)strlen(table[i]);
-        count = fwrite(table[i], sizeof(char), lstr, db);    // Write all valid records
+        count = fwrite(table[i], sizeof(char), (size_t)lstr, db);    // Write all valid records
         if (count != lstr || errno != 0) {
             int err = 999;
             return -err;
@@ -321,7 +337,7 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
         free(table[i]);
     }
 
-    *endOffset = ftell(db);            // Append or overwrite new records from this location (End of active records)
+    *endOffset = (unsigned long)ftell(db);            // Append or overwrite new records from this location (End of active records)
 
     fwrite("\n", sizeof(char), 1, db);        // Insert a new line at the end of the valid set of records
 
@@ -329,13 +345,13 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
 
     idamClientUpdateCacheStats(db, validRecordCount, 0, *endOffset, csvChar);
 
-    return validRecordCount;
-
+    return (int)validRecordCount;
 }
 
 int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, char* filename)
 {
-    int err, rc = 0;
+    int err = 0;
+    int rc = 0;
     XDR XDRInput;
     XDR* xdrs = clientInput;
     FILE* xdrfile = NULL;
@@ -347,7 +363,8 @@ int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ch
         return 0;
     }
 
-    do {        // Error Trap
+    do {
+        // Error Trap
 
         // Create input xdr file stream
 
@@ -355,9 +372,10 @@ int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ch
 
         if ((xdrfile = fopen(filename, "rb")) == NULL || errno != 0) {    // Read cached file
             err = 999;
-            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "idamClientReadCache", errno, "");
-            addIdamError(CODEERRORTYPE, "idamClientReadCache", err,
-                         "Unable to Open the Cached Data File");
+            if (errno != 0) {
+                addIdamError(SYSTEMERRORTYPE, "idamClientReadCache", errno, "");
+            }
+            addIdamError(CODEERRORTYPE, __func__, err, "Unable to Open the Cached Data File");
             break;
         }
 
@@ -378,8 +396,7 @@ int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ch
 
         if (!rc) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "idamClientReadCache", err,
-                         "Failure receiving Structure Definitions");
+            addIdamError(CODEERRORTYPE, __func__, err, "Failure receiving Structure Definitions");
             break;
         }
 
@@ -389,8 +406,7 @@ int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ch
 
         if (!rc) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "idamClientReadCache", err,
-                         "Failure receiving Data and Structure Definition");
+            addIdamError(CODEERRORTYPE, __func__, err, "Failure receiving Data and Structure Definition");
             break;
         }
 
@@ -412,7 +428,7 @@ int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ch
             SARRAY* s = (SARRAY*)data;
             if (s->count != data_block->data_n) {                // check for consistency
                 err = 999;
-                addIdamError(CODEERRORTYPE, "idamClientReadCache", err, "Inconsistent S Array Counts");
+                addIdamError(CODEERRORTYPE, __func__, err, "Inconsistent S Array Counts");
                 break;
             }
             data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
@@ -423,8 +439,7 @@ int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ch
             general_block->lastMallocIndex = 0;
         } else {
             err = 999;
-            addIdamError(CODEERRORTYPE, "idamClientReadCache", err,
-                         "Name of Received Data Structure Incorrect");
+            addIdamError(CODEERRORTYPE, __func__, err, "Name of Received Data Structure Incorrect");
             break;
         }
 
@@ -437,13 +452,16 @@ int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, ch
 
 int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilename)
 {
-    int i, rc = 0;
-    unsigned short status, outcome;
-    unsigned long position, endOffset;
-    unsigned long recordCount, deadCount;
+    int rc = 0;
+    unsigned short status = 0;
+    unsigned short outcome = 0;
+    unsigned long position = 0;
+    unsigned long endOffset = 0;
+    unsigned long recordCount = 0;
+    unsigned long deadCount = 0;
     FILE* db = NULL;
 
-    unsigned int key, dbkey;
+    unsigned int dbkey = 0;
 
     unsigned long long timestamp = 0;
     char filename[MAXFILENAME];
@@ -461,9 +479,9 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
 
     // Generate a Hash Key (not guaranteed unique)
 
-    key = -1;
-    key = xcrc32((const unsigned char*)request_block->signal, (int)strlen(request_block->signal),
-                 key);    // combine CRC has keys
+    unsigned int key = 0;
+    // combine CRC has keys
+    key = xcrc32((const unsigned char*)request_block->signal, (int)strlen(request_block->signal), key);
     key = xcrc32((const unsigned char*)request_block->source, (int)strlen(request_block->source), key);
 
     // Sequentially read all records and test against the hash key (small file so not that inefficient)
@@ -475,7 +493,7 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
     idamClientGetCacheStats(db, &recordCount, &deadCount, &endOffset, csvChar);
 
     fseek(db, CACHE_FIRSTRECORDLENGTH, SEEK_SET);    // Position at the start of record 2
-    position = ftell(db);
+    position = (unsigned long)ftell(db);
 
     while (!feof(db) && fgets(buffer, STRING_LENGTH, db) != NULL) {
         LeftTrimString(TrimString(buffer));
@@ -485,6 +503,7 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
             if (buffer[0] == '\n') break;
             next = buffer;
 
+            int i;
             for (i = 0; i < 7; i++) {
                 if ((csv = strchr(next, csvChar)) != NULL) {
                     csv[0] = '\0';
@@ -544,7 +563,7 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
             }
         }
 
-        position = ftell(db);    // Start of next record
+        position = (unsigned long)ftell(db);    // Start of next record
     }
 
     if (outcome == CACHE_RECORDFOUND) {        // Record found and Timestamp OK
@@ -553,7 +572,7 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
         *cacheFilename = (char*)malloc(lstr * sizeof(char));
         strcpy(*cacheFilename, filename);
 
-// Lock the cache file record using the status value only - not a record lock on the table
+        // Lock the cache file record using the status value only - not a record lock on the table
 
         fseek(db, position, SEEK_SET);    // Goto start of last record read and change status to LOCKED
         sprintf(buffer, "%d%c", CACHE_LOCKEDRECORD, csvChar);
@@ -561,16 +580,16 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
 
     } else if (outcome == CACHE_PURGERECORD) {
 
-// Cache has expired. Remove table entry and delete the data file
+        // Cache has expired. Remove table entry and delete the data file
 
         fseek(db, position, SEEK_SET);    // Goto start of last record read and mark for removal: status changed to DEAD
         sprintf(buffer, "%d%c", CACHE_DEADRECORD, csvChar);
         fwrite(buffer, sizeof(char), 2, db);
 
-// If there are too many dead records, then compact the database table
+        // If there are too many dead records, then compact the database table
 
         if (deadCount >= CACHE_MAXDEADRECORDS) {
-            recordCount = idamClientPurgeCache(db, recordCount, &endOffset);
+            recordCount = (unsigned long)idamClientPurgeCache(db, recordCount, &endOffset);
             deadCount = 0;
         } else {
             char* dir = getenv("UDA_CACHE_DIR");        // Where the files are located
@@ -584,7 +603,7 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
 
     }
 
-// Free	the Lock
+    // Free	the Lock
 
     rc = idamClientLockCache(&db, F_UNLCK);    // release lock
 
@@ -596,13 +615,17 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
 
 int idamClientWriteCache(char* filename)
 {
-    int err, rc = 0;
+    int err = 0;
+    int rc = 0;
     FILE* db = NULL;
 
     REQUEST_BLOCK* request_block = request_block_ptr;    // Global pointer to the request block
 
     unsigned short status = CACHE_LIVERECORD;
-    unsigned long key, recordCount, deadCount, endOffset;
+
+    unsigned long recordCount = 0;
+    unsigned long deadCount = 0;
+    unsigned long endOffset = 0;
 
     unsigned long long timestamp = 0;
     unsigned long long properties = 0;
@@ -610,61 +633,61 @@ int idamClientWriteCache(char* filename)
     char csvChar = ';';
     char buffer[STRING_LENGTH];
 
-// Generate a Hash Key (not guaranteed unique)
+    // Generate a Hash Key (not guaranteed unique)
 
-    key = -1;
-    key = xcrc32((const unsigned char*)request_block->signal, (int)strlen(request_block->signal),
-                 key);    // combine CRC has keys
+    unsigned int key = 0;
+    // combine CRC has keys
+    key = xcrc32((const unsigned char*)request_block->signal, (int)strlen(request_block->signal), key);
     key = xcrc32((const unsigned char*)request_block->source, (int)strlen(request_block->source), key);
 
-// Generate a timestamp
+    // Generate a timestamp
 
     struct timeval current;
     gettimeofday(&current, NULL);
 
     timestamp = (unsigned long long)current.tv_sec + CACHE_HOURSVALID * 3600 + 60;
 
-// Create the new record string
+    // Create the new record string
 
-    sprintf(buffer, "%d%c%lu%c%llu%c%s%c%llu%c%s%c%s\n", status, csvChar, key, csvChar,
+    sprintf(buffer, "%d%c%du%c%llu%c%s%c%llu%c%s%c%s\n", status, csvChar, key, csvChar,
             timestamp, csvChar, filename, csvChar, properties, csvChar, request_block->signal,
             csvChar, request_block->source);
 
-// Append the new record to the database table
+    // Append the new record to the database table
 
     if ((rc = idamClientLockCache(&db, F_WRLCK)) != 0 || db == NULL) return rc;
 
-// Current table statistics
+    // Current table statistics
 
     if ((err = idamClientGetCacheStats(db, &recordCount, &deadCount, &endOffset, csvChar)) != 0) {
         rc = idamClientLockCache(&db, F_UNLCK);    // Free	the Lock and File
         return err;
     }
 
-// Too many records when the new record is added?
+    // Too many records when the new record is added?
 
     if (recordCount >= CACHE_MAXRECORDS - 1 ||
         deadCount >= CACHE_MAXDEADRECORDS) {        // purge dead records + oldest active record
-        recordCount = idamClientPurgeCache(db, recordCount, &endOffset);
+        recordCount = (unsigned long)idamClientPurgeCache(db, recordCount, &endOffset);
         deadCount = 0;
     }
 
-// Append a new record at the file position (always the end of the valid set of records)
+    // Append a new record at the file position (always the end of the valid set of records)
 
     if (endOffset == 0) {
         fseek(db, 0, SEEK_END);
-        endOffset = ftell(db);
+        endOffset = (unsigned long)ftell(db);
     }
 
     fseek(db, endOffset, SEEK_SET);
     fwrite(buffer, sizeof(char), strlen(buffer), db);
-    endOffset = ftell(db);
+    endOffset = (unsigned long)ftell(db);
     fwrite("\n", sizeof(char), 1, db);
 
     fflush(db);
     recordCount++;
 
-// Update statistics
+    // Update statistics
 
     idamClientUpdateCacheStats(db, recordCount, deadCount, endOffset, csvChar);
 
@@ -878,7 +901,7 @@ xcrc32(const unsigned char* buf, int len, unsigned int init)
 {
     unsigned int crc = init;
     while (len--) {
-        crc = (crc << 8) ^ crc32_table[((crc >> 24) ^ *buf) & 255];
+        crc = (crc << 8u) ^ crc32_table[((crc >> 24u) ^ *buf) & 255u];
         buf++;
     }
     return crc;
