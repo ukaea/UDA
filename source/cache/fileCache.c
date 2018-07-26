@@ -623,10 +623,7 @@ int idamClientWriteCache(char* filename)
 
     unsigned short status = CACHE_LIVERECORD;
 
-    unsigned long recordCount = 0;
-    unsigned long deadCount = 0;
-    unsigned long endOffset = 0;
-
+(??)
     unsigned long long timestamp = 0;
     unsigned long long properties = 0;
 
