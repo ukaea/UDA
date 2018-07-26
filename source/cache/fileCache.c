@@ -622,8 +622,10 @@ int idamClientWriteCache(char* filename)
     REQUEST_BLOCK* request_block = request_block_ptr;    // Global pointer to the request block
 
     unsigned short status = CACHE_LIVERECORD;
+    unsigned long recordCount;
+    unsigned long deadCount;
+    unsigned long endOffset;
 
-(??)
     unsigned long long timestamp = 0;
     unsigned long long properties = 0;
 
