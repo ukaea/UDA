@@ -980,8 +980,7 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT*
             plugin_id = (short)id;
         }
 
-        if (id >= 0 && plugin_list->plugin[id].is_private == PLUGINPRIVATE &&
-(??)            getIdamServerEnvironment()->external_user) {
+        if (id >= 0 && plugin_list->plugin[id].is_private == PLUGINPRIVATE && environment->external_user) {
             plugin_id = -1;
         }        // Not available to external users
 
