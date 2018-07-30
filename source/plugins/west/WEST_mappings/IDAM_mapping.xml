@@ -178,4 +178,14 @@
 <mapping key="lh_antennas/antenna/#/pressure_tank/data" value="lh_antennas_pressure_tank" type="dynamic"/>
 <mapping key="lh_antennas/time" value="tsbase_time;DHYB:SHYBPTOT;1:float:1" type="dynamic"/>
 
+<mapping key="barometry/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="barometry/gauge/Shape_of" value="set_value;4;0:int" type="static"/>
+<mapping key="barometry/gauge/#/name" value="barometry_gauge_name" type="static"/>
+<mapping key="barometry/gauge/#/type/name" value="barometry_gauge_type_name" type="static"/>
+<mapping key="barometry/gauge/#/type/index" value="barometry_gauge_type_index" type="static"/>
+<mapping key="barometry/gauge/#/type/description" value="barometry_gauge_type_description" type="static"/>
+<mapping key="barometry/gauge/#/calibration_coefficient" value="barometry_gauge_calibration_coefficient" type="static"/>
+<mapping key="barometry/gauge/#/pressure/data" value="barometry_gauge_pressure_data" type="dynamic"/>
+<mapping key="barometry/gauge/#/pressure/time" value="barometry_gauge_pressure_time" type="dynamic"/>
+
 </mappings>

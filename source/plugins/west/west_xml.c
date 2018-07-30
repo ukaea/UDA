@@ -22,6 +22,7 @@
 #include "west_soft_x_rays.h"
 #include "west_summary.h"
 #include "west_lh_antennas.h"
+#include "west_barometry.h"
 
 char* setBuffer(int data_type, char* value);
 void getShapeOf(const char* command, int shotNumber, int* nb_val);
@@ -197,8 +198,22 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 	else if (strcmp(fun_name, "lh_antennas_position_definition") == 0) {
 		fun = 400;
-    }
-
+	}
+	else if (strcmp(fun_name, "barometry_gauge_name") == 0) {
+		fun = 500;
+	}
+	else if (strcmp(fun_name, "barometry_gauge_type_name") == 0) {
+		fun = 501;
+	}
+	else if (strcmp(fun_name, "barometry_gauge_type_index") == 0) {
+		fun = 502;
+	}
+	else if (strcmp(fun_name, "barometry_gauge_type_description") == 0) {
+		fun = 503;
+	}
+	else if (strcmp(fun_name, "barometry_gauge_calibration_coefficient") == 0) {
+		fun = 504;
+	}
 	UDA_LOG(UDA_LOG_DEBUG, "Case: %d", fun);
 
 	if (fun == -1) {
@@ -546,6 +561,40 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		lh_antennas_position_definition(shotNumber, data_block, nodeIndices);
 		return 0;
 		break;
+	}
+
+	case 500: {
+		UDA_LOG(UDA_LOG_DEBUG, "Case of barometry_gauge_name from WEST plugin\n");
+		barometry_gauge_name(shotNumber, data_block, nodeIndices);
+		return 0;
+		break;
+	}
+	case 501: {
+		UDA_LOG(UDA_LOG_DEBUG, "Case of barometry_gauge_type_name from WEST plugin\n");
+		barometry_gauge_type_name(shotNumber, data_block, nodeIndices);
+		return 0;
+		break;
+	}
+	case 502: {
+		UDA_LOG(UDA_LOG_DEBUG, "Case of barometry_gauge_type_index from WEST plugin\n");
+		barometry_gauge_type_index(shotNumber, data_block, nodeIndices);
+		return 0;
+		break;
+
+	}
+	case 503: {
+		UDA_LOG(UDA_LOG_DEBUG, "Case of barometry_gauge_type_description from WEST plugin\n");
+		barometry_gauge_type_description(shotNumber, data_block, nodeIndices);
+		return 0;
+		break;
+
+	}
+	case 504: {
+		UDA_LOG(UDA_LOG_DEBUG, "Case of barometry_gauge_calibration_coefficient from WEST plugin\n");
+		barometry_gauge_calibration_coefficient(shotNumber, data_block, nodeIndices);
+		return 0;
+		break;
+
 	}
 
 	}

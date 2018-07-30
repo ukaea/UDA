@@ -274,7 +274,6 @@ void SetDynamicDataTime(DATA_BLOCK* data_block, int len, float* data_time, float
 
 void SetDynData(DATA_BLOCK* data_block, int len, float* data_time, float* data, int setTime)
 {
-
 	//IDAM data block initialization
 	initDataBlock(data_block);
 	int i;

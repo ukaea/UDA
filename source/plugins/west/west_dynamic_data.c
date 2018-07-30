@@ -19,6 +19,7 @@
 #include "west_soft_x_rays.h"
 #include "west_summary.h"
 #include "west_lh_antennas.h"
+#include "west_barometry.h"
 
 int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, int* nodeIndices)
 {
@@ -144,6 +145,10 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		lh_antennas_position_z(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_pressure_tank") == 0) {
 		lh_antennas_pressure_tank(shotNumber, data_block, nodeIndices); //TODO
+	}else if (strcmp(fun_name, "barometry_gauge_pressure_data") == 0) {
+		barometry_gauge_pressure_data(shotNumber, data_block, nodeIndices); //TODO
+	}else if (strcmp(fun_name, "barometry_gauge_pressure_time") == 0) {
+		barometry_gauge_pressure_time(shotNumber, data_block, nodeIndices); //TODO
 	}else if (strcmp(fun_name, "test_fun") == 0) {
 		return test_fun(shotNumber, data_block, nodeIndices); //TODO
 	}
