@@ -19,6 +19,14 @@ uda_plugin(
   LIBNAME netcdf4_plugin
   SOURCES
     netCDF4.c netCDF4.h
+    readCDF4.c readCDF4.h
+    readCDF4SubTree.c readCDF4SubTree.h
+    readCDFAtts.c readCDFAtts.h
+    readCDFMeta.c readCDFMeta.h
+    readCDFTypes.c readCDFTypes.h
+    readCDFVar.c readCDFVar.h
+    mastArchiveFilePath.c mastArchiveFilePath.h
+    readCDFStructs.h
   EXTRA_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/source/server/modules/netcdf4
     ${LIBXML2_INCLUDE_DIR}
