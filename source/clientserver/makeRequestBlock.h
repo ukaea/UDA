@@ -15,7 +15,7 @@ extern "C" {
 int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment);
 void extractFunctionName(char* str, REQUEST_BLOCK* request_block);
 int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment);
-int genericRequestTest(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList);
+int genericRequestTest(const char* source, REQUEST_BLOCK* request_block);
 int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRONMENT* environment);
 void expandEnvironmentVariables(REQUEST_BLOCK *request_block);
 int extractSubset(REQUEST_BLOCK *request_block);

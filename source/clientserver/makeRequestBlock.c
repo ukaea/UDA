@@ -18,7 +18,10 @@
 
 int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment)
 {
-    int i, rc, ldelim, err = 0;
+    int i = 0;
+    int rc;
+    int ldelim;
+    int err = 0;
     char work[MAXMETA];
     char work2[MAXMETA];
     unsigned short strip = 1;        // Remove enclosing quotes from name value pairs
@@ -154,7 +157,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
         LeftTrimString(work);
     }
 
-    bool reduceSignal = false;
+    bool reduceSignal;
 
     do {
 
@@ -172,7 +175,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
             // Regular request: pulse or pulse/pass ==> Generic request
 
-            if (genericRequestTest(work, request_block, pluginList)) break;
+            if (genericRequestTest(work, request_block)) break;
 
             // Not a Server Side Function? 		Note: /a/b/fun(aaa) is a (bad!)file path and fun(a/b/c) is a function
 
@@ -236,7 +239,6 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                     p[0] = '\0';
                     LeftTrimString(work2);
                     TrimString(work2);
-                    isFunction = 1;
 
                     request_block->request = REQUEST_READ_SERVERSIDE;
                     extractFunctionName(work, request_block);
@@ -245,7 +247,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
                     // Extract Name Value pairs
 
-                    if ((rc = nameValuePairs(work2, &request_block->nameValueList, strip)) == -1) {
+                    if (nameValuePairs(work2, &request_block->nameValueList, strip) == -1) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                      "Name Value pair syntax is incorrect!");
@@ -261,7 +263,6 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                         if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
                             request_block->request = pluginList.plugin[i].request;                // Found!
                             strcpy(request_block->format, pluginList.plugin[i].format);
-                            isFunction = pluginList.plugin[i].plugin_class == PLUGINFUNCTION;
                             break;
                         }
                     }
@@ -299,7 +300,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                                 extractFunctionName(work, request_block);
                             }
                         } else {
-                            strcpy(request_block->file, (char*)basename(test + ldelim));    // Final token
+                            strcpy(request_block->file, basename(test + ldelim));    // Final token
                         }
                         isFile = pluginList.plugin[i].plugin_class == PLUGINFILE;
                         isServer = pluginList.plugin[i].plugin_class == PLUGINSERVER;
@@ -310,7 +311,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                         // Identify the server protocol - it must be a server protocol!
                         // Substitute the Device name with the protocol and server details
 
-                        int depth = 0;
+                        static int depth = 0;
                         //int id = findPluginRequestByFormat(pluginList.plugin[i].deviceProtocol, &pluginList);
                         int id = findPluginIdByFormat(pluginList.plugin[i].deviceProtocol, &pluginList);
                         if (id >= 0 && pluginList.plugin[id].plugin_class == PLUGINSERVER) {
@@ -409,7 +410,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
                 // Extract Name Value pairs
 
-                if ((rc = nameValuePairs(work, &request_block->nameValueList, strip)) == -1) {
+                if (nameValuePairs(work, &request_block->nameValueList, strip) == -1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "Name Value pair syntax is incorrect!");
@@ -510,7 +511,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
             LeftTrimString(work);
             TrimString(work);
             isFunction = 1;
-            if ((rc = nameValuePairs(work, &request_block->nameValueList, strip)) == -1) {
+            if (nameValuePairs(work, &request_block->nameValueList, strip) == -1) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err, "Name Value pair syntax is incorrect!");
                 return err;
@@ -617,7 +618,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
             if (IsNumber(token)) {                // This should be the tree Number otherwise only the server is passed
                 reverseString(token, work2);            // Un-Reverse the token
-                request_block->exp_number = atoi(work2);    // Extract the Data Tree Number
+                request_block->exp_number = (int)strtol(work2, NULL, 10);    // Extract the Data Tree Number
                 if ((token = strtok(NULL, "/")) != NULL) {
                     reverseString(token, request_block->file);    // This should be the Tree Name
                     work2[0] = '\0';
@@ -916,7 +917,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
         }
 
         if (source[0] == '/' && source[1] != '\0' && isdigit(source[1])) {        // Default File Format?
-            if (genericRequestTest(&source[1], request_block, pluginList)) {        // Matches 99999/999
+            if (genericRequestTest(&source[1], request_block)) {        // Matches 99999/999
                 request_block->request = REQUEST_READ_UNKNOWN;
                 strcpy(request_block->format, environment->api_format);        // the default Server File Format
                 break;
@@ -938,7 +939,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                 PLUGINFILE) {                // The full file path fully resolved by the client
                 strcpy(request_block->file, "");                        // Clean the filename
             } else {
-                strcpy(request_block->file, (char*)basename(request_block->source));    // Final token
+                strcpy(request_block->file, basename(request_block->source));    // Final token
             }
             break;
         }
@@ -947,7 +948,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
     return rc;
 }
 
-int genericRequestTest(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
+int genericRequestTest(const char* source, REQUEST_BLOCK* request_block)
 {
     // Return 1 (TRUE) if the Generic plugin was selected, 0 (FALSE) otherwise
 
@@ -975,7 +976,7 @@ int genericRequestTest(const char* source, REQUEST_BLOCK* request_block, PLUGINL
         rc = 1;
         request_block->request = REQUEST_READ_GENERIC;
         strcpy(request_block->path, "");                    // Clean the path
-        request_block->exp_number = atoi(source);                // Plasma Shot Number
+        request_block->exp_number = (int)strtol(source, NULL, 10);                // Plasma Shot Number
         UDA_LOG(UDA_LOG_DEBUG, "exp number identified, selecting GENERIC plugin.\n");
     } else {
         strcpy(work, source);
@@ -984,10 +985,10 @@ int genericRequestTest(const char* source, REQUEST_BLOCK* request_block, PLUGINL
                 rc = 1;
                 request_block->request = REQUEST_READ_GENERIC;
                 strcpy(request_block->path, "");                // Clean the path
-                request_block->exp_number = atoi(token);
+                request_block->exp_number = (int)strtol(token, NULL, 10);
                 if ((token = strtok(NULL, "/")) != NULL) {            // Next Token
                     if (IsNumber(token)) {
-                        request_block->pass = atoi(token);            // Must be the Pass number
+                        request_block->pass = (int)strtol(token, NULL, 10);            // Must be the Pass number
                     } else {
                         strcpy(request_block->tpass, token);            // capture anything else
                     }
@@ -1083,9 +1084,7 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRON
 
 void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
 {
-
-    char* pcwd;
-    int err, lcwd = STRING_LENGTH - 1;
+    size_t lcwd = STRING_LENGTH - 1;
     char work[STRING_LENGTH];
     char cwd[STRING_LENGTH];
     char ocwd[STRING_LENGTH];
@@ -1095,19 +1094,21 @@ void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
         return;
     }
 
-    if ((pcwd = getcwd(ocwd, lcwd)) == NULL) {    // Current Working Directory
+    if (getcwd(ocwd, lcwd) == NULL) {    // Current Working Directory
         UDA_LOG(UDA_LOG_DEBUG, "Unable to identify PWD!\n");
         return;
     }
 
-    if ((err = chdir(request_block->path)) == 0) {            // Change to path directory
-        pcwd = getcwd(cwd, lcwd);                    // The Current Working Directory is now the resolved directory name
+    if (chdir(request_block->path) == 0) {            // Change to path directory
+        char* pcwd = getcwd(cwd, lcwd);                    // The Current Working Directory is now the resolved directory name
 
         UDA_LOG(UDA_LOG_DEBUG, "Expanding embedded environment variable:\n");
         UDA_LOG(UDA_LOG_DEBUG, "from: %s\n", request_block->path);
         UDA_LOG(UDA_LOG_DEBUG, "to: %s\n", cwd);
 
-        if (pcwd != NULL) strcpy(request_block->path, cwd);    // The expanded path
+        if (pcwd != NULL) {
+            strcpy(request_block->path, cwd);    // The expanded path
+        }
         chdir(ocwd);                        // Return to the Original WD
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables: Direct substitution! \n");
@@ -1163,8 +1164,6 @@ void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
 
         UDA_LOG(UDA_LOG_DEBUG, "Expanding to: %s\n", request_block->path);
     }
-
-    return;
 }
 
 //----------------------------------------------------------------------
