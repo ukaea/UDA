@@ -96,6 +96,122 @@ unsigned int readCDF4Properties()
     return cdfProperties;
 }
 
+int readCDFGlobalMeta(const char* path, DATA_BLOCK* data_block,
+                    LOGMALLOCLIST** logmalloclist, USERDEFINEDTYPELIST** userdefinedtypelist) {
+    //----------------------------------------------------------------------
+    // Is the netCDF File Already open for Reading? If Not then Open in READ ONLY mode
+
+    errno = 0;
+
+    int err = 0;
+    int fd = 0;
+    err = nc_open(path, NC_NOWRITE, &fd);
+
+    ctype = NC_NAT;
+    dctype = NC_NAT;
+
+    if (err != NC_NOERR) {
+        addIdamError(SYSTEMERRORTYPE, "readCDFMetaOnly", err, nc_strerror(err));
+        return 999;
+    }
+
+    int format = 0;
+    if (nc_inq_format(fd, &format) == NC_NOERR) {
+        if (format != NC_FORMAT_NETCDF4) {
+            err = 999;
+            addIdamError(SYSTEMERRORTYPE, "readCDFMetaOnly", err, "Only implemented for netcdf4!");
+            return err;
+        }
+
+    }
+
+    // Top-level group only
+    int grpid = fd;                // Always the Top Level group
+    int* grpids = (int*)malloc(sizeof(int));
+    grpids[0] = fd;
+
+    UDA_LOG(UDA_LOG_DEBUG, "netCDF filename %s\n", path);
+
+    int subtree = 0;
+    HGROUPS hgroups;
+
+    USERDEFINEDTYPE usertype;
+    initHGroup(&hgroups);
+
+    UDA_LOG(UDA_LOG_DEBUG, "Retrieving top-level meta-data.\n");
+
+    // Target all User Defined types within the scope of this sub-tree Root node (unless root node is also sub-tree node: Prevents duplicate definitions)
+    subtree = grpid;        // getCDF4SubTreeMeta  will call getCDF4SubTreeUserDefinedTypes for the root group
+
+    // Only return root-level
+    int depth = 0;
+    int targetDepth = 0;
+
+    // Extract all information about groups, variables and attributes within the sub-tree
+    if ((err = getCDF4SubTreeMeta(subtree, 0, &usertype, *logmalloclist, *userdefinedtypelist, &hgroups, &depth, targetDepth)) != 0) {
+        freeHGroups(&hgroups);
+        data_block->opaque_block = NULL;
+        data_block->opaque_count = 0;
+        data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
+        if (grpids != NULL) free((void*)grpids);
+
+        addIdamError(SYSTEMERRORTYPE, "readCDFMetaOnly", err, nc_strerror(err));
+
+        UDA_LOG(UDA_LOG_DEBUG, "NC File Closed\n");
+        if (fd > 0) {
+            ncclose(fd);
+        }
+
+        return err;
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "updating User Defined Type table\n");
+
+    updateUdt(&hgroups, *userdefinedtypelist);        // Locate udt pointers using list array index values
+
+    UDA_LOG(UDA_LOG_DEBUG, "printing User Defined Type table\n");
+    printUserDefinedTypeListTable(**userdefinedtypelist);
+
+    int attronly = 1;
+    depth = 0;
+    err = getCDF4SubTreeData(*logmalloclist, *userdefinedtypelist, (void**)&data_block->data, &hgroups.groups[0], &hgroups, attronly, &depth, targetDepth);
+
+    if (err == NC_NOERR && hgroups.groups[0].udt != NULL) {
+
+        UDA_LOG(UDA_LOG_DEBUG, "No error and group udt is not null : setting in data block\n");
+
+        malloc_source = MALLOCSOURCENETCDF;
+        data_block->data_type = UDA_TYPE_COMPOUND;
+        data_block->data_n = 1;
+        data_block->rank = 0;
+        data_block->order = -1;
+        data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
+        data_block->opaque_count = 1;
+        data_block->opaque_block = (void*)hgroups.groups[0].udt;
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "Freeing HGroups\n");
+    //freeHGroups(&hgroups);
+
+    // Cleanup
+    if (err != 0) {
+        UDA_LOG(UDA_LOG_DEBUG, "Error non-zero!\n");
+        data_block->opaque_block = NULL;
+        data_block->opaque_count = 0;
+        data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
+    }
+
+    if (grpids != NULL) free((void*)grpids);
+
+    UDA_LOG(UDA_LOG_DEBUG, "NC File Closed\n");
+    if (fd > 0) {
+        ncclose(fd);
+    }
+
+    return err;
+
+}
+
 int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK request_block, DATA_BLOCK* data_block,
             LOGMALLOCLIST** logmalloclist, USERDEFINEDTYPELIST** userdefinedtypelist)
 {
@@ -833,7 +949,10 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
                 // Extract all information about groups, variables and attributes within the sub-tree
 
-                if ((err = getCDF4SubTreeMeta(subtree, 0, &usertype, *logmalloclist, *userdefinedtypelist, &hgroups)) != 0) {
+                int depth = 0;
+                int targetDepth = -1;
+
+                if ((err = getCDF4SubTreeMeta(subtree, 0, &usertype, *logmalloclist, *userdefinedtypelist, &hgroups, &depth, targetDepth)) != 0) {
                     freeHGroups(&hgroups);
                     break;
                 }
@@ -849,7 +968,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
                 UDA_LOG(UDA_LOG_DEBUG, "Creating sub-tree data structure\n");
 
-                err = getCDF4SubTreeData(*logmalloclist, *userdefinedtypelist, (void**)&data_block->data, &hgroups.groups[0], &hgroups);
+                int attronly = 0;
+                err = getCDF4SubTreeData(*logmalloclist, *userdefinedtypelist, (void**)&data_block->data, &hgroups.groups[0], &hgroups, attronly, &depth, targetDepth);
 
                 if (err == NC_NOERR && hgroups.groups[0].udt != NULL) {
                     malloc_source = MALLOCSOURCENETCDF;

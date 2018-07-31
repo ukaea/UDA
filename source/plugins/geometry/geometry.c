@@ -153,9 +153,15 @@ int idamGeom(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         return do_signal_filename(idam_plugin_interface, DBConnect);
     } else if (STR_IEQUALS(request_block->function, "getConfigFilenames")) {
         return do_config_filename(idam_plugin_interface, DBConnect);
+    } else if (STR_IEQUALS(request_block->function, "getMetaData")) {
+        return do_meta(idam_plugin_interface, DBConnect);
     } else if (STR_IEQUALS(request_block->function, "get")) {
         return do_geom_get(idam_plugin_interface, DBConnect);
-    } else {
+    } else if (STR_IEQUALS(request_block->function, "listGeomSignals")) {
+        return do_geom_list_sig(idam_plugin_interface, DBConnect);
+    } else if (STR_IEQUALS(request_block->function, "listGeomGroups")){
+        return do_geom_list_groups(idam_plugin_interface, DBConnect);
+    }else {
         RAISE_PLUGIN_ERROR("Unknown function requested!");
     }
 }

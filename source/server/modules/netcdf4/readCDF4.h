@@ -9,6 +9,9 @@
 int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK request_block, DATA_BLOCK* data_block,
             LOGMALLOCLIST** logmalloclist, USERDEFINEDTYPELIST** userdefinedtypelist);
 
+int readCDFGlobalMeta(const char* path, DATA_BLOCK* data_block,
+                    LOGMALLOCLIST** logmalloclist, USERDEFINEDTYPELIST** userdefinedtypelist);
+
 #ifndef NONETCDFPLUGIN
 #  include <netcdf.h>
 #  include <stdio.h>
@@ -160,14 +163,15 @@ void printNCType(FILE* fd, nc_type type);
 int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist);
 
 int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIST* logmalloclist,
-                       USERDEFINEDTYPELIST* userdefinedtypelist, HGROUPS* hgroups);
+                       USERDEFINEDTYPELIST* userdefinedtypelist, HGROUPS* hgroups,
+		       int* depth, int targetDepth);
 
 int getCDF4SubTreeMetaX(int grpid, int parent, USERDEFINEDTYPE* udt, USERDEFINEDTYPELIST* userdefinedtypelist,
                         HGROUPS* hgroups);
 
 void initHGroup(HGROUPS* hgroups);
 
-int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, void** data, GROUP* group, HGROUPS* hgroups);
+int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, void** data, GROUP* group, HGROUPS* hgroups, int attronly, int* depth, int targetDepth);
 
 int getCDF4SubTreeUserDefinedTypes(int grpid, GROUPLIST* grouplist, USERDEFINEDTYPELIST* userdefinedtypelist);
 

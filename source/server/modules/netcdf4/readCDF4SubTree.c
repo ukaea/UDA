@@ -868,7 +868,7 @@ int getCDF4SubTreeVar2Meta(int grpid, int varid, VARIABLE* variable, int* offset
 
 
 int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIST* logmalloclist,
-                       USERDEFINEDTYPELIST* userdefinedtypelist, HGROUPS* hgroups)
+                       USERDEFINEDTYPELIST* userdefinedtypelist, HGROUPS* hgroups, int* depth, int targetDepth)
 {
     // Create the Hierarchical Structure Definitions that describes the sub-tree
     // Ensure distinct structures (types) with the same name are uniquely identifiable.
@@ -1256,34 +1256,41 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
     //----------------------------------------------------------------------
     // For each child group Recursively Drill down and repeat
 
-    for (i = 0; i < numgrps; i++) {
+    if (*depth != targetDepth) {
 
-        getCDF4SubTreeMeta(grpids[i], grpid, &gusertype, logmalloclist, userdefinedtypelist, hgroups);
+        UDA_LOG(UDA_LOG_DEBUG, "getCDF4SubTreeMeta: Drill down tree\n");
 
-        initCompoundField(&field);
+        *depth = *depth + 1;
 
-        GROUP* x = findHGroup(hgroups, grpids[i]);    // Locate the group and it's name
-        strcpy(field.name, x->grpname);
+        for (i = 0; i < numgrps; i++) {
 
-        field.atomictype = UDA_TYPE_UNKNOWN;
-        strcpy(field.type, gusertype.name);        // This should be unique
+	  getCDF4SubTreeMeta(grpids[i], grpid, &gusertype, logmalloclist, userdefinedtypelist, hgroups, depth, targetDepth);
 
-        field.desc[0] = '\0';
-        field.pointer = 1;
-        field.size = getsizeof(userdefinedtypelist, "void *");
-        field.offset = newoffset(offset, "void *");
-        offset = field.offset + field.size;         // use previous offset for alignment
-        field.offpad = padding(field.offset, "void *");
-        field.alignment = getalignmentof("void *");
+            initCompoundField(&field);
 
-        field.rank = 1;
-        field.count = 1;
-        field.shape = (int*)malloc(field.rank * sizeof(int));
-        field.shape[0] = 1;
+            GROUP *x = findHGroup(hgroups, grpids[i]);    // Locate the group and it's name
+            strcpy(field.name, x->grpname);
 
-        addCompoundField(&usertype, field);
+            field.atomictype = UDA_TYPE_UNKNOWN;
+            strcpy(field.type, gusertype.name);        // This should be unique
+
+            field.desc[0] = '\0';
+            field.pointer = 1;
+            field.size = getsizeof(userdefinedtypelist, "void *");
+            field.offset = newoffset(offset, "void *");
+            offset = field.offset + field.size;         // use previous offset for alignment
+            field.offpad = padding(field.offset, "void *");
+            field.alignment = getalignmentof("void *");
+
+            field.rank = 1;
+            field.count = 1;
+            field.shape = (int *) malloc(field.rank * sizeof(int));
+            field.shape[0] = 1;
+
+            addCompoundField(&usertype, field);
+        }
+
     }
-
     //----------------------------------------------------------------------
     // If Groups exist without data, add a hidden ignorable item to prevent problems
 
@@ -2574,7 +2581,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
 
 
 int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, void** data,
-                       GROUP* group, HGROUPS* hgroups)
+                       GROUP* group, HGROUPS* hgroups, int attronly, int* depth, int targetDepth)
 {
 
 // Now Recursively walk the sub-tree to read all data
@@ -2871,63 +2878,70 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
 
         }
 
-        //----------------------------------------------------------------------
-        // Read Variables
+        if (!attronly) {
+            //----------------------------------------------------------------------
+            // Read Variables
 
-        unsigned short noDimensionData = readCDF4Properties() & NC_NODIMENSIONDATA;
-        unsigned short noAttributeData = readCDF4Properties() & NC_NOATTRIBUTEDATA;
-        unsigned short noVarAttributeData = readCDF4Properties() & NC_NOVARATTRIBUTEDATA;
+            unsigned short noDimensionData = readCDF4Properties() & NC_NODIMENSIONDATA;
+            unsigned short noAttributeData = readCDF4Properties() & NC_NOATTRIBUTEDATA;
+            unsigned short noVarAttributeData = readCDF4Properties() & NC_NOVARATTRIBUTEDATA;
 
-        unsigned short regularVarData = (noVarAttributeData || noAttributeData) && noDimensionData;
+            unsigned short regularVarData = (noVarAttributeData || noAttributeData) && noDimensionData;
 
-        for (i = 0; i < group->numvars; i++) {
-
-            if (fieldid > fieldcount) {
-                err = 999;
-                addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
-                             "Structure Field (variable) Count Exceeded!");
-                break;
-            }
-
-            // DGM TODO: The offsets must match the size of the data objects returned from the netCDF API when the structures are Not pointer based.
-
-            p = (VOIDTYPE*)&p0[group->udt->compoundfield[fieldid++].offset];
-            *p = 0;
-
-            if (regularVarData) {
-                if ((err = getCDF4SubTreeVar2Data(group->grpid, (void**)&d, &group->variable[i], logmalloclist,
-                                                  userdefinedtypelist, &(group->udt->compoundfield[fieldid - 1]))) != 0) {
-                                                      return err;
-                }
-            } else if ((err = getCDF4SubTreeVarData(group->grpid, (void**)&d, &group->variable[i], logmalloclist,
-                                                    userdefinedtypelist)) != 0) {
-                return err;
-            }
-
-            *p = (VOIDTYPE)d;
-        }
-
-        //----------------------------------------------------------------------
-        // For each child group Recursively Drill down and repeat
-
-        for (i = 0; i < group->numgrps; i++) {
-            if ((grp = findHGroup(hgroups, group->grpids[i])) != NULL) {
+            for (i = 0; i < group->numvars; i++) {
 
                 if (fieldid > fieldcount) {
                     err = 999;
-                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, "Structure Field (group) Count Exceeded!");
+                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
+                                 "Structure Field (variable) Count Exceeded!");
                     break;
                 }
 
-                p = (VOIDTYPE*)&p0[group->udt->compoundfield[fieldid++].offset];
+                // DGM TODO: The offsets must match the size of the data objects returned from the netCDF API when the structures are Not pointer based.
+
+                p = (VOIDTYPE *) &p0[group->udt->compoundfield[fieldid++].offset];
                 *p = 0;
-                if ((err = getCDF4SubTreeData(logmalloclist, userdefinedtypelist, (void**)&d, grp, hgroups)) != 0) return err;
-                *p = (VOIDTYPE)d;
-            } else {
-                err = 999;
-                addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
-                             "Problem locating Hierarchical Group Child!");
-                break;
+
+                if (regularVarData) {
+                    if ((err = getCDF4SubTreeVar2Data(group->grpid, (void **) &d, &group->variable[i], logmalloclist,
+                                                      userdefinedtypelist,
+                                                      &(group->udt->compoundfield[fieldid - 1]))) != 0) {
+                        return err;
+                    }
+                } else if ((err = getCDF4SubTreeVarData(group->grpid, (void **) &d, &group->variable[i], logmalloclist,
+                                                        userdefinedtypelist)) != 0) {
+                    return err;
+                }
+
+                *p = (VOIDTYPE) d;
+            }
+        }
+        //----------------------------------------------------------------------
+        // For each child group Recursively Drill down and repeat 
+        if (*depth != targetDepth) {
+            depth = depth + 1;
+
+            for (i = 0; i < group->numgrps; i++) {
+                if ((grp = findHGroup(hgroups, group->grpids[i])) != NULL) {
+
+                    if (fieldid > fieldcount) {
+                        err = 999;
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, "Structure Field (group) Count Exceeded!");
+                        break;
+                    }
+
+                    p = (VOIDTYPE *) &p0[group->udt->compoundfield[fieldid++].offset];
+                    *p = 0;
+                    if ((err = getCDF4SubTreeData(logmalloclist, userdefinedtypelist, (void **) &d, grp, hgroups, attronly, depth, targetDepth)) !=
+                        0)
+                        return err;
+                    *p = (VOIDTYPE) d;
+                } else {
+                    err = 999;
+                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
+                                 "Problem locating Hierarchical Group Child!");
+                    break;
+                }
             }
         }
 

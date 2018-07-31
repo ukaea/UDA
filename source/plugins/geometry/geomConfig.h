@@ -9,5 +9,8 @@
 
 int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBConnect);
 int do_config_filename(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBConnect);
+int do_meta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBConnect);
+int do_geom_list_sig(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBConnect);
+int do_geom_list_groups(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBConnect);
 
 #endif //IDAM_PLUGINS_GEOMETRY_GEOMCONFIG_H

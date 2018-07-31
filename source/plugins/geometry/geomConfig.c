@@ -8,6 +8,575 @@
 #include <structures/struct.h>
 #include <plugins/serverPlugin.h>
 
+int do_meta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBConnect)
+{
+
+    const char* file = NULL;
+    FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, file);
+
+    const char* geomgroup = NULL;
+    FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, geomgroup);
+
+    int isConfig = findValue(&idam_plugin_interface->request_block->nameValueList, "config");
+    int isCal = findValue(&idam_plugin_interface->request_block->nameValueList, "cal");
+
+    float version = -1;
+    FIND_FLOAT_VALUE(idam_plugin_interface->request_block->nameValueList, version);
+
+    int ver = -1;
+    int rev = -1;
+    if (version >= 0) {
+        ver = (int)floor(version);
+        rev = (int)floor(version * 10);
+        UDA_LOG(UDA_LOG_DEBUG, "Version %d, Revision %d", ver, rev);
+    }
+
+    int shot = idam_plugin_interface->request_block->exp_number;
+    UDA_LOG(UDA_LOG_DEBUG, "Exp number %d\n", shot);
+
+    if (file == NULL && !isCal && !isConfig) {
+        RAISE_PLUGIN_ERROR("Filename wasn't given and didn't request configuration or calibration data.\n");
+    }
+
+    if (file == NULL && (geomgroup == NULL || shot == 0)) {
+        RAISE_PLUGIN_ERROR("You must either specify a file OR signal name and shot number.\n")
+    }
+
+    // Find filename if not given
+    if (file == NULL) {
+        PGresult* DBQuery = NULL;
+
+        if (PQstatus(DBConnect) != CONNECTION_OK) {
+            PQfinish(DBConnect);
+            RAISE_PLUGIN_ERROR("Connection to mastgeom database failed.\n");
+        }
+
+        char* group_for_query = (char*)malloc((2 * strlen(geomgroup) + 1) * sizeof(char));
+        int err = 0;
+        PQescapeStringConn(DBConnect, group_for_query, geomgroup, strlen(geomgroup), &err);
+
+        ///////////////////
+        // Construct query to extract filename of the file that needs to be read in
+        char query[MAXSQL];
+
+        // Configuration files
+        // For calibration, we want to check what the configuration file is, that it contains
+        // the signal requested & then find the corresponding calibration file later
+        sprintf(query,
+                "SELECT cds.file_name, cds.config_data_source_id"
+                        " FROM config_data_source cds"
+                        " WHERE lower(cds.geomgroup)=lower('%s')"
+                        "   AND cds.start_shot<=%d AND cds.end_shot>%d",
+                group_for_query, shot, shot);
+
+        // Add version check
+        if (ver >= 0) {
+            char ver_str[2];
+            sprintf(ver_str, "%d", ver);
+            char rev_str[2];
+            sprintf(rev_str, "%d", rev);
+
+            strcat(query, " AND cds.version=");
+            strcat(query, ver_str);
+            strcat(query, " AND cds.revision=");
+            strcat(query, rev_str);
+        } else {
+            strcat(query, " ORDER BY cds.version DESC, cds.revision DESC LIMIT 1;");
+        }
+
+        UDA_LOG(UDA_LOG_DEBUG, "query is %s\n", query);
+
+        /////////////////////////////
+        // Query database
+        if ((DBQuery = PQexec(DBConnect, query)) == NULL) {
+            RAISE_PLUGIN_ERROR("Database query failed.\n");
+        }
+
+        if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
+            PQclear(DBQuery);
+            RAISE_PLUGIN_ERROR("Database query failed.\n");
+        }
+
+        // Retrieve number of rows found in query
+        int nRows = PQntuples(DBQuery);
+
+        /////////////////////////////
+        // No rows found?
+        // For the future: if they've asked for a specific toroidal angle then try to generate geom from the CAD.
+        //                 see commit 91ea8223480cf28228caf30cb43d05fa1c9947db for prototype
+        if (nRows == 0) {
+            UDA_LOG(UDA_LOG_DEBUG, "no rows. isConfig %d\n", isConfig);
+
+            PQclear(DBQuery);
+            RAISE_PLUGIN_ERROR("No rows were found in database matching query\n");
+        }
+
+        /////////////////////////////
+        // We have found a matching file, extract the filename and signal names
+        int s_file = PQfnumber(DBQuery, "file_name");
+        int s_id = PQfnumber(DBQuery, "config_data_source_id");
+
+        int file_id = -1;
+        if (!PQgetisnull(DBQuery, 0, s_id)) {
+            file_id = atoi(PQgetvalue(DBQuery, 0, s_id));
+        }
+
+        char* file_db;
+
+        // Only retrieve filename if config data was asked for.
+        // Otherwise, we will want to retrieve cal filename corresponding to the config later
+        if (!PQgetisnull(DBQuery, 0, s_file) && isConfig) {
+            file_db = PQgetvalue(DBQuery, 0, s_file);
+
+            UDA_LOG(UDA_LOG_DEBUG, "file from db %s\n", file_db);
+
+            //Add on the location
+            char* file_path = getenv("MAST_GEOM_DATA");
+
+            if (file_path == NULL) {
+                RAISE_PLUGIN_ERROR("Could not retrieve MAST_GEOM_DATA environment variable\n");
+            }
+
+            if (file == NULL) {
+                char* filename = (char*)malloc(sizeof(char) * (strlen(file_db) + strlen(file_path) + 2));
+                strcpy(filename, file_path);
+                strcat(filename, "/");
+                strcat(filename, file_db);
+                file = filename;
+            }
+
+            UDA_LOG(UDA_LOG_DEBUG, "file_path %s\n", file);
+        }
+
+        UDA_LOG(UDA_LOG_DEBUG, "Clear db query\n");
+
+        //Close db connection
+        PQclear(DBQuery);
+
+        //////////////////////////
+        // If this is calibration, get cal filename
+        if (isCal) {
+            float version_cal = -1;
+            FIND_FLOAT_VALUE(idam_plugin_interface->request_block->nameValueList, version_cal);
+
+            int ver_cal = -1;
+            int rev_cal = -1;
+            if (version >= 0) {
+                ver_cal = (int)floor(version_cal);
+                rev_cal = (int)floor(version_cal * 10);
+                UDA_LOG(UDA_LOG_DEBUG, "Cal Version %d, Revision %d", ver, rev);
+            }
+
+            PGresult* DBQuery_cal = NULL;
+            char query_cal[MAXSQL];
+
+            sprintf(query_cal,
+                    "SELECT file_name FROM cal_data_source "
+                            " WHERE config_data_source_id=%d "
+                            "AND start_shot <= %d "
+                            "AND end_shot > %d",
+                    file_id, shot, shot);
+
+            // Add version check
+            if (ver_cal >= 0) {
+                char ver_str[2];
+                sprintf(ver_str, "%d", ver_cal);
+                char rev_str[2];
+                sprintf(rev_str, "%d", rev_cal);
+
+                strcat(query, " AND version=");
+                strcat(query, ver_str);
+                strcat(query, " AND revision=");
+                strcat(query, rev_str);
+            } else {
+                strcat(query, " ORDER BY version DESC, revision DESC LIMIT 1;");
+            }
+
+            UDA_LOG(UDA_LOG_DEBUG, "Cal file query %s\n", query_cal);
+
+            if ((DBQuery_cal = PQexec(DBConnect, query_cal)) == NULL) {
+                RAISE_PLUGIN_ERROR("Database query failed.\n");
+            }
+
+            if (PQresultStatus(DBQuery_cal) != PGRES_TUPLES_OK && PQresultStatus(DBQuery_cal) != PGRES_COMMAND_OK) {
+                PQclear(DBQuery_cal);
+                RAISE_PLUGIN_ERROR("Database query for version failed.\n");
+            }
+
+            // Retrieve number of rows found in query
+            nRows = PQntuples(DBQuery_cal);
+
+            /////////////////////////////
+            // No rows found?
+            if (nRows == 0) {
+                UDA_LOG(UDA_LOG_DEBUG, "no rows for query\n");
+
+                PQclear(DBQuery_cal);
+                RAISE_PLUGIN_ERROR("No rows were found in database matching query\n");
+            }
+
+            int s_file_cal = PQfnumber(DBQuery_cal, "file_name");
+
+            if (!PQgetisnull(DBQuery_cal, 0, s_file_cal)) {
+                file_db = PQgetvalue(DBQuery_cal, 0, s_file_cal);
+
+                UDA_LOG(UDA_LOG_DEBUG, "file from db %s\n", file_db);
+
+                //Add on the location
+                char* file_path = getenv("MAST_GEOM_DATA");
+
+                if (file_path == NULL) {
+                    RAISE_PLUGIN_ERROR("Could not retrieve MAST_GEOM_DATA environment variable\n");
+                }
+
+                if (file == NULL) {
+                    char* filename = (char*)malloc(sizeof(char) * (strlen(file_db) + strlen(file_path) + 2));
+                    strcpy(filename, file_path);
+                    strcat(filename, "/");
+                    strcat(filename, file_db);
+                    file = filename;
+                }
+
+                UDA_LOG(UDA_LOG_DEBUG, "file_path %s\n", file);
+            }
+
+            PQclear(DBQuery_cal);
+        }
+
+        UDA_LOG(UDA_LOG_DEBUG, "Close connection\n");
+        free(group_for_query);
+    }
+
+    char request_string[MAXSQL];
+    sprintf(request_string, "NEWCDF4::readglobalmeta(file=%s)", file);
+    int plugin_rc = callPlugin(idam_plugin_interface->pluginList, request_string, idam_plugin_interface);
+
+    if (plugin_rc != 0) {
+        RAISE_PLUGIN_ERROR("Error reading geometry meta-data!\n");
+    }
+
+    return plugin_rc;
+};
+
+int do_geom_list_groups(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBConnect) {
+
+    int shot = idam_plugin_interface->request_block->exp_number;
+    UDA_LOG(UDA_LOG_DEBUG, "Exp number %d\n", shot);
+
+    UDA_LOG(UDA_LOG_DEBUG, "Get connection\n");
+    PGresult* DBQuery = NULL;
+
+    if (PQstatus(DBConnect) != CONNECTION_OK) {
+        PQfinish(DBConnect);
+        RAISE_PLUGIN_ERROR("Connection to mastgeom database failed.\n");
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "Create query\n");
+    char query[MAXSQL];
+
+    sprintf(query, "SELECT distinct(geomgroup) FROM config_data_source");
+
+    if (shot > 0) {
+        char expstr[MAXSQL];
+        sprintf(expstr, " WHERE start_shot<=%d AND end_shot>%d", shot, shot);
+        strcat(query, expstr);
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "Query is %s\n", query);
+
+    /////////////////////////////
+    // Query database
+    if ((DBQuery = PQexec(DBConnect, query)) == NULL) {
+        RAISE_PLUGIN_ERROR("Database query failed.\n");
+    }
+
+    if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
+        PQclear(DBQuery);
+        RAISE_PLUGIN_ERROR("Database query failed.\n");
+    }
+
+    // Retrieve number of rows found in query
+    int nRows = PQntuples(DBQuery);
+
+    /////////////////////////////
+    // No rows found?
+    // For the future: if they've asked for a specific toroidal angle then try to generate geom from the CAD.
+    //                 see commit 91ea8223480cf28228caf30cb43d05fa1c9947db for prototype
+    if (nRows == 0) {
+        UDA_LOG(UDA_LOG_DEBUG, "no rows. \n");
+
+        PQclear(DBQuery);
+        RAISE_PLUGIN_ERROR("No rows were found in database matching query\n");
+    }
+
+    // Struct to store results
+    struct DATASTRUCT {
+        char** geomgroup;
+    };
+    typedef struct DATASTRUCT DATASTRUCT;
+
+    DATASTRUCT* data;
+    data = (DATASTRUCT*)malloc(sizeof(DATASTRUCT));
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(DATASTRUCT), "DATASTRUCT");
+
+    data->geomgroup = (char**)malloc((nRows) * sizeof(char*));
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->geomgroup, nRows, sizeof(char*), "STRING *");
+
+
+    ///////////////////////////
+    // Extract signal names
+    int s_group = PQfnumber(DBQuery, "geomgroup");
+
+    UDA_LOG(UDA_LOG_DEBUG, "retrieve results\n");
+    int i;
+    int stringLength;
+    for (i = 0; i < nRows; i++) {
+        // Retrieve signal alias
+        if (!PQgetisnull(DBQuery, i, s_group)) {
+            stringLength = (int)strlen(PQgetvalue(DBQuery, i, s_group)) + 1;
+            data->geomgroup[i] = (char*)malloc(stringLength * sizeof(char));
+            strcpy(data->geomgroup[i], PQgetvalue(DBQuery, i, s_group));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data->geomgroup[i], stringLength, sizeof(char), "char");
+        }
+    }
+
+    // Close db connection
+    PQclear(DBQuery);
+
+    UDA_LOG(UDA_LOG_DEBUG, "define structure for datablock\n");
+
+    // Output data block
+    USERDEFINEDTYPE parentTree;
+    COMPOUNDFIELD field;
+    int offset = 0;
+
+    //User defined type to describe data structure
+    initUserDefinedType(&parentTree);
+    parentTree.idamclass = UDA_TYPE_COMPOUND;
+    strcpy(parentTree.name, "DATASTRUCT");
+    strcpy(parentTree.source, "idam3");
+    parentTree.ref_id = 0;
+    parentTree.imagecount = 0;
+    parentTree.image = NULL;
+    parentTree.size = sizeof(DATASTRUCT);
+
+    //Compound fields for datastruct
+    initCompoundField(&field);
+    strcpy(field.name, "geomgroup");
+    defineField(&field, "geomgroup", "geomgroup", &offset, ARRAYSTRING);
+    addCompoundField(&parentTree, field);
+
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
+    addUserDefinedType(userdefinedtypelist, parentTree);
+
+    // Put data struct into data block for return
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    initDataBlock(data_block);
+
+    data_block->data_type = UDA_TYPE_COMPOUND;
+    data_block->rank = 0;            // Scalar structure (don't need a DIM array)
+    data_block->data_n = 1;
+    data_block->data = (char*)data;
+
+    strcpy(data_block->data_desc, "signals");
+    strcpy(data_block->data_label, "signals");
+    strcpy(data_block->data_units, "");
+
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_count = 1;
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
+
+    UDA_LOG(UDA_LOG_DEBUG, "everything done\n");
+
+    return 0;
+
+}
+
+int do_geom_list_sig(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBConnect) {
+
+    // User-defined stuff
+    const char* geomgroup = NULL;
+    FIND_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, geomgroup);
+
+    int shot = idam_plugin_interface->request_block->exp_number;
+    UDA_LOG(UDA_LOG_DEBUG, "Exp number %d\n", shot);
+
+    if (shot <= 0) {
+        RAISE_PLUGIN_ERROR("Please specify a shot number.\n");
+    }
+
+    float version = -1;
+    FIND_FLOAT_VALUE(idam_plugin_interface->request_block->nameValueList, version);
+
+    if (version > 0 && geomgroup == NULL) {
+        RAISE_PLUGIN_ERROR("If specifying a version you must also specify a geomgroup.\n");
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "Getting version\n");
+
+    int ver = -1;
+    int rev = -1;
+    if (version >= 0) {
+        ver = (int)floor(version);
+        rev = (int)floor(version * 10);
+        UDA_LOG(UDA_LOG_DEBUG, "Version %d, Revision %d", ver, rev);
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "Get connection\n");
+    PGresult* DBQuery = NULL;
+
+    if (PQstatus(DBConnect) != CONNECTION_OK) {
+        PQfinish(DBConnect);
+        RAISE_PLUGIN_ERROR("Connection to mastgeom database failed.\n");
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "Create query\n");
+    char query[MAXSQL];
+
+    if (geomgroup == NULL && version < 0) {
+        sprintf(query,
+                "WITH ctableid "
+                "  AS ( WITH mxtable AS (SELECT max(version+0.1*revision), geomgroup FROM config_data_source GROUP BY geomgroup) "
+                "       SELECT c.config_data_source_id, c.geomgroup, c.start_shot, c.end_shot, m.max "
+                "       FROM config_data_source c, mxtable m "
+                "       WHERE m.geomgroup=c.geomgroup AND m.max=(c.version+0.1*c.revision) ) "
+                " SELECT ggm.geomsignal_alias FROM ctableid cid, geomgroup_geomsignal_map ggm "
+                " WHERE cid.config_data_source_id=ggm.config_data_source_id AND cid.start_shot<=%d AND cid.end_shot>%d;",
+                shot, shot);
+    } else {
+        char* group_for_query = (char*)malloc((2 * strlen(geomgroup) + 1) * sizeof(char));
+        int err = 0;
+        PQescapeStringConn(DBConnect, group_for_query, geomgroup, strlen(geomgroup), &err);
+
+        sprintf(query,
+                "SELECT ggm.geomsignal_alias "
+                "FROM geomgroup_geomsignal_map ggm, config_data_source c "
+                "WHERE ggm.config_data_source_id=c.config_data_source_id"
+                "      AND c.geomgroup='%s'"
+                "      AND c.start_shot<=%d AND c.end_shot >%d", group_for_query, shot, shot);
+
+        char verstr[MAXSQL];
+        if (version <= 0) {
+            sprintf(verstr,
+                    " AND  (c.version+0.1*c.revision)="
+                    "        (SELECT max(version+0.1*revision) FROM config_data_source "
+                    "         WHERE geomgroup='/magnetics/pickup/' GROUP BY geomgroup)");
+        } else {
+            sprintf(verstr, " AND c.version=%d AND c.revision=%d", ver, rev);
+        }
+        strcat(query, verstr);
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "Query is %s\n", query);
+
+    /////////////////////////////
+    // Query database
+    if ((DBQuery = PQexec(DBConnect, query)) == NULL) {
+        RAISE_PLUGIN_ERROR("Database query failed.\n");
+    }
+
+    if (PQresultStatus(DBQuery) != PGRES_TUPLES_OK && PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
+        PQclear(DBQuery);
+        RAISE_PLUGIN_ERROR("Database query failed.\n");
+    }
+
+    // Retrieve number of rows found in query
+    int nRows = PQntuples(DBQuery);
+
+    /////////////////////////////
+    // No rows found?
+    // For the future: if they've asked for a specific toroidal angle then try to generate geom from the CAD.
+    //                 see commit 91ea8223480cf28228caf30cb43d05fa1c9947db for prototype
+    if (nRows == 0) {
+        UDA_LOG(UDA_LOG_DEBUG, "no rows. \n");
+
+        PQclear(DBQuery);
+        RAISE_PLUGIN_ERROR("No rows were found in database matching query\n");
+    }
+
+
+    // Struct to store results
+    struct DATASTRUCT {
+        char** signal_alias;
+    };
+    typedef struct DATASTRUCT DATASTRUCT;
+
+    DATASTRUCT* data;
+    data = (DATASTRUCT*)malloc(sizeof(DATASTRUCT));
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(DATASTRUCT), "DATASTRUCT");
+
+    data->signal_alias = (char**)malloc((nRows) * sizeof(char*));
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_alias, nRows, sizeof(char*), "STRING *");
+
+
+    ///////////////////////////
+    // Extract signal names
+    int s_alias = PQfnumber(DBQuery, "geomsignal_alias");
+
+    UDA_LOG(UDA_LOG_DEBUG, "retrieve results\n");
+    int i;
+    int stringLength;
+    for (i = 0; i < nRows; i++) {
+        // Retrieve signal alias
+        if (!PQgetisnull(DBQuery, i, s_alias)) {
+            stringLength = (int)strlen(PQgetvalue(DBQuery, i, s_alias)) + 1;
+            data->signal_alias[i] = (char*)malloc(stringLength * sizeof(char));
+            strcpy(data->signal_alias[i], PQgetvalue(DBQuery, i, s_alias));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data->signal_alias[i], stringLength, sizeof(char), "char");
+        }
+    }
+
+    // Close db connection
+    PQclear(DBQuery);
+
+    UDA_LOG(UDA_LOG_DEBUG, "define structure for datablock\n");
+
+    // Output data block
+    USERDEFINEDTYPE parentTree;
+    COMPOUNDFIELD field;
+    int offset = 0;
+
+    //User defined type to describe data structure
+    initUserDefinedType(&parentTree);
+    parentTree.idamclass = UDA_TYPE_COMPOUND;
+    strcpy(parentTree.name, "DATASTRUCT");
+    strcpy(parentTree.source, "idam3");
+    parentTree.ref_id = 0;
+    parentTree.imagecount = 0;
+    parentTree.image = NULL;
+    parentTree.size = sizeof(DATASTRUCT);
+
+    //Compound fields for datastruct
+    initCompoundField(&field);
+    strcpy(field.name, "signal_alias");
+    defineField(&field, "signal_alias", "signal_alias", &offset, ARRAYSTRING);
+    addCompoundField(&parentTree, field);
+
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
+    addUserDefinedType(userdefinedtypelist, parentTree);
+
+    // Put data struct into data block for return
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    initDataBlock(data_block);
+
+    data_block->data_type = UDA_TYPE_COMPOUND;
+    data_block->rank = 0;            // Scalar structure (don't need a DIM array)
+    data_block->data_n = 1;
+    data_block->data = (char*)data;
+
+    strcpy(data_block->data_desc, "signals");
+    strcpy(data_block->data_label, "signals");
+    strcpy(data_block->data_units, "");
+
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_count = 1;
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "DATASTRUCT", 0);
+
+    UDA_LOG(UDA_LOG_DEBUG, "everything done\n");
+
+    return 0;
+}
+
 int do_geom_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBConnect)
 {
     ////////////////////////////

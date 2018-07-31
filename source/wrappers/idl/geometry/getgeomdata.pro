@@ -133,7 +133,14 @@ function combineconfigcalloop, configdata, caldata
      if tag_exists(caldata.data, 'TYPE') then caltype = caldata.data[0].type $
      else caltype = 'RELATIVE'
 
-     toadd = calibrationloop(configdata.data[0], caldata.data[0], caltype=caltype)
+     if n_elements(caldata.data.type) eq 1 then toadd = calibrationloop(configdata.data[0], caldata.data[0], caltype=caltype) $
+     else begin
+        toadd = []
+        for i = 0, n_elements(caldata.data.type)-1 do begin
+           toaddhere = calibrationloop(configdata.data[i], caldata.data[i], caltype=caltype)
+           toadd = [toadd, toaddhere]
+        endfor
+     endelse
 
      combineddata = create_struct(combineddata, 'data', toadd)
   endif else begin
@@ -188,9 +195,9 @@ function getgeomdata, namearg, sourcearg,     $
                       verconfig=verconfig,    $
                       addsignals=addsignals,  $
                       versignal=versignal,    $
-                      torangle=torangle,      $
-                      threed=threed,          $
                       nocal=nocal,            $
+                      cartcoords=cartcoords,  $
+                      cylcoords=cylcoords,    $
                       debug=debug,            $
                       _extra=_extra 
 
@@ -212,6 +219,15 @@ function getgeomdata, namearg, sourcearg,     $
   if (exists(filecal) and not_string(filecal)) then begin
      errmsg='filecal must be a string (containing filepath and name), if it is set.'
      goto, fatalerror
+  endif
+
+  if keyword_set(cartcoords) and keyword_set(cylcoords) then begin
+     errmsg='cartcoords AND cylcoords were set, only cylindircal OR cartesian coordinates can be returned.'
+     goto, fatalerror
+  endif
+
+  if ~keyword_set(cartcoords) and ~keyword_set(cylcoords) then begin
+     cylcoords = 1B
   endif
 
   ; If there is a / at the end, remove it
@@ -236,13 +252,20 @@ function getgeomdata, namearg, sourcearg,     $
         if n_elements(allsignals) gt 1 then begin
            allsignals = multiple_names.data.geomgroups 
            allsignals = strmid(allsignals, 0, transpose(strpos(allsignals, '/', /reverse_search)))
-        endif else allsignals = namearg[0]
+           signalretrieve = allsignals[0]
+        endif else signalretrieve = namearg[0]
      endif else begin
         errmsg='Signal was not recognized'
         goto, fatalerror
      endelse
+
+     ; Retrieve coordinate system from header info
+     header_info = getstruct('GEOM::getMetaData(geomgroup='+allsignals[0]+', /config)', sourcearg[0])
+     coordsystem = header_info.data.coordinatesystem
   endif else begin
-     allsignals = namearg[0]
+     signalretrieve = namearg[0]
+     header_info = getstruct('GEOM::getMetaData(file='+sourcearg[0]+')', 50000)
+     coordsystem = header_info.data.coordinatesystem
   endelse
 
   datastruct = {}
@@ -257,16 +280,14 @@ function getgeomdata, namearg, sourcearg,     $
   if exists(sourcearg) and not isfile then worksource = strtrim(sourcearg[0], 2) $
   else worksource = ''
 
-  for i = 0, n_elements(allsignals)-1 do begin
-     configname = strtrim(allsignals[i], 2)
+;  for i = 0, n_elements(allsignals)-1 do begin
+     configname = strtrim(signalretrieve, 2)
 
      ; Retrieve configuration data
-     workname = 'GEOM::get(signal='+strtrim(allsignals[i])+', '
+     workname = 'GEOM::get(signal='+strtrim(signalretrieve)+', '
                                             
      if isfile then workname = workname+'file='+strtrim(sourcearg[0],2)+', '
      if exists(verconfig) then workname = workname+'version='+strtrim(verconfig[0], 2)+', '
-     if exists(torangle) and not keyword_set(threed) then workname = workname+'tor_angle='+strtrim(torangle[0], 2)+', '
-     if keyword_set(threed) then workname = workname+'three_d=True, '
      if not isfile then workname = workname+'config=1)' $
      else workname = workname+')'
     
@@ -296,12 +317,10 @@ function getgeomdata, namearg, sourcearg,     $
 
      if ~keyword_set(nocal) then begin
         ; Adjust call for retrieving calibration data
-        workname = 'GEOM::get(signal='+strtrim(allsignals[i])+', '
+        workname = 'GEOM::get(signal='+strtrim(signalretrieve)+', '
         if exists(filecal) then workname = workname+'file='+strtrim(filecal[0],2)+', '
         if exists(verconfig) then workname = workname+'version='+strtrim(verconfig[0], 2)+', '
         if exists(vercal) then workname = workname+'version_cal='+strtrim(vercal[0], 2)+', '
-        if exists(torangle) then workname = workname+'tor_angle='+strtrim(torangle[0], 2)+', '
-        if keyword_set(threed) then workname = workname+'three_d=True, '
         if undefined(filecal) then workname = workname+'cal=1)' $
         else workname = workname + ')'
 
@@ -319,13 +338,13 @@ function getgeomdata, namearg, sourcearg,     $
               if tag_exists(calstruct, 'data') then begin
                  ; Combine configuration and
                  ; calibration data
-                 combinedstruct = combineconfigcal(configstruct.data.data, calstruct.data.data, allsignals[i], signal_type)
+                 combinedstruct = combineconfigcal(configstruct.data.data, calstruct.data.data, signalretrieve, signal_type)
               endif
            endif else begin
-              warning = warning+':: No calibration data was found for '+allsignals[i]
+              warning = warning+':: No calibration data was found for '+signalretrieve
            endelse
         endif else begin
-           warning = warning+':: No calibration data was requrested for '+allsignals[i]
+           warning = warning+':: No calibration data was requrested for '+signalretrieve
         endelse
      endif else begin
         warning = warning+':: nocal keyword was set so no calibration was applied'
@@ -333,41 +352,48 @@ function getgeomdata, namearg, sourcearg,     $
 
      ; Apply any transformations etc. that
      ; have been asked for. (eg. projection to poloidal plane)
-     combinedstruct = applygeommanipulation(combinedstruct, allsignals[i], _extra=_extra)
+     combinedstruct = applygeommanipulation(combinedstruct, signalretrieve, _extra=_extra)
 
-     if n_elements(allsignals) gt 1 then begin
-        tag_name_signal = strmid(allsignals[i], strpos(allsignals[i], '/', /reverse_search)+1)
-        datastruct = create_struct(datastruct, tag_name_signal, combinedstruct)
-     endif else begin
-        datastruct = combinedstruct
-     endelse
-
-     if keyword_set(addsignals) then begin
-        workname = 'GEOM::getSignalFilename(geomsignal="'+allsignals[i]+'"'       
-        
-        if exists(versignal) and is_integer(versignal) then workname = workname+', version='+strtrim(versignal, 2)
-        workname = workname+')'    
-
-        siginfo_struct = getstruct(workname, worksource)
-
-        if siginfo_struct.erc eq 0 and signalinfostruct eq !NULL then begin
-           signalinfostruct = siginfo_struct.data
-        endif else if siginfo_struct.erc eq 0 then begin
-           signalinfostruct.filenames = [signalinfostruct.filenames, siginfo_struct.filenames]
-           signalinfostruct.geom_alias = [signalinfostruct.geom_alias, siginfo_struct.geom_alias]
-           signalinfostruct.signal_alias = [signalinfostruct.signal_alias, siginfo_struct.signal_alias]
-           signalinfostruct.var_name = [signalinfostruct.var_name, siginfo_struct.var_name]
-        endif
+     ; Convert cartesian coordinates => cylindrical coordinates or vice versa
+     ; if requested and necessary
+     if (strcmp(coordsystem, 'cylindrical', /fold_case) and keyword_set(cartcoords)) or (strcmp(coordsystem, 'cartesian', /fold_case) and keyword_set(cylcoords)) then begin
+        combinedstruct = convertgeomcoords(combinedstruct, signalretrieve, cartcoords=cartcoords, cylcoords=cylcoords)
      endif
-  endfor
+
+
+;     if n_elements(allsignals) gt 1 then begin
+;        tag_name_signal = strmid(allsignals[i], strpos(allsignals[i], '/', /reverse_search)+1)
+;        datastruct = create_struct(datastruct, tag_name_signal, combinedstruct)
+;     endif else begin
+     datastruct = combinedstruct
+;     endelse
+
+;     if keyword_set(addsignals) then begin
+;        workname = 'GEOM::getSignalFilename(geomsignal="'+allsignals[i]+'"'       
+;        
+;        if exists(versignal) and is_integer(versignal) then workname = workname+', version='+strtrim(versignal, 2)
+;        workname = workname+')'    
+;
+;        siginfo_struct = getstruct(workname, worksource)
+;
+;        if siginfo_struct.erc eq 0 and signalinfostruct eq !NULL then begin
+;           signalinfostruct = siginfo_struct.data
+;        endif else if siginfo_struct.erc eq 0 then begin
+;           signalinfostruct.filenames = [signalinfostruct.filenames, siginfo_struct.filenames]
+;           signalinfostruct.geom_alias = [signalinfostruct.geom_alias, siginfo_struct.geom_alias]
+;           signalinfostruct.signal_alias = [signalinfostruct.signal_alias, siginfo_struct.signal_alias]
+;           signalinfostruct.var_name = [signalinfostruct.var_name, siginfo_struct.var_name]
+;        endif
+;     endif
+;  endfor
 
   datastruct = {erc: 0, errmsg: '', warnmsg: warning, signal: idamcalls, source: sourcearg, handle: idamhandles, data: datastruct}
 
-  ; If asked for, also retrieve mapping to signal data.
-  if keyword_set(addsignals) and signalinfostruct ne !NULL then begin
-     init_signal = namearg[0]
-     addsignaldata, datastruct, signalinfostruct, init_signal, sourcearg, versignal=versignal, debug=debug
-  endif
+;  ; If asked for, also retrieve mapping to signal data.
+;  if keyword_set(addsignals) and signalinfostruct ne !NULL then begin
+;     init_signal = namearg[0]
+;     addsignaldata, datastruct, signalinfostruct, init_signal, sourcearg, versignal=versignal, debug=debug
+;  endif
 
   return, datastruct
 

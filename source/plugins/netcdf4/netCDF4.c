@@ -21,14 +21,11 @@
 #include "netCDF4.h"
 
 #include <clientserver/stringUtils.h>
+
+#include <readCDF4.h>
 #include <plugins/managePluginFiles.h>
 
-#include "readCDF4.h"
-#include "mastArchiveFilePath.h"
-
 IDAMPLUGINFILELIST pluginFileList;    // Private list of open data file handles
-
-USERDEFINEDTYPELIST parseduserdefinedtypelist;
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
@@ -39,7 +36,49 @@ static int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_meta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
-extern int netCDF4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+static void mastArchiveFilePath(int pulno, int pass, char* file, char* path, const ENVIRONMENT* environment)
+{
+    char strint[56];
+    char* env = NULL;
+
+    // Path Root
+
+    strcpy(path, DEFAULT_ARCHIVE_DIR);        // Default location
+
+    if ((env = getenv("MAST_DATA")) != NULL) {    // MAST Archive Root Directory Environment Variable?
+        strcpy(path, env);
+        if (path[strlen(path)] != '/') strcat(path, "/");
+    }
+
+    // Alternative Paths
+
+    if (environment->data_path_id == 0) {
+        sprintf(strint, "%d", pulno);
+        strcat(path, strint);            // Original naming convention
+    } else {
+        if (pulno <= 99999)
+            sprintf(strint, "/0%d/%d", pulno / 1000, pulno);
+        else
+            sprintf(strint, "/%d/%d", pulno / 1000, pulno);
+        strcat(path, strint);
+    }
+
+    // Add the Pass element to the Path
+
+    if (pass == -1) {
+        strcat(path, "/LATEST/");
+    } else {
+        strcat(path, "/Pass");
+        sprintf(strint, "%d", pass);
+        strcat(path, strint);
+        strcat(path, "/");
+    }
+
+    strcat(path, file);        // Full filename path
+}
+
+
+extern int idamCDF4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     static short init = 0;
 
@@ -73,8 +112,6 @@ extern int netCDF4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         || STR_IEQUALS(request_block->function, "initialise")) {
 
         initIdamPluginFileList(&pluginFileList);
-
-        parseduserdefinedtypelist = *idam_plugin_interface->userdefinedtypelist;
 
         init = 1;
         if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
@@ -226,28 +263,11 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     const char* signal = NULL;
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
 
+    strcpy(data_source->path, file);
     strcpy(signal_desc->signal_name, signal);
 
-    if (STR_EQUALS(file, "")) {
-        sprintf(data_source->path, "%s%06d.nc", data_source->source_alias, request_block->exp_number);
-    } else {
-        strcpy(data_source->path, file);
-    }
-
-    char* tmp = strdup(data_source->path);
-
-    // TODO: This should be handled by the MAST plugin
-    if (data_source->type == 'R') {
-        mastArchiveFilePath(request_block->exp_number, -1, tmp, data_source->path,
-                            idam_plugin_interface->environment);    // Always Latest
-    } else if (data_source->path[0] == '\0') {
-        mastArchiveFilePath(request_block->exp_number, request_block->pass, tmp, data_source->path,
-                            idam_plugin_interface->environment);
-    }
-
     // Legacy data reader!
-    int err = readCDF(data_source->path, signal_desc->signal_name, signal_desc->signal_alias, data_block,
-            request_block->subset, &request_block->datasubset,
+    int err = readCDF(*data_source, *signal_desc, *request_block, data_block,
             &idam_plugin_interface->logmalloclist, &idam_plugin_interface->userdefinedtypelist);
 
     return err;
