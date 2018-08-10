@@ -80,10 +80,12 @@ set( INSTALL_FILES
   calluda.pro
   geometry/addsignaldata.pro
   geometry/applygeommanipulation.pro
-  geometry/cylindrical_cartesian.pro
-  geometry/getgeomdata.pro
-  geometry/getgeomsignaldata.pro
-  geometry/pickupmanipulation.pro
+  geometry/cartesian_cylindrical.pro
+  geometry/convertgeomcoords.pro
+  geometry/cylindrical_cartesian.pro  
+  geometry/getgeomdata.pro  
+  geometry/getgeomsignaldata.pro 
+  geometry/pickupmanipulation.pro 
   geometry/strnumber.pro
   putdata/putdata.pro
   putdata/putdata__define.pro
