@@ -77,13 +77,13 @@ else()
   )
 
   install( FILES ${CMAKE_CURRENT_BINARY_DIR}/c_uda.py
-    DESTINATION python/pyuda
+    DESTINATION python_installer/pyuda
   )
 
   file( GLOB INSTALL_FILES pyuda/*.py )
 
   install( FILES ${INSTALL_FILES}
-    DESTINATION python/pyuda
+    DESTINATION python_installer/pyuda
   )
 
   find_package( OpenSSL REQUIRED )
@@ -95,6 +95,6 @@ else()
     FILES
     ${CMAKE_CURRENT_BINARY_DIR}/${PY_WRAPPER_CODE}
     ${CMAKE_CURRENT_BINARY_DIR}/setup.py
-    DESTINATION python
+    DESTINATION python_installer
   )
 endif()

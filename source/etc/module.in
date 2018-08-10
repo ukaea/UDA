@@ -12,8 +12,8 @@ setenv              UDA_DIR             $UDA_DIR
 setenv              UDA_HOST            @UDA_HOST@
 setenv              UDA_PORT            @UDA_PORT@
 
-prepend-path        PYTHONPATH          $UDA_DIR/include
-prepend-path        LD_LIBRARY_PATH     $UDA_DIR/lib:$UDA_DIR/include/pyidam
+prepend-path        PYTHONPATH          $UDA_DIR/python
+prepend-path        LD_LIBRARY_PATH     $UDA_DIR/lib
 prepend-path        IDL_DLM_PATH        $UDA_DIR/dlm
 prepend-path        IDL_PATH            $UDA_DIR/idl
 prepend-path        PKG_CONFIG_PATH     $UDA_DIR/etc
