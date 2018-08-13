@@ -460,7 +460,7 @@ int do_geom_list_sig(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBCon
             sprintf(verstr,
                     " AND  (c.version+0.1*c.revision)="
                     "        (SELECT max(version+0.1*revision) FROM config_data_source "
-                    "         WHERE geomgroup='/magnetics/pickup/' GROUP BY geomgroup)");
+                    "         WHERE geomgroup='%s' GROUP BY geomgroup)", group_for_query);
         } else {
             sprintf(verstr, " AND c.version=%d AND c.revision=%d", ver, rev);
         }

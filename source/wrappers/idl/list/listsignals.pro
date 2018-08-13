@@ -69,8 +69,6 @@ function listSignals, shot=shot, pulno=pulno, exp_number=exp_number, pass=pass, 
                                 MDS_NAME: '' }, n_signals)
   endelse
 
-  help, signalstruct.signal_alias
-  help, signallist.signal_name
   signalstruct.signal_alias = signallist.signal_name
   signalstruct.generic_name = signallist.generic_name
   signalstruct.type = signallist.type

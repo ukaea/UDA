@@ -84,7 +84,9 @@ set( INSTALL_FILES
   geometry/convertgeomcoords.pro
   geometry/cylindrical_cartesian.pro  
   geometry/getgeomdata.pro  
-  geometry/getgeomsignaldata.pro 
+  geometry/getgeomsignaldata.pro
+  geometry/listgeomsignals.pro
+  geometry/listgeomgroups.pro
   geometry/pickupmanipulation.pro 
   geometry/strnumber.pro
   putdata/putdata.pro

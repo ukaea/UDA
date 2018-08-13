@@ -68,6 +68,8 @@ class Client(with_metaclass(ClientMeta, object)):
         try:
             from mastgeom import GeomClient
             self._registered_subclients['geometry'] = GeomClient(self)
+            self._registered_subclients['listGeomSignals'] = GeomClient(self)
+            self._registered_subclients['listGeomGroups'] = GeomClient(self)
         except ImportError:
             pass
         
@@ -150,7 +152,7 @@ class Client(with_metaclass(ClientMeta, object)):
 
     def __getattr__(self, item):
         if item in self._registered_subclients:
-            return self._registered_subclients[item].get
+            return getattr(self._registered_subclients[item], item)
 
         raise AttributeError("%s method not found in registered subclients" % item)
 
