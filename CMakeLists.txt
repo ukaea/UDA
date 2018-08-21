@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.1 )
+cmake_minimum_required( VERSION 3.0 )
 
 ########################################################################################################################
 # CMake configuration
@@ -65,8 +65,15 @@ if( "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" )
   set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Qunused-arguments" )
 endif()
 
-set( CMAKE_CXX_STANDARD 11 )
-set( CMAKE_C_STANDARD 99 )
+if( CMAKE_VERSION VERSION_GREATER 3.0.9 )
+  set( CMAKE_CXX_STANDARD 11 )
+  set( CMAKE_C_STANDARD 90 )
+else()
+  if( NOT WIN32 OR MINGW )
+    set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu89" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
+  endif()
+endif()
 
 if( NOT WIN32 OR MINGW )
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -pthread" )
