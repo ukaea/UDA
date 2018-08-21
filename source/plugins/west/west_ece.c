@@ -28,79 +28,362 @@ int ARCADE_GECEMODE_EXISTS_FROM_SHOT = 50820; //TODO
 
 int getECEModeFromNPZFile(int shotNumber);
 int getECEModeHarmonic(int shotNumber, float** time, float** data, int* len);
+int get_signal(char* nomsigp, int shotNumber, int extractionIndex, float** time, float** data, int* len);
+int isTimeHomogeneous1(int shotNumber);
+int isTimeHomogeneous2(int shotNumber);
+int isTimeHomogeneous3(int shotNumber);
+void ece_t_e_time1(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+void ece_t_e_time2(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+void ece_t_e_time3(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-int test_fun(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
-{
-	return 0;
-}
-
-int ece_harmonic_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
-{
-
-	//int channel = nodeIndices[0]; //starts from 1
-
-	float* data = NULL;
-	float* time = NULL;
-	int len;
-
-	int status = getECEModeHarmonic(shotNumber, &time, &data, &len);
-	if (status != 0) {
-		free(time);
-		free(data);
-		return status;
-	}
-
-	if (shotNumber >= ARCADE_GECEMODE_EXISTS_FROM_SHOT) {
-		SetDynamicData(data_block, len, time, data);
-	}
-	else
-	{
-		data = malloc(sizeof(float) * len);
-		int mode = getECEModeFromNPZFile(shotNumber); //Get the ECE acquisition mode from NPZ file
-		UDA_LOG(UDA_LOG_DEBUG, "ECE mode: %d\n", mode);
-		if (mode == -1) { //ERROR
-			free(time);
-			free(data);
-			return -1;
+void homogeneous_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices){
+	int homogeneous_time;
+	if (shotNumber < SHOT_30814) {
+		homogeneous_time = isTimeHomogeneous1(shotNumber);
+	} else {
+		if (shotNumber < SHOT_31957) {
+			homogeneous_time = isTimeHomogeneous2(shotNumber);
+		} else {
+			homogeneous_time = isTimeHomogeneous3(shotNumber);
 		}
-		int i;
-		for (i = 0; i < len; i++)
-			data[i] = mode;
-
-		SetDynamicData(data_block, len, time, data);
 	}
-	return 0;
+	if (homogeneous_time == -1) //an error has occurred, we do not set the field
+		return;
+	setReturnDataIntScalar(data_block, homogeneous_time, NULL);
 }
 
-int ece_harmonic_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+void ece_t_e_data_shape_of(int shotNumber, char** mapfun)
 {
-
-	//int channel = nodeIndices[0]; //UDA request index, starts from 1
-	float* data = NULL;
-	float* time = NULL;
-	int len;
-	UDA_LOG(UDA_LOG_DEBUG, "Calling getECEModeHarmonic() \n");
-	int status = getECEModeHarmonic(shotNumber, &time, &data, &len);
-	if (status != 0) {
-		free(time);
-		free(data);
-		return status;
+	if (shotNumber < SHOT_30814) {
+		*mapfun = strdup("shape_of_tsmat_collect;DECE:GSH1:VOIE,DECE:GSH2:VOIE;0:float:#0");
+	} else {
+		if (shotNumber < SHOT_31957) {
+			*mapfun = strdup("shape_of_tsmat_collect;DVECE:GVSH1:VOIE,DVECE:GVSH2:VOIE;0:float:#0");
+		} else {
+			*mapfun = strdup(
+					"shape_of_tsmat_collect;DVECE:GVSH1:VOIE,DVECE:GVSH2:VOIE,DVECE:GVSH3:VOIE,DVECE:GVSH4:VOIE;0:float:#0");
+		}
 	}
-	UDA_LOG(UDA_LOG_DEBUG, "ECE harmonic mode time array length: %d\n", len);
+}
 
-	//	UDA_LOG(UDA_LOG_DEBUG, "%s\n", "First time values...");
-	//	int j;
-	//	for (j=0; j <10; j++) {
-	//		UDA_LOG(UDA_LOG_DEBUG, "time : %f\n", time[j]);
-	//	}
-	SetDynamicDataTime(data_block, len, time, data);
-	UDA_LOG(UDA_LOG_DEBUG, "reaching end of function of ece_harmonic_time()\n");
-	return 0;
+void ece_t_e_data(int shotNumber, char** mapfun)
+{
+	if (shotNumber < SHOT_30814) {
+		*mapfun = strdup("tsbase_collect;DECE:GSH1,DECE:GSH2;1:float:#0");
+	} else {
+		if (shotNumber < SHOT_31957) {
+			*mapfun = strdup("tsbase_collect;DVECE:GVSH1,DVECE:GVSH2;1:float:#0");
+		} else {
+			*mapfun = strdup("tsbase_collect;DVECE:GVSH1,DVECE:GVSH2,DVECE:GVSH3,DVECE:GVSH4;1:float:#0");
+		}
+	}
+}
+
+void ece_t_e_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+{
+	int homogeneous_time;
+
+	if (shotNumber < SHOT_30814) {
+		//*mapfun = strdup("tsbase_time;DECE:GSH1,DECE:GSH2;1:float:#0");
+		homogeneous_time = isTimeHomogeneous1(shotNumber);
+		if (homogeneous_time == -1 || homogeneous_time == 1) {
+			return;
+		}
+		ece_t_e_time1(shotNumber, data_block, nodeIndices);
+	} else {
+		if (shotNumber < SHOT_31957) {
+			//*mapfun = strdup("tsbase_time;DVECE:GVSH1,DVECE:GVSH2;1:float:#0");
+			homogeneous_time = isTimeHomogeneous2(shotNumber);
+			if (homogeneous_time == -1 || homogeneous_time == 1) {
+				return;
+			}
+			ece_t_e_time2(shotNumber, data_block, nodeIndices);
+		} else {
+			//*mapfun = strdup("tsbase_time;DVECE:GVSH1,DVECE:GVSH2,DVECE:GVSH3,DVECE:GVSH4;1:float:#0");
+			homogeneous_time = isTimeHomogeneous3(shotNumber);
+			if (homogeneous_time == -1 || homogeneous_time == 1) {
+				return;
+			}
+			ece_t_e_time3(shotNumber, data_block, nodeIndices);
+		}
+	}
+}
+
+void ece_t_e_time1(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
+
+	int channelID = nodeIndices[0];
+	int extractionIndex = channelID;
+
+	int GVSH_extractions_count[2];
+	getExtractionsCount("GSH1", shotNumber, 0, &GVSH_extractions_count[0]);
+	getExtractionsCount("GSH2", shotNumber, 0, &GVSH_extractions_count[1]);
+
+	char tableName[4];
+
+	if (extractionIndex <= GVSH_extractions_count[0]) {
+		strcpy (tableName,"GSH1");
+	} else if ((extractionIndex > GVSH_extractions_count[0]) && (extractionIndex <= GVSH_extractions_count[1])) {
+		strcpy (tableName,"GSH2");
+	}
+
+	int status = setUDABlockTimeFromArcade(tableName, shotNumber, extractionIndex, data_block, nodeIndices);
+	if (status != 0) {
+		int err = 901;
+		char* errorMsg = "WEST:ERROR (west_ece) : unable to get object : ";
+		strcat(errorMsg, tableName);
+		strcat(errorMsg, " for shot : ");
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+	}
+}
+
+void ece_t_e_time2(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
+	int channelID = nodeIndices[0];
+	int extractionIndex = channelID;
+
+	int GVSH_extractions_count[2];
+	getExtractionsCount("GVSH1", shotNumber, 0, &GVSH_extractions_count[0]);
+	getExtractionsCount("GVSH2", shotNumber, 0, &GVSH_extractions_count[1]);
+
+	char tableName[5];
+
+	if (extractionIndex <= GVSH_extractions_count[0]) {
+		strcpy (tableName,"GVSH1");
+	} else if ((extractionIndex > GVSH_extractions_count[0]) && (extractionIndex <= GVSH_extractions_count[1])) {
+		strcpy (tableName,"GVSH2");
+	}
+
+	int status = setUDABlockTimeFromArcade(tableName, shotNumber, extractionIndex, data_block, nodeIndices);
+	if (status != 0) {
+		int err = 901;
+		char* errorMsg = "WEST:ERROR (west_ece) : unable to get object : ";
+		strcat(errorMsg, tableName);
+		strcat(errorMsg, " for shot : ");
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+	}
+}
+
+void ece_t_e_time3(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
+	int channelID = nodeIndices[0];
+	int extractionIndex = channelID;
+
+	int GVSH_extractions_count[4];
+	getExtractionsCount("GVSH1", shotNumber, 0, &GVSH_extractions_count[0]);
+	getExtractionsCount("GVSH2", shotNumber, 0, &GVSH_extractions_count[1]);
+	getExtractionsCount("GVSH3", shotNumber, 0, &GVSH_extractions_count[2]);
+	getExtractionsCount("GVSH4", shotNumber, 0, &GVSH_extractions_count[3]);
+
+	char tableName[5];
+
+	if (extractionIndex <= GVSH_extractions_count[0]) {
+		strcpy (tableName,"GVSH1");
+	} else if ((extractionIndex > GVSH_extractions_count[0]) && (extractionIndex <= GVSH_extractions_count[1])) {
+		strcpy (tableName,"GVSH2");
+	} else if ((extractionIndex > GVSH_extractions_count[1]) && (extractionIndex <= GVSH_extractions_count[2])) {
+		strcpy (tableName,"GVSH3");
+	} else if ((extractionIndex > GVSH_extractions_count[3]) && (extractionIndex <= GVSH_extractions_count[4])) {
+		strcpy (tableName,"GVSH4");
+	}
+
+	int status = setUDABlockTimeFromArcade(tableName, shotNumber, extractionIndex, data_block, nodeIndices);
+	if (status != 0) {
+		int err = 901;
+		char* errorMsg = "WEST:ERROR (west_ece) : unable to get object : ";
+		strcat(errorMsg, tableName);
+		strcat(errorMsg, " for shot : ");
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+	}
+}
+
+
+int isTimeHomogeneous1(int shotNumber) {
+	int GSH1_extractions_count = 0;
+	int size1 = 0;
+	getExtractionsCount("GSH1", shotNumber, 0, &GSH1_extractions_count);
+	float *time1 = NULL;
+	float *data1 = NULL;
+	int status = get_signal("GSH1", shotNumber, 1, &time1, &data1, &size1);
+
+	if (status != 0) {
+		return -1; //return if status is different of 0
+	}
+
+	int GSH2_extractions_count = 0;
+	int size2 = 0;
+	getExtractionsCount("GSH2", shotNumber, 0, &GSH2_extractions_count);
+	float *time2 = NULL;
+	float *data2 = NULL;
+	status = get_signal("GSH2", shotNumber, 1, &time2, &data2, &size2);
+
+	if (status != 0 || size1 != size2) {
+		return -1; //return if status is different of 0
+	}
+
+	if (equals(time1, time2, size1) == 1) {
+		return 1; //time is homogeneous
+	}
+	else {
+		return 0; //time is not homogeneous
+	}
+}
+
+int isTimeHomogeneous2(int shotNumber) {
+	int GVSH1_extractions_count = 0;
+	int size1 = 0;
+	getExtractionsCount("GVSH1", shotNumber, 0, &GVSH1_extractions_count);
+	float *time1 = NULL;
+	float *data1 = NULL;
+	int status = get_signal("GVSH1", shotNumber, 1, &time1, &data1, &size1);
+
+	if (status != 0) {
+		return -1; //return if status is different of 0
+	}
+
+	int GVSH2_extractions_count = 0;
+	int size2 = 0;
+	getExtractionsCount("GVSH2", shotNumber, 0, &GVSH2_extractions_count);
+	float *time2 = NULL;
+	float *data2 = NULL;
+	status = get_signal("GVSH2", shotNumber, 1, &time2, &data2, &size2);
+
+	if (status != 0 || size1 != size2) {
+		return -1; //return if status is different of 0
+	}
+
+	if (equals(time1, time2, size1) == 1) {
+		return 1; //time is homogeneous
+	}
+	else {
+		return 0; //time is not homogeneous
+	}
+}
+
+int isTimeHomogeneous3(int shotNumber) {
+	int GVSH1_extractions_count = 0;
+	int size1 = 0;
+	getExtractionsCount("GVSH1", shotNumber, 0, &GVSH1_extractions_count);
+	float *time1 = NULL;
+	float *data1 = NULL;
+	int status = get_signal("GVSH1", shotNumber, 1, &time1, &data1, &size1);
+
+	if (status != 0) {
+		return -1; //return if status is different of 0
+	}
+
+	int GVSH2_extractions_count = 0;
+	int size2 = 0;
+	getExtractionsCount("GVSH2", shotNumber, 0, &GVSH2_extractions_count);
+	float *time2 = NULL;
+	float *data2 = NULL;
+	status = get_signal("GVSH2", shotNumber, 1, &time2, &data2, &size2);
+
+	if (status != 0 || size1 != size2) {
+		return -1; //return if status is different of 0
+	}
+
+	int GVSH3_extractions_count = 0;
+	int size3 = 0;
+	getExtractionsCount("GVSH3", shotNumber, 0, &GVSH3_extractions_count);
+	float *time3 = NULL;
+	float *data3 = NULL;
+	status = get_signal("GVSH3", shotNumber, 1, &time3, &data3, &size3);
+
+	if (status != 0 || size2 != size3) {
+		return -1; //return if status is different of 0
+	}
+
+	int GVSH4_extractions_count = 0;
+	int size4 = 0;
+	getExtractionsCount("GVSH4", shotNumber, 0, &GVSH4_extractions_count);
+	float *time4 = NULL;
+	float *data4 = NULL;
+	status = get_signal("GVSH4", shotNumber, 1, &time4, &data4, &size4);
+
+	if (status != 0 || size3 != size4) {
+		return -1; //return if status is different of 0
+	}
+
+	if (equals(time1, time2, size1) && equals(time2, time3, size1) && equals(time3, time4, size1) == 1) {
+		return 1; //time is homogeneous
+	}
+	else {
+		return 0; //time is not homogeneous
+	}
+}
+
+int get_signal(char* nomsigp, int shotNumber, int extractionIndex, float** time, float** data, int* len)
+{
+	char nomsigp_to_extract[50];
+	addExtractionChars(nomsigp_to_extract, nomsigp, extractionIndex); //Concatenate nomsigp_to_extract avec !extractionIndex, example: !1, !2, ...
+	int rang[2] = { 0, 0 };
+	int status = readSignal(nomsigp_to_extract, shotNumber, 0, rang, time, data, len);
+	return status;
+}
+
+void ece_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+{
+	int homogeneous_time;
+	if (shotNumber < SHOT_30814) {
+		homogeneous_time = isTimeHomogeneous1(shotNumber);
+		if (homogeneous_time == -1 || homogeneous_time == 0) {
+			return;
+		}
+		//*mapfun = strdup("tsbase_time;DECE:GSH1,DECE:GSH2;1:float:#0");
+		//Time is homogeneous, we take for example GSH1%1
+		int status = setUDABlockTimeFromArcade("GSH1", shotNumber, 1, data_block, nodeIndices);
+		if (status != 0) {
+			int err = 901;
+			char* errorMsg = "WEST:ERROR (west_ece) : unable to get object : ";
+			strcat(errorMsg, "GSH1");
+			strcat(errorMsg, " for shot : ");
+			char shotStr[6];
+			sprintf(shotStr, "%d", shotNumber);
+			strcat(errorMsg, shotStr);
+			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
+			addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		}
+	} else {
+		if (shotNumber < SHOT_31957) {
+			homogeneous_time = isTimeHomogeneous2(shotNumber);
+			//*mapfun = strdup("tsbase_time;DVECE:GVSH1,DVECE:GVSH2;1:float:#0");
+		} else {
+			homogeneous_time = isTimeHomogeneous3(shotNumber);
+			//*mapfun = strdup("tsbase_time;DVECE:GVSH1,DVECE:GVSH2,DVECE:GVSH3,DVECE:GVSH4;1:float:#0");
+		}
+		if (homogeneous_time == -1 || homogeneous_time == 0) {
+			return;
+		}
+		//Time is homogeneous, we take for example GVSH1%1
+		int status = setUDABlockTimeFromArcade("GVSH1", shotNumber, 1, data_block, nodeIndices);
+		if (status != 0) {
+			int err = 901;
+			char* errorMsg = "WEST:ERROR (west_ece) : unable to get object : ";
+			strcat(errorMsg, "GVSH1");
+			strcat(errorMsg, " for shot : ");
+			char shotStr[6];
+			sprintf(shotStr, "%d", shotNumber);
+			strcat(errorMsg, shotStr);
+			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
+			addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		}
+
+	}
+
 }
 
 int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-
 	//Mode 01
 	float GSH1_01[8]    = { 92.5, 90.5, 88.5, 86.5, 84.5, 82.5, 80.5, 78.5 };
 	float GSH2_01[8]    = { 109.5, 107.5, 105.5, 103.5, 101.5, 99.5, 97.5, 95.5 };
@@ -327,65 +610,27 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	return -1;
 }
 
-int ece_names(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int ece_harmonic_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	UDA_LOG(UDA_LOG_DEBUG, "Calling ece_names\n");
-	setReturnDataString(data_block, "", NULL);
+	float* data = NULL;
+	float* time = NULL;
+	int len;
+	UDA_LOG(UDA_LOG_DEBUG, "Calling getECEModeHarmonic() \n");
+	int status = getECEModeHarmonic(shotNumber, &time, &data, &len);
+	if (status != 0) {
+		free(time);
+		free(data);
+		return status;
+	}
+	UDA_LOG(UDA_LOG_DEBUG, "ECE harmonic mode time array length: %d\n", len);
+	SetDynamicDataTime(data_block, len, time, data);
+	UDA_LOG(UDA_LOG_DEBUG, "reaching end of function of ece_harmonic_time()\n");
 	return 0;
 }
 
-int ece_identifiers(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
-{
 
-	UDA_LOG(UDA_LOG_DEBUG, "Calling ece_identifiers\n");
-	int channelNumber = nodeIndices[0]; //UDA request index
-	char* identifier = malloc(sizeof(char));
-	sprintf(identifier, "%d", channelNumber + 1); //starts the identifier to 1
-	setReturnDataString(data_block, identifier, NULL);
-	return 0;
-}
 
-void ece_t_e_data_shape_of(int shotNumber, char** mapfun)
-{
-	if (shotNumber < SHOT_30814) {
-		*mapfun = strdup("shape_of_tsmat_collect;DECE:GSH1:VOIE,DECE:GSH2:VOIE;0:float:#0");
-	} else {
-		if (shotNumber < SHOT_31957) {
-			*mapfun = strdup("shape_of_tsmat_collect;DVECE:GVSH1:VOIE,DVECE:GVSH2:VOIE;0:float:#0");
-		} else {
-			*mapfun = strdup(
-					"shape_of_tsmat_collect;DVECE:GVSH1:VOIE,DVECE:GVSH2:VOIE,DVECE:GVSH3:VOIE,DVECE:GVSH4:VOIE;0:float:#0");
-		}
-	}
-}
 
-void ece_t_e_data(int shotNumber, char** mapfun)
-{
-
-	if (shotNumber < SHOT_30814) {
-		*mapfun = strdup("tsbase_collect;DECE:GSH1,DECE:GSH2;1:float:#0");
-	} else {
-		if (shotNumber < SHOT_31957) {
-			*mapfun = strdup("tsbase_collect;DVECE:GVSH1,DVECE:GVSH2;1:float:#0");
-		} else {
-			*mapfun = strdup("tsbase_collect;DVECE:GVSH1,DVECE:GVSH2,DVECE:GVSH3,DVECE:GVSH4;1:float:#0");
-		}
-	}
-}
-
-void ece_t_e_time(int shotNumber, char** mapfun)
-{
-
-	if (shotNumber < SHOT_30814) {
-		*mapfun = strdup("tsbase_time;DECE:GSH1,DECE:GSH2;1:float:#0");
-	} else {
-		if (shotNumber < SHOT_31957) {
-			*mapfun = strdup("tsbase_time;DVECE:GVSH1,DVECE:GVSH2;1:float:#0");
-		} else {
-			*mapfun = strdup("tsbase_time;DVECE:GVSH1,DVECE:GVSH2,DVECE:GVSH3,DVECE:GVSH4;1:float:#0");
-		}
-	}
-}
 
 int getECEModeFromNPZFile(int shotNumber)
 {

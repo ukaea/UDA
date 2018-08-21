@@ -13,8 +13,7 @@ exit 0
 
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)
-#define SHOT_NUM_TORE_SUPRA "43979" // WEST
-#define SHOT_NUM "51371" // WEST
+#define SHOT_NUM "52702" // WEST
 
 int main() {
 	setenv("UDA_PLUGIN_DIR", QUOTE(HOME) "/iter/uda/etc/plugins", 1);

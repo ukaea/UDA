@@ -62,27 +62,17 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		ece_t_e_data(shotNumber, &ece_mapfun);
 		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		UDA_LOG(UDA_LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
-
 		int status = SetNormalizedDynamicData(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
 				normalizationAttributes);
-		UDA_LOG(UDA_LOG_DEBUG, "Test1");
 		free(ece_mapfun);
-		UDA_LOG(UDA_LOG_DEBUG, "Test2");
 		return status;
 
 	} else if (strcmp(fun_name, "ece_t_e_time") == 0) {
-		char* ece_mapfun = NULL;
-		ece_t_e_time(shotNumber, &ece_mapfun);
-		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		UDA_LOG(UDA_LOG_DEBUG, "TOP_collections_parameters : %s\n", TOP_collections_parameters);
-		int status = SetNormalizedDynamicDataTime(shotNumber, data_block, nodeIndices, TOP_collections_parameters, attributes,
-				normalizationAttributes);
-		free(ece_mapfun);
-		return status;
-	} else if (strcmp(fun_name, "ece_harmonic_data") == 0) {
-		return ece_harmonic_data(shotNumber, data_block, nodeIndices);
-	} else if (strcmp(fun_name, "ece_harmonic_time") == 0) {
-		return ece_harmonic_time(shotNumber, data_block, nodeIndices);
+		ece_t_e_time(shotNumber, data_block, nodeIndices);
+		return 0;
+	} else if (strcmp(fun_name, "ece_time") == 0) {
+		ece_time(shotNumber, data_block, nodeIndices);
+		return 0;
 	} else if (strcmp(fun_name, "ece_frequencies") == 0) {
 		return ece_frequencies(shotNumber, data_block, nodeIndices);
 	} else if (strcmp(fun_name, "ece_frequencies_time") == 0) {
@@ -149,9 +139,9 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		barometry_gauge_pressure_data(shotNumber, data_block, nodeIndices); //TODO
 	}else if (strcmp(fun_name, "barometry_gauge_pressure_time") == 0) {
 		barometry_gauge_pressure_time(shotNumber, data_block, nodeIndices); //TODO
-	}else if (strcmp(fun_name, "test_fun") == 0) {
+	}/*else if (strcmp(fun_name, "test_fun") == 0) {
 		return test_fun(shotNumber, data_block, nodeIndices); //TODO
-	}
+	}*/
 	else {
 		const char* errorMsg = "WEST:ERROR: mapped C function not found in west_dynamic_data.c !\n";
 		UDA_LOG(UDA_LOG_DEBUG, "%s", errorMsg);

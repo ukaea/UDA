@@ -96,12 +96,8 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	//--------------------ece----------------------------------
-	else if (strcmp(fun_name, "ece_names") == 0) {
-		//set names of ece channels: UDA request is ece/channel/#/name where # is the channel number
+	else if (strcmp(fun_name, "homogeneous_time") == 0) {
 		fun = 7;
-	} else if (strcmp(fun_name, "ece_identifiers") == 0) {
-		//set identifiers of ece channels: UDA request is ece/channel/#/identifier where # is the channel number
-		fun = 8;
 	} else if (strcmp(fun_name, "ece_t_e_data_shape_of") == 0) {
 		fun = 9;
 	}
@@ -310,14 +306,8 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	}
 
 	case 7: {
-		UDA_LOG(UDA_LOG_DEBUG, "Case of ece_names from WEST plugin\n");
-		return ece_names(shotNumber, data_block, nodeIndices);
-		break;
-	}
-
-	case 8: {
-		UDA_LOG(UDA_LOG_DEBUG, "Case of ece_identifiers from WEST plugin\n");
-		return ece_identifiers(shotNumber, data_block, nodeIndices);
+		UDA_LOG(UDA_LOG_DEBUG, "Case of homogeneous_time from WEST plugin\n");
+		homogeneous_time(shotNumber, data_block, nodeIndices);
 		break;
 	}
 

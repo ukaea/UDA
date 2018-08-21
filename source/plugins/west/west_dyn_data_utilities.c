@@ -353,6 +353,33 @@ int setUDABlockSignalFromArcade(char* sigName, int shotNumber, int extractionInd
 	return 0;
 }
 
+int setUDABlockTimeFromArcade(char* sigName, int shotNumber, int extractionIndex, DATA_BLOCK* data_block, int* nodeIndices)
+{
+	float *data_time = NULL;
+	float *data = NULL;
+	int len;
+
+	int status = getArcadeSignal(sigName, shotNumber, extractionIndex, &data_time, &data, &len, 1);
+
+	if (status != 0) {
+		int err = 901;
+		char* errorMsg = "WEST:ERROR (setUDABlockTimeFromArcade): unable to get Arcade signal: ";
+		strcat(errorMsg, sigName);
+		strcat(errorMsg, " for shot:");
+		char shotStr[6];
+		sprintf(shotStr, "%d", shotNumber);
+		strcat(errorMsg, shotStr);
+		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
+		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		free(data_time);
+		free(data);
+	}
+	else {
+		SetDynamicDataTime(data_block, len, data_time, data);
+	}
+	return 0;
+}
+
 int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIndex, char* sigName2,
 		int extractionIndex2, DATA_BLOCK* data_block, int* nodeIndices, float treshold)
 {
@@ -529,6 +556,16 @@ int multiplySignals(float **result, float *p, float *q, int len) {
 	for (i = 0; i < len; i++)
 		*(*result + i) = p[i]*q[i];
 	return 0;
+}
+
+int equals(float *p, float *q, int len) {
+	int i;
+	for (i = 0; i < len; i++) {
+		if (abs(p[i] - q[i]) > 1.e-8) {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 void setReturnData2DFloat (DATA_BLOCK* data_block, int dim1_shape, int dim2_shape, float* data)

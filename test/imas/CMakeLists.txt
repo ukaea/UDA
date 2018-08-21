@@ -9,6 +9,7 @@ set( TESTS
   test_imas_aug_magnetics
   test_imas_aug_pf_active
   test_imas_west_magnetics
+  test_imas_west_ece
 )
 
 add_definitions( -D__USE_XOPEN2K8 )
