@@ -20,7 +20,7 @@ if( LEVELDB_INCLUDE_DIR AND LEVELDB_LIBRARIES )
   set( LEVELDB_FIND_QUIETLY TRUE )
 endif( LEVELDB_INCLUDE_DIR AND LEVELDB_LIBRARIES )
 
-find_path( LEVELDB_INCLUDE_DIR db.h
+find_path( LEVELDB_INCLUDE_DIR leveldb/db.h
   HINTS ${LEVELDB_ROOT}
     ENV LEVELDB_DIR
   PATHS
@@ -28,7 +28,7 @@ find_path( LEVELDB_INCLUDE_DIR db.h
     /opt/local
     /sw
     /usr/lib/sfw
-  PATH_SUFFIXES include/leveldb )
+  PATH_SUFFIXES include )
 
 find_library( LEVELDB_LIBRARIES NAMES leveldb
   HINTS ${LEVELDB_ROOT}

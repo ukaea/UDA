@@ -2,12 +2,12 @@
 
 #include <clientserver/stringUtils.h>
 
-typedef struct RamCache {
+struct RamCache {
     size_t max_items;
     size_t current_idx;
     char** keys;
     void** values;
-} RAM_CACHE;
+};
 
 RAM_CACHE* ram_cache_new(size_t max_items)
 {

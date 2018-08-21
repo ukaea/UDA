@@ -5,7 +5,7 @@ include( LibXml2StrPrintfConfig )
 if( WIN32 AND NOT MINGW )
   add_definitions( /W2 /WX )
 else()
-  add_definitions( -Wall -Werror -Wextra -Wno-unused-parameter )
+  add_definitions( -Wall -Werror -Wextra -Wno-unused-parameter -Wno-missing-field-initializers )
 endif()
 
 set( LOGGING_BACKEND "FILE" CACHE STRING "Choose logging backend [FILE;SYSLOG]" )
