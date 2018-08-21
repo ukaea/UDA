@@ -54,7 +54,6 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
 
     char* newdata, * newerrhi, * newerrlo;
     int nsubsets, nbound, dimid, start, end, start1, end1, dim_n, ndata, n, reshape, reverse, notoperation, ierr = 0;
-    int i, j, k, jj;
 
     printAction(action);
     printDataBlock(*data_block);
@@ -92,6 +91,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
     //-----------------------------------------------------------------------------------------------------------------------
     // Process all sets of subsetting operations
 
+    int i;
     for (i = 0; i < nsubsets; i++) {                        // the number of sets of Subset Operations
 
         if (action.actionType == COMPOSITETYPE) {
@@ -108,6 +108,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
 
         nbound = subset.nbound;                        // the Number of operations in the set
 
+        int j;
         for (j = 0; j < nbound; j++) {                        // Process each operation separately
 
             value = subset.bound[j];
@@ -117,10 +118,10 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
             UDA_LOG(UDA_LOG_DEBUG, "[%d][%d]Value = %e, Operation = %s, DIM id = %d, Reform = %d\n",
                     i, j, value, operation, dimid, subset.reform);
 
-            if (dimid < 0 || dimid >= data_block->rank) {
+            if (dimid < 0 || dimid >= (int)data_block->rank) {
                 ierr = 9999;
                 UDA_LOG(UDA_LOG_ERROR, "Error ***    DIM id = %d,  Rank = %d, Test = %d \n",
-                        dimid, data_block->rank, dimid >= data_block->rank);
+                        dimid, data_block->rank, dimid >= (int)data_block->rank);
                 addIdamError(CODEERRORTYPE, "idamserverSubsetData", ierr,
                              "Data Subsetting is Impossible as the subset Dimension is not Compatible with the Rank of the Signal");
                 printDataBlock(*data_block);
@@ -139,10 +140,10 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
             if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES && subset.member[0] != '\0' &&
                 data_block->opaque_block != NULL) {
 
-                int i, j, k, k0, data_n, count, rank, size, type, mapType = 0;
+                int i, j, data_n, count, rank, size, type, mapType = 0;
                 int* shape;
                 char* typename;
-                char* extract;
+                char* extract = NULL;
                 USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*) data_block->opaque_block;
 
                 // Extract an atomic type data element from the data structure
@@ -199,6 +200,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                                             total_n = count * data_n;
                                             data = (double*) malloc(total_n * sizeof(double));
                                             jjj = 0;
+                                            int jj;
                                             for (jj = 0; jj < data_n; jj++) {    // Loop over structures
                                                 dp = (double*) &data_block->data[jj * udt->size +
                                                                                  udt->compoundfield[i].offset];
@@ -230,6 +232,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                                             // ERROR
                                         }
                                         if (shape != NULL) {
+                                            int k;
                                             for (k = 0; k < rank; k++) {
                                                 if (shape[k] != shape_p[k]) {
                                                     //ERROR
@@ -305,6 +308,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                         // Replace with index coordinate using rank and shape from the member
 
                         if (mapType == 2) {
+                            unsigned int k0 = 0;
                             if (!udt->compoundfield[i].pointer) {
                                 if (data_block->rank == 0) {
                                     k0 = 0;
@@ -326,12 +330,14 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
 
                             data_block->dims = (DIMS*) realloc((void*) data_block->dims, rank * sizeof(DIMS));
 
+                            int k;
                             for (k = k0; k < rank; k++) {
                                 initDimBlock(&data_block->dims[k]);
-                                if (shape == NULL)
+                                if (shape == NULL) {
                                     data_block->dims[k].dim_n = data_n;
-                                else
+                                } else {
                                     data_block->dims[k].dim_n = shape[k - 1];
+                                }
                                 data_block->dims[k].data_type = UDA_TYPE_UNSIGNED_INT;
                                 data_block->dims[k].compressed = 1;
                                 data_block->dims[k].method = 0;
@@ -342,12 +348,13 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
 
                         if (mapType == 3) {
                             if (!udt->compoundfield[i].pointer) {
-                                k0 = data_block->rank;
+                                unsigned int k0 = data_block->rank;
                                 data_block->rank = data_block->rank + udt->compoundfield[i].rank;
 
                                 data_block->dims = (DIMS*) realloc((void*) data_block->dims,
                                                                    data_block->rank * sizeof(DIMS));
 
+                                unsigned int k;
                                 for (k = k0; k < data_block->rank; k++) {
                                     initDimBlock(&data_block->dims[k]);
                                     data_block->dims[k].dim_n = udt->compoundfield[i].shape[k - k0];
@@ -494,6 +501,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                         notoperation = 0;            // No Second Range found so switch OFF NOT Operation
                     } else {
                         end1 = subsetindices[dim_n - 1];
+                        int k;
                         for (k = 0; k < dim_n; k++) {
                             if (subsetindices[k] != subsetindices[0] + k) {
                                 end = subsetindices[k - 1];
@@ -612,6 +620,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
 
     if (ierr == 0 && subset.reform) {
         int rank = data_block->rank;
+        int j;
         for (j = 0; j < rank; j++) {
             if (data_block->dims[j].dim_n <= 1) {
                 UDA_LOG(UDA_LOG_DEBUG, "Reforming Dimension %d\n", j);
@@ -626,8 +635,10 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                 if (data_block->dims[j].offs != NULL) free((void*) data_block->dims[j].offs);
                 if (data_block->dims[j].ints != NULL) free((void*) data_block->dims[j].ints);
 
-                for (k = j + 1; k < rank; k++)
+                int k;
+                for (k = j + 1; k < rank; k++) {
                     data_block->dims[k - 1] = data_block->dims[k];            // Shift array contents
+                }
 
                 if (data_block->order == j) {
                     data_block->order = -1;                                // No Time Dimension if Reformed
@@ -665,7 +676,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                 }
             }
 
-            if (dimid < 0 || dimid >= data_block->rank) {
+            if (dimid < 0 || dimid >= (int)data_block->rank) {
                 ierr = 999;
                 UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dimid = %d,  Rank = %d\n", dimid,
                         data_block->rank);
@@ -676,6 +687,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
 
 
             switch (data_block->data_type) {
+                int j;
                 case UDA_TYPE_FLOAT: {
                     float* dp = (float*) data_block->data;
                     float min = dp[0];
@@ -713,8 +725,10 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                                 for (i = 0; i < data_block->dims[1].dim_n; i++) {
                                     min = dp[i * data_block->dims[0].dim_n];
                                     for (j = 1; j < data_block->dims[0].dim_n; j++) {
-                                        k = j + i * data_block->dims[0].dim_n;
-                                        if (dp[k] < min) min = dp[k];
+                                        int k = j + i * data_block->dims[0].dim_n;
+                                        if (dp[k] < min) {
+                                            min = dp[k];
+                                        }
                                     }
                                     ddp[i] = min;
                                 }
@@ -729,8 +743,10 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                                 for (j = 0; j < data_block->dims[0].dim_n; j++) {
                                     min = dp[j];
                                     for (i = 1; i < data_block->dims[1].dim_n; i++) {
-                                        k = j + i * data_block->dims[0].dim_n;
-                                        if (dp[k] < min) min = dp[k];
+                                        int k = j + i * data_block->dims[0].dim_n;
+                                        if (dp[k] < min) {
+                                            min = dp[k];
+                                        }
                                     }
                                     ddp[j] = min;
                                 }
@@ -787,8 +803,10 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                                 for (i = 0; i < data_block->dims[1].dim_n; i++) {
                                     min = dp[i * data_block->dims[0].dim_n];
                                     for (j = 1; j < data_block->dims[0].dim_n; j++) {
-                                        k = j + i * data_block->dims[0].dim_n;
-                                        if (dp[k] < min) min = dp[k];
+                                        int k = j + i * data_block->dims[0].dim_n;
+                                        if (dp[k] < min) {
+                                            min = dp[k];
+                                        }
                                     }
                                     ddp[i] = min;
                                 }
@@ -803,8 +821,10 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                                 for (j = 0; j < data_block->dims[0].dim_n; j++) {
                                     min = dp[j];
                                     for (i = 1; i < data_block->dims[1].dim_n; i++) {
-                                        k = j + i * data_block->dims[0].dim_n;
-                                        if (dp[k] < min) min = dp[k];
+                                        int k = j + i * data_block->dims[0].dim_n;
+                                        if (dp[k] < min) {
+                                            min = dp[k];
+                                        }
                                     }
                                     ddp[j] = min;
                                 }
@@ -855,7 +875,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                         // ERROR
                     }
                 }
-                if (dimid < data_block->rank) {
+                if (dimid < (int)data_block->rank) {
                     count[0] = (unsigned int) data_block->dims[dimid].dim_n;        // Preserve this value
                     DIMS dim = data_block->dims[dimid];
                     if (dim.dim != NULL) free((void*) dim.dim);
@@ -877,15 +897,20 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                 data_block->error_param_n = 0;
 
                 data_block->data_n = 1;
+                unsigned int j;
                 for (j = 0; j < data_block->rank - 1; j++) {
-                    if (j >= dimid) data_block->dims[j] = data_block->dims[j + 1];        // skip over the target
+                    if (j >= (unsigned int)dimid) {
+                        data_block->dims[j] = data_block->dims[j + 1];        // skip over the target
+                    }
                     data_block->data_n = data_block->data_n * data_block->dims[j].dim_n;
                 }
                 data_block->rank = data_block->rank - 1;
                 data_block->data_type = UDA_TYPE_UNSIGNED_INT;
 
                 count = (unsigned int*) realloc((void*) count, data_block->data_n * sizeof(unsigned int));
-                for (j = 1; j < data_block->data_n; j++) count[j] = count[0];
+                for (j = 1; j < (unsigned int)data_block->data_n; j++) {
+                    count[j] = count[0];
+                }
                 data_block->data = (char*) count;
                 data_block->data_units[0] = '\0';
                 sprintf(data_block->data_label, "count(dimid=%d)", dimid);
@@ -893,15 +918,20 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
         }
 
         if (!strncasecmp(subset.function, "abs()", 5)) {            // Absolute value
+            int j;
             switch (data_block->data_type) {
                 case UDA_TYPE_FLOAT: {
                     float* dp = (float*) data_block->data;
-                    for (j = 0; j < data_block->data_n; j++) dp[j] = fabsf(dp[j]);
+                    for (j = 0; j < data_block->data_n; j++) {
+                        dp[j] = fabsf(dp[j]);
+                    }
                     break;
                 }
                 case UDA_TYPE_DOUBLE: {
                     double* dp = (double*) data_block->data;
-                    for (j = 0; j < data_block->data_n; j++) dp[j] = fabs(dp[j]);
+                    for (j = 0; j < data_block->data_n; j++) {
+                        dp[j] = fabs(dp[j]);
+                    }
                     break;
                 }
                 default:
@@ -943,15 +973,20 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
 
             data_block->data_units[0] = '\0';
 
+            int j;
             switch (data_block->data_type) {
                 case UDA_TYPE_FLOAT: {
                     float* dp = (float*) data_block->data;
-                    for (j = 0; j < data_block->data_n; j++) dp[j] = (float) value;
+                    for (j = 0; j < data_block->data_n; j++) {
+                        dp[j] = (float) value;
+                    }
                     break;
                 }
                 case UDA_TYPE_DOUBLE: {
                     double* dp = (double*) data_block->data;
-                    for (j = 0; j < data_block->data_n; j++) dp[j] = value;
+                    for (j = 0; j < data_block->data_n; j++) {
+                        dp[j] = value;
+                    }
                     break;
                 }
                 default:

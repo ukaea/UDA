@@ -139,9 +139,9 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
     data_block->rank = 1;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-    int i;
-    for (i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
+    unsigned int ui;
+    for (ui = 0; ui < data_block->rank; ui++) {
+        initDimBlock(&data_block->dims[ui]);
     }
 
     int data_type = convertToInt(type);
@@ -150,6 +150,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
         data_block->data_type = UDA_TYPE_DOUBLE;
         data_block->data = malloc(dim * sizeof(double));
         char** data = getContent(cur, dim);
+        int i;
         for (i = 0; i < dim; i++) {
             ((double*)data_block->data)[i] = atof(data[i]);
         }
@@ -157,6 +158,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
         data_block->data_type = UDA_TYPE_FLOAT;
         data_block->data = malloc(dim * sizeof(float));
         char** data = getContent(cur, dim);
+        int i;
         for (i = 0; i < dim; i++) {
             ((float*)data_block->data)[i] = (float)atof(data[i]);
         }
@@ -164,6 +166,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
         data_block->data_type = UDA_TYPE_LONG;
         data_block->data = malloc(dim * sizeof(long));
         char** data = getContent(cur, dim);
+        int i;
         for (i = 0; i < dim; i++) {
             ((long*)data_block->data)[i] = atol(data[i]);
         }
@@ -171,6 +174,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
         data_block->data_type = UDA_TYPE_INT;
         data_block->data = malloc(dim * sizeof(int));
         char** data = getContent(cur, dim);
+        int i;
         for (i = 0; i < dim; i++) {
             ((int*)data_block->data)[i] = atoi(data[i]);
         }
@@ -178,6 +182,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, DAT
         data_block->data_type = UDA_TYPE_SHORT;
         data_block->data = malloc(dim * sizeof(short));
         char** data = getContent(cur, dim);
+        int i;
         for (i = 0; i < dim; i++) {
             ((short*)data_block->data)[i] = (short)atoi(data[i]);
         }

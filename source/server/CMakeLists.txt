@@ -15,22 +15,23 @@ add_subdirectory( modules )
 # Sources
 
 set( SRC_FILES
-  serverGetData.c
-  freeIdamPut.c
-  serverLegacyPlugin.c
-  makeServerRequestBlock.c
-  writer.c
-  mastArchiveFilePath.c
+  applyXML.c
   closeServerSockets.c
   dumpFile.c
-  serverSubsetData.c
-  applyXML.c
+  freeIdamPut.c
+  getPluginAddress.c
+  getServerEnvironment.c
+  initPluginList.c
+  makeServerRequestBlock.c
   manageFiles.c
+  mastArchiveFilePath.c
+  serverGetData.c
+  serverLegacyPlugin.c
+  serverPlugin.c
   serverProcessing.c
   serverStartup.c
-  getServerEnvironment.c
-  getPluginAddress.c
-  initPluginList.c
+  serverSubsetData.c
+  writer.c
 )
 
 set( HEADER_FILES
@@ -41,11 +42,13 @@ set( HEADER_FILES
   freeIdamPut.h
   getPluginAddress.h
   getServerEnvironment.h
+  initPluginList.h
   makeServerRequestBlock.h
   manageFiles.h
   mastArchiveFilePath.h
   serverGetData.h
   serverLegacyPlugin.h
+  serverPlugin.h
   serverProcessing.h
   serverStartup.h
   serverSubsetData.h
@@ -53,7 +56,6 @@ set( HEADER_FILES
   udaLegacyServer.h
   udaServer.h
   writer.h
-  initPluginList.h
 )
 
 include_directories(

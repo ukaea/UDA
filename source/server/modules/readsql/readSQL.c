@@ -54,7 +54,7 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
                USERDEFINEDTYPELIST* userdefinedtypelist)
 {
 
-    int i, ltpass, err = 0;
+    int ltpass, err = 0;
 
     double* dp = NULL;
     char* token = NULL;
@@ -66,8 +66,8 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
 
     PGresult* DBQuery = NULL;
 
-//-------------------------------------------------------------
-// Parse Request for Time Range: model = epoch(dt1, dt2)
+    //-------------------------------------------------------------
+    // Parse Request for Time Range: model = epoch(dt1, dt2)
 
     if ((ltpass = strlen(request_block.tpass)) == 0) {
         err = 998;
@@ -90,8 +90,8 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
         strcpy(dtime2, token);
     }
 
-//-------------------------------------------------------------
-// Open SQL Connection
+    //-------------------------------------------------------------
+    // Open SQL Connection
 
     if ((DBConnect = gDBConnect) == NULL) {        // No connection to IDAM SQL Database
         if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
@@ -103,8 +103,8 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
         gDBConnect = DBConnect;                // Pass Connection Back
     }
 
-//-------------------------------------------------------------
-// Build SQL
+    //-------------------------------------------------------------
+    // Build SQL
 
     strcpy(sql, "SELECT EXTRACT(EPOCH FROM CMData.dtime) as epoch, value FROM CMData WHERE name = '");
     strcat(sql, request_block.signal);
@@ -116,10 +116,8 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
     }
     strcat(sql, "';");
 
-//fprintf(stdout,"%s\n",sql);
-
-//-------------------------------------------------------------
-// Execute SQL
+    //-------------------------------------------------------------
+    // Execute SQL
 
     if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
         err = 999;
@@ -128,16 +126,16 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
         return err;
     }
 
-//-------------------------------------------------------------
-// Retrieve Data
+    //-------------------------------------------------------------
+    // Retrieve Data
 
-// Error Trap Loop
+    // Error Trap Loop
 
     err = 0;
 
     do {
 
-// Allocate Heap
+        // Allocate Heap
 
         data_block->data_n = (int)PQntuples(DBQuery);        // Number of Rows
         data_block->rank = 1;
@@ -156,10 +154,15 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
 
         data_block->data = (char*)dp;
 
-        for (i = 0; i < data_block->data_n; i++) dp[i] = strtod(PQgetvalue(DBQuery, i, 1), NULL);
+        {
+            int i;
+            for (i = 0; i < data_block->data_n; i++) {
+                dp[i] = strtod(PQgetvalue(DBQuery, i, 1), NULL);
+            }
+        }
 
-//----------------------------------------------------------------------
-// Allocate & Initialise Dimensional Structures
+        //----------------------------------------------------------------------
+        // Allocate & Initialise Dimensional Structures
 
         if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
             err = 999;
@@ -167,9 +170,14 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
             break;
         }
 
-        for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+        {
+            unsigned int i;
+            for (i = 0; i < data_block->rank; i++) {
+                initDimBlock(&data_block->dims[i]);
+            }
+        }
 
-// Dimension Labels and Units
+        // Dimension Labels and Units
 
         data_block->dims[0].dim_n = data_block->data_n;
         data_block->dims[0].data_type = UDA_TYPE_DOUBLE;
@@ -184,7 +192,10 @@ int readCMDSQL(PGconn* DBConnect, REQUEST_BLOCK request_block, DATA_SOURCE data_
 
         dp = (double*)data_block->dims[0].dim;
 
-        for (i = 0; i < data_block->dims[0].dim_n; i++) dp[i] = strtod(PQgetvalue(DBQuery, i, 0), NULL);
+        int i;
+        for (i = 0; i < data_block->dims[0].dim_n; i++) {
+            dp[i] = strtod(PQgetvalue(DBQuery, i, 0), NULL);
+        }
 
     } while (0);
 

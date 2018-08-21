@@ -9,8 +9,8 @@ int serverSocket = 0;
 
 void setSelectParms(int fd, fd_set* rfds, struct timeval* tv)
 {
-    FD_ZERO(rfds);	// Initialise the File Descriptor set
-    FD_SET(fd, rfds);	// Identify the Socket in the FD set
+    FD_ZERO(rfds);    // Initialise the File Descriptor set
+    FD_SET(fd, rfds);    // Identify the Socket in the FD set
     tv->tv_sec = 0;
     tv->tv_usec = MIN_BLOCK_TIME;    // minimum wait microsecs (1ms)
     server_tot_block_time = 0;
@@ -20,7 +20,8 @@ void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv)
 {
     FD_ZERO(rfds);
     FD_SET(fd, rfds);
-    if (server_tot_block_time < MAXBLOCK) {    // (ms) For the First blocking period have rapid response (clientserver/udaDefines.h == 1000)
+    if (server_tot_block_time <
+        MAXBLOCK) {    // (ms) For the First blocking period have rapid response (clientserver/udaDefines.h == 1000)
         tv->tv_sec = 0;
         tv->tv_usec = MIN_BLOCK_TIME;    // minimum wait (1ms)
     } else {
@@ -55,18 +56,17 @@ void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv)
 
 int Readin(void* iohandle, char* buf, int count)
 {
-
-    int rc;
+    int rc = 0;
     fd_set rfds;        // File Descriptor Set for Reading from the Socket
     struct timeval tv, tvc;
 
-// Wait until there are data to be read from the socket
+    // Wait until there are data to be read from the socket
 
     setSelectParms(serverSocket, &rfds, &tv);
     tvc = tv;
 
     while (select(serverSocket + 1, &rfds, NULL, NULL, &tvc) <= 0) {
-        server_tot_block_time = server_tot_block_time + (int) tv.tv_usec / 1000;
+        server_tot_block_time = server_tot_block_time + (int)tv.tv_usec / 1000;
         if (server_tot_block_time > 1000 * server_timeout) {
             UDA_LOG(UDA_LOG_DEBUG, "Readin: Total Wait Time Exceeds Lifetime Limit = %d (ms)\n", server_timeout * 1000);
         }
@@ -77,14 +77,16 @@ int Readin(void* iohandle, char* buf, int count)
         tvc = tv;
     }
 
-// Read from it, checking for EINTR, as happens if called from IDL
+    // Read from it, checking for EINTR, as happens if called from IDL
 
-    while (((rc = (int) read(serverSocket, buf, count)) == -1) && (errno == EINTR)) {}
+    while (((rc = (int)read(serverSocket, buf, count)) == -1) && (errno == EINTR)) {}
 
-// As we have waited to be told that there is data to be read, if nothing
-// arrives, then there must be an error
+    // As we have waited to be told that there is data to be read, if nothing
+    // arrives, then there must be an error
 
-    if (!rc) rc = -1;
+    if (!rc) {
+        rc = -1;
+    }
 
     return rc;
 }
@@ -92,15 +94,15 @@ int Readin(void* iohandle, char* buf, int count)
 int Writeout(void* iohandle, char* buf, int count)
 {
 
-// This routine is only called when there is something to write back to the Client
+    // This routine is only called when there is something to write back to the Client
 
-    int rc;
+    int rc = 0;
     int BytesSent = 0;
 
     fd_set wfds;        // File Descriptor Set for Writing to the Socket
     struct timeval tv;
 
-// Block IO until the Socket is ready to write to Client
+    // Block IO until the Socket is ready to write to Client
 
     setSelectParms(serverSocket, &wfds, &tv);
 
@@ -113,10 +115,10 @@ int Writeout(void* iohandle, char* buf, int count)
         updateSelectParms(serverSocket, &wfds, &tv);
     }
 
-// Write to socket, checking for EINTR, as happens if called from IDL
+    // Write to socket, checking for EINTR, as happens if called from IDL
 
     while (BytesSent < count) {
-        while (((rc = (int) write(serverSocket, buf, count)) == -1) && (errno == EINTR)) {}
+        while (((rc = (int)write(serverSocket, buf, count)) == -1) && (errno == EINTR)) {}
         BytesSent += rc;
         buf += rc;
     }

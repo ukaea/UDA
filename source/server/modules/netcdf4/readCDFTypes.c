@@ -23,7 +23,7 @@
 
 int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
-    int i, j, k, rc, err = 0, ntypes = 0, class, foff;
+    int rc, err = 0, ntypes = 0, class, foff;
 
     int* typeids = NULL;
     char name[NC_MAX_NAME + 1];
@@ -55,6 +55,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
         //----------------------------------------------------------------------
         // Build Definitions of User Defined data types in this group
 
+        int i;
         for (i = 0; i < ntypes; i++) {
 
             initUserDefinedType(&usertype);    // New structure definition
@@ -81,6 +82,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
                     foff = 0;
 
+                    size_t j;
                     for (j = 0; j < fieldcount; j++) {
 
                         initCompoundField(&field);
@@ -145,6 +147,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                             field.count = 1;
                             if (rank > 0) {
                                 field.shape = (int*)malloc(rank * sizeof(int));
+                                int k;
                                 for (k = 0; k < rank; k++) {
                                     field.shape[k] = shape[k];
                                     field.count = field.count * shape[k];
@@ -267,11 +270,13 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                     memcpy(usertype.image, udt->image, udt->imagecount);
 
                     usertype.compoundfield = (COMPOUNDFIELD*)malloc(udt->fieldcount * sizeof(COMPOUNDFIELD));
+                    int j;
                     for (j = 0; j < udt->fieldcount; j++) {
                         initCompoundField(&usertype.compoundfield[j]);
                         usertype.compoundfield[j] = udt->compoundfield[j];
                         if (udt->compoundfield[j].rank > 0) {
                             usertype.compoundfield[j].shape = (int*)malloc(udt->compoundfield[j].rank * sizeof(int));
+                            int k;
                             for (k = 0; k < udt->compoundfield[j].rank; k++) {
                                 usertype.compoundfield[j].shape[k] = udt->compoundfield[j].shape[k];
                             }

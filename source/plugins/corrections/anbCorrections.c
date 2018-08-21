@@ -134,7 +134,7 @@ void copyANBDataBlock(DATA_BLOCK* out, DATA_BLOCK* in, int dataCount)
 
 extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    int i, err;
+    int err;
     static short init = 0;
     char* p;
     int h1 = -1, h2 = -1, h3 = -1;
@@ -213,24 +213,27 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-//----------------------------------------------------------------------------------------
-// name value pairs and keywords 
-//----------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------
+    // name value pairs and keywords
+    //----------------------------------------------------------------------------------------
 
     char* signal = NULL;
     char* source = NULL;
-    for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "signal")) {
-            signal = request_block->nameValueList.nameValue[i].value;
-        }
-        if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "exp_number")) {
-            source = request_block->nameValueList.nameValue[i].value;
+    {
+        int i;
+        for (i = 0; i < request_block->nameValueList.pairCount; i++) {
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "signal")) {
+                signal = request_block->nameValueList.nameValue[i].value;
+            }
+            if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "exp_number")) {
+                source = request_block->nameValueList.nameValue[i].value;
+            }
         }
     }
 
-//----------------------------------------------------------------------------------------
-// Data Source
-//----------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------
+    // Data Source
+    //----------------------------------------------------------------------------------------
 
     err = 0;
     do {        // Error Trap
@@ -251,7 +254,10 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->rank = 1;
             data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-            for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+            unsigned int i;
+            for (i = 0; i < data_block->rank; i++) {
+                initDimBlock(&data_block->dims[i]);
+            }
 
             data_block->data_type = UDA_TYPE_STRING;
             strcpy(data_block->data_desc, "anbCorrections help = description of this plugin");
@@ -299,8 +305,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             if (!IsNumber(source)) {
                 err = 999;
-                addIdamError(CODEERRORTYPE, "anbCorrections", err,
-                             "The data source is Not a shot number!");
+                addIdamError(CODEERRORTYPE, "anbCorrections", err, "The data source is Not a shot number!");
                 break;
             }
 
@@ -488,14 +493,18 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     if (!noSSBeam) {
                         getIdamFloatData(h3, ssPower);
                     } else {
-                        for (i = 0; i < dataCountSW; i++) ssPower[i] = 0.0;
+                        int i;
+                        for (i = 0; i < dataCountSW; i++) {
+                            ssPower[i] = 0.0;
+                        }
                     }
 
                     float normFactor;
 
-// Correction formulae assumes voltage is kV, current is A
-// Calculated power is MW
+                    // Correction formulae assumes voltage is kV, current is A
+                    // Calculated power is MW
 
+                    int i;
                     for (i = 0; i < dataCountSW; i++) {
                         p_e[i] = 0.0;
                         p_e2[i] = 0.0;
@@ -522,7 +531,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     values_t = (char*)p_t;
                     values_tt = (char*)p_tt;
 
-// Error Data
+                    // Error Data
 
                     float* ep_e = (float*)malloc(dataCountSW * sizeof(float));
                     float* ep_e2 = (float*)malloc(dataCountSW * sizeof(float));
@@ -543,7 +552,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     free((void*)voltage);
                     free((void*)ssPower);
 
-// Coordinate Variables	 
+                    // Coordinate Variables
 
                     DIMS* dim_e = (DIMS*)malloc(sizeof(DIMS));
                     DIMS* dim_e2 = (DIMS*)malloc(sizeof(DIMS));
@@ -560,7 +569,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     strcpy(dim_e->dim_units, "s");
                     strcpy(dim_e->dim_label, "time");
 
-// Preserve legacy coordinate data types: all double
+                    // Preserve legacy coordinate data types: all double
 
                     dim_e->data_type = UDA_TYPE_DOUBLE;
 
@@ -576,7 +585,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     *dim_t = *dim_e;
                     *dim_tt = *dim_e;
 
-// Assume time series is identical for all signals	 
+                    // Assume time series is identical for all signals
 
                     int* sams = getIdamDimBlock(h1, 0)->sams;
                     char* offs = getIdamDimBlock(h1, 0)->offs;
@@ -609,7 +618,6 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             memcpy((void*)e3, (void*)offs, dataSize);
                             memcpy((void*)t, (void*)offs, dataSize);
                         } else {
-                            int i;
                             float* foffs = (float*)offs;
                             for (i = 0; i < dataCountSW; i++) {
                                 e[i] = (double)foffs[i];
@@ -621,7 +629,6 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         if (!noSSBeam && getIdamDimType(h3, 0) == UDA_TYPE_DOUBLE) {
                             memcpy((void*)tt, (void*)offs, dataSize);
                         } else {
-                            int i;
                             float* foffs = (float*)offs;
                             for (i = 0; i < dataCountSW; i++) {
                                 tt[i] = (double)foffs[i];
@@ -646,7 +653,6 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             memcpy((void*)e3, (void*)ints, dataSize);
                             memcpy((void*)t, (void*)ints, dataSize);
                         } else {
-                            int i;
                             float* fints = (float*)ints;
                             for (i = 0; i < dataCountSW; i++) {
                                 e[i] = (double)fints[i];
@@ -658,7 +664,6 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         if (!noSSBeam && getIdamDimType(h3, 0) == UDA_TYPE_DOUBLE) {
                             memcpy((void*)tt, (void*)ints, dataSize);
                         } else {
-                            int i;
                             float* fints = (float*)ints;
                             for (i = 0; i < dataCountSW; i++) {
                                 tt[i] = (double)fints[i];
@@ -693,7 +698,7 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     data_block_e.rank = getIdamRank(h1);
                     data_block_e.order = getIdamOrder(h1);
 
-// Error Model should work but doesn't - compute and pass instead!
+                    // Error Model should work but doesn't - compute and pass instead!
 
                     data_block_e.error_type = UDA_TYPE_FLOAT;
 
@@ -748,12 +753,12 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 }
 
-// Preserve state: dataCount already set
+                // Preserve state: dataCount already set
 
                 old_exp_number = exp_number;
                 freeOldData = 1;
 
-// Return the requested data
+                // Return the requested data
 
                 if (!strcasecmp(signal, "ANB_SW_FULL_POWER")) {
                     copyANBDataBlock(data_block, &data_block_e, dataCountSW);    // MW
@@ -775,8 +780,8 @@ extern int anbCorrections(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     } while (0);
 
-//--------------------------------------------------------------------------------------
-// Housekeeping
+    //--------------------------------------------------------------------------------------
+    // Housekeeping
 
     if (err != 0) {
         if (h1 >= 0) idamFree(h1);

@@ -10,11 +10,11 @@ if( LIBXML2_FOUND )
 
   file( READ ${CMAKE_SOURCE_DIR}/cmake/check_xmlstrprintf.c CHECK_XMLPRINTF_SOURCE )
 
-  if( APPLE )
+  if( "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" )
     set( CMAKE_REQUIRED_FLAGS "-Qunused-arguments -Wall -Werror" )
   else()
     set( CMAKE_REQUIRED_FLAGS "-Wall -Werror" )
-  endif( APPLE )
+  endif()
 
   set( CMAKE_REQUIRED_INCLUDES ${LIBXML2_INCLUDE_DIR} )
   set( CMAKE_REQUIRED_LIBRARIES ${LIBXML2_LIBRARIES} )

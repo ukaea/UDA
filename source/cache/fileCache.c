@@ -229,7 +229,6 @@ void idamClientUpdateCacheStats(FILE* db, unsigned long recordCount, unsigned lo
 
 int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* endOffset)
 {
-    int lstr = 0;
     unsigned short status = 0;
     unsigned long dbkey = 0;
     unsigned long validRecordCount = 0;
@@ -270,7 +269,7 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
 
         if (buffer[0] == '\n') continue;
 
-        lstr = (int)strlen(buffer) + 1;
+        size_t lstr = strlen(buffer) + 1;
         work = (char*)malloc(lstr * sizeof(char));
         strcpy(work, buffer);
         next = work;
@@ -325,9 +324,9 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
     fseek(db, CACHE_FIRSTRECORDLENGTH, SEEK_SET);    // Position at the start of record 2
 
     errno = 0;
-    int i;
+    unsigned long i;
     for (i = 0; i < validRecordCount; i++) {
-        lstr = (int)strlen(table[i]);
+        unsigned long lstr = strlen(table[i]);
         count = fwrite(table[i], sizeof(char), (size_t)lstr, db);    // Write all valid records
         if (count != lstr || errno != 0) {
             int err = 999;
@@ -348,7 +347,7 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
     return (int)validRecordCount;
 }
 
-int idamClientReadCache(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, char* filename)
+int idamClientReadCache(DATA_BLOCK* data_block, char* filename)
 {
     int err = 0;
     int rc = 0;

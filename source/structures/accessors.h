@@ -136,7 +136,7 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset);
 * @param count The maximum count size for the VLEN data arrays.
 * @return An integer returning an error code: 0 => OK.
 */
-int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE *tree, USERDEFINEDTYPELIST* userdefinedtypelist, const char * target, int count);
+int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE *tree, USERDEFINEDTYPELIST* userdefinedtypelist, const char * target, unsigned int count);
 
 /** Regularise the Shape of All VLEN structured data arrays in the data tree: necessary for accessing in some languages, e.g. IDL. 
 *

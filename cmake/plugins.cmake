@@ -31,7 +31,7 @@ macro( uda_plugin )
     ${CMAKE_SOURCE_DIR}/source
   )
 
-  if( CMAKE_COMPILER_IS_GNUCC )
+  if( NOT APPLE AND CMAKE_COMPILER_IS_GNUCC )
     set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,defs" )
   endif()
 

@@ -13,7 +13,7 @@
 #include <clientserver/udaErrors.h>
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
-#include <plugins/serverPlugin.h>
+#include <server/serverPlugin.h>
 #include <structures/parseIncludeFile.h>
 #include <structures/struct.h>
 
@@ -778,7 +778,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     }
 
     if (data_block->rank > 0) {
-        int i;
+        unsigned int i;
         DIMS dim;
         for (i = 0; i < data_block->rank; i++) {
             dim = data_block->dims[i];

@@ -1,5 +1,7 @@
 cmake_minimum_required( VERSION 2.8 )
 
+find_package( LibXml2 )
+
 configure_file(
   "${CMAKE_SOURCE_DIR}/source/etc/udaPlugins.conf.in"
   "${CMAKE_CURRENT_BINARY_DIR}/udaPlugins.conf"
@@ -72,14 +74,14 @@ include_directories(
 
 set( SOURCE_FILES
   managePluginFiles.c
-  serverPlugin.c
+  pluginUtils.c
   udaPlugin.c
 )
 
 set( HEADER_FILES
   managePluginFiles.h
   pluginStructs.h
-  serverPlugin.h
+  pluginUtils.h
   udaPlugin.h
   udaPluginFiles.h
 )
@@ -87,6 +89,18 @@ set( HEADER_FILES
 add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
 add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
 add_library( plugins-shared SHARED $<TARGET_OBJECTS:plugins-objects> )
+
+target_link_libraries(
+  plugins-static
+  server-static
+  ${LIBXML2_LIBRARIES}
+)
+
+target_link_libraries(
+  plugins-shared
+  server-static
+  ${LIBXML2_LIBRARIES}
+)
 
 set_target_properties( plugins-static
   PROPERTIES

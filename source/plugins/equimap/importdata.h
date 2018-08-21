@@ -4,9 +4,7 @@
 #include <clientserver/udaStructs.h>
 #include "equimap.h"
 
-int whichHandle(char *name);
-char *whichName(char *name);
-int whichIndex(char *name);
+int whichHandle(const char* name);
 int selectTimes(EQUIMAPDATA * equimapdata);
 int subsetTimes(REQUEST_BLOCK *request_block);
 int imputeData(char *signal);

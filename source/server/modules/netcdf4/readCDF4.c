@@ -704,10 +704,10 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 int i;
                 for (i = 0; i < cdfsubset.subsetCount; i++) {
                     cdfsubset.subset[i] = request_block.datasubset.subset[i];
-                    cdfsubset.start[i] = (size_t)request_block.datasubset.start[i];
-                    cdfsubset.stop[i] = (size_t)request_block.datasubset.stop[i];
-                    cdfsubset.count[i] = (size_t)request_block.datasubset.count[i];
-                    cdfsubset.stride[i] = (ptrdiff_t)request_block.datasubset.stride[i];
+                    cdfsubset.start[i] = request_block.datasubset.start[i];
+                    cdfsubset.stop[i] = request_block.datasubset.stop[i];
+                    cdfsubset.count[i] = request_block.datasubset.count[i];
+                    cdfsubset.stride[i] = request_block.datasubset.stride[i];
                 }
             }
 
@@ -774,7 +774,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     cdfsubset.rank = 1;
                     cdfsubset.dimids[0] = dimid;
                     if (cdfsubset.stop[0] == -1) {
-                        cdfsubset.stop[0] = (size_t)(data_block->data_n - 1);
+                        cdfsubset.stop[0] = (data_block->data_n - 1);
                     }
                     if (cdfsubset.count[0] == -1) {
                         cdfsubset.count[0] = cdfsubset.stop[0] - cdfsubset.start[0] + 1;
@@ -852,7 +852,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     break;
                 }
 
-                int i;
+                unsigned int i;
                 for (i = 0; i < data_block->rank; i++) {
                     int ii = data_block->rank - i - 1;        // Reverse the Indexing
                     initDimBlock(&data_block->dims[ii]);
@@ -903,7 +903,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                             break;
                         }
 
-                        int i;
+                        unsigned int i;
                         for (i = 0; i < data_block->rank; i++) {
                             int ii = data_block->rank - i - 1;        // Reverse the Indexing
                             initDimBlock(&data_block->dims[ii]);
@@ -1083,7 +1083,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 break;
             }
 
-            int i;
+            unsigned int i;
             for (i = 0; i < data_block->rank; i++) {
                 initDimBlock(&data_block->dims[i]);
                 extent[i] = 0;
@@ -1200,7 +1200,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
         if (data_block->rank == 1 && data_block->data_type == UDA_TYPE_STRING && extent[1] > 0) {
             data_block->rank = 2;
             data_block->dims = (DIMS*)realloc((void*)data_block->dims, data_block->rank * sizeof(DIMS));
-            int i;
+            unsigned int i;
             for (i = 0; i < data_block->rank; i++) {
                 initDimBlock(&data_block->dims[i]);
             }
@@ -1208,7 +1208,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
         int cgrpid = 0;
 
-        int i;
+        unsigned int i;
         for (i = 0; i < data_block->rank; i++) {
 
             int ii = data_block->rank - i - 1;        // Reverse the Indexing  (WHY?)

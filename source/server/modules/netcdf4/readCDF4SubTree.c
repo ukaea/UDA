@@ -116,7 +116,8 @@ void freeHGroups(HGROUPS* hgroups)
     initHGroup(hgroups);
 }
 
-char* getUniqueTypeName(char* proposed, int ref_id, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist)
+char*
+getUniqueTypeName(char* proposed, int ref_id, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
     // Sub-trees may have data groups and variables with the same name but with different contents.
     // Normally, the type name is taken from the group or variable name. To ensure uniqueness (searching is
@@ -127,7 +128,7 @@ char* getUniqueTypeName(char* proposed, int ref_id, LOGMALLOCLIST* logmalloclist
 
     for (i = 0; i < userdefinedtypelist->listCount; i++) {
 
-    // Check the user defined type name
+        // Check the user defined type name
         if (STR_EQUALS(proposed, userdefinedtypelist->userdefinedtype[i].name)) {
             ndigits = 1 + ref_id / 10 + (int)strlen(proposed) + 1 + 1;
             unique = (char*)malloc(ndigits * sizeof(char));
@@ -270,7 +271,8 @@ int getCDF4SubTreeUserDefinedTypes(int grpid, GROUPLIST* grouplist, USERDEFINEDT
     return err;
 }
 
-void replaceSubTreeEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* udt, int ndata, char* dvec)
+void replaceSubTreeEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                                   USERDEFINEDTYPE* udt, int ndata, char* dvec)
 {
     // If the data structure has a User Defined Type with a NC_STRING component,
     // or contains other user defined types with string components,
@@ -450,7 +452,8 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
         strcpy(usertype.name, unique);
         nameKey++;
     }
-    unique = getUniqueTypeName(usertype.name, nameKey, logmalloclist, userdefinedtypelist);        // Check the component types
+    unique = getUniqueTypeName(usertype.name, nameKey, logmalloclist,
+                               userdefinedtypelist);        // Check the component types
     if (!STR_EQUALS(unique, usertype.name)) {
         strcpy(usertype.name, unique);
         nameKey++;
@@ -544,14 +547,15 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
                     // Identify the required structure definition
 
                     attribute[i].udt = NULL;                            // Update when all udts defined (realloc problem!)
-                    attribute[i].udtIndex = findUserDefinedTypeIndexReverse(userdefinedtypelist, (int)atttype);    // Locate UDT definition using type id
+                    attribute[i].udtIndex = findUserDefinedTypeIndexReverse(userdefinedtypelist,
+                                                                            (int)atttype);    // Locate UDT definition using type id
 
                     if (attribute[i].udtIndex < 0) {
                         err = 999;
                         char* msg = malloc(sizeof(char) * 1024);
                         sprintf(msg,
                                 "Variable %s Attribute %s has a User Defined or Atomic Type definition that is either Not within Scope "
-                                        "or Not Known or Not currently supported.", variable->varname, name);
+                                "or Not Known or Not currently supported.", variable->varname, name);
                         addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, msg);
                         free((void*)msg);
                         free((void*)variable->attribute);
@@ -571,7 +575,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
                 field.shape[0] = field.count;
                 field.size = getsizeof(userdefinedtypelist, "void *");
                 field.offset = newoffset(offset, "void *");
-                offset = field.offset +  field.size;                 // use previous offset for alignment
+                offset = field.offset + field.size;                 // use previous offset for alignment
                 field.offpad = padding(field.offset, "void *");
                 field.alignment = getalignmentof("void *");
             }
@@ -667,7 +671,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
                 err = 999;
                 char* msg = malloc(sizeof(char) * 1024);
                 sprintf(msg, "Variable %s has a User Defined or Atomic Type definition that is either Not within Scope "
-                        "or Not Known or Not currently supported.", variable->varname);
+                             "or Not Known or Not currently supported.", variable->varname);
                 addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, msg);
                 free((void*)msg);
                 free((void*)variable->attribute);
@@ -711,7 +715,8 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
         strcpy(usertype.name, unique);
         nameKey++;
     }
-    unique = getUniqueTypeName(usertype.name, nameKey, logmalloclist, userdefinedtypelist);    // Check the component types
+    unique = getUniqueTypeName(usertype.name, nameKey, logmalloclist,
+                               userdefinedtypelist);    // Check the component types
     if (strcmp(unique, usertype.name) != 0) {
         strcpy(usertype.name, unique);
         nameKey++;
@@ -824,7 +829,7 @@ int getCDF4SubTreeVar2Meta(int grpid, int varid, VARIABLE* variable, int* offset
                 err = 999;
                 char* msg = malloc(sizeof(char) * 1024);
                 sprintf(msg, "Variable %s has a User Defined or Atomic Type definition that is either Not within Scope "
-                        "or Not Known or Not currently supported.", variable->varname);
+                             "or Not Known or Not currently supported.", variable->varname);
                 addIdamError(CODEERRORTYPE, "getCDF4SubTreeVar2Meta", err, msg);
                 free((void*)msg);
                 return err;
@@ -856,7 +861,8 @@ int getCDF4SubTreeVar2Meta(int grpid, int varid, VARIABLE* variable, int* offset
             } else {
                 field->size = field->count * getsizeof(userdefinedtypelist, field->type);
             }
-            field->offset = newoffset(*offset, field->type); // Need a new or modified function for structures, offpad and alignment?
+            field->offset = newoffset(*offset,
+                                      field->type); // Need a new or modified function for structures, offpad and alignment?
             *offset = field->offset + field->size;
             field->offpad = padding(field->offset, field->type);
             field->alignment = getalignmentof(field->type);
@@ -911,14 +917,15 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
 
     // Ignore 'hidden' groups if requested
 
-    unsigned short ignoreHiddenAtts     = readCDF4Properties() & NC_IGNOREHIDDENATTS;
-    unsigned short ignoreHiddenVars     = readCDF4Properties() & NC_IGNOREHIDDENVARS;
-    unsigned short ignoreHiddenGroups   = readCDF4Properties() & NC_IGNOREHIDDENGROUPS;
-    unsigned short notPointerType       = readCDF4Properties() & NC_NOTPOINTERTYPE; // Return data as explicitly sized arrays
-    unsigned short noDimensionData      = readCDF4Properties() & NC_NODIMENSIONDATA; // cf: getCDF4SubTreeVarData
-    unsigned short noAttributeData      = readCDF4Properties() & NC_NOATTRIBUTEDATA;
-    unsigned short noVarAttributeData   = readCDF4Properties() & NC_NOVARATTRIBUTEDATA;
-    unsigned short regularVarData       = (noVarAttributeData || noAttributeData) && noDimensionData;    // Return variables as regular arrays not structures
+    unsigned short ignoreHiddenAtts = readCDF4Properties() & NC_IGNOREHIDDENATTS;
+    unsigned short ignoreHiddenVars = readCDF4Properties() & NC_IGNOREHIDDENVARS;
+    unsigned short ignoreHiddenGroups = readCDF4Properties() & NC_IGNOREHIDDENGROUPS;
+    unsigned short notPointerType = readCDF4Properties() & NC_NOTPOINTERTYPE; // Return data as explicitly sized arrays
+    unsigned short noDimensionData = readCDF4Properties() & NC_NODIMENSIONDATA; // cf: getCDF4SubTreeVarData
+    unsigned short noAttributeData = readCDF4Properties() & NC_NOATTRIBUTEDATA;
+    unsigned short noVarAttributeData = readCDF4Properties() & NC_NOVARATTRIBUTEDATA;
+    unsigned short regularVarData = (noVarAttributeData || noAttributeData) &&
+                                    noDimensionData;    // Return variables as regular arrays not structures
 
     int attCount = 0;
 
@@ -980,7 +987,8 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
         strcpy(usertype.name, unique);
         nameKey++;
     }
-    unique = getUniqueTypeName(usertype.name, nameKey, logmalloclist, userdefinedtypelist);    // Check the component types
+    unique = getUniqueTypeName(usertype.name, nameKey, logmalloclist,
+                               userdefinedtypelist);    // Check the component types
     if (strcmp(unique, usertype.name) != 0) {
         strcpy(usertype.name, unique);
         nameKey++;
@@ -1089,14 +1097,15 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
 // Identify the required structure definition (must be defined as a User Defined Type)
 
                     group->attribute[i].udt = NULL;                            // Update when all udts defined (realloc problem!)
-                    group->attribute[i].udtIndex = findUserDefinedTypeIndexReverse(userdefinedtypelist, (int)atttype);    //
+                    group->attribute[i].udtIndex = findUserDefinedTypeIndexReverse(userdefinedtypelist,
+                                                                                   (int)atttype);    //
 
                     if (group->attribute[i].udtIndex < 0) {
                         err = 999;
                         char* msg = malloc(sizeof(char) * 1024);
                         sprintf(msg,
                                 "Group %s Attribute %s has a User Defined or Atomic Type definition that is either Not within Scope "
-                                        "or Not Known or Not currently supported.", group->grpname, name);
+                                "or Not Known or Not currently supported.", group->grpname, name);
                         addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, msg);
                         free((void*)msg);
                         if (numgrps > 0)free((void*)grpids);
@@ -1264,11 +1273,12 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
 
         for (i = 0; i < numgrps; i++) {
 
-	  getCDF4SubTreeMeta(grpids[i], grpid, &gusertype, logmalloclist, userdefinedtypelist, hgroups, depth, targetDepth);
+            getCDF4SubTreeMeta(grpids[i], grpid, &gusertype, logmalloclist, userdefinedtypelist, hgroups, depth,
+                               targetDepth);
 
             initCompoundField(&field);
 
-            GROUP *x = findHGroup(hgroups, grpids[i]);    // Locate the group and it's name
+            GROUP* x = findHGroup(hgroups, grpids[i]);    // Locate the group and it's name
             strcpy(field.name, x->grpname);
 
             field.atomictype = UDA_TYPE_UNKNOWN;
@@ -1284,7 +1294,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
 
             field.rank = 1;
             field.count = 1;
-            field.shape = (int *) malloc(field.rank * sizeof(int));
+            field.shape = (int*)malloc(field.rank * sizeof(int));
             field.shape[0] = 1;
 
             addCompoundField(&usertype, field);
@@ -1317,7 +1327,8 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
     //----------------------------------------------------------------------
     // Update Structure Size
 
-    usertype.size = getStructureSize(userdefinedtypelist, &usertype); // This may return a size too small as any terminating packing bytes are ignored!
+    usertype.size = getStructureSize(userdefinedtypelist,
+                                     &usertype); // This may return a size too small as any terminating packing bytes are ignored!
 
     // Record this type definition
 
@@ -1331,7 +1342,8 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
         strcpy(usertype.name, unique);
         nameKey++;
     }
-    unique = getUniqueTypeName(usertype.name, nameKey, logmalloclist, userdefinedtypelist);    // Check the component types
+    unique = getUniqueTypeName(usertype.name, nameKey, logmalloclist,
+                               userdefinedtypelist);    // Check the component types
     if (strcmp(unique, usertype.name) != 0) {
         strcpy(usertype.name, unique);
         nameKey++;
@@ -1392,7 +1404,7 @@ char* dimShapeLabel(int grpid, int rank, int* dimids, int* count, int** shp)
 
 ENUMLIST* getCDF4EnumList(int grpid, nc_type vartype, LOGMALLOCLIST* logmalloclist)
 {
-    int i, rc, err;
+    int rc, err;
     char value[8];
     ENUMLIST* enumlist = (ENUMLIST*)malloc(sizeof(ENUMLIST));
     nc_type base;
@@ -1416,6 +1428,7 @@ ENUMLIST* getCDF4EnumList(int grpid, nc_type vartype, LOGMALLOCLIST* logmallocli
     enumlist->count = members;
     enumlist->enummember = (ENUMMEMBER*)malloc(members * sizeof(ENUMMEMBER));
 
+    size_t i;
     for (i = 0; i < members; i++) {
         if ((rc = nc_inq_enum_member(grpid, vartype, i, enumlist->enummember[i].name, (void*)value)) != NC_NOERR) {
             err = 999;
@@ -1533,7 +1546,8 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                         addMalloc(logmalloclist, d, 1, attlength * sizeof(char), "char");
                         if ((err = nc_get_att_text(grpid, varid, variable->attribute[i].attname, d)) != NC_NOERR) {
                             err = 999;
-                            addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, "Problem Reading Legacy String Attribute");
+                            addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
+                                         "Problem Reading Legacy String Attribute");
                             break;
                         }
                         d[variable->attribute[i].attlength] = '\0';        // Ensure NULL terminated
@@ -1583,7 +1597,8 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                     addMalloc(logmalloclist, d, variable->attribute[i].attlength, size, idamNameType(idamType));
                     if ((err = nc_get_att(grpid, varid, variable->attribute[i].attname, (void*)d)) != NC_NOERR) {
                         err = 999;
-                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, "Problem reading Variable Attribute Value!");
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
+                                     "Problem reading Variable Attribute Value!");
                         break;
                     }
                 }
@@ -1592,7 +1607,8 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                 if (variable->attribute[i].udt->idamclass != UDA_TYPE_ENUM) {
                     size = variable->attribute[i].udt->size;
                     d = (char*)malloc(variable->attribute[i].attlength * size);
-                    addMalloc(logmalloclist, d, variable->attribute[i].attlength, size, variable->attribute[i].udt->name);
+                    addMalloc(logmalloclist, d, variable->attribute[i].attlength, size,
+                              variable->attribute[i].udt->name);
                     if ((err = nc_get_att(grpid, varid, variable->attribute[i].attname, (void*)d)) != NC_NOERR) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
@@ -1600,8 +1616,6 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                         break;
                     }
                 } else {
-
-                    int j;
                     char value[8];
                     ENUMLIST* enumlist = (ENUMLIST*)malloc(sizeof(ENUMLIST));
                     nc_type base;
@@ -1629,44 +1643,48 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                     enumlist->count = members;
                     enumlist->enummember = (ENUMMEMBER*)malloc(members * sizeof(ENUMMEMBER));
 
-                    for (j = 0; j < members; j++) {
-                        rc = nc_inq_enum_member(grpid, variable->attribute[i].atttype, j, enumlist->enummember[j].name,
-                                                (void*)value);
-                        switch (enumlist->type) {
-                            case UDA_TYPE_CHAR: {
-                                char* enumvalue = (char*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
-                            }
-                            case UDA_TYPE_SHORT: {
-                                short* enumvalue = (short*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
-                            }
-                            case UDA_TYPE_UNSIGNED_SHORT: {
-                                unsigned short* enumvalue = (unsigned short*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
-                            }
-                            case UDA_TYPE_INT: {
-                                int* enumvalue = (int*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
-                            }
-                            case UDA_TYPE_UNSIGNED_INT: {
-                                unsigned int* enumvalue = (unsigned int*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
-                            }
-                            case UDA_TYPE_LONG64: {
-                                long long* enumvalue = (long long*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
-                            }
-                            case UDA_TYPE_UNSIGNED_LONG64: {
-                                unsigned long long* enumvalue = (unsigned long long*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
+                    {
+                        size_t j;
+                        for (j = 0; j < members; j++) {
+                            rc = nc_inq_enum_member(grpid, variable->attribute[i].atttype, j,
+                                                    enumlist->enummember[j].name,
+                                                    (void*)value);
+                            switch (enumlist->type) {
+                                case UDA_TYPE_CHAR: {
+                                    char* enumvalue = (char*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
+                                case UDA_TYPE_SHORT: {
+                                    short* enumvalue = (short*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
+                                case UDA_TYPE_UNSIGNED_SHORT: {
+                                    unsigned short* enumvalue = (unsigned short*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
+                                case UDA_TYPE_INT: {
+                                    int* enumvalue = (int*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
+                                case UDA_TYPE_UNSIGNED_INT: {
+                                    unsigned int* enumvalue = (unsigned int*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
+                                case UDA_TYPE_LONG64: {
+                                    long long* enumvalue = (long long*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
+                                case UDA_TYPE_UNSIGNED_LONG64: {
+                                    unsigned long long* enumvalue = (unsigned long long*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -1681,67 +1699,90 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                     }
 
                     // Change to standard unsigned long long integer type		    
-		    unsigned long long* enumarray = (unsigned long long*)malloc(variable->attribute[i].attlength*sizeof(unsigned long long));
-		    switch (enumlist->type) {
-                       case UDA_TYPE_CHAR: {
-                          char* data = (char*)d;
-                          for (j = 0; j < variable->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_SHORT: {
-                          short* data = (short*)d;
-                          for (j = 0; j < variable->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_UNSIGNED_SHORT: {
-                           unsigned short* data = (unsigned short*)d;
-                          for (j = 0; j < variable->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                      }
-                       case UDA_TYPE_INT: {
-                          int* data = (int*)d;
-                          for (j = 0; j < variable->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                      }
-                       case UDA_TYPE_UNSIGNED_INT: {
-                          unsigned int* data = (unsigned int*)d;
-                          for (j = 0; j < variable->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_LONG64: {
-                          long long* data = (long long*)d;
-                          for (j = 0; j < variable->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_UNSIGNED_LONG64: {
-                          unsigned long long* data = (unsigned long long*)d;
-                          for (j = 0; j < variable->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
+                    unsigned long long* enumarray = (unsigned long long*)malloc(
+                            variable->attribute[i].attlength * sizeof(unsigned long long));
+                    switch (enumlist->type) {
+                        case UDA_TYPE_CHAR: {
+                            char* data = d;
+                            int j;
+                            for (j = 0; j < variable->attribute[i].attlength; j++) {
+                                enumarray[j] = (unsigned long long)data[j];
+                            }
+                            break;
+                        }
+                        case UDA_TYPE_SHORT: {
+                            short* data = (short*)d;
+                            int j;
+                            for (j = 0; j < variable->attribute[i].attlength; j++) {
+                                enumarray[j] = (unsigned long long)data[j];
+                            }
+                            break;
+                        }
+                        case UDA_TYPE_UNSIGNED_SHORT: {
+                            unsigned short* data = (unsigned short*)d;
+                            int j;
+                            for (j = 0; j < variable->attribute[i].attlength; j++) {
+                                enumarray[j] = (unsigned long long)data[j];
+                            }
+                            break;
+                        }
+                        case UDA_TYPE_INT: {
+                            int* data = (int*)d;
+                            int j;
+                            for (j = 0; j < variable->attribute[i].attlength; j++) {
+                                enumarray[j] = (unsigned long long)data[j];
+                            }
+                            break;
+                        }
+                        case UDA_TYPE_UNSIGNED_INT: {
+                            unsigned int* data = (unsigned int*)d;
+                            int j;
+                            for (j = 0; j < variable->attribute[i].attlength; j++) {
+                                enumarray[j] = (unsigned long long)data[j];
+                            }
+                            break;
+                        }
+                        case UDA_TYPE_LONG64: {
+                            long long* data = (long long*)d;
+                            int j;
+                            for (j = 0; j < variable->attribute[i].attlength; j++) {
+                                enumarray[j] = (unsigned long long)data[j];
+                            }
+                            break;
+                        }
+                        case UDA_TYPE_UNSIGNED_LONG64: {
+                            unsigned long long* data = (unsigned long long*)d;
+                            int j;
+                            for (j = 0; j < variable->attribute[i].attlength; j++) {
+                                enumarray[j] = (unsigned long long)data[j];
+                            }
+                            break;
+                        }
                     }
                     // enumlist->enumarray = (void*)d;
-		    enumlist->enumarray = (void*)enumarray;
-		    free((void *)d);
-		    
-		    d = (char*)enumlist;
+                    enumlist->enumarray = (void*)enumarray;
+                    free((void*)d);
+
+                    d = (char*)enumlist;
 
                     // Add mallocs to list for freeing when data dispatch complete
 
                     addMalloc(logmalloclist, (void*)enumlist, 1, sizeof(ENUMLIST), "ENUMLIST");
                     addMalloc(logmalloclist, (void*)enumlist->enummember, members, sizeof(ENUMMEMBER), "ENUMMEMBER");
-                    
-		    //addMalloc(logmalloclist, (void*)enumlist->data, variable->attribute[i].attlength, size,
+
+                    //addMalloc(logmalloclist, (void*)enumlist->data, variable->attribute[i].attlength, size,
                     //          idamNameType(idamAtomicType(base)));            // Use true integer type
-                    addMalloc(logmalloclist, (void*)enumlist->enumarray, variable->attribute[i].attlength, sizeof(unsigned long long), "unsigned long long");  
-                		     
+                    addMalloc(logmalloclist, (void*)enumlist->enumarray, variable->attribute[i].attlength,
+                              sizeof(unsigned long long), "unsigned long long");
+
                     enumlist->enumarray_rank = 1;
                     enumlist->enumarray_count = variable->attribute[i].attlength;
-                    enumlist->enumarray_shape = (int *)malloc(sizeof(int));
-                    enumlist->enumarray_shape[0] = variable->attribute[i].attlength;    
-    
+                    enumlist->enumarray_shape = (int*)malloc(sizeof(int));
+                    enumlist->enumarray_shape[0] = variable->attribute[i].attlength;
+
                     addMalloc(logmalloclist, (void*)enumlist->enumarray_shape, 1, sizeof(int), "int");
-		
-		}
+
+                }
 
                 // String replacement
 
@@ -1820,67 +1861,69 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                     NC_NOERR) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, (char*)nc_strerror(rc));
-                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, "Unable to read Enumerated Array variable data!");
+                    addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
+                                 "Unable to read Enumerated Array variable data!");
                     break;
                 }
 
                 // Change to standard unsigned long long integer type		    
                 int j;
-		unsigned long long* enumarray = (unsigned long long*)malloc(count*sizeof(unsigned long long));
+                unsigned long long* enumarray = (unsigned long long*)malloc(count * sizeof(unsigned long long));
                 switch (enumlist->type) {
-                   case UDA_TYPE_CHAR: {
-                      char* data = (char*)d;
-                      for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
-                      break;
-                   }
-                   case UDA_TYPE_SHORT: {
-                      short* data = (short*)d;
-                      for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
-                      break;
-                   }
-                   case UDA_TYPE_UNSIGNED_SHORT: {
-                      unsigned short* data = (unsigned short*)d;
-                      for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
-                      break;
-                   }
-                   case UDA_TYPE_INT: {
-                      int* data = (int*)d;
-                      for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
-                      break;
-                   }
-                   case UDA_TYPE_UNSIGNED_INT: {
-                      unsigned int* data = (unsigned int*)d;
-                      for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
-                      break;
-                   }
-                   case UDA_TYPE_LONG64: {
-                      long long* data = (long long*)d;
-                      for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
-                      break;
-                   }
-                   case UDA_TYPE_UNSIGNED_LONG64: {
-                      unsigned long long* data = (unsigned long long*)d;
-                      for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
-                      break;
-                   }
+                    case UDA_TYPE_CHAR: {
+                        char* data = (char*)d;
+                        for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
+                    }
+                    case UDA_TYPE_SHORT: {
+                        short* data = (short*)d;
+                        for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
+                    }
+                    case UDA_TYPE_UNSIGNED_SHORT: {
+                        unsigned short* data = (unsigned short*)d;
+                        for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
+                    }
+                    case UDA_TYPE_INT: {
+                        int* data = (int*)d;
+                        for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
+                    }
+                    case UDA_TYPE_UNSIGNED_INT: {
+                        unsigned int* data = (unsigned int*)d;
+                        for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
+                    }
+                    case UDA_TYPE_LONG64: {
+                        long long* data = (long long*)d;
+                        for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
+                    }
+                    case UDA_TYPE_UNSIGNED_LONG64: {
+                        unsigned long long* data = (unsigned long long*)d;
+                        for (j = 0; j < count; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
+                    }
                 }
-		
-		enumlist->enumarray = (void*)enumarray;
-		addMalloc2(logmalloclist, (void*)enumlist->enumarray, count, sizeof(unsigned long long), "unsigned long long",
-		           variable->rank, variable->shape);
-                		     
+
+                enumlist->enumarray = (void*)enumarray;
+                addMalloc2(logmalloclist, (void*)enumlist->enumarray, count, sizeof(unsigned long long),
+                           "unsigned long long",
+                           variable->rank, variable->shape);
+
                 enumlist->enumarray_rank = variable->rank;
                 enumlist->enumarray_count = count;
-                enumlist->enumarray_shape = (int *)malloc(sizeof(int));
-                for (j=0;j<variable->rank;j++)enumlist->enumarray_shape[j] = variable->shape[j];    
-    
+                enumlist->enumarray_shape = (int*)malloc(sizeof(int));
+                for (j = 0; j < variable->rank; j++)enumlist->enumarray_shape[j] = variable->shape[j];
+
                 addMalloc(logmalloclist, (void*)enumlist->enumarray_shape, variable->rank, sizeof(int), "int");
 
-		free((void *)d);
+                free((void*)d);
 
                 d = (char*)enumlist;
-	    
-	    } else if (variable->vartype == NC_STRING) {
+
+            } else if (variable->vartype == NC_STRING) {
 
                 if (variable->rank > 2) {
                     err = 999;
@@ -1914,7 +1957,9 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                 nc_free_string(count, svec);
                 free(svec);
                 d = NULL;
-                if (variable->shape != NULL) addMalloc(logmalloclist, (void*)variable->shape, variable->rank, sizeof(int), "int");
+                if (variable->shape != NULL) {
+                    addMalloc(logmalloclist, (void*)variable->shape, variable->rank, sizeof(int), "int");
+                }
 
             } else {
 
@@ -1940,11 +1985,13 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                     addMalloc2(logmalloclist, (void*)d, 1, count * size, variable->udt->compoundfield[fieldid].type,
                                variable->rank - 1, variable->shape);
                 } else {
-                    addMalloc2(logmalloclist, (void*)d, count, size, variable->udt->compoundfield[fieldid].type, variable->rank,
+                    addMalloc2(logmalloclist, (void*)d, count, size, variable->udt->compoundfield[fieldid].type,
+                               variable->rank,
                                variable->shape);
                 }
 
-                if ((rc = nc_get_vara(grpid, varid, (size_t*)&startIndex, (size_t*)&countIndex, (void*)d)) != NC_NOERR) {
+                if ((rc = nc_get_vara(grpid, varid, (size_t*)&startIndex, (size_t*)&countIndex, (void*)d)) !=
+                    NC_NOERR) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, (char*)nc_strerror(rc));
                     addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, "Unable to read Regular Array variable data!");
@@ -1953,7 +2000,8 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
 
                 // String replacement
 
-                USERDEFINEDTYPE* child = findUserDefinedType(userdefinedtypelist, variable->udt->compoundfield[fieldid].type, 0);
+                USERDEFINEDTYPE* child = findUserDefinedType(userdefinedtypelist,
+                                                             variable->udt->compoundfield[fieldid].type, 0);
                 replaceSubTreeEmbeddedStrings(logmalloclist, userdefinedtypelist, child, count, d);
             }
         } else {
@@ -2294,8 +2342,8 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                 break;
             }
 
-            //----------------------------------------------------------------------
-            // Must be a user defined type: COMPLEX, OPAQUE, VLEN, COMPOUND and ENUMERATED
+                //----------------------------------------------------------------------
+                // Must be a user defined type: COMPLEX, OPAQUE, VLEN, COMPOUND and ENUMERATED
 
             default: {
 
@@ -2316,7 +2364,8 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
 
                         // Identify the required structure definition
 
-                        *udt = findUserDefinedType(userdefinedtypelist, "", (int)vartype);        // Identify via type id (assuming local to this group)
+                        *udt = findUserDefinedType(userdefinedtypelist, "",
+                                                   (int)vartype);        // Identify via type id (assuming local to this group)
 
                         if (*udt == NULL &&
                             grouplist.grpids != NULL) {        // Must be defined elsewhere within scope of this group
@@ -2330,12 +2379,14 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                             if (err != 0) {
                                 break;
                             }
-                            *udt = findUserDefinedType(userdefinedtypelist, "", (int)vartype);        // Should be found now if within scope
+                            *udt = findUserDefinedType(userdefinedtypelist, "",
+                                                       (int)vartype);        // Should be found now if within scope
                         }
 
                         if (*udt == NULL) {
                             err = 999;
-                            addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err, "User Defined Type definition Not within Scope!");
+                            addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
+                                         "User Defined Type definition Not within Scope!");
                             break;
                         }
 
@@ -2345,7 +2396,8 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                         *data_type = UDA_TYPE_COMPOUND;
 
                         if ((*udt)->idamclass == UDA_TYPE_ENUM) {
-                            dvec = (char*)malloc(ndata * sizeof(long long));    // Sufficient space ignoring integer type
+                            dvec = (char*)malloc(
+                                    ndata * sizeof(long long));    // Sufficient space ignoring integer type
                         } else {
                             dvec = (char*)malloc(ndata * (*udt)->size);        // Create heap for the data
                         }
@@ -2370,7 +2422,8 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
         } else {
             if (dvec == NULL && vartype != NC_STRING) {
                 err = NETCDF_ERROR_ALLOCATING_HEAP_6;
-                addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err, "Unable to Allocate Heap Memory for the Data");
+                addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
+                             "Unable to Allocate Heap Memory for the Data");
                 break;
             }
         }
@@ -2380,7 +2433,8 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                 if (vartype == NC_STRING) {
                     if (rank > 1) {
                         err = 999;
-                        addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err, "String Array rank is too large - must be 1");
+                        addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
+                                     "String Array rank is too large - must be 1");
                         break;
                     }
                     rc = nc_get_var_string(grpid, varid, svec);
@@ -2414,11 +2468,11 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
             if (*udt != NULL) {
 
                 if ((*udt)->idamclass == UDA_TYPE_COMPOUND) {            // Compound Types
-                    addMalloc(logmalloclist, dvec, ndata, (*udt)->size, (*udt)->name);    // Free Data via Malloc Log List
+                    addMalloc(logmalloclist, dvec, ndata, (*udt)->size,
+                              (*udt)->name);    // Free Data via Malloc Log List
                 }
 
                 if ((*udt)->idamclass == UDA_TYPE_ENUM) {        // Enumerated Types
-                    int i;
                     char value[8];
                     ENUMLIST* enumlist = (ENUMLIST*)malloc(sizeof(ENUMLIST));
                     nc_type base;
@@ -2444,6 +2498,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                     enumlist->count = (int)members;
                     enumlist->enummember = (ENUMMEMBER*)malloc(members * sizeof(ENUMMEMBER));
 
+                    size_t i;
                     for (i = 0; i < members; i++) {
                         rc = nc_inq_enum_member(grpid, vartype, i, enumlist->enummember[i].name, (void*)value);
                         switch (enumlist->type) {
@@ -2486,65 +2541,67 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                     }
 
                     //enumlist->data = (void*)dvec;
-		    
-		    // Change to standard unsigned long long integer type		    
-		    int j;
-		    unsigned long long* enumarray = (unsigned long long*)malloc(ndata*sizeof(unsigned long long));
-		    switch (enumlist->type) {
-                       case UDA_TYPE_CHAR: {
-                          char* data = (char*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_SHORT: {
-                          short* data = (short*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_UNSIGNED_SHORT: {
-                           unsigned short* data = (unsigned short*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                      }
-                       case UDA_TYPE_INT: {
-                          int* data = (int*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                      }
-                       case UDA_TYPE_UNSIGNED_INT: {
-                          unsigned int* data = (unsigned int*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_LONG64: {
-                          long long* data = (long long*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_UNSIGNED_LONG64: {
-                          unsigned long long* data = (unsigned long long*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
+
+                    // Change to standard unsigned long long integer type
+                    int j;
+                    unsigned long long* enumarray = (unsigned long long*)malloc(ndata * sizeof(unsigned long long));
+                    switch (enumlist->type) {
+                        case UDA_TYPE_CHAR: {
+                            char* data = dvec;
+                            for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
+                        case UDA_TYPE_SHORT: {
+                            short* data = (short*)dvec;
+                            for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
+                        case UDA_TYPE_UNSIGNED_SHORT: {
+                            unsigned short* data = (unsigned short*)dvec;
+                            for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
+                        case UDA_TYPE_INT: {
+                            int* data = (int*)dvec;
+                            for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
+                        case UDA_TYPE_UNSIGNED_INT: {
+                            unsigned int* data = (unsigned int*)dvec;
+                            for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
+                        case UDA_TYPE_LONG64: {
+                            long long* data = (long long*)dvec;
+                            for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
+                        case UDA_TYPE_UNSIGNED_LONG64: {
+                            unsigned long long* data = (unsigned long long*)dvec;
+                            for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
                     }
-		    enumlist->enumarray = (void*)enumarray;
-		    free((void *)dvec);
-		    
+                    enumlist->enumarray = (void*)enumarray;
+                    free((void*)dvec);
+
                     dvec = (char*)enumlist;
 
                     // Add mallocs to list for freeing when data dispatch complete
 
                     addMalloc(logmalloclist, (void*)enumlist, 1, sizeof(ENUMLIST), "ENUMLIST");
-                    addMalloc(logmalloclist, (void*)enumlist->enummember, (int)members, sizeof(ENUMMEMBER), "ENUMMEMBER");
+                    addMalloc(logmalloclist, (void*)enumlist->enummember, (int)members, sizeof(ENUMMEMBER),
+                              "ENUMMEMBER");
 
                     //addMalloc(logmalloclist, (void*)enumlist->data, ndata, (int)size, idamNameType(idamAtomicType(base)));            // Use true integer type
-                    addMalloc(logmalloclist, (void*)enumlist->enumarray, ndata, sizeof(unsigned long long), "unsigned long long");  
-                		     
+                    addMalloc(logmalloclist, (void*)enumlist->enumarray, ndata, sizeof(unsigned long long),
+                              "unsigned long long");
+
                     enumlist->enumarray_rank = 1;
                     enumlist->enumarray_count = ndata;
-                    enumlist->enumarray_shape = (int *)malloc(sizeof(int));
-                    enumlist->enumarray_shape[0] = ndata;    
-    
+                    enumlist->enumarray_shape = (int*)malloc(sizeof(int));
+                    enumlist->enumarray_shape[0] = ndata;
+
                     addMalloc(logmalloclist, (void*)enumlist->enumarray_shape, 1, sizeof(int), "int");
 
                 }
@@ -2723,7 +2780,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                     }
                 } else {
 
-                    int j, rc;
+                    int rc;
                     char value[8];
                     ENUMLIST* enumlist = (ENUMLIST*)malloc(sizeof(ENUMLIST));
                     nc_type base;
@@ -2751,44 +2808,47 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                     enumlist->count = members;
                     enumlist->enummember = (ENUMMEMBER*)malloc(members * sizeof(ENUMMEMBER));
 
-                    for (j = 0; j < members; j++) {
-                        rc = nc_inq_enum_member(group->grpid, group->attribute[i].atttype, j,
-                                                enumlist->enummember[j].name, (void*)value);
-                        switch (enumlist->type) {
-                            case UDA_TYPE_CHAR: {
-                                char* enumvalue = (char*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
-                            }
-                            case UDA_TYPE_SHORT: {
-                                short* enumvalue = (short*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
-                            }
-                            case UDA_TYPE_UNSIGNED_SHORT: {
-                                unsigned short* enumvalue = (unsigned short*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
-                            }
-                            case UDA_TYPE_INT: {
-                                int* enumvalue = (int*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
-                            }
-                            case UDA_TYPE_UNSIGNED_INT: {
-                                unsigned int* enumvalue = (unsigned int*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
-                            }
-                            case UDA_TYPE_LONG64: {
-                                long long* enumvalue = (long long*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
-                            }
-                            case UDA_TYPE_UNSIGNED_LONG64: {
-                                unsigned long long* enumvalue = (unsigned long long*)value;
-                                enumlist->enummember[j].value = (long long)*enumvalue;
-                                break;
+                    {
+                        size_t j;
+                        for (j = 0; j < members; j++) {
+                            rc = nc_inq_enum_member(group->grpid, group->attribute[i].atttype, j,
+                                                    enumlist->enummember[j].name, (void*)value);
+                            switch (enumlist->type) {
+                                case UDA_TYPE_CHAR: {
+                                    char* enumvalue = (char*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
+                                case UDA_TYPE_SHORT: {
+                                    short* enumvalue = (short*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
+                                case UDA_TYPE_UNSIGNED_SHORT: {
+                                    unsigned short* enumvalue = (unsigned short*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
+                                case UDA_TYPE_INT: {
+                                    int* enumvalue = (int*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
+                                case UDA_TYPE_UNSIGNED_INT: {
+                                    unsigned int* enumvalue = (unsigned int*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
+                                case UDA_TYPE_LONG64: {
+                                    long long* enumvalue = (long long*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
+                                case UDA_TYPE_UNSIGNED_LONG64: {
+                                    unsigned long long* enumvalue = (unsigned long long*)value;
+                                    enumlist->enummember[j].value = (long long)*enumvalue;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -2801,49 +2861,59 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                                      "Problem reading Variable Attribute Value!");
                         break;
                     }
-		    
-		    // Change to standard unsigned long long integer type		    
-		    unsigned long long* enumarray = (unsigned long long*)malloc(group->attribute[i].attlength*sizeof(unsigned long long));
-		    switch (enumlist->type) {
-                       case UDA_TYPE_CHAR: {
-                          char* data = (char*)d;
-                          for (j = 0; j < group->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_SHORT: {
-                          short* data = (short*)d;
-                          for (j = 0; j < group->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_UNSIGNED_SHORT: {
-                           unsigned short* data = (unsigned short*)d;
-                          for (j = 0; j < group->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                      }
-                       case UDA_TYPE_INT: {
-                          int* data = (int*)d;
-                          for (j = 0; j < group->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                      }
-                       case UDA_TYPE_UNSIGNED_INT: {
-                          unsigned int* data = (unsigned int*)d;
-                          for (j = 0; j < group->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_LONG64: {
-                          long long* data = (long long*)d;
-                          for (j = 0; j < group->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_UNSIGNED_LONG64: {
-                          unsigned long long* data = (unsigned long long*)d;
-                          for (j = 0; j < group->attribute[i].attlength; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
+
+                    // Change to standard unsigned long long integer type
+                    unsigned long long* enumarray = (unsigned long long*)malloc(
+                            group->attribute[i].attlength * sizeof(unsigned long long));
+
+                    int j;
+                    switch (enumlist->type) {
+                        case UDA_TYPE_CHAR: {
+                            char* data = d;
+                            for (j = 0; j < group->attribute[i].attlength; j++)
+                                enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
+                        case UDA_TYPE_SHORT: {
+                            short* data = (short*)d;
+                            for (j = 0; j < group->attribute[i].attlength; j++)
+                                enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
+                        case UDA_TYPE_UNSIGNED_SHORT: {
+                            unsigned short* data = (unsigned short*)d;
+                            for (j = 0; j < group->attribute[i].attlength; j++)
+                                enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
+                        case UDA_TYPE_INT: {
+                            int* data = (int*)d;
+                            for (j = 0; j < group->attribute[i].attlength; j++)
+                                enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
+                        case UDA_TYPE_UNSIGNED_INT: {
+                            unsigned int* data = (unsigned int*)d;
+                            for (j = 0; j < group->attribute[i].attlength; j++)
+                                enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
+                        case UDA_TYPE_LONG64: {
+                            long long* data = (long long*)d;
+                            for (j = 0; j < group->attribute[i].attlength; j++)
+                                enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
+                        case UDA_TYPE_UNSIGNED_LONG64: {
+                            unsigned long long* data = (unsigned long long*)d;
+                            for (j = 0; j < group->attribute[i].attlength; j++)
+                                enumarray[j] = (unsigned long long)data[j];
+                            break;
+                        }
                     }
                     // enumlist->data = (void*)d;
-		    enumlist->enumarray = (void*)enumarray;
-		    free((void *)d);
+                    enumlist->enumarray = (void*)enumarray;
+                    free((void*)d);
 
                     d = (char*)enumlist;
 
@@ -2853,15 +2923,16 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                     addMalloc(logmalloclist, (void*)enumlist->enummember, members, sizeof(ENUMMEMBER), "ENUMMEMBER");
                     //addMalloc(logmalloclist, (void*)enumlist->data, group->attribute[i].attlength, size,
                     //          idamNameType(idamAtomicType(base)));            // Use true integer type
-                    addMalloc(logmalloclist, (void*)enumlist->enumarray, group->attribute[i].attlength, sizeof(unsigned long long), "unsigned long long");  
-                		     
+                    addMalloc(logmalloclist, (void*)enumlist->enumarray, group->attribute[i].attlength,
+                              sizeof(unsigned long long), "unsigned long long");
+
                     enumlist->enumarray_rank = 1;
                     enumlist->enumarray_count = group->attribute[i].attlength;
-                    enumlist->enumarray_shape = (int *)malloc(sizeof(int));
-                    enumlist->enumarray_shape[0] = group->attribute[i].attlength;    
-    
-                    addMalloc(logmalloclist, (void*)enumlist->enumarray_shape, 1, sizeof(int), "int");		    
-		    
+                    enumlist->enumarray_shape = (int*)malloc(sizeof(int));
+                    enumlist->enumarray_shape[0] = group->attribute[i].attlength;
+
+                    addMalloc(logmalloclist, (void*)enumlist->enumarray_shape, 1, sizeof(int), "int");
+
                 }
 
                 // String replacement
@@ -2899,21 +2970,21 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
 
                 // DGM TODO: The offsets must match the size of the data objects returned from the netCDF API when the structures are Not pointer based.
 
-                p = (VOIDTYPE *) &p0[group->udt->compoundfield[fieldid++].offset];
+                p = (VOIDTYPE*)&p0[group->udt->compoundfield[fieldid++].offset];
                 *p = 0;
 
                 if (regularVarData) {
-                    if ((err = getCDF4SubTreeVar2Data(group->grpid, (void **) &d, &group->variable[i], logmalloclist,
+                    if ((err = getCDF4SubTreeVar2Data(group->grpid, (void**)&d, &group->variable[i], logmalloclist,
                                                       userdefinedtypelist,
                                                       &(group->udt->compoundfield[fieldid - 1]))) != 0) {
                         return err;
                     }
-                } else if ((err = getCDF4SubTreeVarData(group->grpid, (void **) &d, &group->variable[i], logmalloclist,
+                } else if ((err = getCDF4SubTreeVarData(group->grpid, (void**)&d, &group->variable[i], logmalloclist,
                                                         userdefinedtypelist)) != 0) {
                     return err;
                 }
 
-                *p = (VOIDTYPE) d;
+                *p = (VOIDTYPE)d;
             }
         }
         //----------------------------------------------------------------------
@@ -2930,12 +3001,14 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                         break;
                     }
 
-                    p = (VOIDTYPE *) &p0[group->udt->compoundfield[fieldid++].offset];
+                    p = (VOIDTYPE*)&p0[group->udt->compoundfield[fieldid++].offset];
                     *p = 0;
-                    if ((err = getCDF4SubTreeData(logmalloclist, userdefinedtypelist, (void **) &d, grp, hgroups, attronly, depth, targetDepth)) !=
-                        0)
-                        return err;
-                    *p = (VOIDTYPE) d;
+                    if ((err = getCDF4SubTreeData(logmalloclist, userdefinedtypelist, (void**)&d, grp, hgroups,
+                                                  attronly, depth, targetDepth)) !=
+                        0) {
+                            return err;
+                    }
+                    *p = (VOIDTYPE)d;
                 } else {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,

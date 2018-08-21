@@ -285,7 +285,7 @@ static int handle_static(DATA_BLOCK* data_block, const char* experiment_mapping_
         ++nindices;
     }
 
-    if ((xml_data.rank != 0 || nindices != 1) && (xml_data.rank != nindices)) {
+    if ((xml_data.rank != 0 || nindices != 1) && (xml_data.rank != (int)nindices)) {
         if (xml_data.rank == 1 && nindices == 0) {
             size_t shape[] = { (size_t)xml_data.dims[0] };
 
@@ -326,7 +326,8 @@ static int handle_static(DATA_BLOCK* data_block, const char* experiment_mapping_
                 }
                 int* data = malloc(shape[0] * shape[1] * sizeof(int));
                 int n = 0;
-                int i, j;
+                size_t i;
+                size_t j;
                 for (j = 0; j < shape[1]; ++j) {
                     for (i = 0; i < shape[0]; ++i) {
                         data[n] = data_in[i * shape[1] + j];
@@ -401,7 +402,7 @@ static size_t get_signal_name_index(const XML_DATA* xml_data, const int* indices
 
         name_indices = (size_t*)realloc(name_indices, (idx + size) * sizeof(size_t));
 
-        size_t i;
+        int i;
         for (i = 0; i < size; ++i) {
             name_indices[idx] = signal_names_idx;
             ++idx;
@@ -453,10 +454,12 @@ static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping
         size_t name_index = get_signal_name_index(&xml_data, indices, nindices);
 
         int name_offset = 0;
-        size_t i;
-        for (i = 0; i < name_index; ++i) {
-            int size = (xml_data.sizes == NULL || xml_data.sizes[i] == 0) ? 1 : xml_data.sizes[i];
-            name_offset += size;
+        {
+            size_t i;
+            for (i = 0; i < name_index; ++i) {
+                int size = (xml_data.sizes == NULL || xml_data.sizes[i] == 0) ? 1 : xml_data.sizes[i];
+                name_offset += size;
+            }
         }
 
         {
@@ -481,6 +484,7 @@ static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping
             float** data_arrays = NULL;
             size_t n_arrays = 0;
 
+            int i;
             for (i = 0; i < size; ++i) {
                 data_arrays = realloc(data_arrays, (n_arrays + 1) * sizeof(float*));
 
@@ -522,8 +526,9 @@ static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping
                     memcpy(data_block->data, (char*)data_arrays[0 - name_offset], sz);
                 }
 
-                for (i = 0; i < n_arrays; ++i) {
-                    free(data_arrays[i]);
+                size_t si;
+                for (si = 0; si < n_arrays; ++si) {
+                    free(data_arrays[si]);
                 }
                 free(data_arrays);
             }
@@ -531,6 +536,7 @@ static int handle_dynamic(DATA_BLOCK* data_block, const char* experiment_mapping
 
         data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
+        unsigned int i;
         for (i = 0; i < data_block->rank; i++) {
             initDimBlock(&data_block->dims[i]);
         }
@@ -600,10 +606,12 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
     size_t name_index = get_signal_name_index(&xml_data, indices, nindices);
 
     int name_offset = 0;
-    size_t i;
-    for (i = 0; i < name_index; ++i) {
-        int size = (xml_data.sizes == NULL || xml_data.sizes[i] == 0) ? 1 : xml_data.sizes[i];
-        name_offset += size;
+    {
+        size_t i;
+        for (i = 0; i < name_index; ++i) {
+            int size = (xml_data.sizes == NULL || xml_data.sizes[i] == 0) ? 1 : xml_data.sizes[i];
+            name_offset += size;
+        }
     }
 
     {
@@ -628,6 +636,7 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
         float** error_arrays = NULL;
         size_t n_arrays = 0;
 
+        int i;
         for (i = 0; i < size; ++i) {
             error_arrays = realloc(error_arrays, (n_arrays + 1) * sizeof(float*));
 
@@ -679,8 +688,9 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
                 memcpy(data_block->data, (char*)error_arrays[0 - name_offset], sz);
             }
 
-            for (i = 0; i < n_arrays; ++i) {
-                free(error_arrays[i]);
+            size_t si;
+            for (si = 0; si < n_arrays; ++si) {
+                free(error_arrays[si]);
             }
             free(error_arrays);
         }
@@ -688,6 +698,7 @@ static int handle_error(DATA_BLOCK* data_block, const char* experiment_mapping_f
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
+    unsigned int i;
     for (i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
@@ -715,7 +726,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->rank = 1;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-    int i;
+    unsigned int i;
     for (i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
@@ -954,7 +965,8 @@ XML_MAPPING* getMappingValue(const char* mapping_file_name, const char* request)
 
 char* deblank(char* input)
 {
-    int i, j;
+    size_t i;
+    int j;
     char* output = input;
     for (i = 0, j = 0; i < strlen(input); i++, j++) {
         if (input[i] != ' ' && input[i] != '\'') {

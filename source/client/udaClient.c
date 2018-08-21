@@ -948,7 +948,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         int i;
 
-        for (i = 0; i < data_block->rank; i++) {            // Expand Compressed Regular Vector
+        for (i = 0; i < (int)data_block->rank; i++) {            // Expand Compressed Regular Vector
             err = uncompressDim(&(data_block->dims[i]));    // Allocate Heap as required
             err = 0;                                        // Need to Test for Error Condition!
         }
@@ -1624,7 +1624,9 @@ int getIdamServerErrorStackSize()
 */
 int getIdamServerErrorStackRecordType(int record)
 {
-    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
+    if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
+        return 0;
+    }
     return server_block.idamerrorstack.idamerror[record].type;  // Server Error Stack Record Type
 }
 
@@ -1635,7 +1637,9 @@ int getIdamServerErrorStackRecordType(int record)
 */
 int getIdamServerErrorStackRecordCode(int record)
 {
-    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
+    if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
+        return 0;
+    }
     return server_block.idamerrorstack.idamerror[record].code;  // Server Error Stack Record Code
 }
 
@@ -1646,7 +1650,9 @@ int getIdamServerErrorStackRecordCode(int record)
 */
 char* getIdamServerErrorStackRecordLocation(int record)
 {
-    if (record < 0 || record >= server_block.idamerrorstack.nerrors) return 0;
+    if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
+        return 0;
+    }
     return server_block.idamerrorstack.idamerror[record].location; // Server Error Stack Record Location
 }
 
@@ -1659,7 +1665,7 @@ char* getIdamServerErrorStackRecordMsg(int record)
 {
     UDA_LOG(UDA_LOG_DEBUG, "getIdamServerErrorStackRecordMsg: record %d\n", record);
     UDA_LOG(UDA_LOG_DEBUG, "getIdamServerErrorStackRecordMsg: count  %d\n", server_block.idamerrorstack.nerrors);
-    if (record < 0 || record >= server_block.idamerrorstack.nerrors) {
+    if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
         return 0;
     }
     return server_block.idamerrorstack.idamerror[record].msg;   // Server Error Stack Record Message

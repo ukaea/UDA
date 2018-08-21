@@ -5,7 +5,7 @@
 #include <cache/cache.h>
 #include <clientserver/protocol.h>
 #include <clientserver/stringUtils.h>
-#include <plugins/serverPlugin.h>
+#include <server/serverPlugin.h>
 
 #include "getPluginAddress.h"
 

@@ -738,7 +738,7 @@ JNIEXPORT jobjectArray JNICALL Java_jIdam_Idam_getVariablesRegex(JNIEnv* env, jo
                                                (*env)->FindClass(env, "java/lang/String"),
                                                (*env)->NewStringUTF(env, ""));
 
-    if (ret < 0) {
+    if (ret == NULL) {
         goto END;
     }
 

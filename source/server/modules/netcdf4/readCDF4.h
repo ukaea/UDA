@@ -134,10 +134,10 @@ typedef struct CDFSubset {
     int rank;                           // Data Rank (0 => dimids not known)
     int subset[NC_MAX_VAR_DIMS];        // If 1 then subset to apply
     int dimids[NC_MAX_VAR_DIMS];        // Dimension ID
-    size_t start[NC_MAX_VAR_DIMS];      // Starting Index of each dimension
-    size_t stop[NC_MAX_VAR_DIMS];       // Ending Index of each dimension
-    size_t count[NC_MAX_VAR_DIMS];      // The number of values (sub-samples) read from each dimension
-    ptrdiff_t stride[NC_MAX_VAR_DIMS];  // The step stride along each dimension
+    int start[NC_MAX_VAR_DIMS];      	// Starting Index of each dimension
+	int stop[NC_MAX_VAR_DIMS];       	// Ending Index of each dimension
+	int count[NC_MAX_VAR_DIMS];      	// The number of values (sub-samples) read from each dimension
+    int stride[NC_MAX_VAR_DIMS];  // The step stride along each dimension
 } CDFSUBSET;
 
 int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int* dimids, int* nevec,

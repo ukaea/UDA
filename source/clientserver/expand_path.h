@@ -94,7 +94,7 @@ If there are more wildcards in the substitute string than in the target string, 
 */
 int pathReplacement(char *path, const ENVIRONMENT* environment);
 
-int linkReplacement(char *path);
+int linkReplacement(char* path);
 
 #endif // NOEXPANDPATH
 

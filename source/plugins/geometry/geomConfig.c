@@ -4,9 +4,9 @@
 #include <tgmath.h>
 
 #include <clientserver/initStructs.h>
+#include <plugins/pluginUtils.h>
 #include <structures/accessors.h>
 #include <structures/struct.h>
-#include <plugins/serverPlugin.h>
 
 int do_meta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, PGconn* DBConnect)
 {

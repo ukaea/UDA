@@ -64,18 +64,18 @@ int readUFile(DATA_SOURCE data_source,
     FILE* ufile = NULL;
     char buff[UFILE_BUFFER], tokamak[5], date[10], desc[21];
     char value[14];
-    int i, j, k, err, nscalar, serrno = 0;
+    int err, nscalar, serrno = 0;
     int nrec, remain, ncheck, nitems;
     float scalar;
     float* data = NULL;
 
-//----------------------------------------------------------------------
-// Error Trap Loop
+    //----------------------------------------------------------------------
+    // Error Trap Loop
 
     do {
 
-//----------------------------------------------------------------------
-// Open the U File for READing Only
+        //----------------------------------------------------------------------
+        // Open the U File for READing Only
 
         errno = 0;
         err = 0;
@@ -95,36 +95,37 @@ int readUFile(DATA_SOURCE data_source,
             break;
         }
 
-//----------------------------------------------------------------------
-// Read the UFile Header Information: Formated as (1x,I6,A4,I2) nshot, tok, rank
+        //----------------------------------------------------------------------
+        // Read the UFile Header Information: Formated as (1x,I6,A4,I2) nshot, tok, rank
 
         fgets(buff, UFILE_BUFFER - 1, ufile);
 
         strcpy(tokamak, strtok(NULL, " "));
         data_block->rank = atoi(strtok(NULL, " "));
 
-//----------------------------------------------------------------------
-// Read the Shot Date: Formated as (1x,a9)
+        //----------------------------------------------------------------------
+        // Read the Shot Date: Formated as (1x,a9)
 
         fscanf(ufile, "%10s", date);
         fgets(buff, UFILE_BUFFER - 1, ufile);
 
-//----------------------------------------------------------------------
-// Number of Associated Scalars: Formated as (1x,i3)
+        //----------------------------------------------------------------------
+        // Number of Associated Scalars: Formated as (1x,i3)
 
         nscalar = atoi(fgets(buff, 8, ufile));
         fgets(buff, UFILE_BUFFER - 1, ufile);
 
-//----------------------------------------------------------------------
-// Read All Scalar Data  & Ignore!
+        //----------------------------------------------------------------------
+        // Read All Scalar Data  & Ignore!
 
-//  For Development Assume No Scalar Data if 1 or 2d data
-//  Ignore ALL Scalar values associated with data profiles
+        //  For Development Assume No Scalar Data if 1 or 2d data
+        //  Ignore ALL Scalar values associated with data profiles
 
-//  Scalars are Formated as 1E13.6
-//  Scalar Descriptions as A20
+        //  Scalars are Formated as 1E13.6
+        //  Scalar Descriptions as A20
 
         if (data_block->rank != 0 && nscalar != 0) {
+            int i;
             for (i = 0; i < nscalar; i++) {
                 scalar = atof(fgets(buff, 14, ufile));
                 fgets(buff, UFILE_BUFFER - 1, ufile);
@@ -137,8 +138,8 @@ int readUFile(DATA_SOURCE data_source,
             }
         }
 
-//----------------------------------------------------------------------
-// Allocate & Initialise Dimensional Structures
+        //----------------------------------------------------------------------
+        // Allocate & Initialise Dimensional Structures
 
         if (data_block->rank > 0) {
             if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
@@ -149,10 +150,13 @@ int readUFile(DATA_SOURCE data_source,
             }
         }
 
-        for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+        unsigned int i;
+        for (i = 0; i < data_block->rank; i++) {
+            initDimBlock(&data_block->dims[i]);
+        }
 
-//----------------------------------------------------------------------
-// Dimension Labels and Units
+        //----------------------------------------------------------------------
+        // Dimension Labels and Units
 
         for (i = 0; i < data_block->rank; i++) {
             fgets(data_block->dims[i].dim_label, 22, ufile);        // Formated as (1x,a20,a10)
@@ -163,8 +167,8 @@ int readUFile(DATA_SOURCE data_source,
             fgets(buff, UFILE_BUFFER - 1, ufile);
         }
 
-//----------------------------------------------------------------------
-// Data Label and Units
+        //----------------------------------------------------------------------
+        // Data Label and Units
 
         fgets(data_block->data_label, 22, ufile);            // Formated as (1x,a20,a10)
         fgets(data_block->data_units, 11, ufile);
@@ -173,14 +177,14 @@ int readUFile(DATA_SOURCE data_source,
 
         fgets(buff, UFILE_BUFFER - 1, ufile);
 
-//----------------------------------------------------------------------
-// Status
+        //----------------------------------------------------------------------
+        // Status
 
 //        status = atoi(fgets(buff, 3, ufile));            // Formated as (1x,i1)
         fgets(buff, UFILE_BUFFER - 1, ufile);
 
-//----------------------------------------------------------------------
-// Dimension Sizes & Types: Allocate Dimensional Heap
+        //----------------------------------------------------------------------
+        // Dimension Sizes & Types: Allocate Dimensional Heap
 
         data_block->data_n = 0;
         data_block->data_type = UDA_TYPE_FLOAT;
@@ -203,8 +207,8 @@ int readUFile(DATA_SOURCE data_source,
         }
         if (err != 0) break;
 
-//--------------------------------------------------------------------------------------------
-// Allocate Heap for the Data and Read the Data
+        //--------------------------------------------------------------------------------------------
+        // Allocate Heap for the Data and Read the Data
 
         if ((data_block->data = (char*)malloc(sizeof(float) * data_block->data_n)) == NULL) {
             err = UFILE_ERROR_ALLOCATING_DATA_HEAP;
@@ -212,8 +216,8 @@ int readUFile(DATA_SOURCE data_source,
             break;
         }
 
-//--------------------------------------------------------------------------------------------
-// Read the Dimensional Data
+        //--------------------------------------------------------------------------------------------
+        // Read the Dimensional Data
 
         value[13] = '\0';
 
@@ -223,9 +227,11 @@ int readUFile(DATA_SOURCE data_source,
             remain = data_block->dims[i].dim_n - 6 * nrec;        // No. of Data Items in Last Record
             ncheck = 0;                        // Check Count of Items
 
+            int j;
             for (j = 0; j < nrec + 1; j++) {
                 fgets(buff, UFILE_BUFFER - 1, ufile);
                 nitems = ((j == (nrec)) ? remain : 6);        // Each record has 6 Items (except the last!)
+                int k;
                 for (k = 0; k < nitems; k++) {
                     strncpy(value, &buff[1 + 13 * k], 13);
                     *(data + ncheck++) = atof(value);
@@ -233,17 +239,19 @@ int readUFile(DATA_SOURCE data_source,
             }
         }
 
-//--------------------------------------------------------------------------------------------
-// Read the Data
+        //--------------------------------------------------------------------------------------------
+        // Read the Data
 
         data = (float*)data_block->data;
         nrec = data_block->data_n / 6;                // No. of Records to read
         remain = data_block->data_n - 6 * nrec;            // No. of Data Items in Last Record
         ncheck = 0;                        // Check Count of Items
 
+        int j;
         for (j = 0; j < nrec + 1; j++) {
             fgets(buff, UFILE_BUFFER - 1, ufile);
             nitems = ((j == (nrec)) ? remain : 6);            // Each record has 6 Items (except the last!)
+            int k;
             for (k = 0; k < nitems; k++) {
                 strncpy(value, &buff[1 + 13 * k], 13);
                 *(data + ncheck++) = atof(value);
@@ -252,14 +260,14 @@ int readUFile(DATA_SOURCE data_source,
             }
         }
 
-//----------------------------------------------------------------------
-//----------------------------------------------------------------------
-// End of Error Trap Loop
+        //----------------------------------------------------------------------
+        //----------------------------------------------------------------------
+        // End of Error Trap Loop
 
     } while (0);
 
-//----------------------------------------------------------------------
-// Housekeeping
+    //----------------------------------------------------------------------
+    // Housekeeping
 
     if (ufile != NULL) fclose(ufile);
 

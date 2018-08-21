@@ -862,14 +862,19 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 //----------------------------------------------------------------------------------------
 // Name Value pairs and Keywords
 
-    unsigned short isExp_number = 0, isPass = 0, isDevice = 0, isStartTime = 0, isEndTime = 0, isCache = 0, isStructureVersion = 0;
-    unsigned short isAverage = 0, isNearest = 0, isFirst = 0, isLast = 0, isCount = 0;
-    int exp_number, pass, structureVersion = 1;
-    double startTime, endTime;
-    char* device = NULL;
+    unsigned short isStartTime = 0;
+    unsigned short isEndTime = 0;
+    unsigned short isCache = 0;
+    unsigned short isAverage = 0;
+    unsigned short isNearest = 0;
+    unsigned short isFirst = 0;
+    unsigned short isLast = 0;
+    unsigned short isCount = 0;
+    int exp_number;
+    double startTime = 0.0;
+    double endTime = 0.0;
 
     exp_number = request_block->exp_number;
-    pass = request_block->pass;                // 'Pass' as a text string (tpass) is not used
 
 // Keyword have higher priority
 
@@ -880,7 +885,6 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             !strcasecmp(request_block->nameValueList.nameValue[i].name, "shot") ||
             !strcasecmp(request_block->nameValueList.nameValue[i].name, "pulno")) {
             if (IsNumber(request_block->nameValueList.nameValue[i].value)) {
-                isExp_number = 1;
                 exp_number = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             } else {
@@ -890,8 +894,6 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
         if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "pass")) {
             if (IsNumber(request_block->nameValueList.nameValue[i].value)) {
-                isPass = 1;
-                pass = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             } else {
                 err = 888;
@@ -899,8 +901,6 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
         }
         if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "device")) {
-            isDevice = 1;
-            device = request_block->nameValueList.nameValue[i].value;
             continue;
         }
         if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "startTime")) {
@@ -916,8 +916,6 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (!strcasecmp(request_block->nameValueList.nameValue[i].name, "structureVersion")) {
             if (IsNumber(request_block->nameValueList.nameValue[i].value)) {
-                isStructureVersion = 1;
-                structureVersion = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             } else {
                 err = 888;
@@ -1515,7 +1513,8 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT ||
+                    getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -1729,7 +1728,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT ||
+                    getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -1983,7 +1983,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT ||
+                    getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -2288,7 +2289,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT ||
+                    getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -2794,7 +2796,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT ||
+                    getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -3032,7 +3035,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT ||
+                    getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -3731,7 +3735,8 @@ MAGNETICS/FLUX_LOOP/1/FLUX/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT ||
+                    getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");
@@ -3990,7 +3995,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
         if (!strcasecmp(request_block->function, "magnetics") ||
             !strcasecmp(request_block->function, "test11")) {    // MAGNETICS data structure with MAST data
             char* p = NULL;
-            int rc, size = 0;
+            int size = 0;
             char* type = NULL;
             char signal[256], source[256];
             DATA_BLOCK plugin_data_block;
@@ -4031,7 +4036,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
             makeRequestBlock(&plugin_request_block, *pluginList, idam_plugin_interface->environment);
 
-            rc = livedisplay(&idam_plugin_interface2);
+            livedisplay(&idam_plugin_interface2);
 
             magnetics->flux_loop = (FLUX_LOOP*)(plugin_data_block.data);
 
@@ -4041,7 +4046,8 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
             size = 0;
             type = NULL;
-            findMalloc(idam_plugin_interface->logmalloclist, magnetics->flux_loop, &magnetics->flux_loop_count, &size, &type);
+            findMalloc(idam_plugin_interface->logmalloclist, magnetics->flux_loop, &magnetics->flux_loop_count, &size,
+                       &type);
 
             initDataBlock(&plugin_data_block);
             initRequestBlock(&plugin_request_block);
@@ -4062,7 +4068,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
             makeRequestBlock(&plugin_request_block, *pluginList, idam_plugin_interface->environment);
 
-            rc = livedisplay(&idam_plugin_interface2);
+            livedisplay(&idam_plugin_interface2);
 
             magnetics->flux_loop_count = *((int*)plugin_data_block.data);
 
@@ -4088,7 +4094,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
             makeRequestBlock(&plugin_request_block, *pluginList, idam_plugin_interface->environment);
 
-            rc = livedisplay(&idam_plugin_interface2);
+            livedisplay(&idam_plugin_interface2);
 
             magnetics->bpol_probe = (BPOL_PROBE*)(plugin_data_block.data);
 
@@ -4115,7 +4121,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
 
             makeRequestBlock(&plugin_request_block, *pluginList, idam_plugin_interface->environment);
 
-            rc = livedisplay(&idam_plugin_interface2);
+            livedisplay(&idam_plugin_interface2);
 
             magnetics->bpol_probe_count = *((int*)plugin_data_block.data);
 
@@ -4967,7 +4973,8 @@ PF_ACTIVE/COIL/%d/CURRENT/TIME
                     break;
                 }
 
-                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT || getIdamDataNum(handle) != 1) {
+                if (getIdamRank(handle) != 0 || getIdamDataType(handle) != UDA_TYPE_INT ||
+                    getIdamDataNum(handle) != 1) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "LiveDisplay", err,
                                  "Machine Description data has Incorrect properties!");

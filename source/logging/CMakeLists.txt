@@ -14,6 +14,7 @@ add_library( logging-client-objects OBJECT ${SRC_FILES} )
 
 if( NOT CLIENT_ONLY )
   add_library( logging-server-objects OBJECT accessLog.c ${SRC_FILES} )
+  target_compile_definitions( logging-server-objects PRIVATE -DSERVERBUILD )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )

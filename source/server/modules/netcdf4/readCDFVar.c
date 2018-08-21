@@ -162,7 +162,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 {
     int grpid;
 
-    int i, rc, err = 0, ndata, isextent = 0, createIndex = 0, coordSubsetId = -1;
+    int rc, err = 0, ndata, isextent = 0, createIndex = 0, coordSubsetId = -1;
 
     int attid;
     nc_type vartype, atttype;                    // NC types
@@ -202,7 +202,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                 return err;
             }
 
-            if (attlen != rank && rank > 0) {
+            if (attlen != (size_t)rank && rank > 0) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "readCDFVar", err,
                              "Extent attribute of Variable has an Inconsistent Rank");
@@ -258,6 +258,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                 break;
             }
 
+            int i;
             for (i = 0; i < rank; i++) {
 
                 if (isextent) {
@@ -285,22 +286,22 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                     if (!isCoordinate) {
                         if (!cdfsubset.subset[i]) {
                             cdfsubset.start[i] = 0;            // Fill dimensions if not subset
-                            cdfsubset.stop[i] = dnums[i] - 1;
-                            cdfsubset.count[i] = dnums[i];
+                            cdfsubset.stop[i] = (int)dnums[i] - 1;
+                            cdfsubset.count[i] = (int)dnums[i];
                             cdfsubset.stride[i] = 1;
                         }
                         if (cdfsubset.subset[i]) {
-                            if ((int)cdfsubset.stop[i] == -1) {
-                                cdfsubset.stop[i] = (size_t)(dnums[i] - 1);
+                            if (cdfsubset.stop[i] == -1) {
+                                cdfsubset.stop[i] = (int)(dnums[i] - 1);
                             } else {
-                                if (cdfsubset.stop[i] > (size_t)(dnums[i] - 1)) {
+                                if (cdfsubset.stop[i] > (int)(dnums[i] - 1)) {
                                     err = 999;
                                     addIdamError(CODEERRORTYPE, "readCDFVar", err,
                                                  "Invalid Stop Index in subset operation");
                                     break;
                                 }
                             }
-                            if ((int)cdfsubset.count[i] == -1) {
+                            if (cdfsubset.count[i] == -1) {
                                 cdfsubset.count[i] = cdfsubset.stop[i] - cdfsubset.start[i] + 1;
                                 if (cdfsubset.stride[i] > 1 && cdfsubset.count[i] > 1) {
                                     if ((cdfsubset.count[i] % cdfsubset.stride[i]) > 0) {
@@ -310,24 +311,24 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                                     }
                                 }
                             }
-                            dnums[i] = (int)cdfsubset.count[i];
+                            dnums[i] = (size_t)cdfsubset.count[i];
                             extent[i] = (unsigned int)dnums[i];
                         }
                     } else {
                         int j;
                         for (j = 0; j < cdfsubset.rank; j++) {        // Identify the coordinate variable's dimension ID
                             if (cdfsubset.dimids[j] == dimids[0]) {
-                                if ((int)cdfsubset.stop[j] == -1) {
-                                    cdfsubset.stop[j] = (size_t)(dnums[0] - 1);
+                                if (cdfsubset.stop[j] == -1) {
+                                    cdfsubset.stop[j] = (int)(dnums[0] - 1);
                                 } else {
-                                    if (cdfsubset.stop[j] > (size_t)(dnums[0] - 1)) {
+                                    if (cdfsubset.stop[j] > (int)(dnums[0] - 1)) {
                                         err = 999;
                                         addIdamError(CODEERRORTYPE, "readCDFVar", err,
                                                      "Invalid Stop Index in subset operation");
                                         break;
                                     }
                                 }
-                                if ((int)cdfsubset.count[j] == -1) {
+                                if (cdfsubset.count[j] == -1) {
                                     cdfsubset.count[j] = cdfsubset.stop[j] - cdfsubset.start[j] + 1;
                                     if (cdfsubset.stride[j] > 1 && cdfsubset.count[j] > 1) {
                                         if ((cdfsubset.count[j] % cdfsubset.stride[j]) > 0) {
@@ -337,7 +338,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                                         }
                                     }
                                 }
-                                dnums[i] = (int)cdfsubset.count[j];
+                                dnums[i] = cdfsubset.count[j];
                                 extent[i] = (unsigned int)dnums[i];
                                 coordSubsetId = j;
                                 break;
@@ -573,14 +574,23 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                             break;
                         }
 
+                        size_t starts[NC_MAX_VAR_DIMS];
+                        size_t counts[NC_MAX_VAR_DIMS];
+                        ptrdiff_t strides[NC_MAX_VAR_DIMS];
+                        int i;
+                        for (i = 0; i < cdfsubset.subsetCount; ++i) {
+                            starts[i] = (size_t)cdfsubset.start[i];
+                            counts[i] = (size_t)cdfsubset.count[i];
+                            strides[i] = (size_t)cdfsubset.stride[i];
+                        }
+
                         if (!isCoordinate) {
-                            rc = nc_get_vars(grpid, varid, cdfsubset.start, cdfsubset.count, cdfsubset.stride,
-                                             (void*)dvec);
+                            rc = nc_get_vars(grpid, varid, starts, counts, strides, (void*)dvec);
                         } else {
                             if (cdfsubset.subset[coordSubsetId]) {
-                                rc = nc_get_vars(grpid, varid, &cdfsubset.start[coordSubsetId],
-                                                 &cdfsubset.count[coordSubsetId],
-                                                 &cdfsubset.stride[coordSubsetId], (void*)dvec);
+                                rc = nc_get_vars(grpid, varid, &starts[coordSubsetId],
+                                                 &counts[coordSubsetId],
+                                                 &strides[coordSubsetId], (void*)dvec);
                             } else {
                                 rc = nc_get_vara(grpid, varid, start, count, (void*)dvec);
                             }
@@ -609,7 +619,6 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                     }
 
                     if ((*udt)->idamclass == UDA_TYPE_ENUM) {        // Enumerated Types
-                        int i;
                         char value[8];
                         ENUMLIST* enumlist = (ENUMLIST*)malloc(sizeof(ENUMLIST));
                         nc_type base;
@@ -634,6 +643,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         enumlist->count = (int)members;
                         enumlist->enummember = (ENUMMEMBER*)malloc(members * sizeof(ENUMMEMBER));
 
+                        size_t i;
                         for (i = 0; i < members; i++) {
                             nc_inq_enum_member(grpid, vartype, i, enumlist->enummember[i].name, (void*)value);
                             switch (enumlist->type) {
@@ -976,7 +986,6 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
                 addMalloc(logmalloclist, dvec, ndata, (size_t)(*udt)->size,
                           (*udt)->name);    // Free Data via Malloc Log List
             } else if (*udt != NULL) {
-                int i;
                 char value[8];
                 ENUMLIST* enumlist = (ENUMLIST*)malloc(sizeof(ENUMLIST));
                 nc_type base;
@@ -1001,6 +1010,7 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
                 enumlist->count = (int)members;
                 enumlist->enummember = (ENUMMEMBER*)malloc(members * sizeof(ENUMMEMBER));
 
+                size_t i;
                 for (i = 0; i < members; i++) {
                     rc = nc_inq_enum_member(grpid, atttype, i, enumlist->enummember[i].name, (void*)value);
                     switch (enumlist->type) {
@@ -1573,7 +1583,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
                            USERDEFINEDTYPELIST* userdefinedtypelist)
 {
 
-    int rc, err = 0, i, j, data_n, data_type, isCoordinate = 0, isIndex = 0;
+    int rc, err = 0, data_n, data_type, isCoordinate = 0, isIndex = 0;
 
     int* dimids = NULL;
     unsigned int* extent = NULL;    // Shape of the data array
@@ -1631,7 +1641,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
         //----------------------------------------------------------------------
         // Check coordinate is constant over the other dimension
 
-        if (extent[1] != ncoords) {
+        if (extent[1] != (unsigned int)ncoords) {
             err = 999;
             addIdamError(CODEERRORTYPE, "readCDFCheckCoordinate", err,
                          "Inconsistent Array Lengths found: Cannot Check Multi-Dimensional Coordinate is Constant");
@@ -1643,7 +1653,9 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             case UDA_TYPE_DOUBLE: {
                 double* dvec = (double*)data;
                 double* dcoo = (double*)coords;
+                int i;
                 for (i = 0; i < ncoords; i++) {
+                    unsigned int j;
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
                             err = -1;
@@ -1658,7 +1670,9 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             case UDA_TYPE_FLOAT: {
                 float* dvec = (float*)data;
                 float* dcoo = (float*)coords;
+                int i;
                 for (i = 0; i < ncoords; i++) {
+                    unsigned int j;
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
                             err = -1;
@@ -1673,7 +1687,9 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             case UDA_TYPE_LONG64: {
                 long long int* dvec = (long long int*)data;
                 long long int* dcoo = (long long int*)coords;
+                int i;
                 for (i = 0; i < ncoords; i++) {
+                    unsigned int j;
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
                             err = -1;
@@ -1688,7 +1704,9 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             case UDA_TYPE_INT: {
                 int* dvec = (int*)data;
                 int* dcoo = (int*)coords;
+                int i;
                 for (i = 0; i < ncoords; i++) {
+                    unsigned int j;
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
                             err = -1;
@@ -1703,7 +1721,9 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             case UDA_TYPE_SHORT: {
                 short* dvec = (short*)data;
                 short* dcoo = (short*)coords;
+                int i;
                 for (i = 0; i < ncoords; i++) {
+                    unsigned int j;
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
                             err = -1;
@@ -1718,7 +1738,9 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             case UDA_TYPE_CHAR: {
                 char* dvec = data;
                 char* dcoo = coords;
+                int i;
                 for (i = 0; i < ncoords; i++) {
+                    unsigned int j;
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
                             err = -1;
@@ -1733,7 +1755,9 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             case UDA_TYPE_UNSIGNED_LONG64: {
                 unsigned long long int* dvec = (unsigned long long int*)data;
                 unsigned long long int* dcoo = (unsigned long long int*)coords;
+                int i;
                 for (i = 0; i < ncoords; i++) {
+                    unsigned int j;
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
                             err = -1;
@@ -1748,7 +1772,9 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             case UDA_TYPE_UNSIGNED_INT: {
                 unsigned int* dvec = (unsigned int*)data;
                 unsigned int* dcoo = (unsigned int*)coords;
+                int i;
                 for (i = 0; i < ncoords; i++) {
+                    unsigned int j;
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
                             err = -1;
@@ -1763,7 +1789,9 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             case UDA_TYPE_UNSIGNED_SHORT: {
                 unsigned short* dvec = (unsigned short*)data;
                 unsigned short* dcoo = (unsigned short*)coords;
+                int i;
                 for (i = 0; i < ncoords; i++) {
+                    unsigned int j;
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
                             err = -1;
@@ -1778,7 +1806,9 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             case UDA_TYPE_UNSIGNED_CHAR: {
                 unsigned char* dvec = (unsigned char*)data;
                 unsigned char* dcoo = (unsigned char*)coords;
+                int i;
                 for (i = 0; i < ncoords; i++) {
+                    unsigned int j;
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i] != dcoo[i]) {
                             err = -1;
@@ -1793,7 +1823,9 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             case UDA_TYPE_COMPLEX: {
                 COMPLEX* dvec = (COMPLEX*)data;
                 COMPLEX* dcoo = (COMPLEX*)coords;
+                int i;
                 for (i = 0; i < ncoords; i++) {
+                    unsigned int j;
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i].real != dcoo[i].real &&
                             dvec[j * ncoords + i].imaginary != dcoo[i].imaginary) {
@@ -1809,7 +1841,9 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
             case UDA_TYPE_DCOMPLEX: {
                 DCOMPLEX* dvec = (DCOMPLEX*)data;
                 DCOMPLEX* dcoo = (DCOMPLEX*)coords;
+                int i;
                 for (i = 0; i < ncoords; i++) {
+                    unsigned int j;
                     for (j = 0; j < extent[0]; j++) {
                         if (dvec[j * ncoords + i].real != dcoo[i].real &&
                             dvec[j * ncoords + i].imaginary != dcoo[i].imaginary) {

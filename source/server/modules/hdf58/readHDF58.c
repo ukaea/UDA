@@ -106,7 +106,7 @@ int readHDF5IdamType(H5T_class_t classtype, int precision, int issigned)
 int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_BLOCK* data_block)
 {
     H5T_class_t classtype;
-    int err = 0, rc, i;
+    int err = 0, rc;
     char* data = NULL;
     hid_t datatype_id, space_id;
     size_t size = 0;
@@ -243,6 +243,7 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
             return err;
         }
 
+        unsigned int i;
         for (i = 0; i < data_block->rank; i++) {
             initDimBlock(&data_block->dims[i]);
             data_block->dims[i].compressed = 1;
@@ -459,9 +460,10 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
 #endif
 
         if (size == 0) {
-            if (err == 0) err = HDF5_ERROR_NO_STORAGE_SIZE;
-            addIdamError(CODEERRORTYPE, "readHDF5", err,
-                         "No Storage Size returned for this data item");
+            if (err == 0) {
+                err = HDF5_ERROR_NO_STORAGE_SIZE;
+            }
+            addIdamError(CODEERRORTYPE, "readHDF5", err, "No Storage Size returned for this data item");
             break;
         }
 
@@ -477,23 +479,25 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
             }
         }
 
-        int i;
-        for (i = 0; i < data_block->rank; i++) {
-            initDimBlock(&data_block->dims[i]);
-        }
+        {
+            unsigned int i;
+            for (i = 0; i < data_block->rank; i++) {
+                initDimBlock(&data_block->dims[i]);
+            }
 
-        // Create Index elements for the Dimensions
+            // Create Index elements for the Dimensions
 
-        for (i = 0; i < data_block->rank; i++) {
-            data_block->dims[i].compressed = 1;
-            data_block->dims[i].method = 0;
-            data_block->dims[i].dim_n = (int)shape[data_block->rank - i - 1];
-            data_block->dims[i].dim0 = 0;
-            data_block->dims[i].diff = 1;
-            data_block->dims[i].data_type = UDA_TYPE_INT;        // No Standard to enable identification of the dims
-            data_block->dims[i].dim = NULL;
-            strcpy(data_block->dims[i].dim_label, "array index");
-            data_block->dims[i].dim_units[0] = '\0';
+            for (i = 0; i < data_block->rank; i++) {
+                data_block->dims[i].compressed = 1;
+                data_block->dims[i].method = 0;
+                data_block->dims[i].dim_n = (int)shape[data_block->rank - i - 1];
+                data_block->dims[i].dim0 = 0;
+                data_block->dims[i].diff = 1;
+                data_block->dims[i].data_type = UDA_TYPE_INT;        // No Standard to enable identification of the dims
+                data_block->dims[i].dim = NULL;
+                strcpy(data_block->dims[i].dim_label, "array index");
+                data_block->dims[i].dim_units[0] = '\0';
+            }
         }
 
         data_block->order = -1;    // Don't know the t-vector (or any other!)
@@ -553,37 +557,40 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
 
         int natt = H5Aget_num_attrs(dataset_id);
 
-        for (i = 0; i < natt; i++) {        // Fetch Attribute Names
-            char att_name[STRING_LENGTH] = "";
-            char att_buff[STRING_LENGTH] = "";
-            hid_t att_id = -1;
-            if ((att_id = H5Aopen_idx(dataset_id, (unsigned int)i)) < 0) {
-                err = HDF5_ERROR_OPENING_ATTRIBUTE;
-                addIdamError(CODEERRORTYPE, "readHDF5", err,
-                             "Problem Allocating Dimension Heap Memory");
-                break;
-            }
-            hid_t att_type = H5Aget_type(att_id);
-            H5Aread(att_id, att_type, (void*)att_buff);
-            H5Aclose(att_id);
+        {
+            int i;
+            for (i = 0; i < natt; i++) {        // Fetch Attribute Names
+                char att_name[STRING_LENGTH] = "";
+                char att_buff[STRING_LENGTH] = "";
+                hid_t att_id = -1;
+                if ((att_id = H5Aopen_idx(dataset_id, (unsigned int)i)) < 0) {
+                    err = HDF5_ERROR_OPENING_ATTRIBUTE;
+                    addIdamError(CODEERRORTYPE, "readHDF5", err,
+                                 "Problem Allocating Dimension Heap Memory");
+                    break;
+                }
+                hid_t att_type = H5Aget_type(att_id);
+                H5Aread(att_id, att_type, (void*)att_buff);
+                H5Aclose(att_id);
 
 #ifdef H5TEST
-            int att_size   = H5Aget_name(att_id, (size_t)STRING_LENGTH, att_name);
-            fprintf(stdout,"%d attribute[%d]: %s\n", i, (int)att_size, att_name);
-            fprintf(stdout,"%d type: %d\n", i, (int)att_type);
-            fprintf(stdout,"Value: %s\n", att_buff);
-            fprintf(stdout,"H5T_STRING     ?   %d\n", H5T_STRING == att_type);
-            fprintf(stdout,"H5T_CSET_ASCII ?   %d\n", H5T_CSET_ASCII == att_type);
-            fprintf(stdout,"H5T_C_S1       ?   %d\n", H5T_C_S1  == att_type);
+                int att_size   = H5Aget_name(att_id, (size_t)STRING_LENGTH, att_name);
+                fprintf(stdout,"%d attribute[%d]: %s\n", i, (int)att_size, att_name);
+                fprintf(stdout,"%d type: %d\n", i, (int)att_type);
+                fprintf(stdout,"Value: %s\n", att_buff);
+                fprintf(stdout,"H5T_STRING     ?   %d\n", H5T_STRING == att_type);
+                fprintf(stdout,"H5T_CSET_ASCII ?   %d\n", H5T_CSET_ASCII == att_type);
+                fprintf(stdout,"H5T_C_S1       ?   %d\n", H5T_C_S1  == att_type);
 #endif
 
-            if (STR_IEQUALS(att_name, "units")) strcpy(data_block->data_units, att_buff);
-            if (STR_IEQUALS(att_name, "label")) strcpy(data_block->data_label, att_buff);
-            if (STR_IEQUALS(att_name, "description")) strcpy(data_block->data_desc, att_buff);
+                if (STR_IEQUALS(att_name, "units")) strcpy(data_block->data_units, att_buff);
+                if (STR_IEQUALS(att_name, "label")) strcpy(data_block->data_label, att_buff);
+                if (STR_IEQUALS(att_name, "description")) strcpy(data_block->data_desc, att_buff);
 
-            if (strlen(data_block->data_label) == 0 && strlen(data_block->data_desc) > 0) {
-                strcpy(data_block->data_label, data_block->data_desc);
-                data_block->data_desc[0] = '\0';
+                if (strlen(data_block->data_label) == 0 && strlen(data_block->data_desc) > 0) {
+                    strcpy(data_block->data_label, data_block->data_desc);
+                    data_block->data_desc[0] = '\0';
+                }
             }
         }
 
@@ -593,7 +600,10 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
 
         if (size == 0 && dataset_type == H5O_TYPE_DATASET) {
             size = 1;
-            for (i = 0; i < data_block->rank; i++)size = size * (int)shape[i];
+            unsigned int i;
+            for (i = 0; i < data_block->rank; i++) {
+                size = size * (int)shape[i];
+            }
             switch (data_block->data_type) {
                 case UDA_TYPE_FLOAT:
                     size = size * sizeof(float);

@@ -9,15 +9,13 @@
 #include <errno.h>
 #include <strings.h>
 
-#include <clientserver/stringUtils.h>
-#include <clientserver/initStructs.h>
 #include <clientserver/freeDataBlock.h>
+#include <clientserver/initStructs.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
-#include <clientserver/udaErrors.h>
-#include <structures/struct.h>
-
 #include <clientserver/sqllib.h>
+#include <clientserver/stringUtils.h>
+#include <clientserver/udaErrors.h>
 #include <modules/bytes/readBytesNonOptimally.h>
 #include <modules/hdata/readHData.h>
 #include <modules/hdf58/readHDF58.h>
@@ -30,14 +28,15 @@
 #include <modules/readNothing/readNothing.h>
 #include <modules/readsql/readSQL.h>
 #include <modules/ufile/readUFile.h>
-#include <plugins/serverPlugin.h>
+#include <structures/struct.h>
 
-#include "serverGetData.h"
-#include "dumpFile.h"
 #include "applyXML.h"
-#include "mastArchiveFilePath.h"
-#include "makeServerRequestBlock.h"
+#include "dumpFile.h"
 #include "getServerEnvironment.h"
+#include "makeServerRequestBlock.h"
+#include "mastArchiveFilePath.h"
+#include "serverGetData.h"
+#include "serverPlugin.h"
 
 int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action);
 

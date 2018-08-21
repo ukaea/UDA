@@ -258,7 +258,7 @@ static socket_t listen_for_client(int32_t* client_port)
 
 int ssh_run_server(const char* experiment, const char* ssh_host, const char* remote_host)
 {
-    int32_t client_port;
+    int32_t client_port = 0;
     socket_t client_sock = listen_for_client(&client_port);
     if (client_sock < 0) {
         return -1;

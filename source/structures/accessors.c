@@ -527,7 +527,7 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
     } VLENTYPE;
 
     int i;
-    static int count = 0;
+    static unsigned int count = 0;
     if (reset) count = 0;
 
     if (tree == NULL) {
@@ -542,7 +542,7 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
     }
 
     for (i = 0; i < tree->branches; i++) {
-        count = idam_maxCountVlenStructureArray(tree->children[i], target, 0);
+        count = (unsigned int)idam_maxCountVlenStructureArray(tree->children[i], target, 0);
     }
 
     return count;
@@ -557,14 +557,15 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
 * @param count The maximum count size for the VLEN data arrays.
 * @return An integer returning an error code: 0 => OK.
 */
-int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist, const char* target, int count)
+int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist,
+        const char* target, unsigned int count)
 {
     typedef struct VLenType {
         unsigned int len;
         void* data;
     } VLENTYPE;
 
-    int i, rc = 0, size = 0, resetBranches = 0;
+    int rc = 0, size = 0, resetBranches = 0;
     void* old = NULL, * newnew = NULL;
 
     if (tree == NULL) {
@@ -584,7 +585,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
 
         old = vlen->data;
         USERDEFINEDTYPE* child = findUserDefinedType(userdefinedtypelist, tree->userdefinedtype->compoundfield[1].type, 0);
-        vlen->data = realloc((void*)vlen->data, count * child->size);    // Expand Heap to regularise
+        vlen->data = realloc(vlen->data, count * child->size);    // Expand Heap to regularise
         newnew = vlen->data;
         size = child->size;
         changeMalloc(logmalloclist, old, vlen->data, count, child->size, child->name);
@@ -592,6 +593,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
 
         // Write new data array to Original Tree Nodes
 
+        unsigned int i;
         for (i = 0; i < vlen->len; i++) {
             tree->children[i]->data = (char*)newnew + i * size;
         }
@@ -600,6 +602,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
 
     }
 
+    int i;
     for (i = 0; i < tree->branches; i++) {
         if ((rc = idam_regulariseVlenStructures(logmalloclist, tree->children[i], userdefinedtypelist, target, count)) != 0) {
             return rc;
@@ -612,21 +615,23 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
         tree->branches = count;   // Only update once all True children have been regularised
         old = (void*)tree->children;
         tree->children = (NTREE**)realloc((void*)tree->children, count * sizeof(void*));
-        for (i = resetBranches; i < count; i++) {
-            tree->children[i] = (NTREE*)malloc(sizeof(NTREE));
-            addMalloc(logmalloclist, (void*)tree->children[i], 1, sizeof(NTREE), "NTREE");
-            memcpy(tree->children[i], tree->children[0], sizeof(NTREE));
+
+        unsigned int ui;
+        for (ui = (unsigned int)resetBranches; ui < count; ui++) {
+            tree->children[ui] = (NTREE*)malloc(sizeof(NTREE));
+            addMalloc(logmalloclist, (void*)tree->children[ui], 1, sizeof(NTREE), "NTREE");
+            memcpy(tree->children[ui], tree->children[0], sizeof(NTREE));
         }
         changeMalloc(logmalloclist, old, (void*)tree->children, count, sizeof(NTREE), "NTREE");
 
         // Update All new Child Nodes with array element addresses
 
-        for (i = resetBranches; i < count; i++) {
-            memcpy((char*)newnew + i * size, newnew, size);   // write extra array items: use the first array element
+        for (ui = (unsigned int)resetBranches; ui < count; ui++) {
+            memcpy((char*)newnew + ui * size, newnew, size);   // write extra array items: use the first array element
         }
 
-        for (i = resetBranches; i < count; i++) {
-            tree->children[i]->data = (char*)newnew + i * size;
+        for (ui = (unsigned int)resetBranches; ui < count; ui++) {
+            tree->children[ui]->data = (char*)newnew + ui * size;
         }
 
     }

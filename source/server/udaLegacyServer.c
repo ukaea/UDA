@@ -17,7 +17,7 @@
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
 #include <logging/logging.h>
-#include <plugins/serverPlugin.h>
+#include <server/serverPlugin.h>
 #include <structures/struct.h>
 
 #include "closeServerSockets.h"
@@ -432,7 +432,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             }
 
             if (data_block.rank > 0) {
-                int i;
+                unsigned int i;
                 DIMS dim;
                 for (i = 0; i < data_block.rank; i++) {
                     dim = data_block.dims[i];

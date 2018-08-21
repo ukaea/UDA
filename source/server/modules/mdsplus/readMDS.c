@@ -114,7 +114,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
 
     int dtype_str = DTYPE_CSTRING;
 
-    int i, err, rc = 0, status, type;
+    int err, rc = 0, status, type;
     size_t lpath = 0;
     int socket = 0;
     int rank, size, null, desc, lunits;
@@ -193,10 +193,12 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
                     if (IsLegalFilePath(path)) {                        // Check for unusual embedded characters
                         if (lpath > 1 && strchr(&path[1], '/') == NULL) {
                             // Check for / path delimiter. If not found then
+                            size_t i;
                             for (i = 1; i < lpath; i++) {
+                                // change from URL Notation to Path Tree Notation
                                 if (path[i] == '.') {
                                     path[i] = '/';
-                                }        // change from URL Notation to Path Tree Notation
+                                }
                             }
                         }
                         sprintf(env, "%s_path", tree);
@@ -616,6 +618,7 @@ int readMDS(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_b
             break;
         }
 
+        int i;
         for (i = 0; i < rank; i++) {
             initDimBlock(&ddim[i]);
             if ((err = readMDSDim(node, i, &ddim[i])) == 0) {

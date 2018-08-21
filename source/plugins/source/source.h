@@ -1,13 +1,7 @@
-#ifndef IDAM_PLUGINS_SOURCE_SOURCE_H
-#define IDAM_PLUGINS_SOURCE_SOURCE_H
+#ifndef UDA_PLUGINS_SOURCE_SOURCE_H
+#define UDA_PLUGINS_SOURCE_SOURCE_H
 
-#include <libxml/xmlmemory.h>
-#include <libxml/parser.h>
-
-#include <plugins/udaPlugin.h>
-#include <plugins/serverPlugin.h>
-#include <client/udaClient.h>
-#include <clientserver/compressDim.h>
+#include <plugins/pluginStructs.h>
 
 #ifdef __cplusplus
 static "C" {
@@ -27,4 +21,4 @@ int source(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 }
 #endif
 
-#endif // IDAM_PLUGINS_SOURCE_SOURCE_H
+#endif // UDA_PLUGINS_SOURCE_SOURCE_H

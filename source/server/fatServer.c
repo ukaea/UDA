@@ -7,6 +7,7 @@
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/makeRequestBlock.h>
 #include <clientserver/manageSockets.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
@@ -14,17 +15,16 @@
 #include <clientserver/sqllib.h>
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
-#include <plugins/serverPlugin.h>
+#include <server/serverPlugin.h>
 #include <structures/parseIncludeFile.h>
 #include <structures/struct.h>
-#include <clientserver/makeRequestBlock.h>
 
+#include "getServerEnvironment.h"
+#include "getServerEnvironment.h"
 #include "makeServerRequestBlock.h"
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
-#include "getServerEnvironment.h"
-#include "getServerEnvironment.h"
 
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {

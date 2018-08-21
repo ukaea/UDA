@@ -84,12 +84,14 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     UDA_LOG(UDA_LOG_DEBUG, "Shape:\n");
 
     if (putdata.shape == NULL) {
-      UDA_LOG(UDA_LOG_DEBUG, "Shape is NULL\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Shape is NULL\n");
     }
 
-    int i;
-    for (i = 0; i < rank; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "    [%d]=%d\n", i, shape[i]);
+    {
+        int i;
+        for (i = 0; i < rank; i++) {
+            UDA_LOG(UDA_LOG_DEBUG, "    [%d]=%d\n", i, shape[i]);
+        }
     }
     UDA_LOG(UDA_LOG_DEBUG, "Dimensions: %s\n", dimensions);
 
@@ -102,7 +104,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // Parse the dimensions string and Scan for the nearest (in scope) defined dimensions up the hierarchy
 
-    char* work = (char*) malloc(sizeof(char) * strlen(dimensions) + 1);
+    char* work = (char*)malloc(sizeof(char) * strlen(dimensions) + 1);
 
     strcpy(work, dimensions);
     TrimString(work);
@@ -134,13 +136,13 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         UDA_LOG(UDA_LOG_DEBUG, "Rank: %d, mndims: %d\n", rank, mndims);
         UDA_LOG(UDA_LOG_DEBUG, "Coordinate Dimension %s has ID %d\n", trimtoken, ncdimid);
 
-        free((void*) trimtoken);
+        free((void*)trimtoken);
 
         // Repeat with NULL to take next token
         tokwork = NULL;
     }
 
-    if ((rank > 0 && mndims != rank) || (rank == 0 && mndims != 1)) {
+    if ((rank > 0 && mndims != (size_t)rank) || (rank == 0 && mndims != 1)) {
         RAISE_PLUGIN_ERROR("The Rank of the Data Variable is not consistent with the declared number of dimensions");
     }
 
@@ -160,8 +162,11 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     UDA_LOG(UDA_LOG_DEBUG, "Type ID %d \n", nctype);
     UDA_LOG(UDA_LOG_DEBUG, "Dimension Count %d \n", mndims);
     UDA_LOG(UDA_LOG_DEBUG, "Dimension IDs\n");
-    for (i = 0; i < mndims; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "[%d]", mdimids[i]);
+    {
+        size_t i;
+        for (i = 0; i < mndims; i++) {
+            UDA_LOG(UDA_LOG_DEBUG, "[%d]", mdimids[i]);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -185,8 +190,11 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     UDA_LOG(UDA_LOG_DEBUG, "Number of Unlimited Dimensions %d", nunlimdimids);
     UDA_LOG(UDA_LOG_DEBUG, "Unlimited Dimension IDs");
-    for (i = 0; i < nunlimdimids; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "[%d]", unlimdimids[i]);
+    {
+        int i;
+        for (i = 0; i < nunlimdimids; i++) {
+            UDA_LOG(UDA_LOG_DEBUG, "[%d]", unlimdimids[i]);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -196,7 +204,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // Allocate shape array for use only if one of the dimensions is UNLIMITED
 
-    size_t* extents = (size_t*) malloc(mndims * sizeof(size_t));
+    size_t* extents = (size_t*)malloc(mndims * sizeof(size_t));
 
     // Check all Array dimension Lengths are consistent (Ignore UNLIMITED dimensions)
 
@@ -204,38 +212,41 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int isUnlimited = 0;
     int unlimitedCount = 0;
 
-    for (i = 0; i < mndims; i++) {
-        size_t dimlength;
-        if ((err = nc_inq_dimlen(grpid, mdimids[i], &dimlength)) != NC_NOERR) {
-            RAISE_PLUGIN_ERROR("Unable to obtain Length of Dimension");
-        }
+    {
+        size_t i;
+        for (i = 0; i < mndims; i++) {
+            size_t dimlength;
+            if ((err = nc_inq_dimlen(grpid, mdimids[i], &dimlength)) != NC_NOERR) {
+                RAISE_PLUGIN_ERROR("Unable to obtain Length of Dimension");
+            }
 
-        extents[i] = dimlength;        // Current Length
+            extents[i] = dimlength;        // Current Length
 
-        int j;
-        for (j = 0; j < nunlimdimids; j++) {
-            if (mdimids[i] == unlimdimids[j]) {
-                isUnlimited = 1;
-                break;
+            int j;
+            for (j = 0; j < nunlimdimids; j++) {
+                if (mdimids[i] == unlimdimids[j]) {
+                    isUnlimited = 1;
+                    break;
+                }
+            }
+
+            UDA_LOG(UDA_LOG_DEBUG, "Dimension %d has length %d\n", mdimids[i], dimlength);
+
+            if (rank > 0) {
+                if (isUnlimited) {
+                    unlimitedCount++;
+                    extents[i] = (size_t)shape[i]; // Capture the current size of each UNLIMITED dimension
+                    UDA_LOG(UDA_LOG_DEBUG, "extents[%d] = %d \n", i, (int)extents[i]);
+                } else {
+                    //Check dimension length matches input data dimension length
+                    if (dimlength != (size_t)shape[i]) {
+                        RAISE_PLUGIN_ERROR("Inconsistent Dimension Lengths for Array Variable");
+                    }
+                }
+            } else if (isUnlimited) {
+                unlimitedCount++;
             }
         }
-
-        UDA_LOG(UDA_LOG_DEBUG, "Dimension %d has length %d\n", mdimids[i], dimlength);
-
-	if (rank > 0) {
-	  if (isUnlimited) {
-            unlimitedCount++;
-            extents[i] = (size_t) shape[i]; // Capture the current size of each UNLIMITED dimension
-            UDA_LOG(UDA_LOG_DEBUG, "extents[%d] = %d \n", i, (int) extents[i]);
-	  } else { 
-	    //Check dimension length matches input data dimension length
-	    if (dimlength != shape[i]) {
-	      RAISE_PLUGIN_ERROR("Inconsistent Dimension Lengths for Array Variable");
-	    }
-	  }
-	} else if (isUnlimited) {
-	  unlimitedCount++;
-	}
     }
 
     //--------------------------------------------------------------------------
@@ -246,13 +257,14 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (length > 1 && rank > 0) {
         size_t* chunking = (size_t*)malloc(rank * sizeof(size_t));
+        int i;
         for (i = 0; i < rank; i++) {
             if (chunksize > 0) {
-                chunking[i] = (size_t) chunksize;
+                chunking[i] = (size_t)chunksize;
             } else {
-                chunking[i] = (size_t) shape[i];
+                chunking[i] = (size_t)shape[i];
             }
-            UDA_LOG(UDA_LOG_DEBUG, "Using Chunking[%d] = %d\n", i, (int) chunking[i]);
+            UDA_LOG(UDA_LOG_DEBUG, "Using Chunking[%d] = %d\n", i, (int)chunking[i]);
         }
 
         if (isUnlimited) {
@@ -263,7 +275,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             RAISE_PLUGIN_ERROR("Unable to set the Chunking Properties of Variable");
         }
 
-        free((void*) chunking);
+        free((void*)chunking);
     }
 
     //--------------------------------------------------------------------------
@@ -387,14 +399,14 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 if (nctype == ctype) {
                     COMPLEX scalar = ((COMPLEX*)data)[0];
                     if (unlimitedCount == 0) {
-                        err = nc_put_var(grpid, varid, (void*) &scalar);
+                        err = nc_put_var(grpid, varid, (void*)&scalar);
                     } else {
                         err = nc_put_vara(grpid, varid, start, count, &scalar);
                     }
                 } else if (nctype == dctype) {
                     DCOMPLEX scalar = ((DCOMPLEX*)data)[0];
                     if (unlimitedCount == 0) {
-                        err = nc_put_var(grpid, varid, (void*) &scalar);
+                        err = nc_put_var(grpid, varid, (void*)&scalar);
                     } else {
                         err = nc_put_vara(grpid, varid, start, count, &scalar);
                     }
@@ -404,7 +416,8 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
 
     } else {
-        size_t* start = (size_t*) malloc(sizeof(size_t) * rank);
+        size_t* start = (size_t*)malloc(sizeof(size_t) * rank);
+        int i;
         for (i = 0; i < rank; i++) {
             start[i] = 0;
         }
@@ -428,54 +441,54 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         switch (nctype) {
             case NC_FLOAT:
                 UDA_LOG(UDA_LOG_DEBUG, "Data Variable %s is a Float Array\n", name);
-                err = nc_put_vara_float(grpid, varid, start, extents, (float*) data);
+                err = nc_put_vara_float(grpid, varid, start, extents, (float*)data);
                 break;
             case NC_DOUBLE:
                 UDA_LOG(UDA_LOG_DEBUG, "Data Variable %s is a Double Array\n", name);
-                err = nc_put_vara_double(grpid, varid, start, extents, (double*) data);
+                err = nc_put_vara_double(grpid, varid, start, extents, (double*)data);
                 break;
             case NC_INT64:
                 UDA_LOG(UDA_LOG_DEBUG, "Data Variable %s is an long long Array\n", name);
-                err = nc_put_vara_longlong(grpid, varid, start, extents, (long long*) data);
+                err = nc_put_vara_longlong(grpid, varid, start, extents, (long long*)data);
                 break;
             case NC_INT:
                 UDA_LOG(UDA_LOG_DEBUG, "Data Variable %s is an int Array\n", name);
-                err = nc_put_vara_int(grpid, varid, start, extents, (int*) data);
+                err = nc_put_vara_int(grpid, varid, start, extents, (int*)data);
                 break;
             case NC_SHORT:
                 UDA_LOG(UDA_LOG_DEBUG, "Data Variable %s is a short Array\n", name);
-                err = nc_put_vara_short(grpid, varid, start, extents, (short*) data);
+                err = nc_put_vara_short(grpid, varid, start, extents, (short*)data);
                 break;
             case NC_BYTE:
                 UDA_LOG(UDA_LOG_DEBUG, "Data Variable %s is a byte Array\n", name);
-                err = nc_put_vara_schar(grpid, varid, start, extents, (signed char*) data);
+                err = nc_put_vara_schar(grpid, varid, start, extents, (signed char*)data);
                 break;
             case NC_UBYTE:
                 UDA_LOG(UDA_LOG_DEBUG, "Data Variable %s is a ubyte Array\n", name);
-                err = nc_put_vara_ubyte(grpid, varid, start, extents, (unsigned char*) data);
+                err = nc_put_vara_ubyte(grpid, varid, start, extents, (unsigned char*)data);
                 break;
             case NC_UINT64:
                 UDA_LOG(UDA_LOG_DEBUG, "Data Variable %s is an unsigned long long Array\n", name);
                 err = nc_put_vara_ulonglong(grpid, varid, start, extents,
-                                            (unsigned long long*) data);
+                                            (unsigned long long*)data);
                 break;
             case NC_UINT:
                 UDA_LOG(UDA_LOG_DEBUG, "Data Variable %s is an unsigned int Array\n", name);
-                err = nc_put_vara_uint(grpid, varid, start, extents, (unsigned int*) data);
+                err = nc_put_vara_uint(grpid, varid, start, extents, (unsigned int*)data);
                 break;
             case NC_USHORT:
                 UDA_LOG(UDA_LOG_DEBUG, "Data Variable %s is an unsigned short Array\n", name);
                 err = nc_put_vara_ushort(grpid, varid, start, extents,
-                                         (unsigned short*) data);
+                                         (unsigned short*)data);
                 break;
             default:
                 if (nctype == ctype || nctype == dctype) {
-		  UDA_LOG(UDA_LOG_DEBUG, "Data Variable %s is a complex or double complex Array\n", name);
-                    err = nc_put_vara(grpid, varid, start, extents, (void*) data);
+                    UDA_LOG(UDA_LOG_DEBUG, "Data Variable %s is a complex or double complex Array\n", name);
+                    err = nc_put_vara(grpid, varid, start, extents, (void*)data);
                 }
         }
 
-        free((void*) start);
+        free((void*)start);
     }
 
     if (err != NC_NOERR) {
@@ -490,6 +503,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (unlimitedCount > 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Writing Extent Attribute of variable %s\n", name);
         unsigned int iextents[NC_MAX_DIMS];
+        size_t i;
         for (i = 0; i < mndims; i++) {
             iextents[i] = (unsigned int)extents[i];
             UDA_LOG(UDA_LOG_DEBUG, "[%d]=%d\n", i, extents[i]);
@@ -598,7 +612,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (channels > 0) {
         // Ambiguous keyword if channel & channnels are both used
         if (device != NULL) {
-            short channel = (short) channels;
+            short channel = (short)channels;
             if ((err = nc_put_att_short(grpid, varid, "channel", NC_SHORT, 1, &channel)) != NC_NOERR) {
                 RAISE_PLUGIN_ERROR("Unable to Write the Channel Attribute");
             }
@@ -628,35 +642,36 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             RAISE_PLUGIN_ERROR("The Rank of the Error Variable is Inconsistent with the Variable");
         }
 
-        int* dimids = (int*) malloc(ndims * sizeof(int));
+        int* dimids = (int*)malloc(ndims * sizeof(int));
 
         if ((err = nc_inq_vardimid(grpid, ncvarerrid, dimids)) != NC_NOERR) {
             RAISE_PLUGIN_ERROR("Unable to Query the Dimension ID of the Error Variable");
         }
 
-	if (rank > 0) {
-	  for (i = 0; i < rank; i++) {
+        if (rank > 0) {
+            int i;
+            for (i = 0; i < rank; i++) {
+                int lvarerr;
+                if ((err = nc_inq_dimlen(grpid, dimids[i], (size_t*)&lvarerr)) != NC_NOERR) {
+                    RAISE_PLUGIN_ERROR("Unable to Query the Dimension Length of the Error Variable");
+                }
+
+                if (shape[i] != lvarerr) {
+                    RAISE_PLUGIN_ERROR("The Length of the Error Variable is Inconsistent with the variable Length");
+                }
+            }
+        } else {
             int lvarerr;
-            if ((err = nc_inq_dimlen(grpid, dimids[i], (size_t*) &lvarerr)) != NC_NOERR) {
+            if ((err = nc_inq_dimlen(grpid, dimids[0], (size_t*)&lvarerr)) != NC_NOERR) {
                 RAISE_PLUGIN_ERROR("Unable to Query the Dimension Length of the Error Variable");
             }
 
-            if (shape[i] != lvarerr) {
+            if (lvarerr != 1) {
                 RAISE_PLUGIN_ERROR("The Length of the Error Variable is Inconsistent with the variable Length");
             }
-	  }
-	} else {
-	  int lvarerr;
-	  if ((err = nc_inq_dimlen(grpid, dimids[0], (size_t*) &lvarerr)) != NC_NOERR) {
-	    RAISE_PLUGIN_ERROR("Unable to Query the Dimension Length of the Error Variable");
-	  }
+        }
 
-	  if (lvarerr != 1) {
-	    RAISE_PLUGIN_ERROR("The Length of the Error Variable is Inconsistent with the variable Length");
-	  }
-	}
-
-        free((void*) dimids);
+        free((void*)dimids);
 
         if ((err = nc_put_att_text(grpid, varid, "errors", strlen(errors), errors)) != NC_NOERR) {
             RAISE_PLUGIN_ERROR("Unable to Write the Errors Attribute of Variable");
@@ -667,7 +682,7 @@ int do_variable(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //--------------------------------------------------------------------------
     // Cleanup Keywords
 
-    if (work != NULL)free((void*) work);
+    if (work != NULL)free((void*)work);
 
     return err;
 }

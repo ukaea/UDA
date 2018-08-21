@@ -361,8 +361,10 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->rank = 1;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-    int i;
-    for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+    unsigned int i;
+    for (i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
 
     data_block->data_type = UDA_TYPE_STRING;
     strcpy(data_block->data_desc, "testplugins: help = description of this plugin");
@@ -539,8 +541,10 @@ static int do_test0(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->rank = 1;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-    int i;
-    for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+    unsigned int i;
+    for (i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
 
     if (STR_IEQUALS(request_block->function, "test0")) {
         data_block->data_type = UDA_TYPE_CHAR;
@@ -588,9 +592,11 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int sCount = 3;
     char** sarr = (char**)malloc(sCount * sizeof(char*));
 
-    int i;
-    for (i = 0; i < sCount; i++) {
-        sarr[i] = (char*)malloc(30 * sizeof(char));
+    {
+        int i;
+        for (i = 0; i < sCount; i++) {
+            sarr[i] = (char*)malloc(30 * sizeof(char));
+        }
     }
 
     strcpy(sarr[0], "Hello World!");
@@ -600,10 +606,13 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Maximum size of any individual string
 
     int sMax = 0;
-    for (i = 0; i < sCount; i++) {
-        int sLen;
-        if ((sLen = (int)strlen(sarr[i]) + 1) > sMax) {
-            sMax = sLen;
+    {
+        int i;
+        for (i = 0; i < sCount; i++) {
+            int sLen;
+            if ((sLen = (int)strlen(sarr[i]) + 1) > sMax) {
+                sMax = sLen;
+            }
         }
     }
 
@@ -614,14 +623,20 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Copy string data into the block positioned at regular intervals
 
-    for (i = 0; i < sCount; i++) {
-        strcpy(&p[i * sMax], sarr[i]);
+    {
+        int i;
+        for (i = 0; i < sCount; i++) {
+            strcpy(&p[i * sMax], sarr[i]);
+        }
     }
 
 // Free original data
 
-    for (i = 0; i < sCount; i++) {
-        free(sarr[i]);
+    {
+        int i;
+        for (i = 0; i < sCount; i++) {
+            free(sarr[i]);
+        }
     }
     free(sarr);
 
@@ -629,6 +644,7 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->rank = 2;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+    unsigned int i;
     for (i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
@@ -1058,38 +1074,40 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     TEST9* data = (TEST9*)malloc(4 * sizeof(TEST9));            // Structured Data Must be a heap variable
     addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 4, sizeof(TEST9), "TEST9");
 
-    int i;
-    for (i = 0; i < 4; i++) {
-        strcpy(data[i].v1, "123212321232123212321");
-        strcpy(data[i].v2[0], "012345678901234567890");
-        strcpy(data[i].v2[1], "QWERTY KEYBOARD");
-        strcpy(data[i].v2[2], "MAST TOKAMAK");
+    {
+        int i;
+        for (i = 0; i < 4; i++) {
+            strcpy(data[i].v1, "123212321232123212321");
+            strcpy(data[i].v2[0], "012345678901234567890");
+            strcpy(data[i].v2[1], "QWERTY KEYBOARD");
+            strcpy(data[i].v2[2], "MAST TOKAMAK");
 
-        data[i].v3 = (char*)malloc(56 * sizeof(char));
-        strcpy(data[i].v3, "PI=3.1415927");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v3, 1, 56 * sizeof(char), "char");
+            data[i].v3 = (char*)malloc(56 * sizeof(char));
+            strcpy(data[i].v3, "PI=3.1415927");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v3, 1, 56 * sizeof(char), "char");
 
-        data[i].v4[0] = (char*)malloc(56 * sizeof(char));
-        data[i].v4[1] = (char*)malloc(55 * sizeof(char));
-        data[i].v4[2] = (char*)malloc(54 * sizeof(char));
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[0], 56, sizeof(char), "char");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[1], 55, sizeof(char), "char");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[2], 54, sizeof(char), "char");
-        strcpy(data[i].v4[0], "012345678901234567890");
-        strcpy(data[i].v4[1], "QWERTY KEYBOARD");
-        strcpy(data[i].v4[2], "MAST TOKAMAK");
+            data[i].v4[0] = (char*)malloc(56 * sizeof(char));
+            data[i].v4[1] = (char*)malloc(55 * sizeof(char));
+            data[i].v4[2] = (char*)malloc(54 * sizeof(char));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[0], 56, sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[1], 55, sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[2], 54, sizeof(char), "char");
+            strcpy(data[i].v4[0], "012345678901234567890");
+            strcpy(data[i].v4[1], "QWERTY KEYBOARD");
+            strcpy(data[i].v4[2], "MAST TOKAMAK");
 
-        data[i].v5 = (char**)malloc(3 * sizeof(char*));
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5, 3, sizeof(char*), "STRING *");
-        data[i].v5[0] = (char*)malloc(56 * sizeof(char));
-        data[i].v5[1] = (char*)malloc(55 * sizeof(char));
-        data[i].v5[2] = (char*)malloc(54 * sizeof(char));
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[0], 56, sizeof(char), "char");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[1], 55, sizeof(char), "char");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[2], 54, sizeof(char), "char");
-        strcpy(data[i].v5[0], "012345678901234567890");
-        strcpy(data[i].v5[1], "QWERTY KEYBOARD");
-        strcpy(data[i].v5[2], "MAST TOKAMAK");
+            data[i].v5 = (char**)malloc(3 * sizeof(char*));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5, 3, sizeof(char*), "STRING *");
+            data[i].v5[0] = (char*)malloc(56 * sizeof(char));
+            data[i].v5[1] = (char*)malloc(55 * sizeof(char));
+            data[i].v5[2] = (char*)malloc(54 * sizeof(char));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[0], 56, sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[1], 55, sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[2], 54, sizeof(char), "char");
+            strcpy(data[i].v5[0], "012345678901234567890");
+            strcpy(data[i].v5[1], "QWERTY KEYBOARD");
+            strcpy(data[i].v5[2], "MAST TOKAMAK");
+        }
     }
 
 // Pass Data
@@ -1111,7 +1129,10 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-    for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+    unsigned int i;
+    for (i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
 
     data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = data_block->data_n;
@@ -1132,70 +1153,71 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     TEST9A* data = (TEST9A*)malloc(4 * sizeof(TEST9A));    // Structured Data Must be a heap variable
     addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 4, sizeof(TEST9A), "TEST9A");
 
-    int i;
-    for (i = 0; i < 4; i++) {
-        strcpy(data[i].v1, "123212321232123212321");
-        strcpy(data[i].v2[0], "012345678901234567890");
-        strcpy(data[i].v2[1], "QWERTY KEYBOARD");
-        strcpy(data[i].v2[2], "MAST TOKAMAK");
+    {
+        int i;
+        for (i = 0; i < 4; i++) {
+            strcpy(data[i].v1, "123212321232123212321");
+            strcpy(data[i].v2[0], "012345678901234567890");
+            strcpy(data[i].v2[1], "QWERTY KEYBOARD");
+            strcpy(data[i].v2[2], "MAST TOKAMAK");
 
-        data[i].v3 = (char*)malloc(56 * sizeof(char));
-        strcpy(data[i].v3, "PI=3.1415927");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v3, 1, 56 * sizeof(char), "char");
+            data[i].v3 = (char*)malloc(56 * sizeof(char));
+            strcpy(data[i].v3, "PI=3.1415927");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v3, 1, 56 * sizeof(char), "char");
 
-        data[i].v4[0] = (char*)malloc(56 * sizeof(char));
-        data[i].v4[1] = (char*)malloc(55 * sizeof(char));
-        data[i].v4[2] = (char*)malloc(54 * sizeof(char));
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[0], 56, sizeof(char), "char");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[1], 55, sizeof(char), "char");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[2], 54, sizeof(char), "char");
-        strcpy(data[i].v4[0], "012345678901234567890");
-        strcpy(data[i].v4[1], "QWERTY KEYBOARD");
-        strcpy(data[i].v4[2], "MAST TOKAMAK");
+            data[i].v4[0] = (char*)malloc(56 * sizeof(char));
+            data[i].v4[1] = (char*)malloc(55 * sizeof(char));
+            data[i].v4[2] = (char*)malloc(54 * sizeof(char));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[0], 56, sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[1], 55, sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v4[2], 54, sizeof(char), "char");
+            strcpy(data[i].v4[0], "012345678901234567890");
+            strcpy(data[i].v4[1], "QWERTY KEYBOARD");
+            strcpy(data[i].v4[2], "MAST TOKAMAK");
 
-        data[i].v5 = (char**)malloc(3 * sizeof(char*));
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5, 3, sizeof(char*), "STRING *");
-        data[i].v5[0] = (char*)malloc(56 * sizeof(char));
-        data[i].v5[1] = (char*)malloc(55 * sizeof(char));
-        data[i].v5[2] = (char*)malloc(54 * sizeof(char));
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[0], 56, sizeof(char), "char");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[1], 55, sizeof(char), "char");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[2], 54, sizeof(char), "char");
-        strcpy(data[i].v5[0], "012345678901234567890");
-        strcpy(data[i].v5[1], "QWERTY KEYBOARD");
-        strcpy(data[i].v5[2], "MAST TOKAMAK");
+            data[i].v5 = (char**)malloc(3 * sizeof(char*));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5, 3, sizeof(char*), "STRING *");
+            data[i].v5[0] = (char*)malloc(56 * sizeof(char));
+            data[i].v5[1] = (char*)malloc(55 * sizeof(char));
+            data[i].v5[2] = (char*)malloc(54 * sizeof(char));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[0], 56, sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[1], 55, sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v5[2], 54, sizeof(char), "char");
+            strcpy(data[i].v5[0], "012345678901234567890");
+            strcpy(data[i].v5[1], "QWERTY KEYBOARD");
+            strcpy(data[i].v5[2], "MAST TOKAMAK");
 
-        strcpy(data[i].v6.v1, "123212321232123212321");
-        strcpy(data[i].v6.v2[0], "012345678901234567890");
-        strcpy(data[i].v6.v2[1], "QWERTY KEYBOARD");
-        strcpy(data[i].v6.v2[2], "MAST TOKAMAK");
+            strcpy(data[i].v6.v1, "123212321232123212321");
+            strcpy(data[i].v6.v2[0], "012345678901234567890");
+            strcpy(data[i].v6.v2[1], "QWERTY KEYBOARD");
+            strcpy(data[i].v6.v2[2], "MAST TOKAMAK");
 
-        data[i].v6.v3 = (char*)malloc(56 * sizeof(char));
-        strcpy(data[i].v6.v3, "PI=3.1415927");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v3, 1, 56 * sizeof(char), "char");
+            data[i].v6.v3 = (char*)malloc(56 * sizeof(char));
+            strcpy(data[i].v6.v3, "PI=3.1415927");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v3, 1, 56 * sizeof(char), "char");
 
-        data[i].v6.v4[0] = (char*)malloc(56 * sizeof(char));
-        data[i].v6.v4[1] = (char*)malloc(55 * sizeof(char));
-        data[i].v6.v4[2] = (char*)malloc(54 * sizeof(char));
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v4[0], 56, sizeof(char), "char");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v4[1], 55, sizeof(char), "char");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v4[2], 54, sizeof(char), "char");
-        strcpy(data[i].v6.v4[0], "012345678901234567890");
-        strcpy(data[i].v6.v4[1], "QWERTY KEYBOARD");
-        strcpy(data[i].v6.v4[2], "MAST TOKAMAK");
+            data[i].v6.v4[0] = (char*)malloc(56 * sizeof(char));
+            data[i].v6.v4[1] = (char*)malloc(55 * sizeof(char));
+            data[i].v6.v4[2] = (char*)malloc(54 * sizeof(char));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v4[0], 56, sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v4[1], 55, sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v4[2], 54, sizeof(char), "char");
+            strcpy(data[i].v6.v4[0], "012345678901234567890");
+            strcpy(data[i].v6.v4[1], "QWERTY KEYBOARD");
+            strcpy(data[i].v6.v4[2], "MAST TOKAMAK");
 
-        data[i].v6.v5 = (char**)malloc(3 * sizeof(char*));
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v5, 3, sizeof(char*), "STRING *");
-        data[i].v6.v5[0] = (char*)malloc(56 * sizeof(char));
-        data[i].v6.v5[1] = (char*)malloc(55 * sizeof(char));
-        data[i].v6.v5[2] = (char*)malloc(54 * sizeof(char));
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v5[0], 56, sizeof(char), "char");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v5[1], 55, sizeof(char), "char");
-        addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v5[2], 54, sizeof(char), "char");
-        strcpy(data[i].v6.v5[0], "012345678901234567890");
-        strcpy(data[i].v6.v5[1], "QWERTY KEYBOARD");
-        strcpy(data[i].v6.v5[2], "MAST TOKAMAK");
-
+            data[i].v6.v5 = (char**)malloc(3 * sizeof(char*));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v5, 3, sizeof(char*), "STRING *");
+            data[i].v6.v5[0] = (char*)malloc(56 * sizeof(char));
+            data[i].v6.v5[1] = (char*)malloc(55 * sizeof(char));
+            data[i].v6.v5[2] = (char*)malloc(54 * sizeof(char));
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v5[0], 56, sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v5[1], 55, sizeof(char), "char");
+            addMalloc(idam_plugin_interface->logmalloclist, (void*)data[i].v6.v5[2], 54, sizeof(char), "char");
+            strcpy(data[i].v6.v5[0], "012345678901234567890");
+            strcpy(data[i].v6.v5[1], "QWERTY KEYBOARD");
+            strcpy(data[i].v6.v5[2], "MAST TOKAMAK");
+        }
     }
 
 // Pass Data
@@ -1216,7 +1238,10 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST9A", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-    for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+    unsigned int i;
+    for (i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
 
     data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = data_block->data_n;
@@ -1753,9 +1778,11 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_n = 100000;
     data = (TEST18*)malloc(data_block->data_n * sizeof(TEST18)); // Structured Data Must be a heap variable
 
-    int i;
-    for (i = 0; i < data_block->data_n; i++) {
-        data[i].value = i;
+    {
+        int i;
+        for (i = 0; i < data_block->data_n; i++) {
+            data[i].value = i;
+        }
     }
     addMalloc(idam_plugin_interface->logmalloclist, (void*)data, data_block->data_n, sizeof(TEST18), "TEST18");
 
@@ -1774,7 +1801,10 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST18", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-    for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+    unsigned int i;
+    for (i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
 
     data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = data_block->data_n;
@@ -1896,11 +1926,13 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_n = 3;
     data = (TEST19*)malloc(data_block->data_n * sizeof(TEST19));    // Structured Data Must be a heap variable
 
-    int i, j;
-    for (i = 0; i < data_block->data_n; i++) {
-        data[i].value = 3 + i;
-        for (j = 0; j < 7; j++) {
-            data[i].vals[j].value = 10 * i + j;
+    {
+        int i, j;
+        for (i = 0; i < data_block->data_n; i++) {
+            data[i].value = 3 + i;
+            for (j = 0; j < 7; j++) {
+                data[i].vals[j].value = 10 * i + j;
+            }
         }
     }
     addMalloc(idam_plugin_interface->logmalloclist, (void*)data, data_block->data_n, sizeof(TEST19), "TEST19");
@@ -1920,7 +1952,10 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST19", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-    for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+    unsigned int i;
+    for (i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
 
     data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
     data_block->dims[0].dim_n = data_block->data_n;

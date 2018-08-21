@@ -452,7 +452,8 @@ int linkReplacement(char* path)
 }
 
 #else
-int linkReplacement(char *path) { // Links are resolved client side only
+int linkReplacement(char* path) {
+    // Links are resolved client side only
     return 0;
 }
 #endif

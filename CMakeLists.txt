@@ -59,11 +59,11 @@ else()
   set( EX_PLATFORM_NAME "x86" )
 endif()
 
-if( APPLE )
+if( "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" )
   set( CMAKE_MACOSX_RPATH ON )
   set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Qunused-arguments -undefined dynamic_lookup" )
   set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Qunused-arguments" )
-endif( APPLE )
+endif()
 
 if( NOT WIN32 OR MINGW )
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -pthread" )

@@ -23,9 +23,9 @@
 #include "common.h"
 #include "extract_indices.h"
 #include "imas.h"
+#include "imas_hdf5.h"
 #include "ual_low_level.h"
 #include "ual_low_level_mdsplus.h"
-#include "imas_hdf5.h"
 
 #include <mdslib.h>
 #include <regex.h>
@@ -34,12 +34,12 @@
 #include <client/udaClient.h>
 #include <clientserver/copyStructs.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
 #include <logging/logging.h>
-#include <plugins/serverPlugin.h>
-#include <clientserver/makeRequestBlock.h>
+#include <plugins/pluginUtils.h>
 
 IDAMPLUGINFILELIST pluginFileList_mds;
 

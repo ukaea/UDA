@@ -210,7 +210,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->rank = 1;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-    int i;
+    unsigned int i;
     for (i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
@@ -231,8 +231,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     const char* IDSRequest = element;
 
     // Search mapping value and request type (static or dynamic)
-    char* fullTSMappingFileName =
-            getTSToIDSMappingFileName(IDSRequest, shot);
+    char* fullTSMappingFileName = getTSToIDSMappingFileName(IDSRequest, shot);
     char* mappingFileName = getenv("UDA_TS_MAPPING_FILE");
 
     int IDSRequestType;
@@ -518,7 +517,8 @@ char* getMappingValue(const char* mappingFileName, const char* IDSRequest,
 
 char* deblank(char* input)
 {
-    int i, j;
+    size_t i;
+    int j;
     char* output = input;
     for (i = 0, j = 0; i < strlen(input); i++, j++) {
         if (input[i] != ' ' && input[i] != '\'') {

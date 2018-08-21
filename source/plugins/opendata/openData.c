@@ -128,86 +128,93 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     char* exeBinaryFileName = exeBinaryFile;
     char* runScriptFileName = runScriptFile;
 
-// Keywords
+    // Keywords
 
-    unsigned short isReplace = 0;    // Replace any previous file within the archive directory
+    bool isReplace = false;    // Replace any previous file within the archive directory
+    bool isFileLocation = false;
+    bool isInputDataFile = false;
+    bool isOutputDataFile = false;
+    bool isModulesListFile = false;
+    bool isLddLibraryFile = false;
+    bool isEnvFile = false;
+    bool isIdamSignalsFile = false;
+    bool isExeBinaryFile = false;
+    bool isRunScriptFile = false;
 
-    unsigned short isFileLocation = 0, isInputDataFile = 0, isOutputDataFile = 0,
-            isModulesListFile = 0, isLddLibraryFile = 0, isEnvFile = 0, isIdamSignalsFile = 0,
-            isExeBinaryFile = 0, isRunScriptFile = 0;
-
-    int i;
-    for (i = 0; i < request_block->nameValueList.pairCount; i++) {
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "UID")) {
-            UID = request_block->nameValueList.nameValue[i].value;
-            continue;
-        }
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Replace")) {
-            isReplace = 1;
-            continue;
-        }
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "fileLocation")) {
-            isFileLocation = 1;
-            fileLocation = request_block->nameValueList.nameValue[i].value;
-            char* p;
-            if ((p = strrchr(fileLocation, '/')) != NULL) fileLocationName = &p[1];
-            continue;
-        }
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "inputDataFile")) {
-            isInputDataFile = 1;
-            inputDataFile = request_block->nameValueList.nameValue[i].value;
-            char* p;
-            if ((p = strrchr(inputDataFile, '/')) != NULL) inputDataFileName = &p[1];
-            continue;
-        }
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "outputDataFile")) {
-            isOutputDataFile = 1;
-            outputDataFile = request_block->nameValueList.nameValue[i].value;
-            char* p;
-            if ((p = strrchr(outputDataFile, '/')) != NULL) outputDataFileName = &p[1];
-            continue;
-        }
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "modulesListFile")) {
-            isModulesListFile = 1;
-            modulesListFile = request_block->nameValueList.nameValue[i].value;
-            char* p;
-            if ((p = strrchr(modulesListFile, '/')) != NULL) modulesListFileName = &p[1];
-            continue;
-        }
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "lddLibraryFile")) {
-            isLddLibraryFile = 1;
-            lddLibraryFile = request_block->nameValueList.nameValue[i].value;
-            char* p;
-            if ((p = strrchr(lddLibraryFile, '/')) != NULL) lddLibraryFileName = &p[1];
-            continue;
-        }
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "envFile")) {
-            isEnvFile = 1;
-            envFile = request_block->nameValueList.nameValue[i].value;
-            char* p;
-            if ((p = strrchr(envFile, '/')) != NULL) envFileName = &p[1];
-            continue;
-        }
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "idamSignalsFile")) {
-            isIdamSignalsFile = 1;
-            idamSignalsFile = request_block->nameValueList.nameValue[i].value;
-            char* p;
-            if ((p = strrchr(idamSignalsFile, '/')) != NULL) idamSignalsFile = &p[1];
-            continue;
-        }
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "exeBinaryFile")) {
-            isExeBinaryFile = 1;
-            exeBinaryFile = request_block->nameValueList.nameValue[i].value;
-            char* p;
-            if ((p = strrchr(exeBinaryFile, '/')) != NULL) exeBinaryFileName = &p[1];
-            continue;
-        }
-        if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "runScriptFile")) {
-            isRunScriptFile = 1;
-            runScriptFile = request_block->nameValueList.nameValue[i].value;
-            char* p;
-            if ((p = strrchr(runScriptFile, '/')) != NULL) runScriptFileName = &p[1];
-            continue;
+    {
+        int i;
+        for (i = 0; i < request_block->nameValueList.pairCount; i++) {
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "UID")) {
+                UID = request_block->nameValueList.nameValue[i].value;
+                continue;
+            }
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "Replace")) {
+                isReplace = 1;
+                continue;
+            }
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "fileLocation")) {
+                isFileLocation = 1;
+                fileLocation = request_block->nameValueList.nameValue[i].value;
+                char* p;
+                if ((p = strrchr(fileLocation, '/')) != NULL) fileLocationName = &p[1];
+                continue;
+            }
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "inputDataFile")) {
+                isInputDataFile = 1;
+                inputDataFile = request_block->nameValueList.nameValue[i].value;
+                char* p;
+                if ((p = strrchr(inputDataFile, '/')) != NULL) inputDataFileName = &p[1];
+                continue;
+            }
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "outputDataFile")) {
+                isOutputDataFile = 1;
+                outputDataFile = request_block->nameValueList.nameValue[i].value;
+                char* p;
+                if ((p = strrchr(outputDataFile, '/')) != NULL) outputDataFileName = &p[1];
+                continue;
+            }
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "modulesListFile")) {
+                isModulesListFile = 1;
+                modulesListFile = request_block->nameValueList.nameValue[i].value;
+                char* p;
+                if ((p = strrchr(modulesListFile, '/')) != NULL) modulesListFileName = &p[1];
+                continue;
+            }
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "lddLibraryFile")) {
+                isLddLibraryFile = 1;
+                lddLibraryFile = request_block->nameValueList.nameValue[i].value;
+                char* p;
+                if ((p = strrchr(lddLibraryFile, '/')) != NULL) lddLibraryFileName = &p[1];
+                continue;
+            }
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "envFile")) {
+                isEnvFile = 1;
+                envFile = request_block->nameValueList.nameValue[i].value;
+                char* p;
+                if ((p = strrchr(envFile, '/')) != NULL) envFileName = &p[1];
+                continue;
+            }
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "idamSignalsFile")) {
+                isIdamSignalsFile = 1;
+                idamSignalsFile = request_block->nameValueList.nameValue[i].value;
+                char* p;
+                if ((p = strrchr(idamSignalsFile, '/')) != NULL) idamSignalsFile = &p[1];
+                continue;
+            }
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "exeBinaryFile")) {
+                isExeBinaryFile = 1;
+                exeBinaryFile = request_block->nameValueList.nameValue[i].value;
+                char* p;
+                if ((p = strrchr(exeBinaryFile, '/')) != NULL) exeBinaryFileName = &p[1];
+                continue;
+            }
+            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "runScriptFile")) {
+                isRunScriptFile = 1;
+                runScriptFile = request_block->nameValueList.nameValue[i].value;
+                char* p;
+                if ((p = strrchr(runScriptFile, '/')) != NULL) runScriptFileName = &p[1];
+                continue;
+            }
         }
     }
 
@@ -227,6 +234,8 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->rank = 1;
             data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
+
+            unsigned int i;
             for (i = 0; i < data_block->rank; i++) {
                 initDimBlock(&data_block->dims[i]);
             }
@@ -258,13 +267,13 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             unsigned short priorDir = 0;
             char* newDir = NULL;
 
-// Create a directory using the Unique Identifier
-// directory = Provenance Archive Root + UID
+            // Create a directory using the Unique Identifier
+            // directory = Provenance Archive Root + UID
 
             newDir = (char*) malloc((strlen(root) + strlen(UID) + 2) * sizeof(char));
             sprintf(newDir, "%s/%s", root, UID);
 
-// does the archive exist? If not then create it. Ensure correct permissions: read only for non owner.
+            // does the archive exist? If not then create it. Ensure correct permissions: read only for non owner.
 
             errno = 0;
             int rc = mkdir(newDir, S_IRUSR | S_IWUSR | S_IXUSR |
@@ -284,7 +293,7 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 }
             }
 
-// copy each identified file preserving date/time stamps (overwrite if requested)
+            // copy each identified file preserving date/time stamps (overwrite if requested)
 
             if (!isReplace && priorDir) {    // Check for duplicate files
                 DIR* dp;
@@ -362,8 +371,8 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     } while (0);
 
-//--------------------------------------------------------------------------------------
-// Housekeeping
+    //--------------------------------------------------------------------------------------
+    // Housekeeping
 
     return err;
 }
@@ -382,9 +391,10 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
     newFile = (char*) malloc((strlen(dir) + strlen(newFileName) + 2) * sizeof(char));
     sprintf(newFile, "%s/%s", dir, newFileName);
 
-    do {        // Error Trap
+    do {
+        // Error Trap
 
-// Read file attributes
+        // Read file attributes
 
         errno = 0;
         if (stat(oldFile, &attributes) != 0 || errno != 0) {
@@ -394,7 +404,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
             break;
         }
 
-// Check the type (regular file only)
+        // Check the type (regular file only)
 
         if (!S_ISREG(attributes.st_mode)) {
             err = 999;
@@ -402,7 +412,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
             break;
         }
 
-// Open for Copying (no native c function!)          
+        // Open for Copying (no native c function!)
 
         if ((in = fopen(oldFile, "r")) == NULL || errno != 0) {
             err = 999;
@@ -441,11 +451,11 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
     if (out != NULL) fclose(out);
 
     if (err != 0) {
-        if (newFile != NULL) free(newFile);
+        free(newFile);
         return err;
     }
 
-// Set the file copy's modification time
+    // Set the file copy's modification time
 
     struct utimbuf mtime;
 
@@ -458,7 +468,7 @@ int copyProvenanceFile(char* oldFile, char* dir, char* newFileName)
         addIdamError(CODEERRORTYPE, "openData", err, "Unable to Set the file copy's time stamp!");
     }
 
-    if (newFile != NULL) free(newFile);
+    free(newFile);
 
     return err;
 

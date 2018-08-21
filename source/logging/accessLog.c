@@ -17,9 +17,11 @@
 #include <arpa/inet.h>
 
 #include <clientserver/stringUtils.h>
-#include <plugins/serverPlugin.h>
-#include <server/udaServer.h>
 #include <clientserver/udaTypes.h>
+#if defined(SERVERBUILD) || defined(FATCLIENT)
+#  include <server/serverPlugin.h>
+#  include <server/udaServer.h>
+#endif
 
 unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_block)
 {
@@ -77,6 +79,7 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
     return count;
 }
 
+#if defined(SERVERBUILD) || defined(FATCLIENT)
 
 void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block,
                    const PLUGINLIST* pluginlist, const ENVIRONMENT* environment)
@@ -231,3 +234,5 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
     }
 
 }
+
+#endif // defined(SERVERBUILD) || defined(FATCLIENT)

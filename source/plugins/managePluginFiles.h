@@ -1,5 +1,5 @@
-#ifndef IDAM_SERVER_MANAGEPLUGINFILES_H
-#define IDAM_SERVER_MANAGEPLUGINFILES_H
+#ifndef UDA_PLUGINS_MANAGEPLUGINFILES_H
+#define UDA_PLUGINS_MANAGEPLUGINFILES_H
 
 #include <plugins/udaPluginFiles.h>
 
@@ -37,4 +37,4 @@ void setIdamPluginFileClosed(IDAMPLUGINFILELIST* idamfiles, int record);
 }
 #endif
 
-#endif //IDAM_SERVER_MANAGEPLUGINFILES_H
+#endif // UDA_PLUGINS_MANAGEPLUGINFILES_H

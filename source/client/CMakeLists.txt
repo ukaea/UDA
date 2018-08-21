@@ -88,7 +88,7 @@ add_library( client-static STATIC ${CLIENT_OBJS} )
 
 set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} )
 if( NOT CLIENT_ONLY )
-  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${LIBXML2_LIBRARIES} plugins-static )
+  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${LIBXML2_LIBRARIES} )
 endif()
 
 if( WIN32 )
@@ -102,8 +102,8 @@ if( NOT CLIENT_ONLY )
   add_library( fatclient-shared SHARED ${FATCLIENT_OBJS} )
   add_library( fatclient-static STATIC ${FATCLIENT_OBJS} )
 
-  target_link_libraries( fatclient-shared PRIVATE ${CLIENT_LINK_LIBS} ${PostgreSQL_LIBRARY} )
-  target_link_libraries( fatclient-static PRIVATE ${CLIENT_LINK_LIBS} ${PostgreSQL_LIBRARY} )
+  target_link_libraries( fatclient-shared PRIVATE ${CLIENT_LINK_LIBS} ${PostgreSQL_LIBRARY} plugins-static )
+  target_link_libraries( fatclient-static PRIVATE ${CLIENT_LINK_LIBS} ${PostgreSQL_LIBRARY} plugins-static )
 endif()
 
 set_target_properties( client-shared

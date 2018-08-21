@@ -1,10 +1,3 @@
-find_package( LibXml2 QUIET )
-
-if( NOT LIBXML2_FOUND )
-  message( WARNING "Libxml2 not found - skipping source plugin" )
-  return()
-endif()
-
 include( plugins )
 
 add_definitions( -Wno-error )
@@ -19,11 +12,7 @@ uda_plugin(
   SOURCES
     source.c
   EXTRA_INCLUDE_DIRS
-    ${LIBXML2_INCLUDE_DIR}
-    ${CMAKE_SOURCE_DIR}/clientserver
-    ${CMAKE_SOURCE_DIR}/structures
   EXTRA_LINK_LIBS
-    ${LIBXML2_LIBRARIES}
     client-static
   EXTRA_INSTALL_FILES
 )

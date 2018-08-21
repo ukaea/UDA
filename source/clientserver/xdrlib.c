@@ -129,7 +129,7 @@ bool_t xdr_securityBlock2(XDR* xdrs, SECURITY_BLOCK* str)
                               sizeof(unsigned char), (xdrproc_t)xdr_u_char);
     }
 
-    if (str->client2_X509 > 0) {
+    if (str->client2_X509Length > 0) {
         rc = rc && xdr_vector(xdrs, (char*)str->client2_X509,
                               (int)str->client2_X509Length,
                               sizeof(unsigned char), (xdrproc_t)xdr_u_char);

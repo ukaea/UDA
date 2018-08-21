@@ -15,7 +15,6 @@
 int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
 {
     DIMS* ddim = NULL;
-    int i, j, k;
     double* newoffs = NULL, * newints = NULL;
 
     int reduce = 0;
@@ -37,6 +36,8 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
             if (ddim->method == 0) {
                 if (ddim->dim0 != (double)0.0 || ddim->diff == (double)0.0) reduce = 0;
             } else {
+                unsigned int i;
+                int j;
                 switch (ddim->data_type) {
 
                     case UDA_TYPE_FLOAT:
@@ -429,14 +430,18 @@ int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK* data_block)
     UDA_LOG(UDA_LOG_DEBUG, "Server Side Processing\n");
 
     if (client_block.get_timedble || client_block.get_dimdble) {
+        unsigned int k;
         for (k = 0; k < data_block->rank; k++) {
-            if (client_block.get_timedble && k != data_block->order) continue;    // Only Process the Time Dimension
+            if (client_block.get_timedble && k != (unsigned int)data_block->order) {
+                continue;    // Only Process the Time Dimension
+            }
             UDA_LOG(UDA_LOG_DEBUG, "Processing Dimension %d\n", k);
             ddim = data_block->dims + k;
             if (ddim->compressed) {
                 if (ddim->method == 0) {
                     ddim->data_type = UDA_TYPE_DOUBLE;
                 } else {
+                    unsigned int i = 0;
                     switch (ddim->data_type) {
                         case UDA_TYPE_CHAR:
                             switch (ddim->method) {

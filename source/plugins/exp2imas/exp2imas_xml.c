@@ -389,7 +389,6 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
     }
 
     xml_data->data_type = convertTypeStringToUDAType(type);
-    int i;
 
     if (xml_data->dims == NULL && index == -1) {
         index = 1;
@@ -397,6 +396,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
 
     size_t data_n = 1;
     if (xml_data->dims != NULL) {
+        int i;
         for (i = 0; i < xml_data->rank; ++i) {
             data_n *= (xml_data->dims)[i];
         }
@@ -430,6 +430,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
         if (xml_data->dims == NULL) {
             ((double*)xml_data->data)[0] = content[index-1];
         } else {
+            int i;
             for (i = 0; i < (xml_data->dims)[0]; i++) {
                 ((double*)xml_data->data)[i] = content[i];
             }
@@ -439,6 +440,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
         if (xml_data->dims == NULL) {
             ((float*)xml_data->data)[0] = (float)content[index-1];
         } else {
+            size_t i;
             for (i = 0; i < data_n; i++) {
                 ((float*)xml_data->data)[i] = (float)content[i];
             }
@@ -448,6 +450,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
         if (xml_data->dims == NULL) {
             ((long*)xml_data->data)[0] = (long)content[index-1];
         } else {
+            size_t i;
             for (i = 0; i < data_n; i++) {
                 ((long*)xml_data->data)[i] = (long)content[i];
             }
@@ -457,6 +460,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
         if (xml_data->dims == NULL) {
             ((int*)xml_data->data)[0] = (int)content[index-1];
         } else {
+            size_t i;
             for (i = 0; i < data_n; i++) {
                 ((int*)xml_data->data)[i] = (int)content[i];
             }
@@ -466,6 +470,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
         if (xml_data->dims == NULL) {
             ((short*)xml_data->data)[0] = (short)content[index-1];
         } else {
+            size_t i;
             for (i = 0; i < data_n; i++) {
                 ((short*)xml_data->data)[i] = (short)content[i];
             }
@@ -479,6 +484,7 @@ int execute_xpath_expression(const char* filename, const xmlChar* xpathExpr, int
             return -1;
         }
 
+        int i;
         for (i = 0; i < nodes->nodeNr; ++i) {
             xmlNodePtr cur = nodes->nodeTab[i];
 
@@ -572,7 +578,7 @@ double* getContent(xmlNode* node, size_t* n_vals)
                 int i = 0;
                 for (i = expand_start; i <= expand_end; ++i) {
                     vals = realloc(vals, (*n_vals + num_expand_vals) * sizeof(double));
-                    int j;
+                    size_t j;
                     for (j = 0; j < num_expand_vals; ++j) {
                         vals[*n_vals + j] = expand_vals[j];
                     }

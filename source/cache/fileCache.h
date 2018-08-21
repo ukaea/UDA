@@ -32,7 +32,7 @@ int idamClientCacheFileValid(const char *filename);
 int idamClientGetCacheStats(FILE *db, unsigned long *recordCount, unsigned long *deadCount, unsigned long *endOffset, char csvChar);
 void idamClientUpdateCacheStats(FILE *db, unsigned long recordCount, unsigned long deadCount, unsigned long endOffset, char csvChar);
 int idamClientPurgeCache(FILE *db, unsigned long recordCount, unsigned long *endOffset);
-int idamClientReadCache(REQUEST_BLOCK *request_block, DATA_BLOCK *data_block, char *filename);
+int idamClientReadCache(DATA_BLOCK *data_block, char *filename);
 int idamClientGetCacheFilename(REQUEST_BLOCK *request_block, char **cacheFilename);
 int idamClientWriteCache(char *filename);  
 unsigned int xcrc32 (const unsigned char *buf, int len, unsigned int init);

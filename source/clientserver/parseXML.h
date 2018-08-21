@@ -32,7 +32,7 @@ extern "C" {
 #define SUBSETTYPE              7
 #define MAPTYPE                 8
 
-typedef struct {
+typedef struct Subset {
     int nbound;                                 // the Number of Subsetting Operations
     int reform;                                 // reduce Rank if any dimension has length 1
     int order;                                  // Time Dimension order
@@ -47,7 +47,7 @@ typedef struct {
     char function[SXMLMAXSTRING];               // Apply this named function to the subsetted data
 } SUBSET;
 
-typedef struct {
+typedef struct Map {
     int nmap;                                   // the Number of Mapping Operations
     double value[MAXDATARANK];                  // Array of values to Map to
     char mapping[MAXDATARANK][SXMLMAXSTRING];   // Array of Mapping Operations
@@ -55,14 +55,14 @@ typedef struct {
     char data_signal[SXMLMAXSTRING];            // Name of Signal
 } MAP;
 
-typedef struct {
+typedef struct DimCalibration {
     double factor;
     double offset;
     int invert;
     char units[SXMLMAXSTRING];
 } DIMCALIBRATION;
 
-typedef struct {
+typedef struct DimComposite {
     int to_dim;                                 // duplicated as dimid 	// Swap to Dimension ID
     int from_dim;                               // Swap from Dimension ID
     char file[SXMLMAXSTRING];
@@ -72,19 +72,19 @@ typedef struct {
     char dim_aserror[SXMLMAXSTRING];            // Dimension Asymmetric Error Source Signal Name
 } DIMCOMPOSITE;
 
-typedef struct {
+typedef struct DimDocumentation {
     char label[SXMLMAXSTRING];
     char units[SXMLMAXSTRING];
 } DIMDOCUMENTATION;
 
-typedef struct {
+typedef struct DimErrorModel {
     int model;                                  // Error Model Id
     int param_n;                                // The number of parameters
     //float *params;			                // Parameter Array
     float params[MAXERRPARAMS];
 } DIMERRORMODEL;
 
-typedef struct {
+typedef struct Dimension {
     int dimType;
     int dimid;
     union {
@@ -95,13 +95,13 @@ typedef struct {
     };
 } DIMENSION;
 
-typedef struct {
+typedef struct TimeOffset {
     double offset;
     double interval;
     int method;
 } TIMEOFFSET;
 
-typedef struct {
+typedef struct Calibration {
     double factor;
     double offset;
     int invert;
@@ -111,7 +111,7 @@ typedef struct {
     DIMENSION* dimensions;
 } CALIBRATION;
 
-typedef struct {
+typedef struct Documentation {
     char label[SXMLMAXSTRING];
     char units[SXMLMAXSTRING];
     char description[XMLMAXDESC];
@@ -119,7 +119,7 @@ typedef struct {
     DIMENSION* dimensions;
 } DOCUMENTATION;
 
-typedef struct {
+typedef struct Composite {
     char file[SXMLMAXSTRING];                   // Complete file name
     char format[SXMLMAXSTRING];                 // File Format
     char data_signal[SXMLMAXSTRING];
@@ -135,7 +135,7 @@ typedef struct {
     MAP* maps;
 } COMPOSITE;
 
-typedef struct {
+typedef struct ErrorModel {
     int model;                                  // Error Model Id
     int param_n;                                // The number of parameters
     //float *params;			                // Parameter Array
@@ -144,15 +144,14 @@ typedef struct {
     DIMENSION* dimensions;
 } ERRORMODEL;
 
-typedef struct {
+typedef struct ServerSide {
     int nsubsets;
     int nmaps;
     SUBSET* subsets;
     MAP* maps;
 } SERVERSIDE;
 
-
-typedef struct {
+typedef struct Action {
     int actionType;
     int inRange;
     int actionId;
@@ -172,8 +171,7 @@ typedef struct {
 
 } ACTION;
 
-
-typedef struct {
+typedef struct Actions {
     int nactions;                           // Number of Actions
     ACTION* action;                         // Array of Actions
 } ACTIONS;

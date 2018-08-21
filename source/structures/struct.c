@@ -123,6 +123,7 @@ void addNTreeList(LOGMALLOCLIST* logmalloclist, NTREE* node)
     NTREE* old = NTreeList.forrest;
     NTreeList.forrest = (NTREE*)realloc((void*)NTreeList.forrest, (++NTreeList.listCount) * sizeof(NTREE*));
     changeMalloc(logmalloclist, old, (void*)NTreeList.forrest, NTreeList.listCount, sizeof(NTREE*), "NTREE *");
+    NTreeList.forrest[NTreeList.listCount] = *node;
 }
 
 /** Add an NTREE node to an array of child nodes.
@@ -878,7 +879,7 @@ void findMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size,
 
 // Find a specific Heap allocation for Data within User Defined Structures
 
-    int i;
+    unsigned int i;
     VOIDTYPE candidate, target;
     *count = 0;
     *size = 0;
@@ -892,7 +893,7 @@ void findMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size,
         *lastMallocIndexValue = lastMallocIndex;
     }
 
-    for (i = lastMallocIndex; i < logmalloclist->listcount; i++) {
+    for (i = lastMallocIndex; i < (unsigned int)logmalloclist->listcount; i++) {
         candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
@@ -915,8 +916,6 @@ void findMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size,
             return;
         }
     }
-
-    return;
 }
 
 /** Find the meta data associated with a specific memory location.
@@ -935,7 +934,7 @@ void findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size
 
 // Find a specific Heap allocation for Data within User Defined Structures
 
-    int i;
+    unsigned int i;
     VOIDTYPE candidate, target;
     *count = 0;
     *size = 0;
@@ -946,12 +945,12 @@ void findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size
 
     if ((target = *((VOIDTYPE*)heap)) == 0) return;  // Both addresses same!
 
-    if (lastMallocIndex >= logmalloclist->listcount) {  // Defensive check
+    if (lastMallocIndex >= (unsigned int)logmalloclist->listcount) {  // Defensive check
         lastMallocIndex = 0;
         *lastMallocIndexValue = lastMallocIndex;
     }
 
-    for (i = lastMallocIndex; i < logmalloclist->listcount; i++) {
+    for (i = lastMallocIndex; i < (unsigned int)logmalloclist->listcount; i++) {
         candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
@@ -1108,8 +1107,8 @@ void copyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew)
 * @param anew The copy of the type definition list.
 * @return void.
 */
-void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew) {
 #if defined(SERVERBUILD)
+void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew) {
     USERDEFINEDTYPELIST* list = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
     initUserDefinedTypeList(list);
     list->listCount = parseduserdefinedtypelist.listCount; // Copy the standard set of structure definitions
@@ -1142,10 +1141,12 @@ void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew) {
         list->userdefinedtype[i] = usertypeNew;
     }
     *anew = list;
-#else
-   UDA_LOG(UDA_LOG_DEBUG, "Not SERVERBUILD - USERDEFINEDTYPELIST is not allocated\n");        
-#endif
 }
+#else
+void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew) {
+   UDA_LOG(UDA_LOG_DEBUG, "Not SERVERBUILD - USERDEFINEDTYPELIST is not allocated\n");
+}
+#endif
 
 /** Create the Initial User Defined Structure Definition List.
 * 
@@ -2107,7 +2108,8 @@ bool_t xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist, 
                 size = getsizeof(userdefinedtypelist, str->compoundfield[i].type);
             }
             alignment = getalignmentof(str->compoundfield[i].type);
-            adjust = (alignment != str->compoundfield[i].alignment || size != str->compoundfield[i].size); // Adjustment required
+            // Adjustment required
+            adjust = (alignment != str->compoundfield[i].alignment || size != (size_t)str->compoundfield[i].size);
         }
     }
 

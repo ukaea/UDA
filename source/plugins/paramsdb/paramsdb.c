@@ -128,7 +128,7 @@ int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->rank = 1;
     data_block->dims = (DIMS*) malloc(data_block->rank * sizeof(DIMS));
 
-    int i;
+    unsigned int i;
     for (i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }

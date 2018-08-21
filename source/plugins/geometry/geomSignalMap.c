@@ -1,9 +1,9 @@
 #include "geomSignalMap.h"
 
 #include <clientserver/initStructs.h>
+#include <plugins/pluginUtils.h>
 #include <structures/accessors.h>
 #include <structures/struct.h>
-#include <plugins/serverPlugin.h>
 
 static PGconn* geomOpenDatabase(const char* host, const char* port, const char* dbname, const char* user)
 {

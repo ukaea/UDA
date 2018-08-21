@@ -31,8 +31,8 @@ static void parseIDAPath(REQUEST_BLOCK *request_block) {
 
     if(request_block->path[0] == '\0') return;	// Nothing to work with!
 
-//------------------------------------------------------------------------------
-// Extract Exp_Number or Source Name
+    //------------------------------------------------------------------------------
+    // Extract Exp_Number or Source Name
 
     if(request_block->path[0] == '/')
         strcpy(work, request_block->path+1);	// the leading character is a / so ignore
@@ -63,8 +63,6 @@ static void parseIDAPath(REQUEST_BLOCK *request_block) {
             request_block->file[3] = '\0';
         }
     }
-
-    return;
 }
 
 static void parseXMLPath(REQUEST_BLOCK *request_block) {
@@ -73,8 +71,8 @@ static void parseXMLPath(REQUEST_BLOCK *request_block) {
 
     if(request_block->path[0] == '\0') return;	// Nothing to work with!
 
-//------------------------------------------------------------------------------
-// Extract Exp_Number and Pass Number
+    //------------------------------------------------------------------------------
+    // Extract Exp_Number and Pass Number
 
     if(request_block->path[0] == '/')
         strcpy(work, request_block->path+1);	// the leading character is a / so ignore
@@ -101,15 +99,6 @@ static void parseXMLPath(REQUEST_BLOCK *request_block) {
             strcpy(request_block->path, "");
         }
     }
-
-    return;
-}
-
-int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
-{
-    idamSetLogLevel((LOG_LEVEL)plugin_interface->environment->loglevel);
-
-    return 0;
 }
 
 int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, const size_t* shape,
@@ -339,7 +328,7 @@ int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* d
     data_block->rank = 1;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-    int i;
+    unsigned int i;
     for (i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }

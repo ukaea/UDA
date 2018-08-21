@@ -477,7 +477,7 @@ int clientWriteout(void* iohandle, char* buf, int count)
 
 // Write to socket, checking for EINTR, as happens if called from IDL
 
-    while (BytesSent < count) {
+    while (BytesSent < (unsigned int)count) {
 #ifndef _WIN32
         while (((rc = (int)write(clientSocket, buf, count)) == -1) && (errno == EINTR)) {}
 #else

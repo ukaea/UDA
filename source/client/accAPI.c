@@ -50,7 +50,7 @@
 #endif
 */
 
-static int Data_Block_Count = 0;        // Count of Blocks recorded
+static unsigned int Data_Block_Count = 0;        // Count of Blocks recorded
 static DATA_BLOCK* Data_Block = NULL;   // All Data are recorded here!
 
 //---------------------------- Mutex locking for thread safety -------------------------
@@ -297,7 +297,7 @@ int acc_growIdamDataBlocks()
 
 static int findNewHandleIndex()
 {
-    int i;
+    unsigned int i;
     for (i = 0; i < Data_Block_Count; i++) {
         if (Data_Block[i].handle == -1) {
             return i;
@@ -340,7 +340,7 @@ int acc_getIdamNewDataHandle()
 
         newHandleIndex = Data_Block_Count;
 
-        if (newHandleIndex >= handleListSize) {   // Allocate new multiple DATA_BLOCKS
+        if ((unsigned int)newHandleIndex >= handleListSize) {   // Allocate new multiple DATA_BLOCKS
             handleListSize += growHandleList;
             Data_Block = (DATA_BLOCK*)realloc(Data_Block, handleListSize * sizeof(DATA_BLOCK));
 
@@ -351,8 +351,7 @@ int acc_getIdamNewDataHandle()
                 return -err;
             }
 
-            int i;
-
+            unsigned int i;
             for (i = Data_Block_Count; i < handleListSize; i++) {
                 initDataBlock(&Data_Block[i]);
             }
@@ -634,7 +633,9 @@ void resetIdamProperties()
 */
 CLIENT_BLOCK* getIdamProperties(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return NULL;
+    }
     return &Data_Block[handle].client_block;
 }
 
@@ -681,22 +682,31 @@ int getIdamMemoryUsed()
 
 void putIdamErrorModel(int handle, int model, int param_n, float* params)
 {
-    int i;
-    if (handle < 0 || handle >= Data_Block_Count) return;          // No Data Block available
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return;
+    }
     if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) return;   // No valid Model
 
     Data_Block[handle].error_model = model;               // Model ID
     Data_Block[handle].error_param_n = param_n;             // Number of parameters
 
     if (param_n > MAXERRPARAMS) Data_Block[handle].error_param_n = MAXERRPARAMS;
-    for (i = 0; i < Data_Block[handle].error_param_n; i++) Data_Block[handle].errparams[i] = params[i];
+
+    int i;
+    for (i = 0; i < Data_Block[handle].error_param_n; i++) {
+        Data_Block[handle].errparams[i] = params[i];
+    }
 }
 
 void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, float* params)
 {
     int i;
-    if (handle < 0 || handle >= Data_Block_Count) return;                        // No Data Block available
-    if (ndim < 0 || ndim >= Data_Block[handle].rank) return;                     // No Dim
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return;
+    }
+    if (ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
+        return;                     // No Dim
+    }
     if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) return;  // No valid Model
 
     Data_Block[handle].dims[ndim].error_model = model;                        // Model ID
@@ -820,7 +830,7 @@ int getIdamServerSocket()
 int getIdamErrorCode(int handle)
 {
     // Error Code Returned from Server
-    if (handle < 0 || handle >= Data_Block_Count) {
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
         return getIdamServerErrorStackRecordCode(0);
     } else {
         return Data_Block[handle].errcode;
@@ -835,7 +845,7 @@ int getIdamErrorCode(int handle)
 char* getIdamErrorMsg(int handle)
 {
     // Error Message returned from server
-    if (handle < 0 || handle >= Data_Block_Count) {
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
         return getIdamServerErrorStackRecordMsg(0);
     } else {
         return Data_Block[handle].error_msg;
@@ -849,7 +859,7 @@ char* getIdamErrorMsg(int handle)
 */
 int getIdamSourceStatus(int handle)
 {           // Source Status
-    if (handle < 0 || handle >= Data_Block_Count) return 0;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return 0;
     return Data_Block[handle].source_status;
 }
 
@@ -860,13 +870,13 @@ int getIdamSourceStatus(int handle)
 */
 int getIdamSignalStatus(int handle)
 {           // Signal Status
-    if (handle < 0 || handle >= Data_Block_Count) return 0;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return 0;
     return Data_Block[handle].signal_status;
 }
 
 int getIdamDataStatus(int handle)
 {          // Data Status based on Standard Rule
-    if (handle < 0 || handle >= Data_Block_Count) return 0;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return 0;
     if (getIdamSignalStatus(handle) ==
         DEFAULT_STATUS) {       // Signal Status Not Changed from Default - use Data Source Value
         return Data_Block[handle].source_status;
@@ -891,7 +901,7 @@ int getIdamLastHandle()
 */
 int getIdamDataNum(int handle)
 {             // Data Array Size
-    if (handle < 0 || handle >= Data_Block_Count) return 0;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return 0;
     return Data_Block[handle].data_n;
 }
 
@@ -902,7 +912,7 @@ int getIdamDataNum(int handle)
 */
 int getIdamRank(int handle)
 {             // Array Rank
-    if (handle < 0 || handle >= Data_Block_Count) return 0;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return 0;
     return (int)Data_Block[handle].rank;
 }
 
@@ -914,7 +924,7 @@ counted from left to right in c and from right to left in Fortran and IDL.
 */
 int getIdamOrder(int handle)
 {               // Time Dimension Order in Array
-    if (handle < 0 || handle >= Data_Block_Count) return -1;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return -1;
     return Data_Block[handle].order;
 }
 
@@ -925,7 +935,7 @@ int getIdamOrder(int handle)
  */
 unsigned int getIdamCachePermission(int handle)
 {     // Permission to cache?
-    if (handle < 0 || handle >= Data_Block_Count) return PLUGINNOTOKTOCACHE;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return PLUGINNOTOKTOCACHE;
     return Data_Block[handle].cachePermission;
 }
 
@@ -937,7 +947,7 @@ unsigned int getIdamCachePermission(int handle)
  */
 unsigned int getIdamTotalDataBlockSize(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return 0;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return 0;
     return Data_Block[handle].totalDataBlockSize;
 }
 
@@ -948,7 +958,7 @@ unsigned int getIdamTotalDataBlockSize(int handle)
 */
 int getIdamDataType(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) {
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
         return UDA_TYPE_UNKNOWN;
     }
     return Data_Block[handle].data_type;
@@ -956,7 +966,7 @@ int getIdamDataType(int handle)
 
 int getIdamDataOpaqueType(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) {
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
         return UDA_TYPE_UNKNOWN;
     }
     return Data_Block[handle].opaque_type;
@@ -964,7 +974,7 @@ int getIdamDataOpaqueType(int handle)
 
 void* getIdamDataOpaqueBlock(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) {
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
         return NULL;
     }
     return Data_Block[handle].opaque_block;
@@ -972,7 +982,7 @@ void* getIdamDataOpaqueBlock(int handle)
 
 int getIdamDataOpaqueCount(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) {
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
         return 0;
     }
     return Data_Block[handle].opaque_count;
@@ -985,7 +995,7 @@ int getIdamDataOpaqueCount(int handle)
 */
 int getIdamErrorType(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) {
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
         return UDA_TYPE_UNKNOWN;
     }
     return Data_Block[handle].error_type;
@@ -1091,7 +1101,7 @@ int getIdamDataTypeSize(int type)
 void getIdamErrorModel(int handle, int* model, int* param_n, float* params)
 {
     int i;
-    if (handle < 0 || handle >= Data_Block_Count) {
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
         *model = ERROR_MODEL_UNKNOWN;
         *param_n = 0;
         return;
@@ -1103,7 +1113,7 @@ void getIdamErrorModel(int handle, int* model, int* param_n, float* params)
 
 int getIdamErrorAsymmetry(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return 0;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return 0;
     return (int)Data_Block[handle].errasymmetry;
 }
 
@@ -1143,32 +1153,32 @@ int getIdamErrorModelId(const char* model)
 
 char* acc_getSyntheticData(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return NULL;
     return Data_Block[handle].synthetic;
 }
 
 char* acc_getSyntheticDimData(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return NULL;
     return Data_Block[handle].dims[ndim].synthetic;
 }
 
 void acc_setSyntheticData(int handle, char* data)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return;
     Data_Block[handle].synthetic = data;
 }
 
 void acc_setSyntheticDimData(int handle, int ndim, char* data)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return;
     Data_Block[handle].dims[ndim].synthetic = data;
 }
 
 char* getIdamSyntheticData(int handle)
 {
     int status = getIdamDataStatus(handle);
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return NULL;
     if (status == MIN_STATUS && !Data_Block[handle].client_block.get_bad && !get_bad) return NULL;
     if (status != MIN_STATUS && (Data_Block[handle].client_block.get_bad || get_bad)) return NULL;
     if (!get_synthetic || Data_Block[handle].error_model == ERROR_MODEL_UNKNOWN) {
@@ -1186,7 +1196,7 @@ char* getIdamSyntheticData(int handle)
 char* getIdamData(int handle)
 {
     int status = getIdamDataStatus(handle);
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return NULL;
     if (status == MIN_STATUS && !Data_Block[handle].client_block.get_bad && !get_bad) return NULL;
     if (status != MIN_STATUS && (Data_Block[handle].client_block.get_bad || get_bad)) return NULL;
     if (!get_synthetic) {
@@ -1204,85 +1214,85 @@ char* getIdamData(int handle)
 */
 void getIdamDataTdi(int handle, char* data)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return;
     memcpy(data, (void*)Data_Block[handle].data, (int)Data_Block[handle].data_n);
 }
 
 char* getIdamDataErrLo(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return NULL;
     return Data_Block[handle].errlo;
 }
 
 char* getIdamDataErrHi(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return NULL;
     return Data_Block[handle].errhi;
 }
 
 int getIdamDataErrAsymmetry(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return 0;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return 0;
     return Data_Block[handle].errasymmetry;
 }
 
 void acc_setIdamDataErrAsymmetry(int handle, int asymmetry)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return;
     Data_Block[handle].errasymmetry = asymmetry;
 };
 
 void acc_setIdamDataErrType(int handle, int type)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return;
     Data_Block[handle].error_type = type;
 };
 
 void acc_setIdamDataErrLo(int handle, char* errlo)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return;
     Data_Block[handle].errlo = errlo;
 };
 
 char* getIdamDimErrLo(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return NULL;
     return Data_Block[handle].dims[ndim].errlo;
 }
 
 char* getIdamDimErrHi(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return NULL;
     return Data_Block[handle].dims[ndim].errhi;
 }
 
 int getIdamDimErrAsymmetry(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return 0;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return 0;
     return Data_Block[handle].dims[ndim].errasymmetry;
 }
 
 void acc_setIdamDimErrAsymmetry(int handle, int ndim, int asymmetry)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return;
     Data_Block[handle].dims[ndim].errasymmetry = asymmetry;
 };
 
 void acc_setIdamDimErrType(int handle, int ndim, int type)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return;
     Data_Block[handle].dims[ndim].error_type = type;
 };
 
 void acc_setIdamDimErrLo(int handle, int ndim, char* errlo)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return;
     Data_Block[handle].dims[ndim].errlo = errlo;
 };
 
 char* getIdamAsymmetricError(int handle, int above)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return NULL;
     if (Data_Block[handle].error_type != UDA_TYPE_UNKNOWN) {
         if (above) {
             return Data_Block[handle].errhi;      // return the default error array
@@ -1505,7 +1515,9 @@ char* getIdamAsymmetricError(int handle, int above)
 char* getIdamError(int handle)
 {
     int above = 1;
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return NULL;
+    }
     return getIdamAsymmetricError(handle, above);
 }
 
@@ -1522,7 +1534,7 @@ void getIdamDoubleData(int handle, double* fp)
 // **** The double array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
 
     int status = getIdamDataStatus(handle);
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return;
     if (status == MIN_STATUS && !Data_Block[handle].client_block.get_bad && !get_bad) return;
     if (status != MIN_STATUS && (Data_Block[handle].client_block.get_bad || get_bad)) return;
 
@@ -1660,7 +1672,9 @@ void getIdamFloatData(int handle, float* fp)
 // **** The float array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
 
     int status = getIdamDataStatus(handle);
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return;
+    }
     if (status == MIN_STATUS && !Data_Block[handle].client_block.get_bad && !get_bad) return;
     if (status != MIN_STATUS && (Data_Block[handle].client_block.get_bad || get_bad)) return;
 
@@ -1836,7 +1850,6 @@ void getIdamGenericData(int handle, void* data)
             memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(COMPLEX));
             break;
     }
-    return;
 }
 
 
@@ -1847,7 +1860,9 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
 
     int i, ndata;
 
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return;
+    }
 
     ndata = Data_Block[handle].data_n;
 
@@ -2063,7 +2078,9 @@ void getIdamFloatError(int handle, float* fp)
 */
 void getIdamDBlock(int handle, DATA_BLOCK* db)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return;
+    }
     *db = Data_Block[handle];
 }
 
@@ -2074,7 +2091,9 @@ void getIdamDBlock(int handle, DATA_BLOCK* db)
 */
 DATA_BLOCK* getIdamDataBlock(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return NULL;
+    }
     return &Data_Block[handle];
 }
 
@@ -2085,7 +2104,9 @@ DATA_BLOCK* getIdamDataBlock(int handle)
 */
 char* getIdamDataLabel(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return NULL;
+    }
     return Data_Block[handle].data_label;
 }
 
@@ -2097,7 +2118,9 @@ char* getIdamDataLabel(int handle)
 */
 void getIdamDataLabelTdi(int handle, char* label)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return;
+    }
     strcpy(label, Data_Block[handle].data_label);
 }
 
@@ -2108,7 +2131,9 @@ void getIdamDataLabelTdi(int handle, char* label)
 */
 char* getIdamDataUnits(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return NULL;
+    }
     return Data_Block[handle].data_units;
 }
 
@@ -2120,7 +2145,9 @@ char* getIdamDataUnits(int handle)
 */
 void getIdamDataUnitsTdi(int handle, char* units)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return;
+    }
     strcpy(units, Data_Block[handle].data_units);
 }
 
@@ -2131,7 +2158,9 @@ void getIdamDataUnitsTdi(int handle, char* units)
 */
 char* getIdamDataDesc(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return NULL;
+    }
     return Data_Block[handle].data_desc;
 }
 
@@ -2143,7 +2172,9 @@ char* getIdamDataDesc(int handle)
 */
 void getIdamDataDescTdi(int handle, char* desc)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return;
+    }
     strcpy(desc, Data_Block[handle].data_desc);
 }
 
@@ -2157,7 +2188,9 @@ void getIdamDataDescTdi(int handle, char* desc)
 */
 int getIdamDimNum(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return 0;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
+        return 0;
+    }
     return (int)Data_Block[handle].dims[ndim].dim_n;
 }
 
@@ -2169,7 +2202,9 @@ int getIdamDimNum(int handle, int ndim)
 */
 int getIdamDimType(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return UDA_TYPE_UNKNOWN;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
+        return UDA_TYPE_UNKNOWN;
+    }
     return (int)Data_Block[handle].dims[ndim].data_type;
 }
 
@@ -2181,7 +2216,9 @@ int getIdamDimType(int handle, int ndim)
 */
 int getIdamDimErrorType(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return UDA_TYPE_UNKNOWN;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
+        return UDA_TYPE_UNKNOWN;
+    }
     return (int)Data_Block[handle].dims[ndim].error_type;
 }
 
@@ -2193,14 +2230,16 @@ int getIdamDimErrorType(int handle, int ndim)
 */
 int getIdamDimErrorAsymmetry(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return 0;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
+        return 0;
+    }
     return (int)Data_Block[handle].dims[ndim].errasymmetry;
 }
 
 void getIdamDimErrorModel(int handle, int ndim, int* model, int* param_n, float* params)
 {
     int i;
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) {
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
 
         *model = ERROR_MODEL_UNKNOWN;
         *param_n = 0;
@@ -2216,7 +2255,9 @@ void getIdamDimErrorModel(int handle, int ndim, int* model, int* param_n, float*
 
 char* getIdamSyntheticDimData(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
+        return NULL;
+    }
     if (!get_synthetic || Data_Block[handle].dims[ndim].error_model == ERROR_MODEL_UNKNOWN) {
         return Data_Block[handle].dims[ndim].dim;
     }
@@ -2232,7 +2273,9 @@ char* getIdamSyntheticDimData(int handle, int ndim)
 */
 char* getIdamDimData(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
+        return NULL;
+    }
     if (!get_synthetic) return Data_Block[handle].dims[ndim].dim;
     return getIdamSyntheticDimData(handle, ndim);
 }
@@ -2245,7 +2288,9 @@ char* getIdamDimData(int handle, int ndim)
 */
 char* getIdamDimLabel(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
+        return NULL;
+    }
     return Data_Block[handle].dims[ndim].dim_label;
 }
 //! Returns the data units of a coordinate dimension
@@ -2256,7 +2301,9 @@ char* getIdamDimLabel(int handle, int ndim)
 */
 char* getIdamDimUnits(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
+        return NULL;
+    }
     return Data_Block[handle].dims[ndim].dim_units;
 }
 
@@ -2269,7 +2316,9 @@ char* getIdamDimUnits(int handle, int ndim)
 */
 void getIdamDimLabelTdi(int handle, int ndim, char* label)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
+        return;
+    }
     strcpy(label, Data_Block[handle].dims[ndim].dim_label);
 }
 
@@ -2282,7 +2331,9 @@ void getIdamDimLabelTdi(int handle, int ndim, char* label)
 */
 void getIdamDimUnitsTdi(int handle, int ndim, char* units)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
+        return;
+    }
     strcpy(units, Data_Block[handle].dims[ndim].dim_units);
 }
 
@@ -2298,7 +2349,9 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
 
 // **** The double array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
 
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
+        return;
+    }
     if (Data_Block[handle].dims[ndim].data_type == UDA_TYPE_DOUBLE) {
         if (!get_synthetic)
             memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].dim,
@@ -2429,7 +2482,7 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
 
 // **** The float array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
 
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) return;
     if (Data_Block[handle].dims[ndim].data_type == UDA_TYPE_FLOAT) {
         if (!get_synthetic)
             memcpy((void*)fp, (void*)Data_Block[handle].dims[ndim].dim,
@@ -2616,14 +2669,14 @@ void getIdamGenericDimData(int handle, int ndim, void* data)
 */
 DIMS* getIdamDimBlock(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) return NULL;
     return Data_Block[handle].dims + ndim;
 }
 
 
 char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 {
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) return NULL;
     if (Data_Block[handle].dims[ndim].error_type != UDA_TYPE_UNKNOWN) {
         if (above) {
             return Data_Block[handle].dims[ndim].errhi;    // return the default error array
@@ -2837,7 +2890,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 char* getIdamDimError(int handle, int ndim)
 {
     int above = 1;
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) return NULL;
     return getIdamDimAsymmetricError(handle, ndim, above);
 }
 
@@ -2845,7 +2898,7 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
 {   // Copy Error Data cast as float to User Provided Array
     int i, ndata;
 
-    if (handle < 0 || handle >= Data_Block_Count || ndim < 0 || ndim >= Data_Block[handle].rank) return;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) return;
 
     ndata = Data_Block[handle].dims[ndim].dim_n;
 
@@ -3031,7 +3084,9 @@ void getIdamFloatDimError(int handle, int ndim, float* fp)
 */
 DATA_SYSTEM* getIdamDataSystem(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return NULL;
+    }
     return Data_Block[handle].data_system;
 }
 
@@ -3042,7 +3097,9 @@ DATA_SYSTEM* getIdamDataSystem(int handle)
 */
 SYSTEM_CONFIG* getIdamSystemConfig(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+
+    } return NULL;
     return Data_Block[handle].system_config;
 }
 
@@ -3053,7 +3110,9 @@ SYSTEM_CONFIG* getIdamSystemConfig(int handle)
 */
 DATA_SOURCE* getIdamDataSource(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return NULL;
+    }
     return Data_Block[handle].data_source;
 }
 
@@ -3064,7 +3123,9 @@ DATA_SOURCE* getIdamDataSource(int handle)
 */
 SIGNAL* getIdamSignal(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return NULL;
+    }
     return Data_Block[handle].signal_rec;
 }
 
@@ -3075,7 +3136,9 @@ SIGNAL* getIdamSignal(int handle)
 */
 SIGNAL_DESC* getIdamSignalDesc(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return NULL;
+    }
     return Data_Block[handle].signal_desc;
 }
 
@@ -3086,7 +3149,9 @@ SIGNAL_DESC* getIdamSignalDesc(int handle)
 */
 char* getIdamFileFormat(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return NULL;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return NULL;
+    }
     DATA_SOURCE* data_source = getIdamDataSource(handle);
     if (data_source == NULL) return NULL;
     return data_source->format;
@@ -3208,7 +3273,9 @@ int idamDataCheckSum(void* data, int data_n, int type)
 
 int getIdamDataCheckSum(int handle)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return 0;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return 0;
+    }
     if (Data_Block[handle].errcode != 0) return 0;
 
     return (idamDataCheckSum((void*)Data_Block[handle].data, Data_Block[handle].data_n,
@@ -3217,9 +3284,13 @@ int getIdamDataCheckSum(int handle)
 
 int getIdamDimDataCheckSum(int handle, int ndim)
 {
-    if (handle < 0 || handle >= Data_Block_Count) return 0;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
+        return 0;
+    }
     if (Data_Block[handle].errcode != 0) return 0;
-    if (ndim < 0 || ndim >= Data_Block[handle].rank) return 0;
+    if (ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
+        return 0;
+    }
 
     return (idamDataCheckSum((void*)Data_Block[handle].dims[ndim].dim, Data_Block[handle].dims[ndim].dim_n,
                              Data_Block[handle].dims[ndim].data_type));

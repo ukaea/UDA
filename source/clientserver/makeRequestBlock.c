@@ -6,7 +6,6 @@
 
 #include <logging/logging.h>
 #include <plugins/pluginStructs.h>
-#include <plugins/serverPlugin.h>
 #include <plugins/udaPlugin.h>
 
 #include "errorLog.h"
@@ -16,9 +15,17 @@
 #include "udaErrors.h"
 #include "udaStructs.h"
 
+static int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
+{
+    int i;
+    for (i = 0; i < plugin_list->count; i++) {
+        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) return i;
+    }
+    return -1;
+}
+
 int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment)
 {
-    int i = 0;
     int rc;
     int ldelim;
     int err = 0;
@@ -67,6 +74,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
     size_t lstr = strlen(work2);
     if (!noSource && !strncasecmp(request_block->source, work2, lstr)) {
+        size_t i;
         for (i = 0; i < lstr; i++) {
             request_block->source[i] = ' ';
         }
@@ -153,7 +161,10 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
         work2[lstr] = '\0';
         TrimString(work2);
         lstr = lstr + ldelim;
-        for (i = 0; i < lstr; i++) work[i] = ' ';
+        size_t i;
+        for (i = 0; i < lstr; i++) {
+            work[i] = ' ';
+        }
         LeftTrimString(work);
     }
 
@@ -259,6 +270,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                     reduceSignal = false;
                     extractArchive(request_block, reduceSignal, environment);
 
+                    int i;
                     for (i = 0; i < pluginList.count; i++) {
                         if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
                             request_block->request = pluginList.plugin[i].request;                // Found!
@@ -285,6 +297,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
             // Test for known File formats, Server protocols or Libraries or Devices
 
+            int i;
             for (i = 0; i < pluginList.count; i++) {
                 if (STR_IEQUALS(work2, pluginList.plugin[i].format)) {
                     if (pluginList.plugin[i].plugin_class != PLUGINDEVICE) {
@@ -531,6 +544,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
         if (isFunction && err == 0) {        // Test for known Function Libraries
             isFunction = 0;
+            int i;
             for (i = 0; i < pluginList.count; i++) {
                 if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
                     request_block->request = pluginList.plugin[i].request;            // Found
@@ -586,7 +600,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                     UDA_LOG(UDA_LOG_DEBUG, "D request: %d\n", request_block->request);
 
                 } else {
-                    if (request_block->request != pluginList.plugin[i].request) {    // Inconsistent
+                    if (request_block->request != pluginList.plugin[id].request) {    // Inconsistent
                         // Let Source have priority over the Signal?
                         UDA_LOG(UDA_LOG_DEBUG, "Inconsistent Plugin Libraries: Source selected over Signal\n");
                     }

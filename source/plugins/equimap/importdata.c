@@ -27,7 +27,7 @@ static int handles[MAXHANDLES];
 static char signals[MAXHANDLES][MAXSIGNALNAME];
 static char alias[MAXHANDLES][MAXSIGNALNAME];
 
-int whichHandle(char* name)
+int whichHandle(const char* name)
 {
     int i;
     for (i = 0; i < handleCount; i++) {
@@ -36,10 +36,11 @@ int whichHandle(char* name)
     for (i = 0; i < handleCount; i++) {
         if (STR_IEQUALS(alias[i], name)) return handles[i];
     }
-    return -1;        // Not found
+    // Not found
+    return -1;
 }
 
-char* whichName(char* name)
+static char* whichName(const char* name)
 {
     int i;
     for (i = 0; i < handleCount; i++) {
@@ -48,10 +49,11 @@ char* whichName(char* name)
     for (i = 0; i < handleCount; i++) {
         if (STR_IEQUALS(alias[i], name)) return signals[i];
     }
-    return NULL; // Not found
+    // Not found
+    return NULL;
 }
 
-int whichIndex(char* name)
+static int whichIndex(const char* name)
 {
     int i;
     for (i = 0; i < handleCount; i++) {
@@ -60,22 +62,20 @@ int whichIndex(char* name)
     for (i = 0; i < handleCount; i++) {
         if (STR_IEQUALS(alias[i], name))return i;
     }
-    return -1;        // Not found
+    // Not found
+    return -1;
 }
 
 
 int selectTimes(EQUIMAPDATA* equimapdata)
-{        // *** check EFM_STATUS !!!
+{
+    // *** check EFM_STATUS !!!
 
     int i, handle, rank;
 
-// Pass 1: Equilibrium Data Rmag - Times have already been selected with non converging solutions discarded.
+    // Pass 1: Equilibrium Data Rmag - Times have already been selected with non converging solutions discarded.
 
-
-// *** Assume all times are identical
-
-
-    //if((handle = whichHandle("EFM_MAGNETIC_AXIS_R")) < 0) // complications when extracted from a data structure!
+    // *** Assume all times are identical
 
     if ((handle = whichHandle("EFM_R(PSI100)_IN")) < 0) {
         RAISE_PLUGIN_ERROR("No Equilibrium data times found when expected!");
@@ -94,7 +94,7 @@ int selectTimes(EQUIMAPDATA* equimapdata)
 
     for (i = 0; i < equimapdata->timeCount; i++) UDA_LOG(UDA_LOG_DEBUG, "[%d] %f\n", i, equimapdata->times[i]);
 
-// Pass 2: YAG Data
+    // Pass 2: YAG Data
 
     if ((handle = whichHandle("ayc_ne")) < 0) {
         RAISE_PLUGIN_ERROR("No YAG data times found when expected!");
@@ -114,19 +114,22 @@ int selectTimes(EQUIMAPDATA* equimapdata)
         getIdamFloatDimData(handle, getIdamOrder(handle), times);
     }
 
-// Check First and Last times
+    // Check First and Last times
 
     if (times[0] > equimapdata->times[0]) {
         int start = 0;
-        for (i = 0; i < equimapdata->timeCount; i++) if (times[0] > equimapdata->times[i])equimapdata->times[i] = -1.0;
+        for (i = 0; i < equimapdata->timeCount; i++) if (times[0] > equimapdata->times[i]) {
+            equimapdata->times[i] = -1.0;
+        }
         for (i = 0; i < equimapdata->timeCount; i++) {
             if (equimapdata->times[i] >= 0.0) {
                 start = i;
                 break;
             }
         }
-        for (i = 0; i < equimapdata->timeCount - start - 1; i++)
+        for (i = 0; i < equimapdata->timeCount - start - 1; i++) {
             equimapdata->times[i] = equimapdata->times[i + start + 1];
+        }
         equimapdata->timeCount = equimapdata->timeCount - start - 1;
     }
 
@@ -140,8 +143,6 @@ int selectTimes(EQUIMAPDATA* equimapdata)
     }
     free((void*)times);
 
-//equimapdata->times[0]  = equimapdata->times[18];
-//equimapdata->timeCount = 1;
     return 0;
 }
 
@@ -152,11 +153,15 @@ int subsetTimes(REQUEST_BLOCK* request_block)
 
 int imputeData(char* signal)
 {
+    // Remove NaNs by imputing from good neighbouring points
 
-// Remove NaNs by imputing from good neighbouring points
-
-    int i, j, k, handle, dataCount, timeCount, rCount, order, offset, start, last, end;
-    float* dataR, * dataT, * work, * smooth, * radii, * times;
+    int i, j, k, handle, dataCount, timeCount, rCount, order, offset, start = 0, last = 0, end;
+    float* dataR;
+    float* dataT;
+    float* work;
+    float* smooth;
+    float* radii;
+    float* times;
     int* good;
     float gradient;
 
@@ -187,7 +192,7 @@ int imputeData(char* signal)
     UDA_LOG(UDA_LOG_DEBUG, "time Count : %d\n", timeCount);
     UDA_LOG(UDA_LOG_DEBUG, "radii Count: %d\n", rCount);
 
-// Scan Across Major Radius detecting NaNs
+    // Scan Across Major Radius detecting NaNs
 
     work = (float*)malloc(rCount * sizeof(float));
     smooth = (float*)malloc(rCount * sizeof(float));
@@ -254,11 +259,12 @@ int imputeData(char* signal)
             dataR[offset] = smooth[j];        // Replace Slice of Profile
         }
     }
+
     free((void*)work);
     free((void*)good);
     free((void*)smooth);
 
-// Replace Data
+    // Replace Data
 
     DATA_BLOCK* data_block = getIdamDataBlock(handle);
     data_block->data_type = UDA_TYPE_FLOAT;
@@ -279,9 +285,8 @@ int imputeData(char* signal)
 
 float lineInt(float* arr, float* x, int narr)
 {
-
-// Calculates the line integral of [arr] calculated at (x), a single dimensional coordinate
-// using D.Taylor algorithm from tor_flux_dt.pro
+    // Calculates the line integral of [arr] calculated at (x), a single dimensional coordinate
+    // using D.Taylor algorithm from tor_flux_dt.pro
 
     int i;
     double ans = 0.0;    // Initialise the integral variable (Returned Value if only one element in abscissa)
@@ -293,18 +298,20 @@ float lineInt(float* arr, float* x, int narr)
 
         for (i = 0; i < narr - 1; i++) {
             difference[i] = x[i + 1] - x[i];
-            if (difference[i] >= 0) {        // Note where the abscissa decreases
+            if (difference[i] >= 0) {
+                // Note where the abscissa decreases
                 weight[i] = 1.0;
             } else {
                 weight[i] = -1.0;
             }
         }
 
-// For each point on the line except the last
+        // For each point on the line except the last
 
-        for (i = 0; i < narr - 1; i++)
-            ans = ans + 0.5 * weight[i] * (arr[i] + arr[i + 1]) * fabs(x[i] - x[i +
-                                                                                1]);    // Increment integral by (mean of function at points) *      										// (distance between one point and the next)
+        for (i = 0; i < narr - 1; i++) {
+            // Increment integral by (mean of function at points) * (distance between one point and the next)
+            ans = ans + 0.5 * weight[i] * (arr[i] + arr[i + 1]) * fabs(x[i] - x[i + 1]);
+        }
 
         free((void*)difference);
         free((void*)weight);
@@ -317,25 +324,25 @@ float lineInt(float* arr, float* x, int narr)
 
 int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
 {
-
     int i, err, set = 1, handleCount2 = 0;
 
-// Shot Number String
+    // Shot Number String
 
     char source[STRING_LENGTH];
 
-// Two possible sources: shot number (resolved by the IDAM metadata catalog) or a private file
+    // Two possible sources: shot number (resolved by the IDAM metadata catalog) or a private file
 
-    if (request_block->exp_number == 0 && request_block->file[0] != '\0')
+    if (request_block->exp_number == 0 && request_block->file[0] != '\0') {
         strcpy(source, request_block->source);
-    else
+    } else {
         sprintf(source, "%d", request_block->exp_number);
+    }
 
-//--------------------------------------------------------------------------------------------------------------
-// Read Equilibrium and Experimental Data
-//--------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------
+    // Read Equilibrium and Experimental Data
+    //--------------------------------------------------------------------------------------------------------------
 
-// Data Sets
+    // Data Sets
 
     if (set == 1) {
 
@@ -382,11 +389,11 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
         strcpy(alias[handleCount], "Zlim");
         strcpy(signals[handleCount++], "efm_limiter(z)");        // Limiter Z coordinates
 
-// Include ITM specific data
+        // Include ITM specific data
 
         if (equimapdata->readITMData) {
 
-// Scalar quantities
+            // Scalar quantities
 
             strcpy(alias[handleCount], "Rgeom");            // Geometrical Axis of boundary (R)
             strcpy(signals[handleCount++], "EFM_GEOM_AXIS_R(C)");
@@ -401,7 +408,7 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
             strcpy(alias[handleCount], "Elong");
             strcpy(signals[handleCount++], "EFM_ELONGATION");        // Elongation
 
-// 1D Psi Profiles
+            // 1D Psi Profiles
 
             strcpy(alias[handleCount], "P");
             strcpy(signals[handleCount++], "efm_p(psi)_(c)");        // Pressure Profile
@@ -411,10 +418,10 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
             strcpy(signals[handleCount++], "EFM_PPRIME");        // p-prime
             strcpy(alias[handleCount], "FFprime");
             strcpy(signals[handleCount++], "EFM_FFPRIME");        // ff-prime
-// ? Jphi
-// ? Jparallel
-// ? Rinboard
-// ? Routboard
+            // ? Jphi
+            // ? Jparallel
+            // ? Rinboard
+            // ? Routboard
             strcpy(alias[handleCount], "ElongPsi");
             strcpy(signals[handleCount++], "EFM_ELONG(PSI)_(C)");    // Elongation
             strcpy(alias[handleCount], "TriangLPsi");
@@ -426,29 +433,29 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
             strcpy(alias[handleCount], "AreaPsi");
             strcpy(signals[handleCount++], "EFM_AREAP_(C)");        // Area
 
-// ? gm1
-// ? gm2
-// ? gm3
+            // ? gm1
+            // ? gm2
+            // ? gm3
 
-// 2D (R,Z) Profiles
+            // 2D (R,Z) Profiles
 
-// ? Br
-// ? Bz
-// ? Bphi
+            // ? Br
+            // ? Bz
+            // ? Bphi
 
-// 1D Core Profiles (Rho dependent)
+            // 1D Core Profiles (Rho dependent)
 
-// ? Jtotal
-// ? ni
-// ? Ti
-// ? Vtor
-// ? Zeff
+            // ? Jtotal
+            // ? ni
+            // ? Ti
+            // ? Vtor
+            // ? Zeff
 
-// Scalar
+            // Scalar
 
-// ? Atomic Mass
-// ? Nuclear Charge
-// ? Dominant ionisation state
+            // ? Atomic Mass
+            // ? Nuclear Charge
+            // ? Dominant ionisation state
 
         }
     }
@@ -460,16 +467,16 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
         strcpy(signals[handleCount++], "EFM_XPOINT2_Z(C)");
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Mapping from aPrivate Equilibrium file
+    //--------------------------------------------------------------------------------------------------------------
+    // Mapping from aPrivate Equilibrium file
 
-// Set Server Properties & additional mapping data
+    // Set Server Properties & additional mapping data
 
     for (i = 0; i < request_block->nameValueList.pairCount; i++) {
         if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "altData")) {
             setIdamProperty("altData");                        // Use efit++ data with legacy name mappings
 
-// Additional signals needed to map the flux profile
+            // Additional signals needed to map the flux profile
 
             isAltData = 1;
             strcpy(alias[handleCount], "profile-R");
@@ -490,8 +497,8 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
         }
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Measurement Data - from the MAST Archive only
+    //--------------------------------------------------------------------------------------------------------------
+    // Measurement Data - from the MAST Archive only
 
     if (set == 1) {
 
@@ -508,8 +515,8 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
         }
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Read Data from Equilibrium Group
+    //--------------------------------------------------------------------------------------------------------------
+    // Read Data from Equilibrium Group
 
     for (i = 0; i < handleCount2; i++) {
 
@@ -528,7 +535,7 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
         }
     }
 
-// Read Data from Measurement Group
+    // Read Data from Measurement Group
 
     if (isAltData) {
         sprintf(source, "%d", request_block->exp_number);
@@ -552,8 +559,8 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
         }
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Remove Shot dependency for YAG data - Use a generic name
+    //--------------------------------------------------------------------------------------------------------------
+    // Remove Shot dependency for YAG data - Use a generic name
 
     if (request_block->exp_number <= ATMAYCSHOT) {
         if ((i = whichIndex("atm_r")) >= 0) {
@@ -570,14 +577,14 @@ int importData(REQUEST_BLOCK* request_block, EQUIMAPDATA* equimapdata)
         }
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Remove NaNs and Smooth
+    //--------------------------------------------------------------------------------------------------------------
+    // Remove NaNs and Smooth
 
     imputeData("ayc_ne");
     imputeData("ayc_te");
 
-//--------------------------------------------------------------------------------------------------------------
-// BUG with EFIT++ mapped data: Change Scalars to Arrays
+    //--------------------------------------------------------------------------------------------------------------
+    // BUG with EFIT++ mapped data: Change Scalars to Arrays
 
     if (isAltData) {
         int handle;
@@ -628,19 +635,19 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
     int rank, ndata;
     char* shot_str = "";
 
-//--------------------------------------------------------------------------------------------------------------
-// Error Trap
+    //--------------------------------------------------------------------------------------------------------------
+    // Error Trap
 
     err = 0;
 
     do {
 
-//--------------------------------------------------------------------------------------------------------------
-// Set 1 Data
+        //--------------------------------------------------------------------------------------------------------------
+        // Set 1 Data
 
         if (set == 1) {
 
-// Read Inner Major Radius of LCFS Data
+            // Read Inner Major Radius of LCFS Data
 
             if ((handle = whichHandle("EFM_R(PSI100)_IN")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -648,12 +655,13 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("EFM_R(PSI100)_IN", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                UDA_LOG(UDA_LOG_ERROR, "The requested Time %e could not be located in the Rmin coordinate data array!\n",
-                          tslice);
+                UDA_LOG(UDA_LOG_ERROR,
+                        "The requested Time %e could not be located in the Rmin coordinate data array!\n",
+                        tslice);
                 break;
             }
 
@@ -669,7 +677,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] Inner Major Radius of LCFS Data %f\n", handle, efitdata->Rmin);
 
-// Read Outer Major Radius of LCFS Data
+            // Read Outer Major Radius of LCFS Data
 
             if ((handle = whichHandle("EFM_R(PSI100)_OUT")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -677,12 +685,13 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("EFM_R(PSI100)_OUT", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
-                UDA_LOG(UDA_LOG_ERROR, "The requested Time %e could not be located in the Rmax coordinate data array!\n",
-                          tslice);
+                UDA_LOG(UDA_LOG_ERROR,
+                        "The requested Time %e could not be located in the Rmax coordinate data array!\n",
+                        tslice);
                 break;
             }
 
@@ -698,7 +707,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] Outer Major Radius of LCFS Data %f\n", handle, efitdata->Rmax);
 
-// Magnetic Axis Position - 1D time dependent array
+            // Magnetic Axis Position - 1D time dependent array
 
             if ((handle = whichHandle("EFM_MAGNETIC_AXIS_R")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -706,7 +715,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("EFM_MAGNETIC_AXIS_R", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -727,7 +736,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] Magnetic Axis Position %f\n", handle, efitdata->rmag);
 
-// Magnetic Axis Height - 1D time dependent array
+            // Magnetic Axis Height - 1D time dependent array
 
             if ((handle = whichHandle("EFM_MAGNETIC_AXIS_Z")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -735,7 +744,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("EFM_MAGNETIC_AXIS_Z", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -756,7 +765,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] Magnetic Axis Height %f\n", handle, efitdata->zmag);
 
-// Toroidal Magnetic Field
+            // Toroidal Magnetic Field
 
             if ((handle = whichHandle("EFM_BPHI_RMAG")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -764,7 +773,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("EFM_BPHI_RMAG", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -785,7 +794,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] Toroidal Magnetic Field  %f\n", handle, efitdata->bphi);
 
-// Plasma Current
+            // Plasma Current
 
             if ((handle = whichHandle("EFM_PLASMA_CURR(C)")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -793,7 +802,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("EFM_PLASMA_CURR(C)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -814,7 +823,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] Toroidal Plasma Current %f\n", handle, efitdata->ip);
 
-// PSI at the Boundary - 1D time dependent array
+            // PSI at the Boundary - 1D time dependent array
 
             if ((handle = whichHandle("efm_psi_boundary")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -822,7 +831,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("efm_psi_boundary", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -841,9 +850,10 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            UDA_LOG(UDA_LOG_DEBUG, "[%d] [%d, %d] PSI at the Boundary %f\n", handle, target1, target2, efitdata->psi_bnd);
+            UDA_LOG(UDA_LOG_DEBUG, "[%d] [%d, %d] PSI at the Boundary %f\n", handle, target1, target2,
+                    efitdata->psi_bnd);
 
-// PSI at the Magnetic Axis - 1D time dependent array
+            // PSI at the Magnetic Axis - 1D time dependent array
 
             if ((handle = whichHandle("efm_psi_axis")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -851,7 +861,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("efm_psi_axis", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -871,10 +881,10 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)dim);
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] [%d, %d] PSI at the Magnetic Axis %f\n", handle, target1, target2,
-                      efitdata->psi_mag);
+                    efitdata->psi_mag);
 
-// Number of Boundary Points in the LCFS locus - 1D time dependent array
-// Cannot average over time so take the first value
+            // Number of Boundary Points in the LCFS locus - 1D time dependent array
+            // Cannot average over time so take the first value
 
             if ((handle = whichHandle("EFM_LCFS(N)_(C)")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -882,7 +892,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("EFM_LCFS(N)_(C)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -897,9 +907,9 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)dim);
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] [%d, %d] Number of Boundary Points in the LCFS locus %d\n", handle, target1,
-                      target2, efitdata->nlcfs);
+                    target2, efitdata->nlcfs);
 
-// Major Radii of the LCFS locus - 2D Time dependent:	Rlcfs[Nlcfs[t]][t]
+            // Major Radii of the LCFS locus - 2D Time dependent:	Rlcfs[Nlcfs[t]][t]
 
             if ((handle = whichHandle("efm_lcfs(r)_(c)")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -907,7 +917,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("efm_lcfs(r)_(c)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -917,7 +927,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] Rlcfs\n", handle);
             UDA_LOG(UDA_LOG_DEBUG, "Rlcfs: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
-                      shape[1], order);
+                    shape[1], order);
 
             if (order == 0) {        // array[nr][nt]
                 nt = shape[0];
@@ -927,8 +937,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 nr = shape[0];
             }
 
-            float* rlcfs = (float*)malloc(
-                    nr * sizeof(float));    // nr is the maximum possible, not the number of points
+            // nr is the maximum possible, not the number of points
+            float* rlcfs = (float*)malloc(nr * sizeof(float));
 
             if (order == 0) {        // array[nr][nt]
                 for (i = 0; i < nr; i++) {
@@ -942,8 +952,10 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 }
             }
 
-            for (i = efitdata->nlcfs; i < nr; i++)
-                rlcfs[i] = rlcfs[0];    // Set these superfluous point to the first value
+            for (i = efitdata->nlcfs; i < nr; i++) {
+                // Set these superfluous point to the first value
+                rlcfs[i] = rlcfs[0];
+            }
 
             efitdata->rlcfs = rlcfs;
 
@@ -951,7 +963,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-// Z-Coordinate of the LCFS locus - 2D Time dependent:	Zlcfs[Nlcfs[t]][t]
+            // Z-Coordinate of the LCFS locus - 2D Time dependent:	Zlcfs[Nlcfs[t]][t]
 
             if ((handle = whichHandle("efm_lcfs(z)_(c)")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -959,7 +971,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("efm_lcfs(z)_(c)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -969,18 +981,20 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] Zlcfs\n", handle);
             UDA_LOG(UDA_LOG_DEBUG, "Zlcfs: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
-                      shape[1], order);
+                    shape[1], order);
 
-            if (order == 0) {        // array[nz][nt]
+            if (order == 0) {
+                // array[nz][nt]
                 nt = shape[0];
                 nz = shape[1];
             } else {
-                nt = shape[1];        // array[nz][nr]
+                // array[nz][nr]
+                nt = shape[1];
                 nz = shape[0];
             }
 
-            float* zlcfs = (float*)malloc(
-                    nz * sizeof(float));    // nr is the maximum possible, not the number of points
+            // nr is the maximum possible, not the number of points
+            float* zlcfs = (float*)malloc(nz * sizeof(float));
 
             if (order == 0) {        // array[nz][nt]
                 for (i = 0; i < nz; i++) {
@@ -994,8 +1008,10 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 }
             }
 
-            for (i = efitdata->nlcfs; i < nz; i++)
-                zlcfs[i] = zlcfs[0];    // Set these superfluous points to the first value (closed)
+            for (i = efitdata->nlcfs; i < nz; i++) {
+                // Set these superfluous points to the first value (closed)
+                zlcfs[i] = zlcfs[0];
+            }
 
             efitdata->zlcfs = zlcfs;
 
@@ -1003,8 +1019,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-
-// Major Radii of the Limiter - 1D Non-Time dependent:	Rlim[]
+            // Major Radii of the Limiter - 1D Non-Time dependent:	Rlim[]
 
             if ((handle = whichHandle("efm_limiter(r)")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1012,7 +1027,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("efm_limiter(r)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] Rlim\n", handle);
@@ -1023,7 +1038,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)shape);
             free((void*)dim);
 
-// Z-Coordinate of the Limiter - 1D Non-Time dependent:	Zlim[]
+            // Z-Coordinate of the Limiter - 1D Non-Time dependent:	Zlim[]
 
             if ((handle = whichHandle("efm_limiter(z)")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1031,7 +1046,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("efm_limiter(z)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] Zlim\n", handle);
@@ -1041,8 +1056,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)shape);
             free((void*)dim);
 
-
-// Vacuum Toroidal magnetic Field at the Reference major radius
+            // Vacuum Toroidal magnetic Field at the Reference major radius
 
             if ((handle = whichHandle("EFM_BVAC_VAL")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1050,7 +1064,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("EFM_BVAC_VAL", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -1069,9 +1083,10 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-            UDA_LOG(UDA_LOG_DEBUG, "[%d] [%d, %d] Vacuum Magnetic Field %f\n", handle, target1, target2, efitdata->bvac);
+            UDA_LOG(UDA_LOG_DEBUG, "[%d] [%d, %d] Vacuum Magnetic Field %f\n", handle, target1, target2,
+                    efitdata->bvac);
 
-// Vacuum Toroidal magnetic Field Reference major radius
+            // Vacuum Toroidal magnetic Field Reference major radius
 
             if ((handle = whichHandle("EFM_BVAC_R")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1098,14 +1113,14 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)dim);
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] [%d, %d] Vacuum Magnetic Field Radius %f\n", handle, target1, target2,
-                      efitdata->rvac);
+                    efitdata->rvac);
 
-//-------------------------------------------------------------------------------------------------------------
-// ITM time dependent Scalar quantities: Assumed defined on the same time coordinate
+            //-------------------------------------------------------------------------------------------------------------
+            // ITM time dependent Scalar quantities: Assumed defined on the same time coordinate
 
             if (equimapdata->readITMData) {
 
-// Geometrical Axis of boundary (R)
+                // Geometrical Axis of boundary (R)
 
                 if ((handle = whichHandle("Rgeom")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1113,7 +1128,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 if ((err = xdatand(whichName("Rgeom"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
-                                       break;
+                    break;
                 }
 
                 if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -1132,14 +1147,14 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-// Geometrical Axis of boundary (Z)
+                // Geometrical Axis of boundary (Z)
 
                 if ((handle = whichHandle("Zgeom")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
                 if ((err = xdatand(whichName("Zgeom"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
-                                       break;
+                    break;
                 }
                 sum = 0.0;
                 for (j = target1; j <= target2; j++) sum = sum + data[j];
@@ -1148,14 +1163,14 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-// Minor radius
+                // Minor radius
 
                 if ((handle = whichHandle("Aminor")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
                 if ((err = xdatand(whichName("Aminor"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
-                                       break;
+                    break;
                 }
                 sum = 0.0;
                 for (j = target1; j <= target2; j++) sum = sum + data[j];
@@ -1164,14 +1179,14 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-// Lower Triagularity
+                // Lower Triagularity
 
                 if ((handle = whichHandle("TriangL")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
                 if ((err = xdatand(whichName("TriangL"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
-                                       break;
+                    break;
                 }
                 sum = 0.0;
                 for (j = target1; j <= target2; j++) sum = sum + data[j];
@@ -1180,14 +1195,14 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-// Upper Triagularity
+                // Upper Triagularity
 
                 if ((handle = whichHandle("TriangU")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
                 if ((err = xdatand(whichName("TriangU"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
-                                       break;
+                    break;
                 }
                 sum = 0.0;
                 for (j = target1; j <= target2; j++) sum = sum + data[j];
@@ -1196,14 +1211,14 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-// Elongation
+                // Elongation
 
                 if ((handle = whichHandle("Elong")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
                 }
                 if ((err = xdatand(whichName("Elong"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
-                                       break;
+                    break;
                 }
                 sum = 0.0;
                 for (j = target1; j <= target2; j++) sum = sum + data[j];
@@ -1220,10 +1235,10 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] Elongation                       %f\n", handle, efitdata->elong);
             }
 
-//---------------------------------------------------------------------------------------------------------
-// Psi Profiles
+            //---------------------------------------------------------------------------------------------------------
+            // Psi Profiles
 
-// Q Profile	q[normalised poloidal flux][t]
+            // Q Profile	q[normalised poloidal flux][t]
 
             if ((handle = whichHandle("efm_q(psi)_(c)")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1231,7 +1246,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("efm_q(psi)_(c)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -1241,7 +1256,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             UDA_LOG(UDA_LOG_DEBUG, "[%d] Q Profile\n", handle);
             UDA_LOG(UDA_LOG_DEBUG, "Q: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
-                      shape[1], order);
+                    shape[1], order);
 
             if (order == 0) {        // array[nr][nt]
                 nt = shape[0];
@@ -1272,11 +1287,11 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-// Include ITM specific data
+            // Include ITM specific data
 
             if (equimapdata->readITMData) {
 
-// P Profile	p[normalised poloidal flux][t]
+                // P Profile	p[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("P")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1284,7 +1299,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 if ((err = xdatand(whichName("P"), shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                     0) {
-                        break;
+                    break;
                 }
 
                 if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -1294,7 +1309,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] P Profile\n", handle);
                 UDA_LOG(UDA_LOG_DEBUG, "P: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
-                          shape[1], order);
+                        shape[1], order);
 
                 if (order == 0) {        // array[nr][nt]
                     nt = shape[0];
@@ -1322,7 +1337,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-// F Profile	f[normalised poloidal flux][t]
+                // F Profile	f[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("F")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1330,12 +1345,12 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 if ((err = xdatand(whichName("F"), shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                     0) {
-                        break;
+                    break;
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] F Profile\n", handle);
                 UDA_LOG(UDA_LOG_DEBUG, "F: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1, shape[0],
-                          shape[1], order);
+                        shape[1], order);
 
                 if (order == 0) {        // array[nr][nt]
                     nt = shape[0];
@@ -1363,7 +1378,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-// P_Prime Profile	[normalised poloidal flux][t]
+                // P_Prime Profile	[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("PPrime")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1371,29 +1386,33 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 if ((err = xdatand(whichName("PPrime"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
-                                       break;
+                    break;
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] PPrime Profile\n", handle);
                 UDA_LOG(UDA_LOG_DEBUG, "PPrime: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
-                          shape[0], shape[1], order);
+                        shape[0], shape[1], order);
 
-                if (order == 0) {        // array[nr][nt]
+                if (order == 0) {
+                    // array[nr][nt]
                     nt = shape[0];
                     nr = shape[1];
                 } else {
-                    nt = shape[1];        // array[nt][nr]
+                    nt = shape[1];
+                    // array[nt][nr]
                     nr = shape[0];
                 }
 
                 efitdata->pprime = (float*)malloc(nr * sizeof(float));
 
-                if (order == 0) {        // array[nr][nt]
+                if (order == 0) {
+                    // array[nr][nt]
                     for (i = 0; i < nr; i++) {
                         offset = i * nt + target1;
                         efitdata->pprime[i] = data[offset];
                     }
-                } else {            // array[nt][nr]
+                } else {
+                    // array[nt][nr]
                     for (i = 0; i < nr; i++) {
                         offset = target1 * nr + i;
                         efitdata->pprime[i] = data[offset];
@@ -1404,7 +1423,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-// FF_Prime		[normalised poloidal flux][t]
+                // FF_Prime		[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("FFPrime")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1412,29 +1431,33 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 if ((err = xdatand(whichName("FFPrime"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
-                                       break;
+                    break;
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] FFPrime Profile\n", handle);
                 UDA_LOG(UDA_LOG_DEBUG, "FFPrime: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
-                          shape[0], shape[1], order);
+                        shape[0], shape[1], order);
 
-                if (order == 0) {        // array[nr][nt]
+                if (order == 0) {
+                    // array[nr][nt]
                     nt = shape[0];
                     nr = shape[1];
                 } else {
-                    nt = shape[1];        // array[nt][nr]
+                    nt = shape[1];
+                    // array[nt][nr]
                     nr = shape[0];
                 }
 
                 efitdata->ffprime = (float*)malloc(nr * sizeof(float));
 
-                if (order == 0) {        // array[nr][nt]
+                if (order == 0) {
+                    // array[nr][nt]
                     for (i = 0; i < nr; i++) {
                         offset = i * nt + target1;
                         efitdata->ffprime[i] = data[offset];
                     }
-                } else {            // array[nt][nr]
+                } else {
+                    // array[nt][nr]
                     for (i = 0; i < nr; i++) {
                         offset = target1 * nr + i;
                         efitdata->ffprime[i] = data[offset];
@@ -1445,7 +1468,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-// Elongation		[normalised poloidal flux][t]
+                // Elongation		[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("ElongPsi")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1453,29 +1476,33 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 if ((err = xdatand(whichName("ElongPsi"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
-                                       break;
+                    break;
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] ElongPsi Profile\n", handle);
                 UDA_LOG(UDA_LOG_DEBUG, "ElongPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
-                          shape[0], shape[1], order);
+                        shape[0], shape[1], order);
 
-                if (order == 0) {        // array[nr][nt]
+                if (order == 0) {
+                    // array[nr][nt]
                     nt = shape[0];
                     nr = shape[1];
                 } else {
-                    nt = shape[1];        // array[nt][nr]
+                    // array[nt][nr]
+                    nt = shape[1];
                     nr = shape[0];
                 }
 
                 efitdata->elongp = (float*)malloc(nr * sizeof(float));
 
-                if (order == 0) {        // array[nr][nt]
+                if (order == 0) {
+                    // array[nr][nt]
                     for (i = 0; i < nr; i++) {
                         offset = i * nt + target1;
                         efitdata->elongp[i] = data[offset];
                     }
-                } else {            // array[nt][nr]
+                } else {
+                    // array[nt][nr]
                     for (i = 0; i < nr; i++) {
                         offset = target1 * nr + i;
                         efitdata->elongp[i] = data[offset];
@@ -1486,7 +1513,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-// Lower Triagularity		[normalised poloidal flux][t]
+                // Lower Triagularity		[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("TriangLPsi")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1494,18 +1521,20 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 if ((err = xdatand(whichName("TriangLPsi"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
-                                       break;
+                    break;
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] TriangLPsi Profile\n", handle);
                 UDA_LOG(UDA_LOG_DEBUG, "TriangLPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
-                          shape[0], shape[1], order);
+                        shape[0], shape[1], order);
 
-                if (order == 0) {        // array[nr][nt]
+                if (order == 0) {
+                    // array[nr][nt]
                     nt = shape[0];
                     nr = shape[1];
                 } else {
-                    nt = shape[1];        // array[nt][nr]
+                    // array[nt][nr]
+                    nt = shape[1];
                     nr = shape[0];
                 }
 
@@ -1527,7 +1556,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-// Upper Triagularity		[normalised poloidal flux][t]
+                // Upper Triagularity		[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("TriangUPsi")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1535,18 +1564,20 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 if ((err = xdatand(whichName("TriangUPsi"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
-                                       break;
+                    break;
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] TriangUPsi Profile\n", handle);
                 UDA_LOG(UDA_LOG_DEBUG, "TriangUPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
-                          shape[0], shape[1], order);
+                        shape[0], shape[1], order);
 
-                if (order == 0) {        // array[nr][nt]
+                if (order == 0) {
+                    // array[nr][nt]
                     nt = shape[0];
                     nr = shape[1];
                 } else {
-                    nt = shape[1];        // array[nt][nr]
+                    // array[nt][nr]
+                    nt = shape[1];
                     nr = shape[0];
                 }
 
@@ -1568,7 +1599,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-// Volume		[normalised poloidal flux][t]
+                // Volume		[normalised poloidal flux][t]
 
                 if ((handle = whichHandle("VolPsi")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1576,12 +1607,12 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 if ((err = xdatand(whichName("VolPsi"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
-                                       break;
+                    break;
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] VolPsi Profile\n", handle);
                 UDA_LOG(UDA_LOG_DEBUG, "VolPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
-                          shape[0], shape[1], order);
+                        shape[0], shape[1], order);
 
                 if (order == 0) {        // array[nr][nt]
                     nt = shape[0];
@@ -1609,7 +1640,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 free((void*)data);
                 free((void*)dim);
 
-// Area [normalised poloidal flux][t]
+                // Area [normalised poloidal flux][t]
 
                 if ((handle = whichHandle("AreaPsi")) < 0) {
                     RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1617,18 +1648,20 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 if ((err = xdatand(whichName("AreaPsi"), shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                    &dim)) != 0) {
-                                       break;
+                    break;
                 }
 
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] AreaPsi Profile\n", handle);
                 UDA_LOG(UDA_LOG_DEBUG, "AreaPsi: target = %d, shape[0] = %d, shape[1] = %d, order = %d\n", target1,
-                          shape[0], shape[1], order);
+                        shape[0], shape[1], order);
 
-                if (order == 0) {        // array[nr][nt]
+                if (order == 0) {
+                    // array[nr][nt]
                     nt = shape[0];
                     nr = shape[1];
                 } else {
-                    nt = shape[1];        // array[nt][nr]
+                    // array[nt][nr]
+                    nt = shape[1];
                     nr = shape[0];
                 }
 
@@ -1652,7 +1685,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             }
 
-// Poloidal Flux Surface - 3D time dependent array 		psi[R][Z][t]
+            // Poloidal Flux Surface - 3D time dependent array 		psi[R][Z][t]
 
             if ((handle = whichHandle("efm_psi(r,z)")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -1660,7 +1693,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("efm_psi(r,z)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -1668,17 +1701,20 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 break;
             }
 
-            if (order == 0) {        // array[nz][nr][nt]
+            if (order == 0) {
+                // array[nz][nr][nt]
                 nt = shape[0];
                 nr = shape[1];
                 nz = shape[2];
             } else {
-                if (order == 1) {        // array[nz][nt][nr]
+                if (order == 1) {
+                    // array[nz][nt][nr]
                     nr = shape[0];
                     nt = shape[1];
                     nz = shape[2];
                 } else {
-                    nr = shape[0];        // array[nt][nz][nr]
+                    // array[nt][nz][nr]
+                    nr = shape[0];
                     nz = shape[1];
                     nt = shape[2];
                 }
@@ -1698,7 +1734,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if (isAltData) {
                 if (nt > 1) {
-                    THROW_ERROR(999, "Can only work with single time slices when ALT data selected! -- time dependent psi map coordinates");
+                    THROW_ERROR(999,
+                                "Can only work with single time slices when ALT data selected! -- time dependent psi map coordinates");
                 }
                 if (nr != nz) {
                     THROW_ERROR(999, "Not a Square profile grid!");
@@ -1750,8 +1787,10 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 }
             }
 
-            for (i = 0; i < nr; i++)
-                psiz0[i] = psig[nz / 2][i];        // Flux on Mid-Plane (not passing through magnetic axis)
+            for (i = 0; i < nr; i++) {
+                // Flux on Mid-Plane (not passing through magnetic axis)
+                psiz0[i] = psig[nz / 2][i];
+            }
 
             efitdata->psig = psig;                // Flux Map
             efitdata->rgrid = rgrid;
@@ -1759,7 +1798,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             efitdata->psiCount[0] = nr;
             efitdata->psiCount[1] = nz;
 
-// Remove most of the redundant data outside the plasma boundary
+            // Remove most of the redundant data outside the plasma boundary
 
             int rz0Count = 0, rz00Count = 0;
             float* rz00 = (float*)malloc((nr + 3) * sizeof(float));
@@ -1782,7 +1821,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)rz00);
             free((void*)psiz00);
 
-// Linearly Interpolate across the mid-plane for the Magnetic Axis flux value
+            // Linearly Interpolate across the mid-plane for the Magnetic Axis flux value
 
             j = -1;
             for (i = 0; i < rz0Count - 1; i++) {
@@ -1807,7 +1846,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 rz0Count++;
             }
 
-// Add the Inner Edge flux point
+            // Add the Inner Edge flux point
 
             j = -1;
             for (i = 0; i < rz0Count - 1; i++) {
@@ -1839,7 +1878,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 rz0Count++;
             }
 
-// Add the Outer Edge flux point
+            // Add the Outer Edge flux point
 
             j = -1;
             for (i = 0; i < rz0Count - 1; i++) {
@@ -1879,7 +1918,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] %f   %f \n", i, efitdata->rz0[i], efitdata->psiz0[i]);
             }
 
-// Toroidal current density - 3D time dependent array 		Jphi[R][Z][t]
+            // Toroidal current density - 3D time dependent array 		Jphi[R][Z][t]
 
             if ((handle = whichHandle("efm_plasma_curr(r,z)")) < 0) {
                 THROW_ERROR(999, "UDA data handle not found when expected!");
@@ -1887,7 +1926,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("efm_plasma_curr(r,z)", shot_str, &handle, &rank, &order, &ndata, &shape, &data,
                                &dim)) != 0) {
-                                   break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -1945,8 +1984,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             efitdata->Jphi = jphi;
 
-//----------------------------------------------------------------------------------------------------------------
-// Calculate (Normalised) Toroidal Flux Profile + All equivalent flux labels associated with efit data
+            //----------------------------------------------------------------------------------------------------------------
+            // Calculate (Normalised) Toroidal Flux Profile + All equivalent flux labels associated with efit data
 
             float* psi = (float*)malloc(efitdata->qCount * sizeof(float));        // poloidal flux
             float* phi = (float*)malloc(efitdata->qCount * sizeof(float));        // Toroidal flux
@@ -1967,7 +2006,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             for (i = 1; i < efitdata->qCount; i++)
                 trho[i] = sqrt(phi[i] / phi[efitdata->qCount - 1]);    // TRANSP Flux Label
 
-            float rho_torb = sqrt(phi[efitdata->qCount - 1] / M_PI / fabsf(efitdata->bvac)); // ITM Flux Radius at boundary
+            float rho_torb = sqrt(
+                    phi[efitdata->qCount - 1] / M_PI / fabsf(efitdata->bvac)); // ITM Flux Radius at boundary
             for (i = 0; i < efitdata->qCount; i++) {
                 // Normalised ITM Flux Label
                 rho_tor[i] = sqrt(phi[i] / M_PI / fabsf(efitdata->bvac)) / rho_torb;
@@ -1982,7 +2022,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             UDA_LOG(UDA_LOG_DEBUG, "Flux Coordinates of the Q Profile: rho, psi, phi, trho, rho_tor\n");
             for (i = 0; i < efitdata->qCount; i++)
-                UDA_LOG(UDA_LOG_DEBUG, "[%3d] %f   %f   %f   %f   %f\n", i, rho[i], psi[i], phi[i], trho[i], rho_tor[i]);
+                UDA_LOG(UDA_LOG_DEBUG, "[%3d] %f   %f   %f   %f   %f\n", i, rho[i], psi[i], phi[i], trho[i],
+                        rho_tor[i]);
 
             //----------------------------------------------------------------------------------------------------------------
             // Magnetic field components: Bz = 1/R dpsi/dR, Br = -1/R dpsi/dZ, Bphi = F/R
@@ -2051,7 +2092,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 efitdata->Br = Br;
                 efitdata->Bz = Bz;
 
-// Toroidal Field Component
+                // Toroidal Field Component
 
                 float** Bphi = (float**)malloc(nz * sizeof(float*));
                 for (i = 0; i < nz; i++) {
@@ -2107,8 +2148,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 efitdata->Bphi = Bphi;
             }
 
-//--------------------------------------------------------------------------------------------------------------
-// Map Psi Profile onto target fixed grid (Linear interpolation)
+            //--------------------------------------------------------------------------------------------------------------
+            // Map Psi Profile onto target fixed grid (Linear interpolation)
 
             float* mappsi = (float*)malloc(equimapdata->rhoCount * sizeof(float));
             float* mappsiB = (float*)malloc(equimapdata->rhoBCount * sizeof(float));
@@ -2158,7 +2199,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             efitdata->mappsi = mappsi;
             efitdata->mappsiB = mappsiB;
 
-// Test the mapped psi is within the known range of values
+            // Test the mapped psi is within the known range of values
 
             if (efitdata->psi_mag <= efitdata->psi_bnd) {
                 for (k = 0; k < equimapdata->rhoCount; k++) {
@@ -2188,8 +2229,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 }
             }
 
-//--------------------------------------------------------------------------------------------------------------
-// Map Q Profile onto target fixed grid
+            //--------------------------------------------------------------------------------------------------------------
+            // Map Q Profile onto target fixed grid
 
             float* mapq = (float*)malloc(equimapdata->rhoCount * sizeof(float));
             float* mapqB = (float*)malloc(equimapdata->rhoBCount * sizeof(float));
@@ -2237,8 +2278,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             efitdata->mapq = mapq;
             efitdata->mapqB = mapqB;
 
-//--------------------------------------------------------------------------------------------------------------
-// Map P Profile onto target fixed grid
+            //--------------------------------------------------------------------------------------------------------------
+            // Map P Profile onto target fixed grid
 
             if (equimapdata->readITMData) {
 
@@ -2373,8 +2414,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 efitdata->mapffprimeB[0] = efitdata->ffprime[0];
                 efitdata->mapffprimeB[equimapdata->rhoBCount - 1] = efitdata->ffprime[efitdata->qCount - 1];
 
-//--------------------------------------------------------------------------------------------------------------
-// Map Elongation Profile onto target fixed grid
+                //--------------------------------------------------------------------------------------------------------------
+                // Map Elongation Profile onto target fixed grid
 
                 efitdata->mapelongp = (float*)malloc(equimapdata->rhoCount * sizeof(float));
                 efitdata->mapelongpB = (float*)malloc(equimapdata->rhoBCount * sizeof(float));
@@ -2392,8 +2433,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 efitdata->mapelongpB[0] = efitdata->elongp[0];
                 efitdata->mapelongpB[equimapdata->rhoBCount - 1] = efitdata->elongp[efitdata->qCount - 1];
 
-//--------------------------------------------------------------------------------------------------------------
-// Map Lower Triangularity Profile onto target fixed grid
+                //--------------------------------------------------------------------------------------------------------------
+                // Map Lower Triangularity Profile onto target fixed grid
 
                 efitdata->maptrianglp = (float*)malloc(equimapdata->rhoCount * sizeof(float));
                 efitdata->maptrianglpB = (float*)malloc(equimapdata->rhoBCount * sizeof(float));
@@ -2411,8 +2452,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 efitdata->maptrianglp[0] = efitdata->trianglp[0];
                 efitdata->maptrianglpB[equimapdata->rhoBCount - 1] = efitdata->trianglp[efitdata->qCount - 1];
 
-//--------------------------------------------------------------------------------------------------------------
-// Map Upper Triangularity Profile onto target fixed grid
+                //--------------------------------------------------------------------------------------------------------------
+                // Map Upper Triangularity Profile onto target fixed grid
 
                 efitdata->maptriangup = (float*)malloc(equimapdata->rhoCount * sizeof(float));
                 efitdata->maptriangupB = (float*)malloc(equimapdata->rhoBCount * sizeof(float));
@@ -2430,8 +2471,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 efitdata->maptriangup[0] = efitdata->triangup[0];
                 efitdata->maptriangupB[equimapdata->rhoBCount - 1] = efitdata->triangup[efitdata->qCount - 1];
 
-//--------------------------------------------------------------------------------------------------------------
-// Map Volume Profile onto target fixed grid
+                //--------------------------------------------------------------------------------------------------------------
+                // Map Volume Profile onto target fixed grid
 
                 efitdata->mapvolp = (float*)malloc(equimapdata->rhoCount * sizeof(float));
                 efitdata->mapvolpB = (float*)malloc(equimapdata->rhoBCount * sizeof(float));
@@ -2449,8 +2490,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 efitdata->mapvolp[0] = efitdata->volp[0];
                 efitdata->mapvolpB[equimapdata->rhoBCount - 1] = efitdata->volp[efitdata->qCount - 1];
 
-//--------------------------------------------------------------------------------------------------------------
-// Map Area Profile onto target fixed grid
+                //--------------------------------------------------------------------------------------------------------------
+                // Map Area Profile onto target fixed grid
 
                 efitdata->mapareap = (float*)malloc(equimapdata->rhoCount * sizeof(float));
                 efitdata->mapareapB = (float*)malloc(equimapdata->rhoBCount * sizeof(float));
@@ -2491,7 +2532,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 if ((err = xdatand("ayc_r", shot_str, &handle, &rank, &order, &ndata, NULL, &datar, NULL)) != 0) break;
                 if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
                     UDA_LOG(UDA_LOG_ERROR, "The requested Time %e could not be located in the Nd/YAG Density data!\n",
-                              tslice);
+                            tslice);
                     break;
                 }
             } else {    // radii are time independent
@@ -2545,7 +2586,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             UDA_LOG(UDA_LOG_DEBUG, "Time index selected: %d\n", target1);
             for (i = 0; i < efitdata->nne; i++)
                 UDA_LOG(UDA_LOG_DEBUG, "[%3d]  %10.4e %10.4e %10.4e\n", i, efitdata->rne[i], efitdata->ne[i],
-                          efitdata->te[i]);
+                        efitdata->te[i]);
 
             // Map data from Major Radius to Normalised Poloidal or Toroidal Flux within the Plasma
 
@@ -2615,7 +2656,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             UDA_LOG(UDA_LOG_DEBUG, "YAG Coordinates: R, psi, phi, rho, trho, rho_tor\n");
             for (i = 0; i < efitdata->nne; i++)
                 UDA_LOG(UDA_LOG_DEBUG, "[%3d] %f   %f   %f   %f   %f   %f\n", i, efitdata->rne[i], yagpsi[i],
-                          yagphi[i], yagprho[i], yagtrho[i], yagrhotor[i]);
+                        yagphi[i], yagprho[i], yagtrho[i], yagrhotor[i]);
 
             efitdata->yagpsi = yagpsi;
             efitdata->yagphi = yagphi;
@@ -2623,7 +2664,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             efitdata->yagtrho = yagtrho;
             efitdata->yagrhotor = yagrhotor;
 
-// Magnetic Axis and Boundary values
+            // Magnetic Axis and Boundary values
 
             float neRmag, TeRmag, neRmin, TeRmin, neRmax, TeRmax;
 
@@ -2641,17 +2682,17 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             UDA_LOG(UDA_LOG_DEBUG, "YAG Data at Rmin, Rmag, Rmax\n");
             UDA_LOG(UDA_LOG_DEBUG, "ne: [%f] %e   [%f] %e   [%f] %e\n", efitdata->Rmin, neRmin, efitdata->rmag, neRmag,
-                      efitdata->Rmax, neRmax);
+                    efitdata->Rmax, neRmax);
             UDA_LOG(UDA_LOG_DEBUG, "Te: [%f] %e   [%f] %e   [%f] %e\n", efitdata->Rmin, TeRmin, efitdata->rmag, TeRmag,
-                      efitdata->Rmax, TeRmax);
+                    efitdata->Rmax, TeRmax);
 
-// Locate the Magnetic Axis
+            // Locate the Magnetic Axis
 
             int iRmag = -1;
             for (i = 0; i < efitdata->nne; i++) if (efitdata->rne[i] <= efitdata->rmag) iRmag = i;
             UDA_LOG(UDA_LOG_DEBUG, "YAG Psi coordinate: Major Radius, Poloidal Flux, Magnetic Axis %d\n", iRmag);
 
-// Add points at each boundary and magnetic axis if missing to rne, ne, te, yagpsi and yagphi
+            // Add points at each boundary and magnetic axis if missing to rne, ne, te, yagpsi and yagphi
 
             if (efitdata->rne[iRmag] < efitdata->rmag && efitdata->rne[iRmag + 1] > efitdata->rmag) {
                 k = efitdata->nne;
@@ -2714,7 +2755,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 efitdata->yagrhotor[efitdata->nne - 1] = 1.0;
             }
 
-// Locate the Magnetic Axis
+            // Locate the Magnetic Axis
 
             iRmag = -1;
             for (i = 0; i < efitdata->nne; i++) if (efitdata->rne[i] <= efitdata->rmag) iRmag = i;
@@ -2724,7 +2765,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 UDA_LOG(UDA_LOG_DEBUG, "[%3d] %f   %f\n", i, efitdata->rne[i], yagpsi[i]);
             }
 
-// Map data to Flux Surface Centers Grid
+            // Map data to Flux Surface Centers Grid
 
             float* mapyagne = (float*)malloc(equimapdata->rhoCount * sizeof(float));
             float* mapyagte = (float*)malloc(equimapdata->rhoCount * sizeof(float));
@@ -2747,7 +2788,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 case SQRTNORMALISEDTOROIDALFLUX: {
 
-// Inner measurements
+                    // Inner measurements
 
                     err = xdatamapx(equimapdata->rhoCount, equimapdata->rho, iRmag + 1, efitdata->yagtrho,
                                     efitdata->rne,
@@ -2764,7 +2805,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                     err = xdatamapx(equimapdata->rhoCount, equimapdata->rho, iRmag + 1, efitdata->yagtrho,
                                     efitdata->yagphi, mapyagphi1);
-// Outer measurements
+                    // Outer measurements
 
                     err = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->nne - iRmag,
                                    &efitdata->yagtrho[iRmag], &efitdata->rne[iRmag], 0.0, mapyagr2);
@@ -2786,7 +2827,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 case NORMALISEDPOLOIDALFLUX: {
 
-// Inner measurements
+                    // Inner measurements
 
                     err = xdatamapx(equimapdata->rhoCount, equimapdata->rho, iRmag + 1, efitdata->yagprho,
                                     efitdata->rne,
@@ -2800,7 +2841,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                     err = xdatamapx(equimapdata->rhoCount, equimapdata->rho, iRmag + 1, efitdata->yagprho,
                                     efitdata->yagphi, mapyagphi1);
 
-// Outer measurements
+                    // Outer measurements
 
                     err = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->nne - iRmag,
                                    &efitdata->yagprho[iRmag], &efitdata->rne[iRmag], 0.0, mapyagr2);
@@ -2817,7 +2858,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 case NORMALISEDITMFLUXRADIUS: {
 
-// Inner measurements
+                    // Inner measurements
 
                     err = xdatamapx(equimapdata->rhoCount, equimapdata->rho, iRmag + 1, efitdata->yagrhotor,
                                     efitdata->rne, mapyagr1);
@@ -2832,7 +2873,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                     err = xdatamapx(equimapdata->rhoCount, equimapdata->rho, iRmag + 1, efitdata->yagrhotor,
                                     efitdata->yagphi, mapyagphi1);
 
-// Outer measurements
+                    // Outer measurements
 
                     err = xdatamap(equimapdata->rhoCount, equimapdata->rho, efitdata->nne - iRmag,
                                    &efitdata->yagrhotor[iRmag], &efitdata->rne[iRmag], 0.0, mapyagr2);
@@ -2849,7 +2890,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             }
 
-// Average Inner and Outer measurement profiles (Not Major Radii locations!)
+            // Average Inner and Outer measurement profiles (Not Major Radii locations!)
 
             for (i = 0; i < equimapdata->rhoCount; i++) {
                 mapyagne[i] = 0.5 * (mapyagne1[i] + mapyagne2[i]);
@@ -2875,8 +2916,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             efitdata->mapyagpsi2 = mapyagpsi2;
             efitdata->mapyagphi2 = mapyagphi2;
 
-
-// Map data to Surface Boundaries Grid
+            // Map data to Surface Boundaries Grid
 
             float* mapyagneB = (float*)malloc(equimapdata->rhoBCount * sizeof(float));
             float* mapyagteB = (float*)malloc(equimapdata->rhoBCount * sizeof(float));
@@ -2899,7 +2939,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 case SQRTNORMALISEDTOROIDALFLUX: {
 
-// Inner measurements
+                    // Inner measurements
 
                     err = xdatamapx(equimapdata->rhoBCount, equimapdata->rhoB, iRmag + 1, efitdata->yagtrho,
                                     efitdata->rne, mapyagr1B);
@@ -2928,7 +2968,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                     mapyagphi1B[0] = efitdata->phi[0];
                     mapyagphi1B[equimapdata->rhoBCount - 1] = efitdata->phi[efitdata->qCount - 1];
 
-// Outer measurements
+                    // Outer measurements
 
                     err = xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->nne - iRmag,
                                    &efitdata->yagtrho[iRmag], &efitdata->rne[iRmag], 0.0, mapyagr2B);
@@ -2960,7 +3000,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 case NORMALISEDPOLOIDALFLUX: {
 
-// Inner measurements
+                    // Inner measurements
 
                     err = xdatamapx(equimapdata->rhoBCount, equimapdata->rhoB, iRmag + 1, efitdata->yagprho,
                                     efitdata->rne, mapyagr1B);
@@ -2989,7 +3029,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                     mapyagphi1B[0] = efitdata->phi[0];
                     mapyagphi1B[equimapdata->rhoBCount - 1] = efitdata->phi[efitdata->qCount - 1];
 
-// Outer measurements
+                    // Outer measurements
 
                     err = xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->nne - iRmag,
                                    &efitdata->yagprho[iRmag], &efitdata->rne[iRmag], 0.0, mapyagr2B);
@@ -3021,7 +3061,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
                 case NORMALISEDITMFLUXRADIUS: {
 
-// Inner measurements
+                    // Inner measurements
 
                     err = xdatamapx(equimapdata->rhoBCount, equimapdata->rhoB, iRmag + 1, efitdata->yagrhotor,
                                     efitdata->rne, mapyagr1B);
@@ -3048,7 +3088,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                     mapyagphi1B[0] = efitdata->phi[0];
                     mapyagphi1B[equimapdata->rhoBCount - 1] = efitdata->phi[efitdata->qCount - 1];
 
-// Outer measurements
+                    // Outer measurements
 
                     err = xdatamap(equimapdata->rhoBCount, equimapdata->rhoB, efitdata->nne - iRmag,
                                    &efitdata->yagrhotor[iRmag], &efitdata->rne[iRmag], 0.0, mapyagr2B);
@@ -3079,7 +3119,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
                 }
             }
 
-// Average Inner and Outer measurement profiles (Not Major Radii locations!)
+            // Average Inner and Outer measurement profiles (Not Major Radii locations!)
 
             for (i = 0; i < equimapdata->rhoBCount; i++) {
                 mapyagneB[i] = 0.5 * (mapyagne1B[i] + mapyagne2B[i]);
@@ -3106,14 +3146,14 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             efitdata->mapyagphi2B = mapyagphi2B;
         }
 
-//--------------------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------------------
-// Read Inner Limiter Data for Center Column Major Radius
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
+        // Read Inner Limiter Data for Center Column Major Radius
 
         if (set == 2) {
 
-// Coordinates of First X-Point on Separatrix
+            // Coordinates of First X-Point on Separatrix
 
             if ((handle = whichHandle("EFM_XPOINT1_R(C)")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -3121,7 +3161,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("EFM_XPOINT1_R(C)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -3146,7 +3186,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("EFM_XPOINT1_Z(C)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -3165,7 +3205,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
             free((void*)data);
             free((void*)dim);
 
-// Coordinates of Second X-Point on Separatrix
+            // Coordinates of Second X-Point on Separatrix
 
             if ((handle = whichHandle("EFM_XPOINT2_R(C)")) < 0) {
                 RAISE_PLUGIN_ERROR("UDA data handle not found when expected!");
@@ -3173,7 +3213,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("EFM_XPOINT2_R(C)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -3198,7 +3238,7 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
             if ((err = xdatand("EFM_XPOINT2_Z(C)", shot_str, &handle, &rank, &order, &ndata, &shape, &data, &dim)) !=
                 0) {
-                    break;
+                break;
             }
 
             if ((err = xdatainterval(rank, order, ndata, shape, dim, tslice, window, &target1, &target2)) != 0) {
@@ -3219,8 +3259,8 @@ int extractData(float tslice, EFITDATA* efitdata, EQUIMAPDATA* equimapdata)
 
         }
 
-//--------------------------------------------------------------------------------------------------------------
-// Housekeeping
+    //--------------------------------------------------------------------------------------------------------------
+    // Housekeeping
 
     } while (0);
 

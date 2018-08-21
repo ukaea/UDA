@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include <clientserver/udaTypes.h>
+#include <clientserver/initStructs.h>
 
 #include "putVariable.h"
 #include "putUnits.h"
@@ -64,8 +65,9 @@ int do_dimension(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             RAISE_PLUGIN_ERROR("Unable to Write the Group Dimension");
         }
     } else {
-        if (nc_def_dim(grpid, name, (size_t) length, &dimid) != NC_NOERR) {
-	  UDA_LOG(UDA_LOG_DEBUG, "Unable to write group dimension grpid %d, name %s, length %d\n", grpid, name, length);
+        if (nc_def_dim(grpid, name, (size_t)length, &dimid) != NC_NOERR) {
+            UDA_LOG(UDA_LOG_DEBUG, "Unable to write group dimension grpid %d, name %s, length %d\n", grpid, name,
+                    length);
             RAISE_PLUGIN_ERROR("Unable to Write the Group Dimension");
         }
     }
@@ -128,11 +130,13 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     UDA_LOG(UDA_LOG_DEBUG, "ncounts %d \n", ncounts);
 
     PUTDATA_BLOCK putdata;
+    initIdamPutDataBlock(&putdata);
 
-    if (idam_plugin_interface->request_block->putDataBlockList.blockCount == 0 && (starts == NULL || increments == NULL)) {
+    if (idam_plugin_interface->request_block->putDataBlockList.blockCount == 0 &&
+        (starts == NULL || increments == NULL)) {
         RAISE_PLUGIN_ERROR("No Coordinate Data have been passed");
     } else if (idam_plugin_interface->request_block->putDataBlockList.blockCount > 0) {
-      putdata = idam_plugin_interface->request_block->putDataBlockList.putDataBlock[0];
+        putdata = idam_plugin_interface->request_block->putDataBlockList.putDataBlock[0];
     }
 
     int grpid = -1;
@@ -175,14 +179,14 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 
     int nctype;
-    if (idam_plugin_interface->request_block->putDataBlockList.blockCount != 0){
-      if ((nctype = swapType(putdata.data_type, ctype, dctype)) == NC_NAT) {
-        RAISE_PLUGIN_ERROR("The Data type for the Coordinate cannot be converted into netCDF4");
-      }
-    } else if (starts != NULL && increments != NULL){
-      nctype = NC_DOUBLE;
+    if (idam_plugin_interface->request_block->putDataBlockList.blockCount != 0) {
+        if ((nctype = swapType(putdata.data_type, ctype, dctype)) == NC_NAT) {
+            RAISE_PLUGIN_ERROR("The Data type for the Coordinate cannot be converted into netCDF4");
+        }
+    } else if (starts != NULL && increments != NULL) {
+        nctype = NC_DOUBLE;
     } else {
-      RAISE_PLUGIN_ERROR("No coodinate data, or start, increment or count arrays");
+        RAISE_PLUGIN_ERROR("No coodinate data, or start, increment or count arrays");
     }
 
     //--------------------------------------------------------------------------
@@ -206,51 +210,53 @@ int do_coordinate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, compression);
 
     if (starts == NULL && increments == NULL && counts == NULL) {
-        if (writeCoordinateArray(&putdata, grpid, name, dimid, &varid, &coordcount, chunksize, compression, ctype, dctype) != NC_NOERR) {
+        if (writeCoordinateArray(&putdata, grpid, name, dimid, &varid, &coordcount, chunksize, compression, ctype,
+                                 dctype) != NC_NOERR) {
             RAISE_PLUGIN_ERROR("Failed to write coordinate array");
         }
     } else if (starts != NULL && increments != NULL) {
-      UDA_LOG(UDA_LOG_DEBUG, "Create coordinate Array\n");
-        if (createCoordinateArray(idam_plugin_interface, grpid, varid, dimid, compression, chunksize, &coordcount) != 0) {
+        UDA_LOG(UDA_LOG_DEBUG, "Create coordinate Array\n");
+        if (createCoordinateArray(idam_plugin_interface, grpid, varid, dimid, compression, chunksize, &coordcount) !=
+            0) {
             RAISE_PLUGIN_ERROR("Failed to create coordinate array");
         }
 
         PUTDATA_BLOCK start_putdata = {
-            .data_type = UDA_TYPE_DOUBLE,
-            .rank = 1,
-            .count = (unsigned int)nstarts,
-            .shape = NULL,
-            .data = (char*)starts
+                .data_type = UDA_TYPE_DOUBLE,
+                .rank = 1,
+                .count = (unsigned int)nstarts,
+                .shape = NULL,
+                .data = (char*)starts
         };
 
-      UDA_LOG(UDA_LOG_DEBUG, "Write start attribute\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Write start attribute\n");
         if (writeCoordinateAttribute(&start_putdata, grpid, "start", NC_DOUBLE, varid, ctype, dctype) != 0) {
             RAISE_PLUGIN_ERROR("Failed to write start array");
         }
 
         PUTDATA_BLOCK increment_putdata = {
-            .data_type = UDA_TYPE_DOUBLE,
-            .rank = 1,
-            .count = (unsigned int)nincrements,
-            .shape = NULL,
-            .data = (char*)increments
+                .data_type = UDA_TYPE_DOUBLE,
+                .rank = 1,
+                .count = (unsigned int)nincrements,
+                .shape = NULL,
+                .data = (char*)increments
         };
 
-      UDA_LOG(UDA_LOG_DEBUG, "Write increment attribute\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Write increment attribute\n");
         if (writeCoordinateAttribute(&increment_putdata, grpid, "increment", NC_DOUBLE, varid, ctype, dctype) != 0) {
             RAISE_PLUGIN_ERROR("Failed to write increment array");
         }
 
         if (counts != NULL) {
             PUTDATA_BLOCK count_putdata = {
-                .data_type = UDA_TYPE_UNSIGNED_INT,
-                .rank = 1,
-                .count = (unsigned int)ncounts,
-                .shape = NULL,
-                .data = (char*)counts
+                    .data_type = UDA_TYPE_UNSIGNED_INT,
+                    .rank = 1,
+                    .count = (unsigned int)ncounts,
+                    .shape = NULL,
+                    .data = (char*)counts
             };
 
-      UDA_LOG(UDA_LOG_DEBUG, "Write count attribute\n");
+            UDA_LOG(UDA_LOG_DEBUG, "Write count attribute\n");
             if (writeCoordinateAttribute(&count_putdata, grpid, "count", NC_UINT, varid, ctype, dctype) != 0) {
                 RAISE_PLUGIN_ERROR("Failed to write increment array");
             }
@@ -419,15 +425,15 @@ int writeCoordinateArray(PUTDATA_BLOCK* putdata, int grpid, const char* name, in
 
     if (!isUnlimited) {
         // Get current length of the dimension
-        if (nc_inq_dimlen(grpid, dimid, (size_t*) &dimlength) != NC_NOERR) {
+        if (nc_inq_dimlen(grpid, dimid, (size_t*)&dimlength) != NC_NOERR) {
             RAISE_PLUGIN_ERROR("Unable to obtain Length of Dimension");
         }
 
         // Test Length is Consistent with the Dimension
-        if (*length != dimlength) {
-	  UDA_LOG(UDA_LOG_DEBUG, "Length %d, dimlength %d\n", length, dimlength);
+        if (*length != (size_t)dimlength) {
+            UDA_LOG(UDA_LOG_DEBUG, "Length %d, dimlength %d\n", length, dimlength);
             RAISE_PLUGIN_ERROR("An Inconsistency with the Length of the Limitged Coordinate Variable has been detected:"
-                                       "the Data Length is not the same as Dimension length");
+                               "the Data Length is not the same as Dimension length");
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Writing Data to the Limited Length Coordinate Variable %s\n", name);
@@ -439,7 +445,7 @@ int writeCoordinateArray(PUTDATA_BLOCK* putdata, int grpid, const char* name, in
     if (!isUnlimited && *length > 1) {
         size_t chunking = *length;
         if (chunksize > 0) {
-            chunking = (size_t) chunksize;
+            chunking = (size_t)chunksize;
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Using Chunking = %ux\n", chunking);
@@ -473,81 +479,81 @@ int writeCoordinateArray(PUTDATA_BLOCK* putdata, int grpid, const char* name, in
     switch (nctype) {
         case NC_FLOAT:
             if (isUnlimited) {
-                err = nc_put_vara_float(grpid, *varid, start, count, (float*) putdata->data);
+                err = nc_put_vara_float(grpid, *varid, start, count, (float*)putdata->data);
             } else {
-                err = nc_put_var_float(grpid, *varid, (float*) putdata->data);
+                err = nc_put_var_float(grpid, *varid, (float*)putdata->data);
             }
             break;
 
         case NC_DOUBLE:
             if (isUnlimited) {
-                err = nc_put_vara_double(grpid, *varid, start, count, (double*) putdata->data);
+                err = nc_put_vara_double(grpid, *varid, start, count, (double*)putdata->data);
             } else {
-                err = nc_put_var_double(grpid, *varid, (double*) putdata->data);
+                err = nc_put_var_double(grpid, *varid, (double*)putdata->data);
             }
             break;
 
         case NC_INT64:
             if (isUnlimited) {
-                err = nc_put_vara_longlong(grpid, *varid, start, count, (long long*) putdata->data);
+                err = nc_put_vara_longlong(grpid, *varid, start, count, (long long*)putdata->data);
             } else {
-                err = nc_put_var_longlong(grpid, *varid, (long long*) putdata->data);
+                err = nc_put_var_longlong(grpid, *varid, (long long*)putdata->data);
             }
             break;
 
         case NC_INT:
             if (isUnlimited) {
-                err = nc_put_vara_int(grpid, *varid, start, count, (int*) putdata->data);
+                err = nc_put_vara_int(grpid, *varid, start, count, (int*)putdata->data);
             } else {
-                err = nc_put_var_int(grpid, *varid, (int*) putdata->data);
+                err = nc_put_var_int(grpid, *varid, (int*)putdata->data);
             }
             break;
 
         case NC_SHORT:
             if (isUnlimited) {
-                err = nc_put_vara_short(grpid, *varid, start, count, (short*) putdata->data);
+                err = nc_put_vara_short(grpid, *varid, start, count, (short*)putdata->data);
             } else {
-                err = nc_put_var_short(grpid, *varid, (short*) putdata->data);
+                err = nc_put_var_short(grpid, *varid, (short*)putdata->data);
             }
             break;
 
         case NC_UINT64:
             if (isUnlimited) {
-                err = nc_put_vara_ulonglong(grpid, *varid, start, count, (unsigned long long*) putdata->data);
+                err = nc_put_vara_ulonglong(grpid, *varid, start, count, (unsigned long long*)putdata->data);
             } else {
-                err = nc_put_var_ulonglong(grpid, *varid, (unsigned long long*) putdata->data);
+                err = nc_put_var_ulonglong(grpid, *varid, (unsigned long long*)putdata->data);
             }
             break;
 
         case NC_UINT:
             if (isUnlimited) {
-                err = nc_put_vara_uint(grpid, *varid, start, count, (unsigned int*) putdata->data);
+                err = nc_put_vara_uint(grpid, *varid, start, count, (unsigned int*)putdata->data);
             } else {
-                err = nc_put_var_uint(grpid, *varid, (unsigned int*) putdata->data);
+                err = nc_put_var_uint(grpid, *varid, (unsigned int*)putdata->data);
             }
             break;
 
         case NC_USHORT:
             if (isUnlimited) {
-                err = nc_put_vara_ushort(grpid, *varid, start, count, (unsigned short*) putdata->data);
+                err = nc_put_vara_ushort(grpid, *varid, start, count, (unsigned short*)putdata->data);
             } else {
-                err = nc_put_var_ushort(grpid, *varid, (unsigned short*) putdata->data);
+                err = nc_put_var_ushort(grpid, *varid, (unsigned short*)putdata->data);
             }
             break;
 
         case NC_BYTE:
             if (isUnlimited) {
-                err = nc_put_vara_schar(grpid, *varid, start, count, (signed char*) putdata->data);
+                err = nc_put_vara_schar(grpid, *varid, start, count, (signed char*)putdata->data);
             } else {
-                err = nc_put_var_schar(grpid, *varid, (signed char*) putdata->data);
+                err = nc_put_var_schar(grpid, *varid, (signed char*)putdata->data);
             }
             break;
 
         case NC_UBYTE:
             if (isUnlimited) {
-                err = nc_put_vara_ubyte(grpid, *varid, start, count, (unsigned char*) putdata->data);
+                err = nc_put_vara_ubyte(grpid, *varid, start, count, (unsigned char*)putdata->data);
             } else {
-                err = nc_put_var_ubyte(grpid, *varid, (unsigned char*) putdata->data);
+                err = nc_put_var_ubyte(grpid, *varid, (unsigned char*)putdata->data);
             }
             break;
 
@@ -555,9 +561,9 @@ int writeCoordinateArray(PUTDATA_BLOCK* putdata, int grpid, const char* name, in
             if (nctype == ctype || nctype == dctype) {
                 UDA_LOG(UDA_LOG_DEBUG, "the Coordinate Variable %s is COMPLEX [%d]\n", name, nctype);
                 if (isUnlimited) {
-                    err = nc_put_vara(grpid, *varid, start, count, (void*) putdata->data);
+                    err = nc_put_vara(grpid, *varid, start, count, (void*)putdata->data);
                 } else {
-                    err = nc_put_var(grpid, *varid, (void*) putdata->data);
+                    err = nc_put_var(grpid, *varid, (void*)putdata->data);
                 }
             }
             break;
@@ -616,15 +622,15 @@ int writeCoordinateAttribute(PUTDATA_BLOCK* putdata, int grpid, char* attribute,
     switch (nctype) {
 
         case NC_DOUBLE:
-	  UDA_LOG(UDA_LOG_DEBUG, "Adding double attribute with length %d\n", putdata->count);
-            err = nc_put_att_double(grpid, varid, attribute, nctype, putdata->count, (double*) putdata->data);
+            UDA_LOG(UDA_LOG_DEBUG, "Adding double attribute with length %d\n", putdata->count);
+            err = nc_put_att_double(grpid, varid, attribute, nctype, putdata->count, (double*)putdata->data);
             break;
 
         case NC_UINT:
-	  UDA_LOG(UDA_LOG_DEBUG, "Write uint\n");
-            err = nc_put_att_uint(grpid, varid, attribute, nctype, putdata->count, (unsigned int*) putdata->data);
+            UDA_LOG(UDA_LOG_DEBUG, "Write uint\n");
+            err = nc_put_att_uint(grpid, varid, attribute, nctype, putdata->count, (unsigned int*)putdata->data);
 
-	    // Not sure what this bits for ....?
+            // Not sure what this bits for ....?
             /* if (*length > 1) { */
             /*     unsigned int* udata = (unsigned int*) putdata->data; */
             /*     *totlength = 0; */
@@ -665,12 +671,14 @@ int createCoordinateArray(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int grpi
     }
 
     int isUnlimited = 0;
-    int i;
 
-    for (i = 0; i < ndims; i++) {
-        if (dimid == dimids[i]) {
-            isUnlimited = 1;
-            break;
+    {
+        int i;
+        for (i = 0; i < ndims; i++) {
+            if (dimid == dimids[i]) {
+                isUnlimited = 1;
+                break;
+            }
         }
     }
 
@@ -705,60 +713,64 @@ int createCoordinateArray(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int grpi
 
     //--------------------------------------------------------------------------
     // Build the Array
-    
+
     if (counts != NULL) {
         *totlength = 0;
-        int j;
+        size_t j;
         for (j = 0; j < ncounts; j++) {
             *totlength += counts[j];
         }
 
-	if (isUnlimited) {
-	  dimlength = *totlength;
-	}
-    } else if ( !isUnlimited ){
+        if (isUnlimited) {
+            dimlength = *totlength;
+        }
+    } else if (!isUnlimited) {
         *totlength = dimlength;
     } else {
-      RAISE_PLUGIN_ERROR("For unlimited dimensions we need counts!");
+        RAISE_PLUGIN_ERROR("For unlimited dimensions we need counts!");
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "Total Length = %d\n", *totlength);
 
     // Test the Length is Consistent with the Dimension
-    if (*totlength != dimlength) {
+    if (*totlength != (size_t)dimlength) {
         RAISE_PLUGIN_ERROR("An Inconsistency with the Length of the Limited Coordinate Variable has been detected: "
-                                   "the calculated Data Length is not the same as Dimension length");
+                           "the calculated Data Length is not the same as Dimension length");
     }
 
-    double* data = (double*) malloc(*totlength * sizeof(double));
+    double* data = (double*)malloc(*totlength * sizeof(double));
 
     if (counts != NULL) {
         int data_index = 0;
-	int j;
+        size_t j;
         for (j = 0; j < ncounts; j++) {
+            int i;
             for (i = 0; i < counts[j]; i++) {
-	      UDA_LOG(UDA_LOG_DEBUG, "Making data[%d], start %f, increments %f\n", i, starts[j], increments[j]);
-                data[data_index++] = starts[j] + (double) i * increments[j];
+                UDA_LOG(UDA_LOG_DEBUG, "Making data[%d], start %f, increments %f\n", i, starts[j], increments[j]);
+                data[data_index++] = starts[j] + (double)i * increments[j];
             }
         }
     } else {
-      // No count array was given : single domain only
-      if (nstarts > 1) {
-	RAISE_PLUGIN_ERROR("No count array was given, but an array of starts has been passed. Can only have a single domain if count array is not specified");
-      }
+        // No count array was given : single domain only
+        if (nstarts > 1) {
+            RAISE_PLUGIN_ERROR(
+                    "No count array was given, but an array of starts has been passed. Can only have a single domain if count array is not specified");
+        }
 
-      int i;
-      for (i = 0; i < dimlength; i++) data[i] = starts[0] + (double) i * increments[0];
+        int i;
+        for (i = 0; i < dimlength; i++) {
+            data[i] = starts[0] + (double)i * increments[0];
+        }
 
-      /* int j; */
-      /* int n = 0; */
-      /* size_t length = *totlength / nstarts; */
-      /* for (j = 0; j < nstarts; j++) { */
-      /* 	for (i = 0; i < length; i++) { */
-      /* 	  data[n] = starts[j] + (double) i * increments[j]; */
-      /* 	  n++; */
-      /* 	} */
-      /* } */
+        /* int j; */
+        /* int n = 0; */
+        /* size_t length = *totlength / nstarts; */
+        /* for (j = 0; j < nstarts; j++) { */
+        /* 	for (i = 0; i < length; i++) { */
+        /* 	  data[n] = starts[j] + (double) i * increments[j]; */
+        /* 	  n++; */
+        /* 	} */
+        /* } */
     }
 
     //--------------------------------------------------------------------------
@@ -798,7 +810,7 @@ int createCoordinateArray(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int grpi
     //--------------------------------------------------------------------------
     // Housekeeping
 
-    free((void*) data);
+    free((void*)data);
 
     if (err != NC_NOERR) {
         RAISE_PLUGIN_ERROR(nc_strerror(err));
@@ -806,4 +818,3 @@ int createCoordinateArray(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int grpi
 
     return 0;
 }
-
