@@ -2745,14 +2745,14 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
         float* foffs, * fints;
         double* doffs = NULL, * dints = NULL;
         int i;
-        for (i = 0; i < data_block->rank; i++) {
+        for (i = 0; i < (int)data_block->rank; i++) {
             if (data_block->client_block.get_dimdble ||
                 (data_block->client_block.get_timedble && i == data_block->order)) {
                 data_block->dims[i].data_type = UDA_TYPE_DOUBLE;
                 if ((foffs = (float*)data_block->dims[i].offs) != NULL) {
                     doffs = (double*)realloc((void*)doffs, data_block->dims[i].udoms * sizeof(double));
                     int j;
-                    for (j = 0; j < data_block->dims[i].udoms; j++) {
+                    for (j = 0; j < (int)data_block->dims[i].udoms; j++) {
                         doffs[j] = (double)foffs[j];
                     }
                     free((void*)data_block->dims[i].offs);
@@ -2761,7 +2761,7 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
                 if ((fints = (float*)data_block->dims[i].ints) != NULL) {
                     dints = (double*)realloc((void*)dints, data_block->dims[i].udoms * sizeof(double));
                     int j;
-                    for (j = 0; j < data_block->dims[i].udoms; j++) {
+                    for (j = 0; j < (int)data_block->dims[i].udoms; j++) {
                         dints[j] = (double)fints[j];
                     }
                     free((void*)data_block->dims[i].ints);

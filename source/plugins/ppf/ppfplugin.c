@@ -99,7 +99,7 @@ static int help(IDAM_PLUGIN_INTERFACE * ipi)
 
     data_block->rank = 1;
     data_block->dims = (DIMS *) malloc(data_block->rank * sizeof(DIMS));
-    for (i = 0; i < data_block->rank; i++) initDimBlock(&data_block->dims[i]);
+    for (i = 0; i < (int)data_block->rank; i++) initDimBlock(&data_block->dims[i]);
 
     data_block->data_type = UDA_TYPE_STRING;
     strcpy(data_block->data_desc, "dsa Plugin: help = description of this plugin");
@@ -1150,13 +1150,13 @@ int call_ppfseq(IDAM_PLUGIN_INTERFACE * ipi)
 
     printf_(g_dbgout, "COUNT:%d\n", pdl->blockCount);
 
-    for (i = 0; i < pdl->blockCount; ++i) {
+    for (i = 0; i < (int)pdl->blockCount; ++i) {
         PUTDATA_BLOCK * pd = pdl->putDataBlock + i;
         printf_(g_dbgout, "%d:%s\n", i, pd->blockName);
 
         int j = 0;
         int * pData = (int *) (pd->data);
-        for (j = 0; j < pd->count; ++j) {
+        for (j = 0; j < (int)pd->count; ++j) {
             printf_(g_dbgout, "%d\n", pData[j]);
         }
     }

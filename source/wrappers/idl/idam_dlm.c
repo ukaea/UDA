@@ -789,7 +789,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk) {
       putData.shape = (int*) malloc(ndims * sizeof(int));
 
       if (putData.rank > 1) {
-	for (i = 0; i < putData.rank; i++) {
+	for (i = 0; i < (int)putData.rank; i++) {
 	  // REVERSE dimensions (IDL => C)
 	  putData.shape[putData.rank - 1 - i] = (int) argv[1]->value.arr->dim[i];
 	}
@@ -878,7 +878,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk) {
 	int maxLength = 0;
 	IDL_STRING* sidl = NULL;
 	
-	for (i = 0; i < putData.count; i++) {
+	for (i = 0; i < (int)putData.count; i++) {
 	  sidl = (IDL_STRING*) putData.data;
 	  
 	  if (sidl->slen > maxLength) {
@@ -889,7 +889,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk) {
 	new = (char*) malloc(
 			     putData.count * (maxLength + 1) * sizeof(char)); // Block of memory for the strings
 	
-	for (i = 0; i < putData.count; i++) {
+	for (i = 0; i < (int)putData.count; i++) {
 	  sidl = (IDL_STRING*) putData.data;
 	  strncpy(&new[i * (maxLength + 1)], (char*) sidl->s, sidl->slen); // should be NULL terminated
 	}
@@ -899,7 +899,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk) {
 
       // PUT the data to the server      
       if (kw.verbose) {
-	for (i = 0; i < putData.rank; i++){
+	for (i = 0; i < (int)putData.rank; i++){
 	  fprintf(stdout, "i [%d] shape [%d]\n", i, putData.shape[i]);
 	}
       }

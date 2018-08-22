@@ -708,7 +708,7 @@ int PDAINF_DATABLOCK(const VAR_PDAINF * var, DATA_BLOCK * db)
     db->rank = 2;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; ++i) {
+    for (i = 0; i < (int)db->rank; ++i) {
         const char * the_psz = (0 == i) ? var->prgnam : var->ppfnam;
 
         initDimBlock(&(db->dims[i]));
@@ -826,7 +826,7 @@ int PPFSEQ_DATABLOCK(const VAR_PPFSEQ * var, DATA_BLOCK * db)
     strcpy(db->dims[1].dim, var->pDDAs);
     /*
 
-      for( i = 0; i < db->rank; ++i )
+      for( i = 0; i < (int)db->rank; ++i )
       {
       const char* the_psz = ( 0 == i ) ? var->prgnam : var->ppfnam;
 
@@ -977,7 +977,7 @@ int PPFINF_DATABLOCK(const VAR_PPFINF * v, DATA_BLOCK * db)
     db->rank = 5;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; ++i)
+    for (i = 0; i < (int)db->rank; ++i)
         initDimBlock(&(db->dims[i]));
 
     int sz = 2 * sizeof(int);
@@ -1164,7 +1164,7 @@ int DDAINF_DATABLOCK(const VAR_DDAINF * v, DATA_BLOCK * db)
     db->rank = 3;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; ++i)
+    for (i = 0; i < (int)db->rank; ++i)
         initDimBlock(&(db->dims[i]));
 
     const char * psz = v->pszDDACom;
@@ -1418,7 +1418,7 @@ int PDLPPF_DATABLOCK(const VAR_PDLPPF * v, DATA_BLOCK * db)
     db->rank = 5;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; ++i)
+    for (i = 0; i < (int)db->rank; ++i)
         initDimBlock(&(db->dims[i]));
 
     DIMS * dim = db->dims + 0;
@@ -1513,7 +1513,7 @@ int PDLUSR_DATABLOCK(const VAR_PDLUSR * v, DATA_BLOCK * db)
     db->rank = 2;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; ++i)
+    for (i = 0; i < (int)db->rank; ++i)
         initDimBlock(&(db->dims[i]));
 
     DIMS * dim = db->dims + 0;
@@ -1598,7 +1598,7 @@ int PDMSDT_DATABLOCK(const VAR_PDMSDT * v, DATA_BLOCK * db)
 
     db->rank = 1;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
-    for (i = 0; i < db->rank; i++)
+    for (i = 0; i < (int)db->rank; i++)
         initDimBlock(&db->dims[i]);
 
     DIMS * dims = db->dims + 0;
@@ -1638,7 +1638,7 @@ int PDMSHT_DATABLOCK(const VAR_PDMSHT * v, DATA_BLOCK * db)
 
     db->rank = 1;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
-    for (i = 0; i < db->rank; i++)
+    for (i = 0; i < (int)db->rank; i++)
         initDimBlock(&db->dims[i]);
 
     DIMS * dims = db->dims + 0;
@@ -1707,7 +1707,7 @@ int PDSTAT_DATABLOCK(const VAR_PDSTAT * v, DATA_BLOCK * db)
 
     db->rank = 3;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
-    for (i = 0; i < db->rank; i++)
+    for (i = 0; i < (int)db->rank; i++)
         initDimBlock(&db->dims[i]);
 
     DIMS * dims = db->dims + 0;
@@ -1787,7 +1787,7 @@ int PDSTD_DATABLOCK(const VAR_PDSTD * v, DATA_BLOCK * db)
 
     db->rank = 2;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
-    for (i = 0; i < db->rank; i++)
+    for (i = 0; i < (int)db->rank; i++)
         initDimBlock(&db->dims[i]);
 
     DIMS * dims = db->dims + 0;
@@ -1873,7 +1873,7 @@ int PDSRCH_DATABLOCK(const VAR_PDSRCH * v, DATA_BLOCK * db)
     db->rank = 3;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; i++)
+    for (i = 0; i < (int)db->rank; i++)
         initDimBlock(&db->dims[i]);
 
     DIMS * dims = db->dims + 0;
@@ -2006,7 +2006,7 @@ int PDTINF_DATABLOCK(const VAR_PDTINF * v, DATA_BLOCK * db)
     db->rank = 2;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; i++)
+    for (i = 0; i < (int)db->rank; i++)
         initDimBlock(&db->dims[i]);
 
     DIMS * dims = db->dims + 0;
@@ -2136,7 +2136,7 @@ int PPFDAT_DATABLOCK(const VAR_PPFDAT * v, DATA_BLOCK * db)
     db->rank = 5;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; i++)
+    for (i = 0; i < (int)db->rank; i++)
         initDimBlock(&db->dims[i]);
 
     DIMS * dims = db->dims + 0;
@@ -2241,7 +2241,7 @@ int PPFDTI_DATABLOCK(const VAR_PPFDTI * v, DATA_BLOCK * db)
     db->rank = 7;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; i++)
+    for (i = 0; i < (int)db->rank; i++)
         initDimBlock(&db->dims[i]);
 
     DIMS * dims = db->dims + 0;
@@ -2357,7 +2357,7 @@ int PPFDDA_DATABLOCK(const VAR_PPFDDA * v, DATA_BLOCK * db)
     db->rank = 2;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; i++)
+    for (i = 0; i < (int)db->rank; i++)
         initDimBlock(&db->dims[i]);
 
     DIMS * dims = db->dims + 0;
@@ -2430,7 +2430,7 @@ int PPFGET_setup(VAR_PPFGET * v, IDAM_PLUGIN_INTERFACE * ipi)
     //DATA_BLOCK* data_block    = ipi->data_block;
     const PUTDATA_BLOCK_LIST * pdl = &(request_block->putDataBlockList);
 
-    for (i = 0; i < pdl->blockCount; ++i) {
+    for (i = 0; i < (int)pdl->blockCount; ++i) {
         PUTDATA_BLOCK * pd = pdl->putDataBlock + i;
 
         if (STR_EQUALS("irdat", pd->blockName)) {
@@ -2498,7 +2498,7 @@ int PPFGET_DATABLOCK(const VAR_PPFGET * v, DATA_BLOCK * db)
         db->rank = 5;
         db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-        for (i = 0; i < db->rank; i++)
+        for (i = 0; i < (int)db->rank; i++)
             initDimBlock(&db->dims[i]);
 
         DIMS * dims = db->dims + 0;
@@ -2610,7 +2610,7 @@ int PPFGSF_DATABLOCK(const VAR_PPFGSF * v, DATA_BLOCK * db)
     db->rank = 1;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; ++i)
+    for (i = 0; i < (int)db->rank; ++i)
         initDimBlock(&(db->dims[i]));
 
     DIM_ints_set(db->dims, v->stats, VAR_PPFGSF_MXSTATS);
@@ -2681,7 +2681,7 @@ int PPFGTS_setup(VAR_PPFGTS * v, IDAM_PLUGIN_INTERFACE * ipi)
 
     const PUTDATA_BLOCK_LIST * pdl = &(request_block->putDataBlockList);
 
-    for (i = 0; i < pdl->blockCount; ++i) {
+    for (i = 0; i < (int)pdl->blockCount; ++i) {
         PUTDATA_BLOCK * pd = pdl->putDataBlock + i;
 
         if (STR_EQUALS("irdat", pd->blockName)) {
@@ -2719,7 +2719,7 @@ int PPFGTS_DATABLOCK(const VAR_PPFGTS * v, DATA_BLOCK * db)
         db->rank = 2;
         db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-        for (i = 0; i < db->rank; ++i)
+        for (i = 0; i < (int)db->rank; ++i)
             initDimBlock(&(db->dims[i]));
 
         dims = db->dims + 0;
@@ -2849,7 +2849,7 @@ int PPFMOD_DATABLOCK(const VAR_PPFMOD * v, DATA_BLOCK * db)
     db->rank = 6;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; ++i)
+    for (i = 0; i < (int)db->rank; ++i)
         initDimBlock(&(db->dims[i]));
 
     dims = db->dims + 0;
@@ -2951,7 +2951,7 @@ int PPFONDISK_DATABLOCK(const VAR_PPFONDISK * v, DATA_BLOCK * db)
     db->rank = 1;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; ++i)
+    for (i = 0; i < (int)db->rank; ++i)
         initDimBlock(&(db->dims[i]));
 
     dims = db->dims + 0;
@@ -3047,7 +3047,7 @@ int PPFOWNERINFO_DATABLOCK(const VAR_PPFOWNERINFO * v, DATA_BLOCK * db)
     db->rank = 3;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; ++i)
+    for (i = 0; i < (int)db->rank; ++i)
         initDimBlock(&(db->dims[i]));
 
     dims = db->dims + 0;
@@ -3221,7 +3221,7 @@ int PPFSIZ_DATABLOCK(const VAR_PPFSIZ * v, DATA_BLOCK * db)
     db->rank = 3;
     db->dims = (DIMS *) malloc(db->rank * sizeof(DIMS));
 
-    for (i = 0; i < db->rank; ++i)
+    for (i = 0; i < (int)db->rank; ++i)
         initDimBlock(&(db->dims[i]));
 
     dims = db->dims;
