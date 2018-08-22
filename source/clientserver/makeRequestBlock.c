@@ -6,7 +6,6 @@
 
 #include <logging/logging.h>
 #include <plugins/pluginStructs.h>
-#include <plugins/udaPlugin.h>
 
 #include "errorLog.h"
 #include "initStructs.h"
@@ -15,7 +14,7 @@
 #include "udaErrors.h"
 #include "udaStructs.h"
 
-static int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
+static int localFindPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
@@ -326,7 +325,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
                         static int depth = 0;
                         //int id = findPluginRequestByFormat(pluginList.plugin[i].deviceProtocol, &pluginList);
-                        int id = findPluginIdByFormat(pluginList.plugin[i].deviceProtocol, &pluginList);
+                        int id = localFindPluginIdByFormat(pluginList.plugin[i].deviceProtocol, &pluginList);
                         if (id >= 0 && pluginList.plugin[id].plugin_class == PLUGINSERVER) {
 
                             sprintf(work, "%s%s%s", pluginList.plugin[i].deviceProtocol, request_block->api_delim,
@@ -590,7 +589,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
         // Exception is Serverside function
 
         if (isFunction && strcasecmp(request_block->archive, environment->api_archive) != 0) {
-            int id = findPluginIdByFormat(request_block->archive, &pluginList);
+            int id = localFindPluginIdByFormat(request_block->archive, &pluginList);
             if (id >= 0 && pluginList.plugin[id].plugin_class == PLUGINFUNCTION &&
                 strcasecmp(pluginList.plugin[id].symbol, "serverside") != 0) {
                 if (request_block->request == REQUEST_READ_GENERIC ||

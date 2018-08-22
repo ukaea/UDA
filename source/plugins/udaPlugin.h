@@ -26,15 +26,6 @@ extern "C" {
 #define PLUGINPRIVATE       1           // Only internal users can use the service (access the data!)
 #define PLUGINPUBLIC        0           // All users - internal and external - can use the service
 
-// List of available data reader plugins
-
-#define IDAM_NETRC          ".netrc"
-#define IDAM_PROXYHOST      "proxypac"
-#define IDAM_PROXYPORT      "8080"
-#define IDAM_PROXYPAC       "fproxy.pac"
-#define IDAM_PROXYUSER      "nobody"
-#define IDAM_PROXYPROTOCOL  "http"
-
 // SQL Connection Types
 
 #define PLUGINSQLNOTKNOWN   0
@@ -42,20 +33,21 @@ extern "C" {
 #define PLUGINSQLMYSQL      2
 #define PLUGINSQLMONGODB    3
 
-extern unsigned short pluginClass;
-
-enum pluginClass {
-    PLUGINUNKNOWN,
-    PLUGINFILE,         // File format access
-    PLUGINSERVER,       // Server protocol access
-    PLUGINFUNCTION,     // Server-side function transformation
-    PLUGINDEVICE,       // Server to Server chaining, i.e. Pass the request to an external server
-    PLUGINOTHER
-};
-
 typedef void (* ADDIDAMERRORFUNP)(IDAMERRORSTACK*, int, char*, int, char*);   // Write to the Error Log
 
 // Prototypes
+
+int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
+
+int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list);
+
+int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list);
+
+int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list);
+
+int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list);
+
+int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list);
 
 int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, const size_t* shape, const char* description);
 

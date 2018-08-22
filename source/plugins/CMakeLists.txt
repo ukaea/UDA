@@ -74,14 +74,12 @@ include_directories(
 
 set( SOURCE_FILES
   managePluginFiles.c
-  pluginUtils.c
   udaPlugin.c
 )
 
 set( HEADER_FILES
   managePluginFiles.h
   pluginStructs.h
-  pluginUtils.h
   udaPlugin.h
   udaPluginFiles.h
 )
