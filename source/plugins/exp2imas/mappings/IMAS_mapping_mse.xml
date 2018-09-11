@@ -28,7 +28,7 @@
   <!--<mapping key="mse/channel/#/detector/centre/phi" value="" type=""/>-->
   <!--<mapping key="mse/channel/#/detector/centre/phi" value="" type=""/>-->
   
-  <mapping key="mse/channel/#/active_spacial_resolution/Shape_of" value="1" type="constant"/>
+  <mapping key="mse/channel/#/active_spatial_resolution/Shape_of" value="1" type="constant"/>
   <mapping key="mse/channel/#/active_spatial_resolution/#/centre/r" value="//msediag/polarimetry/syyetup/rzgamma/r" type="static"/>
   <mapping key="mse/channel/#/active_spatial_resolution/#/centre/z" value="//msediag/polarimetry/syyetup/rzgamma/z" type="static"/>
   <mapping key="mse/channel/#/active_spatial_resolution/#/centre/phi" value="//msediag/polarimetry/syyetup/rzgamma/phi" type="static"/>
