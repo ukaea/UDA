@@ -3,6 +3,6 @@
 
 #include <clientserver/udaStructs.h>
 
-int readPPF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_block);
+int readPPF(REQUEST_BLOCK *request_block, DATA_BLOCK *data_block);
 
 #endif // IDAM_READPPF_H

@@ -6,7 +6,8 @@ extern "C" {
 #endif
 
 #include <plugins/udaPlugin.h>
-#include <plugins/serverPlugin.h>
+#include <server/makeServerRequestBlock.h>
+#include <server/serverPlugin.h>
 #include <client/udaClient.h>
 #include <clientserver/compressDim.h>
 

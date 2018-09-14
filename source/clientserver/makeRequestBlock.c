@@ -213,7 +213,8 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 #ifdef JETSERVER
                 if (rc < 0) {
                     strcpy(request_block->format, "PPF");       // Assume the Default Format (PPF?)
-                    for (i = 0; i < pluginList.count; i++) {
+                    int i;
+		    for (i = 0; i < pluginList.count; i++) {
                         if (STR_IEQUALS(request_block->format, pluginList.plugin[i].format)) {
                             request_block->request = pluginList.plugin[i].request;
                             break;
@@ -439,6 +440,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
         }
 
     } while (0);
+      
 
     UDA_LOG(UDA_LOG_DEBUG, "Signal Argument\n");
 
@@ -1499,6 +1501,7 @@ void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
     nameValue->pair = (char*)malloc(lstr * sizeof(char));
     strcpy(nameValue->pair, copy);
     LeftTrimString(nameValue->pair);
+    UDA_LOG(UDA_LOG_DEBUG, "Pair: %s\n", pair);
     if ((p = strchr(copy, '=')) != NULL) {
         *p = '\0';
         lstr = (int)strlen(copy) + 1;
@@ -1528,7 +1531,15 @@ void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
     LeftTrimString(nameValue->value);
     TrimString(nameValue->name);
     TrimString(nameValue->value);
-    if (strip) {            // remove encosing single or double quotes
+    UDA_LOG(UDA_LOG_DEBUG, "Name: %s     Value: %s\n", nameValue->name, nameValue->value);
+    
+    // Regardless of whether or not the Value is not enclosed in quotes, strip out a possible closing parenthesis character (seen in placeholder value substitution)
+    // This would not be a valid value unless at the end of a string enclosed in quotes!
+    lstr = (int)strlen(nameValue->value);
+    if (nameValue->value[lstr - 1] == ')') nameValue->value[lstr - 1] = '\0'; 
+    UDA_LOG(UDA_LOG_DEBUG, "Name: %s     Value: %s\n", nameValue->name, nameValue->value);
+    
+    if (strip) {            // remove enclosing single or double quotes
         lstr = (int)strlen(nameValue->name);
         if ((nameValue->name[0] == '\'' && nameValue->name[lstr - 1] == '\'') ||
             (nameValue->name[0] == '"' && nameValue->name[lstr - 1] == '"')) {
@@ -1538,13 +1549,15 @@ void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
             TrimString(nameValue->name);
         }
         lstr = (int)strlen(nameValue->value);
-        if ((nameValue->value[0] == '\'' && nameValue->value[lstr - 1] == '\'') ||
+	if ((nameValue->value[0] == '\'' && nameValue->value[lstr - 1] == '\'') ||
             (nameValue->value[0] == '"' && nameValue->value[lstr - 1] == '"')) {
             nameValue->value[0] = ' ';
             nameValue->value[lstr - 1] = ' ';
             LeftTrimString(nameValue->value);
             TrimString(nameValue->value);
         }
+	UDA_LOG(UDA_LOG_DEBUG, "Name: %s     Value: %s\n", nameValue->name, nameValue->value);
+
     }
 
     free((void*)copy);
@@ -1699,6 +1712,6 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
             }
         }
     }
-
+    
     return pairCount;
 }

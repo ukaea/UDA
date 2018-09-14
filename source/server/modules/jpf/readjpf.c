@@ -32,7 +32,8 @@
 */
 #ifdef	NOJPFPLUGIN
 
-int readJPF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_block) {
+int readJPF(REQUEST_BLOCK *request_block, DATA_BLOCK *data_block)
+{
     int err = 999;
     addIdamError(CODEERRORTYPE, "readCDF", err, "JPF PLUGIN NOT ENABLED");
     return err;
@@ -44,6 +45,7 @@ int readJPF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_b
 
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
+#include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
 
 /*
@@ -61,9 +63,7 @@ int mydprintf(FILE* fp, const char *  fmt, ...)
     return i ;
 }
 
-int readJPF( DATA_SOURCE data_source
-             , SIGNAL_DESC signal_desc
-             , DATA_BLOCK *data_block)
+int readJPF(REQUEST_BLOCK *request_block, DATA_BLOCK *data_block)
 {
     int nd, ndw, err, isScalar=0;
     long lstr;
@@ -74,6 +74,34 @@ int readJPF( DATA_SOURCE data_source
     double *tvec=NULL;
 
     int pulse = 0;
+    
+//--------------------------------------------------------------------
+// Interface to legacy structures
+
+   SIGNAL_DESC signal_desc;
+   DATA_SOURCE data_source;
+   
+   initSignalDesc(&signal_desc);
+   initDataSource(&data_source);
+      
+   char *work = strdup(request_block->source);
+   char *token = NULL;
+   if(work[0] == '/') {									// /12345		 
+      if(IsNumber(&work[1])) request_block->exp_number = atoi(&work[1]);
+   } else if(IsNumber(work)) {								// 12345
+      request_block->exp_number = atoi(work);
+      
+   } else if((token = strrchr(work, '/')) != NULL && IsNumber(token+1)) {		// abcdefg/12345
+      request_block->exp_number = atoi(token+1);
+   
+   } else if((token = strstr(work, request_block->api_delim)) != NULL && IsNumber(token+strlen(request_block->api_delim))) {	// JPF::12345
+      request_block->exp_number = atoi(token+strlen(request_block->api_delim));
+   }
+
+   data_source.exp_number = request_block->exp_number;		// JPF Shot Number
+   strcpy(signal_desc.signal_name, request_block->signal);	// JPF Data object
+       
+//--------------------------------------------------------------------
 
     if(data_source.exp_number == 0) {
         err = 999;
