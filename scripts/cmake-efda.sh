@@ -16,4 +16,5 @@ export BOOST_ROOT=$HOME/itmwork/boost_1_62_0
 
 cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Debug -DTARGET_TYPE=OTHER \
     -DNO_MODULES=ON \
+    -DSWIG_EXECUTABLE:FILEPATH=/afs/eufus.eu/user/g/g2jhollo/bin/swig \
     -DCMAKE_INSTALL_PREFIX=$HOME/uda -DBUILD_PLUGINS=help\;imas $*
