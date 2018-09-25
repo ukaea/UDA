@@ -194,7 +194,7 @@ int *getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE *ntree);
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return the data type name of the structured data array.
 */
-char *getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE *ntree);
+const char *getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE *ntree);
  
 /** Return a pointer to the data attached to this tree node.  
 *

@@ -30,7 +30,8 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
 
     int rc = 1, i, j, id, loopcount, rank, count, size, passdata = 0, isSOAP;
     int* shape;
-    char* p0, * d, * type;
+    char* p0, * d;
+    const char* type;
 
     char rudtype[MAXELEMENTNAME];        // Received name of the user defined type
     char* chartype = "char";

@@ -15,7 +15,8 @@ extern "C" {
 
 int udaServer(CLIENT_BLOCK client_block);
 
-int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0, DATA_BLOCK* data_block0);
+int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0,
+              DATA_BLOCK* data_block0);
 
 //--------------------------------------------------------------
 // Static Global variables
@@ -32,5 +33,9 @@ extern int server_tot_block_time;
 extern int server_timeout;
 
 extern USERDEFINEDTYPELIST parseduserdefinedtypelist;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_SERVER_IDAMSERVER_H
