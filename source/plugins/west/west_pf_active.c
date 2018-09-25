@@ -171,8 +171,7 @@ void pf_active_elements_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nod
 
 void pf_active_coils_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	int len = 0;
-	getExtractionsCount("GPOLO_IMES", shotNumber, 0, &len);
+	int len = 17;
 	setReturnDataIntScalar(data_block, len, NULL);
 }
 
