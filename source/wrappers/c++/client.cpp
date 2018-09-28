@@ -4,6 +4,7 @@
 
 #include "client.hpp"
 
+#include <iterator>
 #include <boost/format.hpp>
 
 #include <client/accAPI.h>
@@ -273,6 +274,7 @@ void put_scalar(const std::string& instruction, T data)
     delete dp;
 }
 
+void uda::Client::put(const std::string& instruction, char data) { put_scalar(instruction, data); }
 void uda::Client::put(const std::string& instruction, int8_t data) { put_scalar(instruction, data); }
 void uda::Client::put(const std::string& instruction, int16_t data) { put_scalar(instruction, data); }
 void uda::Client::put(const std::string& instruction, int32_t data) { put_scalar(instruction, data); }
@@ -292,7 +294,7 @@ void put_vector(const std::string& instruction, const std::vector<T>& data)
 
     putdata_block.data_type = typeIDToUDAType(typeid(T));
     putdata_block.rank = 1;
-    putdata_block.count = 1;
+    putdata_block.count = data.size();
 
     auto shape = new int[1];
     shape[0] = static_cast<int>(data.size());
@@ -306,6 +308,7 @@ void put_vector(const std::string& instruction, const std::vector<T>& data)
     delete[] shape;
 }
 
+void uda::Client::put(const std::string& instruction, const std::vector<char>& data) { put_vector(instruction, data); }
 void uda::Client::put(const std::string& instruction, const std::vector<int8_t>& data) { put_vector(instruction, data); }
 void uda::Client::put(const std::string& instruction, const std::vector<int16_t>& data) { put_vector(instruction, data); }
 void uda::Client::put(const std::string& instruction, const std::vector<int32_t>& data) { put_vector(instruction, data); }
@@ -323,4 +326,25 @@ uda::Client::~Client()
         delete(data);
     }
     //idamFreeAll();
+}
+
+void uda::Client::put(const std::string& instruction, const uda::Array& data)
+{
+    PUTDATA_BLOCK putdata_block{};
+    initIdamPutDataBlock(&putdata_block);
+
+    putdata_block.data_type = typeIDToUDAType(data.type());
+    putdata_block.rank = static_cast<unsigned int>(data.dims().size());
+    putdata_block.count = static_cast<unsigned int>(data.size());
+
+    std::vector<size_t> array_shape = data.shape();
+
+    std::vector<int> shape;
+    std::copy(array_shape.begin(), array_shape.end(), std::back_inserter(shape));
+
+    putdata_block.shape = shape.data();
+
+    putdata_block.data = reinterpret_cast<const char*>(data.byte_data());
+
+    idamPutAPI(instruction.c_str(), &putdata_block);
 }
