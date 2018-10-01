@@ -3313,7 +3313,7 @@ TODO
 3> is keySize useful if the key is always a string!
 */
 
-#ifdef __GNUC__
+#ifndef _WIN32
     char* buffer;
     size_t bufsize = 0;
     FILE* memfile = open_memstream(&buffer, &bufsize);
@@ -3330,7 +3330,7 @@ TODO
     LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
     protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, logmalloclist, userdefinedtypelist, (void*)getIdamDataBlock(handle));
 
-#ifndef __GNUC__
+#ifdef _WIN32
     fflush(memfile);
     fseek(memfile, 0, SEEK_END);
     long fsize = ftell(memfile);

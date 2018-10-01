@@ -90,10 +90,11 @@ add_definitions(
   -DOSTYPE=${CMAKE_SYSTEM_NAME}
 )
 
-if( WIN32 )
+if( WIN32 OR MINGW )
   add_definitions( -D_CRT_SECURE_NO_WARNINGS )
   include_directories( ${CMAKE_SOURCE_DIR}/extlib/include/rpc )
   link_directories( ${CMAKE_SOURCE_DIR}/extlib/lib )
+  link_libraries( -lportablexdr -lws2_32 )
 endif()
 
 if( ITER_CI )
