@@ -169,7 +169,7 @@ xdrmem_setpos(xdrs, pos)
 	register caddr_t newaddr = xdrs->x_base + pos;
 	register caddr_t lastaddr = xdrs->x_private + xdrs->x_handy;
 
-	if ((long)newaddr > (long)lastaddr)
+	if ((void*)newaddr > (void*)lastaddr)
 		return (FALSE);
 	xdrs->x_private = newaddr;
 	xdrs->x_handy = lastaddr - newaddr;

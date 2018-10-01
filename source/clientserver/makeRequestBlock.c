@@ -4,6 +4,10 @@
 #include <errno.h>
 #include <unistd.h>
 
+#ifndef MINGW32
+#include <libgen.h>
+#endif
+
 #include <logging/logging.h>
 #include <plugins/pluginStructs.h>
 
@@ -751,10 +755,6 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
 
     int i, rc = 0;
     char* test;
-    char* nc = " nc";
-    char* hf = " hf";
-    char* ida = " 99";
-    char* blank = "   ";
 
     // .99		IDA3 file
     // .nc		netCDF4
@@ -785,6 +785,10 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
     // No extension => test the first line of file, e.g. head -c10 <file>, but both netcdf and hdf5 use the same label HDF!
 
 #ifndef _WIN32
+        char* nc = " nc";
+        char* hf = " hf";
+        char* ida = " 99";
+        char* blank = "   ";
         FILE* ph = NULL;
         int lstr = STRING_LENGTH;
         char* cmd = (char*)malloc(lstr * sizeof(char));
