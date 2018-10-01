@@ -144,8 +144,8 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 	}*/
 	else {
 		const char* errorMsg = "WEST:ERROR: mapped C function not found in west_dynamic_data.c !\n";
-		UDA_LOG(UDA_LOG_DEBUG, "%s", errorMsg);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
+		UDA_LOG(UDA_LOG_ERROR, "%s, function:%s, shot: %d\n", errorMsg, fun_name, shotNumber);
+		UDA_LOG(UDA_LOG_DEBUG, "%s, function:%s, shot: %d\n", errorMsg, fun_name, shotNumber);
 	}
 
 
@@ -184,38 +184,3 @@ int flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int*
 	free(object_name);
 	return status;
 }
-
-/*int flt1D_contrib(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
-{
-	UDA_LOG(UDA_LOG_DEBUG, "Calling flt1D_contrib\n");
-	char* diagnostic = NULL;
-	char* object_name = NULL;
-	int extractionIndex;
-
-	char* diagnostic2 = NULL;
-	char* object_name2 = NULL;
-	int extractionIndex2;
-
-	tokenize1DArcadeParameters2(mappingValue, &diagnostic, &object_name, &extractionIndex, &diagnostic2, &object_name2, &extractionIndex2);
-
-	UDA_LOG(UDA_LOG_DEBUG, "setting UDA block in flt1D_contrib\n");
-
-	int status = setUDABlockSignalFromArcade2(shotNumber, object_name, extractionIndex, object_name2, extractionIndex2, data_block, nodeIndices, 1);
-	UDA_LOG(UDA_LOG_DEBUG, "after setting UDA block in flt1D_contrib\n");
-	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR (flt1D_contrib): unable to get object : ";
-		strcat(errorMsg, object_name);
-		strcat(errorMsg, " for shot : ");
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
-	}
-	free(diagnostic);
-	free(object_name);
-	free(diagnostic2);
-	free(object_name2);
-	return status;
-}*/
-

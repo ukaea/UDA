@@ -656,7 +656,7 @@ void getShapeOf(const char* command, int shotNumber, int* nb_val)
 	if (status != 0) {
 		UDA_LOG(UDA_LOG_DEBUG, "Error calling readStaticParameters\n");
 		int err = 901;
-		UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unable to get shape of static data");
+		UDA_LOG(UDA_LOG_ERROR, "%s: %s: %s: %s, shot:%d\n", "WEST:ERROR: unable to get shape of static data", prod_name, object_name, param_name, shotNumber);
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get shape of static data", err, "");
 	}
 
