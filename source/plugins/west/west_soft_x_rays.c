@@ -17,6 +17,9 @@
 #include "ts_rqparam.h"
 #include "west_static_data_utilities.h"
 
+const int CHANNELS_COUNT = 45;
+const int GTXMH1_CHANNELS_COUNT = 28;
+
 float second_point_z[45] =  {-654.80,-623.10,-591.70,-560.50,-529.60,-498.90,-468.50,
 		-438.30,-408.20,-378.30,-348.60,-319.10,-289.60,-260.30,-231.10,-202.00,-173.00,
 		-144.10,-115.20,-86.30,-57.50,-28.80, 0.00,28.80,57.50,86.30,115.20,144.10,173.00,
@@ -25,10 +28,10 @@ float second_point_z[45] =  {-654.80,-623.10,-591.70,-560.50,-529.60,-498.90,-46
 
 int channels_power_density(int shotNumber, char* nomsigp, int extractionIndex, float** time, float** data, int* len);
 
-void soft_x_rays_throwsIdamError(char* methodName, char* object_name, int shotNumber) {
+void soft_x_rays_throwsIdamError(char* methodName, char* object_name, int index, int shotNumber) {
 	int err = 901;
 	char msg[1000];
-	sprintf(msg, "%s(%s),object:%s,shot:%d\n", "WEST:ERROR", methodName, object_name, shotNumber);
+	sprintf(msg, "%s(%s),object:%s,index:%d,shot:%d\n", "WEST:ERROR", methodName, object_name, index, shotNumber);
 	UDA_LOG(UDA_LOG_ERROR, "%s", msg);
 	addIdamError(CODEERRORTYPE, msg, err, "");
 }
@@ -41,7 +44,7 @@ void soft_x_rays_idsproperties_comment(int shotNumber, DATA_BLOCK* data_block, i
 
 void soft_x_rays_channels_shapeof(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	setReturnDataIntScalar(data_block, 45, NULL);
+	setReturnDataIntScalar(data_block, CHANNELS_COUNT, NULL);
 }
 
 void channel_line_of_sight_first_point_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
@@ -101,13 +104,13 @@ int soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_blo
 
 	int extractionIndex;
 
-	if (index <= 28) {
+	if (index <= GTXMH1_CHANNELS_COUNT) {
 		nomsigp = strdup("GTXMH1");
 		extractionIndex = index;
 	}
 	else {
 		nomsigp = strdup("GTXMH2");
-		extractionIndex = 30 - index;
+		extractionIndex = CHANNELS_COUNT + 1 - index;
 	}
 	UDA_LOG(UDA_LOG_DEBUG, "reading channels_power_density...\n");
 	int status = channels_power_density(shotNumber, nomsigp, extractionIndex, &time, &data, &len);
@@ -115,7 +118,7 @@ int soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_blo
 
 	if (status != 0) {
 		UDA_LOG(UDA_LOG_DEBUG, "reading channels_power_density, error status...\n");
-		soft_x_rays_throwsIdamError("soft_x_rays_channels_power_density_data", nomsigp, shotNumber);
+		soft_x_rays_throwsIdamError("soft_x_rays_channels_power_density_data", nomsigp, extractionIndex, shotNumber);
 		if (time != NULL)
 			free(time);
 		if (data != NULL)
@@ -140,19 +143,19 @@ int soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_blo
 
 	int extractionIndex;
 
-	if (index <= 28) {
+	if (index <= GTXMH1_CHANNELS_COUNT) {
 		nomsigp = strdup("GTXMH1");
 		extractionIndex = index;
 	}
 	else {
 		nomsigp = strdup("GTXMH2");
-		extractionIndex = 30 - index;
+		extractionIndex = CHANNELS_COUNT + 1 - index;
 	}
 
 	int status = channels_power_density(shotNumber, nomsigp, extractionIndex, &time, &data, &len);
 
 	if (status != 0) {
-		soft_x_rays_throwsIdamError("soft_x_rays_channels_power_density_time", nomsigp, shotNumber);
+		soft_x_rays_throwsIdamError("soft_x_rays_channels_power_density_time", nomsigp, extractionIndex, shotNumber);
 		if (time != NULL)
 			free(time);
 		if (data != NULL)
