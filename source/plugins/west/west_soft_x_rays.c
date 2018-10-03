@@ -25,6 +25,13 @@ float second_point_z[45] =  {-654.80,-623.10,-591.70,-560.50,-529.60,-498.90,-46
 
 int channels_power_density(int shotNumber, char* nomsigp, int extractionIndex, float** time, float** data, int* len);
 
+void soft_x_rays_throwsIdamError(char* methodName, char* object_name, int shotNumber) {
+	int err = 901;
+	char msg[1000];
+	sprintf(msg, "%s(%s),object:%s,shot:%d\n", "WEST:ERROR", methodName, object_name, shotNumber);
+	UDA_LOG(UDA_LOG_ERROR, "%s", msg);
+	addIdamError(CODEERRORTYPE, msg, err, "");
+}
 
 void soft_x_rays_idsproperties_comment(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
@@ -108,13 +115,7 @@ int soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_blo
 
 	if (status != 0) {
 		UDA_LOG(UDA_LOG_DEBUG, "reading channels_power_density, error status...\n");
-		int err = 901;
-		char* errorMsg = "WEST:ERROR (soft_x_rays_channels_power_density_data): error calling channels_power_density for shot : ";
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		soft_x_rays_throwsIdamError("soft_x_rays_channels_power_density_data", nomsigp, shotNumber);
 		if (time != NULL)
 			free(time);
 		if (data != NULL)
@@ -151,13 +152,7 @@ int soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_blo
 	int status = channels_power_density(shotNumber, nomsigp, extractionIndex, &time, &data, &len);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR (soft_x_rays_channels_power_density_time): error calling channels_power_density for shot : ";
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		soft_x_rays_throwsIdamError("soft_x_rays_channels_power_density_time", nomsigp, shotNumber);
 		if (time != NULL)
 			free(time);
 		if (data != NULL)

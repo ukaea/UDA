@@ -17,6 +17,14 @@
 #include "ts_rqparam.h"
 #include "west_static_data_utilities.h"
 
+void barometry_throwsIdamError(char* methodName, char* object_name, int shotNumber) {
+	int err = 901;
+	char msg[1000];
+	sprintf(msg, "%s(%s),object:%s,shot:%d\n", "WEST:ERROR", methodName, object_name, shotNumber);
+	UDA_LOG(UDA_LOG_ERROR, "%s", msg);
+	addIdamError(CODEERRORTYPE, msg, err, "");
+}
+
 void barometry_gauge_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 	int gaugeId = nodeIndices[0]; //starts from 1
 	if (gaugeId == 1) {
@@ -71,61 +79,28 @@ void barometry_gauge_pressure_data(int shotNumber, DATA_BLOCK* data_block, int* 
 		int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 		UDA_LOG(UDA_LOG_DEBUG, "after Calling setUDABlockSignalFromArcade\n");
 		if (status != 0) {
-			UDA_LOG(UDA_LOG_DEBUG, "after Calling setUDABlockSignalFromArcade --> error\n");
-			int err = 901;
-			char* errorMsg = "WEST:ERROR (barometry_gauge_pressure_data) : unable to get object : ";
-			strcat(errorMsg, object_name);
-			strcat(errorMsg, " for shot : ");
-			char shotStr[6];
-			sprintf(shotStr, "%d", shotNumber);
-			strcat(errorMsg, shotStr);
-			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-			addIdamError(CODEERRORTYPE, errorMsg, err, "");
+			barometry_throwsIdamError("barometry_gauge_pressure_data", object_name, shotNumber);
 		}
 	} else if (gaugeId == 2) {
 		char *object_name = "GBARDB8";
 		int extractionIndex = 5;
 		int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 		if (status != 0) {
-			int err = 901;
-			char* errorMsg = "WEST:ERROR (barometry_gauge_pressure_data) : unable to get object : ";
-			strcat(errorMsg, object_name);
-			strcat(errorMsg, " for shot : ");
-			char shotStr[6];
-			sprintf(shotStr, "%d", shotNumber);
-			strcat(errorMsg, shotStr);
-			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-			addIdamError(CODEERRORTYPE, errorMsg, err, "");
+			barometry_throwsIdamError("barometry_gauge_pressure_data", object_name, shotNumber);
 		}
 	} else if (gaugeId == 3) {
 		char *object_name = "GBARDB8";
 		int extractionIndex = 12;
 		int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 		if (status != 0) {
-			int err = 901;
-			char* errorMsg = "WEST:ERROR (barometry_gauge_pressure_data) : unable to get object : ";
-			strcat(errorMsg, object_name);
-			strcat(errorMsg, " for shot : ");
-			char shotStr[6];
-			sprintf(shotStr, "%d", shotNumber);
-			strcat(errorMsg, shotStr);
-			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-			addIdamError(CODEERRORTYPE, errorMsg, err, "");
+			barometry_throwsIdamError("barometry_gauge_pressure_data", object_name, shotNumber);
 		}
 	} else if (gaugeId == 4) {
 		char *object_name = "GBARDP4";
 		int extractionIndex = 6;
 		int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 		if (status != 0) {
-			int err = 901;
-			char* errorMsg = "WEST:ERROR (barometry_gauge_pressure_data) : unable to get object : ";
-			strcat(errorMsg, object_name);
-			strcat(errorMsg, " for shot : ");
-			char shotStr[6];
-			sprintf(shotStr, "%d", shotNumber);
-			strcat(errorMsg, shotStr);
-			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-			addIdamError(CODEERRORTYPE, errorMsg, err, "");
+			barometry_throwsIdamError("barometry_gauge_pressure_data", object_name, shotNumber);
 		}
 	}
 
@@ -170,13 +145,7 @@ void barometry_gauge_pressure_time(int shotNumber, DATA_BLOCK* data_block, int* 
 	UDA_LOG(UDA_LOG_DEBUG, "status in barometry_gauge_pressure_time = %d...\n", status);
 
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR: error calling barometry_gauge_pressure_time for shot : ";
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		barometry_throwsIdamError("barometry_gauge_pressure_time", "GBARDB4/8", shotNumber);
 		if (time != NULL)
 			free(time);
 		if (data != NULL)

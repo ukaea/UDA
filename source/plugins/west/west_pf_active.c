@@ -48,6 +48,13 @@ const char* COILS_NAMES[] = { "A", "Bh", "Dh", "Eh", "Fh", "Fb", "Eb", "Db", "Bb
 int get_pf_current(int shotNumber, int extractionIndex, float** time, float** data, int* len, float normalizationFactor);
 void pf_active(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, int index);
 
+void pf_active_throwsIdamError(char* methodName, char* object_name, int shotNumber) {
+	int err = 901;
+	char msg[1000];
+	sprintf(msg, "%s(%s),object:%s,shot:%d\n", "WEST:ERROR", methodName, object_name, shotNumber);
+	UDA_LOG(UDA_LOG_ERROR, "%s", msg);
+	addIdamError(CODEERRORTYPE, msg, err, "");
+}
 
 int pf_active_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
@@ -72,13 +79,7 @@ int pf_active_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndi
 		status = get_pf_current(shotNumber, 13, &time, &data, &len, 1000.);
 	}
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR (pf_active_current_data): unable to get pf_active current for shot : ";
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		pf_active_throwsIdamError("pf_active_current_data", "", shotNumber);
 		free(time);
 		free(data);
 		return status;
@@ -89,7 +90,8 @@ int pf_active_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndi
 
 int pf_active_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	int index = nodeIndices[0]; //starts from 1
+	//int index = nodeIndices[0]; //starts from 1
+	int index = 1;
 	float *time = NULL;
 	float *data = NULL;
 	int len;
@@ -110,13 +112,7 @@ int pf_active_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndi
 		status = get_pf_current(shotNumber, 13, &time, &data, &len, 1000.);
 	}
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR (pf_active_current_time): unable to get pf_active_current_time for shot : ";
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		pf_active_throwsIdamError("pf_active_current_time", "", shotNumber);
 		free(time);
 		free(data);
 		return status;

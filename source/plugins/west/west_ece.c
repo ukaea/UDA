@@ -36,6 +36,14 @@ void ece_t_e_time1(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void ece_t_e_time2(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void ece_t_e_time3(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
+void ece_throwsIdamError(char* methodName, char* object_name, int shotNumber) {
+	int err = 901;
+	char msg[1000];
+	sprintf(msg, "%s(%s),object:%s,shot:%d\n", "WEST:ERROR", methodName, object_name, shotNumber);
+	UDA_LOG(UDA_LOG_ERROR, "%s", msg);
+	addIdamError(CODEERRORTYPE, msg, err, "");
+}
+
 void homogeneous_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices){
 	int homogeneous_time;
 	if (shotNumber < SHOT_30814) {
@@ -128,15 +136,7 @@ void ece_t_e_time1(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 	int status = setUDABlockTimeFromArcade(tableName, shotNumber, extractionIndex, data_block, nodeIndices);
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR (west_ece) : unable to get object : ";
-		strcat(errorMsg, tableName);
-		strcat(errorMsg, " for shot : ");
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		ece_throwsIdamError("ece_t_e_time1", tableName, shotNumber);
 	}
 }
 
@@ -158,15 +158,7 @@ void ece_t_e_time2(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 	int status = setUDABlockTimeFromArcade(tableName, shotNumber, extractionIndex, data_block, nodeIndices);
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR (west_ece) : unable to get object : ";
-		strcat(errorMsg, tableName);
-		strcat(errorMsg, " for shot : ");
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		ece_throwsIdamError("ece_t_e_time2", tableName, shotNumber);
 	}
 }
 
@@ -194,15 +186,7 @@ void ece_t_e_time3(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 	int status = setUDABlockTimeFromArcade(tableName, shotNumber, extractionIndex, data_block, nodeIndices);
 	if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR (west_ece) : unable to get object : ";
-		strcat(errorMsg, tableName);
-		strcat(errorMsg, " for shot : ");
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		ece_throwsIdamError("ece_t_e_time3", tableName, shotNumber);
 	}
 }
 
@@ -343,15 +327,7 @@ void ece_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		//Time is homogeneous, we take for example GSH1%1
 		int status = setUDABlockTimeFromArcade("GSH1", shotNumber, 1, data_block, nodeIndices);
 		if (status != 0) {
-			int err = 901;
-			char* errorMsg = "WEST:ERROR (west_ece) : unable to get object : ";
-			strcat(errorMsg, "GSH1");
-			strcat(errorMsg, " for shot : ");
-			char shotStr[6];
-			sprintf(shotStr, "%d", shotNumber);
-			strcat(errorMsg, shotStr);
-			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-			addIdamError(CODEERRORTYPE, errorMsg, err, "");
+			ece_throwsIdamError("ece_t_e_time3", "GSH1", shotNumber);
 		}
 	} else {
 		if (shotNumber < SHOT_31957) {
@@ -367,15 +343,7 @@ void ece_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		//Time is homogeneous, we take for example GVSH1%1
 		int status = setUDABlockTimeFromArcade("GVSH1", shotNumber, 1, data_block, nodeIndices);
 		if (status != 0) {
-			int err = 901;
-			char* errorMsg = "WEST:ERROR (west_ece) : unable to get object : ";
-			strcat(errorMsg, "GVSH1");
-			strcat(errorMsg, " for shot : ");
-			char shotStr[6];
-			sprintf(shotStr, "%d", shotNumber);
-			strcat(errorMsg, shotStr);
-			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-			addIdamError(CODEERRORTYPE, errorMsg, err, "");
+			ece_throwsIdamError("ece_t_e_time3", "GVSH1", shotNumber);
 		}
 
 	}
@@ -419,13 +387,7 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		UDA_LOG(UDA_LOG_DEBUG, "after calling getECEModeHarmonic2\n");
 
 		if (status != 0) {
-			int err = 901;
-			char* errorMsg = "WEST:ERROR (ece_frequencies): error calling getECEModeHarmonic() for shot : ";
-			char shotStr[6];
-			sprintf(shotStr, "%d", shotNumber);
-			strcat(errorMsg, shotStr);
-			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-			addIdamError(CODEERRORTYPE, errorMsg, err, "");
+			ece_throwsIdamError("ece_frequencies", "getECEModeHarmonic", shotNumber);
 			free(data);
 			free(frequencies_time);
 			return status;
@@ -462,13 +424,7 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 					frequencies_data[i] = GVSH4_X2[i];
 				}
 			} else {
-				int err = 901;
-				char* errorMsg = "WEST:ERROR (ece_frequencies): unexpected ECE mode for shot : ";
-				char shotStr[6];
-				sprintf(shotStr, "%d", shotNumber);
-				strcat(errorMsg, shotStr);
-				UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-				addIdamError(CODEERRORTYPE, errorMsg, err, "");
+				ece_throwsIdamError("ece_frequencies", "unexpected ECE mode", shotNumber);
 				free(data);
 				free(TOP_collections_parameters);
 				return -1;
@@ -585,13 +541,7 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		int status = getECEModeHarmonic(shotNumber, &frequencies_time, &data, &len);
 
 		if (status != 0) {
-			int err = 901;
-			char* errorMsg = "WEST:ERROR (ece_frequencies): error calling getECEModeHarmonic() for shot : ";
-			char shotStr[6];
-			sprintf(shotStr, "%d", shotNumber);
-			strcat(errorMsg, shotStr);
-			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-			addIdamError(CODEERRORTYPE, errorMsg, err, "");
+			ece_throwsIdamError("ece_frequencies", "getECEModeHarmonic", shotNumber);
 			free(frequencies_time);
 			free(data);
 			return status;
@@ -628,21 +578,11 @@ int ece_harmonic_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	return 0;
 }
 
-
-
-
-
 int getECEModeFromNPZFile(int shotNumber)
 {
 
 	if (shotNumber >= ARCADE_GECEMODE_EXISTS_FROM_SHOT) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR (getECEModeFromNPZFile): getECEModeFromNPZFile() should not be called for shot : ";
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		ece_throwsIdamError("getECEModeFromNPZFile", "this method should not be called for this shot", shotNumber);
 		return -1;
 	}
 
@@ -660,13 +600,7 @@ int getECEModeFromNPZFile(int shotNumber)
 	pFile = fopen(ece_modes_file, "r");
 
 	if (pFile == NULL) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR (getECEModeFromNPZFile): unable to read ECE mode file for shot : ";
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		ece_throwsIdamError("getECEModeFromNPZFile", "unable to read ECE mode file", shotNumber);
 		return -1;
 	} else {
 
@@ -686,13 +620,7 @@ int getECEModeFromNPZFile(int shotNumber)
 	int searchedMode = -1;
 
 	if (s == NULL) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR (getECEModeFromNPZFile): unable to found ECE mode for shot : ";
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		ece_throwsIdamError("getECEModeFromNPZFile", "unable to found ECE mode", shotNumber);
 	} else {
 		searchedMode = s->ECE_mode;
 	}
@@ -711,14 +639,7 @@ int getECEModeHarmonic(int shotNumber, float** time, float** data, int* len)
 	int status = readSignal(objectName, shotNumber, 0, rang, time, data, len);
 
 	if (status != 0) {
-		int err = 901;
-		UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR (getECEModeHarmonic): unable to get ECE mode\n");
-		char* errorMsg = "WEST:ERROR (getECEModeHarmonic): unable to get ECE mode for shot : ";
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
+		ece_throwsIdamError("getECEModeHarmonic", objectName, shotNumber);
 		return status;
 	}
 

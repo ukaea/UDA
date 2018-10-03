@@ -15,6 +15,6 @@ void pf_passive_R(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void pf_passive_Z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int pf_passive_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int pf_passive_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-
+void pf_passive_throwsIdamError(char* methodName, char* object_name, int shotNumber);
 
 #endif // IDAM_PLUGIN_WEST_PF_PASSIVE_H

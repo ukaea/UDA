@@ -19,5 +19,6 @@ void lh_antennas_position_r(int shotNumber, DATA_BLOCK* data_block, int* nodeInd
 void lh_antennas_position_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void lh_antennas_position_definition(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 void lh_antennas_pressure_tank(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+void lh_antennas_throwsIdamError(char* methodName, char * objectName, int shotNumber);
 
 #endif // IDAM_PLUGIN_WEST_LH_ANTENNAS_H

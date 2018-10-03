@@ -144,8 +144,11 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 	}*/
 	else {
 		const char* errorMsg = "WEST:ERROR: mapped C function not found in west_dynamic_data.c !\n";
-		UDA_LOG(UDA_LOG_ERROR, "%s, function:%s, shot: %d\n", errorMsg, fun_name, shotNumber);
-		UDA_LOG(UDA_LOG_DEBUG, "%s, function:%s, shot: %d\n", errorMsg, fun_name, shotNumber);
+		char msg[1000];
+		strcpy(msg, errorMsg);
+		sprintf(msg, ",function:%s,shot:%d\n", fun_name, shotNumber);
+		UDA_LOG(UDA_LOG_ERROR,"%s\n", msg);
+		UDA_LOG(UDA_LOG_DEBUG,"%s\n", msg);
 	}
 
 
@@ -171,12 +174,9 @@ int flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int*
 	int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, normalizationFactor);
 	if (status != 0) {
 		int err = 901;
-		char* errorMsg = "WEST:ERROR (flt1D): unable to get object : ";
-		strcat(errorMsg, object_name);
-		strcat(errorMsg, " for shot : ");
-		char shotStr[6];
-		sprintf(shotStr, "%d", shotNumber);
-		strcat(errorMsg, shotStr);
+		char errorMsg[1000];
+		strcpy(errorMsg, "WEST:ERROR (flt1D): unable to get object:");
+		sprintf(errorMsg, "%s,shot:%d\n", object_name, shotNumber);
 		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
