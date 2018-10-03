@@ -22,9 +22,10 @@
 <mapping key="magnetics/method/#/diamagnetic_flux/data" value="tsbase_collect;DMAG:GMAG_FDIAM;1:float:#0" type="dynamic"/>
 <mapping key="magnetics/time" value="tsbase_time;DMAG:GMAG_FLXLOOP;1:float:1" type="dynamic"/>
 
-<mapping key="tf/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="tf/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
 <mapping key="tf/b_field_tor_vacuum_r/data" value="tsbase_collect;DMAG:GMAG_ITOR;1:float:1;multiply:cste:0.0073008" type="dynamic"/>
-<mapping key="tf/b_field_tor_vacuum_r/time" value="tsbase_time;DMAG:GMAG_ITOR;1:float:1" type="dynamic"/>
+<!-- mapping key="tf/b_field_tor_vacuum_r/time" value="tsbase_time;DMAG:GMAG_ITOR;1:float:1" type="dynamic"/ -->
+<mapping key="tf/time" value="tsbase_time;DMAG:GMAG_ITOR;1:float:1" type="dynamic"/>
 
 <mapping key="pf_passive/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
 <mapping key="pf_passive/loop/#/name" value="pf_passive_loop_name" type="static"/>
@@ -40,7 +41,7 @@
 <mapping key="pf_passive/loop/#/current" value="pf_passive_current_data" type="dynamic"/>
 <mapping key="pf_passive/time" value="pf_passive_current_time" type="dynamic"/>
 
-<mapping key="pf_active/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
+<mapping key="pf_active/ids_properties/homogeneous_time" value="set_value;1;0:int" type="static"/>
 <mapping key="pf_active/coil/#/name" value="pf_active_coil_name" type="static"/>
 <mapping key="pf_active/coil/#/identifier" value="pf_active_coil_identifier" type="static"/>
 <mapping key="pf_active/coil/#/element/#/name" value="pf_active_element_name" type="static"/>
@@ -54,7 +55,8 @@
 <mapping key="pf_active/coil/#/element/#/geometry/rectangle/height" value="pf_active_H" type="static"/>
 <mapping key="pf_active/coil/#/element/#/geometry/rectangle/width" value="pf_active_W" type="static"/>
 <mapping key="pf_active/coil/#/current/data" value="pf_active_current_data" type="dynamic"/>
-<mapping key="pf_active/coil/#/current/time" value="pf_active_current_time" type="dynamic"/>
+<!-- mapping key="pf_active/coil/#/current/time" value="pf_active_current_time" type="dynamic"/ -->
+<mapping key="pf_active/time" value="pf_active_current_time" type="dynamic"/>
 
 <mapping key="interferometer/ids_properties/homogeneous_time" value="set_value;0;0:int" type="static"/>
 <mapping key="interferometer/channel/Shape_of" value="shape_of_tsmat_collect;DINTRPOL:GINTLIDRT:CALIB;0:float:#0" type="static"/>
