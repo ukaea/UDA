@@ -141,9 +141,7 @@ void getUnvalidChannels(char* unvalid_channels, int* v)
 	int n = atoi(token);
 
 	UDA_LOG(UDA_LOG_DEBUG, "unvalid channels count: %d\n", n);
-
 	token = strdup(strtok(NULL, delim)); //return for example "1,2" if channels 1 and 2 are not valid
-
 	UDA_LOG(UDA_LOG_DEBUG, "unvalid channels list: %s\n", token);
 
 	const char delim2[] = ",";
@@ -157,7 +155,6 @@ void getUnvalidChannels(char* unvalid_channels, int* v)
 			token = strdup(strtok(NULL, delim2));
 			v[i] = atoi(token);
 		}
-		UDA_LOG(UDA_LOG_DEBUG, "unvalid channel: %d\n", v[i]);
 	}
 	free(s_copy);
 	free(s_copy2);
@@ -167,9 +164,9 @@ void getUnvalidChannels(char* unvalid_channels, int* v)
 int isChannelValid(int channel_number, int* unvalid_channels_list, int unvalid_channels_list_size)
 {
 	int i;
-	UDA_LOG(UDA_LOG_DEBUG, "unvalid_channels_list_size : %d\n", unvalid_channels_list_size);
+	//UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: not valid channels list size : %d\n", unvalid_channels_list_size);
 	for (i = 0; i < unvalid_channels_list_size; i++) {
-		UDA_LOG(UDA_LOG_DEBUG, "unvalid_channels_list[i] : %d\n", unvalid_channels_list[i]);
+		//UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: not valid channels list[i] : %d\n", unvalid_channels_list[i]);
 		if (unvalid_channels_list[i] == channel_number) {
 			return 0;
 		}
@@ -216,7 +213,7 @@ void getTopCollectionsCount(const char* TOP_collections_parameters, int* collect
 	free(token);
 }
 
-void getNormalizationFactor(float* normalizationFactor, char* normalizationAttributes)
+int getNormalizationFactor(float* normalizationFactor, char* normalizationAttributes)
 {
 	char* s_copy = NULL;
 	char* operation = NULL;
@@ -241,12 +238,14 @@ void getNormalizationFactor(float* normalizationFactor, char* normalizationAttri
 				UDA_LOG(UDA_LOG_ERROR, "Unsupported operand for 'multiply' operation\n");
 				addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported operand for 'multiply' operation", err,
 						"");
+				return -1;
 			}
 
 		} else {
 			int err = 901;
 			UDA_LOG(UDA_LOG_ERROR, "Unsupported operation to apply\n");
 			addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported operation to apply", err, "");
+			return -1;
 		}
 	} else {
 		UDA_LOG(UDA_LOG_DEBUG, "no normalization attributes found\n");
@@ -255,6 +254,7 @@ void getNormalizationFactor(float* normalizationFactor, char* normalizationAttri
 	free(operation);
 	free(funname);
 	free(csteStr);
+	return 0;
 }
 
 void multiplyFloat(float* p, float factor, int val_nb)
@@ -317,7 +317,7 @@ int getNumIDAMIndex2(char* s, int* nodeIndices)
 	}
 }
 
-void getReturnType(char* attributes, int* dataType)
+int getReturnType(char* attributes, int* dataType)
 {
 	//UDA_LOG(UDA_LOG_DEBUG, "attributes3: %s\n", attributes);
 	char* s_copy = strdup(attributes);
@@ -341,9 +341,11 @@ void getReturnType(char* attributes, int* dataType)
 		err = 901;
 		UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: convertToInt(): Unsupported data type");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: convertToInt(): Unsupported data type", err, "");
+		return -1;
 	}
 	*dataType = i;
 	free(s_copy);
+	return 0;
 }
 
 void getRank(char* attributes, int* rank)

@@ -68,11 +68,9 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		return status;
 
 	} else if (strcmp(fun_name, "ece_t_e_time") == 0) {
-		ece_t_e_time(shotNumber, data_block, nodeIndices);
-		return 0;
+		return ece_t_e_time(shotNumber, data_block, nodeIndices);
 	} else if (strcmp(fun_name, "ece_time") == 0) {
-		ece_time(shotNumber, data_block, nodeIndices);
-		return 0;
+		return ece_time(shotNumber, data_block, nodeIndices);
 	} else if (strcmp(fun_name, "ece_frequencies") == 0) {
 		return ece_frequencies(shotNumber, data_block, nodeIndices);
 	} else if (strcmp(fun_name, "ece_frequencies_time") == 0) {
@@ -106,39 +104,37 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 	} else if (strcmp(fun_name, "summary_time") == 0) {
 		return summary_time(shotNumber, data_block, nodeIndices); //TODO
 	}else if (strcmp(fun_name, "lh_antennas_power") == 0) {
-		lh_antennas_power(shotNumber, data_block, nodeIndices);
-		return 0;
+		return lh_antennas_power(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_power_forward") == 0) {
-		lh_antennas_power_forward(shotNumber, data_block, nodeIndices);
+		return lh_antennas_power_forward(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_power_reflected") == 0) {
-		lh_antennas_power_reflected(shotNumber, data_block, nodeIndices);
+		return lh_antennas_power_reflected(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_reflection_coefficient") == 0) {
-		lh_antennas_reflection_coefficient(shotNumber, data_block, nodeIndices);
+		return lh_antennas_reflection_coefficient(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_modules_power") == 0) {
-		lh_antennas_modules_power(shotNumber, data_block, nodeIndices);
+		return lh_antennas_modules_power(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_modules_power_forward") == 0) {
-		lh_antennas_modules_power_forward(shotNumber, data_block, nodeIndices);
+		return lh_antennas_modules_power_forward(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_modules_power_reflected") == 0) {
-		lh_antennas_modules_power_reflected(shotNumber, data_block, nodeIndices);
+		return lh_antennas_modules_power_reflected(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_modules_reflection_coefficient") == 0) {
-		lh_antennas_modules_reflection_coefficient(shotNumber, data_block, nodeIndices);
+		return lh_antennas_modules_reflection_coefficient(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_modules_phase") == 0) {
-		lh_antennas_modules_phase(shotNumber, data_block, nodeIndices);
+		return lh_antennas_modules_phase(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_phase_average") == 0) {
-		lh_antennas_phase_average(shotNumber, data_block, nodeIndices);
-		return 0;
+		return lh_antennas_phase_average(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_n_parallel_peak") == 0) {
-		lh_antennas_n_parallel_peak(shotNumber, data_block, nodeIndices);
+		return lh_antennas_n_parallel_peak(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_position_r") == 0) {
-		lh_antennas_position_r(shotNumber, data_block, nodeIndices);
+		return lh_antennas_position_r(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_position_z") == 0) {
-		lh_antennas_position_z(shotNumber, data_block, nodeIndices);
+		return lh_antennas_position_z(shotNumber, data_block, nodeIndices);
 	}else if (strcmp(fun_name, "lh_antennas_pressure_tank") == 0) {
-		lh_antennas_pressure_tank(shotNumber, data_block, nodeIndices); //TODO
+		return lh_antennas_pressure_tank(shotNumber, data_block, nodeIndices); //TODO
 	}else if (strcmp(fun_name, "barometry_gauge_pressure_data") == 0) {
-		barometry_gauge_pressure_data(shotNumber, data_block, nodeIndices); //TODO
+		return barometry_gauge_pressure_data(shotNumber, data_block, nodeIndices); //TODO
 	}else if (strcmp(fun_name, "barometry_gauge_pressure_time") == 0) {
-		barometry_gauge_pressure_time(shotNumber, data_block, nodeIndices); //TODO
+		return barometry_gauge_pressure_time(shotNumber, data_block, nodeIndices); //TODO
 	}/*else if (strcmp(fun_name, "test_fun") == 0) {
 		return test_fun(shotNumber, data_block, nodeIndices); //TODO
 	}*/
@@ -150,15 +146,11 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		UDA_LOG(UDA_LOG_ERROR,"%s\n", msg);
 		UDA_LOG(UDA_LOG_DEBUG,"%s\n", msg);
 	}
-
-
 	free(fun_name);
 	free(TOP_collections_parameters);
 	free(attributes);
 	free(normalizationAttributes);
-
 	return 0;
-
 }
 
 int flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)

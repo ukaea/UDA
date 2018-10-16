@@ -36,16 +36,27 @@ int summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_bloc
 	float *averaged_data_time = NULL;
 	float* averaged_data = NULL;
 	int len;
-	averageArcadeSignal("GMAG_VLOOP", shotNumber, extractions, 4, &averaged_data_time, &averaged_data, &len);
+	int status = averageArcadeSignal("GMAG_VLOOP", shotNumber, extractions, 4, &averaged_data_time, &averaged_data, &len);
+
+	if (status != 0) {
+		summary_throwsIdamError("summary_global_quantities_v_loop_value", "averageArcadeSignal", shotNumber);
+		free(averaged_data_time);
+		free(averaged_data);
+		return status;
+	}
 
 	float *time2 = NULL;
 	float *data2 = NULL;
 	int len2;
 
-	int status = getArcadeSignal("GMAG_FV", shotNumber, 2, &time2, &data2, &len2, 1.0);
+	status = getArcadeSignal("GMAG_FV", shotNumber, 2, &time2, &data2, &len2, 1.0);
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_v_loop_value", "GMAG_FV", shotNumber);
+		free(averaged_data_time);
+		free(averaged_data);
+		free(time2);
+		free(data2);
 		return status;
 	}
 
@@ -57,6 +68,12 @@ int summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_bloc
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_v_loop_value", "SMAG_IP", shotNumber);
+		free(averaged_data_time);
+		free(averaged_data);
+		free(time2);
+		free(data2);
+		free(ip_time);
+		free(ip_data);
 		return status;
 	}
 
@@ -66,6 +83,13 @@ int summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_bloc
 	merge2Signals_according_to_ip_treshold(&mergedData, len, averaged_data, data2, ip_data, treshold);
 
 	SetDynamicData(data_block, len, averaged_data_time, mergedData);
+	free(averaged_data_time);
+	free(averaged_data);
+	free(time2);
+	free(data2);
+	free(ip_time);
+	free(ip_data);
+	free(mergedData);
 	return 0;
 }
 
@@ -88,10 +112,8 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_beta_tor_value", "GMAG_GEOM", shotNumber);
-		if (volume_time != NULL)
-			free(volume_time);
-		if (volume_data != NULL)
-			free(volume_data);
+		free(volume_time);
+		free(volume_data);
 		return status;
 	}
 
@@ -106,10 +128,10 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_beta_tor_value", "GMAG_BILAN", shotNumber);
-		if (total_energy_time != NULL)
-			free(total_energy_time);
-		if (total_energy_data != NULL)
-			free(total_energy_data);
+		free(volume_time);
+		free(volume_data);
+		free(total_energy_time);
+		free(total_energy_data);
 		return status;
 	}
 
@@ -119,8 +141,11 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_beta_tor_value", "get ratio total_energy/volume", shotNumber);
-		if (ratio != NULL)
-			free(ratio);
+		free(volume_time);
+		free(volume_data);
+		free(total_energy_time);
+		free(total_energy_data);
+		free(ratio);
 		return status;
 	}
 
@@ -136,10 +161,13 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_beta_tor_value", "GMAG_ITOR", shotNumber);
-		if (itor_time != NULL)
-			free(itor_time);
-		if (itor_data != NULL)
-			free(itor_data);
+		free(itor_time);
+		free(itor_data);
+		free(volume_time);
+		free(volume_data);
+		free(total_energy_time);
+		free(total_energy_data);
+		free(ratio);
 		return status;
 	}
 
@@ -151,7 +179,17 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 	float *energy_by_volume_by_b0_square = NULL;
 	status = signalsRatio(&energy_by_volume_by_b0_square, ratio, b0_square, total_energy_len, itor_len);
 
-	if (status != 0) return status;
+	if (status != 0) {
+		summary_throwsIdamError("summary_global_quantities_beta_tor_value", "signalsRatio", shotNumber);
+		free(itor_time);
+		free(itor_data);
+		free(volume_time);
+		free(volume_data);
+		free(total_energy_time);
+		free(total_energy_data);
+		free(ratio);
+		return status;
+	}
 
 	float cste = (2./3.)*2*M_PI*1e-7;
 
@@ -159,6 +197,13 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 	multiply(energy_by_volume_by_b0_square, itor_len, cste);
 
 	SetDynamicData(data_block, itor_len, itor_time, energy_by_volume_by_b0_square);
+	free(itor_time);
+	free(itor_data);
+	free(volume_time);
+	free(volume_data);
+	free(total_energy_time);
+	free(total_energy_data);
+	free(ratio);
 	return 0;
 }
 
@@ -177,10 +222,8 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "GMAG_GEOM", shotNumber);
-		if (volume_time != NULL)
-			free(volume_time);
-		if (volume_data != NULL)
-			free(volume_data);
+		free(volume_time);
+		free(volume_data);
 		return status;
 	}
 
@@ -197,14 +240,10 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "GMAG_BILAN", shotNumber);
-		if (volume_time != NULL)
-			free(volume_time);
-		if (volume_data != NULL)
-			free(volume_data);
-		if (total_energy_time != NULL)
-			free(total_energy_time);
-		if (total_energy_data != NULL)
-			free(total_energy_data);
+		free(volume_time);
+		free(volume_data);
+		free(total_energy_time);
+		free(total_energy_data);
 		return status;
 	}
 
@@ -221,18 +260,12 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "GMAG_ITOR", shotNumber);
-		if (volume_time != NULL)
-			free(volume_time);
-		if (volume_data != NULL)
-			free(volume_data);
-		if (total_energy_time != NULL)
-			free(total_energy_time);
-		if (total_energy_data != NULL)
-			free(total_energy_data);
-		if (itor_time != NULL)
-			free(itor_time);
-		if (itor_data != NULL)
-			free(itor_data);
+		free(volume_time);
+		free(volume_data);
+		free(total_energy_time);
+		free(total_energy_data);
+		free(itor_time);
+		free(itor_data);
 		return status;
 	}
 
@@ -242,22 +275,15 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 	int ip_len;
 	status = ip_value(&ip_data, ip_time, &ip_len, shotNumber, data_block, treshold);
 	if (status != 0) {
-		if (volume_time != NULL)
-			free(volume_time);
-		if (volume_data != NULL)
-			free(volume_data);
-		if (total_energy_time != NULL)
-			free(total_energy_time);
-		if (total_energy_data != NULL)
-			free(total_energy_data);
-		if (itor_time != NULL)
-			free(itor_time);
-		if (itor_data != NULL)
-			free(itor_data);
-		if (ip_data != NULL)
-			free(ip_data);
-		if (ip_time != NULL)
-			free(ip_time);
+		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "ip_value", shotNumber);
+		free(volume_time);
+		free(volume_data);
+		free(total_energy_time);
+		free(total_energy_data);
+		free(itor_time);
+		free(itor_data);
+		free(ip_data);
+		free(ip_time);
 		return status;
 	}
 
@@ -274,26 +300,16 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "GMAG_GEOM", shotNumber);
-		if (volume_time != NULL)
-			free(volume_time);
-		if (volume_data != NULL)
-			free(volume_data);
-		if (total_energy_time != NULL)
-			free(total_energy_time);
-		if (total_energy_data != NULL)
-			free(total_energy_data);
-		if (itor_time != NULL)
-			free(itor_time);
-		if (itor_data != NULL)
-			free(itor_data);
-		if (ip_data != NULL)
-			free(ip_data);
-		if (ip_time != NULL)
-			free(ip_time);
-		if (minor_radius_time != NULL)
-			free(minor_radius_time);
-		if (minor_radius_data != NULL)
-			free(minor_radius_data);
+		free(volume_time);
+		free(volume_data);
+		free(total_energy_time);
+		free(total_energy_data);
+		free(itor_time);
+		free(itor_data);
+		free(ip_data);
+		free(ip_time);
+		free(minor_radius_time);
+		free(minor_radius_data);
 		return status;
 	}
 
@@ -302,7 +318,6 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 	float *total_enery_times_minor_radius = NULL;
 	multiplySignals(&total_enery_times_minor_radius, total_energy_data, minor_radius_data, total_energy_len);
 
-
 	//(Total_energy x minor radius)/volume
 	//----------------------------------
 	float *total_enery_times_minor_radius_by_volume = NULL;
@@ -310,28 +325,17 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "unable to compute ratio", shotNumber);
-		if (volume_time != NULL)
-			free(volume_time);
-		if (volume_data != NULL)
-			free(volume_data);
-		if (total_energy_time != NULL)
-			free(total_energy_time);
-		if (total_energy_data != NULL)
-			free(total_energy_data);
-		if (itor_time != NULL)
-			free(itor_time);
-		if (itor_data != NULL)
-			free(itor_data);
-		if (ip_data != NULL)
-			free(ip_data);
-		if (ip_time != NULL)
-			free(ip_time);
-		if (minor_radius_time != NULL)
-			free(minor_radius_time);
-		if (minor_radius_data != NULL)
-			free(minor_radius_data);
-		if (total_enery_times_minor_radius_by_volume != NULL)
-			free(total_enery_times_minor_radius_by_volume);
+		free(volume_time);
+		free(volume_data);
+		free(total_energy_time);
+		free(total_energy_data);
+		free(itor_time);
+		free(itor_data);
+		free(ip_data);
+		free(ip_time);
+		free(minor_radius_time);
+		free(minor_radius_data);
+		free(total_enery_times_minor_radius_by_volume);
 		return status;
 	}
 
@@ -342,30 +346,18 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "unable to compute second ratio", shotNumber);
-		if (volume_time != NULL)
-			free(volume_time);
-		if (volume_data != NULL)
-			free(volume_data);
-		if (total_energy_time != NULL)
-			free(total_energy_time);
-		if (total_energy_data != NULL)
-			free(total_energy_data);
-		if (itor_time != NULL)
-			free(itor_time);
-		if (itor_data != NULL)
-			free(itor_data);
-		if (ip_data != NULL)
-			free(ip_data);
-		if (ip_time != NULL)
-			free(ip_time);
-		if (minor_radius_time != NULL)
-			free(minor_radius_time);
-		if (minor_radius_data != NULL)
-			free(minor_radius_data);
-		if (total_enery_times_minor_radius_by_volume != NULL)
-			free(total_enery_times_minor_radius_by_volume);
-		if (total_enery_times_minor_radius_by_volume_by_b0 != NULL)
-			free(total_enery_times_minor_radius_by_volume_by_b0);
+		free(volume_time);
+		free(volume_data);
+		free(total_energy_time);
+		free(total_energy_data);
+		free(itor_time);
+		free(itor_data);
+		free(ip_data);
+		free(ip_time);
+		free(minor_radius_time);
+		free(minor_radius_data);
+		free(total_enery_times_minor_radius_by_volume);
+		free(total_enery_times_minor_radius_by_volume_by_b0);
 		return status;
 	}
 
@@ -376,41 +368,25 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "unable to compute third ratio", shotNumber);
-		if (volume_time != NULL)
-			free(volume_time);
-		if (volume_data != NULL)
-			free(volume_data);
-		if (total_energy_time != NULL)
-			free(total_energy_time);
-		if (total_energy_data != NULL)
-			free(total_energy_data);
-		if (itor_time != NULL)
-			free(itor_time);
-		if (itor_data != NULL)
-			free(itor_data);
-		if (ip_data != NULL)
-			free(ip_data);
-		if (ip_time != NULL)
-			free(ip_time);
-		if (minor_radius_time != NULL)
-			free(minor_radius_time);
-		if (minor_radius_data != NULL)
-			free(minor_radius_data);
-		if (total_enery_times_minor_radius_by_volume != NULL)
-			free(total_enery_times_minor_radius_by_volume);
-		if (total_enery_times_minor_radius_by_volume_by_b0 != NULL)
-			free(total_enery_times_minor_radius_by_volume_by_b0);
-		if (total_enery_times_minor_radius_by_volume_by_b0_by_ip != NULL)
-			free(total_enery_times_minor_radius_by_volume_by_b0_by_ip);
+		free(volume_time);
+		free(volume_data);
+		free(total_energy_time);
+		free(total_energy_data);
+		free(itor_time);
+		free(itor_data);
+		free(ip_data);
+		free(ip_time);
+		free(minor_radius_time);
+		free(minor_radius_data);
+		free(total_enery_times_minor_radius_by_volume);
+		free(total_enery_times_minor_radius_by_volume_by_b0);
+		free(total_enery_times_minor_radius_by_volume_by_b0_by_ip);
 		return status;
 	}
 
 	float cste = 100*1.6*M_PI/3.;
-
 	multiply(total_enery_times_minor_radius_by_volume_by_b0_by_ip, ip_len, cste);
-
 	SetDynamicData(data_block, total_energy_len, ip_time, total_enery_times_minor_radius_by_volume_by_b0_by_ip);
-
 	return 0;
 }
 
@@ -427,33 +403,34 @@ int summary_global_quantities_b0_value(int shotNumber, DATA_BLOCK* data_block, i
 
 	if (status != 0) {
 		summary_throwsIdamError("summary_global_quantities_b0_value", "GMAG_ITOR", shotNumber);
-		if (itor_time != NULL)
-			free(itor_time);
-		if (itor_data != NULL)
-			free(itor_data);
+		free(itor_time);
+		free(itor_data);
 		return status;
 	}
 
 	SetDynamicData(data_block, itor_len, itor_time, itor_data);
+	free(itor_time);
+	free(itor_data);
 	return 0;
 }
 
 int summary_heating_current_drive_ec_power(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 	int k = nodeIndices[0]; //starts from 1
+	int status = -1;
 	if (k == 1) {
 		char* mappingValue = "flt1D;DMAG:GMAG_BILAN:2";
-		flt1D(mappingValue, shotNumber, data_block, nodeIndices);
+		status = flt1D(mappingValue, shotNumber, data_block, nodeIndices);
 	}
 	else if (k == 2) {
 		char* mappingValue = "flt1D;DMAG:GMAG_BILAN:3";
-		flt1D(mappingValue, shotNumber, data_block, nodeIndices);
+		status = flt1D(mappingValue, shotNumber, data_block, nodeIndices);
 	}
 	else if (k == 3) {
 		char* mappingValue = "flt1D;DMAG:GMAG_BILAN:4";
-		flt1D(mappingValue, shotNumber, data_block, nodeIndices);
+		status = flt1D(mappingValue, shotNumber, data_block, nodeIndices);
 	}
-	return 0;
+	return status;
 }
 
 int summary_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
@@ -536,10 +513,8 @@ int ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_
 
 	if (status != 0) {
 		summary_throwsIdamError("ip_value", "GMAG_IFREEB", shotNumber);
-		if (ifreeb_time != NULL)
-			free(ifreeb_time);
-		if (ifreeb_data != NULL)
-			free(ifreeb_data);
+		free(ifreeb_time);
+		free(ifreeb_data);
 		return status;
 	}
 
@@ -554,18 +529,21 @@ int ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_
 
 	if (status != 0) {
 		summary_throwsIdamError("ip_value", "SMAG_IP", shotNumber);
-		if (smagip_time != NULL)
-			free(smagip_time);
-		if (smagip_data != NULL)
-			free(smagip_data);
-		if (ifreeb_time != NULL)
-			free(ifreeb_time);
-		if (ifreeb_data != NULL)
-			free(ifreeb_data);
+		free(smagip_time);
+		free(smagip_data);
+		free(ifreeb_time);
+		free(ifreeb_data);
 		return status;
 	}
 	ip_time = ifreeb_time;
 	*ip_len = ifreeb_len;
 	merge2Signals_according_to_ip_treshold(ip_data, smagip_len, ifreeb_data, smagip_data, smagip_data, treshold);
+	free(smagip_time);
+	free(smagip_data);
+	free(ifreeb_time);
+	free(ifreeb_data);
+	free(ip_time);
+	free(ip_len);
+
 	return 0;
 }

@@ -311,9 +311,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // DYNAMIC DATA CASE
         UDA_LOG(UDA_LOG_DEBUG, "Fetching dynamic data from WEST plugin\n");
-
         int status = GetDynamicData(shot, mapfun, data_block, indices);
-
         return status;
     }
 

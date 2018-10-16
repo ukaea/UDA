@@ -4,27 +4,27 @@
 
 #include <clientserver/udaStructs.h>
 
-void soft_x_rays_idsproperties_comment(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int soft_x_rays_idsproperties_comment(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-void soft_x_rays_channels_shapeof(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int soft_x_rays_channels_shapeof(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-void channel_line_of_sight_first_point_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int channel_line_of_sight_first_point_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-void channel_line_of_sight_first_point_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int channel_line_of_sight_first_point_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-void channel_line_of_sight_first_point_phi(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int channel_line_of_sight_first_point_phi(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-void channel_line_of_sight_second_point_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int channel_line_of_sight_second_point_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-void channel_line_of_sight_second_point_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int channel_line_of_sight_second_point_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-void channel_line_of_sight_second_point_phi(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int channel_line_of_sight_second_point_phi(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-void soft_x_rays_channels_energy_band_shapeof(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int soft_x_rays_channels_energy_band_shapeof(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-void soft_x_rays_channels_energy_band_lower_bound(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int soft_x_rays_channels_energy_band_lower_bound(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-void soft_x_rays_channels_energy_band_upper_bound(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int soft_x_rays_channels_energy_band_upper_bound(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
 int soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 

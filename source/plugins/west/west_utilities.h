@@ -12,7 +12,7 @@ void multiplyFloat(float* p, float factor, int val_nb);
 void multiplyInt(int* p, float factor, int val_nb);
 
 void getFunName(const char* s, char** fun_name);
-void getNormalizationFactor(float* normalizationFactor, char* normalizationAttributes);
+int getNormalizationFactor(float* normalizationFactor, char* normalizationAttributes);
 void setValue(int data_type, DATA_BLOCK* data_block, char* value, int requestedIndex, float normalizationFactor);
 void set1DValue(int data_type, DATA_BLOCK* data_block, char* value, int val_nb, float normalizationFactor);
 void setINTValue(int data_type, DATA_BLOCK* data_block, int value, float normalizationFactor);
@@ -30,7 +30,7 @@ int  isChannelValid(int channel_number, int* unvalid_channels_list, int unvalid_
 int  getNumIDAMIndex(char* attributes, int* nodeIndices);
 int  getNumIDAMIndex2(char* s, int* nodeIndices);
 
-void getReturnType(char* attributes, int* dataType);
+int getReturnType(char* attributes, int* dataType);
 void searchIndices(int requestedIndex, int* l, int* searchedArray, int* searchedArrayIndex);
 void addExtractionChars(char* result, char* signalName, int extractionIndex);
 void getTopCollectionsCount(const char* TOP_collections_parameters, int* collectionsCount);

@@ -52,8 +52,7 @@ int GetStaticData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, in
 
 	if (status != 0) {
 		UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: error while getting static data\n");
-
-		addIdamError(CODEERRORTYPE, __func__, -900, "WEST:ERROR: error while getting static data");
+		addIdamError(CODEERRORTYPE, __func__, -900, "WEST:ERROR: error while getting static data\n");
 	}
 
 	return 0;
@@ -210,21 +209,23 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	else if (strcmp(fun_name, "barometry_gauge_calibration_coefficient") == 0) {
 		fun = 504;
 	}
+
 	UDA_LOG(UDA_LOG_DEBUG, "Case: %d", fun);
+	int status = -1;
 
 	if (fun == -1) {
 		UDA_LOG(UDA_LOG_DEBUG, "WEST:ERROR no function mapped to %s\n", fun_name);
 		int err = 901;
 		UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: no C function mapped for %s!", fun_name);
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: no C function mapped for %s!", err, fun_name);
+		return status;
 	}
-
 
 	switch (fun) {
 	case 0: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of tsmat_collect from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		return execute_tsmat_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
+		status = execute_tsmat_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
 				normalizationAttributes);
 
 		break;
@@ -234,8 +235,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 		UDA_LOG(UDA_LOG_DEBUG, "Case of shape_of_tsmat_collect from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		return shape_of_tsmat_collect(shotNumber, TOP_collections_parameters, data_block);
-
+		status = shape_of_tsmat_collect(shotNumber, TOP_collections_parameters, data_block);
 		break;
 	}
 
@@ -245,25 +245,26 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		tokenizeFunParameters(mapfun, &value, &attributes, &normalizationAttributes);
 
 		int data_type;
-		getReturnType(attributes, &data_type);
-		char* buffer = setBuffer(data_type, value);
+		status = getReturnType(attributes, &data_type);
 
-		UDA_LOG(UDA_LOG_DEBUG, "Calling setStaticValue()\n");
-		float normalizationFactor = 1;
-		getNormalizationFactor(&normalizationFactor, normalizationAttributes);
-		setStaticValue(data_type, data_block, buffer, 0, normalizationFactor); //index is always 0 in this case
-		UDA_LOG(UDA_LOG_DEBUG, "Returning from setStaticValue()\n");
-
+		if (status == 0) {
+			char* buffer = setBuffer(data_type, value);
+			float normalizationFactor = 1;
+			status = getNormalizationFactor(&normalizationFactor, normalizationAttributes);
+			if (status == 0) {
+				setStaticValue(data_type, data_block, buffer, 0, normalizationFactor); //index is always 0 in this case
+			}
+			free(buffer);
+		}
 		free(value);
-		free(buffer);
-		return 0;
+
 		break;
 	}
 
 	case 3: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of tsmat from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		return execute_tsmat_without_idam_index(TOP_collections_parameters, attributes, shotNumber, data_block,
+		status = execute_tsmat_without_idam_index(TOP_collections_parameters, attributes, shotNumber, data_block,
 				normalizationAttributes);
 		break;
 	}
@@ -272,7 +273,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		UDA_LOG(UDA_LOG_DEBUG, "Case of set_value_collect from WEST plugin\n");
 		tokenizeFunParameters(mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
 		UDA_LOG(UDA_LOG_DEBUG, "attributes: %s\n", attributes);
-		return execute_setvalue_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
+		status = execute_setvalue_collect(TOP_collections_parameters, attributes, shotNumber, data_block, nodeIndices,
 				normalizationAttributes);
 		break;
 	}
@@ -295,6 +296,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 		free(unvalid_channels_request);
 		free(unvalid_channels_list);
 		return 0;
+
 		break;
 	}
 	case 6: {
@@ -307,284 +309,252 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 
 	case 7: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of homogeneous_time from WEST plugin\n");
-		homogeneous_time(shotNumber, data_block, nodeIndices);
+		status = homogeneous_time(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 9: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of ece_t_e_data_shape_of from WEST plugin\n");
 		char* ece_mapfun = NULL;
-		ece_t_e_data_shape_of(shotNumber, &ece_mapfun);
+		status = ece_t_e_data_shape_of(shotNumber, &ece_mapfun);
+		if (status != 0)
+			return status;
 		UDA_LOG(UDA_LOG_DEBUG, "Calling tokenizeFunParameters() from WEST plugin\n");
 		tokenizeFunParameters(ece_mapfun, &TOP_collections_parameters, &attributes, &normalizationAttributes);
-		shape_of_tsmat_collect(shotNumber, TOP_collections_parameters, data_block);
+		status = shape_of_tsmat_collect(shotNumber, TOP_collections_parameters, data_block);
 		free(ece_mapfun);
-		return 0;
 		break;
 	}
 
 	case 100: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loop_name from WEST plugin\n");
-		pf_passive_loop_name(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_passive_loop_name(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 101: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loop_identifier from WEST plugin\n");
-		pf_passive_loop_identifier(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_passive_loop_identifier(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 102: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_element_name from WEST plugin\n");
-		pf_passive_element_name(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_passive_element_name(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 103: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_element_identifier from WEST plugin\n");
-		pf_passive_element_identifier(shotNumber, data_block, nodeIndices);
+		status = pf_passive_element_identifier(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 104: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_loops_shapeOf from WEST plugin\n");
-		pf_passive_loops_shapeOf(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_passive_loops_shapeOf(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 105: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_turns from WEST plugin\n");
-		pf_passive_turns(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_passive_turns(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 106: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_elements_shapeOf from WEST plugin\n");
-		pf_passive_elements_shapeOf(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_passive_elements_shapeOf(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 107: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_R from WEST plugin\n");
-		pf_passive_R(shotNumber, data_block, nodeIndices);
+		status = pf_passive_R(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 108: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_Z from WEST plugin\n");
-		pf_passive_Z(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_passive_Z(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 109: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_current_data from WEST plugin\n");
-		return pf_passive_current_data(shotNumber, data_block, nodeIndices);
+		status = pf_passive_current_data(shotNumber, data_block, nodeIndices);
+		break;
 	}
 
 	case 110: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_passive_current_time from WEST plugin\n");
-		return pf_passive_current_time(shotNumber, data_block, nodeIndices);
+		status = pf_passive_current_time(shotNumber, data_block, nodeIndices);
+		break;
 	}
-
 
 	case 140: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_elements_shapeOf from WEST plugin\n");
-		pf_active_elements_shapeOf(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_active_elements_shapeOf(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 141: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_coils_shapeOf from WEST plugin\n");
-		pf_active_coils_shapeOf(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_active_coils_shapeOf(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 142: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_R from WEST plugin\n");
-		pf_active_R(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_active_R(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 143: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_Z from WEST plugin\n");
-		pf_active_Z(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_active_Z(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 144: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_element_identifier from WEST plugin\n");
-		pf_active_element_identifier(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_active_element_identifier(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 145: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_element_name from WEST plugin\n");
-		pf_active_element_name(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_active_element_name(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 146: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_coil_identifier from WEST plugin\n");
-		pf_active_coil_identifier(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_active_coil_identifier(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 147: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_coil_name from WEST plugin\n");
-		pf_active_coil_name(shotNumber, data_block, nodeIndices);
+		status = pf_active_coil_name(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 148: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_turns from WEST plugin\n");
-		pf_active_turns(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_active_turns(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 149: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_H from WEST plugin\n");
-		pf_active_H(shotNumber, data_block, nodeIndices);
+		status = pf_active_H(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 150: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of pf_active_W from WEST plugin\n");
-		pf_active_W(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = pf_active_W(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 200: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_idsproperties_comment from WEST plugin\n");
-		soft_x_rays_idsproperties_comment(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = soft_x_rays_idsproperties_comment(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 201: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_shapeof from WEST plugin\n");
-		soft_x_rays_channels_shapeof(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = soft_x_rays_channels_shapeof(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 202: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_r from WEST plugin\n");
-		channel_line_of_sight_first_point_r(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = channel_line_of_sight_first_point_r(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 203: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_z from WEST plugin\n");
-		channel_line_of_sight_first_point_z(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = channel_line_of_sight_first_point_z(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 204: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_first_point_phi from WEST plugin\n");
-		channel_line_of_sight_first_point_phi(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = channel_line_of_sight_first_point_phi(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 205: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_r from WEST plugin\n");
-		channel_line_of_sight_second_point_r(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = channel_line_of_sight_second_point_r(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 206: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_z from WEST plugin\n");
-		channel_line_of_sight_second_point_z(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = channel_line_of_sight_second_point_z(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 207: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of channel_line_of_sight_second_point_phi from WEST plugin\n");
-		channel_line_of_sight_second_point_phi(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = channel_line_of_sight_second_point_phi(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 208: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_shapeof from WEST plugin\n");
-		soft_x_rays_channels_energy_band_shapeof(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = soft_x_rays_channels_energy_band_shapeof(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 209: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_lower_bound from WEST plugin\n");
-		soft_x_rays_channels_energy_band_lower_bound(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = soft_x_rays_channels_energy_band_lower_bound(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 210: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of soft_x_rays_channels_energy_band_upper_bound from WEST plugin\n");
-		soft_x_rays_channels_energy_band_upper_bound(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = soft_x_rays_channels_energy_band_upper_bound(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 300: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of summary_global_quantities_r0_value from WEST plugin\n");
-		return summary_global_quantities_r0_value(shotNumber, data_block, nodeIndices);
+		status = summary_global_quantities_r0_value(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 301: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of summary_heating_current_drive_ec_power_source from WEST plugin\n");
-		return summary_heating_current_drive_ec_power_source(shotNumber, data_block, nodeIndices);
+		status = summary_heating_current_drive_ec_power_source(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 400: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of lh_antennas_position_definition from WEST plugin\n");
-		lh_antennas_position_definition(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = lh_antennas_position_definition(shotNumber, data_block, nodeIndices);
 		break;
 	}
 
 	case 500: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of barometry_gauge_name from WEST plugin\n");
-		barometry_gauge_name(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = barometry_gauge_name(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 501: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of barometry_gauge_type_name from WEST plugin\n");
-		barometry_gauge_type_name(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = barometry_gauge_type_name(shotNumber, data_block, nodeIndices);
 		break;
 	}
 	case 502: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of barometry_gauge_type_index from WEST plugin\n");
-		barometry_gauge_type_index(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = barometry_gauge_type_index(shotNumber, data_block, nodeIndices);
 		break;
 
 	}
 	case 503: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of barometry_gauge_type_description from WEST plugin\n");
-		barometry_gauge_type_description(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = barometry_gauge_type_description(shotNumber, data_block, nodeIndices);
 		break;
 
 	}
 	case 504: {
 		UDA_LOG(UDA_LOG_DEBUG, "Case of barometry_gauge_calibration_coefficient from WEST plugin\n");
-		barometry_gauge_calibration_coefficient(shotNumber, data_block, nodeIndices);
-		return 0;
+		status = barometry_gauge_calibration_coefficient(shotNumber, data_block, nodeIndices);
 		break;
-
 	}
 
 	}
@@ -593,7 +563,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	free(TOP_collections_parameters);
 	free(attributes);
 	free(normalizationAttributes);
-	return 0;
+	return status;
 }
 
 

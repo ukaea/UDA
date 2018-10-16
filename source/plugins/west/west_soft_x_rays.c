@@ -36,61 +36,72 @@ void soft_x_rays_throwsIdamError(char* methodName, char* object_name, int index,
 	addIdamError(CODEERRORTYPE, msg, err, "");
 }
 
-void soft_x_rays_idsproperties_comment(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int soft_x_rays_idsproperties_comment(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	const char* comment = "WEST soft-X-rays diagnostic (September 2017), experimental data. Horizontal camera only, with old (Tore Supra) detectors.";
 	setReturnDataString(data_block, comment, NULL);
+	return 0;
 }
 
-void soft_x_rays_channels_shapeof(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int soft_x_rays_channels_shapeof(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	setReturnDataIntScalar(data_block, CHANNELS_COUNT, NULL);
+	return 0;
 }
 
-void channel_line_of_sight_first_point_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int channel_line_of_sight_first_point_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	setReturnDataFloatScalar(data_block, 4.3458, NULL);
+	return 0;
 }
 
-void channel_line_of_sight_first_point_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int channel_line_of_sight_first_point_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	setReturnDataFloatScalar(data_block, 0., NULL);
+	return 0;
 }
 
-void channel_line_of_sight_first_point_phi(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int channel_line_of_sight_first_point_phi(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	setReturnDataFloatScalar(data_block, 1.396, NULL);
+	return 0;
 }
 
-void channel_line_of_sight_second_point_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int channel_line_of_sight_second_point_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	setReturnDataFloatScalar(data_block, 2.4, NULL);
+	return 0;
 }
 
-void channel_line_of_sight_second_point_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int channel_line_of_sight_second_point_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	int index = nodeIndices[0] - 1; //starts from 0
 	setReturnDataFloatScalar(data_block, second_point_z[index]*1e-3, NULL);
+	return 0;
 }
 
-void channel_line_of_sight_second_point_phi(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int channel_line_of_sight_second_point_phi(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	setReturnDataFloatScalar(data_block, 1.396, NULL);
+	return 0;
 }
 
-void soft_x_rays_channels_energy_band_shapeof(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int soft_x_rays_channels_energy_band_shapeof(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	setReturnDataIntScalar(data_block, 1, NULL);
+	return 0;
 }
 
-void soft_x_rays_channels_energy_band_lower_bound(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int soft_x_rays_channels_energy_band_lower_bound(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	setReturnDataFloatScalar(data_block, 1500, NULL);
+	return 0;
 }
 
-void soft_x_rays_channels_energy_band_upper_bound(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int soft_x_rays_channels_energy_band_upper_bound(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	setReturnDataFloatScalar(data_block, 15000, NULL);
+	return 0;
 }
 
 int soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
@@ -115,19 +126,18 @@ int soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_blo
 	UDA_LOG(UDA_LOG_DEBUG, "reading channels_power_density...\n");
 	int status = channels_power_density(shotNumber, nomsigp, extractionIndex, &time, &data, &len);
 
-
 	if (status != 0) {
 		UDA_LOG(UDA_LOG_DEBUG, "reading channels_power_density, error status...\n");
 		soft_x_rays_throwsIdamError("soft_x_rays_channels_power_density_data", nomsigp, extractionIndex, shotNumber);
-		if (time != NULL)
-			free(time);
-		if (data != NULL)
-			free(data);
+		free(time);
+		free(data);
 		return status;
 	}
 	else {
 		UDA_LOG(UDA_LOG_DEBUG, "setting channels_power_density...\n");
 		setReturnData2DFloat(data_block, 1, len, data);
+		free(time);
+		free(data);
 		return 0;
 	}
 }
@@ -156,15 +166,15 @@ int soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_blo
 
 	if (status != 0) {
 		soft_x_rays_throwsIdamError("soft_x_rays_channels_power_density_time", nomsigp, extractionIndex, shotNumber);
-		if (time != NULL)
-			free(time);
-		if (data != NULL)
-			free(data);
+		free(time);
+		free(data);
 		return status;
 	}
 	else {
 		setReturnData2DFloat(data_block, 1, len, time);
-		return 0;
+		free(time);
+		free(data);
+		return status;
 	}
 }
 

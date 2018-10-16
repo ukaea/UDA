@@ -61,10 +61,10 @@ void somme2(float* s, float* data1, float* data2, float* data3, int len);
 float factUpper(int shotNumber);
 float factLower(int shotNumber);
 
-void passive_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void passive_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int passive_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int passive_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
+int passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
@@ -86,59 +86,63 @@ int pf_passive_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeInd
 	return passive_time(shotNumber, data_block, nodeIndices);
 }
 
-void pf_passive_loop_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int pf_passive_loop_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	passive_name(shotNumber, data_block, nodeIndices);
+	return passive_name(shotNumber, data_block, nodeIndices);
 }
 
-void pf_passive_loop_identifier(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int pf_passive_loop_identifier(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	pf_passive_loop_name(shotNumber, data_block, nodeIndices);
+	return pf_passive_loop_name(shotNumber, data_block, nodeIndices);
 }
 
-void pf_passive_element_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int pf_passive_element_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	int element_number = 1;
 	char s[100];
 	sprintf(s, "%d", element_number);
 	setReturnDataString(data_block, s, NULL);
+	return 0;
 }
 
-void pf_passive_element_identifier(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int pf_passive_element_identifier(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	pf_passive_element_name(shotNumber, data_block, nodeIndices);
+	return pf_passive_element_name(shotNumber, data_block, nodeIndices);
 }
 
-void pf_passive_elements_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) //TODO
+int pf_passive_elements_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) //TODO
 {
 	int len = 1;
 	setReturnDataIntScalar(data_block, len, NULL);
+	return 0;
 }
 
-void pf_passive_loops_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) //TODO
+int pf_passive_loops_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) //TODO
 {
 	int len = 34;
 	setReturnDataIntScalar(data_block, len, NULL);
+	return 0;
 }
 
-void pf_passive_R(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int pf_passive_R(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	passive_r(shotNumber, data_block, nodeIndices);
+	return passive_r(shotNumber, data_block, nodeIndices);
 }
 
-void pf_passive_Z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int pf_passive_Z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-	passive_z(shotNumber, data_block, nodeIndices);
+	return passive_z(shotNumber, data_block, nodeIndices);
 }
 
-void pf_passive_turns(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int pf_passive_turns(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	setReturnDataFloatScalar(data_block, 1, NULL);
+	return 0;
 }
 
 
 
-void passive_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int passive_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	int k = nodeIndices[0]; //starts from 1
 	char s[100];
@@ -159,12 +163,16 @@ void passive_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		sprintf(s, "Lower divertor casing, centre part (loop %d)", k - 29);
 	} else if (k > 32 && k <= 34) {
 		sprintf(s, "Lower divertor casing, low field side part (loop %d)", k - 32);
+	} else {
+		pf_passive_throwsIdamError("passive_name", "wrong k index", shotNumber);
+		return -1;
 	}
 
 	setReturnDataString(data_block, s, NULL);
+	return 0;
 }
 
-void passive_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int passive_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	int k = nodeIndices[0]; //starts from 1
 	float* r = NULL;
@@ -186,11 +194,15 @@ void passive_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		r[0] = Rinf2[k - 30];
 	} else if (k > 32 && k <= 34) {
 		r[0] = Rinf3[k - 33];
+	} else {
+		pf_passive_throwsIdamError("passive_r", "wrong k index", shotNumber);
+		return -1;
 	}
 	SetStatic1DData(data_block, 1, r);
+	return 0;
 }
 
-void passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	int k = nodeIndices[0]; //starts from 1
 	float* z = NULL;
@@ -212,15 +224,19 @@ void passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		z[0] = Zinf2[k - 30];
 	} else if (k > 32 && k <= 34) {
 		z[0] = Zinf3[k - 33];
+	} else {
+		pf_passive_throwsIdamError("passive_z", "wrong k index", shotNumber);
+		return -1;
 	}
 	SetStatic1DData(data_block, 1, z);
+	return 0;
 }
 
-void passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
+int passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
-
 	int len = 34;
 	setReturnDataIntScalar(data_block, len, NULL);
+	return 0;
 }
 
 int passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
@@ -336,6 +352,10 @@ int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		}
 	}
 	SetDynamicDataTime(data_block, len, time, data);
+	free(data);
+	free(time);
+	free(data_ref);
+	free(time_ref);
 	return 0;
 }
 
