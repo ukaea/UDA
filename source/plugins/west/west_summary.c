@@ -83,13 +83,6 @@ int summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_bloc
 	merge2Signals_according_to_ip_treshold(&mergedData, len, averaged_data, data2, ip_data, treshold);
 
 	SetDynamicData(data_block, len, averaged_data_time, mergedData);
-	free(averaged_data_time);
-	free(averaged_data);
-	free(time2);
-	free(data2);
-	free(ip_time);
-	free(ip_data);
-	free(mergedData);
 	return 0;
 }
 
@@ -197,13 +190,6 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 	multiply(energy_by_volume_by_b0_square, itor_len, cste);
 
 	SetDynamicData(data_block, itor_len, itor_time, energy_by_volume_by_b0_square);
-	free(itor_time);
-	free(itor_data);
-	free(volume_time);
-	free(volume_data);
-	free(total_energy_time);
-	free(total_energy_data);
-	free(ratio);
 	return 0;
 }
 
@@ -409,8 +395,6 @@ int summary_global_quantities_b0_value(int shotNumber, DATA_BLOCK* data_block, i
 	}
 
 	SetDynamicData(data_block, itor_len, itor_time, itor_data);
-	free(itor_time);
-	free(itor_data);
 	return 0;
 }
 
@@ -538,12 +522,5 @@ int ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_
 	ip_time = ifreeb_time;
 	*ip_len = ifreeb_len;
 	merge2Signals_according_to_ip_treshold(ip_data, smagip_len, ifreeb_data, smagip_data, smagip_data, treshold);
-	free(smagip_time);
-	free(smagip_data);
-	free(ifreeb_time);
-	free(ifreeb_data);
-	free(ip_time);
-	free(ip_len);
-
 	return 0;
 }

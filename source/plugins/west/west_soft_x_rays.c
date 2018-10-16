@@ -136,8 +136,6 @@ int soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_blo
 	else {
 		UDA_LOG(UDA_LOG_DEBUG, "setting channels_power_density...\n");
 		setReturnData2DFloat(data_block, 1, len, data);
-		free(time);
-		free(data);
 		return 0;
 	}
 }
@@ -172,8 +170,6 @@ int soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_blo
 	}
 	else {
 		setReturnData2DFloat(data_block, 1, len, time);
-		free(time);
-		free(data);
 		return status;
 	}
 }

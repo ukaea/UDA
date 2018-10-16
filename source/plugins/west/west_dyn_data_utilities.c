@@ -339,8 +339,6 @@ int setUDABlockSignalFromArcade(char* sigName, int shotNumber, int extractionInd
 	if (status == 0) {
 		SetDynamicData(data_block, len, data_time, data);
 	}
-	free(data_time);
-	free(data);
 
 	return status;
 }
@@ -369,8 +367,6 @@ int setUDABlockTimeFromArcade(char* sigName, int shotNumber, int extractionIndex
 	if (status == 0) {
 		SetDynamicDataTime(data_block, len, data_time, data);
 	}
-	free(data_time);
-	free(data);
 
 	return status;
 	return 0;
@@ -449,13 +445,13 @@ int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIn
 	float *data = NULL;
 	merge2Signals_according_to_ip_treshold(&data, len1, data1, data2, ip_data, treshold);
 	SetDynamicData(data_block, len1, time1, data);
-	free(data);
+	/*free(data);
 	free(time1);
 	free(time2);
 	free(data1);
 	free(data2);
 	free(ip_data);
-	free(ip_time);
+	free(ip_time);*/
 
 	return 0;
 }

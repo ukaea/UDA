@@ -174,8 +174,6 @@ int barometry_gauge_pressure_time(int shotNumber, DATA_BLOCK* data_block, int* n
 	SetDynamicDataTime(data_block, len, time, data);
 
 	UDA_LOG(UDA_LOG_DEBUG, "Returning from barometry_gauge_pressure_time...\n");
-	free(time);
-	free(data);
 	return status;
 }
 
