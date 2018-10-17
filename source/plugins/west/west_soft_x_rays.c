@@ -32,7 +32,7 @@ void soft_x_rays_throwsIdamError(char* methodName, char* object_name, int index,
 	int err = 901;
 	char msg[1000];
 	sprintf(msg, "%s(%s),object:%s,index:%d,shot:%d\n", "WEST:ERROR", methodName, object_name, index, shotNumber);
-	UDA_LOG(UDA_LOG_ERROR, "%s", msg);
+	//UDA_LOG(UDA_LOG_ERROR, "%s", msg);
 	addIdamError(CODEERRORTYPE, msg, err, "");
 }
 

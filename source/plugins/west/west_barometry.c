@@ -21,7 +21,7 @@ void barometry_throwsIdamError(char* methodName, char* object_name, int shotNumb
 	int err = 901;
 	char msg[1000];
 	sprintf(msg, "%s(%s),object:%s,shot:%d\n", "WEST:ERROR", methodName, object_name, shotNumber);
-	UDA_LOG(UDA_LOG_ERROR, "%s", msg);
+	//UDA_LOG(UDA_LOG_ERROR, "%s", msg);
 	addIdamError(CODEERRORTYPE, msg, err, "");
 }
 

@@ -159,8 +159,18 @@ int readStaticParameters(char** pt_char, int* nb_val, int num_choc, char* nom_pr
 	UDA_LOG(UDA_LOG_DEBUG, "Producer: %s\n", nom_prod);
 	UDA_LOG(UDA_LOG_DEBUG, "Object: %s\n", nom_objet);
 	UDA_LOG(UDA_LOG_DEBUG, "Parameter: %s\n", nom_param);
-
-	cr = TSRqParm(num_choc, nom_prod, nom_objet, nom_param, val_nb, pt_char, nb_val, &format);
+	int attempts = 3;
+	cr = -1;
+	int i = 1;
+	while (cr != 0 && attempts != 0) {
+		cr = TSRqParm(num_choc, nom_prod, nom_objet, nom_param, val_nb, pt_char, nb_val, &format);
+		if (cr != 0) {
+			UDA_LOG(UDA_LOG_ERROR, "WEST:WARNING: attempt %d for reading static parameters %s has failed for shot %d\n", i, nom_objet, num_choc);
+			attempts = attempts - 1;
+			sleep(0.0001);
+			i++;
+		}
+	}
 	return cr;
 }
 
@@ -176,7 +186,7 @@ int readSignal(char* nomsigp, int numchoc, int occ,
 		if (cr != 0) {
 			UDA_LOG(UDA_LOG_ERROR, "WEST:WARNING: attempt %d for reading ARCAD signal %s has failed for shot %d\n", i, nomsigp, numchoc);
 			attempts = attempts - 1;
-			sleep(1);
+			sleep(0.0001);
 			i++;
 		}
 	}

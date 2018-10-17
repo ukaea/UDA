@@ -23,7 +23,7 @@ void lh_antennas_throwsIdamError(char* methodName, char * objectName, int shotNu
 	char errorMsg[1000];
 	sprintf(errorMsg, "%s (%s) %s", "WEST:ERROR", methodName, "unable to get object:");
 	sprintf(errorMsg, "%s,shot:%d\n", objectName, shotNumber);
-	UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
+	//UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 	addIdamError(CODEERRORTYPE, errorMsg, err, "");
 }
 
