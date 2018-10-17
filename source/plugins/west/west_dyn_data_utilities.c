@@ -323,21 +323,11 @@ int setUDABlockSignalFromArcade(char* sigName, int shotNumber, int extractionInd
 
 	int status = getArcadeSignal(sigName, shotNumber, extractionIndex, &data_time, &data, &len, normalizationFactor);
 
-	/*if (status != 0) {
-		int err = 901;
-		char errorMsg[1000];
-		strcpy(errorMsg, "WEST:ERROR (setUDABlockSignalFromArcade): unable to get Arcade signal:");
-		sprintf(errorMsg, "%s,shot:%d\n", sigName, shotNumber);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
-		free(data_time);
-		free(data);
-	}
-	else {
-		SetDynamicData(data_block, len, data_time, data);
-	}*/
 	if (status == 0) {
 		SetDynamicData(data_block, len, data_time, data);
+	} else {
+		free(data_time);
+		free(data);
 	}
 
 	return status;
@@ -351,21 +341,11 @@ int setUDABlockTimeFromArcade(char* sigName, int shotNumber, int extractionIndex
 
 	int status = getArcadeSignal(sigName, shotNumber, extractionIndex, &data_time, &data, &len, 1);
 
-	/*if (status != 0) {
-		int err = 901;
-		char errorMsg[1000];
-		strcpy(errorMsg, "WEST:ERROR (setUDABlockTimeFromArcade): unable to get Arcade signal:");
-		sprintf(errorMsg, "%s,shot:%d\n", sigName, shotNumber);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");
-		free(data_time);
-		free(data);
-	}
-	else {
-		SetDynamicDataTime(data_block, len, data_time, data);
-	}*/
 	if (status == 0) {
 		SetDynamicDataTime(data_block, len, data_time, data);
+	} else {
+		free(data_time);
+		free(data);
 	}
 
 	return status;
@@ -382,19 +362,11 @@ int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIn
 	int status = getArcadeSignal(sigName, shotNumber, extractionIndex, &time1, &data1, &len1, 1.);
 
 	if (status != 0) {
-		/*int err = 901;
-		char errorMsg[1000];
-		strcpy(errorMsg, "WEST:ERROR (setUDABlockSignalFromArcade2): unable to get Arcade signal:");
-		sprintf(errorMsg, "%s,shot:%d\n", sigName, shotNumber);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");*/
 		free(time1);
 		free(data1);
 		return status;
 	}
 
-	//free(time1);
-	//free(data1);
 	float *time2 = NULL;
 	float *data2 = NULL;
 	int len2;
@@ -402,12 +374,6 @@ int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIn
 	status = getArcadeSignal(sigName2, shotNumber, extractionIndex2, &time2, &data2, &len2, 1.);
 
 	if (status != 0) {
-		/*int err = 901;
-		char errorMsg[1000];
-		strcpy(errorMsg, "WEST:ERROR (setUDABlockSignalFromArcade2): unable to get Arcade signal:");
-		sprintf(errorMsg, "%s,shot:%d\n", sigName, shotNumber);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");*/
 		free(time1);
 		free(data1);
 		free(time2);
@@ -415,22 +381,12 @@ int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIn
 		return status;
 	}
 
-	//free(time2);
-	//free(data2);
 	float *ip_time = NULL;
 	float *ip_data = NULL;
 	int ip_len;
 
-	//UDA_LOG(UDA_LOG_DEBUG, "test in setUDABlockSignalFromArcade2\n");
-
 	status = getArcadeSignal("SMAG_IP", shotNumber, 1, &ip_time, &ip_data, &ip_len, 1.);
 	if (status != 0) {
-		/*int err = 901;
-		char errorMsg[1000];
-		strcpy(errorMsg, "WEST:ERROR: unable to get SMAG_IP signal:");
-		sprintf(errorMsg, "%s,shot:%d\n", sigName, shotNumber);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-		addIdamError(CODEERRORTYPE, errorMsg, err, "");*/
 		free(time1);
 		free(data1);
 		free(time2);
@@ -440,19 +396,9 @@ int setUDABlockSignalFromArcade2(int shotNumber, char* sigName, int extractionIn
 		return status;
 	}
 
-	//free(ip_time);
-	//free(ip_data);
 	float *data = NULL;
 	merge2Signals_according_to_ip_treshold(&data, len1, data1, data2, ip_data, treshold);
 	SetDynamicData(data_block, len1, time1, data);
-	/*free(data);
-	free(time1);
-	free(time2);
-	free(data1);
-	free(data2);
-	free(ip_data);
-	free(ip_time);*/
-
 	return 0;
 }
 

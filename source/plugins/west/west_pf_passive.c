@@ -352,10 +352,6 @@ int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		}
 	}
 	SetDynamicDataTime(data_block, len, time, data);
-	/*free(data);
-	free(time);
-	free(data_ref);
-	free(time_ref);*/
 	return 0;
 }
 

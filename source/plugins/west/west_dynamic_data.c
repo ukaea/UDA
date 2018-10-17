@@ -89,11 +89,7 @@ int GetDynamicData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, i
 		return soft_x_rays_channels_power_density_time(shotNumber, data_block, nodeIndices); //TODO
 	} else if (strcmp(fun_name, "flt1D") == 0) {
 		return flt1D(mapfun, shotNumber, data_block, nodeIndices); //TODO
-	} /*else if (strcmp(fun_name, "flt1D_contrib") == 0) {
-		return flt1D_contrib(mapfun, shotNumber, data_block, nodeIndices); //TODO
-	} *//*else if (strcmp(fun_name, "summary_global_quantities_tau_resistance_value") == 0) {
-		return summary_global_quantities_tau_resistance_value(shotNumber, data_block, nodeIndices); //TODO
-	} */else if (strcmp(fun_name, "summary_global_quantities_v_loop_value") == 0) {
+	} else if (strcmp(fun_name, "summary_global_quantities_v_loop_value") == 0) {
 		return summary_global_quantities_v_loop_value(shotNumber, data_block, nodeIndices); //TODO
 	} else if (strcmp(fun_name, "summary_global_quantities_b0_value") == 0) {
 		return summary_global_quantities_b0_value(shotNumber, data_block, nodeIndices); //TODO

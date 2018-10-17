@@ -124,8 +124,6 @@ int pf_active_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndi
 		return status;
 	}
 	SetDynamicDataTime(data_block, len, time, data);
-	/*free(time);
-	free(data);*/
 	return 0;
 }
 
