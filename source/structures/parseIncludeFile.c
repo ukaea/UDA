@@ -63,7 +63,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
     int size[MAXELEMENTS];
     int count[MAXELEMENTS];
     int rank[MAXELEMENTS];
-    int shape[MAXELEMENTS][MAXRANK];
+    int shape[MAXELEMENTS][MAXRANK] = { 0 };
 
     char defnames[MAXELEMENTS][MAXELEMENTNAME];
     int defvalues[MAXELEMENTS];
