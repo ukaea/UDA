@@ -434,12 +434,6 @@ int averageArcadeSignal(char* sigName, int shotNumber, int extractions[], int ex
 		}
 
 		if (status != 0) {
-			/*int err = 901;
-			char errorMsg[1000];
-			strcpy(errorMsg, "WEST:ERROR in averageArcadeSignal for signal:");
-			sprintf(errorMsg, "%s,shot:%d\n", sigName, shotNumber);
-			UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
-			addIdamError(CODEERRORTYPE, errorMsg, err, "");*/
 			return status;
 		}
 	}

@@ -159,7 +159,7 @@ int readStaticParameters(char** pt_char, int* nb_val, int num_choc, char* nom_pr
 	UDA_LOG(UDA_LOG_DEBUG, "Producer: %s\n", nom_prod);
 	UDA_LOG(UDA_LOG_DEBUG, "Object: %s\n", nom_objet);
 	UDA_LOG(UDA_LOG_DEBUG, "Parameter: %s\n", nom_param);
-	int attempts = 3;
+	int attempts = 10;
 	cr = -1;
 	int i = 1;
 	while (cr != 0 && cr != 32 && attempts != 0) { //cr=32 means that no data are available for this shot
@@ -178,7 +178,7 @@ int readSignal(char* nomsigp, int numchoc, int occ,
 		int rang[], float** X, float** Y, int* len)
 {
 	UDA_LOG(UDA_LOG_DEBUG, "Reading signal: %s\n", nomsigp);
-	int attempts = 3;
+	int attempts = 10;
 	cr = -1;
 	int i = 1;
 	while (cr != 0 && cr != 32 && attempts != 0) { //cr=32 means that no data are available for this shot
