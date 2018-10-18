@@ -162,10 +162,10 @@ int readStaticParameters(char** pt_char, int* nb_val, int num_choc, char* nom_pr
 	int attempts = 3;
 	cr = -1;
 	int i = 1;
-	while (cr != 0 && attempts != 0) {
+	while (cr != 0 && cr != 32 && attempts != 0) { //cr=32 means that no data are available for this shot
 		cr = TSRqParm(num_choc, nom_prod, nom_objet, nom_param, val_nb, pt_char, nb_val, &format);
 		if (cr != 0) {
-			UDA_LOG(UDA_LOG_ERROR, "WEST:WARNING: attempt %d for reading static parameters %s has failed for shot %d\n", i, nom_objet, num_choc);
+			UDA_LOG(UDA_LOG_ERROR, "WEST:WARNING: attempt %d for reading static parameters %s has failed for shot %d, cr=%d\n", i, nom_objet, num_choc,cr);
 			attempts = attempts - 1;
 			sleep(0.0001);
 			i++;
@@ -181,10 +181,10 @@ int readSignal(char* nomsigp, int numchoc, int occ,
 	int attempts = 3;
 	cr = -1;
 	int i = 1;
-	while (cr != 0 && attempts != 0) {
+	while (cr != 0 && cr != 32 && attempts != 0) { //cr=32 means that no data are available for this shot
 		cr = lit_traite(nomsigp, numchoc, occ, rang, (float**)X, (float**)Y, (int*)len);
 		if (cr != 0) {
-			UDA_LOG(UDA_LOG_ERROR, "WEST:WARNING: attempt %d for reading ARCAD signal %s has failed for shot %d\n", i, nomsigp, numchoc);
+			UDA_LOG(UDA_LOG_ERROR, "WEST:WARNING: attempt %d for reading ARCAD signal %s has failed for shot %d, cr=%d\n", i, nomsigp, numchoc,cr);
 			attempts = attempts - 1;
 			sleep(0.0001);
 			i++;
