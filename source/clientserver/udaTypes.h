@@ -61,6 +61,7 @@ typedef enum UdaOpaqueTypes {
 } UDA_OPAQUE_TYPE;
 
 size_t getSizeOf(UDA_TYPE data_type);
+size_t getPtrSizeOf(UDA_TYPE data_type);
 
 #ifdef __cplusplus
 }

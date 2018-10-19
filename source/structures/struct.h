@@ -1,6 +1,7 @@
 #ifndef UDA_STRUCTURES_STRUCT_H
 #define UDA_STRUCTURES_STRUCT_H
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <rpc/rpc.h>
 
@@ -479,7 +480,7 @@ size_t padding(size_t offset, const char* type);
 * @param type The integer value of the type enumeration.
 * @return The name of the atomic type.
 */
-char* idamNameType(int type);
+const char* udaNameType(UDA_TYPE type);
 
 /** The size or byte count of a user defined structured type.
 * 
@@ -1100,6 +1101,8 @@ short* castNodeStructureComponentDatatoShort(LOGMALLOCLIST* logmalloclist, NTREE
 void castNodeStructureComponentDatatoShort_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target, short* data_f);
 
 void castNodeStructureComponentDatatoFloat_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target, float* data_f);
+
+void addStructureField(USERDEFINEDTYPE* user_type, const char* name, const char* desc, UDA_TYPE data_type, bool is_pointer, int rank, int* shape, size_t offset);
 
 #ifdef __cplusplus
 }

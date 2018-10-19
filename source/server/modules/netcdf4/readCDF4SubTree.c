@@ -540,7 +540,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
 
                 if (isAtomicNCType(atttype)) {
                     field.atomictype = convertNCType(atttype);            // convert netCDF base type to IDAM type
-                    strcpy(field.type, idamNameType(field.atomictype));        // convert atomic type to a string label
+                    strcpy(field.type, udaNameType(field.atomictype));        // convert atomic type to a string label
                 } else {
                     field.atomictype = UDA_TYPE_UNKNOWN;
 
@@ -658,7 +658,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
     } else {
         if (isAtomicNCType(variable->vartype)) {
             field.atomictype = convertNCType(variable->vartype);        // convert netCDF base type to IDAM type
-            strcpy(field.type, idamNameType(field.atomictype));        // convert atomic type to a string label
+            strcpy(field.type, udaNameType(field.atomictype));        // convert atomic type to a string label
         } else {
             field.atomictype = UDA_TYPE_UNKNOWN;
 
@@ -816,7 +816,7 @@ int getCDF4SubTreeVar2Meta(int grpid, int varid, VARIABLE* variable, int* offset
 
         if (isAtomicNCType(variable->vartype)) {
             field->atomictype = convertNCType(variable->vartype);        // convert netCDF base type to IDAM type
-            strcpy(field->type, idamNameType(field->atomictype));        // convert atomic type to a string label
+            strcpy(field->type, udaNameType(field->atomictype));        // convert atomic type to a string label
         } else {
             field->atomictype = UDA_TYPE_UNKNOWN;                // Structured Type
 
@@ -1090,7 +1090,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
 
                 if (isAtomicNCType(atttype)) {
                     field.atomictype = convertNCType(atttype);            // convert netCDF base type to IDAM type
-                    strcpy(field.type, idamNameType(field.atomictype));        // convert atomic type to a string label
+                    strcpy(field.type, udaNameType(field.atomictype));        // convert atomic type to a string label
                 } else {
                     field.atomictype = UDA_TYPE_UNKNOWN;
 
@@ -1592,9 +1592,9 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                                      "Variable Attribute has Unknown Atomic Type (Not a User Defined Type)!");
                         break;
                     }
-                    size = getsizeof(userdefinedtypelist, idamNameType(idamType));
+                    size = getsizeof(userdefinedtypelist, udaNameType(idamType));
                     d = (char*)malloc(variable->attribute[i].attlength * size);
-                    addMalloc(logmalloclist, d, variable->attribute[i].attlength, size, idamNameType(idamType));
+                    addMalloc(logmalloclist, d, variable->attribute[i].attlength, size, udaNameType(idamType));
                     if ((err = nc_get_att(grpid, varid, variable->attribute[i].attname, (void*)d)) != NC_NOERR) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
@@ -1771,7 +1771,7 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                     addMalloc(logmalloclist, (void*)enumlist->enummember, members, sizeof(ENUMMEMBER), "ENUMMEMBER");
 
                     //addMalloc(logmalloclist, (void*)enumlist->data, variable->attribute[i].attlength, size,
-                    //          idamNameType(idamAtomicType(base)));            // Use true integer type
+                    //          udaNameType(idamAtomicType(base)));            // Use true integer type
                     addMalloc(logmalloclist, (void*)enumlist->enumarray, variable->attribute[i].attlength,
                               sizeof(unsigned long long), "unsigned long long");
 
@@ -1821,7 +1821,7 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
         if (variable->udt->compoundfield[fieldid].atomictype == UDA_TYPE_UNKNOWN) {        // Structure
             size = getsizeof(userdefinedtypelist, variable->udt->compoundfield[fieldid].type);
         } else {
-            size = getsizeof(userdefinedtypelist, idamNameType(variable->udt->compoundfield[fieldid].atomictype));
+            size = getsizeof(userdefinedtypelist, udaNameType(variable->udt->compoundfield[fieldid].atomictype));
         }
 
         if (size == 0) {
@@ -1851,12 +1851,12 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
 
             if (STR_EQUALS(variable->udt->compoundfield[fieldid].type, "ENUMLIST")) {
                 ENUMLIST* enumlist = getCDF4EnumList(grpid, variable->vartype, logmalloclist);
-                size = getsizeof(userdefinedtypelist, idamNameType(enumlist->type));
+                size = getsizeof(userdefinedtypelist, udaNameType(enumlist->type));
                 d = (char*)malloc(count * size);                            // Enumerated Array
                 if (d != NULL) {
                     memset(d, 0, count * size);
                 }
-                //addMalloc2(logmalloclist, (void*)d, count, size, idamNameType(enumlist->type), variable->rank, variable->shape);
+                //addMalloc2(logmalloclist, (void*)d, count, size, udaNameType(enumlist->type), variable->rank, variable->shape);
                 if ((rc = nc_get_vara(grpid, varid, (size_t*)&startIndex, (size_t*)&countIndex, (void*)d)) !=
                     NC_NOERR) {
                     err = 999;
@@ -2057,7 +2057,7 @@ int getCDF4SubTreeVar2Data(int grpid, void** data, VARIABLE* variable, LOGMALLOC
             size = variable->udt->size;
             strcpy(typename, variable->udt->name);
         } else if (isAtomicNCType(variable->vartype)) {                    // Atomic Type
-            strcpy(typename, idamNameType(convertNCType(variable->vartype)));
+            strcpy(typename, udaNameType(convertNCType(variable->vartype)));
             size = getsizeof(userdefinedtypelist, typename);
         }
 
@@ -2593,7 +2593,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                     addMalloc(logmalloclist, (void*)enumlist->enummember, (int)members, sizeof(ENUMMEMBER),
                               "ENUMMEMBER");
 
-                    //addMalloc(logmalloclist, (void*)enumlist->data, ndata, (int)size, idamNameType(idamAtomicType(base)));            // Use true integer type
+                    //addMalloc(logmalloclist, (void*)enumlist->data, ndata, (int)size, udaNameType(idamAtomicType(base)));            // Use true integer type
                     addMalloc(logmalloclist, (void*)enumlist->enumarray, ndata, sizeof(unsigned long long),
                               "unsigned long long");
 
@@ -2757,9 +2757,9 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                                      "Variable Attribute has Unknown Atomic Type or User Defined Type!");
                         break;
                     }
-                    size = getsizeof(userdefinedtypelist, idamNameType(idamType));
+                    size = getsizeof(userdefinedtypelist, udaNameType(idamType));
                     d = (char*)malloc(group->attribute[i].attlength * size);
-                    addMalloc(logmalloclist, d, group->attribute[i].attlength, size, idamNameType(idamType));
+                    addMalloc(logmalloclist, d, group->attribute[i].attlength, size, udaNameType(idamType));
                     if ((err = nc_get_att(group->grpid, varid, group->attribute[i].attname, (void*)d)) != NC_NOERR) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
@@ -2922,7 +2922,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                     addMalloc(logmalloclist, (void*)enumlist, 1, sizeof(ENUMLIST), "ENUMLIST");
                     addMalloc(logmalloclist, (void*)enumlist->enummember, members, sizeof(ENUMMEMBER), "ENUMMEMBER");
                     //addMalloc(logmalloclist, (void*)enumlist->data, group->attribute[i].attlength, size,
-                    //          idamNameType(idamAtomicType(base)));            // Use true integer type
+                    //          udaNameType(idamAtomicType(base)));            // Use true integer type
                     addMalloc(logmalloclist, (void*)enumlist->enumarray, group->attribute[i].attlength,
                               sizeof(unsigned long long), "unsigned long long");
 

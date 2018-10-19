@@ -380,6 +380,86 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
                 break;
             }
 
+            case UDA_TYPE_UNSIGNED_CHAR: {
+                UDA_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED_CHAR\n");
+
+                if (userdefinedtype->compoundfield[j].pointer) {        // Pointer to Data array
+                    if (xdrs->x_op == XDR_DECODE) {                // Allocate Heap for Data
+                        rc = rc && xdr_int(xdrs,
+                                           &count);            // Count is known from the client's malloc log and passed by the sender
+                        if (count > 0) {
+                            rc = rc && xdr_int(xdrs,
+                                               &rank);            // Receive Shape of pointer arrays (not included in definition)
+                            if (rank > 1) {
+                                shape = (int*)malloc(rank * sizeof(int));    // freed via the malloc log registration
+                                rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
+                            } else {
+                                shape = NULL;
+                            }
+                            d = (char*)malloc(count * sizeof(unsigned char));
+                            addMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned char), "unsigned char", rank, shape);
+                            *p = (VOIDTYPE)d;                    // Save pointer: data will be written here
+                        } else { break; }
+                    } else {
+                        d = (char*)*p;                    // data read from here
+                        if (d == NULL) {
+                            count = 0;
+                            rc = rc && xdr_int(xdrs, &count);            // No data to send
+                            break;
+                        }
+                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
+                                    &shape);    // Assume count of 0 means No Pointer data to send!
+
+                        if (type != NULL && STR_EQUALS(type, "unknown")) {
+                            if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
+                                STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
+                                STR_EQUALS(userdefinedtype->compoundfield[j].name,
+                                           &userdefinedtype->compoundfield[j - 1].name[6])) {
+
+                                count = (int)*prev;        // the value of __size...
+                                size = sizeof(unsigned char);
+                                type = userdefinedtype->compoundfield[j].type;
+                            } else {
+                                if (count > 0) {
+                                    int totalsize = count * size;
+                                    int rcount = totalsize % sizeof(unsigned char);
+                                    size = sizeof(unsigned char);
+                                    count = totalsize / size;
+                                    if (rcount != 0) {
+                                        addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
+                                                     "Specified unsigned char malloc total size not integer multiple!");
+                                        count = 0;
+                                    }
+                                }
+                            }
+                        }
+
+                        rc = rc && xdr_int(xdrs, &count);
+
+                        if ((count == 0 || size == 0) && *p != 0) {
+                            addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
+                                         "Unsigned Short Data Heap Allocation not found in log!");
+                            break;
+                        }
+
+                        rc = rc && xdr_int(xdrs, &rank);            // Send Shape of arrays
+                        if (rank > 1) {
+                            rc = rc && xdr_vector(xdrs, (char*)shape, rank, sizeof(int), (xdrproc_t)xdr_int);
+                        }
+
+                    }
+                    rc = rc && xdr_vector(xdrs, d, count, sizeof(unsigned char), (xdrproc_t)xdr_u_char);
+                } else {
+                    if (userdefinedtype->compoundfield[j].rank == 0) {        // Element is a Scalar
+                        rc = rc && xdr_u_char(xdrs, (unsigned char*)p);
+                    } else {                            // Element is an Array of fixed size
+                        rc = rc && xdr_vector(xdrs, (char*)p, userdefinedtype->compoundfield[j].count,
+                                              sizeof(unsigned char), (xdrproc_t)xdr_u_char);
+                    }
+                }
+                break;
+            }
+
             case UDA_TYPE_UNSIGNED_SHORT: {
                 UDA_LOG(UDA_LOG_DEBUG, "Type: UNSIGNED_SHORT\n");
 
