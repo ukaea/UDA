@@ -28,10 +28,10 @@ float second_point_z[45] =  {-654.80,-623.10,-591.70,-560.50,-529.60,-498.90,-46
 
 int channels_power_density(int shotNumber, char* nomsigp, int extractionIndex, float** time, float** data, int* len);
 
-void soft_x_rays_throwsIdamError(char* methodName, char* object_name, int index, int shotNumber) {
+void soft_x_rays_throwsIdamError(int status, char* methodName, char* object_name, int index, int shotNumber) {
 	int err = 901;
 	char msg[1000];
-	sprintf(msg, "%s(%s),object:%s,index:%d,shot:%d\n", "WEST:ERROR", methodName, object_name, index, shotNumber);
+	sprintf(msg, "%s(%s),object:%s,index:%d,shot:%d,err:%d\n", "WEST:ERROR", methodName, object_name, index, shotNumber, status);
 	//UDA_LOG(UDA_LOG_ERROR, "%s", msg);
 	addIdamError(CODEERRORTYPE, msg, err, "");
 }
@@ -128,7 +128,7 @@ int soft_x_rays_channels_power_density_data(int shotNumber, DATA_BLOCK* data_blo
 
 	if (status != 0) {
 		UDA_LOG(UDA_LOG_DEBUG, "reading channels_power_density, error status...\n");
-		soft_x_rays_throwsIdamError("soft_x_rays_channels_power_density_data", nomsigp, extractionIndex, shotNumber);
+		soft_x_rays_throwsIdamError(status, "soft_x_rays_channels_power_density_data", nomsigp, extractionIndex, shotNumber);
 		free(time);
 		free(data);
 		return status;
@@ -163,7 +163,7 @@ int soft_x_rays_channels_power_density_time(int shotNumber, DATA_BLOCK* data_blo
 	int status = channels_power_density(shotNumber, nomsigp, extractionIndex, &time, &data, &len);
 
 	if (status != 0) {
-		soft_x_rays_throwsIdamError("soft_x_rays_channels_power_density_time", nomsigp, extractionIndex, shotNumber);
+		soft_x_rays_throwsIdamError(status, "soft_x_rays_channels_power_density_time", nomsigp, extractionIndex, shotNumber);
 		free(time);
 		free(data);
 		return status;

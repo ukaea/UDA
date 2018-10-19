@@ -68,10 +68,10 @@ int passive_current_shapeOf(int shotNumber, DATA_BLOCK* data_block, int* nodeInd
 int passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-void pf_passive_throwsIdamError(char* methodName, char* object_name, int shotNumber) {
+void pf_passive_throwsIdamError(int status, char* methodName, char* object_name, int shotNumber) {
 	int err = 901;
 	char msg[1000];
-	sprintf(msg, "%s(%s),object:%s,shot:%d\n", "WEST:ERROR", methodName, object_name, shotNumber);
+	sprintf(msg, "%s(%s),object:%s,shot:%d,err:%d\n", "WEST:ERROR", methodName, object_name, shotNumber, status);
 	//UDA_LOG(UDA_LOG_ERROR, "%s", msg);
 	addIdamError(CODEERRORTYPE, msg, err, "");
 }
@@ -164,8 +164,9 @@ int passive_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	} else if (k > 32 && k <= 34) {
 		sprintf(s, "Lower divertor casing, low field side part (loop %d)", k - 32);
 	} else {
-		pf_passive_throwsIdamError("passive_name", "wrong k index", shotNumber);
-		return -1;
+		int status = -1;
+		pf_passive_throwsIdamError(status,"passive_name", "wrong k index", shotNumber);
+		return status;
 	}
 
 	setReturnDataString(data_block, s, NULL);
@@ -195,8 +196,9 @@ int passive_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	} else if (k > 32 && k <= 34) {
 		r[0] = Rinf3[k - 33];
 	} else {
-		pf_passive_throwsIdamError("passive_r", "wrong k index", shotNumber);
-		return -1;
+		int status = -1;
+		pf_passive_throwsIdamError(status, "passive_r", "wrong k index", shotNumber);
+		return status;
 	}
 	SetStatic1DData(data_block, 1, r);
 	return 0;
@@ -225,8 +227,9 @@ int passive_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	} else if (k > 32 && k <= 34) {
 		z[0] = Zinf3[k - 33];
 	} else {
-		pf_passive_throwsIdamError("passive_z", "wrong k index", shotNumber);
-		return -1;
+		int status = -1;
+		pf_passive_throwsIdamError(status, "passive_z", "wrong k index", shotNumber);
+		return status;
 	}
 	SetStatic1DData(data_block, 1, z);
 	return 0;
@@ -247,7 +250,7 @@ int passive_current(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	int len;
 	int status = getCurrent(shotNumber, data_block, nodeIndices, &data, &time, &len);
 	if (status != 0) {
-		pf_passive_throwsIdamError("passive_current", "", shotNumber);
+		pf_passive_throwsIdamError(status, "passive_current", "", shotNumber);
 		free(data);
 		free(time);
 		return status;
@@ -321,7 +324,7 @@ int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	}
 
 	if (status != 0) {
-		pf_passive_throwsIdamError("passive_current", "", shotNumber);
+		pf_passive_throwsIdamError(status, "passive_current", "", shotNumber);
 		free(data);
 		free(time);
 		return status;
@@ -342,7 +345,7 @@ int passive_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 			char errorMsg[1000];
 			strcpy(errorMsg, "WEST:ERROR (passive_time): time data for pf_passive currents differ");
 			sprintf(errorMsg, ",shot:%d", shotNumber);
-			UDA_LOG(UDA_LOG_ERROR, "%s\n", errorMsg);
+			//UDA_LOG(UDA_LOG_ERROR, "%s\n", errorMsg);
 			addIdamError(CODEERRORTYPE, errorMsg, err, "");
 			free(data);
 			free(time);
@@ -364,7 +367,8 @@ int getIFREEB(int shotNumber, int extractionIndex, float** time, float** data, i
 			extractionIndex); //Concatenate nomsigp_to_extract avec !extractionIndex, example: !1, !2, ...
 	int rang[2] = { 0, 0 };
 	int status = readSignal(nomsigp_to_extract, shotNumber, 0, rang, time, data, len);
-	multiplyFloat(*data, normalizationFactor, *len);
+	if (status == 0)
+		multiplyFloat(*data, normalizationFactor, *len);
 	return status;
 }
 
@@ -413,7 +417,7 @@ float factUpper(int shotNumber)
 	float* I_case_upper_time = NULL;
 	int status = I_case_upper(shotNumber, &I_case_upper_time, &I_case_upper_data, &I_case_upper_len, 1.);
 	if (status != 0) {
-		pf_passive_throwsIdamError("factUpper,I_case_upper", "", shotNumber);
+		pf_passive_throwsIdamError(status, "factUpper,I_case_upper", "", shotNumber);
 		free(I_case_upper_data);
 		free(I_case_upper_time);
 	}
@@ -423,7 +427,7 @@ float factUpper(int shotNumber)
 	float* coeff1_time = NULL;
 	status = getIDCOEF(shotNumber, 19, &coeff1_time, &coeff1_data, &coeff_len, 1.);
 	if (status != 0) {
-		pf_passive_throwsIdamError("factUpper,getIDCOEF(19)", "", shotNumber);
+		pf_passive_throwsIdamError(status, "factUpper,getIDCOEF(19)", "", shotNumber);
 		free(I_case_upper_data);
 		free(I_case_upper_time);
 		free(coeff1_data);
@@ -433,7 +437,7 @@ float factUpper(int shotNumber)
 	float* coeff2_time = NULL;
 	status = getIDCOEF(shotNumber, 20, &coeff2_time, &coeff2_data, &coeff_len, 1.);
 	if (status != 0) {
-		pf_passive_throwsIdamError("factUpper,getIDCOEF(20)", "", shotNumber);
+		pf_passive_throwsIdamError(status, "factUpper,getIDCOEF(20)", "", shotNumber);
 		free(I_case_upper_data);
 		free(I_case_upper_time);
 		free(coeff1_data);
@@ -445,7 +449,7 @@ float factUpper(int shotNumber)
 	float* coeff3_time = NULL;
 	status = getIDCOEF(shotNumber, 21, &coeff3_time, &coeff3_data, &coeff_len, 1.);
 	if (status != 0) {
-		pf_passive_throwsIdamError("factUpper,getIDCOEF(21)", "", shotNumber);
+		pf_passive_throwsIdamError(status, "factUpper,getIDCOEF(21)", "", shotNumber);
 		free(I_case_upper_data);
 		free(I_case_upper_time);
 		free(coeff1_data);
@@ -471,7 +475,7 @@ float factLower(int shotNumber)
 	float* I_case_lower_time = NULL;
 	int status = I_case_lower(shotNumber, &I_case_lower_time, &I_case_lower_data, &I_case_lower_len, 1.);
 	if (status != 0) {
-		pf_passive_throwsIdamError("factLower,I_case_lower", "", shotNumber);
+		pf_passive_throwsIdamError(status, "factLower,I_case_lower", "", shotNumber);
 		free(I_case_lower_data);
 		free(I_case_lower_time);
 	}
@@ -481,7 +485,7 @@ float factLower(int shotNumber)
 	float* coeff1_time = NULL;
 	status = getIDCOEF(shotNumber, 22, &coeff1_time, &coeff1_data, &coeff_len, 1.);
 	if (status != 0) {
-		pf_passive_throwsIdamError("factLower,getIDCOEF(22)", "", shotNumber);
+		pf_passive_throwsIdamError(status, "factLower,getIDCOEF(22)", "", shotNumber);
 		free(I_case_lower_data);
 		free(I_case_lower_time);
 		free(coeff1_data);
@@ -492,7 +496,7 @@ float factLower(int shotNumber)
 	float* coeff2_time = NULL;
 	status = getIDCOEF(shotNumber, 23, &coeff2_time, &coeff2_data, &coeff_len, 1.);
 	if (status != 0) {
-		pf_passive_throwsIdamError("factLower,getIDCOEF(23)", "", shotNumber);
+		pf_passive_throwsIdamError(status, "factLower,getIDCOEF(23)", "", shotNumber);
 		free(I_case_lower_data);
 		free(I_case_lower_time);
 		free(coeff1_data);
@@ -505,7 +509,7 @@ float factLower(int shotNumber)
 	float* coeff3_time = NULL;
 	status = getIDCOEF(shotNumber, 24, &coeff3_time, &coeff3_data, &coeff_len, 1.);
 	if (status != 0) {
-		pf_passive_throwsIdamError("factLower,getIDCOEF(24)", "", shotNumber);
+		pf_passive_throwsIdamError(status, "factLower,getIDCOEF(24)", "", shotNumber);
 		free(I_case_lower_data);
 		free(I_case_lower_time);
 		free(coeff1_data);

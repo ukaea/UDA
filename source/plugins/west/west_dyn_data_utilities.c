@@ -53,7 +53,7 @@ int SetNormalizedDynData(int shotNumber, DATA_BLOCK* data_block, int* nodeIndice
 		char msg[1000];
 		strcpy(msg, errorMsg);
 		sprintf(msg, "%s,shot:%d\n", TOP_collections_parameters, shotNumber);
-		UDA_LOG(UDA_LOG_ERROR, "%s", msg);
+		//UDA_LOG(UDA_LOG_ERROR, "%s", msg);
 		addIdamError(CODEERRORTYPE, msg, err, "");
 		free(time);
 		free(data);
@@ -83,7 +83,7 @@ int GetNormalizedDynamicData(int shotNumber, float** data_time, float** data, in
 		char msg[1000];
 		strcpy(msg, errorMsg);
 		sprintf(msg, "%s,shot:%d\n", TOP_collections_parameters, shotNumber);
-		UDA_LOG(UDA_LOG_ERROR, "%s", msg);
+		//UDA_LOG(UDA_LOG_ERROR, "%s", msg);
 		addIdamError(CODEERRORTYPE, msg, err, "");
 	} else {
 		UDA_LOG(UDA_LOG_DEBUG, "Getting normalization factor, if any\n");
@@ -174,7 +174,7 @@ int GetDynData(int shotNumber, float** data_time, float** data, int* len, int* n
 		char errorMsg[1000];
 		strcpy(errorMsg, "WEST:ERROR: unable to get command for TOP parameters:");
 		sprintf(errorMsg, "%s,shot:%d\n", TOP_collections_parameters, shotNumber);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
+		//UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 		return status;
 	}
@@ -201,13 +201,13 @@ int GetDynData(int shotNumber, float** data_time, float** data, int* len, int* n
 	status = readSignal(objectName, shotNumber, 0, rang, data_time, data, len);
 
 	if (status != 0) {
-		int err = 901;
+		/*int err = 901;
 		UDA_LOG(UDA_LOG_DEBUG, "WEST:ERROR: error reading signal: %s\n", objectName);
 		char* errorMsg = "WEST:ERROR (GetDynData): error reading signal";
 		char msg[1000];
-		sprintf(msg, "%s,objectName:%s,shot:%d\n", errorMsg, objectName, shotNumber);
-		UDA_LOG(UDA_LOG_ERROR, "%s", msg);
-		addIdamError(CODEERRORTYPE, msg, err, "");
+		sprintf(msg, "%s,objectName:%s,shot:%d\n,err:%d", errorMsg, objectName, shotNumber, status);*/
+		//UDA_LOG(UDA_LOG_ERROR, "%s", msg);
+		//addIdamError(CODEERRORTYPE, msg, err, "");
 		free(command);
 		free(objectName);
 		free(extractionsCount);
@@ -229,7 +229,7 @@ int GetDynData(int shotNumber, float** data_time, float** data, int* len, int* n
 		char msg[1000];
 		char* errorMsg = "WEST:ERROR (GetDynData): dynamic data empty";
 		sprintf(msg, "%s,objectName:%s,shot:%d\n", errorMsg, objectName, shotNumber);
-		UDA_LOG(UDA_LOG_ERROR, "%s", msg);
+		//UDA_LOG(UDA_LOG_ERROR, "%s", msg);
 		addIdamError(CODEERRORTYPE, msg, err, "");
 		status = -1;
 	} else {
@@ -301,14 +301,6 @@ int getArcadeSignal(char* nomsigp, int shotNumber, int extractionIndex, float** 
 	int rang[2] = { 0, 0 };
 	int status = readSignal(nomsigp_to_extract, shotNumber, 0, rang, data_time, data, len);
 	UDA_LOG(UDA_LOG_DEBUG, "readSignal status: %d\n", status);
-	/*if (status != 0) {
-		int err = 901;
-		char* errorMsg = "WEST:ERROR (getArcadeSignal): error reading signal";
-		char msg[1000];
-		sprintf(msg, "%s,objectName:%s,shot:%d\n", errorMsg, nomsigp_to_extract, shotNumber);
-		UDA_LOG(UDA_LOG_ERROR, "%s", msg);
-		addIdamError(CODEERRORTYPE, msg, err, "");
-	}*/
 	if ((status == 0) && (*len != 0))
 		multiplyFloat(*data, normalizationFactor, *len);
 	UDA_LOG(UDA_LOG_DEBUG, "returning from getArcadeSignal");

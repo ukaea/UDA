@@ -70,7 +70,7 @@ void setStaticValue(int data_type, DATA_BLOCK* data_block, char* value, int requ
 	} else {
 		int err = 901;
 		UDA_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStaticValue()\n");
-		UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unsupported data type");
+		//UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unsupported data type");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
 	}
 }
@@ -93,7 +93,7 @@ void set_BTANG_StaticValue(int data_type, DATA_BLOCK* data_block, char* value, i
 	} else {
 		int err = 901;
 		UDA_LOG(UDA_LOG_DEBUG, "Unsupported data type from set_BTANG_StaticValue()\n");
-		UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unsupported data type");
+		//UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unsupported data type");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
 	}
 }

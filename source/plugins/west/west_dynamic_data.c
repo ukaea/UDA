@@ -165,7 +165,7 @@ int flt1D(const char* mappingValue, int shotNumber, DATA_BLOCK* data_block, int*
 		char errorMsg[1000];
 		strcpy(errorMsg, "WEST:ERROR (flt1D): unable to get object:");
 		sprintf(errorMsg, "%s,shot:%d\n", object_name, shotNumber);
-		UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
+		//UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 		addIdamError(CODEERRORTYPE, errorMsg, err, "");
 	}
 	free(diagnostic);

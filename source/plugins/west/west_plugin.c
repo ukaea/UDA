@@ -39,7 +39,7 @@ int westPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (idam_plugin_interface->interfaceVersion >
         THISPLUGIN_MAX_INTERFACE_VERSION) {
         err = 999;
-        UDA_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
+        //UDA_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
         addIdamError(CODEERRORTYPE, __func__,
                      err, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
         return err;
@@ -273,10 +273,10 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     //The path requested has not been found
     if (mapfun == NULL) {
-        UDA_LOG(UDA_LOG_ERROR, "The requested mapping function has not been found. Check the IDAM mapping file.\n");
-        fprintf(stderr, "The requested mapping function has not been found. Check the IDAM mapping file.");
+        //UDA_LOG(UDA_LOG_ERROR, "The requested mapping function has not been found. Check the IDAM mapping file.\n");
+        //fprintf(stderr, "The requested mapping function has not been found. Check the IDAM mapping file.");
         int err = 901;
-        addIdamError(CODEERRORTYPE, "dynamic data empty !", err, "");
+        addIdamError(CODEERRORTYPE, "The requested mapping function has not been found. Check the IDAM mapping file.", err, "");
         return -1;
     }
 
@@ -339,9 +339,9 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
      */
     doc = xmlParseFile(mappingFileName);
     if (doc == NULL) {
-        UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: unable to parse IDAM mapping file %s\n", mappingFileName);
+        //UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: unable to parse IDAM mapping file %s\n", mappingFileName);
         int err = 901;
-        addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to parse IDAM mapping file !", err, "");
+        addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to parse IDAM mapping file %s !", err, mappingFileName);
         return NULL;
     }
 
@@ -350,7 +350,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
      */
     xpathCtx = xmlXPathNewContext(doc);
     if (xpathCtx == NULL) {
-        UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: unable to create new XPath context\n");
+        //UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: unable to create new XPath context\n");
         int err = 901;
         addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to create new XPath context", err, "");
         xmlFreeDoc(doc);
@@ -368,7 +368,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
      */
     xpathObj = xmlXPathEvalExpression(xPathExpr, xpathCtx);
     if (xpathObj == NULL) {
-        UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: unable to evaluate xpath expression %s\n", c);
+        //UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: unable to evaluate xpath expression %s\n", c);
         int err = 901;
         addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to evaluate xpath expression %s\n", err, c);
         xmlXPathFreeContext(xpathCtx);
@@ -402,8 +402,8 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
      */
     xpathObj = xmlXPathEvalExpression(xPathExpr, xpathCtx);
     if (xpathObj == NULL) {
-        UDA_LOG(UDA_LOG_ERROR,
-                 "WEST:ERROR: unable to evaluate xpath expression for getting the type (static or dynamic): %s\n", key_type);
+        //UDA_LOG(UDA_LOG_ERROR,
+        //         "WEST:ERROR: unable to evaluate xpath expression for getting the type (static or dynamic): %s\n", key_type);
         err = 901;
         addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to evaluate following xpath expression for getting the type (static or dynamic): %s\n", err, key_type);
         xmlXPathFreeContext(xpathCtx);
@@ -423,7 +423,7 @@ char* getMappingValue(const char* mappingFileName, const char* IDAM_MappingKey,
         typeStr = strdup((char*)cur->content);
     } else {
         err = 902;
-        UDA_LOG(UDA_LOG_ERROR, "no result on XPath request\n");
+        //UDA_LOG(UDA_LOG_ERROR, "no result on XPath request\n");
         addIdamError(CODEERRORTYPE, __func__, err, "no result on XPath request");
     }
 

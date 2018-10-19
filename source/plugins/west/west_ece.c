@@ -36,10 +36,18 @@ int ece_t_e_time1(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int ece_t_e_time2(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int ece_t_e_time3(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 
-void ece_throwsIdamError(char* methodName, char* object_name, int shotNumber) {
+void ece_throwsIdamError(int status, char* methodName, char* object_name, int shotNumber) {
 	int err = 901;
 	char msg[1000];
-	sprintf(msg, "%s(%s),object:%s,shot:%d\n", "WEST:ERROR", methodName, object_name, shotNumber);
+	sprintf(msg, "%s(%s),object:%s,shot:%d,err:%d\n", "WEST:ERROR", methodName, object_name, shotNumber,status);
+	//UDA_LOG(UDA_LOG_ERROR, "%s", msg);
+	addIdamError(CODEERRORTYPE, msg, err, "");
+}
+
+void ece_throwsIdamError2(int status, char* methodName, char* object_name, int channel, int shotNumber) {
+	int err = 901;
+	char msg[1000];
+	sprintf(msg, "%s(%s),object:%s,shot:%d,channel:%d,err:%d\n", "WEST:ERROR", methodName, object_name, shotNumber,channel,status);
 	//UDA_LOG(UDA_LOG_ERROR, "%s", msg);
 	addIdamError(CODEERRORTYPE, msg, err, "");
 }
@@ -56,7 +64,8 @@ int homogeneous_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices){
 		}
 	}
 	if (homogeneous_time == -1) //an error has occurred, we do not set the field
-		return -1;
+		ece_throwsIdamError(-1, "homogeneous_time", "", shotNumber);
+
 	setReturnDataIntScalar(data_block, homogeneous_time, NULL);
 	return 0;
 }
@@ -94,29 +103,45 @@ int ece_t_e_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 {
 	int homogeneous_time;
 	int status = -1;
+	int channelID = nodeIndices[0];
 
 	if (shotNumber < SHOT_30814) {
 		//*mapfun = strdup("tsbase_time;DECE:GSH1,DECE:GSH2;1:float:#0");
 		homogeneous_time = isTimeHomogeneous1(shotNumber);
 		if (homogeneous_time == -1 || homogeneous_time == 1) {
+			ece_throwsIdamError2(status, "ece_t_e_time", "isTimeHomogeneous1", channelID, shotNumber);
 			return -1;
 		}
 		status = ece_t_e_time1(shotNumber, data_block, nodeIndices);
+		if (status != 0) {
+			ece_throwsIdamError2(status, "ece_t_e_time", "ece_t_e_time1",  channelID, shotNumber);
+			return status;
+		}
 	} else {
 		if (shotNumber < SHOT_31957) {
 			//*mapfun = strdup("tsbase_time;DVECE:GVSH1,DVECE:GVSH2;1:float:#0");
 			homogeneous_time = isTimeHomogeneous2(shotNumber);
 			if (homogeneous_time == -1 || homogeneous_time == 1) {
+				ece_throwsIdamError2(status, "ece_t_e_time", "isTimeHomogeneous2",  channelID, shotNumber);
 				return -1;
 			}
 			status = ece_t_e_time2(shotNumber, data_block, nodeIndices);
+			if (status != 0) {
+				ece_throwsIdamError2(status, "ece_t_e_time", "ece_t_e_time2",  channelID, shotNumber);
+				return status;
+			}
 		} else {
 			//*mapfun = strdup("tsbase_time;DVECE:GVSH1,DVECE:GVSH2,DVECE:GVSH3,DVECE:GVSH4;1:float:#0");
 			homogeneous_time = isTimeHomogeneous3(shotNumber);
 			if (homogeneous_time == -1 || homogeneous_time == 1) {
+				ece_throwsIdamError2(status, "ece_t_e_time", "isTimeHomogeneous3",  channelID, shotNumber);
 				return -1;
 			}
 			status = ece_t_e_time3(shotNumber, data_block, nodeIndices);
+			if (status != 0) {
+				ece_throwsIdamError2(status, "ece_t_e_time", "ece_t_e_time3", channelID, shotNumber);
+				return status;
+			}
 		}
 	}
 	return status;
@@ -141,8 +166,7 @@ int ece_t_e_time1(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 	int status = setUDABlockTimeFromArcade(tableName, shotNumber, extractionIndex, data_block, nodeIndices);
 	if (status != 0) {
-		ece_throwsIdamError("ece_t_e_time1", tableName, shotNumber);
-		return -1;
+		return status;
 	}
 	return 0;
 }
@@ -165,8 +189,7 @@ int ece_t_e_time2(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 	int status = setUDABlockTimeFromArcade(tableName, shotNumber, extractionIndex, data_block, nodeIndices);
 	if (status != 0) {
-		ece_throwsIdamError("ece_t_e_time2", tableName, shotNumber);
-		return -1;
+		return status;
 	}
 	return 0;
 }
@@ -195,8 +218,7 @@ int ece_t_e_time3(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
 
 	int status = setUDABlockTimeFromArcade(tableName, shotNumber, extractionIndex, data_block, nodeIndices);
 	if (status != 0) {
-		ece_throwsIdamError("ece_t_e_time3", tableName, shotNumber);
-		return -1;
+		return status;
 	}
 	return 0;
 }
@@ -211,8 +233,7 @@ int isTimeHomogeneous1(int shotNumber) {
 	int status = get_signal("GSH1", shotNumber, 1, &time1, &data1, &size1);
 
 	if (status != 0) {
-		ece_throwsIdamError("isTimeHomogeneous1", "GSH1", shotNumber);
-		return -1;
+		return status;
 	}
 
 	int GSH2_extractions_count = 0;
@@ -223,8 +244,7 @@ int isTimeHomogeneous1(int shotNumber) {
 	status = get_signal("GSH2", shotNumber, 1, &time2, &data2, &size2);
 
 	if (status != 0 || size1 != size2) {
-		ece_throwsIdamError("isTimeHomogeneous1", "GSH2", shotNumber);
-		return -1;
+		return status;
 	}
 
 	if (equals(time1, time2, size1) == 1) {
@@ -244,7 +264,7 @@ int isTimeHomogeneous2(int shotNumber) {
 	int status = get_signal("GVSH1", shotNumber, 1, &time1, &data1, &size1);
 
 	if (status != 0) {
-		ece_throwsIdamError("isTimeHomogeneous2", "GVSH1", shotNumber);
+		return status;
 	}
 
 	int GVSH2_extractions_count = 0;
@@ -255,7 +275,7 @@ int isTimeHomogeneous2(int shotNumber) {
 	status = get_signal("GVSH2", shotNumber, 1, &time2, &data2, &size2);
 
 	if (status != 0 || size1 != size2) {
-		ece_throwsIdamError("isTimeHomogeneous2", "GVSH2", shotNumber);
+		return status;
 	}
 
 	if (equals(time1, time2, size1) == 1) {
@@ -275,7 +295,7 @@ int isTimeHomogeneous3(int shotNumber) {
 	int status = get_signal("GVSH1", shotNumber, 1, &time1, &data1, &size1);
 
 	if (status != 0) {
-		ece_throwsIdamError("isTimeHomogeneous3", "GVSH1", shotNumber);
+		return status;
 	}
 
 	int GVSH2_extractions_count = 0;
@@ -286,7 +306,7 @@ int isTimeHomogeneous3(int shotNumber) {
 	status = get_signal("GVSH2", shotNumber, 1, &time2, &data2, &size2);
 
 	if (status != 0 || size1 != size2) {
-		ece_throwsIdamError("isTimeHomogeneous3", "GVSH2", shotNumber);
+		return status;
 	}
 
 	int GVSH3_extractions_count = 0;
@@ -297,7 +317,7 @@ int isTimeHomogeneous3(int shotNumber) {
 	status = get_signal("GVSH3", shotNumber, 1, &time3, &data3, &size3);
 
 	if (status != 0 || size2 != size3) {
-		ece_throwsIdamError("isTimeHomogeneous3", "GVSH3", shotNumber);
+		return status;
 	}
 
 	int GVSH4_extractions_count = 0;
@@ -308,7 +328,7 @@ int isTimeHomogeneous3(int shotNumber) {
 	status = get_signal("GVSH4", shotNumber, 1, &time4, &data4, &size4);
 
 	if (status != 0 || size3 != size4) {
-		ece_throwsIdamError("isTimeHomogeneous3", "GVSH4", shotNumber);
+		return status;
 	}
 
 	if (equals(time1, time2, size1) && equals(time2, time3, size1) && equals(time3, time4, size1) == 1) {
@@ -340,7 +360,7 @@ int ece_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		//Time is homogeneous, we take for example GSH1%1
 		int status = setUDABlockTimeFromArcade("GSH1", shotNumber, 1, data_block, nodeIndices);
 		if (status != 0) {
-			ece_throwsIdamError("ece_t_e_time3", "GSH1", shotNumber);
+			ece_throwsIdamError(status, "ece_time", "GSH1", shotNumber);
 			return -1;
 		}
 	} else {
@@ -357,7 +377,7 @@ int ece_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		//Time is homogeneous, we take for example GVSH1%1
 		int status = setUDABlockTimeFromArcade("GVSH1", shotNumber, 1, data_block, nodeIndices);
 		if (status != 0) {
-			ece_throwsIdamError("ece_t_e_time3", "GVSH1", shotNumber);
+			ece_throwsIdamError(status, "ece_time", "GVSH1", shotNumber);
 			return -1;
 		}
 	}
@@ -403,7 +423,7 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		if (status != 0) {
 			free(data);
 			free(frequencies_time);
-			ece_throwsIdamError("ece_frequencies", "getECEModeHarmonic", shotNumber);
+			ece_throwsIdamError2(status, "ece_frequencies", "getECEModeHarmonic()", channel, shotNumber);
 			return status;
 		}
 
@@ -440,7 +460,7 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 			} else {
 				free(data);
 				free(TOP_collections_parameters);
-				ece_throwsIdamError("ece_frequencies", "unexpected ECE mode", shotNumber);
+				ece_throwsIdamError2(status, "ece_frequencies", "unexpected ECE mode", channel, shotNumber);
 				return -1;
 			}
 		}
@@ -451,6 +471,9 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 
 		//Get the ECE acquisition mode from NPZ file
 		int mode = getECEModeFromNPZFile(shotNumber);
+		if (mode == -1)
+			ece_throwsIdamError2(-1, "ece_frequencies", "getECEModeFromNPZFile", channel, shotNumber);
+		return -1;
 
 		int i;
 		float* GSH = NULL;
@@ -543,8 +566,9 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 			}
 		} else {
 			free(TOP_collections_parameters);
-			ece_throwsIdamError("ece_frequencies", "Unexpected error", shotNumber);
-			return -1;
+			int status = -1;
+			ece_throwsIdamError2(status, "ece_frequencies", "Unexpected error", channel, shotNumber);
+			return status;
 		}
 
 		int len;
@@ -556,9 +580,8 @@ int ece_frequencies(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		if (status != 0) {
 			free(frequencies_time);
 			free(data);
+			ece_throwsIdamError2(status, "ece_frequencies", "getECEModeHarmonic()", channel, shotNumber);
 			return status;
-			ece_throwsIdamError("ece_frequencies", "getECEModeHarmonic", shotNumber);
-			return -1;
 		}
 		UDA_LOG(UDA_LOG_DEBUG, "After calling getECEModeHarmonicTime\n");
 		frequencies_data = malloc(sizeof(float) * len);
@@ -583,7 +606,7 @@ int ece_harmonic_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	if (status != 0) {
 		free(time);
 		free(data);
-		ece_throwsIdamError("ece_harmonic_time", "getECEModeHarmonic", shotNumber);
+		ece_throwsIdamError(status, "ece_harmonic_time", "getECEModeHarmonic", shotNumber);
 		return status;
 	}
 	UDA_LOG(UDA_LOG_DEBUG, "ECE harmonic mode time array length: %d\n", len);
@@ -594,9 +617,10 @@ int ece_harmonic_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 
 int getECEModeFromNPZFile(int shotNumber)
 {
-
+	int status = -1;
 	if (shotNumber >= ARCADE_GECEMODE_EXISTS_FROM_SHOT) {
-		ece_throwsIdamError("getECEModeFromNPZFile", "this method should not be called for this shot", shotNumber);
+		ece_throwsIdamError(status, "getECEModeFromNPZFile", "this method should not be called for this shot", shotNumber);
+		return status;
 	}
 
 	struct Node* head = NULL;
@@ -613,7 +637,8 @@ int getECEModeFromNPZFile(int shotNumber)
 	pFile = fopen(ece_modes_file, "r");
 
 	if (pFile == NULL) {
-		ece_throwsIdamError("getECEModeFromNPZFile", "unable to read ECE mode file", shotNumber);
+		ece_throwsIdamError(status, "getECEModeFromNPZFile", "unable to read ECE mode file", shotNumber);
+		return status;
 	} else {
 
 		while (!feof(pFile)) {
@@ -632,7 +657,8 @@ int getECEModeFromNPZFile(int shotNumber)
 	int searchedMode = -1;
 
 	if (s == NULL) {
-		ece_throwsIdamError("getECEModeFromNPZFile", "unable to found ECE mode", shotNumber);
+		ece_throwsIdamError(status, "getECEModeFromNPZFile", "unable to found ECE mode", shotNumber);
+		return status;
 	} else {
 		searchedMode = s->ECE_mode;
 	}
@@ -647,14 +673,7 @@ int getECEModeHarmonic(int shotNumber, float** time, float** data, int* len)
 {
 	int rang[2] = { 0, 0 };
 	char* objectName = "GECEMODE";
-
 	int status = readSignal(objectName, shotNumber, 0, rang, time, data, len);
-
-	if (status != 0) {
-		ece_throwsIdamError("getECEModeHarmonic", objectName, shotNumber);
-		return status;
-	}
-
 	UDA_LOG(UDA_LOG_DEBUG, "returning from getECEModeHarmonic()...\n");
-	return 0;
+	return status;
 }

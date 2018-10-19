@@ -18,10 +18,10 @@
 #include "west_dynamic_data.h"
 #include "west_static_data_utilities.h"
 
-void summary_throwsIdamError(char* methodName, char* object_name, int shotNumber) {
+void summary_throwsIdamError(int status, char* methodName, char* object_name, int shotNumber) {
 	int err = 901;
 	char msg[1000];
-	sprintf(msg, "%s(%s),object:%s,shot:%d\n", "WEST:ERROR", methodName, object_name, shotNumber);
+	sprintf(msg, "%s(%s),object:%s,shot:%d,err:%d\n", "WEST:ERROR", methodName, object_name, shotNumber, status);
 	//UDA_LOG(UDA_LOG_ERROR, "%s", msg);
 	addIdamError(CODEERRORTYPE, msg, err, "");
 }
@@ -39,7 +39,7 @@ int summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_bloc
 	int status = averageArcadeSignal("GMAG_VLOOP", shotNumber, extractions, 4, &averaged_data_time, &averaged_data, &len);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_v_loop_value", "averageArcadeSignal", shotNumber);
+		summary_throwsIdamError(status, "summary_global_quantities_v_loop_value", "averageArcadeSignal", shotNumber);
 		free(averaged_data_time);
 		free(averaged_data);
 		return status;
@@ -52,7 +52,7 @@ int summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_bloc
 	status = getArcadeSignal("GMAG_FV", shotNumber, 2, &time2, &data2, &len2, 1.0);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_v_loop_value", "GMAG_FV", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_v_loop_value", "GMAG_FV", shotNumber);
 		free(averaged_data_time);
 		free(averaged_data);
 		free(time2);
@@ -67,7 +67,7 @@ int summary_global_quantities_v_loop_value(int shotNumber, DATA_BLOCK* data_bloc
 	status = getArcadeSignal("SMAG_IP", shotNumber, 1, &ip_time, &ip_data, &ip_len, 1.0);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_v_loop_value", "SMAG_IP", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_v_loop_value", "SMAG_IP", shotNumber);
 		free(averaged_data_time);
 		free(averaged_data);
 		free(time2);
@@ -104,7 +104,7 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 			&volume_time, &volume_data, &volume_len, 1.0);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_beta_tor_value", "GMAG_GEOM", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_beta_tor_value", "GMAG_GEOM", shotNumber);
 		free(volume_time);
 		free(volume_data);
 		return status;
@@ -120,7 +120,7 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 			&total_energy_time, &total_energy_data, &total_energy_len, 1.0);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_beta_tor_value", "GMAG_BILAN", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_beta_tor_value", "GMAG_BILAN", shotNumber);
 		free(volume_time);
 		free(volume_data);
 		free(total_energy_time);
@@ -133,7 +133,7 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 	status = signalsRatio(&ratio, total_energy_data, volume_data, total_energy_len, volume_len);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_beta_tor_value", "get ratio total_energy/volume", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_beta_tor_value", "get ratio total_energy/volume", shotNumber);
 		free(volume_time);
 		free(volume_data);
 		free(total_energy_time);
@@ -153,7 +153,7 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 	status = getArcadeSignal(itor_sigName, shotNumber, itor_extractionIndex, &itor_time, &itor_data, &itor_len, normalizationFactor);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_beta_tor_value", "GMAG_ITOR", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_beta_tor_value", "GMAG_ITOR", shotNumber);
 		free(itor_time);
 		free(itor_data);
 		free(volume_time);
@@ -173,7 +173,7 @@ int summary_global_quantities_beta_tor_value(int shotNumber, DATA_BLOCK* data_bl
 	status = signalsRatio(&energy_by_volume_by_b0_square, ratio, b0_square, total_energy_len, itor_len);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_beta_tor_value", "signalsRatio", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_beta_tor_value", "signalsRatio", shotNumber);
 		free(itor_time);
 		free(itor_data);
 		free(volume_time);
@@ -207,7 +207,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 			&volume_time, &volume_data, &volume_len, 1.0);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "GMAG_GEOM", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_beta_tor_norm_value", "GMAG_GEOM", shotNumber);
 		free(volume_time);
 		free(volume_data);
 		return status;
@@ -225,7 +225,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 			&total_energy_time, &total_energy_data, &total_energy_len, 1.0);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "GMAG_BILAN", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_beta_tor_norm_value", "GMAG_BILAN", shotNumber);
 		free(volume_time);
 		free(volume_data);
 		free(total_energy_time);
@@ -245,7 +245,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 	status = getArcadeSignal(itor_sigName, shotNumber, itor_extractionIndex, &itor_time, &itor_data, &itor_len, normalizationFactor);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "GMAG_ITOR", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_beta_tor_norm_value", "GMAG_ITOR", shotNumber);
 		free(volume_time);
 		free(volume_data);
 		free(total_energy_time);
@@ -261,7 +261,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 	int ip_len;
 	status = ip_value(&ip_data, ip_time, &ip_len, shotNumber, data_block, treshold);
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "ip_value", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_beta_tor_norm_value", "ip_value", shotNumber);
 		free(volume_time);
 		free(volume_data);
 		free(total_energy_time);
@@ -285,7 +285,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 			&minor_radius_time, &minor_radius_data, &minor_radius_len, 1.0);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "GMAG_GEOM", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_beta_tor_norm_value", "GMAG_GEOM", shotNumber);
 		free(volume_time);
 		free(volume_data);
 		free(total_energy_time);
@@ -310,7 +310,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 	status = signalsRatio(&total_enery_times_minor_radius_by_volume, total_enery_times_minor_radius, ip_data, total_energy_len, volume_len);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "unable to compute ratio", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_beta_tor_norm_value", "unable to compute ratio", shotNumber);
 		free(volume_time);
 		free(volume_data);
 		free(total_energy_time);
@@ -331,7 +331,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 	status = signalsRatio(&total_enery_times_minor_radius_by_volume_by_b0, total_enery_times_minor_radius_by_volume, itor_data, total_energy_len, itor_len);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "unable to compute second ratio", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_beta_tor_norm_value", "unable to compute second ratio", shotNumber);
 		free(volume_time);
 		free(volume_data);
 		free(total_energy_time);
@@ -353,7 +353,7 @@ int summary_global_quantities_beta_tor_norm_value(int shotNumber, DATA_BLOCK* da
 	status = signalsRatio(&total_enery_times_minor_radius_by_volume_by_b0_by_ip, total_enery_times_minor_radius_by_volume_by_b0, ip_data, total_energy_len, ip_len);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_beta_tor_norm_value", "unable to compute third ratio", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_beta_tor_norm_value", "unable to compute third ratio", shotNumber);
 		free(volume_time);
 		free(volume_data);
 		free(total_energy_time);
@@ -388,7 +388,7 @@ int summary_global_quantities_b0_value(int shotNumber, DATA_BLOCK* data_block, i
 	int status = getArcadeSignal(itor_sigName, shotNumber, itor_extractionIndex, &itor_time, &itor_data, &itor_len, normalizationFactor);
 
 	if (status != 0) {
-		summary_throwsIdamError("summary_global_quantities_b0_value", "GMAG_ITOR", shotNumber);
+		summary_throwsIdamError(status,"summary_global_quantities_b0_value", "GMAG_ITOR", shotNumber);
 		free(itor_time);
 		free(itor_data);
 		return status;
@@ -496,7 +496,7 @@ int ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_
 	int status = getArcadeSignal(ifreeb_sigName, shotNumber, ifreeb_extractionIndex, &ifreeb_time, &ifreeb_data, &ifreeb_len, normalizationFactor);
 
 	if (status != 0) {
-		summary_throwsIdamError("ip_value", "GMAG_IFREEB", shotNumber);
+		summary_throwsIdamError(status,"ip_value", "GMAG_IFREEB", shotNumber);
 		free(ifreeb_time);
 		free(ifreeb_data);
 		return status;
@@ -512,7 +512,7 @@ int ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_
 	status = getArcadeSignal(smagip_sigName, shotNumber, smagip_extractionIndex, &smagip_time, &smagip_data, &smagip_len, normalizationFactor);
 
 	if (status != 0) {
-		summary_throwsIdamError("ip_value", "SMAG_IP", shotNumber);
+		summary_throwsIdamError(status,"ip_value", "SMAG_IP", shotNumber);
 		free(smagip_time);
 		free(smagip_data);
 		free(ifreeb_time);

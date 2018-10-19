@@ -18,11 +18,10 @@
 #include "west_static_data_utilities.h"
 
 
-void lh_antennas_throwsIdamError(char* methodName, char * objectName, int shotNumber) {
+void lh_antennas_throwsIdamError(int status, char* methodName, char * objectName, int shotNumber) {
 	int err = 901;
 	char errorMsg[1000];
-	sprintf(errorMsg, "%s (%s) %s", "WEST:ERROR", methodName, "unable to get object:");
-	sprintf(errorMsg, "%s,shot:%d\n", objectName, shotNumber);
+	sprintf(errorMsg, "%s(%s),object:%s,shot:%d,err:%d\n", "WEST:ERROR", methodName, objectName, shotNumber,status);
 	//UDA_LOG(UDA_LOG_ERROR, "%s", errorMsg);
 	addIdamError(CODEERRORTYPE, errorMsg, err, "");
 }
@@ -34,7 +33,7 @@ int lh_antennas_power(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) 
 	char *object_name = "SHYBPTOT";
 	int status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 	if (status != 0) {
-		lh_antennas_throwsIdamError("lh_antennas_power", object_name, shotNumber);
+		lh_antennas_throwsIdamError(status, "lh_antennas_power", object_name, shotNumber);
 	}
 	UDA_LOG(UDA_LOG_DEBUG, "Returning from lh_antennas_power\n");
 	return status;
@@ -55,7 +54,7 @@ int lh_antennas_power_forward(int shotNumber, DATA_BLOCK* data_block, int* nodeI
 		status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 	}
 	if (status != 0) {
-		lh_antennas_throwsIdamError("lh_antennas_power_forward", "SHYBPFORW1/SHYBPFORW2", shotNumber);
+		lh_antennas_throwsIdamError(status, "lh_antennas_power_forward", "SHYBPFORW1/SHYBPFORW2", shotNumber);
 	}
 	return status;
 }
@@ -75,7 +74,7 @@ int lh_antennas_power_reflected(int shotNumber, DATA_BLOCK* data_block, int* nod
 		status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 	}
 	if (status != 0) {
-		lh_antennas_throwsIdamError("lh_antennas_power_reflected","SHYBPREFL1/SHYBPREFL2", shotNumber);
+		lh_antennas_throwsIdamError(status, "lh_antennas_power_reflected","SHYBPREFL1/SHYBPREFL2", shotNumber);
 	}
 	return status;
 }
@@ -95,7 +94,7 @@ int lh_antennas_reflection_coefficient(int shotNumber, DATA_BLOCK* data_block, i
 		status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 	}
 	if (status != 0) {
-		lh_antennas_throwsIdamError("lh_antennas_reflection_coefficient","SHYBREF1/SHYBREF2", shotNumber);
+		lh_antennas_throwsIdamError(status, "lh_antennas_reflection_coefficient","SHYBREF1/SHYBREF2", shotNumber);
 	}
 	return status;
 }
@@ -112,7 +111,7 @@ int lh_antennas_pressure_tank(int shotNumber, DATA_BLOCK* data_block, int* nodeI
 	char *object_name = "GPRESHYB";
 	int status = setUDABlockSignalFromArcade(object_name, shotNumber, antennaId, data_block, nodeIndices, f);
 	if (status != 0) {
-		lh_antennas_throwsIdamError("lh_antennas_pressure_tank", object_name, shotNumber);
+		lh_antennas_throwsIdamError(status, "lh_antennas_pressure_tank", object_name, shotNumber);
 	}
 	return status;
 }
@@ -123,7 +122,7 @@ int lh_antennas_phase_average(int shotNumber, DATA_BLOCK* data_block, int* nodeI
 	char *object_name = "GPHASHYB";
 	int status = setUDABlockSignalFromArcade(object_name, shotNumber, antennaId, data_block, nodeIndices, f);
 	if (status != 0) {
-		lh_antennas_throwsIdamError("lh_antennas_phase_average", object_name, shotNumber);
+		lh_antennas_throwsIdamError(status, "lh_antennas_phase_average", object_name, shotNumber);
 	}
 	return status;
 }
@@ -134,7 +133,7 @@ int lh_antennas_n_parallel_peak(int shotNumber, DATA_BLOCK* data_block, int* nod
 	char *object_name = "GNPARHYB";
 	int status = setUDABlockSignalFromArcade(object_name, shotNumber, antennaId, data_block, nodeIndices, f);
 	if (status != 0) {
-		lh_antennas_throwsIdamError("lh_antennas_n_parallel_peak", object_name, shotNumber);
+		lh_antennas_throwsIdamError(status, "lh_antennas_n_parallel_peak", object_name, shotNumber);
 	}
 	return status;
 }
@@ -145,13 +144,15 @@ int lh_antennas_position_r(int shotNumber, DATA_BLOCK* data_block, int* nodeIndi
 	char *object_name = "GPOSHYB";
 	int status = setUDABlockSignalFromArcade(object_name, shotNumber, antennaId, data_block, nodeIndices, f);
 	if (status != 0) {
-		lh_antennas_throwsIdamError("lh_antennas_position_r", object_name, shotNumber);
+		lh_antennas_throwsIdamError(status, "lh_antennas_position_r", object_name, shotNumber);
 	}
 	return status;
 }
 
 int lh_antennas_position_z(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
-	return -1; //NOT IMPLEMENTED
+	int status = -1;
+	lh_antennas_throwsIdamError(status, "lh_antennas_position_z", "NOT IMPLEMENTED !!!", shotNumber);
+	return status; //NOT IMPLEMENTED
 }
 
 int lh_antennas_modules_power(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices) {
@@ -169,7 +170,7 @@ int lh_antennas_modules_power(int shotNumber, DATA_BLOCK* data_block, int* nodeI
 		status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 	}
 	if (status != 0) {
-		lh_antennas_throwsIdamError("lh_antennas_modules_power", "GPINJC1/GPINJC2", shotNumber);
+		lh_antennas_throwsIdamError(status, "lh_antennas_modules_power", "GPINJC1/GPINJC2", shotNumber);
 	}
 	return status;
 }
@@ -189,7 +190,7 @@ int lh_antennas_modules_power_forward(int shotNumber, DATA_BLOCK* data_block, in
 		status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 	}
 	if (status != 0) {
-		lh_antennas_throwsIdamError("lh_antennas_modules_power_forward", "GPFORWC1/GPFORWC2", shotNumber);
+		lh_antennas_throwsIdamError(status, "lh_antennas_modules_power_forward", "GPFORWC1/GPFORWC2", shotNumber);
 	}
 	return status;
 }
@@ -209,7 +210,7 @@ int lh_antennas_modules_power_reflected(int shotNumber, DATA_BLOCK* data_block, 
 		status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 	}
 	if (status != 0) {
-		lh_antennas_throwsIdamError("lh_antennas_modules_power_reflected", "GPREFLC1/GPREFLC2", shotNumber);
+		lh_antennas_throwsIdamError(status, "lh_antennas_modules_power_reflected", "GPREFLC1/GPREFLC2", shotNumber);
 	}
 	return status;
 }
@@ -229,7 +230,7 @@ int lh_antennas_modules_reflection_coefficient(int shotNumber, DATA_BLOCK* data_
 		status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 	}
 	if (status != 0) {
-		lh_antennas_throwsIdamError("lh_antennas_modules_reflection_coefficient", "GCREFC1/GCREFC2", shotNumber);
+		lh_antennas_throwsIdamError(status, "lh_antennas_modules_reflection_coefficient", "GCREFC1/GCREFC2", shotNumber);
 	}
 	return status;
 }
@@ -249,7 +250,7 @@ int lh_antennas_modules_phase(int shotNumber, DATA_BLOCK* data_block, int* nodeI
 		status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 	}
 	if (status != 0) {
-		lh_antennas_throwsIdamError("lh_antennas_modules_phase", "GPHIC1/GPHIC2", shotNumber);
+		lh_antennas_throwsIdamError(status, "lh_antennas_modules_phase", "GPHIC1/GPHIC2", shotNumber);
 	}
 	return status;
 }

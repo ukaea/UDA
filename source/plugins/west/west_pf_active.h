@@ -17,5 +17,5 @@ int pf_active_coil_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices
 int pf_active_turns(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int pf_active_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int pf_active_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
-void pf_active_throwsIdamError(char* methodName, char* object_name, int shotNumber);
+void pf_active_throwsIdamError(int status, char* methodName, char* object_name, int shotNumber);
 #endif // IDAM_PLUGIN_WEST_PF_ACTIVE_H

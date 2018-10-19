@@ -48,10 +48,10 @@ const char* COILS_NAMES[] = { "A", "Bh", "Dh", "Eh", "Fh", "Fb", "Eb", "Db", "Bb
 int get_pf_current(int shotNumber, int extractionIndex, float** time, float** data, int* len, float normalizationFactor);
 int pf_active(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, int index);
 
-void pf_active_throwsIdamError(char* methodName, char* object_name, int shotNumber) {
+void pf_active_throwsIdamError(int status, char* methodName, char* object_name, int shotNumber) {
 	int err = 901;
 	char msg[1000];
-	sprintf(msg, "%s(%s),object:%s,shot:%d\n", "WEST:ERROR", methodName, object_name, shotNumber);
+	sprintf(msg, "%s(%s),object:%s,shot:%d,err:%d\n", "WEST:ERROR", methodName, object_name, shotNumber, status);
 	//UDA_LOG(UDA_LOG_ERROR, "%s", msg);
 	addIdamError(CODEERRORTYPE, msg, err, "");
 }
@@ -79,7 +79,7 @@ int pf_active_current_data(int shotNumber, DATA_BLOCK* data_block, int* nodeIndi
 		status = get_pf_current(shotNumber, 13, &time, &data, &len, 1000.);
 	}
 	if (status != 0) {
-		pf_active_throwsIdamError("pf_active_current_data", "", shotNumber);
+		pf_active_throwsIdamError(status, "pf_active_current_data", "", shotNumber);
 		free(time);
 		free(data);
 		return status;
@@ -112,13 +112,13 @@ int pf_active_current_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndi
 		status = get_pf_current(shotNumber, 13, &time, &data, &len, 1000.);
 	}
 	else {
-		pf_active_throwsIdamError("pf_active_current_time", "wrong index", shotNumber);
+		pf_active_throwsIdamError(status, "pf_active_current_time", "wrong index", shotNumber);
 		free(time);
 		free(data);
 		return status;
 	}
 	if (status != 0) {
-		pf_active_throwsIdamError("pf_active_current_time", "get_pf_current", shotNumber);
+		pf_active_throwsIdamError(status, "pf_active_current_time", "get_pf_current", shotNumber);
 		free(time);
 		free(data);
 		return status;
@@ -135,7 +135,8 @@ int get_pf_current(int shotNumber, int extractionIndex, float** time, float** da
 	addExtractionChars(nomsigp_to_extract, nomsigp, extractionIndex); //Concatenate nomsigp_to_extract avec !extractionIndex, example: !1, !2, ...
 	int rang[2] = { 0, 0 };
 	int status = readSignal(nomsigp_to_extract, shotNumber, 0, rang, time, data, len);
-	multiplyFloat(*data, normalizationFactor, *len);
+	if (status == 0)
+		multiplyFloat(*data, normalizationFactor, *len);
 	return status;
 }
 
@@ -242,8 +243,9 @@ int pf_active_turns(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 	} else if (coil_number == 17) {
 		r = (float)Xl4[index];
 	} else {
-		pf_active_throwsIdamError("pf_active", "wrong coil_number index", shotNumber);
-		return -1;
+		int status = -1;
+		pf_active_throwsIdamError(status, "pf_active", "wrong coil_number index", shotNumber);
+		return status;
 	}
 	setReturnDataFloatScalar(data_block, r, NULL);
 	return 0;
@@ -289,8 +291,9 @@ int pf_active(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices, int inde
 	} else if (coil_number == 17) {
 		r = Xl4[index];
 	} else {
-		pf_active_throwsIdamError("pf_active", "wrong coil_number index", shotNumber);
-		return -1;
+		int status = -1;
+		pf_active_throwsIdamError(status, "pf_active", "wrong coil_number index", shotNumber);
+		return status;
 	}
 	setReturnDataFloatScalar(data_block, r, NULL);
 	return 0;

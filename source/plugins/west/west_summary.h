@@ -13,5 +13,5 @@ int summary_heating_current_drive_ec_power_source(int shotNumber, DATA_BLOCK* da
 int summary_heating_current_drive_ec_power(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int summary_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices);
 int ip_value(float **ip_data, float *ip_time, int *ip_len, int shotNumber, DATA_BLOCK* data_block, const float treshold);
-void summary_throwsIdamError(char* methodName, char* object_name, int shotNumber);
+void summary_throwsIdamError(int status, char* methodName, char* object_name, int shotNumber);
 #endif // IDAM_PLUGIN_WEST_SUMMARY_H

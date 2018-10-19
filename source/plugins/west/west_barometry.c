@@ -17,10 +17,10 @@
 #include "ts_rqparam.h"
 #include "west_static_data_utilities.h"
 
-void barometry_throwsIdamError(char* methodName, char* object_name, int shotNumber) {
+void barometry_throwsIdamError(int status, char* methodName, char* object_name, int shotNumber) {
 	int err = 901;
 	char msg[1000];
-	sprintf(msg, "%s(%s),object:%s,shot:%d\n", "WEST:ERROR", methodName, object_name, shotNumber);
+	sprintf(msg, "%s(%s),object:%s,shot:%d,err:%d\n", "WEST:ERROR", methodName, object_name, shotNumber, status);
 	//UDA_LOG(UDA_LOG_ERROR, "%s", msg);
 	addIdamError(CODEERRORTYPE, msg, err, "");
 }
@@ -45,8 +45,8 @@ int barometry_gauge_name(int shotNumber, DATA_BLOCK* data_block, int* nodeIndice
 		setReturnDataString(data_block, name, NULL);
 		status = 0;
 	} else {
-		barometry_throwsIdamError("barometry_gauge_name", "unknown gauge", shotNumber);
 		status = -1;
+		barometry_throwsIdamError(status, "barometry_gauge_name", "unknown gauge", shotNumber);
 	}
 	return status;
 }
@@ -63,7 +63,7 @@ int barometry_gauge_type_name(int shotNumber, DATA_BLOCK* data_block, int* nodeI
 		setReturnDataString(data_block, name, NULL);
 		status = 0;
 	} else {
-		barometry_throwsIdamError("barometry_gauge_type_name", "unknown gauge", shotNumber);
+		barometry_throwsIdamError(status, "barometry_gauge_type_name", "unknown gauge", shotNumber);
 	}
 	return status;
 }
@@ -80,7 +80,7 @@ int barometry_gauge_type_index(int shotNumber, DATA_BLOCK* data_block, int* node
 		setReturnDataIntScalar(data_block, index, NULL);
 		status = 0;
 	} else {
-		barometry_throwsIdamError("barometry_gauge_type_index", "unknown gauge", shotNumber);
+		barometry_throwsIdamError(status, "barometry_gauge_type_index", "unknown gauge", shotNumber);
 	}
 	return status;
 }
@@ -101,28 +101,28 @@ int barometry_gauge_pressure_data(int shotNumber, DATA_BLOCK* data_block, int* n
 		status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 		UDA_LOG(UDA_LOG_DEBUG, "after Calling setUDABlockSignalFromArcade\n");
 		if (status != 0) {
-			barometry_throwsIdamError("barometry_gauge_pressure_data", object_name, shotNumber);
+			barometry_throwsIdamError(status, "barometry_gauge_pressure_data", object_name, shotNumber);
 		}
 	} else if (gaugeId == 2) {
 		char *object_name = "GBARDB8";
 		int extractionIndex = 5;
 		status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 		if (status != 0) {
-			barometry_throwsIdamError("barometry_gauge_pressure_data", object_name, shotNumber);
+			barometry_throwsIdamError(status, "barometry_gauge_pressure_data", object_name, shotNumber);
 		}
 	} else if (gaugeId == 3) {
 		char *object_name = "GBARDB8";
 		int extractionIndex = 12;
 		status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 		if (status != 0) {
-			barometry_throwsIdamError("barometry_gauge_pressure_data", object_name, shotNumber);
+			barometry_throwsIdamError(status, "barometry_gauge_pressure_data", object_name, shotNumber);
 		}
 	} else if (gaugeId == 4) {
 		char *object_name = "GBARDP4";
 		int extractionIndex = 6;
 		status = setUDABlockSignalFromArcade(object_name, shotNumber, extractionIndex, data_block, nodeIndices, f);
 		if (status != 0) {
-			barometry_throwsIdamError("barometry_gauge_pressure_data", object_name, shotNumber);
+			barometry_throwsIdamError(status, "barometry_gauge_pressure_data", object_name, shotNumber);
 		}
 	}
 	UDA_LOG(UDA_LOG_DEBUG, "Returning from barometry_gauge_pressure_data\n");
@@ -167,7 +167,7 @@ int barometry_gauge_pressure_time(int shotNumber, DATA_BLOCK* data_block, int* n
 	UDA_LOG(UDA_LOG_DEBUG, "status in barometry_gauge_pressure_time = %d...\n", status);
 
 	if (status != 0) {
-		barometry_throwsIdamError("barometry_gauge_pressure_time", "GBARDB4/8", shotNumber);
+		barometry_throwsIdamError(status, "barometry_gauge_pressure_time", "GBARDB4/8", shotNumber);
 
 	}
 	UDA_LOG(UDA_LOG_DEBUG, "setting time...\n");

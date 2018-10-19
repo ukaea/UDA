@@ -51,7 +51,7 @@ int GetStaticData(int shotNumber, const char* mapfun, DATA_BLOCK* data_block, in
 	int status = execute(mapfun, shotNumber, data_block, nodeIndices);
 
 	if (status != 0) {
-		UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: error while getting static data\n");
+		//UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: error while getting static data\n");
 		addIdamError(CODEERRORTYPE, __func__, -900, "WEST:ERROR: error while getting static data\n");
 	}
 
@@ -216,7 +216,7 @@ int execute(const char* mapfun, int shotNumber, DATA_BLOCK* data_block, int* nod
 	if (fun == -1) {
 		UDA_LOG(UDA_LOG_DEBUG, "WEST:ERROR no function mapped to %s\n", fun_name);
 		int err = 901;
-		UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: no C function mapped for %s!", fun_name);
+		//UDA_LOG(UDA_LOG_ERROR, "WEST:ERROR: no C function mapped for %s!", fun_name);
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: no C function mapped for %s!", err, fun_name);
 		return status;
 	}
@@ -672,7 +672,7 @@ int execute_setvalue_collect(const char* TOP_collections_parameters, char* attri
 		status = getCommand(i, &command, TOP_collections_parameters);
 		if (status == -1) {
 			int err = 901;
-			UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unable to get the shapeof command");
+			//UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unable to get the shapeof command");
 			addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get the shapeof command", err, "");
 			free(command);
 			return status;
@@ -752,7 +752,7 @@ char* setBuffer(int data_type, char* value)
 	} else {
 		int err = 901;
 		UDA_LOG(UDA_LOG_DEBUG, "Unsupported data type in setBuffer(): %d\n", data_type);
-		UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unsupported data type");
+		//UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unsupported data type");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
 	}
 
@@ -775,7 +775,7 @@ int execute_tsmat_collect(const char* TOP_collections_parameters, char* attribut
 		status = getCommand(i, &command, TOP_collections_parameters);
 		if (status == -1) {
 			int err = 901;
-			UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unable to get the shapeof command");
+			//UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unable to get the shapeof command");
 			addIdamError(CODEERRORTYPE, "WEST:ERROR: unable to get the shapeof command", err, "");
 			free(l);
 			return status;
@@ -918,7 +918,7 @@ int execute_tsmat_without_idam_index(const char* TOP_collections_parameters, cha
 	status = readStaticParameters(&value, &nb_val, shotNumber, prod_name, object_name, param_name, val_nb);
 	if (status != 0) {
 		int err = 901;
-		UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unable to read static data");
+		//UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unable to read static data");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: Unable to read static data", err, "");
 		free(command);
 		free(prod_name);
@@ -943,7 +943,7 @@ int execute_tsmat_without_idam_index(const char* TOP_collections_parameters, cha
 	} else {
 		int err = 901;
 		UDA_LOG(UDA_LOG_DEBUG, "Unsupported rank from execute_tsmat_without_idam_index()\n");
-		UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unsupported data type");
+		//UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unsupported data type");
 		addIdamError(CODEERRORTYPE, "WEST:ERROR: unsupported data type", err, "");
 		free(command);
 		free(prod_name);
@@ -996,7 +996,7 @@ void setStatic1DValue(int data_type, DATA_BLOCK* data_block, char* value, int va
 	} else {
 		int err = 901;
 		UDA_LOG(UDA_LOG_DEBUG, "Unsupported data type from setStatic1DValue()\n");
-		UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unsupported data type");
+		//UDA_LOG(UDA_LOG_ERROR, "%s", "WEST:ERROR: unsupported data type");
 		addIdamError(CODEERRORTYPE, __func__, err, "WEST:ERROR: unsupported data type");
 	}
 }
