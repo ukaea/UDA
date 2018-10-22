@@ -4,6 +4,7 @@ from . import c_uda
 from ._signal import Signal
 from ._string import String
 from ._structured import StructuredData
+from ._video import Video
 
 import logging
 import itertools
@@ -91,7 +92,11 @@ class Client(with_metaclass(ClientMeta, object)):
             return bytes(itertools.islice(byte_array, data.byte_length()))
 
         if result.isTree():
-            return StructuredData(result.tree())
+            tree = result.tree()
+            if tree.atomicScalar('type').string() == 'VIDEO':
+                return Video(StructuredData(tree))
+            else:
+                return StructuredData(tree)
         elif result.type() == 'string':
             return String(result)
         return Signal(result)

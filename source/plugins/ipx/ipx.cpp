@@ -510,8 +510,8 @@ bool Cipx::loadHeader(const char* fname)
         return false;
     }
 #ifdef _MSC_VER
-  HANDLE fH = CreateFile(fname, GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, 0);
-  if(fH == INVALID_HANDLE_VALUE) {
+    HANDLE fH = CreateFile(fname, GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, 0);
+    if(fH == INVALID_HANDLE_VALUE) {
 #else
     FILE* fH = fopen(fname, "rb");
     if (!fH) {

@@ -1189,8 +1189,8 @@ void getInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
 
     initCompoundField(&field);    
     strcpy(field.name, "type");
-    field.atomictype = UDA_TYPE_CHAR;
-    strcpy(field.type, "char");  
+    field.atomictype = UDA_TYPE_STRING;
+    strcpy(field.type, "STRING");
     strcpy(field.desc, "The Structure Array Element's type name (Must be Unique)");
     field.pointer = 0;
     field.count = MAXELEMENTNAME;

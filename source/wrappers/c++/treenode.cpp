@@ -343,7 +343,7 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
                 if (std::string("unsigned char *") == atypes[i]) return getVector<unsigned char>(logmalloclist, node, target, count);
             } else if (arank[i] == 1) {
 //                if (std::string("STRING") == atypes[i]) return getVector<char>(logmalloclist, node, target, ashape[i][0]);
-                if (std::string("STRING") == atypes[i]) return getStringVector(logmalloclist, node, target);
+//                if (std::string("STRING") == atypes[i]) return getStringVector(logmalloclist, node, target);
                 if (std::string("char") == atypes[i]) return getVector<char>(logmalloclist, node, target, ashape[i][0]);
                 if (std::string("short") == atypes[i]) return getVector<short>(logmalloclist, node, target, ashape[i][0]);
                 if (std::string("double") == atypes[i]) return getVector<double>(logmalloclist, node, target, ashape[i][0]);

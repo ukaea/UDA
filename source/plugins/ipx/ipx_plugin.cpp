@@ -7,6 +7,7 @@
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
+#include <algorithm>
 
 int ipxPlugin(IDAM_PLUGIN_INTERFACE *idam_plugin_interface)
 {
@@ -59,8 +60,8 @@ int ipxPlugin(IDAM_PLUGIN_INTERFACE *idam_plugin_interface)
  */
 int uda::plugins::ipx::IPXPlugin::help(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    const char* help = "\ntemplatePlugin: Add Functions Names, Syntax, and Descriptions\n\n";
-    const char* desc = "templatePlugin: help = description of this plugin";
+    const char* help = "\nIPX: IPX reaader\n\n";
+    const char* desc = "IPX: help = description of this plugin";
 
     return setReturnDataString(plugin_interface->data_block, help, desc);
 }
@@ -105,25 +106,11 @@ int uda::plugins::ipx::IPXPlugin::max_interface_version(IDAM_PLUGIN_INTERFACE* p
     return setReturnDataIntScalar(plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
 }
 
-struct BGR8 {
+struct BGR {
     unsigned char b;
     unsigned char g;
     unsigned char r;
-    unsigned char _; // padding byte
-};
-
-struct BGR16 {
-    unsigned short b;
-    unsigned short g;
-    unsigned short r;
-    unsigned short _; // padding byte
-};
-
-struct BGR32 {
-    unsigned int b;
-    unsigned int g;
-    unsigned int r;
-    unsigned int _; // padding byte
+//    unsigned char _; // padding byte
 };
 
 struct Frame {
@@ -170,15 +157,21 @@ struct Video {
 
 namespace {
 
+struct PluginArgs {
+    bool is_frame;
+    int frame;
+    bool is_range;
+    int first;
+    int last;
+    int stride;
+};
+
 void read_frame(LOGMALLOCLIST* logmalloclist, Cipx& ipx, Frame& frame, int idx, int width, int height)
 {
     frame.number = idx;
     frame.time = ipx.frameTime(idx);
 
-    unsigned char* data;
-    ipx.getPixelPointer(idx, &data); // do not free data, it is freed by ~Cipx()
-
-    size_t sz = width * height;
+    size_t sz = (size_t)width * (size_t)height;
     int byte_depth = ipx.depth();
 
     if (byte_depth <= 8) {
@@ -214,61 +207,45 @@ void read_frame(LOGMALLOCLIST* logmalloclist, Cipx& ipx, Frame& frame, int idx, 
     }
 
     if (ipx.color()) {
-        if (byte_depth <= 8) {
-            auto bgr_data = (BGR8*)data;
-            auto r = (unsigned char*)frame.r;
-            auto g = (unsigned char*)frame.r;
-            auto b = (unsigned char*)frame.r;
-            for (size_t i = 0; i < sz; ++i) {
-                r[i] = bgr_data[i].r;
-                g[i] = bgr_data[i].g;
-                b[i] = bgr_data[i].b;
-            }
-        } else if (byte_depth <= 16) {
-            auto bgr_data = (BGR16*)data;
-            auto r = (unsigned short*)frame.r;
-            auto g = (unsigned short*)frame.r;
-            auto b = (unsigned short*)frame.r;
-            for (size_t i = 0; i < sz; ++i) {
-                r[i] = bgr_data[i].r;
-                g[i] = bgr_data[i].g;
-                b[i] = bgr_data[i].b;
-            }
-        } else if (byte_depth <= 32) {
-            auto bgr_data = (BGR32*)data;
-            auto r = (unsigned int*)frame.r;
-            auto g = (unsigned int*)frame.r;
-            auto b = (unsigned int*)frame.r;
-            for (size_t i = 0; i < sz; ++i) {
-                r[i] = bgr_data[i].r;
-                g[i] = bgr_data[i].g;
-                b[i] = bgr_data[i].b;
-            }
+        unsigned char* data;
+        ipx.getBMPbits(idx, 0, 0, &data); // do not free data, it is freed by ~Cipx()
+
+        auto bgr_data = (BGR*)data;
+        auto r = (unsigned char*)frame.r;
+        auto g = (unsigned char*)frame.g;
+        auto b = (unsigned char*)frame.b;
+        for (size_t i = 0; i < sz; ++i) {
+            r[i] = bgr_data[i].r;
+            g[i] = bgr_data[i].g;
+            b[i] = bgr_data[i].b;
         }
-    } else {
-        if (byte_depth <= 8) {
-            auto k = (unsigned char*)frame.k;
-            auto d = data;
-            for (size_t i = 0; i < sz; ++i) {
-                k[i] = d[i];
-            }
-        } else if (byte_depth <= 16) {
-            auto k = (unsigned short*)frame.k;
-            auto d = (unsigned short*)data;
-            for (size_t i = 0; i < sz; ++i) {
-                k[i] = d[i];
-            }
-        } else if (byte_depth <= 32) {
-            auto k = (unsigned int*)frame.k;
-            auto d = (unsigned int*)data;
-            for (size_t i = 0; i < sz; ++i) {
-                k[i] = d[i];
-            }
+    }
+
+    unsigned char* data;
+    ipx.getPixelPointer(idx, &data); // do not free data, it is freed by ~Cipx()
+
+    if (byte_depth <= 8) {
+        auto k = (unsigned char*)frame.k;
+        auto d = data;
+        for (size_t i = 0; i < sz; ++i) {
+            k[i] = d[i];
+        }
+    } else if (byte_depth <= 16) {
+        auto k = (unsigned short*)frame.k;
+        auto d = (unsigned short*)data;
+        for (size_t i = 0; i < sz; ++i) {
+            k[i] = d[i];
+        }
+    } else if (byte_depth <= 32) {
+        auto k = (unsigned int*)frame.k;
+        auto d = (unsigned int*)data;
+        for (size_t i = 0; i < sz; ++i) {
+            k[i] = d[i];
         }
     }
 }
 
-Video* read_video(LOGMALLOCLIST* logmalloclist, Cipx& ipx, bool is_frame, int frame)
+Video* read_video(LOGMALLOCLIST* logmalloclist, Cipx& ipx, const PluginArgs& args)
 {
     auto video = (Video*)malloc(1 * sizeof(Video));    // Structured Data Must be a heap variable
     addMalloc(logmalloclist, (void*)video, 1, sizeof(Video), "VIDEO");
@@ -298,8 +275,10 @@ Video* read_video(LOGMALLOCLIST* logmalloclist, Cipx& ipx, bool is_frame, int fr
     video->board_temp = ipx.boardtemp();
     video->ccd_temp = ipx.ccdtemp();
 
-    if (is_frame) {
+    if (args.is_frame) {
         video->n_frames = 1;
+    } else if (args.is_range) {
+        video->n_frames = (args.last - args.first) / args.stride;
     } else {
         video->n_frames = (unsigned int)ipx.frames();
     }
@@ -310,8 +289,14 @@ Video* read_video(LOGMALLOCLIST* logmalloclist, Cipx& ipx, bool is_frame, int fr
 
     addMalloc2(logmalloclist, (void*)video->frames, video->n_frames, sizeof(Frame), "FRAME", rank, nullptr);
 
-    if (is_frame) {
-        read_frame(logmalloclist, ipx, video->frames[0], frame, video->width, video->height);
+    if (args.is_frame) {
+        read_frame(logmalloclist, ipx, video->frames[0], args.frame, video->width, video->height);
+    } else if (args.is_range) {
+        int frame = args.first;
+        for (int i = 0; i < video->n_frames; i++) {
+            read_frame(logmalloclist, ipx, video->frames[i], frame, video->width, video->height);
+            frame += args.stride;
+        }
     } else {
         for (int i = 0; i < video->n_frames; i++) {
             read_frame(logmalloclist, ipx, video->frames[i], i, video->width, video->height);
@@ -321,7 +306,7 @@ Video* read_video(LOGMALLOCLIST* logmalloclist, Cipx& ipx, bool is_frame, int fr
     return video;
 }
 
-void setup_usertypes(USERDEFINEDTYPELIST* userdefinedtypelist, int byte_depth)
+void setup_usertypes(USERDEFINEDTYPELIST* userdefinedtypelist, bool is_color, int byte_depth)
 {
     USERDEFINEDTYPE frame_type;
     initUserDefinedType(&frame_type);                                 // New structure definition
@@ -337,21 +322,30 @@ void setup_usertypes(USERDEFINEDTYPELIST* userdefinedtypelist, int byte_depth)
     addStructureField(&frame_type, "number", "", UDA_TYPE_INT, false, 0, nullptr, offsetof(Frame, number));
     addStructureField(&frame_type, "time", "", UDA_TYPE_DOUBLE, false, 0, nullptr, offsetof(Frame, time));
 
+    if (is_color) {
+        if (byte_depth <= 8) {
+            addStructureField(&frame_type, "r", "red channel", UDA_TYPE_UNSIGNED_CHAR, true, 0, nullptr, offsetof(Frame, r));
+            addStructureField(&frame_type, "g", "green channel", UDA_TYPE_UNSIGNED_CHAR, true, 0, nullptr, offsetof(Frame, g));
+            addStructureField(&frame_type, "b", "blue channel", UDA_TYPE_UNSIGNED_CHAR, true, 0, nullptr, offsetof(Frame, b));
+        } else if (byte_depth <= 16) {
+            addStructureField(&frame_type, "r", "red channel", UDA_TYPE_UNSIGNED_SHORT, true, 0, nullptr, offsetof(Frame, r));
+            addStructureField(&frame_type, "g", "green channel", UDA_TYPE_UNSIGNED_SHORT, true, 0, nullptr, offsetof(Frame, g));
+            addStructureField(&frame_type, "b", "blue channel", UDA_TYPE_UNSIGNED_SHORT, true, 0, nullptr, offsetof(Frame, b));
+        } else if (byte_depth <= 32) {
+            addStructureField(&frame_type, "r", "red channel", UDA_TYPE_UNSIGNED_INT, true, 0, nullptr, offsetof(Frame, r));
+            addStructureField(&frame_type, "g", "green channel", UDA_TYPE_UNSIGNED_INT, true, 0, nullptr, offsetof(Frame, g));
+            addStructureField(&frame_type, "b", "blue channel", UDA_TYPE_UNSIGNED_INT, true, 0, nullptr, offsetof(Frame, b));
+        }
+    }
+
+    const char* name = is_color ? "raw" : "k";
+
     if (byte_depth <= 8) {
-        addStructureField(&frame_type, "r", "red channel", UDA_TYPE_UNSIGNED_CHAR, true, 0, nullptr, offsetof(Frame, r));
-        addStructureField(&frame_type, "g", "green channel", UDA_TYPE_UNSIGNED_CHAR, true, 0, nullptr, offsetof(Frame, g));
-        addStructureField(&frame_type, "b", "blue channel", UDA_TYPE_UNSIGNED_CHAR, true, 0, nullptr, offsetof(Frame, b));
-        addStructureField(&frame_type, "k", "black channel", UDA_TYPE_UNSIGNED_CHAR, true, 0, nullptr, offsetof(Frame, k));
+        addStructureField(&frame_type, name, "black channel", UDA_TYPE_UNSIGNED_CHAR, true, 0, nullptr, offsetof(Frame, k));
     } else if (byte_depth <= 16) {
-        addStructureField(&frame_type, "r", "red channel", UDA_TYPE_UNSIGNED_SHORT, true, 0, nullptr, offsetof(Frame, r));
-        addStructureField(&frame_type, "g", "green channel", UDA_TYPE_UNSIGNED_SHORT, true, 0, nullptr, offsetof(Frame, g));
-        addStructureField(&frame_type, "b", "blue channel", UDA_TYPE_UNSIGNED_SHORT, true, 0, nullptr, offsetof(Frame, b));
-        addStructureField(&frame_type, "k", "black channel", UDA_TYPE_UNSIGNED_SHORT, true, 0, nullptr, offsetof(Frame, k));
+        addStructureField(&frame_type, name, "black channel", UDA_TYPE_UNSIGNED_SHORT, true, 0, nullptr, offsetof(Frame, k));
     } else if (byte_depth <= 32) {
-        addStructureField(&frame_type, "r", "red channel", UDA_TYPE_UNSIGNED_INT, true, 0, nullptr, offsetof(Frame, r));
-        addStructureField(&frame_type, "g", "green channel", UDA_TYPE_UNSIGNED_INT, true, 0, nullptr, offsetof(Frame, g));
-        addStructureField(&frame_type, "b", "blue channel", UDA_TYPE_UNSIGNED_INT, true, 0, nullptr, offsetof(Frame, b));
-        addStructureField(&frame_type, "k", "black channel", UDA_TYPE_UNSIGNED_INT, true, 0, nullptr, offsetof(Frame, k));
+        addStructureField(&frame_type, name, "black channel", UDA_TYPE_UNSIGNED_INT, true, 0, nullptr, offsetof(Frame, k));
     }
 
     addUserDefinedType(userdefinedtypelist, frame_type);
@@ -443,14 +437,44 @@ int uda::plugins::ipx::IPXPlugin::read(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
     int frame = 0;
     bool is_frame = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, frame);
 
+    int first = 0;
+    bool is_first = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, first);
+
+    int last = 0;
+    bool is_last = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, last);
+
+    int stride = 0;
+    bool is_stride = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, stride);
+
+    if (is_frame && (is_first || is_last || is_stride)) {
+        RAISE_PLUGIN_ERROR("cannot specify both frame and first|last|stride frames");
+    }
+
+    if (is_first != is_last) {
+        RAISE_PLUGIN_ERROR("both first and last must be specified");
+    }
+
+    if ((is_first && is_last) && (last - first) <= 0) {
+        RAISE_PLUGIN_ERROR("positive range must be specified");
+    }
+
     Cipx ipx;
     if (!ipx.loadFile(filename)) {
         RAISE_PLUGIN_ERROR(ipx.lasterr());
     }
 
-    setup_usertypes(idam_plugin_interface->userdefinedtypelist, ipx.depth());
+    setup_usertypes(idam_plugin_interface->userdefinedtypelist, bool(ipx.color()), ipx.depth());
 
-    Video* video = read_video(idam_plugin_interface->logmalloclist, ipx, is_frame, frame);
+    PluginArgs args{
+        .is_frame=is_frame,
+        .frame=frame,
+        .is_range=is_first,
+        .first=first,
+        .last=last,
+        .stride=(is_stride ? stride : 1)
+    };
+
+    Video* video = read_video(idam_plugin_interface->logmalloclist, ipx, args);
 
     set_return_video(idam_plugin_interface->userdefinedtypelist, idam_plugin_interface->data_block, video);
 

@@ -56,6 +56,8 @@ typedef uint32_t            UVOIDTYPE;
 #define ALIGNMENT           1               // Default Byte Boundary used for Structure Packing
 #endif
 
+typedef char STRING;
+
 //-------------------------------------------------------------------------------------------------------
 // Structure types
 
@@ -66,7 +68,7 @@ typedef struct SArray {             // This structure must be parsed to create a
     int rank;                       // Rank of the data array
     int* shape;                     // Shape of the data array
     void* data;                     // Location of the Structure Array
-    char type[MAXELEMENTNAME];      // The Structure Array Element's type name (Must be Unique)
+    STRING type[MAXELEMENTNAME];      // The Structure Array Element's type name (Must be Unique)
 } SARRAY;
 
 typedef struct EnumMember {
