@@ -168,6 +168,10 @@ struct PluginArgs {
 
 void read_frame(LOGMALLOCLIST* logmalloclist, Cipx& ipx, Frame& frame, int idx, int width, int height)
 {
+    if (idx < 0 || idx > (ipx.frames() - 1)) {
+        return;
+    }
+
     frame.number = idx;
     frame.time = ipx.frameTime(idx);
 
@@ -282,7 +286,7 @@ Video* read_video(LOGMALLOCLIST* logmalloclist, Cipx& ipx, const PluginArgs& arg
     } else {
         video->n_frames = (unsigned int)ipx.frames();
     }
-    video->frames = (Frame*)malloc(video->n_frames * sizeof(Frame));
+    video->frames = (Frame*)calloc((size_t)video->n_frames, sizeof(Frame));
     memset(video->frames, '\0', video->n_frames * sizeof(Frame));
 
     int rank = 1;

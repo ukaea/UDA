@@ -4,7 +4,7 @@
 
 #include <c++/UDA.hpp>
 
-TEST_CASE( "Test read first frame from IPX version 1", "[IMAS][JET][TF]" )
+TEST_CASE( "Test read first frame from IPX version 1", "[IPX][V1]" )
 {
 #include "setup.inc"
 
@@ -126,7 +126,7 @@ TEST_CASE( "Test read first frame from IPX version 1", "[IMAS][JET][TF]" )
     REQUIRE( sum == 2744207 );
 }
 
-TEST_CASE( "Test read single frame from IPX version 1", "[IMAS][JET][TF]" )
+TEST_CASE( "Test read single frame from IPX version 1", "[IPX][V1]" )
 {
 #include "setup.inc"
 
@@ -261,7 +261,7 @@ TEST_CASE( "Test read single frame from IPX version 1", "[IMAS][JET][TF]" )
     REQUIRE( kk == exp_k );
 }
 
-TEST_CASE( "Test read all frames from IPX version 1", "[IMAS][JET][TF]" )
+TEST_CASE( "Test read all frames from IPX version 1", "[IPX][V1]" )
 {
 #include "setup.inc"
 
@@ -487,7 +487,7 @@ TEST_CASE( "Test read all frames from IPX version 1", "[IMAS][JET][TF]" )
     }
 }
 
-TEST_CASE( "Test read range of frames from IPX version 1", "[IMAS][JET][TF]" )
+TEST_CASE( "Test read range of frames from IPX version 1", "[IPX][V1]" )
 {
 #include "setup.inc"
 
@@ -632,7 +632,146 @@ TEST_CASE( "Test read range of frames from IPX version 1", "[IMAS][JET][TF]" )
     }
 }
 
-TEST_CASE( "Test read single frame from colour IPX version 1", "[IMAS][JET][TF]" )
+TEST_CASE( "Test read range of frames with stride from IPX version 1", "[IPX][V1]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("NEWIPX::read(filename='" TEST_DATA_DIR "/rgb030420.ipx', first=0, last=90, stride=7)", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+    REQUIRE( result.isTree() );
+
+    uda::TreeNode tree = result.tree();
+
+    REQUIRE( tree.numChildren() == 1 );
+
+    uda::TreeNode video = tree.child(0);
+
+    REQUIRE( video.name() == "data" );
+    REQUIRE( video.numChildren() == 12 );
+    REQUIRE( video.atomicCount() == 22 );
+
+    std::vector<std::string> exp_names = { "datetime", "shot", "lens", "filter", "view", "camera", "is_color",
+                                           "width", "height", "depth", "taps", "left", "top", "hbin", "vbin",
+                                           "offset", "gain", "preexp", "exposure", "board_temp", "ccd_temp",
+                                           "n_frames" };
+    REQUIRE( video.atomicNames() == exp_names );
+
+    std::vector<bool> exp_ptrs = { false, false, false, false, false, false, false, false, false, false, false, false,
+                                   false, false, false, false, false, false, false, false, false, false };
+    REQUIRE( video.atomicPointers() == exp_ptrs );
+
+    std::vector<std::string> exp_types = { "STRING", "int", "STRING", "STRING", "STRING", "STRING", "int", "int",
+                                           "int", "int", "int", "int", "int", "int", "int", "double", "double",
+                                           "double", "double", "double", "double", "int" };
+    REQUIRE( video.atomicTypes() == exp_types );
+
+    std::vector<size_t> exp_rank = { 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 };
+    REQUIRE( video.atomicRank() == exp_rank );
+
+    std::vector<std::vector<size_t>> exp_shapes = { {256}, {1}, {256}, {256}, {256}, {256}, {1}, {1}, {1}, {1}, {1},
+                                                    {1}, {1}, {1}, {1}, {2}, {2}, {1}, {1}, {1}, {1}, {1} };
+    REQUIRE( video.atomicShape() == exp_shapes );
+
+    std::vector<const char*> exp_string_values = { "2013-10-25T12:37:18Z", "Fujinon f/1.4", "SW/B/B", "Sector9U",
+                                                   "IPX-VGA210LCFN      ASSY-0074-0002-RE04 SW v1.63 BL v1.38 CUST " };
+    std::vector<int> exp_int_values = { 30420, 0, 640, 480, 12, 1, 1, 1, 0, 0, 12 };
+    std::vector<double> exp_double_values = { 9090.0, 9090.0, 39.25, 0.0 };
+
+    int string_i = 0;
+    int int_i = 0;
+    int double_i = 0;
+
+    for (const auto& name : exp_names) {
+        uda::Scalar value = video.atomicScalar(name);
+        if (name != "offset" && name != "gain") {
+            REQUIRE( !value.isNull() );
+        } else {
+            continue;
+        }
+
+        if (value.type() == typeid(char*)) {
+            REQUIRE( std::string(value.as<char*>()) == exp_string_values[string_i] );
+            ++string_i;
+        } else if (value.type() == typeid(int)) {
+            REQUIRE( value.as<int>() == exp_int_values[int_i] );
+            ++int_i;
+        } else if (value.type() == typeid(double)) {
+            REQUIRE( value.as<double >() == Approx(exp_double_values[double_i]) );
+            ++double_i;
+        }
+    }
+
+    uda::Vector offset = video.atomicVector("offset");
+    REQUIRE( !offset.isNull() );
+    std::vector<double> exp_offset = { 202.0, 208.0 };
+    REQUIRE( offset.as<double>() == ApproxVector(exp_offset) );
+
+    uda::Vector gain = video.atomicVector("gain");
+    REQUIRE( !gain.isNull() );
+    std::vector<double> exp_gain = { 6.0, 0.0 };
+    REQUIRE( gain.as<double>() == ApproxVector(exp_gain) );
+
+    std::vector<int> exp_sums = {
+            2744207,
+            12553347,
+            18944664,
+            26567714,
+            37013401,
+            53662658,
+            2730518,
+            2694582,
+            2689971,
+            2671100,
+            2699661,
+            2651329,
+            2587676,
+            2569292,
+            2569565,
+    };
+
+    for (int frame_i = 0; frame_i < 12; ++frame_i) {
+        uda::TreeNode frame = video.child(frame_i);
+
+        REQUIRE( frame.name() == "frames" );
+        REQUIRE( frame.numChildren() == 0 );
+        REQUIRE( frame.atomicCount() == 3 );
+
+        exp_names = { "number", "time", "k" };
+        REQUIRE( frame.atomicNames() == exp_names );
+
+        exp_ptrs = { false, false, true };
+        REQUIRE( frame.atomicPointers() == exp_ptrs );
+
+        exp_types = { "int", "double", "unsigned short *" };
+        REQUIRE( frame.atomicTypes() == exp_types );
+
+        exp_rank = { 0, 0, 0 };
+        REQUIRE( frame.atomicRank() == exp_rank );
+
+        exp_shapes = { {1}, {1}, {307200} };
+        REQUIRE( frame.atomicShape() == exp_shapes );
+
+        uda::Scalar number = frame.atomicScalar("number");
+        REQUIRE( number.as<int>() == frame_i * 7 );
+
+        uda::Vector vec = frame.atomicVector("k");
+        REQUIRE( vec.size() == 307200 );
+
+        long sum = 0;
+        auto vals = vec.as<unsigned short>();
+        for (auto val : vals) {
+            sum += val;
+        }
+
+        REQUIRE( sum == exp_sums[frame_i] );
+    }
+}
+
+TEST_CASE( "Test read single frame from colour IPX version 1", "[IPX][V1]" )
 {
 #include "setup.inc"
 
@@ -764,7 +903,7 @@ TEST_CASE( "Test read single frame from colour IPX version 1", "[IMAS][JET][TF]"
     }
 }
 
-TEST_CASE( "Test read single frame from IPX version 2", "[IMAS][JET][TF]" )
+TEST_CASE( "Test read single frame from IPX version 2", "[IPX][V2]" )
 {
 #include "setup.inc"
 
