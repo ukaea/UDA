@@ -2091,7 +2091,8 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
 
     int i, handle, count, rank, pointer, test = 1;
     int* shape;
-    char* name, * type;
+    const char* name;
+    const char* type;
     void* data;
     NTREE* ntree;
 
