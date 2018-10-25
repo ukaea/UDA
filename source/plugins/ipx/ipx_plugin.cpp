@@ -151,6 +151,7 @@ struct Video {
     double board_temp;
     double ccd_temp;
     int n_frames;
+    double* frame_times;
 
     Frame* frames;
 };
@@ -278,32 +279,41 @@ Video* read_video(LOGMALLOCLIST* logmalloclist, Cipx& ipx, const PluginArgs& arg
     video->exposure = ipx.exposure();
     video->board_temp = ipx.boardtemp();
     video->ccd_temp = ipx.ccdtemp();
+    video->n_frames = ipx.frames();
 
-    if (args.is_frame) {
-        video->n_frames = 1;
-    } else if (args.is_range) {
-        video->n_frames = (args.last - args.first) / args.stride;
-    } else {
-        video->n_frames = (unsigned int)ipx.frames();
+    video->frame_times = (double*)calloc((size_t)video->n_frames, sizeof(double));
+    addMalloc(logmalloclist, video->frame_times, video->n_frames, sizeof(double), "double *");
+
+    for (int i = 0; i < video->n_frames; ++i) {
+        video->frame_times[i] = ipx.frameTime(i);
     }
-    video->frames = (Frame*)calloc((size_t)video->n_frames, sizeof(Frame));
-    memset(video->frames, '\0', video->n_frames * sizeof(Frame));
+
+    size_t num_frames = 0;
+    if (args.is_frame) {
+        num_frames = 1;
+    } else if (args.is_range) {
+        num_frames = (size_t)((args.last - args.first) / args.stride);
+    } else {
+        num_frames = (unsigned int)ipx.frames();
+    }
+    video->frames = (Frame*)calloc(num_frames, sizeof(Frame));
+    memset(video->frames, '\0', num_frames * sizeof(Frame));
 
     int rank = 1;
 
-    addMalloc2(logmalloclist, (void*)video->frames, video->n_frames, sizeof(Frame), "FRAME", rank, nullptr);
+    addMalloc2(logmalloclist, (void*)video->frames, (int)num_frames, sizeof(Frame), "FRAME", rank, nullptr);
 
     if (args.is_frame) {
         read_frame(logmalloclist, ipx, video->frames[0], args.frame, video->width, video->height);
     } else if (args.is_range) {
         int frame = args.first;
-        for (int i = 0; i < video->n_frames; i++) {
+        for (size_t i = 0; i < num_frames; i++) {
             read_frame(logmalloclist, ipx, video->frames[i], frame, video->width, video->height);
             frame += args.stride;
         }
     } else {
-        for (int i = 0; i < video->n_frames; i++) {
-            read_frame(logmalloclist, ipx, video->frames[i], i, video->width, video->height);
+        for (size_t i = 0; i < num_frames; i++) {
+            read_frame(logmalloclist, ipx, video->frames[i], (int)i, video->width, video->height);
         }
     }
 
@@ -389,6 +399,7 @@ void setup_usertypes(USERDEFINEDTYPELIST* userdefinedtypelist, bool is_color, in
     addStructureField(&video_type, "board_temp", "", UDA_TYPE_DOUBLE, false, 0, nullptr, offsetof(Video, board_temp));
     addStructureField(&video_type, "ccd_temp", "", UDA_TYPE_DOUBLE, false, 0, nullptr, offsetof(Video, ccd_temp));
     addStructureField(&video_type, "n_frames", "", UDA_TYPE_INT, false, 0, nullptr, offsetof(Video, n_frames));
+    addStructureField(&video_type, "frame_times", "", UDA_TYPE_DOUBLE, true, 0, nullptr, offsetof(Video, frame_times));
 
     COMPOUNDFIELD field;
     initCompoundField(&field);

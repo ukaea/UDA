@@ -56,7 +56,7 @@ class Video(Data):
             for frame in frames:
                 self.frames.append(Frame(frame))
         else:
-            self.frames = [frames]
+            self.frames = [Frame(frames)]
 
     def plot(self):
         fig = plt.figure()

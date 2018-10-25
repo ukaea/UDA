@@ -1138,7 +1138,7 @@ bool Cipx::loadFrame(int nf)
 #else
     if (fseek(fH, pOffs[nf], SEEK_SET)) {
         fclose(fH);
-        sprintf(errstr, "Can't move file pointer to offset %ld", pOffs[nf]);
+        sprintf(errstr, "Can't move file pointer to offset %ld", (long)pOffs[nf]);
 #endif
         return 0;
     }
