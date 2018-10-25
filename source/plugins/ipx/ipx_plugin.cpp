@@ -292,7 +292,7 @@ Video* read_video(LOGMALLOCLIST* logmalloclist, Cipx& ipx, const PluginArgs& arg
     if (args.is_frame) {
         num_frames = 1;
     } else if (args.is_range) {
-        num_frames = (size_t)((args.last - args.first) / args.stride);
+        num_frames = (size_t)(((args.last - args.first) + 1) / args.stride);
     } else {
         num_frames = (unsigned int)ipx.frames();
     }
@@ -465,10 +465,6 @@ int uda::plugins::ipx::IPXPlugin::read(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
         RAISE_PLUGIN_ERROR("cannot specify both frame and first|last|stride frames");
     }
 
-    if (is_first != is_last) {
-        RAISE_PLUGIN_ERROR("both first and last must be specified");
-    }
-
     if ((is_first && is_last) && (last - first) <= 0) {
         RAISE_PLUGIN_ERROR("positive range must be specified");
     }
@@ -478,12 +474,15 @@ int uda::plugins::ipx::IPXPlugin::read(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
         RAISE_PLUGIN_ERROR(ipx.lasterr());
     }
 
+    first = is_first ? std::min(ipx.frames(), std::max(0, first)) : 0;
+    last = is_last ? std::min(ipx.frames(), std::max(0, last)) : ipx.frames();
+
     setup_usertypes(idam_plugin_interface->userdefinedtypelist, bool(ipx.color()), ipx.depth());
 
     PluginArgs args{
         .is_frame=is_frame,
         .frame=frame,
-        .is_range=is_first,
+        .is_range=(is_first || is_last),
         .first=first,
         .last=last,
         .stride=(is_stride ? stride : 1)

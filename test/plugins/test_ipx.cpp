@@ -489,7 +489,7 @@ TEST_CASE( "Test read range of frames from IPX version 1", "[IPX][V1]" )
     uda::TreeNode video = tree.child(0);
 
     REQUIRE( video.name() == "data" );
-    REQUIRE( video.numChildren() == 20 );
+    REQUIRE( video.numChildren() == 21 );
     REQUIRE( video.atomicCount() == 23 );
 
     std::vector<std::string> exp_names = { "datetime", "shot", "lens", "filter", "view", "camera", "is_color",
@@ -640,7 +640,7 @@ TEST_CASE( "Test read range of frames with stride from IPX version 1", "[IPX][V1
     uda::TreeNode video = tree.child(0);
 
     REQUIRE( video.name() == "data" );
-    REQUIRE( video.numChildren() == 12 );
+    REQUIRE( video.numChildren() == 13 );
     REQUIRE( video.atomicCount() == 23 );
 
     std::vector<std::string> exp_names = { "datetime", "shot", "lens", "filter", "view", "camera", "is_color",
@@ -730,7 +730,7 @@ TEST_CASE( "Test read range of frames with stride from IPX version 1", "[IPX][V1
 
     std::vector<int> exp_sums = {
             2744207, 12553347, 18944664, 26567714, 37013401, 53662658, 2730518,
-            2694582, 2689971, 2671100, 2699661, 2651329, 2587676, 2569292, 2569565,
+            2694582, 2689971, 2671100, 2699661, 2651329, 2587676
     };
 
     for (int frame_i = 0; frame_i < 12; ++frame_i) {
