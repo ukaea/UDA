@@ -34,11 +34,15 @@ class VideoEncoder(json.JSONEncoder):
 
 class Frame:
 
-    def __init__(self, tree):
+    def __init__(self, video, tree):
         self._tree = tree
 
         for name in tree._imported_attrs:
             setattr(self, name, getattr(tree, name))
+
+        for attr in ('k', 'r', 'g', 'b', 'raw'):
+            if hasattr(self, attr):
+                setattr(self, attr, getattr(self, attr).reshape((video.height, video.width)))
 
 
 class Video(Data):
@@ -54,9 +58,9 @@ class Video(Data):
         if isinstance(frames, list):
             self.frames = []
             for frame in frames:
-                self.frames.append(Frame(frame))
+                self.frames.append(Frame(self, frame))
         else:
-            self.frames = [Frame(frames)]
+            self.frames = [Frame(self, frames)]
 
     def plot(self):
         fig = plt.figure()
