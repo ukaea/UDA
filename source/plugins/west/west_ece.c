@@ -109,7 +109,7 @@ int ece_t_e_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 		//*mapfun = strdup("tsbase_time;DECE:GSH1,DECE:GSH2;1:float:#0");
 		homogeneous_time = isTimeHomogeneous1(shotNumber);
 		if (homogeneous_time == -1 || homogeneous_time == 1) {
-			ece_throwsIdamError2(status, "ece_t_e_time", "isTimeHomogeneous1", channelID, shotNumber);
+			//ece_throwsIdamError2(status, "ece_t_e_time", "isTimeHomogeneous1", channelID, shotNumber);
 			return -1;
 		}
 		status = ece_t_e_time1(shotNumber, data_block, nodeIndices);
@@ -122,7 +122,7 @@ int ece_t_e_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 			//*mapfun = strdup("tsbase_time;DVECE:GVSH1,DVECE:GVSH2;1:float:#0");
 			homogeneous_time = isTimeHomogeneous2(shotNumber);
 			if (homogeneous_time == -1 || homogeneous_time == 1) {
-				ece_throwsIdamError2(status, "ece_t_e_time", "isTimeHomogeneous2",  channelID, shotNumber);
+				//ece_throwsIdamError2(status, "ece_t_e_time", "isTimeHomogeneous2",  channelID, shotNumber);
 				return -1;
 			}
 			status = ece_t_e_time2(shotNumber, data_block, nodeIndices);
@@ -134,7 +134,7 @@ int ece_t_e_time(int shotNumber, DATA_BLOCK* data_block, int* nodeIndices)
 			//*mapfun = strdup("tsbase_time;DVECE:GVSH1,DVECE:GVSH2,DVECE:GVSH3,DVECE:GVSH4;1:float:#0");
 			homogeneous_time = isTimeHomogeneous3(shotNumber);
 			if (homogeneous_time == -1 || homogeneous_time == 1) {
-				ece_throwsIdamError2(status, "ece_t_e_time", "isTimeHomogeneous3",  channelID, shotNumber);
+				//ece_throwsIdamError2(status, "ece_t_e_time", "isTimeHomogeneous3",  channelID, shotNumber);
 				return -1;
 			}
 			status = ece_t_e_time3(shotNumber, data_block, nodeIndices);
