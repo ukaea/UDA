@@ -3,7 +3,7 @@ cmake_minimum_required( VERSION 2.8 )
 find_package( SWIG 3.0 REQUIRED )
 find_package( Boost REQUIRED )
 
-if( WIN32 )
+if( WIN32 OR MINGW )
   # pip install not working on Windows so build full wrapper and install manually
 
   include( ${SWIG_USE_FILE} ) # for swig macros
@@ -21,7 +21,7 @@ if( WIN32 )
   set( LIB_NAME c_${PROJECT_NAME} )
 
   if( MINGW )
-    add_definitions( -D_hypot=hypot )
+    add_definitions( -D_hypot=hypot -Wno-cast-function-type -Wno-stringop-truncation -Wno-class-memaccess )
   endif()
 
   add_definitions( -D__USE_XOPEN2K8 )
