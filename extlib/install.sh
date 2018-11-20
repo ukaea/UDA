@@ -9,8 +9,9 @@ then
 	cp portablexdr-4.9.1/.libs/libportablexdr.dll.a lib
 	cp portablexdr-4.9.1/.libs/libportablexdr-0.dll lib
 else
-	cp build/portablexdr-4.9.1/Debug/xdr.lib lib
-	cp build/portablexdr-4.9.1/Debug/xdr.pdb lib
+	cp portablexdr-4.9.1/.libs/libportablexdr.a lib
+	cp portablexdr-4.9.1/.libs/libportablexdr.la lib
+	cp portablexdr-4.9.1/.libs/libportablexdr.so lib
 fi
 
 mkdir include/rpc 2>/dev/null
@@ -22,5 +23,5 @@ then
 	cp -r portablexdr-4.9.1/config.h include/rpc/rpc
 else
 	cp -r portablexdr-4.9.1/rpc include/rpc/
-	cp -r build/config.h include/rpc/
+	cp -r portablexdr-4.9.1/config.h include/rpc/rpc
 fi

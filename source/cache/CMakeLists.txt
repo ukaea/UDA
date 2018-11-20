@@ -5,6 +5,9 @@ cmake_minimum_required( VERSION 2.8 )
 
 find_package( LibMemcached )
 
+# Format overflow inside sprintf
+add_definitions( -Wno-error=format-overflow )
+
 set( SRC_FILES
   cache.c
   fileCache.c
