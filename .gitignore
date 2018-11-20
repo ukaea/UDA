@@ -19,6 +19,6 @@
 /error_type
 /method
 /run_test.sh
-/.idea/*.xml
+/.idea
 /.DS_Store
 /python

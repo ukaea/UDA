@@ -683,7 +683,7 @@ int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFIN
 int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size;
-    char* type;
+    const char* type;
     if (ntree == NULL) {
         ntree = fullNTree;
     }
@@ -701,7 +701,7 @@ int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size;
-    char* type;
+    const char* type;
     if (ntree == NULL) {
         ntree = fullNTree;
     }
@@ -720,7 +720,7 @@ int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size, rank;
     int* shape;
-    char* type;
+    const char* type;
     if (ntree == NULL) {
         ntree = fullNTree;
     }
@@ -739,7 +739,7 @@ int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size, rank;
     int* shape;
-    char* type;
+    const char* type;
     if (ntree == NULL) {
         ntree = fullNTree;
     }
@@ -773,10 +773,10 @@ int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 * @param ntree A pointer to a tree node. If NULL the root node is assumed.
 * @return the data type name of the structured data array.
 */
-char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+const char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size;
-    char* type = NULL;
+    const char* type = NULL;
     if (ntree == NULL) {
         ntree = fullNTree;
     }

@@ -71,9 +71,9 @@ int wrap_string(XDR* xdrs, char* sp)
     return xdr_string(xdrs, &sp, MAX_STRING_LENGTH);
 }
 
-int WrapXDRString(XDR* xdrs, char* sp, int maxlen)
+int WrapXDRString(XDR* xdrs, const char* sp, int maxlen)
 {
-    return xdr_string(xdrs, &sp, maxlen);
+    return xdr_string(xdrs, (char**)&sp, (unsigned int)maxlen);
 }
 
 //-----------------------------------------------------------------------

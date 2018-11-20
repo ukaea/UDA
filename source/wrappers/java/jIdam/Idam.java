@@ -147,8 +147,8 @@ public class Idam {
         try {
 	   		System.loadLibrary("uda_jni");
         } catch (UnsatisfiedLinkError e) {
-           System.err.println("Native code library failed to load.\n" + e);
-           System.exit(1);
+            System.err.println("Native code library failed to load.\n" + e);
+            System.exit(1);
         }
 		
 		TYPE_UNKNOWN = getIdamDataTypeId("unknown");

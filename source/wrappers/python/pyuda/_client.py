@@ -130,14 +130,17 @@ class Client(with_metaclass(ClientMeta, object)):
             raise RuntimeError("UDA list data failed")
 
         data = StructuredData(result.tree())
-        names = list(el for el in data["data"]._imported_attrs if el not in ("count", "shot", "pass_"))
+        names = list(el for el in data["data"]._imported_attrs if el not in ("count",))
         ListData = namedtuple("ListData", names)
 
         vals = []
         for i in range(data["data"].count):
             row = {}
             for name in names:
-                row[name] = getattr(data["data"], name)[i]
+                try:
+                    row[name] = getattr(data["data"], name)[i]
+                except TypeError:
+                    row[name] = getattr(data["data"], name)
             vals.append(ListData(**row))
         return vals
 

@@ -27,7 +27,6 @@ test10	BPOL_PROBE
 
 magnetics || test11	MAGNETICS_PROXY
 limiter			EQUILIBRIUM_PROXY
-pfactive		PF_ACTIVE_PROXY		
 
 Options: test11 for all data or
          test11 for first pass, then test9x for Flux Loop measurment data only followed by test10x for Bpol Probe data only
@@ -3996,7 +3995,7 @@ MAGNETICS/METHOD/%d/DIAMAGNETIC_FLUX/TIME
             !strcasecmp(request_block->function, "test11")) {    // MAGNETICS data structure with MAST data
             char* p = NULL;
             int size = 0;
-            char* type = NULL;
+            const char* type = NULL;
             char signal[256], source[256];
             DATA_BLOCK plugin_data_block;
             REQUEST_BLOCK plugin_request_block;
