@@ -1,13 +1,8 @@
-#ifndef IDAM_READSQL_H
-#define IDAM_READSQL_H
-
-#ifdef NOTGENERICENABLED
-typedef int PGconn;
-#else
-#include <libpq-fe.h>
-#endif
+#ifndef UDA_SERVER_MODULES_READSQL_READSQL_H
+#define UDA_SERVER_MODULES_READSQL_READSQL_H
 
 #include <clientserver/udaStructs.h>
+#include <clientserver/sqllib.h>
 #include <structures/genStructs.h>
 
 #ifdef USEREADSOAP 
@@ -31,5 +26,5 @@ extern int enable_malloc_log;
 
 #endif
 
-#endif // IDAM_READSQL_H
+#endif // UDA_SERVER_MODULES_READSQL_READSQL_H
 

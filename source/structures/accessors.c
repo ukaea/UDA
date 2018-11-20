@@ -683,7 +683,7 @@ int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFIN
 int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size;
-    char* type;
+    const char* type;
     if (ntree == NULL) {
         ntree = fullNTree;
     }
@@ -701,7 +701,7 @@ int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size;
-    char* type;
+    const char* type;
     if (ntree == NULL) {
         ntree = fullNTree;
     }
@@ -720,7 +720,7 @@ int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size, rank;
     int* shape;
-    char* type;
+    const char* type;
     if (ntree == NULL) {
         ntree = fullNTree;
     }
@@ -739,7 +739,7 @@ int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size, rank;
     int* shape;
-    char* type;
+    const char* type;
     if (ntree == NULL) {
         ntree = fullNTree;
     }
@@ -773,10 +773,10 @@ int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 * @param ntree A pointer to a tree node. If NULL the root node is assumed.
 * @return the data type name of the structured data array.
 */
-char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
+const char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size;
-    char* type = NULL;
+    const char* type = NULL;
     if (ntree == NULL) {
         ntree = fullNTree;
     }
@@ -833,10 +833,10 @@ void printImage(const char* image, int imagecount)
 * @param name Name of the structure's field.
 * @param desc Description of the fields contents
 * @param offset Current field byte offset from the start of the structure. Ppdated on return.
-* @param TypeId Enumerated key indicating the type of data field, e.g. float array
+* @param type_id Enumerated key indicating the type of data field, e.g. float array
 * @return Void
 */
-void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short TypeId)
+void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short type_id)
 {
     initCompoundField(field);
     strcpy(field->name, name);
@@ -844,135 +844,170 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
     field->pointer = 0;  // default for scalar values
     field->count = 1;
 
-    if (TypeId == SCALARDOUBLE) {  // Single scalar double
-        field->atomictype = UDA_TYPE_DOUBLE;
-        strcpy(field->type, "double");
-        sprintf(field->desc, "[double %s] %s", name, desc);
-        field->size = field->count * sizeof(double);
-    } else if (TypeId == ARRAYDOUBLE) {  // arbitrary number array of doubles
-        field->atomictype = UDA_TYPE_DOUBLE;
-        strcpy(field->type, "double *");
-        sprintf(field->desc, "[double *%s] %s", name, desc);
-        field->pointer = 1;
-        field->size = field->count * sizeof(double*);
-    } else if (TypeId == SCALARFLOAT) {  // Single scalar float
-        field->atomictype = UDA_TYPE_FLOAT;
-        strcpy(field->type, "float");
-        sprintf(field->desc, "[float %s] %s", name, desc);
-        field->size = field->count * sizeof(float);
-    } else if (TypeId == ARRAYFLOAT) {  // arbitrary number array of floats
-        field->atomictype = UDA_TYPE_FLOAT;
-        strcpy(field->type, "float *");
-        sprintf(field->desc, "[float *%s] %s", name, desc);
-        field->pointer = 1;
-        field->size = field->count * sizeof(float*);
-    } else if (TypeId == SCALARLONG64) {  // Single scalar 8 byte integer
-        field->atomictype = UDA_TYPE_LONG64;
-        strcpy(field->type, "long long");
-        sprintf(field->desc, "[long long %s] %s", name, desc);
-        field->size = field->count * sizeof(long long);
-    } else if (TypeId == ARRAYLONG64) {  // arbitrary number array of 8 byte integers
-        field->atomictype = UDA_TYPE_LONG64;
-        strcpy(field->type, "long long *");
-        sprintf(field->desc, "[long long *%s] %s", name, desc);
-        field->pointer = 1;
-        field->size = field->count * sizeof(long long*);
-    } else if (TypeId == SCALARULONG64) {  // Single scalar unsigned 8 byteinteger
-        field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
-        strcpy(field->type, "unsigned long long");
-        sprintf(field->desc, "[unsigned long long %s] %s", name, desc);
-        field->size = field->count * sizeof(unsigned long long);
-    } else if (TypeId == ARRAYULONG64) {  // arbitrary number array of unsigned 8 byteintegers
-        field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
-        strcpy(field->type, "unsigned long long *");
-        sprintf(field->desc, "[unsigned long long *%s] %s", name, desc);
-        field->pointer = 1;
-        field->size = field->count * sizeof(unsigned long long*);
-    } else if (TypeId == SCALARINT) {  // Single scalar integer
-        field->atomictype = UDA_TYPE_INT;
-        strcpy(field->type, "int");
-        sprintf(field->desc, "[int %s] %s", name, desc);
-        field->size = field->count * sizeof(int);
-    } else if (TypeId == ARRAYINT) {  // arbitrary number array of integers
-        field->atomictype = UDA_TYPE_INT;
-        strcpy(field->type, "int *");
-        sprintf(field->desc, "[int *%s] %s", name, desc);
-        field->pointer = 1;
-        field->size = field->count * sizeof(int*);
-    } else if (TypeId == SCALARUINT) {  // Single scalar unsigned integer
-        field->atomictype = UDA_TYPE_UNSIGNED_INT;
-        strcpy(field->type, "unsigned int");
-        sprintf(field->desc, "[unsigned int %s] %s", name, desc);
-        field->size = field->count * sizeof(unsigned int);
-    } else if (TypeId == ARRAYUINT) {  // arbitrary number array of unsigned integers
-        field->atomictype = UDA_TYPE_UNSIGNED_INT;
-        strcpy(field->type, "unsigned int *");
-        sprintf(field->desc, "[unsigned int *%s] %s", name, desc);
-        field->pointer = 1;
-        field->size = field->count * sizeof(unsigned int*);
-    } else if (TypeId == SCALARSHORT) {  // Single scalar short integer
-        field->atomictype = UDA_TYPE_SHORT;
-        strcpy(field->type, "short");
-        sprintf(field->desc, "[short %s] %s", name, desc);
-        field->size = field->count * sizeof(short);
-    } else if (TypeId == ARRAYSHORT) {  // arbitrary number array of short integers
-        field->atomictype = UDA_TYPE_SHORT;
-        strcpy(field->type, "short *");
-        sprintf(field->desc, "[short *%s] %s", name, desc);
-        field->pointer = 1;
-        field->size = field->count * sizeof(short*);
-    } else if (TypeId == SCALARUSHORT) {  // Single scalar unsigned short integer
-        field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
-        strcpy(field->type, "unsigned short");
-        sprintf(field->desc, "[unsigned short %s] %s", name, desc);
-        field->size = field->count * sizeof(unsigned short);
-    } else if (TypeId == ARRAYUSHORT) {  // arbitrary number array of unsigned short integers
-        field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
-        strcpy(field->type, "unsigned short *");
-        sprintf(field->desc, "[unsigned short *%s] %s", name, desc);
-        field->pointer = 1;
-        field->size = field->count * sizeof(unsigned short*);
-    } else if (TypeId == SCALARCHAR) {  // Single scalar byte integer
-        field->atomictype = UDA_TYPE_CHAR;
-        strcpy(field->type, "char");
-        sprintf(field->desc, "[char %s] %s", name, desc);
-        field->size = field->count * sizeof(char);
-    } else if (TypeId == ARRAYCHAR) {  // arbitrary number array of byte integers (Not a string!)
-        field->atomictype = UDA_TYPE_CHAR;
-        strcpy(field->type, "char *");
-        sprintf(field->desc, "[char *%s] %s", name, desc);
-        field->pointer = 1;
-        field->size = field->count * sizeof(char*);
-    } else if (TypeId == SCALARSTRING) {  // Single scalar string of arbitrary length
-        field->atomictype = UDA_TYPE_STRING;
-        strcpy(field->type, "STRING");
-        sprintf(field->desc, "[char *%s] %s", name, desc);
-        field->pointer = 1;
-        field->size = field->count * sizeof(char*);
-        field->offset = newoffset(*offset, "char *"); // must be an explicit char pointer (STRING Convention!)
-        field->offpad = padding(*offset, "char *");
-        field->alignment = getalignmentof("char *");
-    } else if (TypeId == ARRAYSTRING) {  // arbitrary number array of strings of arbitrary length
-        //Bug Fix dgm 07Jul2014: atomictype was missing!
-        field->atomictype = UDA_TYPE_STRING;
-        strcpy(field->type, "STRING *");
-        sprintf(field->desc, "[char **%s] %s", name, desc);
-        field->pointer = 1;
-        field->size = field->count * sizeof(char**);
-    } else if (TypeId == ARRAYVOID) {  // Opaque block of bytes
-        field->atomictype = UDA_TYPE_VOID;
-        strcpy(field->type, "void *");
-        sprintf(field->desc, "[void *%s] %s", name, desc);
-        field->pointer = 1;
-        field->size = field->count * sizeof(void*);
+    switch (type_id) {
+        case SCALARDOUBLE:
+            field->atomictype = UDA_TYPE_DOUBLE;
+            strcpy(field->type, "double");
+            sprintf(field->desc, "[double %s] %s", name, desc);
+            field->size = field->count * sizeof(double);
+            break;
+        case ARRAYDOUBLE:
+            field->atomictype = UDA_TYPE_DOUBLE;
+            strcpy(field->type, "double *");
+            sprintf(field->desc, "[double *%s] %s", name, desc);
+            field->pointer = 1;
+            field->size = field->count * sizeof(double*);
+            break;
+        case SCALARFLOAT:
+            field->atomictype = UDA_TYPE_FLOAT;
+            strcpy(field->type, "float");
+            sprintf(field->desc, "[float %s] %s", name, desc);
+            field->size = field->count * sizeof(float);
+            break;
+        case ARRAYFLOAT:
+            field->atomictype = UDA_TYPE_FLOAT;
+            strcpy(field->type, "float *");
+            sprintf(field->desc, "[float *%s] %s", name, desc);
+            field->pointer = 1;
+            field->size = field->count * sizeof(float*);
+            break;
+        case SCALARLONG64:
+            field->atomictype = UDA_TYPE_LONG64;
+            strcpy(field->type, "long long");
+            sprintf(field->desc, "[long long %s] %s", name, desc);
+            field->size = field->count * sizeof(long long);
+            break;
+        case ARRAYLONG64:
+            field->atomictype = UDA_TYPE_LONG64;
+            strcpy(field->type, "long long *");
+            sprintf(field->desc, "[long long *%s] %s", name, desc);
+            field->pointer = 1;
+            field->size = field->count * sizeof(long long*);
+            break;
+        case SCALARULONG64:
+            field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
+            strcpy(field->type, "unsigned long long");
+            sprintf(field->desc, "[unsigned long long %s] %s", name, desc);
+            field->size = field->count * sizeof(unsigned long long);
+            break;
+        case ARRAYULONG64:
+            field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
+            strcpy(field->type, "unsigned long long *");
+            sprintf(field->desc, "[unsigned long long *%s] %s", name, desc);
+            field->pointer = 1;
+            field->size = field->count * sizeof(unsigned long long*);
+            break;
+        case SCALARINT:
+            field->atomictype = UDA_TYPE_INT;
+            strcpy(field->type, "int");
+            sprintf(field->desc, "[int %s] %s", name, desc);
+            field->size = field->count * sizeof(int);
+            break;
+        case ARRAYINT:
+            field->atomictype = UDA_TYPE_INT;
+            strcpy(field->type, "int *");
+            sprintf(field->desc, "[int *%s] %s", name, desc);
+            field->pointer = 1;
+            field->size = field->count * sizeof(int*);
+            break;
+        case SCALARUINT:
+            field->atomictype = UDA_TYPE_UNSIGNED_INT;
+            strcpy(field->type, "unsigned int");
+            sprintf(field->desc, "[unsigned int %s] %s", name, desc);
+            field->size = field->count * sizeof(unsigned int);
+            break;
+        case ARRAYUINT:
+            field->atomictype = UDA_TYPE_UNSIGNED_INT;
+            strcpy(field->type, "unsigned int *");
+            sprintf(field->desc, "[unsigned int *%s] %s", name, desc);
+            field->pointer = 1;
+            field->size = field->count * sizeof(unsigned int*);
+            break;
+        case SCALARSHORT:
+            field->atomictype = UDA_TYPE_SHORT;
+            strcpy(field->type, "short");
+            sprintf(field->desc, "[short %s] %s", name, desc);
+            field->size = field->count * sizeof(short);
+            break;
+        case ARRAYSHORT:
+            field->atomictype = UDA_TYPE_SHORT;
+            strcpy(field->type, "short *");
+            sprintf(field->desc, "[short *%s] %s", name, desc);
+            field->pointer = 1;
+            field->size = field->count * sizeof(short*);
+            break;
+        case SCALARUSHORT:
+            field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
+            strcpy(field->type, "unsigned short");
+            sprintf(field->desc, "[unsigned short %s] %s", name, desc);
+            field->size = field->count * sizeof(unsigned short);
+            break;
+        case ARRAYUSHORT:
+            field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
+            strcpy(field->type, "unsigned short *");
+            sprintf(field->desc, "[unsigned short *%s] %s", name, desc);
+            field->pointer = 1;
+            field->size = field->count * sizeof(unsigned short*);
+            break;
+        case SCALARCHAR:
+            field->atomictype = UDA_TYPE_CHAR;
+            strcpy(field->type, "char");
+            sprintf(field->desc, "[char %s] %s", name, desc);
+            field->size = field->count * sizeof(char);
+            break;
+        case ARRAYCHAR:
+            field->atomictype = UDA_TYPE_CHAR;
+            strcpy(field->type, "char *");
+            sprintf(field->desc, "[char *%s] %s", name, desc);
+            field->pointer = 1;
+            field->size = field->count * sizeof(char*);
+            break;
+        case SCALARSTRING:
+            field->atomictype = UDA_TYPE_STRING;
+            strcpy(field->type, "STRING");
+            sprintf(field->desc, "[char *%s] %s", name, desc);
+            field->pointer = 1;
+            field->size = field->count * sizeof(char*);
+            field->offset = (int)newoffset((size_t)*offset, "char *"); // must be an explicit char pointer (STRING Convention!)
+            field->offpad = (int)padding((size_t)*offset, "char *");
+            field->alignment = getalignmentof("char *");
+            break;
+        case ARRAYSTRING:
+            //Bug Fix dgm 07Jul2014: atomictype was missing!
+            field->atomictype = UDA_TYPE_STRING;
+            strcpy(field->type, "STRING *");
+            sprintf(field->desc, "[char **%s] %s", name, desc);
+            field->pointer = 1;
+            field->size = field->count * sizeof(char**);
+            break;
+        case ARRAYVOID:
+            field->atomictype = UDA_TYPE_VOID;
+            strcpy(field->type, "void *");
+            sprintf(field->desc, "[void *%s] %s", name, desc);
+            field->pointer = 1;
+            field->size = field->count * sizeof(void*);
+            break;
+        case SCALARUCHAR:
+            field->atomictype = UDA_TYPE_UNSIGNED_CHAR;
+            strcpy(field->type, "unsigned char");
+            sprintf(field->desc, "[char %s] %s", name, desc);
+            field->size = field->count * sizeof(unsigned char);
+            break;
+        case ARRAYUCHAR:
+            field->atomictype = UDA_TYPE_UNSIGNED_CHAR;
+            strcpy(field->type, "unsigned char *");
+            sprintf(field->desc, "[unsigned char *%s] %s", name, desc);
+            field->pointer = 1;
+            field->size = field->count * sizeof(unsigned char*);
+            break;
     }
 
     field->rank = 0;
     field->shape = NULL;
 
-    if (TypeId != SCALARSTRING) {
-        field->offset = newoffset(*offset, field->type);
-        field->offpad = padding(*offset, field->type);
+    if (type_id != SCALARSTRING) {
+        field->offset = (int)newoffset(*offset, field->type);
+        field->offpad = (int)padding(*offset, field->type);
         field->alignment = getalignmentof(field->type);
     }
 

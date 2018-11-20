@@ -41,13 +41,14 @@ else()
   add_subdirectory( help )
   add_subdirectory( ida3 )
   add_subdirectory( imas )
+  add_subdirectory( ipx )
   add_subdirectory( keyvalue )
   add_subdirectory( livedisplay )
   add_subdirectory( mast_imas )
   add_subdirectory( meta )
   add_subdirectory( metanew )
   add_subdirectory( mongodb )
-  add_subdirectory( netcdf4 )
+#  add_subdirectory( netcdf4 )
   add_subdirectory( opendata )
   add_subdirectory( paramsdb )
   add_subdirectory( postgres )
@@ -74,14 +75,12 @@ include_directories(
 
 set( SOURCE_FILES
   managePluginFiles.c
-  pluginUtils.c
   udaPlugin.c
 )
 
 set( HEADER_FILES
   managePluginFiles.h
   pluginStructs.h
-  pluginUtils.h
   udaPlugin.h
   udaPluginFiles.h
 )

@@ -1,6 +1,7 @@
 #ifndef UDA_STRUCTURES_STRUCT_H
 #define UDA_STRUCTURES_STRUCT_H
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <rpc/rpc.h>
 
@@ -219,7 +220,7 @@ void printMallocLogList(const LOGMALLOCLIST* logmalloclist);
 * @param type The name of the type allocated.  
 * @return void.
 */
-void addNonMalloc(LOGMALLOCLIST* logmalloclist, void* stack, int count, size_t size, char* type);
+void addNonMalloc(LOGMALLOCLIST* logmalloclist, void* stack, int count, size_t size, const char* type);
 
 /** Add a stack memory location to the LOGMALLOCLIST data structure. These are not freed.  
 *
@@ -232,7 +233,7 @@ void addNonMalloc(LOGMALLOCLIST* logmalloclist, void* stack, int count, size_t s
  
 * @return void.
 */
-void addNonMalloc2(LOGMALLOCLIST* logmalloclist, void* stack, int count, size_t size, char* type, int rank, int* shape);
+void addNonMalloc2(LOGMALLOCLIST* logmalloclist, void* stack, int count, size_t size, const char* type, int rank, int* shape);
 
 /** Add a heap memory location to the LOGMALLOCLIST data structure. These are freed.  
 *
@@ -242,7 +243,7 @@ void addNonMalloc2(LOGMALLOCLIST* logmalloclist, void* stack, int count, size_t 
 * @param type The name of the type allocated. 
 * @return void.
 */
-void addMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t size, char* type);
+void addMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t size, const char* type);
 
 /** Add a heap memory location to the LOGMALLOCLIST data structure. These are freed.  
 *
@@ -254,7 +255,7 @@ void addMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t size,
 * @param shape The shape of the allocated array. Only required when rank > 1.
 * @return void.
 */
-void addMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t size, char* type, int rank, int* shape);
+void addMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t size, const char* type, int rank, int* shape);
 
 /** Change the logged memory location to a new location (necessary with realloc).  
 *
@@ -265,7 +266,7 @@ void addMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t size
 * @param type The name of the type allocated.  
 * @return void.
 */
-void changeMalloc(LOGMALLOCLIST* logmalloclist, void* old, void* anew, int count, size_t size, char* type);
+void changeMalloc(LOGMALLOCLIST* logmalloclist, void* old, void* anew, int count, size_t size, const char* type);
 
 /** Change the logged memory location to a new location (necessary with realloc).  
 *
@@ -276,7 +277,7 @@ void changeMalloc(LOGMALLOCLIST* logmalloclist, void* old, void* anew, int count
 * @param type The name of the type allocated.  
 * @return void.
 */
-void changeNonMalloc(LOGMALLOCLIST* logmalloclist, void* old, void* anew, int count, size_t size, char* type);
+void changeNonMalloc(LOGMALLOCLIST* logmalloclist, void* old, void* anew, int count, size_t size, const char* type);
 
 int dupCountMallocLog(LOGMALLOCLIST* str);
 
@@ -300,7 +301,7 @@ void freeMallocLogList(LOGMALLOCLIST* str);
 * @param type The returned allocation type.
 * @return void.
 */
-void findMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size, char** type);
+void findMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size, const char** type);
 
 /** Find the meta data associated with a specific memory location.  
 * 
@@ -313,7 +314,7 @@ void findMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size,
 
 * @return void.
 */
-void findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size, char** type, int* rank, int** shape);
+void findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size, const char** type, int* rank, int** shape);
 
 /** Add a heap memory location to the LOGSTRUCTLIST data structure. These are freed.  
 *
@@ -321,7 +322,7 @@ void findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size
 * @param type The name of the type allocated.  
 * @return void.
 */
-void addStruct(void* heap, char* type);
+void addStruct(void* heap, const char* type);
 
 /** Free allocated heap memory and reinitialise a new LOGSTRUCTLIST. There are no arguments.  
 * 
@@ -468,18 +469,18 @@ int gettypeof(const char* type);
 *
 * 
 */
-int getalignmentof(char* type);
+int getalignmentof(const char* type);
 
-size_t newoffset(size_t offset, char* type);
+size_t newoffset(size_t offset, const char* type);
 
-size_t padding(size_t offset, char* type);
+size_t padding(size_t offset, const char* type);
 
 /** The name of an atomic type corresponding to a value of the IDAM enumeration type.
 * 
 * @param type The integer value of the type enumeration.
 * @return The name of the atomic type.
 */
-char* idamNameType(int type);
+const char* udaNameType(UDA_TYPE type);
 
 /** The size or byte count of a user defined structured type.
 * 
@@ -518,7 +519,7 @@ void printError(int warning, int line, char* file, char* msg);
 // The count of data structures to be received is passed ...  
 //
 
-int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, char* type, int count, int size, char** data);
+int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int count, int size, char** data);
 
 
 // Send/Receive Array of Structures
@@ -908,7 +909,7 @@ int getNodeStructureComponentDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree
 * @return the Type Name of the User Defined Structure Component.
 */
 
-char* getNodeStructureComponentDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
+const char* getNodeStructureComponentDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
 
 /** Return a pointer to a User Defined Structure Component's data. 
 *
@@ -1100,6 +1101,8 @@ short* castNodeStructureComponentDatatoShort(LOGMALLOCLIST* logmalloclist, NTREE
 void castNodeStructureComponentDatatoShort_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target, short* data_f);
 
 void castNodeStructureComponentDatatoFloat_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target, float* data_f);
+
+void addStructureField(USERDEFINEDTYPE* user_type, const char* name, const char* desc, UDA_TYPE data_type, bool is_pointer, int rank, int* shape, size_t offset);
 
 #ifdef __cplusplus
 }

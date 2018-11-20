@@ -70,6 +70,7 @@ static int do_test30(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_test31(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+static int do_test34(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 #ifdef PUTDATAENABLED
 static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 #endif // PUTDATAENABLED
@@ -249,6 +250,8 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         err = do_test32(idam_plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "test33")) {    // Compound Structure
         err = do_test33(idam_plugin_interface);
+    } else if (STR_IEQUALS(request_block->function, "test34")) {    // Compound Structure
+        err = do_test34(idam_plugin_interface);
 #ifdef PUTDATAENABLED
         } else if(STR_IEQUALS(request_block->function, "test40")) {
             err = do_test40(idam_plugin_interface);
@@ -2254,7 +2257,7 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
-// Create Data
+    // Create Data
 
     data = (TEST24*)malloc(sizeof(TEST24));                     // Structured Data Must be a heap variable
     addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST24), "TEST24");
@@ -2264,7 +2267,7 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data[0].value[0] = 24;
 
-// Pass Data
+    // Pass Data
 
     data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
@@ -3025,6 +3028,146 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     return 0;
 }
 
+static int do_test34(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+
+    typedef struct Test33A {
+        unsigned char* R;
+        unsigned char* Z;
+    } TEST33A;
+
+    USERDEFINEDTYPE usertype;
+    initUserDefinedType(&usertype);                                 // New structure definition
+
+    strcpy(usertype.name, "TEST33A");
+    strcpy(usertype.source, "Test #33");
+    usertype.ref_id = 0;
+    usertype.imagecount = 0;                                        // No Structure Image data
+    usertype.image = NULL;
+    usertype.size = sizeof(TEST33A);                                // Structure size
+    usertype.idamclass = UDA_TYPE_COMPOUND;
+
+    int offset = 0;
+
+    COMPOUNDFIELD field;
+
+    initCompoundField(&field);
+    field.count = 1;
+    field.rank = 0;
+    field.shape = NULL;
+    defineField(&field, "R", "unsigned char structure element", &offset, ARRAYUCHAR);
+
+    addCompoundField(&usertype, field);                             // Single Structure element
+
+    initCompoundField(&field);
+    field.count = 1;
+    field.rank = 0;
+    field.shape = NULL;
+    defineField(&field, "Z", "unsigned char structure element", &offset, ARRAYUCHAR);
+
+    addCompoundField(&usertype, field);                             // Single Structure element
+
+    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
+    addUserDefinedType(userdefinedtypelist, usertype);
+
+    typedef struct Test33 {
+        int count;
+        TEST33A* coords;
+    } TEST33;
+
+    TEST33* data;
+
+    initUserDefinedType(&usertype);                                 // New structure definition
+
+    strcpy(usertype.name, "TEST33");
+    strcpy(usertype.source, "Test #33");
+    usertype.ref_id = 0;
+    usertype.imagecount = 0;                                        // No Structure Image data
+    usertype.image = NULL;
+    usertype.size = sizeof(TEST33);                                 // Structure size
+    usertype.idamclass = UDA_TYPE_COMPOUND;
+
+    offset = 0;
+
+    initCompoundField(&field);
+    defineField(&field, "count", "int structure element", &offset, SCALARINT);
+
+    addCompoundField(&usertype, field);                             // Single Structure element
+
+    initCompoundField(&field);
+
+    strcpy(field.name, "coords");
+    field.atomictype = UDA_TYPE_UNKNOWN;
+    strcpy(field.type, "TEST33A");
+    strcpy(field.desc, "structure TEST33A");
+
+    field.pointer = 1;
+    field.count = 1;
+    field.rank = 0;
+    field.shape = NULL;
+
+    field.size = field.count * sizeof(TEST33A *);
+    field.offset = (int)offsetof(TEST33, coords);
+    field.offpad = (int)padding((size_t)offset, field.type);
+    field.alignment = getalignmentof(field.type);
+
+    addCompoundField(&usertype, field);                             // Single Structure element
+
+    addUserDefinedType(userdefinedtypelist, usertype);
+
+    // Create Data
+
+    data_block->data_n = 1;
+    data = (TEST33*)malloc(data_block->data_n * sizeof(TEST33));    // Structured Data Must be a heap variable
+    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, data_block->data_n, sizeof(TEST33), "TEST33");
+
+    data->count = 100;
+    data->coords = (TEST33A*)malloc(data->count * sizeof(TEST33A));
+
+    int rank = 2;
+    int* shape = (int*)malloc(2 * sizeof(int));
+    shape[0] = 5;
+    shape[1] = 20;
+
+    addMalloc2(idam_plugin_interface->logmalloclist, (void*)data->coords, data->count, sizeof(TEST33A), "TEST33A", rank, shape);
+
+    int i;
+    for (i = 0; i < data->count; i++) {
+        data->coords[i].R = (unsigned char*)malloc(10 * sizeof(unsigned char));
+        data->coords[i].Z = (unsigned char*)malloc(10 * sizeof(unsigned char));
+
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data->coords[i].R, 10, sizeof(unsigned char), "unsigned char *");
+        addMalloc(idam_plugin_interface->logmalloclist, (void*)data->coords[i].Z, 10, sizeof(unsigned char), "unsigned char *");
+
+        int j;
+        for (j = 0; j < 10; ++j) {
+            data->coords[i].R[j] = (unsigned char)(1 * i);
+            data->coords[i].Z[j] = (unsigned char)(10 * i);
+        }
+
+//        data->coords[i].R = 1 * i;
+//        data->coords[i].Z = 10 * i;
+    }
+
+    // Pass Data
+
+    data_block->data_type = UDA_TYPE_COMPOUND;
+    data_block->rank = 0;
+    data_block->data_n = 1;
+    data_block->data = (char*)data;
+
+    strcpy(data_block->data_desc, "Structure Data Test #33");
+    strcpy(data_block->data_label, "Double Values [5, 20] : (1*, 10*)");
+    strcpy(data_block->data_units, "");
+
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_count = 1;
+    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST33", 0);
+
+    return 0;
+}
+
 #ifdef PUTDATAENABLED
 //======================================================================================
 // Receiving Put Data Blocks - structured data as arguments to a plugin
@@ -3351,6 +3494,7 @@ static int do_test60(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 0;
     field.count = MAXELEMENTNAME;
     field.rank = 1;
+    field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
     field.shape = (int*)malloc(field.rank * sizeof(int));        // Needed when rank >= 1
     field.shape[0] = field.count;
     field.size = field.count * sizeof(char);

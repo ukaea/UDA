@@ -10,6 +10,15 @@
 extern "C" {
 #endif
 
+enum pluginClass {
+    PLUGINUNKNOWN,
+    PLUGINFILE,         // File format access
+    PLUGINSERVER,       // Server protocol access
+    PLUGINFUNCTION,     // Server-side function transformation
+    PLUGINDEVICE,       // Server to Server chaining, i.e. Pass the request to an external server
+    PLUGINOTHER
+};
+
 struct PluginList;              // Forward declaration
 typedef struct PluginList PLUGINLIST;
 

@@ -142,7 +142,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
 
                 int i, j, data_n, count, rank, size, type, mapType = 0;
                 int* shape;
-                char* typename;
+                const char* typename;
                 char* extract = NULL;
                 USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*) data_block->opaque_block;
 
@@ -220,7 +220,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                             if (data_n > 1) {
                                 int count_p, rank_p, size_p;
                                 int* shape_p;
-                                char* typename_p;
+                                const char* typename_p;
 
                                 for (j = 0; j <
                                             data_n; j++) {    // Properties Must be identical for all structure array elements

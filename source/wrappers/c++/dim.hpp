@@ -17,6 +17,15 @@ public:
             : vec_(array, array + size), type_(&typeid(T)), num_(num), label_(label), units_(units), isnull_(false)
     {}
 
+    Dim(dim_type num, size_t size, const std::string& label, const std::string& units)
+            : vec_(), type_(&typeid(int)), num_(num), label_(label), units_(units), isnull_(false)
+    {
+        vec_.resize(size);
+        for (int i = 0; i < static_cast<int>(size); ++i) {
+            vec_[i] = i;
+        }
+    }
+
     Dim() : type_(nullptr), num_(0), label_(), units_(), isnull_(true)
     {}
 

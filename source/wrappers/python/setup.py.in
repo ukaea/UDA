@@ -12,16 +12,26 @@ if sys.platform.lower() == 'darwin':
     # On Mac OS we have to force setting of rpath
     extra_link_args.append('-Wl,-rpath,%s/lib' % root)
 
+build_fat = os.environ.get('UDA_FAT_PYTHON', False)
+if build_fat:
+    uda_lib = 'fat@PROJECT_NAME@_cpp'
+    extra_libs = ['xml2', 'pq']
+    extra_macros = [('FATCLIENT', None)]
+else:
+    uda_lib = '@PROJECT_NAME@_cpp'
+    extra_libs = []
+    extra_macros = []
+
 ext = Extension(
     '_c_uda',
     ['@PY_WRAPPER_CODE@'],
-    define_macros=[('SWIG', None),],
+    define_macros=[('SWIG', None),] + extra_macros,
     include_dirs=[
         root + '/include/uda',
         root + '/include/uda/c++',
         '@Boost_INCLUDE_DIRS@',
     ],
-    libraries = ['@PROJECT_NAME@_cpp', 'ssl', 'crypto'],
+    libraries = [uda_lib, 'ssl', 'crypto'] + extra_libs,
     library_dirs = [
         root + '/lib',
         '@OPENSSL_LIB_DIR@',

@@ -5,9 +5,11 @@ cmake_minimum_required( VERSION 2.8 )
 
 find_package( OpenSSL REQUIRED )
 if( NOT CLIENT_ONLY )
-  find_package( PostgreSQL REQUIRED )
   find_package( LibXml2 REQUIRED )
+endif()
 
+if( NOT CLIENT_ONLY AND NOT NO_MODULES )
+  find_package( PostgreSQL REQUIRED )
   include_directories( ${PostgreSQL_INCLUDE_DIRS} )
 else()
   add_definitions( -DNOTGENERICENABLED )

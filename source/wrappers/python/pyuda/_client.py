@@ -4,6 +4,7 @@ from . import c_uda
 from ._signal import Signal
 from ._string import String
 from ._structured import StructuredData
+from ._video import Video
 
 import logging
 import itertools
@@ -91,7 +92,11 @@ class Client(with_metaclass(ClientMeta, object)):
             return bytes(itertools.islice(byte_array, data.byte_length()))
 
         if result.isTree():
-            return StructuredData(result.tree())
+            tree = result.tree()
+            if tree.atomicScalar('type').string() == 'VIDEO':
+                return Video(StructuredData(tree))
+            else:
+                return StructuredData(tree)
         elif result.type() == 'string':
             return String(result)
         return Signal(result)
@@ -130,14 +135,17 @@ class Client(with_metaclass(ClientMeta, object)):
             raise RuntimeError("UDA list data failed")
 
         data = StructuredData(result.tree())
-        names = list(el for el in data["data"]._imported_attrs if el not in ("count", "shot", "pass_"))
+        names = list(el for el in data["data"]._imported_attrs if el not in ("count",))
         ListData = namedtuple("ListData", names)
 
         vals = []
         for i in range(data["data"].count):
             row = {}
             for name in names:
-                row[name] = getattr(data["data"], name)[i]
+                try:
+                    row[name] = getattr(data["data"], name)[i]
+                except TypeError:
+                    row[name] = getattr(data["data"], name)
             vals.append(ListData(**row))
         return vals
 

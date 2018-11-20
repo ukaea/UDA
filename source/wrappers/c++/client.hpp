@@ -9,6 +9,8 @@
 
 namespace uda {
 
+class Array;
+
 class UDAException : public std::exception
 {
 public:
@@ -104,6 +106,7 @@ public:
     const uda::Result& get(const std::string& signalName, const std::string& dataSource);
     void put(const uda::Signal& putdata);
 
+    void put(const std::string& instruction, char data);
     void put(const std::string& instruction, int8_t data);
     void put(const std::string& instruction, int16_t data);
     void put(const std::string& instruction, int32_t data);
@@ -115,6 +118,7 @@ public:
     void put(const std::string& instruction, float data);
     void put(const std::string& instruction, double data);
 
+    void put(const std::string& instruction, const std::vector<char>& data);
     void put(const std::string& instruction, const std::vector<int8_t>& data);
     void put(const std::string& instruction, const std::vector<int16_t>& data);
     void put(const std::string& instruction, const std::vector<int32_t>& data);
@@ -125,6 +129,8 @@ public:
     void put(const std::string& instruction, const std::vector<uint64_t>& data);
     void put(const std::string& instruction, const std::vector<float>& data);
     void put(const std::string& instruction, const std::vector<double>& data);
+
+    void put(const std::string& instruction, const uda::Array& data);
 
 private:
     std::vector<Result *> data_;

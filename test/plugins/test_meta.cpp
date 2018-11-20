@@ -17,7 +17,37 @@ TEST_CASE( "Test META::help() function", "[META][plugins]" )
 
     uda::TreeNode tree = result.tree();
 
+    REQUIRE( tree.name() == "" );
     REQUIRE( tree.numChildren() == 1 );
+    REQUIRE( tree.atomicCount() == 5 );
+
+    std::vector<std::string> exp_names = { "count", "rank", "shape", "data", "type" };
+    REQUIRE( tree.atomicNames() == exp_names );
+
+    std::vector<bool> exp_ptrs = { false, false, true, true, false };
+    REQUIRE( tree.atomicPointers() == exp_ptrs );
+
+    std::vector<std::string> exp_types = { "int", "int", "int *", "void *", "STRING" };
+    REQUIRE( tree.atomicTypes() == exp_types );
+
+    uda::Scalar count = tree.atomicScalar("count");
+    REQUIRE( count.as<int>() == 1 );
+
+    uda::Scalar rank = tree.atomicScalar("rank");
+    REQUIRE( rank.as<int>() == 1 );
+
+    uda::Vector shape = tree.atomicVector("shape");
+    std::vector<int> exp_shape = { 1 };
+    REQUIRE( shape.as<int>() == exp_shape );
+
+    uda::Vector data = tree.atomicVector("data");
+    std::vector<int> exp_data = { };
+    REQUIRE( data.as<int>() == exp_data );
+
+    uda::Scalar type = tree.atomicScalar("type");
+    REQUIRE( !type.isNull() );
+    REQUIRE( type.type() == typeid(char*) );
+    REQUIRE( std::string(type.as<char*>()) == "METAHELP" );
 
     uda::TreeNode child = tree.child(0);
 
