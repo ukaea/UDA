@@ -496,6 +496,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
     //------------------------------------------------------------------------------
     // Extract the Archive Name and detach from the signal  (detachment is necessary when not passing on to another IDAM server)
+    // the Plugin Name is synonymous with the Archive Name and takes priority (The archive name is discarded as unimportant)
 
     if (request_block->request == REQUEST_READ_IDAM) {
         reduceSignal = 0;
@@ -516,7 +517,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
     // would be part of this specification so there would be no ambiguity.
 
     isFunction = 0;
-
+    
     if (!isServer && (p = strchr(request_block->signal, '(')) != NULL && strchr(p, ')') != NULL &&
         strcasecmp(request_block->archive, environment->api_archive) != 0) {
         strcpy(work, &p[1]);
@@ -669,41 +670,34 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
     }
 
     //---------------------------------------------------------------------------------------------------------------------
-    // IDAM and WEB Servers ...      parse source modelled as: server/source
+    // IDAM and WEB Servers ...      parse source modelled as: server:port/source
 
     if (request_block->request == REQUEST_READ_IDAM || request_block->request == REQUEST_READ_WEB) {
         strcpy(work, test + ldelim);                // Drop the delimiters
 
         // Isolate the Server from the source IDAM::server:port/source or SSL://server:port/source
 
+        strcpy(request_block->server, work);
+	
         char* s = NULL;
         if ((s = strstr(work, "SSL://")) != NULL) {
             char* token;
             if ((token = strstr(s + 6, "/")) != NULL) {
-                token[0] = '\0';                                // Break the String (work)
-                strcpy(request_block->server, s);        // Extract the Server Name and Port (with SSL:// prefix)
-                strcpy(request_block->file, token + 1);    // Extract the Source URL Argument
-                UDA_LOG(UDA_LOG_DEBUG, "Server: %s\n", request_block->server);
-                UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", request_block->file);
-            } else {
-                err = NO_SERVER_SPECIFIED;
-                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
-                             "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
-                return err;
-            }
+                token[0] = '\0';				// Break the String (work)
+                strcpy(request_block->server, s);		// Extract the Server Name and Port (with SSL:// prefix)
+                strcpy(request_block->file, token + 1);		// Extract the Source URL Argument
+            } 
         } else {
             char* token;
             if ((token = strstr(work, "/")) != NULL) {
-                token[0] = '\0';                // Break the String (work)
-                strcpy(request_block->server, work);        // Extract the Server Name and Port
-                strcpy(request_block->file, token + 1);        // Extract the Source URL Argument
-            } else {
-                err = NO_SERVER_SPECIFIED;
-                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
-                             "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
-                return err;
-            }
+                token[0] = '\0';                		// Break the String (work)
+                strcpy(request_block->server, work);		// Extract the Server Name and Port
+                strcpy(request_block->file, token + 1);		// Extract the Source URL Argument
+            } 
         }
+	
+        UDA_LOG(UDA_LOG_DEBUG, "Server: %s\n", request_block->server);
+        UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", request_block->file);
     }
 
     //---------------------------------------------------------------------------------------------------------------------
@@ -1017,11 +1011,12 @@ int genericRequestTest(const char* source, REQUEST_BLOCK* request_block)
 }
 
 //------------------------------------------------------------------------------
-// Strip out the Archive name from the data_object name
+// Strip out the Archive or Plugin name from the data_object name
 // syntax:	ARCHIVE::Data_OBJECT or DATA_OBJECT
+//		ARCHIVE::PLUGIN::Function() or PLUGIN::Function()
 // conflict:	ARCHIVE::DATA_OBJECT[::] or DATA_OBJECT[::] subsetting operations
 //
-// NOTE: Archive Name should not terminate with the character [ or { when a signal begins with the
+// NOTE: Archive/Plugin Name should not terminate with the character [ or { when a signal begins with the
 //       character ] or }. These clash with subsetting syntax.
 //
 // Input Argument: reduceSignal - If TRUE (1) then extract the archive name and return the data object name
@@ -1050,7 +1045,14 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRON
             strncpy(request_block->archive, request_block->signal, test - request_block->signal);
             request_block->archive[test - request_block->signal] = '\0';
             TrimString(request_block->archive);
-
+	    
+	    // If a plugin is prefixed by the local archive name then discard the archive name
+	    if(reduceSignal && !strcasecmp(request_block->archive, environment->api_archive)){
+	       request_block->archive[0] = '\0';
+	       strcpy(request_block->signal, &test[ldelim]);
+	       return extractArchive(request_block, reduceSignal, environment);
+            }
+	     
             if (!IsLegalFilePath(request_block->archive)) {
                 request_block->archive[0] = '\0';
                 return 0;
