@@ -1,0 +1,13 @@
+/include
+/lib
+/portablexdr-4.9.1/.deps
+/portablexdr-4.9.1/.libs
+/portablexdr-4.9.1/*.la
+/portablexdr-4.9.1/*.lo
+/portablexdr-4.9.1/*.o
+/portablexdr-4.9.1/config.*
+/portablexdr-4.9.1/CMake*
+/portablexdr-4.9.1/libtool
+/portablexdr-4.9.1/stamp-h1
+/portablexdr-4.9.1/autom4te.cache
+/portablexdr-4.9.1/portable-rpcgen*
