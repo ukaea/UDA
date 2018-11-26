@@ -80,6 +80,18 @@ install( TARGETS ${LIB_NAME}
   DESTINATION lib
 )
 
+# pkg-config file
+configure_file(
+  ${CMAKE_SOURCE_DIR}/source/etc/uda-cpp.pc.in
+  ${CMAKE_BINARY_DIR}/etc/uda/uda-cpp.pc
+  @ONLY
+)
+
+install( FILES ${CMAKE_BINARY_DIR}/etc/uda/uda-cpp.pc
+  DESTINATION modulefiles/uda
+)
+
+
 if( NOT CLIENT_ONLY )
   set_target_properties( fat${LIB_NAME}
     PROPERTIES
@@ -89,6 +101,17 @@ if( NOT CLIENT_ONLY )
 
   install( TARGETS fat${LIB_NAME}
     DESTINATION lib
+  )
+  
+  # pkg-config file
+  configure_file(
+    ${CMAKE_SOURCE_DIR}/source/etc/uda-fat-cpp.pc.in
+    ${CMAKE_BINARY_DIR}/etc/uda/uda-fat-cpp.pc
+    @ONLY
+  )
+  
+  install( FILES ${CMAKE_BINARY_DIR}/etc/uda/uda-fat-cpp.pc
+    DESTINATION modulefiles/uda
   )
 endif()
 
