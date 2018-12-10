@@ -148,6 +148,17 @@ install(
   DESTINATION modulefiles/uda
 )
 
+# Portablexdr 4.9.1 libraries
+if( WIN32 OR MINGW )
+  install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlib/lib/
+    DESTINATION lib
+	FILES_MATCHING PATTERN "libportablexdr*"
+  )
+endif()
+
+
+
 ########################################################################################################################
 # Package creations
 
