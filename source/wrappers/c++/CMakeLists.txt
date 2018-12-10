@@ -45,7 +45,7 @@ set( CLIENT_OBJS
 add_library( ${LIB_NAME} STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
 target_link_libraries( ${LIB_NAME} LINK_PRIVATE ${Boost_LIBRARIES} )
 if( WIN32 OR MINGW )
-  target_link_libraries( ${LIB_NAME} LINK_PRIVATE portablexdr ws2_32 )
+  target_link_libraries( ${LIB_NAME} LINK_PRIVATE portablexdr ws2_32 ssl crypto libstdc++ )
 endif()
 
 if( NOT CLIENT_ONLY )
@@ -66,7 +66,7 @@ if( NOT CLIENT_ONLY )
   add_library( fat${LIB_NAME} STATIC $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
   target_link_libraries( fat${LIB_NAME} LINK_PRIVATE ${Boost_LIBRARIES} plugins-static )
   if( WIN32 OR MINGW )
-    target_link_libraries( fat${LIB_NAME} LINK_PRIVATE portablexdr ws2_32 )
+    target_link_libraries( fat${LIB_NAME} LINK_PRIVATE portablexdr ws2_32 ssl crypto )
   endif()
 endif()
 
