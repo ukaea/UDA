@@ -91,8 +91,8 @@ if( NOT CLIENT_ONLY )
   set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${LIBXML2_LIBRARIES} )
 endif()
 
-if( WIN32 )
-  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ws2_32 xdr )
+if( WIN32 OR MINGW )
+  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ws2_32 portablexdr )
 endif()
 
 target_link_libraries( client-shared PRIVATE ${CLIENT_LINK_LIBS} )
