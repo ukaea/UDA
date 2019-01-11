@@ -1,6 +1,7 @@
 set( TESTS
   test_imas_hl2a_magnetics
   test_imas_ts_magnetics
+  test_imas_west_magnetics
 )
 
 add_definitions( -D__USE_XOPEN2K8 )
