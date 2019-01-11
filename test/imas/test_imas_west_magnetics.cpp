@@ -34,7 +34,7 @@ TEST_CASE( "Test flux_loop count", "[IMAS][WEST][FLUX_LOOP]" )
     REQUIRE( !val->isNull() );
 
     REQUIRE( val->type().name() == typeid(int).name() );
-    REQUIRE( val->as<int>() == 6 );
+    REQUIRE( val->as<int>() == 17 );
 }
 
 
@@ -63,7 +63,8 @@ TEST_CASE( "Test flux data field", "[IMAS][WEST][FLUX]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    std::vector<float> expected = {  -0.0, 0.0050400002, -0.0, -0.0050400002, 0.0050400002  };
+    std::vector<float> expected = {  0.0061f, 0.00488f, 0.00397f, 0.00488f, 0.00305f  };
+
 
     REQUIRE( arr->type().name() == typeid(float).name() );
 
