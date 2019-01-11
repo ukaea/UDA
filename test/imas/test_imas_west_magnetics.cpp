@@ -63,7 +63,7 @@ TEST_CASE( "Test flux data field", "[IMAS][WEST][FLUX]" )
     REQUIRE( arr != nullptr );
     REQUIRE( !arr->isNull() );
 
-    std::vector<float> expected = { -0.0f, 0.00504f, -0.0f, -0.00504f, 0.00504f };
+    std::vector<float> expected = {  -0.0, 0.0050400002, -0.0, -0.0050400002, 0.0050400002  };
 
     REQUIRE( arr->type().name() == typeid(float).name() );
 
