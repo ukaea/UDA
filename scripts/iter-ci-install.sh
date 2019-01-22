@@ -4,6 +4,6 @@ module use /work/imas/etc/modulefiles
 
 module purge
 
-module load GCC/4.9.2
+module load GCC/6.4.0-2.28
 
 make -C build install
