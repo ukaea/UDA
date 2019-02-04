@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 if( NO_WRAPPERS )
   message( WARNING "C++ wrapper not built - skipping tests" )
   return()

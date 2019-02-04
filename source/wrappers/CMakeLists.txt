@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 find_package( IDL )
 find_package( Java 1.6 )
 find_package( JNI )

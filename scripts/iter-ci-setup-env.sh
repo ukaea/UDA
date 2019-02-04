@@ -20,4 +20,4 @@ module load netCDF/4.6.0-foss-2018a
 module load HDF5/1.10.1-foss-2018a
 module load MDSplus-Java/7.49.1-GCCcore-6.4.0-Java-1.8.0_162
 
-export PostgreSQL_ROOT=/work/imas/opt/EasyBuild/software/PostgreSQL/10.3-intel-2018a-Python-3.6.4
+export PostgreSQL_ROOT=$EBROOTPOSTGRESQL

@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 set( MATLAB_INCLUDE_DIR /usr/local/depot/octave-3.8.0/include/octave-3.8.0/octave )
 set( MATLAB_LIBRARIES /usr/local/depot/octave-3.8.0/lib/octave/3.8.0/liboctave.so )
 

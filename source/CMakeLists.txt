@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 3.0 )
-
 include( LibXml2StrPrintfConfig )
 
 if( WIN32 AND NOT MINGW )
