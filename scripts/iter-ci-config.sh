@@ -4,17 +4,15 @@ module use /work/imas/etc/modulefiles
 
 module purge
 
-module load GCC/4.9.2
-module load libmemcached/1.0.18
-module load cmake/3.0.2
-module load postgresql/9.4.4
-module load libxml2/2.9.2
-module load boost/1.58
-module load swig/3.0.5
-module load openssl/1.0.2g
-module load hdf5/1.8.15
-module load git/2.6.2
-module load intel/12.0.2
+module load CMake/3.12.1-GCCcore-6.4.0
+
+module load PostgreSQL/10.3-intel-2018a-Python-3.6.4
+module load libMemcached/1.0.18-GCCcore-6.4.0
+module load SWIG/3.0.12-intel-2018a-Python-3.6.4
+module load Boost/1.66.0-intel-2018a
+module load netCDF/4.6.0-intel-2018a
+module load HDF5/1.10.1-intel-2018a
+module load MDSplus-Java/7.46.1-intel-2018a-Java-1.8.0_162
 
 export HDF5_ROOT=$H5DIR
 

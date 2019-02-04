@@ -4,6 +4,6 @@ module use /work/imas/etc/modulefiles
 
 module purge
 
-module load GCC/4.9.2
+module load intel/2018a
 
 make -C build install

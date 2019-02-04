@@ -4,9 +4,12 @@ module use /work/imas/etc/modulefiles
 
 module purge
 
-module load GCC/4.9.2
-module load swig/3.0.5
-module load hdf5/1.8.15
-module load intel/12.0.2
+module load PostgreSQL/10.3-intel-2018a-Python-3.6.4
+module load libMemcached/1.0.18-GCCcore-6.4.0
+module load SWIG/3.0.12-intel-2018a-Python-3.6.4
+module load Boost/1.66.0-intel-2018a
+module load netCDF/4.6.0-intel-2018a
+module load HDF5/1.10.1-intel-2018a
+module load MDSplus-Java/7.46.1-intel-2018a-Java-1.8.0_162
 
 make -C build
