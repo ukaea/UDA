@@ -64,6 +64,8 @@ TEST_CASE( "Test help function", "[plugins][TESTPLUGIN]" )
             "\ttest30: pair of doubles (Coordinate)\n"
 
             "***test40-test40: put data block receiving tests\n"
+            "\ttest50: Passing parameters into plugins via the source argument\n"
+            "\ttest60-62: ENUMLIST structures\n\n"
 
             "plugin: test calling other plugins\n"
 
@@ -1482,6 +1484,78 @@ TEST_CASE( "Run test33 - pass struct containing array of 100 structs containing 
 
         REQUIRE( Z.type().name() == typeid(double).name() );
         REQUIRE( Z.as<double>() == Approx(10.0 * i) );
+    }
+}
+
+TEST_CASE( "Run test34 - pass struct containing array of 100 structs containing 2 doubles as pointer", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("TESTPLUGIN::test34()", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+    REQUIRE( result.isTree() );
+
+    uda::TreeNode tree = result.tree();
+
+    REQUIRE( tree.numChildren() == 1 );
+
+    uda::TreeNode child = tree.child(0);
+
+    REQUIRE( child.name() == "data" );
+    REQUIRE( child.numChildren() == 100 );
+    REQUIRE( child.atomicCount() == 1 );
+    REQUIRE( child.atomicNames()[0] == "count" );
+    REQUIRE( child.atomicPointers()[0] == false );
+    REQUIRE( child.atomicTypes()[0] == "int" );
+    REQUIRE( child.atomicRank()[0] == 0 );
+
+    uda::Scalar count = child.atomicScalar("count");
+    REQUIRE( !count.isNull() );
+
+    REQUIRE( count.type().name() == typeid(int).name() );
+    REQUIRE( count.as<int>() == 100 );
+
+    for (int i = 0; i < 100; ++i) {
+        uda::TreeNode coord = child.child(i);
+
+        REQUIRE( coord.name() == "coords" );
+        REQUIRE( coord.numChildren() == 0 );
+        REQUIRE( coord.atomicCount() == 2 );
+        REQUIRE( coord.atomicNames()[0] == "R" );
+        REQUIRE( coord.atomicNames()[1] == "Z" );
+        REQUIRE( coord.atomicPointers()[0] == true );
+        REQUIRE( coord.atomicPointers()[1] == true );
+        REQUIRE( coord.atomicTypes()[0] == "unsigned char *" );
+        REQUIRE( coord.atomicTypes()[1] == "unsigned char *" );
+        REQUIRE( coord.atomicRank()[0] == 0 );
+        REQUIRE( coord.atomicRank()[1] == 0 );
+        REQUIRE( coord.atomicRank()[0] == 0 );
+        REQUIRE( coord.atomicRank()[1] == 0 );
+        std::vector<size_t> exp_shape = { 10 };
+        REQUIRE( coord.atomicShape()[0] == exp_shape );
+        REQUIRE( coord.atomicShape()[1] == exp_shape );
+
+        uda::Vector R = coord.atomicVector("R");
+        REQUIRE( !R.isNull() );
+
+        REQUIRE( R.type().name() == typeid(unsigned char).name() );
+//        std::vector<char> exp = { 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i, 1.0 * i };
+        unsigned char val = 1 * i;
+        std::vector<unsigned char> exp = { val, val, val, val, val, val, val, val, val, val };
+        REQUIRE( R.as<unsigned char>() == exp );
+
+        uda::Vector Z = coord.atomicVector("Z");
+        REQUIRE( !Z.isNull() );
+
+        REQUIRE( Z.type().name() == typeid(unsigned char).name() );
+//        exp = { 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i, 10.0 * i };
+        val = 10 * i;
+        exp = { val, val, val, val, val, val, val, val, val, val };
+        REQUIRE( Z.as<unsigned char>() == exp );
     }
 }
 

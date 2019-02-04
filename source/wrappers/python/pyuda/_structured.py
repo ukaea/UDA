@@ -8,7 +8,7 @@ import itertools
 import numpy as np
 import base64
 
-from builtins import (super, int, chr, range)
+from builtins import (super, chr, range)
 from future import standard_library
 standard_library.install_aliases()
 
@@ -29,7 +29,7 @@ class StructuredDataEncoder(json.JSONEncoder):
                 },
             }
             return obj
-        return super(StructuredDataEncoder, self).default(obj)
+        return super().default(obj)
 
 
 class StructuredData(Data):

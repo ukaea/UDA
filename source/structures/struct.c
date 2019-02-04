@@ -894,7 +894,7 @@ void findMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size,
     }
 
     for (i = lastMallocIndex; i < (unsigned int)logmalloclist->listcount; i++) {
-        candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
+        candidate = (VOIDTYPE)logmalloclist->logmalloc[i].heap;
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
             *size = logmalloclist->logmalloc[i].size;
@@ -906,7 +906,7 @@ void findMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size,
     }
 
     for (i = 0; i < lastMallocIndex; i++) {
-        candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
+        candidate = (VOIDTYPE)logmalloclist->logmalloc[i].heap;
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
             *size = logmalloclist->logmalloc[i].size;
@@ -943,7 +943,7 @@ void findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size
     *shape = NULL;
     if (heap == NULL) return;
 
-    if ((target = *((VOIDTYPE*)heap)) == 0) return;  // Both addresses same!
+    if ((target = *((VOIDTYPE*)heap)) == 0) return;
 
     if (lastMallocIndex >= (unsigned int)logmalloclist->listcount) {  // Defensive check
         lastMallocIndex = 0;
@@ -951,7 +951,7 @@ void findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size
     }
 
     for (i = lastMallocIndex; i < (unsigned int)logmalloclist->listcount; i++) {
-        candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
+        candidate = (VOIDTYPE)logmalloclist->logmalloc[i].heap;
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
             *size = logmalloclist->logmalloc[i].size;
@@ -967,7 +967,7 @@ void findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size
     }
 
     for (i = 0; i < lastMallocIndex; i++) {   // Start search at the first log entry
-        candidate = (VOIDTYPE)((VOIDTYPE*)logmalloclist->logmalloc[i].heap);
+        candidate = (VOIDTYPE)logmalloclist->logmalloc[i].heap;
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
             *size = logmalloclist->logmalloc[i].size;
@@ -981,8 +981,6 @@ void findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size
             return;
         }
     }
-
-    return; // Not found!
 }
 
 
@@ -1191,8 +1189,8 @@ void getInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
 
     initCompoundField(&field);    
     strcpy(field.name, "type");
-    field.atomictype = UDA_TYPE_CHAR;
-    strcpy(field.type, "char");  
+    field.atomictype = UDA_TYPE_STRING;
+    strcpy(field.type, "STRING");
     strcpy(field.desc, "The Structure Array Element's type name (Must be Unique)");
     field.pointer = 0;
     field.count = MAXELEMENTNAME;
@@ -1657,7 +1655,7 @@ size_t padding(size_t offset, const char* type)
 * @param type The integer value of the type enumeration.
 * @return The name of the atomic type.
 */
-char* idamNameType(int type)
+const char* udaNameType(UDA_TYPE type)
 {
     switch (type) {
         case UDA_TYPE_CHAR:
@@ -2258,7 +2256,6 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             }
             return;
         }
-
         case UDA_TYPE_SHORT: {
             short* d = (short*)data;
             if (count > 1) {
@@ -2296,7 +2293,6 @@ void printAtomicData(void* data, int atomictype, int count, const char* label)
             }
             return;
         }
-
         case UDA_TYPE_UNSIGNED_CHAR: {
             unsigned char* d = (unsigned char*)data;
             if (count > 1) {
@@ -3161,8 +3157,8 @@ int** getNodeAtomicShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
             } else {
                 if ((data = (char*)ntree->data) == NULL) return NULL;
                 int* shape;
-                findMalloc2(logmalloclist, &data[ntree->userdefinedtype->compoundfield[i].offset], &count0, &size,
-                            &type, &rank, &shape);
+                void* ptr = &data[ntree->userdefinedtype->compoundfield[i].offset];
+                findMalloc2(logmalloclist, ptr, &count0, &size, &type, &rank, &shape);
                 shapes[count] = shape;
                 if (shape == 0 && (rank < 2)) {
                     shape = (int*)malloc(sizeof(int));    // Assume rank 1
@@ -4303,4 +4299,37 @@ void castNodeStructureComponentDatatoFloat_f(LOGMALLOCLIST* logmalloclist, NTREE
     }
 }
 
+void addStructureField(USERDEFINEDTYPE* user_type, const char* name, const char* desc, UDA_TYPE data_type, bool is_pointer, int rank, int* shape, size_t offset)
+{
+    COMPOUNDFIELD field;
+    initCompoundField(&field);
 
+    strcpy(field.name, name);
+    field.atomictype = data_type;
+    if (data_type == UDA_TYPE_STRING) {
+        strcpy(field.type, "STRING");
+    } else {
+        strcpy(field.type, udaNameType(data_type));
+    }
+    if (is_pointer) {
+        strcpy(&field.type[strlen(field.type)], " *");
+    }
+    strcpy(field.desc, desc);
+    field.pointer = is_pointer;
+    field.rank = rank;
+    field.count = 1;
+    if (shape != NULL) {
+        field.shape = (int*)malloc(field.rank * sizeof(int));
+        int i;
+        for (i = 0; i < rank; ++i) {
+            field.shape[i] = shape[i];
+            field.count *= shape[i];
+        }
+    }
+    field.size = is_pointer ? (int)getPtrSizeOf(data_type) : (field.count * (int)getSizeOf(data_type));
+    field.offset = (int)offset;
+    field.offpad = (int)padding(offset, field.type);
+    field.alignment = getalignmentof(field.type);
+
+    addCompoundField(user_type, field);
+}

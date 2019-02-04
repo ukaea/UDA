@@ -148,9 +148,12 @@ std::vector<std::vector<std::size_t> > uda::TreeNode::atomicShape()
     int size = getNodeAtomicCount(node_);
     std::vector<std::vector<std::size_t> > vec;
     for (int i = 0; i < size; ++i) {
-        if (shapes[i] == nullptr || ranks[i] == 0) {
+        if (shapes[i] == nullptr) {
             std::vector<std::size_t> vec2;
             vec2.push_back(0);
+            vec.push_back(vec2);
+        } else if (ranks[i] == 0){
+            std::vector<std::size_t> vec2(shapes[i], shapes[i] + 1);
             vec.push_back(vec2);
         } else {
             std::vector<std::size_t> vec2(shapes[i], shapes[i] + ranks[i]);
@@ -220,8 +223,10 @@ uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
             if (std::string("double") == atypes[i]) return getScalar<double>(logmalloclist, node, anames[i]);
             if (std::string("float") == atypes[i]) return getScalar<float>(logmalloclist, node, anames[i]);
             if (std::string("int") == atypes[i]) return getScalar<int>(logmalloclist, node, anames[i]);
+            if (std::string("char") == atypes[i]) return getScalar<char>(logmalloclist, node, anames[i]);
             if (std::string("unsigned int") == atypes[i]) return getScalar<unsigned int>(logmalloclist, node, anames[i]);
             if (std::string("unsigned short") == atypes[i]) return getScalar<unsigned short>(logmalloclist, node, anames[i]);
+            if (std::string("unsigned char") == atypes[i]) return getScalar<unsigned char>(logmalloclist, node, anames[i]);
         }
     }
 
@@ -328,21 +333,25 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
             } else if (arank[i] == 0 && apoint[i] == 1) {
                 int count = getNodeStructureComponentDataCount(logmalloclist, node, (char*)target.c_str());
                 if (std::string("STRING *") == atypes[i]) return getVector<char*>(logmalloclist, node, target, count);
+                if (std::string("char *") == atypes[i]) return getVector<char>(logmalloclist, node, target, count);
                 if (std::string("short *") == atypes[i]) return getVector<short>(logmalloclist, node, target, count);
                 if (std::string("double *") == atypes[i]) return getVector<double>(logmalloclist, node, target, count);
                 if (std::string("float *") == atypes[i]) return getVector<float>(logmalloclist, node, target, count);
                 if (std::string("int *") == atypes[i]) return getVector<int>(logmalloclist, node, target, count);
                 if (std::string("unsigned int *") == atypes[i]) return getVector<unsigned int>(logmalloclist, node, target, count);
                 if (std::string("unsigned short *") == atypes[i]) return getVector<unsigned short>(logmalloclist, node, target, count);
+                if (std::string("unsigned char *") == atypes[i]) return getVector<unsigned char>(logmalloclist, node, target, count);
             } else if (arank[i] == 1) {
 //                if (std::string("STRING") == atypes[i]) return getVector<char>(logmalloclist, node, target, ashape[i][0]);
-                if (std::string("STRING") == atypes[i]) return getStringVector(logmalloclist, node, target);
+//                if (std::string("STRING") == atypes[i]) return getStringVector(logmalloclist, node, target);
+                if (std::string("char") == atypes[i]) return getVector<char>(logmalloclist, node, target, ashape[i][0]);
                 if (std::string("short") == atypes[i]) return getVector<short>(logmalloclist, node, target, ashape[i][0]);
                 if (std::string("double") == atypes[i]) return getVector<double>(logmalloclist, node, target, ashape[i][0]);
                 if (std::string("float") == atypes[i]) return getVector<float>(logmalloclist, node, target, ashape[i][0]);
                 if (std::string("int") == atypes[i]) return getVector<int>(logmalloclist, node, target, ashape[i][0]);
                 if (std::string("unsigned int") == atypes[i]) return getVector<unsigned int>(logmalloclist, node, target, ashape[i][0]);
                 if (std::string("unsigned short") == atypes[i]) return getVector<unsigned short>(logmalloclist, node, target, ashape[i][0]);
+                if (std::string("unsigned char") == atypes[i]) return getVector<unsigned char>(logmalloclist, node, target, ashape[i][0]);
             } else if (arank[i] == 2 && std::string("STRING") == atypes[i]) {
                 return getStringVector(logmalloclist, node, target, ashape[i]);
             }
@@ -398,6 +407,7 @@ uda::Array uda::TreeNode::atomicArray(const std::string& target)
             if (std::string("int") == atypes[i]) return getArray<int>(logmalloclist, node, target, ashape[i], arank[i]);
             if (std::string("unsigned int") == atypes[i]) return getArray<unsigned int>(logmalloclist, node, target, ashape[i], arank[i]);
             if (std::string("unsigned short") == atypes[i]) return getArray<unsigned short>(logmalloclist, node, target, ashape[i], arank[i]);
+            if (std::string("unsigned char") == atypes[i]) return getArray<unsigned char>(logmalloclist, node, target, ashape[i], arank[i]);
         }
     }
 

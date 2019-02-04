@@ -106,7 +106,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                                 } else {
                                     field.atomictype = convertNCType(
                                             type);            // convert netCDF base type to IDAM type
-                                    strcpy(field.type, idamNameType(
+                                    strcpy(field.type, udaNameType(
                                             field.atomictype));        // convert atomic type to a string label
                                 }
                             }
@@ -127,7 +127,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                                         rc = nc_inq_enum(grpid, type, name, &base, (size_t*)&base_size,
                                                          (size_t*)&memberCount);
                                         field.atomictype = convertNCType(base);
-                                        strcpy(field.type, idamNameType(field.atomictype));
+                                        strcpy(field.type, udaNameType(field.atomictype));
                                     } else {
                                         strcpy(field.type, udt->name);
                                     }
@@ -231,7 +231,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                             strcpy(field.type, udt->name);
                         } else {
                             // convert atomic type to a string label
-                            strcpy(field.type, idamNameType(field.atomictype));
+                            strcpy(field.type, udaNameType(field.atomictype));
                         }
 
                         field.pointer = 1;

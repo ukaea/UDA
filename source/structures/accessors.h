@@ -229,10 +229,10 @@ void printImage(const char* image, int imagecount);
 * @param name Name of the structure's field.
 * @param desc Description of the fields contents
 * @param offset Current field byte offset from the start of the structure. Ppdated on return.
-* @param TypeId Enumerated key indicating the type of data field, e.g. float array
+* @param type_id Enumerated key indicating the type of data field, e.g. float array
 * @return Void
 */
-void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short TypeId);
+void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short type_id);
 
 void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int offset, int size);
 

@@ -1,9 +1,8 @@
+#!/bin/bash
+# Bamboo Build script
+# Stage 3 : Install stage
+
 # Set up environment for compilation
-. /usr/share/Modules/init/sh
-module use /work/imas/etc/modulefiles
-
-module purge
-
-module load GCC/6.4.0-2.28
+. scripts/iter-ci-setup-env.sh || exit 1
 
 make -C build install

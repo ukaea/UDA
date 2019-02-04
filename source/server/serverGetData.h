@@ -1,13 +1,12 @@
-#ifndef IDAM_SERVER_IDAMSERVERGETDATA2_H
-#define IDAM_SERVER_IDAMSERVERGETDATA2_H
-
-#ifdef NOTGENERICENABLED
-typedef int PGconn;
-#else
-#include <libpq-fe.h>
-#endif
+#ifndef UDA_SERVER_SERVERGETDATA_H
+#define UDA_SERVER_SERVERGETDATA_H
 
 #include <clientserver/parseXML.h>
+#include <clientserver/sqllib.h>
+#include <clientserver/udaStructs.h>
+#include <clientserver/socketStructs.h>
+#include <plugins/pluginStructs.h>
+#include <structures/genStructs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,5 +33,5 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK request_block, CLIENT_BL
 }
 #endif
 
-#endif // IDAM_SERVER_IDAMSERVERGETDATA2_H
+#endif // UDA_SERVER_SERVERGETDATA_H
 
