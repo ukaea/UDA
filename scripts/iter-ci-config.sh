@@ -3,7 +3,7 @@
 # Stage 1 : Configure stage
 
 # Set up environment for compilation
-. scripts/setup-environment.sh || exit 1
+. scripts/iter-ci-setup-env.sh || exit 1
 
 export HDF5_ROOT=$HDF5_DIR
 
