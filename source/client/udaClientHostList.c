@@ -224,10 +224,15 @@ void udaClientInitHostList()
     // hostName must be the first record in a set
     // hostAlias and other attributes are not required
     // ordering is not important
+    
+    // The hostname may be either a resolvable name or a numeric IP address. The latter may be in either IPv4 or IPv6 format.
+    
+    // The port number must be given separately from the IP address if the format is IPv6
+    // The port number may be appended to the host name or IPv4 numeric address using the standard convention host:port pattern
 
     // if the host IP address or name is prefixed with SSL:// this is stripped off and the isSSL bool set true
     // if the certificates and private key are defined, the isSSL bool set true
-
+    
     int newHost = 0;
 
     while (fgets(buffer, HOST_STRING, conf) != NULL) {
@@ -289,6 +294,7 @@ void udaClientInitHostList()
 
     fclose(conf);
 
+    // Flag the connection as with SSL Authentication
     for (i = 0; i < list->count; i++) {
             if( list->hosts[i].certificate[0] != '\0' && list->hosts[i].key[0] != '\0' && list->hosts[i].ca_certificate[0] != '\0') 
                 list->hosts[i].isSSL = 1;
@@ -299,6 +305,18 @@ void udaClientInitHostList()
                 strcpy(list->hosts[i].hostname, &list->hosts[i].hostname[6]);		// Strip prefix
             } 
     }
+       
+    // Extract and Strip the port number from the host name (a.b.c:9999, localhost:9999)
+    for (i = 0; i < list->count; i++) {
+        char *p=NULL;
+        if( (!strcmp(list->hosts[i].hostname, "localhost") || 
+	    (p = strchr(list->hosts[i].hostname, '.')) != NULL) && 
+	    (p = strrchr(list->hosts[i].hostname, ':')) != NULL && 
+	    p[1] != '\0'){
+	        list->hosts[i].port = atoi(&p[1]);
+		p[0] = '\0';
+            }
+    }
 
     UDA_LOG(UDA_LOG_DEBUG, "idamClientHostList: Number of named hosts %d\n", list->count);
     for (i = 0; i < list->count; i++) {
@@ -308,6 +326,6 @@ void udaClientInitHostList()
         UDA_LOG(UDA_LOG_DEBUG, "idamClientHostList: [%d] Certificate    : %s\n", i, list->hosts[i].certificate);
         UDA_LOG(UDA_LOG_DEBUG, "idamClientHostList: [%d] Key            : %s\n", i, list->hosts[i].key);
         UDA_LOG(UDA_LOG_DEBUG, "idamClientHostList: [%d] CA Certificate : %s\n", i, list->hosts[i].ca_certificate);
-        UDA_LOG(UDA_LOG_DEBUG, "idamClientHostList: [%d] isSSL : %d\n", i, list->hosts[i].isSSL);
+        UDA_LOG(UDA_LOG_DEBUG, "idamClientHostList: [%d] isSSL          : %d\n", i, list->hosts[i].isSSL);
     }
 }

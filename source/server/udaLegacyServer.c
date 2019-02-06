@@ -349,7 +349,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
 
             depth = 0;
 
-            err = idamserverGetData(DBConnect, &depth, request_block, client_block, &data_block, &data_source,
+            err = idamserverGetData(DBConnect, &depth, &request_block, client_block, &data_block, &data_source,
                                     &signal_rec, &signal_desc, &actions_desc, &actions_sig, pluginlist, logmalloclist,
                                     userdefinedtypelist, socket_list);
 
