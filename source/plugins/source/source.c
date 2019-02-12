@@ -355,7 +355,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCa
         shotNumber = request_block->exp_number;
     }
 
-    // JET PPF sources: PPF::/$ppfname/$pulseNumber/$sequence/$owner
+    // JET PPF sources: PPF::$ppfname/$pulseNumber/$sequence/$owner
 
     if (isFormat && !strcasecmp(format, "ppf")) {            // JET PPF source naming pattern
 
@@ -366,9 +366,9 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, int* timeCountCa
         env = getenv("UDA_JET_DEVICE_ALIAS");
 
         if (env == NULL)
-            sprintf(next_request_block.source, "PPF%s/%s/%d", request_block->api_delim, source, shotNumber);
+            sprintf(next_request_block.source, "PPF%s%s/%d", request_block->api_delim, source, shotNumber);
         else
-            sprintf(next_request_block.source, "%s%sPPF%s/%s/%d", env, request_block->api_delim,
+            sprintf(next_request_block.source, "%s%sPPF%s%s/%d", env, request_block->api_delim,
                     request_block->api_delim, source, shotNumber);
 
         if (isRunNumber)

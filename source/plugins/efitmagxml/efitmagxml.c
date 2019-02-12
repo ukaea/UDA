@@ -118,33 +118,33 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             break;
         }
     }
-    
+
     bool isXPath = findValue(&idam_plugin_interface->request_block->nameValueList, "XPath");
 
 //----------------------------------------------------------------------------------------
 // Cache file for XPath function
 
-    static unsigned int wasXPath = 0;			// If initialised with XPath then set TRUE
+    static unsigned int wasXPath = 0;            // If initialised with XPath then set TRUE
     static char priorFile[XMLFILEPATHLENGTH] = "";
-    
+
     const char* xmlFile = NULL;
     int isXMLFile = FIND_STRING_VALUE(request_block->nameValueList, xmlFile);
-	
-    if(isXMLFile){
-       const char* dir = getenv("UDA_EFITMAGXML_XMLDIR");
-       char* fullpath = strdup(xmlFile);
-       if (dir != NULL) {
-          fullpath = FormatString("%s/%s", dir, xmlFile);
-       }
-    
-       // Reset if change of XML file  
-       if (fullpath[0] != '\0' && priorFile[0] != '\0' && !STR_IEQUALS(priorFile, fullpath)) {
-	   priorFile[0] = '\0';
-	   isReset = 1;
-       }
-       if(fullpath) free(fullpath); 	 
-   }
-       
+
+    if (isXMLFile) {
+        const char* dir = getenv("UDA_EFITMAGXML_XMLDIR");
+        char* fullpath = strdup(xmlFile);
+        if (dir != NULL) {
+            fullpath = FormatString("%s/%s", dir, xmlFile);
+        }
+
+        // Reset if change of XML file
+        if (fullpath[0] != '\0' && priorFile[0] != '\0' && !STR_IEQUALS(priorFile, fullpath)) {
+            priorFile[0] = '\0';
+            isReset = 1;
+        }
+        if (fullpath) free(fullpath);
+    }
+
 //----------------------------------------------------------------------------------------
 // Heap Housekeeping 
 
@@ -165,14 +165,15 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 // Free Heap & reset counters
 
-        if(wasXPath){
+        if (wasXPath) {
 
-           UDA_LOG(UDA_LOG_DEBUG, "reseting XPath\n");
-	
-	   getXPathValue("", "", 1, &err);
-	   
-	} else
-	   freeEfit(&efit);
+            UDA_LOG(UDA_LOG_DEBUG, "reseting XPath\n");
+
+            getXPathValue("", "", 1, &err);
+
+        } else {
+            freeEfit(&efit);
+        }
 
         init = 0;
 
@@ -182,8 +183,8 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Initialise
 
-    if (!STR_IEQUALS(request_block->function, "help")  &&
-        !STR_IEQUALS(request_block->function, "put")   &&
+    if (!STR_IEQUALS(request_block->function, "help") &&
+        !STR_IEQUALS(request_block->function, "put") &&
         (!init || STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))) {
 
         // EFIT Data Structures
@@ -191,38 +192,37 @@ int efitmagxml(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         initEfit(&efit);
 
         // Parse the XML - must be provided
-	
+
         const char* xmlFile = NULL;
         FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, xmlFile);
-	
+
         const char* dir = getenv("UDA_EFITMAGXML_XMLDIR");
         char* fullpath = strdup(xmlFile);
         if (dir != NULL) {
-           fullpath = FormatString("%s/%s", dir, xmlFile);
+            fullpath = FormatString("%s/%s", dir, xmlFile);
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Initialising XML file %s\n", fullpath);
-	
-	wasXPath = 0;
-	
-	if(isXPath){
-		   
-	   getXPathValue(fullpath, "", 0, &err);		// Parse the XML and create the XPath context 
-	   
-	   if(err != 0){
-	      if(fullpath) free(fullpath);
-	      THROW_ERROR(err, "EFIT++ XML could Not be Parsed");
-	   }
-	   
-	   wasXPath = 1;
-	   strcpy(priorFile, fullpath);
 
-	} else
-        if (parseEfitXML(fullpath, &efit) != 0) {
+        wasXPath = 0;
+
+        if (isXPath) {
+
+            getXPathValue(fullpath, "", 0, &err);        // Parse the XML and create the XPath context
+
+            if (err != 0) {
+                if (fullpath) free(fullpath);
+                THROW_ERROR(err, "EFIT++ XML could Not be Parsed");
+            }
+
+            wasXPath = 1;
+            strcpy(priorFile, fullpath);
+
+        } else if (parseEfitXML(fullpath, &efit) != 0) {
             THROW_ERROR(999, "EFIT++ XML could Not be Parsed");
         }
-	
-	if(fullpath) free(fullpath);
+
+        if (fullpath) free(fullpath);
 
         init = 1;
         if (!strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
@@ -386,7 +386,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
     initDataBlock(data_block);
 
     int count = 0;
-    bool isCount = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, count);		// How Many?
+    bool isCount = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, count);        // How Many?
 
     int objectId;
     bool isObjectId = FIND_INT_VALUE(idam_plugin_interface->request_block->nameValueList, objectId);
@@ -427,121 +427,119 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
     bool isPFPassive = findValue(&idam_plugin_interface->request_block->nameValueList, "PFPassive");
 
     bool isXPath = findValue(&idam_plugin_interface->request_block->nameValueList, "XPath");
-    
 
     if (isUnitStartIndex) {   // All C arrays begin with index 0        
         if (isObjectId) objectId = objectId - 1;
         if (isIndex) index = index - 1;
     }
-      
-    if(isXPath){
-       
-       int err = 0;
-       const char* xPath = NULL;
-       FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, xPath);
-       
-       const char* xmlFile = NULL;
-       FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, xmlFile);
-	  
-       char *value = getXPathValue("", xPath, 0, &err);
-       
-       if(err != 0){
-          THROW_ERROR(err, "EFIT++ [1] XML could Not be Parsed");
-       }
-       UDA_LOG(UDA_LOG_DEBUG, "XPath %s\n", xPath);
-       UDA_LOG(UDA_LOG_DEBUG, "Value %s\n", value);
-       
-       bool isType = findValue(&idam_plugin_interface->request_block->nameValueList, "Type");
 
-       if(!isType && !isCount) 	// STRING by default      	  
-          return setReturnDataString(idam_plugin_interface->data_block, value, "efitmagxml: XPath value");
+    if (isXPath) {
 
-       const char* type = NULL;
-       if(isType) FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, type);
-       
-       if(isCount || !strcasecmp(type, "float")){
-          float* dataArray = xPathFloatArray(value, &count);
-	  if(dataArray){
-	     if(value != NULL) free(value);
-	     if(isCount){
-	        free((void *)dataArray);		
-                strncpy(data_block->data_desc, "efitmagxml: count", STRING_LENGTH);
-                data_block->data_desc[STRING_LENGTH-1] = '\0';
+        int err = 0;
+        const char* xPath = NULL;
+        FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, xPath);
+
+        const char* xmlFile = NULL;
+        FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, xmlFile);
+
+        char* value = getXPathValue("", xPath, 0, &err);
+
+        if (err != 0) {
+            THROW_ERROR(err, "EFIT++ [1] XML could Not be Parsed");
+        }
+        UDA_LOG(UDA_LOG_DEBUG, "XPath %s\n", xPath);
+        UDA_LOG(UDA_LOG_DEBUG, "Value %s\n", value);
+
+        bool isType = findValue(&idam_plugin_interface->request_block->nameValueList, "Type");
+
+        if (!isType && !isCount) {    // STRING by default
+            return setReturnDataString(idam_plugin_interface->data_block, value, "efitmagxml: XPath value");
+        }
+
+        const char* type = NULL;
+        if (isType) FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, type);
+
+        if (isCount || !strcasecmp(type, "float")) {
+            float* dataArray = xPathFloatArray(value, &count);
+            if (dataArray) {
+                if (value != NULL) free(value);
+                if (isCount) {
+                    free((void*)dataArray);
+                    strncpy(data_block->data_desc, "efitmagxml: count", STRING_LENGTH);
+                    data_block->data_desc[STRING_LENGTH - 1] = '\0';
+                    data_block->rank = 0;
+                    data_block->data_type = UDA_TYPE_INT;
+                    int* dataArrayCount = (int*)malloc(sizeof(int));
+                    dataArrayCount[0] = count;
+                    data_block->data = (char*)dataArrayCount;
+                    data_block->data_n = 1;
+                    return 0;
+                } else {
+                    strncpy(data_block->data_desc, "efitmagxml: float value array", STRING_LENGTH);
+                    data_block->data_desc[STRING_LENGTH - 1] = '\0';
+                    data_block->rank = 0;
+                    data_block->data_type = UDA_TYPE_FLOAT;
+                    if (isIndex) {
+                        dataArray[0] = dataArray[index];        // Use the first element to return the requested data
+                        data_block->data = (char*)dataArray;
+                        data_block->data_n = 1;
+                    } else {
+                        data_block->data = (char*)dataArray;
+                        data_block->data_n = count;
+                    }
+                    return 0;
+                }
+            } else {
+                err = 999;
+                THROW_ERROR(err, "EFIT++ [2] XML could Not be Parsed");
+            }
+        } else if (!strcasecmp(type, "double")) {
+            double* dataArray = xPathDoubleArray(value, &count);
+            if (value != NULL) free(value);
+            if (dataArray) {
+                strncpy(data_block->data_desc, "efitmagxml: double value array", STRING_LENGTH);
+                data_block->data_desc[STRING_LENGTH - 1] = '\0';
+                data_block->rank = 0;
+                data_block->data_type = UDA_TYPE_DOUBLE;
+                if (isIndex) {
+                    dataArray[0] = dataArray[index];        // Use the first element to return the requested data
+                    data_block->data = (char*)dataArray;
+                    data_block->data_n = 1;
+                } else {
+                    data_block->data = (char*)dataArray;
+                    data_block->data_n = count;
+                }
+                return 0;
+            } else {
+                UDA_LOG(UDA_LOG_DEBUG, "dataArray Values: %s\n", value);
+                err = 999;
+                THROW_ERROR(err, "EFIT++ [3] XML could Not be Parsed");
+            }
+        } else if (!strcasecmp(type, "int")) {
+            int* dataArray = xPathIntArray(value, &count);
+            if (dataArray) {
+                strncpy(data_block->data_desc, "efitmagxml: int value array", STRING_LENGTH);
+                data_block->data_desc[STRING_LENGTH - 1] = '\0';
                 data_block->rank = 0;
                 data_block->data_type = UDA_TYPE_INT;
-		int *dataArrayCount = (int *)malloc(sizeof(int));
-		dataArrayCount[0] = count;
-                data_block->data = (char*)dataArrayCount;
-                data_block->data_n = 1;
-                return 0;
-	     } else {
-                strncpy(data_block->data_desc, "efitmagxml: float value array", STRING_LENGTH);
-                data_block->data_desc[STRING_LENGTH-1] = '\0';
-                data_block->rank = 0;
-                data_block->data_type = UDA_TYPE_FLOAT;
-		if(isIndex){
-		   dataArray[0] = dataArray[index];		// Use the first element to return the requested data
-                   data_block->data = (char*)dataArray;
-                   data_block->data_n = 1;
-		} else {
-                   data_block->data = (char*)dataArray;
-                   data_block->data_n = count;
+                if (isIndex) {
+                    dataArray[0] = dataArray[index];        // Use the first element to return the requested data
+                    data_block->data = (char*)dataArray;
+                    data_block->data_n = 1;
+                } else {
+                    data_block->data = (char*)dataArray;
+                    data_block->data_n = count;
                 }
-		return 0;
-             }
-	  } else {
-	     err = 999;
-             THROW_ERROR(err, "EFIT++ [2] XML could Not be Parsed");
-          }	     
-       } else
-       if(!strcasecmp(type, "double")){
-          double* dataArray = xPathDoubleArray(value, &count);
-	  if(value != NULL) free(value);
-	  if(dataArray){
-             strncpy(data_block->data_desc, "efitmagxml: double value array", STRING_LENGTH);
-             data_block->data_desc[STRING_LENGTH-1] = '\0';
-             data_block->rank = 0;
-             data_block->data_type = UDA_TYPE_DOUBLE;
-	     if(isIndex){
-                dataArray[0] = dataArray[index];		// Use the first element to return the requested data
-		data_block->data = (char*)dataArray;
-                data_block->data_n = 1;
-	     } else {
-                data_block->data = (char*)dataArray;
-                data_block->data_n = count;
-             }
-             return 0;
-          } else {
-	     UDA_LOG(UDA_LOG_DEBUG, "dataArray Values: %s\n", value);
-	     err = 999;
-             THROW_ERROR(err, "EFIT++ [3] XML could Not be Parsed");
-          }	     
-       } else
-       if(!strcasecmp(type, "int")){
-          int* dataArray = xPathIntArray(value, &count);
-	  if(dataArray){
-             strncpy(data_block->data_desc, "efitmagxml: int value array", STRING_LENGTH);
-             data_block->data_desc[STRING_LENGTH-1] = '\0';
-             data_block->rank = 0;
-             data_block->data_type = UDA_TYPE_INT;
-	     if(isIndex){
-                dataArray[0] = dataArray[index];		// Use the first element to return the requested data
-		data_block->data = (char*)dataArray;
-                data_block->data_n = 1;
-	     } else {
-                data_block->data = (char*)dataArray;
-                data_block->data_n = count;
-             }
-             return 0;
-          } else {
-	     err = 999;
-             THROW_ERROR(err, "EFIT++ [4] XML could Not be Parsed");
-          }	     
-       } else {
-          err = 999;
-          THROW_ERROR(err, "EFIT++ [5] XML could Not be Parsed");        
-       }
-    
+                return 0;
+            } else {
+                err = 999;
+                THROW_ERROR(err, "EFIT++ [4] XML could Not be Parsed");
+            }
+        } else {
+            err = 999;
+            THROW_ERROR(err, "EFIT++ [5] XML could Not be Parsed");
+        }
+
     } // isXPath
 
     if (isCount) {
@@ -608,59 +606,49 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
         }
         return setReturnDataString(idam_plugin_interface->data_block, name, "efitmagxml: object name returned");
     } else if (isAError) {
-	double error = 0;	    
-	if(isFluxLoop){
-           if(efit->fluxloop) error = (double)(efit->fluxloop[objectId].aerr);
-        } else
-	if(isMagProbe){
-	   if(efit->magprobe) error = (double)(efit->magprobe[objectId].aerr);
-        } else	       
-	if(isPFActive && isCurrent){
-           if(efit->pfcoils) error = (double)(efit->pfcoils[objectId].aerr);
-        }	     	       
-	if(isToroidalField && isBVR){
-           if(efit->toroidalfield) error = (double)(efit->toroidalfield[objectId].aerr);
-        } else
-	if(isPlasmaCurrent){
-	   if(efit->plasmacurrent) error = (double)(efit->plasmacurrent[objectId].aerr);
-        } else	       
-	if(isDiamagnetic){
-	   if(efit->diamagnetic) error = (double)(efit->diamagnetic[objectId].aerr);
+        double error = 0;
+        if (isFluxLoop) {
+            if (efit->fluxloop) error = (double)(efit->fluxloop[objectId].aerr);
+        } else if (isMagProbe) {
+            if (efit->magprobe) error = (double)(efit->magprobe[objectId].aerr);
+        } else if (isPFActive && isCurrent) {
+            if (efit->pfcoils) error = (double)(efit->pfcoils[objectId].aerr);
         }
-	if(isPFSupplies){
-	   if(efit->pfsupplies) error = (double)(efit->pfsupplies[objectId].aerr);
-        } else	       
-	if(isPFPassive){
-           if(efit->pfpassive) error = (double)(efit->pfpassive[objectId].aerr);
+        if (isToroidalField && isBVR) {
+            if (efit->toroidalfield) error = (double)(efit->toroidalfield[objectId].aerr);
+        } else if (isPlasmaCurrent) {
+            if (efit->plasmacurrent) error = (double)(efit->plasmacurrent[objectId].aerr);
+        } else if (isDiamagnetic) {
+            if (efit->diamagnetic) error = (double)(efit->diamagnetic[objectId].aerr);
         }
-        return setReturnDataDoubleScalar(idam_plugin_interface->data_block, error, "efitmagxml: Absolute Error"); 
+        if (isPFSupplies) {
+            if (efit->pfsupplies) error = (double)(efit->pfsupplies[objectId].aerr);
+        } else if (isPFPassive) {
+            if (efit->pfpassive) error = (double)(efit->pfpassive[objectId].aerr);
+        }
+        return setReturnDataDoubleScalar(idam_plugin_interface->data_block, error, "efitmagxml: Absolute Error");
     } else if (isRError) {
-	double error = 0;	    
-	if(isFluxLoop){
-           if(efit->fluxloop) error = (double)(efit->fluxloop[objectId].rerr);
-        } else
-	if(isMagProbe){
-	   if(efit->magprobe) error = (double)(efit->magprobe[objectId].rerr);
-        } else
-	if(isPFActive && isCurrent){
-           if(efit->pfcoils)error = (double)(efit->pfcoils[objectId].rerr);
-        }	     	       
-	if(isToroidalField && isBVR){
-           if(efit->toroidalfield) error = (double)(efit->toroidalfield[objectId].rerr);
-        } else
-	if(isPlasmaCurrent){
-	   if(efit->plasmacurrent) error = (double)(efit->plasmacurrent[objectId].rerr);
-        } else	       
-	if(isDiamagnetic){
-           if(efit->diamagnetic) error = (double)(efit->diamagnetic[objectId].rerr);
+        double error = 0;
+        if (isFluxLoop) {
+            if (efit->fluxloop) error = (double)(efit->fluxloop[objectId].rerr);
+        } else if (isMagProbe) {
+            if (efit->magprobe) error = (double)(efit->magprobe[objectId].rerr);
+        } else if (isPFActive && isCurrent) {
+            if (efit->pfcoils)error = (double)(efit->pfcoils[objectId].rerr);
         }
-	if(isPFSupplies){
-	   if(efit->pfsupplies) error = (double)(efit->pfsupplies[objectId].rerr);
-        } else	       
-	if(isPFPassive){
-           if(efit->pfpassive) error = (double)(efit->pfpassive[objectId].rerr);
+        if (isToroidalField && isBVR) {
+            if (efit->toroidalfield) error = (double)(efit->toroidalfield[objectId].rerr);
+        } else if (isPlasmaCurrent) {
+            if (efit->plasmacurrent) error = (double)(efit->plasmacurrent[objectId].rerr);
+        } else if (isDiamagnetic) {
+            if (efit->diamagnetic) error = (double)(efit->diamagnetic[objectId].rerr);
         }
-        return setReturnDataDoubleScalar(idam_plugin_interface->data_block, error, "efitmagxml: Relative Error"); 
+        if (isPFSupplies) {
+            if (efit->pfsupplies) error = (double)(efit->pfsupplies[objectId].rerr);
+        } else if (isPFPassive) {
+            if (efit->pfpassive) error = (double)(efit->pfpassive[objectId].rerr);
+        }
+        return setReturnDataDoubleScalar(idam_plugin_interface->data_block, error, "efitmagxml: Relative Error");
     } else if (isIdentifier) {
         char* id = NULL;
         if (isFluxLoop) {
@@ -754,68 +742,65 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, EFIT* efit)
 
     return 0;
 }
- 
+
 static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    int err=0;
+    int err = 0;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     initDataBlock(data_block);
-    
-    bool isType  = findValue(&idam_plugin_interface->request_block->nameValueList, "Type");
+
+    bool isType = findValue(&idam_plugin_interface->request_block->nameValueList, "Type");
     bool isValue = findValue(&idam_plugin_interface->request_block->nameValueList, "Value");
 
-    if(!isType && !isValue){ 	    	  
-       err = 999;
-       THROW_ERROR(err, "EFIT++ Magnetics Value could not be PUT");
+    if (!isType && !isValue) {
+        err = 999;
+        THROW_ERROR(err, "EFIT++ Magnetics Value could not be PUT");
     }
 
     const char* type = NULL;
-    if(isType) FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, type);
+    if (isType) FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, type);
     const char* value = NULL;
-    if(isValue) FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, value);
+    if (isValue) FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, value);
 
     strncpy(data_block->data_desc, "efitmagxml: object count returned", STRING_LENGTH);
-    data_block->data_desc[STRING_LENGTH-1] = '\0';
+    data_block->data_desc[STRING_LENGTH - 1] = '\0';
     data_block->rank = 0;
-    if(!isType || !strcasecmp(type, "string")){
-         data_block->data_type = UDA_TYPE_STRING;
-	 char *data = strdup(value);
-         data_block->data = data;
-         data_block->data_n = strlen(value)+1;
-         return 0;
-    } else
-    if(!strcasecmp(type, "int")){
-         data_block->data_type = UDA_TYPE_INT;
-         int *data = malloc(sizeof(int));
-         data[0] = atoi(value);
-         data_block->data = (char*)data;
-         data_block->data_n = 1;
-         return 0;
-    } else
-    if(!strcasecmp(type, "float")){
-         data_block->data_type = UDA_TYPE_FLOAT;
-         float *data = (float *)malloc(sizeof(float));
-         data[0] = (float) atof(value);
-         data_block->data = (char*)data;
-         data_block->data_n = 1;
-         return 0;
-    } else
-    if(!strcasecmp(type, "double")){
-         data_block->data_type = UDA_TYPE_DOUBLE;
-         double *data = (double *)malloc(sizeof(double));
-         data[0] = (double) atof(value);
-         data_block->data = (char*)data;
-         data_block->data_n = 1;
-         return 0;
+    if (!isType || !strcasecmp(type, "string")) {
+        data_block->data_type = UDA_TYPE_STRING;
+        char* data = strdup(value);
+        data_block->data = data;
+        data_block->data_n = strlen(value) + 1;
+        return 0;
+    } else if (!strcasecmp(type, "int")) {
+        data_block->data_type = UDA_TYPE_INT;
+        int* data = malloc(sizeof(int));
+        data[0] = atoi(value);
+        data_block->data = (char*)data;
+        data_block->data_n = 1;
+        return 0;
+    } else if (!strcasecmp(type, "float")) {
+        data_block->data_type = UDA_TYPE_FLOAT;
+        float* data = (float*)malloc(sizeof(float));
+        data[0] = (float)atof(value);
+        data_block->data = (char*)data;
+        data_block->data_n = 1;
+        return 0;
+    } else if (!strcasecmp(type, "double")) {
+        data_block->data_type = UDA_TYPE_DOUBLE;
+        double* data = (double*)malloc(sizeof(double));
+        data[0] = (double)atof(value);
+        data_block->data = (char*)data;
+        data_block->data_n = 1;
+        return 0;
     } else {
-         err = 999;
-         THROW_ERROR(err, "EFIT++ Magnetics Value could not be PUT - Type not implemented");
-         return err;         
-    }	    
-    
+        err = 999;
+        THROW_ERROR(err, "EFIT++ Magnetics Value could not be PUT - Type not implemented");
+        return err;
+    }
+
     return 0;
 }
- 
+
 int getnfluxloops(EFIT* efit)
 {
     return efit->nfluxloops;

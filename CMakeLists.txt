@@ -34,7 +34,7 @@ endif()
 # Strip off the SHA1 tag element if it exists
 string( REGEX REPLACE "^([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1" GIT_VERSION "${GIT_TAG}" )
 if( NOT "${GIT_VERSION}" MATCHES "[0-9]+\\.[0-9]+\\.[0-9]+" )
-  message( WARNING "invalid git tag for version parsing" )
+  message( WARNING "invalid git tag for version parsing: ${GIT_VERSION}" )
   set( GIT_VERSION "0.0.0" )
 endif()
 

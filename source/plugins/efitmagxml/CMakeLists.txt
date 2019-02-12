@@ -27,6 +27,7 @@ uda_plugin(
     ${LIBXML2_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/clientserver
     ${CMAKE_SOURCE_DIR}/structures
+    /opt/local/include
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
   EXTRA_INSTALL_FILES
