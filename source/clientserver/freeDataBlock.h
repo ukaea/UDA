@@ -12,6 +12,7 @@ extern "C" {
 
 void freeDataBlock(DATA_BLOCK* data_block);
 void freeReducedDataBlock(DATA_BLOCK* data_block);
+void freeIdamClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
 #ifdef __cplusplus
 }

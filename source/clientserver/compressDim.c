@@ -24,7 +24,6 @@
 
 int compressDim(DIMS* ddim)
 {
-
     double d0, ddif = 0, pddif = 0, precision, mddif;
     int ndata;
     int i, ndif = 1;

@@ -784,7 +784,7 @@ void putIdamServerSocket(int socket)
 * @param socket Returned socket id number.
 * @return void
 */
-void getIdamServer(char** host, int* port, int* socket)
+void getIdamServer(const char** host, int* port, int* socket)
 {      // Active ...
     ENVIRONMENT* environment = getIdamClientEnvironment();
     *socket = environment->server_socket;                        // IDAM server service socket number
@@ -796,7 +796,7 @@ void getIdamServer(char** host, int* port, int* socket)
 /**
 * @return the Name of the Host
 */
-char* getIdamServerHost()
+const char* getIdamServerHost()
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     return environment->server_host;                             // Active IDAM server's host name or IP address
@@ -842,7 +842,7 @@ int getIdamErrorCode(int handle)
 \param   handle   The data object handle.
 \return   the error message.
 */
-char* getIdamErrorMsg(int handle)
+const char* getIdamErrorMsg(int handle)
 {
     // Error Message returned from server
     if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
@@ -877,8 +877,8 @@ int getIdamSignalStatus(int handle)
 int getIdamDataStatus(int handle)
 {          // Data Status based on Standard Rule
     if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return 0;
-    if (getIdamSignalStatus(handle) ==
-        DEFAULT_STATUS) {       // Signal Status Not Changed from Default - use Data Source Value
+    if (getIdamSignalStatus(handle) == DEFAULT_STATUS) {
+        // Signal Status Not Changed from Default - use Data Source Value
         return Data_Block[handle].source_status;
     } else {
         return Data_Block[handle].signal_status;
@@ -2102,7 +2102,7 @@ DATA_BLOCK* getIdamDataBlock(int handle)
 \param   handle   The data object handle
 \return  pointer to the data label
 */
-char* getIdamDataLabel(int handle)
+const char* getIdamDataLabel(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
         return NULL;
@@ -2129,7 +2129,7 @@ void getIdamDataLabelTdi(int handle, char* label)
 \param   handle   The data object handle
 \return  pointer to the data units
 */
-char* getIdamDataUnits(int handle)
+const char* getIdamDataUnits(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
         return NULL;
@@ -2156,7 +2156,7 @@ void getIdamDataUnitsTdi(int handle, char* units)
 \param   handle   The data object handle
 \return  pointer to the data description
 */
-char* getIdamDataDesc(int handle)
+const char* getIdamDataDesc(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
         return NULL;
@@ -2286,7 +2286,7 @@ char* getIdamDimData(int handle, int ndim)
 \param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  pointer to the data label
 */
-char* getIdamDimLabel(int handle, int ndim)
+const char* getIdamDimLabel(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
         return NULL;
@@ -2299,7 +2299,7 @@ char* getIdamDimLabel(int handle, int ndim)
 \param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  pointer to the data units
 */
-char* getIdamDimUnits(int handle, int ndim)
+const char* getIdamDimUnits(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= Data_Block_Count || ndim < 0 || (unsigned int)ndim >= Data_Block[handle].rank) {
         return NULL;
@@ -3147,7 +3147,7 @@ SIGNAL_DESC* getIdamSignalDesc(int handle)
 \param   handle   The data object handle
 \return  pointer to the data file format
 */
-char* getIdamFileFormat(int handle)
+const char* getIdamFileFormat(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= Data_Block_Count) {
         return NULL;

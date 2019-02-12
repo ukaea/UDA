@@ -15,6 +15,7 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/allocData.h>
+#include <clientserver/freeDataBlock.h>
 
 #include "makeClientRequestBlock.h"
 #include "udaGetAPI.h"

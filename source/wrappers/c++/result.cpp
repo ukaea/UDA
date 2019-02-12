@@ -54,7 +54,7 @@ static const std::type_info* idamTypeToTypeID(int type)
 
 const std::string uda::Result::errorMessage() const
 {
-    char* error = getIdamErrorMsg(handle_);
+    const char* error = getIdamErrorMsg(handle_);
     return error == nullptr ? "" : error;
 }
 

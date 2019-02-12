@@ -2533,7 +2533,6 @@ void printNode(NTREE* tree)
     for (i=0; i<tree->branches; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "Children[%d]: %p   (%x) \n", i, (void *)tree->children[i], (UVOIDTYPE)tree->children[i]);
     }
-}
 #endif
     printUserDefinedType(*tree->userdefinedtype);
 }

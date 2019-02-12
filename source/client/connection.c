@@ -1,6 +1,3 @@
-// Create a Socket Connection to the IDAM server with a randomised time delay between connection attempts
-//
-//----------------------------------------------------------------
 #ifdef _WIN32
 #  include <winsock.h> // must be included before connection.h to avoid macro redefinition in rpc/types.h
 #endif
@@ -205,8 +202,8 @@ int createConnection()
     // Does the host name contain the SSL protocol prefix? If so strip this off
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    if(!strncasecmp(hostname, "SSL://", 6)){		// Should be stripped already if via the HOST client configuration file
-        strcpy(environment->server_host, &hostname[6]);    // Replace
+    if (!strncasecmp(hostname, "SSL://", 6)) {           // Should be stripped already if via the HOST client configuration file
+        strcpy(environment->server_host, &hostname[6]);  // Replace
         putUdaClientSSLProtocol(1);
     } else {
         if(hostId >= 0 && udaClientGetHostSSL(hostId)){
@@ -475,7 +472,7 @@ int clientWriteout(void* iohandle, char* buf, int count)
     }
 #endif
 
-// Write to socket, checking for EINTR, as happens if called from IDL
+    // Write to socket, checking for EINTR, as happens if called from IDL
 
     while (BytesSent < (unsigned int)count) {
 #ifndef _WIN32
@@ -517,7 +514,7 @@ int clientReadin(void* iohandle, char* buf, int count)
         idamUpdateSelectParms(clientSocket, &rfds, &tv);        // Keep trying ...
     }
 
-// Read from it, checking for EINTR, as happens if called from IDL
+    // Read from it, checking for EINTR, as happens if called from IDL
 
 #ifndef _WIN32
     while (((rc = (int)read(clientSocket, buf, count)) == -1) && (errno == EINTR)) {}
@@ -527,8 +524,8 @@ int clientReadin(void* iohandle, char* buf, int count)
 
     serrno = errno;
 
-// As we have waited to be told that there is data to be read, if nothing
-// arrives, then there must be an error
+    // As we have waited to be told that there is data to be read, if nothing
+    // arrives, then there must be an error
 
     if (!rc) {
         rc = -1;

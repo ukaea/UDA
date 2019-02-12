@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENT_IDAMPUTAPI_H
-#define IDAM_CLIENT_IDAMPUTAPI_H
+#ifndef UDA_CLIENT_UDAPUTAPI_H
+#define UDA_CLIENT_UDAPUTAPI_H
 
 #include <clientserver/udaStructs.h>
 
@@ -15,10 +15,8 @@ extern "C" {
 int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlockList);
 int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);
 
-void freeIdamClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif // IDAM_CLIENT_IDAMPUTAPI_H
+#endif // UDA_CLIENT_UDAPUTAPI_H

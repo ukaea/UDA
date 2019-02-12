@@ -835,7 +835,6 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #else       // <========================== End of Client Server Code Only (not FATCLIENT)
         }
-
 #endif      // <========================== End of Fat Client Code Only
 
         //------------------------------------------------------------------------------
@@ -1522,7 +1521,7 @@ void restoreIdamProperties(CLIENT_BLOCK cb)
 /**
 * @return the DOI
 */
-char* getIdamClientDOI()
+const char* getIdamClientDOI()
 {
     return client_block.DOI;
 }
@@ -1540,7 +1539,7 @@ void putIdamClientDOI(char* doi)
 /**
 * @return the DOI
 */
-char* getIdamServerDOI()
+const char* getIdamServerDOI()
 {
     return server_block.DOI;
 }
@@ -1549,7 +1548,7 @@ char* getIdamServerDOI()
 /**
 * @return the OS name
 */
-char* getIdamClientOSName()
+const char* getIdamClientOSName()
 {
     return client_block.OSName;
 }
@@ -1567,7 +1566,7 @@ void putIdamClientOSName(char* os)
 /**
 * @return the OS name
 */
-char* getIdamServerOSName()
+const char* getIdamServerOSName()
 {
     return server_block.OSName;
 }
@@ -1603,7 +1602,7 @@ int getIdamServerErrorCode()
 /**
 * @return the error message
 */
-char* getIdamServerErrorMsg()
+const char* getIdamServerErrorMsg()
 {
     return server_block.msg;               // Server Error Message
 }
@@ -1648,7 +1647,7 @@ int getIdamServerErrorStackRecordCode(int record)
 * @param record the error stack record number
 * @return the location name
 */
-char* getIdamServerErrorStackRecordLocation(int record)
+const char* getIdamServerErrorStackRecordLocation(int record)
 {
     if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
         return 0;
@@ -1661,10 +1660,10 @@ char* getIdamServerErrorStackRecordLocation(int record)
 * @param record the error stack record number
 * @return the error message
 */
-char* getIdamServerErrorStackRecordMsg(int record)
+const char* getIdamServerErrorStackRecordMsg(int record)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "getIdamServerErrorStackRecordMsg: record %d\n", record);
-    UDA_LOG(UDA_LOG_DEBUG, "getIdamServerErrorStackRecordMsg: count  %d\n", server_block.idamerrorstack.nerrors);
+    UDA_LOG(UDA_LOG_DEBUG, "record %d\n", record);
+    UDA_LOG(UDA_LOG_DEBUG, "count  %d\n", server_block.idamerrorstack.nerrors);
     if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
         return 0;
     }

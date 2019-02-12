@@ -3,6 +3,10 @@
 
 #include "udaStructs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void printRequestBlock(REQUEST_BLOCK str);
 
 void printClientBlock(CLIENT_BLOCK str);
@@ -23,5 +27,10 @@ void printSignalDesc(SIGNAL_DESC str);
 #ifdef __GNUC__
 void printPerformance(PERFORMANCE str);
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // UDA_CLIENTSERVER_PRINTSTRUCTS_H
 

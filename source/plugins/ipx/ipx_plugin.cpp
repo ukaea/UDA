@@ -1,6 +1,7 @@
 #include "ipx_plugin.h"
 
 #include <exception>
+#include <cstddef>
 
 #include <plugins/udaPlugin.h>
 #include <clientserver/stringUtils.h>

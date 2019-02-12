@@ -6,7 +6,9 @@
 #include "initStructs.h"
 
 #ifdef __GNUC__
+
 #  include <unistd.h>
+
 #elif defined(_WIN32)
 #  include <process.h>
 #endif
@@ -53,7 +55,7 @@ void initRequestBlock(REQUEST_BLOCK* str)
 #  define getpid _getpid
 #endif
 
-void initClientBlock(CLIENT_BLOCK* str, int version, char* clientname)
+void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname)
 {
     str->version = version;
     str->timeout = TIMEOUT;

@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENT_IDAMCLIENT_H
-#define IDAM_CLIENT_IDAMCLIENT_H
+#ifndef UDA_CLIENT_IDAMCLIENT_H
+#define UDA_CLIENT_IDAMCLIENT_H
 
 // TODO: remove this and the XDR globals
 #include <rpc/rpc.h>
@@ -59,10 +59,10 @@ extern int get_synthetic;       // (Client Side) Return Synthetic Data if availa
 
 // XDR data Streams
 
-extern XDR * clientInput;           // XDR Input Stream handle
-extern XDR * clientOutput;          // XDR Output Stream handle
+extern XDR* clientInput;           // XDR Input Stream handle
+extern XDR* clientOutput;          // XDR Output Stream handle
 
-int idamClient(REQUEST_BLOCK * request_block);
+int idamClient(REQUEST_BLOCK* request_block);
 
 void updateClientBlock(CLIENT_BLOCK* str);
 
@@ -70,19 +70,19 @@ void idamFree(int handle);
 
 void idamFreeAll();
 
-char* getIdamServerHost();
+const char* getIdamServerHost();
 
 int getIdamServerPort();
 
 int getIdamServerSocket();
 
-char* getIdamClientDOI();
+const char* getIdamClientDOI();
 
-char* getIdamServerDOI();
+const char* getIdamServerDOI();
 
-char* getIdamClientOSName();
+const char* getIdamClientOSName();
 
-char* getIdamServerOSName();
+const char* getIdamServerOSName();
 
 int getIdamClientVersion();
 
@@ -90,7 +90,7 @@ int getIdamServerVersion();
 
 int getIdamServerErrorCode();
 
-char* getIdamServerErrorMsg();
+const char* getIdamServerErrorMsg();
 
 int getIdamServerErrorStackSize();
 
@@ -98,9 +98,9 @@ int getIdamServerErrorStackRecordType(int record);
 
 int getIdamServerErrorStackRecordCode(int record);
 
-char* getIdamServerErrorStackRecordLocation(int record);
+const char* getIdamServerErrorStackRecordLocation(int record);
 
-char* getIdamServerErrorStackRecordMsg(int record);
+const char* getIdamServerErrorStackRecordMsg(int record);
 
 void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist);
 
@@ -110,4 +110,4 @@ void setLogMallocList(LOGMALLOCLIST* logmalloclist_in);
 }
 #endif
 
-#endif // IDAM_CLIENT_IDAMCLIENT_H
+#endif // UDA_CLIENT_IDAMCLIENT_H
