@@ -12,14 +12,14 @@ IDAM_CACHE* idamOpenCache()
 void idamFreeCache()
 {}
 
-char* idamCacheKey(REQUEST_BLOCK* request_block, ENVIRONMENT environment)
+char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 { return NULL; }
 
-int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
+int idamCacheWrite(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
                    LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
 { return 0; }
 
-DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
                           USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
 { return NULL; }
 
