@@ -12,12 +12,11 @@
 #include <logging/logging.h>
 #include <client/udaClient.h>
 #include <client/udaClientHostList.h>
+#include <clientserver/sqllib.h>
 
 #ifdef FATCLIENT
 #  include <server/udaServer.h>
-#  include <libpq-fe.h>
 #  include <server/closeServerSockets.h>
-extern PGconn * DBConnect;    // IDAM database Socket Connection
 #else
 #  include "getEnvironment.h"
 #  include "connection.h"
