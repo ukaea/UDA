@@ -1,4 +1,4 @@
-pro listgeomgroups, shot=shot, pulno=pulno, exp_number=exp_number, all=all
+function listgeomgroups, shot=shot, pulno=pulno, exp_number=exp_number, all=all
 
   ; basic command (this is all you need for all keyword)
   comm = 'GEOM::listGeomGroups()'
@@ -12,6 +12,7 @@ pro listgeomgroups, shot=shot, pulno=pulno, exp_number=exp_number, all=all
   grouplist = getstruct(comm, shot)
 
   if grouplist.erc ne 0 then begin
+     print, grouplist.errmsg
      return, -1
   endif
 
