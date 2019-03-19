@@ -2,6 +2,12 @@
 #define UDA_SERVER_SERVERGETDATA_H
 
 #include <clientserver/parseXML.h>
+#include <clientserver/udaStructs.h>
+#include <clientserver/socketStructs.h>
+#include <structures/genStructs.h>
+#include <plugins/pluginStructs.h>
+
+#include "sqllib.h"
 
 #ifdef __cplusplus
 extern "C" {

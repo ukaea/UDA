@@ -12,11 +12,11 @@
 #include <logging/logging.h>
 #include <client/udaClient.h>
 #include <client/udaClientHostList.h>
-#include <clientserver/sqllib.h>
 
 #ifdef FATCLIENT
 #  include <server/udaServer.h>
 #  include <server/closeServerSockets.h>
+#  include <server/sqllib.h>
 #else
 #  include "getEnvironment.h"
 #  include "connection.h"
@@ -58,9 +58,9 @@ int idamClosedown(int type, SOCKETLIST* socket_list)
     if (type == 1) {
 
 #ifndef NOTGENERICENABLED
-        if (DBConnect != NULL) {
-            PQfinish(DBConnect);    // close the IDAM SQL Database connection
-            DBConnect = NULL;
+        if (gDBConnect != NULL) {
+            PQfinish(gDBConnect);    // close the IDAM SQL Database connection
+            gDBConnect = NULL;
         }
 #endif
         closeServerSockets(socket_list);    // Close the Socket Connections to Other Data Servers

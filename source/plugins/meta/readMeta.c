@@ -33,8 +33,8 @@ Issues:
 #include <strings.h>
 
 #include <clientserver/initStructs.h>
-#include <clientserver/sqllib.h>
 #include <clientserver/stringUtils.h>
+#include <server/sqllib.h>
 #include <structures/accessors.h>
 #include <structures/struct.h>
 

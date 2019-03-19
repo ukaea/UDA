@@ -6,6 +6,8 @@
 // Return Codes:	0 => OK, otherwise Error
 //
 //--------------------------------------------------------------------------------------------------------------------
+#include "serverGetData.h"
+
 #include <errno.h>
 #include <strings.h>
 
@@ -13,7 +15,6 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
-#include <clientserver/sqllib.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaErrors.h>
 #include <clientserver/makeRequestBlock.h>

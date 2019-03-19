@@ -2,7 +2,7 @@
 #define UDA_SERVER_MODULES_READSQL_READSQL_H
 
 #include <clientserver/udaStructs.h>
-#include <clientserver/sqllib.h>
+#include <server/sqllib.h>
 #include <structures/genStructs.h>
 
 #ifdef USEREADSOAP 

@@ -112,7 +112,7 @@ int readPPF(REQUEST_BLOCK *request_block, DATA_BLOCK *data_block)
  	    
 	 p = &p2[1];  
 	 
-         if(p != '\0'){		// Sequence or Owner
+         if(*p != '\0'){		// Sequence or Owner
 	    p2 = strchr(p, '/');
 	    if(p2 != NULL){	// sequence/owner
 	       p2[0] = '\0';

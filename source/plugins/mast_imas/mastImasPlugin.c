@@ -28,10 +28,10 @@
 #include <client/udaClient.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
-#include <clientserver/sqllib.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
 #include <plugins/pluginUtils.h>
+#include <server/sqllib.h>
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 

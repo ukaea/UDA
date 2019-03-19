@@ -22,7 +22,7 @@
 
 // Open the Connection with the PostgreSQL IDAM Database
 
-#if !defined(NOTGENERICENABLED) && defined(SERVERBUILD)
+#ifndef NOTGENERICENABLED
 
 static void nameIDA(const char* alias, int pulno, char* filename)
 {
@@ -3458,8 +3458,6 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
     return rc;
 }
 
-
-//==============================================================================================================
 #else
 
 PGconn* startSQL(const ENVIRONMENT* environment)
@@ -3555,9 +3553,4 @@ int sqlMapPrivateData(PGconn* DBConnect, REQUEST_BLOCK request_block, SIGNAL_DES
     return 0;
 }
 
-#endif
-
-
-
-
-
+#endif // !defined(NOTGENERICENABLED)

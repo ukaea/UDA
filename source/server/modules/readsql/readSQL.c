@@ -29,7 +29,6 @@
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/sqllib.h>
 #include <clientserver/udaErrors.h>
 #include <clientserver/udaTypes.h>
 #include <structures/struct.h>

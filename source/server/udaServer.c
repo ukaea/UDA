@@ -9,7 +9,6 @@
 #include <clientserver/manageSockets.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
-#include <clientserver/sqllib.h>
 #include <clientserver/udaErrors.h>
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
@@ -27,6 +26,7 @@
 #include "serverProcessing.h"
 #include "serverStartup.h"
 #include "udaLegacyServer.h"
+#include "sqllib.h"
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>

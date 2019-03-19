@@ -12,7 +12,6 @@
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/protocolXML.h>
-#include <clientserver/sqllib.h>
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
 #include <server/serverPlugin.h>
@@ -25,6 +24,7 @@
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
+#include "sqllib.h"
 
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {
