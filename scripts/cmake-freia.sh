@@ -1,7 +1,6 @@
 #!/bin/bash
 
 module purge
-module load gcc/7.3.0
 module load idl/08.3
 module load mdsplus/6.1
 module load java/1.8
