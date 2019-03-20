@@ -320,7 +320,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
             switch (direction) {
 
-                case XDR_RECEIVE:
+                case XDR_RECEIVE: {
 
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
@@ -368,18 +368,20 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
 
                     break;
+                }
 
-                case XDR_SEND:
+                case XDR_SEND: {
 
                     UDA_LOG(UDA_LOG_DEBUG, "send: putDataBlockList Count: %d\n", putDataBlockList->blockCount);
 
-                    rc = xdr_u_int(xdrs, &(putDataBlockList->blockCount));
+                    int rc = xdr_u_int(xdrs, &(putDataBlockList->blockCount));
 
                     if (!rc) {
                         err = PROTOCOL_ERROR_61;
                         break;
                     }
 
+                    int i;
                     for (i = 0; i < putDataBlockList->blockCount; i++) {        // Send multiple put blocks
 
                         if (!xdr_putdata_block1(xdrs, &(putDataBlockList->putDataBlock[i]))) {
@@ -408,6 +410,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
 
                     break;
+                }
 
                 case XDR_FREE_HEAP:
                     break;
