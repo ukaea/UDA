@@ -381,7 +381,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         break;
                     }
 
-                    int i;
+                    unsigned int i;
                     for (i = 0; i < putDataBlockList->blockCount; i++) {        // Send multiple put blocks
 
                         if (!xdr_putdata_block1(xdrs, &(putDataBlockList->putDataBlock[i]))) {

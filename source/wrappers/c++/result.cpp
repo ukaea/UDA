@@ -237,11 +237,7 @@ uda::Data* getDataAsStringArray(int handle, const uda::Result* result)
 
 uda::Data* uda::Result::data() const
 {
-//    std::vector<Dim> dims;
     auto rank = static_cast<dim_type>(getIdamRank(handle_));
-//    for (dim_type i = 0; i < rank; ++i) {
-//        dims.push_back(dim(i, DATA));
-//    }
 
     int type = getIdamDataType(handle_);
 

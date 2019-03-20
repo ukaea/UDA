@@ -11,12 +11,27 @@
 #include "UDA.hpp"
 
 static PyObject* UDA_Exception;
+static PyObject* Protocol_Exception;
+static PyObject* Server_Exception;
+static PyObject* Invalid_Use_Exception;
 %}
 
 %init %{
     UDA_Exception = PyErr_NewException("pyuda.UDAException", NULL, NULL);
     Py_INCREF(UDA_Exception);
     PyModule_AddObject(m, "UDAException", UDA_Exception);
+
+    Protocol_Exception = PyErr_NewException("pyuda.ProtocolException", UDA_Exception, NULL);
+    Py_INCREF(Protocol_Exception);
+    PyModule_AddObject(m, "ProtocolException", Protocol_Exception);
+
+    Server_Exception = PyErr_NewException("pyuda.ServerException", UDA_Exception, NULL);
+    Py_INCREF(Server_Exception);
+    PyModule_AddObject(m, "ServerException", Server_Exception);
+
+    Invalid_Use_Exception = PyErr_NewException("pyuda.InvalidUseException", UDA_Exception, NULL);
+    Py_INCREF(Invalid_Use_Exception);
+    PyModule_AddObject(m, "InvalidUseException", Invalid_Use_Exception);
 %}
 
 %naturalvar;
@@ -53,6 +68,18 @@ static PyObject* UDA_Exception;
 %exception {
   try {
     $action
+  }
+  catch (uda::ProtocolException& e) {
+    PyErr_SetString(Protocol_Exception, const_cast<char*>(e.what()));
+    SWIG_fail;
+  }
+  catch (uda::ServerException& e) {
+    PyErr_SetString(Server_Exception, const_cast<char*>(e.what()));
+    SWIG_fail;
+  }
+  catch (uda::InvalidUseException& e) {
+    PyErr_SetString(Invalid_Use_Exception, const_cast<char*>(e.what()));
+    SWIG_fail;
   }
   catch (uda::UDAException& e) {
     PyErr_SetString(UDA_Exception, const_cast<char*>(e.what()));

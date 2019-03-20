@@ -5,12 +5,15 @@ import sys
 from distutils.core import setup, Extension
 
 extra_link_args = []
+extra_compile_args = ['-std=c++11']
 
 root = os.environ.get('UDA_DIR', '@CMAKE_INSTALL_PREFIX@')
 
 if sys.platform.lower() == 'darwin':
     # On Mac OS we have to force setting of rpath
     extra_link_args.append('-Wl,-rpath,%s/lib' % root)
+    extra_compile_args.append('-stdlib=libc++')
+    extra_link_args.append('-stdlib=libc++')
 
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
 if build_fat:
@@ -41,7 +44,7 @@ ext = Extension(
         '@OPENSSL_LIB_DIR@',
     ],
     extra_link_args=extra_link_args,
-    extra_compile_args=['-std=c++11']
+    extra_compile_args=extra_compile_args,
 )
 
 setup(
@@ -52,6 +55,7 @@ setup(
     author_email='jonathan.hollocombe@ukaea.uk',
     url='https://git.iter.org/projects/IMAS/repos/uda/browse',
     packages=['pyuda'],
-    ext_modules=[ext]
+    ext_modules=[ext],
+    install_requires=['future>=0.17', 'numpy>=1.15'],
 )
 

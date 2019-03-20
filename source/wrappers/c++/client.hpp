@@ -14,7 +14,7 @@ class Array;
 class UDAException : public std::exception
 {
 public:
-    explicit UDAException(std::string what, std::vector<std::string> backtrace)
+    UDAException(std::string what, std::vector<std::string> backtrace)
             : what_(std::move(what))
             , backtrace_(std::move(backtrace))
     {
@@ -54,6 +54,33 @@ private:
     std::string what_;
     std::vector<std::string> backtrace_;
     std::string backtrace_msg_;
+};
+
+class ProtocolException : public UDAException {
+public:
+    ProtocolException(std::string what, std::vector<std::string> backtrace) : UDAException(what, backtrace)
+    {}
+
+    explicit ProtocolException(std::string what) throw() : UDAException(what)
+    {}
+};
+
+class ServerException : public UDAException {
+public:
+    ServerException(std::string what, std::vector<std::string> backtrace) : UDAException(what, backtrace)
+    {}
+
+    explicit ServerException(std::string what) throw() : UDAException(what)
+    {}
+};
+
+class InvalidUseException : public UDAException {
+public:
+    InvalidUseException(std::string what, std::vector<std::string> backtrace) : UDAException(what, backtrace)
+    {}
+
+    explicit InvalidUseException(std::string what) throw() : UDAException(what)
+    {}
 };
 
 enum Property

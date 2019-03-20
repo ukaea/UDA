@@ -42,7 +42,7 @@ void uda::Client::setProperty(Property prop, bool value)
 
         case PROP_TIMEOUT:
         case PROP_ALTRANK:
-            throw UDAException("Cannot set boolean value for non-boolean property");
+            throw InvalidUseException("Cannot set boolean value for non-boolean property");
 
         default:
             throw UDAException("Unknown property");
@@ -71,7 +71,7 @@ void uda::Client::setProperty(Property prop, int value)
         case PROP_VERBOSE:
         case PROP_DEBUG:
         case PROP_ALTDATA:
-            throw UDAException("Cannot set integer value for boolean property");
+            throw InvalidUseException("Cannot set integer value for boolean property");
 
         case PROP_TIMEOUT:
             name = (boost::format("timeout=%1%") % value).str();
@@ -140,6 +140,7 @@ const uda::Result& uda::Client::get(const std::string& signalName, const std::st
     if (data->errorCode() != OK) {
         IDAMERRORSTACK* errorstack = getIdamServerErrorStack();
         std::vector<std::string> backtrace;
+        int code = errorstack->nerrors > 0 ? errorstack->idamerror[0].code : 0;
         std::string msg = errorstack->nerrors > 0 ? errorstack->idamerror[0].msg : "";
 
         backtrace.reserve(errorstack->nerrors);
@@ -148,7 +149,11 @@ const uda::Result& uda::Client::get(const std::string& signalName, const std::st
         }
         delete data;
 
-        throw UDAException(msg, backtrace);
+        if ((code > 0 && code < 25) || (code > 60 && code < 66)) {
+            throw ProtocolException(msg, backtrace);
+        } else {
+            throw ServerException(msg, backtrace);
+        }
     }
 
     data_.push_back(data);

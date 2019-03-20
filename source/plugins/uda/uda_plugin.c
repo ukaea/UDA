@@ -1,23 +1,3 @@
-/*---------------------------------------------------------------
-* v1 IDAM Plugin: IDAM Client API
-*
-* Input Arguments:	IDAM_PLUGIN_INTERFACE *idam_plugin_interface
-*
-* Returns:		0 if the plugin functionality was successful
-*			otherwise a Error Code is returned 
-*
-* Standard functionality:
-*
-*	help	a description of what this plugin does together with a list of functions available
-*
-*	reset	frees all previously allocated heap, closes file handles and resets all static parameters.
-*		This has the same functionality as setting the housekeeping directive in the plugin interface
-*		data structure to TRUE (1)
-*
-*	init	Initialise the plugin: read all required data and process. Retain staticly for
-*		future reference.	
-*
-*---------------------------------------------------------------------------------------------------------------*/
 #include "uda_plugin.h"
 
 #include <stdlib.h>
@@ -72,7 +52,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
-        // Resetting all IDAM client properties
+        // Resetting all UDA client properties
 
         resetIdamProperties();
 
@@ -96,17 +76,18 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(oldServerHost, getIdamServerHost());    // Current Host
         oldPort = getIdamServerPort();            // Current Port
 
-        // Resetting all IDAM client properties
+        // Resetting all UDA client properties
 
         resetIdamProperties();
 
-        // Hand over Server IO File Handles to IDAM Client library
+        // Hand over Server IO File Handles to UDA Client library
 
-        UDA_LOG(UDA_LOG_DEBUG, "Handing over Server File Handles to IDAM Client\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Handing over Server File Handles to UDA Client\n");
 
         init = 1;
-        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
+        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
             return 0;
+        }
     }
 
     //----------------------------------------------------------------------------------------
@@ -185,7 +166,8 @@ int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION,
+                                  "Maximum Interface Version");
 }
 
 static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, char* oldServerHost, int* oldPort)
@@ -225,7 +207,7 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, char* oldServerH
 
     } OLD_CLIENT_BLOCK;
 
-   typedef struct OldDataBlock {
+    typedef struct OldDataBlock {
         int handle;
         int errcode;
         int source_status;
@@ -312,7 +294,7 @@ Notes: there are three pathways depending on the request pattern
     // Ensure Hierarchical Data are passed as an opaque object/file
     setIdamPrivateFlag(PRIVATEFLAG_XDRFILE);
 
-    // This fails if the legacy IDAM plugin is called by a server in the forward chain and it set marked a 'private'
+    // This fails if the legacy UDA plugin is called by a server in the forward chain and it set marked a 'private'
     // For IMAS development, this has been disabled
     //if(environment.external_user) setIdamPrivateFlag(PRIVATEFLAG_EXTERNAL);	// Maintain external user status
 
@@ -354,7 +336,7 @@ Notes: there are three pathways depending on the request pattern
     // Client authentication x509 certificate
 
     //----------------------------------------------------------------------
-    // Signal/Data Object & Data Source Details from the IDAM Database records
+    // Signal/Data Object & Data Source Details from the UDA Database records
 
     // Very primitive: Need to replicate fully the idamGetAPI arguments from the database
 
@@ -367,20 +349,20 @@ Notes: there are three pathways depending on the request pattern
         sprintf(source, "%s::%d", data_source->device_name, data_source->exp_number);
 
         if (data_source->server[0] != '\0') {
-            char* p = NULL, *s = NULL;
-            if((s = strstr(data_source->server, "SSL://")) != NULL){
-                 if ((p = strstr(s+6, ":")) == NULL) {
+            char* p = NULL, * s = NULL;
+            if ((s = strstr(data_source->server, "SSL://")) != NULL) {
+                if ((p = strstr(s + 6, ":")) == NULL) {
                     // look for a port number in the server name
-                    p = strstr(s+6, " ");
+                    p = strstr(s + 6, " ");
                 }
-             } else {
+            } else {
                 if ((p = strstr(data_source->server, ":")) == NULL) {
                     // look for a port number in the server name
                     p = strstr(data_source->server, " ");
                 }
-             } 
-          
-             if (p != NULL) {
+            }
+
+            if (p != NULL) {
                 p[0] = '\0';
                 if (strcasecmp(oldServerHost, data_source->server) != 0) {
                     strcpy(oldServerHost, data_source->server);
@@ -393,7 +375,8 @@ Notes: there are three pathways depending on the request pattern
                         *oldPort = newPort;
                     }
                 } else {
-                    THROW_ERROR(999, "The Server Port must be an Integer Number passed using the formats 'server:port' or 'server port'");
+                    THROW_ERROR(999,
+                                "The Server Port must be an Integer Number passed using the formats 'server:port' or 'server port'");
                 }
             } else {
                 if (strcasecmp(oldServerHost, data_source->server) != 0) {
@@ -421,15 +404,16 @@ Notes: there are three pathways depending on the request pattern
         // Device redirect or server protocol
 
         strcpy(request_block->server, request_block->path);        // Extract the Server Name and Port
-        char* p = NULL, *s=NULL;
-        
-        if((s = strstr(data_source->server, "SSL://")) != NULL){
-            if ((p = strchr(s+6, '/')) != NULL) {
+        char* p = NULL, * s = NULL;
+
+        if ((s = strstr(data_source->server, "SSL://")) != NULL) {
+            if ((p = strchr(s + 6, '/')) != NULL) {
                 // Isolate the Server from the source server:port/source
                 p[0] = '\0';                            // Break the String (work)
                 strcpy(source, p + 1);                // Extract the Source URL Argument
             } else {
-                THROW_ERROR(999, "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
+                THROW_ERROR(999,
+                            "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
             }
         } else {
             if ((p = strchr(request_block->server, '/')) != NULL) {
@@ -437,14 +421,15 @@ Notes: there are three pathways depending on the request pattern
                 p[0] = '\0';                            // Break the String (work)
                 strcpy(source, p + 1);                // Extract the Source URL Argument
             } else {
-                THROW_ERROR(999, "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
+                THROW_ERROR(999,
+                            "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
             }
         }
 
-        if((s = strstr(request_block->server, "SSL://")) != NULL){
-            if ((p = strstr(s+6, ":")) == NULL) {
+        if ((s = strstr(request_block->server, "SSL://")) != NULL) {
+            if ((p = strstr(s + 6, ":")) == NULL) {
                 // look for a port number in the server name skipping SSL:// prefix
-                p = strstr(s+6, " ");
+                p = strstr(s + 6, " ");
             }
         } else {
             if ((p = strstr(request_block->server, ":")) == NULL) {
@@ -466,7 +451,8 @@ Notes: there are three pathways depending on the request pattern
                     *oldPort = newPort;
                 }
             } else {
-                THROW_ERROR(999, "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server port'");
+                THROW_ERROR(999,
+                            "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server port'");
             }
         } else {
             if (strcasecmp(oldServerHost, request_block->server) != 0) {
@@ -534,12 +520,13 @@ Notes: there are three pathways depending on the request pattern
 
         strcpy(source, request_block->file);                // The Source URL Argument
 
-        char* p = NULL, *s=NULL;
+        char* p = NULL;
+        char* s = NULL;
 
-        if((s = strstr(request_block->server, "SSL://")) != NULL){
-            if ((p = strstr(s+6, ":")) == NULL) {
+        if ((s = strstr(request_block->server, "SSL://")) != NULL) {
+            if ((p = strstr(s + 6, ":")) == NULL) {
                 // look for a port number in the server name
-                p = strstr(s+6, " ");
+                p = strstr(s + 6, " ");
             }
         } else {
             if ((p = strstr(request_block->server, ":")) == NULL) {
@@ -562,7 +549,8 @@ Notes: there are three pathways depending on the request pattern
                     *oldPort = newPort;
                 }
             } else {
-                THROW_ERROR(999, "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server port'");
+                THROW_ERROR(999,
+                            "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server port'");
             }
         } else {
             // No port number passed
@@ -572,14 +560,13 @@ Notes: there are three pathways depending on the request pattern
             }
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", request_block->server);
-        UDA_LOG(UDA_LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
+        UDA_LOG(UDA_LOG_DEBUG, "UDA Server Host for UDA Plugin %s\n", request_block->server);
+        UDA_LOG(UDA_LOG_DEBUG, "UDA Server Port for UDA Plugin %d\n", newPort);
         UDA_LOG(UDA_LOG_DEBUG, "Calling idamGetAPI API (Server protocol based Request)\n");
         UDA_LOG(UDA_LOG_DEBUG, "Signal: %s\n", request_block->signal);
         UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", source);
 
         handle = idamGetAPI(request_block->signal, source);
-
     }
 
     resetIdamPrivateFlag(PRIVATEFLAG_FULLRESET);
@@ -588,7 +575,8 @@ Notes: there are three pathways depending on the request pattern
     //----------------------------------------------------------------------
     // Test for Errors: Close Socket and Free heap
 
-    UDA_LOG(UDA_LOG_DEBUG, "Returned from idamGetAPI API: handle = %d, error code = %d\n", handle, getIdamErrorCode(handle));
+    UDA_LOG(UDA_LOG_DEBUG, "Returned from idamGetAPI API: handle = %d, error code = %d\n", handle,
+            getIdamErrorCode(handle));
 
     if (handle < 0) {
         THROW_ERROR(abs(handle), getIdamServerErrorStackRecordMsg(0));
@@ -693,8 +681,8 @@ Notes: there are three pathways depending on the request pattern
     // 	Relay everything from the external server back to the client without interpretation.
     //
     // Namespace issues: Both the Client and the Server use the same functions to Query. The PRE_LOAD requirement of MDS+
-    // causes the IDAM client library to be loaded ahead of the server library: Result confusion and seg fault errors.
-    // Need to add unique name component to IDAM client server to provide namespace separation.
+    // causes the UDA client library to be loaded ahead of the server library: Result confusion and seg fault errors.
+    // Need to add unique name component to UDA client server to provide namespace separation.
     // Prepare a reduced set of external symbols for the client library attached to the server!
 
     // Structured data are best served as serialised objects - no messy heap logs to free
