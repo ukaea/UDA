@@ -68,9 +68,9 @@ ENVIRONMENT* getIdamClientEnvironment()
         return &udaEnviron;
     }
 
-//--- Read Standard Set of Environment Variables ------------------------------------
+    //--- Read Standard Set of Environment Variables ------------------------------------
 
-// Log Output
+    // Log Output
 
     if ((env = getenv("UDA_LOG")) != NULL) {
         strcpy(udaEnviron.logdir, env);
@@ -83,7 +83,13 @@ ENVIRONMENT* getIdamClientEnvironment()
 #endif
     }
 
-// Log Output Write Mode
+    if (udaEnviron.loglevel <= UDA_LOG_ACCESS) {
+        char cmd[STRING_LENGTH];
+        sprintf(cmd, "mkdir -p %s 2>/dev/null", udaEnviron.logdir);
+        system(cmd);
+    }
+    
+    // Log Output Write Mode
 
     strcpy(udaEnviron.logmode, "w");                    // Write & Replace Mode
     if ((env = getenv("UDA_LOG_MODE")) != NULL) {
@@ -101,7 +107,7 @@ ENVIRONMENT* getIdamClientEnvironment()
         else if (strncmp(env, "INFO", 4) == 0)   udaEnviron.loglevel = UDA_LOG_INFO;
     }
 
-// IDAM Server Host Name
+// UDA Server Host Name
 
     if (env_host) {                            // Check Not already set by User
         if ((env = getenv("UDA_HOST")) != NULL) {
@@ -118,7 +124,7 @@ ENVIRONMENT* getIdamClientEnvironment()
         env_host = 0;
     }
 
-// IDAM Server Port name
+// UDA Server Port name
 
     if (env_port) {
         if ((env = getenv("UDA_PORT")) != NULL) {
@@ -134,7 +140,7 @@ ENVIRONMENT* getIdamClientEnvironment()
         env_port = 0;
     }
 
-// IDAM Reconnect Status
+// UDA Reconnect Status
 
     udaEnviron.server_reconnect = 0;    // No reconnection needed at startup!
     udaEnviron.server_socket = -1;    // No Socket open at startup
@@ -188,7 +194,7 @@ ENVIRONMENT* getIdamClientEnvironment()
 #endif
 
 //-------------------------------------------------------------------------------------------
-// IDAM Proxy Host: redirect ALL requests
+// UDA Proxy Host: redirect ALL requests
 
 #ifdef FATCLIENT
 #  ifdef PROXYSERVER
@@ -224,22 +230,22 @@ ENVIRONMENT* getIdamClientEnvironment()
 
 #ifndef NOTGENERICENABLED
 
-// IDAM SQL Server Host Name
+// UDA SQL Server Host Name
 
     strcpy(udaEnviron.sql_host, SQL_HOST); // Default, e.g. fuslwn
     if ((env = getenv("UDA_SQLHOST")) != NULL) strcpy(udaEnviron.sql_host, env);
 
-// IDAM SQL Server Port name
+// UDA SQL Server Port name
 
     udaEnviron.sql_port = (int) SQL_PORT; // Default, e.g. 56566
     if ((env = getenv("UDA_SQLPORT")) != NULL) udaEnviron.sql_port = atoi(env);
 
-// IDAM SQL Database name
+// UDA SQL Database name
 
     strcpy(udaEnviron.sql_dbname, SQL_DBNAME); // Default, e.g. idam
     if ((env = getenv("UDA_SQLDBNAME")) != NULL) strcpy(udaEnviron.sql_dbname, env);
 
-// IDAM SQL Access username
+// UDA SQL Access username
 
     strcpy(udaEnviron.sql_user, SQL_USER); // Default, e.g. mast_db
     if ((env = getenv("UDA_SQLUSER")) != NULL) strcpy(udaEnviron.sql_user, env);
