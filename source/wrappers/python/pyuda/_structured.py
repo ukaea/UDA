@@ -1,6 +1,6 @@
 from __future__ import (division, print_function, absolute_import)
 
-from ._utils import (cdata_scalar_to_value, cdata_vector_to_value)
+from ._utils import (cdata_scalar_to_value, cdata_vector_to_value, cdata_array_to_value)
 from ._data import Data
 
 import json
@@ -67,6 +67,10 @@ class StructuredData(Data):
                 scalar = self._cnode.atomicScalar(name)
                 if not scalar.isNull():
                     value = cdata_scalar_to_value(scalar)
+                else:
+                    array = self._cnode.atomicArray(name)
+                    if not array.isNull():
+                        value = cdata_array_to_value(array)
             # if types[i] == 'STRING *' and (ranks[i] == 1 or ptrs[i]):
             #     vector = self._cnode.atomicVector(name)
             #     if not vector.isNull():
