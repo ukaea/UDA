@@ -15,14 +15,18 @@
 
 #ifdef __GNUC__
 #  ifndef _WIN32
+
 #    include <sys/socket.h>
 #    include <netinet/in.h>
 #    include <arpa/inet.h>
 #    include <netdb.h>
 #    include <netinet/tcp.h>
+
 #  endif
+
 #  include <unistd.h>
 #  include <strings.h>
+
 #else
 #  include <process.h>
 #  include <ws2tcpip.h>
@@ -45,7 +49,7 @@
 #  include <authentication/udaSSL.h>
 #endif
 
-#define PORT_STRING	64
+#define PORT_STRING    64
 
 static int clientSocket = -1;
 static SOCKETLIST client_socketlist;   // List of open sockets
@@ -117,31 +121,25 @@ int reconnect(ENVIRONMENT* environment)
     return err;
 }
 
-void localhostInfo(int *ai_family)
+void localhostInfo(int* ai_family)
 {
-   char addr_buf[64];
-   struct addrinfo *info = NULL, *result=NULL;
-   getaddrinfo("localhost", NULL, NULL, &info);
-   result = info;	// Take the first linked list member
-   //for(result = info; result != NULL; result = result->ai_next)
-   //{   
-       if ( result->ai_family == AF_INET )
-       {
-          *ai_family = AF_INET;
-	  inet_ntop(AF_INET, &((struct sockaddr_in *)result->ai_addr)->sin_addr, addr_buf, sizeof(addr_buf));
-          UDA_LOG(UDA_LOG_DEBUG, "localhost Information: IPv4 - %s\n", addr_buf);
-       }
-       else
-       {
-          *ai_family = AF_INET6;
-          inet_ntop(AF_INET6, &((struct sockaddr_in6 *)result->ai_addr)->sin6_addr, addr_buf, sizeof(addr_buf));
-          UDA_LOG(UDA_LOG_DEBUG, "localhost Information: IPv6 - %s\n", addr_buf);
-       }
-   //}
-   if(info) freeaddrinfo(info); 
+    char addr_buf[64];
+    struct addrinfo* info = NULL, * result = NULL;
+    getaddrinfo("localhost", NULL, NULL, &info);
+    result = info;    // Take the first linked list member
+    if (result->ai_family == AF_INET) {
+        *ai_family = AF_INET;
+        inet_ntop(AF_INET, &((struct sockaddr_in*)result->ai_addr)->sin_addr, addr_buf, sizeof(addr_buf));
+        UDA_LOG(UDA_LOG_DEBUG, "localhost Information: IPv4 - %s\n", addr_buf);
+    } else {
+        *ai_family = AF_INET6;
+        inet_ntop(AF_INET6, &((struct sockaddr_in6*)result->ai_addr)->sin6_addr, addr_buf, sizeof(addr_buf));
+        UDA_LOG(UDA_LOG_DEBUG, "localhost Information: IPv6 - %s\n", addr_buf);
+    }
+    if (info) freeaddrinfo(info);
 }
 
-void setHints(struct addrinfo *hints, const char* hostname)
+void setHints(struct addrinfo* hints, const char* hostname)
 {
     hints->ai_family = AF_UNSPEC;
     hints->ai_socktype = SOCK_STREAM;
@@ -150,48 +148,48 @@ void setHints(struct addrinfo *hints, const char* hostname)
     hints->ai_canonname = NULL;
     hints->ai_addr = NULL;
     hints->ai_next = NULL;
-    
+
     // Localhost? Which IP family? (AF_UNSPEC gives an 'Unknown Error'!)
-    
-    if(!strcmp(hostname, "localhost")) localhostInfo(&hints->ai_family);
-    
+
+    if (!strcmp(hostname, "localhost")) localhostInfo(&hints->ai_family);
+
     // Is the address Numeric? Is it IPv6?
-    
-    if (strchr(hostname,':')){		// Appended port number should have been stripped off
-        hints->ai_family = AF_INET6 ;
+
+    if (strchr(hostname, ':')) {        // Appended port number should have been stripped off
+        hints->ai_family = AF_INET6;
         hints->ai_flags = hints->ai_flags | AI_NUMERICHOST;
     } else {
         // How many '.' characters?
-	char *p, *w = (char *)hostname;
-	int lcount = 0, count = 1;
-	while((p = strchr(w, '.')) != NULL){
-	    w = &p[1];
-	    count++;
-	}
-	if(count == 1) return;
-	
-	// make a list of address components
-	char **list = (char **)malloc(count*sizeof(char *));
-	char *work = strdup(hostname);
-	w = work;
-	while((p = strchr(w, '.')) != NULL && lcount < count){
-	    p[0] = '\0';
-	    list[lcount++] = strdup(w);
-	    w = &p[1];
-	}
-	list[lcount++] = strdup(w);
-	
-	// Are all address components numeric?
-	int i, isNumeric=1;
-	for (i=0;i<lcount;i++){
-	   int j, lstr=strlen(list[i]);
-	   for (j=0; j<lstr; j++) isNumeric = isNumeric & (list[i][j] >= '0' && list[i][j] <= '9');
-	}
-	free(work);
-	for (i=0;i<lcount;i++) free(list[i]);
-	free(list);
-	
-	if(isNumeric) hints->ai_flags = hints->ai_flags | AI_NUMERICHOST; 
+        char* p, * w = (char*)hostname;
+        int lcount = 0, count = 1;
+        while ((p = strchr(w, '.')) != NULL) {
+            w = &p[1];
+            count++;
+        }
+        if (count == 1) return;
+
+        // make a list of address components
+        char** list = (char**)malloc(count * sizeof(char*));
+        char* work = strdup(hostname);
+        w = work;
+        while ((p = strchr(w, '.')) != NULL && lcount < count) {
+            p[0] = '\0';
+            list[lcount++] = strdup(w);
+            w = &p[1];
+        }
+        list[lcount++] = strdup(w);
+
+        // Are all address components numeric?
+        int i, isNumeric = 1;
+        for (i = 0; i < lcount; i++) {
+            int j, lstr = strlen(list[i]);
+            for (j = 0; j < lstr; j++) isNumeric = isNumeric & (list[i][j] >= '0' && list[i][j] <= '9');
+        }
+        free(work);
+        for (i = 0; i < lcount; i++) free(list[i]);
+        free(list);
+
+        if (isNumeric) hints->ai_flags = hints->ai_flags | AI_NUMERICHOST;
     }
 }
 
@@ -224,22 +222,23 @@ int createConnection()
     ENVIRONMENT* environment = getIdamClientEnvironment();
 
     if (clientSocket >= 0) {
-        return 0;                // Check Already Opened?
+        // Check Already Opened?
+        return 0;
     }
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-	putUdaClientSSLSocket(clientSocket);
+    putUdaClientSSLSocket(clientSocket);
 #endif
 
 #ifdef _WIN32                            // Initialise WINSOCK Once only
-	static unsigned int	initWinsock = 0;
-	WORD sockVersion;
-	WSADATA wsaData;
-	if (!initWinsock) {
-		sockVersion = MAKEWORD(2, 2);				// Select Winsock version 2.2
-		WSAStartup(sockVersion, &wsaData);
-		initWinsock = 1;
-	}
+    static unsigned int	initWinsock = 0;
+    WORD sockVersion;
+    WSADATA wsaData;
+    if (!initWinsock) {
+        sockVersion = MAKEWORD(2, 2);				// Select Winsock version 2.2
+        WSAStartup(sockVersion, &wsaData);
+        initWinsock = 1;
+    }
 #endif
 
 
@@ -267,8 +266,9 @@ int createConnection()
         // No alias found, maybe the domain name or ip address is listed
         int port = udaClientGetHostPort(hostId);
         if (port > 0 && environment->server_port != port) {
+            // Replace if found and different
             environment->server_port = port;
-        }                // Replace if found and different
+        }
     }
     udaClientPutHostNameId(hostId);
     sprintf(serviceport, "%d", environment->server_port);
@@ -289,26 +289,27 @@ int createConnection()
 #endif
 
     // Resolve the Host and the IP protocol to be used (Hints not used)
-    
-    struct addrinfo *result = NULL;
-    struct addrinfo hints = {0};
+
+    struct addrinfo* result = NULL;
+    struct addrinfo hints = { 0 };
     setHints(&hints, hostname);
-    
-    errno = 0;
-    if((rc = getaddrinfo(hostname, serviceport, &hints, &result)) != 0 || errno != 0){
-       addIdamError(SYSTEMERRORTYPE, __func__, rc, (char *)gai_strerror(rc));
-       if (rc == EAI_SYSTEM || errno != 0) addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
-       if (result) freeaddrinfo(result);
-       return -1;
-    }
-    
-    if ( result->ai_family == AF_INET )
-       UDA_LOG(UDA_LOG_DEBUG, "Socket Connection is IPv4\n");
-    else
-       UDA_LOG(UDA_LOG_DEBUG, "Socket Connection is IPv6\n");
 
     errno = 0;
-    clientSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);   
+    if ((rc = getaddrinfo(hostname, serviceport, &hints, &result)) != 0 || errno != 0) {
+        addIdamError(SYSTEMERRORTYPE, __func__, rc, (char*)gai_strerror(rc));
+        if (rc == EAI_SYSTEM || errno != 0) addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
+        if (result) freeaddrinfo(result);
+        return -1;
+    }
+
+    if (result->ai_family == AF_INET) {
+        UDA_LOG(UDA_LOG_DEBUG, "Socket Connection is IPv4\n");
+    } else {
+        UDA_LOG(UDA_LOG_DEBUG, "Socket Connection is IPv6\n");
+    }
+
+    errno = 0;
+    clientSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 
     if (clientSocket < 0 || errno != 0) {
         if (errno != 0) {
@@ -316,22 +317,24 @@ int createConnection()
         } else {
             addIdamError(CODEERRORTYPE, __func__, -1, "Problem Opening Socket");
         }
-	if (clientSocket != -1)
+        if (clientSocket != -1)
 #ifndef _WIN32
+        {
             close(clientSocket);
+        }
 #else
-            closesocket(clientSocket);
-#endif	 
+        closesocket(clientSocket);
+#endif
         clientSocket = -1;
-	freeaddrinfo(result);
+        freeaddrinfo(result);
         return -1;
     }
 
     // Connect to server
-    
+
     errno = 0;
     while ((rc = connect(clientSocket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
-    
+
     if (rc < 0 || (errno != 0 && errno != EINTR)) {
 
         // Try again for a maximum number of tries with a random time delay between attempts
@@ -339,36 +342,38 @@ int createConnection()
         int i, ps;
         ps = getpid();
         srand((unsigned int)ps);                                                // Seed the random number generator with the process id
-        unsigned int delay = max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0;         // random delay
+        unsigned int delay =
+                max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0;         // random delay
         sleep(delay);
-	    errno = 0;                                                           // wait period
+        errno = 0;                                                           // wait period
         for (i = 0; i < max_socket_attempts; i++) {                             // try again
             while ((rc = connect(clientSocket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
 
-            if (rc == 0 && errno == 0)  break;
+            if (rc == 0 && errno == 0) break;
 
             delay = max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0;
             sleep(delay);                            // wait period
         }
-	
-	    if(rc != 0 || errno != 0){
+
+        if (rc != 0 || errno != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Connect errno = %d\n", errno);
             UDA_LOG(UDA_LOG_DEBUG, "Connect rc = %d\n", rc);
             UDA_LOG(UDA_LOG_DEBUG, "Unable to connect to primary host: %s on port %s\n", hostname, serviceport);
- 	    }
+        }
 
         // Abandon the principal Host - attempt to connect to the secondary host
-        if (rc < 0 && strcmp(environment->server_host, environment->server_host2) != 0 && strlen(environment->server_host2) > 0) {
-	    
-	        freeaddrinfo(result);
-	        result = NULL;
+        if (rc < 0 && strcmp(environment->server_host, environment->server_host2) != 0 &&
+            strlen(environment->server_host2) > 0) {
+
+            freeaddrinfo(result);
+            result = NULL;
 #ifndef _WIN32
             close(clientSocket);
 #else
             closesocket(clientSocket);
-#endif	 
+#endif
             clientSocket = -1;
-	        udaClientPutHostNameId(-1);
+            udaClientPutHostNameId(-1);
             hostname = environment->server_host2;
 
             // Check if the hostname is an alias for an IP address or name in the client configuration - replace if found
@@ -376,7 +381,8 @@ int createConnection()
             int hostId = udaClientFindHostByAlias(hostname);
             if (hostId >= 0) {
                 if ((hostname = udaClientGetHostName(hostId)) == NULL) {
-                    addIdamError(CODEERRORTYPE, __func__, -1, "The hostname2 is not recognised for the host alias provided!");
+                    addIdamError(CODEERRORTYPE, __func__, -1,
+                                 "The hostname2 is not recognised for the host alias provided!");
                     return -1;
                 }
                 if (strcasecmp(environment->server_host2, hostname) != 0) {
@@ -392,7 +398,7 @@ int createConnection()
                     environment->server_port2 = port;
                 }
             }
-	        udaClientPutHostNameId(hostId);
+            udaClientPutHostNameId(hostId);
             sprintf(serviceport, "%d", environment->server_port2);
 
             // Does the host name contain the SSL protocol prefix? If so strip this off
@@ -412,17 +418,17 @@ int createConnection()
 
             // Resolve the Host and the IP protocol to be used (Hints not used)
 
-	        setHints(&hints, hostname);
+            setHints(&hints, hostname);
 
             errno = 0;
             if ((rc = getaddrinfo(hostname, serviceport, &hints, &result)) != 0 || errno != 0) {
-               addIdamError(SYSTEMERRORTYPE, __func__, rc, (char *)gai_strerror(rc));
-               if (rc == EAI_SYSTEM || errno != 0) addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
-	           if (result) freeaddrinfo(result);
-               return -1;
+                addIdamError(SYSTEMERRORTYPE, __func__, rc, (char*)gai_strerror(rc));
+                if (rc == EAI_SYSTEM || errno != 0) addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
+                if (result) freeaddrinfo(result);
+                return -1;
             }
             errno = 0;
-            clientSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);   
+            clientSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 
             if (clientSocket < 0 || errno != 0) {
                 if (errno != 0) {
@@ -432,12 +438,14 @@ int createConnection()
                 }
                 if (clientSocket != -1)
 #ifndef _WIN32
+                {
                     close(clientSocket);
+                }
 #else
-                    closesocket(clientSocket);
-#endif	 
-	            clientSocket = -1;
-	            freeaddrinfo(result);
+                closesocket(clientSocket);
+#endif
+                clientSocket = -1;
+                freeaddrinfo(result);
                 return -1;
             }
 
@@ -447,7 +455,7 @@ int createConnection()
                     int port = environment->server_port2;                // Swap data so that accessor function reports correctly
                     environment->server_port2 = environment->server_port;
                     environment->server_port = port;
-                    char *name = (char*)malloc((strlen(environment->server_host2) + 1) * sizeof(char));
+                    char* name = (char*)malloc((strlen(environment->server_host2) + 1) * sizeof(char));
                     strcpy(name, environment->server_host2);
                     strcpy(environment->server_host2, environment->server_host);
                     strcpy(environment->server_host, name);
@@ -467,17 +475,19 @@ int createConnection()
             }
             if (clientSocket != -1)
 #ifndef _WIN32
+            {
                 close(clientSocket);
+            }
 #else
-                closesocket(clientSocket);
-#endif	 
-	        clientSocket = -1;
-	        if(result) freeaddrinfo(result);
+            closesocket(clientSocket);
+#endif
+            clientSocket = -1;
+            if (result) freeaddrinfo(result);
             return -1;
         }
     }
-    
-    if(result) freeaddrinfo(result);
+
+    if (result) freeaddrinfo(result);
 
     // Set the receive and send buffer sizes
 
@@ -552,7 +562,8 @@ int clientWriteout(void* iohandle, char* buf, int count)
         if (errno == ECONNRESET || errno == ENETUNREACH || errno == ECONNREFUSED) {
             if (errno == ECONNRESET) {
                 UDA_LOG(UDA_LOG_DEBUG, "ECONNRESET error!\n");
-                addIdamError(CODEERRORTYPE, __func__, -2, "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
+                addIdamError(CODEERRORTYPE, __func__, -2,
+                             "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
                 return -2;
             } else {
                 if (errno == ENETUNREACH) {

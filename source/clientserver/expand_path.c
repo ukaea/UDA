@@ -2,8 +2,8 @@
 /*! Expand/Resolve the Path/File Name to its Full Form, including link resolution.
 
  Environment Variables:
-				IDAM_SCRATCHNAME
-				IDAM_NETWORKNAME
+				UDA_SCRATCHNAME
+				UDA_NETWORKNAME
 				HOSTNAME
  Macros
 				SCRATCHDIR
@@ -178,9 +178,9 @@ Examples:	/.automount/funsrv1/root/home/xyz -> /net/funsrv1/home/xyz
 		/.automount/fuslsd/root/data/MAST_Data/013/13500/Pass0/amc0135.00 -> /net/fuslsd/data/MAST_Data/013/13500/Pass0/amc0135.00
 		/scratch/mydata -> /net/hostname/scratch/mydata
 
-A list of Target path components is read from the environment variable IDAM_PRIVATE_PATH_TARGET. The delimiter between
+A list of Target path components is read from the environment variable UDA_PRIVATE_PATH_TARGET. The delimiter between
 components is , or : or ;.
-A matching list of substitutes path components is read from the environment variable IDAM_PRIVATE_PATH_SUBSTITUTE.
+A matching list of substitutes path components is read from the environment variable UDA_PRIVATE_PATH_SUBSTITUTE.
 
 A maximum number of 10 substitutes is allowed.
 
@@ -205,7 +205,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
 //----------------------------------------------------------------------------------------------
 // Does the Path contain hierarchical components not seen by the server? If so make a substitution.
 //
-// This replacement also occurs on the IDAM server
+// This replacement also occurs on the UDA server
 //
 // pattern:	/A/B/C;/D/E/F -> /A/C;/E
 // use multiple wild card characters '*' for 'any' target path element name
@@ -511,8 +511,8 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     size_t lscratch;
     int t1, t2, t3, t4, t5, t6;
 
-//------------------------------------------------------------------------------------------------------------------
-// Test for possible imbedded linux command
+    //------------------------------------------------------------------------------------------------------------------
+    // Test for possible imbedded linux command
 
     if (!IsLegalFilePath(path)) {
         err = 999;
@@ -520,19 +520,19 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
         return err;
     }
 
-//------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
     /*! Workstations have local hard drives that may also be mounted on the user's network. If this local disk is accessible
-    by the IDAM server it's name needs to be expanded using additional information. As all similar workstations on the network might use
+    by the UDA server it's name needs to be expanded using additional information. As all similar workstations on the network might use
     the same name for the local disk area, the host name is used to uniquely identify where the disk is on the network.
 
     The name model adopted to expand directory paths to local disk drives is: /local -> /NETNAME/HOSTNAME/local
 
-    NETNAME is defined by the environment variable IDAM_NETWORKNAME
+    NETNAME is defined by the environment variable UDA_NETWORKNAME
 
     The hostname of the local workstation is obtained directly from the operating system. If this fails, it can be included
-    directly in the IDAM_NETWORKNAME environment variable.
+    directly in the UDA_NETWORKNAME environment variable.
 
-    The local disk directory, e.g. /scratch or /tmp, is targeted using the name defined by the environment variable IDAM_SCRATCHNAME
+    The local disk directory, e.g. /scratch or /tmp, is targeted using the name defined by the environment variable UDA_SCRATCHNAME
 
     Only ONE local drive can be targeted using the environment variable (current set up could be expanded to use a list). The path
     replacement function could be used to target other local directories.
@@ -552,7 +552,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     netname[0] = '\0';
 #endif
 
-// Override compiler options
+    // Override compiler options
 
     if ((env = getenv("UDA_SCRATCHNAME")) != NULL) {    // Check for Environment Variable
         sprintf(scratch, "/%s/", env);
@@ -563,15 +563,14 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
         strcpy(netname, env);
     }
 
-
-//------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
     /*! File Path names are only resolved if they contain relative path elements, environment variables, or
      references to a local scratch disk, e.g., ./ ../ ~ $ /scratch
     */
 
     if ((lpath = (int) strlen(path)) == 0) return 0;        // Nothing to resolve
 
-// Test for necessary expansion
+    // Test for necessary expansion
 
     t1 = strstr(path, "./") == NULL;            // relative path?
     t2 = strstr(path, "../") == NULL;            // relative path?
@@ -582,7 +581,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
     if (t1 && t2 && t3 && t4 && t5 && t6) return 0;    // No Relative path name elements found
 
-//------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
     /*! The path argument has been stripped of any format or protocol prefix. If another prefix is within the path, this
     indicates the source is server to server. Therefore, the main source element is a URL and is not expanded.
 
@@ -601,8 +600,8 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     if(t7 || t8 || t9) return 0;					// Server host, protocol, and server side functions
 #endif
 
-//------------------------------------------------------------------------------------------------------------------
-// Test if the Path begins with an Integer or /Integer => Resolved by the Server Data Plugin
+    //------------------------------------------------------------------------------------------------------------------
+    // Test if the Path begins with an Integer or /Integer => Resolved by the Server Data Plugin
 
     if (path[0] == '/') {
         strcpy(work, path + 1);                // the leading character is a / so ignore
@@ -614,8 +613,8 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
     if (token != NULL) if (IsNumber(token)) return 0;    // Is the First token an integer number?
 
-//------------------------------------------------------------------------------------------------------------------
-//! Identify the Current Working Directory
+    //------------------------------------------------------------------------------------------------------------------
+    //! Identify the Current Working Directory
 
     if (!t1 || !t2 || !t3 || !t4 || !t5) {
 
@@ -641,7 +640,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         strcpy(ocwd, cwd);
 
-//! Does the path NOT contain a path directory separator character => filename only so prepend the CWD and return
+        //! Does the path NOT contain a path directory separator character => filename only so prepend the CWD and return
 
         if ((fp = strrchr(path, '/')) == NULL) {        // Search backwards - extract filename
             strcpy(work1, path);
@@ -656,7 +655,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
         strcpy(file, &fp[1]);                // Filename
         fp[1] = '\0';                    // Split the path string: path now contains directory only
 
-//! Does the Path contain with an Environment variable (Not resolved by the function chdir!)
+        //! Does the Path contain with an Environment variable (Not resolved by the function chdir!)
 
         fp = NULL;
         lpath = (int) strlen(path);
@@ -707,12 +706,11 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
             }
         }
 
-
-        /*! Change to the File's Directory (will resolve relative path elements ~/./../$envVariable/ as well as links)
-
-        If an error occurs, either the directory doesn't exist or the path is not a file path!
-        If the path contains an environment variable, then resolved server side
-        */
+        /* Change to the File's Directory (will resolve relative path elements ~/./../$envVariable/ as well as links)
+         *
+         * If an error occurs, either the directory doesn't exist or the path is not a file path!
+         * If the path contains an environment variable, then resolved server side
+         */
 
         if (chdir(path) != 0) {
             chdir(ocwd);            // Ensure the Original WD
@@ -722,7 +720,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
             return 0;
         }
 
-//! The Current Working Directory is the resolved directory name
+        //! The Current Working Directory is the resolved directory name
 
         errno = 0;
 
@@ -730,10 +728,8 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         if (errno != 0) {
             err = 998;
-            addIdamError(SYSTEMERRORTYPE, "expand_path", errno,
-                         "Cannot resolve the Current Working Directory!");
-            addIdamError(CODEERRORTYPE, "expand_path", err,
-                         "Unable to resolve full file names.");
+            addIdamError(SYSTEMERRORTYPE, "expand_path", errno, "Cannot resolve the Current Working Directory!");
+            addIdamError(CODEERRORTYPE, "expand_path", err, "Unable to resolve full file names.");
             return err;
         }
 
@@ -746,31 +742,29 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         strcpy(work1, cwd);
 
-//! Return to the Original Working Directory
+        //! Return to the Original Working Directory
 
         if ((err = chdir(ocwd)) != 0) {
             err = 999;
-            addIdamError(SYSTEMERRORTYPE, "expand_path", errno,
-                         "Unable to Return to the Working Directory!");
-            addIdamError(CODEERRORTYPE, "expand_path", err,
-                         "Unable to resolve full file names.");
+            addIdamError(SYSTEMERRORTYPE, "expand_path", errno, "Unable to Return to the Working Directory!");
+            addIdamError(CODEERRORTYPE, "expand_path", err, "Unable to resolve full file names.");
             return err;
         }
 
-//! Prepend the expanded/resolved directory name to the File Name
+        //! Prepend the expanded/resolved directory name to the File Name
 
         sprintf(path, "%s/%s", work1, file);        // Prepend the path to the filename
 
     }    // End of t1 - t5 tests
 
 
-//----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
     /*! Symbolic Links might not be visible by the server: Pass the true location
     */
 
     if ((err = linkReplacement(path)) != 0) return err;
 
-//----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
     /*! Does the path contain the client workstation's local Scratch directory (Must be visible by the server)
 
      Model:	/scratch/a/b/c -> /hostname/scratch/a/b/c			(default)
@@ -808,7 +802,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
 #endif
 
-//----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
     /*! Does the Path to a user's Private Files contain network components not seen by the server?
     If so, target these and make a suitable substitution to resolve path problems.
     */

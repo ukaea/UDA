@@ -1,5 +1,5 @@
-#ifndef UDA_CLIENT_IDAMAPI_H
-#define UDA_CLIENT_IDAMAPI_H
+#ifndef UDA_CLIENT_UDAGETAPI_H
+#define UDA_CLIENT_UDAGETAPI_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,5 +15,5 @@ int idamGetAPI(const char *data_object, const char *data_source);
 }
 #endif
 
-#endif // UDA_CLIENT_IDAMAPI_H
+#endif // UDA_CLIENT_UDAGETAPI_H
 

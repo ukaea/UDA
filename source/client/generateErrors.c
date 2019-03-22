@@ -31,7 +31,6 @@
 int idamErrorModel(int model, int param_n, float* params, int data_n, float* data, int* asymmetry, float* errhi,
                    float* errlo)
 {
-
     int i;
 
     *asymmetry = 0;        // No Error Asymmetry for most models
@@ -64,7 +63,6 @@ int idamErrorModel(int model, int param_n, float* params, int data_n, float* dat
 
     return 0;
 }
-
 
 //--------------------------------------------------------------------------------------------------------------
 // Generate Synthetic Data using Random Number generators * PDFs
@@ -122,10 +120,8 @@ int idamSyntheticModel(int model, int param_n, float* params, int data_n, float*
 #endif
 }
 
-
 int generateIdamSyntheticData(int handle)
 {
-
     int i, err = 0;
 
     float* fp, * data;
@@ -227,8 +223,8 @@ int generateIdamSyntheticData(int handle)
             return 0;
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Generate Synthetic Data
+    //--------------------------------------------------------------------------------------------------------------
+    // Generate Synthetic Data
 
     err = idamSyntheticModel(model, param_n, params, getIdamDataNum(handle), data);
 
@@ -239,8 +235,8 @@ int generateIdamSyntheticData(int handle)
         return err;
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Return the Synthetic Data
+    //--------------------------------------------------------------------------------------------------------------
+    // Return the Synthetic Data
 
     if (acc_getSyntheticData(handle) == NULL) {
         if ((err = allocArray(getIdamDataType(handle), getIdamDataNum(handle), &synthetic))) {
@@ -316,8 +312,8 @@ int generateIdamSyntheticData(int handle)
 
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Housekeeping
+    //--------------------------------------------------------------------------------------------------------------
+    // Housekeeping
 
     free((void*)data);
 
@@ -326,7 +322,6 @@ int generateIdamSyntheticData(int handle)
 
 int generateIdamSyntheticDimData(int handle, int ndim)
 {
-
     int i, err = 0;
 
     float* fp, * data;
@@ -338,8 +333,8 @@ int generateIdamSyntheticDimData(int handle, int ndim)
 
     char* synthetic = NULL;
 
-//--------------------------------------------------------------------------------------------------------------
-// Check the handle and model are ok
+    //--------------------------------------------------------------------------------------------------------------
+    // Check the handle and model are ok
 
     if (getIdamData(handle) == NULL) return 0;            // No Data Block available
 
@@ -355,8 +350,8 @@ int generateIdamSyntheticDimData(int handle, int ndim)
 
     if (getIdamDimNum(handle, ndim) <= 0) return 0;
 
-//--------------------------------------------------------------------------------------------------------------
-// Allocate local float work arrays and copy the data array to the work array
+    //--------------------------------------------------------------------------------------------------------------
+    // Allocate local float work arrays and copy the data array to the work array
 
     if (getIdamDataType(handle) == UDA_TYPE_DCOMPLEX || getIdamDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
@@ -433,8 +428,8 @@ int generateIdamSyntheticDimData(int handle, int ndim)
             return 0;
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Generate Model Data
+    //--------------------------------------------------------------------------------------------------------------
+    // Generate Model Data
 
     err = idamSyntheticModel(model, param_n, params, getIdamDimNum(handle, ndim), data);
 
@@ -445,8 +440,8 @@ int generateIdamSyntheticDimData(int handle, int ndim)
         return err;
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Return the Synthetic Data
+    //--------------------------------------------------------------------------------------------------------------
+    // Return the Synthetic Data
 
     if (acc_getSyntheticDimData(handle, ndim) == NULL) {
         if ((err = allocArray(getIdamDimType(handle, ndim), getIdamDimNum(handle, ndim), &synthetic))) {
@@ -517,8 +512,8 @@ int generateIdamSyntheticDimData(int handle, int ndim)
         }
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Housekeeping
+    //--------------------------------------------------------------------------------------------------------------
+    // Housekeeping
 
     free((void*)data);
 
@@ -527,7 +522,6 @@ int generateIdamSyntheticDimData(int handle, int ndim)
 
 int generateIdamDataError(int handle)
 {
-
     int i, err = 0, asymmetry = 0;
 
     float* fp, * feh, * fel, * data;
@@ -540,8 +534,8 @@ int generateIdamDataError(int handle)
 
     char* perrlo = NULL;
 
-//--------------------------------------------------------------------------------------------------------------
-// Check the handle and model are ok
+    //--------------------------------------------------------------------------------------------------------------
+    // Check the handle and model are ok
 
     if (getIdamData(handle) == NULL) return 0;            // No Data Block available
 
@@ -555,8 +549,8 @@ int generateIdamDataError(int handle)
 
     if (getIdamDataNum(handle) <= 0) return 0;
 
-//--------------------------------------------------------------------------------------------------------------
-// Allocate local float work arrays and copy the data array to the work array
+    //--------------------------------------------------------------------------------------------------------------
+    // Allocate local float work arrays and copy the data array to the work array
 
     if (getIdamDataType(handle) == UDA_TYPE_DCOMPLEX || getIdamDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
@@ -633,8 +627,8 @@ int generateIdamDataError(int handle)
             return 0;
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Generate Error Data
+    //--------------------------------------------------------------------------------------------------------------
+    // Generate Error Data
 
     err = idamErrorModel(model, param_n, params, getIdamDataNum(handle), data, &asymmetry, (float*)errhi,
                          (float*)errlo);
@@ -646,8 +640,8 @@ int generateIdamDataError(int handle)
         return err;
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Return the Error Array
+    //--------------------------------------------------------------------------------------------------------------
+    // Return the Error Array
 
     acc_setIdamDataErrType(handle, getIdamDataType(handle));
     acc_setIdamDataErrAsymmetry(handle, asymmetry);
@@ -765,8 +759,8 @@ int generateIdamDataError(int handle)
 
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Housekeeping
+    //--------------------------------------------------------------------------------------------------------------
+    // Housekeeping
 
     free((void*)data);
     free((void*)errhi);
@@ -774,7 +768,6 @@ int generateIdamDataError(int handle)
 
     return 0;
 }
-
 
 int generateIdamDimDataError(int handle, int ndim)
 {
@@ -791,8 +784,8 @@ int generateIdamDimDataError(int handle, int ndim)
 
     char* perrlo = NULL;
 
-//--------------------------------------------------------------------------------------------------------------
-// Check the handle and model are ok
+    //--------------------------------------------------------------------------------------------------------------
+    // Check the handle and model are ok
 
     if (getIdamData(handle) == NULL) return 0;            // No Data Block available
 
@@ -808,8 +801,8 @@ int generateIdamDimDataError(int handle, int ndim)
 
     if (getIdamDimNum(handle, ndim) <= 0) return 0;
 
-//--------------------------------------------------------------------------------------------------------------
-// Allocate local float work arrays and copy the data array to the work array
+    //--------------------------------------------------------------------------------------------------------------
+    // Allocate local float work arrays and copy the data array to the work array
 
     if (getIdamDataType(handle) == UDA_TYPE_DCOMPLEX || getIdamDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
@@ -886,8 +879,8 @@ int generateIdamDimDataError(int handle, int ndim)
             return 0;
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Generate Model Data
+    //--------------------------------------------------------------------------------------------------------------
+    // Generate Model Data
 
     err = idamErrorModel(model, param_n, params, getIdamDimNum(handle, ndim), data, &asymmetry, (float*)errhi,
                          (float*)errlo);
@@ -899,8 +892,8 @@ int generateIdamDimDataError(int handle, int ndim)
         return err;
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Return the Synthetic Data and Error Array
+    //--------------------------------------------------------------------------------------------------------------
+    // Return the Synthetic Data and Error Array
 
     acc_setIdamDimErrType(handle, ndim, getIdamDimType(handle, ndim));
     acc_setIdamDimErrAsymmetry(handle, ndim, asymmetry);
@@ -1017,8 +1010,8 @@ int generateIdamDimDataError(int handle, int ndim)
         }
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Housekeeping
+    //--------------------------------------------------------------------------------------------------------------
+    // Housekeeping
 
     free((void*)data);
     free((void*)errhi);

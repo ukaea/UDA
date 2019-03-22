@@ -26,8 +26,6 @@ Interprets the API arguments and assembles a Request data structure.
 #include <clientserver/expand_path.h>
 #include <clientserver/stringUtils.h>
 
-int shotRequestTest(const char* source);
-
 int makeClientRequestBlock(const char* data_object, const char* data_source, REQUEST_BLOCK* request_block)
 {
     int lstr, ldelim, err = 0;
@@ -49,11 +47,11 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    /*! Signal and source arguments use a prefix to identify archive or device names, file formats or server protocols.
-    These prefixes are attached to the main signal or source details using a delimiting string, e.g. "::".
-    This delimiting string can be defined by the user via an environment variable "IDAM_API_DELIM".
-    This must be passed to the server as it needs to separate the prefix from the main component in order to interpret the
-    data access request.
+    /* Signal and source arguments use a prefix to identify archive or device names, file formats or server protocols.
+     * These prefixes are attached to the main signal or source details using a delimiting string, e.g. "::".
+     * This delimiting string can be defined by the user via an environment variable "UDA_API_DELIM".
+     * This must be passed to the server as it needs to separate the prefix from the main component in order to
+     * interpret the data access request.
     */
 
     ENVIRONMENT* environment = getIdamClientEnvironment();
@@ -61,10 +59,10 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     strcpy(request_block->api_delim, environment->api_delim);        // Server needs to know how to parse the arguments
 
     //------------------------------------------------------------------------------------------------------------------
-    /*! If the default ARCHIVE and/or DEVICE is overridden by local environment variables and the arguments do not contain
-    // either an archive or device then prefix
-    //
-    // These environment variables are legacy and not used by the server
+    /* If the default ARCHIVE and/or DEVICE is overridden by local environment variables and the arguments do not contain
+     * either an archive or device then prefix
+     *
+     * These environment variables are legacy and not used by the server
     */
 
     if (strcasecmp(environment->api_device, API_DEVICE) != 0 &&
@@ -94,19 +92,22 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    /*! The source argument can contain Directory paths to private files. These paths may use environment variables or ./ or ../
-    or beginning /scratch (local workstation directory). Consequently, these paths must be expanded before dispatch to the server.
-    These private files must be seen by the server - the file directory must be accessible with read permission.
-
-    Expanded paths are passed to the server via the path component of the Request data structure.
-
-    Server side function requests, passed via the source argument, must contain the full path name and only use environment
-    variables local and known to the server. These paths are Not expanded before dispatch to the server.
-
-    Server side function requests are identified by testing for a pair of parenthesis characters. This is very primitive and needs
-    improvement. (Server side function requests is an under-developed component of IDAM.)
-
-    Any attempted expansion of a server URL will result in a meaningless path. These are ignored by the server.  *** the original source is always retained !    
+    /* The source argument can contain Directory paths to private files. These paths may use environment variables or
+     * ./ or ../ or beginning /scratch (local workstation directory). Consequently, these paths must be expanded before
+     * dispatch to the server.
+     *
+     * These private files must be seen by the server - the file directory must be accessible with read permission.
+     *
+     * Expanded paths are passed to the server via the path component of the Request data structure.
+     *
+     * Server side function requests, passed via the source argument, must contain the full path name and only use
+     * environment variables local and known to the server. These paths are Not expanded before dispatch to the server.
+     *
+     * Server side function requests are identified by testing for a pair of parenthesis characters. This is very
+     * primitive and needs improvement. (Server side function requests is an under-developed component of UDA.)
+     *
+     * Any attempted expansion of a server URL will result in a meaningless path. These are ignored by the server.
+     * *** the original source is always retained !
     */
 
     // Path expansion disabled - applications must provide the full path to data resources.
@@ -121,13 +122,17 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
 
     if ((test = strstr(request_block->source, request_block->api_delim)) == NULL) {
         if (strchr(request_block->source, '(') == NULL &&
-            strchr(request_block->source, ')') == NULL) {			// source is not a function call
+            strchr(request_block->source, ')') == NULL) {
+            // source is not a function call
             strcpy(request_block->path, request_block->source);
+            expandFilePath(request_block->path, getIdamClientEnvironment());
         }
     } else {
-        if (strchr(test, '(') == NULL && strchr(test, ')') == NULL) {		// Prefixed and not a function call
+        if (strchr(test, '(') == NULL && strchr(test, ')') == NULL) {
+            // Prefixed and not a function call
             ldelim = (int)strlen(request_block->api_delim);
             strcpy(request_block->path, &test[ldelim]);
+            expandFilePath(request_block->path, getIdamClientEnvironment());
         }
     }
 
@@ -136,8 +141,7 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
 
 int shotRequestTest(const char* source)
 {
-
-// Return 1 (TRUE) if the source is shot nuumber based , 0 (FALSE) otherwise
+    // Return 1 (TRUE) if the source is shot nuumber based , 0 (FALSE) otherwise
 
     char* token = NULL;
     char work[STRING_LENGTH];
@@ -145,11 +149,11 @@ int shotRequestTest(const char* source)
     if (source[0] == '\0') return 0;
     if (source[0] == '/') return 0;        // Directory based data
 
-//------------------------------------------------------------------------------
-// Check if the source has one of these forms:
+    //------------------------------------------------------------------------------
+    // Check if the source has one of these forms:
 
-// pulse		plasma shot number - an integer
-// pulse/pass		include a pass or sequence number - this may be a text based component, e.g. LATEST
+    // pulse		plasma shot number - an integer
+    // pulse/pass		include a pass or sequence number - this may be a text based component, e.g. LATEST
 
     if (IsNumber((char*) source)) return 1;		// The source an integer number 
         

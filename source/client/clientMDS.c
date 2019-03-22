@@ -20,13 +20,13 @@ int idamClientMDS(const char* server, const char* tree, const char* node, int tr
 {
     REQUEST_BLOCK request_block;
 
-//-------------------------------------------------------------------------
-// Open the Logs
+    //-------------------------------------------------------------------------
+    // Open the Logs
 
     if (idamStartup(0) != 0) return PROBLEM_OPENING_LOGS;
 
-//-------------------------------------------------------------------------
-// Passed Args
+    //-------------------------------------------------------------------------
+    // Passed Args
 
     initRequestBlock(&request_block);
 
@@ -43,8 +43,8 @@ int idamClientMDS(const char* server, const char* tree, const char* node, int tr
     UDA_LOG(UDA_LOG_DEBUG, "Node  		 %s\n", request_block.signal);
     UDA_LOG(UDA_LOG_DEBUG, "Tree Number       %d\n", request_block.exp_number);
 
-//-------------------------------------------------------------------------
-// Fetch Data
+    //-------------------------------------------------------------------------
+    // Fetch Data
 
     return idamClient(&request_block);
 }

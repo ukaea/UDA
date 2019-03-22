@@ -30,11 +30,11 @@ int idamClosedown(int type, SOCKETLIST* socket_list)
 {
     int rc = 0;
 
-    UDA_LOG(UDA_LOG_DEBUG, "IdamAPI: idamCloseDown called (%d)\n", type);
+    UDA_LOG(UDA_LOG_DEBUG, "idamCloseDown called (%d)\n", type);
     if (type == CLOSE_ALL) {
-        UDA_LOG(UDA_LOG_DEBUG, "IdamAPI: Closing Log Files, Streams and Sockets\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Closing Log Files, Streams and Sockets\n");
     } else {
-        UDA_LOG(UDA_LOG_DEBUG, "IdamAPI: Closing Streams and Sockets\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Closing Streams and Sockets\n");
     }
 
     if (type == CLOSE_ALL) {

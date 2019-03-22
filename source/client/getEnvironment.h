@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENT_GETENVIRONMENT_H
-#define IDAM_CLIENT_GETENVIRONMENT_H
+#ifndef UDA_CLIENT_GETENVIRONMENT_H
+#define UDA_CLIENT_GETENVIRONMENT_H
 
 #include <clientserver/udaStructs.h>
 
@@ -24,5 +24,4 @@ extern int env_port;
 }
 #endif
 
-#endif // IDAM_CLIENT_GETENVIRONMENT_H
-
+#endif // UDA_CLIENT_GETENVIRONMENT_H

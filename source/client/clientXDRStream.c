@@ -26,7 +26,7 @@ void idamCreateXDRStream()
     clientOutput->x_ops = NULL;
     clientInput->x_ops = NULL;
 
-    UDA_LOG(UDA_LOG_DEBUG, "IdamAPI: Creating XDR Streams \n");
+    UDA_LOG(UDA_LOG_DEBUG, "Creating XDR Streams \n");
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 

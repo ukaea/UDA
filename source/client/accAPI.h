@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-#define NUMIDAMCLIENTTHREADS 30
+#define UDA_NUM_CLIENT_THREADS 30
 
 DATA_BLOCK* acc_getCurrentDataBlock();
 

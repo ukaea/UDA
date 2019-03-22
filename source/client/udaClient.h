@@ -1,5 +1,5 @@
-#ifndef UDA_CLIENT_IDAMCLIENT_H
-#define UDA_CLIENT_IDAMCLIENT_H
+#ifndef UDA_CLIENT_UDACLIENT_H
+#define UDA_CLIENT_UDACLIENT_H
 
 // TODO: remove this and the XDR globals
 #include <rpc/rpc.h>
@@ -110,4 +110,4 @@ void setLogMallocList(LOGMALLOCLIST* logmalloclist_in);
 }
 #endif
 
-#endif // UDA_CLIENT_IDAMCLIENT_H
+#endif // UDA_CLIENT_UDACLIENT_H

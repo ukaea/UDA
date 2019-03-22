@@ -35,25 +35,25 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
     REQUEST_BLOCK request_block;
     static short startup = 1;
 
-//-------------------------------------------------------------------------
-// Open the Logs
+    //-------------------------------------------------------------------------
+    // Open the Logs
 
     if (idamStartup(0) != 0) return PROBLEM_OPENING_LOGS;
 
-//-------------------------------------------------------------------------
-// Initialise the Client Data Request Structure
+    //-------------------------------------------------------------------------
+    // Initialise the Client Data Request Structure
 
     initRequestBlock(&request_block);
 
-//------------------------------------------------------------------------------
-// Build the Request Data Block (Version and API dependent)
+    //------------------------------------------------------------------------------
+    // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
         initIdamErrorStack();
         startup = 0;
     }
 
-// Create two regular arguments
+    // Create two regular arguments
 
     int err;
     char data_source[STRING_LENGTH + 1];
@@ -75,8 +75,8 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
         return -err;
     }
 
-//-------------------------------------------------------------------------
-// Fetch Data
+    //-------------------------------------------------------------------------
+    // Fetch Data
 
     return idamClient(&request_block);
 }
@@ -98,25 +98,25 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
     REQUEST_BLOCK request_block;
     static short startup = 1;
 
-//-------------------------------------------------------------------------
-// Open the Logs
+    //-------------------------------------------------------------------------
+    // Open the Logs
 
     if (idamStartup(0) != 0) return PROBLEM_OPENING_LOGS;
 
-//-------------------------------------------------------------------------
-// Initialise the Client Data Request Structure
+    //-------------------------------------------------------------------------
+    // Initialise the Client Data Request Structure
 
     initRequestBlock(&request_block);
 
-//------------------------------------------------------------------------------
-// Build the Request Data Block (Version and API dependent)
+    //------------------------------------------------------------------------------
+    // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
         initIdamErrorStack();
         startup = 0;
     }
 
-// Create two regular arguments
+    // Create two regular arguments
 
     int err;
     char data_source[STRING_LENGTH + 1];
@@ -134,7 +134,7 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
         return -err;
     }
 
-//-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
     UDA_LOG(UDA_LOG_DEBUG, "Routine: ClientFileAPI\n");
     UDA_LOG(UDA_LOG_DEBUG, "Routine: ClientFileAPI\n");
@@ -142,8 +142,8 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
     UDA_LOG(UDA_LOG_DEBUG, "File            %s\n", request_block.path);
     UDA_LOG(UDA_LOG_DEBUG, "Signal  		 %s\n", request_block.signal);
 
-//-------------------------------------------------------------------------
-// Fetch Data
+    //-------------------------------------------------------------------------
+    // Fetch Data
 
     return idamClient(&request_block);
 }
@@ -169,13 +169,13 @@ int idamClientFileAPI2(const char* file, const char* format, const char* owner,
 {
     REQUEST_BLOCK request_block;
 
-//-------------------------------------------------------------------------
-// Open the Logs
+    //-------------------------------------------------------------------------
+    // Open the Logs
 
     if (idamStartup(0) != 0) return (PROBLEM_OPENING_LOGS);
 
-//-------------------------------------------------------------------------
-// Test Specified Format: Convert to Lower Case
+    //-------------------------------------------------------------------------
+    // Test Specified Format: Convert to Lower Case
 
     initRequestBlock(&request_block);
 
@@ -190,8 +190,8 @@ int idamClientFileAPI2(const char* file, const char* format, const char* owner,
         return FILE_FORMAT_NOT_SUPPORTED;
     }
 
-//-------------------------------------------------------------------------
-// Passed Args
+    //-------------------------------------------------------------------------
+    // Passed Args
 
     switch (request_block.request) {
 
@@ -199,13 +199,16 @@ int idamClientFileAPI2(const char* file, const char* format, const char* owner,
             if (exp_number > 0) {
                 request_block.exp_number = exp_number;
             } else {
+                // Has No Meaning in this Context
                 request_block.exp_number = -1;
-            }    // Has No Meaning in this Context
+            }
 
-            if (pass > -1)
+            if (pass > -1) {
                 request_block.pass = pass;
-            else
-                request_block.pass = -1;        // Has No Meaning in this Context
+            } else {
+                // Has No Meaning in this Context
+                request_block.pass = -1;
+            }
 
             strcpy(request_block.file, "");
             strcpy(request_block.signal, signal);
@@ -230,10 +233,10 @@ int idamClientFileAPI2(const char* file, const char* format, const char* owner,
             break;
     }
 
-//-------------------------------------------------------------------------
-// Fetch Data
+    //-------------------------------------------------------------------------
+    // Fetch Data
 
-    return (idamClient(&request_block));
+    return idamClient(&request_block);
 }
 
 
@@ -241,13 +244,13 @@ int idamClientTestAPI(const char* file, const char* signal, int pass, int exp_nu
 {
     REQUEST_BLOCK request_block;
 
-//-------------------------------------------------------------------------
-// Open the Logs
+    //-------------------------------------------------------------------------
+    // Open the Logs
 
     if (idamStartup(0) != 0) return PROBLEM_OPENING_LOGS;
 
-//-------------------------------------------------------------------------
-// Passed Args
+    //-------------------------------------------------------------------------
+    // Passed Args
 
     initRequestBlock(&request_block);
 
@@ -266,8 +269,8 @@ int idamClientTestAPI(const char* file, const char* signal, int pass, int exp_nu
     UDA_LOG(UDA_LOG_DEBUG, "Pass              %d\n", request_block.pass);
     UDA_LOG(UDA_LOG_DEBUG, "Experiment Number %d\n", request_block.exp_number);
 
-//-------------------------------------------------------------------------
-// Fetch Data
+    //-------------------------------------------------------------------------
+    // Fetch Data
 
     return idamClient(&request_block);
 }
