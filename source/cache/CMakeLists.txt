@@ -1,10 +1,5 @@
 find_package( LibMemcached )
 
-# Format overflow inside sprintf
-if( CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0 )
-  add_definitions( -Wno-error=format-overflow )
-endif()
-
 set( SRC_FILES
   cache.c
   fileCache.c
