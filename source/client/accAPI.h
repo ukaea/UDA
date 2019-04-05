@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENT_ACCAPI_C_H
-#define IDAM_CLIENT_ACCAPI_C_H
+#ifndef UDA_CLIENT_ACCAPI_H
+#define UDA_CLIENT_ACCAPI_H
 
 #include <stdio.h>
 
@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-#define NUMIDAMCLIENTTHREADS 30
+#define UDA_NUM_CLIENT_THREADS 30
 
 DATA_BLOCK* acc_getCurrentDataBlock();
 
@@ -70,13 +70,13 @@ void putIdamServerPort(int port);
 
 void putIdamServerSocket(int socket);
 
-void getIdamServer(char** host, int* port, int* socket);
+void getIdamServer(const char** host, int* port, int* socket);
 
 IDAMERRORSTACK* getIdamServerErrorStack();
 
 int getIdamErrorCode(int handle);
 
-char* getIdamErrorMsg(int handle);
+const char* getIdamErrorMsg(int handle);
 
 int getIdamSourceStatus(int handle);
 
@@ -174,15 +174,15 @@ void getIdamDBlock(int handle, DATA_BLOCK* db);
 
 DATA_BLOCK* getIdamDataBlock(int handle);
 
-char* getIdamDataLabel(int handle);
+const char* getIdamDataLabel(int handle);
 
 void getIdamDataLabelTdi(int handle, char* label);
 
-char* getIdamDataUnits(int handle);
+const char* getIdamDataUnits(int handle);
 
 void getIdamDataUnitsTdi(int handle, char* units);
 
-char* getIdamDataDesc(int handle);
+const char* getIdamDataDesc(int handle);
 
 void getIdamDataDescTdi(int handle, char* desc);
 
@@ -200,9 +200,9 @@ char* getIdamSyntheticDimData(int handle, int ndim);
 
 char* getIdamDimData(int handle, int ndim);
 
-char* getIdamDimLabel(int handle, int ndim);
+const char* getIdamDimLabel(int handle, int ndim);
 
-char* getIdamDimUnits(int handle, int ndim);
+const char* getIdamDimUnits(int handle, int ndim);
 
 void getIdamDimLabelTdi(int handle, int ndim, char* label);
 
@@ -234,7 +234,7 @@ SIGNAL* getIdamSignal(int handle);
 
 SIGNAL_DESC* getIdamSignalDesc(int handle);
 
-char* getIdamFileFormat(int handle);
+const char* getIdamFileFormat(int handle);
 
 void initIdamDataBlock(DATA_BLOCK* str);
 
@@ -286,5 +286,5 @@ NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target);
 }
 #endif
 
-#endif // IDAM_CLIENT_ACCAPI_C_H
+#endif // UDA_CLIENT_ACCAPI_H
 

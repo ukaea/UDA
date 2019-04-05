@@ -12,7 +12,6 @@
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/protocolXML.h>
-#include <clientserver/sqllib.h>
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
 #include <server/serverPlugin.h>
@@ -25,6 +24,7 @@
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
+#include "sqllib.h"
 
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {
@@ -354,7 +354,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
 
     int depth = 0;
 
-    err = idamserverGetData(DBConnect, &depth, *request_block, *client_block, data_block, &metadata_block->data_source,
+    err = idamserverGetData(DBConnect, &depth, request_block, *client_block, data_block, &metadata_block->data_source,
                             &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
                             &pluginList, logmalloclist, userdefinedtypelist, &socket_list);
 

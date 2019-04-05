@@ -15,9 +15,8 @@
 
 #ifdef FATCLIENT
 #  include <server/udaServer.h>
-#  include <libpq-fe.h>
 #  include <server/closeServerSockets.h>
-extern PGconn * DBConnect;    // IDAM database Socket Connection
+#  include <server/sqllib.h>
 #else
 #  include "getEnvironment.h"
 #  include "connection.h"
@@ -31,11 +30,11 @@ int idamClosedown(int type, SOCKETLIST* socket_list)
 {
     int rc = 0;
 
-    UDA_LOG(UDA_LOG_DEBUG, "IdamAPI: idamCloseDown called (%d)\n", type);
+    UDA_LOG(UDA_LOG_DEBUG, "idamCloseDown called (%d)\n", type);
     if (type == CLOSE_ALL) {
-        UDA_LOG(UDA_LOG_DEBUG, "IdamAPI: Closing Log Files, Streams and Sockets\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Closing Log Files, Streams and Sockets\n");
     } else {
-        UDA_LOG(UDA_LOG_DEBUG, "IdamAPI: Closing Streams and Sockets\n");
+        UDA_LOG(UDA_LOG_DEBUG, "Closing Streams and Sockets\n");
     }
 
     if (type == CLOSE_ALL) {
@@ -59,9 +58,9 @@ int idamClosedown(int type, SOCKETLIST* socket_list)
     if (type == 1) {
 
 #ifndef NOTGENERICENABLED
-        if (DBConnect != NULL) {
-            PQfinish(DBConnect);    // close the IDAM SQL Database connection
-            DBConnect = NULL;
+        if (gDBConnect != NULL) {
+            PQfinish(gDBConnect);    // close the IDAM SQL Database connection
+            gDBConnect = NULL;
         }
 #endif
         closeServerSockets(socket_list);    // Close the Socket Connections to Other Data Servers

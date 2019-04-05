@@ -6,6 +6,10 @@
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define CACHE_NOT_OPENED    1
 #define CACHE_NOT_AVAILABLE 2
 #define CACHE_AVAILABLE     3
@@ -31,12 +35,16 @@ IDAM_CACHE* idamOpenCache();
 
 void idamFreeCache();
 
-char* idamCacheKey(REQUEST_BLOCK* request_block, ENVIRONMENT environment);
+char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment);
 
-int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist,
-                   USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment);
+int idamCacheWrite(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
+                   LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment);
 
-DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
                           USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // IDAM_CACHE_IDAMCACHE_H

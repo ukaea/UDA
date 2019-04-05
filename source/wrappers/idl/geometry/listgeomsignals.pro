@@ -1,4 +1,4 @@
-pro listgeomsignals, shot=shot, pulno=pulno, exp_number=exp_number, $
+function listgeomsignals, shot=shot, pulno=pulno, exp_number=exp_number, $
                      group=group, version=version, all=all
 
   ; basic command (this is all you need for all keyword)
@@ -21,6 +21,7 @@ pro listgeomsignals, shot=shot, pulno=pulno, exp_number=exp_number, $
   signallist = getstruct(comm, shot)
 
   if signallist.erc ne 0 then begin
+     print, signallist.errmsg
      return, -1
   endif
 

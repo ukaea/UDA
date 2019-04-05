@@ -29,7 +29,7 @@ int allocArray(int data_type, size_t n_data, char** ap)
 
     *ap = NULL;
 
-    size_t data_size = getSizeOf(data_type);
+    size_t data_size = getSizeOf((UDA_TYPE)data_type);
     if (data_size > 0) {
         *ap = (char*)realloc((void*)*ap, n_data * data_size);
     } else if (data_type != UDA_TYPE_COMPOUND) {
@@ -75,7 +75,7 @@ int allocData(DATA_BLOCK* data_block)
     char* ebh = NULL;
     char* ebl = NULL;
 
-    size_t data_size = getSizeOf(data_block->data_type);
+    size_t data_size = getSizeOf((UDA_TYPE)data_block->data_type);
     if (data_size > 0) {
         db = (char*)malloc(ndata * data_size);
         if (data_block->error_type == UDA_TYPE_UNKNOWN) {
@@ -102,7 +102,7 @@ int allocData(DATA_BLOCK* data_block)
         return ERROR_ALLOCATING_HEAP;
     }
 
-    size_t error_size = getSizeOf(data_block->error_type);
+    size_t error_size = getSizeOf((UDA_TYPE)data_block->error_type);
     if (error_size > 0) {
         ebh = (char*)malloc(ndata * error_size);
         if (data_block->errasymmetry) {
@@ -142,7 +142,7 @@ int allocDim(DATA_BLOCK* data_block)
 
         if (ndata == 0) return 1;   // Insufficient Data to Allocate!
 
-        size_t data_size = getSizeOf(data_block->dims[i].data_type);
+        size_t data_size = getSizeOf((UDA_TYPE)data_block->dims[i].data_type);
 
         db = (char*)malloc(ndata * data_size);
 
@@ -152,7 +152,7 @@ int allocDim(DATA_BLOCK* data_block)
                 ebl = (char*)malloc(ndata * data_size);
             }
         } else {
-            size_t error_size = getSizeOf(data_block->dims[i].error_type);
+            size_t error_size = getSizeOf((UDA_TYPE)data_block->dims[i].error_type);
 
             ebh = (char*)malloc(ndata * error_size);
             if (data_block->dims[i].errasymmetry) {
@@ -210,7 +210,7 @@ int allocPutData(PUTDATA_BLOCK* putData)
 
     if ((count = putData->count) == 0) return 1;   // Insufficient Data to Allocate!
 
-    size_t data_size = getSizeOf(putData->data_type);
+    size_t data_size = getSizeOf((UDA_TYPE)putData->data_type);
     if (data_size > 0) {
         db = (char*)malloc(count * data_size);
     } else {

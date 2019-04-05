@@ -5,6 +5,10 @@
 #include <rpc/xdr.h>
 #include <structures/genStructs.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //-------------------------------------------------------
 // Client Server Conversation Protocols
 
@@ -81,9 +85,13 @@ enum REQUEST {
 
 extern int protocolVersion; // Client or Server Version number for Protocol Configuration
 
-int protocol(XDR *xdrs, int protocol_id, int direction, int *token, LOGMALLOCLIST* logmalloclist,
-             USERDEFINEDTYPELIST* userdefinedtypelist, void *str);
-int protocol2(XDR *xdrs, int protocol_id, int direction, int *token, LOGMALLOCLIST* logmalloclist,
-              USERDEFINEDTYPELIST* userdefinedtypelist, void *str);
+int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+             USERDEFINEDTYPELIST* userdefinedtypelist, void* str);
+int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+              USERDEFINEDTYPELIST* userdefinedtypelist, void* str);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_CLIENTSERVER_PROTOCOL_H

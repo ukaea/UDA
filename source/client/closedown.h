@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENT_CLOSEDOWN_H
-#define IDAM_CLIENT_CLOSEDOWN_H
+#ifndef UDA_CLIENT_CLOSEDOWN_H
+#define UDA_CLIENT_CLOSEDOWN_H
 
 #include <clientserver/socketStructs.h>
 
@@ -22,4 +22,4 @@ int idamClosedown(int type, SOCKETLIST* socket_list);
 }
 #endif
 
-#endif // IDAM_CLIENT_CLOSEDOWN_H
+#endif // UDA_CLIENT_CLOSEDOWN_H

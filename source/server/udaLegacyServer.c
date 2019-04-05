@@ -11,7 +11,6 @@
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
-#include <clientserver/sqllib.h>
 #include <clientserver/udaErrors.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/xdrlib.h>
@@ -29,6 +28,7 @@
 #include "serverProcessing.h"
 #include "sleepServer.h"
 #include "udaServer.h"
+#include "sqllib.h"
 
 #ifdef LEGACYSERVER
 int idamLegacyServer(CLIENT_BLOCK client_block) {
@@ -349,7 +349,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
 
             depth = 0;
 
-            err = idamserverGetData(DBConnect, &depth, request_block, client_block, &data_block, &data_source,
+            err = idamserverGetData(DBConnect, &depth, &request_block, client_block, &data_block, &data_source,
                                     &signal_rec, &signal_desc, &actions_desc, &actions_sig, pluginlist, logmalloclist,
                                     userdefinedtypelist, socket_list);
 

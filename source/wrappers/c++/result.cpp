@@ -54,7 +54,7 @@ static const std::type_info* idamTypeToTypeID(int type)
 
 const std::string uda::Result::errorMessage() const
 {
-    char* error = getIdamErrorMsg(handle_);
+    const char* error = getIdamErrorMsg(handle_);
     return error == nullptr ? "" : error;
 }
 
@@ -237,11 +237,7 @@ uda::Data* getDataAsStringArray(int handle, const uda::Result* result)
 
 uda::Data* uda::Result::data() const
 {
-//    std::vector<Dim> dims;
     auto rank = static_cast<dim_type>(getIdamRank(handle_));
-//    for (dim_type i = 0; i < rank; ++i) {
-//        dims.push_back(dim(i, DATA));
-//    }
 
     int type = getIdamDataType(handle_);
 

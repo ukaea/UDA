@@ -1567,7 +1567,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             const char* expName = NULL;
             FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, expName);
 
-            const char* pluginName = "EXP2IMAS";
+            const char* pluginName = getenv("UDA_IMAS_DATA_PLUGIN");
 
             int id = findPluginIdByFormat(pluginName, idam_plugin_interface->pluginList);
             if (id < 0) {

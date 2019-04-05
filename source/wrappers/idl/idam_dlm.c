@@ -2357,7 +2357,7 @@ IDL_VPTR IDL_CDECL callidam(int argc, IDL_VPTR argv[], char* argk) {
     }
 
     error_code = getIdamErrorCode(handle);
-    error_msg = getIdamErrorMsg(handle);
+    error_msg = (char*)getIdamErrorMsg(handle);
 
     if (handle < 0) {
         if (kw.verbose) {

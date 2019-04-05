@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 ########################################################################################################################
 # Dependencies
 
@@ -43,7 +41,6 @@ set( SRC_FILES
   udaTypes.c
   userid.c
   xdrlib.c
-  sqllib.c
   nameValueSubstitution.c
 #  utils.c
 )
@@ -86,7 +83,6 @@ set( HEADER_FILES
   xdrHData.h
   xdrlib.h
   xmlStructs.h
-  sqllib.h
 )
 
 if( APPLE )
@@ -114,10 +110,10 @@ add_library( clientserver-client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
 
 if( NOT CLIENT_ONLY )
   add_library( clientserver-server-objects OBJECT ${SRC_FILES} )
-  target_compile_definitions( clientserver-server-objects PRIVATE -DSERVERBUILD )
+  target_compile_definitions( clientserver-server-objects PUBLIC -DSERVERBUILD )
 
   add_library( fatclientserver-objects OBJECT ${SRC_FILES} )
-  target_compile_definitions( fatclientserver-objects PRIVATE -DFATCLIENT )
+  target_compile_definitions( fatclientserver-objects PUBLIC -DFATCLIENT )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )

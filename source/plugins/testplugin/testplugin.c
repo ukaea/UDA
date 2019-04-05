@@ -28,6 +28,7 @@
 #include <clientserver/stringUtils.h>
 #include <structures/accessors.h>
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/printStructs.h>
 
 #ifdef PUTDATAENABLED
 #  include <structures/accessors.h>
@@ -3334,11 +3335,9 @@ static int do_test50(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     
-    // Name substitution and additional name-value pairs
-
-    int err = nameValueSubstitution(&(request_block->nameValueList), request_block->tpass);
-    if(err != 0) return err;
-    
+    UDA_LOG(UDA_LOG_DEBUG, "TESTPLUGIN test50\n");
+    printRequestBlock(*request_block);
+      
     // Return an array of strings with all passed parameters and substitutions
 
     int count = 10*1024;
@@ -3347,6 +3346,7 @@ static int do_test50(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     strcpy(work, "test50 passed parameters and substitutions\n");
     sprintf(&work[strlen(work)], "Shot number:%d\n", request_block->exp_number);
+    sprintf(&work[strlen(work)], "Pass number:%d\n", request_block->pass);
     sprintf(&work[strlen(work)], "substitution parameters:%s\n", request_block->tpass);	       
     sprintf(&work[strlen(work)], "Number of name-value pairs: %d\n", request_block->nameValueList.pairCount);
     for (i = 0; i < request_block->nameValueList.pairCount; i++)

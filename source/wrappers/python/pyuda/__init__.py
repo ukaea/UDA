@@ -15,6 +15,10 @@ standard_library.install_aliases()
 
 
 UDAException = c_uda._c_uda.UDAException
+ProtocolException = c_uda._c_uda.ProtocolException
+ServerException = c_uda._c_uda.ServerException
+InvalidUseException = c_uda._c_uda.InvalidUseException
+
 
 # import the enum values PROP_* from the c_uda library into a Properties class
 Properties = type('Properties', (), dict((p, getattr(c_uda, p))

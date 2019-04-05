@@ -23,6 +23,7 @@
 
 #include <clientserver/errorLog.h>
 #include <clientserver/udaErrors.h>
+#include <clientserver/initStructs.h>
 #include <logging/logging.h>
 
 //---------------------------------------------------------------------------------------------------------------
@@ -30,9 +31,8 @@
 
 #ifdef NOPPFPLUGIN
 
-int readPPF(DATA_SOURCE data_source,
-            SIGNAL_DESC signal_desc,
-            DATA_BLOCK *data_block) {
+int readPPF(REQUEST_BLOCK *request_block, DATA_BLOCK *data_block)
+{	    
     int err = 999;
     addIdamError(CODEERRORTYPE, "readCDF", err, "PPF PLUGIN NOT ENABLED");
     return err;
@@ -55,10 +55,8 @@ int readPPF(DATA_SOURCE data_source,
 
 #define TEST    0        // Output Debug Data
 
-int readPPF(DATA_SOURCE data_source,
-            SIGNAL_DESC signal_desc,
-            DATA_BLOCK* data_block) {
-
+int readPPF(REQUEST_BLOCK *request_block, DATA_BLOCK *data_block)
+{
     int nwcom = NWCOM, ndt = NDTNAMS, lxtv[2 * NDTNAMS], err = 0, err2 = 0, lowner = 0, xsubset = 0;
     int pulno, pass, rank, order, nx, nt, lun = 0, ndmax, dtid, i;
     int irdat[13], iwdat[13];
@@ -74,6 +72,76 @@ int readPPF(DATA_SOURCE data_source,
     static int pwdstatus = 1;
 #endif
 
+//--------------------------------------------------------------------
+// Interface to legacy structures
+// data source pattern: PPF::ppf/shot/sequence/owner or PPF::ppf/shot/sequence or PPF::ppf/shot/owner
+
+   SIGNAL_DESC signal_desc;
+   DATA_SOURCE data_source;
+   
+   initSignalDesc(&signal_desc);
+   initDataSource(&data_source);
+   
+   request_block->file[0] = '\0';  
+   request_block->path[0] = '\0';
+   request_block->exp_number = 0; 
+   request_block->pass = 0; 
+   
+   char *work = NULL;   
+   char *token = strstr(request_block->source, request_block->api_delim);
+   
+   if (token != 0)        
+      work = strdup(token+strlen(request_block->api_delim));		// Remove plugin name and delimiter string (PPF::)
+   else
+      work = strdup(request_block->source);
+      
+   if(work[0] == '/'){
+      work[0] = ' ';			// Remove leading / character   
+      LeftTrimString(work);
+   }
+         
+   char *p = strchr(work, '/');
+   if(p != NULL) {
+      p[0] = '\0';
+      strcpy(request_block->file, work);
+      
+      char *p2 = strchr(&p[1], '/');
+      if(p2 != NULL) {
+         p2[0] = '\0';
+	 if(IsNumber(&p[1])) request_block->exp_number = atoi(&p[1]);
+ 	    
+	 p = &p2[1];  
+	 
+         if(*p != '\0'){		// Sequence or Owner
+	    p2 = strchr(p, '/');
+	    if(p2 != NULL){	// sequence/owner
+	       p2[0] = '\0';
+	       if(IsNumber(p)){
+                  request_block->pass = atoi(p);
+		  strcpy(request_block->path, &p2[1]);
+	       } else {
+                  request_block->pass = -1;
+		  strcpy(request_block->path, "");
+               }	        	  
+	    } else {		// sequence or owner
+	       if(IsNumber(p)) 
+                  request_block->pass = atoi(p);
+               else
+	          strcpy(request_block->path, p);
+	    }  
+         }      
+      } else {
+	 if(IsNumber(&p[1])) request_block->exp_number = atoi(&p[1]);
+      }
+   }
+   if(work != NULL) free(work);
+   
+   strcpy(signal_desc.signal_name, request_block->signal);	// PPF Data object
+   data_source.exp_number = request_block->exp_number;		// PPF Shot Number
+   data_source.pass       = request_block->pass;		// PPF Sequence Number
+   strncpy(data_source.filename, request_block->file, 4);	// PPF name
+   strcpy(data_source.path, request_block->path);		// PPF owner
+    
 //--------------------------------------------------------------------
 // Extract Signal from SubSet Instruction if present.
 // Model: "dtyp(n)" where dtyp is the Datatype Name and n is the Dimension Slice to Subset >= 1
@@ -153,14 +221,6 @@ int readPPF(DATA_SOURCE data_source,
     pulno = (int) data_source.exp_number;
     pass = (int) data_source.pass;        // PPF Sequence Number
 
-    if (TEST) {
-        fprintf(stdout, "Pulse : %d\n", pulno);
-        fprintf(stdout, "Seq.  : %d\n", pass);
-        fprintf(stdout, "DDA   : %s\n", dda);
-        fprintf(stdout, "Signal: %s\n", dtype);
-        fprintf(stdout, "Owner : %s\n", data_source.path);
-    }
-
    UDA_LOG(UDA_LOG_DEBUG,"Pulse : %d\n", pulno);
    UDA_LOG(UDA_LOG_DEBUG,"Seq.  : %d\n", pass);
    UDA_LOG(UDA_LOG_DEBUG,"DDA   : %s\n", dda);
@@ -224,12 +284,6 @@ int readPPF(DATA_SOURCE data_source,
             addIdamError(CODEERRORTYPE, "readPPF", err, msg);
         PPFUID("JETPPF", "R", 7, 1);            // Reset to reading Public PPF's Only
         return err;
-    }
-
-    if (TEST) {
-        fprintf(stdout, "DDA Comment   : %s\n", ddacom);
-        fprintf(stdout, "No. Data Types: %d\n", ndt);
-        fprintf(stdout, "Signal List   : %s\n", dtnams);
     }
 
     UDA_LOG(UDA_LOG_DEBUG,"DDA Comment   : %s\n", ddacom);

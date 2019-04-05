@@ -217,7 +217,8 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 #ifdef JETSERVER
                 if (rc < 0) {
                     strcpy(request_block->format, "PPF");       // Assume the Default Format (PPF?)
-                    for (i = 0; i < pluginList.count; i++) {
+                    int i;
+		    for (i = 0; i < pluginList.count; i++) {
                         if (STR_IEQUALS(request_block->format, pluginList.plugin[i].format)) {
                             request_block->request = pluginList.plugin[i].request;
                             break;
@@ -443,6 +444,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
         }
 
     } while (0);
+      
 
     UDA_LOG(UDA_LOG_DEBUG, "Signal Argument\n");
 
@@ -498,6 +500,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
     //------------------------------------------------------------------------------
     // Extract the Archive Name and detach from the signal  (detachment is necessary when not passing on to another IDAM server)
+    // the Plugin Name is synonymous with the Archive Name and takes priority (The archive name is discarded as unimportant)
 
     if (request_block->request == REQUEST_READ_IDAM) {
         reduceSignal = 0;
@@ -518,7 +521,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
     // would be part of this specification so there would be no ambiguity.
 
     isFunction = 0;
-
+    
     if (!isServer && (p = strchr(request_block->signal, '(')) != NULL && strchr(p, ')') != NULL &&
         strcasecmp(request_block->archive, environment->api_archive) != 0) {
         strcpy(work, &p[1]);
@@ -671,41 +674,34 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
     }
 
     //---------------------------------------------------------------------------------------------------------------------
-    // IDAM and WEB Servers ...      parse source modelled as: server/source
+    // IDAM and WEB Servers ...      parse source modelled as: server:port/source
 
     if (request_block->request == REQUEST_READ_IDAM || request_block->request == REQUEST_READ_WEB) {
         strcpy(work, test + ldelim);                // Drop the delimiters
 
         // Isolate the Server from the source IDAM::server:port/source or SSL://server:port/source
 
+        strcpy(request_block->server, work);
+	
         char* s = NULL;
         if ((s = strstr(work, "SSL://")) != NULL) {
             char* token;
             if ((token = strstr(s + 6, "/")) != NULL) {
-                token[0] = '\0';                                // Break the String (work)
-                strcpy(request_block->server, s);        // Extract the Server Name and Port (with SSL:// prefix)
-                strcpy(request_block->file, token + 1);    // Extract the Source URL Argument
-                UDA_LOG(UDA_LOG_DEBUG, "Server: %s\n", request_block->server);
-                UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", request_block->file);
-            } else {
-                err = NO_SERVER_SPECIFIED;
-                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
-                             "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
-                return err;
-            }
+                token[0] = '\0';				// Break the String (work)
+                strcpy(request_block->server, s);		// Extract the Server Name and Port (with SSL:// prefix)
+                strcpy(request_block->file, token + 1);		// Extract the Source URL Argument
+            } 
         } else {
             char* token;
             if ((token = strstr(work, "/")) != NULL) {
-                token[0] = '\0';                // Break the String (work)
-                strcpy(request_block->server, work);        // Extract the Server Name and Port
-                strcpy(request_block->file, token + 1);        // Extract the Source URL Argument
-            } else {
-                err = NO_SERVER_SPECIFIED;
-                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
-                             "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
-                return err;
-            }
+                token[0] = '\0';                		// Break the String (work)
+                strcpy(request_block->server, work);		// Extract the Server Name and Port
+                strcpy(request_block->file, token + 1);		// Extract the Source URL Argument
+            } 
         }
+	
+        UDA_LOG(UDA_LOG_DEBUG, "Server: %s\n", request_block->server);
+        UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", request_block->file);
     }
 
     //---------------------------------------------------------------------------------------------------------------------
@@ -1019,11 +1015,12 @@ int genericRequestTest(const char* source, REQUEST_BLOCK* request_block)
 }
 
 //------------------------------------------------------------------------------
-// Strip out the Archive name from the data_object name
+// Strip out the Archive or Plugin name from the data_object name
 // syntax:	ARCHIVE::Data_OBJECT or DATA_OBJECT
+//		ARCHIVE::PLUGIN::Function() or PLUGIN::Function()
 // conflict:	ARCHIVE::DATA_OBJECT[::] or DATA_OBJECT[::] subsetting operations
 //
-// NOTE: Archive Name should not terminate with the character [ or { when a signal begins with the
+// NOTE: Archive/Plugin Name should not terminate with the character [ or { when a signal begins with the
 //       character ] or }. These clash with subsetting syntax.
 //
 // Input Argument: reduceSignal - If TRUE (1) then extract the archive name and return the data object name
@@ -1052,7 +1049,14 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRON
             strncpy(request_block->archive, request_block->signal, test - request_block->signal);
             request_block->archive[test - request_block->signal] = '\0';
             TrimString(request_block->archive);
-
+	    
+	    // If a plugin is prefixed by the local archive name then discard the archive name
+	    if(reduceSignal && !strcasecmp(request_block->archive, environment->api_archive)){
+	       request_block->archive[0] = '\0';
+	       strcpy(request_block->signal, &test[ldelim]);
+	       return extractArchive(request_block, reduceSignal, environment);
+            }
+	     
             if (!IsLegalFilePath(request_block->archive)) {
                 request_block->archive[0] = '\0';
                 return 0;
@@ -1503,6 +1507,7 @@ void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
     nameValue->pair = (char*)malloc(lstr * sizeof(char));
     strcpy(nameValue->pair, copy);
     LeftTrimString(nameValue->pair);
+    UDA_LOG(UDA_LOG_DEBUG, "Pair: %s\n", pair);
     if ((p = strchr(copy, '=')) != NULL) {
         *p = '\0';
         lstr = (int)strlen(copy) + 1;
@@ -1532,7 +1537,15 @@ void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
     LeftTrimString(nameValue->value);
     TrimString(nameValue->name);
     TrimString(nameValue->value);
-    if (strip) {            // remove encosing single or double quotes
+    UDA_LOG(UDA_LOG_DEBUG, "Name: %s     Value: %s\n", nameValue->name, nameValue->value);
+    
+    // Regardless of whether or not the Value is not enclosed in quotes, strip out a possible closing parenthesis character (seen in placeholder value substitution)
+    // This would not be a valid value unless at the end of a string enclosed in quotes!
+    lstr = (int)strlen(nameValue->value);
+    if (nameValue->value[lstr - 1] == ')') nameValue->value[lstr - 1] = '\0'; 
+    UDA_LOG(UDA_LOG_DEBUG, "Name: %s     Value: %s\n", nameValue->name, nameValue->value);
+    
+    if (strip) {            // remove enclosing single or double quotes
         lstr = (int)strlen(nameValue->name);
         if ((nameValue->name[0] == '\'' && nameValue->name[lstr - 1] == '\'') ||
             (nameValue->name[0] == '"' && nameValue->name[lstr - 1] == '"')) {
@@ -1542,13 +1555,15 @@ void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
             TrimString(nameValue->name);
         }
         lstr = (int)strlen(nameValue->value);
-        if ((nameValue->value[0] == '\'' && nameValue->value[lstr - 1] == '\'') ||
+	if ((nameValue->value[0] == '\'' && nameValue->value[lstr - 1] == '\'') ||
             (nameValue->value[0] == '"' && nameValue->value[lstr - 1] == '"')) {
             nameValue->value[0] = ' ';
             nameValue->value[lstr - 1] = ' ';
             LeftTrimString(nameValue->value);
             TrimString(nameValue->value);
         }
+	UDA_LOG(UDA_LOG_DEBUG, "Name: %s     Value: %s\n", nameValue->name, nameValue->value);
+
     }
 
     free((void*)copy);
@@ -1703,6 +1718,6 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
             }
         }
     }
-
+    
     return pairCount;
 }

@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 find_package( IDL REQUIRED )
 find_package( PostgreSQL )
 find_package( LibXml2 )

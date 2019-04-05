@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENT_GENERATEERRORS_H
-#define IDAM_CLIENT_GENERATEERRORS_H
+#ifndef UDA_CLIENT_GENERATEERRORS_H
+#define UDA_CLIENT_GENERATEERRORS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,5 +16,4 @@ int generateIdamDimDataError(int handle, int ndim);
 }
 #endif
 
-#endif // IDAM_CLIENT_GENERATEERRORS_H
-
+#endif // UDA_CLIENT_GENERATEERRORS_H

@@ -231,14 +231,13 @@ char* convertNonPrintable2(char* str)
 
 int IsLegalFilePath(const char* str)
 {
+    // Basic check that the filename complies with good naming practice - some protection against malign embedded code!
+    // Test against the Portable Filename Character Set A-Z, a-z, 0-9, <period>, <underscore> and <hyphen> and <plus>
+    // Include <space> and back-slash for windows filenames only, forward-slash for the path seperator and $ for environment variables
 
-// Basic check that the filename complies with good naming practice - some protection against malign embedded code!
-// Test against the Portable Filename Character Set A-Z, a-z, 0-9, <period>, <underscore> and <hyphen> and <plus>
-// Include <space> and back-slash for windows filenames only, forward-slash for the path seperator and $ for environment variables
-
-// The API source argument can also be a server based source containing a ':' character
-// The delimiter characters separating the device or format name from the source should have been split off of the path
-//
+    // The API source argument can also be a server based source containing a ':' character
+    // The delimiter characters separating the device or format name from the source should have been split off of the path
+    //
 
     const char* tst = str;
     while (*tst != '\0') {

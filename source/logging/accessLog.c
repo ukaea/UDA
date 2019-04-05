@@ -30,12 +30,12 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
     DIMS dim;
     unsigned int count = sizeof(DATA_BLOCK);
 
-    count += (unsigned int)(getSizeOf(data_block->data_type) * data_block->data_n);
+    count += (unsigned int)(getSizeOf((UDA_TYPE)data_block->data_type) * data_block->data_n);
 
     if (data_block->error_type != UDA_TYPE_UNKNOWN) {
-        count += (unsigned int)(getSizeOf(data_block->error_type) * data_block->data_n);
+        count += (unsigned int)(getSizeOf((UDA_TYPE)data_block->error_type) * data_block->data_n);
     }
-    if (data_block->errasymmetry) count += (unsigned int)(getSizeOf(data_block->error_type) * data_block->data_n);
+    if (data_block->errasymmetry) count += (unsigned int)(getSizeOf((UDA_TYPE)data_block->error_type) * data_block->data_n);
 
     unsigned int k;
     if (data_block->rank > 0) {
@@ -43,11 +43,11 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
             count += sizeof(DIMS);
             dim = data_block->dims[k];
             if (!dim.compressed) {
-                count += (unsigned int)(getSizeOf(dim.data_type) * dim.dim_n);
+                count += (unsigned int)(getSizeOf((UDA_TYPE)dim.data_type) * dim.dim_n);
                 factor = 1;
                 if (dim.errasymmetry) factor = 2;
                 if (dim.error_type != UDA_TYPE_UNKNOWN) {
-                    count += (unsigned int)(factor * getSizeOf(dim.error_type) * dim.dim_n);
+                    count += (unsigned int)(factor * getSizeOf((UDA_TYPE)dim.error_type) * dim.dim_n);
                 }
             } else {
                 unsigned int i;
@@ -57,14 +57,14 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
                         break;
                     case 1:
                         for (i = 0; i < dim.udoms; i++) {
-                            count += (unsigned int)(*((long*)dim.sams + i) * getSizeOf(dim.data_type));
+                            count += (unsigned int)(*((long*)dim.sams + i) * getSizeOf((UDA_TYPE)dim.data_type));
                         }
                         break;
                     case 2:
-                        count += dim.udoms * getSizeOf(dim.data_type);
+                        count += dim.udoms * getSizeOf((UDA_TYPE)dim.data_type);
                         break;
                     case 3:
-                        count += dim.udoms * getSizeOf(dim.data_type);
+                        count += dim.udoms * getSizeOf((UDA_TYPE)dim.data_type);
                         break;
                 }
             }

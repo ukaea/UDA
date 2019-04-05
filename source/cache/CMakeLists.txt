@@ -1,8 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
-########################################################################################################################
-# Dependencies
-
 find_package( LibMemcached )
 
 # Format overflow inside sprintf

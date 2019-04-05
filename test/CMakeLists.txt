@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 if( NO_WRAPPERS )
   message( WARNING "C++ wrapper not built - skipping tests" )
   return()
@@ -67,9 +65,11 @@ macro( BUILD_TEST NAME SOURCE )
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
-    ${PostgreSQL_LIBRARY}
     c m dl
   )
+  if( NOT NO_MODULES )
+    target_link_libraries( fat_${NAME} PRIVATE ${PostgreSQL_LIBRARY} )
+  endif()
   target_compile_definitions( fat_${NAME} PRIVATE -DFATCLIENT )
   link_modules( fat_${NAME} )
 

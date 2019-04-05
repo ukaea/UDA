@@ -9,7 +9,6 @@
 #include <clientserver/manageSockets.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
-#include <clientserver/sqllib.h>
 #include <clientserver/udaErrors.h>
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
@@ -27,6 +26,7 @@
 #include "serverProcessing.h"
 #include "serverStartup.h"
 #include "udaLegacyServer.h"
+#include "sqllib.h"
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -702,7 +702,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
 
     int depth = 0;
 
-    err = idamserverGetData(DBConnect, &depth, *request_block, *client_block, data_block, &metadata_block->data_source,
+    err = idamserverGetData(DBConnect, &depth, request_block, *client_block, data_block, &metadata_block->data_source,
                             &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
                             &pluginList, logmalloclist, userdefinedtypelist, &socket_list);
 

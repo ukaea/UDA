@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENT_CLIENTAPI_H
-#define IDAM_CLIENT_CLIENTAPI_H
+#ifndef UDA_CLIENT_CLIENTAPI_H
+#define UDA_CLIENT_CLIENTAPI_H
 
 #include <clientserver/udaStructs.h>
 
@@ -17,4 +17,4 @@ int idamClientTestAPI(const char *file, const char *signal, int pass, int exp_nu
 }
 #endif
 
-#endif // IDAM_CLIENT_CLIENTAPI_H
+#endif // UDA_CLIENT_CLIENTAPI_H

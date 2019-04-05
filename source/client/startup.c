@@ -29,13 +29,13 @@ int idamStartup(int reset)
 
     static int start_status = 0;
 
-//---------------------------------------------------------------
-// Are the Files Already Open?
+    //---------------------------------------------------------------
+    // Are the Files Already Open?
 
     if (start_status && !reset && !reopen_logs) return 0;
 
-//----------------------------------------------------------------
-// Read Environment Variable Values (Held in a Global Structure)
+    //----------------------------------------------------------------
+    // Read Environment Variable Values (Held in a Global Structure)
 
     const ENVIRONMENT* environment = NULL;
 
@@ -45,9 +45,9 @@ int idamStartup(int reset)
 
     printIdamClientEnvironment(environment);
 
-//----------------------------------------------------------------
-// Client set Property Flags (can be changed via property accessor functions)
-// Coded user properties changes have priority
+    //----------------------------------------------------------------
+    // Client set Property Flags (can be changed via property accessor functions)
+    // Coded user properties changes have priority
 
     if (environment->clientFlags != 0) {
         clientFlags = clientFlags | environment->clientFlags;
@@ -57,23 +57,23 @@ int idamStartup(int reset)
         altRank = environment->altRank;
     }
 
-//----------------------------------------------------------------
-// X.509 Security Certification
+    //----------------------------------------------------------------
+    // X.509 Security Certification
 
     //if((rc = readIdamSecurityCert(environment->security_cert)) != 0){
     //   if(verbose) fprintf(stderr, "Idam: Problem Locating the Security Certificate [%d]\n",  rc);
     //   return(-1);
     //}
 
-//----------------------------------------------------------------
-// Check if Output Requested
+    //----------------------------------------------------------------
+    // Check if Output Requested
 
     idamSetLogLevel((LOG_LEVEL)environment->loglevel);
 
     if (environment->loglevel == UDA_LOG_NONE) return 0;
 
-//---------------------------------------------------------------
-// Open the Log File
+    //---------------------------------------------------------------
+    // Open the Log File
 
     start_status = 1;
     errno = 0;

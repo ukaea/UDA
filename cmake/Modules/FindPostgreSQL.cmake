@@ -139,6 +139,7 @@ find_path(PostgreSQL_TYPE_INCLUDE_DIR
     pgsql/server
     postgresql/server
     include/server
+    include/postgresql/server
     ${PostgreSQL_TYPE_ADDITIONAL_SEARCH_SUFFIXES}
   # Help the user find it if we cannot.
   DOC "The ${PostgreSQL_INCLUDE_DIR_MESSAGE}"

@@ -1680,10 +1680,8 @@ const char* udaNameType(UDA_TYPE type)
             return "unsigned int";
         case UDA_TYPE_UNSIGNED_LONG:
             return "unsigned int";
-#ifndef __APPLE__
         case UDA_TYPE_UNSIGNED_LONG64:
             return "unsigned long long";
-#endif
         case UDA_TYPE_STRING:
             return "char";
         default:
@@ -2533,7 +2531,6 @@ void printNode(NTREE* tree)
     for (i=0; i<tree->branches; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "Children[%d]: %p   (%x) \n", i, (void *)tree->children[i], (UVOIDTYPE)tree->children[i]);
     }
-}
 #endif
     printUserDefinedType(*tree->userdefinedtype);
 }

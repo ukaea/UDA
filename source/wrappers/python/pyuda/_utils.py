@@ -1,6 +1,6 @@
 from __future__ import (division, print_function, absolute_import)
 
-from .c_uda import UDAException
+from . import c_uda
 
 import numpy as np
 
@@ -8,6 +8,8 @@ from builtins import range
 from future import standard_library
 standard_library.install_aliases()
 
+
+UDAException = c_uda._c_uda.UDAException
 
 def cdata_scalar_to_value(scalar):
     """
@@ -42,12 +44,43 @@ def cdata_scalar_to_value(scalar):
         raise UDAException("Unknown data type " + scalar.type())
 
 
+def cdata_array_to_value(array):
+    """
+    Convert an UDA C++ Array object to an equivalent python type.
+
+    :param array: an UDA C++ array as wrapped by the low level c_uda library
+    :return: a numpy array
+    """
+    if array.type() == 'float32':
+        return np.array(array.fdata(), dtype=array.type()).reshape(array.shape())
+    elif array.type() == 'float64':
+        return np.array(array.ddata(), dtype=array.type()).reshape(array.shape())
+    elif array.type() == 'int8':
+        return np.array(array.cdata(), dtype=array.type()).reshape(array.shape())
+    elif array.type() == 'uint8':
+        return np.array(array.ucdata(), dtype=array.type()).reshape(array.shape())
+    elif array.type() == 'int16':
+        return np.array(array.sdata(), dtype=array.type()).reshape(array.shape())
+    elif array.type() == 'uint16':
+        return np.array(array.usdata(), dtype=array.type()).reshape(array.shape())
+    elif array.type() == 'int32':
+        return np.array(array.idata(), dtype=array.type()).reshape(array.shape())
+    elif array.type() == 'uint32':
+        return np.array(array.uidata(), dtype=array.type()).reshape(array.shape())
+    elif array.type() == 'int64':
+        return np.array(array.ldata(), dtype=array.type()).reshape(array.shape())
+    elif array.type() == 'uint64':
+        return np.array(array.uldata(), dtype=array.type()).reshape(array.shape())
+    else:
+        raise UDAException("Unknown data type " + array.type())
+
+
 def cdata_vector_to_value(vector):
     """
-    Convert an IDAM C++ Vector object to an equivalent python type.
+    Convert an UDA C++ Vector object to an equivalent python type.
 
-    :param vector: an IDAM C++ vector as wrapped by the low level c_uda library
-    :return: a list of numbers or strings
+    :param vector: an UDA C++ vector as wrapped by the low level c_uda library
+    :return: a numpy array
     """
     if vector.type() == 'float32':
         return np.array(vector.fdata(), dtype=vector.type())

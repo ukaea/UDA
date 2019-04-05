@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENT_MAKECLIENTREQUESTBLOCK_H
-#define IDAM_CLIENT_MAKECLIENTREQUESTBLOCK_H
+#ifndef UDA_CLIENT_MAKECLIENTREQUESTBLOCK_H
+#define UDA_CLIENT_MAKECLIENTREQUESTBLOCK_H
 
 #include <clientserver/udaStructs.h>
 
@@ -13,4 +13,4 @@ int makeClientRequestBlock(const char *data_object, const char *data_source, REQ
 }
 #endif
 
-#endif // IDAM_CLIENT_MAKECLIENTREQUESTBLOCK_H
+#endif // UDA_CLIENT_MAKECLIENTREQUESTBLOCK_H

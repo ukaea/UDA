@@ -175,7 +175,6 @@ void copyClientBlock(CLIENT_BLOCK* str)
 
 int idamClient(REQUEST_BLOCK* request_block)
 {
-
     // Efficient reduced (filled) tcp packet protocol for efficiency over large RTT fat pipes
     // This client version will only be able to communicate with a version 7+ server
 
@@ -210,7 +209,6 @@ int idamClient(REQUEST_BLOCK* request_block)
     if (system_startup && getenv("UDA_TIMEOUT")) {
         user_timeout = (int)strtol(getenv("UDA_TIMEOUT"), NULL, 10);
     }
-
 
     //------------------------------------------------------------------------------
     // Open the Socket if this is the First call for Data or the server is known to be dead
@@ -310,9 +308,8 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #  endif // MEMCACHE
 
-
         //-------------------------------------------------------------------------
-        // Manage Multiple IDAM Server connections ...
+        // Manage Multiple UDA Server connections ...
         //
         // Instance a new server on the same Host/Port or on a different Host/port
 
@@ -361,7 +358,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         }
 
         //-------------------------------------------------------------------------
-        // Open a Socket and Connect to the IDAM Data Server (Multiple Servers?)
+        // Open a Socket and Connect to the UDA Data Server (Multiple Servers?)
 
         if (initServer) {
             authenticationNeeded = 1;
@@ -376,7 +373,6 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             time(&tv_server_start);        // Start the Clock again: Age of Server
         }
-
 
         //-------------------------------------------------------------------------
         // Connect to the server with SSL (X509) authentication
@@ -835,7 +831,6 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #else       // <========================== End of Client Server Code Only (not FATCLIENT)
         }
-
 #endif      // <========================== End of Fat Client Code Only
 
         //------------------------------------------------------------------------------
@@ -1518,16 +1513,16 @@ void restoreIdamProperties(CLIENT_BLOCK cb)
     altRank = client_block.altRank;
 }
 
-//! get the IDAM client study DOI
+//! get the UDA client study DOI
 /**
 * @return the DOI
 */
-char* getIdamClientDOI()
+const char* getIdamClientDOI()
 {
     return client_block.DOI;
 }
 
-//! put the IDAM client study DOI
+//! put the UDA client study DOI
 /**
 * @assign the DOI
 */
@@ -1536,25 +1531,25 @@ void putIdamClientDOI(char* doi)
     strcpy(client_block.DOI, doi);
 }
 
-//! get the IDAM server configuration DOI
+//! get the UDA server configuration DOI
 /**
 * @return the DOI
 */
-char* getIdamServerDOI()
+const char* getIdamServerDOI()
 {
     return server_block.DOI;
 }
 
-//! get the IDAM client OS Name
+//! get the UDA client OS Name
 /**
 * @return the OS name
 */
-char* getIdamClientOSName()
+const char* getIdamClientOSName()
 {
     return client_block.OSName;
 }
 
-//! put the IDAM client OS Name
+//! put the UDA client OS Name
 /**
 * @assign the OS name
 */
@@ -1563,16 +1558,16 @@ void putIdamClientOSName(char* os)
     strcpy(client_block.OSName, os);
 }
 
-//! get the IDAM server environment OS Name
+//! get the UDA server environment OS Name
 /**
 * @return the OS name
 */
-char* getIdamServerOSName()
+const char* getIdamServerOSName()
 {
     return server_block.OSName;
 }
 
-//! the IDAM client library verion number
+//! the UDA client library verion number
 /**
 * @return the verion number
 */
@@ -1581,7 +1576,7 @@ int getIdamClientVersion()
     return clientVersion;              // Client Library Version
 }
 
-//! the IDAM server verion number
+//! the UDA server verion number
 /**
 * @return the verion number
 */
@@ -1590,7 +1585,7 @@ int getIdamServerVersion()
     return server_block.version;           // Server Version
 }
 
-//! the IDAM server error code returned
+//! the UDA server error code returned
 /**
 * @return the error code
 */
@@ -1599,16 +1594,16 @@ int getIdamServerErrorCode()
     return server_block.error;             // Server Error Code
 }
 
-//! the IDAM server error message returned
+//! the UDA server error message returned
 /**
 * @return the error message
 */
-char* getIdamServerErrorMsg()
+const char* getIdamServerErrorMsg()
 {
     return server_block.msg;               // Server Error Message
 }
 
-//! the number of IDAM server error message records returned in the error stack
+//! the number of UDA server error message records returned in the error stack
 /**
 * @return the number of records
 */
@@ -1648,7 +1643,7 @@ int getIdamServerErrorStackRecordCode(int record)
 * @param record the error stack record number
 * @return the location name
 */
-char* getIdamServerErrorStackRecordLocation(int record)
+const char* getIdamServerErrorStackRecordLocation(int record)
 {
     if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
         return 0;
@@ -1661,10 +1656,10 @@ char* getIdamServerErrorStackRecordLocation(int record)
 * @param record the error stack record number
 * @return the error message
 */
-char* getIdamServerErrorStackRecordMsg(int record)
+const char* getIdamServerErrorStackRecordMsg(int record)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "getIdamServerErrorStackRecordMsg: record %d\n", record);
-    UDA_LOG(UDA_LOG_DEBUG, "getIdamServerErrorStackRecordMsg: count  %d\n", server_block.idamerrorstack.nerrors);
+    UDA_LOG(UDA_LOG_DEBUG, "record %d\n", record);
+    UDA_LOG(UDA_LOG_DEBUG, "count  %d\n", server_block.idamerrorstack.nerrors);
     if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
         return 0;
     }

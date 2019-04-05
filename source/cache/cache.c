@@ -12,14 +12,14 @@ IDAM_CACHE* idamOpenCache()
 void idamFreeCache()
 {}
 
-char* idamCacheKey(REQUEST_BLOCK* request_block, ENVIRONMENT environment)
+char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 { return NULL; }
 
-int idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
+int idamCacheWrite(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
                    LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
 { return 0; }
 
-DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
                           USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
 { return NULL; }
 
@@ -100,7 +100,7 @@ void idamFreeCache() // Will be called by the idamFreeAll function
 // The local cache should only be used to record data returned from a server after a GET method - Note: Put methods may be disguised in a GET call!
 // How to validate the cached data?
 
-char* idamCacheKey(REQUEST_BLOCK* request_block, ENVIRONMENT environment)
+char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 {
     // Check Client Properties for permission and requested method
     if (!(clientFlags & CLIENTFLAG_CACHE)) {
@@ -152,7 +152,7 @@ char* idamCacheKey(REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 // The server should also set a recommmended expiration time (lifetime of the stored object) - overridden by the client if necessary
 
 int
-idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist,
+idamCacheWrite(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist,
                USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
 {
 #ifdef CACHEDEV
@@ -229,7 +229,7 @@ idamCacheWrite(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, DATA_BLOCK* data
     return 0;
 }
 
-DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
                           USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
 {
     char* key = idamCacheKey(request_block, environment);

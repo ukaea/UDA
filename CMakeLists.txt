@@ -4,6 +4,10 @@ cmake_minimum_required( VERSION 3.0 )
 # CMake configuration
 
 cmake_policy( SET CMP0048 NEW )
+if( CMAKE_VERSION VERSION_GREATER 3.11 )
+  cmake_policy( SET CMP0074 OLD )
+  cmake_policy( SET CMP0075 OLD )
+endif()
 
 # Extra cmake modules to find libraries
 set( CMAKE_MODULE_PATH
@@ -29,6 +33,10 @@ endif()
 
 # Strip off the SHA1 tag element if it exists
 string( REGEX REPLACE "^([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1" GIT_VERSION "${GIT_TAG}" )
+if( NOT "${GIT_VERSION}" MATCHES "[0-9]+\\.[0-9]+\\.[0-9]+" )
+  message( WARNING "invalid git tag for version parsing: ${GIT_VERSION}" )
+  set( GIT_VERSION "0.0.0" )
+endif()
 
 project( uda VERSION ${GIT_VERSION} )
 

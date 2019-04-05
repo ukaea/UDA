@@ -218,9 +218,11 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                         } else {        // Locate the pointer data's properties:
 
                             if (data_n > 1) {
-                                int count_p, rank_p, size_p;
-                                int* shape_p;
-                                const char* typename_p;
+                                int count_p = 0;
+                                int rank_p = 0;
+                                int size_p = 0;
+                                int* shape_p = NULL;
+                                const char* typename_p = NULL;
 
                                 for (j = 0; j <
                                             data_n; j++) {    // Properties Must be identical for all structure array elements

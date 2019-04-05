@@ -438,7 +438,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
 
                         if ((count == 0 || size == 0) && *p != 0) {
                             addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999,
-                                         "Unsigned Short Data Heap Allocation not found in log!");
+                                         "Unsigned Char Data Heap Allocation not found in log!");
                             break;
                         }
 

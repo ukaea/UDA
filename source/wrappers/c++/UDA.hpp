@@ -1,5 +1,5 @@
-#ifndef IDAM_WRAPPERS_CPP_IDAM_HPP
-#define IDAM_WRAPPERS_CPP_IDAM_HPP
+#ifndef UDA_WRAPPERS_CPP_UDA_HPP
+#define UDA_WRAPPERS_CPP_UDA_HPP
 
 #include "client.hpp"
 #include "data.hpp"
@@ -9,4 +9,4 @@
 #include "string.hpp"
 //#include "signal.hpp"
 
-#endif // IDAM_WRAPPERS_CPP_IDAM_HPP
+#endif // UDA_WRAPPERS_CPP_UDA_HPP

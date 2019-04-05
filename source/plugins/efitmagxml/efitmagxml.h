@@ -1,5 +1,5 @@
-#ifndef IDAM_PLUGINS_EFITMAGXML_EFITMAGXML_H
-#define IDAM_PLUGINS_EFITMAGXML_EFITMAGXML_H
+#ifndef UDA_PLUGINS_EFITMAGXML_EFITMAGXML_H
+#define UDA_PLUGINS_EFITMAGXML_EFITMAGXML_H
 
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
@@ -36,4 +36,4 @@ int alloc_limiter(LIMITER* str);
 }
 #endif
 
-#endif // IDAM_PLUGINS_EFITMAGXML_EFITMAGXML_H
+#endif // UDA_PLUGINS_EFITMAGXML_EFITMAGXML_H

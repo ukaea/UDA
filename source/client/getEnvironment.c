@@ -33,14 +33,14 @@ void printIdamClientEnvironment(const ENVIRONMENT* environment)
 #ifdef FATCLIENT
     UDA_LOG(UDA_LOG_INFO, "External User?  : %d\n", environment->external_user);
 #  ifdef PROXYSERVER
-    UDA_LOG(UDA_LOG_INFO, "IDAM Proxy Host : %s\n", environment->server_proxy);
-    UDA_LOG(UDA_LOG_INFO, "IDAM This Host  : %s\n", environment->server_this);
+    UDA_LOG(UDA_LOG_INFO, "UDA Proxy Host : %s\n", environment->server_proxy);
+    UDA_LOG(UDA_LOG_INFO, "UDA This Host  : %s\n", environment->server_this);
 #  endif
 #endif
-    UDA_LOG(UDA_LOG_INFO, "IDAM Server Host: %s\n", environment->server_host);
-    UDA_LOG(UDA_LOG_INFO, "IDAM Server Port: %d\n", environment->server_port);
-    UDA_LOG(UDA_LOG_INFO, "IDAM Server Host2: %s\n", environment->server_host2);
-    UDA_LOG(UDA_LOG_INFO, "IDAM Server Port2: %d\n", environment->server_port2);
+    UDA_LOG(UDA_LOG_INFO, "UDA Server Host: %s\n", environment->server_host);
+    UDA_LOG(UDA_LOG_INFO, "UDA Server Port: %d\n", environment->server_port);
+    UDA_LOG(UDA_LOG_INFO, "UDA Server Host2: %s\n", environment->server_host2);
+    UDA_LOG(UDA_LOG_INFO, "UDA Server Port2: %d\n", environment->server_port2);
     UDA_LOG(UDA_LOG_INFO, "Server Reconnect: %d\n", environment->server_reconnect);
     UDA_LOG(UDA_LOG_INFO, "Server Change Socket: %d\n", environment->server_change_socket);
     UDA_LOG(UDA_LOG_INFO, "Server Socket ID: %d\n", environment->server_socket);
@@ -52,10 +52,10 @@ void printIdamClientEnvironment(const ENVIRONMENT* environment)
     UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environment->private_path_substitute);
 
 #ifndef NOTGENERICENABLED
-    UDA_LOG(UDA_LOG_INFO, "IDAM SQL Server Host: %s\n", environment->sql_host);
-    UDA_LOG(UDA_LOG_INFO, "IDAM SQL Server Port: %d\n", environment->sql_port);
-    UDA_LOG(UDA_LOG_INFO, "IDAM SQL Database   : %s\n", environment->sql_dbname);
-    UDA_LOG(UDA_LOG_INFO, "IDAM SQL USer       : %s\n", environment->sql_user);
+    UDA_LOG(UDA_LOG_INFO, "UDA SQL Server Host: %s\n", environment->sql_host);
+    UDA_LOG(UDA_LOG_INFO, "UDA SQL Server Port: %d\n", environment->sql_port);
+    UDA_LOG(UDA_LOG_INFO, "UDA SQL Database   : %s\n", environment->sql_dbname);
+    UDA_LOG(UDA_LOG_INFO, "UDA SQL USer       : %s\n", environment->sql_user);
 #endif
 
 }
@@ -68,9 +68,9 @@ ENVIRONMENT* getIdamClientEnvironment()
         return &udaEnviron;
     }
 
-//--- Read Standard Set of Environment Variables ------------------------------------
+    //--- Read Standard Set of Environment Variables ------------------------------------
 
-// Log Output
+    // Log Output
 
     if ((env = getenv("UDA_LOG")) != NULL) {
         strcpy(udaEnviron.logdir, env);
@@ -83,7 +83,13 @@ ENVIRONMENT* getIdamClientEnvironment()
 #endif
     }
 
-// Log Output Write Mode
+    if (udaEnviron.loglevel <= UDA_LOG_ACCESS) {
+        char cmd[STRING_LENGTH];
+        sprintf(cmd, "mkdir -p %s 2>/dev/null", udaEnviron.logdir);
+        system(cmd);
+    }
+    
+    // Log Output Write Mode
 
     strcpy(udaEnviron.logmode, "w");                    // Write & Replace Mode
     if ((env = getenv("UDA_LOG_MODE")) != NULL) {
@@ -101,7 +107,7 @@ ENVIRONMENT* getIdamClientEnvironment()
         else if (strncmp(env, "INFO", 4) == 0)   udaEnviron.loglevel = UDA_LOG_INFO;
     }
 
-// IDAM Server Host Name
+    // UDA Server Host Name
 
     if (env_host) {                            // Check Not already set by User
         if ((env = getenv("UDA_HOST")) != NULL) {
@@ -118,7 +124,7 @@ ENVIRONMENT* getIdamClientEnvironment()
         env_host = 0;
     }
 
-// IDAM Server Port name
+    // UDA Server Port name
 
     if (env_port) {
         if ((env = getenv("UDA_PORT")) != NULL) {
@@ -134,13 +140,13 @@ ENVIRONMENT* getIdamClientEnvironment()
         env_port = 0;
     }
 
-// IDAM Reconnect Status
+    // UDA Reconnect Status
 
     udaEnviron.server_reconnect = 0;    // No reconnection needed at startup!
     udaEnviron.server_socket = -1;    // No Socket open at startup
 
-//-------------------------------------------------------------------------------------------
-// API Defaults
+    //-------------------------------------------------------------------------------------------
+    // API Defaults
 
     if ((env = getenv("UDA_DEVICE")) != NULL) {
         strcpy(udaEnviron.api_device, env);
@@ -166,16 +172,16 @@ ENVIRONMENT* getIdamClientEnvironment()
         strcpy(udaEnviron.api_format, API_FILE_FORMAT);
     }
 
-//-------------------------------------------------------------------------------------------
-// Standard Data Location Path Algorithm ID
+    //-------------------------------------------------------------------------------------------
+    // Standard Data Location Path Algorithm ID
 
 #ifdef FATCLIENT
     udaEnviron.data_path_id = 0;
     if ((env = getenv("UDA_DATAPATHID")) != NULL) udaEnviron.data_path_id = atoi(env);
 #endif
 
-//-------------------------------------------------------------------------------------------
-// External User?
+    //-------------------------------------------------------------------------------------------
+    // External User?
 
 #ifdef FATCLIENT
 #  ifdef EXTERNAL_USER
@@ -187,8 +193,8 @@ ENVIRONMENT* getIdamClientEnvironment()
     if ((env = getenv("UDA_EXTERNAL_USER")) != NULL) udaEnviron.external_user = 1;
 #endif
 
-//-------------------------------------------------------------------------------------------
-// IDAM Proxy Host: redirect ALL requests
+    //-------------------------------------------------------------------------------------------
+    // UDA Proxy Host: redirect ALL requests
 
 #ifdef FATCLIENT
 #  ifdef PROXYSERVER
@@ -204,8 +210,8 @@ ENVIRONMENT* getIdamClientEnvironment()
 #  endif
 #endif
 
-//-------------------------------------------------------------------------------------------
-// Private File Path substitution: Enables server to see files if the path contains too many hierarchical elements
+    //-------------------------------------------------------------------------------------------
+    // Private File Path substitution: Enables server to see files if the path contains too many hierarchical elements
 
     if ((env = getenv("UDA_PRIVATE_PATH_TARGET")) != NULL) {
         strcpy(udaEnviron.private_path_target, env);
@@ -219,35 +225,35 @@ ENVIRONMENT* getIdamClientEnvironment()
         udaEnviron.private_path_substitute[0] = '\0';
     }
 
-//-------------------------------------------------------------------------------------------
-// Fat Client SQL Database Connection Details
+    //-------------------------------------------------------------------------------------------
+    // Fat Client SQL Database Connection Details
 
 #ifndef NOTGENERICENABLED
 
-// IDAM SQL Server Host Name
+    // UDA SQL Server Host Name
 
     strcpy(udaEnviron.sql_host, SQL_HOST); // Default, e.g. fuslwn
     if ((env = getenv("UDA_SQLHOST")) != NULL) strcpy(udaEnviron.sql_host, env);
 
-// IDAM SQL Server Port name
+    // UDA SQL Server Port name
 
     udaEnviron.sql_port = (int) SQL_PORT; // Default, e.g. 56566
     if ((env = getenv("UDA_SQLPORT")) != NULL) udaEnviron.sql_port = atoi(env);
 
-// IDAM SQL Database name
+    // UDA SQL Database name
 
     strcpy(udaEnviron.sql_dbname, SQL_DBNAME); // Default, e.g. idam
     if ((env = getenv("UDA_SQLDBNAME")) != NULL) strcpy(udaEnviron.sql_dbname, env);
 
-// IDAM SQL Access username
+    // UDA SQL Access username
 
     strcpy(udaEnviron.sql_user, SQL_USER); // Default, e.g. mast_db
     if ((env = getenv("UDA_SQLUSER")) != NULL) strcpy(udaEnviron.sql_user, env);
 
 #endif
 
-//-------------------------------------------------------------------------------------------
-// Client defined Property Flags
+    //-------------------------------------------------------------------------------------------
+    // Client defined Property Flags
 
     udaEnviron.clientFlags = 0;
     if ((env = getenv("UDA_FLAGS")) != NULL) udaEnviron.clientFlags = atoi(env);
@@ -255,7 +261,7 @@ ENVIRONMENT* getIdamClientEnvironment()
     udaEnviron.altRank = 0;
     if ((env = getenv("UDA_ALTRANK")) != NULL) udaEnviron.altRank = atoi(env);
 
-//-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
 
     udaEnviron.initialised = 1;        // Initialisation Complete
 

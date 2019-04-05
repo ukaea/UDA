@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 if( "${LOGGING_BACKEND}" STREQUAL "FILE" )
   set( SRC_FILES fileLogging.c )
 elseif( "${LOGGING_BACKEND}" STREQUAL "SYSLOG" )

@@ -1,5 +1,9 @@
-#ifndef IDAM_CLIENTSERVER_IDAMDEFINES_H
-#define IDAM_CLIENTSERVER_IDAMDEFINES_H
+#ifndef UDA_CLIENTSERVER_IDAMDEFINES_H
+#define UDA_CLIENTSERVER_IDAMDEFINES_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //--------------------------------------------------------
 // Size Definitions
@@ -49,17 +53,17 @@
 
 //#define MINYEAR  "1980"        // for Date Problems
 
-#define MD5_SIZE        16
+#define MD5_SIZE                16
 
-#define STRING_LENGTH        1024
-#define MAX_STRING_LENGTH    1024    // Ensure same as STRING_LENGTH
-#define DATE_LENGTH        12
+#define STRING_LENGTH           1024
+#define MAX_STRING_LENGTH       1024    // Ensure same as STRING_LENGTH
+#define DATE_LENGTH             12
 
-#define MAXLOOP             10000
-#define MAXBLOCK            1000    // msecs
+#define MAXLOOP                 10000
+#define MAXBLOCK                1000    // msecs
 
-#define DB_READ_BLOCK_SIZE  32*1024 //16384
-#define DB_WRITE_BLOCK_SIZE 32*1024 //16384
+#define DB_READ_BLOCK_SIZE      32*1024 //16384
+#define DB_WRITE_BLOCK_SIZE     32*1024 //16384
 
 #define GROWPUTDATABLOCKLIST    10
 
@@ -77,7 +81,7 @@
 #define PRIVATEFLAG_EXTERNAL    (unsigned int)2     // 0010        The originating server is an External Facing server
 #define PRIVATEFLAG_CACHE       (unsigned int)4     // 0100        Cache all data
 
-#define PRIVATEFLAG_XDROBJECT	8   // 1000        Use an intermediate XDR data object rather than a data stream
+#define PRIVATEFLAG_XDROBJECT    8   // 1000        Use an intermediate XDR data object rather than a data stream
 
 extern unsigned int privateFlags;
 
@@ -123,5 +127,8 @@ extern unsigned int clientFlags;
 
 #define DEFAULT_STATUS 1   // Default Signal and Data_Source Status value
 
+#ifdef __cplusplus
+}
+#endif
 
-#endif //IDAM_CLIENTSERVER_IDAMDEFINES_H
+#endif // UDA_CLIENTSERVER_IDAMDEFINES_H

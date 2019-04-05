@@ -1,5 +1,3 @@
-cmake_minimum_required( VERSION 2.8 )
-
 ########################################################################################################################
 # Dependencies
 
@@ -32,6 +30,7 @@ set( SRC_FILES
   serverStartup.c
   serverSubsetData.c
   writer.c
+  sqllib.c
 )
 
 set( HEADER_FILES
@@ -56,6 +55,7 @@ set( HEADER_FILES
   udaLegacyServer.h
   udaServer.h
   writer.h
+  sqllib.h
 )
 
 include_directories(
