@@ -88,12 +88,14 @@ target_link_libraries(
   plugins-static
   server-static
   ${LIBXML2_LIBRARIES}
+  dl
 )
 
 target_link_libraries(
   plugins-shared
   server-static
   ${LIBXML2_LIBRARIES}
+  dl
 )
 
 set_target_properties( plugins-static
