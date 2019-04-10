@@ -103,9 +103,12 @@ add_executable( server-exe serverMain.c )
 ########################################################################################################################
 # Add libraries
 
-target_link_libraries( server-shared INTERFACE
+target_link_libraries( server-shared PRIVATE
   client-shared
   plugins-static
+)
+
+target_link_libraries( server-shared INTERFACE
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
@@ -114,8 +117,11 @@ target_link_libraries( server-shared INTERFACE
 
 link_modules( server-shared )
 
-target_link_libraries( server-static INTERFACE
+target_link_libraries( server-static PRIVATE
   client-shared
+)
+
+target_link_libraries( server-static INTERFACE
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
