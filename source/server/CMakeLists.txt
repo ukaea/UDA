@@ -98,35 +98,34 @@ set( SERVER_OBJ
 add_library( server-shared SHARED ${SERVER_OBJ} )
 add_library( server-static STATIC ${SERVER_OBJ} )
 
-#target_link_libraries( server-shared LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
-#target_link_libraries( server-static LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
-
 add_executable( server-exe serverMain.c )
 
 ########################################################################################################################
 # Add libraries
 
-target_link_libraries( server-shared LINK_PRIVATE
+target_link_libraries( server-shared INTERFACE
   client-shared
   plugins-static
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
+  dl
 )
 
 link_modules( server-shared )
 
-target_link_libraries( server-static LINK_PRIVATE
+target_link_libraries( server-static INTERFACE
   client-shared
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
+  dl
 )
 
 link_modules( server-static )
 
 # Executable
-target_link_libraries( server-exe LINK_PRIVATE
+target_link_libraries( server-exe PRIVATE
   client-shared
   server-shared
   ${OPENSSL_LIBRARIES}
@@ -140,7 +139,7 @@ target_link_libraries( server-exe LINK_PRIVATE
 link_modules( server-exe )
 
 if( NOT APPLE )
-  target_link_libraries( server-exe LINK_PRIVATE gcc_s )
+  target_link_libraries( server-exe PRIVATE gcc_s )
 endif()
 
 ########################################################################################################################
