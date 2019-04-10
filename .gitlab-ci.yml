@@ -30,4 +30,4 @@ build:
 test:
   stage: test
   script:
-    - ./build/test/plugins/fat_plugin_test_help
+    - LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH ./build/test/plugins/fat_plugin_test_help -r junit
