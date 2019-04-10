@@ -1,0 +1,32 @@
+# use the official gcc image, based on debian
+# can use verions as well, like gcc:5.2
+# see https://hub.docker.com/_/gcc/
+image: gcc:7.3
+
+build:
+  stage: build
+  # instead of calling g++ directly you can also use some build toolkit like make
+  # install the necessary build tools when needed
+  before_script:
+    - apt update && apt -y install cmake python3-dev libssl-dev libboost-dev swig libxml2-dev pkg-config ninja-build
+  script:
+    - cmake -GNinja -Bbuild -H. -DCMAKE_INSTALL_PREFIX=. -DTARGET_TYPE=OTHER -DNO_MODULES=ON
+    - ninja -C build
+    - ninja -C build install
+  artifacts:
+    paths:
+      - lib/
+      - include/
+      - bin/
+      - etc/
+      - python_installer/
+  # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
+  cache:
+    paths:
+      - build/
+
+# run tests using the binary built before
+test:
+  stage: test
+  script:
+    - ./build/test/plugins/fat_plugin_test_help
