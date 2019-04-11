@@ -74,9 +74,9 @@ macro( BUILD_TEST NAME SOURCE )
   link_modules( fat_${NAME} )
 
   if( FAT_TESTS )
-    add_test( ${NAME} fat_${NAME} )
+    add_test( ${NAME} fat_${NAME} -r junit -o ${NAME}_out.xml )
   else()
-    add_test( ${NAME} ${NAME} )
+    add_test( ${NAME} ${NAME} -r junit -o ${NAME}_out.xml )
   endif()
 endmacro( BUILD_TEST )
 
