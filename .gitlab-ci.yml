@@ -34,6 +34,6 @@ test:
   artifacts:
     reports:
       junit:
-        - *_out.xml
+        - "*_out.xml"
         - plugins/*_out.xml
         - imas/*_out.xml
