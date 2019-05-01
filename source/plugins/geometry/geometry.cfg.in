@@ -1,9 +1,0 @@
-#------------------------------------------------------------------------------------------------------
-# Creates the Environment needed by the geometry plugin
-#------------------------------------------------------------------------------------------------------
-
-export MAST_GEOM_DATA="/data/idam/GeomFiles/"
-export GEOM_DB_HOST="idam1.mast.ccfe.ac.uk"
-export GEOM_DB_PORT=56567
-export GEOM_DB_NAME="geom"
-export GEOM_DB_USER="geomowner"

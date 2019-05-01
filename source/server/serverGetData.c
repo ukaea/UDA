@@ -1443,11 +1443,14 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK* request_block, CLIENT_B
 
         // Don't append the file name to the path - if it's already present!
 
-        if (strlen(data_source->path) == 0) {        // No path in Data_Source record so must be on default Archive Path
-            if (request_block->pass == -1 && request_block->tpass[0] == '\0') {    // Always LATES
+        if (strlen(data_source->path) == 0) {
+            // No path in Data_Source record so must be on default Archive Path
+            if (request_block->pass == -1 && request_block->tpass[0] == '\0') {
+                // Always LATEST
                 mastArchiveFilePath(request_block->exp_number, request_block->pass, data_source->filename,
                                     data_source->path);
-            } else {                                // Specific PASS
+            } else {
+                // Specific PASS
                 mastArchiveFilePath(request_block->exp_number, data_source->pass, data_source->filename,
                                     data_source->path);
             }
@@ -1460,15 +1463,15 @@ int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK* request_block, CLIENT_B
     }
 
     if (plugin_id == REQUEST_READ_UNKNOWN) {
-        UDA_LOG(UDA_LOG_DEBUG, "IdamServer: No Plugin Selected\n");
+        UDA_LOG(UDA_LOG_DEBUG, "No Plugin Selected\n");
     }
-    UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Archive      : %s \n", data_source->archive);
-    UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Device Name  : %s \n", data_source->device_name);
-    UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Signal Name  : %s \n", signal_desc->signal_name);
-    UDA_LOG(UDA_LOG_DEBUG, "IdamServer: File Path    : %s \n", data_source->path);
-    UDA_LOG(UDA_LOG_DEBUG, "IdamServer: File Name    : %s \n", data_source->filename);
-    UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pulse Number : %d \n", data_source->exp_number);
-    UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pass Number  : %d \n", data_source->pass);
+    UDA_LOG(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
+    UDA_LOG(UDA_LOG_DEBUG, "Device Name  : %s \n", data_source->device_name);
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc->signal_name);
+    UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", data_source->path);
+    UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", data_source->filename);
+    UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source->exp_number);
+    UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source->pass);
 
     //----------------------------------------------------------------------------
     // Initialise the Data Block Structure
