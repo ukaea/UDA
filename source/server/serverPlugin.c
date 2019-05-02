@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------
-* Identify the correct IDAM Data Server Plugin
+* Identify the correct UDA Data Server Plugin
 *---------------------------------------------------------------------------------------------------------------------*/
 #include "serverPlugin.h"
 
@@ -13,93 +13,16 @@
 #include <clientserver/expand_path.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
-#include <clientserver/protocol.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaErrors.h>
+#include <clientserver/protocol.h>
 #include <structures/struct.h>
-#include <clientserver/makeRequestBlock.h>
-#include <clientserver/makeRequestBlock.h>
 
 #define REQUEST_READ_START      1000
 #define REQUEST_PLUGIN_MCOUNT   100    // Maximum initial number of plugins that can be registered
 #define REQUEST_PLUGIN_MSTEP    10    // Increase heap by 10 records once the maximum is exceeded
-
-static void parseIDAPath(REQUEST_BLOCK *request_block) {
-    char *token=NULL;
-    char work[STRING_LENGTH]="";
-
-    if(request_block->path[0] == '\0') return;	// Nothing to work with!
-
-    //------------------------------------------------------------------------------
-    // Extract Exp_Number or Source Name
-
-    if(request_block->path[0] == '/')
-        strcpy(work, request_block->path+1);	// the leading character is a / so ignore
-    else
-        strcpy(work, request_block->path);
-
-    token = strtok(work, "/");
-
-    if(token != NULL) {					// Tokenise the remaining path string
-        if(IsNumber(token)) {				// Is the First token an integer number?
-            request_block->exp_number = atoi(token);	// It must be the Exp_number
-            if((token = strtok(NULL, "/")) != NULL) {	// Next Token
-                if(IsNumber(token)) {
-                    request_block->pass = atoi(token);	// Followed by the Pass number
-                } else {
-                    strcpy(request_block->tpass, token);	// or something else known to the plugin
-                }
-            }
-            strcpy(request_block->path, "");
-            strncpy(request_block->file, request_block->signal, 3);	// IDA Source alias
-            request_block->file[3] = '\0';
-        }
-    } else {
-        if(IsNumber(work)) {				// Is the Only token an integer number?
-            request_block->exp_number = atoi(work);	// It must be the Exp_number
-            strcpy(request_block->path, "");
-            strncpy(request_block->file, request_block->signal, 3);
-            request_block->file[3] = '\0';
-        }
-    }
-}
-
-static void parseXMLPath(REQUEST_BLOCK *request_block) {
-    char *token=NULL;
-    char work[STRING_LENGTH]="";
-
-    if(request_block->path[0] == '\0') return;	// Nothing to work with!
-
-    //------------------------------------------------------------------------------
-    // Extract Exp_Number and Pass Number
-
-    if(request_block->path[0] == '/')
-        strcpy(work, request_block->path+1);	// the leading character is a / so ignore
-    else
-        strcpy(work, request_block->path);
-
-    token = strtok(work, "/");
-
-    if(token != NULL) {					// Tokenise the remaining string
-        if(IsNumber(token)) {				// Is the First token an integer number?
-            request_block->exp_number = atoi(token);	// It must be the Exp_number
-            if((token = strtok(NULL, "/")) != NULL) {	// Next Token
-                if(IsNumber(token)) {
-                    request_block->pass = atoi(token);	// Followed by the Pass number
-                } else {
-                    strcpy(request_block->tpass, token);	// or something else known to the plugin
-                }
-            }
-            strcpy(request_block->path, "");
-        }
-    } else {
-        if(IsNumber(work)) {				// Is the Only token an integer number?
-            request_block->exp_number = atoi(work);	// It must be the Exp_number
-            strcpy(request_block->path, "");
-        }
-    }
-}
 
 void allocPluginList(int count, PLUGINLIST* plugin_list)
 {
@@ -156,11 +79,11 @@ void initPluginData(PLUGIN_DATA* plugin)
     plugin->deviceHost[0] = '\0';
     plugin->devicePort[0] = '\0';
     plugin->request = REQUEST_READ_UNKNOWN;
-    plugin->plugin_class = PLUGINUNKNOWN;
-    plugin->external = PLUGINNOTEXTERNAL;
-    plugin->status = PLUGINNOTOPERATIONAL;
-    plugin->is_private = PLUGINPRIVATE;                    // All services are private: Not accessible to external users
-    plugin->cachePermission = PLUGINCACHEDEFAULT;       // Data are OK or Not for the Client to Cache
+    plugin->plugin_class = UDA_PLUGIN_CLASS_UNKNOWN;
+    plugin->external = UDA_PLUGIN_INTERNAL;
+    plugin->status = UDA_PLUGIN_NOT_OPERATIONAL;
+    plugin->is_private = UDA_PLUGIN_PRIVATE;            // All services are private: Not accessible to external users
+    plugin->cachePermission = UDA_PLUGIN_CACHE_DEFAULT; // Data are OK or Not for the Client to Cache
     plugin->interfaceVersion = 1;                       // Maximum Interface Version
     plugin->pluginHandle = NULL;
     plugin->idamPlugin = NULL;
@@ -206,7 +129,7 @@ int idamServerRedirectStdStreams(int reset)
     if (!reset) {
         if (!singleFile) {
             env = getenv("UDA_PLUGIN_DEBUG_SINGLEFILE");        // Use a single file for all plugin data requests
-            if (env != NULL) singleFile = 1;                    // Define IDAM_PLUGIN_DEBUG to retain the file
+            if (env != NULL) singleFile = 1;                    // Define UDA_PLUGIN_DEBUG to retain the file
         }
 
         if (mdsmsgFH != NULL && singleFile) {
@@ -305,109 +228,48 @@ int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIG
                      const PLUGINLIST* plugin_list, const ENVIRONMENT* environment)
 {
     int err = 0;
-    char* token = NULL;
-    char work[STRING_LENGTH];
 
     UDA_LOG(UDA_LOG_DEBUG, "Start\n");
 
-    //----------------------------------------------------------------------------
-    // Start of Error Trap
+    //----------------------------------------------------------------------------------------------
+    // Decode the API Arguments: determine appropriate data reader plug-in
 
-    do {
+    if ((err = makeRequestBlock(request_block, *plugin_list, environment)) != 0) {
+        return err;
+    }
 
-        //----------------------------------------------------------------------------------------------
-        // Decode the API Arguments: determine appropriate data reader plug-in
+    UDA_LOG(UDA_LOG_DEBUG, "request_block\n");
+    printRequestBlock(*request_block);
 
-        if ((err = makeRequestBlock(request_block, *plugin_list, environment)) != 0) break;
+    //----------------------------------------------------------------------------------------------
+    // Does the Path to Private Files contain hierarchical components not seen by the server?
+    // If so make a substitution to resolve path problems.
 
-        UDA_LOG(UDA_LOG_DEBUG, "request_block\n");
-        printRequestBlock(*request_block);
-
-        //----------------------------------------------------------------------------------------------
-        // Does the Path to Private Files contain hierarchical components not seen by the server?
-        // If so make a substitution to resolve path problems.
-
-        if (strlen(request_block->server) == 0 && request_block->request != REQUEST_READ_SERVERSIDE) {
-            // Must be a File plugin
-            if ((err = pathReplacement(request_block->path, environment)) != 0) break;
+    if (strlen(request_block->server) == 0 && request_block->request != REQUEST_READ_SERVERSIDE) {
+        // Must be a File plugin
+        if ((err = pathReplacement(request_block->path, environment)) != 0) {
+            return err;
         }
+    }
 
-        //----------------------------------------------------------------------
-        // Some legacy stuff ....
+    //----------------------------------------------------------------------
+    // Copy request details into the data_source structure mimicking a SQL query
 
-        if (request_block->request == REQUEST_READ_IDA) {
-            parseIDAPath(request_block);
-        } else {
-            if (request_block->request == REQUEST_READ_XML) {
-                parseXMLPath(request_block);
-            }
-        }
+    strcpy(data_source->source_alias, TrimString(request_block->file));
+    strcpy(data_source->filename, TrimString(request_block->file));
+    strcpy(data_source->path, TrimString(request_block->path));
 
-        //----------------------------------------------------------------------
-        // Copy request details into the data_source structure mimicking a SQL query
+    copyString(TrimString(request_block->signal), signal_desc->signal_name, MAXNAME);
 
-        strcpy(data_source->source_alias, TrimString(request_block->file));
-        strcpy(data_source->filename, TrimString(request_block->file));
-        strcpy(data_source->path, TrimString(request_block->path));
+    strcpy(data_source->server, TrimString(request_block->server));
 
-        copyString(TrimString(request_block->signal), signal_desc->signal_name, MAXNAME);
+    strcpy(data_source->format, TrimString(request_block->format));
+    strcpy(data_source->archive, TrimString(request_block->archive));
+    strcpy(data_source->device_name, TrimString(request_block->device_name));
 
-        strcpy(data_source->server, TrimString(request_block->server));
-
-        strcpy(data_source->format, TrimString(request_block->format));
-        strcpy(data_source->archive, TrimString(request_block->archive));
-        strcpy(data_source->device_name, TrimString(request_block->device_name));
-
-        data_source->exp_number = request_block->exp_number;
-        data_source->pass = request_block->pass;
-        data_source->type = ' ';
-
-        // Legacy Exceptions ...
-
-        switch (request_block->request) {
-
-            case REQUEST_READ_MDS:
-
-                if (strlen(signal_desc->signal_name) == MAXNAME - 1) {
-                    copyString(TrimString(request_block->signal), signal_desc->xml, MAXMETA);    // Pass via XML member
-                    signal_desc->signal_name[0] = '\0';
-                }
-                break;
-
-            case REQUEST_READ_NOTHING:
-
-                if (data_source->exp_number == 0 && data_source->pass == -1) {    // May be passed in Path String
-                    strcpy(work, request_block->path);
-                    if (work[0] == '/' && (token = strtok(work, "/")) != NULL) {    // Tokenise the remaining string
-                        if (IsNumber(token)) {                    // Is the First token an integer number?
-                            request_block->exp_number = atoi(token);
-                            if ((token = strtok(NULL, "/")) != NULL) {        // Next Token
-                                if (IsNumber(token)) {
-                                    request_block->pass = atoi(token);        // Must be the Pass number
-                                } else {
-                                    strcpy(request_block->tpass, token);        // anything else
-                                }
-                            }
-                        }
-                        data_source->exp_number = request_block->exp_number;        // Size of Data Block
-                        data_source->pass = request_block->pass;        // Compressible or Not
-                    }
-                }
-                break;
-        }
-
-        if (err != 0) break;
-
-        //------------------------------------------------------------------------------------------------
-        // Trap any unexpected output to stdout or stderr
-
-        //------------------------------------------------------------------------------------------------
-        // Locate and Execute the Required Plugin
-
-        //------------------------------------------------------------------------------------------------
-        // End of Error Trap
-
-    } while (0);
+    data_source->exp_number = request_block->exp_number;
+    data_source->pass = request_block->pass;
+    data_source->type = ' ';
 
     UDA_LOG(UDA_LOG_DEBUG, "End\n");
 
@@ -435,7 +297,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
                          char* logRecord, const ENVIRONMENT* environment)
 {
 
-    if (strcmp(client_block->DOI, "") || strlen(client_block->DOI) == 0) {
+    if (STR_EQUALS(client_block->DOI, "")) {
         // No Provenance to Capture
         return 0;
     }
@@ -458,20 +320,20 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
             int id = findPluginIdByFormat(env, plugin_list); // Must be defined in the server plugin configuration file
             UDA_LOG(UDA_LOG_DEBUG, "Plugin id: %d\n", id);
             if (id >= 0) {
-                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].plugin_class == PLUGINFUNCTION = %d\n",
-                        plugin_list->plugin[id].plugin_class == PLUGINFUNCTION);
+                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION = %d\n",
+                        plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION);
                 UDA_LOG(UDA_LOG_DEBUG, "!environment->external_user = %d\n", !environment->external_user);
-                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].status == PLUGINOPERATIONAL = %d\n",
-                        plugin_list->plugin[id].status == PLUGINOPERATIONAL);
+                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL = %d\n",
+                        plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL);
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].pluginHandle != NULL = %d\n",
                         plugin_list->plugin[id].pluginHandle != NULL);
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].idamPlugin   != NULL = %d\n",
                         plugin_list->plugin[id].idamPlugin != NULL);
             }
             if (id >= 0 &&
-                plugin_list->plugin[id].plugin_class == PLUGINFUNCTION &&
+                plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
                 !environment->external_user &&
-                plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
+                plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL &&
                 plugin_list->plugin[id].pluginHandle != NULL &&
                 plugin_list->plugin[id].idamPlugin != NULL) {
                 plugin_id = id;
@@ -484,7 +346,10 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
     UDA_LOG(UDA_LOG_DEBUG, "Plugin id: %d\n", plugin_id);
 
-    if (plugin_id <= 0) return 0;    // Not possible to record anything - no provenance plugin!
+    if (plugin_id <= 0) {
+        // Not possible to record anything - no provenance plugin!
+        return 0;
+    }
 
     REQUEST_BLOCK request_block;
     initRequestBlock(&request_block);
@@ -527,41 +392,34 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     // Check the Interface Compliance
 
     if (plugin_list->plugin[plugin_id].interfaceVersion > 1) {
-        err = 999;
-        addIdamError(CODEERRORTYPE, "idamProvenancePlugin", err,
-                     "The Provenance Plugin's Interface Version is not Implemented.");
-        return err;
+        THROW_ERROR(999, "The Provenance Plugin's Interface Version is not Implemented.");
     }
 
-    USERDEFINEDTYPELIST* userdefinedtypelist = NULL;
-    copyUserDefinedTypeList(&userdefinedtypelist);                // Allocate and Copy the Master User Defined Type List
+    USERDEFINEDTYPELIST userdefinedtypelist;
+    initUserDefinedTypeList(&userdefinedtypelist);
 
-    LOGMALLOCLIST* logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-    initLogMallocList(logmalloclist);
+    LOGMALLOCLIST logmalloclist;
+    initLogMallocList(&logmalloclist);
 
     idam_plugin_interface.interfaceVersion = 1;
     idam_plugin_interface.pluginVersion = 0;
-    idam_plugin_interface.sqlConnectionType = 0;
     idam_plugin_interface.data_block = &data_block;
     idam_plugin_interface.client_block = client_block;
     idam_plugin_interface.request_block = &request_block;
     idam_plugin_interface.data_source = data_source;
     idam_plugin_interface.signal_desc = signal_desc;
     idam_plugin_interface.environment = environment;
-    idam_plugin_interface.sqlConnection = NULL;        // Private to the plugin
     idam_plugin_interface.housekeeping = 0;
     idam_plugin_interface.changePlugin = 0;
     idam_plugin_interface.pluginList = plugin_list;
-    idam_plugin_interface.userdefinedtypelist = userdefinedtypelist;
-    idam_plugin_interface.logmalloclist = logmalloclist;
+    idam_plugin_interface.userdefinedtypelist = &userdefinedtypelist;
+    idam_plugin_interface.logmalloclist = &logmalloclist;
 
     // Redirect Output to temporary file if no file handles passed
 
     reset = 0;
     if ((err = idamServerRedirectStdStreams(reset)) != 0) {
-        addIdamError(CODEERRORTYPE, "idamProvenancePlugin", err,
-                     "Error Redirecting Plugin Message Output");
-        return err;
+        THROW_ERROR(err, "Error Redirecting Plugin Message Output");
     }
 
     // Call the plugin
@@ -575,13 +433,6 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     // No data are returned in this context so free everything
 
     UDA_LOG(UDA_LOG_DEBUG, "housekeeping\n");
-
-    freeMallocLogList(logmalloclist);
-    free((void*)logmalloclist);
-
-    freeUserDefinedTypeList(userdefinedtypelist);
-    free((void*)userdefinedtypelist);
-    userdefinedtypelist = NULL;
 
     freeNameValueList(&request_block.nameValueList);
 
@@ -600,10 +451,11 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     reset = 1;
     if ((rc = idamServerRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
-            addIdamError(CODEERRORTYPE, "idamProvenancePlugin", rc,
-                         "Error Resetting Redirected Plugin Message Output");
+            addIdamError(CODEERRORTYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
-        if (err != 0) return err;
+        if (err != 0) {
+            return err;
+        }
         return rc;
     }
 
@@ -617,7 +469,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 }
 
 //------------------------------------------------------------------------------------------------
-// Identify the Plugin to use to resolve Generic Name mappings and return its ID 
+// Identify the Plugin to use to resolve Generic Name mappings and return its ID
 
 int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* environment)
 {
@@ -636,24 +488,25 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT*
     if ((env = getenv("UDA_METADATA_PLUGIN")) != NULL) {        // Must be set in the server startup script
         int id = findPluginIdByFormat(env, plugin_list);        // Must be defined in the server plugin configuration file
         if (id >= 0 &&
-            plugin_list->plugin[id].plugin_class == PLUGINFUNCTION &&
-            plugin_list->plugin[id].status == PLUGINOPERATIONAL &&
+            plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
+            plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL &&
             plugin_list->plugin[id].pluginHandle != NULL &&
             plugin_list->plugin[id].idamPlugin != NULL) {
             plugin_id = (short)id;
         }
 
-        if (id >= 0 && plugin_list->plugin[id].is_private == PLUGINPRIVATE && environment->external_user) {
+        if (id >= 0 && plugin_list->plugin[id].is_private == UDA_PLUGIN_PRIVATE &&
+            environment->external_user) {
             plugin_id = -1;
         }        // Not available to external users
 
         UDA_LOG(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: %s\n", env);
-        UDA_LOG(UDA_LOG_DEBUG, "PLUGINFUNCTION?: %d\n", plugin_list->plugin[id].plugin_class == PLUGINFUNCTION);
-        UDA_LOG(UDA_LOG_DEBUG, "PLUGINPRIVATE?: %d\n", plugin_list->plugin[id].is_private == PLUGINPRIVATE);
+        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_CLASS_FUNCTION?: %d\n", plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION);
+        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_PRIVATE?: %d\n", plugin_list->plugin[id].is_private == UDA_PLUGIN_PRIVATE);
         UDA_LOG(UDA_LOG_DEBUG, "External User?: %d\n", environment->external_user);
         UDA_LOG(UDA_LOG_DEBUG, "Private?: %d\n",
-                plugin_list->plugin[id].is_private == PLUGINPRIVATE && environment->external_user);
-        UDA_LOG(UDA_LOG_DEBUG, "PLUGINOPERATIONAL?: %d\n", plugin_list->plugin[id].status == PLUGINOPERATIONAL);
+                plugin_list->plugin[id].is_private == UDA_PLUGIN_PRIVATE && environment->external_user);
+        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_OPERATIONAL?: %d\n", plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL);
         UDA_LOG(UDA_LOG_DEBUG, "Plugin OK?: %d\n",
                 plugin_list->plugin[id].pluginHandle != NULL && plugin_list->plugin[id].idamPlugin != NULL);
         UDA_LOG(UDA_LOG_DEBUG, "id: %d\n", id);
@@ -671,7 +524,7 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT*
 // Execute the Generic Name mapping Plugin
 
 int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
-                             SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source, LOGMALLOCLIST* logmalloclist,
+                             SIGNAL_DESC* signal_desc, SIGNAL* signal_rec, DATA_SOURCE* data_source,
                              const ENVIRONMENT* environment)
 {
     int err, reset, rc;
@@ -680,51 +533,50 @@ int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUE
     // Check the Interface Compliance
 
     if (plugin_list->plugin[plugin_id].interfaceVersion > 1) {
-        err = 999;
-        addIdamError(CODEERRORTYPE, "idamServerMetaDataPlugin", err,
-                     "The Plugin's Interface Version is not Implemented.");
-        return err;
+        THROW_ERROR(999, "The Plugin's Interface Version is not Implemented.");
     }
 
-    USERDEFINEDTYPELIST* userdefinedtypelist = NULL;
-    copyUserDefinedTypeList(&userdefinedtypelist);
+    DATA_BLOCK data_block;
+    initDataBlock(&data_block);
+    data_block.signal_rec = signal_rec;
+
+    USERDEFINEDTYPELIST userdefinedtypelist;
+    initUserDefinedTypeList(&userdefinedtypelist);
+
+    LOGMALLOCLIST logmalloclist;
+    initLogMallocList(&logmalloclist);
 
     idam_plugin_interface.interfaceVersion = 1;
     idam_plugin_interface.pluginVersion = 0;
-    idam_plugin_interface.sqlConnectionType = 0;
-    idam_plugin_interface.data_block = NULL;
+    idam_plugin_interface.data_block = &data_block;
     idam_plugin_interface.client_block = NULL;
     idam_plugin_interface.request_block = request_block;
     idam_plugin_interface.data_source = data_source;
     idam_plugin_interface.signal_desc = signal_desc;
-    idam_plugin_interface.environment = environment;    // Legacy Global variable
-    idam_plugin_interface.sqlConnection = NULL;        // Private to the plugin
+    idam_plugin_interface.environment = environment;
     idam_plugin_interface.housekeeping = 0;
     idam_plugin_interface.changePlugin = 0;
     idam_plugin_interface.pluginList = plugin_list;
-    idam_plugin_interface.userdefinedtypelist = userdefinedtypelist;
-    idam_plugin_interface.logmalloclist = logmalloclist;
+    idam_plugin_interface.userdefinedtypelist = &userdefinedtypelist;
+    idam_plugin_interface.logmalloclist = &logmalloclist;
 
     // Redirect Output to temporary file if no file handles passed
 
     reset = 0;
     if ((err = idamServerRedirectStdStreams(reset)) != 0) {
-        addIdamError(CODEERRORTYPE, "idamServerMetaDataPlugin", err,
-                     "Error Redirecting Plugin Message Output");
-        return err;
+        THROW_ERROR(err, "Error Redirecting Plugin Message Output");
     }
 
-// Call the plugin (Error handling is managed within)
+    // Call the plugin (Error handling is managed within)
 
     err = plugin_list->plugin[plugin_id].idamPlugin(&idam_plugin_interface);
 
-// Reset Redirected Output 
+    // Reset Redirected Output
 
     reset = 1;
     if ((rc = idamServerRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
-            addIdamError(CODEERRORTYPE, "idamServerMetaDataPlugin", rc,
-                         "Error Resetting Redirected Plugin Message Output");
+            addIdamError(CODEERRORTYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
         if (err != 0) return err;
         return rc;

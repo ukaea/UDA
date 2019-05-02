@@ -947,7 +947,7 @@ int getIdamOrder(int handle)
 unsigned int getIdamCachePermission(int handle)
 {
     // Permission to cache?
-    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return PLUGINNOTOKTOCACHE;
+    if (handle < 0 || (unsigned int)handle >= Data_Block_Count) return UDA_PLUGIN_NOT_OK_TO_CACHE;
     return Data_Block[handle].cachePermission;
 }
 

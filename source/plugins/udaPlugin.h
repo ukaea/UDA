@@ -16,15 +16,15 @@ extern "C" {
 
 // plugin State
 
-#define PLUGINNOTEXTERNAL       0
-#define PLUGINEXTERNAL          1           // The plugin resides in an external shared library
-#define PLUGINNOTOPERATIONAL    0
-#define PLUGINOPERATIONAL       1
+#define UDA_PLUGIN_INTERNAL          0
+#define UDA_PLUGIN_EXTERNAL          1           // The plugin resides in an external shared library
+#define UDA_PLUGIN_NOT_OPERATIONAL   0
+#define UDA_PLUGIN_OPERATIONAL       1
 
 // privacy
 
-#define PLUGINPRIVATE       1           // Only internal users can use the service (access the data!)
-#define PLUGINPUBLIC        0           // All users - internal and external - can use the service
+#define UDA_PLUGIN_PRIVATE       1           // Only internal users can use the service (access the data!)
+#define UDA_PLUGIN_PUBLIC        0           // All users - internal and external - can use the service
 
 // SQL Connection Types
 

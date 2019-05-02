@@ -20,14 +20,14 @@ extern "C" {
 
 // Cache permissions
 
-#define PLUGINNOTOKTOCACHE  0   // Plugin state management incompatible with client side cacheing
-#define PLUGINOKTOCACHE     1   // Data are OK for the Client to Cache
+#define UDA_PLUGIN_NOT_OK_TO_CACHE  0   // Plugin state management incompatible with client side cacheing
+#define UDA_PLUGIN_OK_TO_CACHE      1   // Data are OK for the Client to Cache
 
-#define PLUGINCACHEDEFAULT  PLUGINOKTOCACHE // The cache permission to use as the default
+#define UDA_PLUGIN_CACHE_DEFAULT  UDA_PLUGIN_NOT_OK_TO_CACHE // The cache permission to use as the default
 
-#define PLUGINNOCACHETYPE   0
-#define PLUGINMEMCACHETYPE  1
-#define PLUGINFILECACHETYPE 2
+#define UDA_PLUGIN_NO_CACHE_TYPE   0
+#define UDA_PLUGIN_MEM_CACHE_TYPE  1
+#define UDA_PLUGIN_FILE_CACHE_TYPE 2
 
 typedef struct IdamCache IDAM_CACHE;
 

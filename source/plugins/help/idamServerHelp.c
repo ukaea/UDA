@@ -71,8 +71,8 @@ int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         return 0;
     }
 
-//----------------------------------------------------------------------------------------
-// Initialise 
+    //----------------------------------------------------------------------------------------
+    // Initialise
 
     if (!init || STR_IEQUALS(request_block->function, "init")
         || STR_IEQUALS(request_block->function, "initialise")) {
@@ -199,9 +199,9 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     count = 0;
     for (i = 0; i < pluginList->count; i++)
-        if (pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-            (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
-             (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
+        if (pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
+            (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
+             (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
                  count++;
         }
 
@@ -213,13 +213,13 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcat(doc, line);
         switch (j) {
             case 0: {
-                target = PLUGINFILE;
+                target = UDA_PLUGIN_CLASS_FILE;
 
                 for (i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
-                        pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user)) &&
+                        pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
+                        (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
+                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user)) &&
                         pluginList->plugin[i].format[0] != '\0' && pluginList->plugin[i].extension[0] != '\0') {
                             count++;
                     }
@@ -229,9 +229,9 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 for (i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
-                        pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user)) &&
+                        pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
+                        (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
+                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user)) &&
                         pluginList->plugin[i].format[0] != '\0' && pluginList->plugin[i].extension[0] != '\0') {
                         sprintf(rec, "File format:\t\t%s\n", pluginList->plugin[i].format);
                         strcat(doc, rec);
@@ -245,21 +245,21 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 break;
             }
             case 1: {
-                target = PLUGINFUNCTION;
+                target = UDA_PLUGIN_CLASS_FUNCTION;
                 for (i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
-                        pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
+                        pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
+                        (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
+                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
                              count++;
                     }
                 sprintf(rec, "\nNumber of plugins for Libraries: %d\n\n", count);
                 strcat(doc, rec);
                 for (i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
-                        pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
+                        pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
+                        (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
+                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
                         sprintf(rec, "Library name:\t\t%s\n", pluginList->plugin[i].format);
                         strcat(doc, rec);
                         sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
@@ -270,21 +270,21 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 break;
             }
             case 2: {
-                target = PLUGINSERVER;
+                target = UDA_PLUGIN_CLASS_SERVER;
                 for (i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
-                        pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
+                        pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
+                        (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
+                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
                              count++;
                     }
                 sprintf(rec, "\nNumber of plugins for Data Servers: %d\n\n", count);
                 strcat(doc, rec);
                 for (i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
-                        pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
+                        pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
+                        (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
+                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
                         sprintf(rec, "Server name:\t\t%s\n", pluginList->plugin[i].format);
                         strcat(doc, rec);
                         sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
@@ -295,21 +295,21 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 break;
             }
             case 3: {
-                target = PLUGINDEVICE;
+                target = UDA_PLUGIN_CLASS_DEVICE;
                 for (i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
-                        pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
+                        pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
+                        (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
+                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
                              count++;
                     }
                 sprintf(rec, "\nNumber of plugins for External Devices: %d\n\n", count);
                 strcat(doc, rec);
                 for (i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
-                        pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
+                        pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
+                        (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
+                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
                         sprintf(rec, "External device name:\t%s\n", pluginList->plugin[i].format);
                         strcat(doc, rec);
                         sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
@@ -320,21 +320,21 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 break;
             }
             case 4: {
-                target = PLUGINOTHER;
+                target = UDA_PLUGIN_CLASS_OTHER;
                 for (i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
-                        pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
+                        pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
+                        (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
+                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
                              count++;
                     }
                 sprintf(rec, "\nNumber of plugins for Other data services: %d\n\n", count);
                 strcat(doc, rec);
                 for (i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
-                        pluginList->plugin[i].status == PLUGINOPERATIONAL &&
-                        (pluginList->plugin[i].is_private == PLUGINPUBLIC ||
-                         (pluginList->plugin[i].is_private == PLUGINPRIVATE && !environment->external_user))) {
+                        pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
+                        (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
+                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
                         sprintf(rec, "Data service name:\t%s\n", pluginList->plugin[i].format);
                         strcat(doc, rec);
                         sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);

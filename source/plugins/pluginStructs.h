@@ -11,12 +11,12 @@ extern "C" {
 #endif
 
 enum pluginClass {
-    PLUGINUNKNOWN,
-    PLUGINFILE,         // File format access
-    PLUGINSERVER,       // Server protocol access
-    PLUGINFUNCTION,     // Server-side function transformation
-    PLUGINDEVICE,       // Server to Server chaining, i.e. Pass the request to an external server
-    PLUGINOTHER
+    UDA_PLUGIN_CLASS_UNKNOWN,
+    UDA_PLUGIN_CLASS_FILE,         // File format access
+    UDA_PLUGIN_CLASS_SERVER,       // Server protocol access
+    UDA_PLUGIN_CLASS_FUNCTION,     // Server-side function transformation
+    UDA_PLUGIN_CLASS_DEVICE,       // Server to Server chaining, i.e. Pass the request to an external server
+    UDA_PLUGIN_CLASS_OTHER
 };
 
 struct PluginList;              // Forward declaration

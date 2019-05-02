@@ -702,9 +702,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
 
     int depth = 0;
 
-    err = idamserverGetData(DBConnect, &depth, request_block, *client_block, data_block, &metadata_block->data_source,
-                            &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
-                            &pluginList, logmalloclist, userdefinedtypelist, &socket_list);
+    err = udaGetData(*request_block, *client_block, data_block, &metadata_block->data_source,
+            &metadata_block->signal_rec, &metadata_block->signal_desc, &pluginList, logmalloclist, userdefinedtypelist);
 
     if (DBConnect == NULL && gDBConnect != NULL) {
         DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData

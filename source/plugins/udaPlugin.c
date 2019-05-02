@@ -304,7 +304,7 @@ int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list)
 {
     int i;
     for (i = 0; i < plugin_list->count; i++) {
-        if (plugin_list->plugin[i].plugin_class == PLUGINDEVICE && STR_IEQUALS(plugin_list->plugin[i].format, device)) {
+        if (plugin_list->plugin[i].plugin_class == UDA_PLUGIN_CLASS_DEVICE && STR_IEQUALS(plugin_list->plugin[i].format, device)) {
             return i;
         }
     }

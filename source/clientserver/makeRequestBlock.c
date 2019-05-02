@@ -304,23 +304,23 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
             int i;
             for (i = 0; i < pluginList.count; i++) {
                 if (STR_IEQUALS(work2, pluginList.plugin[i].format)) {
-                    if (pluginList.plugin[i].plugin_class != PLUGINDEVICE) {
+                    if (pluginList.plugin[i].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
                         request_block->request = pluginList.plugin[i].request;        // Found
                         strcpy(request_block->format, pluginList.plugin[i].format);
                         if (pluginList.plugin[i].plugin_class !=
-                            PLUGINFILE) {            // The full file path fully resolved by the client
+                            UDA_PLUGIN_CLASS_FILE) {            // The full file path fully resolved by the client
                             strcpy(request_block->path,
                                    test + ldelim);            // Complete String following :: delimiter
                             strcpy(request_block->file, "");                // Clean the filename
-                            if (pluginList.plugin[i].plugin_class == PLUGINFUNCTION) {
+                            if (pluginList.plugin[i].plugin_class == UDA_PLUGIN_CLASS_FUNCTION) {
                                 isFunction = 1;
                                 extractFunctionName(work, request_block);
                             }
                         } else {
                             strcpy(request_block->file, basename(test + ldelim));    // Final token
                         }
-                        isFile = pluginList.plugin[i].plugin_class == PLUGINFILE;
-                        isServer = pluginList.plugin[i].plugin_class == PLUGINSERVER;
+                        isFile = pluginList.plugin[i].plugin_class == UDA_PLUGIN_CLASS_FILE;
+                        isServer = pluginList.plugin[i].plugin_class == UDA_PLUGIN_CLASS_SERVER;
                         break;
                     } else {
 
@@ -331,7 +331,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                         static int depth = 0;
                         //int id = findPluginRequestByFormat(pluginList.plugin[i].deviceProtocol, &pluginList);
                         int id = localFindPluginIdByFormat(pluginList.plugin[i].deviceProtocol, &pluginList);
-                        if (id >= 0 && pluginList.plugin[id].plugin_class == PLUGINSERVER) {
+                        if (id >= 0 && pluginList.plugin[id].plugin_class == UDA_PLUGIN_CLASS_SERVER) {
 
                             sprintf(work, "%s%s%s", pluginList.plugin[i].deviceProtocol, request_block->api_delim,
                                     pluginList.plugin[i].deviceHost);
@@ -556,7 +556,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                     request_block->request = pluginList.plugin[i].request;            // Found
                     strcpy(request_block->format, pluginList.plugin[i].format);
                     isFunction = (pluginList.plugin[i].plugin_class ==
-                                  PLUGINFUNCTION);        // Must be a known Library
+                                  UDA_PLUGIN_CLASS_FUNCTION);        // Must be a known Library
                     break;
                 }
             }
@@ -597,7 +597,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
         if (isFunction && strcasecmp(request_block->archive, environment->api_archive) != 0) {
             int id = localFindPluginIdByFormat(request_block->archive, &pluginList);
-            if (id >= 0 && pluginList.plugin[id].plugin_class == PLUGINFUNCTION &&
+            if (id >= 0 && pluginList.plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
                 strcasecmp(pluginList.plugin[id].symbol, "serverside") != 0) {
                 if (request_block->request == REQUEST_READ_GENERIC ||
                     request_block->request == REQUEST_READ_UNKNOWN) {
@@ -949,7 +949,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
             UDA_LOG(UDA_LOG_DEBUG, "Format identified, selecting specific plugin for %s\n", request_block->format);
             request_block->request = pluginList.plugin[i].request;            // Found
             if (pluginList.plugin[i].plugin_class !=
-                PLUGINFILE) {                // The full file path fully resolved by the client
+                UDA_PLUGIN_CLASS_FILE) {                // The full file path fully resolved by the client
                 strcpy(request_block->file, "");                        // Clean the filename
             } else {
                 strcpy(request_block->file, basename(request_block->source));    // Final token
