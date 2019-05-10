@@ -21,7 +21,6 @@ set( SRC_FILES
   getServerEnvironment.c
   initPluginList.c
   makeServerRequestBlock.c
-  manageFiles.c
   mastArchiveFilePath.c
   serverGetData.c
   serverLegacyPlugin.c
@@ -43,7 +42,6 @@ set( HEADER_FILES
   getServerEnvironment.h
   initPluginList.h
   makeServerRequestBlock.h
-  manageFiles.h
   mastArchiveFilePath.h
   serverGetData.h
   serverLegacyPlugin.h

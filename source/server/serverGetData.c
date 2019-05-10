@@ -66,6 +66,7 @@ int udaGetData(REQUEST_BLOCK request_block, CLIENT_BLOCK client_block, DATA_BLOC
         }
         UDA_LOG(UDA_LOG_DEBUG, "Metadata Plugin Executed\n");
         UDA_LOG(UDA_LOG_DEBUG, "Signal Type: %c\n", signal_desc->type);
+        printDataSource(*data_source);
 
         // Plugin? Create a new Request Block to identify the request_id
 

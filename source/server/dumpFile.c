@@ -52,8 +52,8 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
     char exp_number_str[STRING_LENGTH];
     char* env = NULL;
 
-//----------------------------------------------------------------------
-// File Location
+    //----------------------------------------------------------------------
+    // File Location
 
     UDA_LOG(UDA_LOG_DEBUG, "Exp. Number  : %d \n", request_block.exp_number);
     UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", request_block.pass);
@@ -73,24 +73,35 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
         strlwr(request_block.file);
 
-// Check whether or not the filename is the alias name
-// If is it then form the correct filename
+        // Check whether or not the filename is the alias name
+        // If is it then form the correct filename
 
+#ifndef NOIDAPLUGIN
         if (STR_IEQUALS(request_block.file, alias)) {
             nameIDA(alias, request_block.exp_number, file);
         } else {
             strcpy(file, request_block.file);
         }
+#else
+        strcpy(file, request_block.file);
+#endif
 
-// Check whether or not a Path has been specified
+        // Check whether or not a Path has been specified
 
+#ifndef NOIDAPLUGIN
         if (strlen(request_block.path) == 0) {
             mastArchiveFilePath(request_block.exp_number, request_block.pass, file, path);    // Always Latest
-        } else {                        // User Specified
+        } else {
+            // User Specified
             strcpy(path, request_block.path);
             strcat(path, "/");
             strcat(path, file);                // Form Full File Name
         }
+#else
+        strcpy(path, request_block.path);
+        strcat(path, "/");
+        strcat(path, file);
+#endif
 
     } else {
         strcpy(file, request_block.file);
@@ -101,16 +112,16 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
     UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", file);
     UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", path);
 
-//----------------------------------------------------------------------
-// Test for embedded semi-colons => embedded linux commands
+    //----------------------------------------------------------------------
+    // Test for embedded semi-colons => embedded linux commands
 
     if (!IsLegalFilePath(path)) {
         err = 999;
         addIdamError(CODEERRORTYPE, "dumpFile", err, "The directory path has incorrect syntax");
     }
 
-//----------------------------------------------------------------------
-// Error Trap Loop
+    //----------------------------------------------------------------------
+    // Error Trap Loop
 
     FILE* ph = NULL;
 

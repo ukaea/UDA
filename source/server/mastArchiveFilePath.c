@@ -12,6 +12,9 @@
 * ToDo:
 *
 *-----------------------------------------------------------------------------*/
+
+#ifndef NOIDAPLUGIN
+
 #include "mastArchiveFilePath.h"
 #include "getServerEnvironment.h"
 
@@ -61,3 +64,5 @@ void mastArchiveFilePath(int pulno, int pass, char* file, char* path)
 
     strcat(path, file);        // Full filename path
 }
+
+#endif

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void mastArchiveFilePath(int pulno, int pass, char* file, char* path);
+//void mastArchiveFilePath(int pulno, int pass, char* file, char* path);
 
 #ifdef __cplusplus
 }

@@ -21,9 +21,9 @@
 #include "netCDF4.h"
 
 #include <clientserver/stringUtils.h>
-
-#include <readCDF4.h>
 #include <plugins/managePluginFiles.h>
+
+#include "readCDF4.h"
 
 IDAMPLUGINFILELIST pluginFileList;    // Private list of open data file handles
 

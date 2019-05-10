@@ -32,20 +32,6 @@
 
 #ifdef NOIDAPLUGIN
 
-typedef int ida_file_ptr;
-
-void ida_close(ida_file_ptr* ida) {
-    return;
-}
-
-int readIDA2(DATA_SOURCE data_source,
-             SIGNAL_DESC signal_desc,
-             DATA_BLOCK *data_block) {
-    int err = 999;
-    addIdamError(CODEERRORTYPE, __func__, err, "Cannot Read IDA Files - PLUGIN NOT ENABLED");
-    return err;
-}
-
 #else
 
 #include <ida3.h>

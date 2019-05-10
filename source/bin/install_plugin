@@ -7,7 +7,7 @@ import argparse
 from collections import namedtuple
 
 
-Plugin = namedtuple('Plugin', 'cls entry lib desc example')
+Plugin = namedtuple('Plugin', 'cls entry lib desc example extension')
 
 
 def parse(lines):
@@ -16,16 +16,16 @@ def parse(lines):
         line = line.strip()
         if line.startswith('#') or not line:
             continue
-        (name, cls, entry, lib, _, _, _, _, desc, example) = [i.strip() for i in line.split(',', 9)]
-        plugins[name] = Plugin(cls, entry, lib, desc, example) 
+        (name, cls, entry, lib, extension, _, _, _, desc, example) = [i.strip() for i in line.split(',', 9)]
+        plugins[name] = Plugin(cls, entry, lib, desc, example, extension) 
     return plugins
 
 
 def write(plugin_file, plugins):
     with open(plugin_file, 'w') as file:
         for name, plugin in plugins.items():
-            print('%s, %s, %s, %s, *, 1, 1, 1, %s, %s'
-                  % (name, plugin.cls, plugin.entry, plugin.lib, plugin.desc, plugin.example), file=file)
+            print('%s, %s, %s, %s, %s, 1, 1, 1, %s, %s'
+                  % (name, plugin.cls, plugin.entry, plugin.lib, plugin.extension, plugin.desc, plugin.example), file=file)
 
 
 def main(args):
