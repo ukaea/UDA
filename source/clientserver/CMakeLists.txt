@@ -18,37 +18,37 @@ include_directories(
 )
 
 set( SRC_FILES
-  allocData.c
-  compressDim.c
-  copyStructs.c
-  errorLog.c
-  expand_path.c
-  freeDataBlock.c
-  initStructs.c
-  makeRequestBlock.c
-  manageSockets.c
-  md5Sum.c
-  parseOperation.c
-  parseXML.c
-  printStructs.c
-  protocol.c
-  protocol2.c
-  protocolXML.c
-  protocolXML2.c
-  protocolXML2Put.c
-  readXDRFile.c
-  stringUtils.c
-  udaTypes.c
-  userid.c
-  xdrlib.c
-  nameValueSubstitution.c
+  allocData.cpp
+  compressDim.cpp
+  copyStructs.cpp
+  errorLog.cpp
+  expand_path.cpp
+  freeDataBlock.cpp
+  initStructs.cpp
+  makeRequestBlock.cpp
+  manageSockets.cpp
+  md5Sum.cpp
+  parseOperation.cpp
+  parseXML.cpp
+  printStructs.cpp
+  protocol.cpp
+  protocol2.cpp
+  protocolXML.cpp
+  protocolXML2.cpp
+  protocolXML2Put.cpp
+  readXDRFile.cpp
+  stringUtils.cpp
+  udaTypes.cpp
+  userid.cpp
+  xdrlib.cpp
+  nameValueSubstitution.cpp
 #  utils.c
 )
 
 set( HIERARCHICAL_SRC_FILES
-  allocXMLData.c
-  xdrHData.c
-  initXMLStructs.c
+  allocXMLData.cpp
+  xdrHData.cpp
+  initXMLStructs.cpp
 )
 
 set( HEADER_FILES
@@ -86,11 +86,11 @@ set( HEADER_FILES
 )
 
 if( APPLE )
-  list( APPEND SRC_FILES memstream.c )
+  list( APPEND SRC_FILES memstream.cpp )
 endif()
 
 if( WIN32 )
-  list( APPEND SRC_FILES memstream_win.c mkstemp.c )
+  list( APPEND SRC_FILES memstream_win.cpp mkstemp.cpp )
 endif()
 
 if( CLIENT_ONLY )

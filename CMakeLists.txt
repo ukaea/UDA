@@ -104,8 +104,8 @@ if( WIN32 OR MINGW )
   link_directories( ${CMAKE_SOURCE_DIR}/extlib/lib )
   link_libraries( -lportablexdr -lws2_32 )
   if ( MINGW )
-    set(CMAKE_FIND_LIBRARY_PREFIXES "lib" "")
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".a" ".lib")
+    set( CMAKE_FIND_LIBRARY_PREFIXES "lib" "" )
+    set( CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".a" ".lib" )
   endif()
 endif()
 
@@ -120,9 +120,22 @@ endif()
 # Build options
 
 option( CLIENT_ONLY "Only build UDA client" OFF )
+option( SERVER_ONLY "Only build UDA server" OFF )
 option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )
 option( NO_MODULES "Don't build any UDA server modules" OFF )
 option( FAT_IDL "Build IDL wrapper using fatclient" OFF )
+
+if( SERVER_ONLY )
+  if( CLIENT_ONLY OR NO_WRAPPERS OR FAT_IDL )
+    message( FATAL_ERROR "cannot use CLIENT_ONLY, NO_WRAPPERS or FAT_IDL when configuring with SERVER_ONLY" )
+  endif()
+endif()
+
+if( CLIENT_ONLY )
+  if( NO_MODULES )
+    message( FATAL_ERROR "cannot use NO_MODULES when configuring with CLIENT_ONLY" )
+  endif()
+endif()
 
 if( SSLAUTHENTICATION )
   message( "Including SSL/RTL X509 User Authentication" )
@@ -161,7 +174,7 @@ if( WIN32 OR MINGW )
   install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlib/lib/
     DESTINATION lib
-	FILES_MATCHING PATTERN "libportablexdr*"
+	  FILES_MATCHING PATTERN "libportablexdr*"
   )
 endif()
 

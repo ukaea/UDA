@@ -9,18 +9,19 @@
 #include <errno.h>
 
 struct memstream {
-    char **cp;
-    size_t *lenp;
+    char** cp;
+    size_t* lenp;
     size_t offset;
 };
 
 static void
-memstream_grow(struct memstream *ms, size_t newsize) {
-    char *buf;
+memstream_grow(struct memstream* ms, size_t newsize)
+{
+    char* buf;
 
     if (newsize > *ms->lenp) {
-        buf = realloc(*ms->cp, newsize + 1);
-        if (buf != NULL) {
+        buf = (char*)realloc(*ms->cp, newsize + 1);
+        if (buf != nullptr) {
 #ifdef DEBUG
             fprintf(stderr, "MS: %p growing from %zd to %zd\n",
                     ms, *ms->lenp, newsize);
@@ -33,15 +34,17 @@ memstream_grow(struct memstream *ms, size_t newsize) {
 }
 
 static int
-memstream_read(void *cookie, char *buf, int len) {
-    struct memstream *ms;
+memstream_read(void* cookie, char* buf, int len)
+{
+    struct memstream* ms;
     int tocopy;
 
-    ms = cookie;
+    ms = (memstream*)cookie;
     memstream_grow(ms, ms->offset + len);
     tocopy = (int)(*ms->lenp - ms->offset);
-    if (len < tocopy)
+    if (len < tocopy) {
         tocopy = len;
+    }
     memcpy(buf, *ms->cp + ms->offset, tocopy);
     ms->offset += tocopy;
 #ifdef DEBUG
@@ -51,15 +54,17 @@ memstream_read(void *cookie, char *buf, int len) {
 }
 
 static int
-memstream_write(void *cookie, const char *buf, int len) {
-    struct memstream *ms;
+memstream_write(void* cookie, const char* buf, int len)
+{
+    struct memstream* ms;
     int tocopy;
 
-    ms = cookie;
+    ms = (memstream*)cookie;
     memstream_grow(ms, ms->offset + len);
     tocopy = (int)(*ms->lenp - ms->offset);
-    if (len < tocopy)
+    if (len < tocopy) {
         tocopy = len;
+    }
     memcpy(*ms->cp + ms->offset, buf, tocopy);
     ms->offset += tocopy;
 #ifdef DEBUG
@@ -69,13 +74,14 @@ memstream_write(void *cookie, const char *buf, int len) {
 }
 
 static fpos_t
-memstream_seek(void *cookie, fpos_t pos, int whence) {
-    struct memstream *ms;
+memstream_seek(void* cookie, fpos_t pos, int whence)
+{
+    struct memstream* ms;
 #ifdef DEBUG
     size_t old;
 #endif
 
-    ms = cookie;
+    ms = (memstream*)cookie;
 #ifdef DEBUG
     old = ms->offset;
 #endif
@@ -98,25 +104,27 @@ memstream_seek(void *cookie, fpos_t pos, int whence) {
 }
 
 static int
-memstream_close(void *cookie) {
+memstream_close(void* cookie)
+{
     free(cookie);
     return 0;
 }
 
-FILE *
-open_memstream(char **cp, size_t *lenp) {
-    struct memstream *ms;
+FILE*
+open_memstream(char** cp, size_t* lenp)
+{
+    struct memstream* ms;
     int save_errno;
-    FILE *fp;
+    FILE* fp;
 
-    *cp = NULL;
+    *cp = nullptr;
     *lenp = 0;
-    ms = malloc(sizeof(*ms));
+    ms = (memstream*)malloc(sizeof(*ms));
     ms->cp = cp;
     ms->lenp = lenp;
     ms->offset = 0;
     fp = funopen(ms, memstream_read, memstream_write, memstream_seek, memstream_close);
-    if (fp == NULL) {
+    if (fp == nullptr) {
         save_errno = errno;
         free(ms);
         errno = save_errno;

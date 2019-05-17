@@ -10,34 +10,32 @@
 
 int idamParseOperation(SUBSET* sub)
 {
-
     char* p, * t1, * t2;
-    char* endp = NULL;
+    char* endp = nullptr;
     char opcopy[SXMLMAXSTRING];
     int i, ierr = 0;
 
-//-------------------------------------------------------------------------------------------------------------
-// Extract the Value Component from each separate Operation
-// =0.15,!=0.15,<=0.05,>=0.05,!<=0.05,!>=0.05,<0.05,>0.05,0:25,25:0,25,*,25:,:25, 25:#
-//
-// Identify Three Types of Operations:
-//	A) Contains the characters: =,>, <, !, ~
-//	B) : or Integer Value
-//	C) * or #  (* => ignore this dimension; # => Last Value in array)
-//
-// If the operation string is enclosed in [ ] then ignore these
-
+    //-------------------------------------------------------------------------------------------------------------
+    // Extract the Value Component from each separate Operation
+    // =0.15,!=0.15,<=0.05,>=0.05,!<=0.05,!>=0.05,<0.05,>0.05,0:25,25:0,25,*,25:,:25, 25:#
+    //
+    // Identify Three Types of Operations:
+    //	A) Contains the characters: =,>, <, !, ~
+    //	B) : or Integer Value
+    //	C) * or #  (* => ignore this dimension; # => Last Value in array)
+    //
+    // If the operation string is enclosed in [ ] then ignore these
 
     for (i = 0; i < sub->nbound; i++) {
 
         strcpy(opcopy, sub->operation[i]);
 
-        if ((p = strchr(opcopy, '[')) != NULL) p[0] = ' ';
-        if ((p = strchr(opcopy, ']')) != NULL) p[0] = ' ';
+        if ((p = strchr(opcopy, '[')) != nullptr) p[0] = ' ';
+        if ((p = strchr(opcopy, ']')) != nullptr) p[0] = ' ';
         LeftTrimString(opcopy);
         TrimString(opcopy);
 
-        if ((p = strchr(opcopy, ':')) != NULL) {        // Integer Type Array Index Bounds
+        if ((p = strchr(opcopy, ':')) != nullptr) {        // Integer Type Array Index Bounds
             t2 = &p[1];
             opcopy[p - opcopy] = '\0';            // Split the Operation String into two components
             t1 = opcopy;
@@ -87,7 +85,7 @@ int idamParseOperation(SUBSET* sub)
 
         }
 
-        if ((p = strstr(opcopy, "*")) != NULL) {        // Ignore this Dimension
+        if ((p = strstr(opcopy, "*")) != nullptr) {        // Ignore this Dimension
             sub->isindex[i] = 1;
             sub->ubindex[i] = -1;
             sub->lbindex[i] = -1;
@@ -95,7 +93,7 @@ int idamParseOperation(SUBSET* sub)
             continue;
         }
 
-        if ((p = strstr(opcopy, "#")) != NULL) {        // Last Value in Dimension
+        if ((p = strstr(opcopy, "#")) != nullptr) {        // Last Value in Dimension
             sub->isindex[i] = 1;
             sub->ubindex[i] = -1;
             sub->lbindex[i] = -1;

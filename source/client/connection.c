@@ -241,7 +241,6 @@ int createConnection()
     }
 #endif
 
-
     // Identify the UDA server host and is the socket IPv4 or IPv6?
 
     const char* hostname = environment->server_host;
@@ -378,7 +377,7 @@ int createConnection()
 
             // Check if the hostname is an alias for an IP address or name in the client configuration - replace if found
 
-            int hostId = udaClientFindHostByAlias(hostname);
+            hostId = udaClientFindHostByAlias(hostname);
             if (hostId >= 0) {
                 if ((hostname = udaClientGetHostName(hostId)) == NULL) {
                     addIdamError(CODEERRORTYPE, __func__, -1,
@@ -514,7 +513,7 @@ int createConnection()
 
     // Add New Socket to the Socket's List
 
-    addSocket(&client_socketlist, TYPE_IDAM_SERVER, 1, environment->server_host, environment->server_port,
+    addSocket(&client_socketlist, TYPE_UDA_SERVER, 1, environment->server_host, environment->server_port,
               clientSocket);
     client_socketlist.sockets[getSocketRecordId(&client_socketlist, clientSocket)].Input = clientInput;
     client_socketlist.sockets[getSocketRecordId(&client_socketlist, clientSocket)].Output = clientOutput;

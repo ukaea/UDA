@@ -15,7 +15,7 @@
 
 void freeIdamClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
 {
-    if (putDataBlockList->putDataBlock != NULL && putDataBlockList->blockListSize > 0) {
+    if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {
         free(putDataBlockList->putDataBlock);
     }
     initIdamPutDataBlockList(putDataBlockList);
@@ -32,57 +32,57 @@ void freeDataBlock(DATA_BLOCK* data_block)
 
     UDA_LOG(UDA_LOG_DEBUG, "Enter\n");
 
-    if (data_block != NULL) {
+    if (data_block != nullptr) {
 
         UDA_LOG(UDA_LOG_DEBUG, "Opaque Data\n");
 
         switch (data_block->opaque_type) {
             case UDA_OPAQUE_TYPE_XML_DOCUMENT: {
-                if (data_block->opaque_block != NULL) free(data_block->opaque_block);
+                if (data_block->opaque_block != nullptr) free(data_block->opaque_block);
                 data_block->opaque_count = 0;
-                data_block->opaque_block = NULL;
+                data_block->opaque_block = nullptr;
                 break;
             }
 
             case UDA_OPAQUE_TYPE_STRUCTURES: {
-                if (data_block->opaque_block != NULL) {
-//                    if (logmalloclist != NULL) {
+                if (data_block->opaque_block != nullptr) {
+//                    if (logmalloclist != nullptr) {
 //                        freeMallocLogList(logmalloclist);
 //                        free(logmalloclist);
-//                        logmalloclist = NULL;
+//                        logmalloclist = nullptr;
 //                    }
 
                     data_block->opaque_count = 0;
-                    data_block->opaque_block = NULL;
+                    data_block->opaque_block = nullptr;
                     data_block->data_type = UDA_TYPE_UNKNOWN;
                     data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
 
-                    data_block->data = NULL;        // Added to Malloc Log List for freeing
+                    data_block->data = nullptr;        // Added to Malloc Log List for freeing
                 }
                 break;
             }
 
             case UDA_OPAQUE_TYPE_XDRFILE: {
-                if (data_block->opaque_block != NULL) {
+                if (data_block->opaque_block != nullptr) {
                     free(data_block->opaque_block);
                 }
                 data_block->opaque_count = 0;
-                data_block->opaque_block = NULL;
+                data_block->opaque_block = nullptr;
                 data_block->data_type = UDA_TYPE_UNKNOWN;
                 data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
-                data_block->data = NULL;
+                data_block->data = nullptr;
                 break;
             }
 
             case UDA_OPAQUE_TYPE_XDROBJECT: {
-                if (data_block->opaque_block != NULL) {
+                if (data_block->opaque_block != nullptr) {
                     free(data_block->opaque_block);
                 }
                 data_block->opaque_count = 0;
-                data_block->opaque_block = NULL;
+                data_block->opaque_block = nullptr;
                 data_block->data_type = UDA_TYPE_UNKNOWN;
                 data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
-                data_block->data = NULL;
+                data_block->data = nullptr;
                 break;
             }
 
@@ -95,57 +95,57 @@ void freeDataBlock(DATA_BLOCK* data_block)
         rank = data_block->rank;
         ddims = data_block->dims;
 
-        if ((cptr = (void*)data_block->data) != NULL) free(cptr);
-        if ((cptr = (void*)data_block->errhi) != NULL) free(cptr);
-        if ((cptr = (void*)data_block->errlo) != NULL) free(cptr);
+        if ((cptr = (void*)data_block->data) != nullptr) free(cptr);
+        if ((cptr = (void*)data_block->errhi) != nullptr) free(cptr);
+        if ((cptr = (void*)data_block->errlo) != nullptr) free(cptr);
 
-        data_block->data = NULL;
-        data_block->errhi = NULL;
-        data_block->errlo = NULL;
+        data_block->data = nullptr;
+        data_block->errhi = nullptr;
+        data_block->errlo = nullptr;
 
         UDA_LOG(UDA_LOG_DEBUG, "freeing Dimensions - Rank = %d \n", rank);
         UDA_LOG(UDA_LOG_DEBUG, "Dim Structure Location %p \n", ddims);
 
-        if (ddims != NULL) {
+        if (ddims != nullptr) {
             for (i = 0; i < rank; i++) {
 
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension[%d] \n", i);
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension Data \n");
 
-                if ((cptr = (void*)ddims[i].dim) != NULL) free(cptr);
+                if ((cptr = (void*)ddims[i].dim) != nullptr) free(cptr);
 
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension Error Hi \n");
 
-                if ((cptr = (void*)ddims[i].errhi) != NULL) free(cptr);
+                if ((cptr = (void*)ddims[i].errhi) != nullptr) free(cptr);
 
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension Error Lo \n");
 
-                if ((cptr = (void*)ddims[i].errlo) != NULL) free(cptr);
+                if ((cptr = (void*)ddims[i].errlo) != nullptr) free(cptr);
 
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension Sams \n");
 
-                if ((cptr = (void*)ddims[i].sams) != NULL) free(cptr);
+                if ((cptr = (void*)ddims[i].sams) != nullptr) free(cptr);
 
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension offs \n");
 
-                if ((cptr = (void*)ddims[i].offs) != NULL) free(cptr);
+                if ((cptr = (void*)ddims[i].offs) != nullptr) free(cptr);
 
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension ints \n");
 
-                if ((cptr = (void*)ddims[i].ints) != NULL) free(cptr);
+                if ((cptr = (void*)ddims[i].ints) != nullptr) free(cptr);
 
-                data_block->dims[i].dim = NULL;
-                data_block->dims[i].errhi = NULL;
-                data_block->dims[i].errlo = NULL;
-                data_block->dims[i].sams = NULL;
-                data_block->dims[i].offs = NULL;
-                data_block->dims[i].ints = NULL;
+                data_block->dims[i].dim = nullptr;
+                data_block->dims[i].errhi = nullptr;
+                data_block->dims[i].errlo = nullptr;
+                data_block->dims[i].sams = nullptr;
+                data_block->dims[i].offs = nullptr;
+                data_block->dims[i].ints = nullptr;
             }
 
             UDA_LOG(UDA_LOG_DEBUG, "Dimension Array \n");
 
             free(ddims);
-            data_block->dims = NULL;
+            data_block->dims = nullptr;
         }
 
         data_block->handle = 0;
@@ -166,22 +166,22 @@ void freeDataBlock(DATA_BLOCK* data_block)
 void freeReducedDataBlock(DATA_BLOCK* data_block)
 {
 #ifdef FATCLIENT
-    if(data_block == NULL) return;
+    if(data_block == nullptr) return;
     if(data_block->opaque_type != UDA_OPAQUE_TYPE_STRUCTURES) return;
-    if(data_block->opaque_block == NULL) return;
+    if(data_block->opaque_block == nullptr) return;
 
-//    if(logmalloclist != NULL) {
+//    if(logmalloclist != nullptr) {
 //        freeMallocLogList(logmalloclist);
 //        free((void *)logmalloclist);
-//        logmalloclist = NULL;
+//        logmalloclist = nullptr;
 //    }
 
     data_block->opaque_count = 0;
-    data_block->opaque_block = NULL;
+    data_block->opaque_block = nullptr;
     data_block->data_type    = UDA_TYPE_UNKNOWN;
     data_block->opaque_type  = UDA_OPAQUE_TYPE_UNKNOWN;
 
-    data_block->data         = NULL;		// Added to Malloc Log List for freeing
+    data_block->data         = nullptr;		// Added to Malloc Log List for freeing
     return;
 #endif
 }

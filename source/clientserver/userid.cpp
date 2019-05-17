@@ -25,22 +25,20 @@ void userid(char* uid)
     const char* user;
     uid[0] = '\0';
 #  if defined(cuserid)
-    if((user = cuserid(NULL)) != NULL) {
+    if((user = cuserid(nullptr)) != nullptr) {
         copyString(user, uid, STRING_LENGTH);
         return;
     } else
 #  endif
-    if ((user = getlogin()) != NULL) {
+    if ((user = getlogin()) != nullptr) {
         copyString(user, uid, STRING_LENGTH);
         return;
-    } else if ((user = getenv("USER")) != NULL) {
+    } else if ((user = getenv("USER")) != nullptr) {
         copyString(user, uid, STRING_LENGTH);
         return;
-    } else if ((user = getenv("LOGNAME")) != NULL) {
+    } else if ((user = getenv("LOGNAME")) != nullptr) {
         copyString(user, uid, STRING_LENGTH);
         return;
     }
-
-    return;
 #endif // _WIN32
 }

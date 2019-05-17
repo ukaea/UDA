@@ -6,6 +6,10 @@
 
 #include <structures/genStructs.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                           USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank,
                           int* structShape, int index, NTREE** NTree);
@@ -19,5 +23,9 @@ bool_t xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str);
 
 int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                     USERDEFINEDTYPELIST* userdefinedtypelist, void* str);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_CLIENTSERVER_PROTOCOLXML2PUT_H

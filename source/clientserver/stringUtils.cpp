@@ -5,14 +5,17 @@
 #include <stdio.h>
 
 #ifdef __GNUC__
+
 #  include <strings.h>
+
 #elif defined(_WIN32)
 #  include <string.h>
 #  define strncasecmp _strnicmp
 #endif
 
 #ifndef strcasestr
-char *strcasestr(const char *haystack, const char *needle)
+
+char* strcasestr(const char* haystack, const char* needle)
 {
     char c, sc;
     size_t len;
@@ -22,21 +25,23 @@ char *strcasestr(const char *haystack, const char *needle)
         len = strlen(needle);
         do {
             do {
-                if ((sc = *haystack++) == 0)
-                    return (NULL);
+                if ((sc = *haystack++) == 0) {
+                    return nullptr;
+                }
             } while ((char)tolower((unsigned char)sc) != c);
         } while (strncasecmp(haystack, needle, len) != 0);
         haystack--;
     }
-    return ((char *)haystack);
+    return (char*)haystack;
 }
+
 #endif
 
 // Reverse a String
 
 void reverseString(const char* in, char* out)
 {
-    int i, lstr = (int) strlen(in);
+    int i, lstr = (int)strlen(in);
     out[lstr] = '\0';
     for (i = 0; i < lstr; i++) out[i] = in[lstr - 1 - i];
 }
@@ -45,10 +50,10 @@ void reverseString(const char* in, char* out)
 
 void copyString(const char* in, char* out, int maxlength)
 {
-    int lstr = (int) strlen(in);
-    if (lstr < maxlength)
+    int lstr = (int)strlen(in);
+    if (lstr < maxlength) {
         strcpy(out, in);
-    else {
+    } else {
         strncpy(out, in, maxlength - 1);
         out[maxlength - 1] = '\0';
     }
@@ -59,12 +64,12 @@ char* FormatString(const char* fmt, ...)
     va_list vargs;
     va_start(vargs, fmt);
 
-    size_t len = vsnprintf(NULL, 0, fmt, vargs) + 1;
+    size_t len = vsnprintf(nullptr, 0, fmt, vargs) + 1;
 
     va_end(vargs);
     va_start(vargs, fmt);
 
-    char* strp = malloc(len * sizeof(char));
+    char* strp = (char*)malloc(len * sizeof(char));
     vsnprintf(strp, len, fmt, vargs);
 
     va_end(vargs);
@@ -95,7 +100,7 @@ char* LeftTrimString(char* str)
 {
     int i = 0, trim = 0, lstr;
 
-    lstr = (int) strlen(str);
+    lstr = (int)strlen(str);
 
     while (str[trim] == ' ' && i++ <= lstr) trim++;
 
@@ -108,10 +113,11 @@ char* LeftTrimString(char* str)
 }
 
 #ifdef __GNUC__
+
 void StringCopy(char* dest, const char* src, size_t len)
 {
     strncpy(dest, src, len);
-    dest[len-1] = '\0';
+    dest[len - 1] = '\0';
 }
 
 // Convert all LowerCase Characters to Upper Case
@@ -121,8 +127,9 @@ char* strupr(char* a)
     char* ret = a;
 
     while (*a != '\0') {
-        if (islower (*a))
+        if (islower(*a)) {
             *a = (char)toupper(*a);
+        }
         ++a;
     }
 
@@ -137,8 +144,9 @@ char* strlwr(char* a)
     char* ret = a;
 
     while (*a != '\0') {
-        if (isupper (*a))
+        if (isupper(*a)) {
             *a = (char)tolower(*a);
+        }
         ++a;
     }
 
@@ -152,21 +160,21 @@ char* strlwr(char* a)
 char* MidTrimString(char* str)
 {
     int i = 0, j = 0, lstr;
-    lstr = (int) strlen(str);
+    lstr = (int)strlen(str);
     for (i = 0; i < lstr; i++) {
         if (str[i] != ' ') str[j++] = str[i];
     }
     str[j] = '\0';
-    return (str);
+    return str;
 }
 
 // Is the String an Integer Number? (Simple but not exhaustive Check)
 
-int IsNumber(char* a)
+int IsNumber(const char* a)
 {
-    char* wrk = a;
+    const char* wrk = a;
     while (*wrk != '\0') {
-        if (!isdigit (*wrk) && *wrk != '-' && *wrk != '+') return 0;
+        if (!isdigit(*wrk) && *wrk != '-' && *wrk != '+') return 0;
         ++wrk;
     }
     return 1;
@@ -178,7 +186,7 @@ int IsFloat(char* a)
 {
     char* wrk = a;
     while (*wrk != '\0') {
-        if (!isdigit (*wrk) && *wrk != '-' && *wrk != '+' && *wrk != '.') return 0;
+        if (!isdigit(*wrk) && *wrk != '-' && *wrk != '+' && *wrk != '.') return 0;
         ++wrk;
     }
     return 1;
@@ -191,26 +199,27 @@ int IsNumberList(char* a)
 {
     char* wrk = a;
     while (*wrk != '\0') {
-        if (!isdigit (*wrk) || *wrk != ',' || *wrk != ';') return 0;
+        if (!isdigit(*wrk) || *wrk != ',' || *wrk != ';') return 0;
         ++wrk;
     }
     if (a[0] == ',' || a[strlen(a)] == ',' ||
-        a[0] == ';' || a[strlen(a)] == ';')
-        return 0;
+        a[0] == ';' || a[strlen(a)] == ';') {
+            return 0;
+    }
 
     return 1;
 }
 
 char* convertNonPrintable(char* str)
 {
-
-// Remove CR & LF Characters from a Number List
+    // Remove CR & LF Characters from a Number List
 
     char* ret = str;
     while (*str != '\0') {
-        if (!isalpha (*str) && !isdigit(*str)
-            && *str != ' ' && *str != '.' && *str != '+' && *str != '-')
-            *str = ' ';
+        if (!isalpha(*str) && !isdigit(*str)
+            && *str != ' ' && *str != '.' && *str != '+' && *str != '-') {
+                *str = ' ';
+        }
         ++str;
     }
     return ret;
@@ -218,8 +227,7 @@ char* convertNonPrintable(char* str)
 
 char* convertNonPrintable2(char* str)
 {
-
-// Remove NonPrintable Characters from a String
+    // Remove NonPrintable Characters from a String
 
     char* ret = str;
     while (*str != '\0') {
@@ -246,16 +254,16 @@ int IsLegalFilePath(const char* str)
             continue;
         }
 
-        if (strchr("_-+./$:", *tst) != NULL) {
+        if (strchr("_-+./$:", *tst) != nullptr) {
             tst++;
             continue;
         }
 
 #ifdef _WIN32
-	if (*tst == ' ' || *tst == '\\') {
-            tst++;
-            continue;
-        }
+        if (*tst == ' ' || *tst == '\\') {
+                tst++;
+                continue;
+            }
 #endif
         return 0;    // Error - not compliant!
     }
@@ -263,6 +271,7 @@ int IsLegalFilePath(const char* str)
 }
 
 #if !defined(asprintf)
+
 /*
  * Allocating sprintf
  */
@@ -271,21 +280,22 @@ int asprintf(char** strp, const char* fmt, ...)
     va_list vargs;
     va_start(vargs, fmt);
 
-    size_t len = vsnprintf(NULL, 0, fmt, vargs) + 1;
+    size_t len = vsnprintf(nullptr, 0, fmt, vargs) + 1;
 
     va_end(vargs);
     va_start(vargs, fmt);
 
-    *strp = malloc(len * sizeof(char));
+    *strp = (char*)malloc(len * sizeof(char));
     len = vsnprintf(*strp, len, fmt, vargs);
 
     va_end(vargs);
     return (int)len;
 }
+
 #endif
 
 /**
- * Split a string using the given deliminator and return a list of the resultant tokens, with NULL indicating the end
+ * Split a string using the given deliminator and return a list of the resultant tokens, with nullptr indicating the end
  * of the list.
  *
  * The returned list should be freed after use with FreeSplitStringTokens().
@@ -296,26 +306,26 @@ int asprintf(char** strp, const char* fmt, ...)
 #ifdef _WIN32
 #  define strtok_r strtok_s
 #  define strdup _strdup
-#endif 
- 
+#endif
+
 char** SplitString(const char* string, const char* delims)
 {
-    char** names = NULL;
-    char* tokptr = NULL;
+    char** names = nullptr;
+    char* tokptr = nullptr;
     size_t num_names = 0;
 
     char* temp = strdup(string);
     char* tok = strtok_r(temp, delims, &tokptr);
-    while (tok != NULL) {
+    while (tok != nullptr) {
         num_names++;
         names = (char**)realloc((void*)names, num_names * sizeof(char*));
         names[num_names - 1] = strdup(tok);
-        tok = strtok_r(NULL, delims, &tokptr);
+        tok = strtok_r(nullptr, delims, &tokptr);
     }
 
     num_names++;
     names = (char**)realloc((void*)names, num_names * sizeof(char*));
-    names[num_names - 1] = NULL;
+    names[num_names - 1] = nullptr;
 
     free(temp);
     return names;
@@ -323,7 +333,7 @@ char** SplitString(const char* string, const char* delims)
 
 char* StringReplaceAll(const char* string, const char* find, const char* replace)
 {
-    char* prev_string = NULL;
+    char* prev_string = nullptr;
     char* new_string = strdup(string);
 
     do {
@@ -338,16 +348,16 @@ char* StringReplaceAll(const char* string, const char* find, const char* replace
 
 char* StringReplace(const char* string, const char* find, const char* replace)
 {
-    if (find == NULL || find[0] == '\0') {
+    if (find == nullptr || find[0] == '\0') {
         return strdup(string);
     }
 
-    char* idx = strstr(string, find);
+    const char* idx = strstr(string, find);
 
-    if (idx != NULL) {
+    if (idx != nullptr) {
         int diff = strlen(replace) - strlen(find);
         size_t len = strlen(string) + diff + 1;
-        char* result = malloc(len);
+        char* result = (char*)malloc(len);
         size_t offset = idx - string;
         strncpy(result, string, offset);
         strcpy(result + offset, replace);
@@ -366,21 +376,22 @@ char* StringReplace(const char* string, const char* find, const char* replace)
 void FreeSplitStringTokens(char*** tokens)
 {
     size_t i = 0;
-    while ((*tokens)[i] != NULL) {
+    while ((*tokens)[i] != nullptr) {
         free((*tokens)[i]);
         ++i;
     }
     free(*tokens);
-    *tokens = NULL;
+    *tokens = nullptr;
 }
 
 bool StringEquals(const char* a, const char* b)
 {
-    if (a == NULL || b == NULL) return false;
+    if (a == nullptr || b == nullptr) return false;
 
     while (*a != '\0') {
-        if (*b == '\0' || *a != *b)
+        if (*b == '\0' || *a != *b) {
             return false;
+        }
         ++a;
         ++b;
     }
@@ -390,11 +401,12 @@ bool StringEquals(const char* a, const char* b)
 
 bool StringIEquals(const char* a, const char* b)
 {
-    if (a == NULL || b == NULL) return false;
+    if (a == nullptr || b == nullptr) return false;
 
     while (*a != '\0') {
-        if (*b == '\0' || toupper(*a) != toupper(*b))
+        if (*b == '\0' || toupper(*a) != toupper(*b)) {
             return false;
+        }
         ++a;
         ++b;
     }
@@ -404,7 +416,7 @@ bool StringIEquals(const char* a, const char* b)
 
 bool StringEndsWith(const char* str, const char* find)
 {
-    if (str == NULL || find == NULL) return false;
+    if (str == nullptr || find == nullptr) return false;
 
     size_t len = strlen(str);
     size_t find_len = strlen(find);

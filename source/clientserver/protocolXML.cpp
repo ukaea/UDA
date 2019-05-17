@@ -51,7 +51,6 @@
 *				(data_block->opaque_block->name). This is registered within the Structure
 *				Type List.
 **--------------------------------------------------------------------------------------------------*/
-
 #include "protocolXML.h"
 
 #include <stdlib.h>
@@ -78,23 +77,29 @@
 #  include <client/udaClient.h>
 #endif
 
+#ifdef HIERARCHICAL_DATA
+#  include "xmlStructs.h"
+#  include "allocXMLData.h"
+#  include "xdrHData.h"
+#endif
+
 int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                 USERDEFINEDTYPELIST* userdefinedtypelist, void* str)
 {
     DATA_BLOCK* data_block;
 
 #ifdef HIERARCHICAL_DATA
-    PFCOILS *pfcoils;
-    PFPASSIVE *pfpassive;
-    PFSUPPLIES *pfsupplies;
-    FLUXLOOP  *fluxloop;
-    MAGPROBE  *magprobe;
-    PFCIRCUIT *pfcircuit;
-    PLASMACURRENT *plasmacurrent;
-    DIAMAGNETIC *diamagnetic;
-    TOROIDALFIELD *toroidalfield;
-    LIMITER *limiter;
-    EFIT *efit;
+    PFCOILS* pfcoils;
+    PFPASSIVE* pfpassive;
+    PFSUPPLIES* pfsupplies;
+    FLUXLOOP* fluxloop;
+    MAGPROBE* magprobe;
+    PFCIRCUIT* pfcircuit;
+    PLASMACURRENT* plasmacurrent;
+    DIAMAGNETIC* diamagnetic;
+    TOROIDALFIELD* toroidalfield;
+    LIMITER* limiter;
+    EFIT* efit;
 #endif
 
     int rc;
@@ -102,7 +107,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 #ifndef FATCLIENT
     XDR XDRInput;
     XDR XDROutput;
-    FILE* xdrfile = NULL;
+    FILE* xdrfile = nullptr;
 #endif
 
     //----------------------------------------------------------------------------
@@ -114,8 +119,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
     // xdrs->x_op == XDR_ENCODE && protocolVersion == 3 Means Server sending data to a Version 3 Client
 
 #ifndef FATCLIENT
-    if ((xdrs->x_op == XDR_DECODE && protocolVersion < 3) || (xdrs->x_op == XDR_ENCODE && protocolVersion < 3))
+    if ((xdrs->x_op == XDR_DECODE && protocolVersion < 3) || (xdrs->x_op == XDR_ENCODE && protocolVersion < 3)) {
         return 0;
+    }
 #endif
 
     //----------------------------------------------------------------------------
@@ -128,13 +134,13 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
         if (protocol_id == PROTOCOL_STRUCTURES) {
 
-            void* data = NULL;
+            void* data = nullptr;
             data_block = (DATA_BLOCK*)str;
 
             if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
 
                 UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Compound Data Structure\n");
-                UDA_LOG(UDA_LOG_DEBUG, "direction  : %d [%d][%d]\n", (int) xdrs->x_op, XDR_ENCODE, XDR_DECODE);
+                UDA_LOG(UDA_LOG_DEBUG, "direction  : %d [%d][%d]\n", (int)xdrs->x_op, XDR_ENCODE, XDR_DECODE);
 
                 if (xdrs->x_op == XDR_ENCODE) {        // Send Data
 
@@ -142,16 +148,17 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     SARRAY* psarray = &sarray;
                     int shape = data_block->data_n;                                                 // rank 1 array of dimension lengths
                     USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*)data_block->opaque_block;              // The data's structure definition
-                    USERDEFINEDTYPE* u = findUserDefinedType(userdefinedtypelist, "SARRAY", 0);     // Locate the carrier structure definition
+                    USERDEFINEDTYPE* u = findUserDefinedType(userdefinedtypelist, "SARRAY",
+                                                             0);     // Locate the carrier structure definition
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Sending to Client\n");
 
-                    if (udt == NULL || u == NULL) {
+                    if (udt == nullptr || u == nullptr) {
                         err = 999;
-                        UDA_LOG(UDA_LOG_DEBUG, "protocolXML: NULL SARRAY User defined data Structure Definition\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "protocolXML: nullptr SARRAY User defined data Structure Definition\n");
                         printUserDefinedTypeListTable(*userdefinedtypelist);
                         addIdamError(CODEERRORTYPE, "protocolXML", err,
-                                     "NULL User defined data Structure Definition");
+                                     "nullptr User defined data Structure Definition");
                         break;
                     }
 
@@ -183,7 +190,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                     if ((privateFlags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) {
                         char* env;
-                        if((env = getenv("UDA_WORK_DIR")) != NULL) {
+                        if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
                             // File to record XDR encoded data
                             sprintf(tempFile, "%s/idamXDRXXXXXX", env);
                         }
@@ -202,7 +209,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                          "Unable to Obtain a Temporary/Cache File Name");
                             break;
                         }
-                        if ((xdrfile = fopen(tempFile, "wb")) == NULL) {
+                        if ((xdrfile = fopen(tempFile, "wb")) == nullptr) {
                             err = 999;
                             addIdamError(SYSTEMERRORTYPE, "protocolXML", err,
                                          "Unable to Open a Temporary/Cache XDR File for Writing");
@@ -232,11 +239,13 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     }
 #endif
 
-                    rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist); // send the full set of known named structures
+                    rc = rc && xdr_userdefinedtypelist(xdrs,
+                                                       userdefinedtypelist); // send the full set of known named structures
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Structure Definitions sent: rc = %d\n", rc);
 
-                    rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, data);        // send the Data
+                    rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u,
+                                                      (void**)data);        // send the Data
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Data sent: rc = %d\n", rc);
 
@@ -280,7 +289,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     }
 #endif // !FATCLIENT
 
-                //======================================================================================================
+                    //======================================================================================================
 
                 } else { // Receive Data
 
@@ -314,14 +323,17 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                     if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_STRUCTDATA) {
                         option = 1;
-                    } else if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_XDRFILE && protocolVersion >= 5) {
+                    } else if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_XDRFILE &&
+                               protocolVersion >= 5) {
                         option = 2;
-                    } if ((privateFlags & PRIVATEFLAG_XDRFILE) == 1 && packageType == PACKAGE_XDRFILE && protocolVersion >= 5) {
+                    }
+                    if ((privateFlags & PRIVATEFLAG_XDRFILE) == 1 && packageType == PACKAGE_XDRFILE &&
+                        protocolVersion >= 5) {
                         option = 3;
                     }
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: %d  %d\n", privateFlags & PRIVATEFLAG_XDRFILE,
-                              packageType == PACKAGE_STRUCTDATA);
+                            packageType == PACKAGE_STRUCTDATA);
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Receive data option : %d\n", option);
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Receive package Type: %d\n", packageType);
 
@@ -348,7 +360,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             err = 998;
                             addIdamError(CODEERRORTYPE, "protocolXML", err, tempFile);
                             UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [3], tempFile=[%s]\n",
-                                      tempFile);
+                                    tempFile);
                             break;
                         }
 
@@ -356,8 +368,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                         char* fname = (char*)malloc(sizeof(char) * (strlen(tempFile) + 1));
                         strcpy(fname, tempFile);
-                        data_block->data = NULL;                // No Data - not unpacked
-                        data_block->opaque_block = (void*) fname;            // File name
+                        data_block->data = nullptr;                // No Data - not unpacked
+                        data_block->opaque_block = (void*)fname;            // File name
                         data_block->opaque_type = UDA_OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
 
                     }
@@ -365,7 +377,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     // Unpack data structures
 
                     if (option == 1 || option == 2) {
-                        logmalloclist = (LOGMALLOCLIST*) malloc(sizeof(LOGMALLOCLIST));
+                        logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
                         initLogMallocList(logmalloclist);
 
                         userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
@@ -394,7 +406,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                 err = 997;
                                 addIdamError(CODEERRORTYPE, "protocolXML", err, tempFile);
                                 UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [2], tempFile=[%s]\n",
-                                          tempFile);
+                                        tempFile);
                                 break;
                             }
 
@@ -402,7 +414,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             // Create input xdr file stream
 
-                            if ((xdrfile = fopen(tempFile, "rb")) == NULL) {    // Read temporary file
+                            if ((xdrfile = fopen(tempFile, "rb")) == nullptr) {    // Read temporary file
                                 err = 999;
                                 addIdamError(SYSTEMERRORTYPE, "protocolXML", err,
                                              " Unable to Open a Temporary XDR File for Writing");
@@ -431,7 +443,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: xdrUserDefinedTypeData #A\n");
                         initUserDefinedType(udt_received);
 
-                        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data);        // receive the Data
+                        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                                          &data);        // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: xdrUserDefinedTypeData #B\n");
                         if (!rc) {
@@ -505,16 +518,17 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
 #else
 
-            //====================================================================================================================
-            // Passing temporary XDR files: server to server (protocolVersion >= 5 is TRUE && packageType == PACKAGE_XDRFILE)
+                //====================================================================================================================
+                // Passing temporary XDR files: server to server (protocolVersion >= 5 is TRUE && packageType == PACKAGE_XDRFILE)
 
             } else {
 
                 if (data_block->opaque_type == UDA_OPAQUE_TYPE_XDRFILE) {
 
                     if (xdrs->x_op == XDR_ENCODE) {
-                        UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Forwarding XDR File %s\n", (char*) data_block->opaque_block);
-                        err = sendXDRFile(xdrs, (char*) data_block->opaque_block);    // Forward the xdr file
+                        UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Forwarding XDR File %s\n",
+                                (char*)data_block->opaque_block);
+                        err = sendXDRFile(xdrs, (char*)data_block->opaque_block);    // Forward the xdr file
                     } else {
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Receiving forwarded XDR File\n");
 
@@ -542,8 +556,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             char* fname = (char*)malloc(sizeof(char) * (strlen(tempFile) + 1));
                             strcpy(fname, tempFile);
-                            data_block->data = NULL;                // No Data - not unpacked
-                            data_block->opaque_block = (void*) fname;            // File name
+                            data_block->data = nullptr;                // No Data - not unpacked
+                            data_block->opaque_block = (void*)fname;            // File name
                             data_block->opaque_type = UDA_OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
 
                             UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Forwarding Received forwarded XDR File\n");
@@ -562,7 +576,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             // Create input xdr file stream
 
-                            if ((xdrfile = fopen(tempFile, "rb")) == NULL) {    // Read temporary file
+                            if ((xdrfile = fopen(tempFile, "rb")) == nullptr) {    // Read temporary file
                                 err = 999;
                                 addIdamError(SYSTEMERRORTYPE, "protocolXML", err,
                                              " Unable to Open a Temporary XDR File for Writing");
@@ -586,7 +600,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             initUserDefinedType(udt_received);
 
-                            rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data);        // receive the Data
+                            rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                                              &data);        // receive the Data
 
                             if (!rc) {
                                 err = 999;
@@ -655,7 +670,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 #ifndef FATCLIENT
 
         if (protocol_id == PROTOCOL_META) {
-            data_block = (DATA_BLOCK*) str;
+            data_block = (DATA_BLOCK*)str;
             if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT && data_block->opaque_count > 0) {
                 switch (direction) {
                     case XDR_RECEIVE:
@@ -664,7 +679,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             break;
                         }
                         if ((data_block->opaque_block = (char*)malloc(
-                                (data_block->opaque_count + 1) * sizeof(char))) == NULL) {
+                                (data_block->opaque_count + 1) * sizeof(char))) == nullptr) {
                             err = 991;
                             break;
                         }
@@ -678,7 +693,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     case XDR_SEND:
                         if (!xdr_meta(xdrs, data_block)) {
                             UDA_LOG(UDA_LOG_DEBUG, "Error sending Metadata XML Document: \n%s\n\n",
-                                      (char*)data_block->opaque_block);
+                                    (char*)data_block->opaque_block);
                             err = 990;
                             break;
                         }
@@ -701,664 +716,736 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 #  ifdef HIERARCHICAL_DATA
         //----------------------------------------------------------------------------
         // EFIT (Uses recursion)
-        
-                if(protocol_id == PROTOCOL_EFIT) {
-        
-                    data_block = (DATA_BLOCK *)str;
-        
-                    switch (direction) {
-        
-                    case XDR_RECEIVE:
-        
-                        if((efit = (EFIT *)malloc(sizeof(EFIT))) == NULL) {
-                            err = PROTOCOL_ERROR_1001;
-                            break;
-                        }
-        
-                        if (!(rc = xdrrec_skiprecord(xdrs))) {
-                            err = PROTOCOL_ERROR_5;
-                            break;
-                        }
-                        if(!(rc = xdr_efit(xdrs, efit))) {
-                            err = PROTOCOL_ERROR_1001;
-                            break;
-                        }
-        
-                        if((err = alloc_efit(efit)) != 0) break;		// Allocate Heap Memory
-        
-                        for(i=0; i<efit->npfcoils; i++) {
-                            pfcoils = efit->pfcoils+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_PFCOILS, direction, token, (void *)pfcoils)) != 0) break;
-                        }
-                        for(i=0; i<efit->npfpassive; i++) {
-                            pfpassive = efit->pfpassive+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_PFPASSIVE, direction, token, (void *)pfpassive)) != 0) break;
-                        }
-                        for(i=0; i<efit->npfsupplies; i++) {
-                            pfsupplies = efit->pfsupplies+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_PFSUPPLIES, direction, token, (void *)pfsupplies)) != 0) break;
-                        }
-                        for(i=0; i<efit->nfluxloops; i++) {
-                            fluxloop = efit->fluxloop+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_FLUXLOOP, direction, token, (void *)fluxloop)) != 0) break;
-                        }
-                        for(i=0; i<efit->nmagprobes; i++) {
-                            magprobe = efit->magprobe+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_MAGPROBE, direction, token, (void *)magprobe)) != 0) break;
-                        }
-                        for(i=0; i<efit->npfcircuits; i++) {
-                            pfcircuit = efit->pfcircuit+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_PFCIRCUIT, direction, token, (void *)pfcircuit)) != 0) break;
-                        }
-                        for(i=0; i<efit->nplasmacurrent; i++) {
-                            plasmacurrent = efit->plasmacurrent+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_PLASMACURRENT, direction, token, (void *)plasmacurrent)) != 0) break;
-                        }
-                        for(i=0; i<efit->ndiamagnetic; i++) {
-                            diamagnetic = efit->diamagnetic+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_DIAMAGNETIC, direction, token, (void *)diamagnetic)) != 0) break;
-                        }
-                        for(i=0; i<efit->ntoroidalfield; i++) {
-                            toroidalfield = efit->toroidalfield+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_TOROIDALFIELD, direction, token, (void *)toroidalfield)) != 0) break;
-                        }
-                        for(i=0; i<efit->nlimiter; i++) {
-                            limiter = efit->limiter+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_LIMITER, direction, token, (void *)limiter)) != 0) break;
-                        }
-        
-                        data_block->opaque_block = (void *) efit;
-        
-                        break;
-        
-                    case XDR_SEND:
-        
-                        efit = (EFIT *) data_block->opaque_block;
-        
-                        if(!(rc = xdr_efit(xdrs, efit))) {
-                            err = PROTOCOL_ERROR_1001;
-                            break;
-                        }
-        
-                        if(!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
-        
-                        for(i=0; i<efit->npfcoils; i++) {
-                            pfcoils = efit->pfcoils+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_PFCOILS, direction, token, (void *)pfcoils)) != 0) break;
-                        }
-                        for(i=0; i<efit->npfpassive; i++) {
-                            pfpassive = efit->pfpassive+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_PFPASSIVE, direction, token, (void *)pfpassive)) != 0) break;
-                        }
-                        for(i=0; i<efit->npfsupplies; i++) {
-                            pfsupplies = efit->pfsupplies+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_PFSUPPLIES, direction, token, (void *)pfsupplies)) != 0) break;
-                        }
-                        for(i=0; i<efit->nfluxloops; i++) {
-                            fluxloop = efit->fluxloop+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_FLUXLOOP, direction, token, (void *)fluxloop)) != 0) break;
-                        }
-                        for(i=0; i<efit->nmagprobes; i++) {
-                            magprobe = efit->magprobe+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_MAGPROBE, direction, token, (void *)magprobe)) != 0) break;
-                        }
-                        for(i=0; i<efit->npfcircuits; i++) {
-                            pfcircuit = efit->pfcircuit+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_PFCIRCUIT, direction, token, (void *)pfcircuit)) != 0) break;
-                        }
-                        for(i=0; i<efit->nplasmacurrent; i++) {
-                            plasmacurrent = efit->plasmacurrent+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_PLASMACURRENT, direction, token, (void *)plasmacurrent)) != 0) break;
-                        }
-                        for(i=0; i<efit->ndiamagnetic; i++) {
-                            diamagnetic = efit->diamagnetic+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_DIAMAGNETIC, direction, token, (void *)diamagnetic)) != 0) break;
-                        }
-                        for(i=0; i<efit->ntoroidalfield; i++) {
-                            toroidalfield = efit->toroidalfield+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_TOROIDALFIELD, direction, token, (void *)toroidalfield)) != 0) break;
-                        }
-                        for(i=0; i<efit->nlimiter; i++) {
-                            limiter = efit->limiter+i;
-                            if((err = protocolXML(xdrs, PROTOCOL_LIMITER, direction, token, (void *)limiter)) != 0) break;
-                        }
-        
-                        break;
-        
-                    case XDR_FREE_HEAP:
-                        break;
-        
-                    default:
-                        err = PROTOCOL_ERROR_4;
+
+        if (protocol_id == PROTOCOL_EFIT) {
+
+            data_block = (DATA_BLOCK*)str;
+
+            switch (direction) {
+
+                case XDR_RECEIVE:
+
+                    if ((efit = (EFIT*)malloc(sizeof(EFIT))) == nullptr) {
+                        err = PROTOCOL_ERROR_1001;
                         break;
                     }
-        
+
+                    if (!(rc = xdrrec_skiprecord(xdrs))) {
+                        err = PROTOCOL_ERROR_5;
+                        break;
+                    }
+                    if (!(rc = xdr_efit(xdrs, efit))) {
+                        err = PROTOCOL_ERROR_1001;
+                        break;
+                    }
+
+                    if ((err = alloc_efit(efit)) != 0) break;        // Allocate Heap Memory
+
+                    for (int i = 0; i < efit->npfcoils; i++) {
+                        pfcoils = efit->pfcoils + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_PFCOILS, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)pfcoils)) != 0) {
+                                                   break;
+                        }
+                    }
+                    for (int i = 0; i < efit->npfpassive; i++) {
+                        pfpassive = efit->pfpassive + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_PFPASSIVE, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)pfpassive)) !=
+                            0) {
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < efit->npfsupplies; i++) {
+                        pfsupplies = efit->pfsupplies + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_PFSUPPLIES, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)pfsupplies)) !=
+                            0) {
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < efit->nfluxloops; i++) {
+                        fluxloop = efit->fluxloop + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_FLUXLOOP, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)fluxloop)) != 0) {
+                                                   break;
+                        }
+                    }
+                    for (int i = 0; i < efit->nmagprobes; i++) {
+                        magprobe = efit->magprobe + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_MAGPROBE, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)magprobe)) != 0) {
+                                                   break;
+                        }
+                    }
+                    for (int i = 0; i < efit->npfcircuits; i++) {
+                        pfcircuit = efit->pfcircuit + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_PFCIRCUIT, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)pfcircuit)) !=
+                            0) {
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < efit->nplasmacurrent; i++) {
+                        plasmacurrent = efit->plasmacurrent + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_PLASMACURRENT, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)plasmacurrent)) !=
+                            0) {
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < efit->ndiamagnetic; i++) {
+                        diamagnetic = efit->diamagnetic + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_DIAMAGNETIC, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)diamagnetic)) !=
+                            0) {
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < efit->ntoroidalfield; i++) {
+                        toroidalfield = efit->toroidalfield + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_TOROIDALFIELD, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)toroidalfield)) !=
+                            0) {
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < efit->nlimiter; i++) {
+                        limiter = efit->limiter + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_LIMITER, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)limiter)) != 0) {
+                                                   break;
+                        }
+                    }
+
+                    data_block->opaque_block = (void*)efit;
+
                     break;
-                }
-        
+
+                case XDR_SEND:
+
+                    efit = (EFIT*)data_block->opaque_block;
+
+                    if (!(rc = xdr_efit(xdrs, efit))) {
+                        err = PROTOCOL_ERROR_1001;
+                        break;
+                    }
+
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
+
+                    for (int i = 0; i < efit->npfcoils; i++) {
+                        pfcoils = efit->pfcoils + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_PFCOILS, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)pfcoils)) != 0) {
+                                                   break;
+                        }
+                    }
+                    for (int i = 0; i < efit->npfpassive; i++) {
+                        pfpassive = efit->pfpassive + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_PFPASSIVE, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)pfpassive)) !=
+                            0) {
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < efit->npfsupplies; i++) {
+                        pfsupplies = efit->pfsupplies + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_PFSUPPLIES, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)pfsupplies)) !=
+                            0) {
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < efit->nfluxloops; i++) {
+                        fluxloop = efit->fluxloop + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_FLUXLOOP, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)fluxloop)) != 0) {
+                                                   break;
+                        }
+                    }
+                    for (int i = 0; i < efit->nmagprobes; i++) {
+                        magprobe = efit->magprobe + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_MAGPROBE, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)magprobe)) != 0) {
+                                                   break;
+                        }
+                    }
+                    for (int i = 0; i < efit->npfcircuits; i++) {
+                        pfcircuit = efit->pfcircuit + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_PFCIRCUIT, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)pfcircuit)) !=
+                            0) {
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < efit->nplasmacurrent; i++) {
+                        plasmacurrent = efit->plasmacurrent + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_PLASMACURRENT, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)plasmacurrent)) !=
+                            0) {
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < efit->ndiamagnetic; i++) {
+                        diamagnetic = efit->diamagnetic + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_DIAMAGNETIC, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)diamagnetic)) !=
+                            0) {
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < efit->ntoroidalfield; i++) {
+                        toroidalfield = efit->toroidalfield + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_TOROIDALFIELD, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)toroidalfield)) !=
+                            0) {
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < efit->nlimiter; i++) {
+                        limiter = efit->limiter + i;
+                        if ((err = protocolXML(xdrs, PROTOCOL_LIMITER, direction, token, logmalloclist,
+                                               userdefinedtypelist, (void*)limiter)) != 0) {
+                                                   break;
+                        }
+                    }
+
+                    break;
+
+                case XDR_FREE_HEAP:
+                    break;
+
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
+            }
+
+            break;
+        }
+
         //----------------------------------------------------------------------------
         // PF Coils
-        
-                if(protocol_id == PROTOCOL_PFCOILS) {
-        
-                    pfcoils = (PFCOILS *)str;
-        
-                    switch (direction) {
-        
-                    case XDR_RECEIVE:
-        
-                        if (!(rc = xdrrec_skiprecord(xdrs))) {
-                            err = PROTOCOL_ERROR_5;
-                            break;
-                        }
-                        if(!(rc = xdr_pfcoils1(xdrs, pfcoils))) {
-                            err = PROTOCOL_ERROR_1011;
-                            break;
-                        }
-        
-                        if(pfcoils->nco == 0) break;				// No Data to Receive!
-        
-                        if((err = alloc_pfcoils(pfcoils)) != 0) break;		// Allocate Heap Memory
-        
-                        if(!(rc = xdr_pfcoils2(xdrs, pfcoils))) {
-                            err = PROTOCOL_ERROR_1012;
-                            break;
-                        }
-        
-                        break;
-        
-                    case XDR_SEND:
-        
-                        if(!(rc = xdr_pfcoils1(xdrs, pfcoils))) {
-                            err = PROTOCOL_ERROR_1011;
-                            break;
-                        }
-        
-                        if(pfcoils->nco == 0) break;				// No Data to Send!
-        
-                        if(!(rc = xdr_pfcoils2(xdrs, pfcoils))) {
-                            err = PROTOCOL_ERROR_1012;
-                            break;
-                        }
-        
-                        if(!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
-        
-                        break;
-        
-                    case XDR_FREE_HEAP:
-                        break;
-        
-                    default:
-                        err = PROTOCOL_ERROR_4;
+
+        if (protocol_id == PROTOCOL_PFCOILS) {
+
+            pfcoils = (PFCOILS*)str;
+
+            switch (direction) {
+
+                case XDR_RECEIVE:
+
+                    if (!(rc = xdrrec_skiprecord(xdrs))) {
+                        err = PROTOCOL_ERROR_5;
                         break;
                     }
-        
+                    if (!(rc = xdr_pfcoils1(xdrs, pfcoils))) {
+                        err = PROTOCOL_ERROR_1011;
+                        break;
+                    }
+
+                    if (pfcoils->nco == 0) break;                // No Data to Receive!
+
+                    if ((err = alloc_pfcoils(pfcoils)) != 0) break;        // Allocate Heap Memory
+
+                    if (!(rc = xdr_pfcoils2(xdrs, pfcoils))) {
+                        err = PROTOCOL_ERROR_1012;
+                        break;
+                    }
+
                     break;
-                }
-        
+
+                case XDR_SEND:
+
+                    if (!(rc = xdr_pfcoils1(xdrs, pfcoils))) {
+                        err = PROTOCOL_ERROR_1011;
+                        break;
+                    }
+
+                    if (pfcoils->nco == 0) break;                // No Data to Send!
+
+                    if (!(rc = xdr_pfcoils2(xdrs, pfcoils))) {
+                        err = PROTOCOL_ERROR_1012;
+                        break;
+                    }
+
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
+
+                    break;
+
+                case XDR_FREE_HEAP:
+                    break;
+
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
+            }
+
+            break;
+        }
+
         //----------------------------------------------------------------------------
         // PF Passive
-        
-                if(protocol_id == PROTOCOL_PFPASSIVE) {
-        
-                    pfpassive = (PFPASSIVE *)str;
-        
-                    switch (direction) {
-        
-                    case XDR_RECEIVE:
-        
-                        if (!(rc = xdrrec_skiprecord(xdrs))) {
-                            err = PROTOCOL_ERROR_5;
-                            break;
-                        }
-                        if(!(rc = xdr_pfpassive1(xdrs, pfpassive))) {
-                            err = PROTOCOL_ERROR_1021;
-                            break;
-                        }
-        
-                        if(pfpassive->nco == 0) break;				// No Data to Receive!
-        
-                        if((err = alloc_pfpassive(pfpassive)) != 0) break;	// Allocate Heap Memory
-        
-                        if(!(rc = xdr_pfpassive2(xdrs, pfpassive))) {
-                            err = PROTOCOL_ERROR_1022;
-                            break;
-                        }
-        
-                        break;
-        
-                    case XDR_SEND:
-        
-                        if(!(rc = xdr_pfpassive1(xdrs, pfpassive))) {
-                            err = PROTOCOL_ERROR_1021;
-                            break;
-                        }
-        
-                        if(pfpassive->nco == 0) break;				// No Data to Send!
-        
-                        if(!(rc = xdr_pfpassive2(xdrs, pfpassive))) {
-                            err = PROTOCOL_ERROR_1022;
-                            break;
-                        }
-        
-                        if(!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
-        
-                        break;
-        
-                    case XDR_FREE_HEAP:
-                        break;
-        
-                    default:
-                        err = PROTOCOL_ERROR_4;
+
+        if (protocol_id == PROTOCOL_PFPASSIVE) {
+
+            pfpassive = (PFPASSIVE*)str;
+
+            switch (direction) {
+
+                case XDR_RECEIVE:
+
+                    if (!(rc = xdrrec_skiprecord(xdrs))) {
+                        err = PROTOCOL_ERROR_5;
                         break;
                     }
-        
+                    if (!(rc = xdr_pfpassive1(xdrs, pfpassive))) {
+                        err = PROTOCOL_ERROR_1021;
+                        break;
+                    }
+
+                    if (pfpassive->nco == 0) break;                // No Data to Receive!
+
+                    if ((err = alloc_pfpassive(pfpassive)) != 0) break;    // Allocate Heap Memory
+
+                    if (!(rc = xdr_pfpassive2(xdrs, pfpassive))) {
+                        err = PROTOCOL_ERROR_1022;
+                        break;
+                    }
+
                     break;
-                }
-        
+
+                case XDR_SEND:
+
+                    if (!(rc = xdr_pfpassive1(xdrs, pfpassive))) {
+                        err = PROTOCOL_ERROR_1021;
+                        break;
+                    }
+
+                    if (pfpassive->nco == 0) break;                // No Data to Send!
+
+                    if (!(rc = xdr_pfpassive2(xdrs, pfpassive))) {
+                        err = PROTOCOL_ERROR_1022;
+                        break;
+                    }
+
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
+
+                    break;
+
+                case XDR_FREE_HEAP:
+                    break;
+
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
+            }
+
+            break;
+        }
+
         //----------------------------------------------------------------------------
         // PF Supplies
-        
-                if(protocol_id == PROTOCOL_PFSUPPLIES) {
-        
-                    pfsupplies = (PFSUPPLIES *)str;
-        
-                    switch (direction) {
-        
-                    case XDR_RECEIVE:
-        
-                        if (!(rc = xdrrec_skiprecord(xdrs))) {
-                            err = PROTOCOL_ERROR_5;
-                            break;
-                        }
-                        if(!(rc = xdr_pfsupplies(xdrs, pfsupplies))) {
-                            err = PROTOCOL_ERROR_1031;
-                            break;
-                        }
-        
-                        break;
-        
-                    case XDR_SEND:
-        
-                        if(!(rc = xdr_pfsupplies(xdrs, pfsupplies))) {
-                            err = PROTOCOL_ERROR_1031;
-                            break;
-                        }
-        
-                        if(!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
-        
-                        break;
-        
-                    case XDR_FREE_HEAP:
-                        break;
-        
-                    default:
-                        err = PROTOCOL_ERROR_4;
+
+        if (protocol_id == PROTOCOL_PFSUPPLIES) {
+
+            pfsupplies = (PFSUPPLIES*)str;
+
+            switch (direction) {
+
+                case XDR_RECEIVE:
+
+                    if (!(rc = xdrrec_skiprecord(xdrs))) {
+                        err = PROTOCOL_ERROR_5;
                         break;
                     }
-        
+                    if (!(rc = xdr_pfsupplies(xdrs, pfsupplies))) {
+                        err = PROTOCOL_ERROR_1031;
+                        break;
+                    }
+
                     break;
-                }
-        
+
+                case XDR_SEND:
+
+                    if (!(rc = xdr_pfsupplies(xdrs, pfsupplies))) {
+                        err = PROTOCOL_ERROR_1031;
+                        break;
+                    }
+
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
+
+                    break;
+
+                case XDR_FREE_HEAP:
+                    break;
+
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
+            }
+
+            break;
+        }
+
         //----------------------------------------------------------------------------
         // Flux Loops
-        
-                if(protocol_id == PROTOCOL_FLUXLOOP) {
-        
-                    fluxloop = (FLUXLOOP *)str;
-        
-                    switch (direction) {
-        
-                    case XDR_RECEIVE:
-        
-                        if (!(rc = xdrrec_skiprecord(xdrs))) {
-                            err = PROTOCOL_ERROR_5;
-                            break;
-                        }
-                        if(!(rc = xdr_fluxloop1(xdrs, fluxloop))) {
-                            err = PROTOCOL_ERROR_1041;
-                            break;
-                        }
-        
-                        if(fluxloop->nco == 0) break;				// No Data to Receive!
-        
-                        if((err = alloc_fluxloop(fluxloop)) != 0) break;	// Allocate Heap Memory
-        
-                        if(!(rc = xdr_fluxloop2(xdrs, fluxloop))) {
-                            err = PROTOCOL_ERROR_1042;
-                            break;
-                        }
-        
-                        break;
-        
-                    case XDR_SEND:
-        
-                        if(!(rc = xdr_fluxloop1(xdrs, fluxloop))) {
-                            err = PROTOCOL_ERROR_1041;
-                            break;
-                        }
-        
-                        if(fluxloop->nco == 0) break;
-        
-                        if(!(rc = xdr_fluxloop2(xdrs, fluxloop))) {
-                            err = PROTOCOL_ERROR_1042;
-                            break;
-                        }
-        
-                        if(!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
-        
-                        break;
-        
-                    case XDR_FREE_HEAP:
-                        break;
-        
-                    default:
-                        err = PROTOCOL_ERROR_4;
+
+        if (protocol_id == PROTOCOL_FLUXLOOP) {
+
+            fluxloop = (FLUXLOOP*)str;
+
+            switch (direction) {
+
+                case XDR_RECEIVE:
+
+                    if (!(rc = xdrrec_skiprecord(xdrs))) {
+                        err = PROTOCOL_ERROR_5;
                         break;
                     }
-        
+                    if (!(rc = xdr_fluxloop1(xdrs, fluxloop))) {
+                        err = PROTOCOL_ERROR_1041;
+                        break;
+                    }
+
+                    if (fluxloop->nco == 0) break;                // No Data to Receive!
+
+                    if ((err = alloc_fluxloop(fluxloop)) != 0) break;    // Allocate Heap Memory
+
+                    if (!(rc = xdr_fluxloop2(xdrs, fluxloop))) {
+                        err = PROTOCOL_ERROR_1042;
+                        break;
+                    }
+
                     break;
-                }
-        
+
+                case XDR_SEND:
+
+                    if (!(rc = xdr_fluxloop1(xdrs, fluxloop))) {
+                        err = PROTOCOL_ERROR_1041;
+                        break;
+                    }
+
+                    if (fluxloop->nco == 0) break;
+
+                    if (!(rc = xdr_fluxloop2(xdrs, fluxloop))) {
+                        err = PROTOCOL_ERROR_1042;
+                        break;
+                    }
+
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
+
+                    break;
+
+                case XDR_FREE_HEAP:
+                    break;
+
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
+            }
+
+            break;
+        }
+
         //----------------------------------------------------------------------------
         // Magnetic Probe
-        
-                if(protocol_id == PROTOCOL_MAGPROBE) {
-        
-                    magprobe = (MAGPROBE *)str;
-        
-                    switch (direction) {
-        
-                    case XDR_RECEIVE:
-        
-                        if (!(rc = xdrrec_skiprecord(xdrs))) {
-                            err = PROTOCOL_ERROR_5;
-                            break;
-                        }
-                        if(!(rc = xdr_magprobe(xdrs, magprobe))) {
-                            err = PROTOCOL_ERROR_1051;
-                            break;
-                        }
-        
-                        break;
-        
-                    case XDR_SEND:
-        
-                        if(!(rc = xdr_magprobe(xdrs, magprobe))) {
-                            err = PROTOCOL_ERROR_1051;
-                            break;
-                        }
-        
-                        if(!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
-        
-                        break;
-        
-                    case XDR_FREE_HEAP:
-                        break;
-        
-                    default:
-                        err = PROTOCOL_ERROR_4;
+
+        if (protocol_id == PROTOCOL_MAGPROBE) {
+
+            magprobe = (MAGPROBE*)str;
+
+            switch (direction) {
+
+                case XDR_RECEIVE:
+
+                    if (!(rc = xdrrec_skiprecord(xdrs))) {
+                        err = PROTOCOL_ERROR_5;
                         break;
                     }
-        
+                    if (!(rc = xdr_magprobe(xdrs, magprobe))) {
+                        err = PROTOCOL_ERROR_1051;
+                        break;
+                    }
+
                     break;
-                }
-        
+
+                case XDR_SEND:
+
+                    if (!(rc = xdr_magprobe(xdrs, magprobe))) {
+                        err = PROTOCOL_ERROR_1051;
+                        break;
+                    }
+
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
+
+                    break;
+
+                case XDR_FREE_HEAP:
+                    break;
+
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
+            }
+
+            break;
+        }
+
         //----------------------------------------------------------------------------
         // PF Circuit
-        
-                if(protocol_id == PROTOCOL_PFCIRCUIT) {
-        
-                    pfcircuit = (PFCIRCUIT *)str;
-        
-                    switch (direction) {
-        
-                    case XDR_RECEIVE:
-        
-                        if (!(rc = xdrrec_skiprecord(xdrs))) {
-                            err = PROTOCOL_ERROR_5;
-                            break;
-                        }
-                        if(!(rc = xdr_pfcircuit1(xdrs, pfcircuit))) {
-                            err = PROTOCOL_ERROR_1061;
-                            break;
-                        }
-        
-                        if(pfcircuit->nco == 0) break;				// No Data to Receive!
-        
-                        if((err = alloc_pfcircuit(pfcircuit)) != 0) break;	// Allocate Heap Memory
-        
-                        if(!(rc = xdr_pfcircuit2(xdrs, pfcircuit))) {
-                            err = PROTOCOL_ERROR_1062;
-                            break;
-                        }
-        
-                        break;
-        
-                    case XDR_SEND:
-        
-                        if(!(rc = xdr_pfcircuit1(xdrs, pfcircuit))) {
-                            err = PROTOCOL_ERROR_1061;
-                            break;
-                        }
-        
-                        if(pfcircuit->nco == 0) break;				// No Data to Send!
-        
-                        if(!(rc = xdr_pfcircuit2(xdrs, pfcircuit))) {
-                            err = PROTOCOL_ERROR_1062;
-                            break;
-                        }
-        
-                        if(!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
-        
-                        break;
-        
-                    case XDR_FREE_HEAP:
-                        break;
-        
-                    default:
-                        err = PROTOCOL_ERROR_4;
+
+        if (protocol_id == PROTOCOL_PFCIRCUIT) {
+
+            pfcircuit = (PFCIRCUIT*)str;
+
+            switch (direction) {
+
+                case XDR_RECEIVE:
+
+                    if (!(rc = xdrrec_skiprecord(xdrs))) {
+                        err = PROTOCOL_ERROR_5;
                         break;
                     }
-        
+                    if (!(rc = xdr_pfcircuit1(xdrs, pfcircuit))) {
+                        err = PROTOCOL_ERROR_1061;
+                        break;
+                    }
+
+                    if (pfcircuit->nco == 0) break;                // No Data to Receive!
+
+                    if ((err = alloc_pfcircuit(pfcircuit)) != 0) break;    // Allocate Heap Memory
+
+                    if (!(rc = xdr_pfcircuit2(xdrs, pfcircuit))) {
+                        err = PROTOCOL_ERROR_1062;
+                        break;
+                    }
+
                     break;
-                }
-        
+
+                case XDR_SEND:
+
+                    if (!(rc = xdr_pfcircuit1(xdrs, pfcircuit))) {
+                        err = PROTOCOL_ERROR_1061;
+                        break;
+                    }
+
+                    if (pfcircuit->nco == 0) break;                // No Data to Send!
+
+                    if (!(rc = xdr_pfcircuit2(xdrs, pfcircuit))) {
+                        err = PROTOCOL_ERROR_1062;
+                        break;
+                    }
+
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
+
+                    break;
+
+                case XDR_FREE_HEAP:
+                    break;
+
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
+            }
+
+            break;
+        }
+
         //----------------------------------------------------------------------------
         // Plasma Current
-        
-                if(protocol_id == PROTOCOL_PLASMACURRENT) {
-        
-                    plasmacurrent = (PLASMACURRENT *)str;
-        
-                    switch (direction) {
-        
-                    case XDR_RECEIVE:
-        
-                        if (!(rc = xdrrec_skiprecord(xdrs))) {
-                            err = PROTOCOL_ERROR_5;
-                            break;
-                        }
-                        if(!(rc = xdr_plasmacurrent(xdrs, plasmacurrent))) {
-                            err = PROTOCOL_ERROR_1071;
-                            break;
-                        }
-        
-                        break;
-        
-                    case XDR_SEND:
-        
-                        if(!(rc = xdr_plasmacurrent(xdrs, plasmacurrent))) {
-                            err = PROTOCOL_ERROR_1071;
-                            break;
-                        }
-        
-                        if(!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
-        
-                        break;
-        
-                    case XDR_FREE_HEAP:
-                        break;
-        
-                    default:
-                        err = PROTOCOL_ERROR_4;
+
+        if (protocol_id == PROTOCOL_PLASMACURRENT) {
+
+            plasmacurrent = (PLASMACURRENT*)str;
+
+            switch (direction) {
+
+                case XDR_RECEIVE:
+
+                    if (!(rc = xdrrec_skiprecord(xdrs))) {
+                        err = PROTOCOL_ERROR_5;
                         break;
                     }
-        
+                    if (!(rc = xdr_plasmacurrent(xdrs, plasmacurrent))) {
+                        err = PROTOCOL_ERROR_1071;
+                        break;
+                    }
+
                     break;
-                }
-        
+
+                case XDR_SEND:
+
+                    if (!(rc = xdr_plasmacurrent(xdrs, plasmacurrent))) {
+                        err = PROTOCOL_ERROR_1071;
+                        break;
+                    }
+
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
+
+                    break;
+
+                case XDR_FREE_HEAP:
+                    break;
+
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
+            }
+
+            break;
+        }
+
         //----------------------------------------------------------------------------
         // Diamagnetic Flux
-        
-                if(protocol_id == PROTOCOL_DIAMAGNETIC) {
-        
-                    diamagnetic = (DIAMAGNETIC *)str;
-        
-                    switch (direction) {
-        
-                    case XDR_RECEIVE:
-        
-                        if (!(rc = xdrrec_skiprecord(xdrs))) {
-                            err = PROTOCOL_ERROR_5;
-                            break;
-                        }
-                        if(!(rc = xdr_diamagnetic(xdrs, diamagnetic))) {
-                            err = PROTOCOL_ERROR_1071;
-                            break;
-                        }
-        
-                        break;
-        
-                    case XDR_SEND:
-        
-                        if(!(rc = xdr_diamagnetic(xdrs, diamagnetic))) {
-                            err = PROTOCOL_ERROR_1071;
-                            break;
-                        }
-        
-                        if(!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
-        
-                        break;
-        
-                    case XDR_FREE_HEAP:
-                        break;
-        
-                    default:
-                        err = PROTOCOL_ERROR_4;
+
+        if (protocol_id == PROTOCOL_DIAMAGNETIC) {
+
+            diamagnetic = (DIAMAGNETIC*)str;
+
+            switch (direction) {
+
+                case XDR_RECEIVE:
+
+                    if (!(rc = xdrrec_skiprecord(xdrs))) {
+                        err = PROTOCOL_ERROR_5;
                         break;
                     }
-        
+                    if (!(rc = xdr_diamagnetic(xdrs, diamagnetic))) {
+                        err = PROTOCOL_ERROR_1071;
+                        break;
+                    }
+
                     break;
-                }
-        
+
+                case XDR_SEND:
+
+                    if (!(rc = xdr_diamagnetic(xdrs, diamagnetic))) {
+                        err = PROTOCOL_ERROR_1071;
+                        break;
+                    }
+
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
+
+                    break;
+
+                case XDR_FREE_HEAP:
+                    break;
+
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
+            }
+
+            break;
+        }
+
         //----------------------------------------------------------------------------
         // Toroidal Magnetic Field
-        
-                if(protocol_id == PROTOCOL_TOROIDALFIELD) {
-        
-                    toroidalfield = (TOROIDALFIELD *)str;
-        
-                    switch (direction) {
-        
-                    case XDR_RECEIVE:
-        
-                        if (!(rc = xdrrec_skiprecord(xdrs))) {
-                            err = PROTOCOL_ERROR_5;
-                            break;
-                        }
-                        if(!(rc = xdr_toroidalfield(xdrs, toroidalfield))) {
-                            err = PROTOCOL_ERROR_1081;
-                            break;
-                        }
-        
-                        break;
-        
-                    case XDR_SEND:
-        
-                        if(!(rc = xdr_toroidalfield(xdrs, toroidalfield))) {
-                            err = PROTOCOL_ERROR_1081;
-                            break;
-                        }
-        
-                        if(!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
-        
-                        break;
-        
-                    case XDR_FREE_HEAP:
-                        break;
-        
-                    default:
-                        err = PROTOCOL_ERROR_4;
+
+        if (protocol_id == PROTOCOL_TOROIDALFIELD) {
+
+            toroidalfield = (TOROIDALFIELD*)str;
+
+            switch (direction) {
+
+                case XDR_RECEIVE:
+
+                    if (!(rc = xdrrec_skiprecord(xdrs))) {
+                        err = PROTOCOL_ERROR_5;
                         break;
                     }
-        
+                    if (!(rc = xdr_toroidalfield(xdrs, toroidalfield))) {
+                        err = PROTOCOL_ERROR_1081;
+                        break;
+                    }
+
                     break;
-                }
-        
+
+                case XDR_SEND:
+
+                    if (!(rc = xdr_toroidalfield(xdrs, toroidalfield))) {
+                        err = PROTOCOL_ERROR_1081;
+                        break;
+                    }
+
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
+
+                    break;
+
+                case XDR_FREE_HEAP:
+                    break;
+
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
+            }
+
+            break;
+        }
+
         //----------------------------------------------------------------------------
         // Limiters
-        
-                if(protocol_id == PROTOCOL_LIMITER) {
-        
-                    limiter = (LIMITER *)str;
-        
-                    switch (direction) {
-        
-                    case XDR_RECEIVE:
-        
-                        if (!(rc = xdrrec_skiprecord(xdrs))) {
-                            err = PROTOCOL_ERROR_5;
-                            break;
-                        }
-                        if(!(rc = xdr_limiter1(xdrs, limiter))) {
-                            err = PROTOCOL_ERROR_1091;
-                            break;
-                        }
-        
-                        if(limiter->nco == 0) break;				// No Data to Receive!
-        
-                        if((err = alloc_limiter(limiter)) != 0) break;		// Allocate Heap Memory
-        
-                        if(!(rc = xdr_limiter2(xdrs, limiter))) {
-                            err = PROTOCOL_ERROR_1092;
-                            break;
-                        }
-        
-                        break;
-        
-                    case XDR_SEND:
-        
-                        if(!(rc = xdr_limiter1(xdrs, limiter))) {
-                            err = PROTOCOL_ERROR_1091;
-                            break;
-                        }
-        
-                        if(limiter->nco == 0) break;				// No Data to Send!
-        
-                        if(!(rc = xdr_limiter2(xdrs, limiter))) {
-                            err = PROTOCOL_ERROR_1092;
-                            break;
-                        }
-        
-                        if(!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
-        
-                        break;
-        
-                    case XDR_FREE_HEAP:
-                        break;
-        
-                    default:
-                        err = PROTOCOL_ERROR_4;
+
+        if (protocol_id == PROTOCOL_LIMITER) {
+
+            limiter = (LIMITER*)str;
+
+            switch (direction) {
+
+                case XDR_RECEIVE:
+
+                    if (!(rc = xdrrec_skiprecord(xdrs))) {
+                        err = PROTOCOL_ERROR_5;
                         break;
                     }
-        
+                    if (!(rc = xdr_limiter1(xdrs, limiter))) {
+                        err = PROTOCOL_ERROR_1091;
+                        break;
+                    }
+
+                    if (limiter->nco == 0) break;                // No Data to Receive!
+
+                    if ((err = alloc_limiter(limiter)) != 0) break;        // Allocate Heap Memory
+
+                    if (!(rc = xdr_limiter2(xdrs, limiter))) {
+                        err = PROTOCOL_ERROR_1092;
+                        break;
+                    }
+
                     break;
-                }
+
+                case XDR_SEND:
+
+                    if (!(rc = xdr_limiter1(xdrs, limiter))) {
+                        err = PROTOCOL_ERROR_1091;
+                        break;
+                    }
+
+                    if (limiter->nco == 0) break;                // No Data to Send!
+
+                    if (!(rc = xdr_limiter2(xdrs, limiter))) {
+                        err = PROTOCOL_ERROR_1092;
+                        break;
+                    }
+
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = PROTOCOL_ERROR_7;
+
+                    break;
+
+                case XDR_FREE_HEAP:
+                    break;
+
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
+            }
+
+            break;
+        }
 #  endif
 #endif // !FATCLIENT
-    //----------------------------------------------------------------------------
-    // End of Error Trap Loop
+        //----------------------------------------------------------------------------
+        // End of Error Trap Loop
 
     } while (0);
 

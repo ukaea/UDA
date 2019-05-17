@@ -27,7 +27,7 @@ int allocArray(int data_type, size_t n_data, char** ap)
 {
     if (n_data == 0) return 0; // Insufficient Data to Allocate!
 
-    *ap = NULL;
+    *ap = nullptr;
 
     size_t data_size = getSizeOf((UDA_TYPE)data_type);
     if (data_size > 0) {
@@ -36,7 +36,7 @@ int allocArray(int data_type, size_t n_data, char** ap)
         return UNKNOWN_DATA_TYPE;
     }
 
-    if (*ap == NULL && data_type != UDA_TYPE_COMPOUND) {
+    if (*ap == nullptr && data_type != UDA_TYPE_COMPOUND) {
         return ERROR_ALLOCATING_HEAP;
     }
 
@@ -55,7 +55,9 @@ int allocData(DATA_BLOCK* data_block)
 
     if (data_block->rank > 0) {
         data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-        if (data_block->dims == NULL) return (ERROR_ALLOCATING_HEAP);
+        if (data_block->dims == nullptr) {
+            return ERROR_ALLOCATING_HEAP;
+        }
         unsigned int i;
         for (i = 0; i < data_block->rank; i++) {
             initDimBlock(&data_block->dims[i]);
@@ -71,9 +73,9 @@ int allocData(DATA_BLOCK* data_block)
         return 1;
     }
 
-    char* db = NULL;
-    char* ebh = NULL;
-    char* ebl = NULL;
+    char* db = nullptr;
+    char* ebh = nullptr;
+    char* ebl = nullptr;
 
     size_t data_size = getSizeOf((UDA_TYPE)data_block->data_type);
     if (data_size > 0) {
@@ -93,11 +95,11 @@ int allocData(DATA_BLOCK* data_block)
     UDA_LOG(UDA_LOG_DEBUG, "count     : %d\n", data_block->data_n);
     UDA_LOG(UDA_LOG_DEBUG, "data_type : %d\n", data_block->data_type);
     UDA_LOG(UDA_LOG_DEBUG, "error_type: %d\n", data_block->error_type);
-    UDA_LOG(UDA_LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
-    UDA_LOG(UDA_LOG_DEBUG, "errhi != NULL: %d\n", ebh != NULL);
-    UDA_LOG(UDA_LOG_DEBUG, "errlo != NULL: %d\n", ebl != NULL);
+    UDA_LOG(UDA_LOG_DEBUG, "data  != nullptr: %d\n", db != nullptr);
+    UDA_LOG(UDA_LOG_DEBUG, "errhi != nullptr: %d\n", ebh != nullptr);
+    UDA_LOG(UDA_LOG_DEBUG, "errlo != nullptr: %d\n", ebl != nullptr);
 
-    if (db == NULL && data_block->data_type != UDA_TYPE_COMPOUND) {
+    if (db == nullptr && data_block->data_type != UDA_TYPE_COMPOUND) {
         UDA_LOG(UDA_LOG_DEBUG, "allocData: Unable to Allocate Heap Memory for Data \n");
         return ERROR_ALLOCATING_HEAP;
     }
@@ -110,7 +112,7 @@ int allocData(DATA_BLOCK* data_block)
         }
     }
 
-    if ((ebh == NULL || (ebl == NULL && data_block->errasymmetry)) &&
+    if ((ebh == nullptr || (ebl == nullptr && data_block->errasymmetry)) &&
         (data_block->error_type != UDA_TYPE_COMPOUND && data_block->error_type != UDA_TYPE_UNKNOWN)) {
         return ERROR_ALLOCATING_HEAP;
     }
@@ -131,9 +133,9 @@ int allocDim(DATA_BLOCK* data_block)
 // It may or may not be called by a Server Plugin.
 
     unsigned int ndata;
-    char* db = NULL;
-    char* ebh = NULL;
-    char* ebl = NULL;
+    char* db = nullptr;
+    char* ebh = nullptr;
+    char* ebl = nullptr;
 
     unsigned int i;
     for (i = 0; i < data_block->rank; i++) {
@@ -160,8 +162,8 @@ int allocDim(DATA_BLOCK* data_block)
             }
         }
 
-        if (db == NULL) return ERROR_ALLOCATING_HEAP;
-        if (ebh == NULL || (ebl == NULL && data_block->dims[i].errasymmetry)) return ERROR_ALLOCATING_HEAP;
+        if (db == nullptr) return ERROR_ALLOCATING_HEAP;
+        if (ebh == nullptr || (ebl == nullptr && data_block->dims[i].errasymmetry)) return ERROR_ALLOCATING_HEAP;
 
         data_block->dims[i].dim = db;
         data_block->dims[i].errhi = ebh;
@@ -171,9 +173,9 @@ int allocDim(DATA_BLOCK* data_block)
 
         if (data_block->dims[i].compressed && data_block->dims[i].method > 0) {
 
-            data_block->dims[i].sams = NULL;
-            data_block->dims[i].offs = NULL;
-            data_block->dims[i].ints = NULL;
+            data_block->dims[i].sams = nullptr;
+            data_block->dims[i].offs = nullptr;
+            data_block->dims[i].ints = nullptr;
 
             switch (data_block->dims[i].method) {
                 case 1:
@@ -203,7 +205,7 @@ int allocDim(DATA_BLOCK* data_block)
 int allocPutData(PUTDATA_BLOCK* putData)
 {
     unsigned int count;
-    char* db = NULL;
+    char* db = nullptr;
 
     //------------------------------------------------------------------------
     // Allocate Memory for data
@@ -221,11 +223,11 @@ int allocPutData(PUTDATA_BLOCK* putData)
     UDA_LOG(UDA_LOG_DEBUG, "rank      : %d\n", putData->rank);
     UDA_LOG(UDA_LOG_DEBUG, "count     : %d\n", putData->count);
     UDA_LOG(UDA_LOG_DEBUG, "data_type : %d\n", putData->data_type);
-    UDA_LOG(UDA_LOG_DEBUG, "data  != NULL: %d\n", db != NULL);
+    UDA_LOG(UDA_LOG_DEBUG, "data  != nullptr: %d\n", db != nullptr);
 
-    if (db == NULL && putData->data_type != UDA_TYPE_COMPOUND) {
+    if (db == nullptr && putData->data_type != UDA_TYPE_COMPOUND) {
         UDA_LOG(UDA_LOG_DEBUG, "allocPutData: Unable to Allocate Heap Memory for Data \n");
-        return (ERROR_ALLOCATING_HEAP);
+        return ERROR_ALLOCATING_HEAP;
     }
 
     putData->data = db;
@@ -239,7 +241,7 @@ int allocPutData(PUTDATA_BLOCK* putData)
     if (putData->blockNameLength > 0) {
         putData->blockName = (char*)malloc((putData->blockNameLength + 1) * sizeof(char));
     } else {
-        putData->blockName = NULL;
+        putData->blockName = nullptr;
     }
 
     return 0;
@@ -247,7 +249,7 @@ int allocPutData(PUTDATA_BLOCK* putData)
 
 void addIdamPutDataBlockList(PUTDATA_BLOCK* putDataBlock, PUTDATA_BLOCK_LIST* putDataBlockList)
 {
-    if (putDataBlockList->putDataBlock == NULL ||
+    if (putDataBlockList->putDataBlock == nullptr ||
         putDataBlockList->blockCount + 1 >= putDataBlockList->blockListSize) {
         putDataBlockList->putDataBlock = (PUTDATA_BLOCK*)realloc((void*)putDataBlockList->putDataBlock,
                                                                  (putDataBlockList->blockListSize +

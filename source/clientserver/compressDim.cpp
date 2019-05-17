@@ -26,22 +26,20 @@ int compressDim(DIMS* ddim)
 {
     double d0, ddif = 0, pddif = 0, precision, mddif;
     int ndata;
-    int i, ndif = 1;
+    int ndif = 1;
 
-    float* fp;
-    double* dp;
-    int* ip;
-    long* lp;
-    long long int* llp;
-    short* sp;
-    char* cp;
-    unsigned int* uip;
-    unsigned long* ulp;
-#ifndef __APPLE__
-    unsigned long long int* ullp;
-#endif
-    unsigned short* usp;
-    unsigned char* ucp;
+    float* fp = nullptr;
+    double* dp = nullptr;
+    int* ip = nullptr;
+    long* lp = nullptr;
+    long long int* llp = nullptr;
+    short* sp = nullptr;
+    char* cp = nullptr;
+    unsigned int* uip = nullptr;
+    unsigned long* ulp = nullptr;
+    unsigned long long int* ullp = nullptr;
+    unsigned short* usp = nullptr;
+    unsigned char* ucp = nullptr;
 
     if (!ddim || !ddim->dim || ddim->compressed) {
         // No Data or Already Compressed or Functionality disabled!
@@ -131,21 +129,19 @@ int compressDim(DIMS* ddim)
             precision = FLT_EPSILON;
             mddif = ((double)ulp[ndata - 1] - d0) / (double)(ndata - 1);
             break;
-#ifndef __APPLE__
         case UDA_TYPE_UNSIGNED_LONG64:
-            ullp = (unsigned long long int*) ddim->dim;
-            d0 = (double) ullp[0];
-            pddif = (double) ullp[1] - d0;
+            ullp = (unsigned long long int*)ddim->dim;
+            d0 = (double)ullp[0];
+            pddif = (double)ullp[1] - d0;
             precision = FLT_EPSILON;
-            mddif = ((double) ullp[ndata - 1] - d0) / (double) (ndata - 1);
+            mddif = ((double)ullp[ndata - 1] - d0) / (double)(ndata - 1);
             break;
-#endif
         default:
             ddim->compressed = 0;
             return 1;
     }
 
-    for (i = 1; i < ndata; i++) {
+    for (int i = 1; i < ndata; i++) {
         switch (ddim->data_type) {
             case UDA_TYPE_CHAR:
                 ddif = (double)cp[i] - (double)cp[i - 1];
@@ -180,11 +176,9 @@ int compressDim(DIMS* ddim)
             case UDA_TYPE_UNSIGNED_LONG:
                 ddif = (double)ulp[i] - (double)ulp[i - 1];
                 break;
-#ifndef __APPLE__
             case UDA_TYPE_UNSIGNED_LONG64:
-                ddif = (double) ullp[i] - (double) ullp[i - 1];
+                ddif = (double)ullp[i] - (double)ullp[i - 1];
                 break;
-#endif
         }
 
         if (fabs(ddif - pddif) > precision) break;        // Differences are Not Constant!
@@ -223,434 +217,429 @@ int compressDim(DIMS* ddim)
 
 int uncompressDim(DIMS* ddim)
 {
-    double d0, diff;
-    int j, count;
+    if (!ddim || ddim->compressed == 0) {
+        return 0;    // Nothing to Uncompress!
+    }
+    if (ddim->dim_n == 0) {
+        return 0;    // Nothing to Uncompress!
+    }
 
-    float* fp;
-    double* dp;
-    int* ip;
-    long* lp;
-    short* sp;
-    char* cp;
-    unsigned int* uip;
-    unsigned long* ulp;
-    unsigned short* usp;
-    unsigned char* ucp;
+    auto ndata = (size_t)ddim->dim_n;
+    double d0 = ddim->dim0;        // Default Compression Method
+    double diff = ddim->diff;
 
-    if (!ddim || ddim->compressed == 0) return 0;    // Nothing to Uncompress!
-    if (ddim->dim_n == 0) return 0;    // Nothing to Uncompress!
-
-    size_t ndata = (size_t)ddim->dim_n;
-    d0 = ddim->dim0;        // Default Compression Method
-    diff = ddim->diff;
-
-    unsigned int i;
+    int count = 0;
 
     switch (ddim->data_type) {
 
-        case UDA_TYPE_CHAR:
-            if (ddim->dim == NULL) {
-                if ((ddim->dim = (char*)malloc(ndata * sizeof(char))) == NULL) {
+        case UDA_TYPE_CHAR: {
+            if (ddim->dim == nullptr) {
+                if ((ddim->dim = (char*)malloc(ndata * sizeof(char))) == nullptr) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
                 }
             }
-            cp = ddim->dim;
+            char* cp = ddim->dim;
 
             switch (ddim->method) {
                 case 0:
                     cp[0] = (char)d0;
-                    for (i = 1; i < ndata; i++) {
+                    for (unsigned int i = 1; i < ndata; i++) {
                         cp[i] = cp[i - 1] + (char)diff;
                     }
                     break;
                 case 1:
                     count = 0;
-                    for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *(ddim->sams + i); j++) {
+                    for (unsigned int i = 0; i < ddim->udoms; i++) {
+                        for (int j = 0; j < *(ddim->sams + i); j++) {
                             cp[count++] = *(ddim->offs + i) + (char)j * *(ddim->ints + i);
                         }
                     }
                     break;
                 case 2:
-                    for (i = 0; i < ddim->udoms; i++)cp[i] = *(ddim->offs + i);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)cp[i] = *(ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)cp[i] = *(ddim->offs) + (char)i * *(ddim->ints);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)cp[i] = *(ddim->offs) + (char)i * *(ddim->ints);
                     break;
             }
             break;
+        }
 
-        case UDA_TYPE_SHORT:
-            if (ddim->dim == NULL) {
-                if ((ddim->dim = (char*)malloc(ndata * sizeof(short))) == NULL) {
+        case UDA_TYPE_SHORT: {
+            if (ddim->dim == nullptr) {
+                if ((ddim->dim = (char*)malloc(ndata * sizeof(short))) == nullptr) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
                 }
             }
-            sp = (short*)ddim->dim;
+            auto sp = (short*)ddim->dim;
 
             switch (ddim->method) {
                 case 0:
                     sp[0] = (short)d0;
-                    for (i = 1; i < ndata; i++) {
+                    for (unsigned int i = 1; i < ndata; i++) {
                         sp[i] = sp[i - 1] + (short)diff;
                     }
                     break;
                 case 1:
                     count = 0;
-                    for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *(ddim->sams + i); j++) {
+                    for (unsigned int i = 0; i < ddim->udoms; i++) {
+                        for (int j = 0; j < *(ddim->sams + i); j++) {
                             sp[count++] = *((short*)ddim->offs + i) + (short)j * *((short*)ddim->ints + i);
                         }
                     }
                     break;
                 case 2:
-                    for (i = 0; i < ddim->udoms; i++)sp[i] = *((short*)ddim->offs + i);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)sp[i] = *((short*)ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)
+                    for (unsigned int i = 0; i < ddim->udoms; i++)
                         sp[i] = *((short*)ddim->offs) + (short)i * *((short*)ddim->ints);
                     break;
             }
             break;
+        }
 
-        case UDA_TYPE_INT:
-            if (ddim->dim == NULL) {
-                if ((ddim->dim = (char*)malloc(ndata * sizeof(int))) == NULL) {
+        case UDA_TYPE_INT: {
+            if (ddim->dim == nullptr) {
+                if ((ddim->dim = (char*)malloc(ndata * sizeof(int))) == nullptr) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
                 }
             }
-            ip = (int*)ddim->dim;
+            auto ip = (int*)ddim->dim;
 
             switch (ddim->method) {
                 case 0:
                     ip[0] = (int)d0;
-                    for (i = 1; i < ndata; i++) {
+                    for (unsigned int i = 1; i < ndata; i++) {
                         ip[i] = ip[i - 1] + (int)diff;
                     }
                     break;
                 case 1:
                     count = 0;
-                    for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *(ddim->sams + i); j++) {
+                    for (unsigned int i = 0; i < ddim->udoms; i++) {
+                        for (int j = 0; j < *(ddim->sams + i); j++) {
                             ip[count++] = *((int*)ddim->offs + i) + j * *((int*)ddim->ints + i);
                         }
                     }
                     break;
                 case 2:
-                    for (i = 0; i < ddim->udoms; i++)ip[i] = *((int*)ddim->offs + i);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)ip[i] = *((int*)ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)ip[i] = *((int*)ddim->offs) + i * *((int*)ddim->ints);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)ip[i] = *((int*)ddim->offs) + i * *((int*)ddim->ints);
                     break;
             }
             break;
+        }
 
-        case UDA_TYPE_LONG:
-            if (ddim->dim == NULL) {
-                if ((ddim->dim = (char*)malloc(ndata * sizeof(long))) == NULL) {
+        case UDA_TYPE_LONG: {
+            if (ddim->dim == nullptr) {
+                if ((ddim->dim = (char*)malloc(ndata * sizeof(long))) == nullptr) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
                 }
             }
-            lp = (long*)ddim->dim;
+            auto lp = (long*)ddim->dim;
             switch (ddim->method) {
                 case 0:
                     lp[0] = (long)d0;
-                    for (i = 1; i < ndata; i++) {
+                    for (unsigned int i = 1; i < ndata; i++) {
                         lp[i] = lp[i - 1] + (long)diff;
                     }
                     break;
                 case 1:
                     count = 0;
-                    for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *(ddim->sams + i); j++) {
+                    for (unsigned int i = 0; i < ddim->udoms; i++) {
+                        for (int j = 0; j < *(ddim->sams + i); j++) {
                             lp[count++] = *((long*)ddim->offs + i) + (long)j * *((long*)ddim->ints + i);
                         }
                     }
                     break;
                 case 2:
-                    for (i = 0; i < ddim->udoms; i++)lp[i] = *((long*)ddim->offs + i);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)lp[i] = *((long*)ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)lp[i] = *((long*)ddim->offs) + (long)i * *((long*)ddim->ints);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)
+                        lp[i] = *((long*)ddim->offs) + (long)i * *((long*)ddim->ints);
                     break;
             }
             break;
+        }
 
         case UDA_TYPE_LONG64: {
-            long long int* lp;
-            if (ddim->dim == NULL) {
-                if ((ddim->dim = (char*)malloc(ndata * sizeof(long long int))) == NULL) {
+            if (ddim->dim == nullptr) {
+                if ((ddim->dim = (char*)malloc(ndata * sizeof(long long int))) == nullptr) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
                 }
             }
-            lp = (long long int*)ddim->dim;
+            auto lp = (long long int*)ddim->dim;
             switch (ddim->method) {
                 case 0:
                     lp[0] = (long long int)d0;
-                    for (i = 1; i < ndata; i++) {
+                    for (unsigned int i = 1; i < ndata; i++) {
                         lp[i] = lp[i - 1] + (long long int)diff;
                     }
                     break;
                 case 1:
                     count = 0;
-                    for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *(ddim->sams + i); j++) {
+                    for (unsigned int i = 0; i < ddim->udoms; i++) {
+                        for (int j = 0; j < *(ddim->sams + i); j++) {
                             lp[count++] = *((long long int*)ddim->offs + i) +
                                           (long long int)j * *((long long int*)ddim->ints + i);
                         }
                     }
                     break;
                 case 2:
-                    for (i = 0; i < ddim->udoms; i++)lp[i] = *((long long int*)ddim->offs + i);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)lp[i] = *((long long int*)ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)
+                    for (unsigned int i = 0; i < ddim->udoms; i++)
                         lp[i] = *((long long int*)ddim->offs) + (long long int)i * *((long long int*)ddim->ints);
                     break;
             }
             break;
         }
 
-        case UDA_TYPE_FLOAT:
-            if ((ddim->dim = (char*)malloc(ndata * sizeof(float))) == NULL) {
+        case UDA_TYPE_FLOAT: {
+            if ((ddim->dim = (char*)malloc(ndata * sizeof(float))) == nullptr) {
                 return UNCOMPRESS_ALLOCATING_HEAP;
             }
-            fp = (float*)ddim->dim;
+            auto fp = (float*)ddim->dim;
 
             switch (ddim->method) {
                 case 0:
                     fp[0] = (float)d0;
-                    for (i = 1; i < ndata; i++) {
+                    for (unsigned int i = 1; i < ndata; i++) {
                         fp[i] = fp[i - 1] + (float)diff;
                     }
                     break;
                 case 1:
                     count = 0;
-                    for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *(ddim->sams + i); j++) {
+                    for (unsigned int i = 0; i < ddim->udoms; i++) {
+                        for (int j = 0; j < *(ddim->sams + i); j++) {
                             fp[count++] = *((float*)ddim->offs + i) + (float)j * *((float*)ddim->ints + i);
                         }
                     }
                     break;
                 case 2:
-                    for (i = 0; i < ddim->udoms; i++)fp[i] = *((float*)ddim->offs + i);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)fp[i] = *((float*)ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)
+                    for (unsigned int i = 0; i < ddim->udoms; i++)
                         fp[i] = *((float*)ddim->offs) + (float)i * *((float*)ddim->ints);
                     break;
             }
             break;
+        }
 
-        case UDA_TYPE_DOUBLE:
-            if (ddim->dim == NULL) {
-                if ((ddim->dim = (char*)malloc(ndata * sizeof(double))) == NULL) {
+        case UDA_TYPE_DOUBLE: {
+            if (ddim->dim == nullptr) {
+                if ((ddim->dim = (char*)malloc(ndata * sizeof(double))) == nullptr) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
                 }
             }
-            dp = (double*)ddim->dim;
+            auto dp = (double*)ddim->dim;
 
             switch (ddim->method) {
                 case 0:
                     dp[0] = (double)d0;
-                    for (i = 1; i < ndata; i++) {
+                    for (unsigned int i = 1; i < ndata; i++) {
                         dp[i] = dp[i - 1] + diff;
                     }
                     break;
                 case 1:
                     count = 0;
-                    for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *(ddim->sams + i); j++) {
+                    for (unsigned int i = 0; i < ddim->udoms; i++) {
+                        for (int j = 0; j < *(ddim->sams + i); j++) {
                             dp[count++] = *((double*)ddim->offs + i) + (double)j * *((double*)ddim->ints + i);
                         }
                     }
                     break;
                 case 2:
-                    for (i = 0; i < ddim->udoms; i++)dp[i] = *((double*)ddim->offs + i);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)dp[i] = *((double*)ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)
+                    for (unsigned int i = 0; i < ddim->udoms; i++)
                         dp[i] = *((double*)ddim->offs) + (double)i * *((double*)ddim->ints);
                     break;
             }
             break;
+        }
 
-        case UDA_TYPE_UNSIGNED_CHAR:
-            if (ddim->dim == NULL) {
-                if ((ddim->dim = (char*)malloc(ndata * sizeof(unsigned char))) == NULL) {
+        case UDA_TYPE_UNSIGNED_CHAR: {
+            if (ddim->dim == nullptr) {
+                if ((ddim->dim = (char*)malloc(ndata * sizeof(unsigned char))) == nullptr) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
                 }
             }
-            ucp = (unsigned char*)ddim->dim;
+            auto ucp = (unsigned char*)ddim->dim;
 
             switch (ddim->method) {
                 case 0:
                     ucp[0] = (unsigned char)d0;
-                    for (i = 1; i < ndata; i++) {
+                    for (unsigned int i = 1; i < ndata; i++) {
                         ucp[i] = ucp[i - 1] + (char)diff;
                     }
                     break;
                 case 1:
                     count = 0;
-                    for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *(ddim->sams + i); j++) {
+                    for (unsigned int i = 0; i < ddim->udoms; i++) {
+                        for (int j = 0; j < *(ddim->sams + i); j++) {
                             ucp[count++] = *((unsigned char*)ddim->offs + i) +
                                            (unsigned char)j * *((unsigned char*)ddim->ints + i);
                         }
                     }
                     break;
                 case 2:
-                    for (i = 0; i < ddim->udoms; i++)ucp[i] = *((unsigned char*)ddim->offs + i);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)ucp[i] = *((unsigned char*)ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)
+                    for (unsigned int i = 0; i < ddim->udoms; i++)
                         ucp[i] = *((unsigned char*)ddim->offs) + (unsigned char)i * *((unsigned char*)ddim->ints);
                     break;
             }
             break;
+        }
 
-        case UDA_TYPE_UNSIGNED_SHORT:
-            if (ddim->dim == NULL) {
-                if ((ddim->dim = (char*)malloc(ndata * sizeof(unsigned short))) == NULL) {
+        case UDA_TYPE_UNSIGNED_SHORT: {
+            if (ddim->dim == nullptr) {
+                if ((ddim->dim = (char*)malloc(ndata * sizeof(unsigned short))) == nullptr) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
                 }
             }
-            usp = (unsigned short*)ddim->dim;
+            auto usp = (unsigned short*)ddim->dim;
 
             switch (ddim->method) {
                 case 0:
                     usp[0] = (unsigned short)d0;
-                    for (i = 1; i < ndata; i++) {
+                    for (unsigned int i = 1; i < ndata; i++) {
                         usp[i] = usp[i - 1] + (unsigned short)diff;
                     }
                     break;
                 case 1:
                     count = 0;
-                    for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *(ddim->sams + i); j++) {
+                    for (unsigned int i = 0; i < ddim->udoms; i++) {
+                        for (int j = 0; j < *(ddim->sams + i); j++) {
                             usp[count++] = *((unsigned short*)ddim->offs + i) +
                                            (unsigned short)j * *((unsigned short*)ddim->ints + i);
                         }
                     }
                     break;
                 case 2:
-                    for (i = 0; i < ddim->udoms; i++)usp[i] = *((unsigned short*)ddim->offs + i);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)usp[i] = *((unsigned short*)ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)
+                    for (unsigned int i = 0; i < ddim->udoms; i++)
                         usp[i] = *((unsigned short*)ddim->offs) + (unsigned short)i * *((unsigned short*)ddim->ints);
                     break;
             }
             break;
+        }
 
-        case UDA_TYPE_UNSIGNED_INT:
-            if (ddim->dim == NULL) {
-                if ((ddim->dim = (char*)malloc(ndata * sizeof(unsigned int))) == NULL) {
+        case UDA_TYPE_UNSIGNED_INT: {
+            if (ddim->dim == nullptr) {
+                if ((ddim->dim = (char*)malloc(ndata * sizeof(unsigned int))) == nullptr) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
                 }
             }
-            uip = (unsigned int*)ddim->dim;
+            auto uip = (unsigned int*)ddim->dim;
 
             switch (ddim->method) {
                 case 0:
                     uip[0] = (unsigned int)d0;
-                    for (i = 1; i < ndata; i++) {
+                    for (unsigned int i = 1; i < ndata; i++) {
                         uip[i] = uip[i - 1] + (unsigned int)diff;
                     }
                     break;
                 case 1:
                     count = 0;
-                    for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *(ddim->sams + i); j++) {
+                    for (unsigned int i = 0; i < ddim->udoms; i++) {
+                        for (int j = 0; j < *(ddim->sams + i); j++) {
                             uip[count++] = *((unsigned int*)ddim->offs + i) +
                                            (unsigned int)j * *((unsigned int*)ddim->ints + i);
                         }
                     }
                     break;
                 case 2:
-                    for (i = 0; i < ddim->udoms; i++)uip[i] = *((unsigned int*)ddim->offs + i);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)uip[i] = *((unsigned int*)ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)
+                    for (unsigned int i = 0; i < ddim->udoms; i++)
                         uip[i] = *((unsigned int*)ddim->offs) + (unsigned int)i * *((unsigned int*)ddim->ints);
                     break;
             }
             break;
+        }
 
-        case UDA_TYPE_UNSIGNED_LONG:
-            if (ddim->dim == NULL) {
-                if ((ddim->dim = (char*)malloc(ndata * sizeof(unsigned long))) == NULL) {
+        case UDA_TYPE_UNSIGNED_LONG: {
+            if (ddim->dim == nullptr) {
+                if ((ddim->dim = (char*)malloc(ndata * sizeof(unsigned long))) == nullptr) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
                 }
             }
-            ulp = (unsigned long*)ddim->dim;
+            auto ulp = (unsigned long*)ddim->dim;
             switch (ddim->method) {
                 case 0:
                     ulp[0] = (unsigned long)d0;
-                    for (i = 1; i < ndata; i++) {
+                    for (unsigned int i = 1; i < ndata; i++) {
                         ulp[i] = ulp[i - 1] + (unsigned long)diff;
                     }
                     break;
                 case 1:
                     count = 0;
-                    for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *(ddim->sams + i); j++) {
+                    for (unsigned int i = 0; i < ddim->udoms; i++) {
+                        for (int j = 0; j < *(ddim->sams + i); j++) {
                             ulp[count++] = *((unsigned long*)ddim->offs + i) +
                                            (unsigned long)j * *((unsigned long*)ddim->ints + i);
                         }
                     }
                     break;
                 case 2:
-                    for (i = 0; i < ddim->udoms; i++)ulp[i] = *((unsigned long*)ddim->offs + i);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)ulp[i] = *((unsigned long*)ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)
+                    for (unsigned int i = 0; i < ddim->udoms; i++)
                         ulp[i] = *((unsigned long*)ddim->offs) + (unsigned long)i * *((unsigned long*)ddim->ints);
                     break;
             }
             break;
-#ifndef __APPLE__
+        }
+
         case UDA_TYPE_UNSIGNED_LONG64: {
-            unsigned long long int* ulp;
-            if (ddim->dim == NULL) {
-                if ((ddim->dim = (char*) malloc(ndata * sizeof(unsigned long long int))) == NULL) {
+            if (ddim->dim == nullptr) {
+                if ((ddim->dim = (char*)malloc(ndata * sizeof(unsigned long long int))) == nullptr) {
                     return UNCOMPRESS_ALLOCATING_HEAP;
                 }
             }
-            ulp = (unsigned long long int*) ddim->dim;
+            auto ulp = (unsigned long long int*)ddim->dim;
             switch (ddim->method) {
                 case 0:
-                    ulp[0] = (unsigned long long int) d0;
-                    for (i = 1; i < ndata; i++)ulp[i] = ulp[i - 1] + (unsigned long long int) diff;
+                    ulp[0] = (unsigned long long int)d0;
+                    for (unsigned int i = 1; i < ndata; i++)ulp[i] = ulp[i - 1] + (unsigned long long int)diff;
                     break;
                 case 1:
                     count = 0;
-                    for (i = 0; i < ddim->udoms; i++) {
-                        for (j = 0; j < *(ddim->sams + i); j++) {
-                            ulp[count++] = *((unsigned long long int*) ddim->offs + i) +
-                                           (unsigned long long int) j * *((unsigned long long int*) ddim->ints + i);
+                    for (unsigned int i = 0; i < ddim->udoms; i++) {
+                        for (int j = 0; j < *(ddim->sams + i); j++) {
+                            ulp[count++] = *((unsigned long long int*)ddim->offs + i) +
+                                           (unsigned long long int)j * *((unsigned long long int*)ddim->ints + i);
                         }
                     }
                     break;
                 case 2:
-                    for (i = 0; i < ddim->udoms; i++)ulp[i] = *((unsigned long long int*) ddim->offs + i);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)ulp[i] = *((unsigned long long int*)ddim->offs + i);
                     break;
                 case 3:
-                    for (i = 0; i < ddim->udoms; i++)
-                        ulp[i] = *((unsigned long long int*) ddim->offs) + (unsigned long long int) i *
-                                                                           *((unsigned long long int*) ddim->ints);
+                    for (unsigned int i = 0; i < ddim->udoms; i++)
+                        ulp[i] = *((unsigned long long int*)ddim->offs) + (unsigned long long int)i *
+                                                                          *((unsigned long long int*)ddim->ints);
                     break;
             }
             break;
         }
-#endif
 
         default:
             return UNKNOWN_DATA_TYPE;
     }
-
-// Retain this compression status as required by protocol manager routine
-// ddim->compressed = 0; becaue this Indicates that data is available in a block
 
     return 0;
 }

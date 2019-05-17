@@ -144,7 +144,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
     bool isForeign = false;
 
     char* test = strstr(request_block->source, request_block->api_delim);    // Delimiter present?
-    if (test != NULL) {
+    if (test != nullptr) {
         strncpy(work2, request_block->source, test - request_block->source);
         work2[test - request_block->source] = '\0';
         TrimString(work2);
@@ -157,8 +157,8 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
     // Test for DEVICE::LIBRARY::function(argument)	 - More delimiter characters present?
 
     char* p;
-    if (test != NULL && STR_IEQUALS(work2, environment->api_device) &&
-        (p = strstr(work, request_block->api_delim)) != NULL) {
+    if (test != nullptr && STR_IEQUALS(work2, environment->api_device) &&
+        (p = strstr(work, request_block->api_delim)) != nullptr) {
         lstr = (p - work);
         strncpy(work2, work, lstr);        // Ignore the default device name - force a pass to Scenario 2
         work2[lstr] = '\0';
@@ -181,7 +181,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
             break;
         }
 
-        if (test == NULL || STR_IEQUALS(work2, environment->api_device)) {    // No delimiter present or default device?
+        if (test == nullptr || STR_IEQUALS(work2, environment->api_device)) {    // No delimiter present or default device?
 
             UDA_LOG(UDA_LOG_DEBUG, "No device name or format or protocol or library is present\n");
 
@@ -198,10 +198,10 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
             p = strchr(work, '(');
             char* p2 = strchr(work, ')');
 
-            if (p == NULL || p2 == NULL || (p != NULL && p2 == NULL) || (p == NULL && p2 != NULL) ||
-                (p0 != NULL && p != NULL && p0 < p) || (p1 != NULL && p2 != NULL && p1 > p2)) {
+            if (p == nullptr || p2 == nullptr || (p != nullptr && p2 == nullptr) || (p == nullptr && p2 != nullptr) ||
+                (p0 != nullptr && p != nullptr && p0 < p) || (p1 != nullptr && p2 != nullptr && p1 > p2)) {
 
-                if ((p0 != NULL || p1 != NULL) && (p != NULL || p2 != NULL)) {
+                if ((p0 != nullptr || p1 != nullptr) && (p != nullptr || p2 != nullptr)) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                                  "Source syntax: path with parenthesis () is incorrect!");
@@ -248,7 +248,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
                 // Internal Server Side Function ?	A file path may contain characters ( and ) !
 
-                if ((p = strchr(work, '(')) != NULL && strchr(p, ')') != NULL) {
+                if ((p = strchr(work, '(')) != nullptr && strchr(p, ')') != nullptr) {
                     strcpy(work2, &p[1]);
                     p = strchr(work2, ')');
                     p[0] = '\0';
@@ -406,8 +406,8 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
             p = strchr(work, '(');
             char* p2 = strchr(work, ')');
 
-            if (p == NULL || p2 == NULL || (p != NULL && p2 == NULL) || (p == NULL && p2 != NULL) ||
-                (p0 != NULL && p != NULL && p0 < p) || (p1 != NULL && p2 != NULL && p1 > p2)) {
+            if (p == nullptr || p2 == nullptr || (p != nullptr && p2 == nullptr) || (p == nullptr && p2 != nullptr) ||
+                (p0 != nullptr && p != nullptr && p0 < p) || (p1 != nullptr && p2 != nullptr && p1 > p2)) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
                              "Not a function when one is expected! - A Library plugin has been specified.");
@@ -418,7 +418,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
             // Extract Name Value pairs
 
-            if ((p = strchr(work, '(')) != NULL && strchr(p, ')') != NULL) {
+            if ((p = strchr(work, '(')) != nullptr && strchr(p, ')') != nullptr) {
                 strcpy(work, &p[1]);
                 p = strchr(work, ')');
                 p[0] = '\0';
@@ -491,7 +491,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
     if (rc == 1) {        // the subset has valid syntax so reduce the signal name by removing the subset instructions
         p = strstr(request_block->signal, request_block->subset);
-        if (p != NULL) p[0] = '\0';            // Remove subset operations from variable name
+        if (p != nullptr) p[0] = '\0';            // Remove subset operations from variable name
         TrimString(request_block->signal);
     } else {
         request_block->subset[0] = '\0';
@@ -522,10 +522,10 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
     isFunction = 0;
     
-    if (!isServer && (p = strchr(request_block->signal, '(')) != NULL && strchr(p, ')') != NULL &&
+    if (!isServer && (p = strchr(request_block->signal, '(')) != nullptr && strchr(p, ')') != nullptr &&
         strcasecmp(request_block->archive, environment->api_archive) != 0) {
         strcpy(work, &p[1]);
-        if ((p = strrchr(work, ')')) != NULL) {
+        if ((p = strrchr(work, ')')) != nullptr) {
             p[0] = '\0';
             LeftTrimString(work);
             TrimString(work);
@@ -634,16 +634,16 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
         reverseString(test + ldelim, work);            // Drop the delimiters and Reverse the Source String
 
         char* token;
-        if ((token = strtok(work, "/")) != NULL) {        // Tokenise
+        if ((token = strtok(work, "/")) != nullptr) {        // Tokenise
 
             if (IsNumber(token)) {                // This should be the tree Number otherwise only the server is passed
                 reverseString(token, work2);            // Un-Reverse the token
-                request_block->exp_number = (int)strtol(work2, NULL, 10);    // Extract the Data Tree Number
-                if ((token = strtok(NULL, "/")) != NULL) {
+                request_block->exp_number = (int)strtol(work2, nullptr, 10);    // Extract the Data Tree Number
+                if ((token = strtok(nullptr, "/")) != nullptr) {
                     reverseString(token, request_block->file);    // This should be the Tree Name
                     work2[0] = '\0';
-                    while ((token = strtok(NULL, "/")) !=
-                           NULL) {    // Everything Else is the Server Host and URL Path to the Tree
+                    while ((token = strtok(nullptr, "/")) !=
+                           nullptr) {    // Everything Else is the Server Host and URL Path to the Tree
                         strcat(work2, token);
                         strcat(work2, "/");
                     }
@@ -683,17 +683,17 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
         strcpy(request_block->server, work);
 	
-        char* s = NULL;
-        if ((s = strstr(work, "SSL://")) != NULL) {
+        char* s = nullptr;
+        if ((s = strstr(work, "SSL://")) != nullptr) {
             char* token;
-            if ((token = strstr(s + 6, "/")) != NULL) {
+            if ((token = strstr(s + 6, "/")) != nullptr) {
                 token[0] = '\0';				// Break the String (work)
                 strcpy(request_block->server, s);		// Extract the Server Name and Port (with SSL:// prefix)
                 strcpy(request_block->file, token + 1);		// Extract the Source URL Argument
             } 
         } else {
             char* token;
-            if ((token = strstr(work, "/")) != NULL) {
+            if ((token = strstr(work, "/")) != nullptr) {
                 token[0] = '\0';                		// Break the String (work)
                 strcpy(request_block->server, work);		// Extract the Server Name and Port
                 strcpy(request_block->file, token + 1);		// Extract the Source URL Argument
@@ -709,7 +709,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
     if (request_block->request == REQUEST_READ_SQL) {
         strcpy(request_block->server, request_block->path);
-        if ((test = strchr(request_block->server, '/')) != NULL) {
+        if ((test = strchr(request_block->server, '/')) != nullptr) {
             test[0] = '\0';
             strcpy(request_block->path, &test[1]);
         } else {
@@ -727,16 +727,16 @@ void extractFunctionName(char* str, REQUEST_BLOCK* request_block)
     if (str[0] == '\0') return;
     char* work = (char*)malloc((strlen(str) + 1) * sizeof(char));
     strcpy(work, str);
-    if ((p = strchr(work, '(')) == NULL) return;
+    if ((p = strchr(work, '(')) == nullptr) return;
     p[0] = '\0';
     p = strstr(work, request_block->api_delim);
-    if (p != NULL) {
+    if (p != nullptr) {
         do {
             lstr = (int)(p - work) + (int)strlen(request_block->api_delim);
             for (i = 0; i < lstr; i++) work[i] = ' ';
             TrimString(work);
             LeftTrimString(work);
-        } while ((p = strstr(work, request_block->api_delim)) != NULL);
+        } while ((p = strstr(work, request_block->api_delim)) != nullptr);
     }
     strcpy(request_block->function, work);
     free((void*)work);
@@ -750,7 +750,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
     // return negative error code if a problem occured.
 
     int i, rc = 0;
-    char* test;
+    const char* test;
 
     // .99		IDA3 file
     // .nc		netCDF4
@@ -776,21 +776,21 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
 
     // Does the source have a file extension? If so choose the format using the extension, otherwise investigate the file.
 
-    if ((test = strrchr(source, '.')) == NULL) {
+    if ((test = strrchr(source, '.')) == nullptr) {
 
     // No extension => test the first line of file, e.g. head -c10 <file>, but both netcdf and hdf5 use the same label HDF!
 
 #ifndef _WIN32
-        char* nc = " nc";
-        char* hf = " hf";
-        char* ida = " 99";
-        char* blank = "   ";
-        FILE* ph = NULL;
+        const char* nc = " nc";
+        const char* hf = " hf";
+        const char* ida = " 99";
+        const char* blank = "   ";
+        FILE* ph = nullptr;
         int lstr = STRING_LENGTH;
         char* cmd = (char*)malloc(lstr * sizeof(char));
         sprintf(cmd, "head -c10 %s 2>/dev/null", source);
         errno = 0;
-        if ((ph = popen(cmd, "r")) == NULL) {
+        if ((ph = popen(cmd, "r")) == nullptr) {
             if (errno != 0) addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
             addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
                          "Unable to Identify the File's Format");
@@ -812,10 +812,10 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
         } else {
             if (STR_EQUALS(cmd, "HDF")) {    // Either a netCDF or a HDF5 file: use utility programs to reveal!
                 char* env = getenv("UDA_DUMP_NETCDF");
-                if (env != NULL) {
+                if (env != nullptr) {
                     sprintf(cmd, "%s -h %s 2>/dev/null | head -c10 2>/dev/null", env, source);
                     errno = 0;
-                    if ((ph = popen(cmd, "r")) == NULL) {
+                    if ((ph = popen(cmd, "r")) == nullptr) {
                         if (errno != 0) {
                             addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
                         }
@@ -840,10 +840,10 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                 }
             } else {                    // an IDA File?
                 char* env = getenv("UDA_DUMP_IDA");
-                if (env != NULL) {
+                if (env != nullptr) {
                     sprintf(cmd, "%s -h %s 2>/dev/null 2>/dev/null", env, source);
                     errno = 0;
-                    if ((ph = popen(cmd, "r")) == NULL) {
+                    if ((ph = popen(cmd, "r")) == nullptr) {
                         if (errno != 0) {
                             addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
                         }
@@ -966,7 +966,7 @@ int genericRequestTest(const char* source, REQUEST_BLOCK* request_block)
     // Return 1 (TRUE) if the Generic plugin was selected, 0 (FALSE) otherwise
 
     int rc = 0;
-    char* token = NULL;
+    char* token = nullptr;
     char work[STRING_LENGTH];
 
     //------------------------------------------------------------------------------
@@ -989,19 +989,19 @@ int genericRequestTest(const char* source, REQUEST_BLOCK* request_block)
         rc = 1;
         request_block->request = REQUEST_READ_GENERIC;
         strcpy(request_block->path, "");                    // Clean the path
-        request_block->exp_number = (int)strtol(source, NULL, 10);                // Plasma Shot Number
+        request_block->exp_number = (int)strtol(source, nullptr, 10);                // Plasma Shot Number
         UDA_LOG(UDA_LOG_DEBUG, "exp number identified, selecting GENERIC plugin.\n");
     } else {
         strcpy(work, source);
-        if ((token = strtok(work, "/")) != NULL) {                // Tokenise the remaining string
+        if ((token = strtok(work, "/")) != nullptr) {                // Tokenise the remaining string
             if (IsNumber(token)) {                        // Is the First token an integer number?
                 rc = 1;
                 request_block->request = REQUEST_READ_GENERIC;
                 strcpy(request_block->path, "");                // Clean the path
-                request_block->exp_number = (int)strtol(token, NULL, 10);
-                if ((token = strtok(NULL, "/")) != NULL) {            // Next Token
+                request_block->exp_number = (int)strtol(token, nullptr, 10);
+                if ((token = strtok(nullptr, "/")) != nullptr) {            // Next Token
                     if (IsNumber(token)) {
-                        request_block->pass = (int)strtol(token, NULL, 10);            // Must be the Pass number
+                        request_block->pass = (int)strtol(token, nullptr, 10);            // Must be the Pass number
                     } else {
                         strcpy(request_block->tpass, token);            // capture anything else
                     }
@@ -1039,7 +1039,7 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRON
 
         UDA_LOG(UDA_LOG_DEBUG, "Testing for ARCHIVE::Signal\n");
 
-        if ((test = strstr(request_block->signal, request_block->api_delim)) != NULL) {
+        if ((test = strstr(request_block->signal, request_block->api_delim)) != nullptr) {
 
             if (test - request_block->signal >= STRING_LENGTH - 1 || strlen(test + ldelim) >= MAXMETA - 1) {
                 err = ARCHIVE_NAME_TOO_LONG;
@@ -1067,13 +1067,13 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRON
             test1 = 0;
             test2 = 0;
 
-            if ((token = strchr(request_block->archive, '[')) != NULL ||
-                (token = strchr(request_block->archive, '{')) != NULL) {
+            if ((token = strchr(request_block->archive, '[')) != nullptr ||
+                (token = strchr(request_block->archive, '{')) != nullptr) {
                 test1 = (strlen(&token[1]) == 0 || IsNumber(&token[1]));
             }
 
-            if ((token = strchr(test + ldelim, ']')) != NULL ||
-                (token = strchr(test + ldelim, '}')) != NULL) {
+            if ((token = strchr(test + ldelim, ']')) != nullptr ||
+                (token = strchr(test + ldelim, '}')) != nullptr) {
                 work = (char*)malloc((strlen(test + ldelim) + 1) * sizeof(char));
                 strcpy(work, test + ldelim);
                 work[token - (test + ldelim)] = '\0';
@@ -1110,12 +1110,12 @@ void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
     char cwd[STRING_LENGTH];
     char ocwd[STRING_LENGTH];
 
-    if (strchr(request_block->path, '$') == NULL) {
+    if (strchr(request_block->path, '$') == nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "No embedded environment variables detected\n");
         return;
     }
 
-    if (getcwd(ocwd, lcwd) == NULL) {    // Current Working Directory
+    if (getcwd(ocwd, lcwd) == nullptr) {    // Current Working Directory
         UDA_LOG(UDA_LOG_DEBUG, "Unable to identify PWD!\n");
         return;
     }
@@ -1127,29 +1127,29 @@ void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
         UDA_LOG(UDA_LOG_DEBUG, "from: %s\n", request_block->path);
         UDA_LOG(UDA_LOG_DEBUG, "to: %s\n", cwd);
 
-        if (pcwd != NULL) {
+        if (pcwd != nullptr) {
             strcpy(request_block->path, cwd);    // The expanded path
         }
         chdir(ocwd);                        // Return to the Original WD
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables: Direct substitution! \n");
 
-        char* fp = NULL, * env, * fp1;
+        char* fp = nullptr, * env, * fp1;
         char work1[STRING_LENGTH];
 
         if (request_block->path[0] == '$' ||
-            (fp = strchr(&request_block->path[1], '$')) != NULL) {    // Search for a $ character
+            (fp = strchr(&request_block->path[1], '$')) != nullptr) {    // Search for a $ character
 
-            if (fp != NULL) {
+            if (fp != nullptr) {
                 strncpy(work, request_block->path, fp - request_block->path);
                 work[fp - request_block->path] = '\0';
 
-                if ((fp1 = strchr(fp, '/')) != NULL) {
+                if ((fp1 = strchr(fp, '/')) != nullptr) {
                     strncpy(work1, fp + 1, fp1 - fp - 1);
                     work1[fp1 - fp - 1] = '\0';
                 } else { strcpy(work1, fp + 1); }
 
-                if ((env = getenv(work1)) != NULL) {
+                if ((env = getenv(work1)) != nullptr) {
                     if (env[0] == '/') {
                         strcpy(work1, env + 1);
                     } else {
@@ -1164,13 +1164,13 @@ void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
 
             if (request_block->path[0] == '$') {
                 work1[0] = '\0';
-                if ((fp = strchr(request_block->path, '/')) != NULL) {
+                if ((fp = strchr(request_block->path, '/')) != nullptr) {
                     strncpy(work, request_block->path + 1, fp - request_block->path - 1);
                     work[fp - request_block->path - 1] = '\0';
                     strcpy(work1, fp);
                 } else { strcpy(work, request_block->path + 1); }
 
-                if ((env = getenv(work)) != NULL) {    // Check for Environment Variable
+                if ((env = getenv(work)) != nullptr) {    // Check for Environment Variable
                     if (env[0] == '/') {
                         strcpy(work, env);
                     } else {
@@ -1201,17 +1201,17 @@ int extractSubset(REQUEST_BLOCK* request_block)
     //     -1 => Error
 
     int i, j, err, rc = 1, lwork, subsetCount = 1;        // Number of subsetting operations
-    char* p, * work, * token = NULL;
+    char* p, * work, * token = nullptr;
 
     request_block->subset[0] = '\0';
     request_block->datasubset.subsetCount = 0;
 
-    if ((token = strchr(request_block->signal, '[')) == NULL &&
-        (token = strchr(request_block->signal, '{')) == NULL) {
+    if ((token = strchr(request_block->signal, '[')) == nullptr &&
+        (token = strchr(request_block->signal, '{')) == nullptr) {
             return 0;
     }
-    if ((work = strrchr(request_block->signal, ']')) == NULL &&
-        (work = strrchr(request_block->signal, '}')) == NULL) {
+    if ((work = strrchr(request_block->signal, ']')) == nullptr &&
+        (work = strrchr(request_block->signal, '}')) == nullptr) {
             return 0;
     }
     if (work < token) return 0;
@@ -1246,12 +1246,12 @@ int extractSubset(REQUEST_BLOCK* request_block)
     //		[a:*:c]		all items starting at a with stride c
     //		[a:b:c]		all items starting at a, ending at b with stride c
 
-    while ((token = strstr(work, "][")) != NULL || (token = strstr(work, "}{")) != NULL) {    // Adopt a single syntax
+    while ((token = strstr(work, "][")) != nullptr || (token = strstr(work, "}{")) != nullptr) {    // Adopt a single syntax
         token[0] = ',';
         token[1] = ' ';
     }
     p = work;
-    while ((token = strchr(p, ',')) != NULL) {        // Count the Dimensions
+    while ((token = strchr(p, ',')) != nullptr) {        // Count the Dimensions
         p = &token[1];
         subsetCount++;
     }
@@ -1283,9 +1283,9 @@ int extractSubset(REQUEST_BLOCK* request_block)
     request_block->datasubset.subsetCount = subsetCount;
 
     subsetCount = 0;
-    if ((token = strtok(work, ",")) != NULL) {    // Process each subset instruction separately (work2)
+    if ((token = strtok(work, ",")) != nullptr) {    // Process each subset instruction separately (work2)
         strcpy(work2[subsetCount++], token);
-        while (subsetCount < MAXRANK2 && (token = strtok(NULL, ",")) != NULL) strcpy(work2[subsetCount++], token);
+        while (subsetCount < MAXRANK2 && (token = strtok(nullptr, ",")) != nullptr) strcpy(work2[subsetCount++], token);
 
         do {
             for (i = 0; i < subsetCount; i++) {
@@ -1308,7 +1308,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                         strcpy(work2[i], work4);
                     }
                 } else {
-                    if ((p = strstr(work2[i], "::")) != NULL) {
+                    if ((p = strstr(work2[i], "::")) != nullptr) {
                         p[0] = '\0';
                         strcpy(work4, work2[i]);
                         strcat(work4, ":*");
@@ -1319,15 +1319,15 @@ int extractSubset(REQUEST_BLOCK* request_block)
                     }
                 }
 
-                if (strchr(work2[i], ':') != NULL && (token = strtok(work2[i], ":")) != NULL) {
+                if (strchr(work2[i], ':') != nullptr && (token = strtok(work2[i], ":")) != nullptr) {
                     j = 0;
                     strcpy(work3[j++], token);
-                    while (j < 3 && (token = strtok(NULL, ":")) != NULL) strcpy(work3[j++], token);
+                    while (j < 3 && (token = strtok(nullptr, ":")) != nullptr) strcpy(work3[j++], token);
                     for (j = 0; j < 3; j++)TrimString(work3[j]);
                     for (j = 0; j < 3; j++)LeftTrimString(work3[j]);
 
                     if (work3[0][0] != '\0' && IsNumber(work3[0])) {    // [a:] or [a:*] or [a:b] etc
-                        p = NULL;
+                        p = nullptr;
                         errno = 0;
                         request_block->datasubset.start[i] = (int)strtol(work3[0], &p, 10);
                         if (errno != 0 || *p != 0 || p == work3[0]) {
@@ -1352,7 +1352,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                         break;
                     }
                     if (work3[1][0] != '\0' && IsNumber(work3[1])) {    // [a:b]
-                        p = NULL;
+                        p = nullptr;
                         errno = 0;
                         request_block->datasubset.stop[i] = (int)strtol(work3[1], &p, 10);
                         if (errno != 0 || *p != 0 || p == work3[0]) {
@@ -1389,7 +1389,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                     }
                     if (work3[2][0] != '\0') {
                         if (IsNumber(work3[2])) {
-                            p = NULL;
+                            p = nullptr;
                             errno = 0;
                             request_block->datasubset.stride[i] = (int)strtol(work3[2], &p, 10);
                             if (errno != 0 || *p != 0 || p == work3[0]) {
@@ -1428,7 +1428,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                         request_block->datasubset.stride[i] = 1;
                     } else {
                         if (IsNumber(work4)) {                // [a]
-                            p = NULL;
+                            p = nullptr;
                             errno = 0;
                             request_block->datasubset.start[i] = (int)strtol(work4, &p, 10);
                             if (errno != 0 || *p != 0 || p == work3[0]) {
@@ -1482,17 +1482,17 @@ int extractSubset(REQUEST_BLOCK* request_block)
 void freeNameValueList(NAMEVALUELIST* nameValueList)
 {
     int i;
-    if (nameValueList->nameValue != NULL) {
+    if (nameValueList->nameValue != nullptr) {
         for (i = 0; i < nameValueList->pairCount; i++) {
-            if (nameValueList->nameValue[i].pair != NULL) free((void*)nameValueList->nameValue[i].pair);
-            if (nameValueList->nameValue[i].name != NULL) free((void*)nameValueList->nameValue[i].name);
-            if (nameValueList->nameValue[i].value != NULL) free((void*)nameValueList->nameValue[i].value);
+            if (nameValueList->nameValue[i].pair != nullptr) free((void*)nameValueList->nameValue[i].pair);
+            if (nameValueList->nameValue[i].name != nullptr) free((void*)nameValueList->nameValue[i].name);
+            if (nameValueList->nameValue[i].value != nullptr) free((void*)nameValueList->nameValue[i].value);
         }
     }
     free((void*)nameValueList->nameValue);
     nameValueList->pairCount = 0;
     nameValueList->listSize = 0;
-    nameValueList->nameValue = NULL;
+    nameValueList->nameValue = nullptr;
 }
 
 void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
@@ -1508,7 +1508,7 @@ void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
     strcpy(nameValue->pair, copy);
     LeftTrimString(nameValue->pair);
     UDA_LOG(UDA_LOG_DEBUG, "Pair: %s\n", pair);
-    if ((p = strchr(copy, '=')) != NULL) {
+    if ((p = strchr(copy, '=')) != nullptr) {
         *p = '\0';
         lstr = (int)strlen(copy) + 1;
         nameValue->name = (char*)malloc(lstr * sizeof(char));
@@ -1577,14 +1577,14 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
 
     int i, lstr, pairCount = 0;
     char proposal, delimiter = ',', substitute = 1;
-    char* p, * p2, * p3 = NULL, * buffer, * copy;
+    char* p, * p2, * p3 = nullptr, * buffer, * copy;
     NAMEVALUE nameValue;
     lstr = (int)strlen(pairList);
 
     if (lstr == 0) return pairCount;            // Nothing to Parse
 
     // Placeholder substitution is neither a name-value pair nor a keyword so bypass this test
-    //if (strchr(pairList, '=') == NULL && pairList[0] != '/')
+    //if (strchr(pairList, '=') == nullptr && pairList[0] != '/')
     //    return pairCount;        // Not a Name Value list or Keyword
 
     if (pairList[0] == '=') return -1;            // Syntax error
@@ -1600,7 +1600,7 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
 
 // Locate the delimiter name value pair if present - use default character ',' if not
 
-    if ((p = strcasestr(copy, "delimiter")) != NULL) {
+    if ((p = strcasestr(copy, "delimiter")) != nullptr) {
         strcpy(buffer, &p[9]);
         LeftTrimString(buffer);
         if (buffer[0] == '=' && buffer[1] != '\0') {
@@ -1662,7 +1662,7 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
 
     p = copy;
     do {
-        if ((p2 = strchr(p, delimiter)) != NULL) {
+        if ((p2 = strchr(p, delimiter)) != nullptr) {
             strncpy(buffer, p, p2 - p);
             buffer[p2 - p] = '\0';
             p = p2 + 1;
@@ -1674,8 +1674,8 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
         parseNameValue(buffer, &nameValue, strip);
         UDA_LOG(UDA_LOG_DEBUG, "Name %s, Value: %s\n", nameValue.name, nameValue.value);
 
-        //if (nameValue.name != NULL && nameValue.value != NULL) {
-        if (nameValue.name != NULL) {        // Values may be NULL for use case where placeholder substitution is used
+        //if (nameValue.name != nullptr && nameValue.value != nullptr) {
+        if (nameValue.name != nullptr) {        // Values may be nullptr for use case where placeholder substitution is used
             pairCount++;
             if (pairCount > nameValueList->listSize) {
                 nameValueList->nameValue = (NAMEVALUE*)realloc((void*)nameValueList->nameValue,
@@ -1685,7 +1685,7 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
             nameValueList->pairCount = pairCount;
             nameValueList->nameValue[pairCount - 1] = nameValue;
         }
-    } while (p2 != NULL);
+    } while (p2 != nullptr);
 
     // housekeeping
 
@@ -1706,15 +1706,15 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
 
     if (isListDelim) {
         for (i = 0; i < nameValueList->pairCount; i++) {
-            if ((p = strchr(nameValueList->nameValue[i].value, substitute)) != NULL) {
+            if ((p = strchr(nameValueList->nameValue[i].value, substitute)) != nullptr) {
                 do {
                     p[0] = delimiter;
-                } while ((p = strchr(nameValueList->nameValue[i].value, substitute)) != NULL);
+                } while ((p = strchr(nameValueList->nameValue[i].value, substitute)) != nullptr);
             }
-            if ((p = strchr(nameValueList->nameValue[i].pair, substitute)) != NULL) {
+            if ((p = strchr(nameValueList->nameValue[i].pair, substitute)) != nullptr) {
                 do {
                     p[0] = delimiter;
-                } while ((p = strchr(nameValueList->nameValue[i].pair, substitute)) != NULL);
+                } while ((p = strchr(nameValueList->nameValue[i].pair, substitute)) != nullptr);
             }
         }
     }

@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENTSERVER_MANAGESOCKETS_H
-#define IDAM_CLIENTSERVER_MANAGESOCKETS_H
+#ifndef UDA_CLIENTSERVER_MANAGESOCKETS_H
+#define UDA_CLIENTSERVER_MANAGESOCKETS_H
 
 #include <clientserver/socketStructs.h>
 
@@ -27,5 +27,5 @@ void closeClientSocket(SOCKETLIST* socks, int fh);
 }
 #endif
 
-#endif // IDAM_CLIENTSERVER_MANAGESOCKETS_H
+#endif // UDA_CLIENTSERVER_MANAGESOCKETS_H
 

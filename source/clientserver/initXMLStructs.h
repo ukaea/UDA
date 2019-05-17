@@ -1,9 +1,7 @@
-#ifndef IDAM_CLIENTSERVER_INITXMLSTRUCTS_H
-#define IDAM_CLIENTSERVER_INITXMLSTRUCTS_H
+#ifndef UDA_CLIENTSERVER_INITXMLSTRUCTS_H
+#define UDA_CLIENTSERVER_INITXMLSTRUCTS_H
 
-#include <stdio.h>
-
-#include <clientserver/xmlStructs.h>
+#include "xmlStructs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,4 +39,4 @@ void printEFIT(EFIT str);
 }
 #endif
 
-#endif // IDAM_CLIENTSERVER_INITXMLSTRUCTS_H
+#endif // UDA_CLIENTSERVER_INITXMLSTRUCTS_H

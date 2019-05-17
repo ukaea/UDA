@@ -10,7 +10,7 @@
 // Socket Types
 
 #define TYPE_UNKNOWN_SERVER 0
-#define TYPE_IDAM_SERVER    1
+#define TYPE_UDA_SERVER     1
 #define TYPE_MDSPLUS_SERVER 2
 
 //--------------------------------------------------------

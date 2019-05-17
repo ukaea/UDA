@@ -43,7 +43,6 @@ void md5Sum(char *bp, int size, char *md5check) {
 
 void md5Sum(char *bp, int size, char *md5check) {
     strcpy(md5check, "");
-    return;
 }
 
 #endif

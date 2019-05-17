@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENTSERVER_MKSTEMP_H
-#define IDAM_CLIENTSERVER_MKSTEMP_H
+#ifndef UDA_CLIENTSERVER_MKSTEMP_H
+#define UDA_CLIENTSERVER_MKSTEMP_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,4 +13,4 @@ int mkstemp (char *tmpl);
 }
 #endif
 
-#endif // IDAM_CLIENTSERVER_MKSTEMP_H
+#endif // UDA_CLIENTSERVER_MKSTEMP_H

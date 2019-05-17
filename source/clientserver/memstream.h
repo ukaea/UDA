@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENTSERVER_MAC_MEMSTREAM_H
-#define IDAM_CLIENTSERVER_MAC_MEMSTREAM_H
+#ifndef UDA_CLIENTSERVER_MAC_MEMSTREAM_H
+#define UDA_CLIENTSERVER_MAC_MEMSTREAM_H
 
 #include <stdio.h>
 
@@ -8,10 +8,10 @@ extern "C"
 {
 #endif
 
-FILE * open_memstream(char **cp, size_t *lenp);
+FILE* open_memstream(char** cp, size_t* lenp);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //IDAM_CLIENTSERVER_MAC_MEMSTREAM_H
+#endif // UDA_CLIENTSERVER_MAC_MEMSTREAM_H

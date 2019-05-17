@@ -31,17 +31,17 @@
 // Simple Tags with Delimited List of Floating Point Values
 // Assume No Attributes
 
-float* parseFloatArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
+float* parseFloatArray(xmlDocPtr doc, xmlNodePtr cur, const char* target, int* n)
 {
-    xmlChar* key = NULL;
-    float* value = NULL;
+    xmlChar* key = nullptr;
+    float* value = nullptr;
     *n = 0;
-    char* delim = " ";
+    const char* delim = " ";
     char* item;
     int nco = 0;
 
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         if ((!xmlStrcmp(cur->name, (const xmlChar*) target))) {
             key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
             convertNonPrintable((char*) key);
@@ -49,13 +49,13 @@ float* parseFloatArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
                 int lkey = (int) strlen((char*) key);
                 UDA_LOG(UDA_LOG_DEBUG, "parseFloatArray: [%d] %s %s \n", lkey, target, key);
                 item = strtok((char*) key, delim);
-                if (item != NULL) {
+                if (item != nullptr) {
                     nco++;
                     UDA_LOG(UDA_LOG_DEBUG, "parseFloatArray: [%d] %s \n", nco, item);
                     value = (float*) realloc((void*) value, nco * sizeof(float));
                     value[nco - 1] = atof(item);
                     UDA_LOG(UDA_LOG_DEBUG, "parseFloatArray: [%d] %s %f\n", nco, item, value[nco - 1]);
-                    while ((item = strtok(NULL, delim)) != NULL && nco <= XMLMAXLOOP) {
+                    while ((item = strtok(nullptr, delim)) != nullptr && nco <= XMLMAXLOOP) {
                         nco++;
                         value = (float*) realloc((void*) value, nco * sizeof(float));
                         value[nco - 1] = atof(item);
@@ -73,11 +73,11 @@ float* parseFloatArray(xmlDocPtr doc, xmlNodePtr cur, char* target, int* n)
 }
 
 
-void parseFixedLengthArray(xmlNodePtr cur, char* target, void* array, int arraytype, int* n)
+void parseFixedLengthArray(xmlNodePtr cur, const char* target, void* array, int arraytype, int* n)
 {
-    xmlChar* att = NULL;
+    xmlChar* att = nullptr;
     *n = 0;
-    char* delim = ",";
+    const char* delim = ",";
     char* item;
     int nco = 0;
 
@@ -86,13 +86,13 @@ void parseFixedLengthArray(xmlNodePtr cur, char* target, void* array, int arrayt
     int* ip;
     long* lp;
 
-    if ((att = xmlGetProp(cur, (xmlChar*) target)) != NULL) {
+    if ((att = xmlGetProp(cur, (xmlChar*) target)) != nullptr) {
         convertNonPrintable((char*) att);
         if (strlen((char*) att) > 0) {
             int l = (int) strlen((char*) att);
             UDA_LOG(UDA_LOG_DEBUG, "parseFixedLengthArray: [%d] %s %s \n", l, target, att);
             item = strtok((char*) att, delim);
-            if (item != NULL) {
+            if (item != nullptr) {
                 nco++;
                 switch (arraytype) {
                     case UDA_TYPE_FLOAT:
@@ -101,7 +101,7 @@ void parseFixedLengthArray(xmlNodePtr cur, char* target, void* array, int arrayt
                         break;
                     case UDA_TYPE_DOUBLE:
                         dp = (double*) array;
-                        dp[nco - 1] = strtod(item, NULL);
+                        dp[nco - 1] = strtod(item, nullptr);
                         break;
                     case UDA_TYPE_CHAR: {
                         char* p = (char*) array;
@@ -145,7 +145,7 @@ void parseFixedLengthArray(xmlNodePtr cur, char* target, void* array, int arrayt
                         return;
                 }
 
-                while ((item = strtok(NULL, delim)) != NULL && nco <= MAXDATARANK) {
+                while ((item = strtok(nullptr, delim)) != nullptr && nco <= MAXDATARANK) {
                     nco++;
                     switch (arraytype) {
                         case UDA_TYPE_FLOAT:
@@ -154,7 +154,7 @@ void parseFixedLengthArray(xmlNodePtr cur, char* target, void* array, int arrayt
                             break;
                         case UDA_TYPE_DOUBLE:
                             dp = (double*) array;
-                            dp[nco - 1] = strtod(item, NULL);
+                            dp[nco - 1] = strtod(item, nullptr);
                             break;
                         case UDA_TYPE_CHAR: {
                             char* p = (char*) array;
@@ -203,25 +203,23 @@ void parseFixedLengthArray(xmlNodePtr cur, char* target, void* array, int arrayt
         *n = nco;
         xmlFree(att);
     }
-
-    return;
 }
 
 
-void parseFixedLengthStrArray(xmlNodePtr cur, char* target, char array[MAXDATARANK][SXMLMAXSTRING], int* n)
+void parseFixedLengthStrArray(xmlNodePtr cur, const char* target, char array[MAXDATARANK][SXMLMAXSTRING], int* n)
 {
-    xmlChar* att = NULL;
+    xmlChar* att = nullptr;
     *n = 0;
-    char* delim = ",";
+    const char* delim = ",";
     char* item;
     int nco = 0;
 
-    if ((att = xmlGetProp(cur, (xmlChar*) target)) != NULL) {
+    if ((att = xmlGetProp(cur, (xmlChar*) target)) != nullptr) {
         if (strlen((char*) att) > 0) {
             int l = (int) strlen((char*) att);
             UDA_LOG(UDA_LOG_DEBUG, "parseFixedLengthStrArray: [%d] %s %s \n", l, target, att);
             item = strtok((char*) att, delim);
-            if (item != NULL) {
+            if (item != nullptr) {
                 nco++;
                 if (strlen(item) < SXMLMAXSTRING) {
                     strcpy(array[nco - 1], item);
@@ -230,7 +228,7 @@ void parseFixedLengthStrArray(xmlNodePtr cur, char* target, char array[MAXDATARA
                     array[nco - 1][SXMLMAXSTRING - 1] = '\0';
                 }
 
-                while ((item = strtok(NULL, delim)) != NULL && nco <= MAXDATARANK) {
+                while ((item = strtok(nullptr, delim)) != nullptr && nco <= MAXDATARANK) {
                     nco++;
                     if (strlen(item) < SXMLMAXSTRING) {
                         strcpy(array[nco - 1], item);
@@ -244,8 +242,6 @@ void parseFixedLengthStrArray(xmlNodePtr cur, char* target, char array[MAXDATARA
         *n = nco;
         xmlFree(att);
     }
-
-    return;
 }
 
 
@@ -253,58 +249,56 @@ void parseFixedLengthStrArray(xmlNodePtr cur, char* target, char array[MAXDATARA
 
 double deScale(char* scale)
 {
-    if (strlen(scale) == 0) return (1.0E0);
+    if (strlen(scale) == 0) return 1.0E0;
     if (STR_EQUALS(scale, "milli")) {
-        return (1.0E-3);
+        return 1.0E-3;
     } else {
         if (STR_EQUALS(scale, "micro")) {
-            return (1.0E-6);
+            return 1.0E-6;
         } else {
             if (STR_EQUALS(scale, "nano")) {
-                return (1.0E-9);
+                return 1.0E-9;
             }
         }
     }
-    return (1.0E0);    // Default value
+    return 1.0E0;    // Default value
 }
 
 // Locate and extract Named Parameter (Numerical and String) Values
 // Assume only 1 tag per document
 
-void parseTargetValue(xmlDocPtr doc, xmlNodePtr cur, char* target, double* value)
+void parseTargetValue(xmlDocPtr doc, xmlNodePtr cur, const char* target, double* value)
 {
-    xmlChar* key = NULL;
-    xmlChar* scale = NULL;
+    xmlChar* key = nullptr;
+    xmlChar* scale = nullptr;
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         if ((!xmlStrcmp(cur->name, (const xmlChar*) target))) {
             scale = xmlGetProp(cur, (xmlChar*) "scale");
             key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-            if (key != NULL) *value = (double) atof((char*) key);
-            if (scale != NULL) *value = *value * deScale((char*) scale);
+            if (key != nullptr) *value = (double) atof((char*) key);
+            if (scale != nullptr) *value = *value * deScale((char*) scale);
             xmlFree(key);
             xmlFree(scale);
             break;
         }
         cur = cur->next;
     }
-    return;
 }
 
-void parseTargetString(xmlDocPtr doc, xmlNodePtr cur, char* target, char* str)
+void parseTargetString(xmlDocPtr doc, xmlNodePtr cur, const char* target, char* str)
 {
-    xmlChar* key = NULL;
+    xmlChar* key = nullptr;
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         if ((!xmlStrcmp(cur->name, (const xmlChar*) target))) {
             key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-            if (key != NULL) strcpy(str, (char*) key);
+            if (key != nullptr) strcpy(str, (char*) key);
             xmlFree(key);
             break;
         }
         cur = cur->next;
     }
-    return;
 }
 
 void parseTimeOffset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
@@ -316,7 +310,7 @@ void parseTimeOffset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
     int n = actions->nactions;        // Counter
 
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "parseTimeOffset: %s\n", (char*) cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "time_offset"))) {
             n++;
@@ -326,39 +320,39 @@ void parseTimeOffset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             str[n - 1].actionType = TIMEOFFSETTYPE;
             initTimeOffset(&str[n - 1].timeoffset);
 
-// Attributes
+            // Attributes
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].actionId = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Action ID: %d\n", str[n - 1].actionId);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_start")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_start")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].exp_range[0] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Exp Number Range Start: %d\n", str[n - 1].exp_range[0]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_end")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_end")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].exp_range[1] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Exp Number Range End : %d\n", str[n - 1].exp_range[1]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "pass_start")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "pass_start")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].pass_range[0] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Pass Number Range Start: %d\n", str[n - 1].pass_range[0]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "pass_end")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "pass_end")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].pass_range[1] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Pass Number Range End  : %d\n", str[n - 1].pass_range[1]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "value")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "value")) != nullptr) {
                 if (strlen((char*) att) > 0) {
                     str[n - 1].timeoffset.offset = (double) atof((char*) att);
                     UDA_LOG(UDA_LOG_DEBUG, "Time Offset  : %f\n", str[n - 1].timeoffset.offset);
@@ -366,13 +360,13 @@ void parseTimeOffset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "method")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "method")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].timeoffset.method = (int) atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Time Offset Method  : %d\n", str[n - 1].timeoffset.method);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "start")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "start")) != nullptr) {
                 if (strlen((char*) att) > 0) {
                     str[n - 1].timeoffset.offset = (double) atof((char*) att);
                     UDA_LOG(UDA_LOG_DEBUG, "Start Time  : %f\n", str[n - 1].timeoffset.offset);
@@ -380,7 +374,7 @@ void parseTimeOffset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "interval")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "interval")) != nullptr) {
                 if (strlen((char*) att) > 0) {
                     str[n - 1].timeoffset.interval = (double) atof((char*) att);
                     UDA_LOG(UDA_LOG_DEBUG, "Time Interval: %f\n", str[n - 1].timeoffset.interval);
@@ -388,7 +382,7 @@ void parseTimeOffset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "scale")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "scale")) != nullptr) {
                 if (strlen((char*) att) > 0)
                     str[n - 1].timeoffset.offset = deScale((char*) att) * str[n - 1].timeoffset.offset;
                 UDA_LOG(UDA_LOG_DEBUG, "Scaled Time Offset  : %f\n", str[n - 1].timeoffset.offset);
@@ -399,7 +393,6 @@ void parseTimeOffset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
     }
     actions->nactions = n;    // Number of Tags Found
     actions->action = str;    // Array of Actions bounded by a Ranges
-    return;
 }
 
 
@@ -412,10 +405,10 @@ void parseCompositeSubset(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
     int n = 0;                // Counter
     int i, n0, n1;
 
-// Attributes
+    // Attributes
 
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "parseCompositeSubset: %s\n", (char*) cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "subset"))) {
             n++;
@@ -423,38 +416,38 @@ void parseCompositeSubset(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
 
             initSubset(&str[n - 1]);
 
-// Attributes
+            // Attributes
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "data")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "data")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].data_signal, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Subset Signal: %s\n", str[n - 1].data_signal);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "reform")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "reform")) != nullptr) {
                 if (att[0] == 'Y' || att[0] == 'y') str[n - 1].reform = 1;
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "member")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "member")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].member, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Subset member: %s\n", str[n - 1].member);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "function")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "function")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].function, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Subset function: %s\n", str[n - 1].function);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "order")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "order")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].order = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Subset order: %d\n", str[n - 1].order);
                 xmlFree(att);
             }
 
-// Fixed Length Attribute Arrays
+            // Fixed Length Attribute Arrays
 
             parseFixedLengthStrArray(cur, "operation", str[n - 1].operation, &str[n - 1].nbound);
             for (i = 0; i < str[n - 1].nbound; i++)
@@ -462,10 +455,6 @@ void parseCompositeSubset(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
 
             parseFixedLengthArray(cur, "bound", (void*) str[n - 1].bound, UDA_TYPE_DOUBLE, &n0);
             parseFixedLengthArray(cur, "dimid", (void*) str[n - 1].dimid, UDA_TYPE_INT, &n1);
-
-            //if(n0 == 0 && n1 == 0 && str[n-1].nbound > 0){					// Assume Array Reshaping has been requested
-            //   for(i=0;i<str[n-1].nbound;i++) str[n-1].dimid[i] = str[n-1].nbound-i-1;	// Ordering is as DATA[4][3][2][1][0]
-            //}
 
             if (idamParseOperation(&str[n - 1]) != 0) return;
 
@@ -482,14 +471,11 @@ void parseCompositeSubset(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
     }
     comp->nsubsets = n;        // Number of Subsets
     comp->subsets = str;    // Array of Subset Actions
-
-    return;
 }
 
 
 void parseMaps(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
 {
-    return;
 }
 
 
@@ -502,7 +488,7 @@ void parseDimComposite(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
     int n = 0;                // Counter
 
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "parseDimComposite: %s\n", (char*) cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "composite_dim"))) {
             n++;
@@ -512,9 +498,9 @@ void parseDimComposite(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
             str[n - 1].dimType = DIMCOMPOSITETYPE;
             initDimComposite(&str[n - 1].dimcomposite);
 
-// Attributes
+            // Attributes
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "to_dim")) != NULL) {            // Target Dimension
+            if ((att = xmlGetProp(cur, (xmlChar*) "to_dim")) != nullptr) {            // Target Dimension
                 if (strlen((char*) att) > 0) {
                     str[n - 1].dimid = atoi((char*) att);                // Duplicate these tags for convenience
                     str[n - 1].dimcomposite.to_dim = atoi((char*) att);
@@ -524,35 +510,35 @@ void parseDimComposite(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
             }
 
             if ((att = xmlGetProp(cur, (xmlChar*) "from_dim")) !=
-                NULL) {        // Swap with this Dimension otherwise swap with Data
+                nullptr) {        // Swap with this Dimension otherwise swap with Data
                 if (strlen((char*) att) > 0) str[n - 1].dimcomposite.from_dim = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "From Dimension  : %d\n", str[n - 1].dimcomposite.from_dim);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "dim")) != NULL ||
-                (att = xmlGetProp(cur, (xmlChar*) "data")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "dim")) != nullptr ||
+                (att = xmlGetProp(cur, (xmlChar*) "data")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].dimcomposite.dim_signal, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension Signal  : %s\n", str[n - 1].dimcomposite.dim_signal);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "error")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "error")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].dimcomposite.dim_error, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Error Signal  : %s\n", str[n - 1].dimcomposite.dim_error);
                 xmlFree(att);
             }
-            if ((att = xmlGetProp(cur, (xmlChar*) "aserror")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "aserror")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].dimcomposite.dim_aserror, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Error Signal  : %s\n", str[n - 1].dimcomposite.dim_aserror);
                 xmlFree(att);
             }
-            if ((att = xmlGetProp(cur, (xmlChar*) "file")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "file")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].dimcomposite.file, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension Source File: %s\n", str[n - 1].dimcomposite.file);
                 xmlFree(att);
             }
-            if ((att = xmlGetProp(cur, (xmlChar*) "format")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "format")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].dimcomposite.format, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension Source File Format: %s\n", str[n - 1].dimcomposite.format);
                 xmlFree(att);
@@ -564,7 +550,6 @@ void parseDimComposite(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
     }
     comp->ndimensions = n;    // Number of Tags Found
     comp->dimensions = str;    // Array of Composite Signal Actions on Dimensions
-    return;
 }
 
 void parseComposite(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
@@ -576,7 +561,7 @@ void parseComposite(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
     int n = actions->nactions;        // Counter
 
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "parseComposite: %s\n", (char*) cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "composite"))) {
             n++;
@@ -586,86 +571,85 @@ void parseComposite(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             str[n - 1].actionType = COMPOSITETYPE;
             initComposite(&str[n - 1].composite);
 
-// Attributes
+            // Attributes
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].actionId = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Action ID: %d\n", str[n - 1].actionId);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_start")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_start")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].exp_range[0] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Exp Number Range Start: %d\n", str[n - 1].exp_range[0]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_end")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_end")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].exp_range[1] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Exp Number Range End : %d\n", str[n - 1].exp_range[1]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "pass_start")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "pass_start")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].pass_range[0] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Pass Number Range Start: %d\n", str[n - 1].pass_range[0]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "pass_end")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "pass_end")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].pass_range[1] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Pass Number Range End  : %d\n", str[n - 1].pass_range[1]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "data")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "data")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].composite.data_signal, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Data Signal  : %s\n", str[n - 1].composite.data_signal);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "file")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "file")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].composite.file, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Data Source File: %s\n", str[n - 1].composite.file);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "format")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "format")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].composite.format, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Source File Format: %s\n", str[n - 1].composite.format);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "error")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "error")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].composite.error_signal, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Error Signal  : %s\n", str[n - 1].composite.error_signal);
                 xmlFree(att);
             }
-            if ((att = xmlGetProp(cur, (xmlChar*) "aserror")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "aserror")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].composite.aserror_signal, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Error Signal  : %s\n", str[n - 1].composite.aserror_signal);
                 xmlFree(att);
             }
-            if ((att = xmlGetProp(cur, (xmlChar*) "mapto")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "mapto")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].composite.aserror_signal, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Map to Signal  : %s\n", str[n - 1].composite.map_to_signal);
                 xmlFree(att);
             }
 
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "order")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "order")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].composite.order = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Time Dimension: %d\n", str[n - 1].composite.order);
                 xmlFree(att);
             }
 
-
-// Child Tags
+            // Child Tags
 
             parseDimComposite(doc, cur, &str[n - 1].composite);
             parseCompositeSubset(doc, cur, &str[n - 1].composite);
 
-// Consolidate Composite Signal name with Subset Signal Name (the Composite record has precedence)
+            // Consolidate Composite Signal name with Subset Signal Name (the Composite record has precedence)
 
             if (str[n - 1].composite.nsubsets > 0 && strlen(str[n - 1].composite.data_signal) == 0) {
                 if (strlen(str[n - 1].composite.subsets[0].data_signal) > 0)
@@ -677,12 +661,10 @@ void parseComposite(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
 
     actions->nactions = n;    // Number of Tags Found
     actions->action = str;    // Array of Actions bounded by a Ranges
-    return;
 }
 
 void parseDimErrorModel(xmlDocPtr doc, xmlNodePtr cur, ERRORMODEL* mod)
 {
-
     xmlChar* att;    // General Input of tag attribute values
     float* params;
     int i;
@@ -691,7 +673,7 @@ void parseDimErrorModel(xmlDocPtr doc, xmlNodePtr cur, ERRORMODEL* mod)
     int n = 0;                // Counter
 
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "parseDimErrorModel: %s\n", (char*) cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "dimension"))) {
             n++;
@@ -701,23 +683,23 @@ void parseDimErrorModel(xmlDocPtr doc, xmlNodePtr cur, ERRORMODEL* mod)
             str[n - 1].dimType = DIMERRORMODELTYPE;
             initDimErrorModel(&str[n - 1].dimerrormodel);
 
-// Attributes
+            // Attributes
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "dimid")) != NULL) {            // Target Dimension
+            if ((att = xmlGetProp(cur, (xmlChar*) "dimid")) != nullptr) {            // Target Dimension
                 if (strlen((char*) att) > 0) str[n - 1].dimid = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension : %d\n", str[n - 1].dimid);
                 xmlFree(att);
             }
-            if ((att = xmlGetProp(cur, (xmlChar*) "model")) != NULL) {            // Error Model
+            if ((att = xmlGetProp(cur, (xmlChar*) "model")) != nullptr) {            // Error Model
                 if (strlen((char*) att) > 0) str[n - 1].dimerrormodel.model = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Model : %d\n", str[n - 1].dimerrormodel.model);
                 xmlFree(att);
             }
 
-// Child Tags
+            // Child Tags
 
             params = parseFloatArray(doc, cur, "params", &str[n - 1].dimerrormodel.param_n);
-            if (params != NULL) {
+            if (params != nullptr) {
                 if (str[n - 1].dimerrormodel.param_n > MAXERRPARAMS) str[n - 1].dimerrormodel.param_n = MAXERRPARAMS;
                 for (i = 0; i < str[n - 1].dimerrormodel.param_n; i++) str[n - 1].dimerrormodel.params[i] = params[i];
                 free((void*) params);
@@ -729,7 +711,6 @@ void parseDimErrorModel(xmlDocPtr doc, xmlNodePtr cur, ERRORMODEL* mod)
     }
     mod->ndimensions = n;    // Number of Tags Found
     mod->dimensions = str;    // Array of Error Model Actions on Dimensions
-    return;
 }
 
 
@@ -743,7 +724,7 @@ void parseErrorModel(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
     int n = actions->nactions;        // Counter
 
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "parseErrorModel: %s\n", (char*) cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "errormodel"))) {
             n++;
@@ -753,48 +734,48 @@ void parseErrorModel(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             str[n - 1].actionType = ERRORMODELTYPE;
             initErrorModel(&str[n - 1].errormodel);
 
-// Attributes
+            // Attributes
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].actionId = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Action ID: %d\n", str[n - 1].actionId);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_start")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_start")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].exp_range[0] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Exp Number Range Start: %d\n", str[n - 1].exp_range[0]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_end")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_end")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].exp_range[1] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Exp Number Range End : %d\n", str[n - 1].exp_range[1]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "pass_start")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "pass_start")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].pass_range[0] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Pass Number Range Start: %d\n", str[n - 1].pass_range[0]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "pass_end")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "pass_end")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].pass_range[1] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Pass Number Range End  : %d\n", str[n - 1].pass_range[1]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "model")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "model")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].errormodel.model = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Error Distribution Model: %d\n", str[n - 1].errormodel.model);
                 xmlFree(att);
             }
 
-// Child Tags
+            // Child Tags
 
             params = parseFloatArray(doc, cur, "params", &str[n - 1].errormodel.param_n);
-            if (params != NULL) {
+            if (params != nullptr) {
                 if (str[n - 1].errormodel.param_n > MAXERRPARAMS) str[n - 1].errormodel.param_n = MAXERRPARAMS;
                 for (i = 0; i < str[n - 1].errormodel.param_n; i++) str[n - 1].errormodel.params[i] = params[i];
                 free((void*) params);
@@ -807,19 +788,17 @@ void parseErrorModel(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
     }
     actions->nactions = n;    // Number of Tags Found
     actions->action = str;    // Array of Actions bounded by a Ranges
-    return;
 }
 
 void parseDimDocumentation(xmlDocPtr doc, xmlNodePtr cur, DOCUMENTATION* document)
 {
-
     xmlChar* att;    // General Input of tag attribute values
 
     DIMENSION* str = document->dimensions;
     int n = 0;                // Counter
 
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "parseDimDocumentation: %s\n", (char*) cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "dimension"))) {
             n++;
@@ -829,15 +808,15 @@ void parseDimDocumentation(xmlDocPtr doc, xmlNodePtr cur, DOCUMENTATION* documen
             str[n - 1].dimType = DIMDOCUMENTATIONTYPE;
             initDimDocumentation(&str[n - 1].dimdocumentation);
 
-// Attributes
+            // Attributes
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "dimid")) != NULL) {            // Target Dimension
+            if ((att = xmlGetProp(cur, (xmlChar*) "dimid")) != nullptr) {            // Target Dimension
                 if (strlen((char*) att) > 0) str[n - 1].dimid = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "To Dimension  : %d\n", str[n - 1].dimid);
                 xmlFree(att);
             }
 
-// Child Tags
+            // Child Tags
 
             parseTargetString(doc, cur, "label", str[n - 1].dimdocumentation.label);
             parseTargetString(doc, cur, "units", str[n - 1].dimdocumentation.units);
@@ -847,19 +826,17 @@ void parseDimDocumentation(xmlDocPtr doc, xmlNodePtr cur, DOCUMENTATION* documen
     }
     document->ndimensions = n;    // Number of Tags Found
     document->dimensions = str;    // Array of Composite Signal Actions on Dimensions
-    return;
 }
 
 void parseDocumentation(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
 {
-
     xmlChar* att;    // General Input of tag attribute values
 
     ACTION* str = actions->action;
     int n = actions->nactions;        // Counter
 
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "parseDocumentation: %s\n", (char*) cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "documentation"))) {
             n++;
@@ -869,39 +846,39 @@ void parseDocumentation(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             str[n - 1].actionType = DOCUMENTATIONTYPE;
             initDocumentation(&str[n - 1].documentation);
 
-// Attributes
+            // Attributes
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].actionId = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Action ID: %d\n", str[n - 1].actionId);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_start")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_start")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].exp_range[0] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Exp Number Range Start: %d\n", str[n - 1].exp_range[0]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_end")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_end")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].exp_range[1] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Exp Number Range End : %d\n", str[n - 1].exp_range[1]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "pass_start")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "pass_start")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].pass_range[0] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Pass Number Range Start: %d\n", str[n - 1].pass_range[0]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "pass_end")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "pass_end")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].pass_range[1] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Pass Number Range End  : %d\n", str[n - 1].pass_range[1]);
                 xmlFree(att);
             }
 
-// Child Tags
+            // Child Tags
 
             parseTargetString(doc, cur, "description", str[n - 1].documentation.description);
             parseTargetString(doc, cur, "label", str[n - 1].documentation.label);
@@ -914,19 +891,17 @@ void parseDocumentation(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
     }
     actions->nactions = n;    // Number of Tags Found
     actions->action = str;    // Array of Actions bounded by a Ranges
-    return;
 }
 
 void parseDimCalibration(xmlDocPtr doc, xmlNodePtr cur, CALIBRATION* cal)
 {
-
     xmlChar* att;    // General Input of tag attribute values
 
     DIMENSION* str = cal->dimensions;
     int n = 0;                // Counter
 
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "parseDimCalibration: %s\n", (char*) cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "dimension"))) {
             n++;
@@ -936,21 +911,21 @@ void parseDimCalibration(xmlDocPtr doc, xmlNodePtr cur, CALIBRATION* cal)
             str[n - 1].dimType = DIMCALIBRATIONTYPE;
             initDimCalibration(&str[n - 1].dimcalibration);
 
-// Attributes
+            // Attributes
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "dimid")) != NULL) {            // Target Dimension
+            if ((att = xmlGetProp(cur, (xmlChar*) "dimid")) != nullptr) {            // Target Dimension
                 if (strlen((char*) att) > 0) str[n - 1].dimid = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "To Dimension  : %d\n", str[n - 1].dimid);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "invert")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "invert")) != nullptr) {
                 if (att[0] == 'y' || att[0] == 'Y') str[n - 1].dimcalibration.invert = 1;
                 UDA_LOG(UDA_LOG_DEBUG, "Calibration Invert: %d\n", str[n - 1].dimcalibration.invert);
                 xmlFree(att);
             }
 
-// Child Tags
+            // Child Tags
 
             parseTargetString(doc, cur, "units", str[n - 1].dimcalibration.units);
             parseTargetValue(doc, cur, "factor", &str[n - 1].dimcalibration.factor);
@@ -964,20 +939,17 @@ void parseDimCalibration(xmlDocPtr doc, xmlNodePtr cur, CALIBRATION* cal)
     }
     cal->ndimensions = n;    // Number of Tags Found
     cal->dimensions = str;    // Array of Composite Signal Actions on Dimensions
-    return;
 }
-
 
 void parseCalibration(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
 {
-
     xmlChar* att;    // General Input of tag attribute values
 
     ACTION* str = actions->action;
     int n = actions->nactions;        // Counter
 
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "parseCalibration: %s\n", (char*) cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "calibration"))) {
             n++;
@@ -987,51 +959,51 @@ void parseCalibration(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             str[n - 1].actionType = CALIBRATIONTYPE;
             initCalibration(&str[n - 1].calibration);
 
-// Attributes
+            // Attributes
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].actionId = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Action ID: %d\n", str[n - 1].actionId);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_start")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_start")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].exp_range[0] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Exp Number Range Start: %d\n", str[n - 1].exp_range[0]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_end")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "exp_number_end")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].exp_range[1] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Exp Number Range End : %d\n", str[n - 1].exp_range[1]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "pass_start")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "pass_start")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].pass_range[0] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Pass Number Range Start: %d\n", str[n - 1].pass_range[0]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "pass_end")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "pass_end")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].pass_range[1] = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Pass Number Range End  : %d\n", str[n - 1].pass_range[1]);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "target")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "target")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(str[n - 1].calibration.target, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Calibration Target: %s\n", str[n - 1].calibration.target);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "invert")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "invert")) != nullptr) {
                 if (att[0] == 'y' || att[0] == 'Y') str[n - 1].calibration.invert = 1;
                 UDA_LOG(UDA_LOG_DEBUG, "Calibration Invert: %d\n", str[n - 1].calibration.invert);
                 xmlFree(att);
             }
 
-// Child Tags
+            // Child Tags
 
             parseTargetString(doc, cur, "units", str[n - 1].calibration.units);
             parseTargetValue(doc, cur, "factor", &str[n - 1].calibration.factor);
@@ -1048,24 +1020,21 @@ void parseCalibration(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
     }
     actions->nactions = n;    // Number of Tags Found
     actions->action = str;    // Array of Actions bounded by a Ranges
-    return;
 }
 
 
 void parseSubset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
 {
-
     xmlChar* att;    // General Input of tag attribute values
 
     ACTION* str = actions->action;
-    //COMPOSITE *comp = NULL;
-    SUBSET* sub = NULL;
+    SUBSET* sub = nullptr;
     int n = actions->nactions;        // Counter
     int i, n0, n1;
 
 
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "parseSubset: %s\n", (char*) cur->name);
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "subset"))) {
             n++;
@@ -1076,48 +1045,48 @@ void parseSubset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             sub = &str[n - 1].subset;
             initSubset(sub);
 
-// Attributes
+            // Attributes
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "id")) != nullptr) {
                 if (strlen((char*) att) > 0) str[n - 1].actionId = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Action ID: %d\n", str[n - 1].actionId);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "data")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "data")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(sub->data_signal, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Data Signal  : %s\n", sub->data_signal);
                 xmlFree(att);
             }
 
-// Child Tags
+            // Child Tags
 
-// Attributes
+            // Attributes
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "reform")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "reform")) != nullptr) {
                 if (att[0] == 'Y' || att[0] == 'y') sub->reform = 1;
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "member")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "member")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(sub->member, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Subset Member: %s\n", sub->member);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "function")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "function")) != nullptr) {
                 if (strlen((char*) att) > 0) strcpy(sub->function, (char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Subset function: %s\n", sub->function);
                 xmlFree(att);
             }
 
-            if ((att = xmlGetProp(cur, (xmlChar*) "order")) != NULL) {
+            if ((att = xmlGetProp(cur, (xmlChar*) "order")) != nullptr) {
                 if (strlen((char*) att) > 0) sub->order = atoi((char*) att);
                 UDA_LOG(UDA_LOG_DEBUG, "Subset order: %d\n", sub->order);
                 xmlFree(att);
             }
 
-// Fixed Length Attribute Arrays
+            // Fixed Length Attribute Arrays
 
             parseFixedLengthStrArray(cur, "operation", &sub->operation[0], &sub->nbound);
             for (i = 0; i < sub->nbound; i++)
@@ -1142,18 +1111,14 @@ void parseSubset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
 
     actions->nactions = n;    // Number of Tags Found
     actions->action = str;    // Array of Actions bounded by a Ranges
-    return;
 }
 
 void parseMap(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
 {
-    return;
 }
-
 
 int parseDoc(char* docname, ACTIONS* actions)
 {
-
     xmlDocPtr doc;
     xmlNodePtr cur;
 
@@ -1161,19 +1126,19 @@ int parseDoc(char* docname, ACTIONS* actions)
     struct timeval tv_start;
     struct timeval tv_end;
     float testtime ;
-    int rc = gettimeofday(&tv_start, NULL);
+    int rc = gettimeofday(&tv_start, nullptr);
 #endif
 
     xmlInitParser();
 
-    if ((doc = xmlParseDoc((xmlChar*) docname)) == NULL) {
+    if ((doc = xmlParseDoc((xmlChar*) docname)) == nullptr) {
         xmlFreeDoc(doc);
         xmlCleanupParser();
         addIdamError(CODEERRORTYPE, "parseDoc", 1, "XML Not Parsed");
         return 1;
     }
 
-    if ((cur = xmlDocGetRootElement(doc)) == NULL) {
+    if ((cur = xmlDocGetRootElement(doc)) == nullptr) {
         addIdamError(CODEERRORTYPE, "parseDoc", 1, "Empty XML Document");
         xmlFreeDoc(doc);
         xmlCleanupParser();
@@ -1187,7 +1152,7 @@ int parseDoc(char* docname, ACTIONS* actions)
     }
 
     cur = cur->xmlChildrenNode;
-    while (cur != NULL) {
+    while (cur != nullptr) {
 
         if ((!xmlStrcmp(cur->name, (const xmlChar*) "signal"))) {
 
@@ -1198,10 +1163,6 @@ int parseDoc(char* docname, ACTIONS* actions)
             parseErrorModel(doc, cur, actions);
 
             parseSubset(doc, cur, actions);        // Single Subset
-            //parseMap(doc, cur, actions);			// Single map
-
-            //parseServerSide(doc, cur, actions);		// Multiple Subsets and mappings
-
         }
         cur = cur->next;
     }
@@ -1210,11 +1171,8 @@ int parseDoc(char* docname, ACTIONS* actions)
     xmlCleanupParser();
 
 #ifdef TIMETEST
-    rc = gettimeofday(&tv_end, NULL);
+    rc = gettimeofday(&tv_end, nullptr);
     testtime = (float)(tv_end.tv_sec-tv_start.tv_sec)*1.0E6 + (float)(tv_end.tv_usec - tv_start.tv_usec) ;
-#ifdef debugon
-    UDA_LOG(UDA_LOG_DEBUG, "XML Parse Timing: %.2f(microsecs)\n", testtime);
-#endif
 #endif
 
     return 0;
@@ -1371,7 +1329,6 @@ void printActions(ACTIONS actions)
     UDA_LOG(UDA_LOG_DEBUG, "\n\n");
 }
 
-
 // Initialise an Action Structure and Child Structures
 
 void initDimCalibration(DIMCALIBRATION* act)
@@ -1407,7 +1364,6 @@ void initDimErrorModel(DIMERRORMODEL* act)
     for (i = 0; i < MAXERRPARAMS; i++)act->params[i] = 0.0;
 }
 
-
 void initDimension(DIMENSION* act)
 {
     act->dimid = -1;        // Dimension Id
@@ -1429,7 +1385,7 @@ void initCalibration(CALIBRATION* act)
     act->target[0] = '\0';        // Which data Component to apply calibration? (all, data, error, aserror)
     act->invert = 0;        // No Inversion
     act->ndimensions = 0;
-    act->dimensions = NULL;
+    act->dimensions = nullptr;
 }
 
 void initDocumentation(DOCUMENTATION* act)
@@ -1438,7 +1394,7 @@ void initDocumentation(DOCUMENTATION* act)
     act->units[0] = '\0';        // Lower in priority than Calibration Units
     act->description[0] = '\0';
     act->ndimensions = 0;
-    act->dimensions = NULL;
+    act->dimensions = nullptr;
 }
 
 void initComposite(COMPOSITE* act)
@@ -1453,17 +1409,17 @@ void initComposite(COMPOSITE* act)
     act->ndimensions = 0;
     act->nsubsets = 0;
     act->nmaps = 0;
-    act->dimensions = NULL;
-    act->subsets = NULL;
-    act->maps = NULL;
+    act->dimensions = nullptr;
+    act->subsets = nullptr;
+    act->maps = nullptr;
 }
 
 void initServerside(SERVERSIDE* act)
 {
     act->nsubsets = 0;
     act->nmaps = 0;
-    act->subsets = NULL;
-    act->maps = NULL;
+    act->subsets = nullptr;
+    act->maps = nullptr;
 }
 
 void initErrorModel(ERRORMODEL* act)
@@ -1473,7 +1429,7 @@ void initErrorModel(ERRORMODEL* act)
     act->param_n = 0;            // No. Model parameters
     for (i = 0; i < MAXERRPARAMS; i++)act->params[i] = 0.0;
     act->ndimensions = 0;
-    act->dimensions = NULL;
+    act->dimensions = nullptr;
 }
 
 void initSubset(SUBSET* act)
@@ -1507,7 +1463,6 @@ void initMap(MAP* act)
     act->nmap = 0;                // The number of Mapping Operations
 }
 
-
 // Initialise an Action Structure
 
 void initAction(ACTION* act)
@@ -1521,19 +1476,17 @@ void initAction(ACTION* act)
     act->pass_range[1] = -1;
 }
 
-
 // Initialise an Action Array Structure
 
 void initActions(ACTIONS* act)
 {
     act->nactions = 0;        // Number of Action blocks
-    act->action = NULL;    // Array of Action blocks
+    act->action = nullptr;    // Array of Action blocks
 }
 
 void freeActions(ACTIONS* actions)
 {
-
-// Free Heap Memory From ACTION Structures
+    // Free Heap Memory From ACTION Structures
 
     int i, j;
     void* cptr;
@@ -1549,19 +1502,19 @@ void freeActions(ACTIONS* actions)
         switch (actions->action[i].actionType) {
 
             case COMPOSITETYPE:
-                if ((cptr = (void*) actions->action[i].composite.dimensions) != NULL) {
+                if ((cptr = (void*) actions->action[i].composite.dimensions) != nullptr) {
                     free(cptr);
-                    actions->action[i].composite.dimensions = NULL;
+                    actions->action[i].composite.dimensions = nullptr;
                     actions->action[i].composite.ndimensions = 0;
                 }
                 if (actions->action[i].composite.nsubsets > 0) {
-                    if ((cptr = (void*) actions->action[i].composite.subsets) != NULL) free(cptr);
-                    actions->action[i].composite.subsets = NULL;
+                    if ((cptr = (void*) actions->action[i].composite.subsets) != nullptr) free(cptr);
+                    actions->action[i].composite.subsets = nullptr;
                     actions->action[i].composite.nsubsets = 0;
                 }
                 if (actions->action[i].composite.nmaps > 0) {
-                    if ((cptr = (void*) actions->action[i].composite.maps) != NULL) free(cptr);
-                    actions->action[i].composite.maps = NULL;
+                    if ((cptr = (void*) actions->action[i].composite.maps) != nullptr) free(cptr);
+                    actions->action[i].composite.maps = nullptr;
                     actions->action[i].composite.nmaps = 0;
                 }
                 break;
@@ -1570,39 +1523,39 @@ void freeActions(ACTIONS* actions)
                 actions->action[i].errormodel.param_n = 0;
 
                 for (j = 0; j < actions->action[i].errormodel.ndimensions; j++)
-                    if ((cptr = (void*) actions->action[i].errormodel.dimensions) != NULL) {
+                    if ((cptr = (void*) actions->action[i].errormodel.dimensions) != nullptr) {
                         free(cptr);
-                        actions->action[i].errormodel.dimensions = NULL;
+                        actions->action[i].errormodel.dimensions = nullptr;
                         actions->action[i].errormodel.ndimensions = 0;
                     }
 
                 break;
 
             case CALIBRATIONTYPE:
-                if ((cptr = (void*) actions->action[i].calibration.dimensions) != NULL) {
+                if ((cptr = (void*) actions->action[i].calibration.dimensions) != nullptr) {
                     free(cptr);
-                    actions->action[i].calibration.dimensions = NULL;
+                    actions->action[i].calibration.dimensions = nullptr;
                     actions->action[i].calibration.ndimensions = 0;
                 }
                 break;
 
             case DOCUMENTATIONTYPE:
-                if ((cptr = (void*) actions->action[i].documentation.dimensions) != NULL) {
+                if ((cptr = (void*) actions->action[i].documentation.dimensions) != nullptr) {
                     free(cptr);
-                    actions->action[i].documentation.dimensions = NULL;
+                    actions->action[i].documentation.dimensions = nullptr;
                     actions->action[i].documentation.ndimensions = 0;
                 }
                 break;
 
             case SERVERSIDETYPE:
                 if (actions->action[i].serverside.nsubsets > 0) {
-                    if ((cptr = (void*) actions->action[i].serverside.subsets) != NULL) free(cptr);
-                    actions->action[i].serverside.subsets = NULL;
+                    if ((cptr = (void*) actions->action[i].serverside.subsets) != nullptr) free(cptr);
+                    actions->action[i].serverside.subsets = nullptr;
                     actions->action[i].serverside.nsubsets = 0;
                 }
                 if (actions->action[i].serverside.nmaps > 0) {
-                    if ((cptr = (void*) actions->action[i].serverside.maps) != NULL) free(cptr);
-                    actions->action[i].serverside.maps = NULL;
+                    if ((cptr = (void*) actions->action[i].serverside.maps) != nullptr) free(cptr);
+                    actions->action[i].serverside.maps = nullptr;
                     actions->action[i].serverside.nmaps = 0;
                 }
                 break;
@@ -1612,9 +1565,9 @@ void freeActions(ACTIONS* actions)
         }
     }
 
-    if ((cptr = (void*) actions->action) != NULL) free(cptr);
+    if ((cptr = (void*) actions->action) != nullptr) free(cptr);
     actions->nactions = 0;
-    actions->action = NULL;
+    actions->action = nullptr;
 
     UDA_LOG(UDA_LOG_DEBUG, "freeActions: Exit\n");
 }
@@ -1624,7 +1577,7 @@ void freeActions(ACTIONS* actions)
 void copyActions(ACTIONS* actions_out, ACTIONS* actions_in)
 {
     *actions_out = *actions_in;
-    actions_in->action = NULL;
+    actions_in->action = nullptr;
     actions_in->nactions = 0;
 }
 

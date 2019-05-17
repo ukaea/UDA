@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENTSERVER_TRIMSTRING_H
-#define IDAM_CLIENTSERVER_TRIMSTRING_H
+#ifndef UDA_CLIENTSERVER_TRIMSTRING_H
+#define UDA_CLIENTSERVER_TRIMSTRING_H
 
 #include <string.h>
 #include <ctype.h>
@@ -57,7 +57,7 @@ char* StringReplaceAll(const char* string, const char* find, const char* replace
 char* StringReplace(const char* string, const char* find, const char* replace);
 
 // Is the String an Integer Number? (Simple but not exhaustive Check)
-int IsNumber(char* a);
+int IsNumber(const char* a);
 
 // Is the String a Simple Float Number?
 int IsFloat(char* a);
@@ -95,5 +95,5 @@ bool StringEndsWith(const char* str, const char* find);
 }
 #endif
 
-#endif // IDAM_CLIENTSERVER_TRIMSTRING_H
+#endif // UDA_CLIENTSERVER_TRIMSTRING_H
 

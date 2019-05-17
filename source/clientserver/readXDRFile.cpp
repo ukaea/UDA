@@ -35,7 +35,7 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
 
     int err = 0, rc = 1, nchar, bufsize, count;
     FILE* fh;
-    char* bp = NULL;
+    char* bp = nullptr;
 
 //----------------------------------------------------------------------
 // Open the File as a Binary Stream
@@ -43,13 +43,13 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
     errno = 0;
     fh = fopen(xdrfile, "rb");
 
-    if (fh == NULL || errno != 0 || ferror(fh)) {
+    if (fh == nullptr || errno != 0 || ferror(fh)) {
         err = 999;
         if (errno != 0) {
             addIdamError(SYSTEMERRORTYPE, "sendXDRFile", errno, "");
         }
         addIdamError(CODEERRORTYPE, "sendXDRFile", err, "Unable to Open the XDR File for Read Access");
-        if (fh != NULL) {
+        if (fh != nullptr) {
             fclose(fh);
         }
         return err;
@@ -57,20 +57,20 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
 
     UDA_LOG(UDA_LOG_DEBUG, "reading temporary XDR file %s\n", xdrfile);
 
-//----------------------------------------------------------------------
-// Error Trap Loop
+    //----------------------------------------------------------------------
+    // Error Trap Loop
 
     do {
 
-//----------------------------------------------------------------------
-// Read File and write to xdr data stream
+        //----------------------------------------------------------------------
+        // Read File and write to xdr data stream
 
         nchar = 0;
         bufsize = 100 * 1024;
         rc = 1;
         count = 0;
 
-        if ((bp = (char*) malloc(bufsize * sizeof(char))) == NULL) {
+        if ((bp = (char*)malloc(bufsize * sizeof(char))) == nullptr) {
             err = 999;
             addIdamError(CODEERRORTYPE, "sendXDRFile", err,
                          "Unable to Allocate Heap Memory for the XDR File");
@@ -84,13 +84,13 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
         UDA_LOG(UDA_LOG_DEBUG, "Buffer size %d\n", bufsize);
 
         while (!feof(fh)) {
-            nchar = (int) fread(bp, sizeof(char), bufsize, fh);
+            nchar = (int)fread(bp, sizeof(char), bufsize, fh);
             rc = rc && xdr_int(xdrs, &nchar);                // Number of Bytes to send
 
             UDA_LOG(UDA_LOG_DEBUG, "File block size %d\n", nchar);
 
             if (nchar > 0) {        // Send the bytes
-                rc = rc && xdr_vector(xdrs, (char*) bp, nchar, sizeof(char), (xdrproc_t) xdr_char);
+                rc = rc && xdr_vector(xdrs, (char*)bp, nchar, sizeof(char), (xdrproc_t)xdr_char);
             }
 
             rc = rc && xdrrec_endofrecord(xdrs, 1);
@@ -106,51 +106,48 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
     rc = rc && xdr_int(xdrs, &nchar);
     rc = rc && xdrrec_endofrecord(xdrs, 1);
 
-// *** Send count to client as a check all data received
-// *** Send hash sum to client as a test data is accurate - another reason to use files and cache rather than a data stream
+    // *** Send count to client as a check all data received
+    // *** Send hash sum to client as a test data is accurate - another reason to use files and cache rather than a data stream
 
-
-//----------------------------------------------------------------------
-// Housekeeping
+    //----------------------------------------------------------------------
+    // Housekeeping
 
     fclose(fh);        // Close the File
-    free((void*) bp);
+    free((void*)bp);
 
     return err;
 }
 
-
 int receiveXDRFile(XDR* xdrs, char* xdrfile)
 {
-
     int err = 0, rc = 1, nchar, bufsize, count, doLoopLimit = 0;
     FILE* fh;
-    char* bp = NULL;
+    char* bp = nullptr;
 
-//----------------------------------------------------------------------
-// Open the File as a Binary Stream
+    //----------------------------------------------------------------------
+    // Open the File as a Binary Stream
 
     errno = 0;
     fh = fopen(xdrfile, "wb");
 
-    if (fh == NULL || errno != 0 || ferror(fh)) {
+    if (fh == nullptr || errno != 0 || ferror(fh)) {
         err = 999;
         if (errno != 0) addIdamError(SYSTEMERRORTYPE, "receiveXDRFile", errno, "");
         addIdamError(CODEERRORTYPE, "receiveXDRFile", err,
                      "Unable to Open the XDR File for Write Access");
-        if (fh != NULL) fclose(fh);
+        if (fh != nullptr) fclose(fh);
         return err;
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: writing temporary XDR file %s\n", xdrfile);
 
-//----------------------------------------------------------------------
-// Error Trap Loop
+    //----------------------------------------------------------------------
+    // Error Trap Loop
 
     do {
 
-//----------------------------------------------------------------------
-// Read xdr data stream and write file
+        //----------------------------------------------------------------------
+        // Read xdr data stream and write file
 
         nchar = 0;
 
@@ -165,7 +162,7 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
             break;
         }
 
-        if ((bp = (char*) malloc(bufsize * sizeof(char))) == NULL) {
+        if ((bp = (char*)malloc(bufsize * sizeof(char))) == nullptr) {
             err = 999;
             addIdamError(CODEERRORTYPE, "receiveXDRFile", err,
                          "Unable to Allocate Heap Memory for the XDR File");
@@ -191,8 +188,8 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
             }
 
             if (nchar > 0) {
-                rc = rc && xdr_vector(xdrs, (char*) bp, nchar, sizeof(char), (xdrproc_t) xdr_char); //Bytes
-                count = count + (int) fwrite(bp, sizeof(char), nchar, fh);
+                rc = rc && xdr_vector(xdrs, (char*)bp, nchar, sizeof(char), (xdrproc_t)xdr_char); //Bytes
+                count = count + (int)fwrite(bp, sizeof(char), nchar, fh);
             }
         } while (nchar > 0 && errno == 0 && doLoopLimit++ < MAXDOLOOPLIMIT);
 
@@ -203,8 +200,9 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
             break;
         }
 
-// *** Read count from server to check all data received
-// *** Read hash sum from server to test data is accurate - another reason to use files and cache rather than a data stream
+        // *** Read count from server to check all data received
+        // *** Read hash sum from server to test data is accurate - another reason to use files and cache rather than
+        // a data stream
 
         UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: Total File size %d\n", count);
 
@@ -216,11 +214,11 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
 
     } while (0);
 
-//----------------------------------------------------------------------
-// Housekeeping
+    //----------------------------------------------------------------------
+    // Housekeeping
 
     fclose(fh);        // Close the File
-    free((void*) bp);
+    free((void*)bp);
 
     return err;
 }

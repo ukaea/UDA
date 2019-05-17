@@ -46,8 +46,6 @@
 int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
               USERDEFINEDTYPELIST* userdefinedtypelist, void* str)
 {
-
-    DATA_BLOCK* data_block;
     DIMS* dim;
     DATA_SYSTEM* data_system;
     SYSTEM_CONFIG* system_config;
@@ -61,13 +59,13 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
 
     int err = 0;
 
-//----------------------------------------------------------------------------
-// Error Management Loop
+    //----------------------------------------------------------------------------
+    // Error Management Loop
 
     do {
 
-//----------------------------------------------------------------------------
-// Retrieve Client Requests
+        //----------------------------------------------------------------------------
+        // Retrieve Client Requests
 
         if (protocol_id == PROTOCOL_REQUEST_BLOCK) {
 
@@ -100,13 +98,12 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// Data Block
+        //----------------------------------------------------------------------------
+        // Data Block
 
         if (protocol_id == PROTOCOL_DATA_BLOCK) {
 
-            data_block = (DATA_BLOCK*)str;
+            DATA_BLOCK* data_block = (DATA_BLOCK*)str;
 
 #ifndef SKIPSEND
             switch (direction) {
@@ -117,9 +114,9 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
                         break;
                     }
 
-// Check client/server understands new data types
-// direction == XDR_RECEIVE && protocolVersion == 3 Means Client receiving data from a
-// Version >= 3 Server (Type has to be passed first)
+                    // Check client/server understands new data types
+                    // direction == XDR_RECEIVE && protocolVersion == 3 Means Client receiving data from a
+                    // Version >= 3 Server (Type has to be passed first)
 
                     if (protocolVersionTypeTest(protocolVersion, data_block->data_type) ||
                         protocolVersionTypeTest(protocolVersion, data_block->error_type)) {
@@ -201,9 +198,10 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
 
                 case XDR_SEND:
 
-// Check client/server understands new data types
+                    // Check client/server understands new data types
 
-// direction == XDR_SEND && protocolVersion == 3 Means Server sending data to a Version 3 Client (Type is known)
+                    // direction == XDR_SEND && protocolVersion == 3 Means Server sending data to a Version 3 Client
+                    // (Type is known)
 
                     UDA_LOG(UDA_LOG_DEBUG, "#1 PROTOCOL: Send/Receive Data Block\n");
                     printDataBlock(*data_block);
@@ -294,12 +292,12 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         }
 
-//----------------------------------------------------------------------------
-// Put Data Block (Atomic and Structured types)
+        //----------------------------------------------------------------------------
+        // Put Data Block (Atomic and Structured types)
 
         if (protocol_id == PROTOCOL_PUTDATA_BLOCK_LIST) {
 
-            PUTDATA_BLOCK_LIST* putDataBlockList = (PUTDATA_BLOCK_LIST*)str;
+            auto putDataBlockList = (PUTDATA_BLOCK_LIST*)str;
             PUTDATA_BLOCK putData;
 
             switch (direction) {
@@ -343,15 +341,15 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
                         if (putData.data_type == UDA_TYPE_COMPOUND &&
                             putData.opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {    // Structured Data
 
-// Create a temporary DATA_BLOCK as the function's argument with structured data
+                            // Create a temporary DATA_BLOCK as the function's argument with structured data
 
-// logmalloc list is automatically generated
-// userdefinedtypelist is passed from the client
-// NTREE is automatically generated
+                            // logmalloc list is automatically generated
+                            // userdefinedtypelist is passed from the client
+                            // NTREE is automatically generated
 
-                            DATA_BLOCK* data_block = (DATA_BLOCK*)malloc(sizeof(DATA_BLOCK));
+                            auto data_block = (DATA_BLOCK*)malloc(sizeof(DATA_BLOCK));
 
-// *** Add to malloclog and test to ensure it is freed after use ***
+                            // *** Add to malloclog and test to ensure it is freed after use ***
 
                             initDataBlock(data_block);
                             data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
@@ -364,8 +362,8 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
                                 break;
                             }    // Fetch Structured data
 
-                            putData.data = (void*)data_block;        // Compact memory block with structures
-                            GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)data_block->opaque_block;
+                            putData.data = (char*)data_block;        // Compact memory block with structures
+                            auto general_block = (GENERAL_BLOCK*)data_block->opaque_block;
                             putData.opaque_block = general_block->userdefinedtype;
 
                         }
@@ -411,9 +409,9 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
                             putDataBlockList->putDataBlock[i].opaque_type ==
                             UDA_OPAQUE_TYPE_STRUCTURES) {        // Structured Data
 
-// Create a temporary DATA_BLOCK as the function's argument with structured data
+                            // Create a temporary DATA_BLOCK as the function's argument with structured data
 
-//   *** putdata.opaque_count is not used or needed - count is sufficient
+                            //   *** putdata.opaque_count is not used or needed - count is sufficient
 
                             DATA_BLOCK data_block;
                             initDataBlock(&data_block);
@@ -443,8 +441,8 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         }
 
-//----------------------------------------------------------------------------
-// Error Status or Next Protocol id or exchange token ....
+        //----------------------------------------------------------------------------
+        // Error Status or Next Protocol id or exchange token ....
 
         if (protocol_id == PROTOCOL_NEXT_PROTOCOL) {
 
@@ -484,9 +482,8 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// Data System record
+        //----------------------------------------------------------------------------
+        // Data System record
 
         if (protocol_id == PROTOCOL_DATA_SYSTEM) {
 
@@ -520,9 +517,8 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// System Configuration record
+        //----------------------------------------------------------------------------
+        // System Configuration record
 
         if (protocol_id == PROTOCOL_SYSTEM_CONFIG) {
 
@@ -555,9 +551,8 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// Data Source record
+        //----------------------------------------------------------------------------
+        // Data Source record
 
         if (protocol_id == PROTOCOL_DATA_SOURCE) {
 
@@ -590,10 +585,8 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         }
 
-
-
-//----------------------------------------------------------------------------
-// Signal record
+        //----------------------------------------------------------------------------
+        // Signal record
 
         if (protocol_id == PROTOCOL_SIGNAL) {
 
@@ -626,10 +619,8 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         }
 
-
-
-//----------------------------------------------------------------------------
-// Signal Description record
+        //----------------------------------------------------------------------------
+        // Signal Description record
 
         if (protocol_id == PROTOCOL_SIGNAL_DESC) {
 
@@ -662,84 +653,93 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         }
 
-//----------------------------------------------------------------------------
-// SECURITY
+        //----------------------------------------------------------------------------
+        // SECURITY
 
 #ifdef SECURITYENABLED
 
-        if(protocol_id == PROTOCOL_SECURITY_BLOCK) {
+        if (protocol_id == PROTOCOL_SECURITY_BLOCK) {
 
-            client_block = (CLIENT_BLOCK *)str;
+            client_block = (CLIENT_BLOCK*)str;
             SECURITY_BLOCK* security_block = &(client_block->securityBlock);
 
             switch (direction) {
 
-            case XDR_RECEIVE:
-                if(!xdr_securityBlock1(xdrs, security_block)) {
-                    err = PROTOCOL_ERROR_23;
+                case XDR_RECEIVE:
+                    if (!xdr_securityBlock1(xdrs, security_block)) {
+                        err = PROTOCOL_ERROR_23;
+                        break;
+                    }
                     break;
-                }
-                break;
 
-            case XDR_SEND:
-                if(!xdr_securityBlock1(xdrs, security_block)) {
-                    err = PROTOCOL_ERROR_23;
+                case XDR_SEND:
+                    if (!xdr_securityBlock1(xdrs, security_block)) {
+                        err = PROTOCOL_ERROR_23;
+                        break;
+                    }
                     break;
-                }
-                break;
 
-            case XDR_FREE_HEAP:
-                break;
+                case XDR_FREE_HEAP:
+                    break;
 
-            default:
-                err = PROTOCOL_ERROR_4;
-                break;
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
             }
 
-// Allocate heap
+            // Allocate heap
 
-            if(security_block->client_ciphertextLength > 0)
-                security_block->client_ciphertext  = (unsigned char *)malloc(security_block->client_ciphertextLength*sizeof(unsigned char));
-            if(security_block->client2_ciphertextLength > 0)
-                security_block->client2_ciphertext = (unsigned char *)malloc(security_block->client2_ciphertextLength*sizeof(unsigned char));
-            if(security_block->server_ciphertextLength > 0)
-                security_block->server_ciphertext  = (unsigned char *)malloc(security_block->server_ciphertextLength*sizeof(unsigned char));
-            if(security_block->client_X509Length > 0)
-                security_block->client_X509        = (unsigned char *)malloc(security_block->client_X509Length*sizeof(unsigned char));
-            if(security_block->client2_X509Length > 0)
-                security_block->client2_X509       = (unsigned char *)malloc(security_block->client2_X509Length*sizeof(unsigned char));
+            if (security_block->client_ciphertextLength > 0) {
+                security_block->client_ciphertext = (unsigned char*)malloc(
+                        security_block->client_ciphertextLength * sizeof(unsigned char));
+            }
+            if (security_block->client2_ciphertextLength > 0) {
+                security_block->client2_ciphertext = (unsigned char*)malloc(
+                        security_block->client2_ciphertextLength * sizeof(unsigned char));
+            }
+            if (security_block->server_ciphertextLength > 0) {
+                security_block->server_ciphertext = (unsigned char*)malloc(
+                        security_block->server_ciphertextLength * sizeof(unsigned char));
+            }
+            if (security_block->client_X509Length > 0) {
+                security_block->client_X509 = (unsigned char*)malloc(
+                        security_block->client_X509Length * sizeof(unsigned char));
+            }
+            if (security_block->client2_X509Length > 0) {
+                security_block->client2_X509 = (unsigned char*)malloc(
+                        security_block->client2_X509Length * sizeof(unsigned char));
+            }
 
             switch (direction) {
 
-            case XDR_RECEIVE:
-                if(!xdr_securityBlock2(xdrs, security_block)) {
-                    err = PROTOCOL_ERROR_24;
+                case XDR_RECEIVE:
+                    if (!xdr_securityBlock2(xdrs, security_block)) {
+                        err = PROTOCOL_ERROR_24;
+                        break;
+                    }
                     break;
-                }
-                break;
 
-            case XDR_SEND:
-                if(!xdr_securityBlock2(xdrs, security_block)) {
-                    err = PROTOCOL_ERROR_24;
+                case XDR_SEND:
+                    if (!xdr_securityBlock2(xdrs, security_block)) {
+                        err = PROTOCOL_ERROR_24;
+                        break;
+                    }
                     break;
-                }
-                break;
 
-            case XDR_FREE_HEAP:
-                break;
+                case XDR_FREE_HEAP:
+                    break;
 
-            default:
-                err = PROTOCOL_ERROR_4;
-                break;
+                default:
+                    err = PROTOCOL_ERROR_4;
+                    break;
             }
-
 
             break;
         }
 #endif
 
-//----------------------------------------------------------------------------
-// Client State
+        //----------------------------------------------------------------------------
+        // Client State
 
         if (protocol_id == PROTOCOL_CLIENT_BLOCK) {
 
@@ -772,9 +772,8 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// Server State
+        //----------------------------------------------------------------------------
+        // Server State
 
         if (protocol_id == PROTOCOL_SERVER_BLOCK) {
 
@@ -830,13 +829,12 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// Send/Receive data objects (opaque structures with serialised data saved to volatile memory)
+        //----------------------------------------------------------------------------
+        // Send/Receive data objects (opaque structures with serialised data saved to volatile memory)
 
         if (protocol_id == PROTOCOL_DATAOBJECT) {
 
-            DATA_OBJECT* data_object = (DATA_OBJECT*)str;
+            auto data_object = (DATA_OBJECT*)str;
 
             switch (direction) {
 
@@ -878,12 +876,10 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         }
 
-//----------------------------------------------------------------------------
-// Send/Receive data object files (opaque structures with serialised data saved to permanent file)
+        //----------------------------------------------------------------------------
+        // Send/Receive data object files (opaque structures with serialised data saved to permanent file)
 
         if (protocol_id == PROTOCOL_DATAOBJECT_FILE) {
-
-            data_block = (DATA_BLOCK*)str;
 
             switch (direction) {
 
@@ -901,16 +897,15 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         }
 
-
-//----------------------------------------------------------------------------
-// Legacy: Hierarchical or Meta Data Structures
+        //----------------------------------------------------------------------------
+        // Legacy: Hierarchical or Meta Data Structures
 
         if (protocol_id > PROTOCOL_OPAQUE_START && protocol_id < PROTOCOL_OPAQUE_STOP) {
             err = protocolXML2(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str);
         }
 
-//----------------------------------------------------------------------------
-// End of Error Trap Loop
+        //----------------------------------------------------------------------------
+        // End of Error Trap Loop
 
     } while (0);
 

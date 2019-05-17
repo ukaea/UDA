@@ -18,7 +18,9 @@
 #include <errno.h>
 
 #ifndef _WIN32
+
 #  include <unistd.h>
+
 #else
 #  include <Windows.h>
 #endif
@@ -74,7 +76,7 @@ char* hostid(char* host)
 #ifndef USEHOSTDOMAINNAME
     if ((gethostname(host, STRING_LENGTH - 1)) != 0) {
         char* env = getenv("HOSTNAME");
-        if (env != NULL) copyString(env, host, STRING_LENGTH);
+        if (env != nullptr) copyString(env, host, STRING_LENGTH);
     }
 #else
     if((gethostname(host, STRING_LENGTH-1)) == 0) {
@@ -89,7 +91,7 @@ char* hostid(char* host)
         }
     } else {
         char *env = getenv("HOSTNAME");
-        if(env != NULL) copyString(env, host, STRING_LENGTH);
+        if(env != nullptr) copyString(env, host, STRING_LENGTH);
     }
 #endif
 
@@ -97,7 +99,7 @@ char* hostid(char* host)
         addIdamError(CODEERRORTYPE, "hostid", 999, "Unable to Identify the Host Name");
     }
     return host;
-    
+
 #endif // _WIN32    
 
 }
@@ -113,14 +115,13 @@ void freeTokenList(char*** tokenListArray, int* tokenCount)
 {
     int i;
     char** list = *tokenListArray;
-    if (*tokenCount == 0 || *tokenListArray == NULL) return;
+    if (*tokenCount == 0 || *tokenListArray == nullptr) return;
     for (i = 0; i < *tokenCount; i++) {
-        free((void*) list[i]);
+        free((void*)list[i]);
     }
-    free((void*) list);
-    *tokenListArray = NULL;        // Reset to avoid double free.
+    free((void*)list);
+    *tokenListArray = nullptr;        // Reset to avoid double free.
     *tokenCount = 0;
-    return;
 }
 
 /*! Generate a lists of path elements tokens.
@@ -130,8 +131,7 @@ void freeTokenList(char*** tokenListArray, int* tokenCount)
 @param tokenList A pointer to an array of token strings. This must be freed using freeTokenList when no longer needed.
 returns A count of the tokens parsed from input.
 */
-
-int tokenList(char* delims, char* input, char*** tokenListArray)
+int tokenList(const char* delims, char* input, char*** tokenListArray)
 {
 
     int listCount = 0;
@@ -139,28 +139,28 @@ int tokenList(char* delims, char* input, char*** tokenListArray)
     char* item, * work;
     char** list;
 
-    *tokenListArray = NULL;
+    *tokenListArray = nullptr;
     if (strlen(delims) == 0 || strlen(input) == 0) return 0;
 
-    list = (char**) malloc(listSize * sizeof(char*));        // Array of strings (tokens)
+    list = (char**)malloc(listSize * sizeof(char*));        // Array of strings (tokens)
 
-    work = (char*) malloc((strlen(input) + 1) * sizeof(char));    // Copy the input string into a local work buffer
+    work = (char*)malloc((strlen(input) + 1) * sizeof(char));    // Copy the input string into a local work buffer
     strcpy(work, input);
 
     item = strtok(work, delims);    // First token
-    list[listCount] = (char*) malloc((strlen(item) + 1) * sizeof(char));
+    list[listCount] = (char*)malloc((strlen(item) + 1) * sizeof(char));
     strcpy(list[listCount++], item);
 
-    while ((item = strtok(NULL, delims)) != NULL) {
+    while ((item = strtok(nullptr, delims)) != nullptr) {
         if (listCount == listSize) {                // Expand List when required
             listSize = listSize + 10;
-            list = (char**) realloc((void*) (list), listSize * sizeof(char*));
+            list = (char**)realloc((void*)(list), listSize * sizeof(char*));
         }
-        list[listCount] = (char*) malloc((strlen(item) + 1) * sizeof(char));
+        list[listCount] = (char*)malloc((strlen(item) + 1) * sizeof(char));
         strcpy(list[listCount++], item);
     }
 
-    free((void*) work);
+    free((void*)work);
     *tokenListArray = list;
 
     return listCount;
@@ -220,13 +220,16 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
 
     char work[STRING_LENGTH];
 
-    char* token, * delimiters = ",:;";
+    const char* token = nullptr;
+    const char* delimiters = ",:;";
     char targets[MAXPATHSUBS][MAXPATHSUBSLENGTH];
     char substitutes[MAXPATHSUBS][MAXPATHSUBSLENGTH];
     int i, tcount = 0, scount = 0;
 
     int j, match, err = 0, lpath, k, kstart, subWildCount, targetWildCount;
-    char** targetList, ** pathList, ** subList;
+    char** targetList;
+    char** pathList;
+    char** subList;
     int targetCount = 0, pathCount = 0, subCount = 0;
 
     if (path[0] == '\0') return 0;                // No replacement
@@ -235,7 +238,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
     UDA_LOG(UDA_LOG_DEBUG, "pathReplacement: Testing for File Path Replacement\n");
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", path);
 
-// Parse targets
+    // Parse targets
 
     strcpy(work, environment->private_path_target);
     token = strtok(work, delimiters);
@@ -249,7 +252,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
         return err;
     }
 
-    while ((token = strtok(NULL, delimiters)) != NULL && tcount < MAXPATHSUBS) {
+    while ((token = strtok(nullptr, delimiters)) != nullptr && tcount < MAXPATHSUBS) {
         if (strlen(token) < MAXPATHSUBSLENGTH) {
             strcpy(targets[tcount++], token);
         } else {
@@ -260,7 +263,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
         }
     }
 
-// Parse substitutes
+    // Parse substitutes
 
     strcpy(work, environment->private_path_substitute);
     token = strtok(work, delimiters);
@@ -274,7 +277,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
         return err;
     }
 
-    while ((token = strtok(NULL, delimiters)) != NULL && scount < MAXPATHSUBS) {
+    while ((token = strtok(nullptr, delimiters)) != nullptr && scount < MAXPATHSUBS) {
         if (strlen(token) < MAXPATHSUBSLENGTH) {
             strcpy(substitutes[scount++], token);
         } else {
@@ -285,13 +288,12 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
         }
     }
 
-
     if (tcount == scount) {
 
         for (i = 0; i < tcount; i++) {
-            if (strchr(targets[i], '*') != NULL) {            // Wildcard found
+            if (strchr(targets[i], '*') != nullptr) {            // Wildcard found
 
-// list of target tokens
+                // list of target tokens
 
                 targetCount = tokenList(PATH_SEPARATOR, targets[i], &targetList);
                 pathCount = tokenList(PATH_SEPARATOR, path, &pathList);
@@ -302,7 +304,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
                     continue;                    // Impossible substitution, so ignore this target
                 }
 
-                if (strchr(substitutes[i], '*') != NULL) {        // Wildcard found
+                if (strchr(substitutes[i], '*') != nullptr) {        // Wildcard found
                     subCount = tokenList(PATH_SEPARATOR, substitutes[i], &subList);
                     subWildCount = 0;
                     targetWildCount = 0;
@@ -325,7 +327,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
                 match = 1;                    // Test path tokens against target tokens
                 for (j = 0; j < targetCount; j++) {
                     match = match && (STR_EQUALS(targetList[j], pathList[j]) || targetList[j][0] == '*');
-                    lpath = lpath + (int) strlen(pathList[j]) + 1;    // Find the split point
+                    lpath = lpath + (int)strlen(pathList[j]) + 1;    // Find the split point
                     if (!match) break;
                 }
 
@@ -357,7 +359,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
 
             } else {
 
-                if (strchr(substitutes[i], '*') != NULL) {        // Wildcard found in substitute string!
+                if (strchr(substitutes[i], '*') != nullptr) {        // Wildcard found in substitute string!
                     err = 999;
                     addIdamError(CODEERRORTYPE, "pathReplacement", err,
                                  "No wildcards are permitted in the substitute path unless matched by one in the target path.");
@@ -366,7 +368,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
                     return err;
                 }
 
-                lpath = (int) strlen(targets[i]);
+                lpath = (int)strlen(targets[i]);
                 if (!strncmp(path, targets[i], lpath)) {        // Test for straight replacement
                     strcpy(work, &path[lpath]);
                     strcpy(path, substitutes[i]);
@@ -401,29 +403,29 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
 int linkReplacement(char* path)
 {
 
-//----------------------------------------------------------------------------------------------
-// Is the path a symbolic link not seen by the server? If so make a substitution.
-//----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
+    // Is the path a symbolic link not seen by the server? If so make a substitution.
+    //----------------------------------------------------------------------------------------------
 
 #  ifdef _WIN32
-    return path != NULL; // No check for windows
+    return path != nullptr; // No check for windows
 #  else
 
     int err;
-    FILE* ph = NULL;
+    FILE* ph = nullptr;
     char* p;
     char cmd[STRING_LENGTH];
 
-//------------------------------------------------------------------------------------
-//! Dereference path links using a command pipe: Ignore any errors
-//
-// If the user has embedded linux commands within the source string, they will be exposed here
-// within the client's environment - not the server's.
+    //------------------------------------------------------------------------------------
+    //! Dereference path links using a command pipe: Ignore any errors
+    //
+    // If the user has embedded linux commands within the source string, they will be exposed here
+    // within the client's environment - not the server's.
 
     sprintf(cmd, "ls -l %s 2>&1;", path);
 
     errno = 0;
-    if ((ph = popen(cmd, "r")) == NULL) {
+    if ((ph = popen(cmd, "r")) == nullptr) {
         if (errno != 0) addIdamError(SYSTEMERRORTYPE, "linkReplacement", errno, "");
         err = 1;
         addIdamError(CODEERRORTYPE, "linkReplacement", err, "Unable to Dereference Symbolic links");
@@ -434,10 +436,10 @@ int linkReplacement(char* path)
     if (!feof(ph)) fgets(cmd, STRING_LENGTH - 1, ph);
     fclose(ph);
 
-//------------------------------------------------------------------------------------
-//! Extract the Dereferenced path. Accept only if it is Not a Relative path
+    //------------------------------------------------------------------------------------
+    //! Extract the Dereferenced path. Accept only if it is Not a Relative path
 
-    if ((p = strstr(cmd, " -> ")) != NULL) {
+    if ((p = strstr(cmd, " -> ")) != nullptr) {
         if (p[4] == '/') {
             strcpy(path, p + 4);
             convertNonPrintable2(path);
@@ -447,7 +449,7 @@ int linkReplacement(char* path)
     }
 
     return 0;
-    
+
 #  endif // _WIN32    
 }
 
@@ -491,7 +493,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 //
 //----------------------------------------------------------------------------------------------
 
-    char* fp = NULL, * fp1 = NULL, * env = NULL;
+    char* fp = nullptr, * fp1 = nullptr, * env = nullptr;
     char file[STRING_LENGTH];
 #ifndef NOHOSTPREFIX
     char host[STRING_LENGTH];
@@ -504,7 +506,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     char scratch[STRING_LENGTH];
     char netname[STRING_LENGTH];
     char* pcwd = cwd;
-    char* token = NULL;
+    char* token = nullptr;
 
     int lcwd = STRING_LENGTH - 1;
     int lpath, err = 0;
@@ -554,12 +556,12 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
     // Override compiler options
 
-    if ((env = getenv("UDA_SCRATCHNAME")) != NULL) {    // Check for Environment Variable
+    if ((env = getenv("UDA_SCRATCHNAME")) != nullptr) {    // Check for Environment Variable
         sprintf(scratch, "/%s/", env);
-        lscratch = (int) strlen(scratch);
+        lscratch = (int)strlen(scratch);
     }
 
-    if ((env = getenv("UDA_NETWORKNAME")) != NULL) {
+    if ((env = getenv("UDA_NETWORKNAME")) != nullptr) {
         strcpy(netname, env);
     }
 
@@ -568,14 +570,14 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
      references to a local scratch disk, e.g., ./ ../ ~ $ /scratch
     */
 
-    if ((lpath = (int) strlen(path)) == 0) return 0;        // Nothing to resolve
+    if ((lpath = (int)strlen(path)) == 0) return 0;        // Nothing to resolve
 
     // Test for necessary expansion
 
-    t1 = strstr(path, "./") == NULL;            // relative path?
-    t2 = strstr(path, "../") == NULL;            // relative path?
-    t3 = strchr(path, '~') == NULL;            // home path?
-    t4 = strchr(path, '$') == NULL;            // No imbedded Environment variable
+    t1 = strstr(path, "./") == nullptr;            // relative path?
+    t2 = strstr(path, "../") == nullptr;            // relative path?
+    t3 = strchr(path, '~') == nullptr;            // home path?
+    t4 = strchr(path, '$') == nullptr;            // No imbedded Environment variable
     t5 = path[0] == '/';                    // No Relative Directory path
     t6 = strncmp(path, scratch, lscratch) != 0;        // Not the Scratch directory
 
@@ -593,9 +595,9 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
 #ifdef SERVERELEMENTCHECK
     int t7,t8,t9;
-    t7 = strstr(path,environment->api_delim) != NULL;		// Pass request forward to another server
-    t8 = strchr(path,':') != NULL;				// Port number => Server
-    t9 = strchr(path,'(') != NULL && strchr(path,')') != NULL;	// Server Side Function
+    t7 = strstr(path,environment->api_delim) != nullptr;		// Pass request forward to another server
+    t8 = strchr(path,':') != nullptr;				// Port number => Server
+    t9 = strchr(path,'(') != nullptr && strchr(path,')') != nullptr;	// Server Side Function
 
     if(t7 || t8 || t9) return 0;					// Server host, protocol, and server side functions
 #endif
@@ -611,7 +613,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
     token = strtok(work, "/");
 
-    if (token != NULL) if (IsNumber(token)) return 0;    // Is the First token an integer number?
+    if (token != nullptr) if (IsNumber(token)) return 0;    // Is the First token an integer number?
 
     //------------------------------------------------------------------------------------------------------------------
     //! Identify the Current Working Directory
@@ -631,7 +633,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
             return err;
         }
 
-        if (pcwd == NULL) {
+        if (pcwd == nullptr) {
             err = 999;
             addIdamError(CODEERRORTYPE, "expand_path", err,
                          "Cannot resolve the Current Working Directory! Unable to resolve full file names.");
@@ -642,13 +644,13 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         //! Does the path NOT contain a path directory separator character => filename only so prepend the CWD and return
 
-        if ((fp = strrchr(path, '/')) == NULL) {        // Search backwards - extract filename
+        if ((fp = strrchr(path, '/')) == nullptr) {        // Search backwards - extract filename
             strcpy(work1, path);
             sprintf(path, "%s/%s", cwd, work1);        // prepend the CWD and return
             if ((err = linkReplacement(path)) != 0) return err;
             if ((err = pathReplacement(path, environment)) != 0) return err;
 
-            if ((t6 = (strncmp(path, scratch, lscratch) != 0))) return 0;    // Not the Scratch directory ?
+            if (strncmp(path, scratch, lscratch) != 0) return 0;    // Not the Scratch directory ?
             fp = strrchr(path, '/');                    // extract filename
         }
 
@@ -657,23 +659,23 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         //! Does the Path contain with an Environment variable (Not resolved by the function chdir!)
 
-        fp = NULL;
-        lpath = (int) strlen(path);
+        fp = nullptr;
+        lpath = (int)strlen(path);
         if (lpath > 0) fp = strchr(path + 1, '$');
 
-        if (path[0] == '$' || fp != NULL) {            // Search for a $ character
+        if (path[0] == '$' || fp != nullptr) {            // Search for a $ character
 
-            if (fp != NULL) {
+            if (fp != nullptr) {
                 strncpy(work, path, fp - path);
                 work[fp - path] = '\0';
 
-                if ((fp1 = strchr(fp, '/')) != NULL) {
+                if ((fp1 = strchr(fp, '/')) != nullptr) {
                     strncpy(work1, fp + 1, fp1 - fp - 1);
                     work1[fp1 - fp - 1] = '\0';
-                } else strcpy(work1, fp + 1);
+                } else { strcpy(work1, fp + 1); }
 
                 if ((env = getenv(work1)) !=
-                    NULL) {    // Check for Environment Variable: If not found then assume it's server side
+                    nullptr) {    // Check for Environment Variable: If not found then assume it's server side
                     if (env[0] == '/') {
                         strcpy(work1, env + 1);
                     } else {
@@ -686,14 +688,14 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
             } else {
                 work1[0] = '\0';
-                if ((fp = strchr(path, '/')) != NULL) {
+                if ((fp = strchr(path, '/')) != nullptr) {
                     strncpy(work, path + 1, fp - path - 1);
                     work[fp - path - 1] = '\0';
                     strcpy(work1, fp);
-                } else strcpy(work, path + 1);
+                } else { strcpy(work, path + 1); }
 
                 if ((env = getenv(work)) !=
-                    NULL) {    // Check for Environment Variable: If not found then assume it's server side
+                    nullptr) {    // Check for Environment Variable: If not found then assume it's server side
                     if (env[0] == '/') {
                         strcpy(work, env);
                     } else {
@@ -716,7 +718,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
             chdir(ocwd);            // Ensure the Original WD
             strcpy(path, opath);        // Return to the Original path name
             UDA_LOG(UDA_LOG_DEBUG, "Unable to identify the Directory of the file: %s\n"
-                    "The server will know if a true error exists: Plugin & Environment dependent", path);
+                                   "The server will know if a true error exists: Plugin & Environment dependent", path);
             return 0;
         }
 
@@ -733,7 +735,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
             return err;
         }
 
-        if (pcwd == NULL) {
+        if (pcwd == nullptr) {
             err = 998;
             addIdamError(CODEERRORTYPE, "expand_path", err,
                          "Cannot resolve the Current Working Directory! Unable to resolve full file names.");
@@ -744,7 +746,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         //! Return to the Original Working Directory
 
-        if ((err = chdir(ocwd)) != 0) {
+        if (chdir(ocwd) != 0) {
             err = 999;
             addIdamError(SYSTEMERRORTYPE, "expand_path", errno, "Unable to Return to the Working Directory!");
             addIdamError(CODEERRORTYPE, "expand_path", err, "Unable to resolve full file names.");
@@ -780,7 +782,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
         strcpy(work, path);
         if (!strncmp(work, scratch, lscratch)) {        // case sensistive
 
-            if ((env = getenv("HOSTNAME")) != NULL) {    // Check for a system Environment Variable
+            if ((env = getenv("HOSTNAME")) != nullptr) {    // Check for a system Environment Variable
                 strcpy(host, env);
             } else {
                 hostid(host);                // Identify the Name of the Current Workstation or Host
@@ -809,7 +811,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     err = pathReplacement(path, environment);
 
     return err;
-    
+
 #endif // _WIN32 
 }
 
@@ -841,10 +843,10 @@ char* pathid(char* path)
         return path;
     }
 
-    if ((p = getcwd(pwd, STRING_LENGTH - 1)) != NULL) {
+    if (getcwd(pwd, STRING_LENGTH - 1) != nullptr) {
         errno = 0;
         if (chdir(path) == 0) {
-            if ((p = getcwd(pwd, STRING_LENGTH - 1)) != NULL) {
+            if ((p = getcwd(pwd, STRING_LENGTH - 1)) != nullptr) {
                 strcpy(path, p);
                 chdir(pwd);
                 TrimString(path);

@@ -23,7 +23,7 @@ void initNameValueList(NAMEVALUELIST* nameValueList)
 {
     nameValueList->pairCount = 0;
     nameValueList->listSize = 0;
-    nameValueList->nameValue = NULL;
+    nameValueList->nameValue = nullptr;
 }
 
 void initRequestBlock(REQUEST_BLOCK* str)
@@ -60,7 +60,7 @@ void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname)
     str->version = version;
     str->timeout = TIMEOUT;
     if (getenv("UDA_TIMEOUT")) {
-        str->timeout = (int)strtol(getenv("UDA_TIMEOUT"), NULL, 10);
+        str->timeout = (int)strtol(getenv("UDA_TIMEOUT"), nullptr, 10);
     }
     str->pid = (int)getpid();
     strcpy(str->uid, clientname);        // Global userid
@@ -96,7 +96,7 @@ void initServerBlock(SERVER_BLOCK* str, int version)
     str->msg[0] = '\0';
     str->pid = (int)getpid();
     str->idamerrorstack.nerrors = 0;
-    str->idamerrorstack.idamerror = NULL;
+    str->idamerrorstack.idamerror = nullptr;
     str->OSName[0] = '\0';    // Operating System Name
     str->DOI[0] = '\0';    // Digital Object Identifier (server configuration)
 
@@ -121,18 +121,18 @@ void initDataBlock(DATA_BLOCK* str)
     str->error_param_n = 0;
     str->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
     str->opaque_count = 0;
-    str->opaque_block = NULL;
-    str->data = NULL;
-    str->synthetic = NULL;
-    str->errhi = NULL;
-    str->errlo = NULL;
+    str->opaque_block = nullptr;
+    str->data = nullptr;
+    str->synthetic = nullptr;
+    str->errhi = nullptr;
+    str->errlo = nullptr;
     memset(str->errparams, '\0', sizeof(str->errparams[0]) * MAXERRPARAMS);
-    str->dims = NULL;
-    str->data_system = NULL;
-    str->system_config = NULL;
-    str->data_source = NULL;
-    str->signal_rec = NULL;
-    str->signal_desc = NULL;
+    str->dims = nullptr;
+    str->data_system = nullptr;
+    str->system_config = nullptr;
+    str->data_source = nullptr;
+    str->signal_rec = nullptr;
+    str->signal_desc = nullptr;
     memset(str->data_units, '\0', STRING_LENGTH);
     memset(str->data_label, '\0', STRING_LENGTH);
     memset(str->data_desc, '\0', STRING_LENGTH);
@@ -143,8 +143,8 @@ void initDataBlock(DATA_BLOCK* str)
 void initDimBlock(DIMS* str)
 {
     int i;
-    str->dim = NULL;
-    str->synthetic = NULL;
+    str->dim = nullptr;
+    str->synthetic = nullptr;
     str->dim_n = 0;
     str->data_type = UDA_TYPE_FLOAT;
     str->error_type = UDA_TYPE_UNKNOWN;
@@ -156,11 +156,11 @@ void initDimBlock(DIMS* str)
     str->dim0 = 0.0E0;
     str->diff = 0.0E0;
     str->udoms = 0;
-    str->sams = NULL;
-    str->offs = NULL;
-    str->ints = NULL;
-    str->errhi = NULL;
-    str->errlo = NULL;
+    str->sams = nullptr;
+    str->offs = nullptr;
+    str->ints = nullptr;
+    str->errhi = nullptr;
+    str->errlo = nullptr;
     for (i = 0; i < MAXERRPARAMS; i++) {
         str->errparams[i] = 0.0;
     }
@@ -274,18 +274,18 @@ void initIdamPutDataBlock(PUTDATA_BLOCK* str)
     str->data_type = UDA_TYPE_UNKNOWN;
     str->rank = 0;
     str->count = 0;
-    str->shape = NULL;
-    str->data = NULL;
+    str->shape = nullptr;
+    str->data = nullptr;
     str->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
     str->opaque_count = 0;
-    str->opaque_block = NULL;
+    str->opaque_block = nullptr;
     str->blockNameLength = 0;
-    str->blockName = NULL;
+    str->blockName = nullptr;
 }
 
 void initIdamPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
 {
-    putDataBlockList->putDataBlock = NULL;
+    putDataBlockList->putDataBlock = nullptr;
     putDataBlockList->blockCount = 0;
     putDataBlockList->blockListSize = 0;
 }

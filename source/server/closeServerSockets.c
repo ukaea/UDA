@@ -15,15 +15,16 @@
 #include <clientserver/manageSockets.h>
 #include <clientserver/stringUtils.h>
 
-void closeNamedServerSocket(SOCKETLIST* socks, char* host, int port) {
+void closeNamedServerSocket(SOCKETLIST* socks, char* host, int port)
+{
     int i;
     for (i = 0; i < socks->nsocks; i++) {
         if (STR_IEQUALS(host, socks->sockets[i].host) && socks->sockets[i].port == port) {
-            if (socks->sockets[i].type == TYPE_IDAM_SERVER) close(socks->sockets[i].fh);        // Only Genuine Sockets!
+            if (socks->sockets[i].type == TYPE_UDA_SERVER) close(socks->sockets[i].fh);        // Only Genuine Sockets!
 #ifndef NOMDSPLUSPLUGIN
             if (socks->sockets[i].type == TYPE_MDSPLUS_SERVER) {
                 SOCKET mdssocket;
-                mdssocket = (SOCKET) socks->sockets[i].fh;
+                mdssocket = (SOCKET)socks->sockets[i].fh;
                 MdsSetSocket(&mdssocket);
                 MdsDisconnect();
             }
@@ -35,15 +36,16 @@ void closeNamedServerSocket(SOCKETLIST* socks, char* host, int port) {
     }
 }
 
-void closeServerSocket(SOCKETLIST* socks, int fh) {
+void closeServerSocket(SOCKETLIST* socks, int fh)
+{
     int i;
     for (i = 0; i < socks->nsocks; i++) {
         if (socks->sockets[i].fh == fh) {
-            if (socks->sockets[i].type == TYPE_IDAM_SERVER) close(fh);                // Only Genuine Sockets!
+            if (socks->sockets[i].type == TYPE_UDA_SERVER) close(fh);                // Only Genuine Sockets!
 #ifndef NOMDSPLUSPLUGIN
             if (socks->sockets[i].type == TYPE_MDSPLUS_SERVER) {
                 SOCKET mdssocket;
-                mdssocket = (SOCKET) fh;
+                mdssocket = (SOCKET)fh;
                 MdsSetSocket(&mdssocket);
                 MdsDisconnect();
             }
@@ -55,11 +57,11 @@ void closeServerSocket(SOCKETLIST* socks, int fh) {
     }
 }
 
-void closeServerSockets(SOCKETLIST* socks) {
+void closeServerSockets(SOCKETLIST* socks)
+{
     int i;
     for (i = 0; i < socks->nsocks; i++) closeServerSocket(socks, socks->sockets[i].fh);
-    if (socks->sockets != NULL) free((void*) socks->sockets);
+    if (socks->sockets != NULL) free((void*)socks->sockets);
     initSocketList(socks);
-    return;
 }
 

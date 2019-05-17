@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENTSERVER_COMPRESSDIM_H
-#define IDAM_CLIENTSERVER_COMPRESSDIM_H
+#ifndef UDA_CLIENTSERVER_COMPRESSDIM_H
+#define UDA_CLIENTSERVER_COMPRESSDIM_H
 
 #include "udaStructs.h"
 
@@ -10,7 +10,7 @@ extern "C" {
 int compressDim(DIMS * ddim);
 
 /*---------------------------------------------------------------
-* IDAM Dimensional Data Uncompressor
+* UDA Dimensional Data Uncompressor
 *
 * Input Arguments:	DIMS *		Dimensional Data
 *
@@ -30,4 +30,4 @@ int uncompressDim(DIMS * ddim);
 }
 #endif
 
-#endif // IDAM_CLIENTSERVER_COMPRESSDIM_H
+#endif // UDA_CLIENTSERVER_COMPRESSDIM_H
