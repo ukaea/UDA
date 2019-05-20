@@ -692,7 +692,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                     rc = rc && xdr_vector(xdrs, d, count, sizeof(long long), (xdrproc_t)xdr_int64_t);
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 0) {        // Element is a Scalar
-                        rc = rc && xdr_int64_t(xdrs, (long long *)p);
+                        rc = rc && xdr_int64_t(xdrs, (int64_t*)p);
                     } else {                            // Element is an Array of fixed size
                         rc = rc &&
                              xdr_vector(xdrs, (char*)p, userdefinedtype->compoundfield[j].count, sizeof(long long),
@@ -770,7 +770,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                     rc = rc && xdr_vector(xdrs, d, count, sizeof(unsigned long long), (xdrproc_t)xdr_uint64_t);
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 0) {        // Element is a Scalar
-                        rc = rc && xdr_uint64_t(xdrs, (unsigned long long *)p);
+                        rc = rc && xdr_uint64_t(xdrs, (uint64_t*)p);
                     } else {
                         // Element is an Array of fixed size
                         rc = rc && xdr_vector(xdrs, (char*)p, userdefinedtype->compoundfield[j].count,
