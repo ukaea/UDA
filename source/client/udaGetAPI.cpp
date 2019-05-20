@@ -171,13 +171,13 @@ int idamGetAPI(const char* data_object, const char* data_source)
     // Log all Arguments passed from Application
 
 #ifdef ARGSTACK
-    if(argstack == NULL) {
+    if(argstack == nullptr) {
         char tempFile[] = "/tmp/idamStackXXXXXX";
         mkstemp(tempFile);
         argstack = fopen(tempFile, environment.logmode);
-        if(argstack != NULL) fprintf(argstack, "idamGetAPI\n");
+        if(argstack != nullptr) fprintf(argstack, "idamGetAPI\n");
     }
-    if(argstack != NULL) {
+    if(argstack != nullptr) {
         fprintf(argstack,"[%s][%s]\n", data_object, data_source);
         fflush(argstack);
     }

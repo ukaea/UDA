@@ -76,15 +76,15 @@ int altRank = 0;                // Rank of alternative Signal/source (name mappi
 unsigned int privateFlags = 0;
 unsigned int XDRstdioFlag = 0;
 
-USERDEFINEDTYPELIST* userdefinedtypelist = NULL;            // List of all known User Defined Structure Types
-LOGMALLOCLIST* logmalloclist = NULL;                        // List of all Heap Allocations for Data
+USERDEFINEDTYPELIST* userdefinedtypelist = nullptr;            // List of all known User Defined Structure Types
+LOGMALLOCLIST* logmalloclist = nullptr;                        // List of all Heap Allocations for Data
 unsigned int lastMallocIndex = 0;                           // Malloc Log search index last value
 unsigned int* lastMallocIndexValue = &lastMallocIndex;;     // Preserve Malloc Log search index last value in GENERAL_STRUCT
 
 int protocolVersion = 7;
 int malloc_source = MALLOCSOURCENONE;
 
-NTREE* fullNTree = NULL;
+NTREE* fullNTree = nullptr;
 #endif // FATCLIENT
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
     int err, newHandle;
     int data_block_idx = -1;
-    DATA_BLOCK* data_block = NULL;
+    DATA_BLOCK* data_block = nullptr;
 
     int initServer, allocMetaHeap = 0;
     int serverside = 0;
@@ -194,11 +194,11 @@ int idamClient(REQUEST_BLOCK* request_block)
     static int startupStates;
 #endif
 
-    DATA_SYSTEM* data_system = NULL;
-    SYSTEM_CONFIG* system_config = NULL;
-    DATA_SOURCE* data_source = NULL;
-    SIGNAL* signal_rec = NULL;
-    SIGNAL_DESC* signal_desc = NULL;
+    DATA_SYSTEM* data_system = nullptr;
+    SYSTEM_CONFIG* system_config = nullptr;
+    DATA_SOURCE* data_source = nullptr;
+    SIGNAL* signal_rec = nullptr;
+    SIGNAL_DESC* signal_desc = nullptr;
 
     static int system_startup = 1;
 
@@ -207,7 +207,7 @@ int idamClient(REQUEST_BLOCK* request_block)
     time_t protocol_time;            // Time a Conversation Occured
     
     if (system_startup && getenv("UDA_TIMEOUT")) {
-        user_timeout = (int)strtol(getenv("UDA_TIMEOUT"), NULL, 10);
+        user_timeout = (int)strtol(getenv("UDA_TIMEOUT"), nullptr, 10);
     }
 
     //------------------------------------------------------------------------------
@@ -268,7 +268,7 @@ int idamClient(REQUEST_BLOCK* request_block)
                 if (cacheStatus == CACHE_NOT_OPENED) {
                     cache = idamOpenCache();
 
-                    if (cache == NULL) {
+                    if (cache == nullptr) {
                         cacheStatus = CACHE_NOT_AVAILABLE;
                         break;
                     }
@@ -280,7 +280,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
                 data = idamCacheRead(cache, request_block);
 
-                if (data != NULL) {	// Success
+                if (data != nullptr) {	// Success
 
            int lastHandle = -1;
                if((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) && (lastHandle = getIdamThreadLastHandle()) >= 0){
@@ -340,15 +340,15 @@ int idamClient(REQUEST_BLOCK* request_block)
             UDA_LOG(UDA_LOG_DEBUG, "idamClient: Server Age Limit Reached %ld\n", (long)age);
             UDA_LOG(UDA_LOG_DEBUG, "idamClient: Server Closed and New Instance Started\n");
 
-            idamClosedown(CLOSE_SOCKETS, NULL);  // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
+            idamClosedown(CLOSE_SOCKETS, nullptr);  // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
         } else {
             if (connectionOpen()) {          // Assume the Server is Still Alive
-                if (clientOutput->x_ops == NULL || clientInput->x_ops == NULL) {
+                if (clientOutput->x_ops == nullptr || clientInput->x_ops == nullptr) {
                     addIdamError(CODEERRORTYPE, "idamClient", 999, "XDR Streams are Closed!");
 
                     UDA_LOG(UDA_LOG_DEBUG, "idamClient: XDR Streams are Closed!\n");
 
-                    idamClosedown(CLOSE_SOCKETS, NULL);
+                    idamClosedown(CLOSE_SOCKETS, nullptr);
                     initServer = 1;
                 } else {
                     initServer = 0;
@@ -409,9 +409,9 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         // Update the Private Flags
 
-        char* env = NULL;
+        char* env = nullptr;
 
-        if ((env = getenv("UDA_PRIVATEFLAGS")) != NULL) {
+        if ((env = getenv("UDA_PRIVATEFLAGS")) != nullptr) {
             setIdamPrivateFlag(atoi(env));
         }
 
@@ -420,13 +420,13 @@ int idamClient(REQUEST_BLOCK* request_block)
         // Operating System Name
 
 
-        if ((env = getenv("OSTYPE")) != NULL) {
+        if ((env = getenv("OSTYPE")) != nullptr) {
             strcpy(client_block.OSName, env);
         }
 
         // Client's study DOI
 
-        if ((env = getenv("UDA_CLIENT_DOI")) != NULL) {
+        if ((env = getenv("UDA_CLIENT_DOI")) != nullptr) {
             strcpy(client_block.DOI, env);
         }
 
@@ -519,7 +519,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             int protocol_id = PROTOCOL_CLIENT_BLOCK;      // Send Client Block (proxy for authenticationStep = 6)
 
-            if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &client_block)) != 0) {
+            if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, &client_block)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamClient", err, "Protocol 10 Error (Client Block)");
 
                 UDA_LOG(UDA_LOG_DEBUG, "idamClient: Error Sending Client Block\n");
@@ -550,7 +550,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             protocol_id = PROTOCOL_SERVER_BLOCK;      // Receive Server Block: Server Aknowledgement (proxy for authenticationStep = 8)
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, &server_block)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, &server_block)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamClient", err, "Protocol 11 Error (Server Block #1)");
                 // Assuming the server_block is corrupted, replace with a clean copy to avoid concatonation problems
                 server_block.idamerrorstack.nerrors = 0;
@@ -651,7 +651,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         int protocol_id = PROTOCOL_CLIENT_BLOCK;      // Send Client Block
 
-        if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &client_block)) != 0) {
+        if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, &client_block)) != 0) {
             addIdamError(CODEERRORTYPE, "idamClient", err, "Protocol 10 Error (Client Block)");
             break;
         }
@@ -662,7 +662,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         protocol_id = PROTOCOL_REQUEST_BLOCK;     // This is what the Client Wants
 
-        if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, request_block)) != 0) {
+        if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, request_block)) != 0) {
             addIdamError(CODEERRORTYPE, "idamClient", err, "Protocol 1 Error (Request Block)");
             break;
         }
@@ -673,7 +673,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         if (request_block->put) {
             protocol_id = PROTOCOL_PUTDATA_BLOCK_LIST;
 
-            if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &(request_block->putDataBlockList))) != 0) {
+            if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, &(request_block->putDataBlockList))) != 0) {
                 addIdamError(CODEERRORTYPE, "idamClient", err,
                              "Protocol 1 Error (sending putDataBlockList from Request Block)");
                 break;
@@ -709,7 +709,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         protocol_id = PROTOCOL_SERVER_BLOCK;      // Receive Server Block: Server Aknowledgement
 
-        if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, &server_block)) != 0) {
+        if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, &server_block)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "idamClient: Protocol 11 Error (Server Block #2) = %d\n", err);
 
             addIdamError(CODEERRORTYPE, "idamClient", err, " Protocol 11 Error (Server Block #2)");
@@ -753,8 +753,8 @@ int idamClient(REQUEST_BLOCK* request_block)
             signal_rec = (SIGNAL*)malloc(sizeof(SIGNAL));
             signal_desc = (SIGNAL_DESC*)malloc(sizeof(SIGNAL_DESC));
 
-            if (data_system == NULL || system_config == NULL || data_source == NULL ||
-                signal_rec == NULL || signal_desc == NULL) {
+            if (data_system == nullptr || system_config == nullptr || data_source == nullptr ||
+                signal_rec == nullptr || signal_desc == nullptr) {
                 err = ERROR_ALLOCATING_META_DATA_HEAP;
                 addIdamError(CODEERRORTYPE, "idamClient", err, "Error Allocating Heap for Meta Data");
                 break;
@@ -771,7 +771,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             protocol_id = PROTOCOL_DATA_SYSTEM;
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, data_system)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, data_system)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamClient", err, "Protocol 4 Error (Data System)");
                 break;
             }
@@ -783,7 +783,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             protocol_id = PROTOCOL_SYSTEM_CONFIG;
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, system_config)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, system_config)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamClient", err, "Protocol 5 Error (System Config)");
                 break;
             }
@@ -795,7 +795,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             protocol_id = PROTOCOL_DATA_SOURCE;
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, data_source)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, data_source)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamClient", err, "Protocol 6 Error (Data Source)");
                 break;
             }
@@ -807,7 +807,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             protocol_id = PROTOCOL_SIGNAL;
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, signal_rec)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, signal_rec)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamClient", err, "Protocol 7 Error (Signal)");
                 break;
             }
@@ -819,7 +819,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             protocol_id = PROTOCOL_SIGNAL_DESC;
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, signal_desc)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, signal_desc)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamClient", err, "Protocol 8 Error (Signal Desc)");
                 break;
             }
@@ -870,7 +870,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         protocol_id = PROTOCOL_DATA_BLOCK;
 
-        if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, data_block)) != 0) {
+        if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, data_block)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "idamClient: Protocol 2 Error (Failure Receiving Data Block)\n");
 
             addIdamError(CODEERRORTYPE, "idamClient", err,
@@ -909,7 +909,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             UDA_LOG(UDA_LOG_DEBUG, "idamClient: Receiving Hierarchical Data Structure from Server\n");
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, data_block)) != 0) {
+            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, data_block)) != 0) {
                 addIdamError(CODEERRORTYPE, "idamClient", err,
                              "Client Side Protocol Error (Opaque Structure Type)");
                 break;
@@ -1003,13 +1003,13 @@ int idamClient(REQUEST_BLOCK* request_block)
     //------------------------------------------------------------------------------
     // Close all File Handles, Streams, sockets and Free Heap Memory
 
-    //rc = fflush(NULL); // save anything ... the user might not follow correct procedure!
+    //rc = fflush(nullptr); // save anything ... the user might not follow correct procedure!
 
     if (newHandle) {
         UDA_LOG(UDA_LOG_DEBUG, "idamClient: Handle %d\n", data_block_idx);
 
         if (err != 0 && !serverside) {
-            idamClosedown(CLOSE_SOCKETS, NULL);    // Close Socket & XDR Streams but Not Files
+            idamClosedown(CLOSE_SOCKETS, nullptr);    // Close Socket & XDR Streams but Not Files
         }
 
         if (err == 0 && (getIdamDataStatus(data_block_idx)) == MIN_STATUS && !get_bad) {
@@ -1059,7 +1059,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         UDA_LOG(UDA_LOG_DEBUG, "idamClient: Returning Error %d\n", err);
 
         if (err != 0 && !serverside) {
-            idamClosedown(CLOSE_SOCKETS, NULL);
+            idamClosedown(CLOSE_SOCKETS, nullptr);
         }
 
         concatIdamError(&server_block.idamerrorstack);
@@ -1079,7 +1079,7 @@ int idamClient(REQUEST_BLOCK* request_block)
     //------------------------------------------------------------------------------
     // If an error has occured: Close all File Handles, Streams, sockets and Free Heap Memory
 
-    //rc = fflush(NULL); // save anything ... the user might not follow correct procedure!
+    //rc = fflush(nullptr); // save anything ... the user might not follow correct procedure!
 
     if (newHandle) {
         UDA_LOG(UDA_LOG_DEBUG, "idamClient: Handle %d\n", data_block_idx);
@@ -1133,31 +1133,31 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #ifndef NOTGENERICENABLED
         if (allocMetaHeap) {
-            if (data_system != NULL) {
+            if (data_system != nullptr) {
                 free((void *) data_system);    // Free Unwanted Meta Data
             }
 
-            if (system_config != NULL) {
+            if (system_config != nullptr) {
                 free((void *) system_config);
             }
 
-            if (data_source != NULL) {
+            if (data_source != nullptr) {
                 free((void *) data_source);
             }
 
-            if (signal_rec != NULL) {
+            if (signal_rec != nullptr) {
                 free((void *) signal_rec);
             }
 
-            if (signal_desc != NULL) {
+            if (signal_desc != nullptr) {
                 free((void *) signal_desc);
             }
 
-            data_system = NULL;
-            system_config = NULL;
-            data_source = NULL;
-            signal_rec = NULL;
-            signal_desc = NULL;
+            data_system = nullptr;
+            system_config = nullptr;
+            data_source = nullptr;
+            signal_rec = nullptr;
+            signal_desc = nullptr;
         }
 #endif
 
@@ -1191,32 +1191,32 @@ void idamFree(int handle)
 
     DATA_BLOCK* data_block = getIdamDataBlock(handle);
 
-    if (data_block == NULL) return;
+    if (data_block == nullptr) return;
 
     // Free Hierarchical structured data first
 
     switch (data_block->opaque_type) {
         case UDA_OPAQUE_TYPE_XML_DOCUMENT: {
-            if (data_block->opaque_block != NULL) {
+            if (data_block->opaque_block != nullptr) {
                 free(data_block->opaque_block);
             }
 
             data_block->opaque_count = 0;
-            data_block->opaque_block = NULL;
+            data_block->opaque_block = nullptr;
             data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
             break;
         }
 
         case UDA_OPAQUE_TYPE_STRUCTURES: {
-            if (data_block->opaque_block != NULL) {
+            if (data_block->opaque_block != nullptr) {
                 GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)data_block->opaque_block;
 
-                if (general_block->userdefinedtypelist != NULL) {
+                if (general_block->userdefinedtypelist != nullptr) {
 #ifndef FATCLIENT
                     if (userdefinedtypelist == general_block->userdefinedtypelist) {  // Is this the current setting?
                         freeUserDefinedTypeList(userdefinedtypelist);
                         free((void*)userdefinedtypelist);
-                        userdefinedtypelist = NULL;
+                        userdefinedtypelist = nullptr;
                     } else {
                         freeUserDefinedTypeList(general_block->userdefinedtypelist);
                         free((void*)general_block->userdefinedtypelist);
@@ -1227,12 +1227,12 @@ void idamFree(int handle)
 #endif
                 }
 
-                if (general_block->logmalloclist != NULL) {
+                if (general_block->logmalloclist != nullptr) {
 #ifndef FATCLIENT
                     if (logmalloclist == general_block->logmalloclist) {
                         freeMallocLogList(logmalloclist);
                         free((void*)logmalloclist);
-                        logmalloclist = NULL;
+                        logmalloclist = nullptr;
                     } else {
                         freeMallocLogList(general_block->logmalloclist);
                         free((void*)general_block->logmalloclist);
@@ -1244,7 +1244,7 @@ void idamFree(int handle)
                 }
 
 #ifndef FATCLIENT
-                if (general_block->userdefinedtype != NULL) {
+                if (general_block->userdefinedtype != nullptr) {
                     freeUserDefinedType(general_block->userdefinedtype);
                     free((void*)general_block->userdefinedtype);
                 }
@@ -1253,39 +1253,39 @@ void idamFree(int handle)
 #endif
             }
 
-            data_block->opaque_block = NULL;
+            data_block->opaque_block = nullptr;
             data_block->data_type = UDA_TYPE_UNKNOWN;
             data_block->opaque_count = 0;
             data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
-            data_block->data = NULL;
+            data_block->data = nullptr;
 
             break;
         }
 
         case UDA_OPAQUE_TYPE_XDRFILE: {
-            if (data_block->opaque_block != NULL) {
+            if (data_block->opaque_block != nullptr) {
                 free(data_block->opaque_block);
             }
 
-            data_block->opaque_block = NULL;
+            data_block->opaque_block = nullptr;
             data_block->data_type = UDA_TYPE_UNKNOWN;
             data_block->opaque_count = 0;
             data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
-            data_block->data = NULL;
+            data_block->data = nullptr;
 
             break;
         }
 
         case UDA_OPAQUE_TYPE_XDROBJECT: {
-            if (data_block->opaque_block != NULL) {
+            if (data_block->opaque_block != nullptr) {
                 free(data_block->opaque_block);
             }
 
-            data_block->opaque_block = NULL;
+            data_block->opaque_block = nullptr;
             data_block->data_type = UDA_TYPE_UNKNOWN;
             data_block->opaque_count = 0;
             data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
-            data_block->data = NULL;
+            data_block->data = nullptr;
 
             break;
         }
@@ -1297,93 +1297,93 @@ void idamFree(int handle)
     rank = data_block->rank;
     ddims = data_block->dims;
 
-    if ((cptr = data_block->data) != NULL) {
+    if ((cptr = data_block->data) != nullptr) {
         free((void*)cptr);
-        data_block->data = NULL;    // Prevent another Free
+        data_block->data = nullptr;    // Prevent another Free
     }
 
-    if ((cptr = data_block->errhi) != NULL) {
+    if ((cptr = data_block->errhi) != nullptr) {
         free((void*)cptr);
-        data_block->errhi = NULL;
+        data_block->errhi = nullptr;
     }
 
-    if ((cptr = data_block->errlo) != NULL) {
+    if ((cptr = data_block->errlo) != nullptr) {
         free((void*)cptr);
-        data_block->errlo = NULL;
+        data_block->errlo = nullptr;
     }
 
-    if ((cptr = data_block->synthetic) != NULL) {
+    if ((cptr = data_block->synthetic) != nullptr) {
         free((void*)cptr);
-        data_block->synthetic = NULL;
+        data_block->synthetic = nullptr;
     }
 
-    if (data_block->data_system != NULL) {
+    if (data_block->data_system != nullptr) {
         free((void*)data_block->data_system);
-        data_block->data_system = NULL;
+        data_block->data_system = nullptr;
     }
 
-    if (data_block->system_config != NULL) {
+    if (data_block->system_config != nullptr) {
         free((void*)data_block->system_config);
-        data_block->system_config = NULL;
+        data_block->system_config = nullptr;
     }
 
-    if (data_block->data_source != NULL) {
+    if (data_block->data_source != nullptr) {
         free((void*)data_block->data_source);
-        data_block->data_source = NULL;
+        data_block->data_source = nullptr;
     }
 
-    if (data_block->signal_rec != NULL) {
+    if (data_block->signal_rec != nullptr) {
         free((void*)data_block->signal_rec);
-        data_block->signal_rec = NULL;
+        data_block->signal_rec = nullptr;
     }
 
-    if (data_block->signal_desc != NULL) {
+    if (data_block->signal_desc != nullptr) {
         free((void*)data_block->signal_desc);
-        data_block->signal_desc = NULL;
+        data_block->signal_desc = nullptr;
     }
 
-    if (ddims != NULL && rank > 0) {
+    if (ddims != nullptr && rank > 0) {
         for (i = 0; i < rank; i++) {
-            if ((cptr = data_block->dims[i].dim) != NULL) {
+            if ((cptr = data_block->dims[i].dim) != nullptr) {
                 free((void*)cptr);
             }
 
-            if ((cptr = data_block->dims[i].synthetic) != NULL) {
+            if ((cptr = data_block->dims[i].synthetic) != nullptr) {
                 free((void*)cptr);
             }
 
-            if ((cptr = data_block->dims[i].errhi) != NULL) {
+            if ((cptr = data_block->dims[i].errhi) != nullptr) {
                 free((void*)cptr);
             }
 
-            if ((cptr = data_block->dims[i].errlo) != NULL) {
+            if ((cptr = data_block->dims[i].errlo) != nullptr) {
                 free((void*)cptr);
             }
 
-            data_block->dims[i].dim = NULL;    // Prevent another Free
-            data_block->dims[i].synthetic = NULL;
-            data_block->dims[i].errhi = NULL;
-            data_block->dims[i].errlo = NULL;
+            data_block->dims[i].dim = nullptr;    // Prevent another Free
+            data_block->dims[i].synthetic = nullptr;
+            data_block->dims[i].errhi = nullptr;
+            data_block->dims[i].errlo = nullptr;
 
-            if ((cptr = (char*)data_block->dims[i].sams) != NULL) {
+            if ((cptr = (char*)data_block->dims[i].sams) != nullptr) {
                 free((void*)cptr);
             }
 
-            if ((cptr = data_block->dims[i].offs) != NULL) {
+            if ((cptr = data_block->dims[i].offs) != nullptr) {
                 free((void*)cptr);
             }
 
-            if ((cptr = data_block->dims[i].ints) != NULL) {
+            if ((cptr = data_block->dims[i].ints) != nullptr) {
                 free((void*)cptr);
             }
 
-            data_block->dims[i].sams = NULL;
-            data_block->dims[i].offs = NULL;
-            data_block->dims[i].ints = NULL;
+            data_block->dims[i].sams = nullptr;
+            data_block->dims[i].offs = nullptr;
+            data_block->dims[i].ints = nullptr;
         }
 
         free((void*)ddims);
-        data_block->dims = NULL;    // Prevent another Free
+        data_block->dims = nullptr;    // Prevent another Free
     }
 
     // closeIdamError(&server_block.idamerrorstack);
@@ -1417,8 +1417,8 @@ void idamFreeAll()
     acc_freeDataBlocks();
 
 #ifndef FATCLIENT
-    userdefinedtypelist = NULL;              // malloc'd within protocolXML
-    logmalloclist = NULL;
+    userdefinedtypelist = nullptr;              // malloc'd within protocolXML
+    logmalloclist = nullptr;
 #endif
 
     closeIdamError();
@@ -1434,13 +1434,13 @@ void idamFreeAll()
         client_block.timeout = 0;                             // Surrogate CLOSEDOWN instruction
         client_block.clientFlags = client_block.clientFlags | CLIENTFLAG_CLOSEDOWN;   // Direct CLOSEDOWN instruction
         protocol_id = PROTOCOL_CLIENT_BLOCK;
-        protocol2(clientOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, &client_block);
+        protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, &client_block);
         xdrrec_endofrecord(clientOutput, 1);
     }
 
 #endif // <========================== End of Client Server Code Only
 
-    idamClosedown(CLOSE_ALL, NULL);        // Close the Socket, XDR Streams and All Files
+    idamClosedown(CLOSE_ALL, nullptr);        // Close the Socket, XDR Streams and All Files
 
 }
 

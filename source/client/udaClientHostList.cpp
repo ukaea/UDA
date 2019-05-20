@@ -45,7 +45,7 @@ void udaClientFreeHostList()
 {
     HOSTLIST* list = udaClientGetHostList();
     free((void*)list->hosts);
-    list->hosts = NULL;
+    list->hosts = nullptr;
     list->count = 0;
     list->mcount = 0;
 }
@@ -98,7 +98,7 @@ char* udaClientGetHostName(int id)
     if (id >= 0 && id < list->count) {
         return list->hosts[id].hostname;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -108,7 +108,7 @@ char* udaClientGetHostAlias(int id)
     if (id >= 0 && id < list->count) {
         return list->hosts[id].hostalias;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -128,7 +128,7 @@ char* udaClientGetHostCertificatePath(int id)
     if (id >= 0 && id < list->count) {
         return list->hosts[id].certificate;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -138,7 +138,7 @@ char* udaClientGetHostKeyPath(int id)
     if (id >= 0 && id < list->count) {
         return list->hosts[id].key;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -148,7 +148,7 @@ char* udaClientGetHostCAPath(int id)
     if (id >= 0 && id < list->count) {
         return list->hosts[id].ca_certificate;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -188,18 +188,18 @@ void udaClientInitHostList()
 
     char buffer[HOST_STRING];
     char* config = getenv("UDA_CLIENT_HOSTS_CONFIG");    // Host configuration file
-    FILE* conf = NULL;
-    char* filename = "hosts.cfg";                // Default name
-    char* work = NULL, * next, * split;
+    FILE* conf = nullptr;
+    const char* filename = "hosts.cfg";                // Default name
+    char* work = nullptr, * next, * split;
 
     // Locate the hosts registration file
 
-    if (config == NULL) {
+    if (config == nullptr) {
 #ifdef _WIN32
         work = strdup(filename);			// Local directory
 #else 
         char *home = getenv("HOME");
-        if (home == NULL)return;
+        if (home == nullptr)return;
     
         int lstr = (int)strlen(filename) + (int)strlen(home) + 7;
         work = (char*)malloc(lstr * sizeof(char));
@@ -212,13 +212,13 @@ void udaClientInitHostList()
     // Read the hosts file
 
     errno = 0;
-    if ((conf = fopen(work, "r")) == NULL || errno != 0) {
-        if (conf != NULL) fclose(conf);
+    if ((conf = fopen(work, "r")) == nullptr || errno != 0) {
+        if (conf != nullptr) fclose(conf);
         free((void*)work);
         return;
     }
 
-    if (work != NULL) free((void*)work);
+    if (work != nullptr) free((void*)work);
 
     // organisation: sets of 1-6 records, empty records ignored, comment begins #
     // hostName must be the first record in a set
@@ -235,7 +235,7 @@ void udaClientInitHostList()
     
     int newHost = 0;
 
-    while (fgets(buffer, HOST_STRING, conf) != NULL) {
+    while (fgets(buffer, HOST_STRING, conf) != nullptr) {
         convertNonPrintable2(buffer);                // convert non printable chars to spaces
         LeftTrimString(TrimString(buffer));                // remove leading and trailing spaces
         do {
@@ -244,7 +244,7 @@ void udaClientInitHostList()
 
             next = buffer;
             split = strchr(next, ' ');                // Split the string on the first space character
-            if (split != NULL) split[0] = '\0';            // Extract the attribute name
+            if (split != nullptr) split[0] = '\0';            // Extract the attribute name
             LeftTrimString(TrimString(next));
 
             if (StringIEquals(next, "hostName")) {            // Trigger a new set of attributes
@@ -308,10 +308,10 @@ void udaClientInitHostList()
        
     // Extract and Strip the port number from the host name (a.b.c:9999, localhost:9999)
     for (i = 0; i < list->count; i++) {
-        char *p=NULL;
+        char *p=nullptr;
         if( (!strcmp(list->hosts[i].hostname, "localhost") || 
-	    (p = strchr(list->hosts[i].hostname, '.')) != NULL) && 
-	    (p = strrchr(list->hosts[i].hostname, ':')) != NULL && 
+	    (p = strchr(list->hosts[i].hostname, '.')) != nullptr) && 
+	    (p = strrchr(list->hosts[i].hostname, ':')) != nullptr && 
 	    p[1] != '\0'){
 	        list->hosts[i].port = atoi(&p[1]);
 		p[0] = '\0';

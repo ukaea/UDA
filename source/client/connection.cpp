@@ -15,18 +15,14 @@
 
 #ifdef __GNUC__
 #  ifndef _WIN32
-
 #    include <sys/socket.h>
 #    include <netinet/in.h>
 #    include <arpa/inet.h>
 #    include <netdb.h>
 #    include <netinet/tcp.h>
-
 #  endif
-
 #  include <unistd.h>
 #  include <strings.h>
-
 #else
 #  include <process.h>
 #  include <ws2tcpip.h>
@@ -124,8 +120,8 @@ int reconnect(ENVIRONMENT* environment)
 void localhostInfo(int* ai_family)
 {
     char addr_buf[64];
-    struct addrinfo* info = NULL, * result = NULL;
-    getaddrinfo("localhost", NULL, NULL, &info);
+    struct addrinfo* info = nullptr, * result = nullptr;
+    getaddrinfo("localhost", nullptr, nullptr, &info);
     result = info;    // Take the first linked list member
     if (result->ai_family == AF_INET) {
         *ai_family = AF_INET;
@@ -145,9 +141,9 @@ void setHints(struct addrinfo* hints, const char* hostname)
     hints->ai_socktype = SOCK_STREAM;
     hints->ai_flags = 0; //AI_CANONNAME | AI_V4MAPPED | AI_ALL | AI_ADDRCONFIG ;
     hints->ai_protocol = 0;
-    hints->ai_canonname = NULL;
-    hints->ai_addr = NULL;
-    hints->ai_next = NULL;
+    hints->ai_canonname = nullptr;
+    hints->ai_addr = nullptr;
+    hints->ai_next = nullptr;
 
     // Localhost? Which IP family? (AF_UNSPEC gives an 'Unknown Error'!)
 
@@ -162,7 +158,7 @@ void setHints(struct addrinfo* hints, const char* hostname)
         // How many '.' characters?
         char* p, * w = (char*)hostname;
         int lcount = 0, count = 1;
-        while ((p = strchr(w, '.')) != NULL) {
+        while ((p = strchr(w, '.')) != nullptr) {
             w = &p[1];
             count++;
         }
@@ -172,7 +168,7 @@ void setHints(struct addrinfo* hints, const char* hostname)
         char** list = (char**)malloc(count * sizeof(char*));
         char* work = strdup(hostname);
         w = work;
-        while ((p = strchr(w, '.')) != NULL && lcount < count) {
+        while ((p = strchr(w, '.')) != nullptr && lcount < count) {
             p[0] = '\0';
             list[lcount++] = strdup(w);
             w = &p[1];
@@ -203,19 +199,19 @@ int createConnection()
 
     if (max_socket_delay < 0) {
         char* env = getenv("UDA_MAX_SOCKET_DELAY");
-        if (env == NULL) {
+        if (env == nullptr) {
             max_socket_delay = 10;
         } else {
-            max_socket_delay = (int)strtol(env, NULL, 10);
+            max_socket_delay = (int)strtol(env, nullptr, 10);
         }
     }
 
     if (max_socket_attempts < 0) {
         char* env = getenv("UDA_MAX_SOCKET_ATTEMPTS");
-        if (env == NULL) {
+        if (env == nullptr) {
             max_socket_attempts = 3;
         } else {
-            max_socket_attempts = (int)strtol(env, NULL, 10);
+            max_socket_attempts = (int)strtol(env, nullptr, 10);
         }
     }
 
@@ -250,7 +246,7 @@ int createConnection()
 
     int hostId = udaClientFindHostByAlias(hostname);
     if (hostId >= 0) {
-        if ((hostname = udaClientGetHostName(hostId)) == NULL) {
+        if ((hostname = udaClientGetHostName(hostId)) == nullptr) {
             addIdamError(CODEERRORTYPE, __func__, -1, "The hostname is not recognised for the host alias provided!");
             return -1;
         }
@@ -289,7 +285,7 @@ int createConnection()
 
     // Resolve the Host and the IP protocol to be used (Hints not used)
 
-    struct addrinfo* result = NULL;
+    struct addrinfo* result = nullptr;
     struct addrinfo hints = { 0 };
     setHints(&hints, hostname);
 
@@ -365,7 +361,7 @@ int createConnection()
             strlen(environment->server_host2) > 0) {
 
             freeaddrinfo(result);
-            result = NULL;
+            result = nullptr;
 #ifndef _WIN32
             close(clientSocket);
 #else
@@ -379,7 +375,7 @@ int createConnection()
 
             hostId = udaClientFindHostByAlias(hostname);
             if (hostId >= 0) {
-                if ((hostname = udaClientGetHostName(hostId)) == NULL) {
+                if ((hostname = udaClientGetHostName(hostId)) == nullptr) {
                     addIdamError(CODEERRORTYPE, __func__, -1,
                                  "The hostname2 is not recognised for the host alias provided!");
                     return -1;
@@ -544,19 +540,19 @@ void closeConnection(int type)
 int clientWriteout(void* iohandle, char* buf, int count)
 {
 #ifndef _WIN32
-    void (* OldSIGPIPEHandler)();
+    void (* OldSIGPIPEHandler)(int);
 #endif
     int rc = 0;
     size_t BytesSent = 0;
 
     fd_set wfds;
-    struct timeval tv;
+    struct timeval tv = {};
 
     idamUpdateSelectParms(clientSocket, &wfds, &tv);
 
     errno = 0;
 
-    while (select(clientSocket + 1, NULL, &wfds, NULL, &tv) <= 0) {
+    while (select(clientSocket + 1, nullptr, &wfds, nullptr, &tv) <= 0) {
 
         if (errno == ECONNRESET || errno == ENETUNREACH || errno == ECONNREFUSED) {
             if (errno == ECONNRESET) {
@@ -623,7 +619,7 @@ int clientReadin(void* iohandle, char* buf, int count)
 {
     int rc;
     fd_set rfds;
-    struct timeval tv;
+    struct timeval tv = {};
 
     int maxloop = 0;
 
@@ -633,7 +629,7 @@ int clientReadin(void* iohandle, char* buf, int count)
 
     idamUpdateSelectParms(clientSocket, &rfds, &tv);
 
-    while ((select(clientSocket + 1, &rfds, NULL, NULL, &tv) <= 0) && maxloop++ < MAXLOOP) {
+    while ((select(clientSocket + 1, &rfds, nullptr, nullptr, &tv) <= 0) && maxloop++ < MAXLOOP) {
         idamUpdateSelectParms(clientSocket, &rfds, &tv);        // Keep trying ...
     }
 

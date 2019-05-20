@@ -39,12 +39,12 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
     int err = 0;
     REQUEST_BLOCK request_block;
     PUTDATA_BLOCK_LIST emptyPutDataBlockList;
-    PUTDATA_BLOCK_LIST* putDataBlockList = NULL;
+    PUTDATA_BLOCK_LIST* putDataBlockList = nullptr;
 
     //-------------------------------------------------------------------------
-    // Pass an empty structure rather than NULL (Caller is responsible for freeing)
+    // Pass an empty structure rather than nullptr (Caller is responsible for freeing)
 
-    if (inPutDataBlockList != NULL)
+    if (inPutDataBlockList != nullptr)
         putDataBlockList = inPutDataBlockList;
     else {
         putDataBlockList = &emptyPutDataBlockList;
@@ -61,8 +61,8 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
 /*         if (!idamGetAPICalledOnce) { */
 /* 	  LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
 /*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
-/*         logmalloclist = NULL; */
-/*         userdefinedtypelist = NULL; */
+/*         logmalloclist = nullptr; */
+/*         userdefinedtypelist = nullptr; */
 /*         int h = idamGetAPI("help::ping()", ""); */
 /*         idamFree(h); */
 /*         idamGetAPICalledOnce = 1; */
@@ -92,7 +92,7 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
     printRequestBlock(request_block);
 
     //-------------------------------------------------------------------------
-    // Pass an empty structure rather than NULL
+    // Pass an empty structure rather than nullptr
 
     //-------------------------------------------------------------------------
     // Data to Put to the server
@@ -114,12 +114,12 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     int err = 0;
     REQUEST_BLOCK request_block;
     PUTDATA_BLOCK emptyPutDataBlock;
-    PUTDATA_BLOCK* putData = NULL;
+    PUTDATA_BLOCK* putData = nullptr;
 
     //-------------------------------------------------------------------------
-    // Pass an empty structure rather than NULL (Caller is responsible for freeing)
+    // Pass an empty structure rather than nullptr (Caller is responsible for freeing)
 
-    if (inPutData != NULL)
+    if (inPutData != nullptr)
         putData = inPutData;
     else {
         putData = &emptyPutDataBlock;
@@ -137,8 +137,8 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 /*         UDA_LOG(LOG_DEBUG, "!idamGetAPICalledOnce\n"); */
 /*         LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
 /*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
-/*         logmalloclist = NULL; */
-/*         userdefinedtypelist = NULL; */
+/*         logmalloclist = nullptr; */
+/*         userdefinedtypelist = nullptr; */
 /*         int h = idamGetAPI("help::ping()", ""); */
 /*         idamFree(h); */
 /*         idamGetAPICalledOnce = 1; */

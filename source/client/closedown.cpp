@@ -44,10 +44,10 @@ int idamClosedown(int type, SOCKETLIST* socket_list)
 
 #ifndef FATCLIENT    // <========================== Client Server Code Only
 
-    if (clientInput->x_ops != NULL) xdr_destroy(clientInput);
-    if (clientOutput->x_ops != NULL) xdr_destroy(clientOutput);
-    clientOutput->x_ops = NULL;
-    clientInput->x_ops = NULL;
+    if (clientInput->x_ops != nullptr) xdr_destroy(clientInput);
+    if (clientOutput->x_ops != nullptr) xdr_destroy(clientOutput);
+    clientOutput->x_ops = nullptr;
+    clientInput->x_ops = nullptr;
 
     closeConnection(type);
 
@@ -58,9 +58,9 @@ int idamClosedown(int type, SOCKETLIST* socket_list)
     if (type == 1) {
 
 #ifndef NOTGENERICENABLED
-        if (gDBConnect != NULL) {
+        if (gDBConnect != nullptr) {
             PQfinish(gDBConnect);    // close the IDAM SQL Database connection
-            gDBConnect = NULL;
+            gDBConnect = nullptr;
         }
 #endif
         closeServerSockets(socket_list);    // Close the Socket Connections to Other Data Servers

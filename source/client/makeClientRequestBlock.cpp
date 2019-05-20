@@ -29,7 +29,7 @@ Interprets the API arguments and assembles a Request data structure.
 int makeClientRequestBlock(const char* data_object, const char* data_source, REQUEST_BLOCK* request_block)
 {
     int lstr, ldelim, err = 0;
-    char* test = NULL;
+    char* test = nullptr;
 
     //------------------------------------------------------------------------------------------------------------------
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
@@ -66,7 +66,7 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     */
 
     if (strcasecmp(environment->api_device, API_DEVICE) != 0 &&
-        strstr(request_block->source, request_block->api_delim) == NULL) {
+        strstr(request_block->source, request_block->api_delim) == nullptr) {
         lstr = (int)strlen(request_block->source) + (int)strlen(environment->api_device) +
                (int)strlen(request_block->api_delim);
         if (lstr >= STRING_LENGTH) {
@@ -79,7 +79,7 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     }
 
     if (strcasecmp(environment->api_archive, API_ARCHIVE) != 0 &&
-        strstr(request_block->signal, request_block->api_delim) == NULL) {
+        strstr(request_block->signal, request_block->api_delim) == nullptr) {
         lstr = (int)strlen(request_block->signal) + (int)strlen(environment->api_archive) +
                (int)strlen(request_block->api_delim);
         if (lstr >= STRING_LENGTH) {
@@ -120,15 +120,15 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     // XXXX::a=b,c=d
     // XXXX::/path/to/data/resource
 
-    if ((test = strstr(request_block->source, request_block->api_delim)) == NULL) {
-        if (strchr(request_block->source, '(') == NULL &&
-            strchr(request_block->source, ')') == NULL) {
+    if ((test = strstr(request_block->source, request_block->api_delim)) == nullptr) {
+        if (strchr(request_block->source, '(') == nullptr &&
+            strchr(request_block->source, ')') == nullptr) {
             // source is not a function call
             strcpy(request_block->path, request_block->source);
             expandFilePath(request_block->path, getIdamClientEnvironment());
         }
     } else {
-        if (strchr(test, '(') == NULL && strchr(test, ')') == NULL) {
+        if (strchr(test, '(') == nullptr && strchr(test, ')') == nullptr) {
             // Prefixed and not a function call
             ldelim = (int)strlen(request_block->api_delim);
             strcpy(request_block->path, &test[ldelim]);
@@ -143,7 +143,7 @@ int shotRequestTest(const char* source)
 {
     // Return 1 (TRUE) if the source is shot nuumber based , 0 (FALSE) otherwise
 
-    char* token = NULL;
+    char* token = nullptr;
     char work[STRING_LENGTH];
 
     if (source[0] == '\0') return 0;
@@ -159,7 +159,7 @@ int shotRequestTest(const char* source)
         
     strcpy(work, source);
     
-    if ((token = strtok(work, "/")) != NULL) {		// Tokenise the remaining string
+    if ((token = strtok(work, "/")) != nullptr) {		// Tokenise the remaining string
        if (IsNumber(token)) return 1;			// Is the First token an integer number?
     }
 

@@ -17,21 +17,21 @@ add_definitions( -DNO_GSL_LIB )
 # Sources
 
 set( SRC_FILES
-  udaGetAPI.c
-  clientAPI.c
-  clientMDS.c
-  accAPI.c
-  startup.c
-  closedown.c
-  connection.c
-  clientXDRStream.c
-  updateSelectParms.c
-  getEnvironment.c
-  generateErrors.c
-  makeClientRequestBlock.c
-  udaPutAPI.c
-  udaClient.c
-  udaClientHostList.c
+  udaGetAPI.cpp
+  clientAPI.cpp
+  clientMDS.cpp
+  accAPI.cpp
+  startup.cpp
+  closedown.cpp
+  connection.cpp
+  clientXDRStream.cpp
+  updateSelectParms.cpp
+  getEnvironment.cpp
+  generateErrors.cpp
+  makeClientRequestBlock.cpp
+  udaPutAPI.cpp
+  udaClient.cpp
+  udaClientHostList.cpp
 )
 
 set( HEADER_FILES

@@ -26,7 +26,6 @@
 
 int idamStartup(int reset)
 {
-
     static int start_status = 0;
 
     //---------------------------------------------------------------
@@ -37,9 +36,9 @@ int idamStartup(int reset)
     //----------------------------------------------------------------
     // Read Environment Variable Values (Held in a Global Structure)
 
-    const ENVIRONMENT* environment = NULL;
+    const ENVIRONMENT* environment = nullptr;
 
-    if (!start_status || environment == NULL) {
+    if (!start_status || environment == nullptr) {
         environment = getIdamClientEnvironment();
     }
 
@@ -78,7 +77,7 @@ int idamStartup(int reset)
     start_status = 1;
     errno = 0;
 
-    FILE* file = NULL;
+    FILE* file = nullptr;
 
     char idamFile[STRING_LENGTH];
 
@@ -90,7 +89,7 @@ int idamStartup(int reset)
     idamSetLogFile(UDA_LOG_INFO, file);
 
     if (errno != 0) {
-        addIdamError(SYSTEMERRORTYPE, "idamStartup", errno, "failed to open debug log");
+        addIdamError(SYSTEMERRORTYPE, __func__, errno, "failed to open debug log");
         idamCloseLogging();
         return -1;
     }
@@ -103,7 +102,7 @@ int idamStartup(int reset)
     }
 
     if (errno != 0) {
-        addIdamError(SYSTEMERRORTYPE, "idamStartup", errno, "failed to open error log");
+        addIdamError(SYSTEMERRORTYPE, __func__, errno, "failed to open error log");
         idamCloseLogging();
         return -1;
     }
