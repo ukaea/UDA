@@ -5,15 +5,13 @@
 #include <stdio.h>
 
 #ifdef __GNUC__
-
 #  include <strings.h>
-
 #elif defined(_WIN32)
 #  include <string.h>
 #  define strncasecmp _strnicmp
 #endif
 
-#ifndef strcasestr
+#if !defined(_GNU_SOURCE) && !defined(strcasestr)
 
 char* strcasestr(const char* haystack, const char* needle)
 {
@@ -275,7 +273,7 @@ int IsLegalFilePath(const char* str)
 /*
  * Allocating sprintf
  */
-int asprintf(char** strp, const char* fmt, ...)
+int asprintf(char** strp, const char* fmt, ...) noexcept
 {
     va_list vargs;
     va_start(vargs, fmt);

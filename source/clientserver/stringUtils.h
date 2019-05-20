@@ -72,7 +72,7 @@ char* convertNonPrintable2(char* str);
 int IsLegalFilePath(const char* str);
 
 #if !defined(asprintf)
-int asprintf(char** strp, const char* fmt, ...);
+int asprintf(char** strp, const char* fmt, ...) noexcept;
 #endif
 
 char** SplitString(const char* string, const char* delim);
