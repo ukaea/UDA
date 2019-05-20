@@ -1,5 +1,5 @@
-#ifndef IDAM_READUFILE_H
-#define IDAM_READUFILE_H
+#ifndef UDA_READUFILE_H
+#define UDA_READUFILE_H
 
 #include <clientserver/udaStructs.h>
 
@@ -16,5 +16,5 @@ int readUFile(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data
 
 #endif
 
-#endif // IDAM_READUFILE_H
+#endif // UDA_READUFILE_H
 

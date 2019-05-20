@@ -1,5 +1,5 @@
-#ifndef IDAM_SERVER_IDAMSERVERSTARTUP_H
-#define IDAM_SERVER_IDAMSERVERSTARTUP_H
+#ifndef UDA_SERVER_SERVERSTARTUP_H
+#define UDA_SERVER_SERVERSTARTUP_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,5 +11,5 @@ int startup(void);
 }
 #endif
 
-#endif // IDAM_SERVER_IDAMSERVERSTARTUP_H
+#endif // UDA_SERVER_SERVERSTARTUP_H
 

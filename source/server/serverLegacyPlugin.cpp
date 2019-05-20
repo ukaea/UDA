@@ -51,7 +51,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
         if (request_block->request == REQUEST_READ_FORMAT) {
             if (environment->private_path_target[0] != '\0') {
 
-                char* delimiters = ",:";
+                const char* delimiters = ",:";
                 char targets[10][256];
                 char substitutes[10][256];
                 int lpath, i, tcount = 0, scount = 0;

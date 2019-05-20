@@ -90,20 +90,20 @@ PGconn* openDatabase(const char* host, int port, const char* dbname, const char*
 //-------------------------------------------------------------
 // Connect to the Database Server
 
-    PGconn* DBConnect = NULL;
+    PGconn* DBConnect = nullptr;
 
-    if ((DBConnect = PQsetdbLogin(host, pgport, NULL, NULL, dbname, user, NULL)) == NULL) {
+    if ((DBConnect = PQsetdbLogin(host, pgport, nullptr, nullptr, dbname, user, nullptr)) == nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "SQL Server Connect Error\n");
         addIdamError(CODEERRORTYPE, "startSQL", 1, "SQL Server Connect Error");
         PQfinish(DBConnect);
-        return NULL;
+        return nullptr;
     }
 
     if (PQstatus(DBConnect) == CONNECTION_BAD) {
         UDA_LOG(UDA_LOG_DEBUG, "Bad SQL Server Connect Status\n");
         addIdamError(CODEERRORTYPE, "startSQL", 1, "Bad SQL Server Connect Status");
         PQfinish(DBConnect);
-        return NULL;
+        return nullptr;
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
@@ -117,13 +117,13 @@ PGconn* startSQL(const ENVIRONMENT* environment)
     const char* pghost = environment->sql_host;
     const char* dbname = environment->sql_dbname;
     const char* user = environment->sql_user;
-    char* pswrd = NULL;
+    char* pswrd = nullptr;
     char pgport[56];
 
-    char* pgoptions = NULL;    //"connect_timeout=5";
-    char* pgtty = NULL;
+    char* pgoptions = nullptr;    //"connect_timeout=5";
+    char* pgtty = nullptr;
 
-    PGconn* DBConnect = NULL;
+    PGconn* DBConnect = nullptr;
 
     sprintf(pgport, "%d", environment->sql_port);
 
@@ -138,18 +138,18 @@ PGconn* startSQL(const ENVIRONMENT* environment)
     //-------------------------------------------------------------
     // Connect to the Database Server
 
-    if ((DBConnect = PQsetdbLogin(pghost, pgport, pgoptions, pgtty, dbname, user, pswrd)) == NULL) {
+    if ((DBConnect = PQsetdbLogin(pghost, pgport, pgoptions, pgtty, dbname, user, pswrd)) == nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "SQL Server Connect Error\n");
         addIdamError(CODEERRORTYPE, "startSQL", 1, "SQL Server Connect Error");
         PQfinish(DBConnect);
-        return NULL;
+        return nullptr;
     }
 
     if (PQstatus(DBConnect) == CONNECTION_BAD) {
         UDA_LOG(UDA_LOG_DEBUG, "Bad SQL Server Connect Status\n");
         addIdamError(CODEERRORTYPE, "startSQL", 1, "Bad SQL Server Connect Status");
         PQfinish(DBConnect);
-        return NULL;
+        return nullptr;
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
@@ -162,13 +162,13 @@ PGconn* startSQL_CPF(const ENVIRONMENT* environment)
     const char* pghost = environment->sql_host;
     const char* dbname = environment->sql_dbname;
     const char* user = environment->sql_user;
-    char* pswrd = NULL;
+    char* pswrd = nullptr;
     char pgport[56];
 
-    char* pgoptions = NULL;    //"connect_timeout=5";
-    char* pgtty = NULL;
+    char* pgoptions = nullptr;    //"connect_timeout=5";
+    char* pgtty = nullptr;
 
-    PGconn* DBConnect = NULL;
+    PGconn* DBConnect = nullptr;
 
     sprintf(pgport, "%d", environment->sql_port);
 
@@ -183,16 +183,16 @@ PGconn* startSQL_CPF(const ENVIRONMENT* environment)
     //-------------------------------------------------------------
     // Connect to the Database Server
 
-    if ((DBConnect = PQsetdbLogin(pghost, pgport, pgoptions, pgtty, dbname, user, pswrd)) == NULL) {
+    if ((DBConnect = PQsetdbLogin(pghost, pgport, pgoptions, pgtty, dbname, user, pswrd)) == nullptr) {
         addIdamError(CODEERRORTYPE, "startSQL", 1, "SQL Server Connect Error");
         PQfinish(DBConnect);
-        return NULL;
+        return nullptr;
     }
 
     if (PQstatus(DBConnect) == CONNECTION_BAD) {
         addIdamError(CODEERRORTYPE, "startSQL", 1, "Bad SQL Server Connect Status");
         PQfinish(DBConnect);
-        return NULL;
+        return nullptr;
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "SQL Connection Options: %s\n", PQoptions(DBConnect));
@@ -207,7 +207,7 @@ void sqlReason(PGconn* DBConnect, char* reason_id, char* reason)
 
     char sql[MAXSQL];
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
     //-------------------------------------------------------------
     // Build SQL
@@ -217,7 +217,7 @@ void sqlReason(PGconn* DBConnect, char* reason_id, char* reason)
     strcpy(sql, "SELECT reason_id, description FROM Reason WHERE reason_id = ");
     strcat(sql, reason_id);
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         strcpy(reason, "Failure to Execute SQL: ");
         strcat(reason, PQresultErrorMessage(DBQuery));
         addIdamError(CODEERRORTYPE, "sqlReason", 1, PQresultErrorMessage(DBQuery));
@@ -244,7 +244,7 @@ void sqlResult(PGconn* DBConnect, char* run_id, char* desc)
     int nrows;
     char sql[MAXSQL];
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
     //-------------------------------------------------------------
     // Build SQL
@@ -254,7 +254,7 @@ void sqlResult(PGconn* DBConnect, char* run_id, char* desc)
     strcpy(sql, "SELECT run_id, description FROM Result WHERE run_id = ");
     strcat(sql, run_id);
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         strcpy(desc, "Failure to Execute SQL: ");
         strcat(desc, PQresultErrorMessage(DBQuery));
         addIdamError(CODEERRORTYPE, "sqlResult", 1, PQresultErrorMessage(DBQuery));
@@ -278,7 +278,7 @@ void sqlStatusDesc(PGconn* DBConnect, char* status_desc_id, char* desc)
     int nrows;
     char sql[MAXSQL];
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
     //-------------------------------------------------------------
     // Build SQL
@@ -288,7 +288,7 @@ void sqlStatusDesc(PGconn* DBConnect, char* status_desc_id, char* desc)
     strcpy(sql, "SELECT status_desc_id, description FROM Status_Desc WHERE status_desc_id = ");
     strcat(sql, status_desc_id);
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         strcpy(desc, "Failure to Execute SQL: ");
         strcat(desc, PQresultErrorMessage(DBQuery));
         addIdamError(CODEERRORTYPE, "sqlStatusDesc", 1, PQresultErrorMessage(DBQuery));
@@ -306,13 +306,13 @@ void sqlStatusDesc(PGconn* DBConnect, char* status_desc_id, char* desc)
 }
 
 
-void sqlMeta(PGconn* DBConnect, char* table, char* meta_id, char* xml, char* creation)
+void sqlMeta(PGconn* DBConnect, const char* table, char* meta_id, char* xml, char* creation)
 {
 
     int nrows, ncols;
     char sql[MAXSQL];
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
     //-------------------------------------------------------------
     // Test for the Default Value of the Meta Table Primary Key
@@ -330,7 +330,7 @@ void sqlMeta(PGconn* DBConnect, char* table, char* meta_id, char* xml, char* cre
     strcat(sql, " WHERE meta_id = ");
     strcat(sql, meta_id);
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         strcpy(xml, "<ERROR>Failure to Execute SQL: ");
         strcat(xml, PQresultErrorMessage(DBQuery));
         strcat(xml, "</ERROR>");
@@ -368,7 +368,7 @@ static int preventSQLInjection(PGconn* DBConnect, char** from)
     char* to = (char*)malloc((2 * fromCount + 1) * sizeof(char));
     PQescapeStringConn(DBConnect, to, *from, fromCount, &err);
     if (err != 0) {
-        if (to != NULL) free((void*)to);
+        if (to != nullptr) free((void*)to);
         return 1;
     }
     free((void*)*from);
@@ -408,7 +408,7 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
     int nrows, ncols, j, rc = 0, cost, lstr, prefixAdded = 0;
     char* us, * pus;
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
     struct timeval tv_start, tv_end;
 
@@ -422,7 +422,7 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
     char* signal = (char*)malloc((strlen(originalSignal) + 1) * sizeof(char));
     strcpy(signal, originalSignal);
     if (preventSQLInjection(DBConnect, &signal)) {
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlSignalDescMap", err, "Unable to Escape the signal name!");
         return 0;
@@ -431,8 +431,8 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
     char* tpass = (char*)malloc((strlen(originalTPass) + 1) * sizeof(char));
     strcpy(tpass, originalTPass);
     if (preventSQLInjection(DBConnect, &tpass)) {
-        if (signal != NULL) free((void*)signal);
-        if (tpass != NULL) free((void*)tpass);
+        if (signal != nullptr) free((void*)signal);
+        if (tpass != nullptr) free((void*)tpass);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlSignalDescMap", err, "Unable to Escape the tpass string!");
         return 0;
@@ -499,7 +499,7 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
 
     // Beginning '/' or 'transp/' ?
 
-    pus = NULL;
+    pus = nullptr;
     if (signal[0] != '/' && STR_EQUALS(us, "TRANSP/")) {
         prefixAdded = 1;
         pus = (char*)malloc(lstr + 1);
@@ -520,7 +520,7 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
                 " (range_start>0 AND range_start<=%d AND range_stop>0 AND range_stop>=%d)))"
                 " ORDER BY rank DESC;",
                 us, pus, us, exp_number, exp_number, exp_number, exp_number);
-        if (pus != NULL) free((void*)pus);
+        if (pus != nullptr) free((void*)pus);
     } else {
         sprintf(sql, "SELECT signal_desc_id, meta_id, rank, range_start, range_stop, type, source_alias, "
                 "signal_alias, signal_name, generic_name, description, signal_class, "
@@ -536,24 +536,24 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
 
     free((void*)us);
 
-    cost = gettimeofday(&tv_start, NULL);
+    cost = gettimeofday(&tv_start, nullptr);
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
     //-------------------------------------------------------------
     // Execute SQL
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlSignalDescMap", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
-        if (signal != NULL) free((void*)signal);
-        if (tpass != NULL) free((void*)tpass);
+        if (signal != nullptr) free((void*)signal);
+        if (tpass != nullptr) free((void*)tpass);
         return rc;
     }
 
     nrows = PQntuples(DBQuery);        // Number of Rows
     ncols = PQnfields(DBQuery);        // Number of Columns
 
-    cost = gettimeofday(&tv_end, NULL);
+    cost = gettimeofday(&tv_end, nullptr);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
     UDA_LOG(UDA_LOG_DEBUG, "+++ sqlSignalDescMap +++\n");
     UDA_LOG(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
@@ -564,8 +564,8 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
 
     if (nrows == 0) {        // Nothing matched!
         PQclear(DBQuery);
-        if (signal != NULL) free((void*)signal);
-        if (tpass != NULL) free((void*)tpass);
+        if (signal != nullptr) free((void*)signal);
+        if (tpass != nullptr) free((void*)tpass);
         return rc;
     }
 
@@ -616,17 +616,17 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
             sprintf(sql, "INSERT INTO Signal_Desc_Exception (exception_id, nrows, signal, exp_number, sql) VALUES("
                     "nextval('signal_desc_exception_id_seq'), %d, '%s', %d, '%s');", nrows, signal, exp_number, sqle);
             PQclear(DBQuery);
-            if ((DBQuery = PQexec(DBConnect, sql)) == NULL || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
+            if ((DBQuery = PQexec(DBConnect, sql)) == nullptr || PQresultStatus(DBQuery) != PGRES_COMMAND_OK) {
                 addIdamError(CODEERRORTYPE, "sqlSignalDescMap", 1, PQresultErrorMessage(DBQuery));
             }
             PQclear(DBQuery);
-            if (signal != NULL) free((void*)signal);
-            if (tpass != NULL) free((void*)tpass);
+            if (signal != nullptr) free((void*)signal);
+            if (tpass != nullptr) free((void*)tpass);
             return 0;
         }
     }
 
-    cost = gettimeofday(&tv_end, NULL);
+    cost = gettimeofday(&tv_end, nullptr);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
     UDA_LOG(UDA_LOG_DEBUG, "+++ sqlSignalDescMap +++\n");
     UDA_LOG(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
@@ -693,8 +693,8 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
             initSignalDesc(&signal_desc_map);
 
             if (!sqlMapData(DBConnect, signal_desc->signal_desc_id, exp_number, &signal_desc_map)) {
-                if (signal != NULL) free((void*)signal);
-                if (tpass != NULL) free((void*)tpass);
+                if (signal != nullptr) free((void*)signal);
+                if (tpass != nullptr) free((void*)tpass);
                 return 0;                    // Signal Description Record
             }
 
@@ -707,14 +707,14 @@ int sqlSignalDescMap(PGconn* DBConnect, char* originalSignal, int exp_number, in
         PQclear(DBQuery);
     }
 
-    gettimeofday(&tv_end, NULL);
+    gettimeofday(&tv_end, nullptr);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
     UDA_LOG(UDA_LOG_DEBUG, "+++ sqlSignalDescMap +++\n");
     UDA_LOG(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
     tv_start = tv_end;
 
-    if (signal != NULL) free((void*)signal);
-    if (tpass != NULL) free((void*)tpass);
+    if (signal != nullptr) free((void*)signal);
+    if (tpass != nullptr) free((void*)tpass);
 
     return rc;
 }
@@ -727,10 +727,10 @@ int sqlDataSourceMap(PGconn* DBConnect, int exp_number, int pass, char* original
 
     int nrows, ncols, j, cost, rc = 0, err;
     int status_reason_impact_code;
-    char* latest = NULL;
+    char* latest = nullptr;
     char maxpass[MAXKEY] = "";
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
     struct timeval tv_start, tv_end;
 
@@ -743,9 +743,8 @@ int sqlDataSourceMap(PGconn* DBConnect, int exp_number, int pass, char* original
     char* tpass = (char*)malloc((strlen(originalTPass) + 1) * sizeof(char));
     strcpy(tpass, originalTPass);
     if (preventSQLInjection(DBConnect, &tpass)) {
-        if (tpass != NULL) free((void*)tpass);
-        int err = 999;
-        addIdamError(CODEERRORTYPE, "sqlDataSourceMap", err, "Unable to Escape the tpass string!");
+        if (tpass != nullptr) free((void*)tpass);
+        addIdamError(CODEERRORTYPE, "sqlDataSourceMap", 999, "Unable to Escape the tpass string!");
         return 0;
     }
 
@@ -759,31 +758,31 @@ int sqlDataSourceMap(PGconn* DBConnect, int exp_number, int pass, char* original
 
     if (*source_id == 0 && strlen(tpass) > 0) {
         if (pass == -1) {
-            if ((latest = (char*)strcasestr(tpass, "LATEST")) != NULL) {
+            if ((latest = (char*)strcasestr(tpass, "LATEST")) != nullptr) {
                 if (strlen(latest) > 6) {
                     if (!sqlLatestPass(DBConnect, signal_desc->source_alias, signal_desc->type, exp_number, maxpass)) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "sqlDataSourceMap", err,
                                      "Unable to Identify the Latest (i.e. Maximum) Pass Number");
-                        if (tpass != NULL) free((void*)tpass);
+                        if (tpass != nullptr) free((void*)tpass);
                         return 0;
                     }
                     latest = latest + 6;        // Only need the remaining text for the SQL query
                 } else {
-                    latest = NULL;            // Latest is the default behaviour so no need to do anything!
+                    latest = nullptr;            // Latest is the default behaviour so no need to do anything!
                 }
             } else {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "sqlDataSourceMap", err,
                              "The Pass String does not contain the LATEST directive when one is expected - Please correct");
-                if (tpass != NULL) free((void*)tpass);
+                if (tpass != nullptr) free((void*)tpass);
                 return 0;
             }
         } else {
             err = 999;
             addIdamError(CODEERRORTYPE, "sqlDataSourceMap", err,
                          "The Pass number requested is Unclear - Please Correct");
-            if (tpass != NULL) free((void*)tpass);
+            if (tpass != nullptr) free((void*)tpass);
             return 0;
         }
     }
@@ -802,7 +801,7 @@ int sqlDataSourceMap(PGconn* DBConnect, int exp_number, int pass, char* original
         if (pass > -1) {
             sprintf(sql0, "AND pass = %d", pass);
         } else {
-            if (latest != NULL) sprintf(sql0, "AND pass = %s%s", maxpass, latest);
+            if (latest != nullptr) sprintf(sql0, "AND pass = %s%s", maxpass, latest);
         }
         if (sql0[0] != '\0') {
             strcat(sql, sql0);
@@ -819,23 +818,23 @@ int sqlDataSourceMap(PGconn* DBConnect, int exp_number, int pass, char* original
     //-------------------------------------------------------------
     // Test Performance
 
-    cost = gettimeofday(&tv_start, NULL);
+    cost = gettimeofday(&tv_start, nullptr);
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
     //-------------------------------------------------------------
     // Execute SQL
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlDataSourceMap", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
-        if (tpass != NULL) free((void*)tpass);
+        if (tpass != nullptr) free((void*)tpass);
         return rc;
     }
 
     nrows = PQntuples(DBQuery);        // Number of Rows
     ncols = PQnfields(DBQuery);        // Number of Columns
 
-    cost = gettimeofday(&tv_end, NULL);
+    cost = gettimeofday(&tv_end, nullptr);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
     UDA_LOG(UDA_LOG_DEBUG, "+++ sqlDataSourceMap +++\n");
     UDA_LOG(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
@@ -914,7 +913,7 @@ int sqlDataSourceMap(PGconn* DBConnect, int exp_number, int pass, char* original
     }
 
     PQclear(DBQuery);
-    if (tpass != NULL) free((void*)tpass);
+    if (tpass != nullptr) free((void*)tpass);
 
     return rc;
 }
@@ -928,12 +927,13 @@ int sqlSignal(PGconn* DBConnect, DATA_SOURCE* data_source, SIGNAL_DESC* signal_d
     int nrows, ncols, j, rc = 0, cost;
     int status_reason_impact_code;
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
-    struct timeval tv_start, tv_end;
+    struct timeval tv_start = {};
+    struct timeval tv_end = {};
 
     char sql[MAXSQL];
-    char* sql0 = "source_id,signal_desc_id,meta_id,status_desc_id,signal_status,status_reason_impact_code,creation,modified";
+    const char* sql0 = "source_id,signal_desc_id,meta_id,status_desc_id,signal_status,status_reason_impact_code,creation,modified";
 
     //-------------------------------------------------------------
     // Initialise Returned Structure
@@ -949,13 +949,13 @@ int sqlSignal(PGconn* DBConnect, DATA_SOURCE* data_source, SIGNAL_DESC* signal_d
     //-------------------------------------------------------------
     // Test Performance
 
-    cost = gettimeofday(&tv_start, NULL);
+    cost = gettimeofday(&tv_start, nullptr);
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
     //-------------------------------------------------------------
     // Execute SQL
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlSignal", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
         return rc;
@@ -964,7 +964,7 @@ int sqlSignal(PGconn* DBConnect, DATA_SOURCE* data_source, SIGNAL_DESC* signal_d
     nrows = PQntuples(DBQuery);        // Number of Rows
     ncols = PQnfields(DBQuery);        // Number of Columns
 
-    cost = gettimeofday(&tv_end, NULL);
+    cost = gettimeofday(&tv_end, nullptr);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
     UDA_LOG(UDA_LOG_DEBUG, "+++ sqlSignal +++\n");
     UDA_LOG(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
@@ -1044,7 +1044,7 @@ int sqlGeneric(PGconn* DBConnect, char* originalSignal, int exp_number, int pass
     char* signal = (char*)malloc((strlen(originalSignal) + 1) * sizeof(char));
     strcpy(signal, originalSignal);
     if (preventSQLInjection(DBConnect, &signal)) {
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlGeneric", err, "Unable to Escape the signal name!");
         return 0;
@@ -1053,8 +1053,8 @@ int sqlGeneric(PGconn* DBConnect, char* originalSignal, int exp_number, int pass
     char* tpass = (char*)malloc((strlen(originalTPass) + 1) * sizeof(char));
     strcpy(tpass, originalTPass);
     if (preventSQLInjection(DBConnect, &tpass)) {
-        if (signal != NULL) free((void*)signal);
-        if (tpass != NULL) free((void*)tpass);
+        if (signal != nullptr) free((void*)signal);
+        if (tpass != nullptr) free((void*)tpass);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlGeneric", err, "Unable to Escape the tpass string!");
         return 0;
@@ -1063,14 +1063,14 @@ int sqlGeneric(PGconn* DBConnect, char* originalSignal, int exp_number, int pass
     //-------------------------------------------------------------
     // Initialise Structures
 
-    cost = gettimeofday(&tv_start, NULL);
+    cost = gettimeofday(&tv_start, nullptr);
 
     //-------------------------------------------------------------
     // Locate the Data Source, Signal Description and the Signal Records
 
     rc1 = sqlSignalDescMap(DBConnect, signal, exp_number, pass, tpass, &source_id, signal_desc);
 
-    cost = gettimeofday(&tv_end, NULL);
+    cost = gettimeofday(&tv_end, nullptr);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
     UDA_LOG(UDA_LOG_DEBUG, "+++ sqlGeneric +++\n");
     UDA_LOG(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
@@ -1092,7 +1092,7 @@ int sqlGeneric(PGconn* DBConnect, char* originalSignal, int exp_number, int pass
         rc2 = sqlDataSourceMap(DBConnect, exp_number, pass, tpass, &source_id, data_source, signal_desc);
     }
 
-    cost = gettimeofday(&tv_end, NULL);
+    cost = gettimeofday(&tv_end, nullptr);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
     UDA_LOG(UDA_LOG_DEBUG, "+++ sqlGeneric +++\n");
     UDA_LOG(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
@@ -1100,7 +1100,7 @@ int sqlGeneric(PGconn* DBConnect, char* originalSignal, int exp_number, int pass
 
     if (rc1 && rc2) rc3 = sqlSignal(DBConnect, data_source, signal_desc, signal_str);
 
-    cost = gettimeofday(&tv_end, NULL);
+    cost = gettimeofday(&tv_end, nullptr);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
     UDA_LOG(UDA_LOG_DEBUG, "+++ sqlGeneric +++\n");
     UDA_LOG(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
@@ -1142,13 +1142,13 @@ int sqlGeneric(PGconn* DBConnect, char* originalSignal, int exp_number, int pass
 
     if (!rc && !rc1) rc = sqlDocument(DBConnect, signal, exp_number, pass, signal_desc, data_source);
 
-    cost = gettimeofday(&tv_end, NULL);
+    cost = gettimeofday(&tv_end, nullptr);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
     UDA_LOG(UDA_LOG_DEBUG, "+++ sqlGeneric +++\n");
     UDA_LOG(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
 
-    if (signal != NULL) free((void*)signal);
-    if (tpass != NULL) free((void*)tpass);
+    if (signal != nullptr) free((void*)signal);
+    if (tpass != nullptr) free((void*)tpass);
 
     return rc;
 }
@@ -1167,7 +1167,7 @@ int sqlNoIdamSignal(PGconn* DBConnect, char* originalSignal, int exp_number, int
     int netcdf = 0;        // Assume the data is either IDA or netCDF4
     char prefix[4];
     char sql[MAXSQL];
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
     static int noRecursion = 0;    // Disable recursive calls
 
     //-------------------------------------------------------------
@@ -1176,7 +1176,7 @@ int sqlNoIdamSignal(PGconn* DBConnect, char* originalSignal, int exp_number, int
     char* signal = (char*)malloc((strlen(originalSignal) + 1) * sizeof(char));
     strcpy(signal, originalSignal);
     if (preventSQLInjection(DBConnect, &signal)) {
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlNoIdamSignal", err, "Unable to Escape the signal name!");
         return 0;
@@ -1185,8 +1185,8 @@ int sqlNoIdamSignal(PGconn* DBConnect, char* originalSignal, int exp_number, int
     char* tpass = (char*)malloc((strlen(originalTPass) + 1) * sizeof(char));
     strcpy(tpass, originalTPass);
     if (preventSQLInjection(DBConnect, &tpass)) {
-        if (signal != NULL) free((void*)signal);
-        if (tpass != NULL) free((void*)tpass);
+        if (signal != nullptr) free((void*)signal);
+        if (tpass != nullptr) free((void*)tpass);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlNoIdamSignal", err, "Unable to Escape the tpass string!");
         return 0;
@@ -1265,7 +1265,7 @@ int sqlNoIdamSignal(PGconn* DBConnect, char* originalSignal, int exp_number, int
             if (tpass[0] != '\0') rc = 0;    // Unable to resolve tpass field
         } else {
             char* p = strchr(&signal[1], '/');
-            if (p != NULL) {
+            if (p != nullptr) {
                 int lp = p - &signal[1];
                 if (signal[0] == '/') {
                     strncpy(prefix, &signal[1], lp);    // Probably netCDF4	Macro FORMAT_MODERN
@@ -1274,7 +1274,7 @@ int sqlNoIdamSignal(PGconn* DBConnect, char* originalSignal, int exp_number, int
                     if (tpass[0] != '\0') {
                         rc = 0;            // Unable to resolve tpass field
                     } else {
-                        if ((p = strrchr(signal, '.')) != NULL) {    // Variable level attribute
+                        if ((p = strrchr(signal, '.')) != nullptr) {    // Variable level attribute
                             char* attribute = (char*)malloc((strlen(p) + 1) * sizeof(char));
                             strcpy(attribute, &p[1]);
                             p[0] = '\0';                // Remove attribute
@@ -1358,11 +1358,11 @@ int sqlNoIdamSignal(PGconn* DBConnect, char* originalSignal, int exp_number, int
                 }
             }
 
-            if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+            if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
                 addIdamError(CODEERRORTYPE, "sqlNoIdamSignal", 1, PQresultErrorMessage(DBQuery));
                 PQclear(DBQuery);
-                if (signal != NULL) free((void*)signal);
-                if (tpass != NULL) free((void*)tpass);
+                if (signal != nullptr) free((void*)signal);
+                if (tpass != nullptr) free((void*)tpass);
                 return 0;
             }
 
@@ -1418,8 +1418,8 @@ int sqlNoIdamSignal(PGconn* DBConnect, char* originalSignal, int exp_number, int
     }
 
     PQclear(DBQuery);
-    if (signal != NULL) free((void*)signal);
-    if (tpass != NULL) free((void*)tpass);
+    if (signal != nullptr) free((void*)signal);
+    if (tpass != nullptr) free((void*)tpass);
 
     return rc;
 }
@@ -1442,35 +1442,36 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
     char prefix[4];
 
     char sql[MAXSQL];
-    char* sqlB = "signal_desc_id, meta_id as b_meta_id, rank, range_start, range_stop, type as b_type, "
+    const char* sqlB = "signal_desc_id, meta_id as b_meta_id, rank, range_start, range_stop, type as b_type, "
             "source_alias as b_source_alias, signal_alias, signal_name, generic_name, description, "
             "signal_class, signal_owner, creation as b_creation, modified as b_modified, signal_alias_type";
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
-    struct timeval tv_start, tv_end;
+    struct timeval tv_start = {};
+    struct timeval tv_end = {};
 
-//-------------------------------------------------------------
-// Escape SIGNAL to protect against SQL Injection
+    //-------------------------------------------------------------
+    // Escape SIGNAL to protect against SQL Injection
 
     char* signal = (char*)malloc((strlen(originalSignal) + 1) * sizeof(char));
     strcpy(signal, originalSignal);
     if (preventSQLInjection(DBConnect, &signal)) {
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlNoIdamSignalxxx", err, "Unable to Escape the signal name!");
         return 0;
     }
 
-//-------------------------------------------------------------
-// Initialise Structures
+    //-------------------------------------------------------------
+    // Initialise Structures
 
     initSignal(signal_str);
     initSignalDesc(signal_desc);
     initDataSource(data_source);
 
-//-------------------------------------------------------------
-// Build SQL: Is there a Signal_Desc record?
+    //-------------------------------------------------------------
+    // Build SQL: Is there a Signal_Desc record?
 
     size_t lstr = strlen(signal) * sizeof(char) + 1;
     ls = (char*)malloc(lstr);
@@ -1501,16 +1502,16 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
     free((void*)ls);
     free((void*)us);
 
-//-------------------------------------------------------------
-// Execute SQL
+    //-------------------------------------------------------------
+    // Execute SQL
 
-    gettimeofday(&tv_start, NULL);
+    gettimeofday(&tv_start, nullptr);
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlNoIdamSignal", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         return 0;
     }
 
@@ -1518,7 +1519,7 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
     ncols = PQnfields(DBQuery);        // Number of Columns
 
     ExecStatusType DBQueryStatus;
-    gettimeofday(&tv_end, NULL);
+    gettimeofday(&tv_end, nullptr);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
     UDA_LOG(UDA_LOG_DEBUG, "+++ sqlNoIdamSignal +++\n");
     UDA_LOG(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
@@ -1528,15 +1529,15 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
     DBQueryStatus = PQresultStatus(DBQuery);
     UDA_LOG(UDA_LOG_DEBUG, "SQL Stat: %s\n", PQresStatus(DBQueryStatus));
 
-//-------------------------------------------------------------
-// Record Found => Data probably exists in the archive
+    //-------------------------------------------------------------
+    // Record Found => Data probably exists in the archive
 
     if (nrows == 1) {
 
         rc = 1;
         j = 0;
 
-// Signal_Desc fields
+        // Signal_Desc fields
 
         if (strlen(PQgetvalue(DBQuery, 0, j)) > 0) {
             signal_desc->signal_desc_id = atoi(PQgetvalue(DBQuery, 0, j++));
@@ -1575,7 +1576,7 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
         strcat(signal_desc->description,
                "*** No IDAM Database Entry Found: Locating Data using alias name and shot number ***\n");
 
-// Data Source fields
+        // Data Source fields
 
         data_source->exp_number = exp_number;
         data_source->pass = pass;
@@ -1608,23 +1609,23 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
             }
         }
 
-// Signal fields
+        // Signal fields
 
         signal_str->signal_desc_id = signal_desc->signal_desc_id;
 
-//-------------------------------------------------------------
-// Record Not Found
+        //-------------------------------------------------------------
+        // Record Not Found
 
     } else {
 
-// Signal Names missing from the IDAM database may be because:
-//	1> They are from a very early shot
-//	2> They were not captured for some reason by the IDAM scheduler code
-//	3> The name is an attribute name - not recorded in the database (signal/variable name only)
+        // Signal Names missing from the IDAM database may be because:
+        //	1> They are from a very early shot
+        //	2> They were not captured for some reason by the IDAM scheduler code
+        //	3> The name is an attribute name - not recorded in the database (signal/variable name only)
 
         rc = 1;            // Always return with a Best Guess!
 
-// Identify the Source alias from the signal
+        // Identify the Source alias from the signal
 
         if (signal[0] != '/') {
             strncpy(prefix, signal, 3);        // Probably IDA		Macro FORMAT_LEGACY
@@ -1634,7 +1635,7 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
         prefix[3] = '\0';
         strlwr(prefix);
 
-// Is there a Data Source File?
+        // Is there a Data Source File?
 
         if ((signal[0] == '/' && signal[4] == '/') || (signal[0] != '/' && signal[3] == '/')) {        // Hierarchical
             netcdf = 1;
@@ -1659,10 +1660,10 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
 
         PQclear(DBQuery);
 
-        if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+        if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
             addIdamError(CODEERRORTYPE, "sqlNoIdamSignal", 1, PQresultErrorMessage(DBQuery));
             PQclear(DBQuery);
-            if (signal != NULL) free((void*)signal);
+            if (signal != nullptr) free((void*)signal);
             return 0;
         }
 
@@ -1691,7 +1692,7 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
             }
         } else {
 
-// No Data Source File was Found: Make best guess of File Location from shot number and file type
+            // No Data Source File was Found: Make best guess of File Location from shot number and file type
 
             sprintf(data_source->path, "%s/%03d/%d/LATEST", getenv("MAST_DATA"), exp_number / 1000, exp_number);
 
@@ -1718,7 +1719,7 @@ int sqlNoIdamSignalxxx(PGconn* DBConnect, char* originalSignal, int exp_number, 
     }
 
     PQclear(DBQuery);
-    if (signal != NULL) free((void*)signal);
+    if (signal != nullptr) free((void*)signal);
 
     return rc;
 }
@@ -1738,27 +1739,27 @@ int sqlComposite(PGconn* DBConnect, char* originalSignal, int exp_number, SIGNAL
     char expno[MAXKEY] = "";
     char fvalue[MAXMETA] = "";
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
-//-------------------------------------------------------------
-// Escape SIGNAL to protect against SQL Injection
+    //-------------------------------------------------------------
+    // Escape SIGNAL to protect against SQL Injection
 
     char* signal = (char*)malloc((strlen(originalSignal) + 1) * sizeof(char));
     strcpy(signal, originalSignal);
     if (preventSQLInjection(DBConnect, &signal)) {
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlComposite", err, "Unable to Escape the signal name!");
         return 0;
     }
 
-//-------------------------------------------------------------
-// Initialise Structures
+    //-------------------------------------------------------------
+    // Initialise Structures
 
     initSignalDesc(signal_desc_str);
 
-//-------------------------------------------------------------
-// Build SQL
+    //-------------------------------------------------------------
+    // Build SQL
 
     sprintf(expno, "%d", exp_number);
 
@@ -1775,10 +1776,10 @@ int sqlComposite(PGconn* DBConnect, char* originalSignal, int exp_number, SIGNAL
     strcat(sql, expno);
     strcat(sql, ")) ORDER BY generic_name DESC, rank LIMIT 1;");
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlComposite", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         return 0;
     }
 
@@ -1787,7 +1788,7 @@ int sqlComposite(PGconn* DBConnect, char* originalSignal, int exp_number, SIGNAL
 
     if (nrows != 1 || ncols != 10) {
         PQclear(DBQuery);
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         return 0;
     }
 
@@ -1808,7 +1809,7 @@ int sqlComposite(PGconn* DBConnect, char* originalSignal, int exp_number, SIGNAL
     strcpy(signal_desc_str->creation, PQgetvalue(DBQuery, 0, 9));
 
     PQclear(DBQuery);
-    if (signal != NULL) free((void*)signal);
+    if (signal != nullptr) free((void*)signal);
 
     return 1;
 }
@@ -1819,9 +1820,9 @@ int sqlComposite(PGconn* DBConnect, char* originalSignal, int exp_number, SIGNAL
 int sqlDocument(PGconn* DBConnect, char* originalSignal, int exp_number, int pass,
                 SIGNAL_DESC* signal_desc_str, DATA_SOURCE* data_source_str)
 {
-//
-// If the Return Code is 0 then a Problem occured.
-//
+    //
+    // If the Return Code is 0 then a Problem occured.
+    //
 
     int nrows, rc = 0;
 
@@ -1832,28 +1833,28 @@ int sqlDocument(PGconn* DBConnect, char* originalSignal, int exp_number, int pas
     char expno[MAXKEY] = "";
     char passno[MAXKEY] = "";
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
     //ExecStatusType DBQueryStatus;
 
-//-------------------------------------------------------------
-// Escape SIGNAL to protect against SQL Injection
+    //-------------------------------------------------------------
+    // Escape SIGNAL to protect against SQL Injection
 
     char* signal = (char*)malloc((strlen(originalSignal) + 1) * sizeof(char));
     strcpy(signal, originalSignal);
     if (preventSQLInjection(DBConnect, &signal)) {
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlDocument", err, "Unable to Escape the signal name!");
         return 0;
     }
-//-------------------------------------------------------------
-// Initialise Structures
+    //-------------------------------------------------------------
+    // Initialise Structures
 
     initSignalDesc(signal_desc_str);
     initDataSource(data_source_str);
 
-//-------------------------------------------------------------
-// Build SQL
+    //-------------------------------------------------------------
+    // Build SQL
 
     sprintf(expno, "%d", exp_number);
     sprintf(passno, "%d", pass);
@@ -1869,18 +1870,18 @@ int sqlDocument(PGconn* DBConnect, char* originalSignal, int exp_number, int pas
     strcat(sql, signal);
     strcat(sql, "')  ORDER BY pass DESC LIMIT 1;");
 
-//-------------------------------------------------------------
-// Execute SQL
+    //-------------------------------------------------------------
+    // Execute SQL
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlDocument", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         return rc;
     }
 
-//-------------------------------------------------------------
-// SQL Results
+    //-------------------------------------------------------------
+    // SQL Results
 
     nrows = PQntuples(DBQuery); // Number of Rows
 
@@ -1923,11 +1924,10 @@ int sqlDocument(PGconn* DBConnect, char* originalSignal, int exp_number, int pas
     }
 
     PQclear(DBQuery);
-    if (signal != NULL) free((void*)signal);
+    if (signal != nullptr) free((void*)signal);
 
     return rc;
 }
-
 
 // Identify Methods for Accessing MAST Archives
 
@@ -1964,7 +1964,7 @@ int sqlExternalGeneric(PGconn* DBConnect, char* originalArchive, char* originalD
 
     char expno[MAXKEY] = "";
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
 //-------------------------------------------------------------
 // Escape SIGNAL and ARCHIVE and DEVICE to protect against SQL Injection
@@ -1972,7 +1972,7 @@ int sqlExternalGeneric(PGconn* DBConnect, char* originalArchive, char* originalD
     char* signal = (char*)malloc((strlen(originalSignal) + 1) * sizeof(char));
     strcpy(signal, originalSignal);
     if (preventSQLInjection(DBConnect, &signal)) {
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlExternalGeneric", err, "Unable to Escape the signal name!");
         return 0;
@@ -1981,8 +1981,8 @@ int sqlExternalGeneric(PGconn* DBConnect, char* originalArchive, char* originalD
     char* archive = (char*)malloc((strlen(originalArchive) + 1) * sizeof(char));
     strcpy(archive, originalArchive);
     if (preventSQLInjection(DBConnect, &archive)) {
-        if (signal != NULL) free((void*)signal);
-        if (archive != NULL) free((void*)archive);
+        if (signal != nullptr) free((void*)signal);
+        if (archive != nullptr) free((void*)archive);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlExternalGeneric", err, "Unable to Escape the archive name!");
         return 0;
@@ -1991,9 +1991,9 @@ int sqlExternalGeneric(PGconn* DBConnect, char* originalArchive, char* originalD
     char* device = (char*)malloc((strlen(originalDevice) + 1) * sizeof(char));
     strcpy(device, originalDevice);
     if (preventSQLInjection(DBConnect, &device)) {
-        if (signal != NULL) free((void*)signal);
-        if (archive != NULL) free((void*)archive);
-        if (device != NULL) free((void*)device);
+        if (signal != nullptr) free((void*)signal);
+        if (archive != nullptr) free((void*)archive);
+        if (device != nullptr) free((void*)device);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlExternalGeneric", err, "Unable to Escape the device name!");
         return 0;
@@ -2047,12 +2047,12 @@ int sqlExternalGeneric(PGconn* DBConnect, char* originalArchive, char* originalD
 
     strcat(sql, ") d WHERE c.signal_desc_id=d.signal_desc_id ORDER BY generic_name DESC, rank LIMIT 1");
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlExternalGeneric", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
-        if (signal != NULL) free((void*)signal);
-        if (archive != NULL) free((void*)archive);
-        if (device != NULL) free((void*)device);
+        if (signal != nullptr) free((void*)signal);
+        if (archive != nullptr) free((void*)archive);
+        if (device != nullptr) free((void*)device);
         return rc;
     }
 
@@ -2171,9 +2171,9 @@ int sqlExternalGeneric(PGconn* DBConnect, char* originalArchive, char* originalD
     data_source_str->type = 'E';    // External
 
     PQclear(DBQuery);
-    if (signal != NULL) free((void*)signal);
-    if (archive != NULL) free((void*)archive);
-    if (device != NULL) free((void*)device);
+    if (signal != nullptr) free((void*)signal);
+    if (archive != nullptr) free((void*)archive);
+    if (device != nullptr) free((void*)device);
 
     return rc;
 }
@@ -2195,7 +2195,7 @@ int sqlNoSignal(PGconn* DBConnect, char* originalArchive, char* originalDevice, 
     char expno[MAXKEY] = "";
     char passno[MAXKEY] = "";
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
 //-------------------------------------------------------------
 // Escape SIGNAL and ARCHIVE and DEVICE to protect against SQL Injection
@@ -2203,7 +2203,7 @@ int sqlNoSignal(PGconn* DBConnect, char* originalArchive, char* originalDevice, 
     char* signal = (char*)malloc((strlen(originalSignal) + 1) * sizeof(char));
     strcpy(signal, originalSignal);
     if (preventSQLInjection(DBConnect, &signal)) {
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlNoSignal", err, "Unable to Escape the signal name!");
         return 0;
@@ -2212,8 +2212,8 @@ int sqlNoSignal(PGconn* DBConnect, char* originalArchive, char* originalDevice, 
     char* archive = (char*)malloc((strlen(originalArchive) + 1) * sizeof(char));
     strcpy(archive, originalArchive);
     if (preventSQLInjection(DBConnect, &archive)) {
-        if (signal != NULL) free((void*)signal);
-        if (archive != NULL) free((void*)archive);
+        if (signal != nullptr) free((void*)signal);
+        if (archive != nullptr) free((void*)archive);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlNoSignal", err, "Unable to Escape the archive name!");
         return 0;
@@ -2222,9 +2222,9 @@ int sqlNoSignal(PGconn* DBConnect, char* originalArchive, char* originalDevice, 
     char* device = (char*)malloc((strlen(originalDevice) + 1) * sizeof(char));
     strcpy(device, originalDevice);
     if (preventSQLInjection(DBConnect, &device)) {
-        if (signal != NULL) free((void*)signal);
-        if (archive != NULL) free((void*)archive);
-        if (device != NULL) free((void*)device);
+        if (signal != nullptr) free((void*)signal);
+        if (archive != nullptr) free((void*)archive);
+        if (device != nullptr) free((void*)device);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlNoSignal", err, "Unable to Escape the device name!");
         return 0;
@@ -2261,12 +2261,12 @@ int sqlNoSignal(PGconn* DBConnect, char* originalArchive, char* originalDevice, 
 
     }
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlNoSignal", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
-        if (signal != NULL) free((void*)signal);
-        if (archive != NULL) free((void*)archive);
-        if (device != NULL) free((void*)device);
+        if (signal != nullptr) free((void*)signal);
+        if (archive != nullptr) free((void*)archive);
+        if (device != nullptr) free((void*)device);
         return rc;
     }
 
@@ -2393,9 +2393,9 @@ int sqlNoSignal(PGconn* DBConnect, char* originalArchive, char* originalDevice, 
     }
 
     PQclear(DBQuery);
-    if (signal != NULL) free((void*)signal);
-    if (archive != NULL) free((void*)archive);
-    if (device != NULL) free((void*)device);
+    if (signal != nullptr) free((void*)signal);
+    if (archive != nullptr) free((void*)archive);
+    if (device != nullptr) free((void*)device);
 
     return rc;
 }
@@ -2412,7 +2412,7 @@ int sqlDataSystem(PGconn* DBConnect, int pkey, DATA_SYSTEM* str)
 
     char sql[MAXSQL];
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
     //ExecStatusType DBQueryStatus;
 
 //-------------------------------------------------------------
@@ -2431,7 +2431,7 @@ int sqlDataSystem(PGconn* DBConnect, int pkey, DATA_SYSTEM* str)
     strcat(sql, system_id);
     strcat(sql, " ORDER BY version DESC LIMIT 1");
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlDataSystem", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
         return rc;
@@ -2498,7 +2498,7 @@ int sqlSystemConfig(PGconn* DBConnect, int pkey, SYSTEM_CONFIG* str)
 
     char sql[MAXSQL];
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
     //ExecStatusType DBQueryStatus;
 
 //-------------------------------------------------------------
@@ -2517,7 +2517,7 @@ int sqlSystemConfig(PGconn* DBConnect, int pkey, SYSTEM_CONFIG* str)
     strcat(sql, config_id);
     strcat(sql, ";");
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlSystemConfig", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
         return rc;
@@ -2576,7 +2576,7 @@ int sqlLatestPass(PGconn* DBConnect, char* source_alias, char type, int exp_numb
 
     char sql[MAXSQL];
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
 //-------------------------------------------------------------
 // Build SQL
@@ -2584,7 +2584,7 @@ int sqlLatestPass(PGconn* DBConnect, char* source_alias, char type, int exp_numb
     sprintf(sql, "SELECT max(pass) FROM data_source WHERE exp_number=%d AND source_alias='%s' and type='%c';",
             exp_number, source_alias, type);
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlLatestPass", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
         return 0;
@@ -2618,7 +2618,7 @@ int sqlLatestPassx(PGconn* DBConnect, char* signal, int exp_number, char* maxpas
 
     char expno[MAXKEY] = "";
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
 //-------------------------------------------------------------
 // Build SQL
@@ -2648,7 +2648,7 @@ int sqlLatestPassx(PGconn* DBConnect, char* signal, int exp_number, char* maxpas
 
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlLatestPass", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
         return 0;
@@ -2678,7 +2678,7 @@ int sqlDataSourceAlias(PGconn* DBConnect, char* originalSignal, char** alias)
     int nrows, rc = 0;
     char* ls, * us;
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
     char sql[MAXSQL];
 
@@ -2688,7 +2688,7 @@ int sqlDataSourceAlias(PGconn* DBConnect, char* originalSignal, char** alias)
     char* signal = (char*)malloc((strlen(originalSignal) + 1) * sizeof(char));
     strcpy(signal, originalSignal);
     if (preventSQLInjection(DBConnect, &signal)) {
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlDataSourceAlias", err, "Unable to Escape the signal name!");
         return 0;
@@ -2728,10 +2728,10 @@ int sqlDataSourceAlias(PGconn* DBConnect, char* originalSignal, char** alias)
 
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlSourceAlias", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         return 0;
     }
 
@@ -2745,7 +2745,7 @@ int sqlDataSourceAlias(PGconn* DBConnect, char* originalSignal, char** alias)
         if ((lstr = strlen(PQgetvalue(DBQuery, 0, 0))) == 0) {
             addIdamError(CODEERRORTYPE, "sqlSourceAlias", 1, "The Source_Alias name is Missing.");
             PQclear(DBQuery);
-            if (signal != NULL) free((void*)signal);
+            if (signal != nullptr) free((void*)signal);
             return 0;
         }
 
@@ -2754,11 +2754,11 @@ int sqlDataSourceAlias(PGconn* DBConnect, char* originalSignal, char** alias)
         strcpy(*alias, PQgetvalue(DBQuery, 0, 0));
     } else {
         rc = 0;
-        *alias = NULL;
+        *alias = nullptr;
     }
 
     PQclear(DBQuery);
-    if (signal != NULL) free((void*)signal);
+    if (signal != nullptr) free((void*)signal);
 
     return rc;
 }
@@ -2775,7 +2775,7 @@ int sqlSignalDesc(PGconn* DBConnect, char* signal_desc_id, SIGNAL_DESC* signal_d
 
     char sql[MAXSQL];
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
 //-------------------------------------------------------------
 // Initialise Structure
@@ -2795,7 +2795,7 @@ int sqlSignalDesc(PGconn* DBConnect, char* signal_desc_id, SIGNAL_DESC* signal_d
 
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlSignalDesc", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
         return 0;
@@ -2860,7 +2860,7 @@ int sqlDataSource(PGconn* DBConnect, char* source_id, DATA_SOURCE* data_source)
 
     char sql[MAXSQL];
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
 //-------------------------------------------------------------
 // Initialise Structure
@@ -2879,7 +2879,7 @@ int sqlDataSource(PGconn* DBConnect, char* source_id, DATA_SOURCE* data_source)
 
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlDataSource", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
         return 0;
@@ -2956,7 +2956,7 @@ int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_
 
     char sql[MAXSQL];
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
 //-------------------------------------------------------------
 // Escape SIGNAL to protect against SQL Injection
@@ -2964,7 +2964,7 @@ int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_
     signal = (char*)malloc((strlen(request_block.signal) + 1) * sizeof(char));
     strcpy(signal, request_block.signal);
     if (preventSQLInjection(DBConnect, &signal)) {
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlAltData", err, "Unable to Escape the signal name!");
         return 0;
@@ -3015,10 +3015,10 @@ int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_
 
     UDA_LOG(UDA_LOG_DEBUG, "sqlAltData: %s\n", sql);
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlAltData", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         return 0;
     }
 
@@ -3027,7 +3027,7 @@ int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_
     if (nrows == 1) {            // Mapping found
         if ((rc = sqlSignalDesc(DBConnect, PQgetvalue(DBQuery, 0, 0), signal_desc)) == 0) {
             PQclear(DBQuery);
-            if (signal != NULL) free((void*)signal);
+            if (signal != nullptr) free((void*)signal);
             return 0;
         }
         strcpy(mapping, PQgetvalue(DBQuery, 0, 1));
@@ -3055,7 +3055,7 @@ int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_
         if (request_block.request != REQUEST_READ_GENERIC) {
             strcpy(signal_desc->signal_name,
                    request_block.signal);    // Alias or Generic have no context wrt private files
-            if (signal != NULL) free((void*)signal);
+            if (signal != nullptr) free((void*)signal);
             return 1;
         }
 
@@ -3063,7 +3063,7 @@ int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_
 
         if ((rc = sqlDataSourceAlias(DBConnect, signal, &alias)) != 1) {
             addIdamError(CODEERRORTYPE, "sqlAltData", 1, "No Source Alias name found for this Signal");
-            if (signal != NULL) free((void*)signal);
+            if (signal != nullptr) free((void*)signal);
             return 0;
         }
 
@@ -3077,12 +3077,12 @@ int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_
                     alias, rank);
         }
 
-        if (alias != NULL)free((void*)alias);
+        if (alias != nullptr)free((void*)alias);
 
-        if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+        if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
             addIdamError(CODEERRORTYPE, "sqlAltData", 1, PQresultErrorMessage(DBQuery));
             PQclear(DBQuery);
-            if (signal != NULL) free((void*)signal);
+            if (signal != nullptr) free((void*)signal);
             return 0;
         }
 
@@ -3091,7 +3091,7 @@ int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_
         if ((nrows = PQntuples(DBQuery)) > 0) {
             addIdamError(CODEERRORTYPE, "sqlAltData", 1, "No Legacy Signal Mapping found");
             PQclear(DBQuery);
-            if (signal != NULL) free((void*)signal);
+            if (signal != nullptr) free((void*)signal);
             return 0;
         }
 
@@ -3100,7 +3100,7 @@ int sqlAltData(PGconn* DBConnect, REQUEST_BLOCK request_block, int rank, SIGNAL_
         signal_desc->signal_alias[0] = '\0';    // No mapped signal substitute to target in the Generic Lookup
 
         PQclear(DBQuery);
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
     }
 
     return 1;
@@ -3131,7 +3131,7 @@ int sqlMapData(PGconn* DBConnect, int signal_desc_id, int exp_number, SIGNAL_DES
 
     SIGNAL_DESC signal_desc_map;
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
     signal_desc->signal_desc_id = 0;
     signal_desc_map.signal_desc_id = 0;
@@ -3151,7 +3151,7 @@ int sqlMapData(PGconn* DBConnect, int signal_desc_id, int exp_number, SIGNAL_DES
 
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlMapData", 999, "Database Query failed.");
         depth = 0;
         PQclear(DBQuery);
@@ -3240,7 +3240,7 @@ int sqlMapPrivateData(PGconn* DBConnect, REQUEST_BLOCK request_block, SIGNAL_DES
     int i, nrows, rc = 0;
     char sql[MAXSQL];
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
     //ExecStatusType DBQueryStatus;
 
     UDA_LOG(UDA_LOG_DEBUG, "sqlMapPrivateData\n");
@@ -3251,7 +3251,7 @@ int sqlMapPrivateData(PGconn* DBConnect, REQUEST_BLOCK request_block, SIGNAL_DES
     char* signal = (char*)malloc((strlen(request_block.signal) + 1) * sizeof(char));
     strcpy(signal, request_block.signal);
     if (preventSQLInjection(DBConnect, &signal)) {
-        if (signal != NULL) free((void*)signal);
+        if (signal != nullptr) free((void*)signal);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlMapPrivateData", err, "Unable to Escape the signal name!");
         return 0;
@@ -3270,10 +3270,10 @@ int sqlMapPrivateData(PGconn* DBConnect, REQUEST_BLOCK request_block, SIGNAL_DES
 
         UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
-        if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+        if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
             addIdamError(CODEERRORTYPE, "sqlMapPrivateData", 999, "Database Query failed.");
             PQclear(DBQuery);
-            if (signal != NULL) free((void*)signal);
+            if (signal != nullptr) free((void*)signal);
             return rc;
         }
 
@@ -3283,7 +3283,7 @@ int sqlMapPrivateData(PGconn* DBConnect, REQUEST_BLOCK request_block, SIGNAL_DES
             rc = 1;
             strcpy(signal_desc->signal_name, PQgetvalue(DBQuery, 0, 0));
             PQclear(DBQuery);
-            if (signal != NULL) free((void*)signal);
+            if (signal != nullptr) free((void*)signal);
             return rc;
         } else if (nrows > 1) {                // Ambiguous if the names differ: check that all names match
             int j;
@@ -3292,7 +3292,7 @@ int sqlMapPrivateData(PGconn* DBConnect, REQUEST_BLOCK request_block, SIGNAL_DES
                     addIdamError(CODEERRORTYPE, "sqlMapPrivateData", 999,
                                  "Signal Name Mapping is Ambiguous!");
                     PQclear(DBQuery);
-                    if (signal != NULL) free((void*)signal);
+                    if (signal != nullptr) free((void*)signal);
                     return rc;
                 }
             }
@@ -3300,7 +3300,7 @@ int sqlMapPrivateData(PGconn* DBConnect, REQUEST_BLOCK request_block, SIGNAL_DES
             strcpy(signal_desc->signal_name,
                    PQgetvalue(DBQuery, 0, 0));    // The names must be the same so no ambiguity
             PQclear(DBQuery);
-            if (signal != NULL) free((void*)signal);
+            if (signal != nullptr) free((void*)signal);
             return rc;
 
         } else {
@@ -3309,7 +3309,7 @@ int sqlMapPrivateData(PGconn* DBConnect, REQUEST_BLOCK request_block, SIGNAL_DES
         }
     }
 
-    if (signal != NULL) free((void*)signal);
+    if (signal != nullptr) free((void*)signal);
 
     return rc;
 }
@@ -3323,13 +3323,13 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
 //
 
     int nrows, ncols, rc = 0, cost;
-    char* latest = NULL;
+    char* latest = nullptr;
 
     char sql0[MAXSQL];
     char sql[MAXSQL];
     char maxpass[MAXKEY] = "";
 
-    PGresult* DBQuery = NULL;
+    PGresult* DBQuery = nullptr;
 
     struct timeval tv_start, tv_end;
 
@@ -3341,7 +3341,7 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
     char* source_alias = (char*)malloc((strlen(originalSourceAlias) + 1) * sizeof(char));
     strcpy(source_alias, originalSourceAlias);
     if (preventSQLInjection(DBConnect, &source_alias)) {
-        if (source_alias != NULL) free((void*)source_alias);
+        if (source_alias != nullptr) free((void*)source_alias);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlMatch", err, "Unable to Escape the source alias name!");
         return 0;
@@ -3350,8 +3350,8 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
     char* tpass = (char*)malloc((strlen(originalTPass) + 1) * sizeof(char));
     strcpy(tpass, originalTPass);
     if (preventSQLInjection(DBConnect, &tpass)) {
-        if (source_alias != NULL) free((void*)source_alias);
-        if (tpass != NULL) free((void*)tpass);
+        if (source_alias != nullptr) free((void*)source_alias);
+        if (tpass != nullptr) free((void*)tpass);
         int err = 999;
         addIdamError(CODEERRORTYPE, "sqlMatch", err, "Unable to Escape the tpass string!");
         return 0;
@@ -3362,34 +3362,34 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
 
     if (strlen(tpass) > 0) {
         if (pass == -1) {
-            if ((latest = (char*)strcasestr(tpass, "LATEST")) != NULL) {
+            if ((latest = (char*)strcasestr(tpass, "LATEST")) != nullptr) {
                 if (strlen(latest) > 6) {
                     if (!sqlLatestPass(DBConnect, source_alias, *type, exp_number, maxpass)) {
                         rc = 999;
                         addIdamError(CODEERRORTYPE, "sqlMatch", rc,
                                      "Unable to Identify the Latest (Maximum Valued) Pass Number");
-                        if (source_alias != NULL) free((void*)source_alias);
-                        if (tpass != NULL) free((void*)tpass);
+                        if (source_alias != nullptr) free((void*)source_alias);
+                        if (tpass != nullptr) free((void*)tpass);
                         return rc;
                     }
                     latest = latest + 6;        // Only need the remaining text for the SQL query
                 } else {
-                    latest = NULL;            // Latest is the default behaviour so no need to do anything!
+                    latest = nullptr;            // Latest is the default behaviour so no need to do anything!
                 }
             } else {
                 rc = 999;
                 addIdamError(CODEERRORTYPE, "sqlMatch", rc,
                              "The Pass String does not contain the LATEST directive when one is expected - Please correct");
-                if (source_alias != NULL) free((void*)source_alias);
-                if (tpass != NULL) free((void*)tpass);
+                if (source_alias != nullptr) free((void*)source_alias);
+                if (tpass != nullptr) free((void*)tpass);
                 return rc;
             }
         } else {
             rc = 999;
             addIdamError(CODEERRORTYPE, "sqlMatch", rc,
                          "The Pass number requested is Unclear - Please Correct");
-            if (source_alias != NULL) free((void*)source_alias);
-            if (tpass != NULL) free((void*)tpass);
+            if (source_alias != nullptr) free((void*)source_alias);
+            if (tpass != nullptr) free((void*)tpass);
             return rc;
         }
     }
@@ -3406,7 +3406,7 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
     if (pass > -1) {
         sprintf(sql0, "AND pass = %d ", pass);
     } else {
-        if (latest != NULL) sprintf(sql0, "AND pass = %s%s ", maxpass, latest);
+        if (latest != nullptr) sprintf(sql0, "AND pass = %s%s ", maxpass, latest);
     }
     if (sql0[0] != '\0') strcat(sql, sql0);
 
@@ -3418,24 +3418,24 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
 //-------------------------------------------------------------
 // Test Performance
 
-    cost = gettimeofday(&tv_start, NULL);
+    cost = gettimeofday(&tv_start, nullptr);
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", sql);
 
 //-------------------------------------------------------------
 // Execute SQL
 
-    if ((DBQuery = PQexec(DBConnect, sql)) == NULL) {
+    if ((DBQuery = PQexec(DBConnect, sql)) == nullptr) {
         addIdamError(CODEERRORTYPE, "sqlMatch", 1, PQresultErrorMessage(DBQuery));
         PQclear(DBQuery);
-        if (source_alias != NULL) free((void*)source_alias);
-        if (tpass != NULL) free((void*)tpass);
+        if (source_alias != nullptr) free((void*)source_alias);
+        if (tpass != nullptr) free((void*)tpass);
         return rc;
     }
 
     nrows = PQntuples(DBQuery);        // Number of Rows
     ncols = PQnfields(DBQuery);        // Number of Columns
 
-    cost = gettimeofday(&tv_end, NULL);
+    cost = gettimeofday(&tv_end, nullptr);
     cost = (int)(tv_end.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_end.tv_usec - tv_start.tv_usec) / 1000;
     UDA_LOG(UDA_LOG_DEBUG, "+++ sqlMatch +++\n");
     UDA_LOG(UDA_LOG_DEBUG, "SQL Time: %d (ms)\n", cost);
@@ -3452,8 +3452,8 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
     }
 
     PQclear(DBQuery);
-    if (source_alias != NULL) free((void*)source_alias);
-    if (tpass != NULL) free((void*)tpass);
+    if (source_alias != nullptr) free((void*)source_alias);
+    if (tpass != nullptr) free((void*)tpass);
 
     return rc;
 }
@@ -3462,12 +3462,12 @@ int sqlMatch(PGconn* DBConnect, int signal_desc_id, char* originalSourceAlias, c
 
 PGconn* startSQL(const ENVIRONMENT* environment)
 {
-    return NULL;
+    return nullptr;
 }
 
 PGconn* startSQL_CPF(const ENVIRONMENT* environment)
 {
-    return NULL;
+    return nullptr;
 }
 
 void sqlReason(PGconn* DBConnect, char* reason_id, char* reason)

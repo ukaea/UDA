@@ -1,5 +1,5 @@
-#ifndef IDAM_SERVER_WRITER_H
-#define IDAM_SERVER_WRITER_H
+#ifndef UDA_SERVER_WRITER_H
+#define UDA_SERVER_WRITER_H
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -15,9 +15,9 @@ extern "C" {
 extern int server_tot_block_time;
 extern int server_timeout;
 
-void setSelectParms(int fd, fd_set *rfds, struct timeval *tv);
-void updateSelectParms(int fd, fd_set *rfds, struct timeval *tv);
-int Writeout(void *iohandle, char *buf, int count);
+void setSelectParms(int fd, fd_set* rfds, struct timeval* tv);
+void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv);
+int Writeout(void* iohandle, char* buf, int count);
 
 /*
 //-----------------------------------------------------------------------------------------
@@ -42,6 +42,10 @@ int Writeout(void *iohandle, char *buf, int count);
 // closes down.	
 //-----------------------------------------------------------------------------------------
 */
-int Readin(void *iohandle, char *buf, int count);
+int Readin(void* iohandle, char* buf, int count);
 
-#endif // IDAM_SERVER_WRITER_H
+#ifdef __cplusplus
+}
+#endif
+
+#endif // UDA_SERVER_WRITER_H

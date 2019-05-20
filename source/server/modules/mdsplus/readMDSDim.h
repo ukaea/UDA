@@ -1,5 +1,5 @@
-#ifndef IDAM_READMDSDIM_H
-#define IDAM_READMDSDIM_H
+#ifndef UDA_READMDSDIM_H
+#define UDA_READMDSDIM_H
 
 #include <clientserver/udaStructs.h>
 
@@ -7,5 +7,5 @@
 
 int readMDSDim(char *node, int ndim, DIMS *ddim);
 
-#endif // IDAM_READMDSDIM_H
+#endif // UDA_READMDSDIM_H
 

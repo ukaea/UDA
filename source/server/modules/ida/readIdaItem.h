@@ -1,5 +1,5 @@
-#ifndef IDAM_READIDAITEM_H
-#define IDAM_READIDAITEM_H
+#ifndef UDA_READIDAITEM_H
+#define UDA_READIDAITEM_H
 
 #ifndef NOIDAPLUGIN
 
@@ -19,5 +19,5 @@ void idaclasses(int class, char* label, char* axes, int* datarank, int* timeorde
 
 #endif
 
-#endif // IDAM_READIDAITEM_H
+#endif // UDA_READIDAITEM_H
 

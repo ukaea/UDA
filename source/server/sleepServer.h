@@ -1,5 +1,5 @@
-#ifndef UDA_IDAMFILESLEEPSERVER_H
-#define UDA_IDAMFILESLEEPSERVER_H
+#ifndef UDA_SERVER_SLEEPSERVER_H
+#define UDA_SERVER_SLEEPSERVER_H
 
 #include <structures/genStructs.h>
 
@@ -13,5 +13,5 @@ int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedty
 }
 #endif
 
-#endif // UDA_IDAMFILESLEEPSERVER_H
+#endif // UDA_SERVER_SLEEPSERVER_H
 

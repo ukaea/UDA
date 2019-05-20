@@ -41,8 +41,8 @@ void ncclose(int fh) {
 }
 #endif
 
-PGconn* gDBConnect = NULL;  // UDA SQL database Socket Connection pass back fix
-PGconn* DBConnect = NULL;   // UDA SQL database Socket Connection
+PGconn* gDBConnect = nullptr;  // UDA SQL database Socket Connection pass back fix
+PGconn* DBConnect = nullptr;   // UDA SQL database Socket Connection
 
 //--------------------------------------------------------------------------------------
 // static globals
@@ -63,13 +63,13 @@ static int legacyServerVersion = 6;
 //#endif
 
 NTREELIST NTreeList;
-NTREE* fullNTree = NULL;
+NTREE* fullNTree = nullptr;
 LOGSTRUCTLIST logstructlist;
 
 int server_timeout = TIMEOUT;        // user specified Server Lifetime
 
-static USERDEFINEDTYPELIST* userdefinedtypelist = NULL;            // User Defined Structure Types from Data Files & Plugins
-static LOGMALLOCLIST* logmalloclist = NULL;                        // List of all Heap Allocations for Data: Freed after data is dispatched
+static USERDEFINEDTYPELIST* userdefinedtypelist = nullptr;            // User Defined Structure Types from Data Files & Plugins
+static LOGMALLOCLIST* logmalloclist = nullptr;                        // List of all Heap Allocations for Data: Freed after data is dispatched
 int malloc_source = MALLOCSOURCENONE;
 
 USERDEFINEDTYPELIST parseduserdefinedtypelist;              // Initial set of User Defined Structure Types
@@ -80,7 +80,7 @@ int altRank = 0;
 unsigned int privateFlags = 0;
 unsigned int XDRstdioFlag = 0;                              // Flags the XDR stream is to stdio not a socket
 
-PLUGINLIST pluginList;                // List of all data reader plugins (internal and external shared libraries)
+static PLUGINLIST pluginList;                // List of all data reader plugins (internal and external shared libraries)
 ENVIRONMENT environment;                // Holds local environment variable values
 
 static SOCKETLIST socket_list;
@@ -191,7 +191,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
     int protocol_id = PROTOCOL_SERVER_BLOCK;
 
-    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                          server_block)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
         addIdamError(CODEERRORTYPE, "idamServer", err,
@@ -233,7 +233,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
         protocol_id = PROTOCOL_DATA_SYSTEM;
 
-        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                              &metadata_block->data_system)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 4 Error");
@@ -245,7 +245,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
         protocol_id = PROTOCOL_SYSTEM_CONFIG;
 
-        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                              &metadata_block->system_config)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 5 Error");
@@ -257,7 +257,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
         protocol_id = PROTOCOL_DATA_SOURCE;
 
-        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                              &metadata_block->data_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 6 Error");
@@ -269,7 +269,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
         protocol_id = PROTOCOL_SIGNAL;
 
-        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                              &metadata_block->signal_rec)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 7 Error");
@@ -281,7 +281,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
         protocol_id = PROTOCOL_SIGNAL_DESC;
 
-        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                              &metadata_block->signal_desc)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure\n");
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 8 Error");
@@ -298,7 +298,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
     protocol_id = PROTOCOL_DATA_BLOCK;
 
-    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, data_block)) !=
+    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, data_block)) !=
         0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure\n");
         addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 2 Error");
@@ -336,7 +336,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 
         UDA_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client\n");
 
-        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+        if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                              data_block)) != 0) {
             addIdamError(CODEERRORTYPE, "idamServer", err,
                          "Server Side Protocol Error (Opaque Structure Type)");
@@ -376,7 +376,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
 
     int protocol_id = PROTOCOL_CLIENT_BLOCK;
 
-    if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist,
+    if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
                          client_block)) != 0) {
         if (server_tot_block_time >= 1000 * server_timeout) {
             *fatal = 1;
@@ -454,7 +454,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     //	   Pass Back and Await Client Instruction
     protocol_id = PROTOCOL_REQUEST_BLOCK;
 
-    if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist,
+    if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
                          request_block)) != 0) {
         THROW_ERROR(err, "Protocol 1 Error (Receiving Client Request)");
     }
@@ -484,11 +484,11 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     // Name of the Proxy plugin
 
     char* proxyNameDefault = "UDA";
-    char* proxyName = NULL;
+    char* proxyName = nullptr;
 
     char work[STRING_LENGTH];
 
-    if ((proxyName = getenv("UDA_PROXYPLUGINNAME")) == NULL) proxyName = proxyNameDefault;
+    if ((proxyName = getenv("UDA_PROXYPLUGINNAME")) == nullptr) proxyName = proxyNameDefault;
 
     // Check string length compatibility
 
@@ -539,7 +539,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
                     sprintf(work, "%s%s%s", proxyName, environment.api_delim, environment.server_this);
                 }
 
-                if (strstr(request_block->source, work) != NULL) {
+                if (strstr(request_block->source, work) != nullptr) {
                     THROW_ERROR(999, "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
                 }
             }
@@ -597,7 +597,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
             sprintf(work, "UDA%s%s", environment.api_delim, environment.server_this);
         }
 
-        if (strstr(request_block->source, work) != NULL) {
+        if (strstr(request_block->source, work) != nullptr) {
             THROW_ERROR(999,
                         "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
         }
@@ -644,7 +644,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     if (request_block->put) {
         protocol_id = PROTOCOL_PUTDATA_BLOCK_LIST;
 
-        if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist,
+        if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
                              &(request_block->putDataBlockList))) != 0) {
             THROW_ERROR(err, "Protocol 1 Error (Receiving Client putDataBlockList)");
         }
@@ -685,9 +685,9 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
 
 #ifndef NOTGENERICENABLED
     if (request_block->request == REQUEST_READ_GENERIC || (client_block->clientFlags & CLIENTFLAG_ALTDATA)) {
-        if (DBConnect == NULL) {
+        if (DBConnect == nullptr) {
             if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
-                if (DBConnect != NULL) PQfinish(DBConnect);
+                if (DBConnect != nullptr) PQfinish(DBConnect);
                 THROW_ERROR(777, "Unable to Connect to the SQL Database Server");
             }
         }
@@ -705,9 +705,9 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block,
     err = udaGetData(*request_block, *client_block, data_block, &metadata_block->data_source,
             &metadata_block->signal_rec, &metadata_block->signal_desc, &pluginList, logmalloclist, userdefinedtypelist);
 
-    if (DBConnect == NULL && gDBConnect != NULL) {
+    if (DBConnect == nullptr && gDBConnect != nullptr) {
         DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
-        gDBConnect = NULL;
+        gDBConnect = nullptr;
     }
 
     DATA_SOURCE* data_source = &metadata_block->data_source;
@@ -844,11 +844,11 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
 
         UDA_LOG(UDA_LOG_DEBUG, "freeUserDefinedTypeList\n");
         freeUserDefinedTypeList(userdefinedtypelist);
-        userdefinedtypelist = NULL;
+        userdefinedtypelist = nullptr;
 	
         freeMallocLogList(logmalloclist);
         free((void*)logmalloclist);
-        logmalloclist = NULL;
+        logmalloclist = nullptr;
 
         UDA_LOG(UDA_LOG_DEBUG, "freeDataBlock\n");
         freeDataBlock(data_block);
@@ -910,7 +910,7 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
     //----------------------------------------------------------------------------
     // Write the Error Log Record & Free Error Stack Heap
 
-    idamErrorLog(*client_block, *request_block, NULL);
+    idamErrorLog(*client_block, *request_block, nullptr);
     closeIdamError();
 
     //----------------------------------------------------------------------------
@@ -930,19 +930,19 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
 
     freeMallocLogList(logmalloclist);
     free(logmalloclist);
-    logmalloclist = NULL;
+    logmalloclist = nullptr;
 
     //----------------------------------------------------------------------------
     // Close the Database Connection
 
 #ifndef NOTGENERICENABLED
-    if (DBConnect != NULL) PQfinish(DBConnect);
+    if (DBConnect != nullptr) PQfinish(DBConnect);
 #endif
 
     //----------------------------------------------------------------------------
     // Close the Logs
 
-    fflush(NULL);
+    fflush(nullptr);
 
     idamCloseLogging();
 
@@ -1041,7 +1041,7 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQU
 
         int protocol_id = PROTOCOL_CLIENT_BLOCK;        // Recieve Client Block
 
-        if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist,
+        if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
                              client_block)) != 0) {
             addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 10 Error (Client Block)");
             UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
@@ -1080,7 +1080,7 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, REQU
 
     int protocol_id = PROTOCOL_SERVER_BLOCK;        // Receive Server Block: Server Aknowledgement
 
-    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist,
+    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                          server_block)) != 0) {
         THROW_ERROR(err, "Protocol 11 Error (Server Block #1)");
     }
@@ -1161,8 +1161,8 @@ int startupServer(SERVER_BLOCK* server_block)
         fileParsed = 1;
         initUserDefinedTypeList(&parseduserdefinedtypelist);
 
-        char* token = NULL;
-        if ((token = getenv("UDA_SARRAY_CONFIG")) == NULL) {
+        char* token = nullptr;
+        if ((token = getenv("UDA_SARRAY_CONFIG")) == nullptr) {
             THROW_ERROR(999, "No Environment variable UDA_SARRAY_CONFIG");
         }
 
@@ -1172,7 +1172,7 @@ int startupServer(SERVER_BLOCK* server_block)
     }
 */
 
-    userdefinedtypelist = NULL;                                     // Startup State
+    userdefinedtypelist = nullptr;                                     // Startup State
 
     //----------------------------------------------------------------------
     // Initialise the Data Reader Plugin list
@@ -1192,17 +1192,17 @@ int startupServer(SERVER_BLOCK* server_block)
     //----------------------------------------------------------------------------
     // Server Information: Operating System Name - may limit types of data that can be received by the Client
 
-    char* env = NULL;
+    char* env = nullptr;
 
-    if ((env = getenv("OSTYPE")) != NULL) {
+    if ((env = getenv("OSTYPE")) != nullptr) {
         strcpy(server_block->OSName, env);
-    } else if ((env = getenv("UDA_SERVER_OS")) != NULL) {
+    } else if ((env = getenv("UDA_SERVER_OS")) != nullptr) {
         strcpy(server_block->OSName, env);
     }
 
     // Server Configuration and Environment DOI
 
-    if ((env = getenv("UDA_SERVER_DOI")) != NULL) {
+    if ((env = getenv("UDA_SERVER_DOI")) != nullptr) {
         strcpy(server_block->DOI, env);
     }
 

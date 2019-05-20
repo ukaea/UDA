@@ -37,19 +37,19 @@ int server_tot_block_time = 0;
 
 int server_timeout = TIMEOUT;
 
-PLUGINLIST pluginList;      // List of all data reader plugins (internal and external shared libraries)
+static PLUGINLIST pluginList;      // List of all data reader plugins (internal and external shared libraries)
 ENVIRONMENT environment;    // Holds local environment variable values
 
-static USERDEFINEDTYPELIST* userdefinedtypelist = NULL;
-static LOGMALLOCLIST* logmalloclist = NULL;
+static USERDEFINEDTYPELIST* userdefinedtypelist = nullptr;
+static LOGMALLOCLIST* logmalloclist = nullptr;
 
-PGconn* DBConnect = NULL;
-PGconn* gDBConnect = NULL;
+PGconn* DBConnect = nullptr;
+PGconn* gDBConnect = nullptr;
 
 unsigned int XDRstdioFlag = 1;
 int altRank = 0;
 unsigned int clientFlags = 0;
-NTREE* fullNTree = NULL;
+NTREE* fullNTree = nullptr;
 
 int malloc_source = MALLOCSOURCENONE;
 USERDEFINEDTYPELIST parseduserdefinedtypelist;
@@ -69,6 +69,8 @@ typedef struct MetadataBlock {
 } METADATA_BLOCK;
 
 #ifdef FATCLIENT
+extern "C" {
+
 void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist_in)
 {
     userdefinedtypelist = userdefinedtypelist_in;
@@ -77,6 +79,8 @@ void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist_in)
 void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
 {
     logmalloclist = logmalloclist_in;
+}
+
 }
 #endif
 
@@ -97,7 +101,7 @@ static int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, D
 
 int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0, DATA_BLOCK* data_block0)
 {
-    assert(data_block0 != NULL);
+    assert(data_block0 != nullptr);
 
     METADATA_BLOCK metadata_block;
     memset(&metadata_block, '\0', sizeof(METADATA_BLOCK));
@@ -148,7 +152,7 @@ int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLO
 
     freeUserDefinedTypeList(userdefinedtypelist);
     free(userdefinedtypelist);
-    userdefinedtypelist = NULL;
+    userdefinedtypelist = nullptr;
 
     //freeMallocLogList(logmalloclist);
     //free(logmalloclist);
@@ -195,7 +199,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
         FILE* xdrfile;
         char tempFile[MAXPATH];
         char* env;
-        if ((env = getenv("UDA_WORK_DIR")) != NULL) {
+        if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
             sprintf(tempFile, "%s/idamXDRXXXXXX", env);
         } else {
             strcpy(tempFile, "/tmp/idamXDRXXXXXX");
@@ -207,7 +211,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
         if (mkstemp(tempFile) < 0 || errno != 0) {
             THROW_ERROR(995, "Unable to Obtain a Temporary File Name");
         }
-        if ((xdrfile = fopen(tempFile, "wb")) == NULL) {
+        if ((xdrfile = fopen(tempFile, "wb")) == nullptr) {
             THROW_ERROR(999, "Unable to Open a Temporary XDR File for Writing");
         }
 
@@ -217,7 +221,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
         // Write data to the temporary file
 
         int protocol_id = PROTOCOL_STRUCTURES;
-        protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, data_block);
+        protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, data_block);
 
         // Close the stream and file
 
@@ -231,7 +235,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
 
         // Create an input XDR stream
 
-        if ((xdrfile = fopen(tempFile, "rb")) == NULL) {
+        if ((xdrfile = fopen(tempFile, "rb")) == nullptr) {
             THROW_ERROR(999, "Unable to Open a Temporary XDR File for Reading");
         }
 
@@ -241,7 +245,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
         // Read data from the temporary file
 
         protocol_id = PROTOCOL_STRUCTURES;
-        err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, data_block);
+        err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, data_block);
 
         // Close the stream and file
 
@@ -335,9 +339,9 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
 
 #ifndef NOTGENERICENABLED
     if (request_block->request == REQUEST_READ_GENERIC || (client_block->clientFlags & CLIENTFLAG_ALTDATA)) {
-        if (DBConnect == NULL) {
+        if (DBConnect == nullptr) {
             if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
-                if (DBConnect != NULL) {
+                if (DBConnect != nullptr) {
                     PQfinish(DBConnect);
                 }
                 THROW_ERROR(777, "Unable to Connect to the SQL Database Server");
@@ -361,9 +365,9 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
         return err;
     }
 
-    if (DBConnect == NULL && gDBConnect != NULL) {
+    if (DBConnect == nullptr && gDBConnect != nullptr) {
         DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
-        gDBConnect = NULL;
+        gDBConnect = nullptr;
     }
 
     DATA_SOURCE* data_source = &metadata_block->data_source;
@@ -469,7 +473,7 @@ int startupFatServer(SERVER_BLOCK* server_block)
     getInitialUserDefinedTypeList(&userdefinedtypelist);
     parseduserdefinedtypelist = *userdefinedtypelist;
     printUserDefinedTypeList(*userdefinedtypelist);
-    userdefinedtypelist = NULL;                                     // Startup State
+    userdefinedtypelist = nullptr;                                     // Startup State
 
 
     /*
@@ -482,8 +486,8 @@ int startupFatServer(SERVER_BLOCK* server_block)
         initUserDefinedTypeList(&parseduserdefinedtypelist);
         userdefinedtypelist = &parseduserdefinedtypelist; // Switch before Parsing input file
 
-        char* token = NULL;
-        if ((token = getenv("UDA_SARRAY_CONFIG")) == NULL) {
+        char* token = nullptr;
+        if ((token = getenv("UDA_SARRAY_CONFIG")) == nullptr) {
             THROW_ERROR(999, "No Environment variable UDA_SARRAY_CONFIG");
         }
 
@@ -512,17 +516,17 @@ int startupFatServer(SERVER_BLOCK* server_block)
     //----------------------------------------------------------------------------
     // Server Information: Operating System Name - may limit types of data that can be received by the Client
 
-    char* env = NULL;
+    char* env = nullptr;
 
-    if ((env = getenv("OSTYPE")) != NULL) {
+    if ((env = getenv("OSTYPE")) != nullptr) {
         strcpy(server_block->OSName, env);
-    } else if ((env = getenv("UDA_SERVER_OS")) != NULL) {
+    } else if ((env = getenv("UDA_SERVER_OS")) != nullptr) {
         strcpy(server_block->OSName, env);
     }
 
     // Server Configuration and Environment DOI
 
-    if ((env = getenv("UDA_SERVER_DOI")) != NULL) {
+    if ((env = getenv("UDA_SERVER_DOI")) != nullptr) {
         strcpy(server_block->DOI, env);
     }
 

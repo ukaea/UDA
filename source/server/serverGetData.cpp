@@ -115,7 +115,7 @@ int udaGetData(REQUEST_BLOCK request_block, CLIENT_BLOCK client_block, DATA_BLOC
             UDA_LOG(UDA_LOG_DEBUG, "findPluginRequestByFormat Plugin Request ID %d\n", request_block.request);
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "(idamServerGetData) Number of PutData Blocks: %d\n",
+        UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n",
                 request_block.putDataBlockList.blockCount);
 
         if (request_block.request != REQUEST_READ_UNKNOWN) {
@@ -134,8 +134,8 @@ int udaGetData(REQUEST_BLOCK request_block, CLIENT_BLOCK client_block, DATA_BLOC
 #endif
             if (pluginlist->plugin[id].external == UDA_PLUGIN_EXTERNAL &&
                 pluginlist->plugin[id].status == UDA_PLUGIN_OPERATIONAL &&
-                pluginlist->plugin[id].pluginHandle != NULL &&
-                pluginlist->plugin[id].idamPlugin != NULL) {
+                pluginlist->plugin[id].pluginHandle != nullptr &&
+                pluginlist->plugin[id].idamPlugin != nullptr) {
 
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] %s Plugin Selected\n", id, data_source->format);
 
@@ -190,13 +190,13 @@ int udaGetData(REQUEST_BLOCK request_block, CLIENT_BLOCK client_block, DATA_BLOC
                 // Save Provenance with socket stream protection
 
                 idamServerRedirectStdStreams(0);
-                idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, NULL,
+                idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, nullptr,
                                      getIdamServerEnvironment());
                 idamServerRedirectStdStreams(1);
 
                 // If no structures to pass back (only regular data) then free the user defined type list
 
-                if (data_block->opaque_block == NULL) {
+                if (data_block->opaque_block == nullptr) {
                     if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES && data_block->opaque_count > 0) {
                         THROW_ERROR(999, "Opaque Data Block is Null Pointer");
                     }
@@ -239,7 +239,7 @@ int udaGetData(REQUEST_BLOCK request_block, CLIENT_BLOCK client_block, DATA_BLOC
     // Save Provenance with socket stream protection
 
     idamServerRedirectStdStreams(0);
-    idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, NULL,
+    idamProvenancePlugin(&client_block, &request_block, data_source, signal_desc, pluginlist, nullptr,
                          getIdamServerEnvironment());
     idamServerRedirectStdStreams(1);
 

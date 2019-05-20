@@ -1,10 +1,18 @@
-#ifndef IDAM_PARSEIDAPATH_H
-#define IDAM_PARSEIDAPATH_H
+#ifndef UDA_PARSEIDAPATH_H
+#define UDA_PARSEIDAPATH_H
 
 #include <clientserver/udaStructs.h>
 
-void parseIDAPath(REQUEST_BLOCK *request_block);
-void parseXMLPath(REQUEST_BLOCK *request_block);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#endif // IDAM_PARSEIDAPATH_H
+void parseIDAPath(REQUEST_BLOCK* request_block);
+void parseXMLPath(REQUEST_BLOCK* request_block);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // UDA_PARSEIDAPATH_H
 

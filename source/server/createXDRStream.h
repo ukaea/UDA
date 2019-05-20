@@ -1,5 +1,5 @@
-#ifndef IDAM_SERVER_CREATEXDRSTREAM_H
-#define IDAM_SERVER_CREATEXDRSTREAM_H
+#ifndef UDA_SERVER_CREATEXDRSTREAM_H
+#define UDA_SERVER_CREATEXDRSTREAM_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,4 +11,4 @@ void CreateXDRStream();
 }
 #endif
 
-#endif // IDAM_SERVER_CREATEXDRSTREAM_H
+#endif // UDA_SERVER_CREATEXDRSTREAM_H

@@ -273,7 +273,11 @@ int IsLegalFilePath(const char* str)
 /*
  * Allocating sprintf
  */
+#ifdef __APPLE__
+int asprintf(char** strp, const char* fmt, ...)
+#else
 int asprintf(char** strp, const char* fmt, ...) noexcept
+#endif
 {
     va_list vargs;
     va_start(vargs, fmt);

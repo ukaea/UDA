@@ -72,7 +72,7 @@ char* convertNonPrintable2(char* str);
 int IsLegalFilePath(const char* str);
 
 #if !defined(asprintf)
-#  ifdef __cplusplus
+#  if defined(__cplusplus) && !defined(__APPLE__)
 int asprintf(char** strp, const char* fmt, ...) noexcept;
 #  else
 int asprintf(char** strp, const char* fmt, ...);
