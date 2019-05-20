@@ -78,7 +78,7 @@ if( CMAKE_VERSION VERSION_GREATER 3.0.9 )
   set( CMAKE_C_STANDARD 90 )
 else()
   if( NOT WIN32 OR MINGW )
-    set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu89" )
+    set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99" )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
   endif()
 endif()
@@ -177,8 +177,6 @@ if( WIN32 OR MINGW )
 	  FILES_MATCHING PATTERN "libportablexdr*"
   )
 endif()
-
-
 
 ########################################################################################################################
 # Package creations

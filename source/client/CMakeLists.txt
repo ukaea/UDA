@@ -104,8 +104,12 @@ if( NOT CLIENT_ONLY )
   add_library( fatclient-shared SHARED ${FATCLIENT_OBJS} )
   add_library( fatclient-static STATIC ${FATCLIENT_OBJS} )
 
-  target_link_libraries( fatclient-shared PRIVATE ${CLIENT_LINK_LIBS} ${PostgreSQL_LIBRARY} plugins-static )
-  target_link_libraries( fatclient-static PRIVATE ${CLIENT_LINK_LIBS} ${PostgreSQL_LIBRARY} plugins-static )
+  target_link_libraries( fatclient-shared PRIVATE ${CLIENT_LINK_LIBS} plugins-static )
+  target_link_libraries( fatclient-static PRIVATE ${CLIENT_LINK_LIBS} plugins-static )
+  if( NOT NO_MODULES )  
+    target_link_libraries( fatclient-shared PRIVATE ${PostgreSQL_LIBRARY} )
+    target_link_libraries( fatclient-static PRIVATE ${PostgreSQL_LIBRARY} )
+  endif()
 endif()
 
 set_target_properties( client-shared
