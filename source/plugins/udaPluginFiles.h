@@ -10,9 +10,6 @@
 extern "C" {
 #endif
 
-#define IDAMPLUGINFILEALLOC     10
-#define MAXOPENPLUGINFILEDESC   50
-
 //------------------------------------------------------------------------------------------------------------------------
 // Plugins opening files can maintain state by recording file handles in a list.
 // Two usage patterns are assumed: the file opening function returns an integer or a pointer
@@ -20,20 +17,20 @@ extern "C" {
 // A function pointer to the Close function needs to be registerd the first time the plugin is called.
 //------------------------------------------------------------------------------------------------------------------------
 
-typedef struct IDAMPluginFile {
+typedef struct UdaPluginFile {
     int status;                     // Open (1) or Closed (0)
     char filename[STRING_LENGTH];   // Full Data Source Filename
     long handleInt;                 // Integer File Handle
     void* handlePtr;                // Pointer file handle
     struct timeval file_open;       // File Open Clock Time
-} IDAMPLUGINFILE;
+} UDA_PLUGIN_FILE;
 
-typedef struct IDAMPluginFileList {
+typedef struct UdaPluginFileList {
     int count;                      // Number of Files
     int mcount;                     // malloc count allocated
-    IDAMPLUGINFILE* files;          // Array of File Handles
+    UDA_PLUGIN_FILE* files;          // Array of File Handles
     void* close;                    // Function pointer to the File Close API function
-} IDAMPLUGINFILELIST;
+} UDA_PLUGIN_FILE_LIST;
 
 #ifdef __cplusplus
 }

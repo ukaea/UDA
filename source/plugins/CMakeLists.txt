@@ -49,8 +49,8 @@ include_directories(
 )
 
 set( SOURCE_FILES
-  managePluginFiles.c
-  udaPlugin.c
+  managePluginFiles.cpp
+  udaPlugin.cpp
 )
 
 set( HEADER_FILES

@@ -1,9 +1,5 @@
-//
-// Created by jholloc on 09/05/16.
-//
-
-#ifndef IDAM_READCDF4SUBTREE_H
-#define IDAM_READCDF4SUBTREE_H
+#ifndef UDA_PLUGIN_READCDF4SUBTREE_H
+#define UDA_PLUGIN_READCDF4SUBTREE_H
 
 #include "readCDF4.h"
 
@@ -53,4 +49,4 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                             int* ndvec, int* data_type, char** data, LOGMALLOCLIST* logmalloclist,
                             USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE** udt);
 
-#endif //IDAM_READCDF4SUBTREE_H
+#endif // UDA_PLUGIN_READCDF4SUBTREE_H

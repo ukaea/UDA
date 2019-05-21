@@ -1,5 +1,5 @@
-#ifndef IdamNewHDF5PluginInclude
-#define IdamNewHDF5PluginInclude
+#ifndef UDA_PLUGIN_HDF5PLUGIN_H
+#define UDA_PLUGIN_HDF5PLUGIN_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,7 +16,7 @@ extern "C" {
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1
 #define THISPLUGIN_DEFAULT_METHOD           "get"
 
-extern IDAMPLUGINFILELIST pluginFileList;
+extern UDA_PLUGIN_FILE_LIST pluginFileList;
 
 int udaHDF5(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 
@@ -28,4 +28,4 @@ int readHDF5Att(hid_t file_id, char * object, hid_t att_id, char * attname, DATA
 }
 #endif
 
-#endif
+#endif // UDA_PLUGIN_HDF5PLUGIN_H

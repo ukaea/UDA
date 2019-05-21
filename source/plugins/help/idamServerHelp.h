@@ -1,5 +1,5 @@
-#ifndef IDAM_PLUGINS_IDAMSERVERHELP_H
-#define IDAM_PLUGINS_IDAMSERVERHELP_H
+#ifndef UDA_PLUGIN_IDAMSERVERHELP_H
+#define UDA_PLUGIN_IDAMSERVERHELP_H
 
 #include <plugins/pluginStructs.h>
 
@@ -9,4 +9,4 @@
 
 int idamServerHelp(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 
-#endif // IDAM_PLUGINS_IDAMSERVERHELP_H
+#endif // UDA_PLUGIN_IDAMSERVERHELP_H

@@ -20,18 +20,17 @@ int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, 
 {
     initDataBlock(data_block);
 
-    if (description != NULL) {
+    if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
         data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
 
     data_block->rank = (int)rank;
-    data_block->dims = malloc(rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(rank * sizeof(DIMS));
 
     size_t len = 1;
 
-    size_t i;
-    for (i = 0; i < rank; ++i) {
+    for (size_t i = 0; i < rank; ++i) {
         initDimBlock(&data_block->dims[i]);
 
         data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
@@ -44,7 +43,7 @@ int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, 
         len *= shape[i];
     }
 
-    float* data = malloc(len * sizeof(float));
+    auto data = (float*)malloc(len * sizeof(float));
     memcpy(data, values, len * sizeof(float));
 
     data_block->data_type = UDA_TYPE_FLOAT;
@@ -59,18 +58,17 @@ int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank
 {
     initDataBlock(data_block);
 
-    if (description != NULL) {
+    if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
         data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
 
     data_block->rank = (int)rank;
-    data_block->dims = malloc(rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(rank * sizeof(DIMS));
 
     size_t len = 1;
 
-    size_t i;
-    for (i = 0; i < rank; ++i) {
+    for (size_t i = 0; i < rank; ++i) {
         initDimBlock(&data_block->dims[i]);
 
         data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
@@ -83,7 +81,7 @@ int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank
         len *= shape[i];
     }
 
-    double* data = malloc(len * sizeof(double));
+    auto data = (double*)malloc(len * sizeof(double));
     memcpy(data, values, len * sizeof(double));
 
     data_block->data_type = UDA_TYPE_DOUBLE;
@@ -98,18 +96,17 @@ setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const si
 {
     initDataBlock(data_block);
 
-    if (description != NULL) {
+    if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
         data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
 
     data_block->rank = (int)rank;
-    data_block->dims = malloc(rank * sizeof(DIMS));
+    data_block->dims = (DIMS*)malloc(rank * sizeof(DIMS));
 
     size_t len = 1;
 
-    size_t i;
-    for (i = 0; i < rank; ++i) {
+    for (size_t i = 0; i < rank; ++i) {
         initDimBlock(&data_block->dims[i]);
 
         data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
@@ -122,7 +119,7 @@ setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const si
         len *= shape[i];
     }
 
-    int* data = malloc(len * sizeof(int));
+    int* data = (int*)malloc(len * sizeof(int));
     memcpy(data, values, len * sizeof(int));
 
     data_block->data_type = UDA_TYPE_INT;
@@ -136,10 +133,10 @@ int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* 
 {
     initDataBlock(data_block);
 
-    double* data = (double*)malloc(sizeof(double));
+    auto data = (double*)malloc(sizeof(double));
     data[0] = value;
 
-    if (description != NULL) {
+    if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
         data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
@@ -156,10 +153,10 @@ int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* de
 {
     initDataBlock(data_block);
 
-    float* data = (float*)malloc(sizeof(float));
+    auto data = (float*)malloc(sizeof(float));
     data[0] = value;
 
-    if (description != NULL) {
+    if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
         data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
@@ -179,7 +176,7 @@ int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* descri
     int* data = (int*)malloc(sizeof(int));
     data[0] = value;
 
-    if (description != NULL) {
+    if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
         data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
@@ -199,7 +196,7 @@ int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* desc
     long* data = (long*)malloc(sizeof(long));
     data[0] = value;
 
-    if (description != NULL) {
+    if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
         data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
@@ -216,10 +213,10 @@ int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* de
 {
     initDataBlock(data_block);
 
-    short* data = (short*)malloc(sizeof(short));
+    auto data = (short*)malloc(sizeof(short));
     data[0] = value;
 
-    if (description != NULL) {
+    if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
         data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
@@ -242,12 +239,11 @@ int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* d
     data_block->rank = 1;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-    unsigned int i;
-    for (i = 0; i < data_block->rank; i++) {
+    for (unsigned int i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
 
-    if (description != NULL) {
+    if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
         data_block->data_desc[STRING_LENGTH - 1] = '\0';
     }
@@ -272,8 +268,7 @@ int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* d
  */
 int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list)
 {
-    int i;
-    for (i = 0; i < plugin_list->count; i++) {
+    for (int i = 0; i < plugin_list->count; i++) {
         if (plugin_list->plugin[i].request == request) return i;
     }
     return -1;
@@ -287,8 +282,7 @@ int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list)
  */
 int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
 {
-    int i;
-    for (i = 0; i < plugin_list->count; i++) {
+    for (int i = 0; i < plugin_list->count; i++) {
         if (STR_IEQUALS(plugin_list->plugin[i].format, format)) return i;
     }
     return -1;
@@ -302,8 +296,7 @@ int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
  */
 int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list)
 {
-    int i;
-    for (i = 0; i < plugin_list->count; i++) {
+    for (int i = 0; i < plugin_list->count; i++) {
         if (plugin_list->plugin[i].plugin_class == UDA_PLUGIN_CLASS_DEVICE && STR_IEQUALS(plugin_list->plugin[i].format, device)) {
             return i;
         }
@@ -319,8 +312,7 @@ int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list)
  */
 int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list)
 {
-    int i;
-    for (i = 0; i < plugin_list->count; i++) {
+    for (int i = 0; i < plugin_list->count; i++) {
         if (STR_IEQUALS(plugin_list->plugin[i].format, format)) return plugin_list->plugin[i].request;
     }
     return REQUEST_READ_UNKNOWN;
@@ -334,8 +326,7 @@ int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list)
  */
 int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list)
 {
-    int i;
-    for (i = 0; i < plugin_list->count; i++) {
+    for (int i = 0; i < plugin_list->count; i++) {
         if (STR_IEQUALS(plugin_list->plugin[i].extension, extension)) return plugin_list->plugin[i].request;
     }
     return REQUEST_READ_UNKNOWN;
@@ -345,7 +336,7 @@ int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin
  * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associated value.
  *
  * If the argument is found the value associated with the argument is provided via the value parameter and the function
- * returns 1. Otherwise value is set to NULL and the function returns 0.
+ * returns 1. Otherwise value is set to nullptr and the function returns 0.
  * @param namevaluelist
  * @param value
  * @param name
@@ -354,13 +345,12 @@ int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin
 bool findStringValue(const NAMEVALUELIST* namevaluelist, const char** value, const char* name)
 {
     char** names = SplitString(name, "|");
-    *value = NULL;
+    *value = nullptr;
 
     bool found = 0;
-    int i;
-    for (i = 0; i < namevaluelist->pairCount; i++) {
+    for (int i = 0; i < namevaluelist->pairCount; i++) {
         size_t n;
-        for (n = 0; names[n] != NULL; ++n) {
+        for (n = 0; names[n] != nullptr; ++n) {
             if (STR_IEQUALS(namevaluelist->nameValue[i].name, names[n])) {
                 *value = namevaluelist->nameValue[i].value;
                 found = 1;
@@ -448,7 +438,7 @@ bool findFloatValue(const NAMEVALUELIST* namevaluelist, float* value, const char
     const char* str;
     bool found = findStringValue(namevaluelist, &str, name);
     if (found) {
-        *value = strtof(str, NULL);
+        *value = strtof(str, nullptr);
     }
     return found;
 }
@@ -461,12 +451,12 @@ bool findIntArray(const NAMEVALUELIST* namevaluelist, int** values, size_t* nval
         char** tokens = SplitString(str, ";");
         size_t n;
         size_t num_tokens = 0;
-        for (n = 0; tokens[n] != NULL; ++n) {
+        for (n = 0; tokens[n] != nullptr; ++n) {
             ++num_tokens;
         }
-        *values = calloc(num_tokens, sizeof(int));
-        for (n = 0; tokens[n] != NULL; ++n) {
-            (*values)[n] = (int)strtol(tokens[n], NULL, 10);
+        *values = (int*)calloc(num_tokens, sizeof(int));
+        for (n = 0; tokens[n] != nullptr; ++n) {
+            (*values)[n] = (int)strtol(tokens[n], nullptr, 10);
         }
         FreeSplitStringTokens(&tokens);
         *nvalues = num_tokens;
@@ -482,12 +472,12 @@ bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* 
         char** tokens = SplitString(str, ";");
         size_t n;
         size_t num_tokens = 0;
-        for (n = 0; tokens[n] != NULL; ++n) {
+        for (n = 0; tokens[n] != nullptr; ++n) {
             ++num_tokens;
         }
-        *values = calloc(num_tokens, sizeof(float));
-        for (n = 0; tokens[n] != NULL; ++n) {
-            (*values)[n] = strtof(tokens[n], NULL);
+        *values = (float*)calloc(num_tokens, sizeof(float));
+        for (n = 0; tokens[n] != nullptr; ++n) {
+            (*values)[n] = strtof(tokens[n], nullptr);
         }
         FreeSplitStringTokens(&tokens);
         *nvalues = num_tokens;
@@ -503,12 +493,12 @@ bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** values, size_t
         char** tokens = SplitString(str, ";");
         size_t n;
         size_t num_tokens = 0;
-        for (n = 0; tokens[n] != NULL; ++n) {
+        for (n = 0; tokens[n] != nullptr; ++n) {
             ++num_tokens;
         }
-        *values = calloc(num_tokens, sizeof(double));
-        for (n = 0; tokens[n] != NULL; ++n) {
-            (*values)[n] = strtod(tokens[n], NULL);
+        *values = (double*)calloc(num_tokens, sizeof(double));
+        for (n = 0; tokens[n] != nullptr; ++n) {
+            (*values)[n] = strtod(tokens[n], nullptr);
         }
         FreeSplitStringTokens(&tokens);
         *nvalues = num_tokens;
@@ -521,10 +511,9 @@ bool findValue(const NAMEVALUELIST* namevaluelist, const char* name)
     char** names = SplitString(name, "|");
 
     bool found = false;
-    int i;
-    for (i = 0; i < namevaluelist->pairCount; i++) {
+    for (int i = 0; i < namevaluelist->pairCount; i++) {
         size_t n = 0;
-        while (names[n] != NULL) {
+        while (names[n] != nullptr) {
             if (STR_IEQUALS(namevaluelist->nameValue[i].name, names[n])) {
                 found = 1;
                 break;
@@ -556,7 +545,7 @@ int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLU
     int err = 0;
     int id = findPluginIdByRequest(request_block.request, pluginlist);
     PLUGIN_DATA* plugin = &(pluginlist->plugin[id]);
-    if (id >= 0 && plugin->idamPlugin != NULL) {
+    if (id >= 0 && plugin->idamPlugin != nullptr) {
         err = plugin->idamPlugin(&idam_plugin_interface);    // Call the data reader
     } else {
         RAISE_PLUGIN_ERROR("Data Access is not available for this data request!");
