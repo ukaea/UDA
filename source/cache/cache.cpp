@@ -6,26 +6,28 @@ struct IdamCached {
     int dummy_;
 };
 
-IDAM_CACHE* idamOpenCache()
-{ return NULL; }
+UDA_CACHE* idamOpenCache()
+{ return nullptr; }
 
 void idamFreeCache()
 {}
 
 char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
-{ return NULL; }
+{ return nullptr; }
 
-int idamCacheWrite(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
+int idamCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
                    LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
 { return 0; }
 
-DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+DATA_BLOCK* idamCacheRead(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
                           USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
-{ return NULL; }
+{ return nullptr; }
 
 #else
 
 #include <libmemcached/memcached.h>
+#include <openssl/ssl.h>
+
 #include <logging/logging.h>
 #include <clientserver/protocol.h>
 #include <clientserver/initStructs.h>
@@ -37,44 +39,37 @@ DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block,
 #  define PARTBLOCKINIT        1
 #  define PARTBLOCKUPDATE      2
 #  define PARTBLOCKOUTPUT      3
-
-void sha1Block(unsigned char* block, size_t blockSize, unsigned char* md);
-
-void sha1PartBlock(unsigned char* partBlock, size_t partBlockSize, unsigned char* md, unsigned int state);
-
-int sha1File(char* name, FILE* fh, unsigned char* md);
-
 #endif // HASHXDR
 
 #define MAXELEMENTSHA1 20
 
-struct IdamCache {
+struct UdaCache {
     memcached_st memcache;
 };
 
-static IDAM_CACHE* global_cache = NULL;    // scope limited to this code module
+static UDA_CACHE* global_cache = nullptr;    // scope limited to this code module
 
-IDAM_CACHE* idamOpenCache()
+UDA_CACHE* idamOpenCache()
 {
-    IDAM_CACHE* cache = malloc(sizeof(IDAM_CACHE));
+    auto cache = (UDA_CACHE*)malloc(sizeof(UDA_CACHE));
     memcached_return_t rc;
     memcached_server_st* servers;
 
     const char* host = getenv("UDA_CACHE_HOST");   // Overrule the default settings
     const char* port = getenv("UDA_CACHE_PORT");
 
-    if (host == NULL && port == NULL) {
-        servers = memcached_server_list_append(NULL, IDAM_CACHE_HOST, (in_port_t)IDAM_CACHE_PORT, &rc);
-    } else if (host != NULL && port != NULL) {
-        servers = memcached_server_list_append(NULL, host, (in_port_t)atoi(port), &rc);
-    } else if (host != NULL) {
-        servers = memcached_server_list_append(NULL, host, (in_port_t)IDAM_CACHE_PORT, &rc);
+    if (host == nullptr && port == nullptr) {
+        servers = memcached_server_list_append(nullptr, UDA_CACHE_HOST, (in_port_t)UDA_CACHE_PORT, &rc);
+    } else if (host != nullptr && port != nullptr) {
+        servers = memcached_server_list_append(nullptr, host, (in_port_t)atoi(port), &rc);
+    } else if (host != nullptr) {
+        servers = memcached_server_list_append(nullptr, host, (in_port_t)UDA_CACHE_PORT, &rc);
     } else {
-        servers = memcached_server_list_append(NULL, IDAM_CACHE_HOST, (in_port_t)atoi(port), &rc);
+        servers = memcached_server_list_append(nullptr, UDA_CACHE_HOST, (in_port_t)atoi(port), &rc);
     }
 
     //memcached_create(&cache->memcache);       // Causes a segmentation Violation!
-    cache->memcache = *memcached_create(NULL);
+    cache->memcache = *memcached_create(nullptr);
     rc = memcached_server_push(&cache->memcache, servers);
 
     if (rc == MEMCACHED_SUCCESS) {
@@ -82,7 +77,7 @@ IDAM_CACHE* idamOpenCache()
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "Couldn't add server: %s\n", memcached_strerror(&cache->memcache, rc));
         free(cache);
-        return NULL;
+        return nullptr;
     }
 
     global_cache = cache;   // Copy the pointer
@@ -104,11 +99,11 @@ char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 {
     // Check Client Properties for permission and requested method
     if (!(clientFlags & CLIENTFLAG_CACHE)) {
-        return NULL;
+        return nullptr;
     }
 
-    // **** TODO **** if(!(clientFlags & CLIENTFLAG_CACHE) || request_block->put) return NULL;
-    char* delimiter = "&&";
+    // **** TODO **** if(!(clientFlags & CLIENTFLAG_CACHE) || request_block->put) return nullptr;
+    const char* delimiter = "&&";
     size_t len = strlen(request_block->source) + strlen(request_block->signal) +
                  strlen(environment.server_host) + 128;
     char* key = (char*)malloc(len * sizeof(char));
@@ -126,14 +121,14 @@ char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 
 #ifndef HASHXDR
     free(key);
-    return NULL;
+    return nullptr;
     // No Hash function to create the key
 #else
     // Need a compact hash - use SHA1 as always 20 bytes (40 bytes when printable)
     unsigned char md[MAXELEMENTSHA1 + 1];      // SHA1 Hash
     md[MAXELEMENTSHA1] = '\0';
     strcpy((char*)md, "                    ");
-    sha1Block((unsigned char*)key, len, md);
+    SHA1((unsigned char*)key, len, md);
     // Convert to a printable string (40 characters) for the key (is this necessary?)
     int j;
     key[40] = '\0';
@@ -152,7 +147,8 @@ char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 // The server should also set a recommmended expiration time (lifetime of the stored object) - overridden by the client if necessary
 
 int
-idamCacheWrite(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist,
+idamCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
+               LOGMALLOCLIST* logmalloclist,
                USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
 {
 #ifdef CACHEDEV
@@ -165,7 +161,7 @@ idamCacheWrite(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK
     char* key = idamCacheKey(request_block, environment);
     UDA_LOG(UDA_LOG_DEBUG, "Caching value for key: %s\n", key);
 
-    if (key == NULL) {
+    if (key == nullptr) {
         return -1;
     }
 
@@ -184,20 +180,20 @@ idamCacheWrite(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK
     fclose(memfile);
 
     // Expiration of the object
-    static unsigned int age_max = IDAM_CACHE_EXPIRY;
+    static unsigned int age_max = UDA_CACHE_EXPIRY;
     static int init = 1;
 
     if (init) {
         char* env = getenv("UDA_CACHE_EXPIRY");
 
-        if (env != NULL) {
+        if (env != nullptr) {
             age_max = (unsigned int)atoi(env);
         }
 
         init = 0;
     }
 
-    time_t life = time(NULL);
+    time_t life = time(nullptr);
 #ifdef CACHEDEV
 
     if (data_block->cacheExpiryTime > 0) {  // Object expiration time is set by the server
@@ -229,26 +225,26 @@ idamCacheWrite(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK
     return 0;
 }
 
-DATA_BLOCK* idamCacheRead(IDAM_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+DATA_BLOCK* idamCacheRead(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
                           USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
 {
     char* key = idamCacheKey(request_block, environment);
     UDA_LOG(UDA_LOG_DEBUG, "Retrieving value for key: %s\n", key);
 
-    if (key == NULL) {
-        return NULL;
+    if (key == nullptr) {
+        return nullptr;
     }
 
     memcached_return rc;
     size_t len = 0;
     u_int32_t flags = 0;
-    char* value = NULL;
+    char* value = nullptr;
     value = (char*)memcached_get(&cache->memcache, key, strlen(key), &len, &flags, &rc);
 
     if (rc != MEMCACHED_SUCCESS) {
         UDA_LOG(UDA_LOG_DEBUG, "Couldn't retrieve key: %s\n", memcached_strerror(&cache->memcache, rc));
         free(key);
-        return NULL;
+        return nullptr;
     }
 
     char* buffer;

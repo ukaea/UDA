@@ -25,7 +25,6 @@
 
 unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_block)
 {
-
     int factor;
     DIMS dim;
     unsigned int count = sizeof(DATA_BLOCK);
@@ -143,7 +142,7 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
 // Client's Userid: from the client_block structure
 
 // Request Start Time
-        gettimeofday(&et_start, NULL);
+        gettimeofday(&et_start, nullptr);
 
 // Calendar Time
 
@@ -178,7 +177,7 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
 
 // Request Completed Time: Elasped & CPU
 
-    gettimeofday(&et_end, NULL);
+    gettimeofday(&et_end, nullptr);
     elapsedtime = (double)((et_end.tv_sec - et_start.tv_sec) * 1000);    // millisecs
 
     if (et_end.tv_usec < et_start.tv_usec) {
@@ -219,7 +218,7 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
 // Save Provenance with socket stream protection
 
         idamServerRedirectStdStreams(0);
-        idamProvenancePlugin(&client_block, &request, NULL, NULL, pluginlist, work, environment);
+        idamProvenancePlugin(&client_block, &request, nullptr, nullptr, pluginlist, work, environment);
         idamServerRedirectStdStreams(1);
 
         free((void*)work);

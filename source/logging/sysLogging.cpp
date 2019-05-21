@@ -49,7 +49,7 @@ void idamLogWithFunc(LOG_LEVEL mode, logFunc func)
     func(tmpFile);
     fseek(tmpFile, 0, SEEK_SET);
 
-    char* line = NULL;
+    char* line = nullptr;
     size_t n = 0;
 
     while (getline(&line, &n, tmpFile) != EOF) {

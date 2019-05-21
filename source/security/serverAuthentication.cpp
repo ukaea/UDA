@@ -38,8 +38,8 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
     int err = 0;
     static int initialised = FALSE;
 
-    static gcry_sexp_t privatekey = NULL;       // Server's
-    static gcry_sexp_t publickey = NULL;        // Client's
+    static gcry_sexp_t privatekey = nullptr;       // Server's
+    static gcry_sexp_t publickey = nullptr;        // Client's
 
     if (initialised) {
         *publickey_out = publickey;
@@ -47,13 +47,13 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
         return 0;
     }
 
-    char* env = NULL;
+    char* env = nullptr;
     size_t len = 0;
 
-    char* serverPrivateKeyFile = NULL;
-    char* CACertFile = NULL;
+    char* serverPrivateKeyFile = nullptr;
+    char* CACertFile = nullptr;
 
-    if ((env = getenv("UDA_SERVER_CERTIFICATE")) != NULL) {    // Directory with certificates and key files
+    if ((env = getenv("UDA_SERVER_CERTIFICATE")) != nullptr) {    // Directory with certificates and key files
         len = strlen(env) + 56;
         serverPrivateKeyFile = (char*)malloc(len * sizeof(unsigned char));
         CACertFile = (char*)malloc(len * sizeof(unsigned char));
@@ -71,8 +71,8 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
         sprintf(CACertFile, "%s/.UDA/server/carootX509.der", home);
     }
 
-    ksba_cert_t clientCert = NULL;
-    ksba_cert_t CACert = NULL;
+    ksba_cert_t clientCert = nullptr;
+    ksba_cert_t CACert = nullptr;
 
     do {    // Error Trap
 
@@ -80,7 +80,7 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
 
 // Read the Client's certificate, check validity, extract the public key
 
-        if (securityBlock->client_X509 != NULL) {
+        if (securityBlock->client_X509 != nullptr) {
             if ((err = makeX509CertObject(securityBlock->client_X509, securityBlock->client_X509Length,
                                           &clientCert)) != 0) {
                 break;
@@ -100,7 +100,7 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
 
 // Read the CA's certificate, check date validity
 
-        if (CACertFile != NULL) {
+        if (CACertFile != nullptr) {
             if ((err = importX509Reader(CACertFile, &CACert)) != 0) break;
             if ((err = testX509Dates(CACert)) != 0) break;
         }
@@ -120,8 +120,8 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
 
         ksba_cert_release(clientCert);
         ksba_cert_release(CACert);
-        clientCert = NULL;
-        CACert = NULL;
+        clientCert = nullptr;
+        CACert = nullptr;
 
     } while (0);
 
@@ -129,12 +129,12 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
     free(CACertFile);
 
     if (err != 0) {
-        if (privatekey != NULL) gcry_sexp_release(privatekey);
-        if (publickey != NULL) gcry_sexp_release(publickey);
-        if (clientCert != NULL) ksba_cert_release(clientCert);
-        if (CACert != NULL) ksba_cert_release(CACert);        // BUG in ksba library# ksba_free !
-        privatekey = NULL;    // These are declared as static so ensure reset when an error occurs
-        publickey = NULL;
+        if (privatekey != nullptr) gcry_sexp_release(privatekey);
+        if (publickey != nullptr) gcry_sexp_release(publickey);
+        if (clientCert != nullptr) ksba_cert_release(clientCert);
+        if (CACert != nullptr) ksba_cert_release(CACert);        // BUG in ksba library# ksba_free !
+        privatekey = nullptr;    // These are declared as static so ensure reset when an error occurs
+        publickey = nullptr;
         return err;
     }
 
@@ -163,7 +163,7 @@ static SECURITY_BLOCK* receiveSecurityBlock(CLIENT_BLOCK* client_block, LOGMALLO
         int protocol_id = PROTOCOL_CLIENT_BLOCK;        // Recieve Client Block
 
         int err = 0;
-        if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, client_block)) != 0) {
+        if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, client_block)) != 0) {
             addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (Client Block #2)");
             UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
         }
@@ -221,10 +221,10 @@ static int decryptClientToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmall
     }
 
     free((void*)client_ciphertext);
-    client_ciphertext = NULL;
+    client_ciphertext = nullptr;
     client_ciphertextLength = 0;
     free((void*)server_ciphertext);
-    server_ciphertext = NULL;
+    server_ciphertext = nullptr;
     server_ciphertextLength = 0;
 
     return err;
@@ -240,8 +240,8 @@ static int encryptClientToken(SERVER_BLOCK* server_block, gcry_sexp_t publickey,
 
     // Encrypt token (A)
 
-    unsigned char* client_ciphertext = NULL;
-    unsigned char* server_ciphertext = NULL;
+    unsigned char* client_ciphertext = nullptr;
+    unsigned char* server_ciphertext = nullptr;
     size_t client_ciphertextLength = 0;
     size_t server_ciphertextLength = 0;
 
@@ -276,8 +276,8 @@ static int issueToken(SERVER_BLOCK* server_block, LOGMALLOCLIST* logmalloclist, 
 
     // Generate new Token and Encrypt (B)
 
-    unsigned char* client_ciphertext = NULL;
-    unsigned char* server_ciphertext = NULL;
+    unsigned char* client_ciphertext = nullptr;
+    unsigned char* server_ciphertext = nullptr;
     size_t client_ciphertextLength = 0;
     size_t server_ciphertextLength = 0;
 
@@ -303,7 +303,7 @@ static int issueToken(SERVER_BLOCK* server_block, LOGMALLOCLIST* logmalloclist, 
 #ifndef TESTIDAMSECURITY
     int protocol_id = PROTOCOL_SERVER_BLOCK;
 
-    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, server_block)) != 0) {
+    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, server_block)) != 0) {
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (securityBlock #4)");
     }
 
@@ -335,7 +335,7 @@ static int verifyToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_block, L
         THROW_ERROR(PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #7)");
     }
 
-    if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, NULL, logmalloclist, userdefinedtypelist, client_block)) != 0) {
+    if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, client_block)) != 0) {
         THROW_ERROR(err, "Protocol 11 Error (securityBlock #7)");
     }
 
@@ -380,7 +380,7 @@ static int verifyToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_block, L
 #ifndef TESTIDAMSECURITY
     protocol_id = PROTOCOL_SERVER_BLOCK;
 
-    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, NULL, logmalloclist, userdefinedtypelist, server_block)) != 0) {
+    if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, server_block)) != 0) {
         THROW_ERROR(err, "Protocol 10 Error (securityBlock #7)");
     }
 
@@ -395,8 +395,8 @@ static int verifyToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_block, L
 int serverAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, LOGMALLOCLIST* logmalloclist,
                          USERDEFINEDTYPELIST* userdefinedtypelist, AUTHENTICATION_STEP authenticationStep)
 {
-    gcry_sexp_t privatekey = NULL;
-    gcry_sexp_t publickey = NULL;
+    gcry_sexp_t privatekey = nullptr;
+    gcry_sexp_t publickey = nullptr;
 
     int err = initialiseKeys(client_block, &publickey, &privatekey);
     if (err != 0) {
@@ -406,8 +406,8 @@ int serverAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
     //---------------------------------------------------------------------------------------------------------------
     // Authenticate both Client and Server
 
-    static gcry_mpi_t client_mpiToken = NULL;
-    static gcry_mpi_t server_mpiToken = NULL;
+    static gcry_mpi_t client_mpiToken = nullptr;
+    static gcry_mpi_t server_mpiToken = nullptr;
 
     switch (authenticationStep) {
         case SERVER_DECRYPT_CLIENT_TOKEN:
@@ -429,8 +429,8 @@ int serverAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
         case HOUSEKEEPING:
             free((void*)privatekey);
             free((void*)publickey);
-            if (client_mpiToken != NULL) gcry_mpi_release(client_mpiToken);
-            if (server_mpiToken != NULL) gcry_mpi_release(server_mpiToken);
+            if (client_mpiToken != nullptr) gcry_mpi_release(client_mpiToken);
+            if (server_mpiToken != nullptr) gcry_mpi_release(server_mpiToken);
             break;
 
         default:
@@ -438,8 +438,8 @@ int serverAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
     }
 
     if (err != 0) {
-        if (client_mpiToken != NULL) gcry_mpi_release(client_mpiToken);
-        if (server_mpiToken != NULL) gcry_mpi_release(server_mpiToken);
+        if (client_mpiToken != nullptr) gcry_mpi_release(client_mpiToken);
+        if (server_mpiToken != nullptr) gcry_mpi_release(server_mpiToken);
     }
 
     return err;

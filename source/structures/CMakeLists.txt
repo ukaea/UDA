@@ -2,10 +2,10 @@
 # Sources
 
 set( SRC_FILES
-  parseIncludeFile.c
-  struct.c
-  accessors.c
-  xdrUserDefinedData.c
+  parseIncludeFile.cpp
+  struct.cpp
+  accessors.cpp
+  xdrUserDefinedData.cpp
 )
 
 include_directories(

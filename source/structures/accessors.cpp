@@ -56,7 +56,7 @@
 *
 * This is a private function with the whole sub-tree in scope.
 *
-* @param ntree A pointer to a parent tree node that defines the start (root) of the sub-tree. If NULL the root node is assumed. 
+* @param ntree A pointer to a parent tree node that defines the start (root) of the sub-tree. If nullptr the root node is assumed. 
 * @param target The name of the data structure's element/member (case sensitive) 
 * This element may be either a data structure or an atomic typed element. The first occurance of the name is selected. 
 * @return the Tree Node containing the named element.
@@ -65,14 +65,14 @@
 NTREE* findNTreeStructureComponent1(NTREE* ntree, const char* target)
 {
     int i;
-    NTREE* child = NULL;
+    NTREE* child = nullptr;
 
-    if (ntree == NULL) ntree = fullNTree;
+    if (ntree == nullptr) ntree = fullNTree;
 
     // Single entity name expected - test
 
-    if ((strchr(target, '.') != NULL) || strchr(target, '/') != NULL) {
-        return NULL;
+    if ((strchr(target, '.') != nullptr) || strchr(target, '/') != nullptr) {
+        return nullptr;
     }
 
     // Is it the name of the current tree node?
@@ -93,12 +93,12 @@ NTREE* findNTreeStructureComponent1(NTREE* ntree, const char* target)
     // Recursively Search Child nodes for structured type data
 
     for (i = 0; i < ntree->branches; i++) {
-        if ((child = findNTreeStructureComponent1(ntree->children[i], target)) != NULL) {
+        if ((child = findNTreeStructureComponent1(ntree->children[i], target)) != nullptr) {
             return child;
         }
     }
 
-    return NULL;    // Not found
+    return nullptr;    // Not found
 }
 
 /** Find (search type A) the first Tree Node with a data structure type containing a named element/member.
@@ -106,7 +106,7 @@ NTREE* findNTreeStructureComponent1(NTREE* ntree, const char* target)
 *
 * This is a private function with the whole sub-tree in scope.
 *
-* @param ntree A pointer to a parent tree node that defines the start (root) of the sub-tree. If NULL the root node is assumed.
+* @param ntree A pointer to a parent tree node that defines the start (root) of the sub-tree. If nullptr the root node is assumed.
 * @param target The name of the data structure element/member (case sensitive) using the hierachical naming syntax a.b.c or a/b/c.
 * This element may be either a data structure or an atomic typed element. If a single named item is specified without
 * its hierarchical naming context, the tree node with the first occurance of the name is selected. Using the hierarchy imposes
@@ -124,15 +124,15 @@ All subsequent names must be within child nodes unless the last name
 NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, const char** lastname)
 {
     int i, j;
-    NTREE* child = NULL, * found = NULL;
+    NTREE* child = nullptr, * found = nullptr;
 
-    if (ntree == NULL) ntree = fullNTree;
+    if (ntree == nullptr) ntree = fullNTree;
 
     // Is the hierarchical name of the form: a.b.c or a/b/c
 
-    if ((strchr(target, '.') != NULL) || strchr(target, '/') != NULL) {
+    if ((strchr(target, '.') != nullptr) || strchr(target, '/') != nullptr) {
         int ntargets;
-        char** targetlist = NULL;
+        char** targetlist = nullptr;
         child = ntree;
 
         targetlist = parseTarget(target, &ntargets);    // Deconstruct the Name and search for each hierarchy group
@@ -141,24 +141,24 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
 
         // Search recursively for the first name
 
-        if ((child = findNTreeStructureComponent1(child, targetlist[0])) == NULL) {
+        if ((child = findNTreeStructureComponent1(child, targetlist[0])) == nullptr) {
             // Not found
-            return NULL;
+            return nullptr;
         }
 
         // Search child nodes for all names but the last name
 
         for (i = 1; i < ntargets - 1; i++) {
-            found = NULL;
+            found = nullptr;
             for (j = 0; j < child->branches; j++) {
                 if (STR_EQUALS(child->children[j]->name, targetlist[i])) {
                     found = child->children[j];
                     break;
                 }
             }
-            if (found == NULL) {
+            if (found == nullptr) {
                 // Not found
-                return NULL;
+                return nullptr;
             }
             child = found;
         }
@@ -182,16 +182,16 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
             if (STR_EQUALS(child->children[j]->name, targetlist[ntargets - 1])) return child->children[j];
         }
 
-        return NULL;    // Not Found
+        return nullptr;    // Not Found
     }
 
     // Recursively search using the single name passed
 
     *lastname = target;
 
-    if ((child = findNTreeStructureComponent1(ntree, target)) != NULL) return child;        // Found
+    if ((child = findNTreeStructureComponent1(ntree, target)) != nullptr) return child;        // Found
 
-    return NULL;        // Not found
+    return nullptr;        // Not found
 
 }
 
@@ -200,7 +200,7 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
 *
 * This is a private function with the whole sub-tree in scope.
 *
-* @param ntree A pointer to a parent tree node. If NULL the root node is assumed.
+* @param ntree A pointer to a parent tree node. If nullptr the root node is assumed.
 * @param target The name of the Structure (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * @param lastname Returns the name of the Structure, i.e., the name of the last node in the name hierarchy.
 * @return the Data Tree Node with the structure name.
@@ -208,15 +208,15 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
 NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, const char** lastname)
 {
     int i;
-    NTREE* child = NULL;
-    NTREE* test = NULL;
-    if (ntree == NULL) ntree = fullNTree;
+    NTREE* child = nullptr;
+    NTREE* test = nullptr;
+    if (ntree == nullptr) ntree = fullNTree;
 
     // Is the hierarchical name of the form: a.b.c or a/b/c
 
-    if ((strchr(target, '.') != NULL) || strchr(target, '/') != NULL) {
+    if ((strchr(target, '.') != nullptr) || strchr(target, '/') != nullptr) {
         int ntargets;
-        char** targetlist = NULL;
+        char** targetlist = nullptr;
         child = ntree;
 
         targetlist = parseTarget(target, &ntargets); // Deconstruct Name and search for each hierarchy group
@@ -226,15 +226,15 @@ NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const cha
                 child = findNTreeStructure2(logmalloclist, child, targetlist[i], lastname);
             } else {
                 if ((test = findNTreeStructure2(logmalloclist, child, targetlist[i], lastname)) ==
-                    NULL) { // Last element may not be a structure
-                    if (findNTreeStructureComponent2(logmalloclist, child, targetlist[i], lastname) == NULL) {
-                        child = NULL;
+                    nullptr) { // Last element may not be a structure
+                    if (findNTreeStructureComponent2(logmalloclist, child, targetlist[i], lastname) == nullptr) {
+                        child = nullptr;
                     }
                 } else {
                     child = test;
                 }
             }
-            if (child == NULL) {
+            if (child == nullptr) {
                 break;
             }
         }
@@ -268,21 +268,21 @@ NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const cha
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 /** Find (search type A) and return a Pointer to the Data Tree Node with a data structure that contains a named element.
 *
 * This is a public function with the whole sub-tree in scope.
 *
-* @param ntree A pointer to a parent tree node. If NULL the root node is assumed.
+* @param ntree A pointer to a parent tree node. If nullptr the root node is assumed.
 * @param target The name of the structure element or member (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * This element may be either a structure itself or an atomic typed element.
 * @return the Data Tree Node.
 */
 NTREE* findNTreeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
 {
-    const char* lastname = NULL;
+    const char* lastname = nullptr;
     return findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
 }
 
@@ -290,7 +290,7 @@ NTREE* findNTreeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, c
 *
 * This is a public function with the child sub-trees in scope.
 *
-* @param ntree A pointer to a parent tree node. If NULL the root node is assumed. 
+* @param ntree A pointer to a parent tree node. If nullptr the root node is assumed. 
 * @param target The name of the structure element or member (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * This element may be either a structure itself or an atomic typed element.
 * @return the Data Tree Node.
@@ -298,30 +298,30 @@ NTREE* findNTreeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, c
 NTREE* findNTreeChildStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
 {
     int i;
-    NTREE* child = NULL;
+    NTREE* child = nullptr;
 
-    if (ntree == NULL) ntree = fullNTree;
+    if (ntree == nullptr) ntree = fullNTree;
 
     // Search each child branch
 
     for (i = 0; i < ntree->branches; i++) {
-        if ((child = findNTreeStructureComponent(logmalloclist, ntree->children[i], target)) != NULL) return child;
+        if ((child = findNTreeStructureComponent(logmalloclist, ntree->children[i], target)) != nullptr) return child;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
 *
 * This is a public function with the whole sub-tree in scope.
 *
-* @param ntree A pointer to a parent tree node. If NULL the root node is assumed.
+* @param ntree A pointer to a parent tree node. If nullptr the root node is assumed.
 * @param target The name of the Structure (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * @return the Data Tree Node.
 */
 NTREE* findNTreeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
 {
-    const char* lastname = NULL;
+    const char* lastname = nullptr;
     return findNTreeStructure2(logmalloclist, ntree, target, &lastname);
 }
 
@@ -329,33 +329,33 @@ NTREE* findNTreeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char
 *
 * This is a public function with child sub-trees in scope.
 *
-* @param ntree A pointer to a parent tree node. If NULL the root node is assumed. 
+* @param ntree A pointer to a parent tree node. If nullptr the root node is assumed. 
 * @param target The name of the Structure (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * @return the child Data Tree Node.
 */
 NTREE* findNTreeChildStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
 {
     int i;
-    NTREE* child = NULL;
+    NTREE* child = nullptr;
 
-    if (ntree == NULL) ntree = fullNTree;
+    if (ntree == nullptr) ntree = fullNTree;
 
     // Search each child branch
 
     for (i = 0; i < ntree->branches; i++) {
-        if ((child = findNTreeStructure(logmalloclist, ntree->children[i], target)) != NULL) {
+        if ((child = findNTreeStructure(logmalloclist, ntree->children[i], target)) != nullptr) {
             return child;
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 /** Find and return a Pointer to a Data Tree Node with a data structure located at a specific memory location.
 *
 * This is a public function with the whole sub-tree in scope.
 *
-* @param ntree A pointer to a parent tree node. If NULL the root node is assumed.
+* @param ntree A pointer to a parent tree node. If nullptr the root node is assumed.
 * @param data The heap address of the data.
 * @return the Data Tree Node.
 */
@@ -363,43 +363,43 @@ NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data)
 {
     int i;
     NTREE* next;
-    if (ntree == NULL) ntree = fullNTree;
+    if (ntree == nullptr) ntree = fullNTree;
     if (data == ntree->data) {
         return ntree;
     }
     for (i = 0; i < ntree->branches; i++) {
-        if ((next = findNTreeStructureMalloc(ntree->children[i], data)) != NULL) {
+        if ((next = findNTreeStructureMalloc(ntree->children[i], data)) != nullptr) {
             return next;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 /** Locate a tree node with structured data having the specified Structure Definition name.
 *
 * This is a public function with the whole sub-tree in scope.
 *
-* @param ntree A pointer to a parent tree node. If NULL the root node is assumed.
+* @param ntree A pointer to a parent tree node. If nullptr the root node is assumed.
 * @param target The name of the Structure Definition.
 * @return A pointer to the First tree node found with the targeted structure definition.
 */
 NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target)
 {
     int i;
-    NTREE* child = NULL;
-    if (ntree == NULL) ntree = fullNTree;
+    NTREE* child = nullptr;
+    if (ntree == nullptr) ntree = fullNTree;
 
     // Is the hierarchical name of the form: a.b.c or a/b/c
 
-    if ((strchr(target, '.') != NULL) || strchr(target, '/') != NULL) {
+    if ((strchr(target, '.') != nullptr) || strchr(target, '/') != nullptr) {
         int ntargets;
-        char** targetlist = NULL;
+        char** targetlist = nullptr;
         child = ntree;
 
         targetlist = parseTarget(target, &ntargets); // Deconstruct the Name and search for each hierarchy group
 
         for (i = 0; i < ntargets; i++) { // Drill Down to requested named structure type
-            if ((child = findNTreeStructureDefinition(child, targetlist[i])) == NULL) break;
+            if ((child = findNTreeStructureDefinition(child, targetlist[i])) == nullptr) break;
         }
 
         // Free all entries
@@ -417,12 +417,12 @@ NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target)
     }
 
     for (i = 0; i < ntree->branches; i++) {
-        if ((child = findNTreeStructureDefinition(ntree->children[i], target)) != NULL) {
+        if ((child = findNTreeStructureDefinition(ntree->children[i], target)) != nullptr) {
             return child;
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 NTREE* xfindNTreeStructureDefinition(NTREE* tree, const char* target)
@@ -430,7 +430,7 @@ NTREE* xfindNTreeStructureDefinition(NTREE* tree, const char* target)
     int i;
     NTREE* next;
 
-    if (tree == NULL) {
+    if (tree == nullptr) {
         tree = fullNTree;
     }
 
@@ -439,19 +439,19 @@ NTREE* xfindNTreeStructureDefinition(NTREE* tree, const char* target)
     }
 
     for (i = 0; i < tree->branches; i++) {
-        if ((next = findNTreeStructureDefinition(tree->children[i], target)) != NULL) {
+        if ((next = findNTreeStructureDefinition(tree->children[i], target)) != nullptr) {
             return next;
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 /** Locate a tree node with structured data having the specified Structure Definition name.
 *
 * This is a public function with the whole sub-tree in scope.
 *
-* @param tree A pointer to a parent tree node. If NULL the root node is assumed.
+* @param tree A pointer to a parent tree node. If nullptr the root node is assumed.
 * @param target The name of the Structure Definition.
 * @return A pointer to the First tree node found with the targeted structure definition.
 */
@@ -460,7 +460,7 @@ NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target)
     int i;
     NTREE* next;
 
-    if (tree == NULL) {
+    if (tree == nullptr) {
         tree = fullNTree;
     }
 
@@ -472,49 +472,49 @@ NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target)
     }
 
     for (i = 0; i < tree->branches; i++) {
-        if ((next = findNTreeStructureComponentDefinition(tree->children[i], target)) != NULL) {
+        if ((next = findNTreeStructureComponentDefinition(tree->children[i], target)) != nullptr) {
             return next;
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 /** Locate a tree node with structured data having a Specific Structure Class.
 *
 * This is a public function with the whole sub-tree in scope.
 *
-* @param tree A pointer to a parent tree node. If NULL the root node is assumed.
+* @param tree A pointer to a parent tree node. If nullptr the root node is assumed.
 * @param class The Structure Class, e.g., UDA_TYPE_VLEN.
 * @return A pointer to the First tree node found with the targeted structure class.
 */
-NTREE* idam_findNTreeStructureClass(NTREE* tree, int class)
+NTREE* idam_findNTreeStructureClass(NTREE* tree, int cls)
 {
     int i;
     NTREE* next;
 
-    if (tree == NULL) {
+    if (tree == nullptr) {
         tree = fullNTree;
     }
 
-    if (tree->userdefinedtype->idamclass == class) {
+    if (tree->userdefinedtype->idamclass == cls) {
         return tree;
     }
 
     for (i = 0; i < tree->branches; i++) {
-        if ((next = idam_findNTreeStructureClass(tree->children[i], class)) != NULL) {
+        if ((next = idam_findNTreeStructureClass(tree->children[i], cls)) != nullptr) {
             return next;
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 /** Identify the largest count of a Variable Length Array with a given structure type.
 *
 * This is a public function with the whole sub-tree in scope.
 *
-* @param tree A pointer to a parent tree node. If NULL the root node is assumed.
+* @param tree A pointer to a parent tree node. If nullptr the root node is assumed.
 * @param target The name of the VLEN Structure Definition.
 * @param reset Reset the counbter to zero.
 * @return An integer returning the maximum count value.
@@ -530,7 +530,7 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
     static unsigned int count = 0;
     if (reset) count = 0;
 
-    if (tree == NULL) {
+    if (tree == nullptr) {
         tree = fullNTree;
     }
 
@@ -552,7 +552,7 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
 *
 * This is a public function with the whole sub-tree in scope.
 *
-* @param tree A pointer to a parent tree node. If NULL the root node is assumed.
+* @param tree A pointer to a parent tree node. If nullptr the root node is assumed.
 * @param target The name of the VLEN Structure Definition.
 * @param count The maximum count size for the VLEN data arrays.
 * @return An integer returning an error code: 0 => OK.
@@ -566,9 +566,9 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
     } VLENTYPE;
 
     int rc = 0, size = 0, resetBranches = 0;
-    void* old = NULL, * newnew = NULL;
+    void* old = nullptr, * newnew = nullptr;
 
-    if (tree == NULL) {
+    if (tree == nullptr) {
         tree = fullNTree;
     }
 
@@ -644,17 +644,17 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
 *
 * This is a public function with the whole sub-tree in scope.
 *
-* @param tree A pointer to a parent tree node. If NULL the root node is assumed.
+* @param tree A pointer to a parent tree node. If nullptr the root node is assumed.
 * @return An integer returning an error code: 0 => OK.
 */
 int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
     int rc = 0, count = 0;
-    NTREE* nt = NULL;
-    if (tree == NULL) tree = fullNTree;
+    NTREE* nt = nullptr;
+    if (tree == nullptr) tree = fullNTree;
 
     do {
-        if ((nt = idam_findNTreeStructureClass(tree, UDA_TYPE_VLEN)) != NULL) {
+        if ((nt = idam_findNTreeStructureClass(tree, UDA_TYPE_VLEN)) != nullptr) {
             count = idam_maxCountVlenStructureArray(tree, nt->userdefinedtype->name, 1);
             if (count > 0) {
                 rc = idam_regulariseVlenStructures(logmalloclist, tree, userdefinedtypelist, nt->userdefinedtype->name, count);
@@ -664,7 +664,7 @@ int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFIN
             }
             nt->userdefinedtype->idamclass = UDA_TYPE_COMPOUND;   // Change the class to 'regular compound structure'
         }
-    } while (nt != NULL);
+    } while (nt != nullptr);
 
     return 0;
 }
@@ -677,14 +677,14 @@ int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFIN
 *
 * This is a public function with the current tree node only in scope.
 *
-* @param ntree A pointer to a tree node. If NULL the root node is assumed.
+* @param ntree A pointer to a tree node. If nullptr the root node is assumed.
 * @return the Count of structured data array elements.
 */
 int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size;
     const char* type;
-    if (ntree == NULL) {
+    if (ntree == nullptr) {
         ntree = fullNTree;
     }
     findMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
@@ -695,14 +695,14 @@ int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 *
 * This is a public function with the current tree node only in scope.
 *
-* @param ntree A pointer to a tree node. If NULL the root node is assumed.
+* @param ntree A pointer to a tree node. If nullptr the root node is assumed.
 * @return the Size (bytes) of the structured data array.
 */
 int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size;
     const char* type;
-    if (ntree == NULL) {
+    if (ntree == nullptr) {
         ntree = fullNTree;
     }
     findMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
@@ -713,7 +713,7 @@ int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 *
 * This is a public function with the current tree node only in scope.
 *
-* @param ntree A pointer to a tree node. If NULL the root node is assumed.
+* @param ntree A pointer to a tree node. If nullptr the root node is assumed.
 * @return The rank of the structured data array.
 */
 int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
@@ -721,7 +721,7 @@ int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     int count, size, rank;
     int* shape;
     const char* type;
-    if (ntree == NULL) {
+    if (ntree == nullptr) {
         ntree = fullNTree;
     }
     findMalloc2(logmalloclist, (void*)&ntree->data, &count, &size, &type, &rank, &shape);
@@ -732,7 +732,7 @@ int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 *
 * This is a public function with the current tree node only in scope.
 *
-* @param ntree A pointer to a tree node. If NULL the root node is assumed.
+* @param ntree A pointer to a tree node. If nullptr the root node is assumed.
 * @return A pointer to the integer shape array of the structured data array.
 */
 int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
@@ -740,11 +740,11 @@ int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     int count, size, rank;
     int* shape;
     const char* type;
-    if (ntree == NULL) {
+    if (ntree == nullptr) {
         ntree = fullNTree;
     }
 
-    if (ntree->parent != NULL) {
+    if (ntree->parent != nullptr) {
         int i, branches = ntree->parent->branches;
         fprintf(stdout, "\n%p Parent Name %s\n", ntree, ntree->parent->name);
         fprintf(stdout, "%p Parent Type %s\n", ntree, ntree->parent->userdefinedtype->name);
@@ -770,14 +770,14 @@ int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 *
 * This is a public function with the current tree node only in scope.
 *
-* @param ntree A pointer to a tree node. If NULL the root node is assumed.
+* @param ntree A pointer to a tree node. If nullptr the root node is assumed.
 * @return the data type name of the structured data array.
 */
 const char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size;
-    const char* type = NULL;
-    if (ntree == NULL) {
+    const char* type = nullptr;
+    if (ntree == nullptr) {
         ntree = fullNTree;
     }
     findMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
@@ -788,12 +788,12 @@ const char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* nt
 *
 * This is a public function with the current tree node only in scope.
 *
-* @param ntree A pointer to a tree node. If NULL the root node is assumed.
+* @param ntree A pointer to a tree node. If nullptr the root node is assumed.
 * @return A void pointer to the data .
 */
 void* getNodeStructureData(NTREE* ntree)
 {
-    if (ntree == NULL) {
+    if (ntree == nullptr) {
         ntree = fullNTree;
     }
     return ntree->data;
@@ -815,7 +815,7 @@ void* getNodeStructureData(NTREE* ntree)
 void printImage(const char* image, int imagecount)
 {
     int next = 0;
-    if (image == NULL || imagecount == '\0') {
+    if (image == nullptr || imagecount == '\0') {
         return;
     }
     while (next < imagecount) {
@@ -1003,7 +1003,7 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
     }
 
     field->rank = 0;
-    field->shape = NULL;
+    field->shape = nullptr;
 
     if (type_id != SCALARSTRING) {
         field->offset = (int)newoffset(*offset, field->type);
@@ -1026,7 +1026,7 @@ void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* nam
     field->pointer = 1;
     field->count = 1;
     field->rank = 0;
-    field->shape = NULL;
+    field->shape = nullptr;
 
     field->size = field->count * size;
     field->offset = offset;

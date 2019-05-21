@@ -1,5 +1,5 @@
-#ifndef IDAM_IDAMCLIENTCACHE_H
-#define IDAM_IDAMCLIENTCACHE_H
+#ifndef UDA_FILECACHE_H
+#define UDA_FILECACHE_H
 
 #include <stdio.h>
 #include <time.h>
@@ -22,19 +22,29 @@
 #define CACHE_LIVERECORD	1
 #define CACHE_LOCKEDRECORD	2		// Do Not purge this file - possibly in use
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // File Cache
 extern REQUEST_BLOCK* request_block_ptr;   // Pointer to the User REQUEST_BLOCK
 
-int idamClientLockCache(FILE **db, short type);
+int idamClientLockCache(FILE** db, short type);
 int idamClientCacheTimeValid(unsigned long long timestamp);
 int idamClientCacheLockedTimeValid(unsigned long long timestamp);
-int idamClientCacheFileValid(const char *filename);
-int idamClientGetCacheStats(FILE *db, unsigned long *recordCount, unsigned long *deadCount, unsigned long *endOffset, char csvChar);
-void idamClientUpdateCacheStats(FILE *db, unsigned long recordCount, unsigned long deadCount, unsigned long endOffset, char csvChar);
-int idamClientPurgeCache(FILE *db, unsigned long recordCount, unsigned long *endOffset);
-int idamClientReadCache(DATA_BLOCK *data_block, char *filename);
-int idamClientGetCacheFilename(REQUEST_BLOCK *request_block, char **cacheFilename);
-int idamClientWriteCache(char *filename);  
-unsigned int xcrc32 (const unsigned char *buf, int len, unsigned int init);
+int idamClientCacheFileValid(const char* filename);
+int idamClientGetCacheStats(FILE* db, unsigned long* recordCount, unsigned long* deadCount, unsigned long* endOffset,
+                            char csvChar);
+void idamClientUpdateCacheStats(FILE* db, unsigned long recordCount, unsigned long deadCount, unsigned long endOffset,
+                                char csvChar);
+int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* endOffset);
+int idamClientReadCache(DATA_BLOCK* data_block, char* filename);
+int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilename);
+int idamClientWriteCache(char* filename);
+unsigned int xcrc32(const unsigned char* buf, int len, unsigned int init);
 
-#endif // IDAM_IDAMCLIENTCACHE_H
+#ifdef __cplusplus
+}
+#endif
+
+#endif // UDA_FILECACHE_H

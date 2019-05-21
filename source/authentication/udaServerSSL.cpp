@@ -20,8 +20,8 @@ static int sslDisabled = 1;        // Default state is not SSL authentication
 static int sslSocket = -1;
 static int sslOK = 0;        // SSL Authentication has been passed sucessfully: default is NOT Passed
 static int sslGlobalInit = 0;        // Global initialisation of SSL completed
-static SSL* ssl = NULL;
-static SSL_CTX* ctx = NULL;
+static SSL* ssl = nullptr;
+static SSL_CTX* ctx = nullptr;
 
 void putUdaServerSSLOK(int ok)
 {
@@ -119,7 +119,7 @@ void getUdaServerSSLErrorCode(int rc)
     err = 999;
     addIdamError(CODEERRORTYPE, "udaSSL", err, msg);
     UDA_LOG(UDA_LOG_DEBUG, "udaSSL: Error - %s\n", msg);
-    UDA_LOG(UDA_LOG_DEBUG, "udaSSL: Error - %s\n", ERR_error_string(ERR_get_error(), NULL));
+    UDA_LOG(UDA_LOG_DEBUG, "udaSSL: Error - %s\n", ERR_error_string(ERR_get_error(), nullptr));
     UDA_LOG(UDA_LOG_DEBUG, "udaSSL: State - %s\n", SSL_state_string(getUdaServerSSL()));
 }
 
@@ -147,14 +147,14 @@ void closeUdaServerSSL()
     putUdaServerSSLDisabled(1);
     SSL* ssl = getUdaServerSSL();
     SSL_CTX* ctx = getUdaServerSSLCTX();
-    if (ssl != NULL) {
+    if (ssl != nullptr) {
         SSL_shutdown(ssl);
         SSL_free(ssl);
     }
-    if (ctx != NULL) SSL_CTX_free(ctx);
+    if (ctx != nullptr) SSL_CTX_free(ctx);
     EVP_cleanup();
-    putUdaServerSSL(NULL);
-    putUdaServerSSLCTX(NULL);
+    putUdaServerSSL(nullptr);
+    putUdaServerSSLCTX(nullptr);
     unsetenv("UDA_SSL_INITIALISED");
     putUdaServerSSLGlobalInit(0);
     UDA_LOG(UDA_LOG_DEBUG, "closeUdaServerSSL: SSL closed\n");
@@ -179,7 +179,7 @@ SSL_CTX* createUdaServerSSLContext()
         err = 999;
         addIdamError(CODEERRORTYPE, "udaSSL", err, "Unable to create SSL context");
         UDA_LOG(UDA_LOG_DEBUG, "Unable to create SSL context!\n");
-        return NULL;
+        return nullptr;
     }
 
 // Disable SSLv2 for v3 and TSLv1  negotiation 
@@ -251,7 +251,7 @@ int configureUdaServerSSLContext()
 
 // Load certificates of trusted CAs   
 
-    if (SSL_CTX_load_verify_locations(ctx, ca, NULL) < 1) {
+    if (SSL_CTX_load_verify_locations(ctx, ca, nullptr) < 1) {
         err = 999;
         addIdamError(CODEERRORTYPE, "udaServerSSL", err,
                      "Error setting the Cetificate Authority verify locations!");
@@ -260,7 +260,7 @@ int configureUdaServerSSLContext()
 
 // Peer certificate verification
 
-    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
+    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
     SSL_CTX_set_verify_depth(ctx, VERIFY_DEPTH);
 
 // Add verification against the Certificate Revocation List
@@ -313,11 +313,11 @@ X509_CRL* loadUdaServerSSLCrl(char* crlist)
     int err = 0;
 
     BIO* in = BIO_new(BIO_s_file());
-    if (in == NULL) {
+    if (in == nullptr) {
         err = 999;
         addIdamError(CODEERRORTYPE, "udaSSL", err,
                      "Error creating a Certificate Revocation List object!");
-        return NULL;
+        return nullptr;
     }
 
     if (BIO_read_filename(in, crlist) <= 0) {
@@ -325,17 +325,17 @@ X509_CRL* loadUdaServerSSLCrl(char* crlist)
         err = 999;
         addIdamError(CODEERRORTYPE, "udaSSL", err,
                      "Error opening the Certificate Revocation List file!");
-        return NULL;
+        return nullptr;
     }
 
-    X509_CRL* x = PEM_read_bio_X509_CRL(in, NULL, NULL, NULL);
+    X509_CRL* x = PEM_read_bio_X509_CRL(in, nullptr, nullptr, nullptr);
 
-    if (x == NULL) {
+    if (x == nullptr) {
         BIO_free(in);
         err = 999;
         addIdamError(CODEERRORTYPE, "udaSSL", err,
                      "Error reading the Certificate Revocation List file!");
-        return NULL;
+        return nullptr;
     }
 
     BIO_free(in);
@@ -359,14 +359,14 @@ int addUdaServerSSLCrlsStore(X509_STORE* st, STACK_OF(X509_CRL)* crls)
 /*
 static int load_CA(SSL *ssl, SSL_CTX *ctx, char *file){
     FILE *in;
-    X509 *x = NULL;
+    X509 *x = nullptr;
 
-    if ((in = fopen(file, "r")) == NULL){
+    if ((in = fopen(file, "r")) == nullptr){
         fprintf(logout, "Unable to open the CA certificate file\n");
         return (0);
     }
     for (;;) {
-        if (PEM_read_X509(in, &x, 0, NULL) == NULL){
+        if (PEM_read_X509(in, &x, 0, nullptr) == nullptr){
            fprintf(logout, "Unable to read the CA certificate file\n");
            break;
         }
@@ -374,10 +374,10 @@ static int load_CA(SSL *ssl, SSL_CTX *ctx, char *file){
 	SSL_add_client_CA(ssl, x);
     }
 
-    if (x != NULL) X509_free(x);
+    if (x != nullptr) X509_free(x);
     fclose(in);
     
-    if(x == NULL) return 0;
+    if(x == nullptr) return 0;
     return (1);
 }
 */
@@ -386,7 +386,7 @@ static int load_CA(SSL *ssl, SSL_CTX *ctx, char *file){
 int startUdaServerSSL()
 {
     int rc, err = 0;
-    SSL_CTX* ctx = NULL;
+    SSL_CTX* ctx = nullptr;
 
 // Has SSL/TLS authentication already been passed?
 
@@ -449,7 +449,7 @@ int startUdaServerSSL()
 
     X509* peer = SSL_get_peer_certificate(ssl);
 
-    if (peer != NULL) {
+    if (peer != nullptr) {
 
         if ((rc = SSL_get_verify_result(ssl)) !=
             X509_V_OK) {    // returns X509_V_OK if the certificate was not obtained as no error occured!
@@ -511,7 +511,7 @@ int writeUdaServerSSL(void* iohandle, char* buf, int count)
 
     setSelectParms(getUdaServerSSLSocket(), &wfds, &tv);
 
-    while ((rc = select(getUdaServerSSLSocket() + 1, NULL, &wfds, NULL, &tv)) <= 0) {
+    while ((rc = select(getUdaServerSSLSocket() + 1, nullptr, &wfds, nullptr, &tv)) <= 0) {
 
         if (rc < 0) {    // Error
             if (errno == EBADF) {
@@ -589,7 +589,7 @@ int readUdaServerSSL(void* iohandle, char* buf, int count)
 
 // TODO: Use pselect to include a signal mask to force a timeout
 
-    while ((rc = select(getUdaServerSSLSocket() + 1, &rfds, NULL, NULL, &tvc)) <= 0) {
+    while ((rc = select(getUdaServerSSLSocket() + 1, &rfds, nullptr, nullptr, &tvc)) <= 0) {
 
         if (rc < 0) {    // Error
             if (errno == EBADF) {

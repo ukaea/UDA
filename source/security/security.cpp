@@ -93,7 +93,7 @@
 
 static void logToken(const char* msg, const gcry_mpi_t mpi_token)
 {
-    unsigned char* token = NULL;
+    unsigned char* token = nullptr;
     size_t tokenLength = 0;
 
     gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, mpi_token);
@@ -116,7 +116,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
         // Standard Test Message
         case NONCETEST: {
             const char* txt = "QWERTYqwerty0123456789";
-            if (gcry_mpi_scan(mpiToken, GCRYMPI_FMT_USG, txt, strlen(txt), NULL) != 0) {
+            if (gcry_mpi_scan(mpiToken, GCRYMPI_FMT_USG, txt, strlen(txt), nullptr) != 0) {
                 THROW_ERROR(999, "Unable to generate MPI Token");
             }
         }
@@ -126,7 +126,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
         case NONCEWEAKRANDOM: {
             *mpiToken = gcry_mpi_new((unsigned int)tokenByteLength * 8);
             gcry_mpi_randomize(*mpiToken, (unsigned int)tokenByteLength * 8, GCRY_WEAK_RANDOM);
-            if (*mpiToken == NULL) {
+            if (*mpiToken == nullptr) {
                 THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
@@ -137,7 +137,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
         case NONCESTRONGRANDOM: {
             *mpiToken = gcry_mpi_new((unsigned int)tokenByteLength * 8);
             gcry_mpi_randomize(*mpiToken, (unsigned int)tokenByteLength * 8, GCRY_STRONG_RANDOM);
-            if (*mpiToken == NULL) {
+            if (*mpiToken == nullptr) {
                 THROW_ERROR(999, "Unable to generate MPI Token");
             }
         }
@@ -150,7 +150,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             unsigned int pid = (unsigned int)getpid();
 
             // Get the current time and convert to a string
-            unsigned long long t = (unsigned long long)time(NULL);
+            unsigned long long t = (unsigned long long)time(nullptr);
             char timeList[256];   // Overestimate of the maximum possible size of a long long integer
             sprintf(timeList, "%llu", t);
             size_t timeLength = strlen(timeList);
@@ -166,13 +166,13 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
 
             // Create an MPI from both the time and the quasi-random list
             gcry_mpi_t timeData;
-            if (gcry_mpi_scan(&timeData, GCRYMPI_FMT_USG, timeList, timeLength, NULL) != 0) {
+            if (gcry_mpi_scan(&timeData, GCRYMPI_FMT_USG, timeList, timeLength, nullptr) != 0) {
                 free((void*)randList);
                 THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
             gcry_mpi_t randData;
-            if (gcry_mpi_scan(&randData, GCRYMPI_FMT_USG, randList, tokenByteLength, NULL) != 0) {
+            if (gcry_mpi_scan(&randData, GCRYMPI_FMT_USG, randList, tokenByteLength, nullptr) != 0) {
                 gcry_mpi_release(timeData);
                 free((void*)randList);
                 THROW_ERROR(999, "Unable to generate MPI Token");
@@ -184,7 +184,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             *mpiToken = gcry_mpi_new(0);
             gcry_mpi_mul(*mpiToken, timeData, randData);
 
-            if (*mpiToken == NULL) {
+            if (*mpiToken == nullptr) {
                 gcry_mpi_release(timeData);
                 gcry_mpi_release(randData);
                 THROW_ERROR(999, "Unable to generate MPI Token");
@@ -211,7 +211,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
  *      (enc-val
  *       (rsa
  *        (a a-value)))
- * as returned by gcry_pk_decrypt, return the the A-VALUE. On error, return NULL.
+ * as returned by gcry_pk_decrypt, return the the A-VALUE. On error, return nullptr.
  * @param encr_data
  * @return
  */
@@ -223,17 +223,17 @@ static gcry_mpi_t extract_a_from_sexp(gcry_sexp_t encr_data)
 
     l1 = gcry_sexp_find_token(encr_data, "enc-val", 0);
     if (!l1) {
-        return NULL;
+        return nullptr;
     }
     l2 = gcry_sexp_find_token(l1, "rsa", 0);
     gcry_sexp_release(l1);
     if (!l2) {
-        return NULL;
+        return nullptr;
     }
     l3 = gcry_sexp_find_token(l2, "a", 0);
     gcry_sexp_release(l2);
     if (!l3) {
-        return NULL;
+        return nullptr;
     }
     a_value = gcry_sexp_nth_mpi(l3, 1, 0);
     gcry_sexp_release(l3);
@@ -245,17 +245,17 @@ static int generateToken(gcry_mpi_t* mpi_token, unsigned short tokenType, unsign
 {
     int err = 0;
 
-    if (*mpi_token != NULL) {
+    if (*mpi_token != nullptr) {
         gcry_mpi_release(*mpi_token);
-        *mpi_token = NULL;
+        *mpi_token = nullptr;
     }
 
     err = createMPIToken(tokenType, tokenByteLength, mpi_token);
 
-    if (err != 0 || *mpi_token == NULL) {
-        if (*mpi_token != NULL) {
+    if (err != 0 || *mpi_token == nullptr) {
+        if (*mpi_token != nullptr) {
             gcry_mpi_release(*mpi_token);
-            *mpi_token = NULL;
+            *mpi_token = nullptr;
         }
         THROW_ERROR(err, "Error Generating Token");
     }
@@ -271,16 +271,16 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
 {
     int err = 0;
 
-    gcry_sexp_t mpiTokenSexp = NULL;    // Token as a S-Expression
+    gcry_sexp_t mpiTokenSexp = nullptr;    // Token as a S-Expression
 
     gpg_error_t gerr;
 
-    if ((gerr = gcry_sexp_build(&mpiTokenSexp, NULL, "(data (flags raw) (value %m))", *mpi_token)) != 0) {
+    if ((gerr = gcry_sexp_build(&mpiTokenSexp, nullptr, "(data (flags raw) (value %m))", *mpi_token)) != 0) {
         gcry_mpi_release(*mpi_token);
-        *mpi_token = NULL;
-        if (mpiTokenSexp != NULL) {
+        *mpi_token = nullptr;
+        if (mpiTokenSexp != nullptr) {
             gcry_sexp_release(mpiTokenSexp);
-            mpiTokenSexp = NULL;
+            mpiTokenSexp = nullptr;
         }
         addIdamError(CODEERRORTYPE, __func__, 999, "Error Generating Token S-Exp");
         THROW_ERROR(999, gpg_strerror(gerr));
@@ -288,53 +288,53 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
 
     switch (encryptionMethod) {
         case (ASYMMETRICKEY): {
-            gcry_sexp_t encr = NULL; // Encrypted token
+            gcry_sexp_t encr = nullptr; // Encrypted token
 
             // Encrypt
             if ((gerr = gcry_pk_encrypt(&encr, mpiTokenSexp, key)) != 0) {
-                if (mpiTokenSexp != NULL) gcry_sexp_release(mpiTokenSexp);
+                if (mpiTokenSexp != nullptr) gcry_sexp_release(mpiTokenSexp);
                 addIdamError(CODEERRORTYPE, __func__, 999, "Encryption Error");
                 THROW_ERROR(999, gpg_strerror(gerr));
             }
 
-            if (mpiTokenSexp != NULL) gcry_sexp_release(mpiTokenSexp);
+            if (mpiTokenSexp != nullptr) gcry_sexp_release(mpiTokenSexp);
 
-            gcry_mpi_t encrypted_token = NULL; // MPI in encrypted form
+            gcry_mpi_t encrypted_token = nullptr; // MPI in encrypted form
 
             // Extract the ciphertext from the S-expression
-            if ((encrypted_token = extract_a_from_sexp(encr)) == NULL) {
-                if (encr != NULL) gcry_sexp_release(encr);
+            if ((encrypted_token = extract_a_from_sexp(encr)) == nullptr) {
+                if (encr != nullptr) gcry_sexp_release(encr);
                 THROW_ERROR(999, "Poor Encryption");
             }
 
             // Check the ciphertext does not match the plaintext
             if (!gcry_mpi_cmp(*mpi_token, encrypted_token)) {
-                if (encrypted_token != NULL) gcry_mpi_release(encrypted_token);
+                if (encrypted_token != nullptr) gcry_mpi_release(encrypted_token);
                 THROW_ERROR(999, "Poor Encryption");
             }
 
             // Return the ciphertext
-            *ciphertext_len = gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, NULL, 0);
+            *ciphertext_len = gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, nullptr, 0);
 
             if (*ciphertext_len == 0) {
-                if (encr != NULL) gcry_sexp_release(encr);
-                if (encrypted_token != NULL) gcry_mpi_release(encrypted_token);
-                *ciphertext = NULL;
+                if (encr != nullptr) gcry_sexp_release(encr);
+                if (encrypted_token != nullptr) gcry_mpi_release(encrypted_token);
+                *ciphertext = nullptr;
                 THROW_ERROR(999, "Ciphertext extraction error");
             }
 
             *ciphertext = (unsigned char*)malloc(*ciphertext_len * sizeof(unsigned char));
             gcry_sexp_sprint(encr, GCRYSEXP_FMT_DEFAULT, *ciphertext, *ciphertext_len);
 
-            if (*ciphertext == NULL) {
-                if (encr != NULL) gcry_sexp_release(encr);
-                if (encrypted_token != NULL) gcry_mpi_release(encrypted_token);
+            if (*ciphertext == nullptr) {
+                if (encr != nullptr) gcry_sexp_release(encr);
+                if (encrypted_token != nullptr) gcry_mpi_release(encrypted_token);
                 THROW_ERROR(999, "Ciphertext extraction error");
             }
 
             logToken("Encrypted", encrypted_token);
 
-            if (encrypted_token != NULL) gcry_mpi_release(encrypted_token);
+            if (encrypted_token != nullptr) gcry_mpi_release(encrypted_token);
 
             break;
         }
@@ -353,10 +353,10 @@ static int decryptToken(gcry_mpi_t* mpi_token, gcry_sexp_t key, unsigned char** 
     // Create S-Expression from the passed ciphertext and decrypt
 
     gpg_error_t gerr = 0;
-    gcry_sexp_t encr = NULL; // Encrypted token
-    gcry_sexp_t decr = NULL; // Decrypted token
+    gcry_sexp_t encr = nullptr; // Encrypted token
+    gcry_sexp_t decr = nullptr; // Decrypted token
 
-    if ((gerr = gcry_sexp_create(&encr, (void*)*ciphertext, *ciphertext_len, 1, NULL)) != 0) {
+    if ((gerr = gcry_sexp_create(&encr, (void*)*ciphertext, *ciphertext_len, 1, nullptr)) != 0) {
         addIdamError(CODEERRORTYPE, __func__, 999, "Error Generating Token S-Exp");
         THROW_ERROR(999, (char*)gpg_strerror(gerr));
     }
@@ -372,7 +372,7 @@ static int decryptToken(gcry_mpi_t* mpi_token, gcry_sexp_t key, unsigned char** 
     // Extract the decrypted data from the S-expression.
     gcry_sexp_t tmplist = gcry_sexp_find_token(decr, "value", 0);
 
-    gcry_mpi_t plaintext = NULL;
+    gcry_mpi_t plaintext = nullptr;
 
     if (tmplist) {
         plaintext = gcry_sexp_nth_mpi(tmplist, 1, GCRYMPI_FMT_USG);
@@ -427,8 +427,8 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
     //--------------------------------------------------------------------------------------------------------------------
     // Authentication Steps
 
-    static gcry_mpi_t mpiTokenA = NULL;    // Token passed from the client to the server (preserve for comparison)
-    static gcry_mpi_t mpiTokenB = NULL;    // Token passed from the server to the client (preserve for comparison)
+    static gcry_mpi_t mpiTokenA = nullptr;    // Token passed from the client to the server (preserve for comparison)
+    static gcry_mpi_t mpiTokenB = nullptr;    // Token passed from the server to the client (preserve for comparison)
 
     UDA_LOG(UDA_LOG_DEBUG, "Step %d\n", authenticationStep);
 
@@ -463,7 +463,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
         }
 
         case CLIENT_DECRYPT_SERVER_TOKEN: {        // Client decrypts the passed ciphers (EACP, EBCP) with the client's private key (A, B)
-            gcry_mpi_t received_token = NULL;
+            gcry_mpi_t received_token = nullptr;
             err = decryptToken(&received_token, privatekey, client_ciphertext, client_ciphertextLength);
             if (err != 0) {
                 break;
@@ -479,7 +479,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
 
             // Server has been authenticated so delete the original token A - no longer required.
             gcry_mpi_release(mpiTokenA);
-            mpiTokenA = NULL;
+            mpiTokenA = nullptr;
 
             err = decryptToken(server_mpiToken, privatekey, server_ciphertext, server_ciphertextLength);
             break;
@@ -492,7 +492,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
         }
 
         case SERVER_VERIFY_TOKEN: {        // Server decrypts the passed cipher (EBSP) with the server's private key (B)
-            gcry_mpi_t received_token = NULL;
+            gcry_mpi_t received_token = nullptr;
             err = decryptToken(&received_token, privatekey, server_ciphertext, server_ciphertextLength);
 
             // Check that the decrypted token matches the original token.
@@ -505,7 +505,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
 
             // Client has been authenticated so delete the original token B - no longer required.
             gcry_mpi_release(mpiTokenB);
-            mpiTokenB = NULL;
+            mpiTokenB = nullptr;
             break;
         }
 

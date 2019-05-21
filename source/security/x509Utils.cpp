@@ -58,7 +58,7 @@ enum {
     TAG_INTEGER = 2,
     TAG_BIT_STRING = 3,
     TAG_OCTET_STRING = 4,
-    TAG_NULL = 5,
+    TAG_nullptr = 5,
     TAG_OBJECT_ID = 6,
     TAG_OBJECT_DESCRIPTOR = 7,
     TAG_EXTERNAL = 8,
@@ -276,7 +276,7 @@ static int pk_algo_from_sexp(gcry_sexp_t pkey)
 
 /**
  * Read a file from stream FP into a newly allocated buffer and return that buffer.
- * The valid length of the buffer is stored at R_LENGTH. Returns NULL on failure.  If decode is set, the file is
+ * The valid length of the buffer is stored at R_LENGTH. Returns nullptr on failure.  If decode is set, the file is
  * assumed to be hex encoded and the decoded content is returned.
  * @param fp
  * @param decode
@@ -294,7 +294,7 @@ static void* read_file(FILE* fp, int decode, size_t* r_length)
 #ifdef HAVE_DOSISH_SYSTEM
     setmode(fileno(fp), O_BINARY);
 #endif
-    buffer = NULL;
+    buffer = nullptr;
     buflen = 0;
     do {
         bufsize += NCHUNK;
@@ -307,7 +307,7 @@ static void* read_file(FILE* fp, int decode, size_t* r_length)
         nread = fread(buffer + buflen, 1, NCHUNK, fp);
         if (nread < NCHUNK && ferror(fp)) {
             gcry_free(buffer);
-            return NULL;
+            return nullptr;
         }
         buflen += nread;
     } while (nread == NCHUNK);
@@ -319,13 +319,13 @@ static void* read_file(FILE* fp, int decode, size_t* r_length)
         for (s = buffer, p = buffer, nread = 0; nread + 1 < buflen; s += 2, nread += 2) {
             if (!hexdigitp(s) || !hexdigitp(s + 1)) {
                 gcry_free(buffer);
-                return NULL;  /* Invalid hex digits. */
+                return nullptr;  /* Invalid hex digits. */
             }
             *(unsigned char*)p++ = xtoi_2(s);
         }
         if (nread != buflen) {
             gcry_free(buffer);
-            return NULL;  /* Odd number of hex digits. */
+            return nullptr;  /* Odd number of hex digits. */
         }
         buflen = p - buffer;
     }
@@ -526,12 +526,12 @@ int importSecurityDoc(const char* file, unsigned char** contents, unsigned short
     *length = 0;
     *contents = (unsigned char*)malloc(UDA_MAXKEY * sizeof(unsigned char));
 
-    FILE* fd = NULL;
+    FILE* fd = nullptr;
 
     errno = 0;
 
-    if (((fd = fopen(file, "rb")) == NULL || ferror(fd) || errno != 0)) {
-        if (fd != NULL) {
+    if (((fd = fopen(file, "rb")) == nullptr || ferror(fd) || errno != 0)) {
+        if (fd != nullptr) {
             fclose(fd);
         }
         THROW_ERROR(999, "Cannot open the security document: key or certificate");
@@ -582,20 +582,20 @@ int extractX509SExpKey(ksba_cert_t cert, gcry_sexp_t* key_sexp)
     ksba_sexp_t p;
     size_t n;
 
-    if ((p = ksba_cert_get_public_key(cert)) == NULL) {
+    if ((p = ksba_cert_get_public_key(cert)) == nullptr) {
         THROW_ERROR(999, "Failure to get the Public key!");
     }
 
 // Get the length of the canonical S-Expression (public key)
 
-    if ((n = gcry_sexp_canon_len(p, 0, NULL, NULL)) == 0) {
+    if ((n = gcry_sexp_canon_len(p, 0, nullptr, nullptr)) == 0) {
         ksba_free(p);
         THROW_ERROR(999, "did not return a proper S-Exp!");
     }
 
 // Create an internal S-Expression from the external representation
 
-    if (gcry_sexp_sscan(key_sexp, NULL, (char*)p, n) != 0) {
+    if (gcry_sexp_sscan(key_sexp, nullptr, (char*)p, n) != 0) {
         ksba_free(p);
         THROW_ERROR(999, "S-Exp creation failed!");
     }
@@ -697,11 +697,11 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
 {
     int err = 0;
 
-    const char* algoid = NULL;
+    const char* algoid = nullptr;
 
 // Extract the digest algorithm OID used for the signature
 
-    if ((algoid = ksba_cert_get_digest_algo(cert)) == NULL) {
+    if ((algoid = ksba_cert_get_digest_algo(cert)) == nullptr) {
         THROW_ERROR(999, "unknown digest algorithm OID");
     }
 
@@ -733,7 +733,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
 // Get the certificate signature
 
     ksba_sexp_t p;
-    if ((p = ksba_cert_get_sig_val(cert)) == NULL) {
+    if ((p = ksba_cert_get_sig_val(cert)) == nullptr) {
         gcry_md_close(md);
         THROW_ERROR(999, "Failure to get the certificate signature!");
     }
@@ -741,7 +741,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
 // Get the length of the canonical S-Expression (certificate signature)
 
     size_t n;
-    if ((n = gcry_sexp_canon_len(p, 0, NULL, NULL)) == 0) {
+    if ((n = gcry_sexp_canon_len(p, 0, nullptr, nullptr)) == 0) {
         gcry_md_close(md);
         ksba_free(p);
         THROW_ERROR(999, "libksba did not return a proper S-Exp!");
@@ -750,7 +750,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
 // Create an internal S-Expression from the external representation
 
     gcry_sexp_t s_sig;
-    if (gcry_sexp_sscan(&s_sig, NULL, (char*)p, n) != 0) {
+    if (gcry_sexp_sscan(&s_sig, nullptr, (char*)p, n) != 0) {
         gcry_md_close(md);
         THROW_ERROR(999, "gcry_sexp_scan failed!");
     }
@@ -759,14 +759,14 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
 
 // Get the CA Public key
 
-    if ((p = ksba_cert_get_public_key(issuer_cert)) == NULL) {
+    if ((p = ksba_cert_get_public_key(issuer_cert)) == nullptr) {
         gcry_md_close(md);
         THROW_ERROR(999, "Failure to get the Public key!");
     }
 
 // Get the length of the canonical S-Expression (public key)
 
-    if ((n = gcry_sexp_canon_len(p, 0, NULL, NULL)) == 0) {
+    if ((n = gcry_sexp_canon_len(p, 0, nullptr, nullptr)) == 0) {
         gcry_md_close(md);
         ksba_free(p);
         gcry_sexp_release(s_sig);
@@ -776,7 +776,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
 // Create an internal S-Expression from the external representation
 
     gcry_sexp_t s_pkey;
-    if (gcry_sexp_sscan(&s_pkey, NULL, (char*)p, n) != 0) {
+    if (gcry_sexp_sscan(&s_pkey, nullptr, (char*)p, n) != 0) {
         gcry_md_close(md);
         ksba_free(p);
         gcry_sexp_release(s_sig);
@@ -797,7 +797,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
 // put hash into the S-Exp s_hash
 
     gcry_sexp_t s_hash;
-    gcry_sexp_build(&s_hash, NULL, "%m", frame);
+    gcry_sexp_build(&s_hash, nullptr, "%m", frame);
 
     gcry_mpi_release(frame);
 
@@ -831,7 +831,7 @@ int importPEMPrivateKey(const char* keyFile, gcry_sexp_t* key_sexp)
     gcry_sexp_t s_key;
 
     FILE* fp;
-    if ((fp = fopen(keyFile, "rb")) == NULL) {
+    if ((fp = fopen(keyFile, "rb")) == nullptr) {
         THROW_ERROR(999, "Failed to open private key file");
     }
 
@@ -882,7 +882,7 @@ int importPEMPrivateKey(const char* keyFile, gcry_sexp_t* key_sexp)
             THROW_ERROR(999, "Failed to parse tag from private key buffer");
         }
 
-        gcry_error_t gerr = gcry_mpi_scan(keyparms + idx, GCRYMPI_FMT_USG, der, ti.length, NULL);
+        gcry_error_t gerr = gcry_mpi_scan(keyparms + idx, GCRYMPI_FMT_USG, der, ti.length, nullptr);
 
         if (gerr) {
             gcry_free(buffer);
@@ -910,7 +910,7 @@ int importPEMPrivateKey(const char* keyFile, gcry_sexp_t* key_sexp)
 
 // Build the S-expression.
 
-    gcry_error_t gerr = gcry_sexp_build(&s_key, NULL, "(private-key(rsa(n%m)(e%m)(d%m)(p%m)(q%m)(u%m)))",
+    gcry_error_t gerr = gcry_sexp_build(&s_key, nullptr, "(private-key(rsa(n%m)(e%m)(d%m)(p%m)(q%m)(u%m)))",
                                         keyparms[0], keyparms[1], keyparms[2], keyparms[3], keyparms[4], keyparms[7]);
 
     if (gerr) {
@@ -939,7 +939,7 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
     int err = 0;
 
     FILE* fp;
-    if ((fp = fopen(keyFile, "rb")) == NULL) {
+    if ((fp = fopen(keyFile, "rb")) == nullptr) {
         THROW_ERROR(999, "Failed to open public key file");
     }
 
@@ -1009,7 +1009,7 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
             THROW_ERROR(err, "Failed to parse tag from public key buffer");
         }
 
-        gcry_error_t gerr = gcry_mpi_scan(keyparms + idx, GCRYMPI_FMT_USG, der, ti.length, NULL);
+        gcry_error_t gerr = gcry_mpi_scan(keyparms + idx, GCRYMPI_FMT_USG, der, ti.length, nullptr);
 
         if (gerr) {
             gcry_free(buffer);
@@ -1030,7 +1030,7 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
 
     gcry_sexp_t s_key;
 
-    gcry_error_t gerr = gcry_sexp_build(&s_key, NULL, "(public-key(rsa(n%m)(e%m)))", keyparms[0], keyparms[1]);
+    gcry_error_t gerr = gcry_sexp_build(&s_key, nullptr, "(public-key(rsa(n%m)(e%m)))", keyparms[0], keyparms[1]);
     if (gerr) {
         gcry_free(buffer);
         THROW_ERROR(err, gcry_strerror(gerr));

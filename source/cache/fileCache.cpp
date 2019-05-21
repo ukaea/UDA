@@ -43,16 +43,16 @@ int idamClientLockCache(FILE **db, short type) {
 #include <clientserver/xdrlib.h>
 #include <client/udaClient.h>
 
-REQUEST_BLOCK* request_block_ptr = NULL;
+REQUEST_BLOCK* request_block_ptr = nullptr;
 
 // Cache database table lock/unlock
-// NULL File handle returned if there is no cache
+// nullptr File handle returned if there is no cache
 
 int idamClientLockCache(FILE** db, short type)
 {
     // Types of Lock: F_RDLCK, F_WRLCK, or F_UNLCK
 
-    FILE* fh = NULL;
+    FILE* fh = nullptr;
     struct flock lock;
     struct timespec requested;
     struct timespec remaining;
@@ -67,8 +67,8 @@ int idamClientLockCache(FILE** db, short type)
         char* dir = getenv("UDA_CACHE_DIR");        // Where the files are located
         char* table = getenv("UDA_CACHE_TABLE");        // List of cached files
 
-        *db = NULL;
-        if (dir == NULL || table == NULL) return 0;    // No Cache? This is Not an Error!
+        *db = nullptr;
+        if (dir == nullptr || table == nullptr) return 0;    // No Cache? This is Not an Error!
 
         char* dbfile = (char*)malloc((strlen(dir) + strlen(table) + 2) * sizeof(char));
         sprintf(dbfile, "%s/%s", dir, table);
@@ -79,13 +79,13 @@ int idamClientLockCache(FILE** db, short type)
         fh = fopen(dbfile, "r+");    // ASCII file: Read with update (over-write)
         free((void*)dbfile);
 
-        if (fh == NULL || errno != 0) {
+        if (fh == nullptr || errno != 0) {
             err = 999;
             if (errno != 0) {
                 addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
             }
             addIdamError(CODEERRORTYPE, __func__, err, "Unable to Open the Cache Database");
-            if (fh != NULL) {
+            if (fh != nullptr) {
                 fclose(fh);
             }
             return err;
@@ -107,7 +107,7 @@ int idamClientLockCache(FILE** db, short type)
     rc = fcntl(fd, F_SETLK, &lock);    // Manage the Cache table lock
 
     if (type == F_UNLCK) {
-        *db = NULL;
+        *db = nullptr;
         fclose(fh);    // Close the database table
     }
 
@@ -133,7 +133,7 @@ int idamClientLockCache(FILE** db, short type)
     if (rc == -1 || count >= CACHE_MAXCOUNT) {
         err = 999;
         addIdamError(CODEERRORTYPE, __func__, err, "Unable to Lock the Cache Database");
-        *db = NULL;
+        *db = nullptr;
         fclose(fh);
         return err;
     }
@@ -146,7 +146,7 @@ int idamClientLockCache(FILE** db, short type)
 int idamClientCacheTimeValid(unsigned long long timestamp)
 {
     struct timeval current;
-    gettimeofday(&current, NULL);
+    gettimeofday(&current, nullptr);
     if (timestamp >= (unsigned long long)current.tv_sec) {
         // Timestamp OK
         return 1;
@@ -159,7 +159,7 @@ int idamClientCacheTimeValid(unsigned long long timestamp)
 int idamClientCacheLockedTimeValid(unsigned long long timestamp)
 {
     struct timeval current;
-    gettimeofday(&current, NULL);
+    gettimeofday(&current, nullptr);
     if ((timestamp + CACHE_MAXLOCKTIME) >= (unsigned long long)current.tv_sec) {
         // Timestamp OK
         return 1;
@@ -172,7 +172,7 @@ int idamClientCacheLockedTimeValid(unsigned long long timestamp)
 int idamClientCacheFileValid(const char* filename)
 {
     // TODO: add proper check
-    return filename != NULL;
+    return filename != nullptr;
 }
 
 // Current table statistics
@@ -181,28 +181,28 @@ int idamClientGetCacheStats(FILE* db, unsigned long* recordCount, unsigned long*
                             char csvChar)
 {
     int err = 0;
-    char* csv = NULL;
-    char* next = NULL;
+    char* csv = nullptr;
+    char* next = nullptr;
     char work[CACHE_FIRSTRECORDLENGTH + 1];
     rewind(db);
-    if (fgets(work, CACHE_FIRSTRECORDLENGTH, db) == NULL) {
+    if (fgets(work, CACHE_FIRSTRECORDLENGTH, db) == nullptr) {
         err = 999;
         return err;
     }
     LeftTrimString(TrimString(work));
     next = work;
-    if ((csv = strchr(next, csvChar)) != NULL) {
+    if ((csv = strchr(next, csvChar)) != nullptr) {
         // Split the record into fields using delimiter character
         csv[0] = '\0';
     }
     TrimString(next);
     LeftTrimString(next);
-    *recordCount = (unsigned int)strtoul(next, NULL, 10);
+    *recordCount = (unsigned int)strtoul(next, nullptr, 10);
     next = &csv[1];
-    if ((csv = strchr(next, csvChar)) != NULL) csv[0] = '\0';
-    *deadCount = (unsigned int)strtoul(next, NULL, 10);
+    if ((csv = strchr(next, csvChar)) != nullptr) csv[0] = '\0';
+    *deadCount = (unsigned int)strtoul(next, nullptr, 10);
     next = &csv[1];
-    *endOffset = (unsigned int)strtoul(next, NULL, 10);
+    *endOffset = (unsigned int)strtoul(next, nullptr, 10);
     return 0;
 }
 
@@ -238,12 +238,12 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
 
     char csvChar = ';';
     char buffer[STRING_LENGTH];
-    char* p = NULL;
-    char* csv = NULL;
-    char* next = NULL;
-    char* work = NULL;
+    char* p = nullptr;
+    char* csv = nullptr;
+    char* next = nullptr;
+    char* work = nullptr;
 
-    unsigned long long* timestamplist = NULL;
+    unsigned long long* timestamplist = nullptr;
 
     char* dir = getenv("UDA_CACHE_DIR");        // Where the files are located
 
@@ -255,7 +255,7 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
     timestamplist = (unsigned long long*)malloc(recordCount * sizeof(unsigned long long));
 
     unsigned long count = 0;
-    while (count++ < recordCount && !feof(db) && fgets(buffer, STRING_LENGTH, db) != NULL) {
+    while (count++ < recordCount && !feof(db) && fgets(buffer, STRING_LENGTH, db) != nullptr) {
         // Read each record
 
         LeftTrimString(TrimString(buffer));
@@ -276,28 +276,28 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
 
         int i;
         for (i = 0; i < 4; i++) {
-            if ((csv = strchr(next, csvChar)) != NULL) csv[0] = '\0';
+            if ((csv = strchr(next, csvChar)) != nullptr) csv[0] = '\0';
             TrimString(next);
             LeftTrimString(next);
             switch (i) {
                 case 0:    // Status
-                    status = (unsigned short)strtoul(next, NULL, 10);
+                    status = (unsigned short)strtoul(next, nullptr, 10);
                     break;
                 case 1:    // Hash key
-                    dbkey = (unsigned int)strtoul(next, NULL, 10);
+                    dbkey = (unsigned int)strtoul(next, nullptr, 10);
                     break;
                 case 2:    // Time Stamp
-                    timestamp = strtoull(next, NULL, 10);
+                    timestamp = strtoull(next, nullptr, 10);
                     break;
                 case 3:    // Cached Filename
                     strcpy(filename, next);
-                    if ((p = strchr(filename, '\n')) != NULL) p[0] = '\0';    // Remove training line feed
+                    if ((p = strchr(filename, '\n')) != nullptr) p[0] = '\0';    // Remove training line feed
                     break;
                 default:
                     break;
             }
             if (status == CACHE_DEADRECORD) break;    // Skip this record - it's marked as dead! purge by ignoring it
-            if (csv != NULL) next = &csv[1];    // Next element starting point
+            if (csv != nullptr) next = &csv[1];    // Next element starting point
         }
         if (dbkey != 0) {
             // Check the records is valid (always if locked by a process)
@@ -353,12 +353,12 @@ int idamClientReadCache(DATA_BLOCK* data_block, char* filename)
     int rc = 0;
     XDR XDRInput;
     XDR* xdrs = clientInput;
-    FILE* xdrfile = NULL;
-    void* data = NULL;
+    FILE* xdrfile = nullptr;
+    void* data = nullptr;
 
     err = 0;
 
-    if (filename == NULL || filename[0] == '\0') {
+    if (filename == nullptr || filename[0] == '\0') {
         return 0;
     }
 
@@ -369,7 +369,7 @@ int idamClientReadCache(DATA_BLOCK* data_block, char* filename)
 
         errno = 0;
 
-        if ((xdrfile = fopen(filename, "rb")) == NULL || errno != 0) {    // Read cached file
+        if ((xdrfile = fopen(filename, "rb")) == nullptr || errno != 0) {    // Read cached file
             err = 999;
             if (errno != 0) {
                 addIdamError(SYSTEMERRORTYPE, "idamClientReadCache", errno, "");
@@ -458,7 +458,7 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
     unsigned long endOffset = 0;
     unsigned long recordCount = 0;
     unsigned long deadCount = 0;
-    FILE* db = NULL;
+    FILE* db = nullptr;
 
     unsigned int dbkey = 0;
 
@@ -474,7 +474,7 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
 
     // Lock the database
 
-    if ((rc = idamClientLockCache(&db, F_WRLCK)) != 0 || db == NULL) return rc;
+    if ((rc = idamClientLockCache(&db, F_WRLCK)) != 0 || db == nullptr) return rc;
 
     // Generate a Hash Key (not guaranteed unique)
 
@@ -494,7 +494,7 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
     fseek(db, CACHE_FIRSTRECORDLENGTH, SEEK_SET);    // Position at the start of record 2
     position = (unsigned long)ftell(db);
 
-    while (!feof(db) && fgets(buffer, STRING_LENGTH, db) != NULL) {
+    while (!feof(db) && fgets(buffer, STRING_LENGTH, db) != nullptr) {
         LeftTrimString(TrimString(buffer));
         do {
             dbkey = 0;
@@ -504,41 +504,41 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
 
             int i;
             for (i = 0; i < 7; i++) {
-                if ((csv = strchr(next, csvChar)) != NULL) {
+                if ((csv = strchr(next, csvChar)) != nullptr) {
                     csv[0] = '\0';
                 }    // Split the record into fields using delimiter character
                 TrimString(next);
                 LeftTrimString(next);
                 switch (i) {
                     case 0:    // Status
-                        status = (unsigned short)strtoul(next, NULL, 10);
+                        status = (unsigned short)strtoul(next, nullptr, 10);
                         break;
                     case 1:    // Hash key
-                        dbkey = (unsigned int)strtoul(next, NULL, 10);
+                        dbkey = (unsigned int)strtoul(next, nullptr, 10);
                         break;
                     case 2:    // Time Stamp
-                        timestamp = strtoull(next, NULL, 10);
+                        timestamp = strtoull(next, nullptr, 10);
                         break;
                     case 3:    // Cached Filename
                         strcpy(filename, next);
-                        if ((p = strchr(filename, '\n')) != NULL) p[0] = '\0';    // Remove training line feed
+                        if ((p = strchr(filename, '\n')) != nullptr) p[0] = '\0';    // Remove training line feed
                         break;
                     case 4:    // Properties
-                        //properties = (unsigned long long)strtoull(next, NULL, 10);
+                        //properties = (unsigned long long)strtoull(next, nullptr, 10);
                         break;
                     case 5:    // signal
                         strcpy(signal, next);
-                        if ((p = strchr(signal, '\n')) != NULL) p[0] = '\0';
+                        if ((p = strchr(signal, '\n')) != nullptr) p[0] = '\0';
                         break;
                     case 6:    // source
                         strcpy(source, next);
-                        if ((p = strchr(source, '\n')) != NULL) p[0] = '\0';
+                        if ((p = strchr(source, '\n')) != nullptr) p[0] = '\0';
                         break;
                     default:
                         break;
                 }
                 if (status == CACHE_DEADRECORD) break;    // Don't need the remaining information on this record!
-                if (csv != NULL) next = &csv[1];        // Next element starting point
+                if (csv != nullptr) next = &csv[1];        // Next element starting point
             }
         } while (0);
 
@@ -616,7 +616,7 @@ int idamClientWriteCache(char* filename)
 {
     int err = 0;
     int rc = 0;
-    FILE* db = NULL;
+    FILE* db = nullptr;
 
     REQUEST_BLOCK* request_block = request_block_ptr;    // Global pointer to the request block
 
@@ -641,7 +641,7 @@ int idamClientWriteCache(char* filename)
     // Generate a timestamp
 
     struct timeval current;
-    gettimeofday(&current, NULL);
+    gettimeofday(&current, nullptr);
 
     timestamp = (unsigned long long)current.tv_sec + CACHE_HOURSVALID * 3600 + 60;
 
@@ -653,7 +653,7 @@ int idamClientWriteCache(char* filename)
 
     // Append the new record to the database table
 
-    if ((rc = idamClientLockCache(&db, F_WRLCK)) != 0 || db == NULL) return rc;
+    if ((rc = idamClientLockCache(&db, F_WRLCK)) != 0 || db == nullptr) return rc;
 
     // Current table statistics
 

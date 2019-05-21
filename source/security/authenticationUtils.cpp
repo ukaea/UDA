@@ -44,10 +44,10 @@ void initSecurityBlock(SECURITY_BLOCK* str)
     str->server_ciphertextLength = 0;
     str->client_X509Length = 0;
     str->client2_X509Length = 0;
-    str->client2_ciphertext = NULL;
-    str->client_ciphertext = NULL;
-    str->server_ciphertext = NULL;
-    str->client_X509 = NULL;
-    str->client2_X509 = NULL;
+    str->client2_ciphertext = nullptr;
+    str->client_ciphertext = nullptr;
+    str->server_ciphertext = nullptr;
+    str->client_X509 = nullptr;
+    str->client2_X509 = nullptr;
 }
 

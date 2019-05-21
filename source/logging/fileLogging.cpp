@@ -4,11 +4,11 @@
 
 int reopen_logs = 0;        // No need to Re-Open Logs
 
-static FILE* error_log  = NULL;
-static FILE* warn_log   = NULL;
-static FILE* debug_log  = NULL;
-static FILE* info_log   = NULL;
-static FILE* access_log = NULL;
+static FILE* error_log  = nullptr;
+static FILE* warn_log   = nullptr;
+static FILE* debug_log  = nullptr;
+static FILE* info_log   = nullptr;
+static FILE* access_log = nullptr;
 
 static LOG_LEVEL log_level = UDA_LOG_NONE;
 
@@ -30,7 +30,7 @@ static FILE* idamGetLogFile(LOG_LEVEL mode)
         case UDA_LOG_WARN:   return warn_log;
         case UDA_LOG_INFO:   return info_log;
         case UDA_LOG_DEBUG:  return debug_log;
-        default:             return NULL;
+        default:             return nullptr;
     }
 }
 
@@ -50,7 +50,7 @@ void idamLogWithFunc(LOG_LEVEL mode, logFunc func)
 {
     FILE* log_file = idamGetLogFile(mode);
 
-    if (mode >= log_level && log_file != NULL) {
+    if (mode >= log_level && log_file != nullptr) {
         func(log_file);
         fflush(log_file);
     }
@@ -63,7 +63,7 @@ void idamLog(LOG_LEVEL mode, const char * fmt, ...)
 
     FILE* log_file = idamGetLogFile(mode);
 
-    if (mode >= log_level && log_file != NULL) {
+    if (mode >= log_level && log_file != nullptr) {
         vfprintf(log_file, fmt, args);
         fflush(log_file);
     }
@@ -73,25 +73,25 @@ void idamLog(LOG_LEVEL mode, const char * fmt, ...)
 
 void idamCloseLogging()
 {
-    if (access_log != NULL) {
+    if (access_log != nullptr) {
         fclose(access_log);
     }
-    if (error_log != NULL && error_log != access_log) {
+    if (error_log != nullptr && error_log != access_log) {
         fclose(error_log);
     }
-    if (warn_log != NULL && warn_log != error_log && warn_log != access_log) {
+    if (warn_log != nullptr && warn_log != error_log && warn_log != access_log) {
         fclose(warn_log);
     }
-    if (debug_log != NULL && debug_log != warn_log && debug_log != error_log && debug_log != access_log) {
+    if (debug_log != nullptr && debug_log != warn_log && debug_log != error_log && debug_log != access_log) {
         fclose(debug_log);
     }
-    if (info_log != NULL && info_log != debug_log && info_log != warn_log && info_log != error_log && info_log != access_log) {
+    if (info_log != nullptr && info_log != debug_log && info_log != warn_log && info_log != error_log && info_log != access_log) {
         fclose(info_log);
     }
 
-    access_log = NULL;
-    error_log = NULL;
-    warn_log = NULL;
-    debug_log = NULL;
-    info_log = NULL;
+    access_log = nullptr;
+    error_log = nullptr;
+    warn_log = nullptr;
+    debug_log = nullptr;
+    info_log = nullptr;
 }
