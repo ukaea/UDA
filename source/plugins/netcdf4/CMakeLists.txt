@@ -33,7 +33,6 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${NETCDF_LIBRARIES}
-    server-shared
 )
 
 else()
@@ -53,7 +52,6 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${NETCDF_LIBRARIES}
-  server-shared
 )
 
 endif()

@@ -7,31 +7,31 @@
 extern "C" {
 #endif
 
-void initIdamPluginFileList(IDAMPLUGINFILELIST* idamfiles);
+void initIdamPluginFileList(UDA_PLUGIN_FILE_LIST* idamfiles);
 
-void registerIdamPluginFileClose(IDAMPLUGINFILELIST* idamfiles, void* fptr);
+void registerIdamPluginFileClose(UDA_PLUGIN_FILE_LIST* idamfiles, void* fptr);
 
-int addIdamPluginFilePtr(IDAMPLUGINFILELIST* idamfiles, const char* filename, void* handle);
+int addIdamPluginFilePtr(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename, void* handle);
 
-int addIdamPluginFileLong(IDAMPLUGINFILELIST* idamfiles, const char* filename, long handle);
+int addIdamPluginFileLong(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename, long handle);
 
-void* getOpenIdamPluginFilePtr(IDAMPLUGINFILELIST* idamfiles, const char* filename);
+void* getOpenIdamPluginFilePtr(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename);
 
-long getOpenIdamPluginFileLong(IDAMPLUGINFILELIST* idamfiles, const char* filename);
+long getOpenIdamPluginFileLong(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename);
 
-int getClosedIdamPluginFile(IDAMPLUGINFILELIST* idamfiles, const char* filename);
+int getClosedIdamPluginFile(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename);
 
-void closeIdamPluginFile(IDAMPLUGINFILELIST* idamfiles, const char* filename);
+void closeIdamPluginFile(UDA_PLUGIN_FILE_LIST* idamfiles, const char* filename);
 
-void closeIdamPluginFiles(IDAMPLUGINFILELIST* idamfiles);
+void closeIdamPluginFiles(UDA_PLUGIN_FILE_LIST* uda_files);
 
-void purgeStalestIdamPluginFile(IDAMPLUGINFILELIST* idamfiles);
+void purgeStalestIdamPluginFile(UDA_PLUGIN_FILE_LIST* uda_files);
 
-int findIdamPluginFileByName(IDAMPLUGINFILELIST* idamfiles, const char* filename);
+int findIdamPluginFileByName(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename);
 
-int findIdamPluginFileByLong(IDAMPLUGINFILELIST* idamfiles, long handle);
+int findIdamPluginFileByLong(UDA_PLUGIN_FILE_LIST* uda_files, long handle);
 
-void setIdamPluginFileClosed(IDAMPLUGINFILELIST* idamfiles, int record);
+void setIdamPluginFileClosed(UDA_PLUGIN_FILE_LIST* uda_files, int record);
 
 #ifdef __cplusplus
 }

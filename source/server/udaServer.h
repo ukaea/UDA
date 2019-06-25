@@ -1,5 +1,5 @@
-#ifndef UDA_SERVER_IDAMSERVER_H
-#define UDA_SERVER_IDAMSERVER_H
+#ifndef UDA_SERVER_UDASERVER_H
+#define UDA_SERVER_UDASERVER_H
 
 #define MAXOPENFILEDESC 50  // Maximum number of Open File Descriptors
 
@@ -38,4 +38,4 @@ extern USERDEFINEDTYPELIST parseduserdefinedtypelist;
 }
 #endif
 
-#endif // UDA_SERVER_IDAMSERVER_H
+#endif // UDA_SERVER_UDASERVER_H

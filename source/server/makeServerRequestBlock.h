@@ -1,5 +1,5 @@
-#ifndef IDAM_SERVER_MAKESERVERREQUESTBLOCK_H
-#define IDAM_SERVER_MAKESERVERREQUESTBLOCK_H
+#ifndef UDA_SERVER_MAKESERVERREQUESTBLOCK_H
+#define UDA_SERVER_MAKESERVERREQUESTBLOCK_H
 
 #include <plugins/udaPlugin.h>
 #include <clientserver/udaStructs.h>
@@ -19,4 +19,4 @@ int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList);
 }
 #endif
 
-#endif // IDAM_SERVER_MAKESERVERREQUESTBLOCK_H
+#endif // UDA_SERVER_MAKESERVERREQUESTBLOCK_H

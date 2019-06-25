@@ -5,11 +5,19 @@
 #include <rpc/rpc.h>
 #include <structures/genStructs.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef FATCLIENT
 #  define protocolXML protocolXMLFat
 #endif
 
-int protocolXML(XDR * xdrs, int protocol_id, int direction, int * token, LOGMALLOCLIST* logmalloclist,
-                USERDEFINEDTYPELIST* userdefinedtypelist, void * str);
+int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+                USERDEFINEDTYPELIST* userdefinedtypelist, void* str);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_CLIENTSERVER_PROTOCOLXML_H

@@ -1,8 +1,8 @@
 find_package( LibMemcached )
 
 set( SRC_FILES
-  cache.c
-  fileCache.c
+  cache.cpp
+  fileCache.cpp
 )
 
 include_directories(

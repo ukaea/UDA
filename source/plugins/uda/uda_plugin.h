@@ -1,5 +1,5 @@
-#ifndef IDAM_PLUGINS_IDAM_IDAMAPIPLUGIN_H
-#define IDAM_PLUGINS_IDAM_IDAMAPIPLUGIN_H
+#ifndef UDA_PLUGIN_UDA_PLUGIN_H
+#define UDA_PLUGIN_UDA_PLUGIN_H
 
 #include <plugins/pluginStructs.h>
 
@@ -17,4 +17,4 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 }
 #endif
 
-#endif // IDAM_PLUGINS_IDAM_IDAMAPIPLUGIN_H
+#endif // UDA_PLUGIN_UDA_PLUGIN_H

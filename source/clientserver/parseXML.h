@@ -1,16 +1,18 @@
 #ifndef UDA_CLIENTSERVER_PARSEXML_H
 #define UDA_CLIENTSERVER_PARSEXML_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef NOXMLPARSER
+
 #  include <libxml/xmlmemory.h>
 #  include <libxml/parser.h>
+
 #endif
 
 #include "udaDefines.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SXMLMAXSTRING           1024
 #define MAXDATARANK             8
@@ -178,39 +180,39 @@ typedef struct Actions {
 
 #ifndef NOXMLPARSER
 
-double deScale(char * scale);
+double deScale(char* scale);
 
-void parseTargetValue(xmlDocPtr doc, xmlNodePtr cur, char * target, double * value);
+void parseTargetValue(xmlDocPtr doc, xmlNodePtr cur, const char* target, double* value);
 
-void parseTargetString(xmlDocPtr doc, xmlNodePtr cur, char * target, char * str);
+void parseTargetString(xmlDocPtr doc, xmlNodePtr cur, const char* target, char* str);
 
-void parseDimension(xmlDocPtr doc, xmlNodePtr cur, ACTION * action);
+void parseDimension(xmlDocPtr doc, xmlNodePtr cur, ACTION* action);
 
-void parseSwapDim(xmlDocPtr doc, xmlNodePtr cur, ACTION * action);
+void parseSwapDim(xmlDocPtr doc, xmlNodePtr cur, ACTION* action);
 
-void parseSwap(xmlDocPtr doc, xmlNodePtr cur, ACTION * action);
+void parseSwap(xmlDocPtr doc, xmlNodePtr cur, ACTION* action);
 
-void parseActionRange(xmlDocPtr doc, xmlNodePtr cur, ACTIONS * actions);
+void parseActionRange(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
-void parseFixedLengthArray(xmlNodePtr cur, char * target, void * array, int arraytype, int * n);
+void parseFixedLengthArray(xmlNodePtr cur, const char* target, void* array, int arraytype, int* n);
 
-void parseFixedLengthStrArray(xmlNodePtr cur, char * target, char array[MAXDATARANK][SXMLMAXSTRING], int * n);
+void parseFixedLengthStrArray(xmlNodePtr cur, const char* target, char array[MAXDATARANK][SXMLMAXSTRING], int* n);
 
-int parseDoc(char * docname, ACTIONS * actions);
+int parseDoc(char* docname, ACTIONS* actions);
 
 //void parseComposite(xmlDocPtr doc, xmlNodePtr cur, ACTIONS * actions);
 
-void parseDocumentation(xmlDocPtr doc, xmlNodePtr cur, ACTIONS * actions);
+void parseDocumentation(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
-void parseCalibration(xmlDocPtr doc, xmlNodePtr cur, ACTIONS * actions);
+void parseCalibration(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
-void parseTimeOffset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS * actions);
+void parseTimeOffset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
-void parseErrorModel(xmlDocPtr doc, xmlNodePtr cur, ACTIONS * actions);
+void parseErrorModel(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
-void parseSubset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS * actions);
+void parseSubset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
-void parseMap(xmlDocPtr doc, xmlNodePtr cur, ACTIONS * actions);
+void parseMap(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
 #endif
 

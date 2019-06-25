@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-IDAMPLUGINFILELIST* getImasPluginFileList();
+UDA_PLUGIN_FILE_LIST* getImasPluginFileList();
 
 char* getImasErrorMsg();
 

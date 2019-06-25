@@ -62,7 +62,7 @@ void freeNTreeNode(NTREE* ntree);
 * @param line A new image line to add to the existing image.
 * @return Both image and image count are updated on return. 
 */
-void addImage(char** image, int* imagecount, char* line);
+void addImage(char** image, int* imagecount, const char* line);
 
 /** Expand an image line that contains header defines and include the numerical value 
 *

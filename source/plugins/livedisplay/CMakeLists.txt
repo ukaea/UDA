@@ -22,5 +22,4 @@ uda_plugin(
     ${CMAKE_SOURCE_DIR}/structures
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
-    client-static
 )

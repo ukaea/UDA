@@ -13,6 +13,10 @@
 #define XDR_RECEIVE     1
 #define XDR_FREE_HEAP   2
 
+#ifdef __APPLE__
+#  define xdr_uint64_t xdr_u_int64_t
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

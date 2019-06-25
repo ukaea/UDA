@@ -25,7 +25,7 @@
 
 #include "readCDF4.h"
 
-IDAMPLUGINFILELIST pluginFileList;    // Private list of open data file handles
+UDA_PLUGIN_FILE_LIST pluginFileList;    // Private list of open data file handles
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);

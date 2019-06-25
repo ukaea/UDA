@@ -1,5 +1,5 @@
-#ifndef IDAM_READCDF4_H
-#define IDAM_READCDF4_H
+#ifndef UDA_PLUGIN_READCDF4_H
+#define UDA_PLUGIN_READCDF4_H
 
 #include <stddef.h>
 
@@ -193,4 +193,4 @@ extern nc_type dctype;
 
 #endif // !NONETCDFPLUGIN
 
-#endif // IDAM_READCDF4_H
+#endif // UDA_PLUGIN_READCDF4_H

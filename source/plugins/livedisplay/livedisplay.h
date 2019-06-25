@@ -1,5 +1,5 @@
-#ifndef IDAM_PLUGINS_LIVEDISPLAY_LIVEDISPLAY_H
-#define IDAM_PLUGINS_LIVEDISPLAY_LIVEDISPLAY_H
+#ifndef UDA_PLUGIN_LIVEDISPLAY_H
+#define UDA_PLUGIN_LIVEDISPLAY_H
 
 #include <plugins/pluginStructs.h>
 #include <structures/genStructs.h>
@@ -212,4 +212,4 @@ extern int livedisplay(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 }
 #endif
 
-#endif
+#endif // UDA_PLUGIN_LIVEDISPLAY_H

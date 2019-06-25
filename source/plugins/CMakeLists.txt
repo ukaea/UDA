@@ -49,8 +49,8 @@ include_directories(
 )
 
 set( SOURCE_FILES
-  managePluginFiles.c
-  udaPlugin.c
+  managePluginFiles.cpp
+  udaPlugin.cpp
 )
 
 set( HEADER_FILES
@@ -64,15 +64,13 @@ add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
 add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
 add_library( plugins-shared SHARED $<TARGET_OBJECTS:plugins-objects> )
 
-target_link_libraries(
-  plugins-static
-  server-static
+target_link_libraries( plugins-static PUBLIC
+  #server-static
   ${LIBXML2_LIBRARIES}
   dl
 )
 
-target_link_libraries(
-  plugins-shared
+target_link_libraries( plugins-shared PUBLIC
   server-static
   ${LIBXML2_LIBRARIES}
   dl

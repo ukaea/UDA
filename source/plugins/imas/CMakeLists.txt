@@ -56,5 +56,4 @@ uda_plugin(
     ${HDF5_LIBRARIES}
     ${HDF5_HL_LIBRARIES}
     ${OPENSSL_LIBRARIES}
-    client-static
 )

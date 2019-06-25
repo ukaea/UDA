@@ -1,5 +1,5 @@
-#ifndef IDAM_PLUGINS_TESTPLUGIN_TESTPLUGIN_H
-#define IDAM_PLUGINS_TESTPLUGIN_TESTPLUGIN_H
+#ifndef UDA_PLUGIN_TESTPLUGIN_TESTPLUGIN_H
+#define UDA_PLUGIN_TESTPLUGIN_TESTPLUGIN_H
 
 #include <plugins/udaPlugin.h>
 
@@ -29,11 +29,8 @@ int createTCPSocket(SYSSOCKET *ssock, int port, bool rendezvous);
 
 extern int testplugin(IDAM_PLUGIN_INTERFACE *idam_plugin_interface);
 
-static void testError1();
-static void testError2();
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif // IDAM_PLUGINS_TESTPLUGIN_TESTPLUGIN_H
+#endif // UDA_PLUGIN_TESTPLUGIN_TESTPLUGIN_H

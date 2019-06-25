@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENTSERVER_IDAMSTRUCTS_H
-#define IDAM_CLIENTSERVER_IDAMSTRUCTS_H
+#ifndef UDA_CLIENTSERVER_IDAMSTRUCTS_H
+#define UDA_CLIENTSERVER_IDAMSTRUCTS_H
 
 #ifdef __GNUC__
 #  include <sys/time.h>
@@ -393,4 +393,4 @@ typedef struct Environment {
     char _padding[1];
 } ENVIRONMENT;
 
-#endif //IDAM_CLIENTSERVER_IDAMSTRUCTS_H
+#endif // UDA_CLIENTSERVER_IDAMSTRUCTS_H

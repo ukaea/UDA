@@ -13,6 +13,5 @@ uda_plugin(
     source.c
   EXTRA_INCLUDE_DIRS
   EXTRA_LINK_LIBS
-    client-static
   EXTRA_INSTALL_FILES
 )

@@ -1,10 +1,10 @@
 /*---------------------------------------------------------------
-* IDAM Legacy Data Server (protocol versions <= 6)
+* UDA Legacy Data Server (protocol versions <= 6)
 *
 *---------------------------------------------------------------------------------------------------------------------*/
 
-#ifndef UDA_SERVER_IDAMLEGACYSERVER_H
-#define UDA_SERVER_IDAMLEGACYSERVER_H
+#ifndef UDA_SERVER_UDALEGACYSERVER_H
+#define UDA_SERVER_UDALEGACYSERVER_H
 
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
@@ -22,5 +22,5 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
 }
 #endif
 
-#endif // UDA_SERVER_IDAMLEGACYSERVER_H
+#endif // UDA_SERVER_UDALEGACYSERVER_H
 

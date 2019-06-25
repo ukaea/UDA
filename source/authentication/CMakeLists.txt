@@ -3,8 +3,8 @@ find_package( OpenSSL REQUIRED )
 # Sources
 
 set( SRC_FILES
-  udaClientSSL.c
-  udaServerSSL.c
+  udaClientSSL.cpp
+  udaServerSSL.cpp
 )
 
 set( HEADER_FILES

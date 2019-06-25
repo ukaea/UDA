@@ -17,21 +17,21 @@ add_definitions( -DNO_GSL_LIB )
 # Sources
 
 set( SRC_FILES
-  udaGetAPI.c
-  clientAPI.c
-  clientMDS.c
-  accAPI.c
-  startup.c
-  closedown.c
-  connection.c
-  clientXDRStream.c
-  updateSelectParms.c
-  getEnvironment.c
-  generateErrors.c
-  makeClientRequestBlock.c
-  udaPutAPI.c
-  udaClient.c
-  udaClientHostList.c
+  udaGetAPI.cpp
+  clientAPI.cpp
+  clientMDS.cpp
+  accAPI.cpp
+  startup.cpp
+  closedown.cpp
+  connection.cpp
+  clientXDRStream.cpp
+  updateSelectParms.cpp
+  getEnvironment.cpp
+  generateErrors.cpp
+  makeClientRequestBlock.cpp
+  udaPutAPI.cpp
+  udaClient.cpp
+  udaClientHostList.cpp
 )
 
 set( HEADER_FILES
@@ -104,8 +104,12 @@ if( NOT CLIENT_ONLY )
   add_library( fatclient-shared SHARED ${FATCLIENT_OBJS} )
   add_library( fatclient-static STATIC ${FATCLIENT_OBJS} )
 
-  target_link_libraries( fatclient-shared PRIVATE ${CLIENT_LINK_LIBS} ${PostgreSQL_LIBRARY} plugins-static )
-  target_link_libraries( fatclient-static PRIVATE ${CLIENT_LINK_LIBS} ${PostgreSQL_LIBRARY} plugins-static )
+  target_link_libraries( fatclient-shared PRIVATE ${CLIENT_LINK_LIBS} plugins-static )
+  target_link_libraries( fatclient-static PRIVATE ${CLIENT_LINK_LIBS} plugins-static )
+
+  include( modules )
+  link_modules( fatclient-shared )
+  link_modules( fatclient-static )
 endif()
 
 set_target_properties( client-shared

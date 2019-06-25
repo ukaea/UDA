@@ -13,23 +13,23 @@ add_subdirectory( modules )
 # Sources
 
 set( SRC_FILES
-  applyXML.c
-  closeServerSockets.c
-  dumpFile.c
-  freeIdamPut.c
-  getPluginAddress.c
-  getServerEnvironment.c
-  initPluginList.c
-  makeServerRequestBlock.c
-  mastArchiveFilePath.c
-  serverGetData.c
-  serverLegacyPlugin.c
-  serverPlugin.c
-  serverProcessing.c
-  serverStartup.c
-  serverSubsetData.c
-  writer.c
-  sqllib.c
+  applyXML.cpp
+  closeServerSockets.cpp
+  dumpFile.cpp
+  freeIdamPut.cpp
+  getPluginAddress.cpp
+  getServerEnvironment.cpp
+  initPluginList.cpp
+  makeServerRequestBlock.cpp
+  mastArchiveFilePath.cpp
+  serverGetData.cpp
+  serverLegacyPlugin.cpp
+  serverPlugin.cpp
+  serverProcessing.cpp
+  serverStartup.cpp
+  serverSubsetData.cpp
+  writer.cpp
+  sqllib.cpp
 )
 
 set( HEADER_FILES
@@ -69,16 +69,16 @@ add_definitions( -DSERVERBUILD )
 # Targets
 
 add_library( server-objects OBJECT
-  udaServer.c
-  udaLegacyServer.c
-  createXDRStream.c
-  sleepServer.c
+  udaServer.cpp
+  udaLegacyServer.cpp
+  createXDRStream.cpp
+  sleepServer.cpp
   ${SRC_FILES}
   ${HEADER_FILES}
 )
 
 add_library( fatserver-objects OBJECT
-  fatServer.c
+  fatServer.cpp
   ${SRC_FILES}
   ${HEADER_FILES}
 )
@@ -96,7 +96,7 @@ set( SERVER_OBJ
 add_library( server-shared SHARED ${SERVER_OBJ} )
 add_library( server-static STATIC ${SERVER_OBJ} )
 
-add_executable( server-exe serverMain.c )
+add_executable( server-exe serverMain.cpp )
 
 ########################################################################################################################
 # Add libraries
@@ -104,9 +104,6 @@ add_executable( server-exe serverMain.c )
 target_link_libraries( server-shared PRIVATE
   client-shared
   plugins-static
-)
-
-target_link_libraries( server-shared INTERFACE
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
@@ -117,9 +114,6 @@ link_modules( server-shared )
 
 target_link_libraries( server-static PRIVATE
   client-shared
-)
-
-target_link_libraries( server-static INTERFACE
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
@@ -154,12 +148,12 @@ set_target_properties( server-shared
       OUTPUT_NAME ${PROJECT_NAME}_server
       VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
       SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
+)
 
 set_target_properties( server-static
   PROPERTIES
   OUTPUT_NAME ${PROJECT_NAME}_server
-  )
+)
 
 install(
   TARGETS server-shared server-static

@@ -1,5 +1,5 @@
-#ifndef IDAM_SERVER_APPLYXML_H
-#define IDAM_SERVER_APPLYXML_H
+#ifndef UDA_SERVER_APPLYXML_H
+#define UDA_SERVER_APPLYXML_H
 
 #include <clientserver/parseXML.h>
 #include <clientserver/udaStructs.h>
@@ -19,6 +19,6 @@ void idamserverDeselectSignalXML(ACTIONS *actions_desc, ACTIONS *actions_sig);
 }
 #endif
 
-#endif // IDAM_SERVER_APPLYXML_H
+#endif // UDA_SERVER_APPLYXML_H
 
 
