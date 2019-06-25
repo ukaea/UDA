@@ -3,164 +3,109 @@
 #include "test_helpers.h"
 
 #include <c++/UDA.hpp>
-
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)
-#define SHOT_NUM "52702"
+#define SHOT_NUM "36908"
 
-
-TEST_CASE( "Test ids_properties/homogeneous_time", "[IMAS][HL2A]" )
+/*
+* imas::get(expName='HL2A', idx=0, group='magnetics', variable='ids_properties/homogeneous_time', type=int, rank=0, shot=84600, )
+bpol_probe/#/field/data
+*/
+TEST_CASE("Test magnetics/bpol_probe/#/field/data", "[IMAS][HL2A]")
 {
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
 
-    uda::Client client;
+	uda::Client client;
 
-    const uda::Result& result = client.get("HL2A::read(element='magnetics/ids_properties/homogeneous_time', indices='', experiment='HL2A', dtype=3, shot=" SHOT_NUM ", IDS_version='')", "");
+ //   const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/field/data', expName='HL2A', type=float, rank=1, shot=" SHOT_NUM ", )", "");
+//	const uda::Result& result = client.get("hl2a::read(idx=0, group='magnetics', variable='bpol_probe/1/field/data',element='bpol_probe/#/field/data', indices='0', expName='HL2A', type=float, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Result& result = client.get("hl2a::read(element = 'magnetics/bpol_probe/#/field/data', indices = '1', experiment = 'HL2A', dtype = 7, shot = " SHOT_NUM ", IDS_version = '')", "");
+	printf("return Code = [%d]\r\n", result.errorCode());
+	
+            REQUIRE( result.errorCode() == 0 );
+            REQUIRE( result.errorMessage().empty() );
 
+	uda::Data* data = result.data();
 
-    REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage().empty() );
+	uda::Dim dim = result.dim(0, uda::Result::DATA);
+	
+	REQUIRE(data != nullptr);
 
-    uda::Data* data = result.data();
+	
+	auto arr = dynamic_cast<uda::Array*>(data);
 
-    REQUIRE( data != nullptr );
-    REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(int).name() );
+	std::vector<uda::Dim> dims = arr->dims();
 
-    auto val = dynamic_cast<uda::Scalar*>(data);
+	
+	
+	REQUIRE(arr != nullptr);
+	//REQUIRE(!arr->isNull());
 
-    REQUIRE( val != nullptr );
-    REQUIRE( !val->isNull() );
-
-    REQUIRE( val->type().name() == typeid(int).name() );
-    REQUIRE( val->as<int>() == 1 );
+	printf("===============================================================================\r\n");
+	printf("Total Data Size is : [%d]   Dim Size is : [%d]\r\n", arr->size(), dim.size());
+	printf("------------------------------------------------------------------------------\r\n");
+	printf("Top 1000 records\r\n");
+	printf("------------------------------------------------------------------------------\r\n");
+	
+	//printf("------------------------------------------------------------------------------\r\n");
+	for (int i = 0; i < arr->size(); i++)
+	{
+		float * val = (float*)arr->byte_data();
+		printf("%f ", val[i]);
+		if (i >= 1000)
+			break;
+	}
+	printf("===============================================================================\r\n");
 }
 
-TEST_CASE( "Test flux_loop count", "[IMAS][HL2A][FLUX_LOOP]" )
+
+TEST_CASE("Test magnetics/flux_loop/#/flux/data", "[IMAS][HL2A][FLUX]")
 {
 #ifdef FATCLIENT
 #  include "setup.inc"
 #endif
 
-    uda::Client client;
+	uda::Client client;
 
-    const uda::Result& result = client.get("HL2A::read(element='magnetics/flux_loop/Shape_of', indices='', experiment='HL2A', dtype=3, shot=" SHOT_NUM ", IDS_version='')", "");
+//	const uda::Result& result = client.get("hl2a::read(idx=0, group='magnetics', variable='flux_loop/1/flux/data',element='magnetics/flux_loop/#/flux/data', indices='0', expName='HL2A', type=float, rank=1, shot=" SHOT_NUM ", )", "");
+	const uda::Result& result = client.get("hl2a::read(element = 'magnetics/flux_loop/#/flux/data', indices = '1', experiment = 'HL2A', dtype = 7, shot = " SHOT_NUM ", IDS_version = '')", "");
 
-    REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage().empty() );
+	printf("return Code = [%d]\r\n", result.errorCode());
 
-    uda::Data* data = result.data();
+        REQUIRE( result.errorCode() == 0 );
+        REQUIRE( result.errorMessage().empty() );
 
-    REQUIRE( data != nullptr );
-    REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(int).name() );
+	uda::Data* data = result.data();
 
-    auto val = dynamic_cast<uda::Scalar*>(data);
+	uda::Dim dim = result.dim(0, uda::Result::DATA);
 
-    REQUIRE( val != nullptr );
-    REQUIRE( !val->isNull() );
+	REQUIRE(data != nullptr);
+	
 
-    REQUIRE( val->type().name() == typeid(int).name() );
-    REQUIRE( val->as<int>() == 10 );
+	auto arr = dynamic_cast<uda::Array*>(data);
+
+	std::vector<uda::Dim> dims = arr->dims();
+
+
+
+	REQUIRE(arr != nullptr);
+	//REQUIRE(!arr->isNull());
+
+	printf("===============================================================================\r\n");
+	printf("Total Data Size is : [%d]   Dim Size is : [%d]\r\n", arr->size(), dim.size());
+	printf("------------------------------------------------------------------------------\r\n");
+	printf("Top 1000 records\r\n");
+	printf("------------------------------------------------------------------------------\r\n");
+
+	//printf("------------------------------------------------------------------------------\r\n");
+	for (int i = 0; i < arr->size(); i++)
+	{
+		float * val = (float*)arr->byte_data();
+		printf("%f ", val[i]);
+		if (i >= 1000)
+			break;
+	}
+	printf("===============================================================================\r\n");
 }
-
-
-TEST_CASE( "Test flux data field", "[IMAS][HL2A][FLUX]" )
-{
-#ifdef FATCLIENT
-#  include "setup.inc"
-#endif
-
-    uda::Client client;
-
-    const uda::Result& result = client.get("HL2A::read(element='magnetics/flux_loop/#/flux/data', indices='1', experiment='HL2A', dtype=7, shot=" SHOT_NUM ", IDS_version='')", "");
-
-    REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage().empty() );
-
-    uda::Data* data = result.data();
-
-    REQUIRE( data != nullptr );
-    REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(float).name() );
-
-    auto arr = dynamic_cast<uda::Array*>(data);
-
-    REQUIRE( arr != nullptr );
-    REQUIRE( !arr->isNull() );
-
-    std::vector<float> expected = { 0.0f, 2.0f, 4.0f, 6.0f, 8.0f };
-
-    REQUIRE( arr->type().name() == typeid(float).name() );
-
-    auto vals = arr->as<float>();
-    vals.resize(5);
-
-    REQUIRE( vals == ApproxVector(expected) );
-}
-
-TEST_CASE( "Test flux data time", "[IMAS][HL2A][FLUX]" )
-{
-#ifdef FATCLIENT
-#  include "setup.inc"
-#endif
-
-    uda::Client client;
-
-    const uda::Result& result = client.get("HL2A::read(element='magnetics/time', indices='1', experiment='HL2A', dtype=7, shot=" SHOT_NUM ", IDS_version='')", "");
-
-    REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage().empty() );
-
-    uda::Data* data = result.data();
-
-    REQUIRE( data != nullptr );
-    REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(float).name() );
-
-    auto arr = dynamic_cast<uda::Array*>(data);
-
-    REQUIRE( arr != nullptr );
-    REQUIRE( !arr->isNull() );
-
-    std::vector<float> expected = { 0.0f, 1.0f, 2.0f, 3.0f, 4.0f };
-
-    REQUIRE( arr->type().name() == typeid(float).name() );
-
-    auto vals = arr->as<float>();
-    vals.resize(5);
-
-    REQUIRE( vals == ApproxVector(expected) );
-}
-
-TEST_CASE( "Test flux_loop position count", "[IMAS][HL2A][FLUX_LOOP]" )
-{
-#ifdef FATCLIENT
-#  include "setup.inc"
-#endif
-
-    uda::Client client;
-
-    const uda::Result& result = client.get("HL2A::read(element='magnetics/flux_loop/#/position/Shape_of', indices='', experiment='HL2A', dtype=3, shot=" SHOT_NUM ", IDS_version='')", "");
-
-    REQUIRE( result.errorCode() == 0 );
-    REQUIRE( result.errorMessage().empty() );
-
-    uda::Data* data = result.data();
-
-    REQUIRE( data != nullptr );
-    REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(int).name() );
-
-    auto val = dynamic_cast<uda::Scalar*>(data);
-
-    REQUIRE( val != nullptr );
-    REQUIRE( !val->isNull() );
-
-    REQUIRE( val->type().name() == typeid(int).name() );
-    REQUIRE( val->as<int>() == 3 );
-}
-
-
