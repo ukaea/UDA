@@ -87,8 +87,10 @@ if( NOT WIN32 OR MINGW )
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -pthread -Wno-implicit-function-declaration" )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -pthread" )
   
-  add_definitions( -D_WIN32 )
-  add_definitions( -DMINGW )
+  if( MINGW )
+    add_definitions( -D_WIN32 )
+    add_definitions( -DMINGW )
+  endif()
   
   if( GOPTION )
     message( "Compiling with g option to generate and embed debug information" )
