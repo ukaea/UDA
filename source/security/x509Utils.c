@@ -668,7 +668,11 @@ int testX509Dates(ksba_cert_t certificate)
 
     time(&calendar);
     broken = gmtime(&calendar);
+#ifndef _WIN32
     asctime_r(broken, datetime);
+#else
+    asctime_s(datetime, DATELENGTH, broken);
+#endif
 
     convertNonPrintable2(datetime);
     TrimString(datetime);

@@ -84,8 +84,11 @@ else()
 endif()
 
 if( NOT WIN32 OR MINGW )
-  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -pthread" )
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -pthread -Wno-implicit-function-declaration" )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -pthread" )
+  
+  add_definitions( -D_WIN32 )
+  add_definitions( -DMINGW )
   
   if( GOPTION )
     message( "Compiling with g option to generate and embed debug information" )
@@ -107,6 +110,9 @@ if( WIN32 OR MINGW )
     set(CMAKE_FIND_LIBRARY_PREFIXES "lib" "")
     set(CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".a" ".lib")
   endif()
+  
+  # "-Wl,-z,defs" is an ELF instruction, not supported by Windows
+  string( REGEX REPLACE "-Wl,-z,defs" "" CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}" )
 endif()
 
 if( ITER_CI )

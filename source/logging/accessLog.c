@@ -14,7 +14,12 @@
 
 #include <errno.h>
 #include <stdlib.h>
-#include <arpa/inet.h>
+#ifndef _WIN32
+#  include <arpa/inet.h>
+#else
+#  include <winsock2.h>
+#  include <ws2tcpip.h>
+#endif
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
@@ -149,7 +154,11 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
 
         time(&calendar);
         broken = gmtime(&calendar);
+#ifndef _WIN32
         asctime_r(broken, accessdate);
+#else
+        asctime_s(accessdate, DATELENGTH, broken);
+#endif
 
         convertNonPrintable2(accessdate);
         TrimString(accessdate);

@@ -1,4 +1,22 @@
+# Macro used to convert Windows path to Unix
+macro( CONVERT_WIN_PATH VarName )
+  if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
+    execute_process( COMMAND cygpath.exe -u ${${VarName}} OUTPUT_VARIABLE ${VarName} )
+    string( STRIP ${${VarName}} ${VarName} )
+  endif()
+endmacro()
+
+########################################################################################################################
+# Dependencies
+
 find_package( Boost REQUIRED )
+if( NOT CLIENT_ONLY )
+  find_package( LibXml2 REQUIRED )
+  if( MINGW )
+    CONVERT_WIN_PATH( LIBXML2_INCLUDE_DIR )
+	CONVERT_WIN_PATH( LIBXML2_LIBRARIES )
+  endif()
+endif()
 
 set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../.. )
 
@@ -22,6 +40,10 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${Boost_INCLUDE_DIR}
 )
+
+if( NOT CLIENT_ONLY )
+  include_directories( ${LIBXML2_INCLUDE_DIR} )
+endif()
 
 if( ITER_CI )
   add_definitions( -D__USE_XOPEN2K8 )
@@ -62,7 +84,7 @@ if( NOT CLIENT_ONLY )
   )
 
   add_library( fat${LIB_NAME} STATIC $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-  target_link_libraries( fat${LIB_NAME} LINK_PRIVATE ${Boost_LIBRARIES} plugins-static )
+  target_link_libraries( fat${LIB_NAME} LINK_PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} plugins-static )
   if( WIN32 OR MINGW )
     target_link_libraries( fat${LIB_NAME} LINK_PRIVATE portablexdr ws2_32 ssl crypto )
   endif()

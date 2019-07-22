@@ -2,7 +2,7 @@
 //
 //----------------------------------------------------------------
 #ifdef _WIN32
-#  include <winsock.h> // must be included before connection.h to avoid macro redefinition in rpc/types.h
+#  include <winsock2.h> // must be included before connection.h to avoid macro redefinition in rpc/types.h
 #endif
 
 #include "connection.h"
@@ -13,7 +13,7 @@
 #include <signal.h>
 #include <stdbool.h>
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(MINGW)
 #  ifndef _WIN32
 
 #    include <sys/socket.h>
@@ -33,7 +33,13 @@
 #  define strcasecmp _stricmp
 #  define sleep(DELAY) Sleep((DWORD)((DELAY)*1E3))
 #  define close(SOCK) closesocket(SOCK)
-#  pragma comment(lib, "Ws2_32.lib")
+#  ifndef MINGW
+#    pragma comment(lib, "Ws2_32.lib")
+#  endif
+
+#  ifndef EAI_SYSTEM
+#    define EAI_SYSTEM -11 /* System error returned in 'errno'. */
+#  endif
 #endif
 
 #include <clientserver/errorLog.h>

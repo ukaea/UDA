@@ -1,9 +1,21 @@
+# Macro used to convert Windows path to Unix
+macro( CONVERT_WIN_PATH VarName )
+  if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
+    execute_process( COMMAND cygpath.exe -u ${${VarName}} OUTPUT_VARIABLE ${VarName} )
+    string( STRIP ${${VarName}} ${VarName} )
+  endif()
+endmacro()
+
 ########################################################################################################################
 # Dependencies
 
 find_package( OpenSSL REQUIRED )
 if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )
+  if( MINGW )
+    CONVERT_WIN_PATH( LIBXML2_INCLUDE_DIR )
+	CONVERT_WIN_PATH( LIBXML2_LIBRARIES )
+  endif()
 endif()
 if( NOT CLIENT_ONLY AND NOT NO_MODULES )
   find_package( PostgreSQL REQUIRED )
@@ -57,6 +69,10 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
 )
 
+if( NOT CLIENT_ONLY )
+  include_directories( ${LIBXML2_INCLUDE_DIR} )
+endif()
+
 add_library( client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
 
 if( NOT CLIENT_ONLY )
@@ -94,7 +110,7 @@ if( NOT CLIENT_ONLY )
 endif()
 
 if( WIN32 OR MINGW )
-  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ws2_32 portablexdr )
+  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ws2_32 portablexdr dl )
 endif()
 
 target_link_libraries( client-shared PRIVATE ${CLIENT_LINK_LIBS} )

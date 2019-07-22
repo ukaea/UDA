@@ -21,3 +21,7 @@ add_library( cache-objects OBJECT ${SRC_FILES} )
 if( LIBMEMCACHED_FOUND )
   set( CACHE_LIBRARIES ${LIBMEMCACHED_LIBRARIES} PARENT_SCOPE )
 endif()
+
+if( MINGW )
+  add_definitions( -Wno-format-truncation -Wno-format-overflow )
+endif()

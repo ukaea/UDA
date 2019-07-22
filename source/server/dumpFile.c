@@ -186,11 +186,17 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                 if (strlen(server) == 0) strcpy(server, LOCAL_MDSPLUS_SERVER);    // Need a Server!!! - Use the Default
 
                 sprintf(exp_number_str, "%d", request_block.exp_number);
+#ifdef _WIN32
+                _putenv_s("IDAM_SERVER_TREENAME", request_block.file);
+                _putenv_s("IDAM_SERVER_TREENUM", exp_number_str);
+                _putenv_s("IDAM_SERVER_TREESERVER", server);
+                _putenv_s("IDAM_SERVER_TREEPATH", path);
+#else
                 setenv("IDAM_SERVER_TREENAME", request_block.file, 1);
                 setenv("IDAM_SERVER_TREENUM", exp_number_str, 1);
-
                 setenv("IDAM_SERVER_TREESERVER", server, 1);
                 setenv("IDAM_SERVER_TREEPATH", path, 1);
+#endif
 
                 UDA_LOG(UDA_LOG_DEBUG, "IDAM_SERVER_TREENAME:   %s\n", request_block.file);
                 UDA_LOG(UDA_LOG_DEBUG, "IDAM_SERVER_TREENUM:    %s\n", exp_number_str);

@@ -1,7 +1,19 @@
+# Macro used to convert Windows path to Unix
+macro( CONVERT_WIN_PATH VarName )
+  if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
+    execute_process( COMMAND cygpath.exe -u ${${VarName}} OUTPUT_VARIABLE ${VarName} )
+    string( STRIP ${${VarName}} ${VarName} )
+  endif()
+endmacro()
+
 ########################################################################################################################
 # Dependencies
 
 find_package( LibXml2 REQUIRED )
+if( MINGW )
+  CONVERT_WIN_PATH( LIBXML2_INCLUDE_DIR )
+  CONVERT_WIN_PATH( LIBXML2_LIBRARIES )
+endif()
 find_package( OpenSSL REQUIRED )
 
 include( modules )
@@ -112,6 +124,7 @@ target_link_libraries( server-shared LINK_PRIVATE
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
+  dl
 )
 
 link_modules( server-shared )
@@ -121,6 +134,7 @@ target_link_libraries( server-static LINK_PRIVATE
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
+  dl
 )
 
 link_modules( server-static )
@@ -132,10 +146,12 @@ target_link_libraries( server-exe LINK_PRIVATE
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
-  c
   m
   dl
 )
+if( NOT MINGW )
+  target_link_libraries( server-exe LINK_PRIVATE c )
+endif()
 
 link_modules( server-exe )
 

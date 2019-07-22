@@ -134,7 +134,11 @@ void initUdaServerSSL()
     SSL_library_init();
     SSL_load_error_strings();
     OpenSSL_add_ssl_algorithms();
+#ifdef _WIN32
+    _putenv_s("UDA_SSL_INITIALISED", "1");
+#else
     setenv("UDA_SSL_INITIALISED", "1", 0);    // Ensure the library is not re-initialised by the UDA client library
+#endif
     putUdaServerSSLGlobalInit(1);
     UDA_LOG(UDA_LOG_DEBUG, "SSL initialised\n");
 }
@@ -155,7 +159,11 @@ void closeUdaServerSSL()
     EVP_cleanup();
     putUdaServerSSL(NULL);
     putUdaServerSSLCTX(NULL);
+#ifdef _WIN32
+    _putenv_s("UDA_SSL_INITIALISED", NULL);
+#else
     unsetenv("UDA_SSL_INITIALISED");
+#endif
     putUdaServerSSLGlobalInit(0);
     UDA_LOG(UDA_LOG_DEBUG, "closeUdaServerSSL: SSL closed\n");
 }

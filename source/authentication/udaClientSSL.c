@@ -80,7 +80,6 @@ void initUdaClientSSL()
     SSL_library_init();
     SSL_load_error_strings();
     OpenSSL_add_ssl_algorithms();
-    setenv("UDA_SSL_INITIALISED", "1", 0);    // Ensure the library is not re-initialised by the UDA server
 #ifdef _WIN32
     if (getenv("UDA_SSL_INITIALISED") == NULL) {
         _putenv_s("UDA_SSL_INITIALISED", "1");

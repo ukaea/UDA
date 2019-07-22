@@ -7,10 +7,10 @@
 extern "C" {
 #endif
 
-void printIdamServerEnvironment(const ENVIRONMENT* environ);
+void printIdamServerEnvironment(const ENVIRONMENT* environment);
 ENVIRONMENT* getIdamServerEnvironment();
 
-void putIdamServerEnvironment(const ENVIRONMENT* environ);
+void putIdamServerEnvironment(const ENVIRONMENT* environment);
 
 #ifdef __cplusplus
 }

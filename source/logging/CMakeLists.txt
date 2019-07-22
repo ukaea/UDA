@@ -20,3 +20,7 @@ file( GLOB HEADER_FILES "*.h" )
 install( FILES ${HEADER_FILES}
   DESTINATION include/uda/logging
 )
+
+if( MINGW )
+  add_definitions( -Wno-error=pointer-sign )
+endif()

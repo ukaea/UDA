@@ -3,7 +3,12 @@
 
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/select.h>
+
+#ifdef _WIN32
+#  include <winsock2.h> // must be included before connection.h to avoid macro redefinition in rpc/types.h
+#else
+#  include <sys/select.h>
+#endif
 
 #define MIN_BLOCK_TIME	1000
 #define MAX_BLOCK_TIME	10000

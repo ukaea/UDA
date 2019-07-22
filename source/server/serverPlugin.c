@@ -194,12 +194,15 @@ int idamServerRedirectStdStreams(int reset)
 {
     // Any OS messages will corrupt xdr streams so re-divert IO from plugin libraries to a temporary file
 
-    static FILE* originalStdFH = NULL;
-    static FILE* originalErrFH = NULL;
+    // Multi platform compliance
+    //static FILE* originalStdFH = NULL;
+    //static FILE* originalErrFH = NULL;
+    static int originalStdFH = 0;
+    static int originalErrFH = 0;
     static FILE* mdsmsgFH = NULL;
 
-    char* env;
-    static char tempFile[MAXPATH];
+    char* env = NULL;
+    static char tempFile[MAXPATH] = { 0 };
 
     static int singleFile = 0;
 
@@ -210,13 +213,19 @@ int idamServerRedirectStdStreams(int reset)
         }
 
         if (mdsmsgFH != NULL && singleFile) {
-            stdout = mdsmsgFH;                                  // Redirect all IO to a temporary file
-            stderr = mdsmsgFH;
+			// Multi platform compliance
+            //stdout = mdsmsgFH;                                  // Redirect all IO to a temporary file
+            //stderr = mdsmsgFH;
+			dup2(fileno(mdsmsgFH), fileno(stdout));
+			dup2(fileno(mdsmsgFH), fileno(stderr));
             return 0;
         }
 
-        originalStdFH = stdout;                                 // Retain current values
-        originalErrFH = stderr;
+        // Multi platform compliance
+        //originalStdFH = stdout;                                 // Retain current values
+        //originalErrFH = stderr;
+        originalStdFH = dup(fileno(stdout));
+        originalErrFH = dup(fileno(stderr));
         mdsmsgFH = NULL;
 
         UDA_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file\n");
@@ -248,8 +257,11 @@ int idamServerRedirectStdStreams(int reset)
             THROW_ERROR(999, "Unable to Trap Plugin Error Messages.");
         }
 
-        stdout = mdsmsgFH; // Redirect to a temporary file
-        stderr = mdsmsgFH;
+        // Multi platform compliance
+        //stdout = mdsmsgFH; // Redirect to a temporary file
+        //stderr = mdsmsgFH;
+        dup2(fileno(mdsmsgFH), fileno(stdout));
+        dup2(fileno(mdsmsgFH), fileno(stderr));
     } else {
         if (mdsmsgFH != NULL) {
             UDA_LOG(UDA_LOG_DEBUG, "Resetting original file handles and removing temporary file\n");
@@ -275,15 +287,21 @@ int idamServerRedirectStdStreams(int reset)
                 }
             }
 
-            stdout = originalStdFH;
-            stderr = originalErrFH;
+            // Multi platform compliance
+            //stdout = originalStdFH;
+            //stderr = originalErrFH;
+			dup2(originalStdFH, fileno(stdout));
+			dup2(originalErrFH, fileno(stderr));
 
         } else {
 
             UDA_LOG(UDA_LOG_DEBUG, "Resetting original file handles\n");
 
-            stdout = originalStdFH;
-            stderr = originalErrFH;
+            // Multi platform compliance
+            //stdout = originalStdFH;
+            //stderr = originalErrFH;
+            dup2(originalStdFH, fileno(stdout));
+            dup2(originalErrFH, fileno(stderr));
         }
     }
 
