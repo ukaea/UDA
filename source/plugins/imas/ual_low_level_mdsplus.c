@@ -1254,27 +1254,29 @@ static char prevTreeBase9[1024] = {0};
 
 static void restoreDataEnv()
 {
-/*		setenv("MDSPLUS_TREE_BASE_0",prevTreeBase0,1);
-		setenv("MDSPLUS_TREE_BASE_1",prevTreeBase1,1);
-		setenv("MDSPLUS_TREE_BASE_2",prevTreeBase2,1);
-		setenv("MDSPLUS_TREE_BASE_3",prevTreeBase3,1);
-		setenv("MDSPLUS_TREE_BASE_4",prevTreeBase4,1);
-		setenv("MDSPLUS_TREE_BASE_5",prevTreeBase5,1);
-		setenv("MDSPLUS_TREE_BASE_6",prevTreeBase6,1);
-		setenv("MDSPLUS_TREE_BASE_7",prevTreeBase7,1);
-		setenv("MDSPLUS_TREE_BASE_8",prevTreeBase8,1);
-		setenv("MDSPLUS_TREE_BASE_9",prevTreeBase9,1); */
-		(prevTreeBase0[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_0",prevTreeBase0,1)) : (0);
-		(prevTreeBase1[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_1",prevTreeBase1,1)) : (0);
-		(prevTreeBase2[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_2",prevTreeBase2,1)) : (0);
-		(prevTreeBase3[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_3",prevTreeBase3,1)) : (0);
-		(prevTreeBase4[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_4",prevTreeBase4,1)) : (0);
-		(prevTreeBase5[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_5",prevTreeBase5,1)) : (0);
-		(prevTreeBase6[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_6",prevTreeBase6,1)) : (0);
-		(prevTreeBase7[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_7",prevTreeBase7,1)) : (0);
-		(prevTreeBase8[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_8",prevTreeBase8,1)) : (0);
-		(prevTreeBase9[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_9",prevTreeBase9,1)) : (0);
-
+#ifdef _WIN32
+	(prevTreeBase0[0] != 0) ? (_putenv_s("MDSPLUS_TREE_BASE_0",prevTreeBase0)) : (0);
+	(prevTreeBase1[0] != 0) ? (_putenv_s("MDSPLUS_TREE_BASE_1",prevTreeBase1)) : (0);
+	(prevTreeBase2[0] != 0) ? (_putenv_s("MDSPLUS_TREE_BASE_2",prevTreeBase2)) : (0);
+	(prevTreeBase3[0] != 0) ? (_putenv_s("MDSPLUS_TREE_BASE_3",prevTreeBase3)) : (0);
+	(prevTreeBase4[0] != 0) ? (_putenv_s("MDSPLUS_TREE_BASE_4",prevTreeBase4)) : (0);
+	(prevTreeBase5[0] != 0) ? (_putenv_s("MDSPLUS_TREE_BASE_5",prevTreeBase5)) : (0);
+	(prevTreeBase6[0] != 0) ? (_putenv_s("MDSPLUS_TREE_BASE_6",prevTreeBase6)) : (0);
+	(prevTreeBase7[0] != 0) ? (_putenv_s("MDSPLUS_TREE_BASE_7",prevTreeBase7)) : (0);
+	(prevTreeBase8[0] != 0) ? (_putenv_s("MDSPLUS_TREE_BASE_8",prevTreeBase8)) : (0);
+	(prevTreeBase9[0] != 0) ? (_putenv_s("MDSPLUS_TREE_BASE_9",prevTreeBase9)) : (0);
+#else // _WIN32
+	(prevTreeBase0[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_0",prevTreeBase0,1)) : (0);
+	(prevTreeBase1[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_1",prevTreeBase1,1)) : (0);
+	(prevTreeBase2[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_2",prevTreeBase2,1)) : (0);
+	(prevTreeBase3[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_3",prevTreeBase3,1)) : (0);
+	(prevTreeBase4[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_4",prevTreeBase4,1)) : (0);
+	(prevTreeBase5[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_5",prevTreeBase5,1)) : (0);
+	(prevTreeBase6[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_6",prevTreeBase6,1)) : (0);
+	(prevTreeBase7[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_7",prevTreeBase7,1)) : (0);
+	(prevTreeBase8[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_8",prevTreeBase8,1)) : (0);
+	(prevTreeBase9[0] != 0) ? (setenv("MDSPLUS_TREE_BASE_9",prevTreeBase9,1)) : (0);
+#endif // _WIN32
 }
 //MERGE
 
@@ -1362,19 +1364,6 @@ static void setDataEnv(char *user, char *tokamak, char *version)
         }
     }
 
-    //MERGE
-    // Store old values of the paths
-/*    strcpy(prevTreeBase0,getenv("MDSPLUS_TREE_BASE_0"));
-    strcpy(prevTreeBase1,getenv("MDSPLUS_TREE_BASE_1"));
-    strcpy(prevTreeBase2,getenv("MDSPLUS_TREE_BASE_2"));
-    strcpy(prevTreeBase3,getenv("MDSPLUS_TREE_BASE_3"));
-    strcpy(prevTreeBase4,getenv("MDSPLUS_TREE_BASE_4"));
-    strcpy(prevTreeBase5,getenv("MDSPLUS_TREE_BASE_5"));
-    strcpy(prevTreeBase6,getenv("MDSPLUS_TREE_BASE_6"));
-    strcpy(prevTreeBase7,getenv("MDSPLUS_TREE_BASE_7"));
-    strcpy(prevTreeBase8,getenv("MDSPLUS_TREE_BASE_8"));
-    strcpy(prevTreeBase9,getenv("MDSPLUS_TREE_BASE_9")); */
-
     ((treeBase_ = getenv("MDSPLUS_TREE_BASE_0")) != 0) ? (strcpy(prevTreeBase0,treeBase_)) : (0);
     ((treeBase_ = getenv("MDSPLUS_TREE_BASE_1")) != 0) ? (strcpy(prevTreeBase1,treeBase_)) : (0);
     ((treeBase_ = getenv("MDSPLUS_TREE_BASE_2")) != 0) ? (strcpy(prevTreeBase2,treeBase_)) : (0);
@@ -1387,6 +1376,18 @@ static void setDataEnv(char *user, char *tokamak, char *version)
     ((treeBase_ = getenv("MDSPLUS_TREE_BASE_9")) != 0) ? (strcpy(prevTreeBase9,treeBase_)) : (0);
 
     // Set new values of the paths
+#ifdef _WIN32
+    _putenv_s("MDSPLUS_TREE_BASE_0",treeBase0);
+    _putenv_s("MDSPLUS_TREE_BASE_1",treeBase1);
+    _putenv_s("MDSPLUS_TREE_BASE_2",treeBase2);
+    _putenv_s("MDSPLUS_TREE_BASE_3",treeBase3);
+    _putenv_s("MDSPLUS_TREE_BASE_4",treeBase4);
+    _putenv_s("MDSPLUS_TREE_BASE_5",treeBase5);
+    _putenv_s("MDSPLUS_TREE_BASE_6",treeBase6);
+    _putenv_s("MDSPLUS_TREE_BASE_7",treeBase7);
+    _putenv_s("MDSPLUS_TREE_BASE_8",treeBase8);
+    _putenv_s("MDSPLUS_TREE_BASE_9",treeBase9);
+#else // _WIN32
     setenv("MDSPLUS_TREE_BASE_0",treeBase0,1);
     setenv("MDSPLUS_TREE_BASE_1",treeBase1,1);
     setenv("MDSPLUS_TREE_BASE_2",treeBase2,1);
@@ -1397,19 +1398,7 @@ static void setDataEnv(char *user, char *tokamak, char *version)
     setenv("MDSPLUS_TREE_BASE_7",treeBase7,1);
     setenv("MDSPLUS_TREE_BASE_8",treeBase8,1);
     setenv("MDSPLUS_TREE_BASE_9",treeBase9,1);
-    /*
-    putenv(treeBase0);
-    putenv(treeBase1);
-    putenv(treeBase2);
-    putenv(treeBase3);
-    putenv(treeBase4);
-    putenv(treeBase5);
-    putenv(treeBase6);
-    putenv(treeBase7);
-    putenv(treeBase8);
-    putenv(treeBase9);
-    */
-    //MERGE
+#endif // _WIN32
 }
 
 //imas_path env valus before calling getMdsShot
@@ -1419,7 +1408,11 @@ static void restoreEnv(char *name)
 	char logName[64];
 	if(!prevEnv) return;
 	sprintf(logName, "%s_path", name);
+#ifdef _WIN32
+    _putenv_s(logName,prevEnv);
+#else // _WIN32
 	setenv(logName,prevEnv,1);
+#endif // _WIN32
 	restoreDataEnv();
 }
 
@@ -1490,7 +1483,11 @@ static int getMdsShot(char *name, int shot, int run, int translate)
 				sprintf(command, "%s", getenv(baseName));
 			}
 			//printf("%s\n", command);
+#ifdef _WIN32
+			status = _putenv_s(logName,command);
+#else // _WIN32
 			status = setenv(logName,command,1);
+#endif // _WIN32
 			free(command);
 		}
 	}

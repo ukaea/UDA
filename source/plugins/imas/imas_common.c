@@ -64,12 +64,12 @@ double getSliceTime2()
  *     */
 int findIMASType(const char* typeName)
 {
-    if (typeName == NULL)                   return UNKNOWN_TYPE;
-    if (StringIEquals(typeName, "int"))     return INT;
-    if (StringIEquals(typeName, "float"))   return FLOAT;
-    if (StringIEquals(typeName, "double"))  return DOUBLE;
-    if (StringIEquals(typeName, "string"))  return STRING;
-    return UNKNOWN_TYPE;
+    if (typeName == NULL)                   return IMAS_UNKNOWN_TYPE;
+    if (StringIEquals(typeName, "int"))     return IMAS_INT;
+    if (StringIEquals(typeName, "float"))   return IMAS_FLOAT;
+    if (StringIEquals(typeName, "double"))  return IMAS_DOUBLE;
+    if (StringIEquals(typeName, "string"))  return IMAS_STRING;
+    return IMAS_UNKNOWN_TYPE;
 }
 
 /**
@@ -80,12 +80,12 @@ int findIMASType(const char* typeName)
 int findIMASIDAMType(int type)
 {
     switch (type) {
-        case INT:           return UDA_TYPE_INT;
-        case FLOAT:         return UDA_TYPE_FLOAT;
-        case DOUBLE:        return UDA_TYPE_DOUBLE;
-        case STRING:        return UDA_TYPE_STRING;
-        case STRING_VECTOR: return UDA_TYPE_STRING;
-        default:            return UDA_TYPE_UNKNOWN;
+        case IMAS_INT:           return UDA_TYPE_INT;
+        case IMAS_FLOAT:         return UDA_TYPE_FLOAT;
+        case IMAS_DOUBLE:        return UDA_TYPE_DOUBLE;
+        case IMAS_STRING:        return UDA_TYPE_STRING;
+        case IMAS_STRING_VECTOR: return UDA_TYPE_STRING;
+        default:                 return UDA_TYPE_UNKNOWN;
     }
     return UDA_TYPE_UNKNOWN;
 }

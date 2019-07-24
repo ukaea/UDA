@@ -340,36 +340,36 @@ int imas_mds_putDataSlice(int idx, char* cpoPath, char* path, char* timeBasePath
     switch (nDims) {
         case 0: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutIntSlice(idx, cpoPath, path, timeBasePath, ((int*)data)[0], time);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutFloatSlice(idx, cpoPath, path, timeBasePath, ((float*)data)[0], time);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutDoubleSlice(idx, cpoPath, path, timeBasePath, ((double*)data)[0], time);
-                case STRING:
+                case IMAS_STRING:
                     return mdsPutStringSlice(idx, cpoPath, path, timeBasePath, (char*)data, time);
             }
             break;
         }
         case 1: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect1DIntSlice(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], time);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect1DFloatSlice(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], time);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect1DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], time);
             }
             break;
         }
         case 2: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect2DIntSlice(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], time);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect2DFloatSlice(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                                   time);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect2DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                                    time);
             }
@@ -377,13 +377,13 @@ int imas_mds_putDataSlice(int idx, char* cpoPath, char* path, char* timeBasePath
         }
         case 3: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect3DIntSlice(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1],
                                                 dims[2], time);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect3DFloatSlice(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                                   dims[2], time);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect3DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                                    dims[2], time);
             }
@@ -391,13 +391,13 @@ int imas_mds_putDataSlice(int idx, char* cpoPath, char* path, char* timeBasePath
         }
         case 4: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect4DIntSlice(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1],
                                                 dims[2], dims[3], time);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect4DFloatSlice(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                                   dims[2], dims[3], time);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect4DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                                    dims[2], dims[3], time);
             }
@@ -405,13 +405,13 @@ int imas_mds_putDataSlice(int idx, char* cpoPath, char* path, char* timeBasePath
         }
         case 5: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect5DIntSlice(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1],
                                                 dims[2], dims[3], dims[4], time);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect5DFloatSlice(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                                   dims[2], dims[3], dims[4], time);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect5DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                                    dims[2], dims[3], dims[4], time);
             }
@@ -419,13 +419,13 @@ int imas_mds_putDataSlice(int idx, char* cpoPath, char* path, char* timeBasePath
         }
         case 6: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect6DIntSlice(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1],
                                                 dims[2], dims[3], dims[4], dims[5], time);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect6DFloatSlice(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                                   dims[2], dims[3], dims[4], dims[5], time);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect6DDoubleSlice(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                                    dims[2], dims[3], dims[4], dims[5], time);
             }
@@ -441,47 +441,47 @@ int imas_mds_replaceLastDataSlice(int idx, char* cpoPath, char* path, int type, 
     switch (nDims) {
         case 0: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsReplaceLastIntSlice(idx, cpoPath, path, ((int*)data)[0]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsReplaceLastFloatSlice(idx, cpoPath, path, ((float*)data)[0]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsReplaceLastDoubleSlice(idx, cpoPath, path, ((double*)data)[0]);
-                case STRING:
+                case IMAS_STRING:
                     return mdsReplaceLastStringSlice(idx, cpoPath, path, (char*)data);
             }
             break;
         }
         case 1: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsReplaceLastVect1DIntSlice(idx, cpoPath, path, (int*)data, dims[0]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsReplaceLastVect1DFloatSlice(idx, cpoPath, path, (float*)data, dims[0]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsReplaceLastVect1DDoubleSlice(idx, cpoPath, path, (double*)data, dims[0]);
             }
             break;
         }
         case 2: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsReplaceLastVect2DIntSlice(idx, cpoPath, path, (int*)data, dims[0], dims[1]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsReplaceLastVect2DFloatSlice(idx, cpoPath, path, (float*)data, dims[0], dims[1]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsReplaceLastVect2DDoubleSlice(idx, cpoPath, path, (double*)data, dims[0], dims[1]);
             }
             break;
         }
         case 3: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsReplaceLastVect3DIntSlice(idx, cpoPath, path, (int*)data, dims[0], dims[1], dims[2]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsReplaceLastVect3DFloatSlice(idx, cpoPath, path, (float*)data, dims[0], dims[1],
                                                           dims[2]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsReplaceLastVect3DDoubleSlice(idx, cpoPath, path, (double*)data, dims[0], dims[1],
                                                            dims[2]);
             }
@@ -489,13 +489,13 @@ int imas_mds_replaceLastDataSlice(int idx, char* cpoPath, char* path, int type, 
         }
         case 4: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsReplaceLastVect4DIntSlice(idx, cpoPath, path, (int*)data, dims[0], dims[1], dims[2],
                                                         dims[3]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsReplaceLastVect4DFloatSlice(idx, cpoPath, path, (float*)data, dims[0], dims[1], dims[2],
                                                           dims[3]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsReplaceLastVect4DDoubleSlice(idx, cpoPath, path, (double*)data, dims[0], dims[1],
                                                            dims[2], dims[3]);
             }
@@ -503,13 +503,13 @@ int imas_mds_replaceLastDataSlice(int idx, char* cpoPath, char* path, int type, 
         }
         case 5: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsReplaceLastVect5DIntSlice(idx, cpoPath, path, (int*)data, dims[0], dims[1], dims[2],
                                                         dims[3], dims[4]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsReplaceLastVect5DFloatSlice(idx, cpoPath, path, (float*)data, dims[0], dims[1], dims[2],
                                                           dims[3], dims[4]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsReplaceLastVect5DDoubleSlice(idx, cpoPath, path, (double*)data, dims[0], dims[1],
                                                            dims[2], dims[3], dims[4]);
             }
@@ -517,13 +517,13 @@ int imas_mds_replaceLastDataSlice(int idx, char* cpoPath, char* path, int type, 
         }
         case 6: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsReplaceLastVect6DIntSlice(idx, cpoPath, path, (int*)data, dims[0], dims[1], dims[2],
                                                         dims[3], dims[4], dims[5]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsReplaceLastVect6DFloatSlice(idx, cpoPath, path, (float*)data, dims[0], dims[1], dims[2],
                                                           dims[3], dims[4], dims[5]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsReplaceLastVect6DDoubleSlice(idx, cpoPath, path, (double*)data, dims[0], dims[1],
                                                            dims[2], dims[3], dims[4], dims[5]);
             }
@@ -552,38 +552,38 @@ int imas_mds_putData(int idx, char* cpoPath, char* path, int type, int nDims, in
     switch (nDims) {
         case 0: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutInt(idx, cpoPath, path, ((int*)data)[0]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutFloat(idx, cpoPath, path, ((float*)data)[0]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutDouble(idx, cpoPath, path, ((double*)data)[0]);
-                case STRING:
+                case IMAS_STRING:
                     return mdsPutString(idx, cpoPath, path, (char*)data);
             }
             break;
         }
         case 1: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect1DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], isTimed);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect1DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], isTimed);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect1DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], isTimed);
-                case STRING:
+                case IMAS_STRING:
                     return mdsPutVect1DString(idx, cpoPath, path, timeBasePath, (char**)data, dims[0], isTimed);
             }
             break;
         }
         case 2: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect2DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], isTimed);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect2DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                              isTimed);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect2DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                               isTimed);
             }
@@ -591,13 +591,13 @@ int imas_mds_putData(int idx, char* cpoPath, char* path, int type, int nDims, in
         }
         case 3: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect3DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], dims[2],
                                            isTimed);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect3DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                              dims[2], isTimed);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect3DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                               dims[2], isTimed);
             }
@@ -605,13 +605,13 @@ int imas_mds_putData(int idx, char* cpoPath, char* path, int type, int nDims, in
         }
         case 4: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect4DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], dims[2],
                                            dims[3], isTimed);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect4DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                              dims[2], dims[3], isTimed);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect4DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                               dims[2], dims[3], isTimed);
             }
@@ -619,13 +619,13 @@ int imas_mds_putData(int idx, char* cpoPath, char* path, int type, int nDims, in
         }
         case 5: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect5DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], dims[2],
                                            dims[3], dims[4], isTimed);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect5DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                              dims[2], dims[3], dims[4], isTimed);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect5DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                               dims[2], dims[3], dims[4], isTimed);
             }
@@ -633,13 +633,13 @@ int imas_mds_putData(int idx, char* cpoPath, char* path, int type, int nDims, in
         }
         case 6: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect6DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], dims[2],
                                            dims[3], dims[4], dims[5], isTimed);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect6DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                              dims[2], dims[3], dims[4], dims[5], isTimed);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect6DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                               dims[2], dims[3], dims[4], dims[5], isTimed);
             }
@@ -647,13 +647,13 @@ int imas_mds_putData(int idx, char* cpoPath, char* path, int type, int nDims, in
         }
         case 7: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect7DInt(idx, cpoPath, path, timeBasePath, (int*)data, dims[0], dims[1], dims[2],
                                            dims[3], dims[4], dims[5], dims[6], isTimed);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect7DFloat(idx, cpoPath, path, timeBasePath, (float*)data, dims[0], dims[1],
                                              dims[2], dims[3], dims[4], dims[5], dims[6], isTimed);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect7DDouble(idx, cpoPath, path, timeBasePath, (double*)data, dims[0], dims[1],
                                               dims[2], dims[3], dims[4], dims[5], dims[6], isTimed);
             }
@@ -681,73 +681,73 @@ int imas_mds_getData(int idx, char* cpoPath, char* path, int type, int nDims, in
     switch (nDims) {
         case 0: {
             switch (type) {
-                case INT: {
+                case IMAS_INT: {
                     int* data = (int*)malloc(sizeof(int));
                     data[0] = 0;
                     *dataOut = data;
                     return mdsGetInt(idx, cpoPath, path, data);
                 }
-                case FLOAT: {
+                case IMAS_FLOAT: {
                     float* data = (float*)malloc(sizeof(float));
                     data[0] = 0.0;
                     *dataOut = data;
                     return mdsGetFloat(idx, cpoPath, path, data);
                 }
-                case DOUBLE: {
+                case IMAS_DOUBLE: {
                     double* data = (double*)malloc(sizeof(double));
                     data[0] = 0.0;
                     *dataOut = data;
                     return mdsGetDouble(idx, cpoPath, path, data);
                 }
-                case STRING:
+                case IMAS_STRING:
                     return mdsGetString(idx, cpoPath, path, (char**)dataOut);
             }
             break;
         }
         case 1: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect1DInt(idx, cpoPath, path, (int**)dataOut, &dims[0]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect1DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect1DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0]);
-                case STRING:
+                case IMAS_STRING:
                     return mdsGetVect1DString(idx, cpoPath, path, (char***)dataOut, &dims[0]);
             }
             break;
         }
         case 2: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect2DInt(idx, cpoPath, path, (int**)dataOut, &dims[0], &dims[1]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect2DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0], &dims[1]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect2DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0], &dims[1]);
             }
             break;
         }
         case 3: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect3DInt(idx, cpoPath, path, (int**)dataOut, &dims[0], &dims[1], &dims[2]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect3DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0], &dims[1], &dims[2]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect3DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0], &dims[1], &dims[2]);
             }
             break;
         }
         case 4: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect4DInt(idx, cpoPath, path, (int**)dataOut, &dims[0], &dims[1], &dims[2],
                                            &dims[3]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect4DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0], &dims[1], &dims[2],
                                              &dims[3]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect4DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0], &dims[1], &dims[2],
                                               &dims[3]);
             }
@@ -755,13 +755,13 @@ int imas_mds_getData(int idx, char* cpoPath, char* path, int type, int nDims, in
         }
         case 5: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect5DInt(idx, cpoPath, path, (int**)dataOut, &dims[0], &dims[1], &dims[2], &dims[3],
                                            &dims[4]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect5DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0], &dims[1], &dims[2],
                                              &dims[3], &dims[4]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect5DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0], &dims[1], &dims[2],
                                               &dims[3], &dims[4]);
             }
@@ -769,13 +769,13 @@ int imas_mds_getData(int idx, char* cpoPath, char* path, int type, int nDims, in
         }
         case 6: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect6DInt(idx, cpoPath, path, (int**)dataOut, &dims[0], &dims[1], &dims[2], &dims[3],
                                            &dims[4], &dims[5]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect6DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0], &dims[1], &dims[2],
                                              &dims[3], &dims[4], &dims[5]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect6DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0], &dims[1], &dims[2],
                                               &dims[3], &dims[4], &dims[5]);
             }
@@ -783,13 +783,13 @@ int imas_mds_getData(int idx, char* cpoPath, char* path, int type, int nDims, in
         }
         case 7: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect7DInt(idx, cpoPath, path, (int**)dataOut, &dims[0], &dims[1], &dims[2], &dims[3],
                                            &dims[4], &dims[5], &dims[6]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect7DFloat(idx, cpoPath, path, (float**)dataOut, &dims[0], &dims[1], &dims[2],
                                              &dims[3], &dims[4], &dims[5], &dims[6]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect7DDouble(idx, cpoPath, path, (double**)dataOut, &dims[0], &dims[1], &dims[2],
                                               &dims[3], &dims[4], &dims[5], &dims[6]);
             }
@@ -806,25 +806,25 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
     switch (rank) {
         case 0: {
             switch (type) {
-                case INT: {
+                case IMAS_INT: {
                     int* dataSlice = (int*)malloc(sizeof(int));
                     dataSlice[0] = 0;
                     *data = dataSlice;
                     return mdsGetIntSlice(idx, cpoPath, path, timeBasePath, dataSlice, time, retTime, interpolMode);
                 }
-                case FLOAT: {
+                case IMAS_FLOAT: {
                     float* dataSlice = (float*)malloc(sizeof(float));
                     dataSlice[0] = 0.0;
                     *data = dataSlice;
                     return mdsGetFloatSlice(idx, cpoPath, path, timeBasePath, dataSlice, time, retTime, interpolMode);
                 }
-                case DOUBLE: {
+                case IMAS_DOUBLE: {
                     double* dataSlice = (double*)malloc(sizeof(double));
                     dataSlice[0] = 0;
                     *data = dataSlice;
                     return mdsGetDoubleSlice(idx, cpoPath, path, timeBasePath, dataSlice, time, retTime, interpolMode);
                 }
-                case STRING: {
+                case IMAS_STRING: {
                     return mdsGetStringSlice(idx, cpoPath, path, timeBasePath, (char**)data, time, retTime,
                                              interpolMode);
                 }
@@ -833,13 +833,13 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
         }
         case 1: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect1DIntSlice(idx, cpoPath, path, timeBasePath, (int**)data, &shape[0], time,
                                                 retTime, interpolMode);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect1DFloatSlice(idx, cpoPath, path, timeBasePath, (float**)data, &shape[0], time,
                                                   retTime, interpolMode);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect1DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**)data, &shape[0], time,
                                                    retTime, interpolMode);
             }
@@ -847,13 +847,13 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
         }
         case 2: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect2DIntSlice(idx, cpoPath, path, timeBasePath, (int**)data, &shape[0], &shape[1],
                                                 time, retTime, interpolMode);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect2DFloatSlice(idx, cpoPath, path, timeBasePath, (float**)data, &shape[0],
                                                   &shape[1], time, retTime, interpolMode);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect2DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**)data, &shape[0],
                                                    &shape[1], time, retTime, interpolMode);
             }
@@ -861,13 +861,13 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
         }
         case 3: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect3DIntSlice(idx, cpoPath, path, timeBasePath, (int**)data, &shape[0], &shape[1],
                                                 &shape[2], time, retTime, interpolMode);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect3DFloatSlice(idx, cpoPath, path, timeBasePath, (float**)data, &shape[0],
                                                   &shape[1], &shape[2], time, retTime, interpolMode);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect3DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**)data, &shape[0],
                                                    &shape[1], &shape[2], time, retTime, interpolMode);
             }
@@ -875,13 +875,13 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
         }
         case 4: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect4DIntSlice(idx, cpoPath, path, timeBasePath, (int**)data, &shape[0], &shape[1],
                                                 &shape[2], &shape[3], time, retTime, interpolMode);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect4DFloatSlice(idx, cpoPath, path, timeBasePath, (float**)data, &shape[0],
                                                   &shape[1], &shape[2], &shape[3], time, retTime, interpolMode);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect4DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**)data, &shape[0],
                                                    &shape[1], &shape[2], &shape[3], time, retTime, interpolMode);
             }
@@ -889,14 +889,14 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
         }
         case 5: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect5DIntSlice(idx, cpoPath, path, timeBasePath, (int**)data, &shape[0], &shape[1],
                                                 &shape[2], &shape[3], &shape[4], time, retTime, interpolMode);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect5DFloatSlice(idx, cpoPath, path, timeBasePath, (float**)data, &shape[0],
                                                   &shape[1], &shape[2], &shape[3], &shape[4], time, retTime,
                                                   interpolMode);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect5DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**)data, &shape[0],
                                                    &shape[1], &shape[2], &shape[3], &shape[4], time, retTime,
                                                    interpolMode);
@@ -905,15 +905,15 @@ int imas_mds_getDataSlices(int idx, char* cpoPath, char* path, int type, int ran
         }
         case 6: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect6DIntSlice(idx, cpoPath, path, timeBasePath, (int**)data, &shape[0], &shape[1],
                                                 &shape[2], &shape[3], &shape[4], &shape[5], time, retTime,
                                                 interpolMode);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect6DFloatSlice(idx, cpoPath, path, timeBasePath, (float**)data, &shape[0],
                                                   &shape[1], &shape[2], &shape[3], &shape[4], &shape[5], time, retTime,
                                                   interpolMode);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect6DDoubleSlice(idx, cpoPath, path, timeBasePath, (double**)data, &shape[0],
                                                    &shape[1], &shape[2], &shape[3], &shape[4], &shape[5], time, retTime,
                                                    interpolMode);
@@ -936,60 +936,60 @@ void* imas_mds_putDataSliceInObject(void* obj, char* path, int index, int type, 
     switch (nDims) {
         case 0: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutIntInObject(obj, path, index, ((int*)data)[0]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutFloatInObject(obj, path, index, ((float*)data)[0]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutDoubleInObject(obj, path, index, ((double*)data)[0]);
-                case STRING:
+                case IMAS_STRING:
                     return mdsPutStringInObject(obj, path, index, (char*)data);
             }
             break;
         }
         case 1: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect1DIntInObject(obj, path, index, (int*)data, dims[0]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect1DFloatInObject(obj, path, index, (float*)data, dims[0]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect1DDoubleInObject(obj, path, index, (double*)data, dims[0]);
-                case STRING:
+                case IMAS_STRING:
                     return mdsPutVect1DStringInObject(obj, path, index, (char**)data, dims[0]);
             }
             break;
         }
         case 2: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect2DIntInObject(obj, path, index, (int*)data, dims[0], dims[1]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect2DFloatInObject(obj, path, index, (float*)data, dims[0], dims[1]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect2DDoubleInObject(obj, path, index, (double*)data, dims[0], dims[1]);
             }
             break;
         }
         case 3: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect3DIntInObject(obj, path, index, (int*)data, dims[0], dims[1], dims[2]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect3DFloatInObject(obj, path, index, (float*)data, dims[0], dims[1], dims[2]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect3DDoubleInObject(obj, path, index, (double*)data, dims[0], dims[1], dims[2]);
             }
             break;
         }
         case 4: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect4DIntInObject(obj, path, index, (int*)data, dims[0], dims[1], dims[2], dims[3]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect4DFloatInObject(obj, path, index, (float*)data, dims[0], dims[1], dims[2],
                                                      dims[3]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect4DDoubleInObject(obj, path, index, (double*)data, dims[0], dims[1], dims[2],
                                                       dims[3]);
             }
@@ -997,13 +997,13 @@ void* imas_mds_putDataSliceInObject(void* obj, char* path, int index, int type, 
         }
         case 5: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect5DIntInObject(obj, path, index, (int*)data, dims[0], dims[1], dims[2], dims[3],
                                                    dims[4]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect5DFloatInObject(obj, path, index, (float*)data, dims[0], dims[1], dims[2],
                                                      dims[3], dims[4]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect5DDoubleInObject(obj, path, index, (double*)data, dims[0], dims[1], dims[2],
                                                       dims[3], dims[4]);
             }
@@ -1011,13 +1011,13 @@ void* imas_mds_putDataSliceInObject(void* obj, char* path, int index, int type, 
         }
         case 6: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect6DIntInObject(obj, path, index, (int*)data, dims[0], dims[1], dims[2], dims[3],
                                                    dims[4], dims[5]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect6DFloatInObject(obj, path, index, (float*)data, dims[0], dims[1], dims[2],
                                                      dims[3], dims[4], dims[5]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect6DDoubleInObject(obj, path, index, (double*)data, dims[0], dims[1], dims[2],
                                                       dims[3], dims[4], dims[5]);
             }
@@ -1025,13 +1025,13 @@ void* imas_mds_putDataSliceInObject(void* obj, char* path, int index, int type, 
         }
         case 7: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsPutVect7DIntInObject(obj, path, index, (int*)data, dims[0], dims[1], dims[2], dims[3],
                                                    dims[4], dims[5], dims[6]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsPutVect7DFloatInObject(obj, path, index, (float*)data, dims[0], dims[1], dims[2],
                                                      dims[3], dims[4], dims[5], dims[6]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsPutVect7DDoubleInObject(obj, path, index, (double*)data, dims[0], dims[1], dims[2],
                                                       dims[3], dims[4], dims[5], dims[6]);
             }
@@ -1048,60 +1048,60 @@ int imas_mds_getDataSliceInObject(void* obj, char* path, int index, int type, in
     switch (nDims) {
         case 0: {
             switch (type) {
-                case INT: {
+                case IMAS_INT: {
                     int* dataSlice = (int*)malloc(sizeof(int));
                     dataSlice[0] = 0;
                     *data = dataSlice;
                     return mdsGetIntFromObject(obj, path, index, dataSlice);
                 }
-                case FLOAT: {
+                case IMAS_FLOAT: {
                     float* dataSlice = (float*)malloc(sizeof(float));
                     dataSlice[0] = 0.0;
                     *data = dataSlice;
                     return mdsGetFloatFromObject(obj, path, index, dataSlice);
                 }
-                case DOUBLE: {
+                case IMAS_DOUBLE: {
                     double* dataSlice = (double*)malloc(sizeof(double));
                     dataSlice[0] = 0;
                     *data = dataSlice;
                     return mdsGetDoubleFromObject(obj, path, index, dataSlice);
                 }
-                case STRING:
+                case IMAS_STRING:
                     return mdsGetStringFromObject(obj, path, index, (char**)data);
             }
             break;
         }
         case 1: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect1DIntFromObject(obj, path, index, (int**)data, &dims[0]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect1DFloatFromObject(obj, path, index, (float**)data, &dims[0]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect1DDoubleFromObject(obj, path, index, (double**)data, &dims[0]);
-                case STRING:
+                case IMAS_STRING:
                     return mdsGetVect1DStringFromObject(obj, path, index, (char***)data, &dims[0]);
             }
             break;
         }
         case 2: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect2DIntFromObject(obj, path, index, (int**)data, &dims[0], &dims[1]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect2DFloatFromObject(obj, path, index, (float**)data, &dims[0], &dims[1]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect2DDoubleFromObject(obj, path, index, (double**)data, &dims[0], &dims[1]);
             }
             break;
         }
         case 3: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect3DIntFromObject(obj, path, index, (int**)data, &dims[0], &dims[1], &dims[2]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect3DFloatFromObject(obj, path, index, (float**)data, &dims[0], &dims[1], &dims[2]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect3DDoubleFromObject(obj, path, index, (double**)data, &dims[0], &dims[1],
                                                         &dims[2]);
             }
@@ -1109,13 +1109,13 @@ int imas_mds_getDataSliceInObject(void* obj, char* path, int index, int type, in
         }
         case 4: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect4DIntFromObject(obj, path, index, (int**)data, &dims[0], &dims[1], &dims[2],
                                                      &dims[3]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect4DFloatFromObject(obj, path, index, (float**)data, &dims[0], &dims[1], &dims[2],
                                                        &dims[3]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect4DDoubleFromObject(obj, path, index, (double**)data, &dims[0], &dims[1],
                                                         &dims[2], &dims[3]);
             }
@@ -1123,13 +1123,13 @@ int imas_mds_getDataSliceInObject(void* obj, char* path, int index, int type, in
         }
         case 5: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect5DIntFromObject(obj, path, index, (int**)data, &dims[0], &dims[1], &dims[2],
                                                      &dims[3], &dims[4]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect5DFloatFromObject(obj, path, index, (float**)data, &dims[0], &dims[1], &dims[2],
                                                        &dims[3], &dims[4]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect5DDoubleFromObject(obj, path, index, (double**)data, &dims[0], &dims[1],
                                                         &dims[2], &dims[3], &dims[4]);
             }
@@ -1137,13 +1137,13 @@ int imas_mds_getDataSliceInObject(void* obj, char* path, int index, int type, in
         }
         case 6: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect6DIntFromObject(obj, path, index, (int**)data, &dims[0], &dims[1], &dims[2],
                                                      &dims[3], &dims[4], &dims[5]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect6DFloatFromObject(obj, path, index, (float**)data, &dims[0], &dims[1], &dims[2],
                                                        &dims[3], &dims[4], &dims[5]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect6DDoubleFromObject(obj, path, index, (double**)data, &dims[0], &dims[1],
                                                         &dims[2], &dims[3], &dims[4], &dims[5]);
             }
@@ -1151,13 +1151,13 @@ int imas_mds_getDataSliceInObject(void* obj, char* path, int index, int type, in
         }
         case 7: {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     return mdsGetVect7DIntFromObject(obj, path, index, (int**)data, &dims[0], &dims[1], &dims[2],
                                                      &dims[3], &dims[4], &dims[5], &dims[6]);
-                case FLOAT:
+                case IMAS_FLOAT:
                     return mdsGetVect7DFloatFromObject(obj, path, index, (float**)data, &dims[0], &dims[1], &dims[2],
                                                        &dims[3], &dims[4], &dims[5], &dims[6]);
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     return mdsGetVect7DDoubleFromObject(obj, path, index, (double**)data, &dims[0], &dims[1],
                                                         &dims[2], &dims[3], &dims[4], &dims[5], &dims[6]);
             }
@@ -1680,7 +1680,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             data_block->data_type = findIMASIDAMType(type);
             data_block->data = imasData;
             data_block->rank = (unsigned int)plugin_args.rank;
-            if (plugin_args.rank == 0 && type == STRING) {
+            if (plugin_args.rank == 0 && type == IMAS_STRING) {
                 data_block->data_n = (int)strlen(imasData) + 1;
             } else {
                 data_block->data_n = shape[0];

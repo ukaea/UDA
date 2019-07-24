@@ -71,9 +71,6 @@ int imas_hdf5_DeleteData(int expIdx, const char* cpoPath, const char* path);
 #define TIMED       1
 #define TIMED_CLEAR 2
 
-#define INT         2
-#define FLOAT       3
-#define DOUBLE      4
 #define DIMENSION   -1    // if we need to read the dimensions only
 
 hid_t openGroup(hid_t root, const char* relPath, int create_flag, int clear_flag);

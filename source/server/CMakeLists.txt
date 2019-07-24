@@ -3,6 +3,7 @@ macro( CONVERT_WIN_PATH VarName )
   if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
     execute_process( COMMAND cygpath.exe -u ${${VarName}} OUTPUT_VARIABLE ${VarName} )
     string( STRIP ${${VarName}} ${VarName} )
+    string( REGEX REPLACE "[\r\n]+" ";" ${VarName} ${${VarName}} )
   endif()
 endmacro()
 
@@ -10,11 +11,11 @@ endmacro()
 # Dependencies
 
 find_package( LibXml2 REQUIRED )
+find_package( OpenSSL REQUIRED )
 if( MINGW )
   CONVERT_WIN_PATH( LIBXML2_INCLUDE_DIR )
   CONVERT_WIN_PATH( LIBXML2_LIBRARIES )
 endif()
-find_package( OpenSSL REQUIRED )
 
 include( modules )
 find_modules()
@@ -113,7 +114,15 @@ add_library( server-static STATIC ${SERVER_OBJ} )
 #target_link_libraries( server-shared LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
 #target_link_libraries( server-static LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
 
-add_executable( server-exe serverMain.c )
+if( WIN32 OR MINGW )
+	set( EXE_FLAG WIN32 )
+	set( EXE_EXT ".exe" )
+else()
+	set( EXE_FLAG  )
+	set( EXE_EXT "" )
+endif()
+
+add_executable( server-exe ${EXE_FLAG} serverMain.c )
 
 ########################################################################################################################
 # Add libraries
@@ -184,7 +193,7 @@ install(
 
 set_target_properties( server-exe
   PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_server
+    OUTPUT_NAME ${PROJECT_NAME}_server${EXE_EXT}
 )
 
 install( TARGETS server-exe

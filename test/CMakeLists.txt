@@ -1,3 +1,14 @@
+# Macro used to convert Windows path to Unix
+macro( CONVERT_WIN_PATH VarName )
+  if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
+    execute_process( COMMAND cygpath.exe -u ${${VarName}} OUTPUT_VARIABLE ${VarName} )
+    string( STRIP ${${VarName}} ${VarName} )
+    string( REGEX REPLACE "[\r\n]+" ";" ${VarName} ${${VarName}} )
+  endif()
+endmacro()
+
+########################################################################################################################
+
 if( NO_WRAPPERS )
   message( WARNING "C++ wrapper not built - skipping tests" )
   return()
@@ -10,6 +21,10 @@ find_package( OpenSSL )
 find_package( LibXml2 )
 find_package( LibMemcached )
 find_package( PostgreSQL )
+if( MINGW )
+  CONVERT_WIN_PATH( LIBXML2_INCLUDE_DIR )
+  CONVERT_WIN_PATH( LIBXML2_LIBRARIES )
+endif()
 
 set( FAT_TESTS OFF CACHE BOOL "Build tests using fat-client" )
 
@@ -47,31 +62,51 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR} )
 
 file( GLOB HELPER_FILES "test_helpers.*" )
 
+if( WIN32 OR MINGW )
+	set( EXE_FLAG WIN32 )
+	set( EXE_EXT ".exe" )
+else()
+	set( EXE_FLAG  )
+	set( EXE_EXT "" )
+endif()
+
 macro( BUILD_TEST NAME SOURCE )
-  add_executable( ${NAME} ${HELPER_FILES} ${SOURCE} )
+  add_executable( ${NAME} ${EXE_FLAG} ${HELPER_FILES} ${SOURCE} )
   target_link_libraries( ${NAME} PRIVATE
     ${Boost_LIBRARIES}
     ${PROJECT_NAME}_cpp
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
+	stdc++
   )
   link_modules( ${NAME} )
-
-  add_executable( fat_${NAME} ${HELPER_FILES} ${SOURCE} )
+  set_target_properties( ${NAME}
+    PROPERTIES
+      OUTPUT_NAME ${NAME}${EXE_EXT}
+  )
+  
+  add_executable( fat_${NAME} ${EXE_FLAG} ${HELPER_FILES} ${SOURCE} )
   target_link_libraries( fat_${NAME} PRIVATE
     ${Boost_LIBRARIES}
     fat${PROJECT_NAME}_cpp
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
-    c m dl
+    m dl stdc++
   )
+  if( NOT WIN32 AND NOT MINGW )
+    target_link_libraries( fat_${NAME} PRIVATE c )
+  endif()
   if( NOT NO_MODULES )
     target_link_libraries( fat_${NAME} PRIVATE ${PostgreSQL_LIBRARY} )
   endif()
   target_compile_definitions( fat_${NAME} PRIVATE -DFATCLIENT )
   link_modules( fat_${NAME} )
+  set_target_properties( fat_${NAME}
+    PROPERTIES
+      OUTPUT_NAME fat_${NAME}${EXE_EXT}
+  )
 
   if( FAT_TESTS )
     add_test( ${NAME} fat_${NAME} )

@@ -8,7 +8,7 @@
 #include <ncidef.h>
 #include <mdsshr.h>
 #include <mds_stdarg.h>
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(_WIN32)
 #  include <pthread.h>
 #endif
 

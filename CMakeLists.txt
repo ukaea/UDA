@@ -75,7 +75,11 @@ endif()
 
 if( CMAKE_VERSION VERSION_GREATER 3.0.9 )
   set( CMAKE_CXX_STANDARD 11 )
+  set( CMAKE_CXX_STANDARD_REQUIRED ON )
+  # C++ extension = OFF to use STD instead GNU
+  set( CMAKE_CXX_EXTENSIONS OFF )
   set( CMAKE_C_STANDARD 90 )
+  set( CMAKE_C_STANDARD_REQUIRED ON )
 else()
   if( NOT WIN32 OR MINGW )
     set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu89" )

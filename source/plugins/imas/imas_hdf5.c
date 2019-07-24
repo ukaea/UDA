@@ -77,7 +77,6 @@ Investigate the object system - is this just a local cache?
 
 #define MAX_TOKENS  64
 
-#define UNKNOWN_TYPE 0
 
 IDAMPLUGINFILELIST pluginFileList;
 
@@ -628,7 +627,7 @@ int imas_hdf5_putData(int idx, const char* cpoPath, const char* path, int type, 
 
     int rc = 0;
     static int recursion = 1;
-    if (type == STRING && recursion) {
+    if (type == IMAS_STRING && recursion) {
         int strDims = ((dims[0] - 1) / 132) + 1;
         recursion = 0;
 
@@ -697,19 +696,19 @@ int imas_hdf5_putData(int idx, const char* cpoPath, const char* path, int type, 
 
     //Ready to create a new dataset: first define the datatype
     switch (type) {
-        case INT:
+        case IMAS_INT:
             datatype = H5Tcopy(H5T_STD_I32BE);
             inDatatype = H5Tcopy(H5T_NATIVE_INT);
             break;
-        case FLOAT:
+        case IMAS_FLOAT:
             datatype = H5Tcopy(H5T_IEEE_F32BE);
             inDatatype = H5Tcopy(H5T_NATIVE_FLOAT);
             break;
-        case DOUBLE:
+        case IMAS_DOUBLE:
             datatype = H5Tcopy(H5T_IEEE_F64BE);
             inDatatype = H5Tcopy(H5T_NATIVE_DOUBLE);
             break;
-        case STRING:
+        case IMAS_STRING:
             datatype = H5Tcopy(H5T_C_S1);
             H5Tset_size(datatype, 132);
             inDatatype = H5Tcopy(H5T_C_S1);
@@ -776,7 +775,7 @@ int imas_hdf5_putDataX(int idx, const char* cpoPath, const char* path, int type,
 
     int rc = 0;
     static int recursion = 1;
-    if (type == STRING && recursion) {
+    if (type == IMAS_STRING && recursion) {
         int strDims = ((dims[0] - 1) / 132) + 1;
         recursion = 0;
 
@@ -857,19 +856,19 @@ int imas_hdf5_putDataSlice(int idx, const char* cpoPath, const char* path, int t
     }
     //Ready to create a new dataset: first define the datatype
     switch (type) {
-        case INT:
+        case IMAS_INT:
             datatype = H5Tcopy(H5T_STD_I32BE);
             inDatatype = H5Tcopy(H5T_NATIVE_INT);
             break;
-        case FLOAT:
+        case IMAS_FLOAT:
             datatype = H5Tcopy(H5T_IEEE_F32BE);
             inDatatype = H5Tcopy(H5T_NATIVE_FLOAT);
             break;
-        case DOUBLE:
+        case IMAS_DOUBLE:
             datatype = H5Tcopy(H5T_IEEE_F64BE);
             inDatatype = H5Tcopy(H5T_NATIVE_DOUBLE);
             break;
-        case STRING:
+        case IMAS_STRING:
             datatype = H5Tcopy(H5T_C_S1);
             H5Tset_size(datatype, H5T_VARIABLE);
             inDatatype = H5Tcopy(H5T_C_S1);
@@ -1055,19 +1054,19 @@ int imas_hdf5_replaceLastDataSlice(int idx, const char* cpoPath, const char* pat
     }
     //Ready to create a new dataset: first define the datatype
     switch (type) {
-        case INT:
+        case IMAS_INT:
             datatype = H5Tcopy(H5T_STD_I32BE);
             inDatatype = H5Tcopy(H5T_NATIVE_INT);
             break;
-        case FLOAT:
+        case IMAS_FLOAT:
             datatype = H5Tcopy(H5T_IEEE_F32BE);
             inDatatype = H5Tcopy(H5T_NATIVE_FLOAT);
             break;
-        case DOUBLE:
+        case IMAS_DOUBLE:
             datatype = H5Tcopy(H5T_IEEE_F64BE);
             inDatatype = H5Tcopy(H5T_NATIVE_DOUBLE);
             break;
-        case STRING:
+        case IMAS_STRING:
             datatype = H5Tcopy(H5T_C_S1);
             H5Tset_size(datatype, H5T_VARIABLE);
             inDatatype = H5Tcopy(H5T_C_S1);
@@ -1202,25 +1201,25 @@ int imas_hdf5_getData(int idx, const char* cpoPath, const char* path, int type, 
 
     //Ready to create a new dataset: first define the datatype
     switch (type) {
-        case INT:
+        case IMAS_INT:
             datatype = H5Tcopy(H5T_STD_I32BE);
             inDatatype = H5Tcopy(H5T_NATIVE_INT);
             break;
-        case FLOAT:
+        case IMAS_FLOAT:
             datatype = H5Tcopy(H5T_IEEE_F32BE);
             inDatatype = H5Tcopy(H5T_NATIVE_FLOAT);
             break;
-        case DOUBLE:
+        case IMAS_DOUBLE:
             datatype = H5Tcopy(H5T_IEEE_F64BE);
             inDatatype = H5Tcopy(H5T_NATIVE_DOUBLE);
             break;
-        case STRING:
+        case IMAS_STRING:
             inDatatype = H5Tcopy(H5T_C_S1);
             H5Tset_size(inDatatype, 132);
             datatype = H5Tcopy(H5T_C_S1);
             H5Tset_size(inDatatype, 132);
             break;
-        case STRING_VECTOR:
+        case IMAS_STRING_VECTOR:
             datatype = H5Tcopy(H5T_C_S1);
             H5Tset_size(datatype, H5T_VARIABLE);
             inDatatype = H5Tcopy(H5T_C_S1);
@@ -1270,7 +1269,7 @@ int imas_hdf5_getData(int idx, const char* cpoPath, const char* path, int type, 
         return -1;
     }
 
-    if (type == STRING) {
+    if (type == IMAS_STRING) {
 
         strLen = strlen(outData);
         *data = malloc(strLen + 1);
@@ -1278,7 +1277,7 @@ int imas_hdf5_getData(int idx, const char* cpoPath, const char* path, int type, 
 
         free(outData);
 
-    } else if (type == STRING_VECTOR) {
+    } else if (type == IMAS_STRING_VECTOR) {
         *data = malloc(dims[0] * sizeof(char*));
         for (i = 0; i < dims[0]; i++) {
             strLen = strlen(((char**)outData)[i]);
@@ -1342,22 +1341,22 @@ int imas_hdf5_getDataSlices(int idx, const char* cpoPath, const char* path, int 
     }
     //Ready to create a new dataset: first define the datatype
     switch (type) {
-        case INT:
+        case IMAS_INT:
             datatype = H5Tcopy(H5T_STD_I32BE);
             inDatatype = H5Tcopy(H5T_NATIVE_INT);
             dataSize = sizeof(int);
             break;
-        case FLOAT:
+        case IMAS_FLOAT:
             datatype = H5Tcopy(H5T_IEEE_F32BE);
             inDatatype = H5Tcopy(H5T_NATIVE_FLOAT);
             dataSize = sizeof(float);
             break;
-        case DOUBLE:
+        case IMAS_DOUBLE:
             datatype = H5Tcopy(H5T_IEEE_F64BE);
             inDatatype = H5Tcopy(H5T_NATIVE_DOUBLE);
             dataSize = sizeof(double);
             break;
-        case STRING:
+        case IMAS_STRING:
             sprintf(errmsg, "String slices not supported");
             return -1;
             break;
@@ -1878,19 +1877,19 @@ int imas_hdf5_putDataSliceInObject(void* obj, const char* path, int index, int t
 
     // define datatypes
     switch (type) {
-        case INT:
+        case IMAS_INT:
             datatype = H5Tvlen_create(H5T_STD_I32BE);
             memDatatype = H5Tvlen_create(H5T_NATIVE_INT);
             break;
-        case FLOAT:
+        case IMAS_FLOAT:
             datatype = H5Tvlen_create(H5T_IEEE_F32BE);
             memDatatype = H5Tvlen_create(H5T_NATIVE_FLOAT);
             break;
-        case DOUBLE:
+        case IMAS_DOUBLE:
             datatype = H5Tvlen_create(H5T_IEEE_F64BE);
             memDatatype = H5Tvlen_create(H5T_NATIVE_DOUBLE);
             break;
-        case STRING:
+        case IMAS_STRING:
             stringType = H5Tcopy(H5T_C_S1);
             H5Tset_size(stringType, H5T_VARIABLE);
             datatype = H5Tvlen_create(stringType);
@@ -2151,19 +2150,19 @@ int imas_hdf5_getDataSliceFromObject(void* obj, const char* path, int index, int
 
         // define datatypes
         switch (type) {
-            case INT:
+            case IMAS_INT:
                 datatype = H5Tvlen_create(H5T_STD_I32BE);
                 memDatatype = H5Tvlen_create(H5T_NATIVE_INT);
                 break;
-            case FLOAT:
+            case IMAS_FLOAT:
                 datatype = H5Tvlen_create(H5T_IEEE_F32BE);
                 memDatatype = H5Tvlen_create(H5T_NATIVE_FLOAT);
                 break;
-            case DOUBLE:
+            case IMAS_DOUBLE:
                 datatype = H5Tvlen_create(H5T_IEEE_F64BE);
                 memDatatype = H5Tvlen_create(H5T_NATIVE_DOUBLE);
                 break;
-            case STRING:
+            case IMAS_STRING:
                 stringType = H5Tcopy(H5T_C_S1);
                 H5Tset_size(stringType, H5T_VARIABLE);
                 datatype = H5Tvlen_create(stringType);
@@ -2233,19 +2232,19 @@ int imas_hdf5_getDataSliceFromObject(void* obj, const char* path, int index, int
         dims[0] = 1;        // Single Scalar Values
         if (*data == NULL) {
             switch (type) {
-                case INT:
+                case IMAS_INT:
                     *data = malloc(sizeof(int));
                     **(int**)data = INT_MIN;
                     break;
-                case FLOAT:
+                case IMAS_FLOAT:
                     *data = malloc(sizeof(float));
                     **(float**)data = -FLT_MAX;
                     break;
-                case DOUBLE:
+                case IMAS_DOUBLE:
                     *data = malloc(sizeof(double));
                     **(double**)data = -DBL_MAX;
                     break;
-                case STRING:
+                case IMAS_STRING:
                     *data = malloc(sizeof(char));
                     **(char**)data = '\0';
                     break;

@@ -1,6 +1,16 @@
 #define TEST_DATA_DIR "@CMAKE_SOURCE_DIR@/test/data"
 
 #ifdef FATCLIENT
+#ifdef _WIN32
+_putenv_s("UDA_LOG", "@CMAKE_BINARY_DIR@/test");
+_putenv_s("UDA_LOG_MODE", "a");
+_putenv_s("UDA_PLUGIN_CONFIG", "@CMAKE_INSTALL_PREFIX@/etc/plugins/udaPlugins.conf");
+_putenv_s("UDA_SARRAY_CONFIG", "@CMAKE_INSTALL_PREFIX@/etc/udagenstruct.conf");
+_putenv_s("UDA_LOG_LEVEL", "DEBUG");
+_putenv_s("UDA_PLUGIN_DIR", "@CMAKE_INSTALL_PREFIX@/lib/plugins");
+_putenv_s("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "@CMAKE_SOURCE_DIR@/source/plugins/exp2imas/mappings");
+_putenv_s("UDA_IMAS_MACHINE_MAP", "@CMAKE_SOURCE_DIR@/source/plugins/imas/machines.txt");
+#else
 setenv("UDA_LOG", "@CMAKE_BINARY_DIR@/test", 1);
 setenv("UDA_LOG_MODE", "a", 1);
 setenv("UDA_PLUGIN_CONFIG", "@CMAKE_INSTALL_PREFIX@/etc/plugins/udaPlugins.conf", 1);
@@ -9,4 +19,5 @@ setenv("UDA_LOG_LEVEL", "DEBUG", 1);
 setenv("UDA_PLUGIN_DIR", "@CMAKE_INSTALL_PREFIX@/lib/plugins", 1);
 setenv("UDA_EXP2IMAS_MAPPING_FILE_DIRECTORY", "@CMAKE_SOURCE_DIR@/source/plugins/exp2imas/mappings", 1);
 setenv("UDA_IMAS_MACHINE_MAP", "@CMAKE_SOURCE_DIR@/source/plugins/imas/machines.txt", 1);
+#endif
 #endif

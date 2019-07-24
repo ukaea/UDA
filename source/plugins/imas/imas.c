@@ -193,12 +193,12 @@ double getSliceTime2()
  */
 int findIMASType(const char* typeName)
 {
-    if (typeName == NULL) return UNKNOWN_TYPE;
-    if (StringIEquals(typeName, "int")) return INT;
-    if (StringIEquals(typeName, "float")) return FLOAT;
-    if (StringIEquals(typeName, "double")) return DOUBLE;
-    if (StringIEquals(typeName, "string")) return STRING;
-    return UNKNOWN_TYPE;
+    if (typeName == NULL) return IMAS_UNKNOWN_TYPE;
+    if (StringIEquals(typeName, "int")) return IMAS_INT;
+    if (StringIEquals(typeName, "float")) return IMAS_FLOAT;
+    if (StringIEquals(typeName, "double")) return IMAS_DOUBLE;
+    if (StringIEquals(typeName, "string")) return IMAS_STRING;
+    return IMAS_UNKNOWN_TYPE;
 }
 
 /**
@@ -209,15 +209,15 @@ int findIMASType(const char* typeName)
 int findIMASIDAMType(int type)
 {
     switch (type) {
-        case INT:
+        case IMAS_INT:
             return UDA_TYPE_INT;
-        case FLOAT:
+        case IMAS_FLOAT:
             return UDA_TYPE_FLOAT;
-        case DOUBLE:
+        case IMAS_DOUBLE:
             return UDA_TYPE_DOUBLE;
-        case STRING:
+        case IMAS_STRING:
             return UDA_TYPE_STRING;
-        case STRING_VECTOR:
+        case IMAS_STRING_VECTOR:
             return UDA_TYPE_STRING;
         default:
             return UDA_TYPE_UNKNOWN;
@@ -617,7 +617,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
             THROW_ERROR(999, "The data's Type has not been specified!");
         }
 
-        if ((type = findIMASType(typeName)) == UNKNOWN_TYPE) {
+        if ((type = findIMASType(typeName)) == IMAS_UNKNOWN_TYPE) {
             UDA_LOG(UDA_LOG_ERROR, "imas get: The data's Type name cannot be converted!\n");
             THROW_ERROR(999, "The data's Type name cannot be converted!");
         }
@@ -749,7 +749,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                 }
                 if (rank == 0) {
                     switch (type) {
-                        case INT: {
+                        case IMAS_INT: {
                             int y1 = ((int*)currData)[0];
                             int y2 = ((int*)currData)[1];
                             int* retData = (int*)malloc(sizeof(int));
@@ -773,7 +773,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                             imasData = (char*)retData;
                             break;
                         }
-                        case FLOAT: {
+                        case IMAS_FLOAT: {
                             float y1 = ((float*)currData)[0];
                             float y2 = ((float*)currData)[1];
                             float* retData = (float*)malloc(sizeof(float));
@@ -797,7 +797,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                             imasData = (char*)retData;
                             break;
                         }
-                        case DOUBLE: {
+                        case IMAS_DOUBLE: {
                             double y1 = ((double*)currData)[0];
                             double y2 = ((double*)currData)[1];
                             double* retData = (double*)malloc(sizeof(double));
@@ -828,7 +828,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                     nItems = shape[0];
                     for (i = 1; i < rank; i++)nItems *= shape[i];
                     switch (type) {
-                        case INT: {
+                        case IMAS_INT: {
                             int* y1 = (int*)currData;
                             int* y2 = (int*)&currData[1];
                             int* retData = (int*)malloc(sizeof(int) * nItems);
@@ -854,7 +854,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                             imasData = (char*)retData;
                             break;
                         }
-                        case FLOAT: {
+                        case IMAS_FLOAT: {
                             float* y1 = (float*)currData;
                             float* y2 = (float*)&currData[1];
                             float* retData = (float*)malloc(sizeof(float) * nItems);
@@ -880,7 +880,7 @@ path	- the path relative to the root (cpoPath) where the data are written (must 
                             imasData = (char*)retData;
                             break;
                         }
-                        case DOUBLE: {
+                        case IMAS_DOUBLE: {
                             double* y1 = (double*)currData;
                             double* y2 = (double*)&currData[1];
                             double* retData = (double*)malloc(sizeof(double) * nItems);
@@ -1169,7 +1169,7 @@ time	- the time slice to be written - from a PUTDATA block (putSlice keyword)
         const char* typeName;
         FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, typeName);
 
-        if ((type = findIMASType(typeName)) == UNKNOWN_TYPE) {
+        if ((type = findIMASType(typeName)) == IMAS_UNKNOWN_TYPE) {
             UDA_LOG(UDA_LOG_ERROR, "The data's Type name cannot be converted!\n");
             THROW_ERROR(999, "The data's Type name cannot be converted!");
         }
