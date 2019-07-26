@@ -276,9 +276,13 @@ extern int openData(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // does the archive exist? If not then create it. Ensure correct permissions: read only for non owner.
 
             errno = 0;
+#ifdef _WIN32
+            int rc = mkdir(newDir);
+#else // _WIN32
             int rc = mkdir(newDir, S_IRUSR | S_IWUSR | S_IXUSR |
                                    S_IRGRP | S_IWGRP | S_IXGRP |
                                    S_IROTH | S_IWOTH | S_IXOTH);
+#endif // _WIN32
 
             if (rc != 0 || errno != 0) {
                 if (errno == EEXIST) {

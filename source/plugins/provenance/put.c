@@ -369,9 +369,13 @@ int makeProvenanceDir(char** newDir, char* root, char* UID, unsigned short* prio
 // does the archive directory exist? If not then create it. Ensure correct permissions: read only for non owner.
 
         errno = 0;
+#ifdef _WIN32
+        rc = mkdir(p);
+#else // _WIN32
         rc = mkdir(p, S_IRUSR | S_IWUSR | S_IXUSR |
                       S_IRGRP | S_IWGRP | S_IXGRP |
                       S_IROTH | S_IWOTH | S_IXOTH);
+#endif // _WIN32
         if (errno == EEXIST) {
             errno = 0;            // Exists so ignore
             rc = 0;
@@ -383,9 +387,13 @@ int makeProvenanceDir(char** newDir, char* root, char* UID, unsigned short* prio
     }
 
     if (rc == 0 && errno == 0) {
+#ifdef _WIN32
+        rc = mkdir(p);
+#else // _WIN32
         rc = mkdir(p, S_IRUSR | S_IWUSR | S_IXUSR |
                       S_IRGRP | S_IWGRP | S_IXGRP |
                       S_IROTH | S_IWOTH | S_IXOTH);
+#endif // _WIN32
         if (errno == EEXIST) {
             *priorDir = 1;            // Exists so ignore, but flag as pre-existing
             errno = 0;

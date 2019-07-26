@@ -12,6 +12,8 @@ if( WIN32 OR MINGW )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated-copy" )
   # Add flag to avoid error with strncpy()
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=sizeof-pointer-memaccess" )
+  # Add flag to avoid error with string truncation
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=stringop-truncation" )
 endif()
 
 include( plugins )
