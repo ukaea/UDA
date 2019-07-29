@@ -1,29 +1,11 @@
-# Macro used to convert Windows path to Unix
-macro( CONVERT_WIN_PATH VarName )
-  if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
-    execute_process( COMMAND cygpath.exe -u ${${VarName}} OUTPUT_VARIABLE ${VarName} )
-    string( STRIP ${${VarName}} ${VarName} )
-    string( REGEX REPLACE "[\r\n]+" ";" ${VarName} ${${VarName}} )
-  endif()
-endmacro()
-
 ########################################################################################################################
 # Dependencies
+
 find_package( IDL )
 find_package( Java 1.6 )
 find_package( JNI )
 find_package( SWIG 3.0 )
 find_package( Boost )
-if( MINGW )
-  CONVERT_WIN_PATH( SWIG_DIR )
-  CONVERT_WIN_PATH( JAVA_INCLUDE_PATH )
-  CONVERT_WIN_PATH( JAVA_INCLUDE_PATH2 )
-  CONVERT_WIN_PATH( JAVA_AWT_INCLUDE_PATH )
-  CONVERT_WIN_PATH( JAVA_AWT_LIBRARY )
-  CONVERT_WIN_PATH( JAVA_JVM_LIBRARY )
-  CONVERT_WIN_PATH( JNI_LIBRARIES )
-  CONVERT_WIN_PATH( JNI_INCLUDE_DIRS )
-endif()
 
 if( Boost_FOUND )
   add_subdirectory( c++ )

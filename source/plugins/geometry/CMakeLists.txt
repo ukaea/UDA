@@ -1,21 +1,9 @@
-# Macro used to convert Windows path to Unix
-macro( CONVERT_WIN_PATH VarName )
-  if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
-    execute_process( COMMAND cygpath.exe -u ${${VarName}} OUTPUT_VARIABLE ${VarName} )
-    string( STRIP ${${VarName}} ${VarName} )
-    string( REGEX REPLACE "[\r\n]+" ";" ${VarName} ${${VarName}} )
-  endif()
-endmacro()
-
 ########################################################################################################################
 # Dependencies
+
 find_package( PostgreSQL QUIET )
 find_package( LibXml2 QUIET )
 find_package( NetCDF QUIET )
-if( MINGW )
-  CONVERT_WIN_PATH( LIBXML2_INCLUDE_DIR )
-  CONVERT_WIN_PATH( LIBXML2_LIBRARIES )
-endif()
 
 if( NOT PostgreSQL_FOUND )
   message( WARNING "PostgreSQL not found - skipping Geometry plugin" )
@@ -26,6 +14,11 @@ elseif( NOT LIBXML2_FOUND )
 elseif( NOT NETCDF_FOUND )
   message( WARNING "NetCDF not found - skipping Geometry plugin" )
   return()
+endif()
+
+if( WIN32 OR MINGW )
+  # Add flag to avoid error with strncpy()
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=stringop-overflow" )
 endif()
 
 include( plugins )

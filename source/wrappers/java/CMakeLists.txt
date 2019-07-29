@@ -1,12 +1,3 @@
-# Macro used to convert Windows path to Unix
-macro( CONVERT_WIN_PATH VarName )
-  if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
-    execute_process( COMMAND cygpath.exe -u ${${VarName}} OUTPUT_VARIABLE ${VarName} )
-    string( STRIP ${${VarName}} ${VarName} )
-    string( REGEX REPLACE "[\r\n]+" ";" ${VarName} ${${VarName}} )
-  endif()
-endmacro()
-
 ########################################################################################################################
 set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../.. )
 
@@ -16,15 +7,6 @@ set( LIB_NAME ${PROJECT_NAME}_jni )
 # Dependencies
 find_package( Java REQUIRED )
 find_package( JNI REQUIRED )
-if( MINGW )
-  CONVERT_WIN_PATH( JAVA_INCLUDE_PATH )
-  CONVERT_WIN_PATH( JAVA_INCLUDE_PATH2 )
-  CONVERT_WIN_PATH( JAVA_AWT_INCLUDE_PATH )
-  CONVERT_WIN_PATH( JAVA_AWT_LIBRARY )
-  CONVERT_WIN_PATH( JAVA_JVM_LIBRARY )
-  CONVERT_WIN_PATH( JNI_LIBRARIES )
-  CONVERT_WIN_PATH( JNI_INCLUDE_DIRS )
-endif()
 
 include( UseJava )
 

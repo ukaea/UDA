@@ -1,22 +1,9 @@
-# Macro used to convert Windows path to Unix
-macro( CONVERT_WIN_PATH VarName )
-  if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
-    execute_process( COMMAND cygpath.exe -u ${${VarName}} OUTPUT_VARIABLE ${VarName} )
-    string( STRIP ${${VarName}} ${VarName} )
-    string( REGEX REPLACE "[\r\n]+" ";" ${VarName} ${${VarName}} )
-  endif()
-endmacro()
-
 ########################################################################################################################
 # Dependencies
 
 find_package( OpenSSL REQUIRED )
 if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )
-  if( MINGW )
-    CONVERT_WIN_PATH( LIBXML2_INCLUDE_DIR )
-	CONVERT_WIN_PATH( LIBXML2_LIBRARIES )
-  endif()
 endif()
 
 if( NOT CLIENT_ONLY AND NOT NO_MODULES )

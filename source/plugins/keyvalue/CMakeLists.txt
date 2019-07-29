@@ -1,20 +1,8 @@
-# Macro used to convert Windows path to Unix
-macro( CONVERT_WIN_PATH VarName )
-  if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
-    execute_process( COMMAND cygpath.exe -u ${${VarName}} OUTPUT_VARIABLE ${VarName} )
-    string( STRIP ${${VarName}} ${VarName} )
-    string( REGEX REPLACE "[\r\n]+" ";" ${VarName} ${${VarName}} )
-  endif()
-endmacro()
-
 ########################################################################################################################
 # Dependencies
+
 find_package( LibXml2 QUIET )
 find_package( LevelDB QUIET )
-if( MINGW )
-  CONVERT_WIN_PATH( LIBXML2_INCLUDE_DIR )
-  CONVERT_WIN_PATH( LIBXML2_LIBRARIES )
-endif()
 
 if( NOT LEVELDB_FOUND )
   message( WARNING "LevelDB not found - skipping keyvalue plugin" )
