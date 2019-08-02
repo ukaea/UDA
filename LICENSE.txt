@@ -1,7 +1,7 @@
-Copyright (c) 2017, UKAEA/Euratom Fusion Association
+Copyright (c) 2017-2019, UKAEA/Euratom Fusion Association
 Culham Laboratory, Abingdon, Oxon, OX14 3DB, UK
 
-Copyright (c) 2017, CEA, IRFM
+Copyright (c) 2017-2019, CEA, IRFM
 F-13108 Saint-Paul-lez-Durance, France
 
 ITER Organization

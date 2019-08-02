@@ -1,6 +1,25 @@
 cmake_minimum_required( VERSION 3.0 )
 
 ########################################################################################################################
+# Macro used to convert Windows path to Unix
+macro( CONVERT_WIN_PATH VarName )
+  if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
+    execute_process( COMMAND cygpath.exe -u ${${VarName}} OUTPUT_VARIABLE ${VarName} )
+    string( STRIP ${${VarName}} ${VarName} )
+    string( REGEX REPLACE "[\r\n]+" ";" ${VarName} ${${VarName}} )
+  endif()
+endmacro()
+
+# Macro used to convert Unix path to Windows
+macro( CONVERT_LIN_PATH VarName )
+  if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
+    execute_process( COMMAND cygpath.exe -m ${${VarName}} OUTPUT_VARIABLE ${VarName} )
+    string( STRIP ${${VarName}} ${VarName} )
+    string( REGEX REPLACE "[\r\n]+" ";" ${VarName} ${${VarName}} )
+  endif()
+endmacro()
+
+########################################################################################################################
 # CMake configuration
 
 cmake_policy( SET CMP0048 NEW )
@@ -186,26 +205,50 @@ include( InstallRequiredSystemLibraries )
 
 set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "Universal Data Access library" )
 set( CPACK_PACKAGE_VENDOR "ITER" )
-set( CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md" )
-set( CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENCE.txt" )
 set( CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}" )
 set( CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}" )
 set( CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}" )
-set( CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMAKE_VERSION_MAJOR}.${CMAKE_VERSION_MINOR}" )
-if( WIN32 AND NOT UNIX )
-  # There is a bug in NSI that does not handle full unix paths properly. Make
-  # sure there is at least one set of four (4) backlasshes.
-  set( CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp" )
-  set( CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\uda_server.exe" )
-  set( CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} Universal Data Access" )
-  set( CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.iter.org/uda.html" )
-  set( CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.iter.org/uda.html" )
+set( CPACK_PACKAGE_INSTALL_DIRECTORY "uda-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}" )
+set( CPACK_PACKAGE_FILE_NAME "uda-install-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}" )
+if( WIN32 OR MINGW )
+  set( CMAKE_WIN_CURRENT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
+  set( CMAKE_WIN_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} )
+  set( CMAKE_WIN_SOURCE_DIR ${CMAKE_SOURCE_DIR} )
+  set( CMAKE_WIN_BINARY_DIR  ${CMAKE_BINARY_DIR} )
+  if( MINGW )
+    CONVERT_LIN_PATH( CMAKE_WIN_CURRENT_SOURCE_DIR )
+    CONVERT_LIN_PATH( CMAKE_WIN_INSTALL_PREFIX )
+    CONVERT_LIN_PATH( CMAKE_WIN_SOURCE_DIR )
+    CONVERT_LIN_PATH( CMAKE_WIN_BINARY_DIR )
+	# For MinGW, it is required to use Windows style path for the NSIS command "File"
+	# otherwise it is not able to find files
+	set( CPACK_NSIS_FULL_INSTALL "File /r \\\"\\\${INST_DIR_WIN}\\\\*.*\\\"" )
+  endif()
+  
+  set( CPACK_TEMPORARY_INSTALL_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
+  set( CPACK_PACKAGE_DIRECTORY "${CMAKE_WIN_BINARY_DIR}" )
+  set( CPACK_TEMPORARY_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
+  set( CPACK_WIN_TEMPORARY_DIRECTORY "${CMAKE_WIN_BINARY_DIR}/cpack" )
+  set( CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_WIN_CURRENT_SOURCE_DIR}/README.md" )
+  set( CPACK_RESOURCE_FILE_LICENSE "${CMAKE_WIN_CURRENT_SOURCE_DIR}/LICENSE.txt" )
+  set( CPACK_NSIS_INSTALLED_ICON_NAME "bin/uda_server.exe" )
+  set( CPACK_NSIS_DISPLAY_NAME "Universal Data Access v${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}" )
+  # Windows trick: Replace last / by \\ otherwise bitmap extraction failed
+  set( CPACK_PACKAGE_ICON "${CMAKE_WIN_SOURCE_DIR}/cmake\\\\icon.bmp" )
+  set( CPACK_NSIS_HELP_LINK "http://www.iter.org/uda.html" )
+  set( CPACK_NSIS_URL_INFO_ABOUT "http://www.iter.org/uda.html" )
   set( CPACK_NSIS_CONTACT "Jonathan.Hollocombe@iter.org" )
   set( CPACK_NSIS_MODIFY_PATH ON )
-else( WIN32 AND NOT UNIX )
+else()
+  set( CPACK_TEMPORARY_INSTALL_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
+  set( CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}" )
+  set( CPACK_TEMPORARY_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
+  set( CPACK_WIN_TEMPORARY_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
+  set( CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md" )
+  set( CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt" )
   set( CPACK_STRIP_FILES "bin/uda_server" )
   set( CPACK_SOURCE_STRIP_FILES "" )
-endif( WIN32 AND NOT UNIX )
+endif()
 set( CPACK_PACKAGE_EXECUTABLES "uda_server" "UDA Server" )
 
 include( CPack )
