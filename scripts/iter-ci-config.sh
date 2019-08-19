@@ -5,7 +5,7 @@
 # Set up environment for compilation
 . scripts/iter-ci-setup-env.sh || exit 1
 
-if [ "$OS" == "Windows_NT" ] && [ "$MSYSTEM" != "" ]
+if [ "$OS" == "Windows_NT" ]
 then
 	echo "MSYS2/MinGW environnement under Windows"
 	

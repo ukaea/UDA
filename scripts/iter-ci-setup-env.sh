@@ -1,7 +1,7 @@
 #!/bin/bash
 # Bamboo Build script
 
-if [ "$OS" == "Windows_NT" ] && [ "$MSYSTEM" != "" ]
+if [ "$OS" == "Windows_NT" ]
 then
 	echo "MSYS2/MinGW environnement under Windows"
 	
