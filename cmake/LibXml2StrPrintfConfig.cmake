@@ -16,7 +16,7 @@ if( LIBXML2_FOUND )
     set( CMAKE_REQUIRED_FLAGS "-Wall -Werror" )
   endif()
 
-  set( CMAKE_REQUIRED_INCLUDES ${LIBXML2_INCLUDE_DIR} )
+  set( CMAKE_REQUIRED_INCLUDES ${LIBXML2_INCLUDE_DIR} /opt/local/include )
   set( CMAKE_REQUIRED_LIBRARIES ${LIBXML2_LIBRARIES} )
 
   check_c_source_compiles(

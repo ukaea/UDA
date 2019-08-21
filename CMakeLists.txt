@@ -18,6 +18,7 @@ set( CMAKE_MODULE_PATH
 )
 
 include( ColourMessages )
+include_directories( /opt/local/include )
 
 ########################################################################################################################
 # Version and Machine information
