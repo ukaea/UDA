@@ -2,8 +2,8 @@
 # Bamboo Build script
 # Stage 1 : Configure stage
 
-# Set up environment for compilation
-. scripts/iter-ci-setup-env.sh || exit 1
+# Set up environment for compilation (source to keep exportation)
+source ./scripts/iter-ci-setup-env.sh || exit 1
 
 if [ "$OS" == "Windows_NT" ]
 then
