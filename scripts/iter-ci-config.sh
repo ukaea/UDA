@@ -9,13 +9,9 @@ if [ "$OS" == "Windows_NT" ]
 then
 	echo "MSYS2/MinGW environnement under Windows"
 	
-	echo "JAVA_HOME: $JAVA_HOME"
-	echo "HDF5_ROOT: $HDF5_ROOT"
-	echo "PostgresSQL_ROOT: $PostgresSQL_ROOT"
-	echo "NETCDF_DIR: $NETCDF_DIR"
-	
 	cmake -Bbuild -H. -G"Unix Makefiles" \
 		-DHDF5_ROOT=${HDF5_ROOT} -DPostgreSQL_ROOT=${PostgresSQL_ROOT} -DNETCDF_DIR=${NETCDF_DIR} \
+		-DOPENSSL_INCLUDE_DIR=/usr/include -DOPENSSL_SSL_LIBRARY=/usr/lib/libssl.a -DOPENSSL_CRYPTO_LIBRARY=/usr/lib/libcrypto.a \
 		-DCMAKE_BUILD_TYPE=Debug -DTARGET_TYPE=OTHER \
 		-DBUILD_SHARED_LIBS=ON -DNO_MODULES=ON \
 		-DCMAKE_INSTALL_PREFIX=. -DITER_CI=ON

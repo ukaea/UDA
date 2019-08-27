@@ -20,12 +20,6 @@ then
 	export HDF5_ROOT=`cygpath.exe -u "$HDF5_ROOT"`
 	export PostgresSQL_ROOT=`cygpath.exe -u "$PostgresSQL_ROOT"`
 	export NETCDF_DIR=`cygpath.exe -u "$NETCDF_DIR"`
-	
-	
-	echo "JAVA_HOME: $JAVA_HOME"
-	echo "HDF5_ROOT: $HDF5_ROOT"
-	echo "PostgresSQL_ROOT: $PostgresSQL_ROOT"
-	echo "NETCDF_DIR: $NETCDF_DIR"
 else
 	echo "Linux environnement"
 	# Stage 0 : load modules
