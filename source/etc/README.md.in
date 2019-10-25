@@ -1,15 +1,15 @@
 UDA SERVER
 ===========
 
-*	Runs private UDA server on port 56565 out of this directory.
+* Runs private UDA server on port 56565 out of this directory.
 
-	Use
+Use
 
-		./rc.uda start
+        ./rc.uda start
 
-	to get xinetd to use local config etc.
+to get xinetd to use local config etc.
 
-		./rc.uda stop
+        ./rc.uda stop
 
-	kills pid.
+kills pid.
 

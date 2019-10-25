@@ -20,7 +20,7 @@ then
     HOSTNAME=$(dnsdomainname -a | cut -d'.' -f2-)
 fi
 
-if [ -n "$UDAHOSTNAME" ]	# prioritise this host name for the local machine configuration
+if [ -n "$UDAHOSTNAME" ] # prioritise this host name for the local machine configuration
 then
     HOSTNAME=$UDAHOSTNAME
 fi

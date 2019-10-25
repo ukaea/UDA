@@ -7,11 +7,9 @@
 
 #include "connection.h"
 
-#include <string.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <signal.h>
-#include <stdbool.h>
+#include <cstdlib>
+#include <cerrno>
+#include <csignal>
 
 #ifdef __GNUC__
 #  ifndef _WIN32
@@ -57,8 +55,6 @@ int connectionOpen()
 
 int reconnect(ENVIRONMENT* environment)
 {
-    int socketId = -1;
-
     int err = 0;
 
     // Save current client and server timer settings, Socket and XDR handles
@@ -71,7 +67,7 @@ int reconnect(ENVIRONMENT* environment)
 
     // Identify the current Socket connection in the Socket List
 
-    socketId = getSocketRecordId(&client_socketlist, clientSocket);
+    int socketId = getSocketRecordId(&client_socketlist, clientSocket);
 
     // Instance a new server if the Client has changed the host and/or port number
 
@@ -290,7 +286,7 @@ int createConnection()
     setHints(&hints, hostname);
 
     errno = 0;
-    if ((rc = getaddrinfo(hostname, serviceport, &hints, &result)) != 0 || errno != 0) {
+    if ((rc = getaddrinfo(hostname, serviceport, &hints, &result)) != 0 || (errno != 0 && errno != ESRCH)) {
         addIdamError(SYSTEMERRORTYPE, __func__, rc, (char*)gai_strerror(rc));
         if (rc == EAI_SYSTEM || errno != 0) addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
         if (result) freeaddrinfo(result);
@@ -537,7 +533,7 @@ void closeConnection(int type)
     clientSocket = -1;
 }
 
-int clientWriteout(void* iohandle, char* buf, int count)
+int clientWriteout(void* iohandle __unused, char* buf, int count)
 {
 #ifndef _WIN32
     void (* OldSIGPIPEHandler)(int);
@@ -615,7 +611,7 @@ int clientWriteout(void* iohandle, char* buf, int count)
     return rc;
 }
 
-int clientReadin(void* iohandle, char* buf, int count)
+int clientReadin(void* iohandle __unused, char* buf, int count)
 {
     int rc;
     fd_set rfds;
