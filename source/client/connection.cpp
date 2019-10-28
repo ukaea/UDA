@@ -533,7 +533,7 @@ void closeConnection(int type)
     clientSocket = -1;
 }
 
-int clientWriteout(void* iohandle __unused, char* buf, int count)
+int clientWriteout(void* iohandle __attribute__((__unused__)), char* buf, int count)
 {
 #ifndef _WIN32
     void (* OldSIGPIPEHandler)(int);
@@ -611,7 +611,7 @@ int clientWriteout(void* iohandle __unused, char* buf, int count)
     return rc;
 }
 
-int clientReadin(void* iohandle __unused, char* buf, int count)
+int clientReadin(void* iohandle __attribute__((__unused__)), char* buf, int count)
 {
     int rc;
     fd_set rfds;
