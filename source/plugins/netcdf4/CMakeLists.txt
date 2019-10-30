@@ -13,6 +13,7 @@ include( plugins )
 
 uda_plugin(
   NAME NETCDF
+  EXTRA_NAMES CDF NCDF
   ENTRY_FUNC netCDF4
   DESCRIPTION "netCDF4 Data Reader"
   EXAMPLE "NETCDF::get()"

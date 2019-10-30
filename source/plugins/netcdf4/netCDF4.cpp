@@ -263,11 +263,26 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (STR_EQUALS(request_block->function, "read")) {
         const char* file = nullptr;
         FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, file);
+
         const char* signal = nullptr;
         FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
+
         strcpy(data_source->path, file);
         strcpy(signal_desc->signal_name, signal);
     }
+
+    if (strlen(data_source->path) == 0) {
+        char file_name[1024];
+        sprintf(file_name, "%s%06d.nc", data_source->source_alias, request_block->exp_number);
+        if (signal_desc->type == 'R') {
+            // Always Latest
+            mastArchiveFilePath(request_block->exp_number, -1, file_name, data_source->path, idam_plugin_interface->environment);
+        } else {
+            mastArchiveFilePath(request_block->exp_number, request_block->pass, file_name, data_source->path, idam_plugin_interface->environment);
+        }
+    }
+            
+    UDA_LOG(UDA_LOG_DEBUG, "NETCDF path: %s\n", data_source->path);
 
     // Legacy data reader!
     int err = readCDF(*data_source, *signal_desc, *request_block, data_block,
