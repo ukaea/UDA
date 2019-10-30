@@ -14,15 +14,16 @@ extern "C" {
 
 int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment);
 void extractFunctionName(char* str, REQUEST_BLOCK* request_block);
-int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment);
+int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList,
+                         const ENVIRONMENT* environment);
 int genericRequestTest(const char* source, REQUEST_BLOCK* request_block);
 int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRONMENT* environment);
-void expandEnvironmentVariables(REQUEST_BLOCK *request_block);
-int extractSubset(REQUEST_BLOCK *request_block);
-void freeNameValueList(NAMEVALUELIST *nameValueList);
-void parseNameValue(char *pair, NAMEVALUE *nameValue,unsigned short strip);
-int nameValuePairs(char *pairList, NAMEVALUELIST *nameValueList, unsigned short strip);
-int nameValueSubstitution(NAMEVALUELIST* nameValueList, char *tpass);
+void expandEnvironmentVariables(char* path);
+int extractSubset(REQUEST_BLOCK* request_block);
+void freeNameValueList(NAMEVALUELIST* nameValueList);
+void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip);
+int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short strip);
+int nameValueSubstitution(NAMEVALUELIST* nameValueList, char* tpass);
 void embeddedValueSubstitution(NAMEVALUELIST* nameValueList);
 
 #ifdef __cplusplus

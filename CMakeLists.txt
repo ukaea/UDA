@@ -123,7 +123,6 @@ endif()
 option( CLIENT_ONLY "Only build UDA client" OFF )
 option( SERVER_ONLY "Only build UDA server" OFF )
 option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )
-option( NO_MODULES "Don't build any UDA server modules" OFF )
 option( FAT_IDL "Build IDL wrapper using fatclient" OFF )
 
 if( SERVER_ONLY )
@@ -132,21 +131,14 @@ if( SERVER_ONLY )
   endif()
 endif()
 
-if( CLIENT_ONLY )
-  if( NO_MODULES )
-    message( FATAL_ERROR "cannot use NO_MODULES when configuring with CLIENT_ONLY" )
-  endif()
-endif()
-
 if( SSLAUTHENTICATION )
   message( "Including SSL/RTL X509 User Authentication" )
   add_definitions( -DSSLAUTHENTICATION )
 endif() 
 
-if( NOTGENERICENABLED )
-  message( "No Generic name mapping service using the internal legacy Postgres plugin" )
-  add_definitions( -DNOTGENERICENABLED )
-endif()
+add_definitions( -DNOTGENERICENABLED )
+add_definitions( -DNOMDSPLUSPLUGIN )
+add_definitions( -DNOIDAPLUGIN )
 
 ########################################################################################################################
 # Source directories

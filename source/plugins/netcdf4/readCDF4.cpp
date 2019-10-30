@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------
-* IDAM Plugin data Reader to Access DATA from netCDF4 Files
+* UDA Plugin data Reader to Access DATA from netCDF4 Files
 *
 * Input Arguments:	DATA_SOURCE data_source
 *			SIGNAL_DESC signal_desc
@@ -33,36 +33,21 @@
 *			3.4> Complex types: only enquire if required.
 *---------------------------------------------------------------------------------------------------------------*/
 
-#include "readCDF4.h"
+#include "readCDF4.hpp"
+
 #include <strings.h>
-
-#include <clientserver/errorLog.h>
-
-//---------------------------------------------------------------------------------------------------------------
-// Stub plugin if disabled
-
-#ifdef NONETCDFPLUGIN
-
-int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK request_block, DATA_BLOCK* data_block,
-            LOGMALLOCLIST** logmalloclist, USERDEFINEDTYPELIST** userdefinedtypelist)
-{
-    int err = 999;
-    addIdamError(CODEERRORTYPE, "readCDF", err, "Cannot Read netCDF Files - PLUGIN NOT ENABLED");
-    return err;
-}
-
-#else
 
 #include <logging/logging.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/printStructs.h>
+#include <clientserver/errorLog.h>
 #include <structures/struct.h>
 
-#include "readCDFMeta.h"
-#include "readCDF4SubTree.h"
-#include "readCDFAtts.h"
+#include "readCDFMeta.hpp"
+#include "readCDF4SubTree.hpp"
+#include "readCDFAtts.hpp"
 
 //---------------------------------------------------------------------------------------------------------------
 
@@ -78,7 +63,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                 int* ndvec, int* data_type, int* isIndex, char** data, LOGMALLOCLIST* logmalloclist,
                 USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE** udt);
 
-int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, char* name, int* ndvec, int ndims[2],
+int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, const char* name, int* ndvec, int ndims[2],
                  int* data_type, char** data, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                  USERDEFINEDTYPE** udt);
 
@@ -88,8 +73,8 @@ unsigned int readCDF4Properties()
     static unsigned int cdfProperties = 0;
     if (init) {
         char* env = getenv("UDA_CDFPROPERTIES");    // Assign behaviour via the server's environment
-        if (env != NULL) {
-            cdfProperties = (unsigned int)strtol(env, NULL, 10);
+        if (env != nullptr) {
+            cdfProperties = (unsigned int)strtol(env, nullptr, 10);
         }
         init = 0;
     }
@@ -97,7 +82,8 @@ unsigned int readCDF4Properties()
 }
 
 int readCDFGlobalMeta(const char* path, DATA_BLOCK* data_block,
-                    LOGMALLOCLIST** logmalloclist, USERDEFINEDTYPELIST** userdefinedtypelist) {
+                      LOGMALLOCLIST** logmalloclist, USERDEFINEDTYPELIST** userdefinedtypelist)
+{
     //----------------------------------------------------------------------
     // Is the netCDF File Already open for Reading? If Not then Open in READ ONLY mode
 
@@ -148,12 +134,13 @@ int readCDFGlobalMeta(const char* path, DATA_BLOCK* data_block,
     int targetDepth = 0;
 
     // Extract all information about groups, variables and attributes within the sub-tree
-    if ((err = getCDF4SubTreeMeta(subtree, 0, &usertype, *logmalloclist, *userdefinedtypelist, &hgroups, &depth, targetDepth)) != 0) {
+    if ((err = getCDF4SubTreeMeta(subtree, 0, &usertype, *logmalloclist, *userdefinedtypelist, &hgroups, &depth,
+                                  targetDepth)) != 0) {
         freeHGroups(&hgroups);
-        data_block->opaque_block = NULL;
+        data_block->opaque_block = nullptr;
         data_block->opaque_count = 0;
         data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
-        if (grpids != NULL) free((void*)grpids);
+        if (grpids != nullptr) free((void*)grpids);
 
         addIdamError(SYSTEMERRORTYPE, "readCDFMetaOnly", err, nc_strerror(err));
 
@@ -174,9 +161,10 @@ int readCDFGlobalMeta(const char* path, DATA_BLOCK* data_block,
 
     int attronly = 1;
     depth = 0;
-    err = getCDF4SubTreeData(*logmalloclist, *userdefinedtypelist, (void**)&data_block->data, &hgroups.groups[0], &hgroups, attronly, &depth, targetDepth);
+    err = getCDF4SubTreeData(*logmalloclist, *userdefinedtypelist, (void**)&data_block->data, &hgroups.groups[0],
+                             &hgroups, attronly, &depth, targetDepth);
 
-    if (err == NC_NOERR && hgroups.groups[0].udt != NULL) {
+    if (err == NC_NOERR && hgroups.groups[0].udt != nullptr) {
 
         UDA_LOG(UDA_LOG_DEBUG, "No error and group udt is not null : setting in data block\n");
 
@@ -196,12 +184,12 @@ int readCDFGlobalMeta(const char* path, DATA_BLOCK* data_block,
     // Cleanup
     if (err != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Error non-zero!\n");
-        data_block->opaque_block = NULL;
+        data_block->opaque_block = nullptr;
         data_block->opaque_count = 0;
         data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
     }
 
-    if (grpids != NULL) free((void*)grpids);
+    if (grpids != nullptr) free((void*)grpids);
 
     UDA_LOG(UDA_LOG_DEBUG, "NC File Closed\n");
     if (fd > 0) {
@@ -222,35 +210,35 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
     int lnamemax = NC_MAX_NAME + 1;
     char variable[NC_MAX_NAME + 1];
     char dimname[NC_MAX_NAME + 1];
-    char typename[NC_MAX_NAME + 1];
+    char type_name[NC_MAX_NAME + 1];
 
     int numgrps = 10;        // Initial assumed number of groups along hierarchy: grow as required
     int numgrp = 1;        // Always the Top level group
-    int* grpids = NULL;
+    int* grpids = nullptr;
     GROUPLIST grouplist;
     GROUPLIST cgrouplist;
 
-    int* dimids = NULL;
-    unsigned int* extent = NULL;    // Shape of the data array
-    unsigned int* dextent = NULL;    // Dimension Lengths
+    int* dimids = nullptr;
+    unsigned int* extent = nullptr;    // Shape of the data array
+    unsigned int* dextent = nullptr;    // Dimension Lengths
 
     int unlimdimids[NC_MAX_DIMS];
     int nunlimdims, isUnlimited;
 
     int ndimatt[2];            // NC_STRING attribute shape
 
-    USERDEFINEDTYPE* udt = NULL, * dudt = NULL;        // User defined structure type definition
+    USERDEFINEDTYPE* udt = nullptr, * dudt = nullptr;        // User defined structure type definition
 
     //-------------------------------------------
     // Initialise the META XML Structure
 
     METAXML metaxml;
-    metaxml.xml = NULL;
+    metaxml.xml = nullptr;
     metaxml.lheap = 0;
     metaxml.nxml = 0;
 
     METAXML closexml;
-    closexml.xml = NULL;
+    closexml.xml = nullptr;
     closexml.lheap = 0;
     closexml.nxml = 0;
 
@@ -270,9 +258,10 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
         //----------------------------------------------------------------------
         // Modify behaviour when reading strings from an HDF5 file
 
-        char* token = NULL;
-        if (((token = strrchr(data_source.path, '.')) != NULL) && STR_EQUALS(token, ".hd5")) {    // Test File extension
-            if (getenv("IMAS_HDF_READER") != NULL) {
+        char* token = nullptr;
+        if (((token = strrchr(data_source.path, '.')) != nullptr) &&
+            STR_EQUALS(token, ".hd5")) {    // Test File extension
+            if (getenv("IMAS_HDF_READER") != nullptr) {
                 IMAS_HDF_READER = 1;
             }
         }
@@ -298,8 +287,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
         // Test the Library Version Number
 
         if (getMeta) {
-            char* cp = NULL;
-            if ((cp = (char*)nc_inq_libvers()) != NULL) {
+            char* cp = nullptr;
+            if ((cp = (char*)nc_inq_libvers()) != nullptr) {
                 addMetaXML(&metaxml, "<library>\"");
                 addMetaXML(&metaxml, cp);
                 addMetaXML(&metaxml, "\"</library>\n");
@@ -328,7 +317,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
         // Global Meta Data: What convention has been adopted? Data Class? Build XML if Meta data requested
 
         bool compliance = false;            // Compliance also means hierarchical file format
-        int class = NOCLASS_DATA;
+        int cls = NOCLASS_DATA;
         int fusion_ver = 0;
 
         if (hierarchical) {
@@ -357,7 +346,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     break;
                 }
 
-                char* conventions = NULL;
+                char* conventions = nullptr;
 
                 if (atype == NC_STRING) {
                     if (attlen != 1) {        // Single string expected
@@ -398,19 +387,19 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                         addMetaXML(&metaxml, "\"</Conventions>\n");
                     }
 
-                    char* cp = NULL;
-                    if ((cp = strstr(conventions, "MAST-")) != NULL) {
-                        if ((token = strstr(&cp[5], ".")) != NULL) {
+                    char* cp = nullptr;
+                    if ((cp = strstr(conventions, "MAST-")) != nullptr) {
+                        if ((token = strstr(&cp[5], ".")) != nullptr) {
                             token[0] = '\0';
                             //mast_ver = atoi(&cp[5]);	// Need major part only
                         }
                     }
 
-                    if ((cp = strstr(conventions, "Fusion-")) != NULL) {
+                    if ((cp = strstr(conventions, "Fusion-")) != nullptr) {
                         compliance = 1;
-                        if ((token = strstr(&cp[7], ".")) != NULL) {
+                        if ((token = strstr(&cp[7], ".")) != nullptr) {
                             token[0] = '\0';
-                            fusion_ver = (int)strtol(&cp[7], NULL, 10);    // Need major part only
+                            fusion_ver = (int)strtol(&cp[7], nullptr, 10);    // Need major part only
                         }
                     }
                 }
@@ -472,13 +461,13 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     }
 
                     if (STR_IEQUALS(classification, "raw data")) {
-                        class = RAW_DATA;
+                        cls = RAW_DATA;
                     } else {
                         if (STR_IEQUALS(classification, "analysed data")) {
-                            class = ANALYSED_DATA;
+                            cls = ANALYSED_DATA;
                         } else {
                             if (STR_IEQUALS(classification, "modelled data")) {
-                                class = MODELLED_DATA;
+                                cls = MODELLED_DATA;
                             }
                         }
                     }
@@ -488,16 +477,16 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             }
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "netCDF file class?  %d\n", class);
+        UDA_LOG(UDA_LOG_DEBUG, "netCDF file class?  %d\n", cls);
 
         //----------------------------------------------------------------------
         // Complex Data Types (Done once per file if the Conventions are for FUSION and MAST)
 
         if (compliance && fusion_ver >= 1 && ((ctype == NC_NAT && dctype == NC_NAT) || prior_fd != fd)) {
             int ntypes = 0;
-            nc_type* typeids = NULL;
+            nc_type* typeids = nullptr;
             do {
-                if ((err = nc_inq_typeids(fd, &ntypes, NULL)) != NC_NOERR || ntypes == 0) {
+                if ((err = nc_inq_typeids(fd, &ntypes, nullptr)) != NC_NOERR || ntypes == 0) {
                     break;
                 }
 
@@ -508,11 +497,11 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
                 int i;
                 for (i = 0; i < ntypes; i++) {
-                    //if ((err = nc_inq_compound_name(fd, (nc_type)typeids[i], typename)) != NC_NOERR) break;
-                    typename[0] = '\0';
-                    nc_inq_compound_name(fd, typeids[i], typename);        // ignore non-compound types
-                    if (STR_EQUALS(typename, "complex")) ctype = typeids[i];
-                    if (STR_EQUALS(typename, "dcomplex")) dctype = typeids[i];
+                    //if ((err = nc_inq_compound_name(fd, (nc_type)typeids[i], type_name)) != NC_NOERR) break;
+                    type_name[0] = '\0';
+                    nc_inq_compound_name(fd, typeids[i], type_name);        // ignore non-compound types
+                    if (STR_EQUALS(type_name, "complex")) ctype = typeids[i];
+                    if (STR_EQUALS(type_name, "dcomplex")) dctype = typeids[i];
                 }
             } while (0);
             free((void*)typeids);
@@ -581,16 +570,16 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
         int grpid = 0;
 
         if (hierarchical) {
-            char* p = NULL;
+            char* p = nullptr;
             char* group = (char*)malloc(lname * sizeof(char));
 
-            if (signal_desc.signal_name[0] == '/')
+            if (signal_desc.signal_name[0] == '/') {
                 strcpy(group, signal_desc.signal_name);        // Contains the Top Level Group identifier
-            else {
+            } else {
                 sprintf(group, "/%s", signal_desc.signal_name);    // Insert the Top Level Group identifier
             }
 
-            if ((p = strrchr(group, (int)'/')) != NULL) {
+            if ((p = strrchr(group, (int)'/')) != nullptr) {
                 if (p != &group[0]) {                    // Variable is not attached to top level group
                     *p = '\0';                    // Split the String into group hierarchy and variable name
                     strcpy(variable, &p[1]);
@@ -608,7 +597,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 char* work = (char*)malloc((strlen(group) + 1) * sizeof(char));
                 strcpy(work, &group[1]);                // Skip the leading '/' character
 
-                if ((token = strtok(work, "/")) != NULL) {        // Tokenise for 1 or more grouping levels
+                if ((token = strtok(work, "/")) != nullptr) {        // Tokenise for 1 or more grouping levels
                     if ((err = getGroupId(grpids[numgrp - 1], token, &grpids[numgrp])) != NC_NOERR) {
                         err = NETCDF_ERROR_INQUIRING_VARIABLE_1;
                         addIdamError(CODEERRORTYPE, "readCDF", err, "Unable to Locate a Hierarchical Group");
@@ -627,15 +616,15 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                         addTextMetaXML(fd, grpids[numgrp - 1], &metaxml, "comment");
                     }
 
-                    while ((token = strtok(NULL, "/")) != NULL) {
+                    while ((token = strtok(nullptr, "/")) != nullptr) {
                         if ((err = getGroupId(grpids[numgrp - 1], token, &grpids[numgrp])) != NC_NOERR) {
                             err = NETCDF_ERROR_INQUIRING_VARIABLE_1;
                             addIdamError(CODEERRORTYPE, "readCDF", err,
                                          "Unable to Locate a Hierarchical Group");
                             free((void*)work);
                             free((void*)group);
-                            work = NULL;
-                            group = NULL;
+                            work = nullptr;
+                            group = nullptr;
                             break;
                         }
                         numgrp++;
@@ -716,7 +705,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             char* work = (char*)malloc((strlen(variable) + 1) * sizeof(char));
             strcpy(work, variable);
             char* p = strstr(work, request_block.subset);
-            if (p != NULL) p[0] = '\0';            // Remove subset operations from variable name
+            if (p != nullptr) p[0] = '\0';            // Remove subset operations from variable name
             TrimString(work);
 
             // Test the reduced Variable name matches a Group variable. If it does use the reduced name.
@@ -738,7 +727,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             // If not found then irregular data item
             int dimid;
             nc_type atttype;
-            char* attname = NULL;
+            char* attname = nullptr;
 
             UDA_LOG(UDA_LOG_DEBUG, "variable not found ... trying other options ...\n");
 
@@ -789,7 +778,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     data_block->data_n = (int)cdfsubset.count[0];
                 }
 
-                if ((data_block->data = (char*)malloc(data_block->data_n * sizeof(int))) == NULL) {
+                if ((data_block->data = (char*)malloc(data_block->data_n * sizeof(int))) == nullptr) {
                     err = NETCDF_ERROR_ALLOCATING_HEAP_1;
                     addIdamError(CODEERRORTYPE, "readCDF", err, "Problem Allocating Data Heap Memory");
                     break;
@@ -797,7 +786,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
                 readCDF4CreateIndex(data_block->data_n, data_block->data);
 
-                if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
+                if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == nullptr) {
                     err = NETCDF_ERROR_ALLOCATING_HEAP_1;
                     addIdamError(CODEERRORTYPE, "readCDF", err,
                                  "Problem Allocating Dimension Heap Memory");
@@ -808,7 +797,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 data_block->dims[0].dim_n = data_block->data_n;
                 data_block->dims[0].data_type = UDA_TYPE_INT;
 
-                if ((data_block->dims[0].dim = (char*)malloc(data_block->data_n * sizeof(int))) == NULL) {
+                if ((data_block->dims[0].dim = (char*)malloc(data_block->data_n * sizeof(int))) == nullptr) {
                     err = NETCDF_ERROR_ALLOCATING_HEAP_1;
                     addIdamError(CODEERRORTYPE, "readCDF", err,
                                  "Problem Allocating Dimension Heap Memory");
@@ -833,7 +822,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 }
                 UDA_LOG(UDA_LOG_DEBUG, "attribute attached to a group found.\n");
 
-                if (udt != NULL) {                // A User Defined Data Structure Type?
+                if (udt != nullptr) {                // A User Defined Data Structure Type?
                     malloc_source = MALLOCSOURCENETCDF;
                     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                     data_block->opaque_count = 1;
@@ -846,7 +835,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 }    // Attributes are generally rank 1 except strings
 
                 data_block->order = -1;
-                if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
+                if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == nullptr) {
                     err = NETCDF_ERROR_ALLOCATING_HEAP_1;
                     addIdamError(CODEERRORTYPE, "readCDF", err, "Problem Allocating Dimension Heap Memory");
                     break;
@@ -858,7 +847,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     initDimBlock(&data_block->dims[ii]);
                     data_block->dims[ii].dim_n = ndimatt[i];
                     data_block->dims[ii].data_type = UDA_TYPE_INT;
-                    if ((data_block->dims[ii].dim = (char*)malloc(data_block->dims[ii].dim_n * sizeof(int))) == NULL) {
+                    if ((data_block->dims[ii].dim = (char*)malloc(data_block->dims[ii].dim_n * sizeof(int))) ==
+                        nullptr) {
                         err = NETCDF_ERROR_ALLOCATING_HEAP_1;
                         addIdamError(CODEERRORTYPE, "readCDF", err, "Problem Allocating Dimension Heap Memory");
                         break;
@@ -871,12 +861,13 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             // Check it's an attribute attached to a variable (assuming a DOT operator)
 
             if (cdfsubset.subsetCount == 0 &&
-                (attname = strstr(variable, ".")) != NULL) {                        // Maybe a variable attribute
+                (attname = strstr(variable, ".")) != nullptr) {                        // Maybe a variable attribute
                 attname[0] = '\0';
                 if (nc_inq_varid(grpid, variable, &varid) == NC_NOERR) {
                     if (nc_inq_atttype(grpid, varid, &attname[1], &atttype) == NC_NOERR) {
                         if (readCDF4AVar(grouplist, grpid, varid, atttype, &attname[1], &data_block->data_n, ndimatt,
-                                         &data_block->data_type, &data_block->data, *logmalloclist, *userdefinedtypelist,
+                                         &data_block->data_type, &data_block->data, *logmalloclist,
+                                         *userdefinedtypelist,
                                          &udt) != NC_NOERR) {
                             err = 999;
                             addIdamError(CODEERRORTYPE, "readCDF", err, "Unable to read Group Level Attribute data");
@@ -884,7 +875,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                         }
                         UDA_LOG(UDA_LOG_DEBUG, "attribute attached to a variable found.\n");
 
-                        if (udt != NULL) {                // A User Defined Data Structure Type?
+                        if (udt != nullptr) {                // A User Defined Data Structure Type?
                             malloc_source = MALLOCSOURCENETCDF;
                             data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                             data_block->opaque_count = 1;
@@ -897,7 +888,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                         }    // Attributes are generally rank 1 except strings
 
                         data_block->order = -1;
-                        if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
+                        if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == nullptr) {
                             err = NETCDF_ERROR_ALLOCATING_HEAP_1;
                             addIdamError(CODEERRORTYPE, "readCDF", err, "Problem Allocating Dimension Heap Memory");
                             break;
@@ -909,7 +900,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                             initDimBlock(&data_block->dims[ii]);
                             data_block->dims[ii].dim_n = ndimatt[i];
                             data_block->dims[ii].data_type = UDA_TYPE_INT;
-                            if ((data_block->dims[ii].dim = (char*)malloc(data_block->dims[ii].dim_n * sizeof(int))) == NULL) {
+                            if ((data_block->dims[ii].dim = (char*)malloc(data_block->dims[ii].dim_n * sizeof(int))) ==
+                                nullptr) {
                                 err = NETCDF_ERROR_ALLOCATING_HEAP_1;
                                 addIdamError(CODEERRORTYPE, "readCDF", err, "Problem Allocating Dimension Heap Memory");
                                 break;
@@ -952,7 +944,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 int depth = 0;
                 int targetDepth = -1;
 
-                if ((err = getCDF4SubTreeMeta(subtree, 0, &usertype, *logmalloclist, *userdefinedtypelist, &hgroups, &depth, targetDepth)) != 0) {
+                if ((err = getCDF4SubTreeMeta(subtree, 0, &usertype, *logmalloclist, *userdefinedtypelist, &hgroups,
+                                              &depth, targetDepth)) != 0) {
                     freeHGroups(&hgroups);
                     break;
                 }
@@ -969,9 +962,10 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 UDA_LOG(UDA_LOG_DEBUG, "Creating sub-tree data structure\n");
 
                 int attronly = 0;
-                err = getCDF4SubTreeData(*logmalloclist, *userdefinedtypelist, (void**)&data_block->data, &hgroups.groups[0], &hgroups, attronly, &depth, targetDepth);
+                err = getCDF4SubTreeData(*logmalloclist, *userdefinedtypelist, (void**)&data_block->data,
+                                         &hgroups.groups[0], &hgroups, attronly, &depth, targetDepth);
 
-                if (err == NC_NOERR && hgroups.groups[0].udt != NULL) {
+                if (err == NC_NOERR && hgroups.groups[0].udt != nullptr) {
                     malloc_source = MALLOCSOURCENETCDF;
                     data_block->data_type = UDA_TYPE_COMPOUND;
                     data_block->data_n = 1;
@@ -1007,7 +1001,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             break;
         }
 
-        dimids = NULL;
+        dimids = nullptr;
 
         if (rank > 0) {
             dimids = (int*)malloc(rank * sizeof(int));
@@ -1060,14 +1054,14 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
         // Allocate & Initialise extents (include an additional element for STRING type)
 
-        if ((extent = (unsigned int*)malloc((data_block->rank + 2) * sizeof(unsigned int))) == NULL) {
+        if ((extent = (unsigned int*)malloc((data_block->rank + 2) * sizeof(unsigned int))) == nullptr) {
             err = NETCDF_ERROR_ALLOCATING_HEAP_1;
             addIdamError(CODEERRORTYPE, "readCDF", err,
                          "Problem Allocating Heap Memory for extent array");
             break;
         }
 
-        if ((dextent = (unsigned int*)malloc((data_block->rank + 2) * sizeof(unsigned int))) == NULL) {
+        if ((dextent = (unsigned int*)malloc((data_block->rank + 2) * sizeof(unsigned int))) == nullptr) {
             err = NETCDF_ERROR_ALLOCATING_HEAP_1;
             addIdamError(CODEERRORTYPE, "readCDF", err,
                          "Problem Allocating Heap Memory for dimension extent array");
@@ -1076,7 +1070,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
         if (data_block->rank > 0) {
 
-            if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
+            if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == nullptr) {
                 err = NETCDF_ERROR_ALLOCATING_HEAP_1;
                 addIdamError(CODEERRORTYPE, "readCDF", err,
                              "Problem Allocating Dimension Heap Memory");
@@ -1118,7 +1112,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
         //----------------------------------------------------------------------
         // A User Defined Data Structure Type?
 
-        if (udt != NULL) {
+        if (udt != nullptr) {
             malloc_source = MALLOCSOURCENETCDF;
             data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
             data_block->opaque_count = 1;
@@ -1129,7 +1123,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
         // Apply Data Conversion to Raw Data (Disabled with the property: get_bytes)
         // Ignore MAST standard on Rank
 
-        if (compliance && class == RAW_DATA && !data_block->client_block.get_bytes) {
+        if (compliance && cls == RAW_DATA && !data_block->client_block.get_bytes) {
             if ((rc = applyCDFCalibration(grpid, varid, data_block->data_n, &data_block->data_type,
                                           &data_block->data)) != NC_NOERR) {
                 err = 999;
@@ -1153,9 +1147,9 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
         if (data_block->data_label[0] == '\0') {
             int lstr = (int)strlen(signal_desc.signal_name);
-            if (lstr < STRING_LENGTH)
+            if (lstr < STRING_LENGTH) {
                 strcpy(data_block->data_label, signal_desc.signal_name);
-            else {
+            } else {
                 strncpy(data_block->data_label, signal_desc.signal_name, STRING_LENGTH - 1);
                 data_block->data_label[STRING_LENGTH - 1] = '\0';
             }
@@ -1167,7 +1161,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
         if (compliance) {
             int error_n = 0;
             isCoordinate = 0;
-            if ((err = readCDF4Err(grpid, varid, isCoordinate, class, rank, dimids, &error_n, &data_block->error_type,
+            if ((err = readCDF4Err(grpid, varid, isCoordinate, cls, rank, dimids, &error_n, &data_block->error_type,
                                    &data_block->errhi, *logmalloclist, *userdefinedtypelist)) != 0) {
                 addIdamError(CODEERRORTYPE, "readCDF", err, "Unable to Read Data Error Values");
                 break;
@@ -1178,7 +1172,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             if (error_n > 0 && error_n != data_block->data_n) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "readCDF", err, "The Shape of the Error Array is Not"
-                        "consistent with the Shape of the Data Array!");
+                                                            "consistent with the Shape of the Data Array!");
                 break;
             }
         }
@@ -1193,7 +1187,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
         cgrouplist.count = 0;
         cgrouplist.grpid = 0;
-        cgrouplist.grpids = NULL;
+        cgrouplist.grpids = nullptr;
 
         // If the type is STRING then extend the rank
 
@@ -1252,14 +1246,14 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 data_block->dims[ii].compressed = 1;
                 data_block->dims[ii].data_type = UDA_TYPE_INT;
                 data_block->dims[ii].method = 0;
-                data_block->dims[ii].dim = NULL;
+                data_block->dims[ii].dim = nullptr;
                 data_block->dims[ii].dim0 = 0.0;
                 data_block->dims[ii].diff = 1.0;
                 data_block->dims[ii].dim_n = extent[i];        // Shape passed from reading the Data Variable array
 
                 if (extent[i] > 0) {
                     if ((data_block->dims[ii].dim = (char*)malloc(data_block->dims[ii].dim_n * sizeof(int))) ==
-                        NULL) {
+                        nullptr) {
                         err = NETCDF_ERROR_ALLOCATING_HEAP_1;
                         addIdamError(CODEERRORTYPE, "readCDF", err,
                                      "Problem Allocating Dimension Heap Memory");
@@ -1340,7 +1334,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
             // Apply Data Conversion to Raw Data: Enforce MAST convention on Rank as Coordinate variables must be Rank 1
 
-            if (compliance && class == RAW_DATA && drank == 1) {
+            if (compliance && cls == RAW_DATA && drank == 1) {
                 if ((rc = applyCDFCalibration(cgrpid, coordid, data_block->dims[ii].dim_n,
                                               &data_block->dims[ii].data_type, &data_block->dims[ii].dim)) !=
                     NC_NOERR) {
@@ -1356,8 +1350,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             if (compliance) {
 
                 int type, ncount = 0, nstart = 0, nincrement = 0;
-                unsigned int* count = NULL;
-                double* start = NULL, * increment = NULL;
+                unsigned int* count = nullptr;
+                double* start = nullptr, * increment = nullptr;
                 nc_type atype;
                 int attid = 0;
 
@@ -1368,7 +1362,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                     if ((rc = nc_inq_atttype(cgrpid, coordid, "count", &atype)) != NC_NOERR || atype != NC_UINT) {
                         err = 999;
                         if (rc != NC_NOERR) {
-                            addIdamError(CODEERRORTYPE, "readCDF", err, "Unable to Type Coordinate Domain Count array!");
+                            addIdamError(CODEERRORTYPE, "readCDF", err,
+                                         "Unable to Type Coordinate Domain Count array!");
                         } else {
                             addIdamError(CODEERRORTYPE, "readCDF", err,
                                          "The Coordinate Domain representation Count Attribute's Type is Not Compliant - must be Unsigned Int!");
@@ -1398,15 +1393,18 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                         if ((rc = nc_inq_atttype(cgrpid, coordid, "start", &atype)) != NC_NOERR || atype != NC_DOUBLE) {
                             err = 999;
                             if (rc != NC_NOERR) {
-                                addIdamError(CODEERRORTYPE, "readCDF", err, "Unable to Type Coordinate Domain Start array");
+                                addIdamError(CODEERRORTYPE, "readCDF", err,
+                                             "Unable to Type Coordinate Domain Start array");
                             } else {
-                                addIdamError(CODEERRORTYPE, "readCDF", err, "The Coordinate Domain representation Start Attribute's Type is Not Compliant - must be Double!");
+                                addIdamError(CODEERRORTYPE, "readCDF", err,
+                                             "The Coordinate Domain representation Start Attribute's Type is Not Compliant - must be Double!");
                             }
                             break;
                         }
 
                         if ((err = readCDF4AVar(cgrouplist, cgrpid, coordid, NC_DOUBLE, "start", &nstart, ndimatt,
-                                                &type, (char**)&start, *logmalloclist, *userdefinedtypelist, &dudt)) != 0) {
+                                                &type, (char**)&start, *logmalloclist, *userdefinedtypelist, &dudt)) !=
+                            0) {
                             addIdamError(CODEERRORTYPE, "readCDF", err, "Unable to Read Coordinate Domain Start array");
                             break;
                         }
@@ -1415,7 +1413,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
                             // Check the type is compliant and return the Increment array
 
-                            if ((rc = nc_inq_atttype(cgrpid, coordid, "increment", &atype)) != NC_NOERR || atype != NC_DOUBLE) {
+                            if ((rc = nc_inq_atttype(cgrpid, coordid, "increment", &atype)) != NC_NOERR ||
+                                atype != NC_DOUBLE) {
                                 err = 999;
                                 if (rc != NC_NOERR) {
                                     addIdamError(CODEERRORTYPE, "readCDF", err,
@@ -1428,7 +1427,8 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                             }
 
                             if ((err = readCDF4AVar(cgrouplist, cgrpid, coordid, NC_DOUBLE, "increment", &nincrement,
-                                                    ndimatt, &type, (char**)&increment, *logmalloclist, *userdefinedtypelist, &dudt)) != 0) {
+                                                    ndimatt, &type, (char**)&increment, *logmalloclist,
+                                                    *userdefinedtypelist, &dudt)) != 0) {
                                 addIdamError(CODEERRORTYPE, "readCDF", err,
                                              "Unable to Read Coordinate Domain Increment array");
                                 break;
@@ -1467,7 +1467,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
                                 // Apply Data Conversion to Raw Domain Data
 
-                                if (class == RAW_DATA) {
+                                if (cls == RAW_DATA) {
                                     if ((rc = applyCDFCalibration(cgrpid, coordid, data_block->dims[ii].udoms,
                                                                   &data_block->dims[ii].data_type,
                                                                   &data_block->dims[ii].offs)) != NC_NOERR) {
@@ -1485,9 +1485,9 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                                 }
 
                             } else {
-                                if (start != NULL) free((void*)start);
-                                if (increment != NULL) free((void*)increment);
-                                if (count != NULL) free((void*)count);
+                                if (start != nullptr) free((void*)start);
+                                if (increment != nullptr) free((void*)increment);
+                                if (count != nullptr) free((void*)count);
                             }
                         }
                     }
@@ -1527,11 +1527,12 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             } else {
                 if (STR_IEQUALS(data_block->dims[ii].dim_label, "time") ||
                     STR_IEQUALS(data_block->dims[ii].dim_label, "time3")) {
-                        data_block->order = ii;
+                    data_block->order = ii;
                 }    // Simple (& very poor) test for Time Dimension!
 
                 if (!isIndex) {
-                    if (strcmp(dimname, data_block->dims[ii].dim_label) != 0) {    // Add Var Name to Label (Should be a Dimension)
+                    if (strcmp(dimname, data_block->dims[ii].dim_label) !=
+                        0) {    // Add Var Name to Label (Should be a Dimension)
                         int lstr = (int)strlen(dimname) + (int)strlen(data_block->dims[ii].dim_label) + 3;
                         if (lstr <= STRING_LENGTH) {
                             strcat(data_block->dims[ii].dim_label, " [");
@@ -1558,7 +1559,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
             if (compliance) {
                 int error_n = 0;
                 isCoordinate = 1;
-                if ((err = readCDF4Err(cgrpid, coordid, isCoordinate, class, rank, dimids, &error_n,
+                if ((err = readCDF4Err(cgrpid, coordid, isCoordinate, cls, rank, dimids, &error_n,
                                        &data_block->dims[ii].error_type, &data_block->dims[ii].errhi, *logmalloclist,
                                        *userdefinedtypelist)) != 0) {
                     addIdamError(CODEERRORTYPE, "readCDF", err, "Unable to Read Coordinate Error Values");
@@ -1570,7 +1571,7 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
                 if (error_n > 0 && error_n != data_block->dims[ii].dim_n) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "readCDF", err, "The Shape of the Error Array is Not"
-                            "consistent with the Shape of the Data Array!");
+                                                                "consistent with the Shape of the Data Array!");
                     break;
                 }
             }
@@ -1604,19 +1605,19 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
     //----------------------------------------------------------------------
     // Housekeeping
 
-    if (err != 0 && metaxml.xml != NULL) {
+    if (err != 0 && metaxml.xml != nullptr) {
         free((void*)metaxml.xml);
-        data_block->opaque_block = NULL;
+        data_block->opaque_block = nullptr;
         data_block->opaque_count = 0;
         data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
     }
 
-    if (closexml.xml != NULL) free((void*)closexml.xml);
+    if (closexml.xml != nullptr) free((void*)closexml.xml);
 
-    if (grpids != NULL) free((void*)grpids);
-    if (dimids != NULL) free((void*)dimids);
-    if (extent != NULL) free((void*)extent);
-    if (dextent != NULL) free((void*)dextent);
+    if (grpids != nullptr) free((void*)grpids);
+    if (dimids != nullptr) free((void*)dimids);
+    if (extent != nullptr) free((void*)extent);
+    if (dextent != nullptr) free((void*)dextent);
 
     UDA_LOG(UDA_LOG_DEBUG, "NC File Closed\n");
     if (fd > 0) {
@@ -1634,12 +1635,12 @@ int getGroupId(int ncgrpid, char* target, int* targetid)
 
     int i, err = 0, numgrps = 0;
     size_t namelength = 0;
-    int* ncids = NULL;
-    char* grpname = NULL;
+    int* ncids = nullptr;
+    char* grpname = nullptr;
 
     // List All Child Groups
 
-    if ((err = nc_inq_grps(ncgrpid, &numgrps, NULL)) != NC_NOERR) return err;
+    if ((err = nc_inq_grps(ncgrpid, &numgrps, nullptr)) != NC_NOERR) return err;
 
     if (numgrps == 0) return 999;
 
@@ -1655,7 +1656,7 @@ int getGroupId(int ncgrpid, char* target, int* targetid)
     for (i = 0; i < numgrps; i++) {
 
         if ((err = nc_inq_grpname_len(ncids[i], &namelength)) != NC_NOERR) {
-            if (grpname != NULL) free((void*)grpname);
+            if (grpname != nullptr) free((void*)grpname);
             free((void*)ncids);
             return err;
         }
@@ -1682,5 +1683,3 @@ int getGroupId(int ncgrpid, char* target, int* targetid)
 
     return 999;
 }
-
-#endif // !defined NONETCDFPLUGIN

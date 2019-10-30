@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------
-* v1 IDAM Plugin Template: Standardised plugin design template, just add ... 
+* v1 UDA Plugin Template: Standardised plugin design template, just add ...
 *
 * Input Arguments:	IDAM_PLUGIN_INTERFACE *idam_plugin_interface
 *
@@ -20,37 +20,58 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "templatePlugin.h"
 
-#include <stdlib.h>
 #include <strings.h>
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/udaTypes.h>
 
-static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-
-static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-
-static int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-
-static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-
-static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-
-static int do_function(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-
-int templatePlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+class TemplatePlugin
 {
-    static int init = 0;
+public:
+    void init(IDAM_PLUGIN_INTERFACE* plugin_interface)
+    {
+        REQUEST_BLOCK* request_block = plugin_interface->request_block;
+        if (!init_
+                || STR_IEQUALS(request_block->function, "init")
+                || STR_IEQUALS(request_block->function, "initialise")) {
+            reset(plugin_interface);
+            // Initialise plugin
+            init_ = true;
+        }
+    }
+    void reset(IDAM_PLUGIN_INTERFACE* plugin_interface)
+    {
+        if (!init_) {
+            // Not previously initialised: Nothing to do!
+            return;
+        }
+        // Free Heap & reset counters
+        init_ = false;
+    }
+
+    int help(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int version(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int build_date(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int default_method(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int max_interface_version(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int function(IDAM_PLUGIN_INTERFACE* plugin_interface);
+
+private:
+    bool init_ = false;
+};
+
+int templatePlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    static TemplatePlugin plugin = {};
 
     //----------------------------------------------------------------------------------------
     // Standard v1 Plugin Interface
 
-    if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
+    if (plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
-    idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
+    plugin_interface->pluginVersion = THISPLUGIN_VERSION;
 
     //----------------------------------------------------------------------------------------
     // Heap Housekeeping
@@ -66,24 +87,19 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // A list must be maintained to register these plugin calls to manage housekeeping.
     // Calls to plugins must also respect access policy and user authentication policy
 
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    REQUEST_BLOCK* request_block = plugin_interface->request_block;
 
-    if (idam_plugin_interface->housekeeping || STR_IEQUALS(request_block->function, "reset")) {
-        if (!init) return 0; // Not previously initialised: Nothing to do!
-        // Free Heap & reset counters
-        init = 0;
+    if (plugin_interface->housekeeping || STR_IEQUALS(request_block->function, "reset")) {
+        plugin.reset(plugin_interface);
         return 0;
     }
 
     //----------------------------------------------------------------------------------------
     // Initialise
-
-    if (!init || STR_IEQUALS(request_block->function, "init")
+    plugin.init(plugin_interface);
+    if (STR_IEQUALS(request_block->function, "init")
         || STR_IEQUALS(request_block->function, "initialise")) {
-
-        init = 1;
-        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
-            return 0;
+        return 0;
     }
 
     //----------------------------------------------------------------------------------------
@@ -94,17 +110,17 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
     if (STR_IEQUALS(request_block->function, "help")) {
-        return do_help(idam_plugin_interface);
+        return plugin.help(plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "version")) {
-        return do_version(idam_plugin_interface);
+        return plugin.version(plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "builddate")) {
-        return do_builddate(idam_plugin_interface);
+        return plugin.build_date(plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
-        return do_defaultmethod(idam_plugin_interface);
+        return plugin.default_method(plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
-        return do_maxinterfaceversion(idam_plugin_interface);
+        return plugin.max_interface_version(plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "functionName")) {
-        return do_function(idam_plugin_interface);
+        return plugin.function(plugin_interface);
     } else {
         RAISE_PLUGIN_ERROR("Unknown function requested!");
     }
@@ -115,7 +131,7 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  * @param idam_plugin_interface
  * @return
  */
-int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int TemplatePlugin::help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     const char* help = "\ntemplatePlugin: Add Functions Names, Syntax, and Descriptions\n\n";
     const char* desc = "templatePlugin: help = description of this plugin";
@@ -128,7 +144,7 @@ int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  * @param idam_plugin_interface
  * @return
  */
-int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int TemplatePlugin::version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_VERSION, "Plugin version number");
 }
@@ -138,7 +154,7 @@ int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  * @param idam_plugin_interface
  * @return
  */
-int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int TemplatePlugin::build_date(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     return setReturnDataString(idam_plugin_interface->data_block, __DATE__, "Plugin build date");
 }
@@ -148,7 +164,7 @@ int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  * @param idam_plugin_interface
  * @return
  */
-int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int TemplatePlugin::default_method(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     return setReturnDataString(idam_plugin_interface->data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
 }
@@ -158,14 +174,14 @@ int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  * @param idam_plugin_interface
  * @return
  */
-int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int TemplatePlugin::max_interface_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
 }
 
 //----------------------------------------------------------------------------------------
 // Add functionality here ....
-int do_function(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int TemplatePlugin::function(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 

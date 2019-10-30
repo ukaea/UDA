@@ -1,8 +1,11 @@
-#ifndef UDA_READCDF4_H
-#define UDA_READCDF4_H
+#ifndef UDA_PLUGIN_READCDF4_H
+#define UDA_PLUGIN_READCDF4_H
 
-#include <stddef.h>
+#include <cstddef>
+#include <netcdf.h>
+#include <cstdio>
 
+#include <structures/genStructs.h>
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
 
@@ -11,12 +14,6 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
 int readCDFGlobalMeta(const char* path, DATA_BLOCK* data_block,
                     LOGMALLOCLIST** logmalloclist, USERDEFINEDTYPELIST** userdefinedtypelist);
-
-#ifndef NONETCDFPLUGIN
-#  include <netcdf.h>
-#  include <stdio.h>
-
-#  include <structures/genStructs.h>
 
 #define NETCDF_ERROR_OPENING_FILE               200
 #define NETCDF_ERROR_ALLOCATING_HEAP_1          201
@@ -140,7 +137,7 @@ typedef struct CDFSubset {
     int stride[NC_MAX_VAR_DIMS];  // The step stride along each dimension
 } CDFSUBSET;
 
-int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int* dimids, int* nevec,
+int readCDF4Err(int grpid, int varid, int isCoordinate, int cls, int rank, int* dimids, int* nevec,
                 int* error_type, char** edata, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist);
 
 int readCDFAtts(int fd, int varid, char* units, char* longname);
@@ -191,6 +188,4 @@ extern nc_type ctype;
 
 extern nc_type dctype;
 
-#endif // !NONETCDFPLUGIN
-
-#endif // UDA_READCDF4_H
+#endif // UDA_PLUGIN_READCDF4_H

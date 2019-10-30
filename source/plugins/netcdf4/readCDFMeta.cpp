@@ -1,9 +1,9 @@
-#include "readCDFMeta.h"
+#include "readCDFMeta.hpp"
 
 #include <netcdf.h>
 #include <memory.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 
 #include <clientserver/errorLog.h>
 #include <clientserver/udaErrors.h>
@@ -14,7 +14,7 @@ void allocMetaXML(METAXML* str)
     str->xml = (char*)realloc((void*)str->xml, str->lheap * sizeof(char));
 }
 
-void addMetaXML(METAXML* str, char* tag)
+void addMetaXML(METAXML* str, const char* tag)
 {
     if (tag[0] == '\0') {
         return;
@@ -29,7 +29,7 @@ void addMetaXML(METAXML* str, char* tag)
     str->nxml = str->nxml + ltag;
 }
 
-int addTextMetaXML(int fd, int grpid, METAXML* str, char* tag)
+int addTextMetaXML(int fd, int grpid, METAXML* str, const char* tag)
 {
     size_t attlen;    // dgm 64 bit bug 16Dec2011
     int err = 0;
@@ -60,7 +60,7 @@ int addTextMetaXML(int fd, int grpid, METAXML* str, char* tag)
     return NC_NOERR;
 }
 
-int addIntMetaXML(int fd, int grpid, METAXML* str, char* tag)
+int addIntMetaXML(int fd, int grpid, METAXML* str, const char* tag)
 {
     int data;
     char sdata[56];

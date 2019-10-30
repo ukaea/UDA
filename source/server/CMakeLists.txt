@@ -4,11 +4,6 @@
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 
-include( modules )
-find_modules()
-
-add_subdirectory( modules )
-
 ########################################################################################################################
 # Sources
 
@@ -90,7 +85,6 @@ set( SERVER_OBJ
   $<TARGET_OBJECTS:logging-server-objects>
   $<TARGET_OBJECTS:structures-server-objects>
   $<TARGET_OBJECTS:authentication-server-objects>
-  $<TARGET_OBJECTS:modules-objects>
 )
 
 add_library( server-shared SHARED ${SERVER_OBJ} )
@@ -110,8 +104,6 @@ target_link_libraries( server-shared PRIVATE
   dl
 )
 
-link_modules( server-shared )
-
 target_link_libraries( server-static PRIVATE
   client-shared
   ${OPENSSL_LIBRARIES}
@@ -119,8 +111,6 @@ target_link_libraries( server-static PRIVATE
   ${CACHE_LIBRARIES}
   dl
 )
-
-link_modules( server-static )
 
 # Executable
 target_link_libraries( server-exe PRIVATE
@@ -133,8 +123,6 @@ target_link_libraries( server-exe PRIVATE
   m
   dl
 )
-
-link_modules( server-exe )
 
 if( NOT APPLE )
   target_link_libraries( server-exe PRIVATE gcc_s )

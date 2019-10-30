@@ -45,7 +45,7 @@ void closePluginList(const PLUGINLIST* plugin_list)
     idam_plugin_interface.housekeeping = 1;            // Force a full reset
     idam_plugin_interface.request_block = &request_block;
     for (i = 0; i < plugin_list->count; i++) {
-        if (plugin_list->plugin[i].pluginHandle != NULL) {
+        if (plugin_list->plugin[i].pluginHandle != nullptr) {
             plugin_list->plugin[i].idamPlugin(&idam_plugin_interface);        // Call the housekeeping method
         }
     }
@@ -56,12 +56,12 @@ void freePluginList(PLUGINLIST* plugin_list)
     int i;
     closePluginList(plugin_list);
     for (i = 0; i < plugin_list->count; i++) {
-        if (plugin_list->plugin[i].pluginHandle != NULL) {
+        if (plugin_list->plugin[i].pluginHandle != nullptr) {
             dlclose(plugin_list->plugin[i].pluginHandle);
         }
     }
     free((void*)plugin_list->plugin);
-    plugin_list->plugin = NULL;
+    plugin_list->plugin = nullptr;
     plugin_list->count = 0;
     plugin_list->mcount = 0;
 }
@@ -85,8 +85,8 @@ void initPluginData(PLUGIN_DATA* plugin)
     plugin->is_private = UDA_PLUGIN_PRIVATE;            // All services are private: Not accessible to external users
     plugin->cachePermission = UDA_PLUGIN_CACHE_DEFAULT; // Data are OK or Not for the Client to Cache
     plugin->interfaceVersion = 1;                       // Maximum Interface Version
-    plugin->pluginHandle = NULL;
-    plugin->idamPlugin = NULL;
+    plugin->pluginHandle = nullptr;
+    plugin->idamPlugin = nullptr;
 }
 
 void printPluginList(FILE* fd, const PLUGINLIST* plugin_list)
@@ -117,9 +117,9 @@ int idamServerRedirectStdStreams(int reset)
 {
     // Any OS messages will corrupt xdr streams so re-divert IO from plugin libraries to a temporary file
 
-    static FILE* originalStdFH = NULL;
-    static FILE* originalErrFH = NULL;
-    static FILE* mdsmsgFH = NULL;
+    static FILE* originalStdFH = nullptr;
+    static FILE* originalErrFH = nullptr;
+    static FILE* mdsmsgFH = nullptr;
 
     char* env;
     static char tempFile[MAXPATH];
@@ -129,10 +129,10 @@ int idamServerRedirectStdStreams(int reset)
     if (!reset) {
         if (!singleFile) {
             env = getenv("UDA_PLUGIN_DEBUG_SINGLEFILE");        // Use a single file for all plugin data requests
-            if (env != NULL) singleFile = 1;                    // Define UDA_PLUGIN_DEBUG to retain the file
+            if (env != nullptr) singleFile = 1;                    // Define UDA_PLUGIN_DEBUG to retain the file
         }
 
-        if (mdsmsgFH != NULL && singleFile) {
+        if (mdsmsgFH != nullptr && singleFile) {
             stdout = mdsmsgFH;                                  // Redirect all IO to a temporary file
             stderr = mdsmsgFH;
             return 0;
@@ -140,14 +140,14 @@ int idamServerRedirectStdStreams(int reset)
 
         originalStdFH = stdout;                                 // Retain current values
         originalErrFH = stderr;
-        mdsmsgFH = NULL;
+        mdsmsgFH = nullptr;
 
         UDA_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file\n");
 
         env = getenv("UDA_PLUGIN_REDIVERT");
 
-        if (env == NULL) {
-            if ((env = getenv("UDA_WORK_DIR")) != NULL) {
+        if (env == nullptr) {
+            if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
                 sprintf(tempFile, "%s/idamPLUGINXXXXXX", env);
             } else {
                 strcpy(tempFile, "/tmp/idamPLUGINXXXXXX");
@@ -167,18 +167,18 @@ int idamServerRedirectStdStreams(int reset)
 
         mdsmsgFH = fdopen(fd, "a");
 
-        if (mdsmsgFH == NULL || errno != 0) {
+        if (mdsmsgFH == nullptr || errno != 0) {
             THROW_ERROR(999, "Unable to Trap Plugin Error Messages.");
         }
 
         stdout = mdsmsgFH; // Redirect to a temporary file
         stderr = mdsmsgFH;
     } else {
-        if (mdsmsgFH != NULL) {
+        if (mdsmsgFH != nullptr) {
             UDA_LOG(UDA_LOG_DEBUG, "Resetting original file handles and removing temporary file\n");
 
             if (!singleFile) {
-                if (mdsmsgFH != NULL) {
+                if (mdsmsgFH != nullptr) {
                     errno = 0;
                     int rc = fclose(mdsmsgFH);
                     if (rc) {
@@ -186,8 +186,8 @@ int idamServerRedirectStdStreams(int reset)
                         THROW_ERROR(err, strerror(err));
                     }
                 }
-                mdsmsgFH = NULL;
-                if (getenv("UDA_PLUGIN_DEBUG") == NULL) {
+                mdsmsgFH = nullptr;
+                if (getenv("UDA_PLUGIN_DEBUG") == nullptr) {
                     errno = 0;
                     int rc = remove(tempFile);    // Delete the temporary file
                     if (rc) {
@@ -306,15 +306,15 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 
     static int plugin_id = -2;
     static int execMethod = 1;        // The default method used to write efficiently to the backend SQL server
-    char* env = NULL;
+    char* env = nullptr;
 
     struct timeval tv_start, tv_stop;
 
-    gettimeofday(&tv_start, NULL);
+    gettimeofday(&tv_start, nullptr);
 
     if (plugin_id == -2) {        // On initialisation
         plugin_id = -1;
-        if ((env = getenv("UDA_PROVENANCE_PLUGIN")) != NULL) {
+        if ((env = getenv("UDA_PROVENANCE_PLUGIN")) != nullptr) {
             // Must be set in the server startup script
             UDA_LOG(UDA_LOG_DEBUG, "Plugin name: %s\n", env);
             int id = findPluginIdByFormat(env, plugin_list); // Must be defined in the server plugin configuration file
@@ -325,21 +325,21 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
                 UDA_LOG(UDA_LOG_DEBUG, "!environment->external_user = %d\n", !environment->external_user);
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL = %d\n",
                         plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL);
-                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].pluginHandle != NULL = %d\n",
-                        plugin_list->plugin[id].pluginHandle != NULL);
-                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].idamPlugin   != NULL = %d\n",
-                        plugin_list->plugin[id].idamPlugin != NULL);
+                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].pluginHandle != nullptr = %d\n",
+                        plugin_list->plugin[id].pluginHandle != nullptr);
+                UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].idamPlugin   != nullptr = %d\n",
+                        plugin_list->plugin[id].idamPlugin != nullptr);
             }
             if (id >= 0 &&
                 plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
                 !environment->external_user &&
                 plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL &&
-                plugin_list->plugin[id].pluginHandle != NULL &&
-                plugin_list->plugin[id].idamPlugin != NULL) {
+                plugin_list->plugin[id].pluginHandle != nullptr &&
+                plugin_list->plugin[id].idamPlugin != nullptr) {
                 plugin_id = id;
             }
         }
-        if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != NULL) {
+        if ((env = getenv("UDA_PROVENANCE_EXEC_METHOD")) != nullptr) {
             execMethod = atoi(env);
         }
     }
@@ -359,7 +359,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     // need 1> record the original and the actual signal and source terms with the source file DOI
     // mimic a client request
 
-    if (logRecord == NULL || strlen(logRecord) == 0) {
+    if (logRecord == nullptr || strlen(logRecord) == 0) {
         sprintf(request_block.signal, "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
                                       "trueSignal='%s', trueSource='%s', trueSourceDOI='%s', execMethod=%d, status=new)",
                 plugin_list->plugin[plugin_id].format, client_block->DOI,
@@ -439,9 +439,9 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     UDA_LOG(UDA_LOG_DEBUG, "testing for bug!!!\n");
     if (data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN ||
         data_block.opaque_count != 0 ||
-        data_block.opaque_block != NULL) {
+        data_block.opaque_block != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "bug detected: mitigation!!!\n");
-        data_block.opaque_block = NULL;
+        data_block.opaque_block = nullptr;
     }
 
     freeDataBlock(&data_block);
@@ -459,7 +459,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
         return rc;
     }
 
-    gettimeofday(&tv_stop, NULL);
+    gettimeofday(&tv_stop, nullptr);
     int msecs = (int)(tv_stop.tv_sec - tv_start.tv_sec) * 1000 + (int)(tv_stop.tv_usec - tv_start.tv_usec) / 1000;
 
     UDA_LOG(UDA_LOG_DEBUG, "end of housekeeping\n");
@@ -484,21 +484,21 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT*
 
     // Identify the MetaData Catalog plugin (must be a function library type plugin)
 
-    char* env = NULL;
-    if ((env = getenv("UDA_METADATA_PLUGIN")) != NULL) {        // Must be set in the server startup script
+    char* env = nullptr;
+    if ((env = getenv("UDA_METADATA_PLUGIN")) != nullptr) {        // Must be set in the server startup script
         int id = findPluginIdByFormat(env, plugin_list);        // Must be defined in the server plugin configuration file
         if (id >= 0 &&
             plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
             plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL &&
-            plugin_list->plugin[id].pluginHandle != NULL &&
-            plugin_list->plugin[id].idamPlugin != NULL) {
+            plugin_list->plugin[id].pluginHandle != nullptr &&
+            plugin_list->plugin[id].idamPlugin != nullptr) {
             plugin_id = (short)id;
         }
 
-        if (id >= 0 && plugin_list->plugin[id].is_private == UDA_PLUGIN_PRIVATE &&
-            environment->external_user) {
+        if (id >= 0 && plugin_list->plugin[id].is_private == UDA_PLUGIN_PRIVATE && environment->external_user) {
+            // Not available to external users
             plugin_id = -1;
-        }        // Not available to external users
+        }
 
         UDA_LOG(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: %s\n", env);
         UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_CLASS_FUNCTION?: %d\n", plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION);
@@ -508,9 +508,9 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT*
                 plugin_list->plugin[id].is_private == UDA_PLUGIN_PRIVATE && environment->external_user);
         UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_OPERATIONAL?: %d\n", plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL);
         UDA_LOG(UDA_LOG_DEBUG, "Plugin OK?: %d\n",
-                plugin_list->plugin[id].pluginHandle != NULL && plugin_list->plugin[id].idamPlugin != NULL);
+                plugin_list->plugin[id].pluginHandle != nullptr && plugin_list->plugin[id].idamPlugin != nullptr);
         UDA_LOG(UDA_LOG_DEBUG, "id: %d\n", id);
-        UDA_LOG(UDA_LOG_DEBUG, "id: %d\n", plugin_id);
+        UDA_LOG(UDA_LOG_DEBUG, "plugin_id: %d\n", plugin_id);
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "NO Generic Name Mapping Plugin identified\n");
     }
@@ -549,7 +549,7 @@ int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUE
     idam_plugin_interface.interfaceVersion = 1;
     idam_plugin_interface.pluginVersion = 0;
     idam_plugin_interface.data_block = &data_block;
-    idam_plugin_interface.client_block = NULL;
+    idam_plugin_interface.client_block = nullptr;
     idam_plugin_interface.request_block = request_block;
     idam_plugin_interface.data_source = data_source;
     idam_plugin_interface.signal_desc = signal_desc;

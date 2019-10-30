@@ -22,30 +22,30 @@
 *		Ensure the netCDF3 plugin functionality is enabled.
 *
 *-----------------------------------------------------------------------------*/
-#include "readCDFAtts.h"
+#include "readCDFAtts.hpp"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaErrors.h>
 
-#include "readCDF4.h"
+#include "readCDF4.hpp"
 
 // Read Standard Variable Attributes
 
-int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, char* comment)
+int readCDF4Atts(int grpid, int varid, char* units, char* title, char* cls, char* comment)
 {
     int err, i, rc, numatts;
     size_t attlength;
     char attname[MAX_NC_NAME];    // attribute name
     nc_type atttype;                    // attribute type
 
-    char* txt = NULL;
+    char* txt = nullptr;
 
     units[0] = '\0';
     title[0] = '\0';
-    class[0] = '\0';
+    cls[0] = '\0';
     comment[0] = '\0';
 
     //---------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
         }
 
         if (atttype == NC_CHAR) {
-            if ((txt = (char*)malloc((size_t)(attlength * sizeof(char) + 1))) == NULL) {
+            if ((txt = (char*)malloc((size_t)(attlength * sizeof(char) + 1))) == nullptr) {
                 err = NETCDF_ERROR_ALLOCATING_HEAP_9;
                 addIdamError(CODEERRORTYPE, "readCDFAtts", err, "Unable to Allocate Heap for Attribute Data");
                 return err;
@@ -100,10 +100,10 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
             } else if (STR_EQUALS(attname, "comment")) {
                 copyString(txt, comment, STRING_LENGTH);
             } else if (STR_EQUALS(attname, "class")) {
-                copyString(txt, class, STRING_LENGTH);
+                copyString(txt, cls, STRING_LENGTH);
             }
             free((void*)txt);
-            txt = NULL;
+            txt = nullptr;
         } else if (atttype == NC_STRING) {
             char** sarr = (char**)malloc(attlength * sizeof(char*));
             if ((rc = nc_get_att_string(grpid, varid, attname, sarr)) != NC_NOERR) {
@@ -120,7 +120,7 @@ int readCDF4Atts(int grpid, int varid, char* units, char* title, char* class, ch
             } else if (STR_EQUALS(attname, "comment")) {
                 copyString(sarr[0], comment, STRING_LENGTH);
             } else if (STR_EQUALS(attname, "class")) {
-                copyString(sarr[0], class, STRING_LENGTH);
+                copyString(sarr[0], cls, STRING_LENGTH);
             }
             nc_free_string(attlength, sarr);
             free((void*)sarr);

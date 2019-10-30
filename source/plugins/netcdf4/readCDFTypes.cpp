@@ -13,19 +13,19 @@
 *-----------------------------------------------------------------------------*/
 
 #include <netcdf.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <memory.h>
 
 #include <structures/struct.h>
 #include <clientserver/errorLog.h>
 
-#include "readCDF4.h"
+#include "readCDF4.hpp"
 
 int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
-    int rc, err = 0, ntypes = 0, class, foff;
+    int rc, err = 0, ntypes = 0, cls, foff;
 
-    int* typeids = NULL;
+    int* typeids = nullptr;
     char name[NC_MAX_NAME + 1];
 
     size_t size;
@@ -46,7 +46,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
         // List all User Defined data types within this group (What is the scoping rule?)
         // Should Add all others within scope if types are Not Local
 
-        if ((rc = nc_inq_typeids(grpid, &ntypes, NULL)) != NC_NOERR || ntypes == 0) break;
+        if ((rc = nc_inq_typeids(grpid, &ntypes, nullptr)) != NC_NOERR || ntypes == 0) break;
 
         typeids = (int*)malloc(ntypes * sizeof(int));        // Type List
 
@@ -60,7 +60,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
             initUserDefinedType(&usertype);    // New structure definition
 
-            if ((rc = nc_inq_user_type(grpid, (nc_type)typeids[i], name, &size, &base, &fieldcount, &class)) !=
+            if ((rc = nc_inq_user_type(grpid, (nc_type)typeids[i], name, &size, &base, &fieldcount, &cls)) !=
                 NC_NOERR) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, __FILE__, err, (char*)nc_strerror(rc));
@@ -71,10 +71,10 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
             strcpy(usertype.source, "netcdf");
             usertype.ref_id = typeids[i];        // Defined within this group only (Scope?)
             usertype.imagecount = 0;                // No Structure Image data
-            usertype.image = NULL;
+            usertype.image = nullptr;
             usertype.size = (int)size;            // Structure size
 
-            switch (class) {
+            switch (cls) {
 
                 case NC_COMPOUND: {                // Compound Types
 
@@ -107,7 +107,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                                     field.atomictype = convertNCType(
                                             type);            // convert netCDF base type to IDAM type
                                     strcpy(field.type, udaNameType(
-                                            field.atomictype));        // convert atomic type to a string label
+                                            (UDA_TYPE)field.atomictype));        // convert atomic type to a string label
                                 }
                             }
 
@@ -116,7 +116,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                                 // Identify via type id
                                 USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "", (int)type);
 
-                                if (udt != NULL) {
+                                if (udt != nullptr) {
                                     // **** ENUM types within compound structures cannot be passed in the expanded form: collapse back to the original integer type.
                                     // **** Unable to substitute a pointer as integer type may only be 1 or 2 bytes
                                     // **** NEED: Return the enumerated type set of values and names to the client
@@ -127,7 +127,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                                         rc = nc_inq_enum(grpid, type, name, &base, (size_t*)&base_size,
                                                          (size_t*)&memberCount);
                                         field.atomictype = convertNCType(base);
-                                        strcpy(field.type, udaNameType(field.atomictype));
+                                        strcpy(field.type, udaNameType((UDA_TYPE)field.atomictype));
                                     } else {
                                         strcpy(field.type, udt->name);
                                     }
@@ -153,7 +153,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                                     field.count = field.count * shape[k];
                                 }
                             } else {
-                                field.shape = NULL;
+                                field.shape = nullptr;
                             }
 
                             if (type == NC_STRING) {
@@ -210,7 +210,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                         field.atomictype = UDA_TYPE_UNSIGNED_INT;
                         field.rank = 0;
                         field.count = 1;
-                        field.shape = NULL;
+                        field.shape = nullptr;
 
                         addCompoundField(&usertype, field);
 
@@ -223,7 +223,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                         if (field.atomictype == UDA_TYPE_UNKNOWN) {                // must be a User Defined Type
                             // Identify via type id
                             USERDEFINEDTYPE* udt = findUserDefinedType(userdefinedtypelist, "", (int)base);
-                            if (udt == NULL) {
+                            if (udt == nullptr) {
                                 err = 999;
                                 addIdamError(CODEERRORTYPE, __FILE__, err, "User defined type not registered!");
                                 break;
@@ -231,7 +231,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                             strcpy(field.type, udt->name);
                         } else {
                             // convert atomic type to a string label
-                            strcpy(field.type, udaNameType(field.atomictype));
+                            strcpy(field.type, udaNameType((UDA_TYPE)field.atomictype));
                         }
 
                         field.pointer = 1;
@@ -243,7 +243,7 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
 
                         field.rank = 0;
                         field.count = 1;                        // Single pointer to array of length 'len'
-                        field.shape = NULL;
+                        field.shape = nullptr;
 
                         addCompoundField(&usertype, field);
                     }
@@ -266,7 +266,8 @@ int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist)
                     usertype.idamclass = UDA_TYPE_ENUM;
                     usertype.ref_id = typeids[i];        // Type ID is used to locate this definition (shares a type name)
 
-                    usertype.image = (char*)malloc(udt->imagecount * sizeof(char));        // Copy pointer type (prevents double free)
+                    usertype.image = (char*)malloc(
+                            udt->imagecount * sizeof(char));        // Copy pointer type (prevents double free)
                     memcpy(usertype.image, udt->image, udt->imagecount);
 
                     usertype.compoundfield = (COMPOUNDFIELD*)malloc(udt->fieldcount * sizeof(COMPOUNDFIELD));

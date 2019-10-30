@@ -23,9 +23,7 @@ extern "C" {
 
 #define NC_HIDDENPREFIX    '_'        // This should be overridden by an environment variable: IDAM_HIDDENPREFIX or passed as a keyword pair
 
-int idamCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
-
-extern UDA_PLUGIN_FILE_LIST pluginFileList;
+int netCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 
 #ifdef __cplusplus
 }

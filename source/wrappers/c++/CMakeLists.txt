@@ -46,9 +46,6 @@ if( WIN32 OR MINGW )
   target_link_libraries( ${LIB_NAME} PRIVATE portablexdr ws2_32 ssl crypto libstdc++ )
 endif()
 
-include( modules )
-link_modules( ${LIB_NAME} )
-
 if( NOT CLIENT_ONLY )
   add_library( fatcpp-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( fatcpp-objects PRIVATE -DFATCLIENT )
@@ -58,7 +55,6 @@ if( NOT CLIENT_ONLY )
     $<TARGET_OBJECTS:fatserver-objects>
     $<TARGET_OBJECTS:fatclientserver-objects>
     $<TARGET_OBJECTS:structures-server-objects>
-    $<TARGET_OBJECTS:fatmodules-objects>
     $<TARGET_OBJECTS:cache-objects>
     $<TARGET_OBJECTS:logging-server-objects>
     $<TARGET_OBJECTS:plugins-objects>

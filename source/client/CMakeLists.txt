@@ -80,7 +80,6 @@ set( FATCLIENT_OBJS
   $<TARGET_OBJECTS:fatserver-objects>
   $<TARGET_OBJECTS:fatclientserver-objects>
   $<TARGET_OBJECTS:structures-server-objects>
-  $<TARGET_OBJECTS:fatmodules-objects>
   $<TARGET_OBJECTS:cache-objects>
   $<TARGET_OBJECTS:logging-server-objects>
 )
@@ -106,10 +105,6 @@ if( NOT CLIENT_ONLY )
 
   target_link_libraries( fatclient-shared PRIVATE ${CLIENT_LINK_LIBS} plugins-static )
   target_link_libraries( fatclient-static PRIVATE ${CLIENT_LINK_LIBS} plugins-static )
-
-  include( modules )
-  link_modules( fatclient-shared )
-  link_modules( fatclient-static )
 endif()
 
 set_target_properties( client-shared

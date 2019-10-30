@@ -2,7 +2,7 @@
 //--------------------------------------------------------------------------
 
 #include <netcdf.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <structures/struct.h>
 #include <server/udaServer.h>
@@ -10,17 +10,18 @@
 #include <logging/logging.h>
 #include <clientserver/stringUtils.h>
 
-#include "readCDF4.h"
+#include "readCDF4.hpp"
 
 int idamAtomicType(nc_type type);
 
 int scopedUserDefinedTypes(int grpid)
 {
-    USERDEFINEDTYPELIST*userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
+    USERDEFINEDTYPELIST* userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
     initUserDefinedTypeList(userdefinedtypelist);
 
     userdefinedtypelist->listCount = parseduserdefinedtypelist.listCount;    // Copy the standard set of structure definitions
-    userdefinedtypelist->userdefinedtype = (USERDEFINEDTYPE*)malloc(userdefinedtypelist->listCount * sizeof(USERDEFINEDTYPE));
+    userdefinedtypelist->userdefinedtype = (USERDEFINEDTYPE*)malloc(
+            userdefinedtypelist->listCount * sizeof(USERDEFINEDTYPE));
 
     int i;
     for (i = 0; i < userdefinedtypelist->listCount; i++) {
@@ -84,7 +85,7 @@ void replaceEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* u
 
     int i, j, k, nstr;
 
-    if (udt == NULL) return;
+    if (udt == nullptr) return;
 
     for (j = 0; j < udt->fieldcount; j++) {
 
@@ -97,7 +98,7 @@ void replaceEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* u
             if (udt->idamclass == UDA_TYPE_VLEN) {
                 VLENTYPE* vlen = (VLENTYPE*)dvec;            // If the type is VLEN then read data array for the count
                 for (k = 0; k < ndata; k++) {
-                    replaceEmbeddedStrings(logmalloclist, userdefinedtypelist, child, vlen[k].len, vlen[k].data);
+                    replaceEmbeddedStrings(logmalloclist, userdefinedtypelist, child, vlen[k].len, (char*)vlen[k].data);
                 }
 
                 // Intercept VLEN netcdf/hdf5 heap and allocate local heap;
@@ -167,14 +168,14 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
     int attid;
     nc_type vartype, atttype;                    // NC types
     char dimname[NC_MAX_NAME + 1];
-    char* dvec = NULL;
-    char** svec = NULL;                    // String array
+    char* dvec = nullptr;
+    char** svec = nullptr;                    // String array
 
-    size_t* start = NULL, * count = NULL;
+    size_t* start = nullptr, * count = nullptr;
     size_t attlen;
-    size_t* dnums = NULL;            // dgm changed from int to size_t 16Dec11
+    size_t* dnums = nullptr;            // dgm changed from int to size_t 16Dec11
 
-    *udt = NULL;                        // Definition of User Defined Data Structures
+    *udt = nullptr;                        // Definition of User Defined Data Structures
 
     //----------------------------------------------------------------------
     // Default Group ID
@@ -252,7 +253,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                 break;
             }
 
-            if (start == NULL || count == NULL || dnums == NULL) {
+            if (start == nullptr || count == nullptr || dnums == nullptr) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "readCDFVar", err, "Unable to Allocate Heap for Shape Arrays");
                 break;
@@ -481,7 +482,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         // Identify via type id (assuming local to this group)
                         *udt = findUserDefinedType(userdefinedtypelist, "", (int)vartype);
 
-                        if (*udt == NULL && grouplist.grpids != NULL) {
+                        if (*udt == nullptr && grouplist.grpids != nullptr) {
                             // Must be defined elsewhere within scope of this group
                             int igrp;
                             for (igrp = 0; igrp < grouplist.count; igrp++) {
@@ -495,7 +496,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                             *udt = findUserDefinedType(userdefinedtypelist, "", (int)vartype);
                         }
 
-                        if (*udt == NULL) {
+                        if (*udt == nullptr) {
                             err = 999;
                             addIdamError(CODEERRORTYPE, "readCDFVar", err,
                                          "User Defined Type definition Not within Scope!");
@@ -529,9 +530,9 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 
         if (ndata == 0) {
             free((void*)dvec);
-            dvec = NULL;
+            dvec = nullptr;
         } else {
-            if (dvec == NULL && vartype != NC_STRING) {
+            if (dvec == nullptr && vartype != NC_STRING) {
                 err = NETCDF_ERROR_ALLOCATING_HEAP_6;
                 addIdamError(CODEERRORTYPE, "readCDFVar", err, "Unable to Allocate Heap Memory for the Data");
                 break;
@@ -611,7 +612,7 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                     break;
                 }
 
-                if (*udt != NULL) {
+                if (*udt != nullptr) {
 
                     if ((*udt)->idamclass == UDA_TYPE_COMPOUND) {            // Compound Types
                         addMalloc(logmalloclist, dvec, ndata, (size_t)(*udt)->size,
@@ -686,49 +687,49 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                         }
 
                         //enumlist->data = (void*)dvec;
-			
-		        // Change to standard unsigned long long integer type		    
-		        int j;
-		        unsigned long long* enumarray = (unsigned long long*)malloc(ndata*sizeof(unsigned long long));
-		        switch (enumlist->type) {
-                           case UDA_TYPE_CHAR: {
-                              char* data = (char*)dvec;
-                              for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                              break;
-                           }
-                           case UDA_TYPE_SHORT: {
-                              short* data = (short*)dvec;
-                              for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                              break;
-                           }
-                           case UDA_TYPE_UNSIGNED_SHORT: {
-                              unsigned short* data = (unsigned short*)dvec;
-                              for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                              break;
-                           }
-                           case UDA_TYPE_INT: {
-                              int* data = (int*)dvec;
-                              for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                              break;
-                           }
-                           case UDA_TYPE_UNSIGNED_INT: {
-                              unsigned int* data = (unsigned int*)dvec;
-                              for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                              break;
-                           }
-                           case UDA_TYPE_LONG64: {
-                              long long* data = (long long*)dvec;
-                              for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                              break;
-                           }
-                           case UDA_TYPE_UNSIGNED_LONG64: {
-                              unsigned long long* data = (unsigned long long*)dvec;
-                              for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                              break;
-                           }
+
+                        // Change to standard unsigned long long integer type
+                        int j;
+                        unsigned long long* enumarray = (unsigned long long*)malloc(ndata * sizeof(unsigned long long));
+                        switch (enumlist->type) {
+                            case UDA_TYPE_CHAR: {
+                                char* data = (char*)dvec;
+                                for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                                break;
+                            }
+                            case UDA_TYPE_SHORT: {
+                                short* data = (short*)dvec;
+                                for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                                break;
+                            }
+                            case UDA_TYPE_UNSIGNED_SHORT: {
+                                unsigned short* data = (unsigned short*)dvec;
+                                for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                                break;
+                            }
+                            case UDA_TYPE_INT: {
+                                int* data = (int*)dvec;
+                                for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                                break;
+                            }
+                            case UDA_TYPE_UNSIGNED_INT: {
+                                unsigned int* data = (unsigned int*)dvec;
+                                for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                                break;
+                            }
+                            case UDA_TYPE_LONG64: {
+                                long long* data = (long long*)dvec;
+                                for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                                break;
+                            }
+                            case UDA_TYPE_UNSIGNED_LONG64: {
+                                unsigned long long* data = (unsigned long long*)dvec;
+                                for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                                break;
+                            }
                         }
-		        enumlist->enumarray = (void*)enumarray;
-		        free((void *)dvec);
+                        enumlist->enumarray = enumarray;
+                        free((void*)dvec);
 
                         dvec = (char*)enumlist;
 
@@ -739,12 +740,13 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
                                   "ENUMMEMBER");
                         //addMalloc(logmalloclist, enumlist->data, ndata, (int)size,
                         //          idamNameType(idamAtomicType(base)));            // Use true integer type
-                        addMalloc(logmalloclist, (void*)enumlist->enumarray, ndata, sizeof(unsigned long long), "unsigned long long");  
-                		     
+                        addMalloc(logmalloclist, (void*)enumlist->enumarray, ndata, sizeof(unsigned long long),
+                                  "unsigned long long");
+
                         enumlist->enumarray_rank = 1;
                         enumlist->enumarray_count = ndata;
-                        enumlist->enumarray_shape = (int *)malloc(sizeof(int));
-                        enumlist->enumarray_shape[0] = ndata;        
+                        enumlist->enumarray_shape = (int*)malloc(sizeof(int));
+                        enumlist->enumarray_shape[0] = ndata;
                         addMalloc(logmalloclist, (void*)enumlist->enumarray_shape, 1, sizeof(int), "int");
 
                         // Add mallocs freed through a separate process
@@ -772,10 +774,10 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
     //----------------------------------------------------------------------
     // Housekeeping
 
-    if (start != NULL) free((void*)start);
-    if (count != NULL) free((void*)count);
-    if (dnums != NULL) free((void*)dnums);
-    if (err != 0 && dvec != NULL) free((void*)dvec);
+    if (start != nullptr) free((void*)start);
+    if (count != nullptr) free((void*)count);
+    if (dnums != nullptr) free((void*)dnums);
+    if (err != 0 && dvec != nullptr) free((void*)dvec);
 
     return err;
 }
@@ -785,18 +787,18 @@ int readCDF4Var(GROUPLIST grouplist, int varid, int isCoordinate, int rank, int*
 // Data stored as an Attribute (Always Rank 1 if not NC_STRING when rank 2)
 
 
-int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, char* name, int* ndvec, int ndims[2],
+int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, const char* name, int* ndvec, int ndims[2],
                  int* data_type, char** data, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                  USERDEFINEDTYPE** udt)
 {
 
     int rc, err = 0, ndata;
-    char* dvec = NULL;
-    char** svec = NULL;                    // String array
+    char* dvec = nullptr;
+    char** svec = nullptr;                    // String array
 
     size_t attlen;
 
-    *udt = NULL;                        // Definition of User Defined Data Structures
+    *udt = nullptr;                        // Definition of User Defined Data Structures
 
     //----------------------------------------------------------------------
     // Error Trap
@@ -917,8 +919,9 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
                         *udt = findUserDefinedType(userdefinedtypelist, "",
                                                    (int)atttype);        // Identify via type id (assuming local to this group)
 
-                        if (*udt == NULL &&
-                            grouplist.grpids != NULL) {        // Must be defined elsewhere within scope of this group
+                        if (*udt == nullptr &&
+                            grouplist.grpids !=
+                            nullptr) {        // Must be defined elsewhere within scope of this group
                             int igrp;
                             for (igrp = 0;
                                  igrp < grouplist.count; igrp++) {        // Extend list to include all groups in scope
@@ -931,7 +934,7 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
                                                        (int)atttype);        // Should be found now if within scope
                         }
 
-                        if (*udt == NULL) {
+                        if (*udt == nullptr) {
                             err = 999;
                             addIdamError(CODEERRORTYPE, "readCDFAVar", err,
                                          "Unknown Data Type: User Defined Type definition Not within Scope!");
@@ -961,7 +964,7 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
             break;
         }
 
-        if (dvec == NULL && atttype != NC_STRING) {
+        if (dvec == nullptr && atttype != NC_STRING) {
             err = NETCDF_ERROR_ALLOCATING_HEAP_6;
             addIdamError(CODEERRORTYPE, "readCDFAVar", err, "Unable to Allocate Heap Memory for the Data");
             break;
@@ -980,12 +983,12 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
             // If the structure type is an enumeration, then only the value is added to the malloc log, not the structure
             // Create the returned structure
 
-            //if(*udt != NULL) addMalloc(dvec, ndata, (*udt)->size, (*udt)->name);	// Free Data via Malloc Log List
+            //if(*udt != nullptr) addMalloc(dvec, ndata, (*udt)->size, (*udt)->name);	// Free Data via Malloc Log List
 
-            if (*udt != NULL && (*udt)->idamclass != UDA_TYPE_ENUM) {
+            if (*udt != nullptr && (*udt)->idamclass != UDA_TYPE_ENUM) {
                 addMalloc(logmalloclist, dvec, ndata, (size_t)(*udt)->size,
                           (*udt)->name);    // Free Data via Malloc Log List
-            } else if (*udt != NULL) {
+            } else if (*udt != nullptr) {
                 char value[8];
                 ENUMLIST* enumlist = (ENUMLIST*)malloc(sizeof(ENUMLIST));
                 nc_type base;
@@ -1053,50 +1056,50 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
                 }
 
                 //enumlist->data = (void*)dvec;
-		
-		// Change to standard unsigned long long integer type		    
-		    int j;
-		    unsigned long long* enumarray = (unsigned long long*)malloc(ndata*sizeof(unsigned long long));
-		    switch (enumlist->type) {
-                       case UDA_TYPE_CHAR: {
-                          char* data = (char*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_SHORT: {
-                          short* data = (short*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_UNSIGNED_SHORT: {
-                           unsigned short* data = (unsigned short*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                      }
-                       case UDA_TYPE_INT: {
-                          int* data = (int*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                      }
-                       case UDA_TYPE_UNSIGNED_INT: {
-                          unsigned int* data = (unsigned int*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_LONG64: {
-                          long long* data = (long long*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
-                       case UDA_TYPE_UNSIGNED_LONG64: {
-                          unsigned long long* data = (unsigned long long*)dvec;
-                          for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
-                          break;
-                       }
+
+                // Change to standard unsigned long long integer type
+                int j;
+                unsigned long long* enumarray = (unsigned long long*)malloc(ndata * sizeof(unsigned long long));
+                switch (enumlist->type) {
+                    case UDA_TYPE_CHAR: {
+                        char* data = (char*)dvec;
+                        for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
                     }
-		    enumlist->enumarray = (void*)enumarray;
-		    free((void *)dvec);
-		
+                    case UDA_TYPE_SHORT: {
+                        short* data = (short*)dvec;
+                        for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
+                    }
+                    case UDA_TYPE_UNSIGNED_SHORT: {
+                        unsigned short* data = (unsigned short*)dvec;
+                        for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
+                    }
+                    case UDA_TYPE_INT: {
+                        int* data = (int*)dvec;
+                        for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
+                    }
+                    case UDA_TYPE_UNSIGNED_INT: {
+                        unsigned int* data = (unsigned int*)dvec;
+                        for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
+                    }
+                    case UDA_TYPE_LONG64: {
+                        long long* data = (long long*)dvec;
+                        for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
+                    }
+                    case UDA_TYPE_UNSIGNED_LONG64: {
+                        unsigned long long* data = (unsigned long long*)dvec;
+                        for (j = 0; j < ndata; j++) enumarray[j] = (unsigned long long)data[j];
+                        break;
+                    }
+                }
+                enumlist->enumarray = enumarray;
+                free((void*)dvec);
+
                 dvec = (char*)enumlist;
 
                 // Add mallocs to list for freeing when data dispatch complete
@@ -1105,12 +1108,13 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
                 addMalloc(logmalloclist, (void*)enumlist->enummember, (int)members, sizeof(ENUMMEMBER), "ENUMMEMBER");
                 //addMalloc(logmalloclist, enumlist->data, ndata, (int)size,
                 //          idamNameType(idamAtomicType(base)));            // Use true integer type
-                addMalloc(logmalloclist, (void*)enumlist->enumarray, ndata, sizeof(unsigned long long), "unsigned long long");  
-                		     
+                addMalloc(logmalloclist, (void*)enumlist->enumarray, ndata, sizeof(unsigned long long),
+                          "unsigned long long");
+
                 enumlist->enumarray_rank = 1;
                 enumlist->enumarray_count = ndata;
-                enumlist->enumarray_shape = (int *)malloc(sizeof(int));
-                enumlist->enumarray_shape[0] = ndata;        
+                enumlist->enumarray_shape = (int*)malloc(sizeof(int));
+                enumlist->enumarray_shape[0] = ndata;
                 addMalloc(logmalloclist, (void*)enumlist->enumarray_shape, 1, sizeof(int), "int");
 
             }
@@ -1148,17 +1152,17 @@ int readCDF4AVar(GROUPLIST grouplist, int grpid, int varid, nc_type atttype, cha
 
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
-int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int* dimids, int* nevec,
+int readCDF4Err(int grpid, int varid, int isCoordinate, int cls, int rank, int* dimids, int* nevec,
                 int* error_type, char** edata, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
 
     int i, attid, errid = 0, rc, err = 0, isIndex = 0;
     nc_type atttype;                    // NC types
     size_t attlen;
-    char* errors = NULL;
-    unsigned int* extent = NULL;
+    char* errors = nullptr;
+    unsigned int* extent = nullptr;
     int ndimatt[2];            // NC_STRING attribute shape
-    USERDEFINEDTYPE* udt = NULL;
+    USERDEFINEDTYPE* udt = nullptr;
 
     //----------------------------------------------------------------------
     // Test Attribute 'errors' Exists
@@ -1182,14 +1186,14 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
     GROUPLIST grouplist;
     grouplist.count = 1;
     grouplist.grpid = grpid;
-    grouplist.grpids = NULL;
+    grouplist.grpids = nullptr;
 
     if (atttype == NC_CHAR || atttype == NC_STRING) {
 
         // Allocate Heap
 
         if (atttype == NC_CHAR) {
-            if ((errors = (char*)malloc((attlen + 1) * sizeof(char))) == NULL) {
+            if ((errors = (char*)malloc((attlen + 1) * sizeof(char))) == nullptr) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "readCDF4Err", err,
                              "Unable to Allocate Heap for Errors Variable Name");
@@ -1228,7 +1232,7 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
 
         free((void*)errors);
 
-        if ((extent = (unsigned int*)malloc((rank + 1) * sizeof(unsigned int))) == NULL) {
+        if ((extent = (unsigned int*)malloc((rank + 1) * sizeof(unsigned int))) == nullptr) {
             err = 999;
             addIdamError(CODEERRORTYPE, "readCDF4Err", err,
                          "Unable to Allocate Heap for Extent Array");
@@ -1246,7 +1250,7 @@ int readCDF4Err(int grpid, int varid, int isCoordinate, int class, int rank, int
 
         // Apply Data Conversion
 
-        if (class == RAW_DATA && (!isCoordinate || rank == 1)) {
+        if (cls == RAW_DATA && (!isCoordinate || rank == 1)) {
             if ((rc = applyCDFCalibration(grpid, errid, *nevec, error_type, edata)) != NC_NOERR) {
                 err = 999;
                 addIdamError(CODEERRORTYPE, "read4Err", err, (char*)nc_strerror(rc));
@@ -1412,13 +1416,13 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
 
             default: {
                 free((void*)measure);
-                measure = NULL;
+                measure = nullptr;
                 break;
             }
 
         }
 
-        if (measure != NULL) {
+        if (measure != nullptr) {
             free((void*)*data);
             *data = (char*)measure;
             *type = UDA_TYPE_DOUBLE;
@@ -1547,13 +1551,13 @@ int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data)
 
                 default: {
                     free((void*)measure);
-                    measure = NULL;
+                    measure = nullptr;
                     break;
                 }
 
             }
 
-            if (measure != NULL) {
+            if (measure != nullptr) {
                 free((void*)*data);
                 *data = (char*)measure;
                 *type = UDA_TYPE_FLOAT;
@@ -1585,11 +1589,11 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
 
     int rc, err = 0, data_n, data_type, isCoordinate = 0, isIndex = 0;
 
-    int* dimids = NULL;
-    unsigned int* extent = NULL;    // Shape of the data array
-    char* data = NULL;
+    int* dimids = nullptr;
+    unsigned int* extent = nullptr;    // Shape of the data array
+    char* data = nullptr;
 
-    USERDEFINEDTYPE* udt = NULL;
+    USERDEFINEDTYPE* udt = nullptr;
     GROUPLIST grouplist;
 
     //----------------------------------------------------------------------
@@ -1600,7 +1604,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
         //----------------------------------------------------------------------
         // Get Dimension/Coordinate ID List of the variable
 
-        if ((dimids = (int*)malloc(rank * sizeof(int))) == NULL) {
+        if ((dimids = (int*)malloc(rank * sizeof(int))) == nullptr) {
             err = NETCDF_ERROR_ALLOCATING_HEAP_1;
             addIdamError(CODEERRORTYPE, "readCDF", err,
                          "Problem Allocating Heap Memory for dimids array");
@@ -1616,7 +1620,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
         //----------------------------------------------------------------------
         // Allocate and Initialise Dimensional/Coordinate Data & Extent data
 
-        if ((extent = (unsigned int*)malloc((rank + 1) * sizeof(unsigned int))) == NULL) {
+        if ((extent = (unsigned int*)malloc((rank + 1) * sizeof(unsigned int))) == nullptr) {
             err = NETCDF_ERROR_ALLOCATING_HEAP_1;
             addIdamError(CODEERRORTYPE, "readCDFCheckCoordinate", err,
                          "Problem Allocating Heap Memory for extent array");
@@ -1628,7 +1632,7 @@ int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* co
 
         grouplist.count = 1;
         grouplist.grpid = grpid;
-        grouplist.grpids = NULL;
+        grouplist.grpids = nullptr;
 
         err = readCDF4Var(grouplist, varid, isCoordinate, rank, dimids, extent, &data_n, &data_type, &isIndex, &data,
                           logmalloclist, userdefinedtypelist, &udt);
@@ -1957,7 +1961,7 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
     //     -1 => Error
 
     int i, j, err, rc = 1, subsetCount = 1;        // Number of subsetting operations
-    char* p, * token = NULL;
+    char* p, * token = nullptr;
 
     int lwork = (int)strlen(op) + 1;
     char* work = (char*)malloc(lwork * sizeof(char));
@@ -1986,12 +1990,13 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
     //		[a:*:c]		all items starting at a with stride c
     //		[a:b:c]		all items starting at a, ending at b with stride c
 
-    while ((token = strstr(work, "][")) != NULL || (token = strstr(work, "}{")) != NULL) {    // Adopt a single syntax
+    while ((token = strstr(work, "][")) != nullptr ||
+           (token = strstr(work, "}{")) != nullptr) {    // Adopt a single syntax
         token[0] = ',';
         token[1] = ' ';
     }
     p = work;
-    while ((token = strchr(p, ',')) != NULL) {        // Count the Dimensions
+    while ((token = strchr(p, ',')) != nullptr) {        // Count the Dimensions
         p = &token[1];
         subsetCount++;
     }
@@ -2023,9 +2028,9 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
     cdfsubset->subsetCount = subsetCount;
 
     subsetCount = 0;
-    if ((token = strtok(work, ",")) != NULL) {    // Process each subset instruction separately (work2)
+    if ((token = strtok(work, ",")) != nullptr) {    // Process each subset instruction separately (work2)
         strcpy(work2[subsetCount++], token);
-        while (subsetCount < NC_MAX_VAR_DIMS && (token = strtok(NULL, ",")) != NULL)
+        while (subsetCount < NC_MAX_VAR_DIMS && (token = strtok(nullptr, ",")) != nullptr)
             strcpy(work2[subsetCount++], token);
 
         do {
@@ -2049,7 +2054,7 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
                         strcpy(work2[i], work4);
                     }
                 } else {
-                    if ((p = strstr(work2[i], "::")) != NULL) {
+                    if ((p = strstr(work2[i], "::")) != nullptr) {
                         p[0] = '\0';
                         strcpy(work4, work2[i]);
                         strcat(work4, ":*");
@@ -2060,15 +2065,15 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
                     }
                 }
 
-                if (strchr(work2[i], ':') != NULL && (token = strtok(work2[i], ":")) != NULL) {
+                if (strchr(work2[i], ':') != nullptr && (token = strtok(work2[i], ":")) != nullptr) {
                     j = 0;
                     strcpy(work3[j++], token);
-                    while (j < 3 && (token = strtok(NULL, ":")) != NULL) strcpy(work3[j++], token);
+                    while (j < 3 && (token = strtok(nullptr, ":")) != nullptr) strcpy(work3[j++], token);
                     for (j = 0; j < 3; j++) TrimString(work3[j]);
                     for (j = 0; j < 3; j++) LeftTrimString(work3[j]);
 
                     if (work3[0][0] != '\0' && IsNumber(work3[0])) {    // [a:] or [a:*] or [a:b] etc
-                        p = NULL;
+                        p = nullptr;
                         errno = 0;
                         cdfsubset->start[i] = (size_t)strtol(work3[0], &p, 10);
                         if (errno != 0 || *p != 0 || p == work3[0]) {
@@ -2093,7 +2098,7 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
                         break;
                     }
                     if (work3[1][0] != '\0' && IsNumber(work3[1])) {    // [a:b]
-                        p = NULL;
+                        p = nullptr;
                         errno = 0;
                         cdfsubset->stop[i] = (size_t)strtol(work3[1], &p, 10);
                         if (errno != 0 || *p != 0 || p == work3[0]) {
@@ -2129,7 +2134,7 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
                     }
                     if (work3[2][0] != '\0') {
                         if (IsNumber(work3[2])) {
-                            p = NULL;
+                            p = nullptr;
                             errno = 0;
                             cdfsubset->stride[i] = (size_t)strtol(work3[2], &p, 10);
                             if (errno != 0 || *p != 0 || p == work3[0]) {
@@ -2167,7 +2172,7 @@ int readCDF4ParseSubset(char* op, CDFSUBSET* cdfsubset)
                         cdfsubset->stride[i] = 1;
                     } else {
                         if (IsNumber(work4)) {                // [a]
-                            p = NULL;
+                            p = nullptr;
                             errno = 0;
                             cdfsubset->start[i] = (size_t)strtol(work4, &p, 10);
                             if (errno != 0 || *p != 0 || p == work3[0]) {

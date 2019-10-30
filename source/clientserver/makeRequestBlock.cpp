@@ -239,7 +239,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                     return err;
                 }
 
-                expandEnvironmentVariables(request_block);            // Resolve any Serverside environment variables
+                expandEnvironmentVariables(request_block->path);            // Resolve any Serverside environment variables
 
                 UDA_LOG(UDA_LOG_DEBUG, "File Format identified from name extension!\n");
                 break;
@@ -389,7 +389,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
             if (isFile) {                                    // Resolve any Serverside environment variables
                 UDA_LOG(UDA_LOG_DEBUG, "File Format has been specified.\n");
-                expandEnvironmentVariables(request_block);
+                expandEnvironmentVariables(request_block->path);
                 break;
             }
 
@@ -1103,14 +1103,14 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRON
 //------------------------------------------------------------------------------
 // Does the Path contain with an Environment variable
 
-void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
+void expandEnvironmentVariables(char* path)
 {
     size_t lcwd = STRING_LENGTH - 1;
     char work[STRING_LENGTH];
     char cwd[STRING_LENGTH];
     char ocwd[STRING_LENGTH];
 
-    if (strchr(request_block->path, '$') == nullptr) {
+    if (strchr(path, '$') == nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "No embedded environment variables detected\n");
         return;
     }
@@ -1120,15 +1120,15 @@ void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
         return;
     }
 
-    if (chdir(request_block->path) == 0) {            // Change to path directory
+    if (chdir(path) == 0) {            // Change to path directory
         char* pcwd = getcwd(cwd, lcwd);                    // The Current Working Directory is now the resolved directory name
 
         UDA_LOG(UDA_LOG_DEBUG, "Expanding embedded environment variable:\n");
-        UDA_LOG(UDA_LOG_DEBUG, "from: %s\n", request_block->path);
+        UDA_LOG(UDA_LOG_DEBUG, "from: %s\n", path);
         UDA_LOG(UDA_LOG_DEBUG, "to: %s\n", cwd);
 
         if (pcwd != nullptr) {
-            strcpy(request_block->path, cwd);    // The expanded path
+            strcpy(path, cwd);    // The expanded path
         }
         chdir(ocwd);                        // Return to the Original WD
     } else {
@@ -1137,12 +1137,12 @@ void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
         char* fp = nullptr, * env, * fp1;
         char work1[STRING_LENGTH];
 
-        if (request_block->path[0] == '$' ||
-            (fp = strchr(&request_block->path[1], '$')) != nullptr) {    // Search for a $ character
+        if (path[0] == '$' ||
+            (fp = strchr(&path[1], '$')) != nullptr) {    // Search for a $ character
 
             if (fp != nullptr) {
-                strncpy(work, request_block->path, fp - request_block->path);
-                work[fp - request_block->path] = '\0';
+                strncpy(work, path, fp - path);
+                work[fp - path] = '\0';
 
                 if ((fp1 = strchr(fp, '/')) != nullptr) {
                     strncpy(work1, fp + 1, fp1 - fp - 1);
@@ -1159,16 +1159,16 @@ void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
 
                 strcat(work, work1);
                 strcat(work, fp1);
-                strcpy(request_block->path, work);
+                strcpy(path, work);
             }
 
-            if (request_block->path[0] == '$') {
+            if (path[0] == '$') {
                 work1[0] = '\0';
-                if ((fp = strchr(request_block->path, '/')) != nullptr) {
-                    strncpy(work, request_block->path + 1, fp - request_block->path - 1);
-                    work[fp - request_block->path - 1] = '\0';
+                if ((fp = strchr(path, '/')) != nullptr) {
+                    strncpy(work, path + 1, fp - path - 1);
+                    work[fp - path - 1] = '\0';
                     strcpy(work1, fp);
-                } else { strcpy(work, request_block->path + 1); }
+                } else { strcpy(work, path + 1); }
 
                 if ((env = getenv(work)) != nullptr) {    // Check for Environment Variable
                     if (env[0] == '/') {
@@ -1179,11 +1179,11 @@ void expandEnvironmentVariables(REQUEST_BLOCK* request_block)
                     }
                 }
                 strcat(work, work1);
-                strcpy(request_block->path, work);
+                strcpy(path, work);
             }
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Expanding to: %s\n", request_block->path);
+        UDA_LOG(UDA_LOG_DEBUG, "Expanding to: %s\n", path);
     }
 }
 
