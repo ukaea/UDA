@@ -29,7 +29,6 @@
 #include <logging/logging.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/stringUtils.h>
-#include <modules/ida/nameIda.h>
 #include <clientserver/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/freeDataBlock.h>
@@ -45,12 +44,12 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
     char cmd[MAXRECLENGTH];
     int offset, bufsize, nread, nchar;
-    char* bp = NULL;
+    char* bp = nullptr;
     char alias[4] = "";
     char file[STRING_LENGTH] = "";
     char path[STRING_LENGTH] = "";
     char exp_number_str[STRING_LENGTH];
-    char* env = NULL;
+    char* env = nullptr;
 
     //----------------------------------------------------------------------
     // File Location
@@ -123,7 +122,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
     //----------------------------------------------------------------------
     // Error Trap Loop
 
-    FILE* ph = NULL;
+    FILE* ph = nullptr;
 
     do {
 
@@ -134,7 +133,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
         switch (request_block.request) {
             case REQUEST_READ_IDA:
-                if ((env = getenv("UDA_DUMP_IDA")) != NULL) {
+                if ((env = getenv("UDA_DUMP_IDA")) != nullptr) {
                     strcpy(cmd, env);
                     strcat(cmd, " ");
                 } else {
@@ -142,7 +141,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                 }
                 break;
             case REQUEST_READ_CDF:
-                if ((env = getenv("UDA_DUMP_NETCDF")) != NULL) {
+                if ((env = getenv("UDA_DUMP_NETCDF")) != nullptr) {
                     strcpy(cmd, env);
                     strcat(cmd, " -h ");
                 } else {
@@ -150,7 +149,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                 }
                 break;
             case REQUEST_READ_HDF5:
-                if ((env = getenv("UDA_DUMP_HDF5")) != NULL) {
+                if ((env = getenv("UDA_DUMP_HDF5")) != nullptr) {
                     strcpy(cmd, env);
                     strcat(cmd, " -n ");
                 } else {
@@ -162,13 +161,13 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 // Java example: http://www.mdsplus.org/mdsplus/cvsweb.cgi/mdsplus/javatraverser/DecompileTree.java
 
                 char server[MAXSERVER];
-                char* token = NULL;
+                char* token = nullptr;
                 int i, lpath;
 
                 strcpy(server, request_block.server);
                 if (!strncasecmp(server, "localhost.", 10)) server[9] = '/';        // For Parsing
 
-                if ((token = strstr(server, "/")) != NULL) {                // The Server contains the path to the data
+                if ((token = strstr(server, "/")) != nullptr) {                // The Server contains the path to the data
                     strcpy(path, token);                        // Extract the Path
                     server[token - server] = '\0';                    // Extract the Server Name
                     if (STR_IEQUALS(server, "localhost")) {
@@ -208,7 +207,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                 UDA_LOG(UDA_LOG_DEBUG, "IDAM_SERVER_TREESERVER: %s\n", server);
                 UDA_LOG(UDA_LOG_DEBUG, "IDAM_SERVER_TREEPATH:   %s\n", path);
 
-                if ((env = getenv("UDA_DUMP_MDSPLUS")) != NULL) {
+                if ((env = getenv("UDA_DUMP_MDSPLUS")) != nullptr) {
                     strcpy(cmd, env);
                     strcat(cmd, " mdsdump ");
                 } else {
@@ -237,7 +236,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
         ph = popen(cmd, "r");
         serrno = errno;
 
-        if (ph == NULL || serrno != 0) {
+        if (ph == nullptr || serrno != 0) {
             err = 999;
             if (serrno != 0) addIdamError(SYSTEMERRORTYPE, "dumpFile", serrno, "");
             addIdamError(CODEERRORTYPE, "dumpFile", err, "Problem Running the DUMP utility program");
@@ -250,7 +249,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
         data_block->data_n = bufsize;
 
         while (!feof(ph)) {
-            if ((bp = (char*) realloc(bp, data_block->data_n)) == NULL) {
+            if ((bp = (char*) realloc(bp, data_block->data_n)) == nullptr) {
                 err = 9998;
                 addIdamError(CODEERRORTYPE, "dumpFile", err,
                              "Unable to Allocate Heap Memory for the File DUMP");
@@ -287,7 +286,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
     printDataBlock(*data_block);
 
     if (err != 0) freeDataBlock(data_block);
-    if (ph != NULL) fclose(ph);
+    if (ph != nullptr) fclose(ph);
 
     return err;
 }

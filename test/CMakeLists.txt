@@ -40,8 +40,6 @@ set( TESTS
   test_mast
 )
 
-include( modules )
-
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR} )
 
@@ -56,7 +54,6 @@ macro( BUILD_TEST NAME SOURCE )
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
   )
-  link_modules( ${NAME} )
 
   add_executable( fat_${NAME} ${HELPER_FILES} ${SOURCE} )
   target_link_libraries( fat_${NAME} PRIVATE
@@ -71,7 +68,6 @@ macro( BUILD_TEST NAME SOURCE )
     target_link_libraries( fat_${NAME} PRIVATE ${PostgreSQL_LIBRARY} )
   endif()
   target_compile_definitions( fat_${NAME} PRIVATE -DFATCLIENT )
-  link_modules( fat_${NAME} )
 
   if( FAT_TESTS )
     add_test( ${NAME} fat_${NAME} -r junit -o ${NAME}_out.xml )

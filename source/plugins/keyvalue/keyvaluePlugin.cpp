@@ -1,145 +1,139 @@
-/*---------------------------------------------------------------
-* v1 IDAM Plugin Template: Standardised plugin design template, just add ... 
-*
-* Input Arguments:	IDAM_PLUGIN_INTERFACE *idam_plugin_interface
-*
-* Returns:		0 if the plugin functionality was successful
-*			otherwise a Error Code is returned 
-*
-* Standard functionality:
-*
-*	help	a description of what this plugin does together with a list of functions available
-*
-*	reset	frees all previously allocated heap, closes file handles and resets all static parameters.
-*		This has the same functionality as setting the housekeeping directive in the plugin interface
-*		data structure to TRUE (1)
-*
-*	init	Initialise the plugin: read all required data and process. Retain staticly for
-*		future reference.
-*---------------------------------------------------------------------------------------------------------------*/
 #include "keyvaluePlugin.h"
 
 #include <leveldb/c.h>
-#include <stdlib.h>
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
 #include <plugins/udaPlugin.h>
 
-static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+namespace uda {
+namespace keyvalue {
 
-static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+class Plugin {
+public:
+    Plugin() = default;
 
-static int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+    int help(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int version(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int build_date(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int default_method(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int max_interface_version(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int write(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int read(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int del(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-static int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+    int init(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    void reset(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-static int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+private:
+    bool initialised_ = false;
+    leveldb_readoptions_t* roptions_ = nullptr;
+    leveldb_writeoptions_t* woptions_ = nullptr;
+    leveldb_options_t* options_ = nullptr;
+    leveldb_t* db_ = nullptr;
+};
 
-static int do_write(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb_writeoptions_t* woptions);
+}
+}
 
-static int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb_readoptions_t* roptions);
-
-static int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb_writeoptions_t* woptions);
-
-int keyValue(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int keyValue(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    static short init = 0;
-
-    static leveldb_readoptions_t* roptions = NULL;
-    static leveldb_writeoptions_t* woptions = NULL;
-    static leveldb_options_t* options = NULL;
-    static leveldb_t* db = NULL;
-
-    if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
+    if (plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
-    idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
+    static uda::keyvalue::Plugin plugin{};
 
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
-
-    if (idam_plugin_interface->housekeeping || STR_EQUALS(request_block->function, "reset")) {
-
-        if (!init) return 0;        // Not previously initialised: Nothing to do!
-
-        // Free Heap & reset counters
-
-        leveldb_close(db);
-        db = NULL;
-
-        leveldb_writeoptions_destroy(woptions);
-        woptions = NULL;
-
-        leveldb_readoptions_destroy(roptions);
-        roptions = NULL;
-
-        leveldb_options_destroy(options);
-        options = NULL;
-
-        init = 0;
-
-        return 0;
+    if (plugin.init(plugin_interface) != 0) {
+        RAISE_PLUGIN_ERROR("Plugin initialisation failed.");
     }
 
-    //----------------------------------------------------------------------------------------
-    // Initialise
+    plugin_interface->pluginVersion = THISPLUGIN_VERSION;
 
-    if (!init || STR_IEQUALS(request_block->function, "init")
-        || STR_IEQUALS(request_block->function, "initialise")) {
+    REQUEST_BLOCK* request_block = plugin_interface->request_block;
 
-        options = leveldb_options_create();
-        leveldb_options_set_create_if_missing(options, 1);
-
-        char* err = NULL;
-        db = leveldb_open(options, "idam_ks", &err);
-        if (err != NULL) {
-            RAISE_PLUGIN_ERROR(err);
-        }
-
-        woptions = leveldb_writeoptions_create();
-        roptions = leveldb_readoptions_create();
-
-        init = 1;
-        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
-            return 0;
-        }
-    }
-
-    //----------------------------------------------------------------------------------------
-    // Plugin Functions
-    //----------------------------------------------------------------------------------------
-
-    int err;
+    int rc = 0;
 
     if (STR_IEQUALS(request_block->function, "help")) {
-        err = do_help(idam_plugin_interface);
+        rc = plugin.help(plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "version")) {
-        err = do_version(idam_plugin_interface);
+        rc = plugin.version(plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "builddate")) {
-        err = do_builddate(idam_plugin_interface);
+        rc = plugin.build_date(plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
-        err = do_defaultmethod(idam_plugin_interface);
+        rc = plugin.default_method(plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
-        err = do_maxinterfaceversion(idam_plugin_interface);
+        rc = plugin.max_interface_version(plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "write")) {
-        err = do_write(idam_plugin_interface, db, woptions);
+        rc = plugin.write(plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "read")) {
-        err = do_read(idam_plugin_interface, db, roptions);
+        rc = plugin.read(plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "delete")) {
-        err = do_delete(idam_plugin_interface, db, woptions);
+        rc = plugin.del(plugin_interface);
     } else {
         RAISE_PLUGIN_ERROR("Unknown function requested!");
     }
 
-    return err;
+    return rc;
+}
+
+int uda::keyvalue::Plugin::init(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+#if defined(UDA_VERSION) && UDA_VERSION_MAJOR > 3
+    initPlugin(plugin_interface);
+#endif
+
+    REQUEST_BLOCK* request_block = plugin_interface->request_block;
+
+    if (!initialised_
+        || !strcasecmp(request_block->function, "init") || !strcasecmp(request_block->function, "initialise")) {
+
+        options_ = leveldb_options_create();
+        leveldb_options_set_create_if_missing(options_, 1);
+
+        char* err = nullptr;
+        db_ = leveldb_open(options_, "idam_ks", &err);
+        if (err != nullptr) {
+            RAISE_PLUGIN_ERROR(err);
+        }
+
+        woptions_ = leveldb_writeoptions_create();
+        roptions_ = leveldb_readoptions_create();
+
+        initialised_ = true;
+    }
+
+    return 0;
+}
+
+void uda::keyvalue::Plugin::reset(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    REQUEST_BLOCK* request_block = plugin_interface->request_block;
+
+    if (plugin_interface->housekeeping || !strcasecmp(request_block->function, "reset")) {
+        if (!initialised_) return;
+
+        leveldb_close(db_);
+        db_ = nullptr;
+
+        leveldb_writeoptions_destroy(woptions_);
+        woptions_ = nullptr;
+
+        leveldb_readoptions_destroy(roptions_);
+        roptions_ = nullptr;
+
+        leveldb_options_destroy(options_);
+        options_ = nullptr;
+
+        initialised_ = false;
+    }
 }
 
 // Help: A Description of library functionality
-int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int uda::keyvalue::Plugin::help(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    DATA_BLOCK* data_block = plugin_interface->data_block;
 
     char* p = (char*)malloc(sizeof(char) * 2 * 1024);
 
@@ -174,9 +168,9 @@ int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     return 0;
 }
 
-int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int uda::keyvalue::Plugin::version(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    DATA_BLOCK* data_block = plugin_interface->data_block;
 
     initDataBlock(data_block);
     data_block->data_type = UDA_TYPE_INT;
@@ -193,9 +187,9 @@ int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 }
 
 // Plugin Build Date
-int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int uda::keyvalue::Plugin::build_date(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    DATA_BLOCK* data_block = plugin_interface->data_block;
 
     initDataBlock(data_block);
     data_block->data_type = UDA_TYPE_STRING;
@@ -212,9 +206,9 @@ int do_builddate(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 }
 
 // Plugin Default Method
-int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int uda::keyvalue::Plugin::default_method(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    DATA_BLOCK* data_block = plugin_interface->data_block;
 
     initDataBlock(data_block);
     data_block->data_type = UDA_TYPE_STRING;
@@ -231,9 +225,9 @@ int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 }
 
 // Plugin Maximum Interface Version
-int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int uda::keyvalue::Plugin::max_interface_version(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    DATA_BLOCK* data_block = plugin_interface->data_block;
 
     initDataBlock(data_block);
     data_block->data_type = UDA_TYPE_INT;
@@ -249,16 +243,16 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     return 0;
 }
 
-int do_write(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb_writeoptions_t* woptions)
+int uda::keyvalue::Plugin::write(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    const char* key = NULL;
-    const char* value = NULL;
+    const char* key = nullptr;
+    const char* value = nullptr;
 
-    FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, key);
-    FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, value);
+    FIND_REQUIRED_STRING_VALUE(plugin_interface->request_block->nameValueList, key);
+    FIND_REQUIRED_STRING_VALUE(plugin_interface->request_block->nameValueList, value);
 
     char* env = getenv("UDA_PLUGIN_KEYVALUE_STORE");
-    if (env == NULL) {
+    if (env == nullptr) {
         RAISE_PLUGIN_ERROR("Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
     }
 
@@ -268,24 +262,24 @@ int do_write(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveld
         RAISE_PLUGIN_ERROR("Unknown keyvalue store requested");
     }
 
-    char* err = NULL;
-    leveldb_put(db, woptions, key, strlen(key), value, strlen(value), &err);
+    char* err = nullptr;
+    leveldb_put(db_, woptions_, key, strlen(key), value, strlen(value), &err);
 
-    if (err != NULL) {
+    if (err != nullptr) {
         RAISE_PLUGIN_ERROR_EX(err, { leveldb_free(err); });
     }
 
     return 0;
 }
 
-int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb_readoptions_t* roptions)
+int uda::keyvalue::Plugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    const char* key = NULL;
+    const char* key = nullptr;
 
-    FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, key);
+    FIND_REQUIRED_STRING_VALUE(plugin_interface->request_block->nameValueList, key);
 
     char* env = getenv("UDA_PLUGIN_KEYVALUE_STORE");
-    if (env == NULL) {
+    if (env == nullptr) {
         RAISE_PLUGIN_ERROR("Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
     }
 
@@ -295,29 +289,29 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb
         RAISE_PLUGIN_ERROR("Unknown keyvalue store requested");
     }
 
-    char* err = NULL;
+    char* err = nullptr;
     size_t value_len;
 
-    char* value = leveldb_get(db, roptions, key, strlen(key), &value_len, &err);
+    char* value = leveldb_get(db_, roptions_, key, strlen(key), &value_len, &err);
 
-    if (err != NULL) {
+    if (err != nullptr) {
         RAISE_PLUGIN_ERROR_EX(err, { leveldb_free(err); });
     }
 
-    idam_plugin_interface->data_block->data = value;
-    idam_plugin_interface->data_block->data_n = value_len;
+    plugin_interface->data_block->data = value;
+    plugin_interface->data_block->data_n = value_len;
 
     return 0;
 }
 
-int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, leveldb_writeoptions_t* woptions)
+int uda::keyvalue::Plugin::del(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    const char* key = NULL;
+    const char* key = nullptr;
 
-    FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, key);
+    FIND_REQUIRED_STRING_VALUE(plugin_interface->request_block->nameValueList, key);
 
     char* env = getenv("UDA_PLUGIN_KEYVALUE_STORE");
-    if (env == NULL) {
+    if (env == nullptr) {
         RAISE_PLUGIN_ERROR("Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
     }
 
@@ -327,11 +321,11 @@ int do_delete(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, leveldb_t* db, level
         RAISE_PLUGIN_ERROR("Unknown keyvalue store requested");
     }
 
-    char* err = NULL;
+    char* err = nullptr;
 
-    leveldb_delete(db, woptions, key, strlen(key), &err);
+    leveldb_delete(db_, woptions_, key, strlen(key), &err);
 
-    if (err != NULL) {
+    if (err != nullptr) {
         RAISE_PLUGIN_ERROR_EX(err, { leveldb_free(err); });
     }
 

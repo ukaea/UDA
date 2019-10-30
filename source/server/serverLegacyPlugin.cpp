@@ -5,12 +5,11 @@
 *---------------------------------------------------------------------------------------------------------------------*/
 #include "serverLegacyPlugin.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <strings.h>
 
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
-#include <modules/ida/parseIdaPath.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/protocol.h>
 #include <clientserver/udaErrors.h>
@@ -31,7 +30,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
     char archive[STRING_LENGTH] = "";
     char device_name[STRING_LENGTH] = "";
 #endif
-    char* token = NULL;
+    char* token = nullptr;
     char work[STRING_LENGTH];
 
     UDA_LOG(UDA_LOG_DEBUG, "IdamServerLegacyPlugin: Start\n");
@@ -59,12 +58,12 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 strcpy(work, environment->private_path_target);
                 token = strtok(work, delimiters);
                 strcpy(targets[tcount++], token);
-                while ((token = strtok(NULL, delimiters)) != NULL) strcpy(targets[tcount++], token);
+                while ((token = strtok(nullptr, delimiters)) != nullptr) strcpy(targets[tcount++], token);
 
                 strcpy(work, environment->private_path_substitute);
                 token = strtok(work, delimiters);
                 strcpy(substitutes[scount++], token);
-                while ((token = strtok(NULL, delimiters)) != NULL) strcpy(substitutes[scount++], token);
+                while ((token = strtok(nullptr, delimiters)) != nullptr) strcpy(substitutes[scount++], token);
 
                 if (tcount == scount) {
                     for (i = 0; i < tcount; i++) {
@@ -87,10 +86,8 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
 
 #endif
 
-
-//----------------------------------------------------------------------
-// Client Requests the Server to Choose Data Access plugin
-
+        //----------------------------------------------------------------------
+        // Client Requests the Server to Choose Data Access plugin
 
         if (request_block->request == REQUEST_READ_FORMAT) {
             UDA_LOG(UDA_LOG_DEBUG, "Request: REQUEST_READ_FORMAT \n");
@@ -98,12 +95,12 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
 
             if (STR_IEQUALS(request_block->format, "IDA") || STR_IEQUALS(request_block->format, "IDA3")) {
                 request_block->request = REQUEST_READ_IDA;
-                parseIDAPath(request_block);        // Check Path for file details
+//                parseIDAPath(request_block);        // Check Path for file details
             } else if (STR_IEQUALS(request_block->format, "NETCDF")) request_block->request = REQUEST_READ_CDF;
             else if (STR_IEQUALS(request_block->format, "HDF5")) request_block->request = REQUEST_READ_HDF5;
             else if (STR_IEQUALS(request_block->format, "XML")) {
                 request_block->request = REQUEST_READ_XML;
-                parseXMLPath(request_block);        // Check Path for details
+//                parseXMLPath(request_block);        // Check Path for details
             } else if (STR_IEQUALS(request_block->format, "UFILE")) request_block->request = REQUEST_READ_UFILE;
             else if (STR_IEQUALS(request_block->format, "BIN") || STR_IEQUALS(request_block->format, "BINARY"))
                 request_block->request = REQUEST_READ_FILE;
@@ -122,8 +119,8 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
 #endif
         }
 
-//----------------------------------------------------------------------
-// Client Identifies the File or Signal via the State Block
+        //----------------------------------------------------------------------
+        // Client Identifies the File or Signal via the State Block
 
         switch (request_block->request) {
 
@@ -270,10 +267,10 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
 
                 if (data_source->exp_number == 0 && data_source->pass == -1) {    // May be passed in Path String
                     strcpy(work, request_block->path);
-                    if (work[0] == '/' && (token = strtok(work, "/")) != NULL) {    // Tokenise the remaining string
+                    if (work[0] == '/' && (token = strtok(work, "/")) != nullptr) {    // Tokenise the remaining string
                         if (IsNumber(token)) {                    // Is the First token an integer number?
                             request_block->exp_number = atoi(token);
-                            if ((token = strtok(NULL, "/")) != NULL) {        // Next Token
+                            if ((token = strtok(nullptr, "/")) != nullptr) {        // Next Token
                                 if (IsNumber(token)) {
                                     request_block->pass = atoi(token);        // Must be the Pass number
                                 } else {

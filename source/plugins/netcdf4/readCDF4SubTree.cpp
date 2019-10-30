@@ -20,7 +20,7 @@
 #include <clientserver/udaErrors.h>
 #include <clientserver/stringUtils.h>
 
-#include "readCDF4.h"
+#include "readCDF4.hpp"
 
 // Read netCDF4 sub-Tree
 
@@ -32,13 +32,13 @@ void initVariable(VARIABLE* variable)
 {
     variable->varid = 0;
     variable->numatts = 0;
-    variable->attribute = NULL;
+    variable->attribute = nullptr;
     variable->varname[0] = '\0';
     variable->vartype = 0;
     variable->rank = 0;
     variable->udtIndex = -1;
-    variable->shape = NULL;
-    variable->udt = NULL;
+    variable->shape = nullptr;
+    variable->udt = nullptr;
 }
 
 void initAttribute(ATTRIBUTE* attribute)
@@ -48,7 +48,7 @@ void initAttribute(ATTRIBUTE* attribute)
     attribute->atttype = 0;
     attribute->attlength = 0;
     attribute->udtIndex = -1;
-    attribute->udt = NULL;
+    attribute->udt = nullptr;
 }
 
 void initGroup(GROUP* group)
@@ -60,17 +60,17 @@ void initGroup(GROUP* group)
     group->numatts = 0;
     group->numvars = 0;
     group->udtIndex = -1;
-    group->grpids = NULL;
-    group->udt = NULL;
-    group->attribute = NULL;
-    group->variable = NULL;
+    group->grpids = nullptr;
+    group->udt = nullptr;
+    group->attribute = nullptr;
+    group->variable = nullptr;
 }
 
 void initHGroup(HGROUPS* hgroups)
 {
     hgroups->grpcount = 0;
     hgroups->numgrps = 0;
-    hgroups->groups = NULL;
+    hgroups->groups = nullptr;
 }
 
 int addHGroup(HGROUPS* hgroups, GROUP group)
@@ -92,7 +92,7 @@ GROUP* findHGroup(HGROUPS* hgroups, int grpid)
     for (i = 0; i < hgroups->numgrps; i++) {
         if (hgroups->groups[i].grpid == grpid) return (&hgroups->groups[i]);
     }
-    return NULL;
+    return nullptr;
 }
 
 void freeGroup(GROUP* group)
@@ -217,8 +217,8 @@ void repeatUdt(USERDEFINEDTYPELIST* userdefinedtypelist)
 
                     if (!test) break;
 
-                    if (test && field->rank > 1 && field->shape != NULL) {    // Check array shape
-                        test = proposed_field != NULL;
+                    if (test && field->rank > 1 && field->shape != nullptr) {    // Check array shape
+                        test = proposed_field != nullptr;
                         for (m = 0; m < field->rank; m++) test = test && (proposed_field->shape[m] == field->shape[m]);
                     }
                     if (!test) break;
@@ -233,8 +233,9 @@ void repeatUdt(USERDEFINEDTYPELIST* userdefinedtypelist)
                      jj < userdefinedtypelist->listCount; jj++) {                // Current and Forward check all UDTs
                     for (kk = 0; kk < userdefinedtypelist->userdefinedtype[jj].fieldcount; kk++) {    // Check all items
                         COMPOUNDFIELD* field = &userdefinedtypelist->userdefinedtype[jj].compoundfield[kk];
-                        if (field->atomictype == 0 && STR_EQUALS(field->type, proposed_name))
+                        if (field->atomictype == 0 && STR_EQUALS(field->type, proposed_name)) {
                             strcpy(field->type, proposed_name);
+                        }
                     }
                 }
                 strcpy(userdefinedtypelist->userdefinedtype[j].name,
@@ -256,12 +257,12 @@ int findUserDefinedTypeIndexReverse(USERDEFINEDTYPELIST* userdefinedtypelist, in
 
 // Target all User Defined Types within the Data Tree starting at the Root Node
 // grouplist contains all group ids up to and including the sub-tree node.
-// Pass grouplist = NULL to target the current group only
+// Pass grouplist = nullptr to target the current group only
 
 int getCDF4SubTreeUserDefinedTypes(int grpid, GROUPLIST* grouplist, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
     int i, err = 0;
-    if (grouplist != NULL) {
+    if (grouplist != nullptr) {
         for (i = 0; i < grouplist->count; i++) {        // All groups in scope
             if ((err = readCDFTypes(grouplist->grpids[i], userdefinedtypelist)) != 0) return err;
         }
@@ -280,7 +281,7 @@ void replaceSubTreeEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPE
     //
     // VLEN types also need heap replacement
 
-    if (udt == NULL) {
+    if (udt == nullptr) {
         return;
     }
 
@@ -299,7 +300,8 @@ void replaceSubTreeEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPE
                 VLENTYPE* vlen = (VLENTYPE*)dvec;            // If the type is VLEN then read data array for the count
                 int k;
                 for (k = 0; k < ndata; k++) {
-                    replaceSubTreeEmbeddedStrings(logmalloclist, userdefinedtypelist, child, vlen[k].len, vlen[k].data);
+                    replaceSubTreeEmbeddedStrings(logmalloclist, userdefinedtypelist, child, vlen[k].len,
+                                                  (char*)vlen[k].data);
                 }
 
                 // Intercept VLEN netcdf/hdf5 heap and allocate local heap;
@@ -462,7 +464,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
     strcpy(usertype.source, "netcdf");
     usertype.ref_id = (int)variable->vartype + 90000;    // Make unique! Why? How is this unique?
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = 0;                // Structure size
 
     //----------------------------------------------------------------------
@@ -479,7 +481,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
             if ((err = nc_inq_attname(grpid, varid, i, name)) != NC_NOERR) {
                 addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
                 free((void*)variable->attribute);
-                variable->attribute = NULL;
+                variable->attribute = nullptr;
                 freeUserDefinedType(&usertype);
                 return err;
             }
@@ -492,7 +494,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
             if ((err = nc_inq_atttype(grpid, varid, name, &atttype)) != NC_NOERR) {
                 addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
                 free((void*)variable->attribute);
-                variable->attribute = NULL;
+                variable->attribute = nullptr;
                 freeUserDefinedType(&usertype);
                 return err;
             }
@@ -500,7 +502,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
             if ((err = nc_inq_attlen(grpid, varid, name, (size_t*)&attlength)) != NC_NOERR) {
                 addIdamError(CODEERRORTYPE, "readCDF", err, (char*)nc_strerror(err));
                 free((void*)variable->attribute);
-                variable->attribute = NULL;
+                variable->attribute = nullptr;
                 freeUserDefinedType(&usertype);
                 return err;
             }
@@ -516,7 +518,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
                 field.pointer = 1;
                 field.rank = 0;                                 // Scalar String - Irregular length
                 field.count = 1;                                // 1 String
-                field.shape = NULL;
+                field.shape = nullptr;
                 field.size = getsizeof(userdefinedtypelist, "char *");
                 field.offset = newoffset(offset, "char *");
                 offset = field.offset + field.size;             // use previous offset for alignment
@@ -528,7 +530,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
                 field.pointer = 1;                              // Passed as array type: char **
                 field.rank = 0;
                 field.count = 1;                                // Arbitrary Number of Strings of arbitrary length
-                field.shape = NULL;
+                field.shape = nullptr;
                 field.size = field.count * sizeof(char**);
                 field.offset = newoffset(offset, field.type);
                 offset = field.offset + field.size;             // use previous offset for alignment
@@ -540,26 +542,27 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
 
                 if (isAtomicNCType(atttype)) {
                     field.atomictype = convertNCType(atttype);            // convert netCDF base type to IDAM type
-                    strcpy(field.type, udaNameType(field.atomictype));        // convert atomic type to a string label
+                    strcpy(field.type,
+                           udaNameType((UDA_TYPE)field.atomictype));        // convert atomic type to a string label
                 } else {
                     field.atomictype = UDA_TYPE_UNKNOWN;
 
                     // Identify the required structure definition
 
-                    attribute[i].udt = NULL;                            // Update when all udts defined (realloc problem!)
+                    attribute[i].udt = nullptr;                            // Update when all udts defined (realloc problem!)
                     attribute[i].udtIndex = findUserDefinedTypeIndexReverse(userdefinedtypelist,
                                                                             (int)atttype);    // Locate UDT definition using type id
 
                     if (attribute[i].udtIndex < 0) {
                         err = 999;
-                        char* msg = malloc(sizeof(char) * 1024);
+                        char* msg = (char*)malloc(sizeof(char) * 1024);
                         sprintf(msg,
                                 "Variable %s Attribute %s has a User Defined or Atomic Type definition that is either Not within Scope "
                                 "or Not Known or Not currently supported.", variable->varname, name);
                         addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, msg);
                         free((void*)msg);
                         free((void*)variable->attribute);
-                        variable->attribute = NULL;
+                        variable->attribute = nullptr;
                         freeUserDefinedType(&usertype);
                         break;
                     }
@@ -589,9 +592,9 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
             for (i = 0; i < numatts; i++) {
                 if (attribute[i].attname[0] != '\0') attribute[j++] = attribute[i];
             }
-            if (attCount == 0 && variable->attribute != NULL) {
+            if (attCount == 0 && variable->attribute != nullptr) {
                 free((void*)variable->attribute);
-                variable->attribute = NULL;
+                variable->attribute = nullptr;
             }
         }
 
@@ -610,7 +613,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
         field.pointer = 1;
         field.rank = 0;
         field.count = 1;                                // Single string of arbitrary length passed as type: char *
-        field.shape = NULL;
+        field.shape = nullptr;
         field.size = getsizeof(userdefinedtypelist, "char *");
         field.offset = newoffset(offset, "char *");
         offset = field.offset + field.size;             // use previous offset for alignment
@@ -636,7 +639,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
         field.pointer = 1;
         field.rank = 0;                             // Scalar string with an irregular length
         field.count = 1;                            // 1 String
-        field.shape = NULL;
+        field.shape = nullptr;
         field.size = getsizeof(userdefinedtypelist, "char *");
         field.offset = newoffset(offset, "char *");
         offset = field.offset + field.size;         // use previous offset for alignment
@@ -648,7 +651,7 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
         field.pointer = 1;
         field.rank = 0;                                 // Irregular length string
         field.count = 1;                                // Unknown number of Unknown length (at this time!)
-        field.shape = NULL;
+        field.shape = nullptr;
 
         field.size = field.count * sizeof(char**);
         field.offset = newoffset(offset, field.type);
@@ -658,24 +661,24 @@ int getCDF4SubTreeVarMeta(int grpid, int varid, VARIABLE* variable, USERDEFINEDT
     } else {
         if (isAtomicNCType(variable->vartype)) {
             field.atomictype = convertNCType(variable->vartype);        // convert netCDF base type to IDAM type
-            strcpy(field.type, udaNameType(field.atomictype));        // convert atomic type to a string label
+            strcpy(field.type, udaNameType((UDA_TYPE)field.atomictype));        // convert atomic type to a string label
         } else {
             field.atomictype = UDA_TYPE_UNKNOWN;
 
             // Identify the required structure definition
 
-            variable->udt = NULL;                            // Update when all udts defined (realloc problem!)
+            variable->udt = nullptr;                            // Update when all udts defined (realloc problem!)
             variable->udtIndex = findUserDefinedTypeIndexReverse(userdefinedtypelist, (int)variable->vartype);
 
             if (variable->udtIndex < 0) {
                 err = 999;
-                char* msg = malloc(sizeof(char) * 1024);
+                char* msg = (char*)malloc(sizeof(char) * 1024);
                 sprintf(msg, "Variable %s has a User Defined or Atomic Type definition that is either Not within Scope "
                              "or Not Known or Not currently supported.", variable->varname);
                 addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, msg);
                 free((void*)msg);
                 free((void*)variable->attribute);
-                variable->attribute = NULL;
+                variable->attribute = nullptr;
                 freeUserDefinedType(&usertype);
                 return err;
             }
@@ -794,7 +797,7 @@ int getCDF4SubTreeVar2Meta(int grpid, int varid, VARIABLE* variable, int* offset
         field->pointer = 1;
         field->rank = 0;                    // Scalar string with an irregular length
         field->count = 1;                    // 1 String
-        field->shape = NULL;
+        field->shape = nullptr;
         field->size = getsizeof(userdefinedtypelist, "char *");
         field->offset = newoffset(*offset, "char *");
         *offset = field->offset + field->size;        // use previous offset for alignment
@@ -806,7 +809,7 @@ int getCDF4SubTreeVar2Meta(int grpid, int varid, VARIABLE* variable, int* offset
         field->pointer = 1;
         field->rank = 0;                    // Irregular length string
         field->count = 1;                    // Unknown number of Unknown length (at this time!)
-        field->shape = NULL;
+        field->shape = nullptr;
         field->size = field->count * sizeof(char**);
         field->offset = newoffset(*offset, field->type);
         *offset = field->offset + field->size;        // use previous offset for alignment
@@ -816,18 +819,19 @@ int getCDF4SubTreeVar2Meta(int grpid, int varid, VARIABLE* variable, int* offset
 
         if (isAtomicNCType(variable->vartype)) {
             field->atomictype = convertNCType(variable->vartype);        // convert netCDF base type to IDAM type
-            strcpy(field->type, udaNameType(field->atomictype));        // convert atomic type to a string label
+            strcpy(field->type,
+                   udaNameType((UDA_TYPE)field->atomictype));        // convert atomic type to a string label
         } else {
             field->atomictype = UDA_TYPE_UNKNOWN;                // Structured Type
 
             // Identify the required structure definition
 
-            variable->udt = NULL;                        // Update when all udts defined (realloc problem!)
+            variable->udt = nullptr;                        // Update when all udts defined (realloc problem!)
             variable->udtIndex = findUserDefinedTypeIndexReverse(userdefinedtypelist, (int)variable->vartype);
 
             if (variable->udtIndex < 0) {
                 err = 999;
-                char* msg = malloc(sizeof(char) * 1024);
+                char* msg = (char*)malloc(sizeof(char) * 1024);
                 sprintf(msg, "Variable %s has a User Defined or Atomic Type definition that is either Not within Scope "
                              "or Not Known or Not currently supported.", variable->varname);
                 addIdamError(CODEERRORTYPE, "getCDF4SubTreeVar2Meta", err, msg);
@@ -883,7 +887,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
     int i, j, err = NC_NOERR, offset = 0;
     int varid;
     int numgrps, numatts, numvars;
-    int* grpids = NULL, * varids;
+    int* grpids = nullptr, * varids;
     size_t attlength;
 
     char* unique;
@@ -906,7 +910,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
     //----------------------------------------------------------------------
     // Add local User Defined Types
 
-    if (getCDF4SubTreeUserDefinedTypes(grpid, NULL, userdefinedtypelist) != NC_NOERR) {
+    if (getCDF4SubTreeUserDefinedTypes(grpid, nullptr, userdefinedtypelist) != NC_NOERR) {
         err = 999;
         addIdamError(CODEERRORTYPE, "readCDF4SubTree", err, "User Defined Type definition Problem!!");
         return err;
@@ -933,7 +937,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
 
     numgrps = 0;
 
-    if (nc_inq_grps(grpid, &numgrps, NULL) == NC_NOERR) {
+    if (nc_inq_grps(grpid, &numgrps, nullptr) == NC_NOERR) {
         if (numgrps > 0) {
             grpids = (int*)malloc(sizeof(int) * numgrps);
             if ((err = nc_inq_grps(grpid, &numgrps, grpids)) != NC_NOERR) {
@@ -976,7 +980,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
     strcpy(usertype.source, "netcdf");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = 0;                // Structure size
 
     strcpy(usertype.name, name);
@@ -1064,7 +1068,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
                 field.pointer = 1;
                 field.rank = 0;                    // Irregular length string
                 field.count = 1;                    // 1 String !
-                field.shape = NULL;
+                field.shape = nullptr;
                 field.size = getsizeof(userdefinedtypelist, "char *");
                 field.offset = newoffset(offset, "char *");
                 offset = field.offset +
@@ -1077,7 +1081,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
                 field.pointer = 1;                    // Passed as array type: char **
                 field.rank = 0;
                 field.count = 1;                    // Arbitrary Number of Strings of arbitrary length
-                field.shape = NULL;
+                field.shape = nullptr;
                 field.size = field.count * sizeof(char**);
                 field.offset = newoffset(offset, field.type);
                 offset = field.offset +
@@ -1090,19 +1094,20 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
 
                 if (isAtomicNCType(atttype)) {
                     field.atomictype = convertNCType(atttype);            // convert netCDF base type to IDAM type
-                    strcpy(field.type, udaNameType(field.atomictype));        // convert atomic type to a string label
+                    strcpy(field.type,
+                           udaNameType((UDA_TYPE)field.atomictype));        // convert atomic type to a string label
                 } else {
                     field.atomictype = UDA_TYPE_UNKNOWN;
 
 // Identify the required structure definition (must be defined as a User Defined Type)
 
-                    group->attribute[i].udt = NULL;                            // Update when all udts defined (realloc problem!)
+                    group->attribute[i].udt = nullptr;                            // Update when all udts defined (realloc problem!)
                     group->attribute[i].udtIndex = findUserDefinedTypeIndexReverse(userdefinedtypelist,
                                                                                    (int)atttype);    //
 
                     if (group->attribute[i].udtIndex < 0) {
                         err = 999;
-                        char* msg = malloc(sizeof(char) * 1024);
+                        char* msg = (char*)malloc(sizeof(char) * 1024);
                         sprintf(msg,
                                 "Group %s Attribute %s has a User Defined or Atomic Type definition that is either Not within Scope "
                                 "or Not Known or Not currently supported.", group->grpname, name);
@@ -1151,9 +1156,9 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
             for (i = 0; i < numatts; i++) {
                 if (group->attribute[i].attname[0] != '\0') group->attribute[j++] = group->attribute[i];
             }
-            if (attCount == 0 && group->attribute != NULL) {
+            if (attCount == 0 && group->attribute != nullptr) {
                 free((void*)group->attribute);
-                group->attribute = NULL;
+                group->attribute = nullptr;
             }
         }
 
@@ -1165,7 +1170,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
 
     numvars = 0;
 
-    if ((err = nc_inq_varids(grpid, &numvars, NULL)) == NC_NOERR) {
+    if ((err = nc_inq_varids(grpid, &numvars, nullptr)) == NC_NOERR) {
         if (numvars > 0) {
             int varCount = 0;
             VARIABLE* variable = (VARIABLE*)malloc(sizeof(VARIABLE) * numvars);
@@ -1313,7 +1318,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
         field.pointer = 1;
         field.rank = 0;                    // Irregular length string
         field.count = 1;                    // 1 String !
-        field.shape = NULL;
+        field.shape = nullptr;
         field.size = getsizeof(userdefinedtypelist, "char *");
         field.offset = newoffset(offset, "char *");
         offset = field.offset + field.size;         // use previous offset for alignment
@@ -1373,13 +1378,13 @@ char* dimShapeLabel(int grpid, int rank, int* dimids, int* count, int** shp)
 
     int i, slen;
     size_t length;
-    int* shape = NULL;
+    int* shape = nullptr;
     char name[NC_MAX_NAME + 1];
     char work[2 * NC_MAX_NAME + 1];
-    char* dim = NULL;
+    char* dim = nullptr;
 
     *count = 1;
-    *shp = NULL;
+    *shp = nullptr;
     if (rank > 1) shape = (int*)malloc(rank * sizeof(int));    // Added externally to MallocLog
 
     for (i = 0; i < rank; i++) {
@@ -1414,13 +1419,13 @@ ENUMLIST* getCDF4EnumList(int grpid, nc_type vartype, LOGMALLOCLIST* logmallocli
     if ((rc = nc_inq_enum(grpid, vartype, name, &base, &size, &members)) != NC_NOERR) {
         err = 999;
         addIdamError(CODEERRORTYPE, "getCDF4EnumList", err, (char*)nc_strerror(rc));
-        return NULL;
+        return nullptr;
     }
 
     if (members == 0) {
         err = 999;
         addIdamError(CODEERRORTYPE, "getCDF4EnumList", err, "Enumerated Type has Zero Membership?");
-        return NULL;
+        return nullptr;
     }
 
     strcpy(enumlist->name, name);
@@ -1433,7 +1438,7 @@ ENUMLIST* getCDF4EnumList(int grpid, nc_type vartype, LOGMALLOCLIST* logmallocli
         if ((rc = nc_inq_enum_member(grpid, vartype, i, enumlist->enummember[i].name, (void*)value)) != NC_NOERR) {
             err = 999;
             addIdamError(CODEERRORTYPE, "getCDF4EnumList", err, (char*)nc_strerror(rc));
-            return NULL;
+            return nullptr;
         }
         switch (enumlist->type) {
             case UDA_TYPE_CHAR: {
@@ -1495,8 +1500,8 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
     int fieldid, varid;
     int count, size;
 
-    char* d = NULL;
-    VOIDTYPE* p = NULL;
+    char* d = nullptr;
+    VOIDTYPE* p = nullptr;
 
     size_t startIndex[NC_MAX_DIMS];
     size_t countIndex[NC_MAX_DIMS];
@@ -1535,7 +1540,7 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
 
             // Regular
 
-            if (variable->attribute[i].udt == NULL) {
+            if (variable->attribute[i].udt == nullptr) {
 
                 if (variable->attribute[i].atttype == NC_CHAR || variable->attribute[i].atttype == NC_STRING) {
                     // String Atomic Type
@@ -1550,7 +1555,7 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                                          "Problem Reading Legacy String Attribute");
                             break;
                         }
-                        d[variable->attribute[i].attlength] = '\0';        // Ensure NULL terminated
+                        d[variable->attribute[i].attlength] = '\0';        // Ensure nullptr terminated
                     } else {
                         int istr, lstr;
                         char** svec = (char**)malloc((size_t)attlength *
@@ -1575,7 +1580,7 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
 
                         nc_free_string(attlength, svec);
                         free(svec);
-                        d = NULL;
+                        d = nullptr;
 
                         // String arrays within data structures are defined (readCDFTypes) as char *str[int] => rank=1, pointer=0 and type=STRING*
 
@@ -1592,9 +1597,10 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                                      "Variable Attribute has Unknown Atomic Type (Not a User Defined Type)!");
                         break;
                     }
-                    size = getsizeof(userdefinedtypelist, udaNameType(idamType));
+                    size = getsizeof(userdefinedtypelist, udaNameType((UDA_TYPE)idamType));
                     d = (char*)malloc(variable->attribute[i].attlength * size);
-                    addMalloc(logmalloclist, d, variable->attribute[i].attlength, size, udaNameType(idamType));
+                    addMalloc(logmalloclist, d, variable->attribute[i].attlength, size,
+                              udaNameType((UDA_TYPE)idamType));
                     if ((err = nc_get_att(grpid, varid, variable->attribute[i].attname, (void*)d)) != NC_NOERR) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
@@ -1760,7 +1766,7 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                         }
                     }
                     // enumlist->enumarray = (void*)d;
-                    enumlist->enumarray = (void*)enumarray;
+                    enumlist->enumarray = enumarray;
                     free((void*)d);
 
                     d = (char*)enumlist;
@@ -1791,7 +1797,7 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
 
             }
 
-            if (d != NULL) {
+            if (d != nullptr) {
                 *p = (VOIDTYPE)d;
             }
 
@@ -1806,7 +1812,7 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
             p = (VOIDTYPE*)&p0[variable->udt->compoundfield[fieldid++].offset];
             *p = 0;
             *p = (VOIDTYPE)dimShapeLabel(grpid, variable->rank, variable->dimids, &count, &variable->shape);
-            if ((void*)*p != NULL) {
+            if ((void*)*p != nullptr) {
                 // Shape added to Array heap
                 addMalloc(logmalloclist, (void*)*p, 1, (int)(strlen((char*)*p) + 1) * sizeof(char), "char");
             }
@@ -1821,7 +1827,8 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
         if (variable->udt->compoundfield[fieldid].atomictype == UDA_TYPE_UNKNOWN) {        // Structure
             size = getsizeof(userdefinedtypelist, variable->udt->compoundfield[fieldid].type);
         } else {
-            size = getsizeof(userdefinedtypelist, udaNameType(variable->udt->compoundfield[fieldid].atomictype));
+            size = getsizeof(userdefinedtypelist,
+                             udaNameType((UDA_TYPE)variable->udt->compoundfield[fieldid].atomictype));
         }
 
         if (size == 0) {
@@ -1834,7 +1841,7 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
             // Data are not always written!
 
             if (variable->rank > 1) {
-                if (variable->shape == NULL) {
+                if (variable->shape == nullptr) {
                     err = 999;
                     addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
                                  "Unable to set Variable array shape!");
@@ -1851,9 +1858,9 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
 
             if (STR_EQUALS(variable->udt->compoundfield[fieldid].type, "ENUMLIST")) {
                 ENUMLIST* enumlist = getCDF4EnumList(grpid, variable->vartype, logmalloclist);
-                size = getsizeof(userdefinedtypelist, udaNameType(enumlist->type));
+                size = getsizeof(userdefinedtypelist, udaNameType((UDA_TYPE)enumlist->type));
                 d = (char*)malloc(count * size);                            // Enumerated Array
-                if (d != NULL) {
+                if (d != nullptr) {
                     memset(d, 0, count * size);
                 }
                 //addMalloc2(logmalloclist, (void*)d, count, size, udaNameType(enumlist->type), variable->rank, variable->shape);
@@ -1907,7 +1914,7 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                     }
                 }
 
-                enumlist->enumarray = (void*)enumarray;
+                enumlist->enumarray = enumarray;
                 addMalloc2(logmalloclist, (void*)enumlist->enumarray, count, sizeof(unsigned long long),
                            "unsigned long long",
                            variable->rank, variable->shape);
@@ -1956,8 +1963,8 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                 *p = (VOIDTYPE)ssvec;                        // Slot String Array into structure
                 nc_free_string(count, svec);
                 free(svec);
-                d = NULL;
-                if (variable->shape != NULL) {
+                d = nullptr;
+                if (variable->shape != nullptr) {
                     addMalloc(logmalloclist, (void*)variable->shape, variable->rank, sizeof(int), "int");
                 }
 
@@ -1969,7 +1976,7 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                 }
 
                 d = (char*)malloc(count * size);                            // Regular Array
-                if (d != NULL) {
+                if (d != nullptr) {
                     // Assign char 0 to all bytes
                     memset(d, 0, count * size);
                 }
@@ -2005,13 +2012,13 @@ int getCDF4SubTreeVarData(int grpid, void** data, VARIABLE* variable, LOGMALLOCL
                 replaceSubTreeEmbeddedStrings(logmalloclist, userdefinedtypelist, child, count, d);
             }
         } else {
-            d = NULL;        // No Data
-            if (variable->shape != NULL) {
+            d = nullptr;        // No Data
+            if (variable->shape != nullptr) {
                 addMalloc(logmalloclist, (void*)variable->shape, variable->rank, sizeof(int), "int");
             }
         }
 
-        if (d != NULL) {
+        if (d != nullptr) {
             *p = (VOIDTYPE)d;
         }
 
@@ -2040,7 +2047,7 @@ int getCDF4SubTreeVar2Data(int grpid, void** data, VARIABLE* variable, LOGMALLOC
     int i, rc, err = 0;
     int count = 0, size = 0;
 
-    char dimname[NC_MAX_NAME + 1], typename[NC_MAX_NAME + 1];
+    char dimname[NC_MAX_NAME + 1], type_name[NC_MAX_NAME + 1];
     size_t dnum = 0;
     size_t startIndex[NC_MAX_DIMS];
     size_t countIndex[NC_MAX_DIMS];
@@ -2053,12 +2060,12 @@ int getCDF4SubTreeVar2Data(int grpid, void** data, VARIABLE* variable, LOGMALLOC
         //----------------------------------------------------------------------
         // Variable Type Size
 
-        if (variable->udt != NULL) {                                // Structure Type
+        if (variable->udt != nullptr) {                                // Structure Type
             size = variable->udt->size;
-            strcpy(typename, variable->udt->name);
+            strcpy(type_name, variable->udt->name);
         } else if (isAtomicNCType(variable->vartype)) {                    // Atomic Type
-            strcpy(typename, udaNameType(convertNCType(variable->vartype)));
-            size = getsizeof(userdefinedtypelist, typename);
+            strcpy(type_name, udaNameType((UDA_TYPE)convertNCType(variable->vartype)));
+            size = getsizeof(userdefinedtypelist, type_name);
         }
 
         if (size == 0) {
@@ -2070,7 +2077,7 @@ int getCDF4SubTreeVar2Data(int grpid, void** data, VARIABLE* variable, LOGMALLOC
         //----------------------------------------------------------------------
         // Variable Count and Shape
 
-        if (variable->rank > 1 && variable->shape == NULL) {
+        if (variable->rank > 1 && variable->shape == nullptr) {
             variable->shape = (int*)malloc(variable->rank * sizeof(int));
             addMalloc(logmalloclist, (void*)variable->shape, variable->rank, sizeof(int), "int");
             for (i = 0; i < variable->rank; i++) {
@@ -2125,7 +2132,7 @@ int getCDF4SubTreeVar2Data(int grpid, void** data, VARIABLE* variable, LOGMALLOC
                 break;
             }
 
-            char* d = NULL;
+            char* d = nullptr;
             char** ssvec = (char**)malloc((size_t)count * sizeof(char*));// Array of strings
             addMalloc(logmalloclist, (void*)ssvec, count, sizeof(char*), "STRING *");
             for (istr = 0; istr < count; istr++) {                    // Copy into locally managed Heap
@@ -2148,7 +2155,7 @@ int getCDF4SubTreeVar2Data(int grpid, void** data, VARIABLE* variable, LOGMALLOC
             } // IMAS HDF5 strings are written in blocks of 132 bytes + string terminator
 
             char* d = (char*)malloc(count * size);                // Regular Array of Atomic or User Defined Type
-            if (d != NULL) memset(d, 0, count * size);            // Assign char 0 to all bytes
+            if (d != nullptr) memset(d, 0, count * size);            // Assign char 0 to all bytes
 
             if (variable->vartype == NC_CHAR) {                // Legacy Single String => Reduce rank
                 if (variable->rank != 1) {
@@ -2158,9 +2165,9 @@ int getCDF4SubTreeVar2Data(int grpid, void** data, VARIABLE* variable, LOGMALLOC
                     free((void*)d);
                     break;
                 }
-                addMalloc2(logmalloclist, (void*)d, 1, count * size, typename, variable->rank - 1, variable->shape);
+                addMalloc2(logmalloclist, (void*)d, 1, count * size, type_name, variable->rank - 1, variable->shape);
             } else {
-                addMalloc2(logmalloclist, (void*)d, count, size, typename, variable->rank, variable->shape);
+                addMalloc2(logmalloclist, (void*)d, count, size, type_name, variable->rank, variable->shape);
             }
 
             if ((rc = nc_get_vara(grpid, variable->varid, (size_t*)&startIndex, (size_t*)&countIndex,
@@ -2174,7 +2181,7 @@ int getCDF4SubTreeVar2Data(int grpid, void** data, VARIABLE* variable, LOGMALLOC
 
             // If the data has a User Defined Type with a NC_STRING component then intercept and replace with a locally allocated component
 
-            if (variable->udt != NULL) {
+            if (variable->udt != nullptr) {
                 replaceSubTreeEmbeddedStrings(logmalloclist, userdefinedtypelist, variable->udt, count, d);
             }
 
@@ -2205,13 +2212,13 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
 
     nc_type vartype;                    // NC types
     char dimname[NC_MAX_NAME + 1];
-    char* dvec = NULL;
-    char** svec = NULL;            // String array
+    char* dvec = nullptr;
+    char** svec = nullptr;            // String array
 
-    size_t* start = NULL, * count = NULL;
-    size_t* dnums = NULL;
+    size_t* start = nullptr, * count = nullptr;
+    size_t* dnums = nullptr;
 
-    *udt = NULL;                // Definition of User Defined Data Structures
+    *udt = nullptr;                // Definition of User Defined Data Structures
 
     //----------------------------------------------------------------------
     // Default Group ID
@@ -2234,7 +2241,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
         count = (size_t*)malloc(rank * sizeof(size_t));
         dnums = (size_t*)malloc(rank * sizeof(size_t));
 
-        if (start == NULL || count == NULL || dnums == NULL) {
+        if (start == nullptr || count == nullptr || dnums == nullptr) {
             err = 999;
             addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err, "Unable to Allocate Heap for Shape Arrays");
             break;
@@ -2367,8 +2374,9 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                         *udt = findUserDefinedType(userdefinedtypelist, "",
                                                    (int)vartype);        // Identify via type id (assuming local to this group)
 
-                        if (*udt == NULL &&
-                            grouplist.grpids != NULL) {        // Must be defined elsewhere within scope of this group
+                        if (*udt == nullptr &&
+                            grouplist.grpids !=
+                            nullptr) {        // Must be defined elsewhere within scope of this group
                             int igrp;
                             for (igrp = 0; igrp < grouplist.count; igrp++) {
                                 // Extend list to include all groups in scope
@@ -2383,7 +2391,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                                                        (int)vartype);        // Should be found now if within scope
                         }
 
-                        if (*udt == NULL) {
+                        if (*udt == nullptr) {
                             err = 999;
                             addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
                                          "User Defined Type definition Not within Scope!");
@@ -2418,9 +2426,9 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
 
         if (ndata == 0) {
             free((void*)dvec);
-            dvec = NULL;
+            dvec = nullptr;
         } else {
-            if (dvec == NULL && vartype != NC_STRING) {
+            if (dvec == nullptr && vartype != NC_STRING) {
                 err = NETCDF_ERROR_ALLOCATING_HEAP_6;
                 addIdamError(CODEERRORTYPE, "readCDF4SubTreeVar3Data", err,
                              "Unable to Allocate Heap Memory for the Data");
@@ -2465,7 +2473,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                 break;
             }
 
-            if (*udt != NULL) {
+            if (*udt != nullptr) {
 
                 if ((*udt)->idamclass == UDA_TYPE_COMPOUND) {            // Compound Types
                     addMalloc(logmalloclist, dvec, ndata, (*udt)->size,
@@ -2582,7 +2590,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                             break;
                         }
                     }
-                    enumlist->enumarray = (void*)enumarray;
+                    enumlist->enumarray = enumarray;
                     free((void*)dvec);
 
                     dvec = (char*)enumlist;
@@ -2605,7 +2613,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
                     addMalloc(logmalloclist, (void*)enumlist->enumarray_shape, 1, sizeof(int), "int");
 
                 }
-            }    // End of if(*udt != NULL)
+            }    // End of if(*udt != nullptr)
         }        // End of if(ndata > 0)
 
         *data = dvec;            // Data Array
@@ -2616,7 +2624,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
             for (i = 0; i < rank; i++)sh[i] = dnums[i];
             *shape = sh;
         } else {
-            *shape = NULL;
+            *shape = nullptr;
         }
 
 
@@ -2628,10 +2636,10 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
 //----------------------------------------------------------------------
 // Housekeeping
 
-    if (start != NULL) free((void*)start);
-    if (count != NULL) free((void*)count);
-    if (dnums != NULL) free((void*)dnums);
-    if (err != 0 && dvec != NULL) free((void*)dvec);
+    if (start != nullptr) free((void*)start);
+    if (count != nullptr) free((void*)count);
+    if (dnums != nullptr) free((void*)dnums);
+    if (err != 0 && dvec != nullptr) free((void*)dvec);
 
     return err;
 }
@@ -2667,7 +2675,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
     //----------------------------------------------------------------------
     // Start Error Trap
 
-    char* d = NULL;
+    char* d = nullptr;
 
     do {
 
@@ -2692,13 +2700,13 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
             p = (VOIDTYPE*)&p0[group->udt->compoundfield[fieldid++].offset];
             *p = 0;
 
-            *p = 0;    // Set the pointer to NULL (benign action if opaque block)
+            *p = 0;    // Set the pointer to nullptr (benign action if opaque block)
 
-            // DGM TODO: set all bytes in opaque block to NULL;
+            // DGM TODO: set all bytes in opaque block to nullptr;
 
             // Regular array of data?
 
-            if (group->attribute[i].udt == NULL) {
+            if (group->attribute[i].udt == nullptr) {
 
                 if (group->attribute[i].atttype == NC_CHAR ||
                     group->attribute[i].atttype == NC_STRING) {
@@ -2718,7 +2726,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                             break;
                         }
 
-                        d[group->attribute[i].attlength] = '\0';        // Ensure NULL terminated
+                        d[group->attribute[i].attlength] = '\0';        // Ensure nullptr terminated
 
                     } else {                        // Array of strings
 
@@ -2746,7 +2754,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
 
                         nc_free_string(attlength, svec);
                         free(svec);
-                        d = NULL;
+                        d = nullptr;
                     }
                 } else {    // Numeric data
 
@@ -2757,9 +2765,9 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                                      "Variable Attribute has Unknown Atomic Type or User Defined Type!");
                         break;
                     }
-                    size = getsizeof(userdefinedtypelist, udaNameType(idamType));
+                    size = getsizeof(userdefinedtypelist, udaNameType((UDA_TYPE)idamType));
                     d = (char*)malloc(group->attribute[i].attlength * size);
-                    addMalloc(logmalloclist, d, group->attribute[i].attlength, size, udaNameType(idamType));
+                    addMalloc(logmalloclist, d, group->attribute[i].attlength, size, udaNameType((UDA_TYPE)idamType));
                     if ((err = nc_get_att(group->grpid, varid, group->attribute[i].attname, (void*)d)) != NC_NOERR) {
                         err = 999;
                         addIdamError(CODEERRORTYPE, "readCDF4SubTree", err,
@@ -2912,7 +2920,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                         }
                     }
                     // enumlist->data = (void*)d;
-                    enumlist->enumarray = (void*)enumarray;
+                    enumlist->enumarray = enumarray;
                     free((void*)d);
 
                     d = (char*)enumlist;
@@ -2942,7 +2950,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
 
             }
 
-            if (d != NULL) *p = (VOIDTYPE)d;        // Slot Data into structure
+            if (d != nullptr) *p = (VOIDTYPE)d;        // Slot Data into structure
 
             // DGM TODO: All data are assumed pointer types - inconsistent with ITER IMAS IDS
             // DGM TODO: When the data is Not a pointer, ensure netCDF API writes directly into the structure to avoid a double copy.
@@ -2993,7 +3001,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
             depth = depth + 1;
 
             for (i = 0; i < group->numgrps; i++) {
-                if ((grp = findHGroup(hgroups, group->grpids[i])) != NULL) {
+                if ((grp = findHGroup(hgroups, group->grpids[i])) != nullptr) {
 
                     if (fieldid > fieldcount) {
                         err = 999;
@@ -3006,7 +3014,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
                     if ((err = getCDF4SubTreeData(logmalloclist, userdefinedtypelist, (void**)&d, grp, hgroups,
                                                   attronly, depth, targetDepth)) !=
                         0) {
-                            return err;
+                        return err;
                     }
                     *p = (VOIDTYPE)d;
                 } else {
@@ -3025,10 +3033,10 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
             group->udt->fieldcount == 1 && STR_EQUALS(group->udt->compoundfield[0].name, NC_EMPTY_GROUP_VAR_NAME)) {
             d = (char*)malloc(sizeof(char));
             addMalloc(logmalloclist, d, 1, sizeof(char), "char");
-            d[0] = '\0';                // Ensure NULL terminated
+            d[0] = '\0';                // Ensure nullptr terminated
             p = (VOIDTYPE*)&p0[group->udt->compoundfield[0].offset];
             *p = 0;
-            if (d != NULL) *p = (VOIDTYPE)d;        // Slot Empty string into structure
+            if (d != nullptr) *p = (VOIDTYPE)d;        // Slot Empty string into structure
         }
 
         //----------------------------------------------------------------------

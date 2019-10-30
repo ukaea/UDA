@@ -1,7 +1,7 @@
 #ifndef UDA_PLUGIN_READCDF4SUBTREE_H
 #define UDA_PLUGIN_READCDF4SUBTREE_H
 
-#include "readCDF4.h"
+#include "readCDF4.hpp"
 
 void initVariable(VARIABLE* variable);
 

@@ -18,12 +18,12 @@
 *		future reference.	
 *
 *---------------------------------------------------------------------------------------------------------------*/
-#include "netCDF4.h"
+#include "netCDF4.hpp"
 
 #include <clientserver/stringUtils.h>
 #include <plugins/managePluginFiles.h>
 
-#include "readCDF4.h"
+#include "readCDF4.hpp"
 
 UDA_PLUGIN_FILE_LIST pluginFileList;    // Private list of open data file handles
 
@@ -39,13 +39,13 @@ static int do_meta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static void mastArchiveFilePath(int pulno, int pass, char* file, char* path, const ENVIRONMENT* environment)
 {
     char strint[56];
-    char* env = NULL;
+    char* env = nullptr;
 
     // Path Root
 
     strcpy(path, DEFAULT_ARCHIVE_DIR);        // Default location
 
-    if ((env = getenv("MAST_DATA")) != NULL) {    // MAST Archive Root Directory Environment Variable?
+    if ((env = getenv("MAST_DATA")) != nullptr) {    // MAST Archive Root Directory Environment Variable?
         strcpy(path, env);
         if (path[strlen(path)] != '/') strcat(path, "/");
     }
@@ -56,10 +56,11 @@ static void mastArchiveFilePath(int pulno, int pass, char* file, char* path, con
         sprintf(strint, "%d", pulno);
         strcat(path, strint);            // Original naming convention
     } else {
-        if (pulno <= 99999)
+        if (pulno <= 99999) {
             sprintf(strint, "/0%d/%d", pulno / 1000, pulno);
-        else
+        } else {
             sprintf(strint, "/%d/%d", pulno / 1000, pulno);
+        }
         strcat(path, strint);
     }
 
@@ -77,8 +78,7 @@ static void mastArchiveFilePath(int pulno, int pass, char* file, char* path, con
     strcat(path, file);        // Full filename path
 }
 
-
-extern int idamCDF4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int netCDF4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     static short init = 0;
 
@@ -131,11 +131,11 @@ extern int idamCDF4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         err = do_defaultmethod(idam_plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
         err = do_maxinterfaceversion(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "read")) {
+    } else if (STR_IEQUALS(request_block->function, "read") || STR_IEQUALS(request_block->function, "")) {
         err = do_read(idam_plugin_interface);
     } else if (STR_IEQUALS(request_block->function, "put")) {
         err = do_put(idam_plugin_interface);
-    }  else if (STR_IEQUALS(request_block->function, "readglobalmeta")) {
+    } else if (STR_IEQUALS(request_block->function, "readglobalmeta")) {
         err = do_meta(idam_plugin_interface);
     } else {
         RAISE_PLUGIN_ERROR("Unknown function requested!");
@@ -194,7 +194,8 @@ int do_defaultmethod(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  */
 int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
+    return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION,
+                                  "Maximum Interface Version");
 }
 
 /**
@@ -202,23 +203,24 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
  * @param idam_plugin_interface
  * @return
  */
-int do_meta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
+int do_meta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
     DATA_SOURCE* data_source = idam_plugin_interface->data_source;
     SIGNAL_DESC* signal_desc = idam_plugin_interface->signal_desc;
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    const char* file = NULL;
+    const char* file = nullptr;
     FIND_STRING_VALUE(request_block->nameValueList, file);
 
-    const char* signal = NULL;
+    const char* signal = nullptr;
     FIND_STRING_VALUE(request_block->nameValueList, signal);
 
-    if (signal != NULL) {
+    if (signal != nullptr) {
         strcpy(signal_desc->signal_name, signal);
     }
 
-    if (file == NULL && (signal == NULL || request_block->exp_number == 0)) {
+    if (file == nullptr && (signal == nullptr || request_block->exp_number == 0)) {
         RAISE_PLUGIN_ERROR("Must give either file or signal and shot number.\n");
     }
 
@@ -240,7 +242,8 @@ int do_meta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface) {
     }
 
     // Legacy data reader!
-    int err = readCDFGlobalMeta(data_source->path, data_block, &idam_plugin_interface->logmalloclist, &idam_plugin_interface->userdefinedtypelist);
+    int err = readCDFGlobalMeta(data_source->path, data_block, &idam_plugin_interface->logmalloclist,
+                                &idam_plugin_interface->userdefinedtypelist);
 
     return err;
 }
@@ -257,18 +260,18 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    const char* file = NULL;
-    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, file);
-
-    const char* signal = NULL;
-    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
-
-    strcpy(data_source->path, file);
-    strcpy(signal_desc->signal_name, signal);
+    if (STR_EQUALS(request_block->function, "read")) {
+        const char* file = nullptr;
+        FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, file);
+        const char* signal = nullptr;
+        FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
+        strcpy(data_source->path, file);
+        strcpy(signal_desc->signal_name, signal);
+    }
 
     // Legacy data reader!
     int err = readCDF(*data_source, *signal_desc, *request_block, data_block,
-            &idam_plugin_interface->logmalloclist, &idam_plugin_interface->userdefinedtypelist);
+                      &idam_plugin_interface->logmalloclist, &idam_plugin_interface->userdefinedtypelist);
 
     return err;
 }
