@@ -1,5 +1,4 @@
 find_package( IDL REQUIRED )
-find_package( PostgreSQL )
 find_package( LibXml2 )
 find_package( NetCDF )
 
@@ -29,12 +28,6 @@ if( FAT_IDL )
   add_library( ${LIB_NAME} SHARED ${SRC_FILES} ${FATCLIENT_OBJS} )
 else()
   add_library( ${LIB_NAME} SHARED ${SRC_FILES} )
-endif()
-
-if( PostgreSQL_FOUND )
-  add_subdirectory( mastcpf )
-else()
-  message( WARNING "PostgreSQL not found - IDL mastcpf library not building" )
 endif()
 
 if( FAT_IDL )
@@ -95,6 +88,9 @@ set( INSTALL_FILES
   list/getidamlastshot.pro
   list/getidamshotdatetime.pro
   list/getidamlatestsourcepass.pro
+  mastcpfrestapi/getcpf.pro
+  mastcpfrestapi/getcpfconnection.pro
+  mastcpfrestapi/listcpfcolumns.pro
 )
 
 install( FILES ${INSTALL_FILES}

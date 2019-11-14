@@ -11,7 +11,11 @@ function listgeomsignals, shot=shot, pulno=pulno, exp_number=exp_number, $
   if undefined(shot) then shot = ''
 
   ; group
-  if exists(group) then comm = comm + ', geomgroup='+strtrim(group)
+  if exists(group) then begin
+    comm = comm + ', geomgroup='+strtrim(group)
+
+    if strmid(group, strlen(group)-1) ne '/' then comm = comm + '/'
+  endif
 
   ; version
   if exists(version) then comm = _comm + ', version='+strtrim(version)
