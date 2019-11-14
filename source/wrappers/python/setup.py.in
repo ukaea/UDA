@@ -56,6 +56,6 @@ setup(
     url='https://git.iter.org/projects/IMAS/repos/uda/browse',
     packages=['pyuda'],
     ext_modules=[ext],
-    install_requires=['future>=0.17', 'numpy>=1.15'],
+    install_requires=['future>=0.16', 'numpy>=1.7'],
 )
 
