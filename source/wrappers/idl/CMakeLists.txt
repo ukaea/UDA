@@ -69,28 +69,6 @@ set( INSTALL_FILES
   getstruct.pro
   getdata.pro
   calluda.pro
-  geometry/addsignaldata.pro
-  geometry/applygeommanipulation.pro
-  geometry/cartesian_cylindrical.pro
-  geometry/convertgeomcoords.pro
-  geometry/cylindrical_cartesian.pro  
-  geometry/getgeomdata.pro  
-  geometry/getgeomsignaldata.pro
-  geometry/listgeomsignals.pro
-  geometry/listgeomgroups.pro
-  geometry/pickupmanipulation.pro 
-  geometry/strnumber.pro
-  putdata/putdata.pro
-  putdata/putdata__define.pro
-  list/listsignals.pro
-  list/listsources.pro
-  list/listallsources.pro
-  list/getidamlastshot.pro
-  list/getidamshotdatetime.pro
-  list/getidamlatestsourcepass.pro
-  mastcpfrestapi/getcpf.pro
-  mastcpfrestapi/getcpfconnection.pro
-  mastcpfrestapi/listcpfcolumns.pro
 )
 
 install( FILES ${INSTALL_FILES}
