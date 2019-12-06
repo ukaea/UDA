@@ -81,7 +81,7 @@ set(PostgreSQL_ROOT_DIR_MESSAGE "Set the PostgreSQL_ROOT system variable to wher
 
 
 set(PostgreSQL_KNOWN_VERSIONS ${PostgreSQL_ADDITIONAL_VERSIONS}
-    "9.5" "9.4" "9.3" "9.2" "9.1" "9.0" "8.4" "8.3" "8.2" "8.1" "8.0")
+    "12.1" "12.0" "11.6" "11.5" "11.4" "11.3" "11.2" "11.1" "11.0" "10.11" "10.10" "10.9" "10.8" "10.7" "10.6" "10.5" "10.4" "10.3" "10.2" "10.1" "10.0" "9.6" "9.5" "9.4" "9.3" "9.2" "9.1" "9.0" "8.4" "8.3" "8.2" "8.1" "8.0")
 
 # Define additional search paths for root directories.
 set( PostgreSQL_ROOT_DIRECTORIES
@@ -149,9 +149,15 @@ find_path(PostgreSQL_TYPE_INCLUDE_DIR
 set (PostgreSQL_LIBRARY_TO_FIND pq)
 # Setting some more prefixes for the library
 set (PostgreSQL_LIB_PREFIX "")
+set (PostgreSQL_LIB_SUFFIX "")
 if ( WIN32 )
   set (PostgreSQL_LIB_PREFIX ${PostgreSQL_LIB_PREFIX} "lib")
-  set (PostgreSQL_LIBRARY_TO_FIND ${PostgreSQL_LIB_PREFIX}${PostgreSQL_LIBRARY_TO_FIND})
+  if ( MINGW )
+    set (PostgreSQL_LIB_SUFFIX ${PostgreSQL_LIB_SUFFIX} ".a")
+  else()
+    set (PostgreSQL_LIB_SUFFIX ${PostgreSQL_LIB_SUFFIX} ".lib")
+  endif()
+  set (PostgreSQL_LIBRARY_TO_FIND ${PostgreSQL_LIB_PREFIX}${PostgreSQL_LIBRARY_TO_FIND}${PostgreSQL_LIB_SUFFIX})
 endif()
 
 find_library(PostgreSQL_LIBRARY
