@@ -1,6 +1,5 @@
 from __future__ import (division, print_function, absolute_import)
 
-import pyuda
 import json
 import base64
 import numpy as np
@@ -8,15 +7,11 @@ import numpy as np
 from ._signal import Signal
 from ._dim import Dim
 
-from builtins import super
-from future import standard_library
-standard_library.install_aliases()
-
 
 class DimEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, pyuda.Dim):
+        if isinstance(obj, Dim):
             dim = obj
             obj = {
                 '_type': 'pyuda.Dim',
@@ -35,7 +30,7 @@ class DimEncoder(json.JSONEncoder):
 class SignalEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, pyuda.Signal):
+        if isinstance(obj, Signal):
             signal = obj
             dim_enc = DimEncoder()
             obj = {

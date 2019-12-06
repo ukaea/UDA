@@ -1,15 +1,11 @@
 from __future__ import (division, print_function, absolute_import)
 
-from . import c_uda
-
 import numpy as np
 
-from builtins import range
-from future import standard_library
-standard_library.install_aliases()
+import cpyuda
 
 
-UDAException = c_uda._c_uda.UDAException
+UDAException = cpyuda.UDAException
 
 def cdata_scalar_to_value(scalar):
     """

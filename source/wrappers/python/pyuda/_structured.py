@@ -8,10 +8,6 @@ import itertools
 import numpy as np
 import base64
 
-from builtins import (super, chr, range)
-from future import standard_library
-standard_library.install_aliases()
-
 
 class StructuredDataEncoder(json.JSONEncoder):
 
@@ -55,30 +51,8 @@ class StructuredData(Data):
         cls._translation_table = ''.join(c if ord(c) in identifier_chars else '_' for c in cls._translation_table)
 
     def _import_data(self):
-        # ptrs = self._cnode.atomicPointers()
-        # ranks = self._cnode.atomicRank()
-        # types = self._cnode.atomicTypes()
-        for (i, name) in enumerate(self._cnode.atomicNames()):
-            value = None
-            vector = self._cnode.atomicVector(name)
-            if not vector.isNull():
-                value = cdata_vector_to_value(vector)
-            else:
-                scalar = self._cnode.atomicScalar(name)
-                if not scalar.isNull():
-                    value = cdata_scalar_to_value(scalar)
-                else:
-                    array = self._cnode.atomicArray(name)
-                    if not array.isNull():
-                        value = cdata_array_to_value(array)
-            # if types[i] == 'STRING *' and (ranks[i] == 1 or ptrs[i]):
-            #     vector = self._cnode.atomicVector(name)
-            #     if not vector.isNull():
-            #         value = cdata_vector_to_value(vector)
-            # else:
-            #     scalar = self._cnode.atomicScalar(name)
-            #     if not scalar.isNull():
-            #         value = cdata_scalar_to_value(scalar)
+        data = self._cnode.data()
+        for (name, value) in data.items():
             if value is not None:
                 attr_name = self._check_name(name)
                 self._imported_attrs.append(attr_name)
@@ -126,8 +100,8 @@ class StructuredData(Data):
 
     def _import_children(self):
         self._children = []
-        for i in range(0, self._cnode.numChildren()):
-            self._children.append(StructuredData(self._cnode.child(i)))
+        for child in self._cnode.children():
+            self._children.append(StructuredData(child))
 
     def _check_name(self, name):
         name = name.translate(self._translation_table)

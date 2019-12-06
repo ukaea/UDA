@@ -36,7 +36,7 @@ static int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_put(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_meta(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
-static void mastArchiveFilePath(int pulno, int pass, char* file, char* path, const ENVIRONMENT* environment)
+static void mastArchiveFilePath(int pulno, int pass, const char* file, char* path, const ENVIRONMENT* environment)
 {
     char strint[56];
     char* env = nullptr;
@@ -282,6 +282,19 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
             
+    UDA_LOG(UDA_LOG_DEBUG, "NETCDF path: %s\n", data_source->path);
+
+    if (strlen(data_source->path) == 0) {
+        char file_name[1024];
+        sprintf(file_name, "%s%06d.nc", data_source->source_alias, request_block->exp_number);
+        if (signal_desc->type == 'R') {
+            // Always Latest
+            mastArchiveFilePath(request_block->exp_number, -1, file_name, data_source->path, idam_plugin_interface->environment);
+        } else {
+            mastArchiveFilePath(request_block->exp_number, request_block->pass, file_name, data_source->path, idam_plugin_interface->environment);
+        }
+    }
+
     UDA_LOG(UDA_LOG_DEBUG, "NETCDF path: %s\n", data_source->path);
 
     // Legacy data reader!

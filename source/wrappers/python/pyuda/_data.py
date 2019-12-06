@@ -1,10 +1,7 @@
 from __future__ import (division, print_function, absolute_import)
 
+from six import with_metaclass
 import abc
-
-from future import standard_library
-from future.utils import with_metaclass
-standard_library.install_aliases()
 
 
 class Data(with_metaclass(abc.ABCMeta, object)):

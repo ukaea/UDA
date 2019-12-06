@@ -6,9 +6,6 @@ from ._data import Data
 
 import json
 
-from future import standard_library
-standard_library.install_aliases()
-
 
 class String(Data):
 

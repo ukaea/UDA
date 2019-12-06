@@ -1,23 +1,19 @@
 from __future__ import (division, print_function, absolute_import)
 
-from . import c_uda
+import cpyuda
+
 from ._signal import Signal
 from ._string import String
 from ._structured import StructuredData
 from ._video import Video
 
+from six import with_metaclass
 import logging
-import itertools
 from collections import namedtuple
 try:
     from enum import Enum
 except ImportError:
     Enum = object
-
-from builtins import (range, int, bytes)
-from future import standard_library
-from future.utils import with_metaclass
-standard_library.install_aliases()
 
 
 class ClientMeta(type):
@@ -26,23 +22,22 @@ class ClientMeta(type):
     """
     def __init__(cls, what, bases=None, dict=None):
         type.__init__(cls, what, bases, dict)
-        cls.C_Client = c_uda.Client
 
     @property
     def port(cls):
-        return cls.C_Client.serverPort()
+        return cpyuda.get_server_port()
 
     @port.setter
     def port(cls, value):
-        cls.C_Client.setServerPort(int(value))
+        cpyuda.set_server_port(value)
 
     @property
     def server(cls):
-        return cls.C_Client.serverHostName()
+        return cpyuda.get_server_host_name()
 
     @server.setter
     def server(cls, value):
-        cls.C_Client.setServerHostName(value)
+        cpyuda.set_server_host_name(value)
 
 
 class ListType(Enum):
@@ -56,11 +51,10 @@ class Client(with_metaclass(ClientMeta, object)):
     A class representing the IDAM client.
 
     This is a pythonic wrapper around the low level c_uda.Client class which contains the wrapped C++ calls to
-    IDAM.
+    UDA.
     """
 
     def __init__(self, debug_level=logging.ERROR):
-        self._cclient = c_uda.Client()
         logging.basicConfig(level=debug_level)
         self.logger = logging.getLogger(__name__)
 
@@ -84,20 +78,18 @@ class Client(with_metaclass(ClientMeta, object)):
         :return: a subclass of pyuda.Data
         """
         # Standard signal
-        result = self._cclient.get(str(signal), str(source))
+        result = cpyuda.get_data(str(signal), str(source))
 
         if 'raw' in kwargs and kwargs['raw']:
-            data = result.data()
-            byte_array = c_uda.ByteArray.frompointer(data.byte_data())
-            return bytes(itertools.islice(byte_array, data.byte_length()))
+            return result.bytes()
 
-        if result.isTree():
+        if result.is_tree():
             tree = result.tree()
-            if tree.atomicScalar('type').string() == 'VIDEO':
+            if tree.data()['type'] == 'VIDEO':
                 return Video(StructuredData(tree))
             else:
-                return StructuredData(tree)
-        elif result.type() == 'string':
+                return StructuredData(tree.children()[0])
+        elif result.is_string():
             return String(result)
         return Signal(result)
 
@@ -166,8 +158,8 @@ class Client(with_metaclass(ClientMeta, object)):
 
     @classmethod
     def get_property(cls, prop):
-        return cls.C_Client.property(prop)
+        return cpyuda.get_property(prop)
 
     @classmethod
     def set_property(cls, prop, value):
-        cls.C_Client.setProperty(prop, value)        
+        cpyuda.set_property(prop, value)
