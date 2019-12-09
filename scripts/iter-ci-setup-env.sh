@@ -28,16 +28,6 @@ then
 	
 	# Convert Windows style path to Linux
 	export JAVA_HOME=`cygpath.exe -u "$JAVA_HOME"`
-	export JAVA_INCLUDE_PATH=$JAVA_HOME/include
-	export JAVA_INCLUDE_PATH2=$JAVA_HOME/include/win32
-	export JAVA_AWT_INCLUDE_PATH=$JAVA_INCLUDE_PATH
-	export JNI_INCLUDE_DIR=$JAVA_INCLUDE_PATH
-	export JNI_MD_INCLUDE_DIR=$JAVA_INCLUDE_PATH/win32
-	export JNI_LIB_DIR=$JAVA_HOME/lib
-	export JAVA_AWT_LIBRARY=$JNI_LIB_DIR/jawt.lib
-	export JAVA_JVM_LIBRARY=$JNI_LIB_DIR/jvm.lib
-	export PATH=$JAVA_HOME/bin:$PATH
-	
 	export HDF5_ROOT=`cygpath.exe -u "$HDF5_ROOT"`
 	export PostgresSQL_ROOT=`cygpath.exe -u "$PostgresSQL_ROOT"`
 	export NETCDF_DIR=`cygpath.exe -u "$NETCDF_DIR"`
