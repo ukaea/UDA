@@ -1,6 +1,7 @@
 #cython: language_level=3
 
 cimport uda
+from libc cimport string
 
 
 def set_property(prop_name, value):
@@ -37,6 +38,17 @@ def set_server_port(port):
 
 def get_data(signal, source):
     handle = uda.idamGetAPI(signal.encode(), source.encode())
+    cdef const char* err_msg
+    cdef int err_code
+    if handle < 0:
+        err_msg = uda.getIdamErrorMsg(handle)
+        err_code = uda.getIdamErrorCode(handle)
+        if err_msg == NULL or string.strlen(err_msg) == 0:
+            raise UDAException("unknown error occured")
+        elif err_code < 0:
+            raise ClientException(err_msg.decode())
+        else:
+            raise ServerException(err_msg.decode())
     return Result(handle)
 
 

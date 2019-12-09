@@ -10,5 +10,9 @@ class ServerException(UDAException):
     pass
 
 
+class ClientException(UDAException):
+    pass
+
+
 class InvalidUseException(UDAException):
     pass
