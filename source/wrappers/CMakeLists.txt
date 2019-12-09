@@ -1,4 +1,13 @@
 ########################################################################################################################
+# Macro used to convert Windows long path to short (without space)
+macro( SHORT_WIN_PATH VarName )
+  if( WIN32 AND NOT "${${VarName}}" STREQUAL "" )
+    execute_process( COMMAND FOR %%I IN ("${${VarName}}") DO SET ${${VarName}}=%%~sI OUTPUT_VARIABLE ${VarName} )
+  endif()
+endmacro()
+
+
+########################################################################################################################
 # Dependencies
 
 find_package( IDL )
@@ -6,6 +15,21 @@ find_package( Java 1.6 )
 find_package( JNI )
 find_package( SWIG 3.0 )
 find_package( Boost )
+
+# For Windows, shorten the Java path to avoid space in "Program Files"
+SHORT_WIN_PATH( JAVA_AWT_INCLUDE_PATH )
+SHORT_WIN_PATH( JAVA_AWT_LIBRARY )
+SHORT_WIN_PATH( JAVA_INCLUDE_PATH )
+SHORT_WIN_PATH( JAVA_INCLUDE_PATH2 )
+SHORT_WIN_PATH( JAVA_JVM_LIBRARY )
+SHORT_WIN_PATH( Java_IDLJ_EXECUTABLE )
+SHORT_WIN_PATH( Java_JARSIGNER_EXECUTABLE )
+SHORT_WIN_PATH( Java_JAR_EXECUTABLE )
+SHORT_WIN_PATH( Java_JAVAC_EXECUTABLE )
+SHORT_WIN_PATH( Java_JAVADOC_EXECUTABLE )
+SHORT_WIN_PATH( Java_JAVAH_EXECUTABLE )
+SHORT_WIN_PATH( Java_JAVA_EXECUTABLE )
+
 
 if( Boost_FOUND )
   add_subdirectory( c++ )
