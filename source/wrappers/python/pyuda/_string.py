@@ -17,7 +17,7 @@ class String(Data):
     def str(self):
         if self._data is None:
             self._data = self._cresult.data()
-        return self._data.str()
+        return self._data
 
     def __str__(self):
         return self.str

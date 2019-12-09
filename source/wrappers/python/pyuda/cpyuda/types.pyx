@@ -38,6 +38,60 @@ cdef int uda_field_type_to_numpy_type(str type):
     return __field_types.get(base_type, -1)
 
 
+cdef object to_python_c(const char* type, int rank, int* shape, int point, void* data):
+    cdef np.npy_intp np_shape[1024]
+    cdef int i
+    for i in range(rank):
+        np_shape[i] = <np.npy_intp>shape[i]
+
+    cdef int np_type
+    strings = []
+    if string.strstr(type, "STRING"):
+        if string.strcmp(type, "STRING") == 0:
+            return (<char*>data).decode()
+        else:
+            for i in range(shape[0]):
+                strings.append((<char**>data)[i].decode())
+            return strings
+    else:
+        np_type = uda_field_type_to_numpy_type(type.decode())
+        if np_type >= 0:
+            if point:
+                np_shape[0] = shape[0]
+                arr = np.PyArray_SimpleNewFromData(1, np_shape, np_type, data)
+                return arr
+            else:
+                arr = np.PyArray_SimpleNewFromData(rank, np_shape, np_type, data)
+                if rank == 0:
+                    return arr.sum()
+                else:
+                    return arr
+        else:
+            return None
+
+
+cdef object to_python_i(int type, int rank, int* shape, void* data):
+    cdef np.npy_intp np_shape[1024]
+    cdef int i
+    for i in range(rank):
+        np_shape[i] = <np.npy_intp>shape[i]
+
+    cdef int np_type
+    strings = []
+    if type == 17:
+        return (<char*>data).decode()
+    else:
+        np_type = uda_type_to_numpy_type(type)
+        if np_type >= 0:
+            arr = np.PyArray_SimpleNewFromData(rank, np_shape, np_type, data)
+            if rank == 0:
+                return arr.sum()
+            else:
+                return arr
+        else:
+            return None
+
+
 from enum import Enum
 
 

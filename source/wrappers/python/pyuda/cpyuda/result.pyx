@@ -40,14 +40,6 @@ cdef class Result:
     def error_code(self):
         return uda.getIdamErrorCode(self._handle)
 
-    cdef const char* _data(self, int data_type):
-        cdef const char* data
-        if data_type == DataType.DATA.value:
-            data = uda.getIdamData(self._handle)
-        else:
-            data = uda.getIdamError(self._handle)
-        return data
-
     def rank(self):
         cdef int rank = uda.getIdamRank(self._handle)
         return rank
@@ -68,23 +60,35 @@ cdef class Result:
         cdef int type = uda.getIdamDataType(self._handle)
         return type == 17
 
+    cdef const char* _get_data(self, int data_type):
+        cdef const char* data
+        if data_type == DataType.DATA.value:
+            data = uda.getIdamData(self._handle)
+        else:
+            data = uda.getIdamError(self._handle)
+        return data
+
+    cdef _data(self, int data_type):
+        cdef const char* data = self._get_data(data_type)
+        cdef int size
+        cdef int type = self._type(data_type)
+        cdef int rank = uda.getIdamRank(self._handle)
+        cdef int i
+        cdef np.npy_intp shape[1024]
+        if rank == 0:
+            size = self._size()
+            shape[0] = <np.npy_intp> size
+        else:
+            for i in range(rank):
+                size = uda.getIdamDimNum(self._handle, i)
+                shape[i] = <np.npy_intp> size
+        return to_python_i(type, rank, shape, data)
+
     def data(self):
-        cdef const char* data = self._data(DataType.DATA.value)
-        cdef int size = self._size()
-        cdef int type = self._type(DataType.DATA.value)
-        cdef np.npy_intp shape[1]
-        shape[0] = <np.npy_intp> size
-        cdef int numpy_type = uda_type_to_numpy_type(type)
-        return np.PyArray_SimpleNewFromData(1, shape, numpy_type, <void*> data)
+        return self._data(DataType.DATA.value)
 
     def errors(self):
-        cdef const char* data = self._data(DataType.ERRORS.value)
-        cdef int size = self._size()
-        cdef int type = self._type(DataType.ERRORS.value)
-        cdef np.npy_intp shape[1]
-        shape[0] = <np.npy_intp> size
-        cdef int numpy_type = uda_type_to_numpy_type(type)
-        return np.PyArray_SimpleNewFromData(1, shape, numpy_type, <void*> data)
+        return self._data(DataType.ERRORS.value)
 
     def label(self):
         return uda.getIdamDataLabel(self._handle).decode() if self._handle >= 0 else ""
