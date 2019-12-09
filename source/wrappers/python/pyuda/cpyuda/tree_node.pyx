@@ -66,13 +66,22 @@ cdef class TreeNode:
             np_shape[i] = <np.npy_intp>shape[i]
 
         cdef int np_type
+        strings = []
         if string.strstr(type, "STRING"):
-            # if type.startswith("STRING"):
-            return (<char*>data).decode()
+            if string.strcmp(type, "STRING") == 0:
+                return (<char*>data).decode()
+            else:
+                for i in range(shape[0]):
+                    strings.append((<char**>data)[i].decode())
+                return strings
         else:
             np_type = uda_field_type_to_numpy_type(type.decode())
             if np_type >= 0:
-                return np.PyArray_SimpleNewFromData(rank, np_shape, np_type, data)
+                arr = np.PyArray_SimpleNewFromData(rank, np_shape, np_type, data)
+                if rank == 0:
+                    return arr.sum()
+                else:
+                    return arr
             else:
                 return None
 
@@ -85,6 +94,7 @@ cdef class TreeNode:
         cdef const char* name
 
         for i in range(size):
+            print(anames[i].decode())
             data = self._load_atomic_data(i, logmalloclist)
             name = anames[i]
             self._values[name.decode()] = data

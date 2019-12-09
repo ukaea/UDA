@@ -6,6 +6,7 @@ endfunction()
 file( GLOB CYTHON_FILES pyuda/cpyuda/*.pyx )
 set( CPYTHON_INSTALL_FILE ${CMAKE_CURRENT_BINARY_DIR}/cpyuda.pyx )
 
+file( WRITE ${CPYTHON_INSTALL_FILE} "" )
 foreach( CYTHON_FILE ${CYTHON_FILES} )
   cat( ${CYTHON_FILE} ${CPYTHON_INSTALL_FILE} )
 endforeach()

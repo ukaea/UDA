@@ -1,13 +1,13 @@
 from __future__ import (division, print_function, absolute_import)
 
-from six import with_metaclass
 import abc
 
 
-class Data(with_metaclass(abc.ABCMeta, object)):
+class Data(object):
     """
     The base class of data that can be returned by the pyuda Client.
     """
+    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def plot(self):

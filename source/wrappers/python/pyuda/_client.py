@@ -53,6 +53,7 @@ class Client(with_metaclass(ClientMeta, object)):
     This is a pythonic wrapper around the low level c_uda.Client class which contains the wrapped C++ calls to
     UDA.
     """
+    __metaclass__ = ClientMeta
 
     def __init__(self, debug_level=logging.ERROR):
         logging.basicConfig(level=debug_level)
@@ -122,22 +123,23 @@ class Client(with_metaclass(ClientMeta, object)):
 
         args += list_arg
 
-        result = self._cclient.get("meta::list(context=data, cast=column, %s)" % args, "")
-        if not result.isTree():
+        result = cpyuda.get_data("meta::list(context=data, cast=column, %s)" % args, "")
+        if not result.is_tree():
             raise RuntimeError("UDA list data failed")
 
-        data = StructuredData(result.tree())
-        names = list(el for el in data["data"]._imported_attrs if el not in ("count",))
+        tree = result.tree()
+        data = StructuredData(tree.children()[0])
+        names = list(el for el in data._imported_attrs if el not in ("count",))
         ListData = namedtuple("ListData", names)
 
         vals = []
-        for i in range(data["data"].count):
+        for i in range(data.count):
             row = {}
             for name in names:
                 try:
-                    row[name] = getattr(data["data"], name)[i]
-                except TypeError:
-                    row[name] = getattr(data["data"], name)
+                    row[name] = getattr(data, name)[i]
+                except (TypeError, IndexError):
+                    row[name] = getattr(data, name)
             vals.append(ListData(**row))
         return vals
 
