@@ -32,8 +32,6 @@ endif()
 
 # Windows MSYS/MinGW: Convert path to suppress space
 if (MINGW AND NOT "${_JAVA_HOME}" STREQUAL "")
-  message(STATUS "Before: _JAVA_HOME = ${_JAVA_HOME}")
   execute_process(COMMAND cygpath.exe -ms "${_JAVA_HOME}" OUTPUT_VARIABLE _JAVA_HOME)
   string(STRIP ${_JAVA_HOME} _JAVA_HOME)
-  message(STATUS "After: _JAVA_HOME = ${_JAVA_HOME}")
 endif()
