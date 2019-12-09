@@ -28,7 +28,6 @@ __field_types = {
     "unsigned long": np.NPY_UINT64, # UDA_TYPE_UNSIGNED_LONG = 10,
 }
 
-print(np.NPY_INT16)
 
 cdef int uda_type_to_numpy_type(int type):
     return __types.get(type, -1)
