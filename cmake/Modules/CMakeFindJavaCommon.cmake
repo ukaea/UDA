@@ -1,6 +1,16 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
+# Macro to convert detected path to MinGW compliant path
+macro(MINGW_CONVERT_PATH path)
+  # Windows MSYS/MinGW: Convert path to 1) suppress space 2) adapt to Linux
+  if (MINGW AND NOT "${${path}}" STREQUAL "")
+    execute_process(COMMAND cygpath.exe -ms "${${path}}" OUTPUT_VARIABLE ${path})
+    execute_process(COMMAND cygpath.exe -u "${${path}}" OUTPUT_VARIABLE ${path})
+    string(STRIP ${${path}} ${path})
+  endif()
+endmacro()
+
 
 # Do not include this module directly from code outside CMake!
 set(_JAVA_HOME "")
@@ -30,8 +40,4 @@ else()
   unset(_ENV_JAVA_HOME)
 endif()
 
-# Windows MSYS/MinGW: Convert path to suppress space
-if (MINGW AND NOT "${_JAVA_HOME}" STREQUAL "")
-  execute_process(COMMAND cygpath.exe -ms "${_JAVA_HOME}" OUTPUT_VARIABLE _JAVA_HOME)
-  string(STRIP ${_JAVA_HOME} _JAVA_HOME)
-endif()
+MINGW_CONVERT_PATH(_JAVA_HOME)
