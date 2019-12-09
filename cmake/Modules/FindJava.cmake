@@ -151,6 +151,7 @@ find_program(Java_JAVA_EXECUTABLE
   NAMES java
   HINTS ${_JAVA_HINTS}
   PATHS ${_JAVA_PATHS}
+  NO_DEFAULT_PATH
 )
 
 if(Java_JAVA_EXECUTABLE)
@@ -246,36 +247,42 @@ find_program(Java_JAR_EXECUTABLE
   NAMES jar
   HINTS ${_JAVA_HINTS}
   PATHS ${_JAVA_PATHS}
+  NO_DEFAULT_PATH
 )
 
 find_program(Java_JAVAC_EXECUTABLE
   NAMES javac
   HINTS ${_JAVA_HINTS}
   PATHS ${_JAVA_PATHS}
+  NO_DEFAULT_PATH
 )
 
 find_program(Java_JAVAH_EXECUTABLE
   NAMES javah
   HINTS ${_JAVA_HINTS}
   PATHS ${_JAVA_PATHS}
+  NO_DEFAULT_PATH
 )
 
 find_program(Java_JAVADOC_EXECUTABLE
   NAMES javadoc
   HINTS ${_JAVA_HINTS}
   PATHS ${_JAVA_PATHS}
+  NO_DEFAULT_PATH
 )
 
 find_program(Java_IDLJ_EXECUTABLE
   NAMES idlj
   HINTS ${_JAVA_HINTS}
   PATHS ${_JAVA_PATHS}
+  NO_DEFAULT_PATH
 )
 
 find_program(Java_JARSIGNER_EXECUTABLE
   NAMES jarsigner
   HINTS ${_JAVA_HINTS}
   PATHS ${_JAVA_PATHS}
+  NO_DEFAULT_PATH
 )
 
 # MinGW compliance path

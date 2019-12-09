@@ -320,8 +320,8 @@ set(_JNI_NORMAL_JAWT
   )
 
 foreach(search ${_JNI_SEARCHES})
-  find_library(JAVA_JVM_LIBRARY ${_JNI_${search}_JVM})
-  find_library(JAVA_AWT_LIBRARY ${_JNI_${search}_JAWT})
+  find_library(JAVA_JVM_LIBRARY ${_JNI_${search}_JVM} NO_DEFAULT_PATH)
+  find_library(JAVA_AWT_LIBRARY ${_JNI_${search}_JAWT} NO_DEFAULT_PATH)
   if(JAVA_JVM_LIBRARY)
     break()
   endif()
@@ -342,6 +342,7 @@ endif()
 # add in the include path
 find_path(JAVA_INCLUDE_PATH jni.h
   ${JAVA_AWT_INCLUDE_DIRECTORIES}
+  NO_DEFAULT_PATH
 )
 
 find_path(JAVA_INCLUDE_PATH2 NAMES jni_md.h jniport.h
@@ -356,10 +357,12 @@ find_path(JAVA_INCLUDE_PATH2 NAMES jni_md.h jniport.h
   ${JAVA_INCLUDE_PATH}/hp-ux
   ${JAVA_INCLUDE_PATH}/alpha
   ${JAVA_INCLUDE_PATH}/aix
+  NO_DEFAULT_PATH
 )
 
 find_path(JAVA_AWT_INCLUDE_PATH jawt.h
   ${JAVA_INCLUDE_PATH}
+  NO_DEFAULT_PATH
 )
 
 # Restore CMAKE_FIND_FRAMEWORK

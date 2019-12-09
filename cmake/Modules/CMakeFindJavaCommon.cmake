@@ -4,7 +4,7 @@
 # Macro to convert detected path to MinGW compliant path
 macro(MINGW_CONVERT_PATH path)
   # Windows MSYS/MinGW: Convert path to 1) suppress space 2) adapt to Linux
-  if (MINGW AND NOT "${${path}}" STREQUAL "")
+  if (MINGW AND NOT "${${path}}" STREQUAL "" AND IS_DIRECTORY "${${path}}")
     message(STATUS "Before: ${path} = ${${path}}")
     execute_process(COMMAND cygpath.exe -ms "${${path}}" OUTPUT_VARIABLE ${path})
     execute_process(COMMAND cygpath.exe -u "${${path}}" OUTPUT_VARIABLE ${path})
