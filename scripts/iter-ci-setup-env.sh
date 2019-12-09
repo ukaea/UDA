@@ -5,22 +5,22 @@ if [ "$OS" == "Windows_NT" ]
 then
 	echo "MSYS2/MinGW environnement under Windows"
 	
-	if [ -z $JAVA_HOME ]
+	if [ -z "$JAVA_HOME" ]
 	then
 		echo "ERROR: Variable JAVA_HOME is empty!"
 		exit 1
 	fi
-	if [ -z $HDF5_ROOT ]
+	if [ -z "$HDF5_ROOT" ]
 	then
 		echo "ERROR: Variable HDF5_ROOT is empty!"
 		exit 1
 	fi
-	if [ -z $PostgresSQL_ROOT ]
+	if [ -z "$PostgresSQL_ROOT" ]
 	then
 		echo "ERROR: Variable PostgresSQL_ROOT is empty!"
 		exit 1
 	fi
-	if [ -z $NETCDF_DIR ]
+	if [ -z "$NETCDF_DIR" ]
 	then
 		echo "ERROR: Variable NETCDF_DIR is empty!"
 		exit 1
