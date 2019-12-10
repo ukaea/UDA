@@ -271,12 +271,14 @@ int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK requ
 
         errno = 0;
 
+        UDA_LOG(UDA_LOG_DEBUG, "NETCDF File: \"%s\"\n", data_source.path);
         err = nc_open((const char*)data_source.path, NC_NOWRITE, &fd);
 
         ctype = NC_NAT;
         dctype = NC_NAT;
 
         if (err != NC_NOERR) {
+            UDA_LOG(UDA_LOG_ERROR, "NETCDF Error: %d %s\n", err, nc_strerror(err));
             addIdamError(SYSTEMERRORTYPE, "readCDF", err, nc_strerror(err));
             break;
         }

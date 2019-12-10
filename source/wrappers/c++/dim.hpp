@@ -32,11 +32,7 @@ public:
     ~Dim() = default;
 
     template <typename T>
-#ifndef SWIG
     std::vector<T> as() const
-#else
-    std::vector<T> _as() const
-#endif
     {
         std::vector<T> out(vec_.size());
         std::transform(vec_.begin(), vec_.end(), out.begin(), AnyCastTransform<T>());

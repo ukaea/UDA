@@ -6,9 +6,6 @@ from ._data import Data
 
 import json
 
-from future import standard_library
-standard_library.install_aliases()
-
 
 class String(Data):
 
@@ -20,7 +17,7 @@ class String(Data):
     def str(self):
         if self._data is None:
             self._data = self._cresult.data()
-        return self._data.str()
+        return self._data
 
     def __str__(self):
         return self.str

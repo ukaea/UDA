@@ -3,46 +3,43 @@
 import os
 import sys
 from distutils.core import setup, Extension
+from Cython.Build import cythonize
+import numpy
 
 extra_link_args = []
-extra_compile_args = ['-std=c++11']
+extra_compile_args = []
 
 root = os.environ.get('UDA_DIR', '@CMAKE_INSTALL_PREFIX@')
 
 if sys.platform.lower() == 'darwin':
     # On Mac OS we have to force setting of rpath
     extra_link_args.append('-Wl,-rpath,%s/lib' % root)
-    extra_compile_args.append('-stdlib=libc++')
-    extra_link_args.append('-stdlib=libc++')
 
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
 if build_fat:
-    uda_lib = 'fat@PROJECT_NAME@_cpp'
+    uda_lib = 'libfat@PROJECT_NAME@_client.a'
     extra_libs = ['xml2', 'pq']
     extra_macros = [('FATCLIENT', None)]
 else:
-    uda_lib = '@PROJECT_NAME@_cpp'
+    uda_lib = 'lib@PROJECT_NAME@_client.a'
     extra_libs = []
     extra_macros = []
 
 ext = Extension(
-    '_c_uda',
-    ['@PY_WRAPPER_CODE@'],
-    define_macros=[('SWIG', None),] + extra_macros,
+    'cpyuda',
+    ['pyuda/cpyuda/cpyuda.pyx'],
     include_dirs=[
         root + '/include/uda',
-        root + '/include/uda/c++',
-        '@Boost_INCLUDE_DIRS@',
+        numpy.get_include(),
     ],
-    libraries = [uda_lib, 'ssl', 'crypto'] + extra_libs,
-    library_dirs = [
-        root + '/lib',
+    libraries=['ssl', 'crypto'] + extra_libs,
+    library_dirs=[
         '@OPENSSL_LIB_DIR@',
     ],
-    runtime_library_dirs = [
-        root + '/lib',
+    runtime_library_dirs=[
         '@OPENSSL_LIB_DIR@',
     ],
+    extra_objects=[root + '/lib/' + uda_lib],
     extra_link_args=extra_link_args,
     extra_compile_args=extra_compile_args,
 )
@@ -55,7 +52,6 @@ setup(
     author_email='jonathan.hollocombe@ukaea.uk',
     url='https://git.iter.org/projects/IMAS/repos/uda/browse',
     packages=['pyuda'],
-    ext_modules=[ext],
-    install_requires=['future>=0.16', 'numpy>=1.7'],
+    ext_modules=cythonize([ext]),
+    install_requires=['numpy>=1.12'],
 )
-

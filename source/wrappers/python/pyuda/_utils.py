@@ -1,15 +1,11 @@
 from __future__ import (division, print_function, absolute_import)
 
-from . import c_uda
-
 import numpy as np
 
-from builtins import range
-from future import standard_library
-standard_library.install_aliases()
+import cpyuda
 
 
-UDAException = c_uda._c_uda.UDAException
+UDAException = cpyuda.UDAException
 
 def cdata_scalar_to_value(scalar):
     """
@@ -23,9 +19,9 @@ def cdata_scalar_to_value(scalar):
     elif scalar.type() == 'float64':
         return scalar.ddata()
     elif scalar.type() == 'int8':
-        return ord(scalar.cdata())
+        return scalar.cdata()
     elif scalar.type() == 'uint8':
-        return ord(scalar.ucdata())
+        return scalar.ucdata()
     elif scalar.type() == 'int16':
         return scalar.sdata()
     elif scalar.type() == 'uint16':
@@ -56,11 +52,9 @@ def cdata_array_to_value(array):
     elif array.type() == 'float64':
         return np.array(array.ddata(), dtype=array.type()).reshape(array.shape())
     elif array.type() == 'int8':
-        cdata = [ord(i) for i in array.cdata()]
-        return np.array(cdata, dtype=array.type()).reshape(array.shape())
+        return np.array(array.cdata(), dtype=array.type()).reshape(array.shape())
     elif array.type() == 'uint8':
-        ucdata = [ord(i) for i in array.ucdata()]
-        return np.array(ucdata, dtype=array.type()).reshape(array.shape())
+        return np.array(array.ucdata(), dtype=array.type()).reshape(array.shape())
     elif array.type() == 'int16':
         return np.array(array.sdata(), dtype=array.type()).reshape(array.shape())
     elif array.type() == 'uint16':
@@ -89,11 +83,9 @@ def cdata_vector_to_value(vector):
     elif vector.type() == 'float64':
         return np.array(vector.ddata(), dtype=vector.type())
     elif vector.type() == 'int8':
-        cdata = [ord(i) for i in array.cdata()]
-        return np.array(cdata, dtype=vector.type())
+        return np.array(vector.cdata(), dtype=vector.type())
     elif vector.type() == 'uint8':
-        ucdata = [ord(i) for i in array.ucdata()]
-        return np.array(ucdata, dtype=vector.type())
+        return np.array(vector.ucdata(), dtype=vector.type())
     elif vector.type() == 'int16':
         return np.array(vector.sdata(), dtype=vector.type())
     elif vector.type() == 'uint16':
@@ -119,11 +111,9 @@ def cdata_to_numpy_array(cdata):
     elif cdata.type() == 'float64':
         return np.array(cdata.ddata(), dtype=cdata.type())
     elif cdata.type() == 'int8':
-        data = [ord(i) for i in cdata.cdata()]
-        return np.array(data, dtype=cdata.type())
+        return np.array(cdata.cdata(), dtype=cdata.type())
     elif cdata.type() == 'uint8':
-        data = [ord(i) for i in cdata.ucdata()]
-        return np.array(data, dtype=cdata.type())
+        return np.array(cdata.ucdata(), dtype=cdata.type())
     elif cdata.type() == 'int16':
         return np.array(cdata.sdata(), dtype=cdata.type())
     elif cdata.type() == 'uint16':

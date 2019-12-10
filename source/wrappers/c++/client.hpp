@@ -28,12 +28,9 @@ public:
     {}
 
     UDAException(const UDAException& ex) noexcept : what_(ex.what_) {}
-
-#ifndef SWIG_VERSION
     UDAException(UDAException&& ex) noexcept : what_(std::move(ex.what_)) {}
     UDAException& operator=(const UDAException& ex) noexcept { what_ = ex.what_; return *this; }
     UDAException& operator=(UDAException&& ex) noexcept { what_ = ex.what_; ex.what_.clear(); return *this; }
-#endif
 
     ~UDAException() noexcept override = default;
 
