@@ -112,10 +112,10 @@ class Signal(Data):
             self._import_dim(i)
 
     def _import_dim(self, num):
-        self._dims.append(Dim(self._cresult.dim(num, cpyuda.DataType.DATA.value)))
+        self._dims.append(Dim(self._cresult.dim(num, cpyuda.DATA)))
 
     def _import_time(self):
-        self._time = Dim(self._cresult.time_dim(cpyuda.DataType.DATA.value))
+        self._time = Dim(self._cresult.time_dim(cpyuda.DATA))
 
     def plot(self):
         import matplotlib.pyplot as plt

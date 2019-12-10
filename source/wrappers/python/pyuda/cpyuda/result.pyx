@@ -50,7 +50,7 @@ cdef class Result:
 
     cdef int _type(self, int data_type):
         cdef int type
-        if data_type == DataType.DATA.value:
+        if data_type == DataType.DATA:
             type = uda.getIdamDataType(self._handle)
         else:
             type = uda.getIdamErrorType(self._handle)
@@ -62,7 +62,7 @@ cdef class Result:
 
     cdef const char* _get_data(self, int data_type):
         cdef const char* data
-        if data_type == DataType.DATA.value:
+        if data_type == DataType.DATA:
             data = uda.getIdamData(self._handle)
         else:
             data = uda.getIdamError(self._handle)
@@ -85,10 +85,10 @@ cdef class Result:
         return to_python_i(type, rank, shape, data)
 
     def data(self):
-        return self._data(DataType.DATA.value)
+        return self._data(DataType.DATA)
 
     def errors(self):
-        return self._data(DataType.ERRORS.value)
+        return self._data(DataType.ERRORS)
 
     def label(self):
         return uda.getIdamDataLabel(self._handle).decode() if self._handle >= 0 else ""

@@ -35,7 +35,7 @@ cdef class Dim:
 
     def type(self):
         cdef int type
-        if self._data_type == DataType.DATA.value:
+        if self._data_type == DataType.DATA:
             type = uda.getIdamDimType(self._handle, self._num)
         else:
             type = uda.getIdamDimErrorType(self._handle, self._num)
@@ -43,7 +43,7 @@ cdef class Dim:
 
     cdef const char* _data(self):
         cdef const char* data
-        if self._data_type == DataType.DATA.value:
+        if self._data_type == DataType.DATA:
             data = uda.getIdamDimData(self._handle, self._num)
         else:
             data = uda.getIdamDimError(self._handle, self._num)

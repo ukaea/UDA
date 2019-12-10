@@ -49,7 +49,7 @@ cdef object to_python_c(const char* type, int rank, int* shape, int point, void*
     if string.strstr(type, "STRING"):
         if string.strcmp(type, "STRING") == 0:
             return (<char*>data).decode()
-        elif rank == 0 and shape[0] == 1 and point == 0:
+        elif rank == 0:
             return (<char**>data)[0].decode()
         else:
             for i in range(shape[0]):
@@ -94,9 +94,6 @@ cdef object to_python_i(int type, int rank, int* shape, void* data):
             return None
 
 
-from enum import Enum
-
-
-class DataType(Enum):
+ctypedef public enum DataType:
     DATA = 0
     ERRORS = 1
