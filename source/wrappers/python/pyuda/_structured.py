@@ -48,7 +48,7 @@ class StructuredData(Data):
                                                  range(ord('a'), ord('z')+1),
                                                  range(ord('A'), ord('Z')+1)))
         identifier_chars += ('_',)
-        cls._translation_table = ''.join(c if ord(c) in identifier_chars else '_' for c in cls._translation_table)
+        cls._translation_table = u''.join(c if ord(c) in identifier_chars else '_' for c in cls._translation_table)
 
     def _import_data(self):
         data = self._cnode.data()
