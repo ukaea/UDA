@@ -42,14 +42,14 @@ cdef object to_python_c(const char* type, int rank, int* shape, int point, void*
     cdef np.npy_intp np_shape[1024]
     cdef int i
     for i in range(rank):
-        np_shape[i] = <np.npy_intp>shape[i]
+        np_shape[i] = <np.npy_intp>shape[rank - 1 - i]
 
     cdef int np_type
     strings = []
     if string.strstr(type, "STRING"):
         if string.strcmp(type, "STRING") == 0:
             return (<char*>data).decode()
-        elif rank == 0 and shape[0] == 1 and point == 0:
+        elif rank == 0:
             return (<char**>data)[0].decode()
         else:
             for i in range(shape[0]):
@@ -72,12 +72,7 @@ cdef object to_python_c(const char* type, int rank, int* shape, int point, void*
             return None
 
 
-cdef object to_python_i(int type, int rank, int* shape, void* data):
-    cdef np.npy_intp np_shape[1024]
-    cdef int i
-    for i in range(rank):
-        np_shape[i] = <np.npy_intp>shape[i]
-
+cdef object to_python_i(int type, int rank, np.npy_intp* np_shape, void* data):
     cdef int np_type
     strings = []
     if type == 17:

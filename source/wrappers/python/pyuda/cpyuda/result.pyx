@@ -80,7 +80,7 @@ cdef class Result:
             shape[0] = <np.npy_intp> size
         else:
             for i in range(rank):
-                size = uda.getIdamDimNum(self._handle, i)
+                size = uda.getIdamDimNum(self._handle, rank - 1 - i)
                 shape[i] = <np.npy_intp> size
         return to_python_i(type, rank, shape, data)
 
@@ -103,7 +103,7 @@ cdef class Result:
         cdef int rank = uda.getIdamRank(self._handle)
         shape = numpy.zeros(rank)
         for i in range(rank):
-            shape[i] = uda.getIdamDimNum(self._handle, i)
+            shape[i] = uda.getIdamDimNum(self._handle, rank - 1 - i)
         return shape
 
     def dim(self, num, data_type):
