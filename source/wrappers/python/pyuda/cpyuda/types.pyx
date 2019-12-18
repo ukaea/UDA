@@ -49,7 +49,7 @@ cdef object to_python_c(const char* type, int rank, int* shape, int point, void*
     if string.strstr(type, "STRING"):
         if string.strcmp(type, "STRING") == 0:
             return (<char*>data).decode()
-        elif rank == 0:
+        elif rank == 0 and shape[0] == 1 and point == 0:
             return (<char**>data)[0].decode()
         else:
             for i in range(shape[0]):

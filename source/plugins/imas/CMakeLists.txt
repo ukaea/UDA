@@ -49,8 +49,10 @@ uda_plugin(
     ${MDSPLUS_INCLUDES}
     ${CMAKE_SOURCE_DIR}/client
     ${HDF5_INCLUDE_DIRS}
+    ${OPENSSL_INCLUDE_DIR}
   EXTRA_LINK_DIRS
     /usr/local/lib
+    /usr/local/mdsplus/lib
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${MDSPLUS_LIBRARIES}
@@ -58,4 +60,5 @@ uda_plugin(
     ${HDF5_LIBRARIES}
     ${HDF5_HL_LIBRARIES}
     ${OPENSSL_LIBRARIES}
+    client-static
 )
