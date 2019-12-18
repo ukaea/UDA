@@ -13,7 +13,11 @@ from ._data import Data
 class DimEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, Dim):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, Dim):
             dim = obj
             obj = {
                 '_type': 'pyuda.Dim',
@@ -88,7 +92,7 @@ class Signal(Data):
 
     @property
     def shape(self):
-        return self._cresult.shape()
+        return tuple(self._cresult.shape())
 
     @property
     def dims(self):

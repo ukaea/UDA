@@ -12,6 +12,10 @@ import matplotlib.animation as animation
 class VideoEncoder(json.JSONEncoder):
 
     def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
         if isinstance(obj, np.ndarray):
             data = obj
             obj = {

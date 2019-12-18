@@ -11,7 +11,11 @@ from ._dim import Dim
 class DimEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, Dim):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, Dim):
             dim = obj
             obj = {
                 '_type': 'pyuda.Dim',
@@ -30,7 +34,11 @@ class DimEncoder(json.JSONEncoder):
 class SignalEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, Signal):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, Signal):
             signal = obj
             dim_enc = DimEncoder()
             obj = {

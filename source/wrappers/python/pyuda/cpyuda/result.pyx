@@ -101,7 +101,7 @@ cdef class Result:
 
     def shape(self):
         cdef int rank = uda.getIdamRank(self._handle)
-        shape = numpy.zeros(rank)
+        shape = numpy.zeros(rank, dtype=numpy.int32)
         for i in range(rank):
             shape[i] = uda.getIdamDimNum(self._handle, rank - 1 - i)
         return shape
