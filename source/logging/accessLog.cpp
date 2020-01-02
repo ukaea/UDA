@@ -92,7 +92,7 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
 
 #ifndef FATCLIENT
     int socket;
-    int addrlen;
+    socklen_t addrlen;
 #endif
 #ifndef IPV6PROTOCOL
 #  ifndef FATCLIENT
