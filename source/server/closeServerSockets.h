@@ -1,5 +1,5 @@
-#ifndef IDAM_SERVER_CLOSESERVERSOCKETS_H
-#define IDAM_SERVER_CLOSESERVERSOCKETS_H
+#ifndef UDA_SERVER_CLOSESERVERSOCKETS_H
+#define UDA_SERVER_CLOSESERVERSOCKETS_H
 
 #include <clientserver/socketStructs.h>
 
@@ -15,4 +15,4 @@ void closeServerSockets(SOCKETLIST *socks);
 }
 #endif
 
-#endif // IDAM_SERVER_CLOSESERVERSOCKETS_H
+#endif // UDA_SERVER_CLOSESERVERSOCKETS_H

@@ -36,6 +36,7 @@
 #define __TYPES_RPC_HEADER__
 
 #include <stdint.h>
+#include <stdio.h>
 
 typedef unsigned char u_char;
 typedef uint16_t      u_short;

@@ -13,24 +13,23 @@ add_subdirectory( modules )
 # Sources
 
 set( SRC_FILES
-  applyXML.c
-  closeServerSockets.c
-  dumpFile.c
-  freeIdamPut.c
-  getPluginAddress.c
-  getServerEnvironment.c
-  initPluginList.c
-  makeServerRequestBlock.c
-  manageFiles.c
-  mastArchiveFilePath.c
-  serverGetData.c
-  serverLegacyPlugin.c
-  serverPlugin.c
-  serverProcessing.c
-  serverStartup.c
-  serverSubsetData.c
-  writer.c
-  sqllib.c
+  applyXML.cpp
+  closeServerSockets.cpp
+  dumpFile.cpp
+  freeIdamPut.cpp
+  getPluginAddress.cpp
+  getServerEnvironment.cpp
+  initPluginList.cpp
+  makeServerRequestBlock.cpp
+  mastArchiveFilePath.cpp
+  serverGetData.cpp
+  serverLegacyPlugin.cpp
+  serverPlugin.cpp
+  serverProcessing.cpp
+  serverStartup.cpp
+  serverSubsetData.cpp
+  writer.cpp
+  sqllib.cpp
 )
 
 set( HEADER_FILES
@@ -43,7 +42,6 @@ set( HEADER_FILES
   getServerEnvironment.h
   initPluginList.h
   makeServerRequestBlock.h
-  manageFiles.h
   mastArchiveFilePath.h
   serverGetData.h
   serverLegacyPlugin.h
@@ -71,16 +69,16 @@ add_definitions( -DSERVERBUILD )
 # Targets
 
 add_library( server-objects OBJECT
-  udaServer.c
-  udaLegacyServer.c
-  createXDRStream.c
-  sleepServer.c
+  udaServer.cpp
+  udaLegacyServer.cpp
+  createXDRStream.cpp
+  sleepServer.cpp
   ${SRC_FILES}
   ${HEADER_FILES}
 )
 
 add_library( fatserver-objects OBJECT
-  fatServer.c
+  fatServer.cpp
   ${SRC_FILES}
   ${HEADER_FILES}
 )
@@ -95,38 +93,46 @@ set( SERVER_OBJ
   $<TARGET_OBJECTS:modules-objects>
 )
 
-add_library( server-shared SHARED ${SERVER_OBJ} )
 add_library( server-static STATIC ${SERVER_OBJ} )
-
-#target_link_libraries( server-shared LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
-#target_link_libraries( server-static LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
-
-if( WIN32 OR MINGW )
-	set( EXE_FLAG WIN32 )
-	set( EXE_EXT ".exe" )
-else()
-	set( EXE_FLAG  )
-	set( EXE_EXT "" )
+if( BUILD_SHARED_LIBS )
+  add_library( server-shared SHARED ${SERVER_OBJ} )
 endif()
 
-add_executable( server-exe ${EXE_FLAG} serverMain.c )
+set( CLIENT_LINK_LIBS )
+set( EXE_FLAG )
+set( EXE_EXT )
+if( WIN32 OR MINGW )
+  set( EXE_FLAG WIN32 )
+  if( MINGW )
+    set( EXE_EXT ".exe" )
+  endif()
+  set( CLIENT_LINK_LIBS portablexdr )
+endif()
+
+target_link_libraries( server-static PRIVATE ${CLIENT_LINK_LIBS} )
+#target_link_libraries( server-static LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
+if( BUILD_SHARED_LIBS )
+  target_link_libraries( server-shared PRIVATE ${CLIENT_LINK_LIBS} )
+  #target_link_libraries( server-shared LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
+endif()
+
+add_executable( server-exe ${EXE_FLAG} serverMain.cpp )
 
 ########################################################################################################################
 # Add libraries
 
-target_link_libraries( server-shared LINK_PRIVATE
-  client-shared
-  plugins-static
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${CACHE_LIBRARIES}
-  dl
-)
+set( CLIENT_STATIC )
+if( BUILD_SHARED_LIBS )
+  set( CLIENT_STATIC client-shared )
+else()
+  set( CLIENT_STATIC client-static )
+endif()
+if( WIN32 OR MINGW )
+  set( CLIENT_STATIC ${CLIENT_SHARED} ws2_32 stdc++ )
+endif()
 
-link_modules( server-shared )
-
-target_link_libraries( server-static LINK_PRIVATE
-  client-shared
+target_link_libraries( server-static PRIVATE
+  ${CLIENT_STATIC}
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
@@ -135,10 +141,33 @@ target_link_libraries( server-static LINK_PRIVATE
 
 link_modules( server-static )
 
+if( BUILD_SHARED_LIBS )
+  set( CLIENT_SHARED client-shared plugins-shared )
+  if( WIN32 OR MINGW )
+    set( CLIENT_SHARED ${CLIENT_SHARED} ws2_32 stdc++ )
+  endif()
+
+  target_link_libraries( server-shared PRIVATE
+    ${CLIENT_SHARED}
+    ${OPENSSL_LIBRARIES}
+    ${LIBXML2_LIBRARIES}
+    ${CACHE_LIBRARIES}
+    dl
+  )
+  
+  link_modules( server-shared )
+endif()
+
 # Executable
-target_link_libraries( server-exe LINK_PRIVATE
-  client-shared
-  server-shared
+set( SERVER_LINKING )
+if( BUILD_SHARED_LIBS )
+  set( SERVER_LINKING client-shared server-shared )
+else()
+  set( SERVER_LINKING client-static server-static plugins-static )
+endif()
+
+target_link_libraries( server-exe PRIVATE
+  ${SERVER_LINKING}
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
@@ -152,28 +181,34 @@ endif()
 link_modules( server-exe )
 
 if( NOT APPLE )
-  target_link_libraries( server-exe LINK_PRIVATE gcc_s )
+  target_link_libraries( server-exe PRIVATE gcc_s )
 endif()
 
 ########################################################################################################################
 # Set library properties
 
-set_target_properties( server-shared
-    PROPERTIES
-      OUTPUT_NAME ${PROJECT_NAME}_server
-      VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-      SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
-
 set_target_properties( server-static
   PROPERTIES
   OUTPUT_NAME ${PROJECT_NAME}_server
-  )
+)
 
 install(
-  TARGETS server-shared server-static
+  TARGETS server-static
   DESTINATION lib
 )
+
+if( BUILD_SHARED_LIBS )
+  set_target_properties( server-shared
+      PROPERTIES
+        OUTPUT_NAME ${PROJECT_NAME}_server
+        VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+        SOVERSION ${PROJECT_VERSION_MAJOR}
+  )
+  install(
+    TARGETS server-shared
+    DESTINATION lib
+  )
+endif()
 
 ########################################################################################################################
 # Set executable properties

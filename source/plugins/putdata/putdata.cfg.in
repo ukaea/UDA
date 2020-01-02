@@ -1,2 +1,0 @@
-export UDUNITS2_XML_PATH=/usr/local/depot/udunits-2.2.24/share/udunits2.xml
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/depot/udunits-2.2.24/lib

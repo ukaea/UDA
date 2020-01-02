@@ -1,5 +1,5 @@
-#ifndef IDAM_SERVER_FREEIDAMPUT_H
-#define IDAM_SERVER_FREEIDAMPUT_H
+#ifndef UDA_SERVER_FREEIDAMPUT_H
+#define UDA_SERVER_FREEIDAMPUT_H
 
 #include <clientserver/udaStructs.h>
 
@@ -14,4 +14,4 @@ void freeIdamServerPutDataBlockList(PUTDATA_BLOCK_LIST *putDataBlockList);
 }
 #endif
 
-#endif // IDAM_SERVER_FREEIDAMPUT_H
+#endif // UDA_SERVER_FREEIDAMPUT_H

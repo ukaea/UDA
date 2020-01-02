@@ -35,7 +35,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
 
 int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
-                             SIGNAL_DESC* signal_desc, DATA_SOURCE* data_source, LOGMALLOCLIST* logmalloclist,
+                             SIGNAL_DESC* signal_desc, SIGNAL* signal_rec, DATA_SOURCE* data_source,
                              const ENVIRONMENT* environment);
 
 #ifdef __cplusplus

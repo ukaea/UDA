@@ -1,3 +1,7 @@
+[![pipeline status](https://git.ccfe.ac.uk/MAST-U/UDA/badges/develop/pipeline.svg)](https://git.ccfe.ac.uk/MAST-U/UDA/commits/develop)
+[![coverage report](https://git.ccfe.ac.uk/MAST-U/UDA/badges/develop/coverage.svg)](https://git.ccfe.ac.uk/MAST-U/UDA/commits/develop)
+
+
 # Universal Data Access (UDA)
 
 The UDA API provides plugin driven data abstraction.
@@ -55,13 +59,28 @@ Building extlibs (running in Powershell):
     cd ..
     .\install.bat
 
-Tested and built on Windows 10 (built using MinGW 64-bit) using (running in Powershell):
+Building extlibs (running in MinGW64 Shell):
+
+    ./configure
+    make
+    cd ..
+    ./install.sh
+
+Tested and built on Windows 10 (built using MinGW 64-bit, running in Powershell):
 
     mkdir build
     cd build
     ..\scripts\cmake-win.bat
     mingw32-make.exe
     mingw32-make.exe install
+
+Tested and built on Windows 10 (built using MinGW 64-bit, running in MinGW64 Shell):
+
+    mkdir build
+    cd build
+    cmake .. -G"Unix Makefiles" -DBUILD_SHARED_LIBS=ON -DTARGET_TYPE=OTHER
+	make
+	make install
 
 Running Python client:
     

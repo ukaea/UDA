@@ -1,9 +1,5 @@
-//
-// Created by jholloc on 09/05/16.
-//
-
-#ifndef IDAM_READCDFMETA_H
-#define IDAM_READCDFMETA_H
+#ifndef UDA_READCDFMETA_H
+#define UDA_READCDFMETA_H
 
 struct METAXML {
     char* xml;
@@ -20,4 +16,4 @@ int addTextMetaXML(int fd, int grpid, METAXML* str, char* tag);
 
 int addIntMetaXML(int fd, int grpid, METAXML* str, char* tag);
 
-#endif //IDAM_READCDFMETA_H
+#endif // UDA_READCDFMETA_H

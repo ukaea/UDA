@@ -1,7 +1,9 @@
-#ifndef IDAM_NAMEIDA_H
-#define IDAM_NAMEIDA_H
+#ifndef UDA_NAMEIDA_H
+#define UDA_NAMEIDA_H
 
+#ifndef NOIDAPLUGIN
 void nameIDA(const char *alias, int pulno, char *filename);
+#endif
 
-#endif // IDAM_NAMEIDA_H
+#endif // UDA_NAMEIDA_H
 

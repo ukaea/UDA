@@ -1,5 +1,5 @@
-#ifndef IDAM_READHDF58_H
-#define IDAM_READHDF58_H
+#ifndef UDA_PLUGIN_READHDF58_H
+#define UDA_PLUGIN_READHDF58_H
 
 #include <clientserver/udaStructs.h>
 
@@ -29,5 +29,5 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
 
 #endif
 
-#endif // IDAM_READHDF58_H
+#endif // UDA_PLUGIN_READHDF58_H
 

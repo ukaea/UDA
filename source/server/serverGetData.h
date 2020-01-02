@@ -13,10 +13,9 @@
 extern "C" {
 #endif
 
-int idamserverGetData(PGconn* DBConnect, int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
-                      DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
-                      ACTIONS* actions_desc, ACTIONS* actions_sig, const PLUGINLIST* pluginlist,
-                      LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list);
+int udaGetData(REQUEST_BLOCK request_block, CLIENT_BLOCK client_block, DATA_BLOCK* data_block, DATA_SOURCE* data_source,
+               SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
+               USERDEFINEDTYPELIST* userdefinedtypelist);
 
 int idamserverSwapSignalError(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry);
 

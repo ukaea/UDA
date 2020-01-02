@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENTSERVER_MD5SUM_H
-#define IDAM_CLIENTSERVER_MD5SUM_H
+#ifndef UDA_CLIENTSERVER_MD5SUM_H
+#define UDA_CLIENTSERVER_MD5SUM_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,4 +11,4 @@ void md5Sum(char* bp, int size, char* md5check);
 }
 #endif
 
-#endif // IDAM_CLIENTSERVER_MD5SUM_H
+#endif // UDA_CLIENTSERVER_MD5SUM_H

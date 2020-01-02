@@ -28,5 +28,4 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${PostgreSQL_LIBRARY}
-    client-static
 )

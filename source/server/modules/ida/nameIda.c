@@ -71,15 +71,4 @@ void nameIDA(const char* alias, int pulno, char* filename)
     return;
 }
 
-#else
-
-#include <assert.h>
-#include <stdio.h>
-
-void nameIDA(const char* alias, int pulno, char* filename)
-{
-    fputs("Cannot access IDA files", stderr);
-    assert(0);
-}
-
 #endif

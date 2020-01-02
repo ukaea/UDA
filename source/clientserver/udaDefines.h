@@ -8,24 +8,15 @@ extern "C" {
 //--------------------------------------------------------
 // Size Definitions
 
-#define WORKDIR        tmp    // Location of the Work Directories
+#define WORKDIR         tmp    // Location of the Work Directories
 
-#ifdef ROLLBACK
-#  define MAXDATE         56
-#  define MAXNAME         56
-#  define MAXFILENAME     56
-#  define MAXSERVER       256
-#  define MAXPATH         256
-#  define MAXFORMAT       56
-#else
-#  define MAXDATE         12    // Ensure same as DATE_LENGTH
-#  define MAXNAME         1024    // Same as STRING_LENGTH
-#  define MAXFILENAME     1024    // Same as STRING_LENGTH
-#  define MAXSERVER       1024    // Same as STRING_LENGTH
-#  define MAXPATH         1024    // Same as STRING_LENGTH
-#  define MAXMODE         8
-#  define MAXFORMAT       1024    // Same as STRING_LENGTH
-#endif
+#define MAXDATE         12    // Ensure same as DATE_LENGTH
+#define MAXNAME         1024    // Same as STRING_LENGTH
+#define MAXFILENAME     1024    // Same as STRING_LENGTH
+#define MAXSERVER       1024    // Same as STRING_LENGTH
+#define MAXPATH         1024    // Same as STRING_LENGTH
+#define MAXMODE         8
+#define MAXFORMAT       1024    // Same as STRING_LENGTH
 
 #define MAXDESC         1024    // Same as STRING_LENGTH
 #define MAXNAMELISTREC  1024

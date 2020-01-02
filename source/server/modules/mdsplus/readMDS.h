@@ -1,5 +1,5 @@
-#ifndef IDAM_READMDS_H
-#define IDAM_READMDS_H
+#ifndef UDA_READMDS_H
+#define UDA_READMDS_H
 
 #include <clientserver/udaStructs.h>
 #include <clientserver/socketStructs.h>
@@ -23,4 +23,4 @@ int readMDSType(int type);
 
 #endif
 
-#endif // IDAM_READMDS_H
+#endif // UDA_READMDS_H

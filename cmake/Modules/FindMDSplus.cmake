@@ -34,6 +34,7 @@ set( MDS_LIBS
   MdsIpShr
   TreeShr
   TdiShr
+  XTreeShr
 )
 
 set( MDSPLUS_LIBRARIES "" )

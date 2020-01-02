@@ -54,16 +54,17 @@ macro( uda_plugin )
   foreach( DEF ${PLUGIN_EXTRA_DEFINITIONS} )
     add_definitions( ${DEF} )
   endforeach()
-
-  target_link_libraries( ${PLUGIN_LIBNAME} LINK_PRIVATE client-shared plugins-shared dl )
-  #target_link_libraries( ${PLUGIN_LIBNAME} LINK_PRIVATE dl fatclient-static )
+  
+  set( LIBRARIES client-shared plugins-shared dl )
+  if( WIN32 OR MINGW )
+    set( LIBRARIES ${LIBRARIES} stdc++ )
+  endif()
   
   filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized ) 
-
-  foreach( LINK_LIB ${FILTERED_LINK_LIBS} )
-    target_link_libraries( ${PLUGIN_LIBNAME} LINK_PRIVATE ${LINK_LIB} )
-  endforeach()
-
+  set( LIBRARIES ${LIBRARIES} ${FILTERED_LINK_LIBS} )
+  
+  target_link_libraries( ${PLUGIN_LIBNAME} PRIVATE ${LIBRARIES} )
+  
   install(
     TARGETS ${PLUGIN_LIBNAME}
     DESTINATION lib/plugins

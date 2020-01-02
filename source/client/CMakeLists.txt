@@ -17,21 +17,21 @@ add_definitions( -DNO_GSL_LIB )
 # Sources
 
 set( SRC_FILES
-  udaGetAPI.c
-  clientAPI.c
-  clientMDS.c
-  accAPI.c
-  startup.c
-  closedown.c
-  connection.c
-  clientXDRStream.c
-  updateSelectParms.c
-  getEnvironment.c
-  generateErrors.c
-  makeClientRequestBlock.c
-  udaPutAPI.c
-  udaClient.c
-  udaClientHostList.c
+  udaGetAPI.cpp
+  clientAPI.cpp
+  clientMDS.cpp
+  accAPI.cpp
+  startup.cpp
+  closedown.cpp
+  connection.cpp
+  clientXDRStream.cpp
+  updateSelectParms.cpp
+  getEnvironment.cpp
+  generateErrors.cpp
+  makeClientRequestBlock.cpp
+  udaPutAPI.cpp
+  udaClient.cpp
+  udaClientHostList.cpp
 )
 
 set( HEADER_FILES
@@ -89,44 +89,65 @@ set( FATCLIENT_OBJS
   $<TARGET_OBJECTS:logging-server-objects>
 )
 
-add_library( client-shared SHARED ${CLIENT_OBJS} )
 add_library( client-static STATIC ${CLIENT_OBJS} )
+if( BUILD_SHARED_LIBS )
+  add_library( client-shared SHARED ${CLIENT_OBJS} )
+endif()
 
 set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} )
 if( NOT CLIENT_ONLY )
   set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${LIBXML2_LIBRARIES} )
+  if( WIN32 OR MINGW )
+    set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} iconv lzma z )
+  endif()
 endif()
 
 if( WIN32 OR MINGW )
-  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ws2_32 portablexdr dl )
+  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ws2_32 portablexdr dl stdc++ )
 endif()
 
-target_link_libraries( client-shared PRIVATE ${CLIENT_LINK_LIBS} )
 target_link_libraries( client-static PRIVATE ${CLIENT_LINK_LIBS} )
+if( BUILD_SHARED_LIBS )
+  target_link_libraries( client-shared PRIVATE ${CLIENT_LINK_LIBS} )
+endif()
 
 if( NOT CLIENT_ONLY )
-  add_library( fatclient-shared SHARED ${FATCLIENT_OBJS} )
+  include( modules )
+  
   add_library( fatclient-static STATIC ${FATCLIENT_OBJS} )
-
-  target_link_libraries( fatclient-shared PRIVATE ${CLIENT_LINK_LIBS} ${PostgreSQL_LIBRARY} plugins-static )
-  target_link_libraries( fatclient-static PRIVATE ${CLIENT_LINK_LIBS} ${PostgreSQL_LIBRARY} plugins-static )
+  target_link_libraries( fatclient-static PRIVATE plugins-static ${CLIENT_LINK_LIBS} )
+  
+  link_modules( fatclient-static )
+  
+  if( BUILD_SHARED_LIBS )
+    add_library( fatclient-shared SHARED ${FATCLIENT_OBJS} )
+    target_link_libraries( fatclient-shared PRIVATE plugins-shared ${CLIENT_LINK_LIBS} )
+    
+    link_modules( fatclient-shared )
+  endif()
 endif()
-
-set_target_properties( client-shared
-  PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_client
-    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-)
 
 set_target_properties( client-static
   PROPERTIES
     OUTPUT_NAME ${PROJECT_NAME}_client
 )
 
-install( TARGETS client-shared client-static
+install( TARGETS client-static
   DESTINATION lib
 )
+
+if( BUILD_SHARED_LIBS )
+  set_target_properties( client-shared
+    PROPERTIES
+      OUTPUT_NAME ${PROJECT_NAME}_client
+      VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+      SOVERSION ${PROJECT_VERSION_MAJOR}
+  )
+  
+  install( TARGETS client-shared
+    DESTINATION lib
+  )
+endif()
 
 file( GLOB HEADER_FILES "*.h" )
 
@@ -135,19 +156,25 @@ install( FILES ${HEADER_FILES}
 )
 
 if( NOT CLIENT_ONLY )
-  set_target_properties( fatclient-shared
-    PROPERTIES
-    OUTPUT_NAME fat${PROJECT_NAME}_client
-    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-  )
-
   set_target_properties( fatclient-static
     PROPERTIES
     OUTPUT_NAME fat${PROJECT_NAME}_client
   )
 
-  install( TARGETS fatclient-shared fatclient-static
+  install( TARGETS fatclient-static
     DESTINATION lib
   )
+  
+  if( BUILD_SHARED_LIBS )
+    set_target_properties( fatclient-shared
+      PROPERTIES
+        OUTPUT_NAME fat${PROJECT_NAME}_client
+        VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+        SOVERSION ${PROJECT_VERSION_MAJOR}
+    )
+
+    install( TARGETS fatclient-shared
+      DESTINATION lib
+  )
+  endif()
 endif()

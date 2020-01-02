@@ -1,5 +1,5 @@
-#ifndef IDAM_READIDAM_H
-#define IDAM_READIDAM_H
+#ifndef UDA_READIDAM_H
+#define UDA_READIDAM_H
 
 #include <clientserver/udaStructs.h>
 
@@ -86,5 +86,5 @@ typedef struct OLD_DATA_BLOCK OLD_DATA_BLOCK ;
 #endif
 #endif
 
-#endif // IDAM_READIDAM_H
+#endif // UDA_READIDAM_H
 

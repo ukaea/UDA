@@ -1,5 +1,5 @@
-#ifndef IDAM_CLIENTSERVER_XDRHDATA_H
-#define IDAM_CLIENTSERVER_XDRHDATA_H
+#ifndef UDA_CLIENTSERVER_XDRHDATA_H
+#define UDA_CLIENTSERVER_XDRHDATA_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,5 +69,5 @@ bool_t xdr_efit(XDR *xdrs, EFIT *str);
 }
 #endif
 
-#endif // IDAM_CLIENTSERVER_XDRHDATA_H
+#endif // UDA_CLIENTSERVER_XDRHDATA_H
 

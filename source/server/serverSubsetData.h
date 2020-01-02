@@ -1,5 +1,5 @@
-#ifndef IDAM_SERVER_IDAMSERVERSUBSETDATA_H
-#define IDAM_SERVER_IDAMSERVERSUBSETDATA_H
+#ifndef UDA_SERVER_SERVERSUBSETDATA_H
+#define UDA_SERVER_SERVERSUBSETDATA_H
 
 #include <clientserver/parseXML.h>
 #include <clientserver/udaStructs.h>
@@ -20,4 +20,4 @@ int idamserverNewDataArray2(DIMS *dims, int rank, int dimid,
 }
 #endif
 
-#endif // IDAM_SERVER_IDAMSERVERSUBSETDATA_H
+#endif // UDA_SERVER_SERVERSUBSETDATA_H

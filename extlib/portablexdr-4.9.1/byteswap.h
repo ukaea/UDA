@@ -50,7 +50,7 @@ __bswap_16 (unsigned short int __bsx)
 #ifdef __GNUC__
 # define __bswap_32(x) \
   (__extension__							      \
-   ({ register unsigned int __bsx = (x); __bswap_constant_32 (__bsx); }))
+   ({ unsigned int __bsx = (x); __bswap_constant_32 (__bsx); }))
 #else
 static __inline unsigned int
 __bswap_32 (unsigned int __bsx)

@@ -78,7 +78,7 @@ Investigate the object system - is this just a local cache?
 #define MAX_TOKENS  64
 
 
-IDAMPLUGINFILELIST pluginFileList;
+UDA_PLUGIN_FILE_LIST pluginFileList;
 
 static hid_t hdf5Files[MAX_FILES];
 static char ErrMsg[MAX_STRINGS];
@@ -147,7 +147,7 @@ int sha1File(char* name, FILE* fh, unsigned char* md)
 }
 // SHA1 Hash =====================================================================================================================
 
-IDAMPLUGINFILELIST* getImasPluginFileList()
+UDA_PLUGIN_FILE_LIST* getImasPluginFileList()
 {
     return &pluginFileList;
 }

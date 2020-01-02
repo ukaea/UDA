@@ -2,9 +2,7 @@
 # Dependencies
 
 find_package( Boost REQUIRED )
-if( NOT CLIENT_ONLY )
-  find_package( LibXml2 REQUIRED )
-endif()
+find_package( LibXml2 REQUIRED )
 
 set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../.. )
 
@@ -29,9 +27,7 @@ include_directories(
   ${Boost_INCLUDE_DIR}
 )
 
-if( NOT CLIENT_ONLY )
-  include_directories( ${LIBXML2_INCLUDE_DIR} )
-endif()
+include_directories( ${LIBXML2_INCLUDE_DIR} )
 
 if( ITER_CI )
   add_definitions( -D__USE_XOPEN2K8 )
@@ -50,10 +46,24 @@ set( CLIENT_OBJS
   $<TARGET_OBJECTS:authentication-client-objects>
 )
 
-add_library( ${LIB_NAME} STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-target_link_libraries( ${LIB_NAME} LINK_PRIVATE ${Boost_LIBRARIES} )
+include( modules )
+
+add_library( ${LIB_NAME}-static STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
+target_link_libraries( ${LIB_NAME}-static PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} )
 if( WIN32 OR MINGW )
-  target_link_libraries( ${LIB_NAME} LINK_PRIVATE portablexdr ws2_32 ssl crypto libstdc++ )
+  target_link_libraries( ${LIB_NAME}-static PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
+endif()
+
+link_modules( ${LIB_NAME}-static )
+
+if( BUILD_SHARED_LIBS )
+  add_library( ${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
+  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} )
+  if( WIN32 OR MINGW )
+    target_link_libraries( ${LIB_NAME}-shared PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
+  endif()
+  
+  link_modules( ${LIB_NAME}-shared )
 endif()
 
 if( NOT CLIENT_ONLY )
@@ -71,22 +81,46 @@ if( NOT CLIENT_ONLY )
     $<TARGET_OBJECTS:plugins-objects>
   )
 
-  add_library( fat${LIB_NAME} STATIC $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-  target_link_libraries( fat${LIB_NAME} LINK_PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} plugins-static )
+  add_library( fat${LIB_NAME}-static STATIC $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
+  target_link_libraries( fat${LIB_NAME}-static LINK_PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} plugins-static )
   if( WIN32 OR MINGW )
-    target_link_libraries( fat${LIB_NAME} LINK_PRIVATE portablexdr ws2_32 ssl crypto )
+    target_link_libraries( fat${LIB_NAME}-static PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
+  endif()
+  
+  link_modules( fat${LIB_NAME}-static )
+  
+  if( BUILD_SHARED_LIBS )
+    add_library( fat${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
+    target_link_libraries( fat${LIB_NAME}-shared LINK_PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} plugins-shared )
+    if( WIN32 OR MINGW )
+      target_link_libraries( fat${LIB_NAME}-shared PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
+    endif()
+    
+    link_modules( fat${LIB_NAME}-shared )
   endif()
 endif()
 
-set_target_properties( ${LIB_NAME}
+set_target_properties( ${LIB_NAME}-static
   PROPERTIES
-    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
+    OUTPUT_NAME ${LIB_NAME}
 )
 
-install( TARGETS ${LIB_NAME}
+install( TARGETS ${LIB_NAME}-static
   DESTINATION lib
 )
+
+if( BUILD_SHARED_LIBS )
+  set_target_properties( ${LIB_NAME}-shared
+    PROPERTIES
+      OUTPUT_NAME ${LIB_NAME}
+      VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+      SOVERSION ${PROJECT_VERSION_MAJOR}
+  )
+  
+  install( TARGETS ${LIB_NAME}-shared
+    DESTINATION lib
+  )
+endif()
 
 # pkg-config file
 configure_file(
@@ -101,15 +135,27 @@ install( FILES ${CMAKE_BINARY_DIR}/etc/uda/uda-cpp.pc
 
 
 if( NOT CLIENT_ONLY )
-  set_target_properties( fat${LIB_NAME}
+  set_target_properties( fat${LIB_NAME}-static
     PROPERTIES
-    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
+      OUTPUT_NAME fat${LIB_NAME}
   )
-
-  install( TARGETS fat${LIB_NAME}
+  
+  install( TARGETS fat${LIB_NAME}-static
     DESTINATION lib
   )
+  
+  if( BUILD_SHARED_LIBS )
+    set_target_properties( fat${LIB_NAME}-shared
+      PROPERTIES
+        OUTPUT_NAME fat${LIB_NAME}
+        VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+        SOVERSION ${PROJECT_VERSION_MAJOR}
+    )
+    
+    install( TARGETS fat${LIB_NAME}-shared
+      DESTINATION lib
+    )
+  endif()
   
   # pkg-config file
   configure_file(

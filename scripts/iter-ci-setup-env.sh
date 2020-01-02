@@ -15,6 +15,11 @@ then
 		echo "ERROR: Variable HDF5_ROOT is empty!"
 		exit 1
 	fi
+	if [ -z "$MDSPLUS_DIR" ]
+	then
+		echo "ERROR: Variable MDSPLUS_DIR is empty!"
+		exit 1
+	fi
 	if [ -z "$PostgresSQL_ROOT" ]
 	then
 		echo "ERROR: Variable PostgresSQL_ROOT is empty!"
@@ -29,6 +34,7 @@ then
 	# Convert Windows style path to Linux
 	export JAVA_HOME=`cygpath.exe -u "$JAVA_HOME"`
 	export HDF5_ROOT=`cygpath.exe -u "$HDF5_ROOT"`
+	export MDSPLUS_DIR=`cygpath.exe -u "$MDSPLUS_DIR"`
 	export PostgresSQL_ROOT=`cygpath.exe -u "$PostgresSQL_ROOT"`
 	export NETCDF_DIR=`cygpath.exe -u "$NETCDF_DIR"`
 else

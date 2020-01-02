@@ -1,15 +1,17 @@
-#ifndef IDAM_IDAMFILEMASTARCHIVEFILEPATH_H
-#define IDAM_IDAMFILEMASTARCHIVEFILEPATH_H
+#ifndef UDA_SERVER_MASTARCHIVEFILEPATH_H
+#define UDA_SERVER_MASTARCHIVEFILEPATH_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#ifndef NOIDAPLUGIN
 void mastArchiveFilePath(int pulno, int pass, char* file, char* path);
+#endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // IDAM_IDAMFILEMASTARCHIVEFILEPATH_H
+#endif // UDA_SERVER_MASTARCHIVEFILEPATH_H
 

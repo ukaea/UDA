@@ -16,6 +16,8 @@ if( WIN32 OR MINGW )
 
   include_directories( SYSTEM "${Boost_INCLUDE_DIR}" )
 
+  link_directories( ${CMAKE_BINARY_DIR}/source/wrappers/c++ )
+  
   set( LIB_NAME c_${PROJECT_NAME} )
 
   if( MINGW )
@@ -32,8 +34,13 @@ if( WIN32 OR MINGW )
   endif()
   set_source_files_properties( UDA.i PROPERTIES SWIG_MODULE_NAME ${LIB_NAME} )
   swig_add_module( ${LIB_NAME} python UDA.i )
-  swig_link_libraries( ${LIB_NAME} ${PROJECT_NAME}_cpp ${PYTHON_LIBRARIES} ${CACHE_LIBRARIES} )
-
+  
+  set( LIBRARIES ${PROJECT_NAME}_cpp ${PYTHON_LIBRARIES} ${CACHE_LIBRARIES} )
+  if( WIN32 OR MINGW )
+    set( LIBRARIES ${LIBRARIES} portablexdr ssl crypto ws2_32 stdc++ )
+  endif()
+  swig_link_libraries( ${LIB_NAME} ${LIBRARIES} )
+  
   install( TARGETS ${SWIG_MODULE_${LIB_NAME}_REAL_NAME}
     DESTINATION include/pyuda
   )

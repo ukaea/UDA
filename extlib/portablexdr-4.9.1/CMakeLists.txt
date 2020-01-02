@@ -4,13 +4,13 @@ cmake_policy( SET CMP0048 NEW )
 
 project( xdr VERSION 4.9.1 )
 
-if( NOT WIN32 )
+if( NOT WIN32 OR MINGW )
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -fno-strict-aliasing" )
 endif()
 
 include( TestBigEndian )
 
-if( WIN32 )
+if( WIN32 OR MINGW )
   add_definitions( -DBIG_ENDIAN=1 -DLITTLE_ENDIAN=2 )
   test_big_endian( BIG_ENDIAN )
 

@@ -23,5 +23,4 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${OPENSSL_LIBRARIES}
-    client-static
 )

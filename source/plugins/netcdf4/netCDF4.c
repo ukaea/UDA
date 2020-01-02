@@ -21,11 +21,11 @@
 #include "netCDF4.h"
 
 #include <clientserver/stringUtils.h>
-
-#include <readCDF4.h>
 #include <plugins/managePluginFiles.h>
 
-IDAMPLUGINFILELIST pluginFileList;    // Private list of open data file handles
+#include "readCDF4.h"
+
+UDA_PLUGIN_FILE_LIST pluginFileList;    // Private list of open data file handles
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);

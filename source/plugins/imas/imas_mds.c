@@ -41,7 +41,7 @@
 #include <logging/logging.h>
 #include <plugins/pluginUtils.h>
 
-IDAMPLUGINFILELIST pluginFileList_mds;
+UDA_PLUGIN_FILE_LIST pluginFileList_mds;
 
 extern char* errmsg;
 

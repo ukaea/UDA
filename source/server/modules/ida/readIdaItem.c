@@ -2726,9 +2726,9 @@ int readIdaItem(char* itemname, ida_file_ptr* ida_file, short* context, DATA_BLO
 //-------------------------------------------------------------------------------------------
 // Use requested Cast of Dimensions to DOUBLE?
 
-    UDA_LOG(UDA_LOG_DEBUG, "Properties: get_datadble = %d", data_block->client_block.get_datadble);
-    UDA_LOG(UDA_LOG_DEBUG, "            get_dimdble  = %d", data_block->client_block.get_dimdble);
-    UDA_LOG(UDA_LOG_DEBUG, "            get_timedble = %d", data_block->client_block.get_timedble);
+    UDA_LOG(UDA_LOG_DEBUG, "Properties: get_datadble = %d\n", data_block->client_block.get_datadble);
+    UDA_LOG(UDA_LOG_DEBUG, "            get_dimdble  = %d\n", data_block->client_block.get_dimdble);
+    UDA_LOG(UDA_LOG_DEBUG, "            get_timedble = %d\n", data_block->client_block.get_timedble);
 
     if (data_block->client_block.get_dimdble || data_block->client_block.get_timedble) {
         float* foffs, * fints;

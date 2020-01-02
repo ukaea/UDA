@@ -47,14 +47,19 @@ include( modules )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR} )
 
+link_directories( ${CMAKE_BINARY_DIR}/source/wrappers/c++ )
+
 file( GLOB HELPER_FILES "test_helpers.*" )
 
+set( LIBRARIES )
+set( EXE_FLAG )
+set( EXE_EXT )
 if( WIN32 OR MINGW )
-	set( EXE_FLAG WIN32 )
-	set( EXE_EXT ".exe" )
-else()
-	set( EXE_FLAG  )
-	set( EXE_EXT "" )
+  set( EXE_FLAG WIN32 )
+  if( MINGW )
+    set( EXE_EXT ".exe" )
+  endif()
+  set( LIBRARIES portablexdr ws2_32 )
 endif()
 
 macro( BUILD_TEST NAME SOURCE )
@@ -65,6 +70,7 @@ macro( BUILD_TEST NAME SOURCE )
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
+	${LIBRARIES}
 	stdc++
   )
   link_modules( ${NAME} )
@@ -80,6 +86,7 @@ macro( BUILD_TEST NAME SOURCE )
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
+	${LIBRARIES}
     m dl stdc++
   )
   if( NOT WIN32 AND NOT MINGW )
@@ -96,9 +103,9 @@ macro( BUILD_TEST NAME SOURCE )
   )
 
   if( FAT_TESTS )
-    add_test( ${NAME} fat_${NAME} )
+    add_test( ${NAME} fat_${NAME} -r junit -o ${NAME}_out.xml )
   else()
-    add_test( ${NAME} ${NAME} )
+    add_test( ${NAME} ${NAME} -r junit -o ${NAME}_out.xml )
   endif()
 endmacro( BUILD_TEST )
 

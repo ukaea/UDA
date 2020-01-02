@@ -7,11 +7,11 @@ if( NOT GCRYPT_FOUND OR NOT KSBA_FOUND )
 endif()
 
 set( SRC_FILES
-  serverAuthentication.c
-  clientAuthentication.c
-  security.c
-  authenticationUtils.c
-  x509Utils.c
+  serverAuthentication.cpp
+  clientAuthentication.cpp
+  security.cpp
+  authenticationUtils.cpp
+  x509Utils.cpp
 )
 
 include_directories( ${CMAKE_SOURCE_DIR}/source ${GCRYPT_INCLUDE_DIRS} ${KSBA_INCLUDE_DIRS} )

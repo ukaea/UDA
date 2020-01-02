@@ -21,10 +21,9 @@ elseif( NOT OPENSSL_FOUND )
 endif()
 
 # libgnurx is required under Windows for std::regex
+set( WIN_LIB )
 if( WIN32 OR MINGW )
-  set( WIN_LIB "gnurx" )
-else()
-  set( WIN_LIB "" )
+  set( WIN_LIB gnurx )
 endif()
 
 add_definitions( -Wno-error -Wno-all )

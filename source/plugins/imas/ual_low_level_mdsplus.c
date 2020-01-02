@@ -241,6 +241,34 @@ static int isEmpty(int nid);
 static int hasMembers(int nid);
 static int getCacheLevel(int expIdx);
 
+// Function MdsTimeToDouble was remove from lastest MDSplus release
+#ifndef MdsTimeToDouble
+void MdsTimeToDouble(int64_t inTime, double *outFloat)
+{
+  int64_t baseTime, currTime;
+
+  baseTime = 1000000000;
+  baseTime *= (24 * 3600);
+  currTime = inTime - baseTime;
+  *outFloat = (double)currTime * 1E-9;
+}
+#endif // MdsTimeToDouble
+
+// Function MdsFloatToTime was remove from lastest MDSplus release
+#ifndef MdsFloatToTime
+void MdsFloatToTime(double floatTime, int64_t * outTime)
+{
+  int64_t baseTime;
+  int64_t currTime;
+
+  baseTime = 1000000000;
+  baseTime *= (24 * 3600);
+  currTime = (int64_t) (floatTime / 1E-9);
+  *outTime = baseTime + currTime;
+}
+#endif // MdsFloatToTime
+
+
 static void updateInfo(int expIdx, char *cpoPath, char *path, struct descriptor *dataD, int isObject)
 {
     EMPTYXD(xd);
