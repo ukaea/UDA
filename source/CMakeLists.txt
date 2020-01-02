@@ -29,4 +29,18 @@ if( NOT CLIENT_ONLY )
 endif()
 
 install( FILES uda.h DESTINATION include/uda )
-install( PROGRAMS bin/install_plugin DESTINATION bin )
+
+execute_process( COMMAND which env OUTPUT_VARIABLE ENV_PATH )
+string( STRIP ${ENV_PATH} ENV_PATH )
+
+configure_file(
+  ${CMAKE_SOURCE_DIR}/source/bin/install_plugin.in
+  ${CMAKE_BINARY_DIR}/bin/install_plugin
+  @ONLY
+)
+
+install(
+  FILES ${CMAKE_BINARY_DIR}/bin/install_plugin
+  DESTINATION bin
+  PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
+)

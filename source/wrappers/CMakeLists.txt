@@ -4,7 +4,6 @@
 find_package( IDL )
 find_package( Java 1.6 )
 find_package( JNI )
-find_package( SWIG 3.0 )
 find_package( Boost )
 
 if( Boost_FOUND )
@@ -32,8 +31,10 @@ if( Boost_FOUND )
     message( WARNING "Python wrapper ignored by command" )
   endif()
 else()
-  message( WARNING "Boost not found - not building C++ (or Python) wrapper" )
+  message( WARNING "Boost not found - not building C++ wrapper" )
 endif()
+
+add_subdirectory( python )
 
 if( IDL_FOUND )
   add_subdirectory( idl )

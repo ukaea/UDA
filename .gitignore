@@ -29,3 +29,5 @@ extlib/portablexdr-4.9.1/config.h.in
 extlib/portablexdr-4.9.1/configure
 /python_installer
 /java
+/install-*
+/.idea/uda.iml

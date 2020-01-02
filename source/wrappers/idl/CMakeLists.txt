@@ -1,5 +1,4 @@
 find_package( IDL REQUIRED )
-find_package( PostgreSQL )
 find_package( LibXml2 )
 find_package( NetCDF )
 
@@ -29,12 +28,6 @@ if( FAT_IDL )
   add_library( ${LIB_NAME} SHARED ${SRC_FILES} ${FATCLIENT_OBJS} )
 else()
   add_library( ${LIB_NAME} SHARED ${SRC_FILES} )
-endif()
-
-if( PostgreSQL_FOUND )
-  add_subdirectory( mastcpf )
-else()
-  message( WARNING "PostgreSQL not found - IDL mastcpf library not building" )
 endif()
 
 if( FAT_IDL )
@@ -76,25 +69,6 @@ set( INSTALL_FILES
   getstruct.pro
   getdata.pro
   calluda.pro
-  geometry/addsignaldata.pro
-  geometry/applygeommanipulation.pro
-  geometry/cartesian_cylindrical.pro
-  geometry/convertgeomcoords.pro
-  geometry/cylindrical_cartesian.pro  
-  geometry/getgeomdata.pro  
-  geometry/getgeomsignaldata.pro
-  geometry/listgeomsignals.pro
-  geometry/listgeomgroups.pro
-  geometry/pickupmanipulation.pro 
-  geometry/strnumber.pro
-  putdata/putdata.pro
-  putdata/putdata__define.pro
-  list/listsignals.pro
-  list/listsources.pro
-  list/listallsources.pro
-  list/getidamlastshot.pro
-  list/getidamshotdatetime.pro
-  list/getidamlatestsourcepass.pro
 )
 
 install( FILES ${INSTALL_FILES}

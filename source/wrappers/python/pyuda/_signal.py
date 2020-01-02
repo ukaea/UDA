@@ -4,19 +4,20 @@ import json
 import base64
 import numpy as np
 
-from ._dim import Dim
-from ._utils import cdata_to_numpy_array, cdata_scalar_to_value
-from ._data import Data
+import cpyuda
 
-from builtins import (super, range)
-from future import standard_library
-standard_library.install_aliases()
+from ._dim import Dim
+from ._data import Data
 
 
 class DimEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, Dim):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, Dim):
             dim = obj
             obj = {
                 '_type': 'pyuda.Dim',
@@ -62,65 +63,36 @@ class Signal(Data):
 
     def __init__(self, cresult):
         self._cresult = cresult
-        self._data = None
         self._dims = None
         self._time = None
-        self._meta = None
-        self._label = None
-        self._units = None
-        self._rank = None
-        self._shape = None
-        self._errors = None
-
-    def _import_data(self):
-        data = self._cresult.data()
-        if not data.isNull():
-            if data.size() == 0:
-                self._data = cdata_scalar_to_value(data)
-            else:
-                self._data = cdata_to_numpy_array(data)
-                shape = data.shape()[::-1]
-                self._data = self._data.reshape(*shape)
-
-    def _import_errors(self):
-        errors = self._cresult.errors()
-        if not errors.isNull():
-            if errors.size() == 0:
-                self._errors = cdata_scalar_to_value(errors)
-            else:
-                self._errors = cdata_to_numpy_array(errors)
-                shape = errors.shape()[::-1]
-                self._errors = self._errors.reshape(*shape)
 
     @property
     def data(self):
-        if self._data is None and self._cresult is not None:
-            self._import_data()
-        return self._data
+        return self._cresult.data()
 
     @property
     def errors(self):
-        if self._errors is None and self._cresult is not None and self._cresult.hasErrors():
-            self._import_errors()
-        return self._errors
+        return self._cresult.errors()
 
     @property
     def label(self):
-        if self._label is None and self._cresult is not None:
-            self._label = self._cresult.label()
-        return self._label
+        return self._cresult.label()
 
     @property
     def units(self):
-        if self._units is None and self._cresult is not None:
-            self._units = self._cresult.units()
-        return self._units
+        return self._cresult.units()
+
+    @property
+    def description(self):
+        return self._cresult.description()
 
     @property
     def rank(self):
-        if self._rank is None and self._cresult is not None:
-            self._rank = self._cresult.rank()
-        return self._rank
+        return self._cresult.rank()
+
+    @property
+    def shape(self):
+        return tuple(self._cresult.shape())
 
     @property
     def dims(self):
@@ -130,18 +102,13 @@ class Signal(Data):
 
     @property
     def time(self):
-        if self._time is None and self._cresult is not None and self._cresult.hasTimeDim():
+        if self._time is None and self._cresult is not None and self._cresult.has_time_dim():
             self._import_time()
         return self._time
 
     @property
     def meta(self):
-        if self._meta is None and self._cresult is not None:
-            self._meta = {}
-            m = self._cresult.meta()
-            for k in m:
-                self._meta[k] = m[k]
-        return self._meta
+        return self._cresult.meta()
 
     def _import_dims(self):
         self._dims = []
@@ -149,10 +116,10 @@ class Signal(Data):
             self._import_dim(i)
 
     def _import_dim(self, num):
-        self._dims.append(Dim(self._cresult.dim(num, self._cresult.DATA)))
+        self._dims.append(Dim(self._cresult.dim(num, cpyuda.DATA)))
 
     def _import_time(self):
-        self._time = Dim(self._cresult.timeDim(self._cresult.DATA))
+        self._time = Dim(self._cresult.time_dim(cpyuda.DATA))
 
     def plot(self):
         import matplotlib.pyplot as plt

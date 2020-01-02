@@ -117,9 +117,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
             data_block = (DATA_BLOCK*) str;
 
-#ifndef SKIPSEND
             switch (direction) {
-
                 case XDR_RECEIVE:
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
@@ -306,7 +304,6 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     err = PROTOCOL_ERROR_4;
                     break;
             }
-#endif
             break;
         }
 
@@ -468,11 +465,9 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         // Data System record
 
         if (protocol_id == PROTOCOL_DATA_SYSTEM) {
-
             data_system = (DATA_SYSTEM*) str;
-#ifndef SKIPSEND
-            switch (direction) {
 
+            switch (direction) {
                 case XDR_RECEIVE:                    // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
                         err = PROTOCOL_ERROR_5;
@@ -508,7 +503,6 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     err = PROTOCOL_ERROR_4;
                     break;
             }
-#endif
             break;
         }
 
@@ -518,9 +512,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         if (protocol_id == PROTOCOL_SYSTEM_CONFIG) {
 
             system_config = (SYSTEM_CONFIG*) str;
-#ifndef SKIPSEND
-            switch (direction) {
 
+            switch (direction) {
                 case XDR_RECEIVE:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
@@ -558,7 +551,6 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     err = PROTOCOL_ERROR_4;
                     break;
             }
-#endif
             break;
         }
 
@@ -568,9 +560,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         if (protocol_id == PROTOCOL_DATA_SOURCE) {
 
             data_source = (DATA_SOURCE*) str;
-#ifndef SKIPSEND
-            switch (direction) {
 
+            switch (direction) {
                 case XDR_RECEIVE:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
@@ -607,7 +598,6 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     err = PROTOCOL_ERROR_4;
                     break;
             }
-#endif
             break;
         }
 
@@ -617,7 +607,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         if (protocol_id == PROTOCOL_SIGNAL) {
 
             signal = (SIGNAL*) str;
-#ifndef SKIPSEND
+
             switch (direction) {
 
                 case XDR_RECEIVE:
@@ -656,7 +646,6 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     err = PROTOCOL_ERROR_4;
                     break;
             }
-#endif
             break;
         }
 
@@ -666,7 +655,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         if (protocol_id == PROTOCOL_SIGNAL_DESC) {
 
             signal_desc = (SIGNAL_DESC*) str;
-#ifndef SKIPSEND
+
             switch (direction) {
 
                 case XDR_RECEIVE:
@@ -706,7 +695,6 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     err = PROTOCOL_ERROR_4;
                     break;
             }
-#endif
             break;
         }
 

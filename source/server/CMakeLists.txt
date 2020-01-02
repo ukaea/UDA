@@ -4,11 +4,6 @@
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 
-include( modules )
-find_modules()
-
-add_subdirectory( modules )
-
 ########################################################################################################################
 # Sources
 
@@ -90,7 +85,6 @@ set( SERVER_OBJ
   $<TARGET_OBJECTS:logging-server-objects>
   $<TARGET_OBJECTS:structures-server-objects>
   $<TARGET_OBJECTS:authentication-server-objects>
-  $<TARGET_OBJECTS:modules-objects>
 )
 
 add_library( server-static STATIC ${SERVER_OBJ} )
@@ -139,8 +133,6 @@ target_link_libraries( server-static PRIVATE
   dl
 )
 
-link_modules( server-static )
-
 if( BUILD_SHARED_LIBS )
   set( CLIENT_SHARED client-shared plugins-shared )
   if( WIN32 OR MINGW )
@@ -154,8 +146,6 @@ if( BUILD_SHARED_LIBS )
     ${CACHE_LIBRARIES}
     dl
   )
-  
-  link_modules( server-shared )
 endif()
 
 # Executable
@@ -177,8 +167,6 @@ target_link_libraries( server-exe PRIVATE
 if( NOT MINGW )
   target_link_libraries( server-exe LINK_PRIVATE c )
 endif()
-
-link_modules( server-exe )
 
 if( NOT APPLE )
   target_link_libraries( server-exe PRIVATE gcc_s )

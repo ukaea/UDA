@@ -88,10 +88,8 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
 void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block,
                    const PLUGINLIST* pluginlist, const ENVIRONMENT* environment)
 {
-
     int err = 0;
-    const char* msg;
-    const char* const empty = "";
+
 #ifndef FATCLIENT
     int socket;
     int addrlen;
@@ -107,17 +105,16 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
 #  endif
     static char host[INET6_ADDRSTRLEN+1];
 #endif
-    static struct timeval et_start, et_end;
-    double elapsedtime;            // Elapsed Time
-    time_t calendar;            // Simple Calendar Date & Time
-    struct tm* broken;            // Broken Down calendar Time
-    static char accessdate[DATELENGTH];    // The Calendar Time as a formatted String
+    static struct timeval et_start;
+    static struct timeval et_end;
+    static char accessdate[DATELENGTH];     // The Calendar Time as a formatted String
 
     errno = 0;
 
-    if (init) {            // Start of Access Log Record - at start of the request
+    if (init) {
+        // Start of Access Log Record - at start of the request
 
-// Remote Host IP Address
+        // Remote Host IP Address
 
 #ifndef FATCLIENT
         socket = 0;
@@ -141,18 +138,19 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
             if (strlen(host) == 0) strcpy(host, "-");
         }
 #else
-        strcpy(host,"-");
+        strcpy(host, "-");
 #endif
 
-// Client's Userid: from the client_block structure
+        // Client's Userid: from the client_block structure
 
-// Request Start Time
+        // Request Start Time
         gettimeofday(&et_start, nullptr);
 
-// Calendar Time
+        // Calendar Time
 
+        time_t calendar;
         time(&calendar);
-        broken = gmtime(&calendar);
+        struct tm* broken = gmtime(&calendar);
 #ifndef _WIN32
         asctime_r(broken, accessdate);
 #else
@@ -162,32 +160,32 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
         convertNonPrintable2(accessdate);
         TrimString(accessdate);
 
-// Client Request: From the request_block structure
+        // Client Request: From the request_block structure
 
         return;
-
     }
 
-// Write the Log Record
+    // Write the Log Record
 
-// Error Code & Message
+    // Error Code & Message
 
+    const char* msg;
     if (server_block.idamerrorstack.nerrors > 0) {
         err = server_block.idamerrorstack.idamerror[0].code;
         msg = server_block.idamerrorstack.idamerror[0].msg;
     } else {
         err = 0;
-        msg = empty;
+        msg = "";
     }
 
-// Error Message: from data_block
+    // Error Message: from data_block
 
-// Amount of Data Returned (Excluding Meta Data) from global: totalDataBlockSize;
+    // Amount of Data Returned (Excluding Meta Data) from global: totalDataBlockSize;
 
-// Request Completed Time: Elasped & CPU
+    // Request Completed Time: Elasped & CPU
 
     gettimeofday(&et_end, nullptr);
-    elapsedtime = (double)((et_end.tv_sec - et_start.tv_sec) * 1000);    // millisecs
+    double elapsedtime = (double)((et_end.tv_sec - et_start.tv_sec) * 1000);    // millisecs
 
     if (et_end.tv_usec < et_start.tv_usec) {
         elapsedtime = elapsedtime - 1.0 + (double)(1000000 + et_end.tv_usec - et_start.tv_usec) / 1000.0;
@@ -195,7 +193,7 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
         elapsedtime = elapsedtime + (double)(et_end.tv_usec - et_start.tv_usec) / 1000.0;
     }
 
-// Write the Log Record & Flush the fd
+    // Write the Log Record & Flush the fd
 
     size_t wlen = strlen(host) + 1 +
                   strlen(client_block.uid) + 1 +
@@ -224,7 +222,7 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
 
         idamLog(UDA_LOG_ACCESS, "%s\n", work);
 
-// Save Provenance with socket stream protection
+        // Save Provenance with socket stream protection
 
         idamServerRedirectStdStreams(0);
         idamProvenancePlugin(&client_block, &request, nullptr, nullptr, pluginlist, work, environment);

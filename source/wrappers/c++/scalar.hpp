@@ -34,11 +34,7 @@ public:
     { return *type_; }
 
     template<typename T>
-#ifndef SWIG
     T as() const
-#else
-    T _as() const
-#endif
     { return boost::any_cast<T>(value_); }
 
     static Scalar Null;

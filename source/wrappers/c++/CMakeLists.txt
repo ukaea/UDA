@@ -46,15 +46,11 @@ set( CLIENT_OBJS
   $<TARGET_OBJECTS:authentication-client-objects>
 )
 
-include( modules )
-
 add_library( ${LIB_NAME}-static STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
 target_link_libraries( ${LIB_NAME}-static PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} )
 if( WIN32 OR MINGW )
   target_link_libraries( ${LIB_NAME}-static PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
 endif()
-
-link_modules( ${LIB_NAME}-static )
 
 if( BUILD_SHARED_LIBS )
   add_library( ${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
@@ -62,8 +58,6 @@ if( BUILD_SHARED_LIBS )
   if( WIN32 OR MINGW )
     target_link_libraries( ${LIB_NAME}-shared PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
   endif()
-  
-  link_modules( ${LIB_NAME}-shared )
 endif()
 
 if( NOT CLIENT_ONLY )
@@ -75,7 +69,6 @@ if( NOT CLIENT_ONLY )
     $<TARGET_OBJECTS:fatserver-objects>
     $<TARGET_OBJECTS:fatclientserver-objects>
     $<TARGET_OBJECTS:structures-server-objects>
-    $<TARGET_OBJECTS:fatmodules-objects>
     $<TARGET_OBJECTS:cache-objects>
     $<TARGET_OBJECTS:logging-server-objects>
     $<TARGET_OBJECTS:plugins-objects>
@@ -87,16 +80,12 @@ if( NOT CLIENT_ONLY )
     target_link_libraries( fat${LIB_NAME}-static PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
   endif()
   
-  link_modules( fat${LIB_NAME}-static )
-  
   if( BUILD_SHARED_LIBS )
     add_library( fat${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
     target_link_libraries( fat${LIB_NAME}-shared LINK_PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} plugins-shared )
     if( WIN32 OR MINGW )
       target_link_libraries( fat${LIB_NAME}-shared PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
     endif()
-    
-    link_modules( fat${LIB_NAME}-shared )
   endif()
 endif()
 

@@ -17,15 +17,22 @@ macro( uda_plugin )
   include( CMakeParseArguments )
 
   set( optionArgs )
-  set( oneValueArgs NAME LIBNAME ENTRY_FUNC DESCRIPTION EXAMPLE CONFIG_FILE )
-  set( multiValueArgs SOURCES EXTRA_INCLUDE_DIRS EXTRA_LINK_DIRS EXTRA_LINK_LIBS EXTRA_DEFINITIONS EXTRA_INSTALL_FILES )
+  set( oneValueArgs NAME LIBNAME ENTRY_FUNC DESCRIPTION EXAMPLE CONFIG_FILE TYPE EXTENSION VERSION )
+  set( multiValueArgs SOURCES EXTRA_INCLUDE_DIRS EXTRA_LINK_DIRS EXTRA_LINK_LIBS EXTRA_DEFINITIONS EXTRA_INSTALL_FILES EXTRA_NAMES )
 
   cmake_parse_arguments(
     PLUGIN
     "${optionArgs}"
     "${oneValueArgs}"
     "${multiValueArgs}"
-    "${ARGN}" )
+    "${ARGN}"
+  )
+
+  set( BUILT_PLUGINS ${BUILT_PLUGINS} "${PLUGIN_NAME}" PARENT_SCOPE )
+
+  if( NOT PLUGIN_VERSION )
+    set( PLUGIN_VERSION "0.0.0" )
+  endif()
 
   include_directories(
     ${CMAKE_SOURCE_DIR}/source
@@ -35,6 +42,7 @@ macro( uda_plugin )
     set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,defs" )
   endif()
 
+  include_directories( SYSTEM /opt/local/include )
   foreach( INCLUDE_DIR ${PLUGIN_EXTRA_INCLUDE_DIRS} )
     include_directories( SYSTEM ${INCLUDE_DIR} )
   endforeach()
@@ -44,7 +52,12 @@ macro( uda_plugin )
   endforeach()
 
   add_library( ${PLUGIN_LIBNAME} SHARED ${PLUGIN_SOURCES} )
-  set_target_properties( ${PLUGIN_LIBNAME} PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE )
+  set_target_properties( ${PLUGIN_LIBNAME}
+    PROPERTIES
+    BUILD_WITH_INSTALL_RPATH TRUE
+    SOVERSION ${PLUGIN_VERSION}
+    VERSION ${PLUGIN_VERSION}
+  )
 
   if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
     add_definitions( -DA64 )
@@ -87,10 +100,30 @@ macro( uda_plugin )
     set( EXT_NAME "so" )
   endif()
 
+  if( "${PLUGIN_TYPE}" STREQUAL "" )
+    set( PLUGIN_TYPE function )
+  elseif( "${PLUGIN_TYPE}" STREQUAL "file" )
+  elseif( "${PLUGIN_TYPE}" STREQUAL "function" )
+  elseif( "${PLUGIN_TYPE}" STREQUAL "server" )
+  else()
+    message( FATAL_ERROR "unknown plugin type for plugin ${PLUGIN_NAME}: ${PLUGIN_TYPE}" )
+  endif()
+
+  if( "${PLUGIN_EXTENSION}" STREQUAL "" )
+    set( PLUGIN_EXTENSION "*" )
+  endif()
+
   file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/udaPlugins_${PLUGIN_NAME}.conf"
-    "${PLUGIN_NAME}, function, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, *, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
+    "${PLUGIN_NAME}, ${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, ${PLUGIN_EXTENSION}, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
   file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/../udaPlugins.conf"
-    "${PLUGIN_NAME}, function, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, *, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
+    "${PLUGIN_NAME}, ${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, ${PLUGIN_EXTENSION}, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
+
+  foreach( EXTRA_NAME ${PLUGIN_EXTRA_NAMES} )
+    file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/udaPlugins_${PLUGIN_NAME}.conf"
+      "${EXTRA_NAME}, ${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, ${PLUGIN_EXTENSION}, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
+    file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/../udaPlugins.conf"
+      "${EXTRA_NAME}, ${PLUGIN_TYPE}, ${PLUGIN_ENTRY_FUNC}, lib${PLUGIN_LIBNAME}.${EXT_NAME}, ${PLUGIN_EXTENSION}, 1, 1, 1, ${PLUGIN_DESCRIPTION}, ${PLUGIN_EXAMPLE}\n" )
+  endforeach()
 
   if( NOT EXISTS "${CMAKE_BINARY_DIR}/etc/plugins.d" )
     file( MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/etc/plugins.d" )

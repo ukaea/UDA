@@ -8,14 +8,14 @@ import base64
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-from builtins import (super, int, chr, range)
-from future import standard_library
-standard_library.install_aliases()
-
 
 class VideoEncoder(json.JSONEncoder):
 
     def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
         if isinstance(obj, np.ndarray):
             data = obj
             obj = {
