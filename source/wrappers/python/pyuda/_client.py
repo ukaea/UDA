@@ -94,7 +94,7 @@ class Client(with_metaclass(ClientMeta, object)):
             return String(result)
         return Signal(result)
 
-    def list(self, list_type, shot=None, alias=None, signal_type=None):
+    def list(self, list_type, shot=None, alias=None, signal_type=None, signal_search=None, description_search=None):
         """
         Query the server for available data.
 
@@ -102,6 +102,8 @@ class Client(with_metaclass(ClientMeta, object)):
         :param shot: the shot number, or None to return for all shots
         :param alias: the device alias, or None to return for all devices
         :param signal_type: the signal types {A|R\M|I}, or None to return for all types
+        :param signal_search: string to filter on signal names. Use % as wildcard.
+        :param description_search: string to filter on signal descriptions. Use % as wildcard.
         :return: A list of namedtuples containing the query data
         """
         if list_type == ListType.SIGNALS:
@@ -120,6 +122,10 @@ class Client(with_metaclass(ClientMeta, object)):
             if signal_type not in ("A", "R", "M", "I"):
                 raise ValueError("unknown signal_type " + signal_type)
             args += "type=%s, " % signal_type
+        if signal_search is not None:
+            args += "signal_match=%s, " % signal_search
+        if description_search is not None:
+            args += "description=%s, " % description_search
 
         args += list_arg
 
