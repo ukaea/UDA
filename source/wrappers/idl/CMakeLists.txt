@@ -69,6 +69,8 @@ set( INSTALL_FILES
   getstruct.pro
   getdata.pro
   calluda.pro
+  getfile.pro
+  gettext.pro
 )
 
 install( FILES ${INSTALL_FILES}

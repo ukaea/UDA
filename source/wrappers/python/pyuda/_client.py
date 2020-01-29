@@ -10,6 +10,7 @@ from ._video import Video
 from six import with_metaclass
 import logging
 from collections import namedtuple
+import sys
 try:
     from enum import Enum
 except ImportError:
@@ -68,7 +69,40 @@ class Client(with_metaclass(ClientMeta, object)):
             self._registered_subclients['listGeomGroups'] = GeomClient(self)
         except ImportError:
             pass
-        
+
+
+    def get_file(self, source_file, output_file=None):
+        """
+        Retrieve file using bytes plugin and write to file
+        :param source_file: the full path to the file
+        :param output_file: the name of the output file
+        :return:
+        """
+
+        result = cpyuda.get_data("bytes::read(path=%s)" % source_file, "")
+
+        with open(output_file, 'wb') as f_out:
+            result.data().tofile(f_out)
+
+        return
+
+
+    def get_text(self, source_file):
+        """
+        Retrive a text file using the bytes plugin and decode as string
+        :param source_file: the full path to the file
+        :return:
+        """
+
+        result = cpyuda.get_data("bytes::read(path=%s)" % source_file, "")
+
+        if sys.version_info[0] <= 2:
+            result_str = result.data().tostring()
+        else:
+            result_str = result.data().tobytes().decode('utf-8')
+        return result_str
+
+
     def get(self, signal, source, **kwargs):
         """
         IDAM get data method.
@@ -80,9 +114,6 @@ class Client(with_metaclass(ClientMeta, object)):
         """
         # Standard signal
         result = cpyuda.get_data(str(signal), str(source))
-
-        if 'raw' in kwargs and kwargs['raw']:
-            return result.bytes()
 
         if result.is_tree():
             tree = result.tree()
