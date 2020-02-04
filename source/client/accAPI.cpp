@@ -3330,7 +3330,7 @@ int getIdamDimDataCheckSum(int handle, int ndim)
 //===========================================================================================================
 // Access to (De)Serialiser
 
-void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectSize, char** key, size_t* keySize)
+void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectSize, char** key, size_t* keySize, int protocolVersion)
 {
     // Extract the serialised Data Block from Cache or serialise it if not cached (hash key in Data Block, empty if not cached)
     // Use Case: extract data in object form for storage in external data object store, e.g. CEPH, HDF5
@@ -3358,7 +3358,7 @@ void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectS
     USERDEFINEDTYPELIST* userdefinedtypelist = getIdamUserDefinedTypeList(handle);
     LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
     protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
-              (void*)getIdamDataBlock(handle));
+              (void*)getIdamDataBlock(handle), protocolVersion);
 
 #ifdef _WIN32
     fflush(memfile);

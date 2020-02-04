@@ -12,17 +12,17 @@ extern "C" {
 
 int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                           USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank,
-                          int* structShape, int index, NTREE** NTree);
+                          int* structShape, int index, NTREE** NTree, int protocolVersion);
 
 // Send/Receive Array of Structures
 
 int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                              USERDEFINEDTYPE* userdefinedtype, void** data);
+                              USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion);
 
 bool_t xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str);
 
 int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                    USERDEFINEDTYPELIST* userdefinedtypelist, void* str);
+                    USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion);
 
 #ifdef __cplusplus
 }

@@ -5,12 +5,8 @@ find_package( OpenSSL REQUIRED )
 if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )
 endif()
-if( NOT CLIENT_ONLY AND NOT NO_MODULES )
-  find_package( PostgreSQL REQUIRED )
-else()
-  add_definitions( -DNOTGENERICENABLED )
-endif()
 
+add_definitions( -DNOTGENERICENABLED )
 add_definitions( -DNO_GSL_LIB )
 
 ########################################################################################################################

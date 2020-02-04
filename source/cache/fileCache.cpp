@@ -347,7 +347,7 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
     return (int)validRecordCount;
 }
 
-int idamClientReadCache(DATA_BLOCK* data_block, char* filename)
+int idamClientReadCache(DATA_BLOCK* data_block, char* filename, int protocolVersion)
 {
     int err = 0;
     int rc = 0;
@@ -401,7 +401,7 @@ int idamClientReadCache(DATA_BLOCK* data_block, char* filename)
 
         initUserDefinedType(udt_received);
 
-        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data); // receive the Data
+        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data, protocolVersion); // receive the Data
 
         if (!rc) {
             err = 999;

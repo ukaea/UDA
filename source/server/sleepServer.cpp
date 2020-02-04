@@ -14,7 +14,7 @@
 #include <clientserver/xdrlib.h>
 #include <clientserver/udaErrors.h>
 
-int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist)
+int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion)
 {
     int protocol_id, next_protocol, err, rc;
 
@@ -25,7 +25,8 @@ int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedty
 
     UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Protocol 3 Listening for Next Client Request\n");
 
-    if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist, NULL)) != 0) {
+    if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist,
+                        nullptr, protocolVersion)) != 0) {
 
         UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Protocol 3 Error Listening for Wake-up %d\n", err);
 
@@ -43,7 +44,8 @@ int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedty
 
 #ifndef NOCHAT
     // Echo Next Protocol straight back to Client
-    if ((err = protocol(serverOutput, protocol_id, XDR_SEND, &next_protocol, logmalloclist, userdefinedtypelist, NULL)) != 0) {
+    if ((err = protocol(serverOutput, protocol_id, XDR_SEND, &next_protocol, logmalloclist, userdefinedtypelist,
+                        nullptr, protocolVersion)) != 0) {
         addIdamError(CODEERRORTYPE, "sleepServer", err, "Protocol 3 Error Echoing Next Protocol ID");
         return 0;
     }

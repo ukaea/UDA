@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist);
+int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion);
 
 #ifdef __cplusplus
 }

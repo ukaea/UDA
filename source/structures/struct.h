@@ -9,7 +9,9 @@
 #include <structures/genStructs.h>
 
 #ifdef SERVERBUILD
+
 #  include <server/udaServer.h>
+
 #endif
 
 #ifdef __cplusplus
@@ -233,7 +235,8 @@ void addNonMalloc(LOGMALLOCLIST* logmalloclist, void* stack, int count, size_t s
  
 * @return void.
 */
-void addNonMalloc2(LOGMALLOCLIST* logmalloclist, void* stack, int count, size_t size, const char* type, int rank, int* shape);
+void addNonMalloc2(LOGMALLOCLIST* logmalloclist, void* stack, int count, size_t size, const char* type, int rank,
+                   int* shape);
 
 /** Add a heap memory location to the LOGMALLOCLIST data structure. These are freed.  
 *
@@ -255,7 +258,8 @@ void addMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t size,
 * @param shape The shape of the allocated array. Only required when rank > 1.
 * @return void.
 */
-void addMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t size, const char* type, int rank, int* shape);
+void
+addMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t size, const char* type, int rank, int* shape);
 
 /** Change the logged memory location to a new location (necessary with realloc).  
 *
@@ -314,7 +318,8 @@ void findMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size,
 
 * @return void.
 */
-void findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size, const char** type, int* rank, int** shape);
+void
+findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size, const char** type, int* rank, int** shape);
 
 /** Add a heap memory location to the LOGSTRUCTLIST data structure. These are freed.  
 *
@@ -359,7 +364,7 @@ void copyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew);
 * @param anew The copy of the type definition list.
 * @return void.
 */
-void copyUserDefinedTypeList(USERDEFINEDTYPELIST **anew);
+void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew);
 
 /** Create the Initial User Defined Structure Definition List.
 * 
@@ -402,7 +407,8 @@ void updateUserDefinedType(USERDEFINEDTYPELIST* str, int typeId, USERDEFINEDTYPE
 * @param value The new property value
 * @return void.
 */
-void changeUserDefinedTypeElementProperty(USERDEFINEDTYPELIST* str, int typeId, char *element, char *property, void *value);
+void
+changeUserDefinedTypeElementProperty(USERDEFINEDTYPELIST* str, int typeId, char* element, char* property, void* value);
 
 /** The number of Structure Definitions or User Defined Types in the structure list  
 * 
@@ -524,7 +530,8 @@ int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int
 
 // Send/Receive Array of Structures
 
-int xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* userdefinedtype, void** data);
+int xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                           USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion);
 
 int findUserDefinedTypeId(USERDEFINEDTYPELIST* userdefinedtypelist, const char* name);
 
@@ -674,7 +681,9 @@ void* getNodeStructureArrayData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, int 
 * @param componentindex The structure element index
 * @return a Pointer to a Component Structure Array element.
 */
-void* getNodeStructureComponentArrayData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, int structureindex, int componentindex);
+void*
+getNodeStructureComponentArrayData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, int structureindex,
+                                   int componentindex);
 
 /** Return the count of child User Defined Type Structures (elements of this structure). 
 *
@@ -928,7 +937,9 @@ void* getNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
 * @return void.
 */
 
-void printNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, const char* target);
+void
+printNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                                const char* target);
 
 /** Print a Data Structure's Contents. 
 *
@@ -1098,11 +1109,15 @@ void dereferenceFloatData(float* data_c, int count, float* data_f);
 
 short* castNodeStructureComponentDatatoShort(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
 
-void castNodeStructureComponentDatatoShort_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target, short* data_f);
+void
+castNodeStructureComponentDatatoShort_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target, short* data_f);
 
-void castNodeStructureComponentDatatoFloat_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target, float* data_f);
+void
+castNodeStructureComponentDatatoFloat_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target, float* data_f);
 
-void addStructureField(USERDEFINEDTYPE* user_type, const char* name, const char* desc, UDA_TYPE data_type, bool is_pointer, int rank, int* shape, size_t offset);
+void
+addStructureField(USERDEFINEDTYPE* user_type, const char* name, const char* desc, UDA_TYPE data_type, bool is_pointer,
+                  int rank, int* shape, size_t offset);
 
 #ifdef __cplusplus
 }

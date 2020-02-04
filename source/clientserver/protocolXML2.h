@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                 USERDEFINEDTYPELIST* userdefinedtypelist, void* str);
+                 USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion);
 
 #ifdef __cplusplus
 }

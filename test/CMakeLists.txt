@@ -90,9 +90,6 @@ macro( BUILD_TEST NAME SOURCE )
   if( NOT WIN32 AND NOT MINGW )
     target_link_libraries( fat_${NAME} PRIVATE c )
   endif()
-  if( NOT NO_MODULES )
-    target_link_libraries( fat_${NAME} PRIVATE ${PostgreSQL_LIBRARY} )
-  endif()
   target_compile_definitions( fat_${NAME} PRIVATE -DFATCLIENT )
 
   set_target_properties( fat_${NAME}

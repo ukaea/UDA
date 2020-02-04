@@ -43,12 +43,12 @@
 #include "udaErrors.h"
 #include "errorLog.h"
 
-static int handle_request_block(XDR* xdrs, int direction, const void* str);
+static int handle_request_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
 
-static int handle_data_block(XDR* xdrs, int direction, const void* str);
+static int handle_data_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
 
 static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                                     USERDEFINEDTYPELIST* userdefinedtypelist, const void* str);
+                                     USERDEFINEDTYPELIST* userdefinedtypelist, const void* str, int protocolVersion);
 
 static int handle_next_protocol(XDR* xdrs, int direction, int* token);
 
@@ -62,9 +62,9 @@ static int handle_signal(XDR* xdrs, int direction, const void* str);
 
 static int handle_signal_desc(XDR* xdrs, int direction, const void* str);
 
-static int handle_client_block(XDR* xdrs, int direction, const void* str);
+static int handle_client_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
 
-static int handle_server_block(XDR* xdrs, int direction, const void* str);
+static int handle_server_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
 
 static int handle_dataobject(XDR* xdrs, int direction, const void* str);
 
@@ -75,19 +75,19 @@ static int handle_security_block(XDR* xdrs, int direction, const void* str);
 #endif
 
 int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-              USERDEFINEDTYPELIST* userdefinedtypelist, void* str)
+              USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion)
 {
     int err = 0;
 
     switch (protocol_id) {
         case PROTOCOL_REQUEST_BLOCK:
-            err = handle_request_block(xdrs, direction, str);
+            err = handle_request_block(xdrs, direction, str, protocolVersion);
             break;
         case PROTOCOL_DATA_BLOCK:
-            err = handle_data_block(xdrs, direction, str);
+            err = handle_data_block(xdrs, direction, str, protocolVersion);
             break;
         case PROTOCOL_PUTDATA_BLOCK_LIST:
-            err = handle_putdata_block_list(xdrs, direction, token, logmalloclist, userdefinedtypelist, str);
+            err = handle_putdata_block_list(xdrs, direction, token, logmalloclist, userdefinedtypelist, str, protocolVersion);
             break;
         case PROTOCOL_NEXT_PROTOCOL:
             err = handle_next_protocol(xdrs, direction, token);
@@ -113,10 +113,10 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
 #endif
         case PROTOCOL_CLIENT_BLOCK:
-            err = handle_client_block(xdrs, direction, str);
+            err = handle_client_block(xdrs, direction, str, protocolVersion);
             break;
         case PROTOCOL_SERVER_BLOCK:
-            err = handle_server_block(xdrs, direction, str);
+            err = handle_server_block(xdrs, direction, str, protocolVersion);
             break;
         case PROTOCOL_DATAOBJECT:
             err = handle_dataobject(xdrs, direction, str);
@@ -127,7 +127,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         default:
             if (protocol_id > PROTOCOL_OPAQUE_START && protocol_id < PROTOCOL_OPAQUE_STOP) {
-                err = protocolXML2(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str);
+                err = protocolXML2(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str, protocolVersion);
             }
     }
 
@@ -273,7 +273,7 @@ static int handle_dataobject(XDR* xdrs, int direction, const void* str)
     return err;
 }
 
-static int handle_server_block(XDR* xdrs, int direction, const void* str)
+static int handle_server_block(XDR* xdrs, int direction, const void* str, int protocolVersion)
 {
     int err = 0;
     auto server_block = (SERVER_BLOCK*)str;
@@ -282,7 +282,7 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str)
         case XDR_RECEIVE:
             closeIdamError();    // Free Heap associated with Previous Data Access
 
-            if (!xdr_server1(xdrs, server_block)) {
+            if (!xdr_server1(xdrs, server_block, protocolVersion)) {
                 err = PROTOCOL_ERROR_22;
                 break;
             }
@@ -302,7 +302,7 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str)
             break;
 
         case XDR_SEND:
-            if (!xdr_server1(xdrs, server_block)) {
+            if (!xdr_server1(xdrs, server_block, protocolVersion)) {
                 err = PROTOCOL_ERROR_22;
                 break;
             }
@@ -326,21 +326,21 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str)
     return err;
 }
 
-static int handle_client_block(XDR* xdrs, int direction, const void* str)
+static int handle_client_block(XDR* xdrs, int direction, const void* str, int protocolVersion)
 {
     int err = 0;
     auto client_block = (CLIENT_BLOCK*)str;
 
     switch (direction) {
         case XDR_RECEIVE:
-            if (!xdr_client(xdrs, client_block)) {
+            if (!xdr_client(xdrs, client_block, protocolVersion)) {
                 err = PROTOCOL_ERROR_20;
                 break;
             }
             break;
 
         case XDR_SEND:
-            if (!xdr_client(xdrs, client_block)) {
+            if (!xdr_client(xdrs, client_block, protocolVersion)) {
                 err = PROTOCOL_ERROR_20;
                 break;
             }
@@ -545,7 +545,7 @@ static int handle_next_protocol(XDR* xdrs, int direction, int* token)
 }
 
 static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                                     USERDEFINEDTYPELIST* userdefinedtypelist, const void* str)
+                                     USERDEFINEDTYPELIST* userdefinedtypelist, const void* str, int protocolVersion)
 {
     int err = 0;
     auto putDataBlockList = (PUTDATA_BLOCK_LIST*)str;
@@ -610,7 +610,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
 
                     int protocol_id = PROTOCOL_STRUCTURES;
                     if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist,
-                                               data_block)) != 0) {
+                                               data_block, protocolVersion)) != 0) {
                         // Fetch Structured data
                         break;
                     }
@@ -674,7 +674,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
 
                     int protocol_id = PROTOCOL_STRUCTURES;
                     if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist,
-                                               &data_block)) != 0) {
+                                               &data_block, protocolVersion)) != 0) {
                         // Send Structured data
                         break;
                     }
@@ -692,14 +692,14 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
     return err;
 }
 
-static int handle_data_block(XDR* xdrs, int direction, const void* str)
+static int handle_data_block(XDR* xdrs, int direction, const void* str, int protocolVersion)
 {
     int err = 0;
     auto data_block = (DATA_BLOCK*)str;
 
     switch (direction) {
         case XDR_RECEIVE:
-            if (!xdr_data_block1(xdrs, data_block)) {
+            if (!xdr_data_block1(xdrs, data_block, protocolVersion)) {
                 err = PROTOCOL_ERROR_61;
                 break;
             }
@@ -806,7 +806,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str)
                 break;
             }
             UDA_LOG(UDA_LOG_DEBUG, "#2 PROTOCOL: Send/Receive Data Block\n");
-            if (!xdr_data_block1(xdrs, data_block)) {
+            if (!xdr_data_block1(xdrs, data_block, protocolVersion)) {
                 err = PROTOCOL_ERROR_61;
                 break;
             }
@@ -886,21 +886,21 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str)
     return err;
 }
 
-static int handle_request_block(XDR* xdrs, int direction, const void* str)
+static int handle_request_block(XDR* xdrs, int direction, const void* str, int protocolVersion)
 {
     int err = 0;
     auto request_block = (REQUEST_BLOCK*)str;
 
     switch (direction) {
         case XDR_RECEIVE:
-            if (!xdr_request(xdrs, request_block)) {
+            if (!xdr_request(xdrs, request_block, protocolVersion)) {
                 err = PROTOCOL_ERROR_1;
                 break;
             }
             break;
 
         case XDR_SEND:
-            if (!xdr_request(xdrs, request_block)) {
+            if (!xdr_request(xdrs, request_block, protocolVersion)) {
                 err = PROTOCOL_ERROR_2;
                 break;
             }

@@ -1,5 +1,5 @@
-#ifndef IDAM_STRUCTURES_XDRUSERDEFINEDDATA_H
-#define IDAM_STRUCTURES_XDRUSERDEFINEDDATA_H
+#ifndef UDA_STRUCTURES_XDRUSERDEFINEDDATA_H
+#define UDA_STRUCTURES_XDRUSERDEFINEDDATA_H
 
 #include <rpc/rpc.h>
 
@@ -11,10 +11,10 @@ extern "C" {
 
 int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                        USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank, int* structShape,
-                       int index, NTREE** NTree);
+                       int index, NTREE** NTree, int protocolVersion);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // IDAM_STRUCTURES_XDRUSERDEFINEDDATA_H
+#endif // UDA_STRUCTURES_XDRUSERDEFINEDDATA_H

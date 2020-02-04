@@ -155,7 +155,7 @@ bool_t xdr_securityBlock2(XDR* xdrs, SECURITY_BLOCK* str)
 //		get_notoff
 
 
-bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str)
+bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
 {
     int rc = xdr_int(xdrs, &str->version)
              && xdr_int(xdrs, &str->pid)
@@ -221,7 +221,7 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str)
 //-----------------------------------------------------------------------
 // Server State Block
 
-bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str)
+bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str, int protocolVersion)
 {
 
     int rc = 0;
@@ -297,7 +297,7 @@ bool_t xdr_server(XDR* xdrs, SERVER_BLOCK* str)
 //-----------------------------------------------------------------------
 // Client Data Request Block
 
-bool_t xdr_request(XDR* xdrs, REQUEST_BLOCK* str)
+bool_t xdr_request(XDR* xdrs, REQUEST_BLOCK* str, int protocolVersion)
 {
     int rc = xdr_int(xdrs, &str->request);
     rc = rc && xdr_int(xdrs, &str->exp_number);
@@ -428,7 +428,8 @@ bool_t xdr_data_object2(XDR* xdrs, DATA_OBJECT* str)
 }
 
 bool_t
-xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, DATA_BLOCK* str)
+xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, DATA_BLOCK* str,
+                     int protocolVersion)
 {
     int err = 0, rc = 1;
     int packageType = 0;
@@ -466,7 +467,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist);    // send the full set of known named structures
         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u,
-                                          (void**)data);            // send the Data
+                                          (void**)data, protocolVersion);            // send the Data
 
         if (!rc) {
             err = 999;
@@ -510,7 +511,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
         initUserDefinedType(udt_received);
 
         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                          &data);            // receive the Data
+                                          &data, protocolVersion);            // receive the Data
 
         if (!rc) {
             err = 999;
@@ -550,7 +551,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 //-----------------------------------------------------------------------
 // Data from File Source
 
-bool_t xdr_data_block1(XDR* xdrs, DATA_BLOCK* str)
+bool_t xdr_data_block1(XDR* xdrs, DATA_BLOCK* str, int protocolVersion)
 {
     int rc = xdr_int(xdrs, &str->data_n);
     rc = rc && xdr_u_int(xdrs, &str->rank);
@@ -1178,13 +1179,13 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                     sizeof(unsigned long long int), (xdrproc_t)xdr_uint64_t)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)str->dims[i].udoms,
                                                     sizeof(unsigned long long int), (xdrproc_t)xdr_uint64_t))) {
-                                                        return 0;
+                                    return 0;
                                 }
                                 break;
                             case 2:
                                 if (!xdr_vector(xdrs, str->dims[i].offs, (int)str->dims[i].udoms,
                                                 sizeof(unsigned long), (xdrproc_t)xdr_uint64_t)) {
-                                                    return 0;
+                                    return 0;
                                 }
                                 break;
                             case 3:
@@ -1192,7 +1193,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
                                                  sizeof(unsigned long long int), (xdrproc_t)xdr_uint64_t)
                                       && xdr_vector(xdrs, str->dims[i].ints, (int)1,
                                                     sizeof(unsigned long long int), (xdrproc_t)xdr_uint64_t))) {
-                                                        return 0;
+                                    return 0;
                                 }
                                 break;
                         }
