@@ -9,13 +9,10 @@
 #include "udaClient.h"
 
 #ifdef __GNUC__
-
 #  include <unistd.h>
-
 #endif
 
-#include <stdlib.h>
-#include <stdbool.h>
+#include <cstdlib>
 
 #include <logging/logging.h>
 #include <clientserver/udaErrors.h>
@@ -38,14 +35,12 @@
 #  include <clientserver/compressDim.h>
 #  include <server/udaServer.h>
 #else
-
 #  include "clientXDRStream.h"
 #  include <clientserver/xdrlib.h>
-
 #endif
 
 #ifdef MEMCACHE
-#  include "idamCache.h"
+#  include <cache/cache.h>
 #endif
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
@@ -193,7 +188,7 @@ int idamClient(REQUEST_BLOCK* request_block)
     int serverside = 0;
 
 #ifdef MEMCACHE
-    static IDAM_CACHE * cache;
+    static IDAM_CACHE* cache;
     request_block_ptr = request_block;    // Passed down to middleware player via global pointer
 #endif
 
@@ -254,7 +249,6 @@ int idamClient(REQUEST_BLOCK* request_block)
         if (tv_server_start == 0) {
             time(&tv_server_start);    // First Call: Start the Clock
         }
-
 #ifndef FATCLIENT   // <========================== Client Server Code Only
 
         //-------------------------------------------------------------------------
@@ -268,7 +262,8 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             // Check Client Properties for permission to cache
 
-            if (clientFlags & CLIENTFLAG_CACHE && !request_block->put && (cacheStatus == CACHE_AVAILABLE || cacheStatus == CACHE_NOT_OPENED)) {
+            if (clientFlags & CLIENTFLAG_CACHE && !request_block->put &&
+                (cacheStatus == CACHE_AVAILABLE || cacheStatus == CACHE_NOT_OPENED)) {
 
                 // Open the Cache
 
@@ -285,30 +280,34 @@ int idamClient(REQUEST_BLOCK* request_block)
 
                 // Query the cache for the Data
 
-                data = idamCacheRead(cache, request_block);
+                DATA_BLOCK* data = idamCacheRead(cache, request_block, logmalloclist, userdefinedtypelist,
+                                                 *getIdamClientEnvironment());
 
-                if (data != nullptr) {	// Success
+                if (data != nullptr) {    // Success
 
-           int lastHandle = -1;
-               if((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) && (lastHandle = getIdamThreadLastHandle()) >= 0){
-                      if(clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE)
-                         idamFree(lastHandle);
-                      else
-                         initDataBlock(&Data_Block[lastHandle]);		// Application has responsibility for freeing heap in the Data Block
-                      Data_Block[lastHandle].handle = lastHandle;
-                      memcpy(&Data_Block[lastHandle], data, sizeof(DATA_BLOCK));
-                      free(data);
-                      return lastHandle;
+                    int lastHandle = -1;
+                    if ((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+                        (lastHandle = getIdamThreadLastHandle()) >= 0) {
+                        if (clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) {
+                            idamFree(lastHandle);
+                        } else {
+                            initDataBlock(&Data_Block[lastHandle]);
+                        }
+                        // Application has responsibility for freeing heap in the Data Block
+                        Data_Block[lastHandle].handle = lastHandle;
+                        memcpy(&Data_Block[lastHandle], data, sizeof(DATA_BLOCK));
+                        free(data);
+                        return lastHandle;
 
-                   } else {		// re-use or create a new Data Block
+                    } else {        // re-use or create a new Data Block
 
-              lastHandle = acc_getIdamNewDataHandle();
+                        lastHandle = acc_getIdamNewDataHandle();
 
-              memcpy(&Data_Block[lastHandle], data, sizeof(DATA_BLOCK));
-                      free(data);
-                      return lastHandle;
-               }
-                }	 	 
+                        memcpy(&Data_Block[lastHandle], data, sizeof(DATA_BLOCK));
+                        free(data);
+                        return lastHandle;
+                    }
+                }
 
             }
         } while (0);

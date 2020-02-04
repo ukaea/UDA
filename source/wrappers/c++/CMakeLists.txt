@@ -3,6 +3,7 @@
 
 find_package( Boost REQUIRED )
 find_package( LibXml2 REQUIRED )
+find_package( OpenSSL REQUIRED )
 
 set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../.. )
 
@@ -29,6 +30,8 @@ include_directories(
 
 include_directories( ${LIBXML2_INCLUDE_DIR} )
 
+set( DEPENDENCIES ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} ${OPENSSL_LIBRARIES} )
+
 if( ITER_CI )
   add_definitions( -D__USE_XOPEN2K8 )
 endif()
@@ -47,14 +50,14 @@ set( CLIENT_OBJS
 )
 
 add_library( ${LIB_NAME}-static STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-target_link_libraries( ${LIB_NAME}-static PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} )
+target_link_libraries( ${LIB_NAME}-static PRIVATE ${DEPENDENCIES} )
 if( WIN32 OR MINGW )
   target_link_libraries( ${LIB_NAME}-static PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
 endif()
 
 if( BUILD_SHARED_LIBS )
   add_library( ${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} )
+  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${DEPENDENCIES} )
   if( WIN32 OR MINGW )
     target_link_libraries( ${LIB_NAME}-shared PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
   endif()
@@ -75,14 +78,14 @@ if( NOT CLIENT_ONLY )
   )
 
   add_library( fat${LIB_NAME}-static STATIC $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-  target_link_libraries( fat${LIB_NAME}-static LINK_PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} plugins-static )
+  target_link_libraries( fat${LIB_NAME}-static LINK_PRIVATE ${DEPENDENCIES} plugins-static )
   if( WIN32 OR MINGW )
     target_link_libraries( fat${LIB_NAME}-static PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
   endif()
   
   if( BUILD_SHARED_LIBS )
     add_library( fat${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-    target_link_libraries( fat${LIB_NAME}-shared LINK_PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} plugins-shared )
+    target_link_libraries( fat${LIB_NAME}-shared LINK_PRIVATE ${DEPENDENCIES} plugins-shared )
     if( WIN32 OR MINGW )
       target_link_libraries( fat${LIB_NAME}-shared PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
     endif()

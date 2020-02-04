@@ -85,10 +85,10 @@ extern unsigned int privateFlags;
 #define CLIENTFLAG_CACHE      4u    // 0100        Access data from the local cache and write new data to cache
 #define CLIENTFLAG_CLOSEDOWN  8u    // 1000        Immediate Closedown
 
-#define CLIENTFLAG_XDROBJECT    16  // 10000        Use a XDR object in memory
+#define CLIENTFLAG_XDROBJECT    16u  // 10000        Use a XDR object in memory
 
-#define CLIENTFLAG_REUSELASTHANDLE     32      // 100000       Reuse the last issued handle value (for this thread) - assume application has freed heap
-#define CLIENTFLAG_FREEREUSELASTHANDLE 64      // 1000000      Free the heap associated with the last issued handle and reuse the handle value
+#define CLIENTFLAG_REUSELASTHANDLE     32u      // 100000       Reuse the last issued handle value (for this thread) - assume application has freed heap
+#define CLIENTFLAG_FREEREUSELASTHANDLE 64u      // 1000000      Free the heap associated with the last issued handle and reuse the handle value
 
 extern unsigned int clientFlags;
 
