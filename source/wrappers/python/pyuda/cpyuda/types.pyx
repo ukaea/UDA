@@ -1,4 +1,4 @@
-__types = {
+__uda2np_map = {
     1: np.NPY_INT8, # UDA_TYPE_CHAR = 1,
     2: np.NPY_INT16, # UDA_TYPE_SHORT = 2,
     3: np.NPY_INT32, # UDA_TYPE_INT = 3,
@@ -15,6 +15,8 @@ __types = {
     14: np.NPY_COMPLEX128, # UDA_TYPE_DCOMPLEX = 14,
 }
 
+__np2uda_map = dict((__uda2np_map[i], i) for i in __uda2np_map)
+
 __field_types = {
     "char": np.NPY_INT8, # UDA_TYPE_CHAR = 1,
     "short": np.NPY_INT16, # UDA_TYPE_SHORT = 2,
@@ -30,7 +32,11 @@ __field_types = {
 
 
 cdef int uda_type_to_numpy_type(int type):
-    return __types.get(type, -1)
+    return __uda2np_map.get(type, -1)
+
+
+cdef int numpy_type_to_uda_type(int type):
+    return __np2uda_map.get(type, -1)
 
 
 cdef int uda_field_type_to_numpy_type(str type):

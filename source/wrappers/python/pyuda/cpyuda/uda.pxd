@@ -83,6 +83,18 @@ cdef extern from "clientserver/udaStructs.h":
         int signal_alias_type;
         int signal_map_id;
 
+    ctypedef struct PUTDATA_BLOCK:
+        int data_type;
+        unsigned int rank;
+        unsigned int count;
+        int* shape;
+        const char* data;
+
+    ctypedef struct PUTDATA_BLOCK_LIST:
+        unsigned int blockCount;        # Number of data blocks
+        unsigned int blockListSize;     # Number of data blocks allocated
+        PUTDATA_BLOCK* putDataBlock;    # Array of data blocks
+
 cdef extern from "client/accAPI.h":
     char* getIdamData(int handle);
     char* getIdamError(int handle);
@@ -113,6 +125,13 @@ cdef extern from "client/accAPI.h":
     int getIdamOrder(int handle);
     NTREE* getIdamDataTree(int handle);
     LOGMALLOCLIST* getIdamLogMallocList(int handle);
+
+cdef extern from "clientserver/initStructs.h":
+    void initIdamPutDataBlock(PUTDATA_BLOCK* str);
+    void initIdamPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+
+cdef extern from "client/udaPutAPI.h":
+    int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);
 
 cdef extern from "structures/struct.h":
     int getNodeChildrenCount(NTREE* ntree);
