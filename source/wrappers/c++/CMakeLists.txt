@@ -33,7 +33,7 @@ if( ITER_CI )
   add_definitions( -D__USE_XOPEN2K8 )
 endif()
 
-include_directories( SYSTEM "${Boost_INCLUDE_DIR}" )
+include_directories( SYSTEM "${Boost_INCLUDE_DIRS}" )
 
 add_library( cpp-objects OBJECT ${SRC_FILES} )
 
