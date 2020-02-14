@@ -64,7 +64,7 @@ macro( BUILD_TEST NAME SOURCE )
   add_executable( ${NAME} ${EXE_FLAG} ${HELPER_FILES} ${SOURCE} )
   target_link_libraries( ${NAME} PRIVATE
     ${Boost_LIBRARIES}
-    ${PROJECT_NAME}_cpp
+    ${PROJECT_NAME}_cpp-static
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
@@ -80,7 +80,7 @@ macro( BUILD_TEST NAME SOURCE )
   add_executable( fat_${NAME} ${EXE_FLAG} ${HELPER_FILES} ${SOURCE} )
   target_link_libraries( fat_${NAME} PRIVATE
     ${Boost_LIBRARIES}
-    fat${PROJECT_NAME}_cpp
+    fat${PROJECT_NAME}_cpp-static
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}

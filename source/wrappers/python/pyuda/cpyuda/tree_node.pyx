@@ -22,7 +22,7 @@ cdef class TreeNode:
         self._values = {}
 
     @staticmethod
-    cdef new(int handle, uda.NTREE* node):
+    cdef new_(int handle, uda.NTREE* node):
         tree_node = TreeNode()
         tree_node._handle = handle
         tree_node._node = node
@@ -33,7 +33,7 @@ cdef class TreeNode:
         cdef uda.NTREE* child
         for i in range(num_children):
             child = uda.getNodeChild(self._node, i)
-            self._children.append(TreeNode.new(self._handle, child))
+            self._children.append(TreeNode.new_(self._handle, child))
 
     def children(self):
         if not self._children_init:
@@ -46,8 +46,8 @@ cdef class TreeNode:
         return name.decode() if name is not NULL else ""
 
     cdef _load_atomic_data(self, int idx, uda.LOGMALLOCLIST* logmalloclist):
-        cdef const char** anames = uda.getNodeAtomicNames(logmalloclist, self._node)
-        cdef const char** atypes = uda.getNodeAtomicTypes(logmalloclist, self._node)
+        cdef const char** anames = <const char**>uda.getNodeAtomicNames(logmalloclist, self._node)
+        cdef const char** atypes = <const char**>uda.getNodeAtomicTypes(logmalloclist, self._node)
         cdef int* apoint = uda.getNodeAtomicPointers(logmalloclist, self._node)
         cdef int* arank = uda.getNodeAtomicRank(logmalloclist, self._node)
         cdef int** ashape = uda.getNodeAtomicShape(logmalloclist, self._node)
@@ -63,7 +63,7 @@ cdef class TreeNode:
 
     cdef _import_data(self):
         cdef uda.LOGMALLOCLIST* logmalloclist = uda.getIdamLogMallocList(self._handle)
-        cdef const char** anames = uda.getNodeAtomicNames(logmalloclist, self._node)
+        cdef const char** anames = <const char**>uda.getNodeAtomicNames(logmalloclist, self._node)
 
         cdef int size = uda.getNodeAtomicCount(self._node)
         cdef int i

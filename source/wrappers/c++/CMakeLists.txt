@@ -28,7 +28,7 @@ include_directories(
   ${Boost_INCLUDE_DIR}
 )
 
-include_directories( ${LIBXML2_INCLUDE_DIR} )
+include_directories( ${LIBXML2_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} )
 
 set( DEPENDENCIES ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} ${OPENSSL_LIBRARIES} )
 

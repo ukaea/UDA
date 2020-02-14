@@ -1,7 +1,10 @@
 #cython: language_level=3
 
 cimport uda
+cimport numpy as np
 from libc cimport string
+from libc.stdlib cimport malloc, free
+from libc.string cimport strlen
 
 
 def set_property(prop_name, value):
@@ -52,5 +55,62 @@ def get_data(signal, source):
     return Result(handle)
 
 
-def put_data(signal, source, data):
-    pass
+cdef put_ndarray(const char* instruction, np.ndarray data):
+    cdef uda.PUTDATA_BLOCK put_data
+    uda.initIdamPutDataBlock(&put_data)
+
+    cdef int rank = np.PyArray_NDIM(data)
+    cdef np.npy_intp* shape = np.PyArray_DIMS(data)
+    cdef int size = data.dtype.elsize
+
+    put_data.data_type = np.PyArray_TYPE(data)
+    put_data.rank = rank
+    put_data.count = np.PyArray_SIZE(data)
+    put_data.shape = <int *> malloc(rank * size)
+    cdef int i = 0
+    while i < rank:
+        put_data.shape[i] = shape[i]
+        i += 1
+    put_data.data = np.PyArray_BYTES(data)
+
+    cdef int handle = uda.idamPutAPI(instruction, &put_data)
+    return handle
+
+
+cdef put_string(const char* instruction, const char* data):
+    cdef uda.PUTDATA_BLOCK put_data
+    uda.initIdamPutDataBlock(&put_data)
+
+    cdef int len = strlen(data)
+
+    put_data.data_type = 17 # UDA_TYPE_STRING
+    put_data.rank = 1
+    put_data.count = len
+    put_data.shape = <int *> malloc(len * sizeof(char))
+    put_data.shape[0] = len
+
+    cdef int handle = uda.idamPutAPI(instruction, &put_data)
+    return handle
+
+
+cdef put_nothing(const char* instruction):
+    cdef uda.PUTDATA_BLOCK put_data
+    uda.initIdamPutDataBlock(&put_data)
+
+    put_data.data_type = 0 # UDA_TYPE_UNKNOWN
+    put_data.rank = 0
+    put_data.count = 0
+    put_data.shape = NULL
+
+    cdef int handle = uda.idamPutAPI(instruction, &put_data)
+    return handle
+
+
+def put_data(instruction, data=None):
+    if data is None:
+        return put_nothing(instruction)
+    elif isinstance(data, np.ndarray):
+        return put_ndarray(instruction, data)
+    else:
+        return put_string(instruction, data)
+

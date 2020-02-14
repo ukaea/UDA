@@ -82,7 +82,7 @@ cdef class Result:
             for i in range(rank):
                 size = uda.getIdamDimNum(self._handle, rank - 1 - i)
                 shape[i] = <np.npy_intp> size
-        return to_python_i(type, rank, shape, data)
+        return to_python_i(type, rank, shape, <void *>data)
 
     def data(self):
         return self._data(DataType.DATA)
@@ -114,7 +114,7 @@ cdef class Result:
 
     def tree(self):
         cdef uda.NTREE* root = uda.getIdamDataTree(self._handle)
-        return TreeNode.new(self._handle, root)
+        return TreeNode.new_(self._handle, root)
 
     def meta(self):
         return self._meta

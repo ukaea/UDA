@@ -42,6 +42,7 @@ ext = Extension(
     extra_objects=[root + '/lib/' + uda_lib],
     extra_link_args=extra_link_args,
     extra_compile_args=extra_compile_args,
+    language='c++',
 )
 
 setup(
