@@ -38,10 +38,11 @@ void idamFreeCache();
 char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment);
 
 int idamCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
-                   LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment);
+        LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
+        int protocolVersion);
 
 DATA_BLOCK* idamCacheRead(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
-                          USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment);
+        USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion);
 
 #ifdef __cplusplus
 }

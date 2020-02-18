@@ -281,7 +281,7 @@ int idamClient(REQUEST_BLOCK* request_block)
                 // Query the cache for the Data
 
                 DATA_BLOCK* data = idamCacheRead(cache, request_block, logmalloclist, userdefinedtypelist,
-                                                 *getIdamClientEnvironment());
+                                                 *getIdamClientEnvironment(), protocolVersion);
 
                 if (data != nullptr) {    // Success
 
@@ -967,15 +967,12 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #ifdef MEMCACHE
 #ifdef CACHEDEV
-
         if (cacheStatus == CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE && Data_Block[acc_getCurrentDataBlockIndex()].cachePermission == PLUGINOKTOCACHE) {
 #else
-
         if (cacheStatus == CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE) {
 #endif
-            idamCacheWrite(cache, request_block, data_block);
+            idamCacheWrite(cache, request_block, data_block, logmalloclist, userdefinedtypelist, *environment, protocolVersion);
         }
-
 #endif
 
         //------------------------------------------------------------------------------
