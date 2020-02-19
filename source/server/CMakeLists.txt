@@ -4,6 +4,13 @@
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 
+if( WIN32 OR MINGW )
+  find_package( XDR REQUIRED )
+  if( NOT MINGW )
+    find_package( dlfcn-win32 CONFIG REQUIRED )
+  endif()
+endif()
+
 ########################################################################################################################
 # Sources
 
@@ -92,7 +99,7 @@ if( BUILD_SHARED_LIBS )
   add_library( server-shared SHARED ${SERVER_OBJ} )
 endif()
 
-set( CLIENT_LINK_LIBS )
+set( LINK_XDR )
 set( EXE_FLAG )
 set( EXE_EXT )
 if( WIN32 OR MINGW )
@@ -100,13 +107,14 @@ if( WIN32 OR MINGW )
   if( MINGW )
     set( EXE_EXT ".exe" )
   endif()
-  set( CLIENT_LINK_LIBS portablexdr )
+  include_directories( ${XDR_INCLUDE_DIR} )
+  set( LINK_XDR ${XDR_LIBRARIES} ws2_32 )
 endif()
 
-target_link_libraries( server-static PRIVATE ${CLIENT_LINK_LIBS} )
+target_link_libraries( server-static PRIVATE ${LINK_XDR} )
 #target_link_libraries( server-static LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( server-shared PRIVATE ${CLIENT_LINK_LIBS} )
+  target_link_libraries( server-shared PRIVATE ${LINK_XDR} )
   #target_link_libraries( server-shared LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
 endif()
 
@@ -122,7 +130,23 @@ else()
   set( CLIENT_STATIC client-static )
 endif()
 if( WIN32 OR MINGW )
-  set( CLIENT_STATIC ${CLIENT_SHARED} ws2_32 stdc++ )
+  if( MINGW )
+    set( CLIENT_STATIC ${CLIENT_STATIC} ws2_32 stdc++ )
+  else()
+    set( CLIENT_STATIC ${CLIENT_STATIC} ws2_32 )
+  endif()
+endif()
+
+set( LINK_DL )
+if( WIN32 AND NOT MINGW )
+  set( LINK_DL dlfcn-win32::dl )
+else()
+  set( LINK_DL dl )
+endif()
+
+set( LINK_M )
+if( ( WIN32 AND MINGW ) OR NOT WIN32 )
+  set( LINK_M m )
 endif()
 
 target_link_libraries( server-static PRIVATE
@@ -130,13 +154,17 @@ target_link_libraries( server-static PRIVATE
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
-  dl
+  ${LINK_DL}
 )
 
 if( BUILD_SHARED_LIBS )
   set( CLIENT_SHARED client-shared plugins-shared )
   if( WIN32 OR MINGW )
-    set( CLIENT_SHARED ${CLIENT_SHARED} ws2_32 stdc++ )
+    if( MINGW )
+      set( CLIENT_SHARED ${CLIENT_SHARED} ws2_32 stdc++ )
+	else()
+      set( CLIENT_SHARED ${CLIENT_SHARED} ws2_32 )
+    endif()
   endif()
 
   target_link_libraries( server-shared PRIVATE
@@ -144,14 +172,14 @@ if( BUILD_SHARED_LIBS )
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
-    dl
+    ${LINK_DL}
   )
 endif()
 
 # Executable
 set( SERVER_LINKING )
 if( BUILD_SHARED_LIBS )
-  set( SERVER_LINKING client-shared server-shared )
+  set( SERVER_LINKING client-shared server-shared plugins-shared )
 else()
   set( SERVER_LINKING client-static server-static plugins-static )
 endif()
@@ -161,14 +189,16 @@ target_link_libraries( server-exe PRIVATE
   ${OPENSSL_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
-  m
-  dl
+  ${LINK_M}
+  ${LINK_DL}
+  ${LINK_XDR}
 )
-if( NOT MINGW )
+
+if( NOT WIN32 AND NOT MINGW )
   target_link_libraries( server-exe LINK_PRIVATE c )
 endif()
 
-if( NOT APPLE )
+if( NOT APPLE AND ( NOT WIN32 OR ( WIN32 AND MINGW ) ) )
   target_link_libraries( server-exe PRIVATE gcc_s )
 endif()
 

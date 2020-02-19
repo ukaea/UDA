@@ -13,6 +13,12 @@ elseif( NOT NETCDF_FOUND )
   return()
 endif()
 
+if( WIN32 OR MINGW )
+  find_package( CURL REQUIRED )
+  find_package( XDR REQUIRED )
+  include_directories( ${XDR_INCLUDE_DIR} )
+endif()
+
 # HDF5 may be used by NetCDF
 set( HDF5 )
 if( HDF5_FOUND )
@@ -22,7 +28,7 @@ endif()
 # Use libcurl under Windows
 set( CURL )
 if( WIN32 OR MINGW )
-  set( CURL curl ws2_32 )
+  set( CURL ${CURL_LIBRARIES} ws2_32 )
 endif()
 
 include( plugins )
@@ -50,4 +56,5 @@ uda_plugin(
     ${NETCDF_LIBRARIES}
 	${HDF5}
 	${CURL}
+	server-static
 )

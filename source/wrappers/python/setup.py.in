@@ -2,6 +2,7 @@
 
 import os
 import sys
+import sysconfig
 from distutils.core import setup, Extension
 from Cython.Build import cythonize
 import numpy
@@ -11,17 +12,39 @@ extra_compile_args = []
 
 root = os.environ.get('UDA_DIR', '@CMAKE_INSTALL_PREFIX@')
 
-if sys.platform.lower() == 'darwin':
+print('Detected platform: ' + sys.platform)
+print('Detected system: ' + sysconfig.get_platform())
+
+stalib_ext = ''
+dynlib_ext = ''
+if sys.platform.lower() == 'linux':
+    stalib_ext = 'a'
+    dynlib_ext = 'so'
+elif sys.platform.lower() == 'darwin':
+    stalib_ext = 'a'
+    dynlib_ext = 'dylib'
     # On Mac OS we have to force setting of rpath
     extra_link_args.append('-Wl,-rpath,%s/lib' % root)
-
+elif sys.platform.lower() == 'win32':
+    if sysconfig.get_platform().lower() == 'mingw':
+        stalib_ext = 'a'
+        dynlib_ext = 'so'
+    else:
+        stalib_ext = 'lib'
+        dynlib_ext = 'dll'
+elif sys.platform.lower() == 'msys':
+    stalib_ext = 'a'
+    dynlib_ext = 'so'
+else:
+    sys.exit('system not recognized!')
+	
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
 if build_fat:
-    uda_lib = 'libfat@PROJECT_NAME@_client.a'
+    uda_lib = 'libfat@PROJECT_NAME@_client.' + stalib_ext
     extra_libs = ['xml2', 'pq']
     extra_macros = [('FATCLIENT', None)]
 else:
-    uda_lib = 'lib@PROJECT_NAME@_client.a'
+    uda_lib = 'lib@PROJECT_NAME@_client.' + stalib_ext
     extra_libs = []
     extra_macros = []
 

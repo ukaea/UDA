@@ -2,10 +2,12 @@
 
 #include <stdbool.h>
 #include <errno.h>
-#include <unistd.h>
+#if defined(__GNUC__)
+#  include <unistd.h>
+#endif
 
-#ifndef MINGW32
-#include <libgen.h>
+#if defined(__GNUC__)
+#  include <libgen.h>
 #endif
 
 #include <logging/logging.h>
@@ -17,6 +19,16 @@
 #include "stringUtils.h"
 #include "udaErrors.h"
 #include "udaStructs.h"
+
+#if !defined(__GNUC__) && defined(_WIN32)
+#  include <direct.h>
+
+#  define strcasecmp _stricmp
+#  define strncasecmp _strnicmp
+#  define getcwd _getcwd
+#  define chdir _chdir
+#endif
+
 
 static int localFindPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
 {
@@ -317,7 +329,13 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                                 extractFunctionName(work, request_block);
                             }
                         } else {
-                            strcpy(request_block->file, basename(test + ldelim));    // Final token
+#ifndef __GNUC__
+							char base[1024] = { 0 };
+							_splitpath(test + ldelim, NULL, base, NULL, NULL);
+#else
+							char* base = basename(test + ldelim);
+#endif
+                            strcpy(request_block->file, base);    // Final token
                         }
                         isFile = pluginList.plugin[i].plugin_class == UDA_PLUGIN_CLASS_FILE;
                         isServer = pluginList.plugin[i].plugin_class == UDA_PLUGIN_CLASS_SERVER;
@@ -952,7 +970,13 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                 UDA_PLUGIN_CLASS_FILE) {                // The full file path fully resolved by the client
                 strcpy(request_block->file, "");                        // Clean the filename
             } else {
-                strcpy(request_block->file, basename(request_block->source));    // Final token
+#ifndef __GNUC__
+				char base[1024] = { 0 };
+				_splitpath(request_block->source, NULL, base, NULL, NULL);
+#else
+				char* base = basename(request_block->source);
+#endif
+                strcpy(request_block->file, base);    // Final token
             }
             break;
         }

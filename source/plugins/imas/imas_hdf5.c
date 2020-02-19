@@ -64,8 +64,11 @@ Investigate the object system - is this just a local cache?
 #include <float.h>
 #include <openssl/sha.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+
+#if defined(__GNUC__)
+#  include <string.h>
+#  include <unistd.h>
+#endif
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>

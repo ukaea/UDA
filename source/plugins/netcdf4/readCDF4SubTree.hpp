@@ -7,13 +7,13 @@ void initVariable(VARIABLE* variable);
 
 void initAttribute(ATTRIBUTE* attribute);
 
-void initGroup(GROUP* group);
+void initGroup(HGROUP* group);
 
-int addHGroup(HGROUPS* hgroups, GROUP group);
+int addHGroup(HGROUPS* hgroups, HGROUP group);
 
-GROUP* findHGroup(HGROUPS* hgroups, int grpid);
+HGROUP* findHGroup(HGROUPS* hgroups, int grpid);
 
-void freeGroup(GROUP* group);
+void freeGroup(HGROUP* group);
 
 void freeHGroups(HGROUPS* hgroups);
 

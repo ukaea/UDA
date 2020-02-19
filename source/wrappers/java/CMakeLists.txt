@@ -7,6 +7,9 @@ set( LIB_NAME ${PROJECT_NAME}_jni )
 # Dependencies
 find_package( Java REQUIRED )
 find_package( JNI REQUIRED )
+if( WIN32 OR MINGW )
+  find_package( XDR REQUIRED )
+endif()
 
 include( UseJava )
 
@@ -16,6 +19,10 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${JNI_INCLUDE_DIRS}
 )
+
+if( MINGW OR WIN32 )
+  include_directories( ${XDR_INCLUDE_DIR} )
+endif()
 
 add_library( ${LIB_NAME} SHARED idam_jni.c )
 

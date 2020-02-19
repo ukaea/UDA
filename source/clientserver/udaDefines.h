@@ -118,6 +118,18 @@ extern unsigned int clientFlags;
 
 #define DEFAULT_STATUS 1   // Default Signal and Data_Source Status value
 
+//--------------------------------------------------------
+// Not defined functions for Windows MSVC
+
+#if defined(_WIN32)
+
+#if !defined(MINGW)
+int gettimeofday(struct timeval* tp, struct timezone* tzp);
+#endif
+
+#endif
+
+
 #ifdef __cplusplus
 }
 #endif

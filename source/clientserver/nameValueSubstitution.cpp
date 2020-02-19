@@ -1,9 +1,11 @@
 #include "makeRequestBlock.h"
 
-#include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <strings.h>
+#if defined(__GNUC__)
+#  include <unistd.h>
+#  include <strings.h>
+#endif
 
 #include <clientserver/udaErrors.h>
 #include <clientserver/stringUtils.h>

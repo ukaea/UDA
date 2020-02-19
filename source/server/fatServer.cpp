@@ -13,6 +13,7 @@
 #include <clientserver/protocol.h>
 #include <clientserver/protocolXML.h>
 #include <clientserver/xdrlib.h>
+#include <clientserver/mkstemp.h>
 #include <logging/accessLog.h>
 #include <server/serverPlugin.h>
 #include <structures/parseIncludeFile.h>

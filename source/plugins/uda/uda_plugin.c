@@ -12,6 +12,10 @@
 #include <plugins/udaPlugin.h>
 #include <client/udaClient.h>
 
+#if !defined(__GNUC__)
+#  define strcasecmp _stricmp
+#endif
+
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 static int do_version(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);

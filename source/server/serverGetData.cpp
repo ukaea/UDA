@@ -7,7 +7,9 @@
 //
 //--------------------------------------------------------------------------------------------------------------------
 #include <errno.h>
-#include <strings.h>
+#if defined(__GNUC__)
+#  include <strings.h>
+#endif
 
 #include <clientserver/errorLog.h>
 #include <clientserver/freeDataBlock.h>

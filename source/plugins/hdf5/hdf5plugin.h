@@ -7,7 +7,9 @@ extern "C" {
 
 #include <hdf5.h>
 #include <H5LTpublic.h>
-#include <sys/time.h>
+#ifdef __GNUC__
+#  include <sys/time.h>
+#endif
 
 #include <plugins/udaPluginFiles.h>
 #include <plugins/udaPlugin.h>

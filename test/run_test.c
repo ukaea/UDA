@@ -2,7 +2,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
+#ifdef __GNUC__
+#  include <strings.h>
+#endif
 
 #include <client/accAPI.h>
 

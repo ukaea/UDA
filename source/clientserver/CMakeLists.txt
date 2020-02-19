@@ -13,6 +13,10 @@ else()
   add_definitions( -DNOTGENERICENABLED )
 endif()
 
+if( WIN32 OR MINGW )
+  find_package( XDR REQUIRED )
+endif()
+
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
 )
@@ -39,6 +43,7 @@ set( SRC_FILES
   readXDRFile.cpp
   stringUtils.cpp
   udaTypes.cpp
+  udaDefines.cpp
   userid.cpp
   xdrlib.cpp
   nameValueSubstitution.cpp
@@ -101,6 +106,10 @@ include_directories(
   ${SRC_DIR}
   ${OPENSSL_INCLUDE_DIR}
 )
+
+if( MINGW OR WIN32 )
+  include_directories( ${XDR_INCLUDE_DIR} )
+endif()
 
 if( NOT CLIENT_ONLY )
   include_directories( ${LIBXML2_INCLUDE_DIR} )

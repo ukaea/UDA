@@ -1,7 +1,14 @@
 ########################################################################################################################
 # Dependencies
 
-find_package( LibXml2 )
+find_package( LibXml2 REQUIRED )
+
+if( WIN32 OR MINGW )
+  find_package( XDR REQUIRED )
+  if( NOT MINGW )
+    find_package( dlfcn-win32 CONFIG REQUIRED )
+  endif()
+endif()
 
 configure_file(
   "${CMAKE_SOURCE_DIR}/source/etc/udaPlugins.conf.in"
@@ -48,6 +55,10 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/source
 )
 
+if( MINGW OR WIN32 )
+  include_directories( ${XDR_INCLUDE_DIR} )
+endif()
+
 set( SOURCE_FILES
   managePluginFiles.cpp
   udaPlugin.cpp
@@ -66,22 +77,25 @@ if( BUILD_SHARED_LIBS )
   add_library( plugins-shared SHARED $<TARGET_OBJECTS:plugins-objects> )
 endif()
 
-target_link_libraries( plugins-static PUBLIC
+set( LINK_LIB ${LIBXML2_LIBRARIES} )
+if( WIN32 OR MINGW )
+  if( MINGW )
+    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dl stdc++ )
+  else()
+    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl )
+  endif()
+endif()
+
+target_link_libraries( plugins-static PRIVATE
   #server-static
-  ${LIBXML2_LIBRARIES}
-  dl
+  ${LINK_LIB}
 )
 
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( plugins-shared PUBLIC
+  target_link_libraries( plugins-shared PRIVATE
     server-static
-    ${LIBXML2_LIBRARIES}
-    dl
+    ${LINK_LIB}
   )
-  
-  if( WIN32 OR MINGW )
-    target_link_libraries( plugins-shared PRIVATE ws2_32 stdc++ )
-  endif()
 endif()
 
 set_target_properties( plugins-static

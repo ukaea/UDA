@@ -20,7 +20,9 @@
 #include "testplugin.h"
 
 #include <stdlib.h>
-#include <strings.h>
+#ifdef __GNUC__
+#  include <strings.h>
+#endif
 #include <stddef.h>
 
 #include <clientserver/initStructs.h>
@@ -3841,7 +3843,7 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int err = 0;
 
     IDAM_PLUGIN_INTERFACE next_plugin_interface;
-    REQUEST_BLOCK next_request_block = {};
+    REQUEST_BLOCK next_request_block = { 0 };
 
     const PLUGINLIST* pluginList = idam_plugin_interface->pluginList;
 

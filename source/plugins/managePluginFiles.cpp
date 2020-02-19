@@ -5,7 +5,9 @@
 #include "managePluginFiles.h"
 
 #include <stdlib.h>
-#include <strings.h>
+#if defined(__GNUC__)
+#  include <strings.h>
+#endif
 
 #include <logging/logging.h>
 #include <clientserver/stringUtils.h>

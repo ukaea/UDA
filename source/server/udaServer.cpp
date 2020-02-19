@@ -1,7 +1,10 @@
 #include <stdio.h>
-#include <strings.h>
 #include <rpc/rpc.h>
-#include <strings.h>
+#if defined(__GNUC__)
+#  include <strings.h>
+#else
+#  define strncasecmp _strnicmp
+#endif
 
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>

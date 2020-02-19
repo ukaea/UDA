@@ -24,7 +24,12 @@
 
 #include <stdlib.h>
 #include <errno.h>
-#include <strings.h>
+#if defined(__GNUC__)
+#  include <strings.h>
+#else
+#  define strncasecmp _strnicmp
+#  define popen _popen
+#endif
 
 #include <logging/logging.h>
 #include <clientserver/udaTypes.h>

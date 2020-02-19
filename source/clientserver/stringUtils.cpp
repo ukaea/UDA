@@ -110,13 +110,13 @@ char* LeftTrimString(char* str)
     return str;
 }
 
-#ifdef __GNUC__
-
 void StringCopy(char* dest, const char* src, size_t len)
 {
     strncpy(dest, src, len);
     dest[len - 1] = '\0';
 }
+
+#ifdef __GNUC__
 
 // Convert all LowerCase Characters to Upper Case
 

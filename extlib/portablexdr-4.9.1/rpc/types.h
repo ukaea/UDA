@@ -47,34 +47,36 @@ typedef int64_t       quad_t;
 typedef char *        caddr_t;
 
 #ifndef TRUE
-#define TRUE 1
+#  define TRUE 1
 #endif
 #ifndef FALSE
-#define FALSE 0
+#  define FALSE 0
 #endif
 #define	bool_t	int
 #define	enum_t	int
 #define __dontcare__	-1
 #ifndef NULL
-#	define NULL 0
+#  define NULL 0
 #endif
 
-#define mem_alloc(bsize)	malloc(bsize)
+#define mem_alloc(bsize)		malloc(bsize)
 #define mem_free(ptr, bsize)	free(ptr)
 
 #ifndef makedev /* ie, we haven't already included it */
-#include <sys/types.h>
+#  include <sys/types.h>
 #endif
 #ifdef __CYGWIN32__
-#include <time.h>
+#  include <time.h>
 #endif
 //#include <sys/time.h>
 
 #ifndef INADDR_LOOPBACK
-#define       INADDR_LOOPBACK         (u_long)0x7F000001
+#  if defined(__GNUC__)
+#    define INADDR_LOOPBACK	(u_long)0x7F000001
+#  endif
 #endif
 #ifndef MAXHOSTNAMELEN
-#define        MAXHOSTNAMELEN  64
+#  define MAXHOSTNAMELEN	64
 #endif
 
 #endif /* ndef __TYPES_RPC_HEADER__ */

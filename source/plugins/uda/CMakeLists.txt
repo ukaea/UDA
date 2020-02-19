@@ -8,6 +8,11 @@ if( NOT LIBXML2_FOUND )
   return()
 endif()
 
+if( WIN32 OR MINGW )
+  find_package( XDR REQUIRED )
+  include_directories( ${XDR_INCLUDE_DIR} )
+endif()
+
 include( plugins )
 
 uda_plugin(

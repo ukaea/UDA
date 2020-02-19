@@ -51,7 +51,7 @@ void initAttribute(ATTRIBUTE* attribute)
     attribute->udt = nullptr;
 }
 
-void initGroup(GROUP* group)
+void initGroup(HGROUP* group)
 {
     group->grpid = 0;
     group->parent = 0;
@@ -73,12 +73,12 @@ void initHGroup(HGROUPS* hgroups)
     hgroups->groups = nullptr;
 }
 
-int addHGroup(HGROUPS* hgroups, GROUP group)
+int addHGroup(HGROUPS* hgroups, HGROUP group)
 {
     int udtIndex;
     if (hgroups->numgrps + 1 >= hgroups->grpcount) {
         hgroups->grpcount += GROWMALLOCLIST;
-        hgroups->groups = (GROUP*)realloc((void*)hgroups->groups, (hgroups->grpcount) * sizeof(GROUP));
+        hgroups->groups = (HGROUP*)realloc((void*)hgroups->groups, (hgroups->grpcount) * sizeof(HGROUP));
     }
     hgroups->groups[hgroups->numgrps] = group;
     udtIndex = hgroups->numgrps;
@@ -86,7 +86,7 @@ int addHGroup(HGROUPS* hgroups, GROUP group)
     return (udtIndex);
 }
 
-GROUP* findHGroup(HGROUPS* hgroups, int grpid)
+HGROUP* findHGroup(HGROUPS* hgroups, int grpid)
 {
     int i;
     for (i = 0; i < hgroups->numgrps; i++) {
@@ -95,7 +95,7 @@ GROUP* findHGroup(HGROUPS* hgroups, int grpid)
     return nullptr;
 }
 
-void freeGroup(GROUP* group)
+void freeGroup(HGROUP* group)
 {
     int i;
     if (group->numgrps > 0) free((void*)group->grpids);
@@ -894,8 +894,8 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
     char name[NC_MAX_NAME + 1];
 
     nc_type atttype;
-    GROUP Group;
-    GROUP* group = &Group;
+    HGROUP Group;
+    HGROUP* group = &Group;
 
     int grp;
 
@@ -1283,7 +1283,7 @@ int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIS
 
             initCompoundField(&field);
 
-            GROUP* x = findHGroup(hgroups, grpids[i]);    // Locate the group and it's name
+            HGROUP* x = findHGroup(hgroups, grpids[i]);    // Locate the group and it's name
             strcpy(field.name, x->grpname);
 
             field.atomictype = UDA_TYPE_UNKNOWN;
@@ -2646,7 +2646,7 @@ int readCDF4SubTreeVar3Data(GROUPLIST grouplist, int varid, int rank, int* dimid
 
 
 int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, void** data,
-                       GROUP* group, HGROUPS* hgroups, int attronly, int* depth, int targetDepth)
+                       HGROUP* group, HGROUPS* hgroups, int attronly, int* depth, int targetDepth)
 {
 
 // Now Recursively walk the sub-tree to read all data
@@ -2656,7 +2656,7 @@ int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userde
     int fieldcount = group->udt->fieldcount;
 
     VOIDTYPE* p;
-    GROUP* grp;
+    HGROUP* grp;
 
     //----------------------------------------------------------------------
     // Allocate heap for this structure

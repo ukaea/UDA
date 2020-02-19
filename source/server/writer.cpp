@@ -5,6 +5,12 @@
 #include <logging/logging.h>
 #include <clientserver/udaDefines.h>
 
+#if !defined(__GNUC__)
+#  include <io.h>
+#  define read _read
+#  define write _write
+#endif
+
 int serverSocket = 0;
 
 void setSelectParms(int fd, fd_set* rfds, struct timeval* tv)

@@ -20,7 +20,10 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "source.h"
 
-#include <strings.h>
+#ifdef __GNUC__
+#  include <strings.h>
+#endif
+
 
 #include <client/accAPI.h>
 #include <client/udaClient.h>

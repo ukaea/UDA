@@ -472,15 +472,15 @@ xdrrec_endofrecord(xdrs, sendnow)
 	u_long len;  /* fragment length */
 
 	if (sendnow || rstrm->frag_sent ||
-		((void*)rstrm->out_finger + sizeof(u_long) >=
-		(void*)rstrm->out_boundry)) {
+		((u_long*)rstrm->out_finger + sizeof(u_long) >=
+		(u_long*)rstrm->out_boundry)) {
 		rstrm->frag_sent = FALSE;
 		return (flush_out(rstrm, TRUE));
 	}
-	len = (void*)(rstrm->out_finger) - (void*)(rstrm->frag_header) -
+	len = (u_long*)(rstrm->out_finger) - (u_long*)(rstrm->frag_header) -
 	   sizeof(u_long);
 	*(rstrm->frag_header) = htonl((u_long)len | LAST_FRAG);
-	rstrm->frag_header = (void*)rstrm->out_finger;
+	rstrm->frag_header = (u_long*)rstrm->out_finger;
 	rstrm->out_finger += sizeof(u_long);
 	return (TRUE);
 }
@@ -495,15 +495,15 @@ flush_out(rstrm, eor)
 	bool_t eor;
 {
 	u_long eormask = (eor == TRUE) ? LAST_FRAG : 0;
-	u_long len = (void*)(rstrm->out_finger) - 
-		(void*)(rstrm->frag_header) - sizeof(u_long);
+	u_long len = (u_long*)(rstrm->out_finger) - 
+		(u_long*)(rstrm->frag_header) - sizeof(u_long);
 
 	*(rstrm->frag_header) = htonl(len | eormask);
-	len = (void*)(rstrm->out_finger) - (void*)(rstrm->out_base);
+	len = (u_long*)(rstrm->out_finger) - (u_long*)(rstrm->out_base);
 	if ((*(rstrm->writeit))(rstrm->tcp_handle, rstrm->out_base, (int)len)
 		!= (int)len)
 		return (FALSE);
-	rstrm->frag_header = (void*)rstrm->out_base;
+	rstrm->frag_header = (u_long*)rstrm->out_base;
 	rstrm->out_finger = (caddr_t)rstrm->out_base + sizeof(u_long);
 	return (TRUE);
 }
@@ -517,7 +517,7 @@ fill_input_buf(rstrm)
 	int len;
 
 	where = rstrm->in_base;
-	i = (size_t)(void*) rstrm->in_boundry % BYTES_PER_XDR_UNIT;
+	i = (size_t)(u_long*) rstrm->in_boundry % BYTES_PER_XDR_UNIT;
 	where += i;
 	len = rstrm->in_size - i;
 	if ((len = (*(rstrm->readit))(rstrm->tcp_handle, where, len)) == -1)

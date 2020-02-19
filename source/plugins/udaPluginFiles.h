@@ -2,7 +2,11 @@
 #define UDA_PLUGINS_UDAPLUGINFILES_H
 
 #include <time.h>
-#include <sys/time.h>
+#if defined(__GNUC__)
+#  include <sys/time.h>
+#else
+#  include <winsock2.h>
+#endif
 
 #include <clientserver/udaDefines.h>
 

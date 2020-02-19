@@ -123,18 +123,20 @@ if( NOT WIN32 OR MINGW )
   endif() 
 endif()
 
+if( WIN32 AND NOT MINGW )
+  set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO" )
+  set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO /SUBSYSTEM:CONSOLE" )
+endif()
+
 add_definitions(
   -DOSTYPE=${CMAKE_SYSTEM_NAME}
 )
 
 if( WIN32 OR MINGW )
   add_definitions( -D_CRT_SECURE_NO_WARNINGS )
-  include_directories( ${CMAKE_SOURCE_DIR}/extlib/include/rpc )
-  link_directories( ${CMAKE_SOURCE_DIR}/extlib/lib )
-  if ( MINGW )
-    set( CMAKE_FIND_LIBRARY_PREFIXES "lib" "" )
-    set( CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".a" ".lib" )
-  endif()
+  set( CMAKE_FIND_LIBRARY_PREFIXES "lib" "" )
+  set( CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".a" ".lib" )
+  find_package( XDR REQUIRED )
   
   # "-Wl,-z,defs" is an ELF instruction, not supported by Windows
   string( REGEX REPLACE "-Wl,-z,defs" "" CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}" )
@@ -208,7 +210,7 @@ if( WIN32 OR MINGW )
   install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlib/lib/
     DESTINATION lib
-	  FILES_MATCHING PATTERN "libportablexdr*"
+	  FILES_MATCHING PATTERN "*xdr*"
   )
 endif()
 

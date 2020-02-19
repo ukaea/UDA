@@ -7,7 +7,14 @@
 #include <errno.h>
 #include <dlfcn.h>
 #include <cstring>
-#include <unistd.h>
+#if defined(__GNUC__)
+#  include <unistd.h>
+#else
+#  include <winsock2.h>
+#  include <io.h>
+#  define dup _dup
+#  define dup2 _dup2
+#endif
 
 #include <cache/cache.h>
 #include <client/udaClient.h>
@@ -19,6 +26,7 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaErrors.h>
 #include <clientserver/protocol.h>
+#include <clientserver/mkstemp.h>
 #include <structures/struct.h>
 
 #define REQUEST_READ_START      1000

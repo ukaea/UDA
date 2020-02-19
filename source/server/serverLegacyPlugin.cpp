@@ -6,7 +6,9 @@
 #include "serverLegacyPlugin.h"
 
 #include <cstdlib>
-#include <strings.h>
+#if defined(__GNUC__)
+#  include <strings.h>
+#endif
 
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>

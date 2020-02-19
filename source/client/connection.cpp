@@ -49,6 +49,12 @@
 #  include <authentication/udaSSL.h>
 #endif
 
+#if defined(COMPILER_GCC) || defined(__clang__)
+#  define ALLOW_UNUSED_TYPE __attribute__((__unused__))
+#else
+#  define ALLOW_UNUSED_TYPE
+#endif
+
 #define PORT_STRING    64
 
 static int clientSocket = -1;
@@ -539,7 +545,7 @@ void closeConnection(int type)
     clientSocket = -1;
 }
 
-int clientWriteout(void* iohandle __attribute__((__unused__)), char* buf, int count)
+int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 {
 #ifndef _WIN32
     void (* OldSIGPIPEHandler)(int);
@@ -617,7 +623,7 @@ int clientWriteout(void* iohandle __attribute__((__unused__)), char* buf, int co
     return rc;
 }
 
-int clientReadin(void* iohandle __attribute__((__unused__)), char* buf, int count)
+int clientReadin(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 {
     int rc;
     fd_set rfds;

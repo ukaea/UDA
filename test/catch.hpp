@@ -7579,7 +7579,9 @@ namespace {
 
 #elif defined( CATCH_CONFIG_COLOUR_ANSI ) //////////////////////////////////////
 
-#include <unistd.h>
+#if defined(__GNUC__)
+#  include <unistd.h>
+#endif
 
 namespace Catch {
 namespace {
@@ -8413,7 +8415,9 @@ namespace Catch {
     #include <assert.h>
     #include <stdbool.h>
     #include <sys/types.h>
-    #include <unistd.h>
+    #if defined(__GNUC__)
+    #  include <unistd.h>
+    #endif
     #include <sys/sysctl.h>
 
     namespace Catch{

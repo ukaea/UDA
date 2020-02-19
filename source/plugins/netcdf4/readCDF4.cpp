@@ -35,7 +35,10 @@
 
 #include "readCDF4.hpp"
 
-#include <strings.h>
+#ifdef __GNUC__
+#  include <strings.h>
+#endif
+
 
 #include <logging/logging.h>
 #include <clientserver/udaTypes.h>

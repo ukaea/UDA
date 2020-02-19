@@ -1,7 +1,9 @@
 #ifndef UDA_SERVER_WRITER_H
 #define UDA_SERVER_WRITER_H
 
-#include <unistd.h>
+#if defined(__GNUC__)
+#  include <unistd.h>
+#endif
 #include <fcntl.h>
 
 #ifdef _WIN32

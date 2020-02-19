@@ -4,6 +4,14 @@
 find_package( Boost REQUIRED )
 find_package( LibXml2 REQUIRED )
 
+if( WIN32 OR MINGW )
+  find_package( OpenSSL REQUIRED )
+  find_package( XDR REQUIRED )
+  if( NOT MINGW )
+    find_package( dlfcn-win32 CONFIG REQUIRED )
+  endif()
+endif()
+
 set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../.. )
 
 set( LIB_NAME ${PROJECT_NAME}_cpp )
@@ -29,6 +37,10 @@ include_directories(
 
 include_directories( ${LIBXML2_INCLUDE_DIR} )
 
+if( MINGW OR WIN32 )
+  include_directories( ${XDR_INCLUDE_DIR} )
+endif()
+
 if( ITER_CI )
   add_definitions( -D__USE_XOPEN2K8 )
 endif()
@@ -46,18 +58,21 @@ set( CLIENT_OBJS
   $<TARGET_OBJECTS:authentication-client-objects>
 )
 
-add_library( ${LIB_NAME}-static STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-target_link_libraries( ${LIB_NAME}-static PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} )
+set( LINK_LIB ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} )
 if( WIN32 OR MINGW )
-  target_link_libraries( ${LIB_NAME}-static PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
+  if( MINGW )
+    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} dl stdc++ )
+  else()
+    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} dlfcn-win32::dl )
+  endif()
 endif()
+
+add_library( ${LIB_NAME}-static STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
+target_link_libraries( ${LIB_NAME}-static PRIVATE ${LINK_LIB} )
 
 if( BUILD_SHARED_LIBS )
   add_library( ${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} )
-  if( WIN32 OR MINGW )
-    target_link_libraries( ${LIB_NAME}-shared PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
-  endif()
+  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${LINK_LIB} )
 endif()
 
 if( NOT CLIENT_ONLY )
@@ -75,17 +90,11 @@ if( NOT CLIENT_ONLY )
   )
 
   add_library( fat${LIB_NAME}-static STATIC $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-  target_link_libraries( fat${LIB_NAME}-static LINK_PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} plugins-static )
-  if( WIN32 OR MINGW )
-    target_link_libraries( fat${LIB_NAME}-static PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
-  endif()
+  target_link_libraries( fat${LIB_NAME}-static PRIVATE ${LINK_LIB} plugins-static )
   
   if( BUILD_SHARED_LIBS )
     add_library( fat${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-    target_link_libraries( fat${LIB_NAME}-shared LINK_PRIVATE ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} plugins-shared )
-    if( WIN32 OR MINGW )
-      target_link_libraries( fat${LIB_NAME}-shared PRIVATE portablexdr ws2_32 ssl crypto stdc++ )
-    endif()
+    target_link_libraries( fat${LIB_NAME}-shared PRIVATE ${LINK_LIB} plugins-shared )
   endif()
 endif()
 

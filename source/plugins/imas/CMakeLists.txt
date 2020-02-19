@@ -39,6 +39,11 @@ set( IMAS_SOURCES
   ual_low_level_idam_dummy.c
 )
 
+set( LINK_STD )
+if( ( WIN32 AND MINGW ) OR NOT WIN32 )
+  set( LINK_STD stdc++ )
+endif()
+
 uda_plugin(
   NAME IMAS
   ENTRY_FUNC imas_mds
@@ -70,6 +75,6 @@ uda_plugin(
     ${HDF5_HL_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     client-static
-	stdc++
+	${LINK_STD}
 	${WIN_LIB}
 )

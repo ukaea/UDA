@@ -106,7 +106,7 @@ typedef struct Variable {
     USERDEFINEDTYPE* udt;           // Don't free
 } VARIABLE;
 
-typedef struct Group {
+typedef struct HGroup {
     int grpid;
     int parent;
     char grpname[NC_MAX_NAME + 1];
@@ -118,12 +118,12 @@ typedef struct Group {
     USERDEFINEDTYPE* udt;
     ATTRIBUTE* attribute;
     VARIABLE* variable;
-} GROUP;
+} HGROUP;
 
 typedef struct HGroups {
     int grpcount;   // Number of elements malloc'ed in array
     int numgrps;    // Number of groups
-    GROUP* groups;
+    HGROUP* groups;
 } HGROUPS;
 
 typedef struct CDFSubset {
@@ -168,7 +168,7 @@ int getCDF4SubTreeMetaX(int grpid, int parent, USERDEFINEDTYPE* udt, USERDEFINED
 
 void initHGroup(HGROUPS* hgroups);
 
-int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, void** data, GROUP* group, HGROUPS* hgroups, int attronly, int* depth, int targetDepth);
+int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, void** data, HGROUP* group, HGROUPS* hgroups, int attronly, int* depth, int targetDepth);
 
 int getCDF4SubTreeUserDefinedTypes(int grpid, GROUPLIST* grouplist, USERDEFINEDTYPELIST* userdefinedtypelist);
 
