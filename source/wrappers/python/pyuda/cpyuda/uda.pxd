@@ -83,6 +83,13 @@ cdef extern from "clientserver/udaStructs.h":
         int signal_alias_type;
         int signal_map_id;
 
+    ctypedef struct PUTDATA_BLOCK:
+        int data_type;
+        unsigned int rank;
+        unsigned int count;
+        int* shape;
+        const char* data;
+
 cdef extern from "client/accAPI.h":
     char* getIdamData(int handle);
     char* getIdamError(int handle);
