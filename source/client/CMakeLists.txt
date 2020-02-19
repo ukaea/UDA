@@ -8,8 +8,6 @@ endif()
 
 if( NOT CLIENT_ONLY AND NOT NO_MODULES )
   find_package( PostgreSQL REQUIRED )
-else()
-  add_definitions( -DNOTGENERICENABLED )
 endif()
 
 if( WIN32 OR MINGW )
@@ -19,6 +17,7 @@ if( WIN32 OR MINGW )
   endif()
 endif()
 
+add_definitions( -DNOTGENERICENABLED )
 add_definitions( -DNO_GSL_LIB )
 
 ########################################################################################################################

@@ -16,11 +16,12 @@ char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 { return nullptr; }
 
 int idamCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
-                   LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
+                   LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
+                   int protocolVersion)
 { return 0; }
 
 DATA_BLOCK* idamCacheRead(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
-                          USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
+                          USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion)
 { return nullptr; }
 
 #else
@@ -149,7 +150,7 @@ char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 int
 idamCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
                LOGMALLOCLIST* logmalloclist,
-               USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
+               USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion)
 {
 #ifdef CACHEDEV
 
@@ -175,7 +176,8 @@ idamCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK*
 
     int token;
 
-    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, logmalloclist, userdefinedtypelist, (void*)data_block);
+    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, logmalloclist, userdefinedtypelist, (void*)data_block,
+              protocolVersion);
     xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
     fclose(memfile);
 
@@ -226,7 +228,7 @@ idamCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK*
 }
 
 DATA_BLOCK* idamCacheRead(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
-                          USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment)
+                          USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion)
 {
     char* key = idamCacheKey(request_block, environment);
     UDA_LOG(UDA_LOG_DEBUG, "Retrieving value for key: %s\n", key);
@@ -262,7 +264,8 @@ DATA_BLOCK* idamCacheRead(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, 
     initDataBlock(data_block);
 
     int token;
-    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_RECEIVE, &token, logmalloclist, userdefinedtypelist, (void*)data_block);
+    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_RECEIVE, &token, logmalloclist, userdefinedtypelist, (void*)data_block,
+              protocolVersion);
 
     xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
     fclose(memfile);

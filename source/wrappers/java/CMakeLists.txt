@@ -29,11 +29,17 @@ add_library( ${LIB_NAME} SHARED idam_jni.c )
 target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static )
 
 set( CMAKE_JNI_TARGET TRUE )
-add_jar( ${JAR_NAME} jIdam/Idam.java
-  VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
-)
+if( WIN32 )
+  # For Windows, no need to specify a version because it generates an symlink, which is not supported
+  add_jar( ${JAR_NAME} jIdam/Idam.java )
+else()
+  add_jar( ${JAR_NAME} jIdam/Idam.java
+    VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
+  )
+  install_jni_symlink( ${JAR_NAME} java )
+endif()
+
 install_jar( ${JAR_NAME} java )
-install_jni_symlink( ${JAR_NAME} java )
 
 set_target_properties( ${LIB_NAME}
   PROPERTIES

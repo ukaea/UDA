@@ -58,9 +58,9 @@ int getIdamMemoryUsed();
 
 #endif
 
-void putIdamErrorModel(int handle, int model, int param_n, float* params);
+void putIdamErrorModel(int handle, int model, int param_n, const float* params);
 
-void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, float* params);
+void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, const float* params);
 
 void putIdamServer(const char* host, int port);
 

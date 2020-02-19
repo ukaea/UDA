@@ -347,18 +347,6 @@ typedef struct RequestBlock {
 
 } REQUEST_BLOCK;
 
-#ifdef __GNUC__
-//---------------------------------------------------------------------------------------------------
-// Performance Measures
-
-typedef struct Performance {
-    int npoints;                    // Number of Measurement Points
-    char label[20][256];            // Label the Measurement Point
-    struct timeval tv_start[20];    // Start time at a Measurement Point
-    struct timeval tv_end[20];      // Stop time
-} PERFORMANCE;
-#endif
-
 //---------------------------------------------------------------------------------------------------
 // System Environment Variables
 

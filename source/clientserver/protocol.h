@@ -83,12 +83,10 @@ enum REQUEST {
     REQUEST_READ_DEVICE         // Request to an External Device's data server
 };
 
-extern int protocolVersion; // Client or Server Version number for Protocol Configuration
-
 int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-             USERDEFINEDTYPELIST* userdefinedtypelist, void* str);
+             USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion);
 int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-              USERDEFINEDTYPELIST* userdefinedtypelist, void* str);
+              USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion);
 
 #ifdef __cplusplus
 }

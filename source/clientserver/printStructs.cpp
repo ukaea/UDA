@@ -6,7 +6,7 @@
 
 #include <logging/logging.h>
 #include <clientserver/udaTypes.h>
-#include "errorLog.h"
+#include <clientserver/errorLog.h>
 
 void printRequestBlock(REQUEST_BLOCK str)
 {
@@ -97,15 +97,15 @@ void printDataBlock(DATA_BLOCK str)
     UDA_LOG(UDA_LOG_DEBUG, "order        : %d\n", str.order);
     UDA_LOG(UDA_LOG_DEBUG, "data_type    : %d\n", str.data_type);
     UDA_LOG(UDA_LOG_DEBUG, "error_type   : %d\n", str.error_type);
-    UDA_LOG(UDA_LOG_DEBUG, "errhi != NULL: %d\n", str.errhi != NULL);
-    UDA_LOG(UDA_LOG_DEBUG, "errlo != NULL: %d\n", str.errlo != NULL);
+    UDA_LOG(UDA_LOG_DEBUG, "errhi != nullptr: %d\n", str.errhi != nullptr);
+    UDA_LOG(UDA_LOG_DEBUG, "errlo != nullptr: %d\n", str.errlo != nullptr);
 
     UDA_LOG(UDA_LOG_DEBUG, "opaque_type : %d\n", str.opaque_type);
     UDA_LOG(UDA_LOG_DEBUG, "opaque_count: %d\n", str.opaque_count);
 
     switch (str.opaque_type) {
         case (UDA_OPAQUE_TYPE_XML_DOCUMENT):
-            if (str.opaque_block != NULL) UDA_LOG(UDA_LOG_DEBUG, "\nXML: %s\n\n", (char*) str.opaque_block);
+            if (str.opaque_block != nullptr) UDA_LOG(UDA_LOG_DEBUG, "\nXML: %s\n\n", (char*) str.opaque_block);
             break;
         default:
             break;
@@ -129,14 +129,14 @@ void printDataBlock(DATA_BLOCK str)
         }
     }
 
-    if (str.error_type == UDA_TYPE_FLOAT && str.errhi != NULL) {
+    if (str.error_type == UDA_TYPE_FLOAT && str.errhi != nullptr) {
         int j;
         for (j = 0; j < k; j++) {
             UDA_LOG(UDA_LOG_DEBUG, "errhi[%d]: %f\n", j, *((float*)str.errhi + j));
         }
     }
 
-    if (str.error_type == UDA_TYPE_FLOAT && str.errlo != NULL && str.errasymmetry) {
+    if (str.error_type == UDA_TYPE_FLOAT && str.errlo != nullptr && str.errasymmetry) {
         int j;
         for (j = 0; j < k; j++) {
             UDA_LOG(UDA_LOG_DEBUG, "errlo[%d]: %f\n", j, *((float*)str.errlo + j));
@@ -160,8 +160,8 @@ void printDataBlock(DATA_BLOCK str)
         UDA_LOG(UDA_LOG_DEBUG, "\nDimension #%d Contents\n\n", i);
         UDA_LOG(UDA_LOG_DEBUG, "data_type    : %d\n", str.dims[i].data_type);
         UDA_LOG(UDA_LOG_DEBUG, "error_type   : %d\n", str.dims[i].error_type);
-        UDA_LOG(UDA_LOG_DEBUG, "errhi != NULL: %d\n", str.dims[i].errhi != NULL);
-        UDA_LOG(UDA_LOG_DEBUG, "errlo != NULL: %d\n", str.dims[i].errlo != NULL);
+        UDA_LOG(UDA_LOG_DEBUG, "errhi != nullptr: %d\n", str.dims[i].errhi != nullptr);
+        UDA_LOG(UDA_LOG_DEBUG, "errlo != nullptr: %d\n", str.dims[i].errlo != nullptr);
         UDA_LOG(UDA_LOG_DEBUG, "error model  : %d\n", str.dims[i].error_model);
         UDA_LOG(UDA_LOG_DEBUG, "asymmetry    : %d\n", str.dims[i].errasymmetry);
         UDA_LOG(UDA_LOG_DEBUG, "error model no. params : %d\n", str.dims[i].error_param_n);
@@ -183,14 +183,14 @@ void printDataBlock(DATA_BLOCK str)
                 if (str.dims[i].data_type == UDA_TYPE_FLOAT) {
                     k = 10;
                     if (str.dims[i].dim_n < 10) k = str.dims[i].dim_n;
-                    if (str.dims[i].dim != NULL)
+                    if (str.dims[i].dim != nullptr)
                         for (j = 0; j < k; j++)
                             UDA_LOG(UDA_LOG_DEBUG, "val[%d] = %f\n", j, *((float*) str.dims[i].dim + j));
                 }
                 if (str.dims[i].data_type == UDA_TYPE_DOUBLE) {
                     k = 10;
                     if (str.dims[i].dim_n < 10) k = str.dims[i].dim_n;
-                    if (str.dims[i].dim != NULL)
+                    if (str.dims[i].dim != nullptr)
                         for (j = 0; j < k; j++)
                             UDA_LOG(UDA_LOG_DEBUG, "val[%d] = %f\n", j, *((double*) str.dims[i].dim + j));
                 }
@@ -247,10 +247,10 @@ void printDataBlock(DATA_BLOCK str)
         if (str.dims[i].error_type == UDA_TYPE_FLOAT) {
             k = 10;
             if (str.dims[i].dim_n < 10) k = str.dims[i].dim_n;
-            if (str.dims[i].errhi != NULL)
+            if (str.dims[i].errhi != nullptr)
                 for (j = 0; j < k; j++)
                     UDA_LOG(UDA_LOG_DEBUG, "errhi[%d] = %f\n", j, *((float*) str.dims[i].errhi + j));
-            if (str.dims[i].errlo != NULL && str.dims[i].errasymmetry)
+            if (str.dims[i].errlo != nullptr && str.dims[i].errasymmetry)
                 for (j = 0; j < k; j++)
                     UDA_LOG(UDA_LOG_DEBUG, "errlo[%d] = %f\n", j, *((float*) str.dims[i].errlo + j));
         }
@@ -366,56 +366,3 @@ void printSignalDesc(SIGNAL_DESC str)
     UDA_LOG(UDA_LOG_DEBUG, "xml           : %s\n", str.xml);
     UDA_LOG(UDA_LOG_DEBUG, "xml_creation  : %s\n", str.xml_creation);
 }
-
-#ifdef __GNUC__
-void printPerformance(PERFORMANCE str)
-{
-    int i;
-    double testtime;
-    UDA_LOG(UDA_LOG_DEBUG, "\n==================== Performance Report =================\n");
-    for (i = 0; i < str.npoints; i++) {
-        testtime = (float) (str.tv_end[i].tv_sec - str.tv_start[i].tv_sec) * 1.0E6 +
-                   (float) (str.tv_end[i].tv_usec - str.tv_start[i].tv_usec);
-        UDA_LOG(UDA_LOG_DEBUG, "%s %.2f (micro-secs)\n", str.label[i], (float) testtime);
-    }
-    UDA_LOG(UDA_LOG_DEBUG, "=========================================================\n\n");
-}
-#endif
-
-//-------------------------------------------------------------------------------------------------------------------
-
-#ifdef IdamClientPublicInclude                // Client Side only
-
-extern void printIdamRequestBlock(FILE *fh, REQUEST_BLOCK str) {
-    printRequestBlock(fh, str);
-}
-extern void printIdamClientBlock(FILE *fh, CLIENT_BLOCK str) {
-    printClientBlock(fh, str);
-}
-extern void printIdamServerBlock(FILE *fh, SERVER_BLOCK str) {
-    printServerBlock(fh, str);
-}
-extern void printIdamDataBlock(FILE *fh, DATA_BLOCK str) {
-    printDataBlock(fh, str);
-}
-extern void printIdamSystemConfig(FILE *fh, SYSTEM_CONFIG str) {
-    printSystemConfig(fh, str);
-}
-extern void printIdamDataSystem(FILE *fh, DATA_SYSTEM str) {
-    printDataSystem(fh, str);
-}
-extern void printIdamDataSource(FILE *fh, DATA_SOURCE str) {
-    printDataSource(fh, str);
-}
-extern void printIdamSignal(FILE *fh, SIGNAL str) {
-    printSignal(fh, str);
-}
-extern void printIdamSignalDesc(FILE *fh, SIGNAL_DESC str) {
-    printSignalDesc(fh, str);
-}
-extern void printIdamPerformance(FILE *fh, PERFORMANCE str) {
-    printPerformance(fh, str);
-}
-
-#endif
-

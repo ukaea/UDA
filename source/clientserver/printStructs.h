@@ -24,9 +24,6 @@ void printDataSource(DATA_SOURCE str);
 void printSignal(SIGNAL str);
 
 void printSignalDesc(SIGNAL_DESC str);
-#ifdef __GNUC__
-void printPerformance(PERFORMANCE str);
-#endif
 
 #ifdef __cplusplus
 }

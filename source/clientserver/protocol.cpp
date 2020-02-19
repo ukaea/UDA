@@ -40,7 +40,7 @@
 #endif
 
 int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-             USERDEFINEDTYPELIST* userdefinedtypelist, void* str)
+             USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion)
 {
     DATA_BLOCK* data_block;
     DIMS* dim;
@@ -76,14 +76,14 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         err = PROTOCOL_ERROR_5;
                         break;
                     }
-                    if (!xdr_request(xdrs, request_block)) {
+                    if (!xdr_request(xdrs, request_block, protocolVersion)) {
                         err = PROTOCOL_ERROR_1;
                         break;
                     }
                     break;
 
                 case XDR_SEND:
-                    if (!xdr_request(xdrs, request_block)) {
+                    if (!xdr_request(xdrs, request_block, protocolVersion)) {
                         err = PROTOCOL_ERROR_2;
                         break;
                     }
@@ -95,7 +95,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                 case XDR_FREE_HEAP:
 
-                    if (!xdr_request(xdrs, request_block)) {
+                    if (!xdr_request(xdrs, request_block, protocolVersion)) {
                         err = PROTOCOL_ERROR_3;
                         break;
                     }
@@ -123,7 +123,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         err = PROTOCOL_ERROR_5;
                         break;
                     }
-                    if (!xdr_data_block1(xdrs, data_block)) {
+                    if (!xdr_data_block1(xdrs, data_block, protocolVersion)) {
                         err = PROTOCOL_ERROR_61;
                         break;
                     }
@@ -222,7 +222,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         break;
                     }
 
-                    if (!xdr_data_block1(xdrs, data_block)) {
+                    if (!xdr_data_block1(xdrs, data_block, protocolVersion)) {
                         err = PROTOCOL_ERROR_61;
                         break;
                     }
@@ -713,7 +713,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         err = PROTOCOL_ERROR_5;
                         break;
                     }
-                    if (!xdr_client(xdrs, client_block)) {
+                    if (!xdr_client(xdrs, client_block, protocolVersion)) {
                         err = PROTOCOL_ERROR_20;
                         break;
                     }
@@ -722,7 +722,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                 case XDR_SEND:
 
-                    if (!xdr_client(xdrs, client_block)) {
+                    if (!xdr_client(xdrs, client_block, protocolVersion)) {
                         err = PROTOCOL_ERROR_20;
                         break;
                     }
@@ -734,7 +734,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                 case XDR_FREE_HEAP:
 
-                    if (!xdr_client(xdrs, client_block)) {
+                    if (!xdr_client(xdrs, client_block, protocolVersion)) {
                         err = PROTOCOL_ERROR_21;
                         break;
                     }
@@ -766,7 +766,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     closeIdamError();    // Free Heap associated with Previous Data Access
 
-                    if (!xdr_server1(xdrs, server_block)) {
+                    if (!xdr_server1(xdrs, server_block, protocolVersion)) {
                         err = PROTOCOL_ERROR_22;
                         break;
                     }
@@ -786,7 +786,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     break;
 
                 case XDR_SEND:
-                    if (!xdr_server1(xdrs, server_block)) {
+                    if (!xdr_server1(xdrs, server_block, protocolVersion)) {
                         err = PROTOCOL_ERROR_22;
                         break;
                     }
@@ -824,7 +824,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         // Hierarchical or Meta Data Structures
 
         if (protocol_id > PROTOCOL_OPAQUE_START && protocol_id < PROTOCOL_OPAQUE_STOP) {
-            err = protocolXML(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str);
+            err = protocolXML(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str, protocolVersion);
         }
 
         //----------------------------------------------------------------------------

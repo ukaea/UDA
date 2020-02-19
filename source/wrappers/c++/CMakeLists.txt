@@ -3,6 +3,7 @@
 
 find_package( Boost REQUIRED )
 find_package( LibXml2 REQUIRED )
+find_package( OpenSSL REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( OpenSSL REQUIRED )
@@ -35,7 +36,7 @@ include_directories(
   ${Boost_INCLUDE_DIR}
 )
 
-include_directories( ${LIBXML2_INCLUDE_DIR} )
+include_directories( ${LIBXML2_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} )
 
 if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
@@ -58,12 +59,12 @@ set( CLIENT_OBJS
   $<TARGET_OBJECTS:authentication-client-objects>
 )
 
-set( LINK_LIB ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} )
+set( LINK_LIB ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} )
 if( WIN32 OR MINGW )
   if( MINGW )
-    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} dl stdc++ )
+    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dl stdc++ )
   else()
-    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} dlfcn-win32::dl )
+    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl )
   endif()
 endif()
 

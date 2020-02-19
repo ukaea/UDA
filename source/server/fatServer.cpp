@@ -57,7 +57,7 @@ USERDEFINEDTYPELIST parseduserdefinedtypelist;
 unsigned int privateFlags = 0;
 
 int serverVersion = 7;
-int protocolVersion = 7;
+static int protocolVersion = 7;
 
 SOCKETLIST socket_list;
 
@@ -100,7 +100,8 @@ static int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, D
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
-int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0, DATA_BLOCK* data_block0)
+int
+fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0, DATA_BLOCK* data_block0)
 {
     assert(data_block0 != nullptr);
 
@@ -121,7 +122,7 @@ int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLO
     initDataBlock(&data_block);
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
-    
+
     getInitialUserDefinedTypeList(&userdefinedtypelist);
     parseduserdefinedtypelist = *userdefinedtypelist;
     //printUserDefinedTypeList(*userdefinedtypelist);
@@ -161,8 +162,9 @@ int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLO
     return err;
 }
 
-int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLOCK* data_block0, REQUEST_BLOCK* request_block,
-                   CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block)
+int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLOCK* data_block0,
+                    REQUEST_BLOCK* request_block,
+                    CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block)
 {
     //----------------------------------------------------------------------------
     // Gather Server Error State
@@ -222,7 +224,8 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
         // Write data to the temporary file
 
         int protocol_id = PROTOCOL_STRUCTURES;
-        protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, data_block);
+        protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, data_block,
+                    protocolVersion);
 
         // Close the stream and file
 
@@ -246,7 +249,8 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
         // Read data from the temporary file
 
         protocol_id = PROTOCOL_STRUCTURES;
-        err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, data_block);
+        err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
+                          data_block, protocolVersion);
 
         // Close the stream and file
 
@@ -325,9 +329,15 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     protocolVersion = serverVersion;
 
     if (protocolVersion >= 6) {
-        if ((err = idamServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc, &pluginList, getIdamServerEnvironment())) != 0) return err;
+        if ((err = idamServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc,
+                                    &pluginList, getIdamServerEnvironment())) != 0) {
+            return err;
+        }
     } else {
-        if ((err = idamServerLegacyPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc)) != 0) return err;
+        if ((err = idamServerLegacyPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc)) !=
+            0) {
+            return err;
+        }
     }
 
     //------------------------------------------------------------------------------------------------
@@ -360,7 +370,8 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     int depth = 0;
 
     err = udaGetData(*request_block, *client_block, data_block, &metadata_block->data_source,
-            &metadata_block->signal_rec, &metadata_block->signal_desc, &pluginList, logmalloclist, userdefinedtypelist);
+                     &metadata_block->signal_rec, &metadata_block->signal_desc, &pluginList, logmalloclist,
+                     userdefinedtypelist);
 
     if (err != 0) {
         return err;
@@ -374,7 +385,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     DATA_SOURCE* data_source = &metadata_block->data_source;
     SIGNAL_DESC* signal_desc = &metadata_block->signal_desc;
     UDA_LOG(UDA_LOG_DEBUG,
-             "======================== ******************** ==========================================\n");
+            "======================== ******************** ==========================================\n");
     UDA_LOG(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
     UDA_LOG(UDA_LOG_DEBUG, "Device Name  : %s \n", data_source->device_name);
     UDA_LOG(UDA_LOG_DEBUG, "Signal Name  : %s \n", signal_desc->signal_name);
@@ -390,7 +401,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     printDataBlock(*data_block);
     printIdamErrorStack();
     UDA_LOG(UDA_LOG_DEBUG,
-             "======================== ******************** ==========================================\n");
+            "======================== ******************** ==========================================\n");
 
     //------------------------------------------------------------------------------------------------
     // Server-Side Data Processing

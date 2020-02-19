@@ -102,7 +102,7 @@ int sha1File(char* name, FILE* fh, unsigned char* md);
 
 int
 protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-             USERDEFINEDTYPELIST* userdefinedtypelist, void* str)
+             USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion)
 {
     DATA_BLOCK* data_block;
 
@@ -328,7 +328,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
 
                     rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u,
-                                                      (void**)data);        // send the Data
+                                                      (void**)data, protocolVersion);        // send the Data
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Data sent: rc = %d\n", rc);
 
@@ -705,7 +705,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         initUserDefinedType(udt_received);
 
                         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                          &data);        // receive the Data
+                                                          &data, protocolVersion);        // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: xdrUserDefinedTypeData #B\n");
                         if (!rc) {
@@ -893,7 +893,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             initUserDefinedType(udt_received);
 
                             rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                              &data);        // receive the Data
+                                                              &data, protocolVersion);        // receive the Data
 
                             if (!rc) {
                                 err = 999;
@@ -1033,7 +1033,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             initUserDefinedType(udt_received);
 
                             rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                              &data);        // receive the Data
+                                                              &data, protocolVersion);        // receive the Data
 
                             if (!rc) {
                                 err = 999;
@@ -1097,8 +1097,8 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         }
 #endif
 
-//----------------------------------------------------------------------------
-// Meta Data XML
+        //----------------------------------------------------------------------------
+        // Meta Data XML
 
 #ifndef FATCLIENT
 
@@ -1147,8 +1147,8 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         }
 
 #endif
-//----------------------------------------------------------------------------
-// End of Error Trap Loop
+    //----------------------------------------------------------------------------
+    // End of Error Trap Loop
 
     } while (0);
 
@@ -1184,7 +1184,7 @@ void sha1PartBlock(unsigned char* partBlock, size_t partBlockSize, unsigned char
 
 #ifndef FATCLIENT
 
-int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filename, DATA_BLOCK* data_block)
+int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filename, DATA_BLOCK* data_block, int protocolVersion)
 {
     int rc = 1, err = 0;
     void* data = nullptr;
@@ -1238,7 +1238,7 @@ int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filena
 
         initUserDefinedType(udt_received);
 
-        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data);
+        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data, protocolVersion);
 
         if (!rc) {
             err = 999;
@@ -1297,9 +1297,8 @@ int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filena
     return err;
 }
 
-
 int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* object, size_t objectSize,
-                    DATA_BLOCK* data_block)
+                    DATA_BLOCK* data_block, int protocolVersion)
 {
 
     int rc = 1, err = 0;
@@ -1309,7 +1308,7 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
 
     UDA_LOG(UDA_LOG_DEBUG, "unpackXDRObject: Unpacking XDR Data Object\n");
 
-// Unpack the data Structures
+    // Unpack the data Structures
 
     logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
     initLogMallocList(logmalloclist);
@@ -1319,7 +1318,7 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
 
     initUserDefinedTypeList(userdefinedtypelist);
 
-// Create a memory stream 
+    // Create a memory stream
 
     XDRstdioFlag = 1;
     xdrmem_create(&XDRInput, (char*)object, (unsigned int)objectSize, XDR_DECODE);
@@ -1327,7 +1326,7 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
 
     do {    // Error trap
 
-// Unpack the associated set of named structures
+        // Unpack the associated set of named structures
 
         rc = xdr_userdefinedtypelist(xdrs, userdefinedtypelist);
 
@@ -1343,11 +1342,11 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
             break;
         }
 
-// Unpack the Data
+        // Unpack the Data
 
         initUserDefinedType(udt_received);
 
-        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data);
+        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data, protocolVersion);
 
         if (!rc) {
             err = 999;
@@ -1371,7 +1370,7 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
 
     if (err != 0) return err;
 
-// Return data tree
+    // Return data tree
 
     if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
@@ -1407,7 +1406,7 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
 // Write to a memory block - the data object - using a memory stream
 
 int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* data_block,
-                           LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist)
+                           LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion)
 {
     int err = 0;
     XDR xdrObject;
@@ -1451,7 +1450,7 @@ int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK*
         // Serialise the structure and create the data object
 
         err = protocol2(&xdrObject, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                        (void*)data_block);
+                        (void*)data_block, protocolVersion);
 
         // Close the stream and file
 
@@ -1470,7 +1469,7 @@ int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK*
 // Read from a memory block - the data object - using a memory stream
 
 int unpackXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* data_block,
-                             LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist)
+                             LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion)
 {
     int err = 0;
     XDR xdrObject;
@@ -1491,7 +1490,7 @@ int unpackXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOC
         // Deserialise the object and create the data_block structure
 
         err = protocol2(&xdrObject, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                        (void*)data_block);
+                        (void*)data_block, protocolVersion);
 
         // Close the stream
 

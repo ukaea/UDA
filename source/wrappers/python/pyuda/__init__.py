@@ -4,7 +4,7 @@ from logging import DEBUG, WARNING, INFO, ERROR
 
 import cpyuda
 
-from ._client import Client, ListType
+from ._client import Client
 from ._signal import Signal
 from ._dim import Dim
 from ._structured import StructuredData
@@ -23,4 +23,4 @@ Properties = type('Properties', (), dict(
 ))
 
 __all__ = (UDAException, ProtocolException, ServerException, InvalidUseException,
-           Client, ListType, Signal, Dim, Properties, DEBUG, WARNING, INFO, ERROR)
+           Client, Signal, Dim, Properties, DEBUG, WARNING, INFO, ERROR)

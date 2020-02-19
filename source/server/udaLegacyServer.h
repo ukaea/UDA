@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-                     USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list);
+                     USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list, int protocolVersion);
 
 #ifdef __cplusplus
 }
