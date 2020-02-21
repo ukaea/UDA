@@ -73,6 +73,11 @@ int udaGetData(REQUEST_BLOCK request_block, CLIENT_BLOCK client_block, DATA_BLOC
         if (signal_desc->type == 'P') {
             strcpy(request_block.signal, signal_desc->signal_name);
             strcpy(request_block.source, data_source->path);
+
+            if ((request_block.source[0] == '\0') && (data_source->exp_number > 0)) {
+                sprintf(request_block.source, "%d", data_source->exp_number);
+            }
+
             makeRequestBlock(&request_block, *pluginlist, getIdamServerEnvironment()); // Includes placeholder substitution
         }
     } // end of REQUEST_READ_GENERIC
