@@ -120,6 +120,12 @@ cdef extern from "client/accAPI.h":
     int getIdamOrder(int handle);
     NTREE* getIdamDataTree(int handle);
     LOGMALLOCLIST* getIdamLogMallocList(int handle);
+    
+cdef extern from "client/udaPutAPI.h":
+    int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);
+    
+cdef extern from "clientserver/initStructs.h":
+    void initIdamPutDataBlock(PUTDATA_BLOCK* str);
 
 cdef extern from "structures/struct.h":
     int getNodeChildrenCount(NTREE* ntree);
