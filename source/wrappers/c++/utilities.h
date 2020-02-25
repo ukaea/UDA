@@ -13,6 +13,12 @@
 #include "singleValue.h"
 #include <sstream>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 //!  Utility routines
 namespace UtilitiesNs
 {
@@ -28,7 +34,7 @@ namespace UtilitiesNs
   \param values          Array of times-series values.
   \return                Time-window average.
 */
-SingleValueNs::SingleValue<double> timeAverage(const SingleValueNs::SingleValue<double> timeWindow, const SingleValueNs::SingleValue<double> timePoint, const SingleValueNs::SingleValue<int> index, const blitz::Array<double,1>& times, const blitz::Array<double,1>& values);
+LIBRARY_API SingleValueNs::SingleValue<double> timeAverage(const SingleValueNs::SingleValue<double> timeWindow, const SingleValueNs::SingleValue<double> timePoint, const SingleValueNs::SingleValue<int> index, const blitz::Array<double,1>& times, const blitz::Array<double,1>& values);
 
 
 
@@ -40,7 +46,7 @@ SingleValueNs::SingleValue<double> timeAverage(const SingleValueNs::SingleValue<
   \param AttributeValue The variable into which to place the contents of the XML attribute.
   \return If successful returns true, otherwise false
 */
-bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, SingleValueNs::SingleValue<double>& attributeValue);
+LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, SingleValueNs::SingleValue<double>& attributeValue);
 
 
 //! Assigns the value of an  XML attribute to a SingleValueNs::SingleValue<int> object.
@@ -50,7 +56,7 @@ bool getAttributeValue(const QDomElement& domElement, const std::string& attribu
   \param AttributeValue The variable into which to place the contents of the XML attribute.
   \return If successful returns true, otherwise false
 */
-bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, SingleValueNs::SingleValue<int>& attributeValue);
+LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, SingleValueNs::SingleValue<int>& attributeValue);
 
 
 //! Assigns the value of an  XML attribute to a blitz::Array<double,1> object.
@@ -64,7 +70,7 @@ bool getAttributeValue(const QDomElement& domElement, const std::string& attribu
   \param AttributeValue The variable into which to place the contents of the XML attribute.
   \return If successful returns true, otherwise false
 */
-bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, blitz::Array<double,1>& attributeValue);
+LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, blitz::Array<double,1>& attributeValue);
 
 
 //! Assigns the value of an  XML attribute to a blitz::Array<int,1> object.
@@ -78,7 +84,7 @@ bool getAttributeValue(const QDomElement& domElement, const std::string& attribu
   \param AttributeValue The variable into which to place the contents of the XML attribute.
   \return If successful returns true, otherwise false
 */
-bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, blitz::Array<int,1>& attributeValue);
+LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, blitz::Array<int,1>& attributeValue);
 
 
 //! Assigns the value of an  XML attribute to a blitz::Array<double,2> object.
@@ -92,7 +98,7 @@ bool getAttributeValue(const QDomElement& domElement, const std::string& attribu
   \param AttributeValue The variable into which to place the contents of the XML attribute.
   \return If successful returns true, otherwise false
 */
-bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, blitz::Array<double,2>& attributeValue);
+LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, blitz::Array<double,2>& attributeValue);
 
 
 //! Assigns the value of an  XML attribute to a std::string object.
@@ -102,7 +108,7 @@ bool getAttributeValue(const QDomElement& domElement, const std::string& attribu
   \param AttributeValue The variable into which to place the contents of the XML attribute (if it  hadn't been specified, then returns "notSet").
   \return  If the variable has been set returns true, otherwise false.
 */
-bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, std::string& attributeValue);
+LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, std::string& attributeValue);
 
 /*!
   \file utilities.h
@@ -117,7 +123,7 @@ bool getAttributeValue(const QDomElement& domElement, const std::string& attribu
   the string will be something like "development/main" (for the main development banch) or
   "development/nmercadier" for a subranch in the development thread.
 */
-std::string getEfitVersion();
+LIBRARY_API std::string getEfitVersion();
 
 //! Returns a "NaN" into a floating point double variable type.
 /*!
@@ -127,12 +133,12 @@ std::string getEfitVersion();
   infinity.  Nw we divid the number by itself, and the result is a "quiet" NaN.
   \return value NaN.
 */
-double getNaN() ;
+LIBRARY_API double getNaN() ;
 
 
 
 //! Function opens an XML file, parses it and returns a reference to the DOM document.
-bool openAndParseXmlFile(const std::string& xmlFileName, QDomDocument& domDocument);
+LIBRARY_API bool openAndParseXmlFile(const std::string& xmlFileName, QDomDocument& domDocument);
 
 
 

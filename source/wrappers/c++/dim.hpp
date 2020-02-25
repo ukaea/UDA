@@ -6,11 +6,21 @@
 
 #include "vector.hpp"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#  if !defined(__GNUC__)
+#    pragma warning(push)
+#    pragma warning(disable: 4251)
+#  endif
+#else
+#  define LIBRARY_API
+#endif
+
 namespace uda {
 
 typedef unsigned int dim_type;
 
-class Dim {
+class LIBRARY_API Dim {
 public:
     template <typename T>
     Dim(dim_type num, T* array, size_t size, const std::string& label, const std::string& units)
@@ -85,5 +95,9 @@ private:
 };
 
 }
+
+#if defined(_WIN32) && !defined(__GNUC__)
+#  pragma warning(pop)
+#endif
 
 #endif //IDAM_WRAPPERS_CPP_DIM_H

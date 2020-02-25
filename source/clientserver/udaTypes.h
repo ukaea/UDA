@@ -7,6 +7,12 @@
 
 #include <stdlib.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -60,8 +66,8 @@ typedef enum UdaOpaqueTypes {
     UDA_OPAQUE_TYPE_LIMITER = 110
 } UDA_OPAQUE_TYPE;
 
-size_t getSizeOf(UDA_TYPE data_type);
-size_t getPtrSizeOf(UDA_TYPE data_type);
+LIBRARY_API size_t getSizeOf(UDA_TYPE data_type);
+LIBRARY_API size_t getPtrSizeOf(UDA_TYPE data_type);
 
 #ifdef __cplusplus
 }

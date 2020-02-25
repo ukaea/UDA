@@ -222,6 +222,14 @@ if( BUILD_SHARED_LIBS )
         VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
         SOVERSION ${PROJECT_VERSION_MAJOR}
   )
+  if( WIN32 )
+    set_target_properties( server-shared
+      PROPERTIES
+        COMPILE_FLAGS -DLIBRARY_EXPORTS
+        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
+    )
+  endif()
+
   install(
     TARGETS server-shared
     DESTINATION lib
@@ -235,6 +243,13 @@ set_target_properties( server-exe
   PROPERTIES
     OUTPUT_NAME ${PROJECT_NAME}_server${EXE_EXT}
 )
+
+if( WIN32 )
+  set_target_properties( server-exe
+    PROPERTIES
+     COMPILE_FLAGS -DNOIMPLIB
+  )
+endif()
 
 install( TARGETS server-exe
   DESTINATION bin

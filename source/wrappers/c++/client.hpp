@@ -7,11 +7,22 @@
 
 #include "UDA.hpp"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#  if !defined(__GNUC__)
+#    pragma warning(push)
+#    pragma warning(disable: 4251)
+#    pragma warning(disable: 4275)
+#  endif
+#else
+#  define LIBRARY_API
+#endif
+
 namespace uda {
 
 class Array;
 
-class UDAException : public std::exception
+class LIBRARY_API UDAException : public std::exception
 {
 public:
     UDAException(std::string what, std::vector<std::string> backtrace)
@@ -53,7 +64,7 @@ private:
     std::string backtrace_msg_;
 };
 
-class ProtocolException : public UDAException {
+class LIBRARY_API ProtocolException : public UDAException {
 public:
     ProtocolException(std::string what, std::vector<std::string> backtrace) : UDAException(what, backtrace)
     {}
@@ -62,7 +73,7 @@ public:
     {}
 };
 
-class ServerException : public UDAException {
+class LIBRARY_API ServerException : public UDAException {
 public:
     ServerException(std::string what, std::vector<std::string> backtrace) : UDAException(what, backtrace)
     {}
@@ -71,7 +82,7 @@ public:
     {}
 };
 
-class InvalidUseException : public UDAException {
+class LIBRARY_API InvalidUseException : public UDAException {
 public:
     InvalidUseException(std::string what, std::vector<std::string> backtrace) : UDAException(what, backtrace)
     {}
@@ -110,7 +121,7 @@ class Result;
 class IdamException;
 class Signal;
 
-class Client {
+class LIBRARY_API Client {
 public:
     ~Client();
 
@@ -161,5 +172,9 @@ private:
 };
 
 }
+
+#if defined(_WIN32) && !defined(__GNUC__)
+#  pragma warning(pop)
+#endif
 
 #endif // UDA_WRAPPERS_CPP_CLIENT_H

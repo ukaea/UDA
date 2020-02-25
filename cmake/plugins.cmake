@@ -67,6 +67,14 @@ macro( uda_plugin )
     VERSION ${PLUGIN_VERSION}
   )
 
+  if( WIN32 )
+    set_target_properties( ${PLUGIN_LIBNAME}
+      PROPERTIES
+        COMPILE_FLAGS -DLIBRARY_EXPORTS
+        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
+    )
+  endif()
+
   if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
     add_definitions( -DA64 )
   endif()

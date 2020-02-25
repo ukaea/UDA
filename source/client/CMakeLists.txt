@@ -149,7 +149,14 @@ if( BUILD_SHARED_LIBS )
       VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
       SOVERSION ${PROJECT_VERSION_MAJOR}
   )
-  
+  if( WIN32 )
+    set_target_properties( client-shared
+      PROPERTIES
+        COMPILE_FLAGS -DLIBRARY_EXPORTS
+        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
+    )
+  endif()
+
   install( TARGETS client-shared
     DESTINATION lib
   )
@@ -178,6 +185,13 @@ if( NOT CLIENT_ONLY )
         VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
         SOVERSION ${PROJECT_VERSION_MAJOR}
     )
+    if( WIN32 )
+      set_target_properties( fatclient-shared
+        PROPERTIES
+          COMPILE_FLAGS -DLIBRARY_EXPORTS
+          IMPORT_SUFFIX ${IMPLIB_SUFFIX}
+      )
+    endif()
 
     install( TARGETS fatclient-shared
       DESTINATION lib

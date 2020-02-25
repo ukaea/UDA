@@ -3,13 +3,19 @@
 
 #include <clientserver/socketStructs.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void closeNamedServerSocket(SOCKETLIST *socks, char *host, int port);
-void closeServerSocket(SOCKETLIST *socks, int fh);
-void closeServerSockets(SOCKETLIST *socks);
+LIBRARY_API void closeNamedServerSocket(SOCKETLIST *socks, char *host, int port);
+LIBRARY_API void closeServerSocket(SOCKETLIST *socks, int fh);
+LIBRARY_API void closeServerSockets(SOCKETLIST *socks);
 
 #ifdef __cplusplus
 }

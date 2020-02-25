@@ -4,14 +4,20 @@
 #include <plugins/udaPlugin.h>
 #include <clientserver/udaStructs.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
-void initServerRequestBlock(REQUEST_BLOCK* str);
-int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList);
+LIBRARY_API void initServerRequestBlock(REQUEST_BLOCK* str);
+LIBRARY_API int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList);
 
 #endif
 

@@ -3,6 +3,12 @@
 
 #include <plugins/udaPlugin.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -17,18 +23,18 @@ extern "C" {
 
 extern int viewport(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 
-void getVerticalPixelValues(float * values, int count, int pixelHeight, float * startValue, float * endValue,
+LIBRARY_API void getVerticalPixelValues(float * values, int count, int pixelHeight, float * startValue, float * endValue,
                             float ** verticalPixelValues, float * delta);
 
-void getBins(float * coords, int count, int pixelWidth, float minValue, float maxValue, int ** column,
+LIBRARY_API void getBins(float * coords, int count, int pixelWidth, float minValue, float maxValue, int ** column,
              float ** pixelValues);
 
-void reduceOrderedData(float * values, int * count, float * startValue, float * endValue, float * coords, float * min,
+LIBRARY_API void reduceOrderedData(float * values, int * count, float * startValue, float * endValue, float * coords, float * min,
                        float * max);
 
-void getBinIds(float * values, int count, int pixelHeight, float * pixelValues, int ** freq);
+LIBRARY_API void getBinIds(float * values, int count, int pixelHeight, float * pixelValues, int ** freq);
 
-int whichHandle(char * signal, char * source);
+LIBRARY_API int whichHandle(char * signal, char * source);
 
 #ifdef __cplusplus
 }

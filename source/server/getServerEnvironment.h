@@ -3,14 +3,20 @@
 
 #include <clientserver/udaStructs.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void printIdamServerEnvironment(const ENVIRONMENT* environment);
-ENVIRONMENT* getIdamServerEnvironment();
+LIBRARY_API void printIdamServerEnvironment(const ENVIRONMENT* environment);
+LIBRARY_API ENVIRONMENT* getIdamServerEnvironment();
 
-void putIdamServerEnvironment(const ENVIRONMENT* environment);
+LIBRARY_API void putIdamServerEnvironment(const ENVIRONMENT* environment);
 
 #ifdef __cplusplus
 }

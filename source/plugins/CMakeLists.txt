@@ -115,7 +115,14 @@ if( BUILD_SHARED_LIBS )
       VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
       SOVERSION ${PROJECT_VERSION_MAJOR}
   )
-  
+  if( WIN32 )
+    set_target_properties( plugins-shared
+      PROPERTIES
+        COMPILE_FLAGS -DLIBRARY_EXPORTS
+        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
+    )
+  endif()
+
   install(
     TARGETS plugins-shared
     DESTINATION lib

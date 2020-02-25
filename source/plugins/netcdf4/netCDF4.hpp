@@ -1,12 +1,19 @@
 #ifndef UDA_PLUGIN_NETCDF4_H
 #define UDA_PLUGIN_NETCDF4_H
 
+#include <plugins/udaPlugin.h>
+#include <plugins/udaPluginFiles.h>
+
+
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <plugins/udaPlugin.h>
-#include <plugins/udaPluginFiles.h>
 
 #define THISPLUGIN_VERSION                  1
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1
@@ -23,7 +30,7 @@ extern "C" {
 
 #define NC_HIDDENPREFIX    '_'        // This should be overridden by an environment variable: IDAM_HIDDENPREFIX or passed as a keyword pair
 
-int netCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
+LIBRARY_API int netCDF4(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 
 #ifdef __cplusplus
 }

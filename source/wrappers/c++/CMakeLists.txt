@@ -115,7 +115,14 @@ if( BUILD_SHARED_LIBS )
       VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
       SOVERSION ${PROJECT_VERSION_MAJOR}
   )
-  
+  if( WIN32 )
+    set_target_properties( ${LIB_NAME}-shared
+      PROPERTIES
+        COMPILE_FLAGS -DLIBRARY_EXPORTS
+        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
+    )
+  endif()
+
   install( TARGETS ${LIB_NAME}-shared
     DESTINATION lib
   )
@@ -150,7 +157,14 @@ if( NOT CLIENT_ONLY )
         VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
         SOVERSION ${PROJECT_VERSION_MAJOR}
     )
-    
+    if( WIN32 )
+      set_target_properties( fat${LIB_NAME}-shared
+        PROPERTIES
+          COMPILE_FLAGS -DLIBRARY_EXPORTS
+          IMPORT_SUFFIX ${IMPLIB_SUFFIX}
+      )
+    endif()
+
     install( TARGETS fat${LIB_NAME}-shared
       DESTINATION lib
     )

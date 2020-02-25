@@ -108,6 +108,13 @@ macro( BUILD_TEST NAME SOURCE )
       OUTPUT_NAME ${NAME}${EXE_EXT}
   )
   
+  if( WIN32 )
+    set_target_properties( ${NAME}
+      PROPERTIES
+       COMPILE_FLAGS -DNOIMPLIB
+    )
+  endif()
+  
   add_executable( fat_${NAME} ${EXE_FLAG} ${HELPER_FILES} ${SOURCE} )
   target_link_libraries( fat_${NAME} PRIVATE
     ${Boost_LIBRARIES}
@@ -129,6 +136,13 @@ macro( BUILD_TEST NAME SOURCE )
     PROPERTIES
       OUTPUT_NAME fat_${NAME}${EXE_EXT}
   )
+
+  if( WIN32 )
+    set_target_properties( fat_${NAME}
+      PROPERTIES
+       COMPILE_FLAGS -DNOIMPLIB
+    )
+  endif()
 
   if( FAT_TESTS )
     add_test( ${NAME} fat_${NAME} -r junit -o ${NAME}_out.xml )

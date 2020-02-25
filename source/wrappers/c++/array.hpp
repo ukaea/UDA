@@ -7,12 +7,22 @@
 #include "dim.hpp"
 #include "data.hpp"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#  if !defined(__GNUC__)
+#    pragma warning(push)
+#    pragma warning(disable: 4251)
+#  endif
+#else
+#  define LIBRARY_API
+#endif
+
 namespace uda {
 
 class Client;
 class Result;
 
-class Array : public Data {
+class LIBRARY_API Array : public Data {
 public:
     template <typename T>
     Array(T* data, const uda::Result* result)
@@ -41,7 +51,7 @@ public:
     Array(const Array& other) = default;
     Array& operator=(const Array& other) = default;
 
-    size_t size() const override;
+    std::size_t size() const override;
 
     const std::type_info& type() const override
     {
@@ -55,7 +65,7 @@ public:
         return std::vector<T>(data, data + size());
     }
 
-    const std::vector<size_t> shape() const;
+    const std::vector<std::size_t> shape() const;
 
     const std::vector<Dim>& dims() const;
 
@@ -66,7 +76,7 @@ public:
         return raw_data_;
     }
 
-    size_t byte_length() const override
+    std::size_t byte_length() const override
     {
         return data_size_ * size();
     }
@@ -90,9 +100,13 @@ private:
     mutable std::vector<Dim> dims_;
     const std::type_info* type_;
     const unsigned char* raw_data_;
-    size_t data_size_;
+    std::size_t data_size_;
 };
 
 }
+
+#if defined(_WIN32) && !defined(__GNUC__)
+#  pragma warning(pop)
+#endif
 
 #endif // UDA_WRAPPERS_CPP_ARRAY_H

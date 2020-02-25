@@ -29,13 +29,19 @@ find_path( MDSPLUS_INCLUDES mdslib.h
 
 set( MDS_LIBS
   MdsLib
-  #MdsObjectsCppShr
   MdsShr
   MdsIpShr
   TreeShr
   TdiShr
   XTreeShr
 )
+
+if( WIN32 )
+  set( MDS_LIBS ${MDS_LIBS} MdsObjectsCppShr-VS )
+endif()
+if( MINGW )
+  set( MDS_LIBS ${MDS_LIBS} MdsObjectsCppShr )
+endif()
 
 set( MDSPLUS_LIBRARIES "" )
 

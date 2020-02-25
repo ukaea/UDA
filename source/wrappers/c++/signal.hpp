@@ -3,6 +3,16 @@
 
 #include "array.hpp"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#  if !defined(__GNUC__)
+#    pragma warning(push)
+#    pragma warning(disable: 4251)
+#  endif
+#else
+#  define LIBRARY_API
+#endif
+
 namespace uda
 {
 
@@ -10,7 +20,7 @@ enum SignalClass {
     ANALYSED, RAW, MODELLED
 };
 
-class Signal
+class LIBRARY_API Signal
 {
 public:
     Signal(const uda::Array& array, SignalClass signal_class, const std::string& alias, const std::string& title,
@@ -49,5 +59,9 @@ private:
 };
 
 } // namespace
+
+#if defined(_WIN32) && !defined(__GNUC__)
+#  pragma warning(pop)
+#endif
 
 #endif // UDA_WRAPPERS_CPP_SIGNAL_H

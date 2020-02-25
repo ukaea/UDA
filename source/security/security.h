@@ -3,6 +3,16 @@
 
 #include <gcrypt.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define UDA_SECURITY_VERSION 7
 
 // Limits
@@ -37,11 +47,15 @@ typedef enum AuthenticationStep {
     HOUSEKEEPING                = 9,
 } AUTHENTICATION_STEP;
 
-int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD encryptionMethod,
+LIBRARY_API int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD encryptionMethod,
                       TOKEN_TYPE tokenType, unsigned short tokenByteLength,
                       gcry_sexp_t publickey, gcry_sexp_t privatekey,
                       gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken,
                       unsigned char** client_ciphertext, size_t* client_ciphertextLength,
                       unsigned char** server_ciphertext, size_t* server_ciphertextLength);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_SECURITY_SECURITY_H

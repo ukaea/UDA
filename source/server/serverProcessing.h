@@ -3,11 +3,17 @@
 
 #include <clientserver/udaStructs.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK *data_block);
+LIBRARY_API int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK *data_block);
 
 #ifdef __cplusplus
 }

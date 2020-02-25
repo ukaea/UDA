@@ -5,6 +5,12 @@
 #define HOST_MSTEP		10		// Increase heap by 10 records once the maximum is exceeded
 #define HOST_STRING		256
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25,21 +31,21 @@ typedef struct {
     HOSTDATA* hosts;    // List of host aliases and SSL certificate locations
 } HOSTLIST;
 
-void udaClientAllocHostList(int count);
-void udaClientFreeHostList(void);
-void udaClientInitHostData(HOSTDATA* host);
-int udaClientFindHostByAlias(const char* alias);
-int udaClientFindHostByName(const char* name);
-void udaClientInitHostList(void);
-char* udaClientGetHostName(int id);
-char* udaClientGetHostAlias(int id);
-int udaClientGetHostPort(int id);
-char* udaClientGetHostCertificatePath(int id);
-char* udaClientGetHostKeyPath(int id);
-char* udaClientGetHostCAPath(int id);
-int udaClientGetHostSSL(int id);
-void udaClientPutHostNameId(int id);
-int udaClientGetHostNameId(void);
+LIBRARY_API void udaClientAllocHostList(int count);
+LIBRARY_API void udaClientFreeHostList(void);
+LIBRARY_API void udaClientInitHostData(HOSTDATA* host);
+LIBRARY_API int udaClientFindHostByAlias(const char* alias);
+LIBRARY_API int udaClientFindHostByName(const char* name);
+LIBRARY_API void udaClientInitHostList(void);
+LIBRARY_API char* udaClientGetHostName(int id);
+LIBRARY_API char* udaClientGetHostAlias(int id);
+LIBRARY_API int udaClientGetHostPort(int id);
+LIBRARY_API char* udaClientGetHostCertificatePath(int id);
+LIBRARY_API char* udaClientGetHostKeyPath(int id);
+LIBRARY_API char* udaClientGetHostCAPath(int id);
+LIBRARY_API int udaClientGetHostSSL(int id);
+LIBRARY_API void udaClientPutHostNameId(int id);
+LIBRARY_API int udaClientGetHostNameId(void);
 
 #ifdef __cplusplus
 }

@@ -3,7 +3,17 @@
 
 #include <clientserver/udaStructs.h>
 
-int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_block, const ENVIRONMENT* environment);
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+LIBRARY_API int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_block, const ENVIRONMENT* environment);
 
 #ifndef NOBINARYPLUGIN
 
@@ -15,6 +25,10 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data
 #define BYTEFILEMD5ERROR	    100006
 #define BYTEFILEMD5DIFF		    100007
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif // UDA_PLUGIN_READBYTESNONOPTIMALLY_H

@@ -1,6 +1,16 @@
 #ifndef UDA_XMLSTRUCTS_H
 #define UDA_XMLSTRUCTS_H
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define XMLMAXSTRING    56
 #define XMLMAX          200*1024
 #define XMLMAXLOOP      1024        // Max Number of Array elements
@@ -147,5 +157,9 @@ typedef struct {
     TOROIDALFIELD* toroidalfield;   // Toroidal Field
     LIMITER* limiter;               // Limiter Coordinates
 } EFIT;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_XMLSTRUCTS_H

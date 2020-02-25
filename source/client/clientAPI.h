@@ -3,15 +3,21 @@
 
 #include <clientserver/udaStructs.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int idamClientAPI(const char *file, const char *signal, int pass, int exp_number);
-int idamClientFileAPI(const char *file, const char *signal, const char *format);
-int idamClientFileAPI2(const char *file, const char *format, const char *owner,
+LIBRARY_API int idamClientAPI(const char *file, const char *signal, int pass, int exp_number);
+LIBRARY_API int idamClientFileAPI(const char *file, const char *signal, const char *format);
+LIBRARY_API int idamClientFileAPI2(const char *file, const char *format, const char *owner,
                        const char *signal, int exp_number, int pass);
-int idamClientTestAPI(const char *file, const char *signal, int pass, int exp_number);
+LIBRARY_API int idamClientTestAPI(const char *file, const char *signal, int pass, int exp_number);
 
 #ifdef __cplusplus
 }

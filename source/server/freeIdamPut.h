@@ -3,12 +3,18 @@
 
 #include <clientserver/udaStructs.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void freeIdamServerPutDataBlock(PUTDATA_BLOCK *str);
-void freeIdamServerPutDataBlockList(PUTDATA_BLOCK_LIST *putDataBlockList);
+LIBRARY_API void freeIdamServerPutDataBlock(PUTDATA_BLOCK *str);
+LIBRARY_API void freeIdamServerPutDataBlockList(PUTDATA_BLOCK_LIST *putDataBlockList);
 
 #ifdef __cplusplus
 }

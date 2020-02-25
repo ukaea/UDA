@@ -9,10 +9,21 @@
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
 
-int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK request_block, DATA_BLOCK* data_block,
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+LIBRARY_API int readCDF(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, REQUEST_BLOCK request_block, DATA_BLOCK* data_block,
             LOGMALLOCLIST** logmalloclist, USERDEFINEDTYPELIST** userdefinedtypelist);
 
-int readCDFGlobalMeta(const char* path, DATA_BLOCK* data_block,
+LIBRARY_API int readCDFGlobalMeta(const char* path, DATA_BLOCK* data_block,
                     LOGMALLOCLIST** logmalloclist, USERDEFINEDTYPELIST** userdefinedtypelist);
 
 #define NETCDF_ERROR_OPENING_FILE               200
@@ -137,48 +148,48 @@ typedef struct CDFSubset {
     int stride[NC_MAX_VAR_DIMS];  // The step stride along each dimension
 } CDFSUBSET;
 
-int readCDF4Err(int grpid, int varid, int isCoordinate, int cls, int rank, int* dimids, int* nevec,
+LIBRARY_API int readCDF4Err(int grpid, int varid, int isCoordinate, int cls, int rank, int* dimids, int* nevec,
                 int* error_type, char** edata, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist);
 
-int readCDFAtts(int fd, int varid, char* units, char* longname);
+LIBRARY_API int readCDFAtts(int fd, int varid, char* units, char* longname);
 
-int getGroupId(int ncgrpid, char* target, int* targetid);
+LIBRARY_API int getGroupId(int ncgrpid, char* target, int* targetid);
 
-int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data);
+LIBRARY_API int applyCDFCalibration(int grpid, int varid, int ndata, int* type, char** data);
 
-void readCDF4CreateIndex(int ndata, void* dvec);
+LIBRARY_API void readCDF4CreateIndex(int ndata, void* dvec);
 
-int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* coords, LOGMALLOCLIST* logmalloclist,
+LIBRARY_API int readCDFCheckCoordinate(int grpid, int varid, int rank, int ncoords, char* coords, LOGMALLOCLIST* logmalloclist,
                            USERDEFINEDTYPELIST* userdefinedtypelist);
 
-int isAtomicNCType(nc_type type);
+LIBRARY_API int isAtomicNCType(nc_type type);
 
-int convertNCType(nc_type type);
+LIBRARY_API int convertNCType(nc_type type);
 
-void printNCType(FILE* fd, nc_type type);
+LIBRARY_API void printNCType(FILE* fd, nc_type type);
 
-int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist);
+LIBRARY_API int readCDFTypes(int grpid, USERDEFINEDTYPELIST* userdefinedtypelist);
 
-int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIST* logmalloclist,
+LIBRARY_API int getCDF4SubTreeMeta(int grpid, int parent, USERDEFINEDTYPE* udt, LOGMALLOCLIST* logmalloclist,
                        USERDEFINEDTYPELIST* userdefinedtypelist, HGROUPS* hgroups,
 		       int* depth, int targetDepth);
 
-int getCDF4SubTreeMetaX(int grpid, int parent, USERDEFINEDTYPE* udt, USERDEFINEDTYPELIST* userdefinedtypelist,
+LIBRARY_API int getCDF4SubTreeMetaX(int grpid, int parent, USERDEFINEDTYPE* udt, USERDEFINEDTYPELIST* userdefinedtypelist,
                         HGROUPS* hgroups);
 
-void initHGroup(HGROUPS* hgroups);
+LIBRARY_API void initHGroup(HGROUPS* hgroups);
 
-int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, void** data, HGROUP* group, HGROUPS* hgroups, int attronly, int* depth, int targetDepth);
+LIBRARY_API int getCDF4SubTreeData(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, void** data, HGROUP* group, HGROUPS* hgroups, int attronly, int* depth, int targetDepth);
 
-int getCDF4SubTreeUserDefinedTypes(int grpid, GROUPLIST* grouplist, USERDEFINEDTYPELIST* userdefinedtypelist);
+LIBRARY_API int getCDF4SubTreeUserDefinedTypes(int grpid, GROUPLIST* grouplist, USERDEFINEDTYPELIST* userdefinedtypelist);
 
-void replaceStrings(char** svec, int* ndata, char** dvec, int* ndims);
+LIBRARY_API void replaceStrings(char** svec, int* ndata, char** dvec, int* ndims);
 
-void replaceEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* udt, int ndata, char* dvec);
+LIBRARY_API void replaceEmbeddedStrings(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* udt, int ndata, char* dvec);
 
-int scopedUserDefinedTypes(int grpid);
+LIBRARY_API int scopedUserDefinedTypes(int grpid);
 
-unsigned int readCDF4Properties();
+LIBRARY_API unsigned int readCDF4Properties();
 
 extern CDFSUBSET cdfsubset;
 
@@ -187,5 +198,9 @@ extern int IMAS_HDF_READER;
 extern nc_type ctype;
 
 extern nc_type dctype;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_PLUGIN_READCDF4_H

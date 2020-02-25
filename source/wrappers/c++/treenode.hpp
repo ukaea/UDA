@@ -11,9 +11,15 @@
 #include "array.hpp"
 #include "structdata.hpp"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 namespace uda {
 
-class TreeNode
+class LIBRARY_API TreeNode
 {
 public:
     TreeNode findStructureDefinition(const std::string& name);

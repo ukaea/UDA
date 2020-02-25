@@ -31,6 +31,14 @@ if( WIN32 OR MINGW )
   set( CURL ${CURL_LIBRARIES} ws2_32 )
 endif()
 
+# Link with Server Objects
+set( SRV_OBJ )
+if( WIN32 OR MINGW )
+  set( SRV_OBJ server-objects logging-server-objects )
+else()
+  set( SRV_OBJ server-static )
+endif()
+
 include( plugins )
 
 uda_plugin(
@@ -54,7 +62,7 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${NETCDF_LIBRARIES}
-	${HDF5}
-	${CURL}
-	server-static
+    ${HDF5}
+    ${CURL}
+    ${SRV_OBJ}
 )

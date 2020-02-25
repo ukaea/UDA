@@ -135,7 +135,12 @@ add_definitions(
 if( WIN32 OR MINGW )
   add_definitions( -D_CRT_SECURE_NO_WARNINGS )
   set( CMAKE_FIND_LIBRARY_PREFIXES "lib" "" )
-  set( CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".a" ".lib" )
+  set( CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a" ".dll.lib" ".a" ".lib" )
+  if( MINGW )
+    set( IMPLIB_SUFFIX ".dll.a" )
+  else()
+    set( IMPLIB_SUFFIX ".dll.lib" )
+  endif()
   find_package( XDR REQUIRED )
   
   # "-Wl,-z,defs" is an ELF instruction, not supported by Windows

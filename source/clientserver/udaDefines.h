@@ -1,6 +1,12 @@
 #ifndef UDA_CLIENTSERVER_IDAMDEFINES_H
 #define UDA_CLIENTSERVER_IDAMDEFINES_H
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -124,7 +130,7 @@ extern unsigned int clientFlags;
 #if defined(_WIN32)
 
 #if !defined(MINGW)
-int gettimeofday(struct timeval* tp, struct timezone* tzp);
+LIBRARY_API int gettimeofday(struct timeval* tp, struct timezone* tzp);
 #endif
 
 #endif

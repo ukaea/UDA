@@ -36,10 +36,10 @@ std::size_t uda::Array::size() const
     }
 }
 
-const std::vector<size_t> uda::Array::shape() const
+const std::vector<std::size_t> uda::Array::shape() const
 {
     if (result_ == nullptr) {
-        std::vector<size_t> shape;
+        std::vector<std::size_t> shape;
         for (const auto& dim : dims()) {
             shape.push_back(dim.size());
         }

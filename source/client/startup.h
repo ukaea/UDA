@@ -5,11 +5,17 @@
 #  define idamStartup idamStartupFat
 #endif
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int idamStartup(int reset);
+LIBRARY_API int idamStartup(int reset);
 
 #ifdef __cplusplus
 }

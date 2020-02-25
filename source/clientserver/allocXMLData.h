@@ -6,16 +6,22 @@
 #include "idamclientserver.h"
 #include "idamclientserverxml.h"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int alloc_efit(EFIT *efit);
-int alloc_pfcircuit(PFCIRCUIT *str);
-int alloc_pfcoils(PFCOILS *str);
-int alloc_pfpassive(PFPASSIVE *str);
-int alloc_fluxloop(FLUXLOOP *str);
-int alloc_limiter(LIMITER *str);
+LIBRARY_API int alloc_efit(EFIT *efit);
+LIBRARY_API int alloc_pfcircuit(PFCIRCUIT *str);
+LIBRARY_API int alloc_pfcoils(PFCOILS *str);
+LIBRARY_API int alloc_pfpassive(PFPASSIVE *str);
+LIBRARY_API int alloc_fluxloop(FLUXLOOP *str);
+LIBRARY_API int alloc_limiter(LIMITER *str);
 
 #ifdef __cplusplus
 }

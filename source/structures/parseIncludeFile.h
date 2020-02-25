@@ -3,11 +3,17 @@
 
 #include "genStructs.h"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* header);
+LIBRARY_API int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* header);
 
 #ifdef __cplusplus
 }

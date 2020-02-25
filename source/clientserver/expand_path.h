@@ -3,6 +3,12 @@
 
 #include "udaStructs.h"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -12,14 +18,14 @@ extern "C" {
 @param host The name of the client host workstation. The string is pre-allocated with length STRING_LENGTH
 @returns A pointer to the host string (Identical to the argument).
 */
-char* hostid(char* host);
+LIBRARY_API char* hostid(char* host);
 
 /*! Test a path is legitimate
 
 @param path The file path to be tested.
 @returns A pointer to the path argument. If a problem occurs, the path string is empty.
 */
-char* pathid(char* path);
+LIBRARY_API char* pathid(char* path);
 
 /*! Fully expand file directory paths to remove relative path or environment variable components.
 
@@ -41,7 +47,7 @@ char* pathid(char* path);
 @param path The file path to be resolved and expanded.
 @returns An integer Error Code: If non zero, a problem occured.
 */
-int expandFilePath(char* path, const ENVIRONMENT* environment);
+LIBRARY_API int expandFilePath(char* path, const ENVIRONMENT* environment);
 
 #ifndef NOEXPANDPATH
 
@@ -53,7 +59,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment);
 @param tokenList A Pointer to an array of token strings
 @param tokenCount The number of tokens in the list.
 */
-void freeTokenList(char*** tokenListArray, int* tokenCount);
+LIBRARY_API void freeTokenList(char*** tokenListArray, int* tokenCount);
 
 /*! Generate a lists of path elements tokens.
 
@@ -62,7 +68,7 @@ void freeTokenList(char*** tokenListArray, int* tokenCount);
 @param tokenList A pointer to an array of token strings. This must be freed using freeTokenList when no longer needed.
 returns A count of the tokens parsed from input.
 */
-int tokenList(const char* delims, char* input, char*** tokenListArray);
+LIBRARY_API int tokenList(const char* delims, char* input, char*** tokenListArray);
 
 /*! Substitute/Replace file path name elements for server side name resolution.
 
@@ -92,9 +98,9 @@ If there are more wildcards in the substitute string than in the target string, 
 @param path The path to be tested for targeted name element replacement.
 @returns An integer Error Code: If non zero, a problem occured.
 */
-int pathReplacement(char* path, const ENVIRONMENT* environment);
+LIBRARY_API int pathReplacement(char* path, const ENVIRONMENT* environment);
 
-int linkReplacement(char* path);
+LIBRARY_API int linkReplacement(char* path);
 
 #endif // NOEXPANDPATH
 

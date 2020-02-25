@@ -8,12 +8,18 @@
 #  define idamPutAPI idamPutAPIFat
 #endif
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlockList);
-int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);
+LIBRARY_API int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlockList);
+LIBRARY_API int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);
 
 #ifdef __cplusplus
 }

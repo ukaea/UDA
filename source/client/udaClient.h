@@ -7,6 +7,12 @@
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,49 +68,49 @@ extern int get_synthetic;       // (Client Side) Return Synthetic Data if availa
 extern XDR* clientInput;           // XDR Input Stream handle
 extern XDR* clientOutput;          // XDR Output Stream handle
 
-int idamClient(REQUEST_BLOCK* request_block);
+LIBRARY_API int idamClient(REQUEST_BLOCK* request_block);
 
-void updateClientBlock(CLIENT_BLOCK* str);
+LIBRARY_API void updateClientBlock(CLIENT_BLOCK* str);
 
-void idamFree(int handle);
+LIBRARY_API void idamFree(int handle);
 
-void idamFreeAll();
+LIBRARY_API void idamFreeAll();
 
-const char* getIdamServerHost();
+LIBRARY_API const char* getIdamServerHost();
 
-int getIdamServerPort();
+LIBRARY_API int getIdamServerPort();
 
-int getIdamServerSocket();
+LIBRARY_API int getIdamServerSocket();
 
-const char* getIdamClientDOI();
+LIBRARY_API const char* getIdamClientDOI();
 
-const char* getIdamServerDOI();
+LIBRARY_API const char* getIdamServerDOI();
 
-const char* getIdamClientOSName();
+LIBRARY_API const char* getIdamClientOSName();
 
-const char* getIdamServerOSName();
+LIBRARY_API const char* getIdamServerOSName();
 
-int getIdamClientVersion();
+LIBRARY_API int getIdamClientVersion();
 
-int getIdamServerVersion();
+LIBRARY_API int getIdamServerVersion();
 
-int getIdamServerErrorCode();
+LIBRARY_API int getIdamServerErrorCode();
 
-const char* getIdamServerErrorMsg();
+LIBRARY_API const char* getIdamServerErrorMsg();
 
-int getIdamServerErrorStackSize();
+LIBRARY_API int getIdamServerErrorStackSize();
 
-int getIdamServerErrorStackRecordType(int record);
+LIBRARY_API int getIdamServerErrorStackRecordType(int record);
 
-int getIdamServerErrorStackRecordCode(int record);
+LIBRARY_API int getIdamServerErrorStackRecordCode(int record);
 
-const char* getIdamServerErrorStackRecordLocation(int record);
+LIBRARY_API const char* getIdamServerErrorStackRecordLocation(int record);
 
-const char* getIdamServerErrorStackRecordMsg(int record);
+LIBRARY_API const char* getIdamServerErrorStackRecordMsg(int record);
 
-void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist);
+LIBRARY_API void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist);
 
-void setLogMallocList(LOGMALLOCLIST* logmalloclist_in);
+LIBRARY_API void setLogMallocList(LOGMALLOCLIST* logmalloclist_in);
 
 #ifdef __cplusplus
 }

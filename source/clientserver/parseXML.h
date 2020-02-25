@@ -10,6 +10,12 @@
 
 #include "udaDefines.h"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -180,81 +186,81 @@ typedef struct Actions {
 
 #ifndef NOXMLPARSER
 
-double deScale(char* scale);
+LIBRARY_API double deScale(char* scale);
 
-void parseTargetValue(xmlDocPtr doc, xmlNodePtr cur, const char* target, double* value);
+LIBRARY_API void parseTargetValue(xmlDocPtr doc, xmlNodePtr cur, const char* target, double* value);
 
-void parseTargetString(xmlDocPtr doc, xmlNodePtr cur, const char* target, char* str);
+LIBRARY_API void parseTargetString(xmlDocPtr doc, xmlNodePtr cur, const char* target, char* str);
 
-void parseDimension(xmlDocPtr doc, xmlNodePtr cur, ACTION* action);
+LIBRARY_API void parseDimension(xmlDocPtr doc, xmlNodePtr cur, ACTION* action);
 
-void parseSwapDim(xmlDocPtr doc, xmlNodePtr cur, ACTION* action);
+LIBRARY_API void parseSwapDim(xmlDocPtr doc, xmlNodePtr cur, ACTION* action);
 
-void parseSwap(xmlDocPtr doc, xmlNodePtr cur, ACTION* action);
+LIBRARY_API void parseSwap(xmlDocPtr doc, xmlNodePtr cur, ACTION* action);
 
-void parseActionRange(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
+LIBRARY_API void parseActionRange(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
-void parseFixedLengthArray(xmlNodePtr cur, const char* target, void* array, int arraytype, int* n);
+LIBRARY_API void parseFixedLengthArray(xmlNodePtr cur, const char* target, void* array, int arraytype, int* n);
 
-void parseFixedLengthStrArray(xmlNodePtr cur, const char* target, char array[MAXDATARANK][SXMLMAXSTRING], int* n);
+LIBRARY_API void parseFixedLengthStrArray(xmlNodePtr cur, const char* target, char array[MAXDATARANK][SXMLMAXSTRING], int* n);
 
-int parseDoc(char* docname, ACTIONS* actions);
+LIBRARY_API int parseDoc(char* docname, ACTIONS* actions);
 
 //void parseComposite(xmlDocPtr doc, xmlNodePtr cur, ACTIONS * actions);
 
-void parseDocumentation(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
+LIBRARY_API void parseDocumentation(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
-void parseCalibration(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
+LIBRARY_API void parseCalibration(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
-void parseTimeOffset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
+LIBRARY_API void parseTimeOffset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
-void parseErrorModel(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
+LIBRARY_API void parseErrorModel(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
-void parseSubset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
+LIBRARY_API void parseSubset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
-void parseMap(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
+LIBRARY_API void parseMap(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
 #endif
 
-void printAction(ACTION action);
+LIBRARY_API void printAction(ACTION action);
 
-void printActions(ACTIONS actions);
+LIBRARY_API void printActions(ACTIONS actions);
 
-void initAction(ACTION* act);
+LIBRARY_API void initAction(ACTION* act);
 
-void initActions(ACTIONS* act);
+LIBRARY_API void initActions(ACTIONS* act);
 
-void freeActions(ACTIONS* actions);
+LIBRARY_API void freeActions(ACTIONS* actions);
 
-void copyActions(ACTIONS* actions_out, ACTIONS* actions_in);
+LIBRARY_API void copyActions(ACTIONS* actions_out, ACTIONS* actions_in);
 
-void printDimensions(int ndim, DIMENSION* dims);
+LIBRARY_API void printDimensions(int ndim, DIMENSION* dims);
 
-void initDimCalibration(DIMCALIBRATION* act);
+LIBRARY_API void initDimCalibration(DIMCALIBRATION* act);
 
-void initDimComposite(DIMCOMPOSITE* act);
+LIBRARY_API void initDimComposite(DIMCOMPOSITE* act);
 
-void initDimDocumentation(DIMDOCUMENTATION* act);
+LIBRARY_API void initDimDocumentation(DIMDOCUMENTATION* act);
 
-void initDimErrorModel(DIMERRORMODEL* act);
+LIBRARY_API void initDimErrorModel(DIMERRORMODEL* act);
 
-void initDimension(DIMENSION* act);
+LIBRARY_API void initDimension(DIMENSION* act);
 
-void initTimeOffset(TIMEOFFSET* act);
+LIBRARY_API void initTimeOffset(TIMEOFFSET* act);
 
-void initCalibration(CALIBRATION* act);
+LIBRARY_API void initCalibration(CALIBRATION* act);
 
-void initDocumentation(DOCUMENTATION* act);
+LIBRARY_API void initDocumentation(DOCUMENTATION* act);
 
-void initComposite(COMPOSITE* act);
+LIBRARY_API void initComposite(COMPOSITE* act);
 
-void initServerside(SERVERSIDE* act);
+LIBRARY_API void initServerside(SERVERSIDE* act);
 
-void initErrorModel(ERRORMODEL* act);
+LIBRARY_API void initErrorModel(ERRORMODEL* act);
 
-void initSubset(SUBSET* act);
+LIBRARY_API void initSubset(SUBSET* act);
 
-void initMap(MAP* act);
+LIBRARY_API void initMap(MAP* act);
 
 #ifdef __cplusplus
 }

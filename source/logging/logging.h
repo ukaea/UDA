@@ -11,6 +11,12 @@
 #  define UDA_LOG(LEVEL, FMT, ...) idamLog(LEVEL, "%s:%d >> " FMT, basename((char *)__FILE__), __LINE__, ##__VA_ARGS__)
 #endif
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -28,17 +34,17 @@ typedef enum LogLevel {
 
 typedef void (* logFunc)(FILE*);
 
-void idamSetLogLevel(LOG_LEVEL log_level);
+LIBRARY_API void idamSetLogLevel(LOG_LEVEL log_level);
 
-LOG_LEVEL idamGetLogLevel();
+LIBRARY_API LOG_LEVEL idamGetLogLevel();
 
-void idamCloseLogging();
+LIBRARY_API void idamCloseLogging();
 
-void idamSetLogFile(LOG_LEVEL mode, FILE* file_name);
+LIBRARY_API void idamSetLogFile(LOG_LEVEL mode, FILE* file_name);
 
-void idamLogWithFunc(LOG_LEVEL mode, logFunc func);
+LIBRARY_API void idamLogWithFunc(LOG_LEVEL mode, logFunc func);
 
-void idamLog(LOG_LEVEL mode, const char* fmt, ...);
+LIBRARY_API void idamLog(LOG_LEVEL mode, const char* fmt, ...);
 
 #ifdef __cplusplus
 }

@@ -3,12 +3,18 @@
 
 #include <stdio.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-FILE* open_memstream(char** cp, size_t* lenp);
+LIBRARY_API FILE* open_memstream(char** cp, size_t* lenp);
 
 #ifdef __cplusplus
 }

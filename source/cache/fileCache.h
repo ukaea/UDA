@@ -22,6 +22,12 @@
 #define CACHE_LIVERECORD	1
 #define CACHE_LOCKEDRECORD	2		// Do Not purge this file - possibly in use
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,19 +35,19 @@ extern "C" {
 // File Cache
 extern REQUEST_BLOCK* request_block_ptr;   // Pointer to the User REQUEST_BLOCK
 
-int idamClientLockCache(FILE** db, short type);
-int idamClientCacheTimeValid(unsigned long long timestamp);
-int idamClientCacheLockedTimeValid(unsigned long long timestamp);
-int idamClientCacheFileValid(const char* filename);
-int idamClientGetCacheStats(FILE* db, unsigned long* recordCount, unsigned long* deadCount, unsigned long* endOffset,
+LIBRARY_API int idamClientLockCache(FILE** db, short type);
+LIBRARY_API int idamClientCacheTimeValid(unsigned long long timestamp);
+LIBRARY_API int idamClientCacheLockedTimeValid(unsigned long long timestamp);
+LIBRARY_API int idamClientCacheFileValid(const char* filename);
+LIBRARY_API int idamClientGetCacheStats(FILE* db, unsigned long* recordCount, unsigned long* deadCount, unsigned long* endOffset,
                             char csvChar);
-void idamClientUpdateCacheStats(FILE* db, unsigned long recordCount, unsigned long deadCount, unsigned long endOffset,
+LIBRARY_API void idamClientUpdateCacheStats(FILE* db, unsigned long recordCount, unsigned long deadCount, unsigned long endOffset,
                                 char csvChar);
-int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* endOffset);
-int idamClientReadCache(DATA_BLOCK* data_block, char* filename, int protocolVersion);
-int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilename);
-int idamClientWriteCache(char* filename);
-unsigned int xcrc32(const unsigned char* buf, int len, unsigned int init);
+LIBRARY_API int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* endOffset);
+LIBRARY_API int idamClientReadCache(DATA_BLOCK* data_block, char* filename, int protocolVersion);
+LIBRARY_API int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilename);
+LIBRARY_API int idamClientWriteCache(char* filename);
+LIBRARY_API unsigned int xcrc32(const unsigned char* buf, int len, unsigned int init);
 
 #ifdef __cplusplus
 }
