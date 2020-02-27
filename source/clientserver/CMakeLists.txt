@@ -6,13 +6,6 @@ if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )
 endif()
 
-if( NOT CLIENT_ONLY AND NOT NO_MODULES )
-  find_package( PostgreSQL REQUIRED )
-  include_directories( ${PostgreSQL_INCLUDE_DIRS} )
-else()
-  add_definitions( -DNOTGENERICENABLED )
-endif()
-
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
 )

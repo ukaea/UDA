@@ -11,7 +11,6 @@ find_package( Boost )
 find_package( OpenSSL )
 find_package( LibXml2 )
 find_package( LibMemcached )
-find_package( PostgreSQL )
 
 set( FAT_TESTS OFF CACHE BOOL "Build tests using fat-client" )
 

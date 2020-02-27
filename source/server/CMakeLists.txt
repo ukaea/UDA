@@ -100,10 +100,8 @@ if( WIN32 OR MINGW )
 endif()
 
 target_link_libraries( server-static PRIVATE ${CLIENT_LINK_LIBS} )
-#target_link_libraries( server-static LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
 if( BUILD_SHARED_LIBS )
   target_link_libraries( server-shared PRIVATE ${CLIENT_LINK_LIBS} )
-  #target_link_libraries( server-shared LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
 endif()
 
 add_executable( server-exe ${EXE_FLAG} serverMain.cpp )
