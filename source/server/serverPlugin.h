@@ -7,19 +7,11 @@
 #define REQUEST_PLUGIN_MCOUNT   100    // Maximum initial number of plugins that can be registered
 #define REQUEST_PLUGIN_MSTEP    10    // Increase heap by 10 records once the maximum is exceeded
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void allocPluginList(int count, PLUGINLIST* plugin_list);
-
-void closePluginList(const PLUGINLIST* plugin_list);
 
 void freePluginList(PLUGINLIST* plugin_list);
 
 void initPluginData(PLUGIN_DATA* plugin);
-
-void printPluginList(FILE* fd, const PLUGINLIST* plugin_list);
 
 void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment);
 
@@ -37,9 +29,5 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT*
 int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
                              SIGNAL_DESC* signal_desc, SIGNAL* signal_rec, DATA_SOURCE* data_source,
                              const ENVIRONMENT* environment);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // UDA_SERVER_SERVERPLUGIN_H

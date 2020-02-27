@@ -9,7 +9,7 @@
 
 #include "getServerEnvironment.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <logging/logging.h>
 
@@ -32,28 +32,21 @@ void printIdamServerEnvironment(const ENVIRONMENT* environment)
     UDA_LOG(UDA_LOG_INFO, "IDAM This Host  : %s\n", environment->server_this);
     UDA_LOG(UDA_LOG_INFO, "Private File Path Target    : %s\n", environment->private_path_target);
     UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environment->private_path_substitute);
-
-#ifndef NOTGENERICENABLED
-    UDA_LOG(UDA_LOG_INFO, "IDAM SQL Server Host: %s\n", environment->sql_host);
-    UDA_LOG(UDA_LOG_INFO, "IDAM SQL Server Port: %d\n", environment->sql_port);
-    UDA_LOG(UDA_LOG_INFO, "IDAM SQL Database   : %s\n", environment->sql_dbname);
-    UDA_LOG(UDA_LOG_INFO, "IDAM SQL USer       : %s\n", environment->sql_user);
-#endif
 }
 
 ENVIRONMENT* getIdamServerEnvironment()
 {
-    char* env = NULL;
+    char* env = nullptr;
 
     if (g_environ.initialised) {
         return &g_environ;
     }
 
-//--- Read Standard Set of Environment Variables ------------------------------------
+    //--- Read Standard Set of Environment Variables ------------------------------------
 
-// Log Output
+    // Log Output
 
-    if ((env = getenv("UDA_LOG")) != NULL) {
+    if ((env = getenv("UDA_LOG")) != nullptr) {
         strcpy(g_environ.logdir, env);
         strcat(g_environ.logdir, "/");
     } else {
@@ -61,7 +54,7 @@ ENVIRONMENT* getIdamServerEnvironment()
     }
 
     g_environ.loglevel = UDA_LOG_NONE;
-    if ((env = getenv("UDA_LOG_LEVEL")) != NULL) {
+    if ((env = getenv("UDA_LOG_LEVEL")) != nullptr) {
         if (strncmp(env, "ACCESS", 6) == 0) { g_environ.loglevel = UDA_LOG_ACCESS; }
         else if (strncmp(env, "ERROR", 5) == 0) { g_environ.loglevel = UDA_LOG_ERROR; }
         else if (strncmp(env, "WARN", 4) == 0) { g_environ.loglevel = UDA_LOG_WARN; }
@@ -69,50 +62,50 @@ ENVIRONMENT* getIdamServerEnvironment()
         else if (strncmp(env, "INFO", 4) == 0) { g_environ.loglevel = UDA_LOG_INFO; }
     }
 
-// Log Output Write Mode
+    // Log Output Write Mode
 
     strcpy(g_environ.logmode, "w");                    // Write & Replace Mode
-    if ((env = getenv("UDA_LOG_MODE")) != NULL) {
+    if ((env = getenv("UDA_LOG_MODE")) != nullptr) {
         if (env[0] == 'a' && strlen(env) == 1) {
             g_environ.logmode[0] = 'a';
         }
     }    // Append Mode
 
-//-------------------------------------------------------------------------------------------
-// API Defaults
+    //-------------------------------------------------------------------------------------------
+    // API Defaults
 
-    if ((env = getenv("UDA_DEVICE")) != NULL) {
+    if ((env = getenv("UDA_DEVICE")) != nullptr) {
         strcpy(g_environ.api_device, env);
     } else {
         strcpy(g_environ.api_device, API_DEVICE);
     }
 
-    if ((env = getenv("UDA_ARCHIVE")) != NULL) {
+    if ((env = getenv("UDA_ARCHIVE")) != nullptr) {
         strcpy(g_environ.api_archive, env);
     } else {
         strcpy(g_environ.api_archive, API_ARCHIVE);
     }
 
-    if ((env = getenv("UDA_API_DELIM")) != NULL) {
+    if ((env = getenv("UDA_API_DELIM")) != nullptr) {
         strcpy(g_environ.api_delim, env);
     } else {
         strcpy(g_environ.api_delim, API_PARSE_STRING);
     }
 
-    if ((env = getenv("UDA_FILE_FORMAT")) != NULL) {
+    if ((env = getenv("UDA_FILE_FORMAT")) != nullptr) {
         strcpy(g_environ.api_format, env);
     } else {
         strcpy(g_environ.api_format, API_FILE_FORMAT);
     }
 
-//-------------------------------------------------------------------------------------------
-// Standard Data Location Path Algorithm ID
+    //-------------------------------------------------------------------------------------------
+    // Standard Data Location Path Algorithm ID
 
     g_environ.data_path_id = 0;
-    if ((env = getenv("UDA_DATAPATHID")) != NULL) { g_environ.data_path_id = atoi(env); }
+    if ((env = getenv("UDA_DATAPATHID")) != nullptr) { g_environ.data_path_id = atoi(env); }
 
-//-------------------------------------------------------------------------------------------
-// External User?
+    //-------------------------------------------------------------------------------------------
+    // External User?
 
 #ifdef EXTERNAL_USER
     g_environ.external_user = 1;
@@ -120,30 +113,30 @@ ENVIRONMENT* getIdamServerEnvironment()
     g_environ.external_user = 0;
 #endif
 
-    if ((env = getenv("EXTERNAL_USER")) != NULL) { g_environ.external_user = 1; }
-    if ((env = getenv("UDA_EXTERNAL_USER")) != NULL) { g_environ.external_user = 1; }
+    if ((env = getenv("EXTERNAL_USER")) != nullptr) { g_environ.external_user = 1; }
+    if ((env = getenv("UDA_EXTERNAL_USER")) != nullptr) { g_environ.external_user = 1; }
 
-//-------------------------------------------------------------------------------------------
-// IDAM Proxy Host: redirect ALL requests
+    //-------------------------------------------------------------------------------------------
+    // IDAM Proxy Host: redirect ALL requests
 
-    if ((env = getenv("UDA_PROXY_TARGETHOST")) != NULL) {
+    if ((env = getenv("UDA_PROXY_TARGETHOST")) != nullptr) {
         strcpy(g_environ.server_proxy, env);
     } else {
         g_environ.server_proxy[0] = '\0';
     }
 
-    if ((env = getenv("UDA_PROXY_THISHOST")) != NULL) {
+    if ((env = getenv("UDA_PROXY_THISHOST")) != nullptr) {
         strcpy(g_environ.server_this, env);
     } else {
         g_environ.server_this[0] = '\0';
     }
 
-//-------------------------------------------------------------------------------------------
-// Private File Path substitution: Enables server to see files if the path contains too many hierarchical elements
+    //-------------------------------------------------------------------------------------------
+    // Private File Path substitution: Enables server to see files if the path contains too many hierarchical elements
 
-    if ((env = getenv("UDA_PRIVATE_PATH_TARGET")) != NULL) {
+    if ((env = getenv("UDA_PRIVATE_PATH_TARGET")) != nullptr) {
         strcpy(g_environ.private_path_target, env);
-        if ((env = getenv("UDA_PRIVATE_PATH_SUBSTITUTE")) != NULL) {
+        if ((env = getenv("UDA_PRIVATE_PATH_SUBSTITUTE")) != nullptr) {
             strcpy(g_environ.private_path_substitute, env);
         } else {
             g_environ.private_path_substitute[0] = '\0';
@@ -152,33 +145,6 @@ ENVIRONMENT* getIdamServerEnvironment()
         g_environ.private_path_target[0] = '\0';
         g_environ.private_path_substitute[0] = '\0';
     }
-
-//-------------------------------------------------------------------------------------------
-// SQL Database Connection Details
-
-#ifndef NOTGENERICENABLED
-
-// IDAM SQL Server Host Name
-
-    strcpy(g_environ.sql_host, SQL_HOST);             // Default, e.g. fuslwn
-    if ((env = getenv("UDA_SQLHOST")) != NULL) strcpy(g_environ.sql_host, env);
-
-// IDAM SQL Server Port name
-
-    g_environ.sql_port = (int) SQL_PORT;              // Default, e.g. 56566
-    if ((env = getenv("UDA_SQLPORT")) != NULL) { g_environ.sql_port = atoi(env); }
-
-// IDAM SQL Database name
-
-    strcpy(g_environ.sql_dbname, SQL_DBNAME);         // Default, e.g. idam
-    if ((env = getenv("UDA_SQLDBNAME")) != NULL) strcpy(g_environ.sql_dbname, env);
-
-// IDAM SQL Access username
-
-    strcpy(g_environ.sql_user, SQL_USER);             // Default, e.g. mast_db
-    if ((env = getenv("UDA_SQLUSER")) != NULL) strcpy(g_environ.sql_user, env);
-
-#endif
 
     g_environ.initialised = 1;
 

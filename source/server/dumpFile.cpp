@@ -22,8 +22,8 @@
 *-----------------------------------------------------------------------------*/
 #include "dumpFile.h"
 
-#include <stdlib.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cerrno>
 #include <strings.h>
 
 #include <logging/logging.h>
@@ -33,9 +33,6 @@
 #include <clientserver/printStructs.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/protocol.h>
-#include <clientserver/udaErrors.h>
-
-#include "mastArchiveFilePath.h"
 
 int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 {
@@ -75,32 +72,13 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
         // Check whether or not the filename is the alias name
         // If is it then form the correct filename
 
-#ifndef NOIDAPLUGIN
-        if (STR_IEQUALS(request_block.file, alias)) {
-            nameIDA(alias, request_block.exp_number, file);
-        } else {
-            strcpy(file, request_block.file);
-        }
-#else
         strcpy(file, request_block.file);
-#endif
 
         // Check whether or not a Path has been specified
 
-#ifndef NOIDAPLUGIN
-        if (strlen(request_block.path) == 0) {
-            mastArchiveFilePath(request_block.exp_number, request_block.pass, file, path);    // Always Latest
-        } else {
-            // User Specified
-            strcpy(path, request_block.path);
-            strcat(path, "/");
-            strcat(path, file);                // Form Full File Name
-        }
-#else
         strcpy(path, request_block.path);
         strcat(path, "/");
         strcat(path, file);
-#endif
 
     } else {
         strcpy(file, request_block.file);
@@ -128,8 +106,8 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
         if (err != 0) break;
 
-//----------------------------------------------------------------------
-// Create the output file using the appropriate dump utility program
+        //----------------------------------------------------------------------
+        // Create the output file using the appropriate dump utility program
 
         switch (request_block.request) {
             case REQUEST_READ_IDA:
@@ -158,7 +136,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                 break;
             case REQUEST_READ_MDS: {
 
-// Java example: http://www.mdsplus.org/mdsplus/cvsweb.cgi/mdsplus/javatraverser/DecompileTree.java
+                // Java example: http://www.mdsplus.org/mdsplus/cvsweb.cgi/mdsplus/javatraverser/DecompileTree.java
 
                 char server[MAXSERVER];
                 char* token = nullptr;
@@ -236,7 +214,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
         UDA_LOG(UDA_LOG_DEBUG, "DUMP: %s\n", cmd);
 
-// Execute the Command and Open a Pipe to the Output for Reading
+        // Execute the Command and Open a Pipe to the Output for Reading
 
         errno = 0;
         ph = popen(cmd, "r");
@@ -279,13 +257,13 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
         data_block->data_type = UDA_TYPE_STRING;
 
-//----------------------------------------------------------------------
-// End of Error Trap Loop
+        //----------------------------------------------------------------------
+        // End of Error Trap Loop
 
     } while (0);
 
-//----------------------------------------------------------------------
-// Housekeeping
+    //----------------------------------------------------------------------
+    // Housekeeping
 
     UDA_LOG(UDA_LOG_DEBUG, "DUMP: err %d\n", err);
     UDA_LOG(UDA_LOG_DEBUG, "errno     %d\n", errno);

@@ -14,26 +14,12 @@
 
 #include "applyXML.h"
 
-#include <math.h>
+#include <cmath>
 #include <memory.h>
 
 #include <logging/logging.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/stringUtils.h>
-
-#ifdef NOXMLPARSER
-
-int idamserverParseSignalXML( DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC signal_desc,
-                              ACTIONS *actions_desc, ACTIONS *actions_sig) {
-    return 0;
-}
-void applyCalibration(int type, int ndata, double factor, double offset, int invert, char *array) {}
-void idamserverApplySignalXML( CLIENT_BLOCK client_block, DATA_SOURCE *data_source, SIGNAL *signal, SIGNAL_DESC *signal_desc,
-                               DATA_BLOCK *data_block, ACTIONS actions) {}
-void idamserverDeselectSignalXML(ACTIONS *actions_desc, ACTIONS *actions_sig) {}
-
-
-#else
 
 int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC signal_desc,
                              ACTIONS* actions_desc, ACTIONS* actions_sig)
@@ -250,8 +236,6 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
                 break;
         }
     }
-
-    return;
 }
 
 
@@ -1359,8 +1343,6 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
         }
 
     }
-
-    return;
 }
 
 
@@ -1388,9 +1370,4 @@ void idamserverDeselectSignalXML(ACTIONS* actions_desc, ACTIONS* actions_sig)
             if (actions_desc->action[j].actionType == type) actions_desc->action[j].inRange = 0;    // Disable
         }
     }
-
-    return;
 }
-
-#endif
-

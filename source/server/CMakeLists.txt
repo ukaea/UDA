@@ -16,7 +16,6 @@ set( SRC_FILES
   getServerEnvironment.cpp
   initPluginList.cpp
   makeServerRequestBlock.cpp
-  mastArchiveFilePath.cpp
   serverGetData.cpp
   serverLegacyPlugin.cpp
   serverPlugin.cpp
@@ -24,7 +23,6 @@ set( SRC_FILES
   serverStartup.cpp
   serverSubsetData.cpp
   writer.cpp
-  sqllib.cpp
 )
 
 set( HEADER_FILES
@@ -37,7 +35,6 @@ set( HEADER_FILES
   getServerEnvironment.h
   initPluginList.h
   makeServerRequestBlock.h
-  mastArchiveFilePath.h
   serverGetData.h
   serverLegacyPlugin.h
   serverPlugin.h
@@ -48,7 +45,6 @@ set( HEADER_FILES
   udaLegacyServer.h
   udaServer.h
   writer.h
-  sqllib.h
 )
 
 include_directories(

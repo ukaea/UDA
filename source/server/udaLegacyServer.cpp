@@ -28,7 +28,6 @@
 #include "serverProcessing.h"
 #include "sleepServer.h"
 #include "udaServer.h"
-#include "sqllib.h"
 
 #ifdef LEGACYSERVER
 int idamLegacyServer(CLIENT_BLOCK client_block) {
@@ -46,8 +45,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
     int protocol_id, next_protocol;
 
     static unsigned short normalLegacyWait = 0;
-
-    PGconn* DBConnect = nullptr;
 
     SYSTEM_CONFIG system_config;
     DATA_SYSTEM data_system;
@@ -329,41 +326,15 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             }
 
             //------------------------------------------------------------------------------------------------
-            // Identify the Signal Required from the Database if a Generic Signal Requested
-            // or if a name mapping (alternative signal/source) is requested by the client
-            //
-            // ??? Meta data when an alternative source is requested ???
-            //------------------------------------------------------------------------------------------------
-            // Connect to the Database
-
-#ifndef NOTGENERICENABLED
-            if (request_block.request == REQUEST_READ_GENERIC || (client_block.clientFlags & CLIENTFLAG_ALTDATA)) {
-                if (DBConnect == nullptr) {
-                    if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
-                        err = 777;
-                        addIdamError(CODEERRORTYPE, "idamServer", err,
-                                     "Unable to Connect to the SQL Database Server");
-                        break;
-                    }
-                }
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer Connected to SQL Database Server\n");
-            }
-#endif
-
-            //------------------------------------------------------------------------------------------------
             // Query the Database: Internal or External Data Sources
             // Read the Data or Create the Composite/Derived Data
             // Apply XML Actions to Data
 
             depth = 0;
 
-            err = udaGetData(request_block, client_block, &data_block, &data_source,
-                             &signal_rec, &signal_desc, pluginlist, logmalloclist, userdefinedtypelist);
-
-            if (DBConnect == nullptr && gDBConnect != nullptr) {
-                DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
-                gDBConnect = nullptr;
-            }
+            err = udaGetData(&depth, &request_block, client_block, &data_block, &data_source, &signal_rec, &signal_desc,
+                             &actions_desc, &actions_sig, pluginlist, logmalloclist, userdefinedtypelist, socket_list,
+                             protocolVersion);
 
             UDA_LOG(UDA_LOG_DEBUG,
                     "======================== ******************** ==========================================\n");
@@ -396,32 +367,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
                     break;
                 }
             }
-
-            //------------------------------------------------------------------------------------------------
-            // Read Additional Meta Data
-
-#ifndef NOTGENERICENABLED
-            if (client_block.get_meta && request_block.request == REQUEST_READ_GENERIC) {
-
-                if (sqlSystemConfig(DBConnect, data_source.config_id, &system_config) != 1) {
-                    err = 780;
-                    addIdamError(CODEERRORTYPE, "idamServer", err,
-                                 "Error Retrieving System Configuration Data");
-                    break;
-                } else {
-                    printSystemConfig(system_config);
-                }
-
-                if (sqlDataSystem(DBConnect, system_config.system_id, &data_system) != 1) {
-                    err = 781;
-                    addIdamError(CODEERRORTYPE, "idamServer", err,
-                                 "Error Retrieving Data System Information");
-                    break;
-                } else {
-                    printDataSystem(data_system);
-                }
-            }
-#endif
 
             //----------------------------------------------------------------------------
             // Check the Client can receive the data type: Version dependent
@@ -788,13 +733,6 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
     // Free Structure Definition List (don't free the structure as stack variable)
 
     freeUserDefinedTypeList(&parseduserdefinedtypelist);
-
-    //----------------------------------------------------------------------------
-    // Close the Database Connection
-
-#ifndef NOTGENERICENABLED
-    if (DBConnect != nullptr) PQfinish(DBConnect);
-#endif
 
     //----------------------------------------------------------------------------
     // Close the Socket Connections to Other Data Servers
