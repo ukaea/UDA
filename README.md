@@ -100,7 +100,8 @@ Tested and built on Windows 10 (built using VS2019 x64 Native Tools):
     mkdir build
     cd build
     cmake.exe .. -G"Visual Studio 16 2019" -DCMAKE_TOOLCHAIN_FILE="C:\vcpkg\scripts\buildsystems\vcpkg.cmake" -DNO_MODULES=ON -DTARGET_TYPE=OTHER -DBUILD_SHARED_LIBS=ON
-msbuild ALL_BUILD.vcxproj /p:configuration=release /p:platform=x64
+    msbuild ALL_BUILD.vcxproj /p:configuration=release /p:platform=x64
+    msbuild INSTALL.vcxproj /p:configuration=release /p:platform=x64
 
 Running Python client:
 

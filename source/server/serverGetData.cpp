@@ -12,6 +12,8 @@
 #include <errno.h>
 #if defined(__GNUC__)
 #  include <strings.h>
+#else
+#  define strncasecmp _strnicmp
 #endif
 
 #include <clientserver/freeDataBlock.h>
