@@ -27,11 +27,6 @@ export UDA_DUMP_HDF5=`which h5dump 2>/dev/null`
 export UDA_HOST=`hostname`
 export UDA_PORT=56565
 
-export UDA_SQLHOST=idam1.mast.ccfe.ac.uk    # UDA SQL Server Host
-export UDA_SQLPORT=56566                    # SQL Server Port
-export UDA_SQLDBNAME=idam                   # SQL Database Name
-export UDA_SQLUSER=readonly                 # SQL Database User
-
 #------------------------------------------------------------------------------------------------------
 # Plugin Registration + Structure Passing configuration
 
@@ -40,9 +35,6 @@ export UDA_SARRAY_CONFIG=$UDA_ROOT/etc/udagenstruct.conf
 
 #------------------------------------------------------------------------------------------------------
 # Setup required dynamic library paths
-
-export MAST_DATA=/mnt/data/MAST_Data/
-export UDA_METADATA_PLUGIN=POSTGRES
 
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$UDA_ROOT/lib:$UDA_ROOT/lib/plugins"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@EXTRA_LD_LIBRARY_PATHS@"

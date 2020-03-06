@@ -1,12 +1,11 @@
 #include "initPluginList.h"
 
-#include <errno.h>
+#include <cerrno>
 
 #include <cache/cache.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/protocol.h>
 #include <server/serverPlugin.h>
-#include <server/udaServer.h>
 
 #include "getPluginAddress.h"
 
@@ -67,7 +66,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
         strcpy(plugin_list->plugin[i].desc, "Inbuilt Serverside functions");
         plugin_list->plugin[i].is_private = UDA_PLUGIN_PUBLIC;
         plugin_list->plugin[i].library[0] = '\0';
-        plugin_list->plugin[i].pluginHandle = NULL;
+        plugin_list->plugin[i].pluginHandle = nullptr;
         plugin_list->plugin[i].external = UDA_PLUGIN_INTERNAL;        // These are all linked as internal functions
         plugin_list->plugin[i].status = UDA_PLUGIN_OPERATIONAL;        // By default all these are available
         plugin_list->plugin[i].cachePermission = UDA_PLUGIN_CACHE_DEFAULT;    // OK or not for Client and Server to Cache
@@ -83,16 +82,16 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
         char buffer[STRING_LENGTH];
         char* root;
         char* config = getenv("UDA_PLUGIN_CONFIG");            // Server plugin configuration file
-        FILE* conf = NULL;
+        FILE* conf = nullptr;
         const char* filename = "udaPlugins.conf";                // Default name
-        char* work = NULL, * csv, * next, * p;
+        char* work = nullptr, * csv, * next, * p;
 
         // Locate the plugin registration file
 
         int lstr;
-        if (config == NULL) {
+        if (config == nullptr) {
             root = getenv("UDA_SERVERROOT");                // Where udaPlugins.conf is located by default
-            if (root == NULL) {
+            if (root == nullptr) {
                 lstr = (int)strlen(filename) + 3;
                 work = (char*)malloc(lstr * sizeof(char));
                 sprintf(work, "./%s", filename);            // Default ROOT is the server's Working Directory
@@ -110,18 +109,18 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
         // Read the registration file
 
         errno = 0;
-        if ((conf = fopen(work, "r")) == NULL || errno != 0) {
+        if ((conf = fopen(work, "r")) == nullptr || errno != 0) {
             int err = 999;
             addIdamError(SYSTEMERRORTYPE, __func__, errno, strerror(errno));
             addIdamError(SYSTEMERRORTYPE, __func__, err, "No Server Plugin Configuration File found!");
-            if (conf != NULL) {
+            if (conf != nullptr) {
                 fclose(conf);
             }
             free((void*)work);
             return;
         }
 
-        if (work != NULL) free((void*)work);
+        if (work != nullptr) free((void*)work);
 
         /*
         record format: csv, empty records ignored, comment begins #, max record size 1023;
@@ -144,7 +143,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
         cachePermission and publicUse may use one of the following values: "Y|N,1|0,T|F,True|False"
         */
 
-        while (fgets(buffer, STRING_LENGTH, conf) != NULL) {
+        while (fgets(buffer, STRING_LENGTH, conf) != nullptr) {
             convertNonPrintable2(buffer);
             LeftTrimString(TrimString(buffer));
             do {
@@ -154,7 +153,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                 initPluginData(&plugin_list->plugin[plugin_list->count]);
                 for (i = 0; i < 10; i++) {
                     csv = strchr(next, csvChar);                // Split the string
-                    if (csv != NULL && i <= 8)
+                    if (csv != nullptr && i <= 8)
                         csv[0] = '\0';            // Extract the sub-string ignoring the example - has a comma within text
                     LeftTrimString(TrimString(next));
                     switch (i) {
@@ -186,7 +185,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
 
                                 if (plugin_list->plugin[plugin_list->count].plugin_class == UDA_PLUGIN_CLASS_FILE) {
                                     // Plugin method name using a dot syntax
-                                    if ((p = strchr(plugin_list->plugin[plugin_list->count].symbol, '.')) != NULL) {
+                                    if ((p = strchr(plugin_list->plugin[plugin_list->count].symbol, '.')) != nullptr) {
                                         p[0] = '\0';                                // Remove the method name from the symbol text
                                         strcpy(plugin_list->plugin[plugin_list->count].method, &p[1]);        // Save the method name
                                     }
@@ -266,7 +265,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
 
                             LeftTrimString(next);
                             p = strchr(next, '\n');
-                            if (p != NULL) {
+                            if (p != nullptr) {
                                 p[0] = '\0';
                             }
                             strcpy(plugin_list->plugin[plugin_list->count].example, LeftTrimString(next));
@@ -276,13 +275,13 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                             break;
 
                     }
-                    if (csv != NULL) next = &csv[1];    // Next element starting point
+                    if (csv != nullptr) next = &csv[1];    // Next element starting point
                 }
 
                 // Issue Unique request ID
                 plugin_list->plugin[plugin_list->count].request = REQUEST_READ_START + offset++;
 
-                plugin_list->plugin[plugin_list->count].pluginHandle = NULL;            // Library handle: Not opened
+                plugin_list->plugin[plugin_list->count].pluginHandle = nullptr;            // Library handle: Not opened
                 plugin_list->plugin[plugin_list->count].status = UDA_PLUGIN_NOT_OPERATIONAL;  // Not yet available
 
                 // Internal Serverside function ?
@@ -309,14 +308,14 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                 for (j = pluginCount; j < plugin_list->count - 1; j++) {            // External sources only
                     if (plugin_list->plugin[j].external == UDA_PLUGIN_EXTERNAL &&
                         plugin_list->plugin[j].status == UDA_PLUGIN_OPERATIONAL &&
-                        plugin_list->plugin[j].pluginHandle != NULL &&
+                        plugin_list->plugin[j].pluginHandle != nullptr &&
                         STR_IEQUALS(plugin_list->plugin[j].library, plugin_list->plugin[plugin_list->count].library)) {
 
                         // Library may contain different symbols
 
                         if (STR_IEQUALS(plugin_list->plugin[j].symbol,
                                         plugin_list->plugin[plugin_list->count].symbol) &&
-                            plugin_list->plugin[j].idamPlugin != NULL) {
+                            plugin_list->plugin[j].idamPlugin != nullptr) {
                             rc = 0;
                             plugin_list->plugin[plugin_list->count].idamPlugin = plugin_list->plugin[j].idamPlugin;    // re-use
                         } else {

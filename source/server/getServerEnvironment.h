@@ -16,8 +16,6 @@ extern "C" {
 LIBRARY_API void printIdamServerEnvironment(const ENVIRONMENT* environment);
 LIBRARY_API ENVIRONMENT* getIdamServerEnvironment();
 
-LIBRARY_API void putIdamServerEnvironment(const ENVIRONMENT* environment);
-
 #ifdef __cplusplus
 }
 #endif

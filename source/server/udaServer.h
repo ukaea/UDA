@@ -1,10 +1,6 @@
 #ifndef UDA_SERVER_UDASERVER_H
 #define UDA_SERVER_UDASERVER_H
 
-#define MAXOPENFILEDESC 50  // Maximum number of Open File Descriptors
-
-#define XDEBUG          0   // Socket Streams
-
 #include <plugins/pluginStructs.h>
 #include <clientserver/socketStructs.h>
 #include <structures/genStructs.h>

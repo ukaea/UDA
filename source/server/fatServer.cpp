@@ -1,7 +1,7 @@
-#include <stdio.h>
+#include <cstdio>
 #include <rpc/rpc.h>
-#include <assert.h>
-#include <errno.h>
+#include <cassert>
+#include <cerrno>
 
 #include <clientserver/copyStructs.h>
 #include <clientserver/freeDataBlock.h>
@@ -25,7 +25,6 @@
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
-#include "sqllib.h"
 
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {
@@ -43,9 +42,6 @@ ENVIRONMENT environment;    // Holds local environment variable values
 
 static USERDEFINEDTYPELIST* userdefinedtypelist = nullptr;
 static LOGMALLOCLIST* logmalloclist = nullptr;
-
-PGconn* DBConnect = nullptr;
-PGconn* gDBConnect = nullptr;
 
 unsigned int XDRstdioFlag = 1;
 int altRank = 0;
@@ -262,30 +258,6 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
         remove(tempFile);
     }
 
-    //------------------------------------------------------------------------------
-
-#ifndef NOTGENERICENABLED
-    if (client_block->get_meta && request_block->request == REQUEST_READ_GENERIC) {
-        data_block->data_system = data_block0->data_system;    // Allocations made in Client API when FAT
-        data_block->system_config = data_block0->system_config;
-        data_block->data_source = data_block0->data_source;
-        data_block->signal_rec = data_block0->signal_rec;
-        data_block->signal_desc = data_block0->signal_desc;
-
-        initDataSystem(data_block->data_system);
-        initSystemConfig(data_block->system_config);
-        initDataSource(data_block->data_source);
-        initSignal(data_block->signal_rec);
-        initSignalDesc(data_block->signal_desc);
-
-        *data_block->data_system = metadata_block->data_system;
-        *data_block->system_config = metadata_block->system_config;
-        *data_block->data_source = metadata_block->data_source;
-        *data_block->signal_rec = metadata_block->signal_rec;
-        *data_block->signal_desc = metadata_block->signal_desc;
-    }
-# endif
-
     //----------------------------------------------------------------------------
     // Free Name Value pair
 
@@ -341,45 +313,18 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     }
 
     //------------------------------------------------------------------------------------------------
-    // Identify the Signal Required from the Database if a Generic Signal Requested
-    // or if a name mapping (alternative signal/source) is requested by the client
-    //
-    // ??? Meta data when an alternative source is requested ???
-    //------------------------------------------------------------------------------------------------
-    // Connect to the Database
-
-#ifndef NOTGENERICENABLED
-    if (request_block->request == REQUEST_READ_GENERIC || (client_block->clientFlags & CLIENTFLAG_ALTDATA)) {
-        if (DBConnect == nullptr) {
-            if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
-                if (DBConnect != nullptr) {
-                    PQfinish(DBConnect);
-                }
-                THROW_ERROR(777, "Unable to Connect to the SQL Database Server");
-            }
-        }
-        UDA_LOG(UDA_LOG_DEBUG, "Connected to SQL Database Server\n");
-    }
-#endif
-
-    //------------------------------------------------------------------------------------------------
     // Query the Database: Internal or External Data Sources
     // Read the Data or Create the Composite/Derived Data
     // Apply XML Actions to Data
 
     int depth = 0;
 
-    err = udaGetData(*request_block, *client_block, data_block, &metadata_block->data_source,
-                     &metadata_block->signal_rec, &metadata_block->signal_desc, &pluginList, logmalloclist,
-                     userdefinedtypelist);
+    err = udaGetData(&depth, request_block, *client_block, data_block, &metadata_block->data_source,
+                     &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
+                     &pluginList, logmalloclist, userdefinedtypelist, &socket_list, protocolVersion);
 
     if (err != 0) {
         return err;
-    }
-
-    if (DBConnect == nullptr && gDBConnect != nullptr) {
-        DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
-        gDBConnect = nullptr;
     }
 
     DATA_SOURCE* data_source = &metadata_block->data_source;
@@ -411,25 +356,6 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
             THROW_ERROR(779, "Server-Side Processing Error");
         }
     }
-
-    //------------------------------------------------------------------------------------------------
-    // Read Additional Meta Data
-
-#ifndef NOTGENERICENABLED
-    if (client_block->get_meta && request_block->request == REQUEST_READ_GENERIC) {
-        if (sqlSystemConfig(DBConnect, data_source->config_id, &metadata_block->system_config) != 1) {
-            THROW_ERROR(780, "Error Retrieving System Configuration Data");
-        }
-
-        printSystemConfig(metadata_block->system_config);
-
-        if (sqlDataSystem(DBConnect, metadata_block->system_config.system_id, &metadata_block->data_system) != 1) {
-            THROW_ERROR(781, "Error Retrieving Data System Information");
-        }
-
-        printDataSystem(metadata_block->data_system);
-    }
-#endif
 
     //----------------------------------------------------------------------------
     // End of Error Trap #1

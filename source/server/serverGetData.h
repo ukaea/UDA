@@ -7,7 +7,6 @@
 #include <structures/genStructs.h>
 #include <plugins/pluginStructs.h>
 
-#include "sqllib.h"
 
 #if defined(_WIN32)
 #  define LIBRARY_API __declspec(dllexport)
@@ -19,21 +18,11 @@
 extern "C" {
 #endif
 
-LIBRARY_API int udaGetData(REQUEST_BLOCK request_block, CLIENT_BLOCK client_block, DATA_BLOCK* data_block, DATA_SOURCE* data_source,
-               SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-               USERDEFINEDTYPELIST* userdefinedtypelist);
-
-LIBRARY_API int idamserverSwapSignalError(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry);
-
-LIBRARY_API int idamserverSwapSignalDim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2);
-
-LIBRARY_API int idamserverSwapSignalDimError(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
-                                 int asymmetry);
-
-LIBRARY_API int idamserverReadData(PGconn* DBConnect, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
-                       DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
-                       const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-                       USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list);
+LIBRARY_API int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
+               DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
+               ACTIONS* actions_desc, ACTIONS* actions_sig, const PLUGINLIST* pluginlist,
+               LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list,
+               int protocolVersion);
 
 #ifdef __cplusplus
 }

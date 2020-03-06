@@ -19,13 +19,9 @@ extern "C" {
 
 LIBRARY_API void allocPluginList(int count, PLUGINLIST* plugin_list);
 
-LIBRARY_API void closePluginList(const PLUGINLIST* plugin_list);
-
 LIBRARY_API void freePluginList(PLUGINLIST* plugin_list);
 
 LIBRARY_API void initPluginData(PLUGIN_DATA* plugin);
-
-LIBRARY_API void printPluginList(FILE* fd, const PLUGINLIST* plugin_list);
 
 LIBRARY_API void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment);
 

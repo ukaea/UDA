@@ -20,4 +20,3 @@ LIBRARY_API int idamServerLegacyPlugin(REQUEST_BLOCK *request_block, DATA_SOURCE
 #endif
 
 #endif // UDA_SERVER_SERVERLEGACYPLUGIN_H
-

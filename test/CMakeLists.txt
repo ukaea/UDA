@@ -11,7 +11,6 @@ find_package( Boost )
 find_package( OpenSSL )
 find_package( LibXml2 )
 find_package( LibMemcached )
-find_package( PostgreSQL )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )

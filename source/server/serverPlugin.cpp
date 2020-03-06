@@ -3,8 +3,8 @@
 *---------------------------------------------------------------------------------------------------------------------*/
 #include "serverPlugin.h"
 
-#include <stdlib.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cerrno>
 #include <dlfcn.h>
 #include <cstring>
 #if defined(__GNUC__)
@@ -127,13 +127,14 @@ int idamServerRedirectStdStreams(int reset)
     // Any OS messages will corrupt xdr streams so re-divert IO from plugin libraries to a temporary file
 
     // Multi platform compliance
-    //static FILE* originalStdFH = NULL;
-    //static FILE* originalErrFH = NULL;
+    //static FILE* originalStdFH = nullptr;
+    //static FILE* originalErrFH = nullptr;
     static int originalStdFH = 0;
     static int originalErrFH = 0;
-    static FILE* mdsmsgFH = NULL;
+    static FILE* mdsmsgFH = nullptr;
 
-    char* env = NULL;
+    char* env = nullptr;
+    static char mksdir_template[MAXPATH] = { 0 };
     static char tempFile[MAXPATH] = { 0 };
 
     static int singleFile = 0;
@@ -144,7 +145,7 @@ int idamServerRedirectStdStreams(int reset)
             if (env != nullptr) singleFile = 1;                    // Define UDA_PLUGIN_DEBUG to retain the file
         }
 
-        if (mdsmsgFH != NULL && singleFile) {
+        if (mdsmsgFH != nullptr && singleFile) {
 			// Multi platform compliance
             //stdout = mdsmsgFH;                                  // Redirect all IO to a temporary file
             //stderr = mdsmsgFH;
@@ -158,25 +159,30 @@ int idamServerRedirectStdStreams(int reset)
         //originalErrFH = stderr;
         originalStdFH = dup(fileno(stdout));
         originalErrFH = dup(fileno(stderr));
-        mdsmsgFH = NULL;
+        mdsmsgFH = nullptr;
 
         UDA_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file\n");
 
-        env = getenv("UDA_PLUGIN_REDIVERT");
+        if (mksdir_template[0] == '\0') {
+            env = getenv("UDA_PLUGIN_REDIVERT");
 
-        if (env == nullptr) {
-            if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
-                sprintf(tempFile, "%s/idamPLUGINXXXXXX", env);
+            if (env == nullptr) {
+                if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
+                    sprintf(mksdir_template, "%s/idamPLUGINXXXXXX", env);
+                } else {
+                    strcpy(mksdir_template, "/tmp/idamPLUGINXXXXXX");
+                }
             } else {
-                strcpy(tempFile, "/tmp/idamPLUGINXXXXXX");
+                strcpy(mksdir_template, env);
             }
-        } else {
-            strcpy(tempFile, env);
         }
+
+        strcpy(tempFile, mksdir_template);
 
         // Open the message Trap
 
         errno = 0;
+
         int fd = mkstemp(tempFile);
         if (fd < 0 || errno != 0) {
             int err = (errno != 0) ? errno : 994;

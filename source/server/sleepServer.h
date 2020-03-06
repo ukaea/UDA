@@ -20,4 +20,3 @@ LIBRARY_API int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* u
 #endif
 
 #endif // UDA_SERVER_SLEEPSERVER_H
-

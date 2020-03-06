@@ -1,12 +1,8 @@
 #ifndef UDA_CLIENTSERVER_PARSEXML_H
 #define UDA_CLIENTSERVER_PARSEXML_H
 
-#ifndef NOXMLPARSER
-
-#  include <libxml/xmlmemory.h>
-#  include <libxml/parser.h>
-
-#endif
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
 
 #include "udaDefines.h"
 
@@ -184,8 +180,6 @@ typedef struct Actions {
     ACTION* action;                         // Array of Actions
 } ACTIONS;
 
-#ifndef NOXMLPARSER
-
 LIBRARY_API double deScale(char* scale);
 
 LIBRARY_API void parseTargetValue(xmlDocPtr doc, xmlNodePtr cur, const char* target, double* value);
@@ -219,8 +213,6 @@ LIBRARY_API void parseErrorModel(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions
 LIBRARY_API void parseSubset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
 
 LIBRARY_API void parseMap(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions);
-
-#endif
 
 LIBRARY_API void printAction(ACTION action);
 
@@ -267,4 +259,3 @@ LIBRARY_API void initMap(MAP* act);
 #endif
 
 #endif // UDA_CLIENTSERVER_PARSEXML_H
-

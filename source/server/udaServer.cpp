@@ -29,7 +29,6 @@
 #include "serverProcessing.h"
 #include "serverStartup.h"
 #include "udaLegacyServer.h"
-#include "sqllib.h"
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -43,9 +42,6 @@
 void ncclose(int fh) {
 }
 #endif
-
-PGconn* gDBConnect = nullptr;  // UDA SQL database Socket Connection pass back fix
-PGconn* DBConnect = nullptr;   // UDA SQL database Socket Connection
 
 //--------------------------------------------------------------------------------------
 // static globals
@@ -99,7 +95,8 @@ typedef struct MetadataBlock {
 static int startupServer(SERVER_BLOCK* server_block);
 
 static int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
-                         METADATA_BLOCK* metadata_block, DATA_BLOCK* data_block, int* fatal, int* server_closedown);
+                         METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
+                         DATA_BLOCK* data_block, int* fatal, int* server_closedown);
 
 static int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BLOCK* client_block,
                         SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
@@ -349,7 +346,8 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
 }
 
 int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
-                  METADATA_BLOCK* metadata_block, DATA_BLOCK* data_block, int* fatal, int* server_closedown)
+                  METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig, DATA_BLOCK* data_block,
+                  int* fatal, int* server_closedown)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
@@ -673,41 +671,17 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     }
 
     //------------------------------------------------------------------------------------------------
-    // Identify the Signal Required from the Database if a Generic Signal Requested
-    // or if a name mapping (alternative signal/source) is requested by the client
-    //
-    // ??? Meta data when an alternative source is requested ???
-    //------------------------------------------------------------------------------------------------
-    // Connect to the Database
-
-#ifndef NOTGENERICENABLED
-    if (request_block->request == REQUEST_READ_GENERIC || (client_block->clientFlags & CLIENTFLAG_ALTDATA)) {
-        if (DBConnect == nullptr) {
-            if (!(DBConnect = startSQL(getIdamServerEnvironment()))) {
-                if (DBConnect != nullptr) PQfinish(DBConnect);
-                THROW_ERROR(777, "Unable to Connect to the SQL Database Server");
-            }
-        }
-        UDA_LOG(UDA_LOG_DEBUG, "Connected to SQL Database Server\n");
-    }
-#endif
-
-    //------------------------------------------------------------------------------------------------
     // Query the Database: Internal or External Data Sources
     // Read the Data or Create the Composite/Derived Data
     // Apply XML Actions to Data
 
     int depth = 0;
 
-    err = udaGetData(*request_block, *client_block, data_block, &metadata_block->data_source,
-            &metadata_block->signal_rec, &metadata_block->signal_desc, &pluginList, logmalloclist, userdefinedtypelist);
+    err = udaGetData(&depth, request_block, *client_block, data_block, &metadata_block->data_source,
+                     &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
+                     &pluginList, logmalloclist, userdefinedtypelist, &socket_list, protocolVersion);
 
     request_block->function[0] = '\0';
-
-    if (DBConnect == nullptr && gDBConnect != nullptr) {
-        DBConnect = gDBConnect;    // Pass back SQL Socket from idamserverGetData
-        gDBConnect = nullptr;
-    }
 
     DATA_SOURCE* data_source = &metadata_block->data_source;
     SIGNAL_DESC* signal_desc = &metadata_block->signal_desc;
@@ -740,25 +714,6 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
             THROW_ERROR(779, "Server-Side Processing Error");
         }
     }
-
-    //------------------------------------------------------------------------------------------------
-    // Read Additional Meta Data
-
-#ifndef NOTGENERICENABLED
-    if (client_block->get_meta && request_block->request == REQUEST_READ_GENERIC) {
-        if (sqlSystemConfig(DBConnect, data_source->config_id, &metadata_block->system_config) != 1) {
-            THROW_ERROR(780, "Error Retrieving System Configuration Data");
-        }
-
-        printSystemConfig(metadata_block->system_config);
-
-        if (sqlDataSystem(DBConnect, metadata_block->system_config.system_id, &metadata_block->data_system) != 1) {
-            THROW_ERROR(781, "Error Retrieving Data System Information");
-        }
-
-        printDataSystem(metadata_block->data_system);
-    }
-#endif
 
     //----------------------------------------------------------------------------
     // Check the Client can receive the data type: Version dependent
@@ -818,7 +773,8 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
         initLogMallocList(logmalloclist);
 
         int server_closedown = 0;
-        err = handleRequest(request_block, client_block, server_block, metadata_block, data_block, fatal, &server_closedown);
+        err = handleRequest(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
+                data_block, fatal, &server_closedown);
 
         if (server_closedown) {
             break;
@@ -929,13 +885,6 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
     freeMallocLogList(logmalloclist);
     free(logmalloclist);
     logmalloclist = nullptr;
-
-    //----------------------------------------------------------------------------
-    // Close the Database Connection
-
-#ifndef NOTGENERICENABLED
-    if (DBConnect != nullptr) PQfinish(DBConnect);
-#endif
 
     //----------------------------------------------------------------------------
     // Close the Logs

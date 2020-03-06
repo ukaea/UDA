@@ -45,6 +45,11 @@
 // todo:
 //
 
+static int idamserversubsetindices(char* operation, DIMS* dim, double value, unsigned int* subsetindices);
+
+static int idamserverNewDataArray2(DIMS* dims, int rank, int dimid,
+                            char* data, int ndata, int data_type, int notoperation, int reverse,
+                            int start, int end, int start1, int end1, int* n, void** newdata);
 
 int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* logmalloclist)
 {

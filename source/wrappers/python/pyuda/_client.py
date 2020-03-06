@@ -102,7 +102,6 @@ class Client(with_metaclass(ClientMeta, object)):
             result_str = result.data().tobytes().decode('utf-8')
         return result_str
 
-
     def get(self, signal, source, **kwargs):
         """
         IDAM get data method.
@@ -114,6 +113,11 @@ class Client(with_metaclass(ClientMeta, object)):
         """
         # Standard signal
         result = cpyuda.get_data(str(signal), str(source))
+        if result.error_code() != 0:
+            if result.error_message():
+                raise cpyuda.ServerException(result.error_message().decode())
+            else:
+                raise cpyuda.ServerException("Unknown server error")
 
         if result.is_tree():
             tree = result.tree()

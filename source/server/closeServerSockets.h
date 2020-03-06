@@ -13,7 +13,6 @@
 extern "C" {
 #endif
 
-LIBRARY_API void closeNamedServerSocket(SOCKETLIST *socks, char *host, int port);
 LIBRARY_API void closeServerSocket(SOCKETLIST *socks, int fh);
 LIBRARY_API void closeServerSockets(SOCKETLIST *socks);
 

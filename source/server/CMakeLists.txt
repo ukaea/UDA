@@ -23,7 +23,6 @@ set( SRC_FILES
   getServerEnvironment.cpp
   initPluginList.cpp
   makeServerRequestBlock.cpp
-  mastArchiveFilePath.cpp
   serverGetData.cpp
   serverLegacyPlugin.cpp
   serverPlugin.cpp
@@ -31,7 +30,6 @@ set( SRC_FILES
   serverStartup.cpp
   serverSubsetData.cpp
   writer.cpp
-  sqllib.cpp
 )
 
 set( HEADER_FILES
@@ -44,7 +42,6 @@ set( HEADER_FILES
   getServerEnvironment.h
   initPluginList.h
   makeServerRequestBlock.h
-  mastArchiveFilePath.h
   serverGetData.h
   serverLegacyPlugin.h
   serverPlugin.h
@@ -55,7 +52,6 @@ set( HEADER_FILES
   udaLegacyServer.h
   udaServer.h
   writer.h
-  sqllib.h
 )
 
 include_directories(
@@ -112,10 +108,8 @@ if( WIN32 OR MINGW )
 endif()
 
 target_link_libraries( server-static PRIVATE ${LINK_XDR} )
-#target_link_libraries( server-static LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
 if( BUILD_SHARED_LIBS )
   target_link_libraries( server-shared PRIVATE ${LINK_XDR} )
-  #target_link_libraries( server-shared LINK_PUBLIC ${PostgreSQL_LIBRARIES} )
 endif()
 
 add_executable( server-exe ${EXE_FLAG} serverMain.cpp )

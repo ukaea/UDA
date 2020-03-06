@@ -13,7 +13,6 @@
 extern "C" {
 #endif
 
-LIBRARY_API void freeIdamServerPutDataBlock(PUTDATA_BLOCK *str);
 LIBRARY_API void freeIdamServerPutDataBlockList(PUTDATA_BLOCK_LIST *putDataBlockList);
 
 #ifdef __cplusplus
