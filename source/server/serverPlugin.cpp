@@ -119,13 +119,13 @@ int idamServerRedirectStdStreams(int reset)
     // Any OS messages will corrupt xdr streams so re-divert IO from plugin libraries to a temporary file
 
     // Multi platform compliance
-    //static FILE* originalStdFH = NULL;
-    //static FILE* originalErrFH = NULL;
+    //static FILE* originalStdFH = nullptr;
+    //static FILE* originalErrFH = nullptr;
     static int originalStdFH = 0;
     static int originalErrFH = 0;
-    static FILE* mdsmsgFH = NULL;
+    static FILE* mdsmsgFH = nullptr;
 
-    char* env = NULL;
+    char* env = nullptr;
     static char tempFile[MAXPATH] = { 0 };
 
     static int singleFile = 0;
@@ -136,7 +136,7 @@ int idamServerRedirectStdStreams(int reset)
             if (env != nullptr) singleFile = 1;                    // Define UDA_PLUGIN_DEBUG to retain the file
         }
 
-        if (mdsmsgFH != NULL && singleFile) {
+        if (mdsmsgFH != nullptr && singleFile) {
 			// Multi platform compliance
             //stdout = mdsmsgFH;                                  // Redirect all IO to a temporary file
             //stderr = mdsmsgFH;
@@ -150,7 +150,7 @@ int idamServerRedirectStdStreams(int reset)
         //originalErrFH = stderr;
         originalStdFH = dup(fileno(stdout));
         originalErrFH = dup(fileno(stderr));
-        mdsmsgFH = NULL;
+        mdsmsgFH = nullptr;
 
         UDA_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file\n");
 
