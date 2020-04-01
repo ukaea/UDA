@@ -17,11 +17,11 @@ if sys.platform.lower() == 'darwin':
 
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
 if build_fat:
-    uda_lib = 'libfat@PROJECT_NAME@_client.a'
+    uda_libs = ['libfat@PROJECT_NAME@_client.a', 'lib@PROJECT_NAME@_plugins.a']
     extra_libs = ['xml2', 'pq']
     extra_macros = [('FATCLIENT', None)]
 else:
-    uda_lib = 'lib@PROJECT_NAME@_client.a'
+    uda_libs = ['lib@PROJECT_NAME@_client.a']
     extra_libs = []
     extra_macros = []
 
@@ -39,9 +39,10 @@ ext = Extension(
     runtime_library_dirs=[
         '@OPENSSL_LIB_DIR@',
     ],
-    extra_objects=[root + '/lib/' + uda_lib],
+    extra_objects=[(root + '/lib/' + uda_lib) for uda_lib in uda_libs],
     extra_link_args=extra_link_args,
     extra_compile_args=extra_compile_args,
+    define_macros=extra_macros,
 )
 
 setup(
