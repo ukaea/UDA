@@ -205,6 +205,7 @@ function calluda, arg, $
                   data=data,        $
                   noecho=noecho,    $
                   handle=handle,    $
+                  putnothing=putnothing, $
                   verbose=verbose,  $
                   debug=debug
                      
@@ -244,6 +245,8 @@ function calluda, arg, $
      is_put = 1B
      nodata = 1B
      workdata = data
+  endif else if keyword_set(putnothing) then begin
+     is_put = 1B     
   endif
  
   ; ----------------

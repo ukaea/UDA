@@ -1213,13 +1213,17 @@ idamputapi(int argc, IDL_VPTR argv[], char* argk)
                 putData.data = (char*)&value_dcomplex;
                 putData.count = 1;
                 break;
-        }
+        } 
 
         if (kw.debug) {
             fprintf(stdout, "type: %d\n", putData.data_type);
             fflush(stdout);
         }
 
+        int h = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
+
+        return (IDL_GettmpLong(h));
+    } else if (argc == 1) {
         int h = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
 
         return (IDL_GettmpLong(h));
