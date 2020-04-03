@@ -16,17 +16,13 @@
 
 #include "parseXML.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <logging/logging.h>
-#include <clientserver/udaErrors.h>
-
-#ifndef NOXMLPARSER
-
 #include <clientserver/udaTypes.h>
-#include "stringUtils.h"
-#include "parseOperation.h"
-#include "errorLog.h"
+#include <clientserver/stringUtils.h>
+#include <clientserver/parseOperation.h>
+#include <clientserver/errorLog.h>
 
 // Simple Tags with Delimited List of Floating Point Values
 // Assume No Attributes
@@ -1178,7 +1174,6 @@ int parseDoc(char* docname, ACTIONS* actions)
     return 0;
 }
 
-#endif
 //==================================================================================================
 
 void printDimensions(int ndim, DIMENSION* dims)

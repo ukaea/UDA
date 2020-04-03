@@ -6,13 +6,19 @@
 
 // Forward declarations
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void freeDataBlock(DATA_BLOCK* data_block);
-void freeReducedDataBlock(DATA_BLOCK* data_block);
-void freeIdamClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+LIBRARY_API void freeDataBlock(DATA_BLOCK* data_block);
+LIBRARY_API void freeReducedDataBlock(DATA_BLOCK* data_block);
+LIBRARY_API void freeIdamClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
 #ifdef __cplusplus
 }

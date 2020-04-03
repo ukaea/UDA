@@ -7,6 +7,16 @@
 
 #include "udaDefines.h"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //--------------------------------------------------------
 // Structure Definitions
 
@@ -380,5 +390,9 @@ typedef struct Environment {
     char initialised;                               // Environment already initialised.
     char _padding[1];
 } ENVIRONMENT;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_CLIENTSERVER_IDAMSTRUCTS_H

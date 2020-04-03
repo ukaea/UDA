@@ -8,26 +8,25 @@ source @CMAKE_INSTALL_PREFIX@/etc/udaserver.cfg >>@CMAKE_INSTALL_PREFIX@/etc/sta
 #------------------------------------------------------------------------------------------------------
 # Load machine specific configuration if it exists
 
-if [ -n "$(which dnsdomainname)" ]
+if [[ -z "$UDAHOSTNAME" && -n "$(which dnsdomainname)" ]]
 then
-    HOSTNAME=$(dnsdomainname)
-else
-    HOSTNAME=$(hostname)
+    UDAHOSTNAME=$(dnsdomainname)
+    if [[ -z "$UDAHOSTNAME" ]]
+    then
+        UDAHOSTNAME=$(dnsdomainname -a | cut -d'.' -f2-)
+    fi
+    if [[ -z "$UDAHOSTNAME" ]]
+    then
+        UDAHOSTNAME=$(hostname -f)
+    fi
+elif [[ -z "$UDAHOSTNAME" ]]
+then
+    UDAHOSTNAME=$(hostname -f)
 fi
 
-if [ -z "$HOSTNAME" ]
+if [[ -e "@CMAKE_INSTALL_PREFIX@/etc/machine.d/$UDAHOSTNAME.cfg" ]]
 then
-    HOSTNAME=$(dnsdomainname -a | cut -d'.' -f2-)
-fi
-
-if [ -n "$UDAHOSTNAME" ] # prioritise this host name for the local machine configuration
-then
-    HOSTNAME=$UDAHOSTNAME
-fi
-
-if [ -e "@CMAKE_INSTALL_PREFIX@/etc/machine.d/$HOSTNAME.cfg" ]
-then
-    source @CMAKE_INSTALL_PREFIX@/etc/machine.d/$HOSTNAME.cfg >>@CMAKE_INSTALL_PREFIX@/etc/startup.log 2>&1
+    source @CMAKE_INSTALL_PREFIX@/etc/machine.d/$UDAHOSTNAME.cfg >>@CMAKE_INSTALL_PREFIX@/etc/startup.log 2>&1
 fi
 
 #------------------------------------------------------------------------------------------------------

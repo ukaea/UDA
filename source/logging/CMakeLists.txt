@@ -1,3 +1,13 @@
+########################################################################################################################
+# Dependencies
+
+if( WIN32 OR MINGW )
+  find_package( XDR REQUIRED )
+endif()
+
+########################################################################################################################
+# Sources
+
 if( "${LOGGING_BACKEND}" STREQUAL "FILE" )
   set( SRC_FILES fileLogging.cpp )
 elseif( "${LOGGING_BACKEND}" STREQUAL "SYSLOG" )
@@ -7,6 +17,13 @@ else()
 endif()
 
 include_directories( ${CMAKE_SOURCE_DIR}/source )
+
+if( MINGW OR WIN32 )
+  include_directories( ${XDR_INCLUDE_DIR} )
+endif()
+
+########################################################################################################################
+# Targets
 
 add_library( logging-client-objects OBJECT ${SRC_FILES} )
 

@@ -19,54 +19,68 @@
 #define VERIFY_DEPTH	4
 #define X509STRINGSIZE	256
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef SERVERBUILD
 
-void putUdaServerSSL(SSL *s);
-SSL *getUdaServerSSL();
-void putUdaServerSSLCTX(SSL_CTX *c);
-SSL_CTX *getUdaServerSSLCTX();
-void putUdaServerSSLSocket(int s);
-int getUdaServerSSLSocket();
-void getUdaServerSSLErrorCode(int rc);
-void initUdaServerSSL();
-void closeUdaServerSSL();
-void putUdaServerSSLDisabled(int disabled);
-int getUdaServerSSLDisabled();
-void putUdaServerSSLGlobalInit(int init);
-int getUdaServerSSLGlobalInit();
-SSL_CTX *createUdaServerSSLContext();
-int configureUdaServerSSLContext();
-X509_CRL *loadUdaServerSSLCrl(char *crlist);
-int addUdaServerSSLCrlsStore(X509_STORE *st, STACK_OF(X509_CRL) *crls);
-int startUdaServerSSL();
-int readUdaServerSSL(void* iohandle, char* buf, int count);
-int writeUdaServerSSL(void* iohandle, char* buf, int count);
+LIBRARY_API void putUdaServerSSL(SSL *s);
+LIBRARY_API SSL *getUdaServerSSL();
+LIBRARY_API void putUdaServerSSLCTX(SSL_CTX *c);
+LIBRARY_API SSL_CTX *getUdaServerSSLCTX();
+LIBRARY_API void putUdaServerSSLSocket(int s);
+LIBRARY_API int getUdaServerSSLSocket();
+LIBRARY_API void getUdaServerSSLErrorCode(int rc);
+LIBRARY_API void initUdaServerSSL();
+LIBRARY_API void closeUdaServerSSL();
+LIBRARY_API void putUdaServerSSLDisabled(int disabled);
+LIBRARY_API int getUdaServerSSLDisabled();
+LIBRARY_API void putUdaServerSSLGlobalInit(int init);
+LIBRARY_API int getUdaServerSSLGlobalInit();
+LIBRARY_API SSL_CTX *createUdaServerSSLContext();
+LIBRARY_API int configureUdaServerSSLContext();
+LIBRARY_API X509_CRL *loadUdaServerSSLCrl(char *crlist);
+LIBRARY_API int addUdaServerSSLCrlsStore(X509_STORE *st, STACK_OF(X509_CRL) *crls);
+LIBRARY_API int startUdaServerSSL();
+LIBRARY_API int readUdaServerSSL(void* iohandle, char* buf, int count);
+LIBRARY_API int writeUdaServerSSL(void* iohandle, char* buf, int count);
 
 #else
 
-void putUdaClientSSL(SSL *s);
-SSL *getUdaClientSSL();
-void putUdaClientSSLCTX(SSL_CTX *c);
-SSL_CTX *getUdaClientSSLCTX();
-void putUdaClientSSLSocket(int s);
-int getUdaClientSSLSocket();
-void getUdaClientSSLErrorCode(int rc);
-void initUdaClientSSL();
-void closeUdaClientSSL();
-void putUdaClientSSLDisabled(int disabled);
-int getUdaClientSSLDisabled();
-void putUdaClientSSLGlobalInit(int init);
-int getUdaClientSSLGlobalInit();
-void putUdaClientSSLOK(int ok);
-int getUdaClientSSLOK();
-void putUdaClientSSLProtocol(int specified);
-int getUdaClientSSLProtocol();
-SSL_CTX *createUdaClientSSLContext();
-int configureUdaClientSSLContext();
-int startUdaClientSSL();
-int readUdaClientSSL(void* iohandle, char* buf, int count);
-int writeUdaClientSSL(void* iohandle, char* buf, int count);
+LIBRARY_API void putUdaClientSSL(SSL *s);
+LIBRARY_API SSL *getUdaClientSSL();
+LIBRARY_API void putUdaClientSSLCTX(SSL_CTX *c);
+LIBRARY_API SSL_CTX *getUdaClientSSLCTX();
+LIBRARY_API void putUdaClientSSLSocket(int s);
+LIBRARY_API int getUdaClientSSLSocket();
+LIBRARY_API void getUdaClientSSLErrorCode(int rc);
+LIBRARY_API void initUdaClientSSL();
+LIBRARY_API void closeUdaClientSSL();
+LIBRARY_API void putUdaClientSSLDisabled(int disabled);
+LIBRARY_API int getUdaClientSSLDisabled();
+LIBRARY_API void putUdaClientSSLGlobalInit(int init);
+LIBRARY_API int getUdaClientSSLGlobalInit();
+LIBRARY_API void putUdaClientSSLOK(int ok);
+LIBRARY_API int getUdaClientSSLOK();
+LIBRARY_API void putUdaClientSSLProtocol(int specified);
+LIBRARY_API int getUdaClientSSLProtocol();
+LIBRARY_API SSL_CTX *createUdaClientSSLContext();
+LIBRARY_API int configureUdaClientSSLContext();
+LIBRARY_API int startUdaClientSSL();
+LIBRARY_API int readUdaClientSSL(void* iohandle, char* buf, int count);
+LIBRARY_API int writeUdaClientSSL(void* iohandle, char* buf, int count);
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif // SSLAUTHENTICATION

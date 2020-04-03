@@ -8,9 +8,19 @@
 
 #include "data.hpp"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#  if !defined(__GNUC__)
+#    pragma warning(push)
+#    pragma warning(disable: 4251)
+#  endif
+#else
+#  define LIBRARY_API
+#endif
+
 namespace uda {
 
-class Vector : public Data {
+class LIBRARY_API Vector : public Data {
 public:
     template <typename T>
     Vector(T* array, size_t size)
@@ -82,5 +92,9 @@ private:
 };
 
 }
+
+#if defined(_WIN32) && !defined(__GNUC__)
+#  pragma warning(pop)
+#endif
 
 #endif // UDA_WRAPPERS_CPP_VECTOR_H

@@ -30,7 +30,12 @@ endif()
 
 install( FILES uda.h DESTINATION include/uda )
 
-execute_process( COMMAND which env OUTPUT_VARIABLE ENV_PATH )
+set( ENV_PATH )
+if( WIN32 AND NOT MINGW )
+  set( ENV_PATH "set" )
+else()
+  execute_process( COMMAND which env OUTPUT_VARIABLE ENV_PATH )
+endif()
 string( STRIP ${ENV_PATH} ENV_PATH )
 
 configure_file(

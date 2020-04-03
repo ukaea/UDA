@@ -6,6 +6,17 @@ if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )
 endif()
 
+if( NOT CLIENT_ONLY AND NOT NO_MODULES )
+  find_package( PostgreSQL REQUIRED )
+endif()
+
+if( WIN32 OR MINGW )
+  find_package( XDR REQUIRED )
+  if( NOT MINGW )
+    find_package( dlfcn-win32 CONFIG REQUIRED )
+  endif()
+endif()
+
 add_definitions( -DNOTGENERICENABLED )
 add_definitions( -DNO_GSL_LIB )
 
@@ -63,7 +74,6 @@ if( NOT CLIENT_ONLY )
   add_library( fatclient-objects OBJECT ${SRC_FILES} )
 
   target_compile_definitions( fatclient-objects PRIVATE -DFATCLIENT )
-  target_include_directories( fatclient-objects PRIVATE ${PostgreSQL_INCLUDE_DIRS} )
 endif()
 
 set( CLIENT_OBJS
@@ -92,13 +102,19 @@ endif()
 set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} )
 if( NOT CLIENT_ONLY )
   set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${LIBXML2_LIBRARIES} )
-  if( WIN32 OR MINGW )
+  if( MINGW )
     set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} iconv lzma z )
   endif()
 endif()
 
-if( WIN32 OR MINGW )
-  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ws2_32 portablexdr dl stdc++ )
+if( MINGW OR WIN32 )
+  include_directories( ${XDR_INCLUDE_DIR} )
+  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ws2_32 ${XDR_LIBRARIES} )
+  if ( MINGW )
+    set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} dl stdc++ )
+  else()
+    set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} dlfcn-win32::dl )
+  endif()
 endif()
 
 target_link_libraries( client-static PRIVATE ${CLIENT_LINK_LIBS} )
@@ -132,7 +148,14 @@ if( BUILD_SHARED_LIBS )
       VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
       SOVERSION ${PROJECT_VERSION_MAJOR}
   )
-  
+  if( WIN32 )
+    set_target_properties( client-shared
+      PROPERTIES
+        COMPILE_FLAGS -DLIBRARY_EXPORTS
+        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
+    )
+  endif()
+
   install( TARGETS client-shared
     DESTINATION lib
   )
@@ -161,6 +184,13 @@ if( NOT CLIENT_ONLY )
         VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
         SOVERSION ${PROJECT_VERSION_MAJOR}
     )
+    if( WIN32 )
+      set_target_properties( fatclient-shared
+        PROPERTIES
+          COMPILE_FLAGS -DLIBRARY_EXPORTS
+          IMPORT_SUFFIX ${IMPLIB_SUFFIX}
+      )
+    endif()
 
     install( TARGETS fatclient-shared
       DESTINATION lib

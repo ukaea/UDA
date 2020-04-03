@@ -16,7 +16,6 @@
 #ifdef FATCLIENT
 #  include <server/udaServer.h>
 #  include <server/closeServerSockets.h>
-#  include <server/sqllib.h>
 #else
 #  include "getEnvironment.h"
 #  include "connection.h"
@@ -43,7 +42,6 @@ int idamClosedown(int type, SOCKETLIST* socket_list)
     }
 
 #ifndef FATCLIENT    // <========================== Client Server Code Only
-
     if (clientInput->x_ops != nullptr) xdr_destroy(clientInput);
     if (clientOutput->x_ops != nullptr) xdr_destroy(clientOutput);
     clientOutput->x_ops = nullptr;
@@ -56,13 +54,6 @@ int idamClosedown(int type, SOCKETLIST* socket_list)
 
 #else			// <========================== Fat Client Code Only
     if (type == 1) {
-
-#ifndef NOTGENERICENABLED
-        if (gDBConnect != nullptr) {
-            PQfinish(gDBConnect);    // close the IDAM SQL Database connection
-            gDBConnect = nullptr;
-        }
-#endif
         closeServerSockets(socket_list);    // Close the Socket Connections to Other Data Servers
     }
 #endif

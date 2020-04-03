@@ -5,6 +5,12 @@
 #include <rpc/rpc.h>
 #include <structures/genStructs.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -13,7 +19,7 @@ extern "C" {
 #  define protocolXML protocolXMLFat
 #endif
 
-int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+LIBRARY_API int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                 USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion);
 
 #ifdef __cplusplus

@@ -20,7 +20,11 @@
 #include "idamServerHelp.h"
 
 #include <stdlib.h>
-#include <strings.h>
+#ifdef __GNUC__
+#  include <strings.h>
+#else
+#  include <winsock2.h>
+#endif
 
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>

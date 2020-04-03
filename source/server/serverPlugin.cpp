@@ -3,11 +3,18 @@
 *---------------------------------------------------------------------------------------------------------------------*/
 #include "serverPlugin.h"
 
-#include <stdlib.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cerrno>
 #include <dlfcn.h>
 #include <cstring>
-#include <unistd.h>
+#if defined(__GNUC__)
+#  include <unistd.h>
+#else
+#  include <winsock2.h>
+#  include <io.h>
+#  define dup _dup
+#  define dup2 _dup2
+#endif
 
 #include <cache/cache.h>
 #include <client/udaClient.h>
@@ -19,6 +26,7 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaErrors.h>
 #include <clientserver/protocol.h>
+#include <clientserver/mkstemp.h>
 #include <structures/struct.h>
 
 #define REQUEST_READ_START      1000
@@ -126,6 +134,7 @@ int idamServerRedirectStdStreams(int reset)
     static FILE* mdsmsgFH = nullptr;
 
     char* env = nullptr;
+    static char mksdir_template[MAXPATH] = { 0 };
     static char tempFile[MAXPATH] = { 0 };
 
     static int singleFile = 0;
@@ -154,21 +163,28 @@ int idamServerRedirectStdStreams(int reset)
 
         UDA_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file\n");
 
-        env = getenv("UDA_PLUGIN_REDIVERT");
+        if (mksdir_template[0] == '\0') {
+            env = getenv("UDA_PLUGIN_REDIVERT");
 
-        if (env == nullptr) {
-            if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
-                sprintf(tempFile, "%s/idamPLUGINXXXXXX", env);
+            if (env == nullptr) {
+                if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
+                    sprintf(mksdir_template, "%s/idamPLUGINXXXXXX", env);
+                } else {
+                    strcpy(mksdir_template, "/tmp/idamPLUGINXXXXXX");
+                }
             } else {
-                strcpy(tempFile, "/tmp/idamPLUGINXXXXXX");
+                strcpy(mksdir_template, env);
             }
         } else {
             strcpy(tempFile, env);
         }
 
+        strcpy(tempFile, mksdir_template);
+
         // Open the message Trap
 
         errno = 0;
+
         int fd = mkstemp(tempFile);
         if (fd < 0 || errno != 0) {
             int err = (errno != 0) ? errno : 994;

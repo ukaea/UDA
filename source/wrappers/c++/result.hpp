@@ -9,11 +9,22 @@
 #include "dim.hpp"
 #include "treenode.hpp"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#  if !defined(__GNUC__)
+#    pragma warning(push)
+#    pragma warning(disable: 4251)
+#    pragma warning(disable: 4275)
+#  endif
+#else
+#  define LIBRARY_API
+#endif
+
 namespace uda {
 
 class Data;
 
-class Result : private boost::noncopyable {
+class LIBRARY_API Result : private boost::noncopyable {
 public:
     enum DataType {
         DATA, ERRORS
@@ -99,6 +110,10 @@ private:
 };
 
 }
+
+#if defined(_WIN32) && !defined(__GNUC__)
+#  pragma warning(pop)
+#endif
 
 #endif // UDA_WRAPPERS_CPP_RESULT_H
 

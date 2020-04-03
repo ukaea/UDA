@@ -11,7 +11,13 @@ find_package( Boost )
 find_package( OpenSSL )
 find_package( LibXml2 )
 find_package( LibMemcached )
-find_package( PostgreSQL )
+
+if( WIN32 OR MINGW )
+  find_package( XDR REQUIRED )
+  if( NOT MINGW )
+    find_package( dlfcn-win32 CONFIG REQUIRED )
+  endif()
+endif()
 
 set( FAT_TESTS OFF CACHE BOOL "Build tests using fat-client" )
 
@@ -57,19 +63,43 @@ if( WIN32 OR MINGW )
   if( MINGW )
     set( EXE_EXT ".exe" )
   endif()
-  set( LIBRARIES portablexdr ws2_32 )
+  include_directories( ${XDR_INCLUDE_DIR} )
+  set( LIBRARIES ${XDR_LIBRARIES} ws2_32 )
 endif()
 
+set( LINK_DL )
+if( WIN32 AND NOT MINGW )
+  set( LINK_DL dlfcn-win32::dl )
+else()
+  set( LINK_DL dl )
+endif()
+
+set( LINK_STD )
+if( ( WIN32 AND MINGW ) OR NOT WIN32 )
+  set( LINK_STD stdc++ )
+endif()
+
+set( LINK_M )
+if( ( WIN32 AND MINGW ) OR NOT WIN32 )
+  set( LINK_M m )
+endif()
+
+
 macro( BUILD_TEST NAME SOURCE )
+  set( LINK_PROJECT ${PROJECT_NAME}_cpp-static )
+  if( BUILD_SHARED_LIBS )
+    set( LINK_PROJECT ${PROJECT_NAME}_cpp-shared )
+  endif()
+
   add_executable( ${NAME} ${EXE_FLAG} ${HELPER_FILES} ${SOURCE} )
   target_link_libraries( ${NAME} PRIVATE
     ${Boost_LIBRARIES}
-    ${PROJECT_NAME}_cpp
+    ${LINK_PROJECT}
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
 	${LIBRARIES}
-	stdc++
+	${LINK_STD}
   )
 
   set_target_properties( ${NAME}
@@ -77,15 +107,24 @@ macro( BUILD_TEST NAME SOURCE )
       OUTPUT_NAME ${NAME}${EXE_EXT}
   )
   
+  if( WIN32 )
+    set_target_properties( ${NAME}
+      PROPERTIES
+       COMPILE_FLAGS -DNOIMPLIB
+    )
+  endif()
+  
   add_executable( fat_${NAME} ${EXE_FLAG} ${HELPER_FILES} ${SOURCE} )
   target_link_libraries( fat_${NAME} PRIVATE
     ${Boost_LIBRARIES}
-    fat${PROJECT_NAME}_cpp
+    fat${LINK_PROJECT}
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
 	${LIBRARIES}
-    m dl stdc++
+    ${LINK_M}
+	${LINK_DL}
+	${LINK_STD}
   )
   if( NOT WIN32 AND NOT MINGW )
     target_link_libraries( fat_${NAME} PRIVATE c )
@@ -96,6 +135,13 @@ macro( BUILD_TEST NAME SOURCE )
     PROPERTIES
       OUTPUT_NAME fat_${NAME}${EXE_EXT}
   )
+
+  if( WIN32 )
+    set_target_properties( fat_${NAME}
+      PROPERTIES
+       COMPILE_FLAGS -DNOIMPLIB
+    )
+  endif()
 
   if( FAT_TESTS )
     add_test( ${NAME} fat_${NAME} -r junit -o ${NAME}_out.xml )

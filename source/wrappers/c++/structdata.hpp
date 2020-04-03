@@ -9,9 +9,19 @@
 #  include <Windows.h>
 #endif
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#  if !defined(__GNUC__)
+#    pragma warning(push)
+#    pragma warning(disable: 4251)
+#  endif
+#else
+#  define LIBRARY_API
+#endif
+
 namespace uda {
 
-class StructData {
+class LIBRARY_API StructData {
 public:
     explicit StructData(bool isnull = false)
             : data_()
@@ -67,5 +77,9 @@ private:
 };
 
 }
+
+#if defined(_WIN32) && !defined(__GNUC__)
+#  pragma warning(pop)
+#endif
 
 #endif // UDA__WRAPPERS_CPP_STRUCTDATA_H

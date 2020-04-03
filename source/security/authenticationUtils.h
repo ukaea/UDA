@@ -3,8 +3,22 @@
 
 #include <clientserver/udaStructs.h>
 
-int testFilePermissions(const char* object);
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
 
-void initSecurityBlock(SECURITY_BLOCK* str);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+LIBRARY_API int testFilePermissions(const char* object);
+
+LIBRARY_API void initSecurityBlock(SECURITY_BLOCK* str);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_SECURITY_AUTHENTICATIONUTILS_H

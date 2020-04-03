@@ -7,9 +7,19 @@
 
 #include "data.hpp"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#  if !defined(__GNUC__)
+#    pragma warning(push)
+#    pragma warning(disable: 4251)
+#  endif
+#else
+#  define LIBRARY_API
+#endif
+
 namespace uda {
 
-class Scalar : public Data
+class LIBRARY_API Scalar : public Data
 {
 public:
     template<typename T>
@@ -65,5 +75,9 @@ private:
 };
 
 }
+
+#if defined(_WIN32) && !defined(__GNUC__)
+#  pragma warning(pop)
+#endif
 
 #endif // UDA_WRAPPERS_CPP_SCALAR_H

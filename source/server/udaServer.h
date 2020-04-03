@@ -1,21 +1,23 @@
 #ifndef UDA_SERVER_UDASERVER_H
 #define UDA_SERVER_UDASERVER_H
 
-#define MAXOPENFILEDESC 50  // Maximum number of Open File Descriptors
-
-#define XDEBUG          0   // Socket Streams
-
 #include <plugins/pluginStructs.h>
 #include <clientserver/socketStructs.h>
 #include <structures/genStructs.h>
+
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int udaServer(CLIENT_BLOCK client_block);
+LIBRARY_API int udaServer(CLIENT_BLOCK client_block);
 
-int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0,
+LIBRARY_API int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0,
               DATA_BLOCK* data_block0);
 
 //--------------------------------------------------------------

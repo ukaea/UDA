@@ -8,6 +8,12 @@
 #include <clientserver/errorLog.h>
 #include <plugins/pluginStructs.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -37,53 +43,53 @@ typedef void (* ADDIDAMERRORFUNP)(IDAMERRORSTACK*, int, char*, int, char*);   //
 
 // Prototypes
 
-int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
+LIBRARY_API int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
 
-int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list);
+LIBRARY_API int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list);
 
-int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list);
+LIBRARY_API int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list);
 
-int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list);
+LIBRARY_API int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list);
 
-int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list);
+LIBRARY_API int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list);
 
-int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list);
+LIBRARY_API int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list);
 
-int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, const size_t* shape, const char* description);
+LIBRARY_API int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, const size_t* shape, const char* description);
 
-int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank, const size_t* shape, const char* description);
+LIBRARY_API int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank, const size_t* shape, const char* description);
 
-int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const size_t* shape, const char* description);
+LIBRARY_API int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const size_t* shape, const char* description);
 
-int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* description);
+LIBRARY_API int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* description);
 
-int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* description);
+LIBRARY_API int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* description);
 
-int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* description);
+LIBRARY_API int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* description);
 
-int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* description);
+LIBRARY_API int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* description);
 
-int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* description);
+LIBRARY_API int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* description);
 
-int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* description);
+LIBRARY_API int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* description);
 
-bool findStringValue(const NAMEVALUELIST* namevaluelist, const char** value, const char* name);
+LIBRARY_API bool findStringValue(const NAMEVALUELIST* namevaluelist, const char** value, const char* name);
 
-bool findValue(const NAMEVALUELIST* namevaluelist, const char* name);
+LIBRARY_API bool findValue(const NAMEVALUELIST* namevaluelist, const char* name);
 
-bool findIntValue(const NAMEVALUELIST* namevaluelist, int* value, const char* name);
+LIBRARY_API bool findIntValue(const NAMEVALUELIST* namevaluelist, int* value, const char* name);
 
-bool findShortValue(const NAMEVALUELIST* namevaluelist, short* value, const char* name);
+LIBRARY_API bool findShortValue(const NAMEVALUELIST* namevaluelist, short* value, const char* name);
 
-bool findCharValue(const NAMEVALUELIST* namevaluelist, char* value, const char* name);
+LIBRARY_API bool findCharValue(const NAMEVALUELIST* namevaluelist, char* value, const char* name);
 
-bool findFloatValue(const NAMEVALUELIST* namevaluelist, float* values, const char* name);
+LIBRARY_API bool findFloatValue(const NAMEVALUELIST* namevaluelist, float* values, const char* name);
 
-bool findIntArray(const NAMEVALUELIST* namevaluelist, int** values, size_t* nvalues, const char* name);
+LIBRARY_API bool findIntArray(const NAMEVALUELIST* namevaluelist, int** values, size_t* nvalues, const char* name);
 
-bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name);
+LIBRARY_API bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name);
 
-bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** values, size_t* nvalues, const char* name);
+LIBRARY_API bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** values, size_t* nvalues, const char* name);
 
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)

@@ -5,6 +5,12 @@
 #include <rpc/xdr.h>
 #include <structures/genStructs.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -83,9 +89,9 @@ enum REQUEST {
     REQUEST_READ_DEVICE         // Request to an External Device's data server
 };
 
-int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+LIBRARY_API int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
              USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion);
-int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+LIBRARY_API int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
               USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion);
 
 #ifdef __cplusplus

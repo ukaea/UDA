@@ -50,14 +50,6 @@ void printIdamClientEnvironment(const ENVIRONMENT* environment)
     UDA_LOG(UDA_LOG_INFO, "Default Format  : %s\n", environment->api_format);
     UDA_LOG(UDA_LOG_INFO, "Private File Path Target    : %s\n", environment->private_path_target);
     UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environment->private_path_substitute);
-
-#ifndef NOTGENERICENABLED
-    UDA_LOG(UDA_LOG_INFO, "UDA SQL Server Host: %s\n", environment->sql_host);
-    UDA_LOG(UDA_LOG_INFO, "UDA SQL Server Port: %d\n", environment->sql_port);
-    UDA_LOG(UDA_LOG_INFO, "UDA SQL Database   : %s\n", environment->sql_dbname);
-    UDA_LOG(UDA_LOG_INFO, "UDA SQL USer       : %s\n", environment->sql_user);
-#endif
-
 }
 
 ENVIRONMENT* getIdamClientEnvironment()
@@ -224,33 +216,6 @@ ENVIRONMENT* getIdamClientEnvironment()
         udaEnviron.private_path_target[0] = '\0';
         udaEnviron.private_path_substitute[0] = '\0';
     }
-
-    //-------------------------------------------------------------------------------------------
-    // Fat Client SQL Database Connection Details
-
-#ifndef NOTGENERICENABLED
-
-    // UDA SQL Server Host Name
-
-    strcpy(udaEnviron.sql_host, SQL_HOST); // Default, e.g. fuslwn
-    if ((env = getenv("UDA_SQLHOST")) != nullptr) strcpy(udaEnviron.sql_host, env);
-
-    // UDA SQL Server Port name
-
-    udaEnviron.sql_port = (int) SQL_PORT; // Default, e.g. 56566
-    if ((env = getenv("UDA_SQLPORT")) != nullptr) udaEnviron.sql_port = atoi(env);
-
-    // UDA SQL Database name
-
-    strcpy(udaEnviron.sql_dbname, SQL_DBNAME); // Default, e.g. idam
-    if ((env = getenv("UDA_SQLDBNAME")) != nullptr) strcpy(udaEnviron.sql_dbname, env);
-
-    // UDA SQL Access username
-
-    strcpy(udaEnviron.sql_user, SQL_USER); // Default, e.g. mast_db
-    if ((env = getenv("UDA_SQLUSER")) != nullptr) strcpy(udaEnviron.sql_user, env);
-
-#endif
 
     //-------------------------------------------------------------------------------------------
     // Client defined Property Flags

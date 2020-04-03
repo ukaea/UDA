@@ -14,19 +14,25 @@
 #define CODEERRORTYPE       2
 #define PLUGINERRORTYPE     3
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int udaNumErrors(void);
-void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, IDAMERRORSTACK* errorstack);
-void initIdamErrorStack(void);
-void initIdamErrorRecords(void);
-void printIdamErrorStack(void);
-void addIdamError(int type, const char* location, int code, const char* msg);
-void concatIdamError(IDAMERRORSTACK* errorstackout);
-void freeIdamErrorStack(IDAMERRORSTACK* errorstack);
-void closeIdamError(void);
+LIBRARY_API int udaNumErrors(void);
+LIBRARY_API void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, IDAMERRORSTACK* errorstack);
+LIBRARY_API void initIdamErrorStack(void);
+LIBRARY_API void initIdamErrorRecords(void);
+LIBRARY_API void printIdamErrorStack(void);
+LIBRARY_API void addIdamError(int type, const char* location, int code, const char* msg);
+LIBRARY_API void concatIdamError(IDAMERRORSTACK* errorstackout);
+LIBRARY_API void freeIdamErrorStack(IDAMERRORSTACK* errorstack);
+LIBRARY_API void closeIdamError(void);
 
 #ifdef __cplusplus
 }

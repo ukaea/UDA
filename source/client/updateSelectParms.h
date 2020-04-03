@@ -8,11 +8,17 @@
 #  include <winsock.h>
 #endif
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void idamUpdateSelectParms(int fd, fd_set* rfds, struct timeval* tv);
+LIBRARY_API void idamUpdateSelectParms(int fd, fd_set* rfds, struct timeval* tv);
 
 #ifdef __cplusplus
 }

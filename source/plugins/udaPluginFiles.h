@@ -2,9 +2,19 @@
 #define UDA_PLUGINS_UDAPLUGINFILES_H
 
 #include <time.h>
-#include <sys/time.h>
+#if defined(__GNUC__)
+#  include <sys/time.h>
+#else
+#  include <winsock2.h>
+#endif
 
 #include <clientserver/udaDefines.h>
+
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
 
 #ifdef __cplusplus
 extern "C" {

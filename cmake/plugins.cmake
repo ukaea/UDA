@@ -14,6 +14,14 @@ endmacro( filter_lib_list )
 
 macro( uda_plugin )
 
+  find_package( OpenSSL REQUIRED )
+  if( WIN32 OR MINGW )
+    find_package( XDR REQUIRED )
+    if( NOT MINGW )
+      find_package( dlfcn-win32 CONFIG REQUIRED )
+    endif()
+  endif()
+
   include( CMakeParseArguments )
 
   set( optionArgs )
@@ -59,6 +67,14 @@ macro( uda_plugin )
     VERSION ${PLUGIN_VERSION}
   )
 
+  if( WIN32 )
+    set_target_properties( ${PLUGIN_LIBNAME}
+      PROPERTIES
+        COMPILE_FLAGS -DLIBRARY_EXPORTS
+        IMPORT_SUFFIX ${IMPLIB_SUFFIX}
+    )
+  endif()
+
   if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
     add_definitions( -DA64 )
   endif()
@@ -68,9 +84,15 @@ macro( uda_plugin )
     add_definitions( ${DEF} )
   endforeach()
   
-  set( LIBRARIES client-shared plugins-shared dl )
+  set( LIBRARIES client-shared plugins-shared ${OPENSSL_LIBRARIES} )
   if( WIN32 OR MINGW )
-    set( LIBRARIES ${LIBRARIES} stdc++ )
+    if( MINGW )
+      set( LIBRARIES ${LIBRARIES} ${XDR_LIBRARIES} dl stdc++ )
+	else()
+      set( LIBRARIES ${LIBRARIES} ${XDR_LIBRARIES} dlfcn-win32::dl )
+	endif()
+  else()
+    set( LIBRARIES ${LIBRARIES} dl stdc++ )
   endif()
   
   filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized ) 
@@ -96,6 +118,8 @@ macro( uda_plugin )
   #targetFormat, formatClass="function", librarySymbol, libraryName, methodName, interface, cachePermission, publicUse, description, example
   if( APPLE )
     set( EXT_NAME "dylib" )
+  elseif( WIN32 OR MINGW )
+    set( EXT_NAME "dll" )
   else()
     set( EXT_NAME "so" )
   endif()

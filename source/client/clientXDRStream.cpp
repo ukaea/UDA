@@ -18,8 +18,14 @@
 static XDR clientXDRinput;
 static XDR clientXDRoutput;
 
+#if defined(__GNUC__)
 XDR* clientInput = &clientXDRinput;
 XDR* clientOutput = &clientXDRoutput;
+#else
+extern "C" XDR* clientInput = &clientXDRinput;
+extern "C" XDR* clientOutput = &clientXDRoutput;
+#endif
+
 
 void idamCreateXDRStream()
 {

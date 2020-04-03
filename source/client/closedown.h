@@ -7,6 +7,12 @@
 #  define idamClosedown idamClosedownFat
 #endif
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -16,7 +22,7 @@ enum ClosedownType {
     CLOSE_ALL = 1,
 };
 
-int idamClosedown(int type, SOCKETLIST* socket_list);
+LIBRARY_API int idamClosedown(int type, SOCKETLIST* socket_list);
 
 #ifdef __cplusplus
 }

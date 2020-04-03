@@ -1,7 +1,9 @@
 #ifndef UDA_SERVER_WRITER_H
 #define UDA_SERVER_WRITER_H
 
-#include <unistd.h>
+#if defined(__GNUC__)
+#  include <unistd.h>
+#endif
 #include <fcntl.h>
 
 #ifdef _WIN32
@@ -13,6 +15,12 @@
 #define MIN_BLOCK_TIME	1000
 #define MAX_BLOCK_TIME	10000
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -20,9 +28,9 @@ extern "C" {
 extern int server_tot_block_time;
 extern int server_timeout;
 
-void setSelectParms(int fd, fd_set* rfds, struct timeval* tv);
-void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv);
-int Writeout(void* iohandle, char* buf, int count);
+LIBRARY_API void setSelectParms(int fd, fd_set* rfds, struct timeval* tv);
+LIBRARY_API void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv);
+LIBRARY_API int Writeout(void* iohandle, char* buf, int count);
 
 /*
 //-----------------------------------------------------------------------------------------
@@ -47,7 +55,7 @@ int Writeout(void* iohandle, char* buf, int count);
 // closes down.	
 //-----------------------------------------------------------------------------------------
 */
-int Readin(void* iohandle, char* buf, int count);
+LIBRARY_API int Readin(void* iohandle, char* buf, int count);
 
 #ifdef __cplusplus
 }

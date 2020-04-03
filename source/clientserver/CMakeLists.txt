@@ -6,11 +6,8 @@ if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )
 endif()
 
-if( NOT CLIENT_ONLY AND NOT NO_MODULES )
-  find_package( PostgreSQL REQUIRED )
-  include_directories( ${PostgreSQL_INCLUDE_DIRS} )
-else()
-  add_definitions( -DNOTGENERICENABLED )
+if( WIN32 OR MINGW )
+  find_package( XDR REQUIRED )
 endif()
 
 include_directories(
@@ -39,6 +36,7 @@ set( SRC_FILES
   readXDRFile.cpp
   stringUtils.cpp
   udaTypes.cpp
+  udaDefines.cpp
   userid.cpp
   xdrlib.cpp
   nameValueSubstitution.cpp
@@ -101,6 +99,10 @@ include_directories(
   ${SRC_DIR}
   ${OPENSSL_INCLUDE_DIR}
 )
+
+if( MINGW OR WIN32 )
+  include_directories( ${XDR_INCLUDE_DIR} )
+endif()
 
 if( NOT CLIENT_ONLY )
   include_directories( ${LIBXML2_INCLUDE_DIR} )

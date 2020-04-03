@@ -3,11 +3,17 @@
 
 #include "udaStructs.h"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int compressDim(DIMS * ddim);
+LIBRARY_API int compressDim(DIMS * ddim);
 
 /*---------------------------------------------------------------
 * UDA Dimensional Data Uncompressor
@@ -24,7 +30,7 @@ int compressDim(DIMS * ddim);
 * must also have corrections applied.
 *
 *--------------------------------------------------------------*/
-int uncompressDim(DIMS * ddim);
+LIBRARY_API int uncompressDim(DIMS * ddim);
 
 #ifdef __cplusplus
 }

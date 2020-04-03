@@ -6,6 +6,12 @@
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,17 +37,18 @@ extern "C" {
 
 typedef struct UdaCache UDA_CACHE;
 
-UDA_CACHE* idamOpenCache();
+LIBRARY_API UDA_CACHE* idamOpenCache();
 
-void idamFreeCache();
+LIBRARY_API void idamFreeCache();
 
-char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment);
+LIBRARY_API char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment);
 
-int idamCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
-                   LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment);
+LIBRARY_API int idamCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
+        LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
+        int protocolVersion);
 
-DATA_BLOCK* idamCacheRead(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
-                          USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment);
+LIBRARY_API DATA_BLOCK* idamCacheRead(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+        USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion);
 
 #ifdef __cplusplus
 }

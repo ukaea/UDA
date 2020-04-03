@@ -9,6 +9,19 @@ if [ "$OS" == "Windows_NT" ]
 then
 	echo "MSYS2/MinGW environnement under Windows"
 	
+	# Make portable XDR
+	cd extlib/portablexdr-4.9.1
+	autoconf
+	./configure
+	make
+	
+	# Deploy portable XDR libraries
+	cd ..
+	./install.sh
+	
+	# Return to UDA level
+	cd ..
+	
 	cmake -Bbuild -H. -G"Unix Makefiles" \
 		-DHDF5_ROOT=${HDF5_ROOT} -DPostgreSQL_ROOT=${PostgresSQL_ROOT} -DNETCDF_DIR=${NETCDF_DIR} \
 		-DMDSPLUS_DIR=${MDSPLUS_DIR} \

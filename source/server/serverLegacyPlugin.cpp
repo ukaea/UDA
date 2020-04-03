@@ -6,7 +6,9 @@
 #include "serverLegacyPlugin.h"
 
 #include <cstdlib>
-#include <strings.h>
+#if defined(__GNUC__)
+#  include <strings.h>
+#endif
 
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
@@ -20,28 +22,19 @@
 
 int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc)
 {
-
     int err = 0;
-#ifndef NOTGENERICENABLED
-    int exp_number, pass;
-
-    char file[STRING_LENGTH] = "";
-    char signal[STRING_LENGTH] = "";
-    char archive[STRING_LENGTH] = "";
-    char device_name[STRING_LENGTH] = "";
-#endif
     char* token = nullptr;
     char work[STRING_LENGTH];
 
     UDA_LOG(UDA_LOG_DEBUG, "IdamServerLegacyPlugin: Start\n");
 
-//----------------------------------------------------------------------------
-// Start of Error Trap
+    //----------------------------------------------------------------------------
+    // Start of Error Trap
 
     do {
 
-//----------------------------------------------------------------------------
-// Does the Path to Private Files contain hierarchical components not seen by the server? If so make a substitution.
+        //----------------------------------------------------------------------------
+        // Does the Path to Private Files contain hierarchical components not seen by the server? If so make a substitution.
 
 #ifndef FATCLIENT
 
@@ -123,8 +116,6 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
         // Client Identifies the File or Signal via the State Block
 
         switch (request_block->request) {
-
-//#ifdef IDA_ENABLE
             case REQUEST_READ_IDA:
 
                 strcpy(data_source->source_alias, TrimString(request_block->file));
@@ -144,9 +135,8 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pulse Number : %d \n", request_block->exp_number);
                 UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pass Number  : %d \n", request_block->pass);
                 break;
-//#endif
-            case REQUEST_READ_NEW_PLUGIN:
 
+            case REQUEST_READ_NEW_PLUGIN:
                 strcpy(data_source->source_alias, TrimString(request_block->file));
                 strcpy(data_source->filename, TrimString(request_block->file));
                 strcpy(data_source->path, TrimString(request_block->path));
@@ -166,7 +156,6 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 break;
 
             case REQUEST_READ_MDS:
-
                 strcpy(data_source->filename, TrimString(request_block->file));        // MDS+ Tree
                 strcpy(data_source->server, TrimString(request_block->server));        // MDS+ Server Name
 
@@ -194,7 +183,6 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 break;
 
             case REQUEST_READ_CDF:
-
                 strcpy(data_source->path, TrimString(request_block->path));        // netCDF File Location
                 copyString(TrimString(request_block->signal), signal_desc->signal_name, MAXNAME);
 
@@ -204,7 +192,6 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 break;
 
             case REQUEST_READ_HDF5:
-
                 strcpy(data_source->path, TrimString(request_block->path));        // HDF5 File Location
                 copyString(TrimString(request_block->signal), signal_desc->signal_name, MAXNAME);
 
@@ -214,7 +201,6 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 break;
 
             case REQUEST_READ_XML:
-
                 data_source->exp_number = request_block->exp_number;
                 data_source->pass = request_block->pass;
 
@@ -224,7 +210,6 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 break;
 
             case REQUEST_READ_UFILE:
-
                 strcpy(data_source->path, TrimString(request_block->path));    // UFile File Location
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadUFile \n");
@@ -232,7 +217,6 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 break;
 
             case REQUEST_READ_FILE:
-
                 strcpy(data_source->path, TrimString(request_block->path));    // File Location
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadBytes \n");
@@ -241,7 +225,6 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
 
 
             case REQUEST_READ_HDATA:
-
                 strcpy(data_source->path, TrimString(request_block->path));    // File Location
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadHData \n");
@@ -249,7 +232,6 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 break;
 
             case REQUEST_READ_SQL:
-
                 strcpy(data_source->path, TrimString(request_block->path));        // SQL database etc.
                 strcpy(data_source->server, TrimString(request_block->server));        // SQL server host
                 strcpy(data_source->format, TrimString(request_block->format));
@@ -261,7 +243,6 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 break;
 
             case REQUEST_READ_NOTHING:
-
                 data_source->exp_number = request_block->exp_number;        // Size of Data Block
                 data_source->pass = request_block->pass;        // Compressible or Not
 
@@ -286,31 +267,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 UDA_LOG(UDA_LOG_DEBUG, "Request: Read Nothing! (Returns Test Data)\n");
                 break;
 
-#ifndef NOTGENERICENABLED
-            case REQUEST_READ_GENERIC:
-
-                strcpy(file, TrimString(request_block->file));
-                strcpy(signal, TrimString(request_block->signal));
-                strcpy(archive, TrimString(request_block->archive));
-                strcpy(device_name, TrimString(request_block->device_name));
-                exp_number = request_block->exp_number;
-                pass = request_block->pass;
-
-                strupr(signal);
-                strlwr(archive);
-                strlwr(device_name);
-
-                UDA_LOG(UDA_LOG_DEBUG, "Request: Read Generic \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Archive      : %s \n", archive);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Device Name  : %s \n", device_name);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Signal Name  : %s \n", signal);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pulse Number : %d \n", exp_number);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pass Number  : %d \n", pass);
-                break;
-#endif
-
             case REQUEST_READ_PPF:
-
                 strcpy(data_source->source_alias, TrimString(request_block->file));
                 strcpy(data_source->filename, TrimString(request_block->file));
                 strcpy(data_source->path, TrimString(request_block->path));
@@ -328,7 +285,6 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 break;
 
             case REQUEST_READ_JPF:
-
                 copyString(TrimString(request_block->signal), signal_desc->signal_name, MAXNAME);
                 data_source->exp_number = request_block->exp_number;
 
@@ -336,7 +292,6 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Signal       : %s \n", request_block->signal);
                 UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pulse Number : %d \n", request_block->exp_number);
                 break;
-
 
             default:
                 UDA_LOG(UDA_LOG_DEBUG, "Unknown Requested Data Access Routine (%d) \n", request_block->request);
@@ -348,8 +303,8 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
 
         if (err != 0) break;
 
-//------------------------------------------------------------------------------------------------
-// End of Error Trap
+        //------------------------------------------------------------------------------------------------
+        // End of Error Trap
 
     } while (0);
 

@@ -7,34 +7,36 @@
 #define REQUEST_PLUGIN_MCOUNT   100    // Maximum initial number of plugins that can be registered
 #define REQUEST_PLUGIN_MSTEP    10    // Increase heap by 10 records once the maximum is exceeded
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void allocPluginList(int count, PLUGINLIST* plugin_list);
+LIBRARY_API void allocPluginList(int count, PLUGINLIST* plugin_list);
 
-void closePluginList(const PLUGINLIST* plugin_list);
+LIBRARY_API void freePluginList(PLUGINLIST* plugin_list);
 
-void freePluginList(PLUGINLIST* plugin_list);
+LIBRARY_API void initPluginData(PLUGIN_DATA* plugin);
 
-void initPluginData(PLUGIN_DATA* plugin);
+LIBRARY_API void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment);
 
-void printPluginList(FILE* fd, const PLUGINLIST* plugin_list);
+LIBRARY_API int idamServerRedirectStdStreams(int reset);
 
-void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment);
-
-int idamServerRedirectStdStreams(int reset);
-
-int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
+LIBRARY_API int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
                      const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
 
-int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_request_block,
+LIBRARY_API int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_request_block,
                          DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list,
                          char* logRecord, const ENVIRONMENT* environment);
 
-int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
+LIBRARY_API int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
 
-int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
+LIBRARY_API int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
                              SIGNAL_DESC* signal_desc, SIGNAL* signal_rec, DATA_SOURCE* data_source,
                              const ENVIRONMENT* environment);
 

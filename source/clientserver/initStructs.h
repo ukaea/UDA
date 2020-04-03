@@ -3,23 +3,29 @@
 
 #include "udaStructs.h"
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void initNameValueList(NAMEVALUELIST* nameValueList);
-void initRequestBlock(REQUEST_BLOCK* str);
-void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname);
-void initServerBlock(SERVER_BLOCK* str, int version);
-void initDataBlock(DATA_BLOCK* str);
-void initDimBlock(DIMS* str);
-void initDataSystem(DATA_SYSTEM* str);
-void initSystemConfig(SYSTEM_CONFIG* str);
-void initDataSource(DATA_SOURCE* str);
-void initSignal(SIGNAL* str);
-void initSignalDesc(SIGNAL_DESC* str);
-void initIdamPutDataBlock(PUTDATA_BLOCK* str);
-void initIdamPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+LIBRARY_API void initNameValueList(NAMEVALUELIST* nameValueList);
+LIBRARY_API void initRequestBlock(REQUEST_BLOCK* str);
+LIBRARY_API void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname);
+LIBRARY_API void initServerBlock(SERVER_BLOCK* str, int version);
+LIBRARY_API void initDataBlock(DATA_BLOCK* str);
+LIBRARY_API void initDimBlock(DIMS* str);
+LIBRARY_API void initDataSystem(DATA_SYSTEM* str);
+LIBRARY_API void initSystemConfig(SYSTEM_CONFIG* str);
+LIBRARY_API void initDataSource(DATA_SOURCE* str);
+LIBRARY_API void initSignal(SIGNAL* str);
+LIBRARY_API void initSignalDesc(SIGNAL_DESC* str);
+LIBRARY_API void initIdamPutDataBlock(PUTDATA_BLOCK* str);
+LIBRARY_API void initIdamPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
 #ifdef __cplusplus
 }

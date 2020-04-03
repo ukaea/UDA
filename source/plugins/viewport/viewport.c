@@ -13,7 +13,9 @@
 #include "viewport.h"
 
 #include <stdlib.h>
-#include <strings.h>
+#ifdef __GNUC__
+#  include <strings.h>
+#endif
 #include <float.h>
 
 #include <client/udaGetAPI.h>
@@ -427,8 +429,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             count = 101;
                             int i;
                             for (i = 0; i < count; i++) {
-                                values[i] = i + 1;
-                                coords[i] = i + 1;
+                                values[i] = (float)i + 1;
+                                coords[i] = (float)i + 1;
                             }
                             isPixelHeight = 1;
                             isPixelWidth = 1;
@@ -441,8 +443,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             count = 201;
                             int i;
                             for (i = 0; i < count; i++) {
-                                values[i] = i + 1;
-                                coords[i] = i + 1;
+                                values[i] = (float)i + 1;
+                                coords[i] = (float)i + 1;
                             }
                             isStartValueX = 1;
                             startValueX = 151.0;
@@ -456,8 +458,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             count = 201;
                             int i;
                             for (i = 0; i < count; i++) {
-                                values[i] = i + 1;
-                                coords[i] = i + 1;
+                                values[i] = (float)i + 1;
+                                coords[i] = (float)i + 1;
                             }
                             isStartValueX = 1;
                             startValueY = 151.0;
@@ -753,7 +755,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             for (j = 0; j < pixelHeight; j++) {
                                 if (integral[j] >= target) {
                                     if (1 && (j > 0 && integral[j - 1] > 0 && integral[j] != target)) {
-                                        float dx = integral[j] - integral[j - 1];
+                                        float dx = (float)(integral[j] - integral[j - 1]);
                                         if (dx != 0.0) {
                                             float m = (verticalPixelValues[j] - verticalPixelValues[j - 1]) / dx;
                                             data[i] = m * (target - integral[j]) +

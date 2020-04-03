@@ -25,9 +25,9 @@ find_path( XDR_INCLUDE_DIR rpc/xdr.h
     ${XDR_ROOT}
 	extlib
     ENV XDR_ROOT
-  PATH_SUFFIXES include )
+  PATH_SUFFIXES include include/rpc )
 
-find_library( XDR_LIBRARIES NAMES xdr
+find_library( XDR_LIBRARIES NAMES xdr portablexdr
   HINTS
     ${XDR_ROOT}
 	extlib

@@ -3,6 +3,13 @@
 
 #include <plugins/udaPlugin.h>
 
+
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -20,10 +27,10 @@ extern "C" {
 
    int g_TotalNum     = 1000000;		// Test data 
    
-int tcp_connect(SYSSOCKET *ssock, int port);
-int c_connect(UDTSOCKET *usock, int port);
-int createUDTSocket(int *usock, int port, int rendezvous);
-int createTCPSocket(SYSSOCKET *ssock, int port, bool rendezvous);
+LIBRARY_API int tcp_connect(SYSSOCKET *ssock, int port);
+LIBRARY_API int c_connect(UDTSOCKET *usock, int port);
+LIBRARY_API int createUDTSocket(int *usock, int port, int rendezvous);
+LIBRARY_API int createTCPSocket(SYSSOCKET *ssock, int port, bool rendezvous);
      
 #endif
 

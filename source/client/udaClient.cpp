@@ -9,7 +9,9 @@
 #include "udaClient.h"
 
 #ifdef __GNUC__
+
 #  include <unistd.h>
+
 #endif
 
 #include <cstdlib>
@@ -32,8 +34,10 @@
 #include "accAPI.h"
 
 #ifdef FATCLIENT
+
 #  include <clientserver/compressDim.h>
 #  include <server/udaServer.h>
+
 #else
 #  include "clientXDRStream.h"
 #  include <clientserver/xdrlib.h>
@@ -281,7 +285,7 @@ int idamClient(REQUEST_BLOCK* request_block)
                 // Query the cache for the Data
 
                 DATA_BLOCK* data = idamCacheRead(cache, request_block, logmalloclist, userdefinedtypelist,
-                                                 *getIdamClientEnvironment());
+                                                 *getIdamClientEnvironment(), protocolVersion);
 
                 if (data != nullptr) {    // Success
 
@@ -748,8 +752,6 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         if (client_block.get_meta && !request_block->put) {
 
-//#ifndef NOTGENERICENABLED
-
             // Allocate memory for the Meta Data
 
             data_system = (DATA_SYSTEM*)malloc(sizeof(DATA_SYSTEM));
@@ -766,8 +768,6 @@ int idamClient(REQUEST_BLOCK* request_block)
             }
 
             allocMetaHeap = 1;      // Manage Heap if an Error Occurs
-
-//#endif
 
             //------------------------------------------------------------------------------
             // Receive the Data System Record
@@ -967,15 +967,12 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #ifdef MEMCACHE
 #ifdef CACHEDEV
-
         if (cacheStatus == CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE && Data_Block[acc_getCurrentDataBlockIndex()].cachePermission == PLUGINOKTOCACHE) {
 #else
-
         if (cacheStatus == CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE) {
 #endif
-            idamCacheWrite(cache, request_block, data_block);
+            idamCacheWrite(cache, request_block, data_block, logmalloclist, userdefinedtypelist, *environment, protocolVersion);
         }
-
 #endif
 
         //------------------------------------------------------------------------------
@@ -1085,105 +1082,75 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #else       // <========================== End of Client Server Code Only (not FATCLIENT)
 
-//------------------------------------------------------------------------------
-// If an error has occured: Close all File Handles, Streams, sockets and Free Heap Memory
+    //------------------------------------------------------------------------------
+    // If an error has occured: Close all File Handles, Streams, sockets and Free Heap Memory
 
-//rc = fflush(nullptr); // save anything ... the user might not follow correct procedure!
+    //rc = fflush(nullptr); // save anything ... the user might not follow correct procedure!
 
-if (newHandle) {
-UDA_LOG(UDA_LOG_DEBUG, "Handle %d\n", data_block_idx);
+    if (newHandle) {
+        UDA_LOG(UDA_LOG_DEBUG, "Handle %d\n", data_block_idx);
 
-if (err != 0) {
-    idamClosedown(0, &socket_list);
-}
+        if (err != 0) {
+            idamClosedown(0, &socket_list);
+        }
 
-if (err == 0 && (getIdamDataStatus(data_block_idx) == MIN_STATUS) && !get_bad) {
-    // If Data are not usable, flag the client
-    addIdamError(CODEERRORTYPE, __func__, DATA_STATUS_BAD, "Data Status is BAD ... Data are Not Usable!");
+        if (err == 0 && (getIdamDataStatus(data_block_idx) == MIN_STATUS) && !get_bad) {
+            // If Data are not usable, flag the client
+            addIdamError(CODEERRORTYPE, __func__, DATA_STATUS_BAD, "Data Status is BAD ... Data are Not Usable!");
 
-    if (data_block->errcode == 0) {
-        // Don't over-rule a server side error
-        data_block->errcode = DATA_STATUS_BAD;
-        strcpy(data_block->error_msg, "Data Status is BAD ... Data are Not Usable!");
-    }
-}
+            if (data_block->errcode == 0) {
+                // Don't over-rule a server side error
+                data_block->errcode = DATA_STATUS_BAD;
+                strcpy(data_block->error_msg, "Data Status is BAD ... Data are Not Usable!");
+            }
+        }
 
-if (err != 0 && data_block->errcode == 0) {
-    addIdamError(CODEERRORTYPE, __func__, err, "Unknown Error");
-    data_block->errcode = err;
-}
+        if (err != 0 && data_block->errcode == 0) {
+            addIdamError(CODEERRORTYPE, __func__, err, "Unknown Error");
+            data_block->errcode = err;
+        }
 
 //------------------------------------------------------------------------------
 // Concatenate Error Message Stacks & Write to the Error Log
 
-concatIdamError(&server_block.idamerrorstack);
-closeIdamError();
+        concatIdamError(&server_block.idamerrorstack);
+        closeIdamError();
 
-idamErrorLog(client_block, *request_block, &server_block.idamerrorstack);
+        idamErrorLog(client_block, *request_block, &server_block.idamerrorstack);
 
 //------------------------------------------------------------------------------
 // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
 
-if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
-    data_block->errcode = getIdamServerErrorStackRecordCode(0);
-    strcpy(data_block->error_msg, getIdamServerErrorStackRecordMsg(0));
-}
+        if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
+            data_block->errcode = getIdamServerErrorStackRecordCode(0);
+            strcpy(data_block->error_msg, getIdamServerErrorStackRecordMsg(0));
+        }
 
 //------------------------------------------------------------------------------
 // Normal Exit: Return to Client
 
-return data_block_idx;
+        return data_block_idx;
 
 //------------------------------------------------------------------------------
 // Abnormal Exit: Return to Client
 
-} else {
+    } else {
 
-#ifndef NOTGENERICENABLED
-    if (allocMetaHeap) {
-        if (data_system != nullptr) {
-            free((void *) data_system);    // Free Unwanted Meta Data
+        UDA_LOG(UDA_LOG_DEBUG, "Returning Error %d\n", err);
+
+        if (err != 0) {
+            idamClosedown(0, &socket_list);
         }
 
-        if (system_config != nullptr) {
-            free((void *) system_config);
+        concatIdamError(&server_block.idamerrorstack);
+        idamErrorLog(client_block, *request_block, &server_block.idamerrorstack);
+
+        if (err == 0) {
+            return ERROR_CONDITION_UNKNOWN;
         }
 
-        if (data_source != nullptr) {
-            free((void *) data_source);
-        }
-
-        if (signal_rec != nullptr) {
-            free((void *) signal_rec);
-        }
-
-        if (signal_desc != nullptr) {
-            free((void *) signal_desc);
-        }
-
-        data_system = nullptr;
-        system_config = nullptr;
-        data_source = nullptr;
-        signal_rec = nullptr;
-        signal_desc = nullptr;
+        return -abs(err);                       // Abnormal Exit
     }
-#endif
-
-UDA_LOG(UDA_LOG_DEBUG, "Returning Error %d\n", err);
-
-if (err != 0) {
-    idamClosedown(0, &socket_list);
-}
-
-concatIdamError(&server_block.idamerrorstack);
-idamErrorLog(client_block, *request_block, &server_block.idamerrorstack);
-
-if (err == 0) {
-    return ERROR_CONDITION_UNKNOWN;
-}
-
-return -abs(err);                       // Abnormal Exit
-}
 }
 
 #endif      // <========================== End of FatClient Code Only

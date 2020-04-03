@@ -3,7 +3,10 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <dlfcn.h>
-#include <strings.h>
+#ifdef __GNUC__
+#  include <strings.h>
+#endif
+
 
 #include <cache/cache.h>
 #include <client/udaClient.h>

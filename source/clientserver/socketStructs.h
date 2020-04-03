@@ -6,6 +6,16 @@
 #include <time.h>
 #include <rpc/rpc.h>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //-------------------------------------------------------
 // Socket Types
 
@@ -32,5 +42,9 @@ typedef struct SocketList {
     int nsocks;             // Number of Sockets
     SOCKETS* sockets;      // Array of Socket Management Data
 } SOCKETLIST;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_CLIENTSERVER_SOCKETSTRUCTS_H

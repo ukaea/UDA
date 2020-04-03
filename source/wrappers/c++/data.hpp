@@ -4,9 +4,15 @@
 #include <typeinfo>
 #include <cstddef>
 
+#if defined(_WIN32)
+#  define LIBRARY_API __declspec(dllexport)
+#else
+#  define LIBRARY_API
+#endif
+
 namespace uda {
 
-class Data
+class LIBRARY_API Data
 {
 public:
     explicit Data(bool isnull)

@@ -15,13 +15,13 @@ if( IMAS_INCLUDE_DIRS AND IMAS_LIBRARIES )
   set( IMAS_FIND_QUIETLY TRUE )
 endif( IMAS_INCLUDE_DIRS AND IMAS_LIBRARIES )
 
-find_path( IMAS_INCLUDE_DIR ual_low_level.h
+find_path( IMAS_INCLUDE_DIR ual_lowlevel.h
   HINTS ${IMAS_ROOT}
     ENV IMAS_ROOT
   PATH_SUFFIXES lowlevel
 )
 
-find_library( IMAS_LIBRARY NAMES UALLowLevel
+find_library( IMAS_LIBRARY NAMES imas
   HINTS ${IMAS_ROOT}
     ENV IMAS_ROOT
   PATH_SUFFIXES lowlevel

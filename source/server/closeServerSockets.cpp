@@ -4,8 +4,13 @@
 
 #include "closeServerSockets.h"
 
-#include <unistd.h>
-#include <strings.h>
+#if defined(__GNUC__)
+#  include <unistd.h>
+#  include <strings.h>
+#else
+#  include <io.h>
+#  define close _close
+#endif
 #include <stdlib.h>
 
 #ifndef    NOMDSPLUSPLUGIN

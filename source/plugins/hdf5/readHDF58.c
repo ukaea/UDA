@@ -21,7 +21,9 @@
 
 #include "readHDF58.h"
 
-#include <strings.h>
+#ifdef __GNUC__
+#  include <strings.h>
+#endif
 
 #include <clientserver/errorLog.h>
 #include <clientserver/udaErrors.h>

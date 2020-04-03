@@ -4,7 +4,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#if defined(__GNUC__)
+#  include <unistd.h>
+#else
+#  include <windows.h>
+#  define sleep Sleep
+#endif
 
 #include "udaServer.h"
 

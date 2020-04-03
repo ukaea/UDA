@@ -11,7 +11,11 @@
 #include <math.h>
 #include <float.h>
 #include <errno.h>
-#include <strings.h>
+#if defined(__GNUC__)
+#  include <strings.h>
+#else
+#  define strncasecmp _strnicmp
+#endif
 
 #include <logging/logging.h>
 #include <clientserver/printStructs.h>
@@ -41,6 +45,11 @@
 // todo:
 //
 
+static int idamserversubsetindices(char* operation, DIMS* dim, double value, unsigned int* subsetindices);
+
+static int idamserverNewDataArray2(DIMS* dims, int rank, int dimid,
+                            char* data, int ndata, int data_type, int notoperation, int reverse,
+                            int start, int end, int start1, int end1, int* n, void** newdata);
 
 int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* logmalloclist)
 {
@@ -1009,7 +1018,7 @@ int idamserverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* l
                 LeftTrimString(p2);
                 UDA_LOG(UDA_LOG_DEBUG, "p2 = [%s]\n", p2);
                 if (IsNumber(p2)) {
-                    data_block->order = atof(p2);
+                    data_block->order = (int)atof(p2);
                 } else {
                     // ERROR
                 }

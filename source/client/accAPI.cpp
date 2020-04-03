@@ -12,6 +12,7 @@
 #ifdef __GNUC__
 #  include <pthread.h>
 #  include <strings.h>
+#  include <cmath>
 #else
 #  include <Windows.h>
 #  include <string.h>
@@ -138,7 +139,7 @@ void lockIdamThread()
             //initEnvironment(&(idamState[i].environment));
             initClientBlock(&(idamState[i].client_block), 0, "");
             initServerBlock(&(idamState[i].server_block), 0);
-            threadList[i] = nullptr;            // and the thread identifiers
+            threadList[i] = 0;            // and the thread identifiers
         }
     }
 
@@ -3107,7 +3108,7 @@ int idamDataCheckSum(void* data, int data_n, int type)
         case UDA_TYPE_FLOAT: {
             float fsum = 0.0;
             auto dp = (float*)data;
-            for (int i = 0; i < data_n; i++) if (isfinite(dp[i])) fsum = fsum + dp[i];
+            for (int i = 0; i < data_n; i++) if (std::isfinite(dp[i])) fsum = fsum + dp[i];
             sum = (int)fsum;
             if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
             break;
@@ -3115,7 +3116,7 @@ int idamDataCheckSum(void* data, int data_n, int type)
         case UDA_TYPE_DOUBLE: {
             double fsum = 0.0;
             auto dp = (double*)data;
-            for (int i = 0; i < data_n; i++) if (isfinite(dp[i])) fsum = fsum + dp[i];
+            for (int i = 0; i < data_n; i++) if (std::isfinite(dp[i])) fsum = fsum + dp[i];
             sum = (int)fsum;
             if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
             break;
@@ -3124,7 +3125,7 @@ int idamDataCheckSum(void* data, int data_n, int type)
             float fsum = 0.0;
             auto dp = (COMPLEX*)data;
             for (int i = 0; i < data_n; i++)
-                if (isfinite(dp[i].real) && isfinite(dp[i].imaginary)) {
+                if (std::isfinite(dp[i].real) && std::isfinite(dp[i].imaginary)) {
                     fsum = fsum + dp[i].real + dp[i].imaginary;
                 }
             sum = (int)fsum;
@@ -3135,7 +3136,7 @@ int idamDataCheckSum(void* data, int data_n, int type)
             double fsum = 0.0;
             auto dp = (DCOMPLEX*)data;
             for (int i = 0; i < data_n; i++)
-                if (isfinite(dp[i].real) && isfinite(dp[i].imaginary)) {
+                if (std::isfinite(dp[i].real) && std::isfinite(dp[i].imaginary)) {
                     fsum = fsum + dp[i].real + dp[i].imaginary;
                 }
             sum = (int)fsum;
