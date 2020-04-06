@@ -930,7 +930,8 @@ idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
         switch (type) {
             case IDL_TYP_BYTE:
-                putData.data_type = UDA_TYPE_CHAR;
+   	        // IDL bytes are unsigned
+                putData.data_type = UDA_TYPE_UNSIGNED_CHAR;
                 break;
 
             case IDL_TYP_STRING:
@@ -1126,7 +1127,8 @@ idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
         switch (type) {
             case IDL_TYP_BYTE:
-                putData.data_type = UDA_TYPE_CHAR;
+                // IDL bytes are unsigned
+                putData.data_type = UDA_TYPE_UNSIGNED_CHAR;
                 char value_char = (char)IDL_LongScalar(argv[1]);
                 putData.data = (char*)&value_char;
                 putData.count = 1;
