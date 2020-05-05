@@ -418,18 +418,136 @@ function calluda, arg, $
      if arg_present(handle) then handle=header else rc=freeidam(header.handle)
   endif else begin
      
-     handle = idamputapi(workcall, workdata, verbose=verbose, debug=debug)
+     header = idamputapi(workcall, workdata, verbose=verbose, debug=debug)
 
-     if handle lt 0 then begin
-        errmsg=''
-        rc=geterrormsg(handle, errmsg)        
-
+     if undefined(header) then begin
+        errmsg='IDAM put failed'
         goto, errorcatch
      endif
 
-     if arg_present(handle) then handle=handle else rc=freeidam(handle)
+     if not_structure(header) then begin
+        errmsg=''
+        rc=geterrormsg(header, errmsg)
 
-     struct = {erc: 0, errmsg: '', name:workcall}
+        if null_string(errmsg) then errmsg='putdata command failed.'
+        goto, errorcatch
+     endif
+
+     if (header.error_code ne 0 or header.handle lt 0) then begin
+        errmsg='IDAM error ['+header.error_msg+']'
+        goto, errorcatch
+     endif
+
+     rank=getrank(header.handle)
+
+     udregister = setidamdatatree(header.handle)
+
+     if(udregister) then begin  
+        errmsg='IDAM error [Unexpected structure returned from idamputapi]'
+        goto, errorcatch
+     endif
+
+     dblk=getidamdata(header)
+
+     if not_structure(dblk) then begin
+        struct = {erc: 0, errmsg: '', name:workcall}        
+     endif else begin
+        data=dblk.data 
+
+        if (size(data, /n_dim) lt rank) then begin
+           s=replicate(1L, rank)
+           ;; OK if data is an array but not a top level structure array
+           ;; but have already checked for structure so should be OK
+           s[0]=size(data, /dim)		
+           data=reform(data, s)
+        endif
+
+        stringdata = 0
+        if( getdatatype(header.handle) eq getdatatypeid('string') ) then begin
+           if(rank eq 1) then begin
+              data = string(data)
+              stringdata = 1
+              rank = 0 
+           endif else begin
+              xxnum  = n_elements(data[0,*])
+              xxdata = strarr(xxnum)
+              for i=0, xxnum-1 do xxdata[i] = string(data[*,i])
+              data = xxdata
+              stringdata = 1
+              rank = 0 
+           endelse	
+        endif             
+
+        ; ====================================================================================================  
+        ; Returned structure component naming
+        tindex=getorder(header.handle)
+  
+        if (rank ne 0) and (tindex ge 0) then begin
+           dtype=indgen(rank)
+           dtype=dtype+(dtype lt tindex)
+           dtype[tindex]=0
+     
+           order=indgen(rank)
+        endif else begin
+           order=indgen(rank>1)
+           dtype=order+1
+        endelse
+
+        for j=0, (rank-1) do begin
+           i = j 
+           if(stringdata) then i = j+1 else i = j
+           
+           ablk=getidamdimdata(header, order[i])    
+           if not_structure(ablk) then begin
+              errmsg='Unable to read axis info ['+strtrim(i,2)+']'
+              goto, errorcatch
+           endif       
+           
+           ;;;;; dgm 26May2010 increase dimensions from 4 to 7           
+           case dtype[i] of
+              0:ablk={time:ablk.dim, tunits:ablk.dim_units, tlabel:ablk.dim_label}
+              1:ablk={x:ablk.dim, xunits:ablk.dim_units, xlabel:ablk.dim_label}
+              2:ablk={y:ablk.dim, yunits:ablk.dim_units, ylabel:ablk.dim_label}
+              3:ablk={z:ablk.dim, zunits:ablk.dim_units, zlabel:ablk.dim_label}
+              4:ablk={w:ablk.dim, wunits:ablk.dim_units, wlabel:ablk.dim_label}
+              5:ablk={v:ablk.dim, vunits:ablk.dim_units, vlabel:ablk.dim_label}
+              6:ablk={u:ablk.dim, uunits:ablk.dim_units, ulabel:ablk.dim_label}
+           endcase
+           
+           case j of
+              0:a0=ablk
+              1:a1=ablk
+              2:a2=ablk
+              3:a3=ablk
+              4:a4=ablk
+              5:a5=ablk
+              6:a6=ablk
+           endcase
+        endfor
+
+        struct={name:workcall, $
+                data:data,     $
+                erc:0, errmsg:errmsg}
+      
+        case rank of
+           0: struct=struct
+           1: struct=create_struct(struct, a0)
+           2: struct=create_struct(struct, a0, a1)
+           3: struct=create_struct(struct, a0, a1, a2)
+           4: struct=create_struct(struct, a0, a1, a2, a3)
+           5: struct=create_struct(struct, a0, a1, a2, a3, a4)
+           6: struct=create_struct(struct, a0, a1, a2, a3, a4, a5)
+           7: struct=create_struct(struct, a0, a1, a2, a3, a4, a5, a6)
+           else: begin 
+              errmsg='Too many dimensions for DATA'
+              goto, errorcatch
+           end
+        endcase
+     endelse
+
+
+     if arg_present(handle) then handle=header else rc=freeidam(header.handle)
+
   endelse
 
   return, struct

@@ -39,314 +39,211 @@ extern void getdata_exit_handler(void);
 
 extern int getdata_Startup(void);
 
-extern IDL_VPTR IDL_CDECL
-idamgetapi(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamgetapi(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-idamputapi(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-callidam(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL callidam(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-callidam2(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamdata(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamdimdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamdimdata(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdataarray(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdataarray(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-geterrorarray(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL geterrorarray(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdimdataarray(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdimdataarray(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-freeidam(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL freeidam(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-freeidamall(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL freeidamall(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-geterrorcode(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL geterrorcode(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-geterrormsg(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL geterrormsg(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-printerrormsgstack(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL printerrormsgstack(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getsourcestatus(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getsourcestatus(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getsignalstatus(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getsignalstatus(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdatastatus(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdatastatus(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdatanum(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdatanum(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getrank(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getrank(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getorder(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getorder(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdatatype(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdatatype(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-geterrortype(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL geterrortype(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-geterrorasymmetry(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL geterrorasymmetry(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdatadata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdatadata(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getsyntheticdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getsyntheticdata(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdataerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdataerror(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getfloatdataerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getfloatdataerror(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getfloatasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getfloatasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getfloatdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getfloatdata(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdatalabel(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdatalabel(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdataunits(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdataunits(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdatadesc(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdatadesc(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdimnum(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdimnum(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdimtype(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdimtype(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdimerrortype(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdimerrortype(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdimerrorasymmetry(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdimerrorasymmetry(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdimdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdimdata(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdimerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdimerror(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getfloatdimdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getfloatdimdata(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getfloatdimerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getfloatdimerror(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getfloatasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getfloatasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdimlabel(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdimlabel(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdimunits(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdimunits(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdatasystemmeta(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdatasystemmeta(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getsystemconfigmeta(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getsystemconfigmeta(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdatasourcemeta(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdatasourcemeta(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getsignalmeta(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getsignalmeta(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getsignaldescmeta(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getsignaldescmeta(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getxmldoc(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getxmldoc(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-setproperty(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL setproperty(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-resetproperty(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL resetproperty(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-resetproperties(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL resetproperties(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdatatypeid(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdatatypeid(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-geterrormodelid(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL geterrormodelid(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-setidamclientflag(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL setidamclientflag(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-resetidamclientflag(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL resetidamclientflag(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-putidamserverhost(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL putidamserverhost(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-putidamserverport(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL putidamserverport(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamserverhost(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamserverhost(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamserverport(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamserverport(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamclientversion(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamclientversion(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamserverversion(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamserverversion(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamserversocket(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamserversocket(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-putidamserversocket(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL putidamserversocket(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-puterrormodel(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL puterrormodel(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-geterrormodel(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL geterrormodel(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-putdimerrormodel(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL putdimerrormodel(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdimerrormodel(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdimerrormodel(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getlasthandle(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getlasthandle(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getdomains(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getdomains(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-setidamdatatree(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL setidamdatatree(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-findidamtreestructurecomponent(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL findidamtreestructurecomponent(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-findidamtreestructuredefinition(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL findidamtreestructuredefinition(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-findidamtreestructure(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL findidamtreestructure(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodeatomiccount(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodeatomiccount(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodeatomicdatacount(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodeatomicdatacount(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodestructurecount(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodestructurecount(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodestructurerank(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodestructurerank(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodestructureshape(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodestructurenames(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodestructurenames(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodestructurepointers(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodestructurepointers(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodestructuredatacount(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodestructuredatacount(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodestructuredatarank(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodestructuredatarank(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodeparent(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodeparent(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodechild(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodechild(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodechildrencount(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodechildrencount(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-getidamnodechildid(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL getidamnodechildid(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-printidamtree(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL printidamtree(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-printidamtreestructurenames(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL printidamtreestructurenames(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-printidamtreestructurecomponentnames(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL printidamtreestructurecomponentnames(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-printidamnodestructure(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL printidamnodestructure(int argc, IDL_VPTR argv[], char* argk);
 
-extern IDL_VPTR IDL_CDECL
-regulariseidamvlenstructures(int argc, IDL_VPTR argv[], char* argk);
+extern IDL_VPTR IDL_CDECL regulariseidamvlenstructures(int argc, IDL_VPTR argv[], char* argk);
 
 static IDL_SYSFUN_DEF2 getdata_functions[] = {
         {{ (IDL_FUN_RET)idamgetapi },                           "IDAMGETAPI",                           2, 2, IDL_SYSFUN_DEF_F_KEYWORDS, 0 },
@@ -467,13 +364,11 @@ int getdata_startup(void)
 {
 
     // TRUE for Functions, FALSE for Procedures
-
     if (!IDL_SysRtnAdd(getdata_functions, TRUE, ARRLEN(getdata_functions))) {
         return IDL_FALSE;
     }
 
     // Register the exit handler
-
     IDL_ExitRegister(getdata_exit_handler);
 
     return (IDL_TRUE);
@@ -534,6 +429,7 @@ typedef struct {
     IDL_LONG order;
 
 } IDAM_SIN;
+
 
 // Main Data Block Structure Passed Back to IDL
 
@@ -678,7 +574,6 @@ typedef struct {
 
 void freeMem(UCHAR* memPtr)
 {
-    //if(NDEBUG) fprintf(stdout,"freeMem: Free Address  : %x\n", (int)memPtr);
     free((void*)memPtr);
 }
 
@@ -693,15 +588,11 @@ int webout = 0;         // Enables Standard Web Reporting of Errors
 //#####################################################################################################
 // IDAM API
 
-IDL_VPTR IDL_CDECL
-
-idamgetapi(int argc, IDL_VPTR argv[], char* argk)
+IDL_VPTR IDL_CDECL idamgetapi(int argc, IDL_VPTR argv[], char* argk)
 {
     //
     // 2 Args: IDAM signal, source strings
-
     // calls:   int idamGetAPI(signal, source)
-
     int handle;
     char* signal, * source;
 
@@ -714,7 +605,6 @@ idamgetapi(int argc, IDL_VPTR argv[], char* argk)
 
 
     // Maintain an Alphabetical Order of Keywords
-
     static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
                                     { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
                                     { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
@@ -732,7 +622,6 @@ idamgetapi(int argc, IDL_VPTR argv[], char* argk)
     kw.verbose = 0;
 
     // Get Passed Keywords and Parameters
-
     IDL_KWProcessByOffset(argc, argv, argk, kw_pars, (IDL_VPTR*)0, 1, &kw);
 
     if (kw.help) {
@@ -783,13 +672,10 @@ idamgetapi(int argc, IDL_VPTR argv[], char* argk)
 //  b> puting an unordered list of named arrays of atomic data to a server side function
 // Future options: add structured types to the array class
 
-IDL_VPTR IDL_CDECL
-
-idamputapi(int argc, IDL_VPTR argv[], char* argk)
+IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
 {
     //
     // 2 Args: IDAM plugin directive (signal), data (scalar or array of structures)
-
     // calls:   idamPutAPI or idamPutListAPI
 
     typedef struct {
@@ -801,7 +687,6 @@ idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
 
     // Maintain an Alphabetical Order of Keywords
-
     static IDL_KW_PAR kw_pars[] = { IDL_KW_FAST_SCAN,
                                     { "DEBUG", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(debug) },
                                     { "HELP", IDL_TYP_LONG, 1, IDL_KW_ZERO, 0, IDL_KW_OFFSETOF(help) },
@@ -813,13 +698,11 @@ idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
     //---------------------------------------------------------------------------------------------
     // keywords
-
     kw.debug = 0;
     kw.help = 0;
     kw.verbose = 0;
 
     // Get Passed Keywords and Parameters
-
     IDL_KWProcessByOffset(argc, argv, argk, kw_pars, (IDL_VPTR*)0, 1, &kw);
 
     if (kw.help) {
@@ -855,7 +738,6 @@ idamputapi(int argc, IDL_VPTR argv[], char* argk)
     //-----------------------------------------------------------------------------------------
     // Test the 2nd Argument: Array only or scalar structure
     // String arrays are a pain ...
-
     // Array?, data[]
 
     PUTDATA_BLOCK putData;
@@ -866,6 +748,7 @@ idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
     int i, rank = 0, count = 0;
     int type = IDL_TYP_UNDEF;
+    int handle = -1;
 
     if (argc >= 2 && (argv[1]->flags & IDL_V_ARR) && argv[1]->type != IDL_TYP_STRUCT) {
         IDL_ENSURE_ARRAY(argv[1]);
@@ -985,8 +868,7 @@ idamputapi(int argc, IDL_VPTR argv[], char* argk)
         }
 
         // String arrays have to be regularised (equal length) as this method does not pass arrays of pointers
-
-        char* new = NULL;
+        char* new_string = NULL;
 
         if (type == IDL_TYP_STRING) {
             int maxLength = 0;
@@ -1000,15 +882,15 @@ idamputapi(int argc, IDL_VPTR argv[], char* argk)
                 }
             }
 
-            new = (char*)malloc(
+            new_string = (char*)malloc(
                     putData.count * (maxLength + 1) * sizeof(char)); // Block of memory for the strings
 
             for (i = 0; i < (int)putData.count; i++) {
                 sidl = (IDL_STRING*)putData.data;
-                strncpy(&new[i * (maxLength + 1)], (char*)sidl->s, sidl->slen); // should be NULL terminated
+                strncpy(&new_string[i * (maxLength + 1)], (char*)sidl->s, sidl->slen); // should be NULL terminated
             }
 
-            putData.data = new;
+            putData.data = new_string;
         }
 
         // PUT the data to the server
@@ -1018,17 +900,15 @@ idamputapi(int argc, IDL_VPTR argv[], char* argk)
             }
         }
 
-        int h = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
+        handle = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
 
         //      if (putData.rank >= 1 && putData.shape != NULL) {
         free((void*)putData.shape);
         //}
 
-        if (type == IDL_TYP_STRING && new != NULL) {
-            free((void*)new);
+        if (type == IDL_TYP_STRING && new_string != NULL) {
+            free((void*)new_string);
         }
-
-        return (IDL_GettmpLong(h));
 
     } else if (argc >= 2 && (argv[1]->flags & IDL_V_STRUCT) && argv[1]->type == IDL_TYP_STRUCT) {
 
@@ -1083,8 +963,6 @@ idamputapi(int argc, IDL_VPTR argv[], char* argk)
                 fprintf(stdout, "Structure member[%d] name   : %s\n", i, name);
                 fprintf(stdout, "Structure member[%d] flags  : %d\n", i, var->flags);
                 fprintf(stdout, "Structure member[%d] type   : %d\n", i, var->type);
-                //fprintf(stdout,"Structure member[%d] rank : %d\n", i, var->value.arr->n_dim);
-                //fprintf(stdout,"Structure member[%d] count: %d\n", i, var->value.arr->n_elts);
 
                 if (var->type == IDL_TYP_STRING) {
                     IDL_STRING* sidl = (IDL_STRING * ) & (argv[1]->value.arr->data[offset]);
@@ -1113,7 +991,7 @@ idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
                   freeIdamPutDataBlockList(putDataBlockList);
             */
-        return (IDL_GettmpLong(-888));
+	    return (IDL_GettmpLong(-888));
 
     } else if (argc >= 2 && argv[1]->type != IDL_TYP_STRUCT) { //argv[1]->type == IDL_TYP_STRING) {
 
@@ -1222,23 +1100,153 @@ idamputapi(int argc, IDL_VPTR argv[], char* argk)
             fflush(stdout);
         }
 
-        int h = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
-
-        return (IDL_GettmpLong(h));
+      handle = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
     } else if (argc == 1) {
-        int h = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
-
-        return (IDL_GettmpLong(h));
+      handle = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
     }
 
-    return (IDL_GettmpLong(-997));
+    // Despite this being a put, may return data (eg. putdata plugin returns file id)
+    // So do need to return handle to data
+    int error_code;
+    char* error_msg;
+
+    error_code = getIdamErrorCode(handle);
+    error_msg = (char*)getIdamErrorMsg(handle);
+
+    if (handle < 0) {
+      if (kw.verbose) {
+	    fprintf(stdout, "Bad Handle Returned from IDAM Call!\n");
+	
+	    if (error_msg != NULL) {
+	    fprintf(stdout, "[%d] %s\n", error_code, error_msg);
+	    }
+      }
+      
+      IDL_KW_FREE;
+      return (IDL_GettmpLong(GDE_BAD_HANDLE));
+    }
+
+    int status;
+    status = getIdamDataStatus(handle);
+
+    //--------------------------------------------------------------------------
+    // Return Handle and High Level Information: Not Data - Separate Calls
+    IDAM_SIN* sout;
+    if ((sout = (IDAM_SIN*)malloc(sizeof(IDAM_SIN))) == NULL) {
+        if (kw.verbose) {
+            fprintf(stdout, "Heap Memory Allocation Failed!\n");
+        }
+
+        IDL_KW_FREE;
+        return (IDL_GettmpLong(GDE_HEAP_ALLOC_ERROR));
+    }
+
+    sout->exp_number = (IDL_LONG) -1;        // Use Default values
+    sout->pass = (IDL_LONG) - 1;
+    sout->mdstreenum = (IDL_LONG) 0;
+    sout->handle = (IDL_LONG)handle;
+    sout->rank = (IDL_LONG)getIdamRank(handle);
+    sout->order = (IDL_LONG)getIdamOrder(handle);
+    sout->status = (IDL_LONG)status;
+    sout->error_code = (IDL_LONG)error_code;
+
+    sout->get_datadble = (IDL_LONG)getIdamProperty("get_datadble");  // (IDL_LONG) kw.get_datadble;
+    sout->get_dimdble = (IDL_LONG)getIdamProperty("get_dimdble");   // (IDL_LONG) kw.get_dimdble;
+    sout->get_timedble = (IDL_LONG)getIdamProperty("get_timedble");  // (IDL_LONG) kw.get_timedble;
+    sout->get_scalar = (IDL_LONG)getIdamProperty("get_scalar");    // (IDL_LONG) kw.get_scalar;
+    sout->get_bytes = (IDL_LONG)getIdamProperty("get_bytes");     // (IDL_LONG) kw.get_bytes;
+    sout->get_asis = (IDL_LONG)getIdamProperty("get_asis");      // (IDL_LONG) kw.get_asis;
+    sout->get_bad = (IDL_LONG)getIdamProperty("get_bad");       // (IDL_LONG) kw.get_bad;
+    sout->get_meta = (IDL_LONG)getIdamProperty("get_meta");      // (IDL_LONG) kw.get_meta;
+    sout->get_uncal = (IDL_LONG)getIdamProperty("get_uncal");     // (IDL_LONG) kw.get_uncal;
+    sout->get_notoff = (IDL_LONG)getIdamProperty("get_notoff");    // (IDL_LONG) kw.get_notoff;
+    sout->get_nodimdata = (IDL_LONG)getIdamProperty("get_nodimdata"); // (IDL_LONG) kw.get_nodimdata;
+
+    IDL_StrStore(&(sout->signal), "");
+    IDL_StrStore(&(sout->source), "");
+    IDL_StrStore(&(sout->tpass), "");
+    IDL_StrStore(&(sout->device), "");
+    IDL_StrStore(&(sout->archive), "");
+    IDL_StrStore(&(sout->server), "");
+    IDL_StrStore(&(sout->file), "");
+    IDL_StrStore(&(sout->format), "");
+    IDL_StrStore(&(sout->path), "");
+    IDL_StrStore(&(sout->mdstree), "");
+    IDL_StrStore(&(sout->mdsnode), "");
+
+    IDL_StrStore(&(sout->error_msg), error_msg);
+
+    // Create an Anonymous IDL Structure and Import into IDL
+    // IDL tags structure (returned data structure IDAM2_SIN)
+
+    IDL_STRUCT_TAG_DEF pTags[] = {
+            { "EXP_NUMBER",    0, (void*)IDL_TYP_LONG },
+            { "SIGNAL",        0, (void*)IDL_TYP_STRING },
+            { "SOURCE",        0, (void*)IDL_TYP_STRING },
+            { "PASS",          0, (void*)IDL_TYP_LONG },
+            { "TPASS",         0, (void*)IDL_TYP_STRING },
+            { "DEVICE",        0, (void*)IDL_TYP_STRING },
+            { "ARCHIVE",       0, (void*)IDL_TYP_STRING },
+            { "SERVER",        0, (void*)IDL_TYP_STRING },
+            { "FILE",          0, (void*)IDL_TYP_STRING },
+            { "FORMAT",        0, (void*)IDL_TYP_STRING },
+            { "PATH",          0, (void*)IDL_TYP_STRING },
+            { "MDSTREE",       0, (void*)IDL_TYP_STRING },
+            { "MDSNODE",       0, (void*)IDL_TYP_STRING },
+            { "MDSTREENUM",    0, (void*)IDL_TYP_LONG },
+            { "GET_DATADBLE",  0, (void*)IDL_TYP_LONG },
+            { "GET_TIMEDBLE",  0, (void*)IDL_TYP_LONG },
+            { "GET_DIMDBLE",   0, (void*)IDL_TYP_LONG },
+            { "GET_SCALAR",    0, (void*)IDL_TYP_LONG },
+            { "GET_BYTES",     0, (void*)IDL_TYP_LONG },
+            { "GET_BAD",       0, (void*)IDL_TYP_LONG },
+            { "GET_META",      0, (void*)IDL_TYP_LONG },
+            { "GET_ASIS",      0, (void*)IDL_TYP_LONG },
+            { "GET_UNCAL",     0, (void*)IDL_TYP_LONG },
+            { "GET_NOTOFF",    0, (void*)IDL_TYP_LONG },
+            { "GET_NODIMDATA", 0, (void*)IDL_TYP_LONG },
+            { "HANDLE",        0, (void*)IDL_TYP_LONG },
+            { "ERROR_CODE",    0, (void*)IDL_TYP_LONG },
+            { "ERROR_MSG",     0, (void*)IDL_TYP_STRING },
+            { "STATUS",        0, (void*)IDL_TYP_LONG },
+            { "RANK",          0, (void*)IDL_TYP_LONG },
+            { "ORDER",         0, (void*)IDL_TYP_LONG },
+            { 0 }
+    };
+
+    void* psDef = NULL;
+    psDef = IDL_MakeStruct(NULL, pTags);
+
+    IDL_MEMINT ilDims[IDL_MAX_ARRAY_DIM];
+    ilDims[0] = 1;   // import Structure as a Single element Array
+
+    IDL_VPTR ivReturn = NULL;
+    ivReturn = IDL_ImportArray(1, ilDims, IDL_TYP_STRUCT, (UCHAR*)sout, freeMem, psDef);
+
+    //--------------------------------------------------------------------------
+    // If Users don't check their returned error codes or pointer values then a seg fault will occur...
+    // This free will force users to make the check and code quality will improve!
+    //
+    // The exception is bad data ... users may want to look at this data by changing the get_bad property
+
+    if (sout->error_code != 0) {
+        if (kw.debug) {
+            fprintf(stdout, "Freeing Heap for Handle %d\n", handle);
+        }
+
+        idamFree(handle);
+    }
+
+    //--------------------------------------------------------------------------
+    // Cleanup Keywords
+    IDL_KW_FREE;
+    //    restoreIdamProperties(cblock);
+    return (ivReturn);
 
 }
 
 
-IDL_VPTR IDL_CDECL
-
-callidam2(int argc, IDL_VPTR argv[], char* argk)
+IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
 {
     //
     //-------------------------------------------------------------------------
@@ -1585,7 +1593,6 @@ callidam2(int argc, IDL_VPTR argv[], char* argk)
 
     //--------------------------------------------------------------------------
     // Return Handle and High Level Information: Not Data - Separate Calls
-
     if ((sout = (IDAM_SIN*)malloc(sizeof(IDAM_SIN))) == NULL) {
         if (kw.verbose) {
             fprintf(stdout, "Heap Memory Allocation Failed!\n");
