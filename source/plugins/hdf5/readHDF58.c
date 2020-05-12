@@ -368,7 +368,11 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
         //----------------------------------------------------------------------
         // Identify the Dataset Type
 
+#ifdef _WIN32
         if ((status = H5Oget_info(dataset_id, &dataset_info, H5O_INFO_ALL)) < 0) {
+#else
+        if ((status = H5Oget_info(dataset_id, &dataset_info)) < 0) {
+#endif
             err = HDF5_ERROR_IDENTIFYING_DATA_ITEM;
             addIdamError(CODEERRORTYPE, "readHDF5", err, "Error Accessing Signal Dataset Information");
             break;
