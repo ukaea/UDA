@@ -23,7 +23,7 @@ endmacro()
 # CMake configuration
 
 cmake_policy( SET CMP0048 NEW )
-if( CMAKE_VERSION VERSION_GREATER 3.11 )
+if( CMAKE_VERSION VERSION_GREATER 3.12 )
   cmake_policy( SET CMP0074 OLD )
   cmake_policy( SET CMP0075 OLD )
 endif()
