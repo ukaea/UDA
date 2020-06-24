@@ -9,6 +9,8 @@ if( WIN32 OR MINGW )
   if( NOT MINGW )
     find_package( dlfcn-win32 CONFIG REQUIRED )
   endif()
+else()
+  pkg_check_modules(XDR "libtirpc")
 endif()
 
 ########################################################################################################################
@@ -105,6 +107,8 @@ if( WIN32 OR MINGW )
   endif()
   include_directories( ${XDR_INCLUDE_DIR} )
   set( LINK_XDR ${XDR_LIBRARIES} ws2_32 )
+else()
+  set( LINK_XDR ${XDR_LIBRARIES} )
 endif()
 
 target_link_libraries( server-static PRIVATE ${LINK_XDR} )
@@ -149,6 +153,7 @@ target_link_libraries( server-static PRIVATE
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
   ${LINK_DL}
+  ${LIBTIRPC_LIBRARIES}
 )
 
 if( BUILD_SHARED_LIBS )
@@ -167,6 +172,7 @@ if( BUILD_SHARED_LIBS )
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
     ${LINK_DL}
+    ${LIBTIRPC_LIBRARIES}
   )
 endif()
 
