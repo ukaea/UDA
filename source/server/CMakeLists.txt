@@ -108,6 +108,7 @@ if( WIN32 OR MINGW )
   include_directories( ${XDR_INCLUDE_DIR} )
   set( LINK_XDR ${XDR_LIBRARIES} ws2_32 )
 else()
+  include_directories( ${XDR_INCLUDE_DIR} )
   set( LINK_XDR ${XDR_LIBRARIES} )
 endif()
 

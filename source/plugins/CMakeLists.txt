@@ -8,6 +8,8 @@ if( WIN32 OR MINGW )
   if( NOT MINGW )
     find_package( dlfcn-win32 CONFIG REQUIRED )
   endif()
+else()
+  pkg_check_modules(XDR "libtirpc")
 endif()
 
 configure_file(
@@ -53,9 +55,9 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/source
 )
 
-if( MINGW OR WIN32 )
+#if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
-endif()
+#endif()
 
 set( SOURCE_FILES
   managePluginFiles.cpp

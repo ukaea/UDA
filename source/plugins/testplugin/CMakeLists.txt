@@ -10,8 +10,11 @@ endif()
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
-  include_directories( ${XDR_INCLUDE_DIR} )
+else()
+  pkg_check_modules(XDR "libtirpc")
 endif()
+
+  include_directories( ${XDR_INCLUDE_DIR} )
 
 include( plugins )
 

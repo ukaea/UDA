@@ -9,7 +9,10 @@ find_package( Java REQUIRED )
 find_package( JNI REQUIRED )
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
+else()
+  pkg_check_modules(XDR "libtirpc")
 endif()
+
 
 include( UseJava )
 
@@ -20,9 +23,9 @@ include_directories(
   ${JNI_INCLUDE_DIRS}
 )
 
-if( MINGW OR WIN32 )
+#if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
-endif()
+#endif()
 
 add_library( ${LIB_NAME} SHARED idam_jni.c )
 

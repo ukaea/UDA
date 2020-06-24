@@ -40,9 +40,9 @@ include_directories(
 
 include_directories( ${LIBXML2_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} )
 
-if( MINGW OR WIN32 )
+#if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
-endif()
+#endif()
 
 if( ITER_CI )
   add_definitions( -D__USE_XOPEN2K8 )
