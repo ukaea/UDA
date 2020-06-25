@@ -48,12 +48,12 @@ void idamCreateXDRStream()
                       reinterpret_cast<int (*)(void *, void *, int)>(clientWriteout));
 #else
         xdrrec_create(clientOutput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
-                      reinterpret_cast<int (*)(void *, void *, int)>(clientReadin),
-                      reinterpret_cast<int (*)(void *, void *, int)>(clientWriteout));
+                      reinterpret_cast<int (*)(char *, char *, int)>(clientReadin),
+                      reinterpret_cast<int (*)(char *, char *, int)>(clientWriteout));
 
         xdrrec_create(clientInput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
-                      reinterpret_cast<int (*)(void *, void *, int)>(clientReadin),
-                      reinterpret_cast<int (*)(void *, void *, int)>(clientWriteout));
+                      reinterpret_cast<int (*)(char *, char *, int)>(clientReadin),
+                      reinterpret_cast<int (*)(char *, char *, int)>(clientWriteout));
 #endif
     }
     else
@@ -68,12 +68,12 @@ void idamCreateXDRStream()
                       reinterpret_cast<int (*)(void *, void *, int)>(writeUdaClientSSL));
 #else
         xdrrec_create(clientOutput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
-                      reinterpret_cast<int (*)(void *, void *, int)>(readUdaClientSSL),
-                      reinterpret_cast<int (*)(void *, void *, int)>(writeUdaClientSSL));
+                      reinterpret_cast<int (*)(char *, char *, int)>(readUdaClientSSL),
+                      reinterpret_cast<int (*)(char *, char *, int)>(writeUdaClientSSL));
 
         xdrrec_create(clientInput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
-                      reinterpret_cast<int (*)(void *, void *, int)>(readUdaClientSSL),
-                      reinterpret_cast<int (*)(void *, void *, int)>(writeUdaClientSSL));
+                      reinterpret_cast<int (*)(char *, char *, int)>(readUdaClientSSL),
+                      reinterpret_cast<int (*)(char *, char *, int)>(writeUdaClientSSL));
 #endif
     }
 #else
@@ -88,12 +88,12 @@ void idamCreateXDRStream()
                   reinterpret_cast<int (*)(void *, void *, int)>(clientWriteout));
 #else
     xdrrec_create(clientOutput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
-                  reinterpret_cast<int (*)(void *, void *, int)>(clientReadin),
-                  reinterpret_cast<int (*)(void *, void *, int)>(clientWriteout));
+                  reinterpret_cast<int (*)(char *, char *, int)>(clientReadin),
+                  reinterpret_cast<int (*)(char *, char *, int)>(clientWriteout));
 
     xdrrec_create(clientInput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
-                  reinterpret_cast<int (*)(void *, void *, int)>(clientReadin),
-                  reinterpret_cast<int (*)(void *, void *, int)>(clientWriteout));
+                  reinterpret_cast<int (*)(char *, char *, int)>(clientReadin),
+                  reinterpret_cast<int (*)(char *, char *, int)>(clientWriteout));
 #endif
 
 #endif // SSLAUTHENTICATION
