@@ -25,7 +25,7 @@ void idamCreateXDRStream()
 
     IDAM_LOG(UDA_LOG_DEBUG, "IdamAPI: Creating XDR Streams \n");
 
-#ifdef __APPLE__
+#if defined (__APPLE__) || defined(__TIRPC__)
     xdrrec_create( clientOutput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
                    (int (*) (void *, void *, int))idamClientReadin,
                    (int (*) (void *, void *, int))idamClientWriteout);

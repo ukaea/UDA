@@ -7,9 +7,9 @@ set( LIB_NAME ${PROJECT_NAME}_jni )
 # Dependencies
 find_package( Java REQUIRED )
 find_package( JNI REQUIRED )
-if( WIN32 OR MINGW )
+#if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
-endif()
+#endif()
 
 include( UseJava )
 

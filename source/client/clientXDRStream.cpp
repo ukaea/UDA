@@ -38,7 +38,7 @@ void idamCreateXDRStream()
 
     if(getUdaClientSSLDisabled()){
     
-#ifdef __APPLE__
+#if defined (__APPLE__) || defined(__TIRPC__)
        xdrrec_create(clientOutput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
                      reinterpret_cast<int (*)(void *, void *, int)>(clientReadin),
                      reinterpret_cast<int (*)(void *, void *, int)>(clientWriteout));
@@ -56,7 +56,7 @@ void idamCreateXDRStream()
                      reinterpret_cast<int (*)(char *, char *, int)>(clientWriteout));
 #endif    
     } else {
-#ifdef __APPLE__
+#if defined (__APPLE__) || defined(__TIRPC__)
        xdrrec_create(clientOutput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
                      reinterpret_cast<int (*)(void *, void *, int)>(readUdaClientSSL),
                      reinterpret_cast<int (*)(void *, void *, int)>(writeUdaClientSSL));
@@ -76,7 +76,7 @@ void idamCreateXDRStream()
     }
 #else
 
-#ifdef __APPLE__
+#if defined (__APPLE__) || defined(__TIRPC__)
     xdrrec_create(clientOutput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
                   reinterpret_cast<int (*)(void *, void *, int)>(clientReadin),
                   reinterpret_cast<int (*)(void *, void *, int)>(clientWriteout));
