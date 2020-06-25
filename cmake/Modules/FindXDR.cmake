@@ -27,7 +27,7 @@ find_path( XDR_INCLUDE_DIR rpc/xdr.h
     ENV XDR_ROOT
   PATH_SUFFIXES include include/rpc )
 
-find_library( XDR_LIBRARIES NAMES xdr portablexdr
+find_library( XDR_LIBRARIES NAMES xdr portablexdr rpc
   HINTS
     ${XDR_ROOT}
 	extlib
@@ -36,35 +36,38 @@ find_library( XDR_LIBRARIES NAMES xdr portablexdr
 
 
 if(XDR_LIBRARIES STREQUAL XDR_LIBRARIES-NOTFOUND)
-  
-  find_path( TIRPC_INCLUDE_DIRS rpc/xdr.h
-  HINTS
-    ${XDR_ROOT}
-	extlib
-    ENV XDR_ROOT
-    ENV CPATH
-  PATH_SUFFIXES include include/rpc )
-  find_library( TIRPC_LIBRARIES NAMES tirpc
-   HINTS
-     ${TIRPC_ROOT}
-   extlib
-     ENV TIRPC_ROOT
-     ENV CPATH
-   PATH_SUFFIXES lib lib64 )
-
-  if(TIRPC_LIBRARIES STREQUAL TIRPC_LIBRARIES-NOTFOUND)
     find_package(PkgConfig)
-    pkg_check_modules(TIRPC libtirpc)
-  else()
-    SET(TIRPC-FOUND ON)  
-  endif()
-  
+    pkg_search_module(TIRPC libtirpc)
+    if(${TIRPC_FOUND})
+      add_definitions(-D__TIRPC__)
+      SET(XDR_LIBRARIES ${TIRPC_LIBRARIES})      
+      SET(XDR_INCLUDE_DIR ${TIRPC_INCLUDEDIR}/tirpc)
+    else()
+      find_path( TIRPC_INCLUDE_DIR rpc/xdr.h
+        HINTS
+          ${TIRPC_ROOT}
+        extlib
+          ENV EBROOTLIBTIRPC          
+          ENV CPATH
+        PATH_SUFFIXES include include/rpc )
+        
+      if(NOT (TIRPC_INCLUDE_DIR STREQUAL TIRPC_INCLUDE_DIR-NOTFOUND))
+        add_definitions(-D__TIRPC__)
+        SET(XDR_INCLUDE_DIR ${TIRPC_INCLUDE_DIR} )
+      endif()
 
-  if(${TIRPC-FOUND})
-    add_definitions(-D__TIRPC__)
-    SET(XDR_LIBRARIES ${TIRPC_LIBRARIES})      
-    SET(XDR_INCLUDE_DIR ${TIRPC_INCLUDE_DIRS})
-  endif()
+      find_library( TIRPC_LIBRARIES NAMES tirpc
+        HINTS
+          ${TIRPC_ROOT}
+        extlib
+          ENV TIRPC_ROOT
+          ENV CPATH
+        PATH_SUFFIXES lib lib64 )
+      if(NOT (TIRPC_LIBRARIES STREQUAL TIRPC_LIBRARIES-NOTFOUND))
+        SET(XDR_LIBRARIES ${TIRPC_LIBRARIES} )       
+      endif()
+    
+    endif()
 
 endif()
 
