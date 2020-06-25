@@ -15,8 +15,9 @@ endmacro( filter_lib_list )
 macro( uda_plugin )
 
   find_package( OpenSSL REQUIRED )
+  find_package( XDR REQUIRED )
   if( WIN32 OR MINGW )
-    find_package( XDR REQUIRED )
+    
     if( NOT MINGW )
       find_package( dlfcn-win32 CONFIG REQUIRED )
     endif()

@@ -3,14 +3,12 @@
 
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
-
+find_package( XDR REQUIRED )
 if( WIN32 OR MINGW )
-  find_package( XDR REQUIRED )
+  
   if( NOT MINGW )
     find_package( dlfcn-win32 CONFIG REQUIRED )
   endif()
-else()
-  pkg_check_modules(XDR "libtirpc")
 endif()
 
 ########################################################################################################################
@@ -154,7 +152,6 @@ target_link_libraries( server-static PRIVATE
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
   ${LINK_DL}
-  ${LIBTIRPC_LIBRARIES}
 )
 
 if( BUILD_SHARED_LIBS )
@@ -173,7 +170,6 @@ if( BUILD_SHARED_LIBS )
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
     ${LINK_DL}
-    ${LIBTIRPC_LIBRARIES}
   )
 endif()
 

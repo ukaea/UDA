@@ -10,13 +10,11 @@ if( NOT CLIENT_ONLY AND NOT NO_MODULES )
   find_package( PostgreSQL REQUIRED )
 endif()
 
+find_package( XDR REQUIRED )
 if( WIN32 OR MINGW )
-  find_package( XDR REQUIRED )
   if( NOT MINGW )
     find_package( dlfcn-win32 CONFIG REQUIRED )
   endif()
-else()
-  pkg_check_modules(XDR "libtirpc")
 endif()
 
 add_definitions( -DNOTGENERICENABLED )
@@ -120,7 +118,6 @@ if( MINGW OR WIN32 )
 else()
   include_directories( ${XDR_INCLUDE_DIR} )
   set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${XDR_LIBRARIES} )
-  
 endif()
 
 target_link_libraries( client-static PRIVATE ${CLIENT_LINK_LIBS} )

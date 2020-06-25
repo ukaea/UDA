@@ -4,15 +4,13 @@
 find_package( Boost REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
+find_package( XDR REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( OpenSSL REQUIRED )
-  find_package( XDR REQUIRED )
   if( NOT MINGW )
     find_package( dlfcn-win32 CONFIG REQUIRED )
   endif()
-else()
-  pkg_check_modules(XDR "libtirpc")
 endif()
 
 set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../.. )
@@ -40,9 +38,9 @@ include_directories(
 
 include_directories( ${LIBXML2_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} )
 
-#if( MINGW OR WIN32 )
+# if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
-#endif()
+# endif()
 
 if( ITER_CI )
   add_definitions( -D__USE_XOPEN2K8 )
@@ -69,7 +67,7 @@ if( WIN32 OR MINGW )
     set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl )
   endif()
 else()
-    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} )
+  set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES})
 endif()
 
 add_library( ${LIB_NAME}-static STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )

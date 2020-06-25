@@ -9,4 +9,4 @@ Description: The Universal Data Access library
 URL: http://www.iter.org/UDA
 Version: @PROJECT_VERSION@
 Cflags: -I${includedir}
-Libs: -L${libdir} -luda_plugins -luda_server -ltirpc
+Libs: -L${libdir} -luda_plugins -luda_server

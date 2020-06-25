@@ -8,13 +8,10 @@ if( NOT LIBXML2_FOUND )
   return()
 endif()
 
-if( WIN32 OR MINGW )
+# if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
-else()
-  pkg_check_modules(XDR "libtirpc")
-endif()
   include_directories( ${XDR_INCLUDE_DIR} )
-
+# endif()
 
 include( plugins )
 

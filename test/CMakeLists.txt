@@ -11,15 +11,14 @@ find_package( Boost )
 find_package( OpenSSL )
 find_package( LibXml2 )
 find_package( LibMemcached )
-
+find_package( XDR REQUIRED )
 if( WIN32 OR MINGW )
-  find_package( XDR REQUIRED )
+  
   if( NOT MINGW )
     find_package( dlfcn-win32 CONFIG REQUIRED )
   endif()
-else()
-  pkg_check_modules(XDR "libtirpc")
 endif()
+
 set( FAT_TESTS OFF CACHE BOOL "Build tests using fat-client" )
 
 add_definitions( -D__USE_XOPEN2K8 )

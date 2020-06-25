@@ -27,12 +27,23 @@ find_path( XDR_INCLUDE_DIR rpc/xdr.h
     ENV XDR_ROOT
   PATH_SUFFIXES include include/rpc )
 
-find_library( XDR_LIBRARIES NAMES xdr portablexdr
+find_library( XDR_LIBRARIES NAMES xdr portablexdr tirpc
   HINTS
     ${XDR_ROOT}
 	extlib
     ENV XDR_ROOT
   PATH_SUFFIXES lib lib64 )
+
+if(NOT ${XDR_LIBRARIES} )
+  find_package(PkgConfig)
+  pkg_check_modules(TIRPC libtirpc)
+  if(TIRPC_LIBRARIES)
+    SET(XDR_LIBRARIES TIRPC_LIBRARIES)
+  endif() 
+  if(TIRPC_INCLUDE_DIRS)
+    SET(XDR_INCLUDE_DIR TIRPC_INCLUDE_DIRS)
+  endif()   
+endif()
 
 include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( XDR DEFAULT_MSG XDR_LIBRARIES XDR_INCLUDE_DIR )
