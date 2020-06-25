@@ -3,11 +3,16 @@
 
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
-find_package( XDR REQUIRED )
+
 if( WIN32 OR MINGW )
-  
+  find_package( XDR REQUIRED )
   if( NOT MINGW )
     find_package( dlfcn-win32 CONFIG REQUIRED )
+  endif()
+else()
+  find_package( TIRPC QUIET)
+  if(TIRPC_FOUND)
+    add_definitions(-D__TIRPC__)    
   endif()
 endif()
 
@@ -105,9 +110,9 @@ if( WIN32 OR MINGW )
   endif()
   include_directories( ${XDR_INCLUDE_DIR} )
   set( LINK_XDR ${XDR_LIBRARIES} ws2_32 )
-else()
-  include_directories( ${XDR_INCLUDE_DIR} )
-  set( LINK_XDR ${XDR_LIBRARIES} )
+elseif(TIRPC_FOUND)
+  include_directories( ${TIRPC_INCLUDE_DIR} )
+  set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES})
 endif()
 
 target_link_libraries( server-static PRIVATE ${LINK_XDR} )

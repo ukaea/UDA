@@ -1,9 +1,15 @@
 ########################################################################################################################
 # Dependencies
 
-# if( WIN32 OR MINGW )
+if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
-# endif()
+else()
+  find_package( TIRPC QUIET)
+  if(TIRPC_FOUND)
+    add_definitions(-D__TIRPC__)
+    
+      endif()
+endif()
 
 ########################################################################################################################
 # Sources
@@ -19,9 +25,11 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/source
 )
 
-# if( MINGW OR WIN32 )
+if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
-# endif()
+elseif(TIRPC_FOUND)
+  include_directories( ${TIRPC_INCLUDE_DIR} )
+endif()
 
 ########################################################################################################################
 # Targets

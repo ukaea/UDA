@@ -2,12 +2,18 @@
 # Dependencies
 
 find_package( LibXml2 REQUIRED )
-find_package( XDR REQUIRED )
 
 if( WIN32 OR MINGW )
+  find_package( XDR REQUIRED )
   if( NOT MINGW )
     find_package( dlfcn-win32 CONFIG REQUIRED )
   endif()
+else()
+  find_package( TIRPC QUIET)
+  if(TIRPC_FOUND)
+    add_definitions(-D__TIRPC__)
+    
+      endif()
 endif()
 
 configure_file(
@@ -53,9 +59,11 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/source
 )
 
-# if( MINGW OR WIN32 )
+if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
-# endif()
+elseif(TIRPC_FOUND)
+  include_directories( ${TIRPC_INCLUDE_DIR} )
+endif()
 
 set( SOURCE_FILES
   managePluginFiles.cpp
@@ -82,8 +90,8 @@ if( WIN32 OR MINGW )
   else()
     set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl )
   endif()
-else()
-  set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES})
+elseif(TIRPC_FOUND)
+  set( LINK_LIB ${LINK_LIB} ${TIRPC_LIBRARIES})
 endif()
 
 target_link_libraries( plugins-static PRIVATE

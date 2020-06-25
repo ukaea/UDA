@@ -8,10 +8,16 @@ if( NOT LIBXML2_FOUND )
   return()
 endif()
 
-# if( WIN32 OR MINGW )
+if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
   include_directories( ${XDR_INCLUDE_DIR} )
-# endif()
+else()
+  find_package( TIRPC QUIET)
+  if(TIRPC_FOUND)  
+    include_directories( ${TIRPC_INCLUDE_DIR} )
+    add_definitions(-D__TIRPC__)   
+  endif()
+endif()
 
 include( plugins )
 
