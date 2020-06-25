@@ -63,17 +63,6 @@ project( uda VERSION ${GIT_VERSION} )
 set( USER $ENV{USER} )
 
 ########################################################################################################################
-# Target type
-
-set( TARGET_TYPE "NONE" CACHE STRING "Choose target [JET;MAST;OTHER]" )
-
-if( NOT ${TARGET_TYPE} STREQUAL "NONE" )
-  include( "target-${TARGET_TYPE}" )
-else()
-  message( FATAL_ERROR "INVALID TARGET_TYPE: ${TARGET_TYPE}" )
-endif()
-
-########################################################################################################################
 # Compiler configuration
 
 if( CMAKE_SIZEOF_VOID_P EQUAL 8 )

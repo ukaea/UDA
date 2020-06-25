@@ -8,7 +8,7 @@
 *--------------------------------------------------------------*/
 #include "getEnvironment.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <logging/logging.h>
 
@@ -69,7 +69,8 @@ ENVIRONMENT* getIdamClientEnvironment()
         strcat(udaEnviron.logdir, PATH_SEPARATOR);
     } else {
 #ifndef _WIN32
-        strcpy(udaEnviron.logdir, "./");                    // Client Log is local to pwd
+        // Client Log is local to pwd
+        strcpy(udaEnviron.logdir, "./");
 #else
         strcpy(udaEnviron.logdir, "");
 #endif
@@ -105,13 +106,13 @@ ENVIRONMENT* getIdamClientEnvironment()
         if ((env = getenv("UDA_HOST")) != nullptr) {
             strcpy(udaEnviron.server_host, env);
         } else {
-            strcpy(udaEnviron.server_host, UDA_SERVER_HOST);            // Default, e.g. fuslwn
+            UDA_LOG(UDA_LOG_WARN, "UDA_HOST environmental variable not defined");
         }
         // Check Not already set by User
         if ((env = getenv("UDA_HOST2")) != nullptr) {
             strcpy(udaEnviron.server_host2, env);
         } else {
-            strcpy(udaEnviron.server_host2, UDA_SERVER_HOST2);        // Default, e.g. fuslwi
+            UDA_LOG(UDA_LOG_WARN, "UDA_HOST2 environmental variable not defined");
         }
         env_host = 0;
     }
@@ -122,13 +123,13 @@ ENVIRONMENT* getIdamClientEnvironment()
         if ((env = getenv("UDA_PORT")) != nullptr) {
             udaEnviron.server_port = atoi(env);
         } else {
-            udaEnviron.server_port = (int) UDA_SERVER_PORT;
-        }            // Default, e.g. 56565
+            UDA_LOG(UDA_LOG_WARN, "UDA_PORT environmental variable not defined");
+        }
         if ((env = getenv("UDA_PORT2")) != nullptr) {
             udaEnviron.server_port2 = atoi(env);
         } else {
-            udaEnviron.server_port2 = (int) UDA_SERVER_PORT2;
-        }        // Default, e.g. 56565
+            UDA_LOG(UDA_LOG_WARN, "UDA_PORT2 environmental variable not defined");
+        }
         env_port = 0;
     }
 
@@ -143,25 +144,25 @@ ENVIRONMENT* getIdamClientEnvironment()
     if ((env = getenv("UDA_DEVICE")) != nullptr) {
         strcpy(udaEnviron.api_device, env);
     } else {
-        strcpy(udaEnviron.api_device, API_DEVICE);
+        UDA_LOG(UDA_LOG_WARN, "API_DEVICE environmental variable not defined");
     }
 
     if ((env = getenv("UDA_ARCHIVE")) != nullptr) {
         strcpy(udaEnviron.api_archive, env);
     } else {
-        strcpy(udaEnviron.api_archive, API_ARCHIVE);
+        UDA_LOG(UDA_LOG_WARN, "API_ARCHIVE environmental variable not defined");
     }
 
     if ((env = getenv("UDA_API_DELIM")) != nullptr) {
         strcpy(udaEnviron.api_delim, env);
     } else {
-        strcpy(udaEnviron.api_delim, API_PARSE_STRING);
+        UDA_LOG(UDA_LOG_WARN, "API_PARSE_STRING environmental variable not defined");
     }
 
     if ((env = getenv("UDA_FILE_FORMAT")) != nullptr) {
         strcpy(udaEnviron.api_format, env);
     } else {
-        strcpy(udaEnviron.api_format, API_FILE_FORMAT);
+        UDA_LOG(UDA_LOG_WARN, "API_FILE_FORMAT environmental variable not defined");
     }
 
     //-------------------------------------------------------------------------------------------
@@ -169,7 +170,9 @@ ENVIRONMENT* getIdamClientEnvironment()
 
 #ifdef FATCLIENT
     udaEnviron.data_path_id = 0;
-    if ((env = getenv("UDA_DATAPATHID")) != nullptr) udaEnviron.data_path_id = atoi(env);
+    if ((env = getenv("UDA_DATAPATHID")) != nullptr) {
+        udaEnviron.data_path_id = atoi(env);
+    }
 #endif
 
     //-------------------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------
 * Read Server Environment Variables
 *
-* Reads and returns values for a Standard list of IDAM Server Environment variables
+* Reads and returns values for a Standard list of UDA Server Environment variables
 *
 * Change History
 *
@@ -28,8 +28,8 @@ void printIdamServerEnvironment(const ENVIRONMENT* environment)
     UDA_LOG(UDA_LOG_INFO, "Log Write Mode  : %s\n", environment->logmode);
     UDA_LOG(UDA_LOG_INFO, "Log Level       : %d\n", environment->loglevel);
     UDA_LOG(UDA_LOG_INFO, "External User?  : %d\n", environment->external_user);
-    UDA_LOG(UDA_LOG_INFO, "IDAM Proxy Host : %s\n", environment->server_proxy);
-    UDA_LOG(UDA_LOG_INFO, "IDAM This Host  : %s\n", environment->server_this);
+    UDA_LOG(UDA_LOG_INFO, "UDA Proxy Host  : %s\n", environment->server_proxy);
+    UDA_LOG(UDA_LOG_INFO, "UDA This Host   : %s\n", environment->server_this);
     UDA_LOG(UDA_LOG_INFO, "Private File Path Target    : %s\n", environment->private_path_target);
     UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environment->private_path_substitute);
 }
@@ -50,7 +50,7 @@ ENVIRONMENT* getIdamServerEnvironment()
         strcpy(g_environ.logdir, env);
         strcat(g_environ.logdir, "/");
     } else {
-        strcpy(g_environ.logdir, "/scratch/idamlog/");        // Log is on Scratch
+        strcpy(g_environ.logdir, "/scratch/udalog/");        // Log is on Scratch
     }
 
     g_environ.loglevel = UDA_LOG_NONE;
@@ -77,32 +77,34 @@ ENVIRONMENT* getIdamServerEnvironment()
     if ((env = getenv("UDA_DEVICE")) != nullptr) {
         strcpy(g_environ.api_device, env);
     } else {
-        strcpy(g_environ.api_device, API_DEVICE);
+        UDA_LOG(UDA_LOG_WARN, "UDA_DEVICE environment variable not set");
     }
 
     if ((env = getenv("UDA_ARCHIVE")) != nullptr) {
         strcpy(g_environ.api_archive, env);
     } else {
-        strcpy(g_environ.api_archive, API_ARCHIVE);
+        UDA_LOG(UDA_LOG_WARN, "UDA_ARCHIVE environment variable not set");
     }
 
     if ((env = getenv("UDA_API_DELIM")) != nullptr) {
         strcpy(g_environ.api_delim, env);
     } else {
-        strcpy(g_environ.api_delim, API_PARSE_STRING);
+        UDA_LOG(UDA_LOG_WARN, "UDA_API_DELIM environment variable not set");
     }
 
     if ((env = getenv("UDA_FILE_FORMAT")) != nullptr) {
         strcpy(g_environ.api_format, env);
     } else {
-        strcpy(g_environ.api_format, API_FILE_FORMAT);
+        UDA_LOG(UDA_LOG_WARN, "UDA_FILE_FORMAT environment variable not set");
     }
 
     //-------------------------------------------------------------------------------------------
     // Standard Data Location Path Algorithm ID
 
     g_environ.data_path_id = 0;
-    if ((env = getenv("UDA_DATAPATHID")) != nullptr) { g_environ.data_path_id = atoi(env); }
+    if ((env = getenv("UDA_DATAPATHID")) != nullptr) {
+        g_environ.data_path_id = atoi(env);
+    }
 
     //-------------------------------------------------------------------------------------------
     // External User?
@@ -117,7 +119,7 @@ ENVIRONMENT* getIdamServerEnvironment()
     if ((env = getenv("UDA_EXTERNAL_USER")) != nullptr) { g_environ.external_user = 1; }
 
     //-------------------------------------------------------------------------------------------
-    // IDAM Proxy Host: redirect ALL requests
+    // UDA Proxy Host: redirect ALL requests
 
     if ((env = getenv("UDA_PROXY_TARGETHOST")) != nullptr) {
         strcpy(g_environ.server_proxy, env);

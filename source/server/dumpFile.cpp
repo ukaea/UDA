@@ -22,8 +22,8 @@
 *-----------------------------------------------------------------------------*/
 #include "dumpFile.h"
 
-#include <stdlib.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cerrno>
 #if defined(__GNUC__)
 #  include <strings.h>
 #else
@@ -41,7 +41,6 @@
 
 int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 {
-
     int err = 0, serrno;
 
     char cmd[MAXRECLENGTH];
@@ -108,7 +107,6 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
     FILE* ph = nullptr;
 
     do {
-
         if (err != 0) break;
 
         //----------------------------------------------------------------------
@@ -123,6 +121,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                     strcpy(cmd, "idadump ");
                 }
                 break;
+
             case REQUEST_READ_CDF:
                 if ((env = getenv("UDA_DUMP_NETCDF")) != nullptr) {
                     strcpy(cmd, env);
@@ -131,6 +130,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                     strcpy(cmd, "ncdump -h ");
                 }
                 break;
+
             case REQUEST_READ_HDF5:
                 if ((env = getenv("UDA_DUMP_HDF5")) != nullptr) {
                     strcpy(cmd, env);
@@ -140,7 +140,6 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                 }
                 break;
             case REQUEST_READ_MDS: {
-
                 // Java example: http://www.mdsplus.org/mdsplus/cvsweb.cgi/mdsplus/javatraverser/DecompileTree.java
 
                 char server[MAXSERVER];
@@ -176,25 +175,27 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                     }
                 }
 
-                if (strlen(server) == 0) strcpy(server, LOCAL_MDSPLUS_SERVER);    // Need a Server!!! - Use the Default
+                if (strlen(server) == 0) {
+                    THROW_ERROR(999, "No server found");
+                }
 
                 sprintf(exp_number_str, "%d", request_block.exp_number);
 #ifdef _WIN32
-                _putenv_s("IDAM_SERVER_TREENAME", request_block.file);
-                _putenv_s("IDAM_SERVER_TREENUM", exp_number_str);
-                _putenv_s("IDAM_SERVER_TREESERVER", server);
-                _putenv_s("IDAM_SERVER_TREEPATH", path);
+                _putenv_s("SERVER_TREENAME", request_block.file);
+                _putenv_s("SERVER_TREENUM", exp_number_str);
+                _putenv_s("SERVER_TREESERVER", server);
+                _putenv_s("SERVER_TREEPATH", path);
 #else
-                setenv("IDAM_SERVER_TREENAME", request_block.file, 1);
-                setenv("IDAM_SERVER_TREENUM", exp_number_str, 1);
-                setenv("IDAM_SERVER_TREESERVER", server, 1);
-                setenv("IDAM_SERVER_TREEPATH", path, 1);
+                setenv("SERVER_TREENAME", request_block.file, 1);
+                setenv("SERVER_TREENUM", exp_number_str, 1);
+                setenv("SERVER_TREESERVER", server, 1);
+                setenv("SERVER_TREEPATH", path, 1);
 #endif
 
-                UDA_LOG(UDA_LOG_DEBUG, "IDAM_SERVER_TREENAME:   %s\n", request_block.file);
-                UDA_LOG(UDA_LOG_DEBUG, "IDAM_SERVER_TREENUM:    %s\n", exp_number_str);
-                UDA_LOG(UDA_LOG_DEBUG, "IDAM_SERVER_TREESERVER: %s\n", server);
-                UDA_LOG(UDA_LOG_DEBUG, "IDAM_SERVER_TREEPATH:   %s\n", path);
+                UDA_LOG(UDA_LOG_DEBUG, "SERVER_TREENAME:   %s\n", request_block.file);
+                UDA_LOG(UDA_LOG_DEBUG, "SERVER_TREENUM:    %s\n", exp_number_str);
+                UDA_LOG(UDA_LOG_DEBUG, "SERVER_TREESERVER: %s\n", server);
+                UDA_LOG(UDA_LOG_DEBUG, "SERVER_TREEPATH:   %s\n", path);
 
                 if ((env = getenv("UDA_DUMP_MDSPLUS")) != nullptr) {
                     strcpy(cmd, env);
@@ -212,7 +213,6 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                 break;
         }
         if (err != 0) break;
-
 
         strcat(cmd, path);
         strcat(cmd, " 2>&1");

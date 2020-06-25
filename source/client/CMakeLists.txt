@@ -6,10 +6,6 @@ if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )
 endif()
 
-if( NOT CLIENT_ONLY AND NOT NO_MODULES )
-  find_package( PostgreSQL REQUIRED )
-endif()
-
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
   if( NOT MINGW )
