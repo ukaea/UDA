@@ -12,8 +12,8 @@
 
 #include "accessLog.h"
 
-#include <errno.h>
-#include <stdlib.h>
+#include <cerrno>
+#include <cstdlib>
 #ifndef _WIN32
 #  include <arpa/inet.h>
 #else

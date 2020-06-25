@@ -15,7 +15,7 @@ uda_plugin(
   DESCRIPTION "data reader to access files as a block of bytes without interpretation"
   EXAMPLE "BYTES::read()"
   LIBNAME bytes_plugin
-  SOURCES bytesPlugin.c readBytesNonOptimally.c
+  SOURCES bytesPlugin.cpp readBytesNonOptimally.cpp
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
   EXTRA_LINK_LIBS

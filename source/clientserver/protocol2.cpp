@@ -291,7 +291,7 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str, int pr
 
                 server_block->idamerrorstack.idamerror = (IDAMERROR*)malloc(
                         server_block->idamerrorstack.nerrors * sizeof(IDAMERROR));
-                initIdamErrorRecords();
+                initErrorRecords(&server_block->idamerrorstack);
 
                 if (!xdr_server2(xdrs, server_block)) {
                     err = PROTOCOL_ERROR_22;

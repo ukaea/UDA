@@ -8,26 +8,34 @@
 
 #include "errorLog.h"
 
-#include <stdlib.h>
+#include <cstdlib>
+#include <vector>
 
 #include <logging/logging.h>
 #include <clientserver/udaErrors.h>
 #include <clientserver/stringUtils.h>
 
-static IDAMERRORSTACK udaerrorstack;
+static std::vector<IDAMERROR> udaerrorstack;
 
 int udaNumErrors()
 {
-    return udaerrorstack.nerrors;
+    return udaerrorstack.size();
 }
 
 void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, IDAMERRORSTACK* errorstack)
 {
-    if (errorstack == NULL) {
-        errorstack = &udaerrorstack;
+    IDAMERROR* errors = nullptr;
+    unsigned int nerrors;
+
+    if (errorstack == nullptr) {
+        errors = udaerrorstack.data();
+        nerrors = udaerrorstack.size();
+    } else {
+        errors = errorstack->idamerror;
+        nerrors = errorstack->nerrors;
     }
 
-    if (errorstack->nerrors == 0) {
+    if (nerrors == 0) {
         return;
     }
 
@@ -53,10 +61,9 @@ void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, IDAMERRORSTA
             request.device_name, request.server);
 
     unsigned int i;
-    for (i = 0; i < errorstack->nerrors; i++) {
+    for (i = 0; i < nerrors; i++) {
         idamLog(UDA_LOG_ERROR, "1 %s [%s] %d %d [%s] [%s]\n", client_block.uid, accessdate,
-                errorstack->idamerror[i].type,
-                errorstack->idamerror[i].code, errorstack->idamerror[i].location, errorstack->idamerror[i].msg);
+                errors[i].type, errors[i].code, errors[i].location, errors[i].msg);
     }
 }
 
@@ -64,31 +71,30 @@ void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, IDAMERRORSTA
 
 void initIdamErrorStack()
 {
-    udaerrorstack.nerrors = 0;
-    udaerrorstack.idamerror = NULL;
+    udaerrorstack.clear();
 }
 
-void initIdamErrorRecords()
+void initErrorRecords(const IDAMERRORSTACK* errorstack)
 {
     unsigned int i;
-    for (i = 0; i < udaerrorstack.nerrors; i++) {
-        udaerrorstack.idamerror[i].type = 0;
-        udaerrorstack.idamerror[i].code = 0;
-        udaerrorstack.idamerror[i].location[0] = '\0';
-        udaerrorstack.idamerror[i].msg[0] = '\0';
+    for (i = 0; i < errorstack->nerrors; i++) {
+        errorstack->idamerror[i].type = 0;
+        errorstack->idamerror[i].code = 0;
+        errorstack->idamerror[i].location[0] = '\0';
+        errorstack->idamerror[i].msg[0] = '\0';
     }
 }
 
 void printIdamErrorStack()
 {
-    unsigned int i;
-    if (udaerrorstack.nerrors == 0) {
+    if (udaerrorstack.empty()) {
         UDA_LOG(UDA_LOG_DEBUG, "Empty Error Stack\n");
         return;
     }
-    for (i = 0; i < udaerrorstack.nerrors; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "%d %d %d %s %s\n", i, udaerrorstack.idamerror[i].type,
-                  udaerrorstack.idamerror[i].code, udaerrorstack.idamerror[i].location, udaerrorstack.idamerror[i].msg);
+    int i = 1;
+    for (const auto& error : udaerrorstack) {
+        UDA_LOG(UDA_LOG_DEBUG, "%d %d %d %s %s\n", i, error.type, error.code, error.location, error.msg);
+        ++i;
     }
 }
 
@@ -100,39 +106,37 @@ void printIdamErrorStack()
 
 void addIdamError(int type, const char* location, int code, const char* msg)
 {
-    udaerrorstack.idamerror = (IDAMERROR*)realloc((void*)udaerrorstack.idamerror,
-                                                  ((udaerrorstack.nerrors + 1)) * sizeof(IDAMERROR));
-    udaerrorstack.idamerror[udaerrorstack.nerrors].type = type;
-    udaerrorstack.idamerror[udaerrorstack.nerrors].code = code;
+    IDAMERROR error;
 
-    strncpy(udaerrorstack.idamerror[udaerrorstack.nerrors].location, location, STRING_LENGTH - 1);
-    udaerrorstack.idamerror[udaerrorstack.nerrors].location[STRING_LENGTH - 1] = '\0';
+    error.type = type;
+    error.code = code;
+    strncpy(error.location, location, STRING_LENGTH - 1);
+    error.location[STRING_LENGTH - 1] = '\0';
+    strncpy(error.msg, msg, STRING_LENGTH - 1);
+    error.msg[STRING_LENGTH - 1] = '\0';
 
-    strncpy(udaerrorstack.idamerror[udaerrorstack.nerrors].msg, msg, STRING_LENGTH - 1);
-    udaerrorstack.idamerror[udaerrorstack.nerrors].msg[STRING_LENGTH - 1] = '\0';
-    int lmsg0 = (int)strlen(udaerrorstack.idamerror[udaerrorstack.nerrors].msg);
+    size_t lmsg0 = strlen(error.msg);
 
     if (type == SYSTEMERRORTYPE) {
-        char* errmsg = strerror(code);
-        int lmsg1 = (int)strlen(errmsg);
+        const char* errmsg = strerror(code);
+        size_t lmsg1 = strlen(errmsg);
         if (lmsg0 == 0) {
-            strncpy(udaerrorstack.idamerror[udaerrorstack.nerrors].msg, errmsg, STRING_LENGTH - 1);
-            udaerrorstack.idamerror[udaerrorstack.nerrors].msg[STRING_LENGTH - 1] = '\0';
+            strncpy(error.msg, errmsg, STRING_LENGTH - 1);
+            error.msg[STRING_LENGTH - 1] = '\0';
         } else {
             if ((lmsg0 + 2) < STRING_LENGTH) {
-                strcat(udaerrorstack.idamerror[udaerrorstack.nerrors].msg, "; ");
+                strcat(error.msg, "; ");
                 if ((lmsg0 + lmsg1 + 2) < STRING_LENGTH) {
-                    strcat(udaerrorstack.idamerror[udaerrorstack.nerrors].msg, errmsg);
+                    strcat(error.msg, errmsg);
                 } else {
-                    strncat(udaerrorstack.idamerror[udaerrorstack.nerrors].msg, errmsg,
-                            ((unsigned int)(STRING_LENGTH - 1 - (lmsg0 + 2))));
-                    udaerrorstack.idamerror[udaerrorstack.nerrors].msg[STRING_LENGTH - 1] = '\0';
+                    strncat(error.msg, errmsg, ((unsigned int)(STRING_LENGTH - 1 - (lmsg0 + 2))));
+                    error.msg[STRING_LENGTH - 1] = '\0';
                 }
             }
         }
     }
 
-    (udaerrorstack.nerrors)++;
+    udaerrorstack.push_back(error);
 }
 
 // Concatenate Error Stack structures
@@ -143,17 +147,17 @@ void concatIdamError(IDAMERRORSTACK* errorstackout)
     unsigned int iold;
     unsigned int inew;
 
-    if (udaerrorstack.nerrors <= 0) {
+    if (udaerrorstack.empty()) {
         return;
     }
 
     iold = errorstackout->nerrors;
-    inew = udaerrorstack.nerrors + errorstackout->nerrors;
+    inew = udaerrorstack.size() + errorstackout->nerrors;
 
     errorstackout->idamerror = (IDAMERROR*)realloc((void*)errorstackout->idamerror, (inew * sizeof(IDAMERROR)));
 
     for (i = iold; i < inew; i++) {
-        errorstackout->idamerror[i] = udaerrorstack.idamerror[i - iold];
+        errorstackout->idamerror[i] = udaerrorstack[i - iold];
     }
     errorstackout->nerrors = inew;
 }
@@ -162,13 +166,12 @@ void freeIdamErrorStack(IDAMERRORSTACK* errorstack)
 {
     free(errorstack->idamerror);
     errorstack->nerrors = 0;
-    errorstack->idamerror = NULL;
+    errorstack->idamerror = nullptr;
 }
 
 // Free Stack Heap
 
 void closeIdamError()
 {
-    free(udaerrorstack.idamerror);
     initIdamErrorStack();
 }

@@ -118,7 +118,7 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // Ping: Timing
     struct timeval serverTime;        // Local time in microseconds
-    gettimeofday(&serverTime, NULL);
+    gettimeofday(&serverTime, nullptr);
 
     // define the returned data structure
 
@@ -138,7 +138,7 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "idamServerHelp");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(HELP_PING);        // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -153,7 +153,7 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // assign the returned data structure
 
-    HELP_PING* data = (HELP_PING*)malloc(sizeof(HELP_PING));
+    auto data = (HELP_PING*)malloc(sizeof(HELP_PING));
     addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(HELP_PING), "HELP_PING");        // Register
 
     data->seconds = (unsigned int)serverTime.tv_sec;
@@ -187,7 +187,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int i, j, count;
     unsigned short target;
 
-    char* line = "\n------------------------------------------------------\n";
+    const char* line = "\n------------------------------------------------------\n";
 
     // Document is a single block of chars
 

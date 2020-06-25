@@ -6,16 +6,14 @@
 #include "initStructs.h"
 
 #ifdef __GNUC__
-
 #  include <unistd.h>
-
 #elif defined(_WIN32)
 #  include <process.h>
 #endif
 
 #include <clientserver/udaTypes.h>
 #include <security/authenticationUtils.h>
-#include <string.h>
+#include <cstring>
 
 #include "errorLog.h"
 

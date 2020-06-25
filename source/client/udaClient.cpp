@@ -1110,29 +1110,29 @@ int idamClient(REQUEST_BLOCK* request_block)
             data_block->errcode = err;
         }
 
-//------------------------------------------------------------------------------
-// Concatenate Error Message Stacks & Write to the Error Log
+        //------------------------------------------------------------------------------
+        // Concatenate Error Message Stacks & Write to the Error Log
 
         concatIdamError(&server_block.idamerrorstack);
         closeIdamError();
 
         idamErrorLog(client_block, *request_block, &server_block.idamerrorstack);
 
-//------------------------------------------------------------------------------
-// Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
+        //------------------------------------------------------------------------------
+        // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
 
         if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
             data_block->errcode = getIdamServerErrorStackRecordCode(0);
             strcpy(data_block->error_msg, getIdamServerErrorStackRecordMsg(0));
         }
 
-//------------------------------------------------------------------------------
-// Normal Exit: Return to Client
+        //------------------------------------------------------------------------------
+        // Normal Exit: Return to Client
 
         return data_block_idx;
 
-//------------------------------------------------------------------------------
-// Abnormal Exit: Return to Client
+        //------------------------------------------------------------------------------
+        // Abnormal Exit: Return to Client
 
     } else {
 

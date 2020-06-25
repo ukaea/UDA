@@ -321,7 +321,7 @@ typedef struct ServerBlock {
     SECURITY_BLOCK securityBlock;   // Contains encrypted tokens exchanged between client and server for mutual authentication
 } SERVER_BLOCK;
 
-typedef struct NameValuye {
+typedef struct NameValue {
     char* pair;    // The name value pair string
     char* name;    // The name
     char* value;   // The value

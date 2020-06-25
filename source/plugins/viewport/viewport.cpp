@@ -12,11 +12,11 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "viewport.h"
 
-#include <stdlib.h>
+#include <cstdlib>
+#include <cfloat>
 #ifdef __GNUC__
 #  include <strings.h>
 #endif
-#include <float.h>
 
 #include <client/udaGetAPI.h>
 #include <client/udaClient.h>
@@ -25,10 +25,6 @@
 #include <clientserver/udaTypes.h>
 #include <clientserver/stringUtils.h>
 
-#ifndef USE_PLUGIN_DIRECTLY
-IDAMERRORSTACK* idamErrorStack;    // Pointer to the Server's Error Stack. Global scope within this plugin library
-#endif
-
 static int handleCount = 0;
 static int handles[MAXHANDLES];
 static char signals[MAXHANDLES][MAXMETA];
@@ -36,8 +32,7 @@ static char sources[MAXHANDLES][STRING_LENGTH];
 
 int whichHandle(char* signal, char* source)
 {
-    int i;
-    for (i = 0; i < handleCount; i++)
+    for (int i = 0; i < handleCount; i++)
         if (STR_IEQUALS(signals[i], signal) && STR_IEQUALS(sources[i], source)) {
             return handles[i];
         }
@@ -87,19 +82,18 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     bool isMode = false;
     bool isMedian = false;
     bool isTest = false;
-    bool isRange = 1;
+    bool isRange = true;
 
     int test = 0;
-    char* signal = NULL;
-    char* source = NULL;
+    char* signal = nullptr;
+    char* source = nullptr;
     float startValueX = 0.0;
     float endValueX = 0.0;
     float startValueY = 0.0;
     float endValueY = 0.0;
 
     {
-        int i;
-        for (i = 0; i < request_block->nameValueList.pairCount; i++) {
+        for (int i = 0; i < request_block->nameValueList.pairCount; i++) {
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "signal")) {
                 signal = request_block->nameValueList.nameValue[i].value;
                 continue;
@@ -109,54 +103,54 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 continue;
             }
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "startValueX")) {
-                isStartValueX = 1;
+                isStartValueX = true;
                 startValueX = (float)atof(request_block->nameValueList.nameValue[i].value);
             }
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "endValueX")) {
-                isEndValueX = 1;
+                isEndValueX = true;
                 endValueX = (float)atof(request_block->nameValueList.nameValue[i].value);
             }
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "startValueY")) {
-                isStartValueY = 1;
+                isStartValueY = true;
                 startValueY = (float)atof(request_block->nameValueList.nameValue[i].value);
             }
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "endValueY")) {
-                isEndValueY = 1;
+                isEndValueY = true;
                 endValueY = (float)atof(request_block->nameValueList.nameValue[i].value);
             }
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "pixelHeight")) {
-                isPixelHeight = 1;
+                isPixelHeight = true;
                 pixelHeight = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             }
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "pixelWidth")) {
-                isPixelWidth = 1;
+                isPixelWidth = true;
                 pixelWidth = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             }
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "clearCache")) {
-                isClearCache = 1;
+                isClearCache = true;
                 continue;
             }
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "test")) {
-                isTest = 1;
+                isTest = true;
                 test = atoi(request_block->nameValueList.nameValue[i].value);
                 continue;
             }
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "mean")) {
-                isMean = 1;
+                isMean = true;
                 continue;
             }
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "mode")) {
-                isMode = 1;
+                isMode = true;
                 continue;
             }
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "median")) {
-                isMedian = 1;
+                isMedian = true;
                 continue;
             }
             if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "range")) {
-                isRange = 1;
+                isRange = true;
                 continue;
             }
         }
@@ -181,9 +175,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
         // Free Heap & reset counters
-
-        int i;
-        for (i = 0; i < handleCount; i++) {
+        
+        for (int i = 0; i < handleCount; i++) {
             idamFree(handles[i]);
             handles[i] = -1;
         }
@@ -197,9 +190,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (STR_IEQUALS(request_block->function, "clearCache") || isClearCache) {
 
         // Free Cached data if requested or filled
-
-        int i;
-        for (i = 0; i < handleCount; i++) {
+        
+        for (int i = 0; i < handleCount; i++) {
             idamFree(handles[i]);
             handles[i] = -1;
         }
@@ -210,11 +202,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
 
     if (handleCount == MAXHANDLES) {
-
         // Free some Cached data if cache is full
-
-        int i;
-        for (i = 0; i < FREEHANDLEBLOCK; i++) {
+        for (int i = 0; i < FREEHANDLEBLOCK; i++) {
             idamFree(handles[i]);
             handles[i] = handles[i + FREEHANDLEBLOCK];
             strcpy(signals[i], signals[i + FREEHANDLEBLOCK]);
@@ -233,9 +222,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         || STR_IEQUALS(request_block->function, "initialise")) {
 
         // Free Heap Cache & reset counters
-
-        int i;
-        for (i = 0; i < handleCount; i++) {
+        for (int i = 0; i < handleCount; i++) {
             idamFree(handles[i]);
             handles[i] = -1;
         }
@@ -266,8 +253,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             data_block->rank = 1;
             data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-            unsigned int i;
-            for (i = 0; i < data_block->rank; i++) {
+            for (unsigned int i = 0; i < data_block->rank; i++) {
                 initDimBlock(&data_block->dims[i]);
             }
 
@@ -394,8 +380,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             if (rank == 1) {
                 int count = getIdamDataNum(handle);
 
-                float* values = (float*)malloc(count * sizeof(float));
-                float* coords = (float*)malloc(count * sizeof(float));
+                auto values = (float*)malloc(count * sizeof(float));
+                auto coords = (float*)malloc(count * sizeof(float));
 
                 getIdamFloatData(handle, values);
                 getIdamFloatDimData(handle, 0, coords);
@@ -408,18 +394,18 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             break;
                         }
                         case 2: {                // 100 values mapped to 100 pixels: each pixel column has a single data value
-                            isPixelWidth = 1;
+                            isPixelWidth = true;
                             pixelWidth = 100;
                             break;
                         }
                         case 3: {                // 100 values mapped to 100 pixels: each pixel column has a single data value
-                            isPixelHeight = 1;
+                            isPixelHeight = true;
                             pixelHeight = 100;
                             break;
                         }
                         case 4: {                // 100 values mapped to 100 pixels: each pixel column has a single data value
-                            isPixelHeight = 1;
-                            isPixelWidth = 1;
+                            isPixelHeight = true;
+                            isPixelWidth = true;
                             pixelHeight = 100;
                             pixelWidth = 100;
                             break;
@@ -427,13 +413,12 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                         case 5: {                // 100 values mapped to 100 pixels: each pixel column has a single data value
                             count = 101;
-                            int i;
-                            for (i = 0; i < count; i++) {
+                            for (int i = 0; i < count; i++) {
                                 values[i] = (float)i + 1;
                                 coords[i] = (float)i + 1;
                             }
-                            isPixelHeight = 1;
-                            isPixelWidth = 1;
+                            isPixelHeight = true;
+                            isPixelWidth = true;
                             pixelHeight = 100;
                             pixelWidth = 100;
                             break;
@@ -441,30 +426,28 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                         case 6: {                // 50 values mapped to 100 pixels: alternate pixels have no data!
                             count = 201;
-                            int i;
-                            for (i = 0; i < count; i++) {
+                            for (int i = 0; i < count; i++) {
                                 values[i] = (float)i + 1;
                                 coords[i] = (float)i + 1;
                             }
-                            isStartValueX = 1;
+                            isStartValueX = true;
                             startValueX = 151.0;
-                            isPixelHeight = 1;
-                            isPixelWidth = 1;
+                            isPixelHeight = true;
+                            isPixelWidth = true;
                             pixelHeight = 100;
                             pixelWidth = 100;
                             break;
                         }
                         case 7: {                // 50 values mapped to 100 pixels: alternate pixels have no data!
                             count = 201;
-                            int i;
-                            for (i = 0; i < count; i++) {
+                            for (int i = 0; i < count; i++) {
                                 values[i] = (float)i + 1;
                                 coords[i] = (float)i + 1;
                             }
-                            isStartValueX = 1;
+                            isStartValueX = true;
                             startValueY = 151.0;
-                            isPixelHeight = 1;
-                            isPixelWidth = 1;
+                            isPixelHeight = true;
+                            isPixelWidth = true;
                             pixelHeight = 100;
                             pixelWidth = 100;
                             break;
@@ -496,13 +479,13 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 // Reduce the ordered X data's width
 
                 if (!isStartValueX && !isEndValueX) {
-                    reduceOrderedData(coords, &count, NULL, NULL, values, &minValueX, &maxValueX);
+                    reduceOrderedData(coords, &count, nullptr, nullptr, values, &minValueX, &maxValueX);
                 }
                 if (!isStartValueX && isEndValueX) {
-                    reduceOrderedData(coords, &count, NULL, &endValueX, values, &minValueX, &maxValueX);
+                    reduceOrderedData(coords, &count, nullptr, &endValueX, values, &minValueX, &maxValueX);
                 }
                 if (isStartValueX && !isEndValueX) {
-                    reduceOrderedData(coords, &count, &startValueX, NULL, values, &minValueX, &maxValueX);
+                    reduceOrderedData(coords, &count, &startValueX, nullptr, values, &minValueX, &maxValueX);
                 }
                 if (isStartValueX && isEndValueX) {
                     reduceOrderedData(coords, &count, &startValueX, &endValueX, values, &minValueX, &maxValueX);
@@ -511,9 +494,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 // Range of Y data
 
                 if (!isStartValueY) {
-                    int j;
                     minValueY = FLT_MAX;
-                    for (j = 0; j < count; j++) {
+                    for (int j = 0; j < count; j++) {
                         if (values[j] < minValueY) minValueY = values[j];
                     }
                 } else {
@@ -522,8 +504,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 if (!isEndValueY) {
                     maxValueY = -FLT_MAX;
-                    int j;
-                    for (j = 0; j < count; j++) {
+                    for (int j = 0; j < count; j++) {
                         if (values[j] > maxValueY) maxValueY = values[j];
                     }
                 } else {
@@ -535,8 +516,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 if (isStartValueY || isEndValueY) {
                     int newCount = 0;
                     int* remove = (int*)malloc(count * sizeof(int));
-                    int j;
-                    for (j = 0; j < count; j++) {
+                    for (int j = 0; j < count; j++) {
                         if (values[j] < minValueY || values[j] > maxValueY) {
                             remove[j] = 1;
                         } else {
@@ -547,10 +527,10 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     if (newCount < count) {
                         int id = 0;
-                        float* newValues = (float*)malloc(newCount * sizeof(float));
-                        float* newCoords = (float*)malloc(newCount * sizeof(float));
+                        auto newValues = (float*)malloc(newCount * sizeof(float));
+                        auto newCoords = (float*)malloc(newCount * sizeof(float));
 
-                        for (j = 0; j < count; j++) {
+                        for (int j = 0; j < count; j++) {
                             if (!remove[j]) {
                                 newValues[id] = values[j];
                                 newCoords[id++] = coords[j];
@@ -574,11 +554,11 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 // Coordinate index range of each horizontal pixel column
                 // Each pixel has data points
 
-                float* data = NULL;
-                float* errhi = NULL;
-                float* errlo = NULL;
+                float* data = nullptr;
+                float* errhi = nullptr;
+                float* errlo = nullptr;
                 int pixelWidth2 = 0;
-                float* horizontalPixelValues = NULL;        // Value at the pixel center
+                float* horizontalPixelValues = nullptr;        // Value at the pixel center
 
                 if (isPixelWidth && isPixelHeight) {
                     // Map to pixels if the device coordinate viewport is defined
@@ -587,7 +567,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             "Viewport: Mapping data to device pixel coordinate range (width, height) = %d, %d\n",
                             pixelWidth, pixelHeight);
 
-                    int* column = NULL;
+                    int* column = nullptr;
 
                     // Assign coordinates to pixel columns
 
@@ -602,17 +582,16 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     int* good = (int*)malloc(pixelWidth * sizeof(int));
 
-                    float* verticalPixelValues = NULL;            // Value at the pixel center
+                    float* verticalPixelValues = nullptr;            // Value at the pixel center
                     float delta;
 
                     getVerticalPixelValues(values, count, pixelHeight, &minValueY, &maxValueY, &verticalPixelValues,
                                            &delta);
 
-                    float* verticalPixelBoundaries = (float*)malloc((pixelHeight + 2) * sizeof(float));
+                    auto verticalPixelBoundaries = (float*)malloc((pixelHeight + 2) * sizeof(float));
                     verticalPixelBoundaries[0] = minValueY;
-
-                    int i;
-                    for (i = 1; i < pixelHeight + 2; i++) {
+                    
+                    for (int i = 1; i < pixelHeight + 2; i++) {
                         // Lower boundary of pixel cell
                         verticalPixelBoundaries[i] = verticalPixelBoundaries[i - 1] + delta;
                     }
@@ -624,35 +603,33 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     int* frtot = (int*)malloc(pixelHeight * sizeof(int));
                     int** freq = (int**)malloc(pixelWidth * sizeof(int*));
 
-                    for (i = 0; i < pixelWidth; i++) {
+                    for (int i = 0; i < pixelWidth; i++) {
                         fctot[i] = 0;
                         freq[i] = (int*)malloc(pixelHeight * sizeof(int));
-                        int j;
-                        for (j = 0; j < pixelHeight; j++) {
+                        for (int j = 0; j < pixelHeight; j++) {
                             freq[i][j] = 0;
                         }
                     }
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         fctot[column[i]]++;        // total counts
                     }
 
                     int colCount = 0;
-                    for (i = 0; i < pixelWidth; i++) {
+                    for (int i = 0; i < pixelWidth; i++) {
                         colCount = colCount + fctot[i];
                     }
 
                     UDA_LOG(UDA_LOG_DEBUG, "Column Totals: %d\n", colCount);
-                    for (i = 0; i < pixelWidth; i++) {
+                    for (int i = 0; i < pixelWidth; i++) {
                         UDA_LOG(UDA_LOG_DEBUG, "[%d] %d\n", i, fctot[i]);
                     }
 
                     // Which pixel row bin do each un-ordered data point fall into?
 
-                    int j;
-                    for (j = 0; j < count; j++) {
+                    for (int j = 0; j < count; j++) {
                         row[j] = -1;
-                        for (i = 0; i < pixelHeight + 1; i++) {        // Search within pixel boundaries
+                        for (int i = 0; i < pixelHeight + 1; i++) {        // Search within pixel boundaries
                             if (values[j] >= verticalPixelBoundaries[i] && values[j] < verticalPixelBoundaries[i + 1]) {
                                 row[j] = i;
                                 break;
@@ -663,21 +640,21 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         if (column[j] >= 0 && row[j] >= 0) freq[column[j]][row[j]]++;    // build frequency distribution
                     }
 
-                    for (i = 0; i < pixelHeight; i++) {
+                    for (int i = 0; i < pixelHeight; i++) {
                         frtot[i] = 0;
                     }
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         frtot[row[i]]++;        // total counts
                     }
 
                     int rowCount = 0;
-                    for (i = 0; i < pixelHeight; i++) {
+                    for (int i = 0; i < pixelHeight; i++) {
                         rowCount = rowCount + frtot[i];
                     }
 
                     UDA_LOG(UDA_LOG_DEBUG, "Row Totals: %d\n", rowCount);
-                    for (i = 0; i < pixelHeight; i++) {
+                    for (int i = 0; i < pixelHeight; i++) {
                         UDA_LOG(UDA_LOG_DEBUG, "[%d] %d\n", i, frtot[i]);
                     }
 
@@ -692,7 +669,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     pixelWidth2 = pixelWidth;
                     int* integral = (int*)malloc(pixelHeight * sizeof(int));
 
-                    for (i = 0; i < pixelWidth; i++) {
+                    for (int i = 0; i < pixelWidth; i++) {
 
                         // which value to return?
                         // mean, median or mode?
@@ -709,8 +686,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             if (i == 0) {
                                 UDA_LOG(UDA_LOG_DEBUG, "Mean returned\n");
                             }
-                            int j;
-                            for (j = 0; j < pixelHeight; j++) {
+                            for (int j = 0; j < pixelHeight; j++) {
                                 if (freq[i][j] > 0) {
                                     data[i] = data[i] + (float)freq[i][j] * verticalPixelValues[j];
                                     meanCount = meanCount + freq[i][j];
@@ -726,8 +702,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             UDA_LOG(UDA_LOG_DEBUG, "Mode returned\n");
                             int fmax = 0;
                             int fmaxID = -1;
-                            int j;
-                            for (j = 0; j < pixelHeight; j++) {
+                            for (int j = 0; j < pixelHeight; j++) {
                                 if (freq[i][j] > fmax) {        // First mode found if multi-modal
                                     fmaxID = j;
                                     fmax = freq[i][j];
@@ -743,16 +718,14 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 UDA_LOG(UDA_LOG_DEBUG, "Median returned\n");
                             }
                             integral[0] = freq[i][0];
-                            //printf("\n\n");
 
-                            int j;
-                            for (j = 1; j < pixelHeight; j++) {
+                            for (int j = 1; j < pixelHeight; j++) {
                                 integral[j] = integral[j - 1] + freq[i][j];
                             }
 
                             int target = integral[pixelHeight - 1] / 2;
 
-                            for (j = 0; j < pixelHeight; j++) {
+                            for (int j = 0; j < pixelHeight; j++) {
                                 if (integral[j] >= target) {
                                     if (1 && (j > 0 && integral[j - 1] > 0 && integral[j] != target)) {
                                         float dx = (float)(integral[j] - integral[j - 1]);
@@ -785,15 +758,14 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         errhi[i] = 0.0;
                         errlo[i] = 0.0;
 
-                        int j;
-                        for (j = 0; j < pixelHeight; j++) {
+                        for (int j = 0; j < pixelHeight; j++) {
                             if (freq[i][j] > 0) {
                                 errlo[i] = verticalPixelValues[j];    // lowest value
                                 break;
                             }
                         }
 
-                        for (j = pixelHeight - 1; j >= 0; j--) {
+                        for (int j = pixelHeight - 1; j >= 0; j--) {
                             if (freq[i][j] > 0) {
                                 errhi[i] = verticalPixelValues[j];    // highest value
                                 break;
@@ -821,7 +793,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     UDA_LOG(UDA_LOG_DEBUG, "goodCount  = %d\n", goodCount);
                     UDA_LOG(UDA_LOG_DEBUG, "pixelWidth = %d\n", pixelWidth);
                     UDA_LOG(UDA_LOG_DEBUG, "&data = %p\n", data);
-                    for (i = 0; i < pixelWidth2; i++) {
+                    for (int i = 0; i < pixelWidth2; i++) {
                         UDA_LOG(UDA_LOG_DEBUG, "[%d]   %f   %f   %f   %f\n", i, data[i], errlo[i], errhi[i],
                                 horizontalPixelValues[i]);
                     }
@@ -841,13 +813,12 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                     if (goodCount < pixelWidth) {
                         UDA_LOG(UDA_LOG_DEBUG, "Removing pixel columns without data [%d, %d]\n", goodCount, pixelWidth);
-                        float* newData = (float*)malloc(goodCount * sizeof(float));
-                        float* newErrhi = (float*)malloc(goodCount * sizeof(float));
-                        float* newErrlo = (float*)malloc(goodCount * sizeof(float));
-                        float* pixelValues = (float*)malloc(goodCount * sizeof(float));
+                        auto newData = (float*)malloc(goodCount * sizeof(float));
+                        auto newErrhi = (float*)malloc(goodCount * sizeof(float));
+                        auto newErrlo = (float*)malloc(goodCount * sizeof(float));
+                        auto pixelValues = (float*)malloc(goodCount * sizeof(float));
                         int ID = 0;
-                        int i;
-                        for (i = 0; i < pixelWidth; i++) {
+                        for (int i = 0; i < pixelWidth; i++) {
                             if (good[i]) {
                                 newData[ID] = data[i];
                                 newErrhi[ID] = errlo[i];
@@ -881,8 +852,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 data_block->rank = 1;
                 data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-                unsigned int i;
-                for (i = 0; i < data_block->rank; i++) {
+                for (unsigned int i = 0; i < data_block->rank; i++) {
                     initDimBlock(&data_block->dims[i]);
                 }
 
@@ -902,7 +872,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 data_block->data = (char*)data;
 
-                if (errhi != NULL && errlo != NULL) {
+                if (errhi != nullptr && errlo != nullptr) {
                     if (!isRange) {
                         data_block->errasymmetry = 1;
                         data_block->errlo = (char*)errlo;
@@ -942,7 +912,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 void getBins(float* coords, int count, int pixelWidth, float minValue, float maxValue, int** column,
              float** pixelValues)
 {
-    int i, j, start;
+    int start;
     int* bin = (int*)malloc(count * sizeof(int));
     float* pixValues = (float*)malloc((pixelWidth + 2) * sizeof(float));        // Include an extra point
 
@@ -953,14 +923,16 @@ void getBins(float* coords, int count, int pixelWidth, float minValue, float max
     // lower pixel boundary value (pixelWidth + 1 boundaries + extra point)
 
     pixValues[0] = minValue;
-    for (i = 1; i < pixelWidth + 2; i++) pixValues[i] = pixValues[i - 1] + delta;
+    for (int i = 1; i < pixelWidth + 2; i++) {
+        pixValues[i] = pixValues[i - 1] + delta;
+    }
 
     // Which pixel column bin do each data point fall into?
 
     start = 0;
-    for (j = 0; j < count; j++) {
+    for (int j = 0; j < count; j++) {
         bin[j] = -1;
-        for (i = start; i < pixelWidth + 1; i++) {        // Search within pixel boundaries
+        for (int i = start; i < pixelWidth + 1; i++) {        // Search within pixel boundaries
             if (coords[j] >= pixValues[i] && coords[j] < pixValues[i + 1]) {
                 bin[j] = i;
                 start = i;
@@ -973,7 +945,7 @@ void getBins(float* coords, int count, int pixelWidth, float minValue, float max
     // mid pixel value: the range of data is mapped to these pixels
 
     pixValues[0] = minValue + 0.5 * delta;
-    for (i = 1; i < pixelWidth; i++) pixValues[i] = pixValues[i - 1] + delta;
+    for (int i = 1; i < pixelWidth; i++) pixValues[i] = pixValues[i - 1] + delta;
 
     *column = bin;
     *pixelValues = pixValues;
@@ -984,25 +956,30 @@ void getBins(float* coords, int count, int pixelWidth, float minValue, float max
 void getVerticalPixelValues(float* values, int count, int pixelHeight, float* startValue, float* endValue,
                             float** verticalPixelValues, float* delta)
 {
-    int i;
-    float* v = (float*)malloc(pixelHeight * sizeof(float));
+    auto v = (float*)malloc(pixelHeight * sizeof(float));
     float maxValue = values[0], minValue = values[0];
 
-    if (startValue == NULL) {
-        for (i = 0; i < count; i++) if (values[i] < minValue) minValue = values[i];
+    if (startValue == nullptr) {
+        for (int i = 0; i < count; i++) {
+            if (values[i] < minValue) minValue = values[i];
+        }
     } else {
         minValue = *startValue;
     }
 
-    if (endValue == NULL) {
-        for (i = 0; i < count; i++) if (values[i] > maxValue) maxValue = values[i];
+    if (endValue == nullptr) {
+        for (int i = 0; i < count; i++) {
+            if (values[i] > maxValue) maxValue = values[i];
+        }
     } else {
         maxValue = *endValue;
     }
 
     *delta = (maxValue - minValue) / (float)pixelHeight;
     v[0] = minValue + 0.5 * (*delta);
-    for (i = 1; i < pixelHeight; i++) v[i] = v[i - 1] + *delta;
+    for (int i = 1; i < pixelHeight; i++) {
+        v[i] = v[i - 1] + *delta;
+    }
     *verticalPixelValues = v;
 }
 
@@ -1010,11 +987,12 @@ void getVerticalPixelValues(float* values, int count, int pixelHeight, float* st
 
 void getBinIds(float* values, int count, int pixelHeight, float* pixelValues, int** freq)
 {
-    int i, j;
-    int* f = (int*)malloc(pixelHeight * sizeof(int));
-    for (i = 0; i < pixelHeight; i++)f[i] = 0;
-    for (i = 0; i < count; i++) {
-        for (j = 0; j < pixelHeight; j++) {
+    auto f = (int*)malloc(pixelHeight * sizeof(int));
+    for (int i = 0; i < pixelHeight; i++) {
+        f[i] = 0;
+    }
+    for (int i = 0; i < count; i++) {
+        for (int j = 0; j < pixelHeight; j++) {
             if (values[i] >= pixelValues[j] && values[i] <= pixelValues[j]) f[j]++;
         }
     }
@@ -1025,8 +1003,6 @@ void reduceOrderedData(float* values, int* count, float* startValue, float* endV
                        float* max)
 {
     // if the data are ordered, use this knowledge to simplify the search
-
-    int j;
     float maxValue = values[0], minValue = values[0];
     int startID = 0, endID = (*count) - 1;
     int oldCount = *count;
@@ -1036,8 +1012,8 @@ void reduceOrderedData(float* values, int* count, float* startValue, float* endV
     startID = 0;
     minValue = values[startID];
 
-    if (startValue != NULL) {
-        for (j = 1; j < oldCount; j++) {
+    if (startValue != nullptr) {
+        for (int j = 1; j < oldCount; j++) {
             if (values[j] > *startValue) {
                 minValue = values[j - 1];
                 startID = j - 1;
@@ -1049,10 +1025,10 @@ void reduceOrderedData(float* values, int* count, float* startValue, float* endV
     endID = oldCount - 1;
     maxValue = values[endID];
 
-    if (endValue != NULL) {
+    if (endValue != nullptr) {
         endID = 0;
         maxValue = values[endID];
-        for (j = 0; j < oldCount; j++) {
+        for (int j = 0; j < oldCount; j++) {
             if (values[j] > *endValue) {
                 maxValue = values[j - 1];
                 endID = j - 1;
@@ -1066,7 +1042,7 @@ void reduceOrderedData(float* values, int* count, float* startValue, float* endV
     if (startID > 0 || endID < oldCount - 1) {
         *count = endID - startID + 1;
         if (startID > 0) {
-            for (j = 0; j < *count; j++) {
+            for (int j = 0; j < *count; j++) {
                 coords[j] = coords[startID + j];
                 values[j] = values[startID + j];
             }

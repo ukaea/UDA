@@ -15,7 +15,6 @@ add_subdirectory( cache )
 add_subdirectory( logging )
 add_subdirectory( authentication )
 add_subdirectory( structures )
-#add_subdirectory( config )
 add_subdirectory( clientserver )
 add_subdirectory( client )
 

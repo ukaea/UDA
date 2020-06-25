@@ -6,8 +6,6 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/stringUtils.h>
 #include <client/udaGetAPI.h>
-#include <clientserver/udaTypes.h>
-#include <clientserver/errorLog.h>
 #include <logging/logging.h>
 #include <plugins/udaPlugin.h>
 #include <client/udaClient.h>
@@ -284,7 +282,7 @@ Notes: there are three pathways depending on the request pattern
     } else if (request_block->path[0] == '\0' && request_block->server[0] == '\0') {
         pathway = 3;
     } else if (request_block->server[0] != '\0') {
-        // Source URL may be an Null string
+        // Source URL may be an nullptr string
         pathway = 4;
     } else {
         UDA_LOG(UDA_LOG_ERROR, "Execution pathway not recognised: Unable to execute the request!\n");
@@ -353,20 +351,20 @@ Notes: there are three pathways depending on the request pattern
         sprintf(source, "%s::%d", data_source->device_name, data_source->exp_number);
 
         if (data_source->server[0] != '\0') {
-            char* p = NULL, * s = NULL;
-            if ((s = strstr(data_source->server, "SSL://")) != NULL) {
-                if ((p = strstr(s + 6, ":")) == NULL) {
+            char* p = nullptr, * s = nullptr;
+            if ((s = strstr(data_source->server, "SSL://")) != nullptr) {
+                if ((p = strstr(s + 6, ":")) == nullptr) {
                     // look for a port number in the server name
                     p = strstr(s + 6, " ");
                 }
             } else {
-                if ((p = strstr(data_source->server, ":")) == NULL) {
+                if ((p = strstr(data_source->server, ":")) == nullptr) {
                     // look for a port number in the server name
                     p = strstr(data_source->server, " ");
                 }
             }
 
-            if (p != NULL) {
+            if (p != nullptr) {
                 p[0] = '\0';
                 if (strcasecmp(oldServerHost, data_source->server) != 0) {
                     strcpy(oldServerHost, data_source->server);
@@ -408,10 +406,10 @@ Notes: there are three pathways depending on the request pattern
         // Device redirect or server protocol
 
         strcpy(request_block->server, request_block->path);        // Extract the Server Name and Port
-        char* p = NULL, * s = NULL;
+        char* p = nullptr, * s = nullptr;
 
-        if ((s = strstr(data_source->server, "SSL://")) != NULL) {
-            if ((p = strchr(s + 6, '/')) != NULL) {
+        if ((s = strstr(data_source->server, "SSL://")) != nullptr) {
+            if ((p = strchr(s + 6, '/')) != nullptr) {
                 // Isolate the Server from the source server:port/source
                 p[0] = '\0';                            // Break the String (work)
                 strcpy(source, p + 1);                // Extract the Source URL Argument
@@ -420,7 +418,7 @@ Notes: there are three pathways depending on the request pattern
                             "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
             }
         } else {
-            if ((p = strchr(request_block->server, '/')) != NULL) {
+            if ((p = strchr(request_block->server, '/')) != nullptr) {
                 // Isolate the Server from the source server:port/source
                 p[0] = '\0';                            // Break the String (work)
                 strcpy(source, p + 1);                // Extract the Source URL Argument
@@ -430,19 +428,19 @@ Notes: there are three pathways depending on the request pattern
             }
         }
 
-        if ((s = strstr(request_block->server, "SSL://")) != NULL) {
-            if ((p = strstr(s + 6, ":")) == NULL) {
+        if ((s = strstr(request_block->server, "SSL://")) != nullptr) {
+            if ((p = strstr(s + 6, ":")) == nullptr) {
                 // look for a port number in the server name skipping SSL:// prefix
                 p = strstr(s + 6, " ");
             }
         } else {
-            if ((p = strstr(request_block->server, ":")) == NULL) {
+            if ((p = strstr(request_block->server, ":")) == nullptr) {
                 // look for a port number in the server name skipping SSL:// prefix
                 p = strstr(request_block->server, " ");
             }
         }
 
-        if (p != NULL) {
+        if (p != nullptr) {
             p[0] = '\0';
             if (strcasecmp(oldServerHost, request_block->server) != 0) {
                 strcpy(oldServerHost, request_block->server);
@@ -478,13 +476,13 @@ Notes: there are three pathways depending on the request pattern
         //----------------------------------------------------------------------
         // Function library
 
-        const char* host = NULL;
+        const char* host = nullptr;
         bool isHost = findStringValue(&request_block->nameValueList, &host, "host");
 
-        const char* signal = NULL;
+        const char* signal = nullptr;
         bool isSignal = findStringValue(&request_block->nameValueList, &signal, "signal");
 
-        const char* source = NULL;
+        const char* source = nullptr;
         bool isSource = findStringValue(&request_block->nameValueList, &source, "source");
 
         bool isPort = findIntValue(&request_block->nameValueList, &newPort, "port");
@@ -524,22 +522,22 @@ Notes: there are three pathways depending on the request pattern
 
         strcpy(source, request_block->file);                // The Source URL Argument
 
-        char* p = NULL;
-        char* s = NULL;
+        char* p = nullptr;
+        char* s = nullptr;
 
-        if ((s = strstr(request_block->server, "SSL://")) != NULL) {
-            if ((p = strstr(s + 6, ":")) == NULL) {
+        if ((s = strstr(request_block->server, "SSL://")) != nullptr) {
+            if ((p = strstr(s + 6, ":")) == nullptr) {
                 // look for a port number in the server name
                 p = strstr(s + 6, " ");
             }
         } else {
-            if ((p = strstr(request_block->server, ":")) == NULL) {
+            if ((p = strstr(request_block->server, ":")) == nullptr) {
                 // look for a port number in the server name
                 p = strstr(request_block->server, " ");
             }
         }
 
-        if (p != NULL) {                            // look for a port number in the server name
+        if (p != nullptr) {                            // look for a port number in the server name
             p[0] = '\0';                        // Split
             if (strcasecmp(oldServerHost, request_block->server) != 0) {    // Different Hosts?
                 strcpy(oldServerHost, request_block->server);        // Preserve
@@ -615,7 +613,7 @@ Notes: there are three pathways depending on the request pattern
         DATA_BLOCK db;
         initDataBlock(&db);
 
-        OLD_DATA_BLOCK* odb = (OLD_DATA_BLOCK*)getIdamDataBlock(handle);
+        auto odb = (OLD_DATA_BLOCK*)getIdamDataBlock(handle);
 
         db.handle = odb->handle;
         db.errcode = odb->errcode;

@@ -21,7 +21,7 @@ uda_plugin(
   DESCRIPTION "Reduce data to viewport pixel size"
   EXAMPLE "viewport::get()"
   LIBNAME viewport_plugin
-  SOURCES viewport.c
+  SOURCES viewport.cpp
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/client

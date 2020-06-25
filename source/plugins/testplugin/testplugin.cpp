@@ -19,11 +19,11 @@
 
 #include "testplugin.h"
 
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstddef>
 #ifdef __GNUC__
 #  include <strings.h>
 #endif
-#include <stddef.h>
 
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>
@@ -156,7 +156,7 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     }
     
     if(!STR_IEQUALS(request_block->function, "test50") &&
-       idam_plugin_interface->userdefinedtypelist == NULL) RAISE_PLUGIN_ERROR("Unable to define Data Structures - NULL list!");
+       idam_plugin_interface->userdefinedtypelist == nullptr) RAISE_PLUGIN_ERROR("Unable to define Data Structures - nullptr list!");
     
     UDA_LOG(UDA_LOG_DEBUG, "entering init_structure_definitions\n");
 
@@ -311,7 +311,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     UDA_LOG(UDA_LOG_DEBUG, "help function called\n");
-//fflush(NULL);    
+//fflush(nullptr);    
 //return 0;
     const char* help = "\nTestplugin: Functions Names and Test Descriptions/n/n"
             "test0-test9: String passing tests\n"
@@ -409,7 +409,7 @@ static void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
     strcpy(usertype.source, "Test #9");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST9);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -459,7 +459,7 @@ static void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
     field.size = field.count * sizeof(char*);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
@@ -492,7 +492,7 @@ static void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
     field.size = field.count * sizeof(char**);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
@@ -523,7 +523,7 @@ static void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interf
     field.pointer = 0;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
     field.size = field.count * sizeof(TEST9);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
@@ -622,7 +622,7 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-// Create a block of contigous memory and assign all bytes to NULL character
+// Create a block of contigous memory and assign all bytes to nullptr character
 
     char* p = (char*)malloc(sMax * sCount * sizeof(char));
     memset(p, '\0', sMax * sCount);
@@ -704,7 +704,7 @@ static int do_test4(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #4");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST4);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -775,7 +775,7 @@ static int do_test5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #5");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST5);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -849,7 +849,7 @@ static int do_test6(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #6");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST6);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -867,7 +867,7 @@ static int do_test6(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 1;
     field.rank = 0;
 
-    field.shape = NULL;
+    field.shape = nullptr;
 
     field.size = field.count * sizeof(char*);
     field.offset = newoffset(offset, field.type);
@@ -921,7 +921,7 @@ static int do_test7(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #7");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST7);                          // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -1004,7 +1004,7 @@ static int do_test8(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #8");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                            // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST8);                      // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -1022,7 +1022,7 @@ static int do_test8(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 1;
     field.rank = 0;
 
-    field.shape = NULL;
+    field.shape = nullptr;
 
     field.size = field.count * sizeof(char**);
     field.offset = newoffset(offset, field.type);
@@ -1299,7 +1299,7 @@ static int do_test11(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #11");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST11);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -1317,7 +1317,7 @@ static int do_test11(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 1;
     field.rank = 0;
 
-    field.shape = NULL;            // Needed when rank >= 1
+    field.shape = nullptr;            // Needed when rank >= 1
 
     field.size = field.count * sizeof(int);
     field.offset = newoffset(offset, field.type);
@@ -1369,7 +1369,7 @@ static int do_test12(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #12");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST12);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -1441,7 +1441,7 @@ static int do_test13(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #13");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST13);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -1517,7 +1517,7 @@ static int do_test14(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #14");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST14);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -1535,7 +1535,7 @@ static int do_test14(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 1;
     field.rank = 0;
 
-    field.shape = NULL;            // Needed when rank >= 1
+    field.shape = nullptr;            // Needed when rank >= 1
 
     field.size = field.count * sizeof(int *);
     field.offset = newoffset(offset, field.type);
@@ -1591,7 +1591,7 @@ static int do_test15(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #15");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST15);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -1608,7 +1608,7 @@ static int do_test15(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
 
     field.size = field.count * sizeof(int *);
     field.offset = newoffset(offset, field.type);
@@ -1667,7 +1667,7 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #16");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST16);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -1684,7 +1684,7 @@ static int do_test16(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
 
     field.size = field.count * sizeof(int *);
     field.offset = newoffset(offset, field.type);
@@ -1750,7 +1750,7 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #18");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST18);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -1768,7 +1768,7 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 1;
     field.rank = 0;
 
-    field.shape = NULL;            // Needed when rank >= 1
+    field.shape = nullptr;            // Needed when rank >= 1
 
     field.size = field.count * sizeof(int);
     field.offset = newoffset(offset, field.type);
@@ -1837,7 +1837,7 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #19");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                        // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST19A);                                // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -1855,7 +1855,7 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 1;
     field.rank = 0;
 
-    field.shape = NULL;                                             // Needed when rank >= 1
+    field.shape = nullptr;                                             // Needed when rank >= 1
 
     field.size = field.count * sizeof(int);
     field.offset = newoffset(offset, field.type);
@@ -1879,7 +1879,7 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #19");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                        // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST19);                                 // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -1896,7 +1896,7 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 1;
     field.rank = 0;
 
-    field.shape = NULL;                                             // Needed when rank >= 1
+    field.shape = nullptr;                                             // Needed when rank >= 1
 
     field.size = field.count * sizeof(int);
     field.offset = newoffset(offset, field.type);
@@ -2013,7 +2013,7 @@ static int do_test21(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #21");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST21);                         // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2031,7 +2031,7 @@ static int do_test21(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 1;
     field.rank = 0;
 
-    field.shape = NULL;                                     // Needed when rank >= 1
+    field.shape = nullptr;                                     // Needed when rank >= 1
 
     field.size = field.count * sizeof(short);
     field.offset = newoffset(offset, field.type);
@@ -2083,7 +2083,7 @@ static int do_test22(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #22");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST22);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2155,7 +2155,7 @@ static int do_test23(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #23");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                    // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST23);                             // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2231,7 +2231,7 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #24");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                    // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST24);                             // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2249,7 +2249,7 @@ static int do_test24(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.count = 1;
     field.rank = 0;
 
-    field.shape = NULL;                                         // Needed when rank >= 1
+    field.shape = nullptr;                                         // Needed when rank >= 1
 
     field.size = field.count * sizeof(short *);
     field.offset = newoffset(offset, field.type);
@@ -2305,7 +2305,7 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #25");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                    // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST25);                             // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2322,7 +2322,7 @@ static int do_test25(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
 
     field.size = field.count * sizeof(short *);
     field.offset = newoffset(offset, field.type);
@@ -2381,7 +2381,7 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #26");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                        // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST26);                                 // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2398,7 +2398,7 @@ static int do_test26(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
 
     field.size = field.count * sizeof(short *);
     field.offset = newoffset(offset, field.type);
@@ -2465,7 +2465,7 @@ static int do_test27(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #27");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                    // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST27);                             // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2563,7 +2563,7 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #28");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST28);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2580,7 +2580,7 @@ static int do_test28(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
 
     field.size = field.count * sizeof(short *);
     field.offset = newoffset(offset, field.type);
@@ -2667,7 +2667,7 @@ static int do_test30(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #30");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST30);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2731,7 +2731,7 @@ static int do_test31(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #31");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST30);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2809,7 +2809,7 @@ static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #32");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                        // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST32A);                                // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2843,7 +2843,7 @@ static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #32");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                        // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST32);                                 // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2925,7 +2925,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #33");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                        // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST33A);                                // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2959,7 +2959,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #33");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                        // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST33);                                 // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -2980,7 +2980,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
 
     field.size = field.count * sizeof(TEST33A *);
     field.offset = offsetof(TEST33, coords);
@@ -3047,7 +3047,7 @@ static int do_test34(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #33");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                        // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST33A);                                // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -3058,7 +3058,7 @@ static int do_test34(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
     defineField(&field, "R", "unsigned char structure element", &offset, ARRAYUCHAR);
 
     addCompoundField(&usertype, field);                             // Single Structure element
@@ -3066,7 +3066,7 @@ static int do_test34(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     initCompoundField(&field);
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
     defineField(&field, "Z", "unsigned char structure element", &offset, ARRAYUCHAR);
 
     addCompoundField(&usertype, field);                             // Single Structure element
@@ -3087,7 +3087,7 @@ static int do_test34(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #33");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                                        // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST33);                                 // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -3108,7 +3108,7 @@ static int do_test34(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
 
     field.size = field.count * sizeof(TEST33A *);
     field.offset = (int)offsetof(TEST33, coords);
@@ -3201,7 +3201,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #40");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST40);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -3244,7 +3244,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #41");
     usertype.ref_id = 0;
     usertype.imagecount = 0;                // No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(TEST41);            // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -3261,7 +3261,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 0;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;            // Needed when rank >= 1
+    field.shape = nullptr;            // Needed when rank >= 1
 
     field.size = field.count * sizeof(TEST40);
     field.offset = newoffset(offset, field.type);
@@ -3447,7 +3447,7 @@ static int do_test60(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #60 ENUMMEMBER structure");
     usertype.ref_id = 0;
     usertype.imagecount = 0;			// No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(ENUMMEMBER60);	// Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -3482,7 +3482,7 @@ static int do_test60(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #60 ENUMLIST structure");
     usertype.ref_id = 0;
     usertype.imagecount = 0;			// No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(ENUMLIST60);		// Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -3522,7 +3522,7 @@ static int do_test60(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
     field.size = sizeof(ENUMMEMBER60 *);
     field.offset = offsetof(ENUMLIST60, enummember);		// Different to newoffset
     offset = field.offset + field.size;
@@ -3647,7 +3647,7 @@ static int do_test61(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #61 ENUMMEMBER structure");
     usertype.ref_id = 0;
     usertype.imagecount = 0;			// No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(ENUMMEMBER60);	// Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -3682,7 +3682,7 @@ static int do_test61(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     strcpy(usertype.source, "Test #61 ENUMLIST structure");
     usertype.ref_id = 0;
     usertype.imagecount = 0;			// No Structure Image data
-    usertype.image = NULL;
+    usertype.image = nullptr;
     usertype.size = sizeof(ENUMLIST60);		// Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
@@ -3721,7 +3721,7 @@ static int do_test61(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.pointer = 1;
     field.count = 1;
     field.rank = 0;
-    field.shape = NULL;
+    field.shape = nullptr;
     field.size = sizeof(ENUMMEMBER60 *);
     field.offset = offsetof(ENUMLIST60, enummember);		// Different to newoffset
     offset = field.offset + field.size;
@@ -3779,7 +3779,7 @@ static int do_test62(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     addMalloc(idam_plugin_interface->logmalloclist, (void *) enumlist->enummember, enumlist->count, sizeof(ENUMMEMBER), "ENUMMEMBER");
  
     int count = 10;
-    unsigned long long *data = (unsigned long long *)malloc(count*sizeof(unsigned long long));
+    auto data = (unsigned long long *)malloc(count*sizeof(unsigned long long));
     data[0] = 3;
     data[1] = 2;
     data[2] = 1;
@@ -3790,7 +3790,7 @@ static int do_test62(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data[7] = 2;
     data[8] = 3;
     data[9] = 2;
-    enumlist->enumarray = (void *)data;
+    enumlist->enumarray = data;
     enumlist->enumarray_rank = 1;
     enumlist->enumarray_count = count;
     enumlist->enumarray_shape = (int *)malloc(sizeof(int));
@@ -3847,19 +3847,19 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     const PLUGINLIST* pluginList = idam_plugin_interface->pluginList;
 
-    if (pluginList == NULL) {
+    if (pluginList == nullptr) {
         RAISE_PLUGIN_ERROR("No plugins available for this data request");
     }
 
 // Test specifics
 
-    const char* signal = NULL;
-    const char* source = NULL;
+    const char* signal = nullptr;
+    const char* source = nullptr;
 
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, source);
 
-    if (signal != NULL || source != NULL) {            // Identify the plugin to test
+    if (signal != nullptr || source != nullptr) {            // Identify the plugin to test
 
         next_plugin_interface = *idam_plugin_interface;    // New plugin interface
 
@@ -3874,7 +3874,7 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         int i;
         for (i = 0; i < pluginList->count; i++) {
             if (next_request_block.request == pluginList->plugin[i].request) {
-                if (pluginList->plugin[i].idamPlugin != NULL) {
+                if (pluginList->plugin[i].idamPlugin != nullptr) {
                     err = pluginList->plugin[i].idamPlugin(&next_plugin_interface); // Call the data reader
                 } else {
                     err = 999;
@@ -3918,13 +3918,13 @@ static int do_errortest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             testError2();
             return err;
         case 3: {
-            char* p = "crash!";        // force a server crash! (write to read-only memory)
-            *p = '*';
+            const char* p = "crash!";        // force a server crash! (write to read-only memory)
+            *(char*)p = '*';
 
-            p = NULL;
-            free(p);
+            p = nullptr;
+            free((void*)p);
 
-            int* p2 = NULL;
+            int* p2 = nullptr;
             *p2 = 1;
         }
     }
@@ -3938,7 +3938,7 @@ static int do_scalartest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     initDataBlock(data_block);
 
-    int* p = malloc(sizeof(int));
+    auto p = (int*)malloc(sizeof(int));
     *p = 10;
     data_block->data = (char*)p;
     data_block->data_n = 1;
@@ -3970,7 +3970,7 @@ int createUDTSocket(int* usock, int port, int rendezvous)
     char service[16];
     sprintf(service, "%d", port);
 
-    if (0 != getaddrinfo(NULL, service, &hints, &res)) {
+    if (0 != getaddrinfo(nullptr, service, &hints, &res)) {
         int err = 9991;
         addIdamError(CODEERRORTYPE, "testplugin:createUDTSocket", err,
                      "Illegal port number or port is busy");
@@ -4035,7 +4035,7 @@ int createTCPSocket(SYSSOCKET* ssock, int port, bool rendezvous)
     char service[16];
     sprintf(service, "%d", port);
 
-    if (0 != getaddrinfo(NULL, service, &hints, &res)) {
+    if (0 != getaddrinfo(nullptr, service, &hints, &res)) {
         int err = 999;
         addIdamError(CODEERRORTYPE, "testplugin:createTCPSocket", err,
                      "Illegal port number or port is busy");
@@ -4149,9 +4149,9 @@ static int do_testudt(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Send the data (*** NOT Architecture independent ***)
 
     struct timeval tm1, tm2;
-    gettimeofday(&tm1, NULL);
+    gettimeofday(&tm1, nullptr);
 
-    time_t ticks = time(NULL);
+    time_t ticks = time(nullptr);
     char sendBuff[1025];
     snprintf(sendBuff, sizeof(sendBuff), "%.24s", ctime(&ticks));
     int tosend = strlen(sendBuff) + 1;
@@ -4169,7 +4169,7 @@ static int do_testudt(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         tosend -= sent;
     }
 
-    gettimeofday(&tm2, NULL);
+    gettimeofday(&tm2, nullptr);
     int dsecs = (int) (tm2.tv_sec - tm1.tv_sec);
     int dmics = (int) (tm2.tv_usec - tm1.tv_usec);
 
@@ -4178,7 +4178,7 @@ static int do_testudt(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     tosend = 2 * sizeof(int32_t);
     sent = udt_send(client, (char*) buffer, tosend, 0);
 
-    ticks = time(NULL);
+    ticks = time(nullptr);
     snprintf(sendBuff, sizeof(sendBuff), "%.24s", ctime(&ticks));
     tosend = (int) strlen(sendBuff) + 1;
     sent = udt_send(client, sendBuff, tosend, 0);

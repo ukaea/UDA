@@ -21,8 +21,8 @@
 *-----------------------------------------------------------------------------*/
 #include "readBytesNonOptimally.h"
 
-#include <errno.h>
-#include <stdlib.h>
+#include <cerrno>
+#include <cstdlib>
 
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
@@ -31,18 +31,6 @@
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/initStructs.h>
-#include <server/getServerEnvironment.h>
-
-#ifdef NOBINARYPLUGIN
-
-int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK *data_block, const ENVIRONMENT* environment)
-{
-    int err = 999;
-    addIdamError(CODEERRORTYPE, "readBytes", err, "PLUGIN NOT ENABLED");
-    return err;
-}
-
-#else
 
 int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block, const ENVIRONMENT* environment)
 {
@@ -91,13 +79,13 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data
 
     int serrno = errno;
 
-    if (fh == NULL || ferror(fh) || serrno != 0) {
+    if (fh == nullptr || ferror(fh) || serrno != 0) {
         err = BYTEFILEOPENERROR;
         if (serrno != 0) {
             addIdamError(SYSTEMERRORTYPE, "readBytes", serrno, "");
         }
         addIdamError(CODEERRORTYPE, "readBytes", err, "Unable to Open the File for Read Access");
-        if (fh != NULL) {
+        if (fh != nullptr) {
             fclose(fh);
         }
         return err;
@@ -115,9 +103,9 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data
         int bufsize = 100 * 1024;
         data_block->data_n = bufsize;    // 1 less than no. bytes read: Last Byte is an EOF
 
-        char* bp = NULL;
+        char* bp = nullptr;
         while (!feof(fh)) {
-            if ((bp = (char*)realloc(bp, (size_t)data_block->data_n)) == NULL) {
+            if ((bp = (char*)realloc(bp, (size_t)data_block->data_n)) == nullptr) {
                 err = BYTEFILEHEAPERROR;
                 addIdamError(CODEERRORTYPE, "readBytes", err, "Unable to Allocate Heap Memory for the File");
                 break;
@@ -153,7 +141,7 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data
         // Fetch Dimensional Data
 
         data_block->rank = 1;
-        data_block->dims = malloc(sizeof(DIMS));
+        data_block->dims = (DIMS*)malloc(sizeof(DIMS));
         initDimBlock(data_block->dims);
 
         data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
@@ -179,5 +167,3 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data
 
     return err;
 }
-
-#endif
