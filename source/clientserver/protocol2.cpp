@@ -562,8 +562,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
 
             UDA_LOG(UDA_LOG_DEBUG, "receive: putDataBlockList Count: %d\n", blockCount);
 
-            unsigned int i;
-            for (i = 0; i < blockCount; i++) {
+            for (unsigned int i = 0; i < blockCount; i++) {
                 // Fetch multiple put blocks
 
                 PUTDATA_BLOCK putData;
@@ -635,8 +634,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                 break;
             }
 
-            unsigned int i;
-            for (i = 0; i < putDataBlockList->blockCount; i++) {        // Send multiple put blocks
+            for (unsigned int i = 0; i < putDataBlockList->blockCount; i++) {        // Send multiple put blocks
 
                 if (!xdr_putdata_block1(xdrs, &(putDataBlockList->putDataBlock[i]))) {
                     err = PROTOCOL_ERROR_61;
@@ -739,8 +737,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
 
             if (data_block->rank > 0) {    // Check if there are Dimensional Data to Receive
 
-                unsigned int i;
-                for (i = 0; i < data_block->rank; i++) {
+                for (unsigned int i = 0; i < data_block->rank; i++) {
                     initDimBlock(&data_block->dims[i]);
                 }
 
@@ -750,7 +747,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                 }
 
                 if (protocolVersion < 3) {
-                    for (i = 0; i < data_block->rank; i++) {
+                    for (unsigned int i = 0; i < data_block->rank; i++) {
                         DIMS* dim = &data_block->dims[i];
                         if (protocolVersionTypeTest(protocolVersion, dim->data_type) ||
                             protocolVersionTypeTest(protocolVersion, dim->error_type)) {
@@ -770,7 +767,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                     break;
                 }
 
-                for (i = 0; i < data_block->rank; i++) {            // Expand Compressed Regular Vector
+                for (unsigned int i = 0; i < data_block->rank; i++) {            // Expand Compressed Regular Vector
                     err = uncompressDim(&(data_block->dims[i]));    // Allocate Heap as required
                     err = 0; // Need to Test for Error Condition!
                 }
@@ -837,9 +834,8 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
 
                 // Check client/server understands new data types
 
-                unsigned int i;
                 if (protocolVersion < 3) {
-                    for (i = 0; i < data_block->rank; i++) {
+                    for (unsigned int i = 0; i < data_block->rank; i++) {
                         DIMS* dim = &data_block->dims[i];
                         if (protocolVersionTypeTest(protocolVersion, dim->data_type) ||
                             protocolVersionTypeTest(protocolVersion, dim->error_type)) {
@@ -852,7 +848,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                     }
                 }
 
-                for (i = 0; i < data_block->rank; i++) {
+                for (unsigned int i = 0; i < data_block->rank; i++) {
                     compressDim(&(data_block->dims[i]));        // Minimise Data Transfer if Regular
                 }
 

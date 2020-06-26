@@ -27,7 +27,6 @@ void freeDataBlock(DATA_BLOCK* data_block)
 
     void* cptr;
     DIMS* ddims;
-    unsigned int i;
     unsigned int rank;
 
     UDA_LOG(UDA_LOG_DEBUG, "Enter\n");
@@ -107,7 +106,7 @@ void freeDataBlock(DATA_BLOCK* data_block)
         UDA_LOG(UDA_LOG_DEBUG, "Dim Structure Location %p \n", ddims);
 
         if (ddims != nullptr) {
-            for (i = 0; i < rank; i++) {
+            for (unsigned int i = 0; i < rank; i++) {
 
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension[%d] \n", i);
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension Data \n");

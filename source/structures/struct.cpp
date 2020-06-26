@@ -192,7 +192,7 @@ void addImage(char** image, int* imagecount, const char* line)
 void expandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEMENTNAME], int* defvalues, int defCount, char* expand)
 {
     // Insert values with #define names
-    int j, len, lstr;
+    int len, lstr;
     char work[STRING_LENGTH];
     char* p1, * p2, * p3;
 
@@ -216,7 +216,7 @@ void expandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEMENTNAME], int* 
                     expand[len] = '\0';
                     len = (int)strlen(expand);
                 } else {
-                    for (j = 0; j < defCount; j++) {
+                    for (int j = 0; j < defCount; j++) {
                         if (!strcmp((char*)defnames[j], work)) {
                             sprintf(work, " = %d]", defvalues[j]);   // Array size
                             strncat(expand, &p1[1], p2 - &p1[1]);
@@ -1097,15 +1097,13 @@ void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew) {
 
         usertypeNew.compoundfield = (COMPOUNDFIELD*)malloc(usertypeOld.fieldcount * sizeof(COMPOUNDFIELD));
 
-        int j;
-        for (j=0; j<usertypeOld.fieldcount; j++) {
+        for (int j = 0; j < usertypeOld.fieldcount; j++) {
             initCompoundField(&usertypeNew.compoundfield[j]);
             usertypeNew.compoundfield[j] = usertypeOld.compoundfield[j];
             if (usertypeOld.compoundfield[j].rank > 0) {
                 usertypeNew.compoundfield[j].shape = (int*)malloc(usertypeOld.compoundfield[j].rank * sizeof(int));
 
-                int k;
-                for (k=0; k<usertypeOld.compoundfield[j].rank; k++) {
+                for (int k = 0; k < usertypeOld.compoundfield[j].rank; k++) {
                     usertypeNew.compoundfield[j].shape[k] = usertypeOld.compoundfield[j].shape[k];
                 }
             }
@@ -3542,7 +3540,7 @@ printNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmalloclist, USER
 {
     NTREE* node;
     USERDEFINEDTYPE* userdefinedtype;
-    int namecount, count, j;
+    int namecount, count;
     const char* type;
     const char* lastname;
     if (ntree == nullptr) ntree = fullNTree;
@@ -3572,7 +3570,7 @@ printNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmalloclist, USER
             return;
         }
         if ((userdefinedtype = findUserDefinedType(userdefinedtypelist, type, 0)) != nullptr) {
-            int k, firstpass = 1, offset, namecount2;
+            int firstpass = 1, offset, namecount2;
             char** namelist2;
             NTREE temp;
             initNTree(&temp);
@@ -3583,7 +3581,7 @@ printNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmalloclist, USER
             char* pp = nullptr;
             namecount = userdefinedtype->fieldcount;    // Count of sub-structure elements
             UDA_LOG(UDA_LOG_DEBUG, "Data Count %d   Type %s\n", namecount, type);
-            for (j = 0; j < count; j++) {
+            for (int j = 0; j < count; j++) {
                 str = (void*)&p[j * userdefinedtype->size];
                 pp = (char*)str;
                 for (int i = 0; i < namecount; i++) {
@@ -3619,7 +3617,7 @@ printNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmalloclist, USER
                         namelist2 = getNodeStructureComponentNames(&temp);  // List of structure element names
                         UDA_LOG(UDA_LOG_DEBUG, "Data Count %d   Type %s\n", namecount2, type);
 
-                        for (k = 0; k < namecount2; k++) {
+                        for (int k = 0; k < namecount2; k++) {
                             printNodeStructureComponentData(&temp, logmalloclist, userdefinedtypelist, namelist2[k]);
                         }
                     }
@@ -3638,7 +3636,7 @@ printNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmalloclist, USER
 */
 void printNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
-    int count, acount, scount, j, k, kstart = 1;
+    int count, acount, scount, kstart = 1;
     char** anamelist, ** snamelist;
     NTREE* node, * node2;
     void* data;
@@ -3653,7 +3651,7 @@ void printNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
     node = ntree; // Start at the base node: all other structure array elements are sibling nodes
 
-    for (j = 0; j < count; j++) {
+    for (int j = 0; j < count; j++) {
 
         UDA_LOG(UDA_LOG_DEBUG, "%s contents:\n", ntree->userdefinedtype->name);
 
@@ -3665,7 +3663,7 @@ void printNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
         if (j > 0) {
             node = nullptr;
-            for (k = kstart; k < ntree->parent->branches; k++) {
+            for (int k = kstart; k < ntree->parent->branches; k++) {
                 if (!strcmp(ntree->parent->children[k]->name, ntree->name) &&
                     (ntree->parent->children[k]->data == data)) {
                     node = ntree->parent->children[k];
@@ -3901,7 +3899,7 @@ int getNTreeStructureCount(NTREE* ntree)
 */
 char** getNTreeStructureNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
-    int j, count = 1, childcount;
+    int count = 1, childcount;
     char** names, ** childnames;
     void* old;
 
@@ -3918,7 +3916,7 @@ char** getNTreeStructureNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
             names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
             changeMalloc(logmalloclist, old, (void*)names, (count + childcount), sizeof(char*), "char *");
             childnames = getNTreeStructureNames(logmalloclist, ntree->children[i]);
-            for (j = 0; j < childcount; j++) {
+            for (int j = 0; j < childcount; j++) {
                 names[count + j] = childnames[j];
             }
             count = count + childcount;
@@ -3934,7 +3932,7 @@ char** getNTreeStructureNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 */
 char** getNTreeStructureTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
-    int j, count = 1, childcount;
+    int count = 1, childcount;
     char** names, ** childnames;
     void* old;
 
@@ -3951,7 +3949,7 @@ char** getNTreeStructureTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
             names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
             changeMalloc(logmalloclist, old, (void*)names, (count + childcount), sizeof(char*), "char *");
             childnames = getNTreeStructureTypes(logmalloclist, ntree->children[i]);
-            for (j = 0; j < childcount; j++) {
+            for (int j = 0; j < childcount; j++) {
                 names[count + j] = childnames[j];
             }
             count = count + childcount;
@@ -4013,7 +4011,7 @@ int getNTreeStructureComponentCount(NTREE* ntree)
 */
 char** getNTreeStructureComponentNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
-    int j, count, childcount;
+    int count, childcount;
     char** names, ** childnames;
     void* old;
 
@@ -4031,7 +4029,7 @@ char** getNTreeStructureComponentNames(LOGMALLOCLIST* logmalloclist, NTREE* ntre
             names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
             changeMalloc(logmalloclist, old, (void*)names, (count + childcount), sizeof(char*), "char *");
             childnames = getNTreeStructureComponentNames(logmalloclist, ntree->children[i]);
-            for (j = 0; j < childcount; j++) names[count + j] = childnames[j];
+            for (int j = 0; j < childcount; j++) names[count + j] = childnames[j];
             count = count + childcount;
         }
     }
@@ -4045,7 +4043,7 @@ char** getNTreeStructureComponentNames(LOGMALLOCLIST* logmalloclist, NTREE* ntre
 */
 char** getNTreeStructureComponentTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
-    int j, count, childcount;
+    int count, childcount;
     char** names, ** childnames;
     void* old;
 
@@ -4062,7 +4060,7 @@ char** getNTreeStructureComponentTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntre
             names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
             changeMalloc(logmalloclist, old, (void*)names, (count + childcount), sizeof(char*), "char *");
             childnames = getNTreeStructureComponentTypes(logmalloclist, ntree->children[i]);
-            for (j = 0; j < childcount; j++) names[count + j] = childnames[j];
+            for (int j = 0; j < childcount; j++) names[count + j] = childnames[j];
             count = count + childcount;
         }
     }
@@ -4076,7 +4074,7 @@ char** getNTreeStructureComponentTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntre
 */
 char** getNTreeStructureComponentDescriptions(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
-    int j, count, childcount;
+    int count, childcount;
     char** names, ** childnames;
     void* old;
 
@@ -4093,7 +4091,7 @@ char** getNTreeStructureComponentDescriptions(LOGMALLOCLIST* logmalloclist, NTRE
             names = (char**)realloc((void*)names, (count + childcount) * sizeof(char*));
             changeMalloc(logmalloclist, old, (void*)names, (count + childcount), sizeof(char*), "char *");
             childnames = getNTreeStructureComponentDescriptions(logmalloclist, ntree->children[i]);
-            for (j = 0; j < childcount; j++) names[count + j] = childnames[j];
+            for (int j = 0; j < childcount; j++) names[count + j] = childnames[j];
             count = count + childcount;
         }
     }

@@ -207,7 +207,6 @@ void printPfSupplies(FILE* fh, PFSUPPLIES str)
 
 void printPfCircuits(FILE* fh, PFCIRCUIT str)
 {
-    int i;
     if (&str == NULL) {
         return;
     }
@@ -216,14 +215,13 @@ void printPfCircuits(FILE* fh, PFCIRCUIT str)
     printInstance(fh, str.instance);
     fprintf(fh, "supply     : %d\n", str.supply);
     fprintf(fh, "nco        : %d\n", str.nco);
-    for (i = 0; i < str.nco; i++) {
+    for (int i = 0; i < str.nco; i++) {
         fprintf(fh, "Coil Connect # %d     : %d\n", i, str.coil[i]);
     }
 }
 
 void printFluxLoop(FILE* fh, FLUXLOOP str)
 {
-    int i;
     if (&str == NULL) {
         return;
     }
@@ -234,7 +232,7 @@ void printFluxLoop(FILE* fh, FLUXLOOP str)
     fprintf(fh, "rerr       : %f\n", str.rerr);
     fprintf(fh, "nco        : %d\n", str.nco);
     if (str.nco > 0) {
-        for (i = 0; i < str.nco; i++) {
+        for (int i = 0; i < str.nco; i++) {
             fprintf(fh, "r, z, dphi   # %d     : %f   %f   %f\n", i, str.r[i], str.z[i], str.dphi[i]);
         }
     }
@@ -242,7 +240,6 @@ void printFluxLoop(FILE* fh, FLUXLOOP str)
 
 void printPfCoils(FILE* fh, PFCOILS str)
 {
-    int i;
     if (&str == NULL) {
         return;
     }
@@ -255,14 +252,13 @@ void printPfCoils(FILE* fh, PFCOILS str)
     fprintf(fh, "turns per  : %f\n", str.fturns);
     fprintf(fh, "model nr nr: %d  %d\n", str.modelnrnz[0], str.modelnrnz[1]);
     fprintf(fh, "nco        : %d\n", str.nco);
-    for (i = 0; i < str.nco; i++) {
+    for (int i = 0; i < str.nco; i++) {
         fprintf(fh, "r, z, dr, dz # %d     : %f   %f   %f   %f\n", i, str.r[i], str.z[i], str.dr[i], str.dz[i]);
     }
 }
 
 void printPfPassive(FILE* fh, PFPASSIVE str)
 {
-    int i;
     if (&str == NULL) {
         return;
     }
@@ -272,7 +268,7 @@ void printPfPassive(FILE* fh, PFPASSIVE str)
     fprintf(fh, "aerr       : %f\n", str.aerr);
     fprintf(fh, "rerr       : %f\n", str.rerr);
     fprintf(fh, "model nr nr: %d  %d\n", str.modelnrnz[0], str.modelnrnz[1]);
-    for (i = 0; i < str.nco; i++) {
+    for (int i = 0; i < str.nco; i++) {
         fprintf(fh, "r,z,dr,dz,a1,a2,res   # %d     : %f  %f  %f  %f  %f  %f  %f\n", i, str.r[i], str.z[i],
                 str.dr[i], str.dz[i], str.ang1[i], str.ang2[i], str.res[i]);
     }
@@ -316,14 +312,13 @@ void printToroidalField(FILE* fh, TOROIDALFIELD str)
 
 void printLimiter(FILE* fh, LIMITER str)
 {
-    int i;
     if (&str == NULL) {
         return;
     }
     fprintf(fh, "Limiter\n");
     fprintf(fh, "factor     : %f\n", str.factor);
     fprintf(fh, "nco        : %d\n", str.nco);
-    for (i = 0; i < str.nco; i++) {
+    for (int i = 0; i < str.nco; i++) {
         fprintf(fh, "r, z   # %d     : %f    %f\n", i, str.r[i], str.z[i]);
     }
 }

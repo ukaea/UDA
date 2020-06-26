@@ -50,7 +50,7 @@ int main()
         case (UDA_TYPE_FLOAT):
             fvec = (float *) getIdamData(handle);       // pointer to the Data
 
-            for (i = 0; i < nmax; i++) {
+            for (int i = 0; i < nmax; i++) {
                 fprintf(stdout, "%d %f\n", i, fvec[i]);    // print some data
             }
 
@@ -59,7 +59,7 @@ int main()
         case (UDA_TYPE_DOUBLE):
             dvec = (double *) getIdamData(handle);
 
-            for (i = 0; i < nmax; i++) {
+            for (int i = 0; i < nmax; i++) {
                 fprintf(stdout, "%d %f\n", i, dvec[i]);
             }
 
@@ -102,7 +102,7 @@ int main()
                 case (UDA_TYPE_FLOAT):
                     fvec = (float *) getIdamDimData(handle, irank); // pointer to the Dimension?s Data
 
-                    for (i = 0; i < nmax; i++) {
+                    for (int i = 0; i < nmax; i++) {
                         fprintf(stdout, "%d %f\n", i, fvec[i]);    // print some data
                     }
 
@@ -111,7 +111,7 @@ int main()
                 case (UDA_TYPE_DOUBLE):
                     dvec = (double *) getIdamDimData(handle, irank);
 
-                    for (i = 0; i < nmax; i++) {
+                    for (int i = 0; i < nmax; i++) {
                         fprintf(stdout, "%d %f\n", i, dvec[i]);
                     }
 

@@ -113,10 +113,9 @@ char* hostid(char* host)
 
 void freeTokenList(char*** tokenListArray, int* tokenCount)
 {
-    int i;
     char** list = *tokenListArray;
     if (*tokenCount == 0 || *tokenListArray == nullptr) return;
-    for (i = 0; i < *tokenCount; i++) {
+    for (int i = 0; i < *tokenCount; i++) {
         free((void*)list[i]);
     }
     free((void*)list);
@@ -224,9 +223,9 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
     const char* delimiters = ",:;";
     char targets[MAXPATHSUBS][MAXPATHSUBSLENGTH];
     char substitutes[MAXPATHSUBS][MAXPATHSUBSLENGTH];
-    int i, tcount = 0, scount = 0;
+    int tcount = 0, scount = 0;
 
-    int j, match, err = 0, lpath, k, kstart, subWildCount, targetWildCount;
+    int match, err = 0, lpath, kstart, subWildCount, targetWildCount;
     char** targetList;
     char** pathList;
     char** subList;
@@ -290,7 +289,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
 
     if (tcount == scount) {
 
-        for (i = 0; i < tcount; i++) {
+        for (int i = 0; i < tcount; i++) {
             if (strchr(targets[i], '*') != nullptr) {            // Wildcard found
 
                 // list of target tokens
@@ -308,8 +307,8 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
                     subCount = tokenList(PATH_SEPARATOR, substitutes[i], &subList);
                     subWildCount = 0;
                     targetWildCount = 0;
-                    for (j = 0; j < subCount; j++) if (subList[j][0] == '*') subWildCount++;
-                    for (j = 0; j < targetCount; j++) if (targetList[j][0] == '*') targetWildCount++;
+                    for (int j = 0; j < subCount; j++) if (subList[j][0] == '*') subWildCount++;
+                    for (int j = 0; j < targetCount; j++) if (targetList[j][0] == '*') targetWildCount++;
                     if (subWildCount != targetWildCount) {        // Un-matched Wildcards found
                         err = 999;
                         addIdamError(CODEERRORTYPE, "pathReplacement", err,
@@ -325,7 +324,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
 
                 lpath = 0;
                 match = 1;                    // Test path tokens against target tokens
-                for (j = 0; j < targetCount; j++) {
+                for (int j = 0; j < targetCount; j++) {
                     match = match && (STR_EQUALS(targetList[j], pathList[j]) || targetList[j][0] == '*');
                     lpath = lpath + (int)strlen(pathList[j]) + 1;    // Find the split point
                     if (!match) break;
@@ -338,10 +337,10 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
                     } else {
                         kstart = 0;
                         path[0] = '\0';
-                        for (j = 0; j < subCount; j++) {
+                        for (int j = 0; j < subCount; j++) {
                             strcat(path, PATH_SEPARATOR);
                             if (subList[j][0] == '*') {        // Substitute actual path element
-                                for (k = kstart; k < targetCount; k++) {
+                                for (int k = kstart; k < targetCount; k++) {
                                     if (targetList[k][0] == '*') {
                                         kstart = k + 1;
                                         strcat(path, pathList[k]);

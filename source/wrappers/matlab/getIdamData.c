@@ -33,7 +33,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
     mxArray * item;
     double * ptr;
     char * name, *source;
-    int i, ndata, erc;
+    int ndata, erc;
 
     /* IDAM related data
      */
@@ -124,7 +124,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
         float * fp = (float *) malloc( ndata * sizeof(float));
         getIdamFloatError(handle, fp);
 
-        for (i = 0; i < ndata; i++) {
+        for (int i = 0; i < ndata; i++) {
             ptr[i] = (double)fp[i];
         }
 
@@ -142,7 +142,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
     addItem(OUT, mxCreateDoubleScalar(rank));
 
     if (rank > 0) {
-        for (i = 0; i < rank; i++) {
+        for (int i = 0; i < rank; i++) {
             ndata = getIdamDimNum(handle, i);
             addItem(OUT, mxCreateString("Dimension"));
             addItem(OUT, mxCreateString(getIdamDimLabel(handle, i)));

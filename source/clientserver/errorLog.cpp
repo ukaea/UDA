@@ -60,8 +60,7 @@ void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, IDAMERRORSTA
             request.pass, request.tpass, request.path, request.file, request.format, request.archive,
             request.device_name, request.server);
 
-    unsigned int i;
-    for (i = 0; i < nerrors; i++) {
+    for (unsigned int i = 0; i < nerrors; i++) {
         idamLog(UDA_LOG_ERROR, "1 %s [%s] %d %d [%s] [%s]\n", client_block.uid, accessdate,
                 errors[i].type, errors[i].code, errors[i].location, errors[i].msg);
     }
@@ -76,8 +75,7 @@ void initIdamErrorStack()
 
 void initErrorRecords(const IDAMERRORSTACK* errorstack)
 {
-    unsigned int i;
-    for (i = 0; i < errorstack->nerrors; i++) {
+    for (unsigned int i = 0; i < errorstack->nerrors; i++) {
         errorstack->idamerror[i].type = 0;
         errorstack->idamerror[i].code = 0;
         errorstack->idamerror[i].location[0] = '\0';
@@ -143,20 +141,16 @@ void addIdamError(int type, const char* location, int code, const char* msg)
 
 void concatIdamError(IDAMERRORSTACK* errorstackout)
 {
-    unsigned int i;
-    unsigned int iold;
-    unsigned int inew;
-
     if (udaerrorstack.empty()) {
         return;
     }
 
-    iold = errorstackout->nerrors;
-    inew = udaerrorstack.size() + errorstackout->nerrors;
+    unsigned int iold = errorstackout->nerrors;
+    unsigned int inew = udaerrorstack.size() + errorstackout->nerrors;
 
     errorstackout->idamerror = (IDAMERROR*)realloc((void*)errorstackout->idamerror, (inew * sizeof(IDAMERROR)));
 
-    for (i = iold; i < inew; i++) {
+    for (unsigned int i = iold; i < inew; i++) {
         errorstackout->idamerror[i] = udaerrorstack[i - iold];
     }
     errorstackout->nerrors = inew;

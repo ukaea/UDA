@@ -27,7 +27,7 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
 
 // return -1 if No Qualifying Actionable XML otherwise return 0
 
-    int i, ndesc, rc = 0;
+    int ndesc, rc = 0;
 
     UDA_LOG(UDA_LOG_DEBUG, "Parsing XML\n");
 
@@ -69,10 +69,10 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
 //----------------------------------------------------------------------------------------------
 // Test Range Groups (Only Applies to XML from Signal_desc records)
 
-    for (i = 0; i < actions_sig->nactions; i++)actions_sig->action[i].inRange = 1;    // Always in Range
+    for (int i = 0; i < actions_sig->nactions; i++)actions_sig->action[i].inRange = 1;    // Always in Range
 
     ndesc = 0;
-    for (i = 0; i < actions_desc->nactions; i++) {
+    for (int i = 0; i < actions_desc->nactions; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "Range Test on Record %d\n", i);
 
         UDA_LOG(UDA_LOG_DEBUG, "#1 %d\n", (actions_desc->action[i].exp_range[0] == 0 ||
@@ -126,7 +126,6 @@ int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC
 
 void applyCalibration(int type, int ndata, double factor, double offset, int invert, char* array)
 {
-    int i;
     float* fp;
     double* dp;
     char* cp;
@@ -149,63 +148,63 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
 
             case UDA_TYPE_FLOAT:
                 fp = (float*)array;
-                for (i = 0; i < ndata; i++) fp[i] = (float)factor * fp[i] + (float)offset;
+                for (int i = 0; i < ndata; i++) fp[i] = (float)factor * fp[i] + (float)offset;
                 break;
 
             case UDA_TYPE_DOUBLE:
                 dp = (double*)array;
-                for (i = 0; i < ndata; i++) dp[i] = factor * dp[i] + offset;
+                for (int i = 0; i < ndata; i++) dp[i] = factor * dp[i] + offset;
                 break;
 
             case UDA_TYPE_CHAR:
                 cp = (char*)array;
-                for (i = 0; i < ndata; i++) cp[i] = (char)factor * cp[i] + (char)offset;
+                for (int i = 0; i < ndata; i++) cp[i] = (char)factor * cp[i] + (char)offset;
                 break;
 
             case UDA_TYPE_SHORT:
                 sp = (short*)array;
-                for (i = 0; i < ndata; i++) sp[i] = (short)factor * sp[i] + (short)offset;
+                for (int i = 0; i < ndata; i++) sp[i] = (short)factor * sp[i] + (short)offset;
                 break;
 
             case UDA_TYPE_INT:
                 ip = (int*)array;
-                for (i = 0; i < ndata; i++) ip[i] = (int)factor * ip[i] + (int)offset;
+                for (int i = 0; i < ndata; i++) ip[i] = (int)factor * ip[i] + (int)offset;
                 break;
 
             case UDA_TYPE_LONG:
                 lp = (long*)array;
-                for (i = 0; i < ndata; i++) lp[i] = (long)factor * lp[i] + (long)offset;
+                for (int i = 0; i < ndata; i++) lp[i] = (long)factor * lp[i] + (long)offset;
                 break;
 
 // cause a bug: unresolved __fixunsdfdi  - need gcc_s library
             case UDA_TYPE_LONG64:
                 llp = (long long*)array;
-                for (i = 0; i < ndata; i++) llp[i] = (long long)factor * llp[i] + (long long)offset;
+                for (int i = 0; i < ndata; i++) llp[i] = (long long)factor * llp[i] + (long long)offset;
                 break;
 
             case UDA_TYPE_UNSIGNED_CHAR:
                 uc = (unsigned char*)array;
-                for (i = 0; i < ndata; i++) uc[i] = (unsigned char)factor * uc[i] + (unsigned char)offset;
+                for (int i = 0; i < ndata; i++) uc[i] = (unsigned char)factor * uc[i] + (unsigned char)offset;
                 break;
 
             case UDA_TYPE_UNSIGNED_SHORT:
                 us = (unsigned short*)array;
-                for (i = 0; i < ndata; i++) us[i] = (unsigned short)factor * us[i] + (unsigned short)offset;
+                for (int i = 0; i < ndata; i++) us[i] = (unsigned short)factor * us[i] + (unsigned short)offset;
                 break;
 
             case UDA_TYPE_UNSIGNED_INT:
                 up = (unsigned int*)array;
-                for (i = 0; i < ndata; i++) up[i] = (unsigned int)factor * up[i] + (unsigned int)offset;
+                for (int i = 0; i < ndata; i++) up[i] = (unsigned int)factor * up[i] + (unsigned int)offset;
                 break;
 
             case UDA_TYPE_UNSIGNED_LONG:
                 ul = (unsigned long*)array;
-                for (i = 0; i < ndata; i++) ul[i] = (unsigned long)factor * ul[i] + (unsigned long)offset;
+                for (int i = 0; i < ndata; i++) ul[i] = (unsigned long)factor * ul[i] + (unsigned long)offset;
                 break;
 
             case UDA_TYPE_UNSIGNED_LONG64:
                 ull = (unsigned long long*)array;
-                for (i = 0; i < ndata; i++) ull[i] = (unsigned long long)factor * ull[i] + (unsigned long long)offset;
+                for (int i = 0; i < ndata; i++) ull[i] = (unsigned long long)factor * ull[i] + (unsigned long long)offset;
                 break;
 
             default:
@@ -220,14 +219,14 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
 
             case UDA_TYPE_FLOAT:
                 fp = (float*)array;
-                for (i = 0; i < ndata; i++)
+                for (int i = 0; i < ndata; i++)
                     if (fp[i] != 0.0) { fp[i] = 1.0 / fp[i]; }
                     else { fp[i] = NAN; }
                 break;
 
             case UDA_TYPE_DOUBLE:
                 dp = (double*)array;
-                for (i = 0; i < ndata; i++)
+                for (int i = 0; i < ndata; i++)
                     if (dp[i] != 0.0) { dp[i] = 1.0 / dp[i]; }
                     else { dp[i] = NAN; }
                 break;
@@ -265,8 +264,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
     //----------------------------------------------------------------------------------------------
     // Loop over all actions
 
-    int i;
-    for (i = 0; i < actions.nactions; i++) {
+    for (int i = 0; i < actions.nactions; i++) {
 
         if (!actions.action[i].inRange) continue;        // Out of Pulse/Pass Range
 
@@ -285,8 +283,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                 if (strlen(actions.action[i].documentation.description) > 0)
                     strcpy(data_block->data_desc, actions.action[i].documentation.description);
 
-                int j;
-                for (j = 0; j < actions.action[i].documentation.ndimensions; j++) {
+                for (int j = 0; j < actions.action[i].documentation.ndimensions; j++) {
                     if (actions.action[i].documentation.dimensions[j].dimType == DIMDOCUMENTATIONTYPE) {
                         if (actions.action[i].documentation.dimensions[j].dimid > -1 &&
                             (unsigned int)actions.action[i].documentation.dimensions[j].dimid < data_block->rank) {
@@ -307,10 +304,10 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
             case ERRORMODELTYPE:
                 data_block->error_model = actions.action[i].errormodel.model;
                 data_block->error_param_n = actions.action[i].errormodel.param_n;
-                for (j = 0; j < data_block->error_param_n; j++)
+                for (int j = 0; j < data_block->error_param_n; j++)
                     data_block->errparams[j] = actions.action[i].errormodel.params[j];
 
-                for (j = 0; j < actions.action[i].errormodel.ndimensions; j++) {
+                for (int j = 0; j < actions.action[i].errormodel.ndimensions; j++) {
                     if (actions.action[i].errormodel.dimensions[j].dimType == DIMERRORMODELTYPE) {
                         if (actions.action[i].errormodel.dimensions[j].dimid > -1 &&
                             (unsigned int)actions.action[i].errormodel.dimensions[j].dimid < data_block->rank) {
@@ -737,7 +734,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
                     // Dimension Corrections
 
-                    for (j = 0; j < actions.action[i].calibration.ndimensions; j++) {
+                    for (int j = 0; j < actions.action[i].calibration.ndimensions; j++) {
 
                         dimid = actions.action[i].calibration.dimensions[j].dimid;
 
@@ -1352,20 +1349,20 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 void idamserverDeselectSignalXML(ACTIONS* actions_desc, ACTIONS* actions_sig)
 {
 
-    int i, j, type;
+    int type;
 
     UDA_LOG(UDA_LOG_DEBUG, "Deselecting Conflicting XML\n");
 
 //----------------------------------------------------------------------------------------------
 // Loop over all Signal actions
 
-    for (i = 0; i < actions_sig->nactions; i++) {
+    for (int i = 0; i < actions_sig->nactions; i++) {
 
         type = actions_sig->action[i].actionType;        // Target (This has Priority)
 
 // Loop over all Signal_Desc actions
 
-        for (j = 0; j < actions_desc->nactions; j++) {
+        for (int j = 0; j < actions_desc->nactions; j++) {
             if (!actions_desc->action[j].inRange) continue;                        // Out of Pulse/Pass Range
             if (actions_desc->action[j].actionType == type) actions_desc->action[j].inRange = 0;    // Disable
         }

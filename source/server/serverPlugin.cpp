@@ -44,7 +44,6 @@ void allocPluginList(int count, PLUGINLIST* plugin_list)
 
 void closePluginList(const PLUGINLIST* plugin_list)
 {
-    int i;
     REQUEST_BLOCK request_block;
     IDAM_PLUGIN_INTERFACE idam_plugin_interface;
     initRequestBlock(&request_block);
@@ -53,7 +52,7 @@ void closePluginList(const PLUGINLIST* plugin_list)
     idam_plugin_interface.interfaceVersion = 1;
     idam_plugin_interface.housekeeping = 1;            // Force a full reset
     idam_plugin_interface.request_block = &request_block;
-    for (i = 0; i < plugin_list->count; i++) {
+    for (int i = 0; i < plugin_list->count; i++) {
         if (plugin_list->plugin[i].pluginHandle != nullptr) {
             plugin_list->plugin[i].idamPlugin(&idam_plugin_interface);        // Call the housekeeping method
         }
@@ -62,9 +61,8 @@ void closePluginList(const PLUGINLIST* plugin_list)
 
 void freePluginList(PLUGINLIST* plugin_list)
 {
-    int i;
     closePluginList(plugin_list);
-    for (i = 0; i < plugin_list->count; i++) {
+    for (int i = 0; i < plugin_list->count; i++) {
         if (plugin_list->plugin[i].pluginHandle != nullptr) {
             dlclose(plugin_list->plugin[i].pluginHandle);
         }
@@ -100,8 +98,7 @@ void initPluginData(PLUGIN_DATA* plugin)
 
 void printPluginList(FILE* fd, const PLUGINLIST* plugin_list)
 {
-    int i;
-    for (i = 0; i < plugin_list->count; i++) {
+    for (int i = 0; i < plugin_list->count; i++) {
         fprintf(fd, "Request    : %d\n", plugin_list->plugin[i].request);
         fprintf(fd, "Format     : %s\n", plugin_list->plugin[i].format);
         fprintf(fd, "Library    : %s\n", plugin_list->plugin[i].library);

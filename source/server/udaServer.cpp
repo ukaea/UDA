@@ -731,9 +731,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     }
 
     if (data_block->rank > 0) {
-        unsigned int i;
         DIMS dim;
-        for (i = 0; i < data_block->rank; i++) {
+        for (unsigned int i = 0; i < data_block->rank; i++) {
             dim = data_block->dims[i];
             if (protocolVersionTypeTest(protocolVersion, dim.data_type) ||
                 protocolVersionTypeTest(protocolVersion, dim.error_type)) {
@@ -1124,8 +1123,7 @@ int startupServer(SERVER_BLOCK* server_block)
         plugin_list_initialised = 1;
 
         UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");
-        int i;
-        for (i = 0; i < pluginList.count; i++) {
+        for (int i = 0; i < pluginList.count; i++) {
             UDA_LOG(UDA_LOG_INFO, "[%d] %d %s\n", i, pluginList.plugin[i].request, pluginList.plugin[i].format);
         }
     }

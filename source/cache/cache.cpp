@@ -131,10 +131,9 @@ char* idamCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
     strcpy((char*)md, "                    ");
     SHA1((unsigned char*)key, len, md);
     // Convert to a printable string (40 characters) for the key (is this necessary?)
-    int j;
     key[40] = '\0';
 
-    for (j = 0; j < 20; j++) {
+    for (int j = 0; j < 20; j++) {
         sprintf(&key[2 * j], "%2.2x", md[j]);
     }
 

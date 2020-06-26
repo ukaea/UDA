@@ -635,8 +635,7 @@ Notes: there are three pathways depending on the request pattern
         db.errhi = odb->errhi;
         db.errlo = odb->errlo;
 
-        int i;
-        for (i = 0; i < MAXERRPARAMS; i++) {
+        for (int i = 0; i < MAXERRPARAMS; i++) {
             db.errparams[i] = odb->errparams[i];
         }
 

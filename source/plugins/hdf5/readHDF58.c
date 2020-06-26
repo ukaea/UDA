@@ -245,8 +245,7 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
             return err;
         }
 
-        unsigned int i;
-        for (i = 0; i < data_block->rank; i++) {
+        unsigned for (int i = 0; i < data_block->rank; i++) {
             initDimBlock(&data_block->dims[i]);
             data_block->dims[i].compressed = 1;
             data_block->dims[i].method = 0;
@@ -485,8 +484,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
         }
 
         {
-            unsigned int i;
-            for (i = 0; i < data_block->rank; i++) {
+            unsigned for (int i = 0; i < data_block->rank; i++) {
                 initDimBlock(&data_block->dims[i]);
             }
         }
@@ -494,8 +492,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
         // Create Index elements for the Dimensions
 
         {
-            unsigned int i;
-            for (i = 0; i < data_block->rank; i++) {
+            unsigned for (int i = 0; i < data_block->rank; i++) {
                 data_block->dims[i].compressed = 1;
                 data_block->dims[i].method = 0;
                 data_block->dims[i].dim_n = (int)shape[data_block->rank - i - 1];
@@ -566,8 +563,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
         int natt = H5Aget_num_attrs(dataset_id);
 
         {
-            int i;
-            for (i = 0; i < natt; i++) {        // Fetch Attribute Names
+            for (int i = 0; i < natt; i++) {        // Fetch Attribute Names
                 char att_name[STRING_LENGTH] = "";
                 char att_buff[STRING_LENGTH] = "";
                 hid_t att_id = -1;
@@ -606,8 +602,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
 
         if (size == 0 && dataset_type == H5O_TYPE_DATASET) {
             size = 1;
-            unsigned int i;
-            for (i = 0; i < data_block->rank; i++) {
+            unsigned for (int i = 0; i < data_block->rank; i++) {
                 size = size * (int)shape[i];
             }
             switch (data_block->data_type) {

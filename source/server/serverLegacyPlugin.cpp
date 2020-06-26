@@ -46,7 +46,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 const char* delimiters = ",:";
                 char targets[10][256];
                 char substitutes[10][256];
-                int lpath, i, tcount = 0, scount = 0;
+                int lpath, tcount = 0, scount = 0;
 
                 strcpy(work, environment->private_path_target);
                 token = strtok(work, delimiters);
@@ -59,7 +59,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 while ((token = strtok(nullptr, delimiters)) != nullptr) strcpy(substitutes[scount++], token);
 
                 if (tcount == scount) {
-                    for (i = 0; i < tcount; i++) {
+                    for (int i = 0; i < tcount; i++) {
                         lpath = (int) strlen(targets[i]);
                         if (!strncmp(request_block->path, targets[i], lpath)) {
                             strcpy(work, &request_block->path[lpath]);

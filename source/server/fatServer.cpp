@@ -445,8 +445,7 @@ int startupFatServer(SERVER_BLOCK* server_block)
         plugin_list_initialised = 1;
 
         UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");
-        int i;
-        for (i = 0; i < pluginList.count; i++) {
+        for (int i = 0; i < pluginList.count; i++) {
             UDA_LOG(UDA_LOG_INFO, "[%d] %d %s\n", i, pluginList.plugin[i].request, pluginList.plugin[i].format);
         }
     }

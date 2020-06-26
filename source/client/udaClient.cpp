@@ -951,9 +951,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         // Decompresss Dimensional Data
 
-        int i;
-
-        for (i = 0; i < (int)data_block->rank; i++) {            // Expand Compressed Regular Vector
+        for (int i = 0; i < (int)data_block->rank; i++) {            // Expand Compressed Regular Vector
             err = uncompressDim(&(data_block->dims[i]));    // Allocate Heap as required
             err = 0;                                        // Need to Test for Error Condition!
         }
@@ -1162,7 +1160,7 @@ void idamFree(int handle)
 
     char* cptr;
     DIMS* ddims;
-    int i, rank;
+    int rank;
 
     DATA_BLOCK* data_block = getIdamDataBlock(handle);
 
@@ -1318,7 +1316,7 @@ void idamFree(int handle)
     }
 
     if (ddims != nullptr && rank > 0) {
-        for (i = 0; i < rank; i++) {
+        for (int i = 0; i < rank; i++) {
             if ((cptr = data_block->dims[i].dim) != nullptr) {
                 free((void*)cptr);
             }
@@ -1370,9 +1368,7 @@ void idamFree(int handle)
 void idamFreeAll()
 {
     // Free All Heap Memory
-    int i;
-
-#ifndef FATCLIENT
+    #ifndef FATCLIENT
     int protocol_id;
 #endif
 
@@ -1381,7 +1377,7 @@ void idamFreeAll()
     idamFreeCache();
 #endif
 
-    for (i = 0; i < acc_getCurrentDataBlockIndex(); ++i) {
+    for (int i = 0; i < acc_getCurrentDataBlockIndex(); ++i) {
 #ifndef FATCLIENT
         freeDataBlock(getIdamDataBlock(i));
 #else

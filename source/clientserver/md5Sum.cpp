@@ -25,7 +25,6 @@
 #  include <md5.h>
 
 void md5Sum(char *bp, int size, char *md5check) {
-    int i;
     unsigned char signature[MD5_SIZE]="";
     MD5_CTX context;
 

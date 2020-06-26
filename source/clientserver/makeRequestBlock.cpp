@@ -32,8 +32,7 @@
 
 static int localFindPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
 {
-    int i;
-    for (i = 0; i < plugin_list->count; i++) {
+    for (int i = 0; i < plugin_list->count; i++) {
         if (STR_IEQUALS(plugin_list->plugin[i].format, format)) return i;
     }
     return -1;
@@ -89,8 +88,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
     size_t lstr = strlen(work2);
     if (!noSource && !strncasecmp(request_block->source, work2, lstr)) {
-        size_t i;
-        for (i = 0; i < lstr; i++) {
+        for (size_t i = 0; i < lstr; i++) {
             request_block->source[i] = ' ';
         }
         LeftTrimString(request_block->source);
@@ -176,8 +174,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
         work2[lstr] = '\0';
         TrimString(work2);
         lstr = lstr + ldelim;
-        size_t i;
-        for (i = 0; i < lstr; i++) {
+        for (size_t i = 0; i < lstr; i++) {
             work[i] = ' ';
         }
         LeftTrimString(work);
@@ -229,8 +226,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 #ifdef JETSERVER
                 if (rc < 0) {
                     strcpy(request_block->format, "PPF");       // Assume the Default Format (PPF?)
-                    int i;
-		    for (i = 0; i < pluginList.count; i++) {
+                    for (int i = 0; i < pluginList.count; i++) {
                         if (STR_IEQUALS(request_block->format, pluginList.plugin[i].format)) {
                             request_block->request = pluginList.plugin[i].request;
                             break;
@@ -286,8 +282,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                     reduceSignal = false;
                     extractArchive(request_block, reduceSignal, environment);
 
-                    int i;
-                    for (i = 0; i < pluginList.count; i++) {
+                    for (int i = 0; i < pluginList.count; i++) {
                         if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
                             request_block->request = pluginList.plugin[i].request;                // Found!
                             strcpy(request_block->format, pluginList.plugin[i].format);
@@ -313,8 +308,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
             // Test for known File formats, Server protocols or Libraries or Devices
 
-            int i;
-            for (i = 0; i < pluginList.count; i++) {
+            for (int i = 0; i < pluginList.count; i++) {
                 if (STR_IEQUALS(work2, pluginList.plugin[i].format)) {
                     if (pluginList.plugin[i].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
                         request_block->request = pluginList.plugin[i].request;        // Found
@@ -568,8 +562,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
         if (isFunction && err == 0) {        // Test for known Function Libraries
             isFunction = 0;
-            int i;
-            for (i = 0; i < pluginList.count; i++) {
+            for (int i = 0; i < pluginList.count; i++) {
                 if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
                     request_block->request = pluginList.plugin[i].request;            // Found
                     strcpy(request_block->format, pluginList.plugin[i].format);
@@ -583,8 +576,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
             UDA_LOG(UDA_LOG_DEBUG, "isFunction: %d\n", isFunction);
 
             if (!isFunction) {                // Must be a default server-side function
-
-                for (i = 0; i < pluginList.count; i++) {
+                for (int i = 0; i < pluginList.count; i++) {
                     if (STR_IEQUALS(pluginList.plugin[i].symbol, "SERVERSIDE") &&
                         pluginList.plugin[i].library[0] == '\0') {
                         request_block->request = REQUEST_READ_SERVERSIDE;            // Found
@@ -740,7 +732,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
 void extractFunctionName(char* str, REQUEST_BLOCK* request_block)
 {
-    int i, lstr;
+    int lstr;
     char* p;
     if (str[0] == '\0') return;
     char* work = (char*)malloc((strlen(str) + 1) * sizeof(char));
@@ -751,7 +743,9 @@ void extractFunctionName(char* str, REQUEST_BLOCK* request_block)
     if (p != nullptr) {
         do {
             lstr = (int)(p - work) + (int)strlen(request_block->api_delim);
-            for (i = 0; i < lstr; i++) work[i] = ' ';
+            for (int i = 0; i < lstr; i++) {
+                work[i] = ' ';
+            }
             TrimString(work);
             LeftTrimString(work);
         } while ((p = strstr(work, request_block->api_delim)) != nullptr);
@@ -767,7 +761,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
     // returns 1 (TRUE) if a format was identified, 0 (FALSE) otherwise.
     // return negative error code if a problem occured.
 
-    int i, rc = 0;
+    int rc = 0;
     const char* test;
 
     // .99		IDA3 file
@@ -903,7 +897,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
         // TO DO: make extensions a list of valid extensions to minimise plugin duplication
 
         int breakAgain = 0;
-        for (i = 0; i < pluginList.count; i++) {
+        for (int i = 0; i < pluginList.count; i++) {
             if (STR_IEQUALS(&test[1], pluginList.plugin[i].extension)) {
                 strcpy(request_block->format, pluginList.plugin[i].format);
                 breakAgain = 1;
@@ -961,7 +955,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
 
     // Test for known registered plugins for the File's format
 
-    for (i = 0; i < pluginList.count; i++) {
+    for (int i = 0; i < pluginList.count; i++) {
         if (STR_IEQUALS(request_block->format, pluginList.plugin[i].format)) {
             rc = 1;
             UDA_LOG(UDA_LOG_DEBUG, "Format identified, selecting specific plugin for %s\n", request_block->format);
@@ -1224,7 +1218,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
     //	0 => Not a subset operation - Not compliant with syntax
     //     -1 => Error
 
-    int i, j, err, rc = 1, lwork, subsetCount = 1;        // Number of subsetting operations
+    int err, rc = 1, lwork, subsetCount = 1;        // Number of subsetting operations
     char* p, * work, * token = nullptr;
 
     request_block->subset[0] = '\0';
@@ -1284,7 +1278,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
     // Array of subset instructions for each dimension
 
     char** work2 = (char**)malloc(subsetCount * sizeof(char*));
-    for (i = 0; i < subsetCount; i++) {
+    for (int i = 0; i < subsetCount; i++) {
         work2[i] = (char*)malloc(lwork * sizeof(char));
         work2[i][0] = '\0';
     }
@@ -1292,13 +1286,13 @@ int extractSubset(REQUEST_BLOCK* request_block)
     // 3 subset details
 
     char** work3 = (char**)malloc(3 * sizeof(char*));
-    for (i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
         work3[i] = (char*)malloc(lwork * sizeof(char));
         work3[i][0] = '\0';
     }
     char* work4 = (char*)malloc(lwork * sizeof(char));
 
-    for (i = 0; i < subsetCount; i++) {
+    for (int i = 0; i < subsetCount; i++) {
         request_block->datasubset.start[i] = 0;
         request_block->datasubset.stop[i] = 0;
         request_block->datasubset.count[i] = 0;
@@ -1312,13 +1306,13 @@ int extractSubset(REQUEST_BLOCK* request_block)
         while (subsetCount < MAXRANK2 && (token = strtok(nullptr, ",")) != nullptr) strcpy(work2[subsetCount++], token);
 
         do {
-            for (i = 0; i < subsetCount; i++) {
+            for (int i = 0; i < subsetCount; i++) {
 
                 request_block->datasubset.subset[i] = 0;
 
                 TrimString(work2[i]);
                 LeftTrimString(work2[i]);
-                for (j = 0; j < 3; j++)work3[j][0] = '\0';
+                for (int j = 0; j < 3; j++)work3[j][0] = '\0';
 
                 if (work2[i][0] == ':') {
                     work4[0] = '0';
@@ -1344,11 +1338,17 @@ int extractSubset(REQUEST_BLOCK* request_block)
                 }
 
                 if (strchr(work2[i], ':') != nullptr && (token = strtok(work2[i], ":")) != nullptr) {
-                    j = 0;
+                    int j = 0;
                     strcpy(work3[j++], token);
-                    while (j < 3 && (token = strtok(nullptr, ":")) != nullptr) strcpy(work3[j++], token);
-                    for (j = 0; j < 3; j++)TrimString(work3[j]);
-                    for (j = 0; j < 3; j++)LeftTrimString(work3[j]);
+                    while (j < 3 && (token = strtok(nullptr, ":")) != nullptr) {
+                        strcpy(work3[j++], token);
+                    }
+                    for (int jj = 0; jj < 3; jj++) {
+                        TrimString(work3[jj]);
+                    }
+                    for (int jj = 0; jj < 3; jj++) {
+                        LeftTrimString(work3[jj]);
+                    }
 
                     if (work3[0][0] != '\0' && IsNumber(work3[0])) {    // [a:] or [a:*] or [a:b] etc
                         p = nullptr;
@@ -1485,9 +1485,9 @@ int extractSubset(REQUEST_BLOCK* request_block)
     }
 
     free(work);
-    for (i = 0; i < subsetCount; i++)free(work2[i]);
+    for (int i = 0; i < subsetCount; i++)free(work2[i]);
     free(work2);
-    for (i = 0; i < 3; i++)free(work3[i]);
+    for (int i = 0; i < 3; i++)free(work3[i]);
     free(work3);
     free(work4);
 
@@ -1505,9 +1505,8 @@ int extractSubset(REQUEST_BLOCK* request_block)
 // pair count is -1.
 void freeNameValueList(NAMEVALUELIST* nameValueList)
 {
-    int i;
     if (nameValueList->nameValue != nullptr) {
-        for (i = 0; i < nameValueList->pairCount; i++) {
+        for (int i = 0; i < nameValueList->pairCount; i++) {
             if (nameValueList->nameValue[i].pair != nullptr) free((void*)nameValueList->nameValue[i].pair);
             if (nameValueList->nameValue[i].name != nullptr) free((void*)nameValueList->nameValue[i].name);
             if (nameValueList->nameValue[i].value != nullptr) free((void*)nameValueList->nameValue[i].value);
@@ -1599,7 +1598,7 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
     // Recognise /name as name=TRUE
     // if strip then remove all enclosing quotes (single or double)
 
-    int i, lstr, pairCount = 0;
+    int lstr, pairCount = 0;
     char proposal, delimiter = ',', substitute = 1;
     char* p, * p2, * p3 = nullptr, * buffer, * copy;
     NAMEVALUE nameValue;
@@ -1667,7 +1666,7 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
     lstr = lstr - 1;
     int isList = 0;
     int isListDelim = 0;
-    for (i = 0; i < lstr; i++) {
+    for (int i = 0; i < lstr; i++) {
         if (copy[i] == '\'' || copy[i] == '"') {
             if (isList) {
                 isList = 0;        // Switch substitution off
@@ -1716,7 +1715,7 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
     free((void*)buffer);
     free((void*)copy);
 
-    for (i = 0; i < nameValueList->pairCount; i++) {
+    for (int i = 0; i < nameValueList->pairCount; i++) {
         if (STR_IEQUALS(nameValueList->nameValue[i].name, "delimiter")) {        // replace with correct delimiter value
             p = strchr(nameValueList->nameValue[i].value, '#');
             *p = delimiter;
@@ -1729,7 +1728,7 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
     // Replace substituted delimiters in lists
 
     if (isListDelim) {
-        for (i = 0; i < nameValueList->pairCount; i++) {
+        for (int i = 0; i < nameValueList->pairCount; i++) {
             if ((p = strchr(nameValueList->nameValue[i].value, substitute)) != nullptr) {
                 do {
                     p[0] = delimiter;

@@ -34,7 +34,7 @@
 
 int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* header)
 {
-    int i, j, lstr, rnk = 0, status = 0, err, model = 0, space, isStruct, isConst, isUnsigned, isLong64, isEnum = 0, maxAlign = 0;
+    int lstr, rnk = 0, status = 0, err, model = 0, space, isStruct, isConst, isUnsigned, isLong64, isEnum = 0, maxAlign = 0;
     FILE* fh = nullptr;
 
     char buffer[STRING_LENGTH];
@@ -72,7 +72,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
     //------------------------------------------------------------------------------------------
     // Initialise
 
-    for (i = 0; i < MAXELEMENTS; i++) {
+    for (int i = 0; i < MAXELEMENTS; i++) {
         typeStrPtr[i] = 0;
         typeDefPtr[i] = 0;
         pointer[i] = 0;
@@ -354,7 +354,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                             itemCount * sizeof(COMPOUNDFIELD));
                                     byteCount = 0;
                                     maxAlign = 0;
-                                    for (i = 0; i < itemCount; i++) {
+                                    for (int i = 0; i < itemCount; i++) {
                                         initCompoundField(&userdefinedtype->compoundfield[i]);
                                         strcpy(userdefinedtype->compoundfield[i].name, item[i]);
                                         strcpy(userdefinedtype->compoundfield[i].type, type[i]);
@@ -380,7 +380,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                         } else {
                                             userdefinedtype->compoundfield[i].shape = nullptr;
                                         }
-                                        for (j = 0; j < rank[i]; j++)
+                                        for (int j = 0; j < rank[i]; j++)
                                             userdefinedtype->compoundfield[i].shape[j] = shape[i][j];
 
                                         byteCount = byteCount + size[i] * count[i] + offpad[i];
@@ -508,13 +508,13 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
 
                                     // Substitute type defs and enum types
 
-                                    for (j = 0; j < typeEnumCount; j++) {
+                                    for (int j = 0; j < typeEnumCount; j++) {
                                         if (STR_STARTSWITH(typeEnum[j], type[itemCount])) {
                                             strcpy(type[itemCount], "unsigned int");
                                             break;
                                         }
                                     }
-                                    for (j = 0; j < typeDefCount; j++) {
+                                    for (int j = 0; j < typeDefCount; j++) {
                                         if (STR_STARTSWITH(typeDefName[j], type[itemCount]) &&
                                             strcmp(type[itemCount], "STRING") != 0) {
                                             strcpy(type[itemCount], typeDef[j]);
@@ -522,7 +522,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                             break;
                                         }
                                     }
-                                    for (j = 0; j < typeStrCount; j++) {
+                                    for (int j = 0; j < typeStrCount; j++) {
                                         if (STR_STARTSWITH(typeStrName[j], type[itemCount])) {
                                             strcpy(type[itemCount], typeStruct[j]);
                                             if (typeStrPtr[j]) pointer[itemCount] = 1;
@@ -532,13 +532,13 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
 
                                     // repeat for nested type defs
 
-                                    for (j = 0; j < typeEnumCount; j++) {
+                                    for (int j = 0; j < typeEnumCount; j++) {
                                         if (STR_STARTSWITH(typeEnum[j], type[itemCount])) {
                                             strcpy(type[itemCount], "unsigned int");
                                             break;
                                         }
                                     }
-                                    for (j = 0; j < typeDefCount; j++) {
+                                    for (int j = 0; j < typeDefCount; j++) {
                                         if (STR_STARTSWITH(typeDefName[j], type[itemCount]) &&
                                             strcmp(type[itemCount], "STRING") != 0) {
                                             strcpy(type[itemCount], typeDef[j]);
@@ -546,7 +546,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                             break;
                                         }
                                     }
-                                    for (j = 0; j < typeStrCount; j++) {
+                                    for (int j = 0; j < typeStrCount; j++) {
                                         if (STR_STARTSWITH(typeStrName[j], type[itemCount])) {
                                             strcpy(type[itemCount], typeStruct[j]);
                                             if (typeStrPtr[j]) pointer[itemCount] = 1;
@@ -584,7 +584,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                                     count[itemCount] = count[itemCount] + shape[itemCount][rnk++];
                                                 } else {
 
-                                                    for (j = 0; j < defCount; j++) {
+                                                    for (int j = 0; j < defCount; j++) {
                                                         if (STR_STARTSWITH(defnames[j], buffer)) {
                                                             shape[itemCount][rnk++] = defvalues[j];             // Array Shape
                                                             count[itemCount] = count[itemCount] +

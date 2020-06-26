@@ -17,8 +17,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
     plugin_list->plugin = (PLUGIN_DATA*)malloc(REQUEST_PLUGIN_MCOUNT * sizeof(PLUGIN_DATA));
     plugin_list->mcount = REQUEST_PLUGIN_MCOUNT;
 
-    int i;
-    for (i = 0; i < plugin_list->mcount; i++) {
+    for (int i = 0; i < plugin_list->mcount; i++) {
         initPluginData(&plugin_list->plugin[i]);
     }
 
@@ -39,7 +38,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
     //----------------------------------------------------------------------------------------------------------------------
     // Complete Common Registration
 
-    for (i = 0; i < plugin_list->count; i++) {
+    for (int i = 0; i < plugin_list->count; i++) {
         plugin_list->plugin[i].external = UDA_PLUGIN_INTERNAL;        // These are all linked as internal functions
         plugin_list->plugin[i].status = UDA_PLUGIN_OPERATIONAL;        // By default all these are available
         plugin_list->plugin[i].cachePermission = UDA_PLUGIN_CACHE_DEFAULT;    // OK or not for Client and Server to Cache
@@ -59,7 +58,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
     strcpy(plugin_list->plugin[plugin_list->count].format, "SS");
     allocPluginList(plugin_list->count++, plugin_list);
 
-    for (i = pluginCount; i < plugin_list->count; i++) {
+    for (int i = pluginCount; i < plugin_list->count; i++) {
         plugin_list->plugin[i].request = REQUEST_READ_GENERIC;
         plugin_list->plugin[i].plugin_class = UDA_PLUGIN_CLASS_FUNCTION;
         strcpy(plugin_list->plugin[i].symbol, "SERVERSIDE");
@@ -151,7 +150,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                 if (strlen(buffer) == 0) break;
                 next = buffer;
                 initPluginData(&plugin_list->plugin[plugin_list->count]);
-                for (i = 0; i < 10; i++) {
+                for (int i = 0; i < 10; i++) {
                     csv = strchr(next, csvChar);                // Split the string
                     if (csv != nullptr && i <= 8)
                         csv[0] = '\0';            // Extract the sub-string ignoring the example - has a comma within text
@@ -304,8 +303,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                 // 2. library opened, symbol not located: locate symbol
                 // 3. library opened, symbol located: re-use
 
-                int j;
-                for (j = pluginCount; j < plugin_list->count - 1; j++) {            // External sources only
+                for (int j = pluginCount; j < plugin_list->count - 1; j++) {            // External sources only
                     if (plugin_list->plugin[j].external == UDA_PLUGIN_EXTERNAL &&
                         plugin_list->plugin[j].status == UDA_PLUGIN_OPERATIONAL &&
                         plugin_list->plugin[j].pluginHandle != nullptr &&

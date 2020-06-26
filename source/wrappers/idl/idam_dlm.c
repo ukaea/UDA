@@ -746,7 +746,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
     PUTDATA_BLOCK_LIST putDataBlockList;
     initIdamPutDataBlockList(&putDataBlockList);
 
-    int i, rank = 0, count = 0;
+    int rank = 0, count = 0;
     int type = IDL_TYP_UNDEF;
     int handle = -1;
 
@@ -785,7 +785,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
         putData.shape = (int*)malloc(ndims * sizeof(int));
 
         if (putData.rank > 1) {
-            for (i = 0; i < (int)putData.rank; i++) {
+            for (int i = 0; i < (int)putData.rank; i++) {
                 // REVERSE dimensions (IDL => C)
                 putData.shape[putData.rank - 1 - i] = (int)argv[1]->value.arr->dim[i];
             }
@@ -803,7 +803,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
             if (type == IDL_TYP_FLOAT) {
                 float* f = (float*)putData.data;
 
-                for (i = 0; i < 5; i++) {
+                for (int i = 0; i < 5; i++) {
                     fprintf(stdout, "data[%d]: %f\n", i, f[i]);
                 }
             }
@@ -874,7 +874,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
             int maxLength = 0;
             IDL_STRING* sidl = NULL;
 
-            for (i = 0; i < (int)putData.count; i++) {
+            for (int i = 0; i < (int)putData.count; i++) {
                 sidl = (IDL_STRING*)putData.data;
 
                 if (sidl->slen > maxLength) {
@@ -885,7 +885,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
             new_string = (char*)malloc(
                     putData.count * (maxLength + 1) * sizeof(char)); // Block of memory for the strings
 
-            for (i = 0; i < (int)putData.count; i++) {
+            for (int i = 0; i < (int)putData.count; i++) {
                 sidl = (IDL_STRING*)putData.data;
                 strncpy(&new_string[i * (maxLength + 1)], (char*)sidl->s, sidl->slen); // should be NULL terminated
             }
@@ -895,7 +895,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
         // PUT the data to the server
         if (kw.verbose) {
-            for (i = 0; i < (int)putData.rank; i++) {
+            for (int i = 0; i < (int)putData.rank; i++) {
                 fprintf(stdout, "i [%d] shape [%d]\n", i, putData.shape[i]);
             }
         }
@@ -952,7 +952,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
         IDL_VPTR tag;
         IDL_VARIABLE* var = NULL;
 
-        for (i = 0; i < memberCount; i++) {
+        for (int i = 0; i < memberCount; i++) {
             int offset = IDL_StructTagInfoByIndex(s.sdef, i, msg_action,
                                                   &tag);            // tag: Only information, not data
             char* name = IDL_StructTagNameByIndex(s.sdef, i, msg_action, NULL);
@@ -2599,7 +2599,7 @@ IDL_VPTR IDL_CDECL
 getidamdata(int argc, IDL_VPTR argv[], char* argk)
 {
 
-    int i, data_n, rank, ndata, errtype;
+    int data_n, rank, ndata, errtype;
 
     CLIENT_BLOCK cblock = saveIdamProperties();  // preserve the current set of client properties
     CLIENT_BLOCK* idamcblock = NULL;
@@ -2894,14 +2894,14 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
     if (rank > 0) {
         dlen[0] = rank;
 
-        for (i = 1; i <= rank; i++) {
+        for (int i = 1; i <= rank; i++) {
             dlen[i] = getIdamDimNum(sin->handle, i - 1); // How the Data Array is Packed (Shape)
         }
 
         if (kw.debug) {
             fprintf(stdout, "Data Organisation\n");
 
-            for (i = 0; i <= rank; i++) {
+            for (int i = 0; i <= rank; i++) {
                 fprintf(stdout, "[%d]  %d  \n", i, (int)dlen[i]);
             }
         }
@@ -4341,7 +4341,6 @@ freeidamall(int argc, IDL_VPTR argv[], char* argk)
 
 void userhelp(FILE* fh, char* name)
 {
-    int i;
     int ngetidam = 51;
     char* help_getidam[] = { "GETIDAM: Required first call for Data via IDAM. This routine",
                              "passes the request to the backend Data Server which then accesses",
@@ -4447,19 +4446,19 @@ void userhelp(FILE* fh, char* name)
     fprintf(fh, "\nIDAM: MAST Universal Data Access\n\n");
 
     if (STR_EQUALS(name, "getida")) {
-        for (i = 0; i < ngetidam - 1; i++) {
+        for (int i = 0; i < ngetidam - 1; i++) {
             fprintf(fh, "%s\n", help_getidam[i]);
         }
     }
 
     if (STR_EQUALS(name, "getdata")) {
-        for (i = 0; i < ngetdata - 1; i++) {
+        for (int i = 0; i < ngetdata - 1; i++) {
             fprintf(fh, "%s\n", help_getdata[i]);
         }
     }
 
     if (STR_EQUALS(name, "getdimdata")) {
-        for (i = 0; i < ngetdimdata - 1; i++) {
+        for (int i = 0; i < ngetdimdata - 1; i++) {
             fprintf(fh, "%s\n", help_getdimdata[i]);
         }
     }
@@ -4502,12 +4501,12 @@ IDL_VPTR IDL_CDECL
 
 printerrormsgstack(int argc, IDL_VPTR argv[], char* argk)
 {
-    int i, stackSize;
+    int stackSize;
     IDL_ENSURE_SCALAR(argv[0]);
     stackSize = getIdamServerErrorStackSize();
     fprintf(stdout, "Error Message Stack: Count %d\n", stackSize);
 
-    for (i = 0; i < stackSize; i++) {
+    for (int i = 0; i < stackSize; i++) {
         fprintf(stdout, "[%d] code: %d type: %d location: %s msg: %s\n", i,
                 getIdamServerErrorStackRecordCode(i),
                 getIdamServerErrorStackRecordType(i), getIdamServerErrorStackRecordLocation(i),
@@ -7176,7 +7175,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
     };
     typedef struct DOMAINS DOMAINS;
 
-    int i, handle, dimid, dsize;
+    int handle, dimid, dsize;
     DIMS* dim = NULL;
     DOMAINS* sout = NULL;
 
@@ -7428,7 +7427,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
             fp2 = (float*)(&sout->sams) + dsize * (sizeof(long) + sizeof(float));
 
             if (dim->udoms == 0 || dim->method < 1 || dim->method > 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     fp1[i] = (float)0.0;
                     fp2[i] = (float)0.0;
@@ -7447,14 +7446,14 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
                 memcpy((void*)&sout->sams + dsize * sizeof(long), (void*)dim->offs,
                        (size_t)dsize * sizeof(float));
 
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     fp2[i] = (float)0.0;
                 }
             }
 
             if (dim->method == 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     fp1[i] = (float)0.0;
                     fp2[i] = (float)0.0;
@@ -7483,7 +7482,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
             dp2 = (double*)(&sout->sams) + dsize * (sizeof(long) + sizeof(double));
 
             if (dim->udoms == 0 || dim->method < 1 || dim->method > 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     dp1[i] = (double)0.0E0;
                     dp2[i] = (double)0.0E0;
@@ -7502,14 +7501,14 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
                 memcpy((void*)&sout->sams + dsize * sizeof(long), (void*)dim->offs,
                        (size_t)dsize * sizeof(double));
 
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     dp2[i] = (double)0.0E0;
                 }
             }
 
             if (dim->method == 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     dp1[i] = (double)0.0E0;
                     dp2[i] = (double)0.0E0;
@@ -7538,7 +7537,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
             sp2 = (short*)(&sout->sams) + dsize * (sizeof(long) + sizeof(short));
 
             if (dim->udoms == 0 || dim->method < 1 || dim->method > 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     sp1[i] = (short)0;
                     sp2[i] = (short)0;
@@ -7557,14 +7556,14 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
                 memcpy((void*)&sout->sams + dsize * sizeof(long), (void*)dim->offs,
                        (size_t)dsize * sizeof(short));
 
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     sp2[i] = (short)0;
                 }
             }
 
             if (dim->method == 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     sp1[i] = (short)0;
                     sp2[i] = (short)0;
@@ -7593,7 +7592,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
             ip2 = (int*)(&sout->sams) + dsize * (sizeof(long) + sizeof(int));
 
             if (dim->udoms == 0 || dim->method < 1 || dim->method > 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     ip1[i] = (int)0;
                     ip2[i] = (int)0;
@@ -7612,14 +7611,14 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
                 memcpy((void*)&sout->sams + dsize * sizeof(long), (void*)dim->offs,
                        (size_t)dsize * sizeof(int));
 
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     ip2[i] = (int)0;
                 }
             }
 
             if (dim->method == 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     ip1[i] = (int)0;
                     ip2[i] = (int)0;
@@ -7648,7 +7647,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
             lp2 = (long*)(&sout->sams) + dsize * (sizeof(long) + sizeof(long));
 
             if (dim->udoms == 0 || dim->method < 1 || dim->method > 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     lp1[i] = (long)0;
                     lp2[i] = (long)0;
@@ -7667,14 +7666,14 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
                 memcpy((void*)&sout->sams + dsize * sizeof(long), (void*)dim->offs,
                        (size_t)dsize * sizeof(long));
 
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     lp2[i] = (long)0;
                 }
             }
 
             if (dim->method == 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     lp1[i] = (long)0;
                     lp2[i] = (long)0;
@@ -7705,7 +7704,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
             p2 = (unsigned short*)(&sout->sams) + dsize * (sizeof(long) + sizeof(unsigned short));
 
             if (dim->udoms == 0 || dim->method < 1 || dim->method > 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     p1[i] = (unsigned short)0;
                     p2[i] = (unsigned short)0;
@@ -7724,14 +7723,14 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
                 memcpy((void*)&sout->sams + dsize * sizeof(long), (void*)dim->offs,
                        (size_t)dsize * sizeof(unsigned short));
 
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     p2[i] = (unsigned short)0;
                 }
             }
 
             if (dim->method == 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     p1[i] = (unsigned short)0;
                     p2[i] = (unsigned short)0;
@@ -7761,7 +7760,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
             up2 = (unsigned int*)(&sout->sams) + dsize * (sizeof(long) + sizeof(unsigned int));
 
             if (dim->udoms == 0 || dim->method < 1 || dim->method > 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     up1[i] = (unsigned int)0;
                     up2[i] = (unsigned int)0;
@@ -7780,14 +7779,14 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
                 memcpy((void*)&sout->sams + dsize * sizeof(long), (void*)dim->offs,
                        (size_t)dsize * sizeof(unsigned int));
 
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     up2[i] = (unsigned int)0;
                 }
             }
 
             if (dim->method == 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     up1[i] = (unsigned int)0;
                     up2[i] = (unsigned int)0;
@@ -7818,7 +7817,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
             p2 = (unsigned long*)(&sout->sams) + dsize * (sizeof(long) + sizeof(unsigned long));
 
             if (dim->udoms == 0 || dim->method < 1 || dim->method > 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     p1[i] = (unsigned long)0;
                     p2[i] = (unsigned long)0;
@@ -7837,14 +7836,14 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
                 memcpy((void*)&sout->sams + dsize * sizeof(long), (void*)dim->offs,
                        (size_t)dsize * sizeof(unsigned long));
 
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     p2[i] = (unsigned long)0;
                 }
             }
 
             if (dim->method == 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     p1[i] = (unsigned long)0;
                     p2[i] = (unsigned long)0;
@@ -7875,7 +7874,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
             p2 = (char*)(&sout->sams) + dsize * (sizeof(long) + sizeof(char));
 
             if (dim->udoms == 0 || dim->method < 1 || dim->method > 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     p1[i] = (char)0;
                     p2[i] = (char)0;
@@ -7894,14 +7893,14 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
                 memcpy((void*)&sout->sams + dsize * sizeof(long), (void*)dim->offs,
                        (size_t)dsize * sizeof(char));
 
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     p2[i] = (char)0;
                 }
             }
 
             if (dim->method == 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     p1[i] = (char)0;
                     p2[i] = (char)0;
@@ -7933,7 +7932,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
             p2 = (unsigned char*)(&sout->sams) + dsize * (sizeof(long) + sizeof(unsigned char));
 
             if (dim->udoms == 0 || dim->method < 1 || dim->method > 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     p1[i] = (unsigned char)0;
                     p2[i] = (unsigned char)0;
@@ -7952,14 +7951,14 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
                 memcpy((void*)&sout->sams + dsize * sizeof(long), (void*)dim->offs,
                        (size_t)dsize * sizeof(unsigned char));
 
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     p2[i] = (unsigned char)0;
                 }
             }
 
             if (dim->method == 3) {
-                for (i = 0; i < dsize; i++) {
+                for (int i = 0; i < dsize; i++) {
                     *(sout->sams + i) = (long)0;
                     p1[i] = (unsigned char)0;
                     p2[i] = (unsigned char)0;

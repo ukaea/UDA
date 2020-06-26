@@ -78,7 +78,6 @@ int idamSyntheticModel(int model, int param_n, float* params, int data_n, float*
                  "Random Number Generators from the GSL library required.");
     return 999;
 #else
-    int i;
     float shift;
     static gsl_rng *random=nullptr;
 

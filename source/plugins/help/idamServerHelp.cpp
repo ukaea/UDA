@@ -184,7 +184,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     //======================================================================================
     // Plugin functionality
-    int i, j, count;
+    int count;
     unsigned short target;
 
     const char* line = "\n------------------------------------------------------\n";
@@ -202,7 +202,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     const PLUGINLIST* pluginList = idam_plugin_interface->pluginList;
 
     count = 0;
-    for (i = 0; i < pluginList->count; i++)
+    for (int i = 0; i < pluginList->count; i++)
         if (pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
             (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
              (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
@@ -212,14 +212,14 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     sprintf(rec, "\nTotal number of registered plugins available: %d\n", count);
     strcat(doc, rec);
 
-    for (j = 0; j < 5; j++) {
+    for (int j = 0; j < 5; j++) {
         count = 0;
         strcat(doc, line);
         switch (j) {
             case 0: {
                 target = UDA_PLUGIN_CLASS_FILE;
 
-                for (i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
@@ -231,7 +231,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                 sprintf(rec, "\nNumber of plugins for data file formats: %d\n\n", count);
                 strcat(doc, rec);
 
-                for (i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
@@ -250,7 +250,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
             case 1: {
                 target = UDA_PLUGIN_CLASS_FUNCTION;
-                for (i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
@@ -259,7 +259,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     }
                 sprintf(rec, "\nNumber of plugins for Libraries: %d\n\n", count);
                 strcat(doc, rec);
-                for (i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
@@ -275,7 +275,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
             case 2: {
                 target = UDA_PLUGIN_CLASS_SERVER;
-                for (i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
@@ -284,7 +284,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     }
                 sprintf(rec, "\nNumber of plugins for Data Servers: %d\n\n", count);
                 strcat(doc, rec);
-                for (i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
@@ -300,7 +300,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
             case 3: {
                 target = UDA_PLUGIN_CLASS_DEVICE;
-                for (i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
@@ -309,7 +309,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     }
                 sprintf(rec, "\nNumber of plugins for External Devices: %d\n\n", count);
                 strcat(doc, rec);
-                for (i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
@@ -325,7 +325,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
             case 4: {
                 target = UDA_PLUGIN_CLASS_OTHER;
-                for (i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
@@ -334,7 +334,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     }
                 sprintf(rec, "\nNumber of plugins for Other data services: %d\n\n", count);
                 strcat(doc, rec);
-                for (i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++)
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||

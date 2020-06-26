@@ -28,7 +28,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
     // Sending: data points to the memory location of the structure, defined by userdefinedtype, to be sent
     // Receiving: userdefinedtype contains the definition of the structure to be received.
 
-    int rc = 1, i, j, id, loopcount, rank, count, size, passdata = 0, isSOAP;
+    int rc = 1, id, loopcount, rank, count, size, passdata = 0, isSOAP;
     int* shape;
     char* p0, * d;
     const char* type;
@@ -112,7 +112,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
 
     // Loop over all structure elements: Send or Receive
 
-    for (j = 0; j < userdefinedtype->fieldcount; j++) {
+    for (int j = 0; j < userdefinedtype->fieldcount; j++) {
 
         if (j >= userdefinedtype->fieldcount) {
             addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999, "Fieldcount Exceeded!");
@@ -1319,7 +1319,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
 
                 if (utype != nullptr) {
 
-                    for (i = 0; i < loopcount; i++) {
+                    for (int i = 0; i < loopcount; i++) {
 
 // Has this structure already been sent/received (e.g. in a linked list)
 
@@ -1466,7 +1466,7 @@ bool_t xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str)
 
 // Send/Receive the list of userdefined types
 
-    int i, rc = 1;
+    int rc = 1;
 
     rc = rc && xdr_int(xdrs, &str->listCount);
 
@@ -1476,10 +1476,10 @@ bool_t xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str)
 
     if (xdrs->x_op == XDR_DECODE) {        // Receiving array so allocate Heap for it then initialise
         str->userdefinedtype = (USERDEFINEDTYPE*)malloc(str->listCount * sizeof(USERDEFINEDTYPE));
-        for (i = 0; i < str->listCount; i++) initUserDefinedType(&str->userdefinedtype[i]);
+        for (int i = 0; i < str->listCount; i++) initUserDefinedType(&str->userdefinedtype[i]);
     }
 
-    for (i = 0; i < str->listCount; i++) rc = rc && xdr_userdefinedtype(xdrs, str, &str->userdefinedtype[i]);
+    for (int i = 0; i < str->listCount; i++) rc = rc && xdr_userdefinedtype(xdrs, str, &str->userdefinedtype[i]);
 
     return rc;
 }

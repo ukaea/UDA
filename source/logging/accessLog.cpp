@@ -39,11 +39,12 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
     if (data_block->error_type != UDA_TYPE_UNKNOWN) {
         count += (unsigned int)(getSizeOf((UDA_TYPE)data_block->error_type) * data_block->data_n);
     }
-    if (data_block->errasymmetry) count += (unsigned int)(getSizeOf((UDA_TYPE)data_block->error_type) * data_block->data_n);
+    if (data_block->errasymmetry) {
+        count += (unsigned int)(getSizeOf((UDA_TYPE)data_block->error_type) * data_block->data_n);
+    }
 
-    unsigned int k;
     if (data_block->rank > 0) {
-        for (k = 0; k < data_block->rank; k++) {
+        for (unsigned int k = 0; k < data_block->rank; k++) {
             count += sizeof(DIMS);
             dim = data_block->dims[k];
             if (!dim.compressed) {
@@ -53,14 +54,13 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
                 if (dim.error_type != UDA_TYPE_UNKNOWN) {
                     count += (unsigned int)(factor * getSizeOf((UDA_TYPE)dim.error_type) * dim.dim_n);
                 }
-            } else {
-                unsigned int i;
+            } else {;
                 switch (dim.method) {
                     case 0:
                         count += +2 * sizeof(double);
                         break;
                     case 1:
-                        for (i = 0; i < dim.udoms; i++) {
+                        for (unsigned int i = 0; i < dim.udoms; i++) {
                             count += (unsigned int)(*((long*)dim.sams + i) * getSizeOf((UDA_TYPE)dim.data_type));
                         }
                         break;

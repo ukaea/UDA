@@ -144,7 +144,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
 
                 char server[MAXSERVER];
                 char* token = nullptr;
-                int i, lpath;
+                int lpath;
 
                 strcpy(server, request_block.server);
                 if (!strncasecmp(server, "localhost.", 10)) server[9] = '/';        // For Parsing
@@ -162,7 +162,7 @@ int dumpFile(REQUEST_BLOCK request_block, DATA_BLOCK* data_block)
                                     "Syntax error in the directory path to the MDS+ Data Tree %s\n", path);
                             break;
                         }
-                        for (i = 0; i < lpath; i++)
+                        for (int i = 0; i < lpath; i++)
                             if (path[i] == '.')
                                 path[i] = '/';        // Change from URL Notation to Path Tree Notation
                     } else {

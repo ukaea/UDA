@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------
-* IDAM Client Data Cache
+* UDA Client Data Cache
 *----------------------------------------------------------------
 Contents of DATA_BLOCK structures written to a local cache
 Date/Time Stamp used to build in automatic obsolescence.
@@ -33,8 +33,10 @@ int idamClientLockCache(FILE **db, short type) {
 #else
 
 #include <fcntl.h>
-#include <stdlib.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cerrno>
+#include <string>
+#include <vector>
 
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
@@ -64,20 +66,21 @@ int idamClientLockCache(FILE** db, short type)
     // Open the Cache database table on locking and close on unlocking
 
     if (type == F_WRLCK) {                    // Open the Database Table and apply an Exclusive lock
-        char* dir = getenv("UDA_CACHE_DIR");        // Where the files are located
-        char* table = getenv("UDA_CACHE_TABLE");        // List of cached files
+        const char* dir = getenv("UDA_CACHE_DIR");        // Where the files are located
+        const char* table = getenv("UDA_CACHE_TABLE");        // List of cached files
 
         *db = nullptr;
-        if (dir == nullptr || table == nullptr) return 0;    // No Cache? This is Not an Error!
+        if (dir == nullptr || table == nullptr) {
+            // No Cache? This is Not an Error!
+            return 0;
+        }
 
-        char* dbfile = (char*)malloc((strlen(dir) + strlen(table) + 2) * sizeof(char));
-        sprintf(dbfile, "%s/%s", dir, table);
+        std::string dbfile = std::string{ dir } + "/" + table;
 
         // Open the Cache database table
 
         errno = 0;
-        fh = fopen(dbfile, "r+");    // ASCII file: Read with update (over-write)
-        free((void*)dbfile);
+        fh = fopen(dbfile.c_str(), "r+");    // ASCII file: Read with update (over-write)
 
         if (fh == nullptr || errno != 0) {
             err = 999;
@@ -145,7 +148,7 @@ int idamClientLockCache(FILE** db, short type)
 
 int idamClientCacheTimeValid(unsigned long long timestamp)
 {
-    struct timeval current;
+    timeval current = {};
     gettimeofday(&current, nullptr);
     if (timestamp >= (unsigned long long)current.tv_sec) {
         // Timestamp OK
@@ -158,7 +161,7 @@ int idamClientCacheTimeValid(unsigned long long timestamp)
 
 int idamClientCacheLockedTimeValid(unsigned long long timestamp)
 {
-    struct timeval current;
+    timeval current = {};
     gettimeofday(&current, nullptr);
     if ((timestamp + CACHE_MAXLOCKTIME) >= (unsigned long long)current.tv_sec) {
         // Timestamp OK
@@ -211,13 +214,12 @@ int idamClientGetCacheStats(FILE* db, unsigned long* recordCount, unsigned long*
 void idamClientUpdateCacheStats(FILE* db, unsigned long recordCount, unsigned long deadCount, unsigned long endOffset,
                                 char csvChar)
 {
-    int i;
     char work[CACHE_FIRSTRECORDLENGTH + 1];
     rewind(db);
     // Updated statistics record
     sprintf(work, "%lu%c%lu%c%lu", recordCount, csvChar, deadCount, csvChar, endOffset);
     int lstr = (int)strlen(work);
-    for (i = lstr; i < CACHE_FIRSTRECORDLENGTH; i++) {
+    for (int i = lstr; i < CACHE_FIRSTRECORDLENGTH; i++) {
         // Pack remaining record with space chars
         work[i] = ' ';
     }
@@ -241,9 +243,6 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
     char* p = nullptr;
     char* csv = nullptr;
     char* next = nullptr;
-    char* work = nullptr;
-
-    unsigned long long* timestamplist = nullptr;
 
     char* dir = getenv("UDA_CACHE_DIR");        // Where the files are located
 
@@ -251,8 +250,8 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
 
     fseek(db, CACHE_FIRSTRECORDLENGTH, SEEK_SET);        // rewind the file to the beginning of the second record
 
-    char** table = (char**)malloc(recordCount * sizeof(char*));
-    timestamplist = (unsigned long long*)malloc(recordCount * sizeof(unsigned long long));
+    std::vector<std::string> table(recordCount);
+    std::vector<unsigned long long> timestamplist(recordCount);
 
     unsigned long count = 0;
     while (count++ < recordCount && !feof(db) && fgets(buffer, STRING_LENGTH, db) != nullptr) {
@@ -262,20 +261,15 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
         dbkey = 0;
 
         if (buffer[0] == '#') {            // Preserve comments
-            table[validRecordCount] = (char*)malloc((sizeof(buffer) + 1) * sizeof(char));
-            strcpy(table[validRecordCount++], buffer);
+            table[validRecordCount++] = buffer;
             continue;
         }
 
-        if (buffer[0] == '\n') continue;
+        if (buffer[0] == '\n') {
+            continue;
+        }
 
-        size_t lstr = strlen(buffer) + 1;
-        work = (char*)malloc(lstr * sizeof(char));
-        strcpy(work, buffer);
-        next = work;
-
-        int i;
-        for (i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             if ((csv = strchr(next, csvChar)) != nullptr) csv[0] = '\0';
             TrimString(next);
             LeftTrimString(next);
@@ -303,14 +297,14 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
             // Check the records is valid (always if locked by a process)
             if ((status == CACHE_LOCKEDRECORD && idamClientCacheLockedTimeValid(timestamp)) ||
                 (idamClientCacheTimeValid(timestamp) && idamClientCacheFileValid(filename))) {
-                table[validRecordCount] = work;            // reuse this heap allocation
+                table[validRecordCount] = buffer;
                 timestamplist[validRecordCount] = timestamp;    // Sort on this to purge oldest records
-                strcpy(table[validRecordCount++], buffer);
+                validRecordCount++;
             } else {
-                char* dbfile = (char*)malloc((strlen(dir) + strlen(filename) + 2) * sizeof(char));
-                sprintf(dbfile, "%s/%s", dir, filename);
-                remove(dbfile);                    // Delete the cached file and ignore the record - purge
-                free((void*)dbfile);
+                std::string dbfile;
+                dbfile = std::string{ dir } + "/" + filename;
+                // Delete the cached file and ignore the record - purge
+                remove(dbfile.c_str());
             }
         }
     }
@@ -324,16 +318,13 @@ int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* end
     fseek(db, CACHE_FIRSTRECORDLENGTH, SEEK_SET);    // Position at the start of record 2
 
     errno = 0;
-    unsigned long i;
-    for (i = 0; i < validRecordCount; i++) {
-        unsigned long lstr = strlen(table[i]);
-        count = fwrite(table[i], sizeof(char), (size_t)lstr, db);    // Write all valid records
+    for (unsigned long i = 0; i < validRecordCount; i++) {
+        size_t lstr = table[i].size();
+        count = fwrite(table[i].c_str(), sizeof(char), lstr, db);    // Write all valid records
         if (count != lstr || errno != 0) {
             int err = 999;
             return -err;
         }
-
-        free(table[i]);
     }
 
     *endOffset = (unsigned long)ftell(db);            // Append or overwrite new records from this location (End of active records)
@@ -385,10 +376,10 @@ int idamClientReadCache(DATA_BLOCK* data_block, char* filename, int protocolVers
 
         // Initialise structure passing mechanism
 
-        LOGMALLOCLIST* logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
+        auto logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
         initLogMallocList(logmalloclist);
-        USERDEFINEDTYPELIST* userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-        USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
+        auto userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
+        auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
         initUserDefinedTypeList(userdefinedtypelist);
 
         rc = xdr_userdefinedtypelist(xdrs, userdefinedtypelist); // receive the full set of known named structures
@@ -422,9 +413,9 @@ int idamClientReadCache(DATA_BLOCK* data_block, char* filename, int protocolVers
 
         if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
-            GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
+            auto general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
 
-            SARRAY* s = (SARRAY*)data;
+            auto s = (SARRAY*)data;
             if (s->count != data_block->data_n) {                // check for consistency
                 err = 999;
                 addIdamError(CODEERRORTYPE, __func__, err, "Inconsistent S Array Counts");
@@ -502,8 +493,7 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
             if (buffer[0] == '\n') break;
             next = buffer;
 
-            int i;
-            for (i = 0; i < 7; i++) {
+            for (int i = 0; i < 7; i++) {
                 if ((csv = strchr(next, csvChar)) != nullptr) {
                     csv[0] = '\0';
                 }    // Split the record into fields using delimiter character
@@ -592,10 +582,8 @@ int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilenam
             deadCount = 0;
         } else {
             char* dir = getenv("UDA_CACHE_DIR");        // Where the files are located
-            char* dbfile = (char*)malloc((strlen(dir) + strlen(filename) + 2) * sizeof(char));    // Erase cache file
-            sprintf(dbfile, "%s/%s", dir, filename);
-            remove(dbfile);
-            free((void*)dbfile);
+            std::string dbfile = std::string{ dir } + "/" + filename;
+            remove(dbfile.c_str());
         }
 
         idamClientUpdateCacheStats(db, recordCount, deadCount, endOffset, csvChar);
@@ -767,11 +755,10 @@ int idamClientWriteCache(char* filename)
    int
    main ()
    {
-     int i, j;
      unsigned int c;
      int table[256];
 
-     for (i = 0; i < 256; i++)
+     for (int i = 0; i < 256; i++)
        {
 	 for (c = i << 24, j = 8; j > 0; --j)
 	   c = c & 0x80000000 ? (c << 1) ^ 0x04c11db7 : (c << 1);
@@ -779,7 +766,7 @@ int idamClientWriteCache(char* filename)
        }
 
      printf ("static const unsigned int crc32_table[] =\n{\n");
-     for (i = 0; i < 256; i += 4)
+     for (int i = 0; i < 256; i += 4)
        {
 	 printf ("  0x%08x, 0x%08x, 0x%08x, 0x%08x",
 		 table[i + 0], table[i + 1], table[i + 2], table[i + 3]);

@@ -58,8 +58,7 @@ int allocData(DATA_BLOCK* data_block)
         if (data_block->dims == nullptr) {
             return ERROR_ALLOCATING_HEAP;
         }
-        unsigned int i;
-        for (i = 0; i < data_block->rank; i++) {
+        for (unsigned int i = 0; i < data_block->rank; i++) {
             initDimBlock(&data_block->dims[i]);
         }
     }
@@ -126,19 +125,18 @@ int allocData(DATA_BLOCK* data_block)
 
 int allocDim(DATA_BLOCK* data_block)
 {
-// This routine is only called by the Client if data
-// are NOT in a compressed form, when Heap is
-// allocated by the Dimension Uncompression function.
-//
-// It may or may not be called by a Server Plugin.
+    // This routine is only called by the Client if data
+    // are NOT in a compressed form, when Heap is
+    // allocated by the Dimension Uncompression function.
+    //
+    // It may or may not be called by a Server Plugin.
 
     unsigned int ndata;
     char* db = nullptr;
     char* ebh = nullptr;
     char* ebl = nullptr;
 
-    unsigned int i;
-    for (i = 0; i < data_block->rank; i++) {
+    for (unsigned int i = 0; i < data_block->rank; i++) {
 
         ndata = (unsigned int)data_block->dims[i].dim_n;
 

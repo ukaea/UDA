@@ -58,8 +58,7 @@ int addSocket(SOCKETLIST* socks, int type, int status, char* host, int port, int
 
 int getSocket(SOCKETLIST* socks, int type, int* status, char* host, int port, int* fh)
 {
-    int i;
-    for (i = 0; i < socks->nsocks; i++) {
+    for (int i = 0; i < socks->nsocks; i++) {
         if (STR_IEQUALS(host, socks->sockets[i].host) && socks->sockets[i].type == type &&
             socks->sockets[i].port == port) {
             if ((*status = socks->sockets[i].status) == 1) {
@@ -77,8 +76,7 @@ int getSocket(SOCKETLIST* socks, int type, int* status, char* host, int port, in
 
 int getSocketRecordId(SOCKETLIST* socks, int fh)
 {
-    int i;
-    for (i = 0; i < socks->nsocks; i++) {
+    for (int i = 0; i < socks->nsocks; i++) {
         if (socks->sockets[i].fh == fh) {
             return i;
         }
@@ -88,8 +86,7 @@ int getSocketRecordId(SOCKETLIST* socks, int fh)
 
 void closeClientSocket(SOCKETLIST* socks, int fh)
 {
-    int i;
-    for (i = 0; i < socks->nsocks; i++) {
+    for (int i = 0; i < socks->nsocks; i++) {
         if (socks->sockets[i].fh == fh && socks->sockets[i].fh >= 0) {
             if (socks->sockets[i].type == TYPE_UDA_SERVER) {
 #ifndef _WIN32
@@ -107,8 +104,7 @@ void closeClientSocket(SOCKETLIST* socks, int fh)
 
 void closeClientSockets(SOCKETLIST* socks)
 {
-    int i;
-    for (i = 0; i < socks->nsocks; i++) {
+    for (int i = 0; i < socks->nsocks; i++) {
         closeClientSocket(socks, socks->sockets[i].fh);
     }
     free((void*)socks->sockets);

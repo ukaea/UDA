@@ -543,7 +543,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurenames(int argc, IDL_VPTR argv[], char* ar
     // calls:   int getNodeStructureCount(NTREE *ntree)
     //      char **getNodeStructureNames(NTREE *ntree)
 
-    int i, handle, count, length;
+    int handle, count, length;
     NTREE* ntree;
     char** names;
 
@@ -627,7 +627,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurenames(int argc, IDL_VPTR argv[], char* ar
         fprintf(stdout, "Structure Definition Name: %s\n", udt->name);
         fprintf(stdout, "Count: %d\n", count);
 
-        for (i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             fprintf(stdout, "[%2d]: %s\n", i, names[i]);
         }
 
@@ -653,7 +653,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurenames(int argc, IDL_VPTR argv[], char* ar
 
     // Copy strings into IDL array
 
-    for (i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {
         length = strlen(names[i]);
         IDL_StrEnsureLength(&idl_names[i], length);   // Ensure length is sufficient
         IDL_StrStore(&idl_names[i], names[i]);        // Copy the string
@@ -673,7 +673,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* ar
     // calls:   int getNodeStructureCount(NTREE *ntree)
     //      char **getNodeStructureTypes(NTREE *ntree)
 
-    int i, handle, count, length;
+    int handle, count, length;
     NTREE* ntree;
     char** names;
 
@@ -756,7 +756,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* ar
         fprintf(stdout, "Structure Definition Name: %s\n", udt->name);
         fprintf(stdout, "Count: %d\n", count);
 
-        for (i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             fprintf(stdout, "[%2d]: %s\n", i, names[i]);
         }
 
@@ -780,7 +780,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuretypes(int argc, IDL_VPTR argv[], char* ar
 
     // Copy strings into IDL array
 
-    for (i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {
         length = strlen(names[i]);
         IDL_StrEnsureLength(&idl_names[i], length);   // Ensure length is sufficient
         IDL_StrStore(&idl_names[i], names[i]);        // Copy the string
@@ -801,7 +801,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurepointers(int argc, IDL_VPTR argv[], char*
     // calls:   int getNodeStructureCount(NTREE *ntree)
     //      int *getNodeStructurePointers(NTREE *ntree)
 
-    int i, handle, count;
+    int handle, count;
     NTREE* ntree;
     int* pointers;
 
@@ -884,7 +884,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurepointers(int argc, IDL_VPTR argv[], char*
         fprintf(stdout, "Structure Definition Name: %s\n", udt->name);
         fprintf(stdout, "Count: %d\n", count);
 
-        for (i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             fprintf(stdout, "[%2d]: %d\n", i, pointers[i]);
         }
 
@@ -906,7 +906,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurepointers(int argc, IDL_VPTR argv[], char*
 
     idl_pointers = (short*) IDL_MakeTempArray((int) IDL_TYP_INT, 1, idl_shape, IDL_ARR_INI_ZERO, &vReturn);
 
-    for (i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {
         idl_pointers[i] = (short) pointers[i];
     }
 
@@ -923,7 +923,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurerank(int argc, IDL_VPTR argv[], char* arg
     // calls:   int getNodeStructureCount(NTREE *ntree)
     //      int *getNodeStructureRank(NTREE *ntree)
 
-    int i, handle, count;
+    int handle, count;
     NTREE* ntree;
     int* ranks;
 
@@ -1006,7 +1006,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurerank(int argc, IDL_VPTR argv[], char* arg
         fprintf(stdout, "Structure Definition Name: %s\n", udt->name);
         fprintf(stdout, "Count: %d\n", count);
 
-        for (i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             fprintf(stdout, "[%2d]: %d\n", i, ranks[i]);
         }
 
@@ -1028,7 +1028,7 @@ IDL_VPTR IDL_CDECL getidamnodestructurerank(int argc, IDL_VPTR argv[], char* arg
 
     idl_data = (IDL_LONG*) IDL_MakeTempArray((int) IDL_TYP_LONG, 1, idl_shape, IDL_ARR_INI_ZERO, &vReturn);
 
-    for (i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {
         idl_data[i] = (IDL_LONG) ranks[i];
     }
 
@@ -1046,7 +1046,7 @@ IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* ar
     //      int *getNodeStructureRank(NTREE *ntree)
     //      int **getNodeStructureShape(NTREE *ntree)
 
-    int i, j, k, handle, count, maxrank = 1;
+    int handle, count, maxrank = 1;
     NTREE* ntree;
     int* ranks;
     int** shapes;
@@ -1134,11 +1134,11 @@ IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* ar
         fprintf(stdout, "Shape: %p\n", shapes);
         fprintf(stdout, "Rank : %p\n", ranks);
 
-        for (i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             fprintf(stdout, "[%2d]: [", i);
 
             if (shapes != NULL && ranks != NULL) {
-                for (j = 0; j < ranks[i]; j++) {
+                for (int j = 0; j < ranks[i]; j++) {
                     if (shapes[i] != NULL) {
                         fprintf(stdout, "%d ", shapes[i][j]);
                     } else {
@@ -1163,7 +1163,7 @@ IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* ar
 
     // Maximum Rank
 
-    for (i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
         if (ranks[i] > maxrank) {
             maxrank = ranks[i];    // Shapes are returned as a regular array
         }
@@ -1185,8 +1185,8 @@ IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* ar
 
     k = 0;
 
-    for (i = 0; i < count; i++)
-        for (j = 0; j < maxrank; j++) {
+    for (int i = 0; i < count; i++)
+        for (int j = 0; j < maxrank; j++) {
             idl_data[k++] = 0;    // Assume No information on shape
         }
 
@@ -1195,8 +1195,8 @@ IDL_VPTR IDL_CDECL getidamnodestructureshape(int argc, IDL_VPTR argv[], char* ar
     if (shapes != NULL) {
         k = 0;
 
-        for (j = 0; j < maxrank; j++) {
-            for (i = 0; i < count; i++) {
+        for (int j = 0; j < maxrank; j++) {
+            for (int i = 0; i < count; i++) {
                 if (j < ranks[i] && shapes[i] != NULL) {
                     idl_data[k++] = (IDL_LONG) (IDL_LONG) shapes[i][j];
                 } else {
@@ -1310,7 +1310,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk)
     // calls:   int getNodeAtomicCount(NTREE *ntree)
     //      char **getNodeAtomicNames(NTREE *ntree)
 
-    int i, handle, count, length;
+    int handle, count, length;
     NTREE* ntree;
     char** names;
 
@@ -1393,7 +1393,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk)
         fprintf(stdout, "Structure Definition Name: %s\n", udt->name);
         fprintf(stdout, "Count: %d\n", count);
 
-        for (i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             fprintf(stdout, "[%2d]: %s\n", i, names[i]);
         }
 
@@ -1417,7 +1417,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicnames(int argc, IDL_VPTR argv[], char* argk)
 
     // Copy strings into IDL array
 
-    for (i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {
         length = strlen(names[i]);
         IDL_StrEnsureLength(&idl_names[i], length);   // Ensure length is sufficient
         IDL_StrStore(&idl_names[i], names[i]);        // Copy the string
@@ -1438,7 +1438,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk)
     // calls:   int getNodeAtomicCount(NTREE *ntree)
     //      char **getNodeAtomicTypes(NTREE *ntree)
 
-    int i, handle, count, length;
+    int handle, count, length;
     NTREE* ntree;
     char** names;
 
@@ -1521,7 +1521,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk)
         fprintf(stdout, "Structure Definition Name: %s\n", udt->name);
         fprintf(stdout, "Count: %d\n", count);
 
-        for (i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             fprintf(stdout, "[%2d]: %s\n", i, names[i]);
         }
 
@@ -1545,7 +1545,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomictypes(int argc, IDL_VPTR argv[], char* argk)
 
     // Copy strings into IDL array
 
-    for (i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {
         length = strlen(names[i]);
         IDL_StrEnsureLength(&idl_names[i], length);   // Ensure length is sufficient
         IDL_StrStore(&idl_names[i], names[i]);        // Copy the string
@@ -1566,7 +1566,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* ar
     // calls:   int getNodeAtomicCount(NTREE *ntree)
     //      int *getNodeAtomicPointers(NTREE *ntree)
 
-    int i, handle, count;
+    int handle, count;
     NTREE* ntree;
     int* pointers;
 
@@ -1649,7 +1649,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* ar
         fprintf(stdout, "Structure Definition Name: %s\n", udt->name);
         fprintf(stdout, "Count: %d\n", count);
 
-        for (i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             fprintf(stdout, "[%2d]: %d\n", i, pointers[i]);
         }
 
@@ -1671,7 +1671,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicpointers(int argc, IDL_VPTR argv[], char* ar
 
     idl_pointers = (short*) IDL_MakeTempArray((int) IDL_TYP_INT, 1, idl_shape, IDL_ARR_INI_ZERO, &vReturn);
 
-    for (i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {
         idl_pointers[i] = (short) pointers[i];
     }
 
@@ -1689,7 +1689,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk) 
     // calls:   int getNodeAtomicCount(NTREE *ntree)
     //      int *getNodeAtomicRank(NTREE *ntree)
 
-    int i, handle, count;
+    int handle, count;
     NTREE* ntree;
     int* ranks;
 
@@ -1772,7 +1772,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk) 
         fprintf(stdout, "Structure Definition Name: %s\n", udt->name);
         fprintf(stdout, "Count: %d\n", count);
 
-        for (i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             fprintf(stdout, "[%2d]: %d\n", i, ranks[i]);
         }
 
@@ -1794,7 +1794,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicrank(int argc, IDL_VPTR argv[], char* argk) 
 
     idl_data = (IDL_LONG*) IDL_MakeTempArray((int) IDL_TYP_LONG, 1, idl_shape, IDL_ARR_INI_ZERO, &vReturn);
 
-    for (i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {
         idl_data[i] = (IDL_LONG) ranks[i];
     }
 
@@ -1813,7 +1813,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk)
     //      int *getNodeAtomicRank(NTREE *ntree)
     //      int **getNodeAtomicShape(NTREE *ntree)
 
-    int i, j, k, handle, count, maxrank = 1;
+    int handle, count, maxrank = 1;
     NTREE* ntree;
     int* ranks;
     int** shapes;
@@ -1901,11 +1901,11 @@ IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk)
         fprintf(stdout, "Shape: %p\n", shapes);
         fprintf(stdout, "Rank : %p\n", ranks);
 
-        for (i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             fprintf(stdout, "[%2d]: [", i);
 
             if (shapes != NULL && ranks != NULL) {
-                for (j = 0; j < ranks[i]; j++) {
+                for (int j = 0; j < ranks[i]; j++) {
                     if (shapes[i] != NULL) {
                         fprintf(stdout, "%d ", shapes[i][j]);
                     } else {
@@ -1930,7 +1930,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk)
 
     // Maximum Rank
 
-    for (i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
         if (ranks[i] > maxrank) {
             maxrank = ranks[i];    // Shapes are returned as a regular array
         }
@@ -1952,8 +1952,8 @@ IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk)
 
     k = 0;
 
-    for (i = 0; i < count; i++)
-        for (j = 0; j < maxrank; j++) {
+    for (int i = 0; i < count; i++)
+        for (int j = 0; j < maxrank; j++) {
             idl_data[k++] = 0;    // Assume No information on shape
         }
 
@@ -1962,8 +1962,8 @@ IDL_VPTR IDL_CDECL getidamnodeatomicshape(int argc, IDL_VPTR argv[], char* argk)
     if (shapes != NULL) {
         k = 0;
 
-        for (j = 0; j < maxrank; j++) {
-            for (i = 0; i < count; i++) {
+        for (int j = 0; j < maxrank; j++) {
+            for (int i = 0; i < count; i++) {
                 if (j < ranks[i] && shapes[i] != NULL) {
                     idl_data[k++] = (IDL_LONG) (IDL_LONG) shapes[i][j];
                 } else {
@@ -2089,7 +2089,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
     //      getNodeStructureComponentDataIsPointer(ntree, name)
     //      getNodeStructureComponentData(ntree, name)
 
-    int i, handle, count, rank, pointer, test = 1;
+    int handle, count, rank, pointer, test = 1;
     int* shape;
     const char* name;
     const char* type;
@@ -2181,7 +2181,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             // IDL arrays have fortran memory arrangment [first, second] not c arrangement [second, first]
 
             //for(i=0;i<rank;i++) idl_shape[i] = (IDL_LONG)shape[i];
-            for (i = 0; i < rank; i++) {
+            for (int i = 0; i < rank; i++) {
                 idl_shape[rank - i - 1] = (IDL_MEMINT) shape[i];
             }
 
@@ -2221,7 +2221,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
     }
 
     if (rank > 1) {
-        for (i = 0; i < rank; i++) {
+        for (int i = 0; i < rank; i++) {
             test = test * (int) idl_shape[i];    // Check shape values
         }
 
@@ -2301,7 +2301,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                 idlData = (IDL_STRING*) IDL_MakeTempArray((int) IDL_TYP_STRING, rank, idl_shape, IDL_ARR_INI_NOP,
                                                           &vData);
 
-                for (i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     length = strlen(Data[i]);
                     IDL_StrEnsureLength(&idlData[i], length + 1);      // Ensure length is sufficient
                     IDL_StrStore(&idlData[i], Data[i]);          // Copy the string
@@ -2327,7 +2327,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                     idlData = (IDL_STRING*) IDL_MakeTempArray((int) IDL_TYP_STRING, rank, idl_shape, IDL_ARR_INI_NOP,
                                                               &vData);
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
 
                         if (Data[i] == NULL) {
                             IDL_StrEnsureLength(&idlData[i], 1);       // Ensure length is sufficient
@@ -2393,7 +2393,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                         char* s = NULL;
                         int lstr, offset = 0;
 
-                        for (i = 0; i < nstr; i++) {
+                        for (int i = 0; i < nstr; i++) {
                             lstr = strlen(&str[offset]);
 
                             if (lstr > length) {
@@ -2432,7 +2432,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             if (rank > 0) {
                 idlData = (float*) IDL_MakeTempArray((int) IDL_TYP_FLOAT, rank, idl_shape, IDL_ARR_INI_ZERO, &vData);
 
-                for (i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     idlData[i] = Data[i];
                 }
             } else {
@@ -2440,7 +2440,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                     idlData = (float*) IDL_MakeTempVector((int) IDL_TYP_FLOAT, (IDL_LONG) count, IDL_ARR_INI_ZERO,
                                                           &vData);
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         idlData[i] = Data[i];
                     }
                 } else {
@@ -2475,7 +2475,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
 
                 idlData = (double*) IDL_MakeTempArray((int) IDL_TYP_DOUBLE, rank, idl_shape, IDL_ARR_INI_ZERO, &vData);
 
-                for (i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     idlData[i] = Data[i];
                 }
 
@@ -2484,7 +2484,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                     idlData = (double*) IDL_MakeTempVector((int) IDL_TYP_DOUBLE, (IDL_LONG) count, IDL_ARR_INI_ZERO,
                                                            &vData);
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         idlData[i] = Data[i];
                     }
                 } else {
@@ -2504,7 +2504,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             if (rank > 0) {
                 idlData = (char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, rank, idl_shape, IDL_ARR_INI_ZERO, &vData);
 
-                for (i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     idlData[i] = Data[i];
                 }
             } else {
@@ -2512,7 +2512,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                     idlData = (char*) IDL_MakeTempVector((int) IDL_TYP_BYTE, (IDL_LONG) count, IDL_ARR_INI_ZERO,
                                                          &vData);
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         idlData[i] = Data[i];
                     }
                 } else {
@@ -2532,7 +2532,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             if (rank > 0) {
                 idlData = (short*) IDL_MakeTempArray((int) IDL_TYP_INT, rank, idl_shape, IDL_ARR_INI_ZERO, &vData);
 
-                for (i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     idlData[i] = Data[i];
                 }
             } else {
@@ -2540,7 +2540,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                     idlData = (short*) IDL_MakeTempVector((int) IDL_TYP_INT, (IDL_LONG) count, IDL_ARR_INI_ZERO,
                                                           &vData);
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         idlData[i] = Data[i];
                     }
                 } else {
@@ -2558,14 +2558,14 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
             if (rank > 0) {
                 idlData = (int*) IDL_MakeTempArray((int) IDL_TYP_LONG, rank, idl_shape, IDL_ARR_INI_ZERO, &vData);
 
-                for (i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     idlData[i] = Data[i];
                 }
             } else {
                 if (count > 1) {
                     idlData = (int*) IDL_MakeTempVector((int) IDL_TYP_LONG, (IDL_LONG) count, IDL_ARR_INI_ZERO, &vData);
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         idlData[i] = Data[i];
                     }
                 } else {
@@ -2584,7 +2584,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                 idlData = (long long*) IDL_MakeTempArray((int) IDL_TYP_LONG64, rank, idl_shape, IDL_ARR_INI_ZERO,
                                                          &vData);
 
-                for (i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     idlData[i] = Data[i];
                 }
             } else {
@@ -2592,7 +2592,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                     idlData = (long long*) IDL_MakeTempVector((int) IDL_TYP_LONG64, (IDL_LONG) count, IDL_ARR_INI_ZERO,
                                                               &vData);
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         idlData[i] = Data[i];
                     }
                 } else {
@@ -2613,7 +2613,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                 idlData = (unsigned char*) IDL_MakeTempArray((int) IDL_TYP_BYTE, rank, idl_shape, IDL_ARR_INI_ZERO,
                                                              &vData);
 
-                for (i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     idlData[i] = Data[i];
                 }
             } else {
@@ -2621,7 +2621,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                     idlData = (unsigned char*) IDL_MakeTempVector((int) IDL_TYP_BYTE, (IDL_LONG) count,
                                                                   IDL_ARR_INI_ZERO, &vData);
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         idlData[i] = Data[i];
                     }
                 } else {
@@ -2642,7 +2642,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                 idlData = (unsigned short*) IDL_MakeTempArray((int) IDL_TYP_UINT, rank, idl_shape, IDL_ARR_INI_ZERO,
                                                               &vData);
 
-                for (i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     idlData[i] = Data[i];
                 }
             } else {
@@ -2650,7 +2650,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                     idlData = (unsigned short*) IDL_MakeTempVector((int) IDL_TYP_UINT, (IDL_LONG) count,
                                                                    IDL_ARR_INI_ZERO, &vData);
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         idlData[i] = Data[i];
                     }
                 } else {
@@ -2669,7 +2669,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                 idlData = (unsigned int*) IDL_MakeTempArray((int) IDL_TYP_ULONG, rank, idl_shape, IDL_ARR_INI_ZERO,
                                                             &vData);
 
-                for (i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     idlData[i] = Data[i];
                 }
             } else {
@@ -2677,7 +2677,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                     idlData = (unsigned int*) IDL_MakeTempVector((int) IDL_TYP_ULONG, (IDL_LONG) count,
                                                                  IDL_ARR_INI_ZERO, &vData);
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         idlData[i] = Data[i];
                     }
                 } else {
@@ -2696,7 +2696,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                 idlData = (unsigned long long*) IDL_MakeTempArray((int) IDL_TYP_ULONG64, rank, idl_shape,
                                                                   IDL_ARR_INI_ZERO, &vData);
 
-                for (i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     idlData[i] = Data[i];
                 }
             } else {
@@ -2704,7 +2704,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                     idlData = (unsigned long long*) IDL_MakeTempVector((int) IDL_TYP_ULONG64, (IDL_LONG) count,
                                                                        IDL_ARR_INI_ZERO, &vData);
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         idlData[i] = Data[i];
                     }
                 } else {
@@ -2725,7 +2725,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                 idlData = (COMPLEX*) IDL_MakeTempArray((int) IDL_TYP_COMPLEX, rank, idl_shape, IDL_ARR_INI_ZERO,
                                                        &vData);
 
-                for (i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     idlData[i] = Data[i];
                 }
             } else {
@@ -2733,7 +2733,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                     idlData = (COMPLEX*) IDL_MakeTempVector((int) IDL_TYP_COMPLEX, (IDL_LONG) count, IDL_ARR_INI_ZERO,
                                                             &vData);
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         idlData[i] = Data[i];
                     }
                 } else {
@@ -2754,7 +2754,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                 idlData = (DCOMPLEX*) IDL_MakeTempArray((int) IDL_TYP_DCOMPLEX, rank, idl_shape, IDL_ARR_INI_ZERO,
                                                         &vData);
 
-                for (i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++) {
                     idlData[i] = Data[i];
                 }
             } else {
@@ -2762,7 +2762,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                     idlData = (DCOMPLEX*) IDL_MakeTempVector((int) IDL_TYP_DCOMPLEX, (IDL_LONG) count, IDL_ARR_INI_ZERO,
                                                              &vData);
 
-                    for (i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++) {
                         idlData[i] = Data[i];
                     }
                 } else {
@@ -3062,7 +3062,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char
         idl_shape[0] = rank;
         test = 1;
 
-        for (i = 0; i < rank; i++) {
+        for (int i = 0; i < rank; i++) {
             test = test * shape[i];    // Check shape values
         }
 
@@ -3083,7 +3083,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char
         fprintf(stdout, "Rank : %d\n", rank);
 
         if (rank > 1)
-            for (i = 0; i < rank; i++) {
+            for (int i = 0; i < rank; i++) {
                 fprintf(stdout, "Shape[%d]: %d\n", i, shape[i]);
             }
 
@@ -3098,7 +3098,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char
     if (rank <= 1) {
         idlData[0] = count;
     } else
-        for (i = 0; i < rank; i++) {
+        for (int i = 0; i < rank; i++) {
             idlData[i] = shape[i];
         }
 

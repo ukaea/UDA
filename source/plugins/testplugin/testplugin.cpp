@@ -367,8 +367,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->rank = 1;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-    unsigned int i;
-    for (i = 0; i < data_block->rank; i++) {
+    for (unsigned int i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
 
@@ -547,8 +546,7 @@ static int do_test0(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->rank = 1;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-    unsigned int i;
-    for (i = 0; i < data_block->rank; i++) {
+    for (unsigned int i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
 
@@ -599,8 +597,7 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     char** sarr = (char**)malloc(sCount * sizeof(char*));
 
     {
-        int i;
-        for (i = 0; i < sCount; i++) {
+        for (int i = 0; i < sCount; i++) {
             sarr[i] = (char*)malloc(30 * sizeof(char));
         }
     }
@@ -613,8 +610,7 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     int sMax = 0;
     {
-        int i;
-        for (i = 0; i < sCount; i++) {
+        for (int i = 0; i < sCount; i++) {
             int sLen;
             if ((sLen = (int)strlen(sarr[i]) + 1) > sMax) {
                 sMax = sLen;
@@ -630,8 +626,7 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Copy string data into the block positioned at regular intervals
 
     {
-        int i;
-        for (i = 0; i < sCount; i++) {
+        for (int i = 0; i < sCount; i++) {
             strcpy(&p[i * sMax], sarr[i]);
         }
     }
@@ -639,8 +634,7 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Free original data
 
     {
-        int i;
-        for (i = 0; i < sCount; i++) {
+        for (int i = 0; i < sCount; i++) {
             free(sarr[i]);
         }
     }
@@ -650,8 +644,7 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->rank = 2;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-    unsigned int i;
-    for (i = 0; i < data_block->rank; i++) {
+    for (unsigned int i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
 
@@ -1081,8 +1074,7 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 4, sizeof(TEST9), "TEST9");
 
     {
-        int i;
-        for (i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             strcpy(data[i].v1, "123212321232123212321");
             strcpy(data[i].v2[0], "012345678901234567890");
             strcpy(data[i].v2[1], "QWERTY KEYBOARD");
@@ -1135,8 +1127,7 @@ static int do_test9(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
-    unsigned int i;
-    for (i = 0; i < data_block->rank; i++) {
+    for (unsigned int i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
 
@@ -1160,8 +1151,7 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 4, sizeof(TEST9A), "TEST9A");
 
     {
-        int i;
-        for (i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             strcpy(data[i].v1, "123212321232123212321");
             strcpy(data[i].v2[0], "012345678901234567890");
             strcpy(data[i].v2[1], "QWERTY KEYBOARD");
@@ -1244,8 +1234,7 @@ static int do_test9A(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST9A", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-    unsigned int i;
-    for (i = 0; i < data_block->rank; i++) {
+    for (unsigned int i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
 
@@ -1785,8 +1774,7 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data = (TEST18*)malloc(data_block->data_n * sizeof(TEST18)); // Structured Data Must be a heap variable
 
     {
-        int i;
-        for (i = 0; i < data_block->data_n; i++) {
+        for (int i = 0; i < data_block->data_n; i++) {
             data[i].value = i;
         }
     }
@@ -1807,8 +1795,7 @@ static int do_test18(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST18", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-    unsigned int i;
-    for (i = 0; i < data_block->rank; i++) {
+    for (unsigned int i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
 
@@ -1933,10 +1920,9 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data = (TEST19*)malloc(data_block->data_n * sizeof(TEST19));    // Structured Data Must be a heap variable
 
     {
-        int i, j;
-        for (i = 0; i < data_block->data_n; i++) {
+        for (int i = 0; i < data_block->data_n; i++) {
             data[i].value = 3 + i;
-            for (j = 0; j < 7; j++) {
+            for (int j = 0; j < 7; j++) {
                 data[i].vals[j].value = 10 * i + j;
             }
         }
@@ -1958,8 +1944,7 @@ static int do_test19(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST19", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-    unsigned int i;
-    for (i = 0; i < data_block->rank; i++) {
+    for (unsigned int i = 0; i < data_block->rank; i++) {
         initDimBlock(&data_block->dims[i]);
     }
 
@@ -2759,9 +2744,8 @@ static int do_test31(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     offset = 0;
 
-    int i, j;
-    for (i = 0; i < 5; i++) {
-        for (j = 0; j < 20; j++) {
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 20; j++) {
             data[offset].R = (double)offset;
             data[offset].Z = 10.0 * (double)offset;
             offset++;
@@ -2885,8 +2869,7 @@ static int do_test32(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data[0].count = field.count;
 
-    int i;
-    for (i = 0; i < field.count; i++) {
+    for (int i = 0; i < field.count; i++) {
         data[0].coords[i].R = 1.0 * i;
         data[0].coords[i].Z = 10.0 * i;
     }
@@ -3007,8 +2990,7 @@ static int do_test33(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     addMalloc2(idam_plugin_interface->logmalloclist, (void*)data->coords, data->count, sizeof(TEST33A), "TEST33A", rank, shape);
 
-    int i;
-    for (i = 0; i < data->count; i++) {
+    for (int i = 0; i < data->count; i++) {
         data->coords[i].R = 1.0 * i;
         data->coords[i].Z = 10.0 * i;
     }
@@ -3135,16 +3117,14 @@ static int do_test34(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     addMalloc2(idam_plugin_interface->logmalloclist, (void*)data->coords, data->count, sizeof(TEST33A), "TEST33A", rank, shape);
 
-    int i;
-    for (i = 0; i < data->count; i++) {
+    for (int i = 0; i < data->count; i++) {
         data->coords[i].R = (unsigned char*)malloc(10 * sizeof(unsigned char));
         data->coords[i].Z = (unsigned char*)malloc(10 * sizeof(unsigned char));
 
         addMalloc(idam_plugin_interface->logmalloclist, (void*)data->coords[i].R, 10, sizeof(unsigned char), "unsigned char *");
         addMalloc(idam_plugin_interface->logmalloclist, (void*)data->coords[i].Z, 10, sizeof(unsigned char), "unsigned char *");
 
-        int j;
-        for (j = 0; j < 10; ++j) {
+        for (int j = 0; j < 10; ++j) {
             data->coords[i].R[j] = (unsigned char)(1 * i);
             data->coords[i].Z[j] = (unsigned char)(10 * i);
         }
@@ -3282,8 +3262,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     data->count = request_block->putDataBlockList.blockCount;
 
-    int i;
-    for (i = 0; i < request_block->putDataBlockList.blockCount; i++) {
+    for (int i = 0; i < request_block->putDataBlockList.blockCount; i++) {
         blocks[i].dataCount = request_block->putDataBlockList.putDataBlock[i].count;
         blocks[i].data = (void*) request_block->putDataBlockList.putDataBlock[i].data;
 
@@ -3332,8 +3311,6 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
 static int do_test50(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    int i;
-    
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     
@@ -3351,7 +3328,7 @@ static int do_test50(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     sprintf(&work[strlen(work)], "Pass number:%d\n", request_block->pass);
     sprintf(&work[strlen(work)], "substitution parameters:%s\n", request_block->tpass);	       
     sprintf(&work[strlen(work)], "Number of name-value pairs: %d\n", request_block->nameValueList.pairCount);
-    for (i = 0; i < request_block->nameValueList.pairCount; i++)
+    for (int i = 0; i < request_block->nameValueList.pairCount; i++)
        sprintf(&work[strlen(work)], "name: %s, value: %s\n", request_block->nameValueList.nameValue[i].name,
                request_block->nameValueList.nameValue[i].value);
 	       
@@ -3871,8 +3848,7 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         makeRequestBlock(&next_request_block, *pluginList, idam_plugin_interface->environment);
 
-        int i;
-        for (i = 0; i < pluginList->count; i++) {
+        for (int i = 0; i < pluginList->count; i++) {
             if (next_request_block.request == pluginList->plugin[i].request) {
                 if (pluginList->plugin[i].idamPlugin != nullptr) {
                     err = pluginList->plugin[i].idamPlugin(&next_plugin_interface); // Call the data reader
@@ -4119,7 +4095,6 @@ static int do_testudt(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     // Start a mini server loop and create a separate communiation channel with the client bye-passing the TCP socket
 
-    int i;
     int client;                // listening socket id
     int false = 0;
     int err = 0;

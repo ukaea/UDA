@@ -676,7 +676,7 @@ JNIEXPORT jint JNICALL Java_jIdam_Idam_sumArray1(JNIEnv* env, jobject obj, jintA
     jint buf[10];
     jint i, sum = 0;
     (*env)->GetIntArrayRegion(env, arr, 0, 10, buf);
-    for (i = 0; i < 10; i++) sum += buf[i];
+    for (int i = 0; i < 10; i++) sum += buf[i];
     return sum;
 }
 
@@ -686,7 +686,7 @@ JNIEXPORT jint JNICALL Java_jIdam_Idam_sumArray2(JNIEnv* env, jobject obj, jintA
     jint i, sum = 0;
     carr = (*env)->GetIntArrayElements(env, arr, NULL);
     if (carr == NULL) return 0; /* exception occurred */
-    for (i = 0; i < 10; i++)sum += carr[i];
+    for (int i = 0; i < 10; i++)sum += carr[i];
     (*env)->ReleaseIntArrayElements(env, arr, carr, 0);
     return sum;
 
@@ -696,7 +696,7 @@ JNIEXPORT jobjectArray JNICALL Java_jIdam_Idam_getVariablesRegex(JNIEnv* env, jo
 {
 
     jobjectArray ret;
-    int i, cont;
+    int cont;
     char CMD[1024];
     char* aux, * next;
 
@@ -743,7 +743,7 @@ JNIEXPORT jobjectArray JNICALL Java_jIdam_Idam_getVariablesRegex(JNIEnv* env, jo
     }
 
     next = strtok(vStr, "|");
-    for (i = 0; i < cont; i++) {
+    for (int i = 0; i < cont; i++) {
         if (next == NULL) {
             goto END;
         }

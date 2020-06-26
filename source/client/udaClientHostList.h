@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct HostData {
     char hostalias[HOST_STRING];
     char hostname[HOST_STRING];
     char certificate[HOST_STRING];
@@ -24,12 +24,6 @@ typedef struct {
     int port;
     int isSSL;
 } HOSTDATA;
-
-typedef struct {
-    int count;		// Number of hosts in list
-    int mcount;	// Allocated Size of the List
-    HOSTDATA* hosts;    // List of host aliases and SSL certificate locations
-} HOSTLIST;
 
 LIBRARY_API void udaClientAllocHostList(int count);
 LIBRARY_API void udaClientFreeHostList(void);

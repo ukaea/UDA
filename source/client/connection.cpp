@@ -10,6 +10,9 @@
 #include <cstdlib>
 #include <cerrno>
 #include <csignal>
+#include <vector>
+#include <string>
+#include <boost/algorithm/string.hpp>
 
 #if defined(__GNUC__) && !defined(MINGW)
 #  ifndef _WIN32
@@ -163,37 +166,22 @@ void setHints(struct addrinfo* hints, const char* hostname)
         hints->ai_family = AF_INET6;
         hints->ai_flags = hints->ai_flags | AI_NUMERICHOST;
     } else {
-        // How many '.' characters?
-        char* p, * w = (char*)hostname;
-        int lcount = 0, count = 1;
-        while ((p = strchr(w, '.')) != nullptr) {
-            w = &p[1];
-            count++;
-        }
-        if (count == 1) return;
-
         // make a list of address components
-        char** list = (char**)malloc(count * sizeof(char*));
-        char* work = strdup(hostname);
-        w = work;
-        while ((p = strchr(w, '.')) != nullptr && lcount < count) {
-            p[0] = '\0';
-            list[lcount++] = strdup(w);
-            w = &p[1];
-        }
-        list[lcount++] = strdup(w);
+        std::vector<std::string> list;
+        boost::split(list, hostname, boost::is_any_of("."), boost::token_compress_on);
 
         // Are all address components numeric?
-        int i, isNumeric = 1;
-        for (i = 0; i < lcount; i++) {
-            int j, lstr = strlen(list[i]);
-            for (j = 0; j < lstr; j++) isNumeric = isNumeric & (list[i][j] >= '0' && list[i][j] <= '9');
+        bool isNumeric = true;
+        for (const auto& token : list) {
+            size_t lstr = token.size();
+            for (size_t j = 0; j < lstr; j++) {
+                isNumeric &= (bool)std::isdigit(token[j]);
+            }
         }
-        free(work);
-        for (i = 0; i < lcount; i++) free(list[i]);
-        free(list);
 
-        if (isNumeric) hints->ai_flags = hints->ai_flags | AI_NUMERICHOST;
+        if (isNumeric) {
+            hints->ai_flags = hints->ai_flags | AI_NUMERICHOST;
+        }
     }
 }
 
@@ -342,14 +330,14 @@ int createConnection()
 
         // Try again for a maximum number of tries with a random time delay between attempts
 
-        int i, ps;
+        int ps;
         ps = getpid();
         srand((unsigned int)ps);                                                // Seed the random number generator with the process id
         unsigned int delay =
                 max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0;         // random delay
         sleep(delay);
         errno = 0;                                                           // wait period
-        for (i = 0; i < max_socket_attempts; i++) {                             // try again
+        for (int i = 0; i < max_socket_attempts; i++) {                             // try again
             while ((rc = connect(clientSocket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
 
             if (rc == 0 && errno == 0) break;
@@ -452,17 +440,15 @@ int createConnection()
                 return -1;
             }
 
-            for (i = 0; i < max_socket_attempts; i++) {
+            for (int i = 0; i < max_socket_attempts; i++) {
                 while ((rc = connect(clientSocket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
                 if (rc == 0) {
                     int port = environment->server_port2;                // Swap data so that accessor function reports correctly
                     environment->server_port2 = environment->server_port;
                     environment->server_port = port;
-                    char* name = (char*)malloc((strlen(environment->server_host2) + 1) * sizeof(char));
-                    strcpy(name, environment->server_host2);
+                    std::string name = environment->server_host2;
                     strcpy(environment->server_host2, environment->server_host);
-                    strcpy(environment->server_host, name);
-                    free((void*)name);
+                    strcpy(environment->server_host, name.c_str());
                     break;
                 }
                 delay = max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0;

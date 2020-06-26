@@ -140,7 +140,6 @@ void initDataBlock(DATA_BLOCK* str)
 
 void initDimBlock(DIMS* str)
 {
-    int i;
     str->dim = nullptr;
     str->synthetic = nullptr;
     str->dim_n = 0;
@@ -159,7 +158,7 @@ void initDimBlock(DIMS* str)
     str->ints = nullptr;
     str->errhi = nullptr;
     str->errlo = nullptr;
-    for (i = 0; i < MAXERRPARAMS; i++) {
+    for (int i = 0; i < MAXERRPARAMS; i++) {
         str->errparams[i] = 0.0;
     }
     str->dim_units[0] = '\0';

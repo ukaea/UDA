@@ -106,7 +106,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 {
     DATA_BLOCK* data_block;
 
-    int i, rc, err = 0, count = 0;
+    int rc, err = 0, count = 0;
 
 #ifndef FATCLIENT
     XDR XDRInput;                    // stdio xdr files
@@ -581,7 +581,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 #ifdef HASHXDR
                         sha1Block(object, objectSize, mdr);
                         rc = 1;
-                        for (i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
+                        for (int i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
                         if (!rc) {
                             // ERROR
                         }
@@ -667,7 +667,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 #ifdef HASHXDR
                             sha1Block(object, objectSize, mdr);
                             rc = 1;
-                            for (i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
+                            for (int i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
                             if (!rc) {
                                 // ERROR
                             }
@@ -814,7 +814,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 #  ifdef HASHXDR
                         sha1Block(object, objectSize, mdr);
                         rc = 1;
-                        for (i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
+                        for (int i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
                         if (!rc) {
                             // ERROR
                         }
@@ -842,7 +842,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 #  ifdef HASHXDR
                         sha1Block(object, objectSize, mdr);
                         rc = 1;
-                        for (i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
+                        for (int i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
                         if (!rc) {
                             // ERROR
                         }

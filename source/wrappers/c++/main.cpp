@@ -402,7 +402,7 @@ int main()
         SIGNALSET *signalSet = static_cast<SIGNALSET *>(signals[0].data());
         std::cout << std::endl;
 
-        for (i = 0; i < signalSetCount; i++) {
+        for (int i = 0; i < signalSetCount; i++) {
             printf("[%d] name=%s, classname=%s, system=%s\n",
                    i, signalSet[i].name, signalSet[i].classname, signalSet[i].system);
         }
@@ -416,7 +416,7 @@ int main()
         std::vector<char *> configurations = node.atomicVector("configuration").as<char *>();
 
         std::cout << std::endl;
-        for (i = 0; i < signalSetCount; i++) {
+        for (int i = 0; i < signalSetCount; i++) {
             printf("[%d] name=%s, classname=%s, system=%s\n", i, names[i], classNames[i], systems[i]);
         }
 

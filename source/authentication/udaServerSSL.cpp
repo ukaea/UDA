@@ -356,8 +356,7 @@ X509_CRL* loadUdaServerSSLCrl(char* crlist)
 int addUdaServerSSLCrlsStore(X509_STORE* st, STACK_OF(X509_CRL)* crls)
 {
     X509_CRL* crl;
-    int i;
-    for (i = 0; i < sk_X509_CRL_num(crls); i++) {
+    for (int i = 0; i < sk_X509_CRL_num(crls); i++) {
         crl = sk_X509_CRL_value(crls, i);
         X509_STORE_add_crl(st, crl);
     }

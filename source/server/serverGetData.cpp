@@ -181,8 +181,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
         compId = -1;
         if (rc == 0) {
-            int i;
-            for (i = 0; i < actions_comp_desc.nactions; i++) {
+            for (int i = 0; i < actions_comp_desc.nactions; i++) {
                 if (actions_comp_desc.action[i].actionType == COMPOSITETYPE && actions_comp_desc.action[i].inRange) {
                     compId = i;
                     break;            // First Record found only!
@@ -459,8 +458,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     // Swap Dimension Data if Required
 
     if (isDerived && compId > -1) {
-        int i;
-        for (i = 0; i < actions_desc->action[compId].composite.ndimensions; i++) {
+        for (int i = 0; i < actions_desc->action[compId].composite.ndimensions; i++) {
             if (actions_desc->action[compId].composite.dimensions[i].dimType == DIMCOMPOSITETYPE) {
                 if (strlen(actions_desc->action[compId].composite.dimensions[i].dimcomposite.dim_signal) > 0) {
 
@@ -692,8 +690,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     // Subset Operations
 
     if (!serverside && !isDerived && signal_desc->type == 'S') {
-        int i;
-        for (i = 0; i < actions_desc->nactions; i++) {
+        for (int i = 0; i < actions_desc->nactions; i++) {
             if (actions_desc->action[i].actionType == SUBSETTYPE) {
                 UDA_LOG(UDA_LOG_DEBUG, "Calling idamserverSubsetData (SUBSET)   %d\n", *depth);
                 printDataBlock(*data_block);
@@ -710,11 +707,9 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     // Server Side Operations
 
     if (serverside) {
-        int i;
-        for (i = 0; i < actions_serverside.nactions; i++) {
+        for (int i = 0; i < actions_serverside.nactions; i++) {
             if (actions_serverside.action[i].actionType == SERVERSIDETYPE) {
-                int j;
-                for (j = 0; j < actions_serverside.action[i].serverside.nsubsets; j++) {
+                for (int j = 0; j < actions_serverside.action[i].serverside.nsubsets; j++) {
                     UDA_LOG(UDA_LOG_DEBUG, "Calling idamserverSubsetData (Serverside)   %d\n", *depth);
                     printDataBlock(*data_block);
 
@@ -792,8 +787,7 @@ int idamserverSwapSignalDim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, D
             data_block->dims[dimcomposite.to_dim].dim = data_block2->data;        // straight swap!
             data_block->dims[dimcomposite.to_dim].errhi = data_block2->errhi;
             data_block->dims[dimcomposite.to_dim].errlo = data_block2->errlo;
-            int i;
-            for (i = 0; i < data_block2->error_param_n; i++) {
+            for (int i = 0; i < data_block2->error_param_n; i++) {
                 data_block->dims[dimcomposite.to_dim].errparams[i] = data_block2->errparams[i];
             }
             data_block2->data = nullptr;                            // Prevent Double Heap Free
@@ -841,8 +835,7 @@ int idamserverSwapSignalDim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, D
                 data_block->dims[dimcomposite.to_dim].sams = data_block2->dims[dimcomposite.from_dim].sams;
                 data_block->dims[dimcomposite.to_dim].offs = data_block2->dims[dimcomposite.from_dim].offs;
                 data_block->dims[dimcomposite.to_dim].ints = data_block2->dims[dimcomposite.from_dim].ints;
-                int i;
-                for (i = 0; i < data_block2->dims[dimcomposite.from_dim].error_param_n; i++) {
+                for (int i = 0; i < data_block2->dims[dimcomposite.from_dim].error_param_n; i++) {
                     data_block->dims[dimcomposite.to_dim].errparams[i] = data_block2->dims[dimcomposite.from_dim].errparams[i];
                 }
                 data_block2->dims[dimcomposite.from_dim].dim = nullptr;                        // Prevent Double Heap Free
@@ -1189,8 +1182,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
         // Test for known File formats and Server protocols
 
         int id = -1;
-        int i;
-        for (i = 0; i < pluginlist->count; i++) {
+        for (int i = 0; i < pluginlist->count; i++) {
             if (STR_IEQUALS(data_source->format, pluginlist->plugin[i].format)) {
                 plugin_id = pluginlist->plugin[i].request;                // Found
                 id = i;

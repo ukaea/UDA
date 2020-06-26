@@ -175,7 +175,6 @@ static int do_encode_md(gcry_md_hd_t md, int algo, int pkalgo, unsigned int nbit
             n = qbits / 8;
         }
     } else {
-        int i;
         unsigned char asn[100];
         size_t asnlen;
         size_t len;

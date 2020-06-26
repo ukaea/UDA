@@ -158,8 +158,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             // Seed the (poor) system random number generator with the process ID and create a random string
             unsigned char* randList = (unsigned char*)malloc(tokenByteLength * sizeof(unsigned char));
             srand(pid); // Seed the random number generator
-            int i;
-            for (i = 0; i < tokenByteLength; i++) {
+            for (int i = 0; i < tokenByteLength; i++) {
                 // quasi-random integers in the range 1-255
                 randList[i] = (unsigned char)(1 + (int)(255.0 * (rand() / (RAND_MAX + 1.0))));
             }

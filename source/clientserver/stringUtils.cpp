@@ -39,9 +39,9 @@ char* strcasestr(const char* haystack, const char* needle)
 
 void reverseString(const char* in, char* out)
 {
-    int i, lstr = (int)strlen(in);
+    int lstr = (int)strlen(in);
     out[lstr] = '\0';
-    for (i = 0; i < lstr; i++) out[i] = in[lstr - 1 - i];
+    for (int i = 0; i < lstr; i++) out[i] = in[lstr - 1 - i];
 }
 
 // Copy a String subject to a Maximum length constraint
@@ -96,15 +96,20 @@ char* TrimString(char* szSource)
 
 char* LeftTrimString(char* str)
 {
-    int i = 0, trim = 0, lstr;
+    int trim = 0, lstr;
 
     lstr = (int)strlen(str);
 
-    while (str[trim] == ' ' && i++ <= lstr) trim++;
+    int i = 0;
+    while (str[trim] == ' ' && i++ <= lstr) {
+        trim++;
+    }
 
     if (trim > 0) {
         lstr = lstr - trim;
-        for (i = 0; i < lstr; i++) str[i] = str[i + trim];
+        for (int j = 0; j < lstr; j++) {
+            str[j] = str[j + trim];
+        }
         str[lstr] = '\0';
     }
     return str;
@@ -157,9 +162,9 @@ char* strlwr(char* a)
 
 char* MidTrimString(char* str)
 {
-    int i = 0, j = 0, lstr;
+    int j = 0, lstr;
     lstr = (int)strlen(str);
-    for (i = 0; i < lstr; i++) {
+    for (int i = 0; i < lstr; i++) {
         if (str[i] != ' ') str[j++] = str[i];
     }
     str[j] = '\0';

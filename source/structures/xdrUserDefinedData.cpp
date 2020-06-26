@@ -23,7 +23,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
     // Sending: data points to the memory location of the structure, defined by userdefinedtype, to be sent
     // Receiving: userdefinedtype contains the definition of the structure to be received.
 
-    int rc = 1, i, j, id, loopcount, rank, count, size, passdata = 0, isSOAP;
+    int rc = 1, id, loopcount, rank, count, size, passdata = 0, isSOAP;
     int* shape;
     char* p0, * d;
     const char* type;
@@ -106,7 +106,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
 
     // Loop over all structure elements: Send or Receive
 
-    for (j = 0; j < userdefinedtype->fieldcount; j++) {
+    for (int j = 0; j < userdefinedtype->fieldcount; j++) {
 
         if (j >= userdefinedtype->fieldcount) {
             addIdamError(CODEERRORTYPE, "xdrUserDefinedData", 999, "Fieldcount Exceeded!");
@@ -1381,7 +1381,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
 
                 if (utype != nullptr) {
 
-                    for (i = 0; i < loopcount; i++) {
+                    for (int i = 0; i < loopcount; i++) {
 
                         // Has this structure already been sent/received (e.g. in a linked list)
 

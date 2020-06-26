@@ -161,9 +161,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
 
                     if (data_block->rank > 0) {    // Check if there are Dimensional Data to Receive
-
-                        unsigned int i;
-                        for (i = 0; i < data_block->rank; i++) {
+                        for (unsigned int i = 0; i < data_block->rank; i++) {
                             initDimBlock(&data_block->dims[i]);
                         }
 
@@ -173,7 +171,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         }
 
                         if (protocolVersion < 3) {
-                            for (i = 0; i < data_block->rank; i++) {
+                            for (unsigned int i = 0; i < data_block->rank; i++) {
                                 dim = &data_block->dims[i];
                                 if (protocolVersionTypeTest(protocolVersion, dim->data_type) ||
                                     protocolVersionTypeTest(protocolVersion, dim->error_type)) {
@@ -191,7 +189,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             break;
                         }
 
-                        for (i = 0; i < data_block->rank; i++) {            // Expand Compressed Regular Vector
+                        for (unsigned int i = 0; i < data_block->rank; i++) {            // Expand Compressed Regular Vector
                             err = uncompressDim(&(data_block->dims[i]));    // Allocate Heap as required
                             err = 0; // Need to Test for Error Condition!
                         }
@@ -255,8 +253,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         // Check client/server understands new data types
 
                         if (protocolVersion < 3) {
-                            unsigned int i;
-                            for (i = 0; i < data_block->rank; i++) {
+                            for (unsigned int i = 0; i < data_block->rank; i++) {
                                 dim = &data_block->dims[i];
                                 if (protocolVersionTypeTest(protocolVersion, dim->data_type) ||
                                     protocolVersionTypeTest(protocolVersion, dim->error_type)) {
@@ -266,8 +263,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             }
                         }
 
-                        unsigned int i;
-                        for (i = 0; i < data_block->rank; i++) {
+                        for (unsigned int i = 0; i < data_block->rank; i++) {
                             compressDim(&(data_block->dims[i]));        // Minimise Data Transfer if Regular
                         }
 
@@ -334,8 +330,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     UDA_LOG(UDA_LOG_DEBUG, "receive: putDataBlockList Count: %d\n", blockCount);
 
-                    unsigned int i;
-                    for (i = 0; i < blockCount; i++) {        // Fetch multiple put blocks
+                    for (unsigned int i = 0; i < blockCount; i++) {        // Fetch multiple put blocks
 
                         initIdamPutDataBlock(&putData);
 
@@ -378,8 +373,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         break;
                     }
 
-                    unsigned int i;
-                    for (i = 0; i < putDataBlockList->blockCount; i++) {        // Send multiple put blocks
+                    for (unsigned int i = 0; i < putDataBlockList->blockCount; i++) {        // Send multiple put blocks
 
                         if (!xdr_putdata_block1(xdrs, &(putDataBlockList->putDataBlock[i]))) {
                             err = PROTOCOL_ERROR_61;

@@ -384,9 +384,8 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             }
 
             if (data_block.rank > 0) {
-                unsigned int i;
                 DIMS dim;
-                for (i = 0; i < data_block.rank; i++) {
+                for (unsigned int i = 0; i < data_block.rank; i++) {
                     dim = data_block.dims[i];
                     if (protocolVersionTypeTest(protocolVersion, dim.data_type) ||
                         protocolVersionTypeTest(protocolVersion, dim.error_type)) {

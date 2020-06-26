@@ -399,7 +399,7 @@ void parseCompositeSubset(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
 
     SUBSET* str = comp->subsets;
     int n = 0;                // Counter
-    int i, n0, n1;
+    int n0, n1;
 
     // Attributes
 
@@ -446,7 +446,7 @@ void parseCompositeSubset(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
             // Fixed Length Attribute Arrays
 
             parseFixedLengthStrArray(cur, "operation", str[n - 1].operation, &str[n - 1].nbound);
-            for (i = 0; i < str[n - 1].nbound; i++)
+            for (int i = 0; i < str[n - 1].nbound; i++)
                 str[n - 1].dimid[i] = i;                    // Ordering is as DATA[4][3][2][1][0]
 
             parseFixedLengthArray(cur, "bound", (void*) str[n - 1].bound, UDA_TYPE_DOUBLE, &n0);
@@ -454,7 +454,7 @@ void parseCompositeSubset(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
 
             if (idamParseOperation(&str[n - 1]) != 0) return;
 
-            for (i = 0; i < str[n - 1].nbound; i++) {
+            for (int i = 0; i < str[n - 1].nbound; i++) {
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Bounding Values : %e\n", str[n - 1].bound[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Operation       : %s\n", str[n - 1].operation[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension ID               : %d\n", str[n - 1].dimid[i]);
@@ -663,7 +663,6 @@ void parseDimErrorModel(xmlDocPtr doc, xmlNodePtr cur, ERRORMODEL* mod)
 {
     xmlChar* att;    // General Input of tag attribute values
     float* params;
-    int i;
 
     DIMENSION* str = mod->dimensions;
     int n = 0;                // Counter
@@ -697,7 +696,9 @@ void parseDimErrorModel(xmlDocPtr doc, xmlNodePtr cur, ERRORMODEL* mod)
             params = parseFloatArray(doc, cur, "params", &str[n - 1].dimerrormodel.param_n);
             if (params != nullptr) {
                 if (str[n - 1].dimerrormodel.param_n > MAXERRPARAMS) str[n - 1].dimerrormodel.param_n = MAXERRPARAMS;
-                for (i = 0; i < str[n - 1].dimerrormodel.param_n; i++) str[n - 1].dimerrormodel.params[i] = params[i];
+                for (int i = 0; i < str[n - 1].dimerrormodel.param_n; i++) {
+                    str[n - 1].dimerrormodel.params[i] = params[i];
+                }
                 free((void*) params);
             }
 
@@ -714,7 +715,6 @@ void parseErrorModel(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
 {
     xmlChar* att;    // General Input of tag attribute values
     float* params;
-    int i;
 
     ACTION* str = actions->action;
     int n = actions->nactions;        // Counter
@@ -773,7 +773,9 @@ void parseErrorModel(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             params = parseFloatArray(doc, cur, "params", &str[n - 1].errormodel.param_n);
             if (params != nullptr) {
                 if (str[n - 1].errormodel.param_n > MAXERRPARAMS) str[n - 1].errormodel.param_n = MAXERRPARAMS;
-                for (i = 0; i < str[n - 1].errormodel.param_n; i++) str[n - 1].errormodel.params[i] = params[i];
+                for (int i = 0; i < str[n - 1].errormodel.param_n; i++) {
+                    str[n - 1].errormodel.params[i] = params[i];
+                }
                 free((void*) params);
             }
 
@@ -1026,8 +1028,7 @@ void parseSubset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
     ACTION* str = actions->action;
     SUBSET* sub = nullptr;
     int n = actions->nactions;        // Counter
-    int i, n0, n1;
-
+    int n0, n1;
 
     cur = cur->xmlChildrenNode;
     while (cur != nullptr) {
@@ -1085,7 +1086,7 @@ void parseSubset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             // Fixed Length Attribute Arrays
 
             parseFixedLengthStrArray(cur, "operation", &sub->operation[0], &sub->nbound);
-            for (i = 0; i < sub->nbound; i++)
+            for (int i = 0; i < sub->nbound; i++)
                 sub->dimid[i] = i;                    // Ordering is as DATA[4][3][2][1][0]
 
             parseFixedLengthArray(cur, "bound", (void*) sub->bound, UDA_TYPE_DOUBLE, &n0);
@@ -1093,7 +1094,7 @@ void parseSubset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
 
             if (idamParseOperation(sub) != 0) return;
 
-            for (i = 0; i < sub->nbound; i++) {
+            for (int i = 0; i < sub->nbound; i++) {
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension ID               : %d\n", sub->dimid[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Bounding Values : %e\n", sub->bound[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Operation       : %s\n", sub->operation[i]);
@@ -1178,10 +1179,8 @@ int parseDoc(char* docname, ACTIONS* actions)
 
 void printDimensions(int ndim, DIMENSION* dims)
 {
-    int i, j;
     UDA_LOG(UDA_LOG_DEBUG, "No. Dimensions     : %d\n", ndim);
-    for (i = 0; i < ndim; i++) {
-
+    for (int i = 0; i < ndim; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "Dim id     : %d\n", dims[i].dimid);
 
         switch (dims[i].dimType) {
@@ -1211,7 +1210,7 @@ void printDimensions(int ndim, DIMENSION* dims)
             case DIMERRORMODELTYPE:
                 UDA_LOG(UDA_LOG_DEBUG, "Error Model Id            : %d\n", dims[i].dimerrormodel.model);
                 UDA_LOG(UDA_LOG_DEBUG, "Number of Model Parameters: %d\n", dims[i].dimerrormodel.param_n);
-                for (j = 0; j < dims[i].dimerrormodel.param_n; j++)
+                for (int j = 0; j < dims[i].dimerrormodel.param_n; j++)
                     UDA_LOG(UDA_LOG_DEBUG, "Parameters[%d] = %.12f\n", j, dims[i].dimerrormodel.params[j]);
                 break;
 
@@ -1224,7 +1223,6 @@ void printDimensions(int ndim, DIMENSION* dims)
 
 void printAction(ACTION action)
 {
-    int i, j;
     UDA_LOG(UDA_LOG_DEBUG, "Action XML Id    : %d\n", action.actionId);
     UDA_LOG(UDA_LOG_DEBUG, "Action Type      : %d\n", action.actionType);
     UDA_LOG(UDA_LOG_DEBUG, "In Range?        : %d\n", action.inRange);
@@ -1269,7 +1267,7 @@ void printAction(ACTION action)
             UDA_LOG(UDA_LOG_DEBUG, "ERRORMODEL xml\n");
             UDA_LOG(UDA_LOG_DEBUG, "Error Model Id            : %d\n", action.errormodel.model);
             UDA_LOG(UDA_LOG_DEBUG, "Number of Model Parameters: %d\n", action.errormodel.param_n);
-            for (i = 0; i < action.errormodel.param_n; i++)
+            for (int i = 0; i < action.errormodel.param_n; i++)
                 UDA_LOG(UDA_LOG_DEBUG, "Parameters[%d] = %.12f\n", i, action.errormodel.params[i]);
             printDimensions(action.errormodel.ndimensions, action.errormodel.dimensions);
             break;
@@ -1277,14 +1275,14 @@ void printAction(ACTION action)
         case SERVERSIDETYPE:
             UDA_LOG(UDA_LOG_DEBUG, "SERVERSIDE Actions\n");
             UDA_LOG(UDA_LOG_DEBUG, "Number of Serverside Subsets: %d\n", action.serverside.nsubsets);
-            for (i = 0; i < action.serverside.nsubsets; i++) {
+            for (int i = 0; i < action.serverside.nsubsets; i++) {
                 UDA_LOG(UDA_LOG_DEBUG, "Number of Subsetting Operations: %d\n", action.serverside.subsets[i].nbound);
                 UDA_LOG(UDA_LOG_DEBUG, "Reform?                        : %d\n", action.serverside.subsets[i].reform);
                 UDA_LOG(UDA_LOG_DEBUG, "Member                         : %s\n", action.serverside.subsets[i].member);
                 UDA_LOG(UDA_LOG_DEBUG, "Function                       : %s\n", action.serverside.subsets[i].function);
                 UDA_LOG(UDA_LOG_DEBUG, "Order                          : %d\n", action.serverside.subsets[i].order);
                 UDA_LOG(UDA_LOG_DEBUG, "Signal                         : %s\n", action.serverside.subsets[i].data_signal);
-                for (j = 0; j < action.serverside.subsets[i].nbound; j++) {
+                for (int j = 0; j < action.serverside.subsets[i].nbound; j++) {
                     UDA_LOG(UDA_LOG_DEBUG, "Bounding Value: %e\n", action.serverside.subsets[i].bound[j]);
                     UDA_LOG(UDA_LOG_DEBUG, "Operation     : %s\n", action.serverside.subsets[i].operation[j]);
                     UDA_LOG(UDA_LOG_DEBUG, "Dimension ID  : %d\n", action.serverside.subsets[i].dimid[j]);
@@ -1301,7 +1299,7 @@ void printAction(ACTION action)
             UDA_LOG(UDA_LOG_DEBUG, "Function                       : %s\n", action.subset.function);
             UDA_LOG(UDA_LOG_DEBUG, "Order                       : %d\n", action.subset.order);
             UDA_LOG(UDA_LOG_DEBUG, "Signal                         : %s\n", action.subset.data_signal);
-            for (j = 0; j < action.subset.nbound; j++) {
+            for (int j = 0; j < action.subset.nbound; j++) {
                 UDA_LOG(UDA_LOG_DEBUG, "Bounding Value: %e\n", action.subset.bound[j]);
                 UDA_LOG(UDA_LOG_DEBUG, "Operation     : %s\n", action.subset.operation[j]);
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension ID  : %d\n", action.subset.dimid[j]);
@@ -1315,9 +1313,8 @@ void printAction(ACTION action)
 
 void printActions(ACTIONS actions)
 {
-    int i;
     UDA_LOG(UDA_LOG_DEBUG, "No. Action Blocks: %d\n", actions.nactions);
-    for (i = 0; i < actions.nactions; i++) {
+    for (int i = 0; i < actions.nactions; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "\n\n# %d\n", i);
         printAction(actions.action[i]);
     }
@@ -1353,10 +1350,11 @@ void initDimDocumentation(DIMDOCUMENTATION* act)
 
 void initDimErrorModel(DIMERRORMODEL* act)
 {
-    int i;
     act->model = ERROR_MODEL_UNKNOWN;    // No Error Model
     act->param_n = 0;            // No. Model parameters
-    for (i = 0; i < MAXERRPARAMS; i++)act->params[i] = 0.0;
+    for (int i = 0; i < MAXERRPARAMS; i++) {
+        act->params[i] = 0.0;
+    }
 }
 
 void initDimension(DIMENSION* act)
@@ -1419,18 +1417,16 @@ void initServerside(SERVERSIDE* act)
 
 void initErrorModel(ERRORMODEL* act)
 {
-    int i;
     act->model = ERROR_MODEL_UNKNOWN;    // No Error Model
     act->param_n = 0;            // No. Model parameters
-    for (i = 0; i < MAXERRPARAMS; i++)act->params[i] = 0.0;
+    for (int i = 0; i < MAXERRPARAMS; i++)act->params[i] = 0.0;
     act->ndimensions = 0;
     act->dimensions = nullptr;
 }
 
 void initSubset(SUBSET* act)
 {
-    int i;
-    for (i = 0; i < MAXDATARANK; i++) {
+    for (int i = 0; i < MAXDATARANK; i++) {
         act->bound[i] = 0.0;                // Subsetting Float Bounds
         act->ubindex[i] = 0;                // Subsetting Integer Bounds (Upper Index)
         act->lbindex[i] = 0;                // Lower Index
@@ -1448,8 +1444,7 @@ void initSubset(SUBSET* act)
 
 void initMap(MAP* act)
 {
-    int i;
-    for (i = 0; i < MAXDATARANK; i++) {
+    for (int i = 0; i < MAXDATARANK; i++) {
         act->value[i] = 0.0;
         act->dimid[i] = -1;                // Dimension IDs
         act->mapping[i][0] = '\0';            // Mapping Operations
@@ -1482,8 +1477,6 @@ void initActions(ACTIONS* act)
 void freeActions(ACTIONS* actions)
 {
     // Free Heap Memory From ACTION Structures
-
-    int i, j;
     void* cptr;
 
     UDA_LOG(UDA_LOG_DEBUG, "freeActions: Enter\n");
@@ -1491,7 +1484,7 @@ void freeActions(ACTIONS* actions)
 
     if (actions->nactions == 0) return;
 
-    for (i = 0; i < actions->nactions; i++) {
+    for (int i = 0; i < actions->nactions; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "freeDataBlock: freeing action Type = %d \n", actions->action[i].actionType);
 
         switch (actions->action[i].actionType) {
@@ -1517,7 +1510,7 @@ void freeActions(ACTIONS* actions)
             case ERRORMODELTYPE:
                 actions->action[i].errormodel.param_n = 0;
 
-                for (j = 0; j < actions->action[i].errormodel.ndimensions; j++)
+                for (int j = 0; j < actions->action[i].errormodel.ndimensions; j++)
                     if ((cptr = (void*) actions->action[i].errormodel.dimensions) != nullptr) {
                         free(cptr);
                         actions->action[i].errormodel.dimensions = nullptr;

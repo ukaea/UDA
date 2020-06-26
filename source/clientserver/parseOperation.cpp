@@ -13,7 +13,7 @@ int idamParseOperation(SUBSET* sub)
     char* p, * t1, * t2;
     char* endp = nullptr;
     char opcopy[SXMLMAXSTRING];
-    int i, ierr = 0;
+    int ierr = 0;
 
     //-------------------------------------------------------------------------------------------------------------
     // Extract the Value Component from each separate Operation
@@ -26,7 +26,7 @@ int idamParseOperation(SUBSET* sub)
     //
     // If the operation string is enclosed in [ ] then ignore these
 
-    for (i = 0; i < sub->nbound; i++) {
+    for (int i = 0; i < sub->nbound; i++) {
 
         strcpy(opcopy, sub->operation[i]);
 
