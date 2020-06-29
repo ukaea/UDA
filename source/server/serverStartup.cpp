@@ -7,8 +7,8 @@
 
 #include "serverStartup.h"
 
-#include <stdlib.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cerrno>
 
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
@@ -19,13 +19,13 @@ int startup(void)
 {
     char idamFile[STRING_LENGTH];
 
-//----------------------------------------------------------------
-// Read Environment Variable Values (Held in a Global Structure)
+    //----------------------------------------------------------------
+    // Read Environment Variable Values (Held in a Global Structure)
 
     const ENVIRONMENT* environment = getIdamServerEnvironment();
 
-//---------------------------------------------------------------
-// Open the Log Files
+    //---------------------------------------------------------------
+    // Open the Log Files
 
     idamSetLogLevel((LOG_LEVEL)environment->loglevel);
 
@@ -41,7 +41,7 @@ int startup(void)
 
         if (errno != 0) {
             addIdamError(SYSTEMERRORTYPE, "startup", errno, "Access Log: ");
-            if (accout != NULL) {
+            if (accout != nullptr) {
                 fclose(accout);
             }
         } else {
@@ -57,7 +57,7 @@ int startup(void)
 
         if (errno != 0) {
             addIdamError(SYSTEMERRORTYPE, "startup", errno, "Error Log: ");
-            if (errout != NULL) {
+            if (errout != nullptr) {
                 fclose(errout);
             }
         } else {
@@ -73,7 +73,7 @@ int startup(void)
 
         if (errno != 0) {
             addIdamError(SYSTEMERRORTYPE, "startup", errno, "Debug Log: ");
-            if (dbgout != NULL) {
+            if (dbgout != nullptr) {
                 fclose(dbgout);
             }
         } else {

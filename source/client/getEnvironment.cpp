@@ -123,11 +123,13 @@ ENVIRONMENT* getIdamClientEnvironment()
         if ((env = getenv("UDA_PORT")) != nullptr) {
             udaEnviron.server_port = atoi(env);
         } else {
+            udaEnviron.server_port = 56565;
             UDA_LOG(UDA_LOG_WARN, "UDA_PORT environmental variable not defined");
         }
         if ((env = getenv("UDA_PORT2")) != nullptr) {
             udaEnviron.server_port2 = atoi(env);
         } else {
+            udaEnviron.server_port2 = 0;
             UDA_LOG(UDA_LOG_WARN, "UDA_PORT2 environmental variable not defined");
         }
         env_port = 0;
@@ -144,6 +146,7 @@ ENVIRONMENT* getIdamClientEnvironment()
     if ((env = getenv("UDA_DEVICE")) != nullptr) {
         strcpy(udaEnviron.api_device, env);
     } else {
+        strcpy(udaEnviron.api_device, "MAST");
         UDA_LOG(UDA_LOG_WARN, "API_DEVICE environmental variable not defined");
     }
 
@@ -156,6 +159,7 @@ ENVIRONMENT* getIdamClientEnvironment()
     if ((env = getenv("UDA_API_DELIM")) != nullptr) {
         strcpy(udaEnviron.api_delim, env);
     } else {
+        strcpy(udaEnviron.api_delim, "::");
         UDA_LOG(UDA_LOG_WARN, "API_PARSE_STRING environmental variable not defined");
     }
 

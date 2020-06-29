@@ -1,7 +1,7 @@
 #include "getPluginAddress.h"
 
 #include <dlfcn.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <clientserver/udaErrors.h>
 #include <server/udaServer.h>

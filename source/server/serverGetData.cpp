@@ -9,7 +9,7 @@
 
 #include "serverGetData.h"
 
-#include <errno.h>
+#include <cerrno>
 #if defined(__GNUC__)
 #  include <strings.h>
 #else

@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------
-* IDAM Legacy Data Server (protocol versions <= 6)
+* UDA Legacy Data Server (protocol versions <= 6)
 *
 *---------------------------------------------------------------------------------------------------------------------*/
 
@@ -203,12 +203,12 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             // Prepend Proxy Host to Source to redirect client request
 
             /*! On parallel clusters where nodes are connected together on a private network, only the master node may have access
-            to external data sources. Cluster nodes can access these external sources via an IDAM server running on the master node.
-            This server acts as a proxy server. It simply redirects requests to other external IDAM servers. To facilitate this redirection,
-            each access request source string must be prepended with "IDAM::host:port/" within the server. The host:port component is defined
-            by the system administrator via an environment variable "IDAM_PROXY". Client's don't need to specifiy redirection via a Proxy - it's
-            automatic if the IDAM_PROXY environment variable is defined. No prepending is done if the source is already a redirection, i.e. it
-            begins "IDAM::".
+            to external data sources. Cluster nodes can access these external sources via an UDA server running on the master node.
+            This server acts as a proxy server. It simply redirects requests to other external UDA servers. To facilitate this redirection,
+            each access request source string must be prepended with "UDA::host:port/" within the server. The host:port component is defined
+            by the system administrator via an environment variable "UDA_PROXY". Client's don't need to specifiy redirection via a Proxy - it's
+            automatic if the UDA_PROXY environment variable is defined. No prepending is done if the source is already a redirection, i.e. it
+            begins "UDA::".
             */
 
 #ifdef PROXYSERVER
@@ -216,9 +216,9 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             char work[STRING_LENGTH];
 
             if(request_block.api_delim[0] != '\0')
-                sprintf(work, "IDAM%s", request_block.api_delim);
+                sprintf(work, "UDA%s", request_block.api_delim);
             else
-                sprintf(work, "IDAM%s", environment->api_delim);
+                sprintf(work, "UDA%s", environment->api_delim);
 
             if(environment->server_proxy[0] != '\0' && strncasecmp(request_block.source, work, strlen(work)) != 0) {
 
@@ -231,13 +231,13 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
                     break;
                 }
 
-// Test for Proxy calling itself indirectly => potential infinite loop
-// The IDAM Plugin strips out the host and port data from the source so the originating server details are never passed.
+                // Test for Proxy calling itself indirectly => potential infinite loop
+                // The UDA Plugin strips out the host and port data from the source so the originating server details are never passed.
 
                 if(request_block.api_delim[0] != '\0')
-                    sprintf(work, "IDAM%s%s", request_block.api_delim, environment->server_this);
+                    sprintf(work, "UDA%s%s", request_block.api_delim, environment->server_this);
                 else
-                    sprintf(work, "IDAM%s%s", environment->api_delim, environment->server_this);
+                    sprintf(work, "UDA%s%s", environment->api_delim, environment->server_this);
 
                 if(strstr(request_block.source, work) != nullptr) {
                     err = 999;
@@ -246,7 +246,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
                     break;
                 }
 
-// Check string length compatibility
+                // Check string length compatibility
 
                 if(strlen(request_block.source) >= (STRING_LENGTH-1 - strlen(environment->server_proxy) - 4+strlen(request_block.api_delim))) {
                     err = 999;
@@ -255,12 +255,12 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
                     break;
                 }
 
-// Prepend the redirection IDAM server details
+                // Prepend the redirection UDA server details
 
                 if(request_block.api_delim[0] != '\0')
-                    sprintf(work, "IDAM%s%s/%s", request_block.api_delim, environment->server_proxy, request_block.source);
+                    sprintf(work, "UDA%s%s/%s", request_block.api_delim, environment->server_proxy, request_block.source);
                 else
-                    sprintf(work, "IDAM%s%s/%s", environment->api_delim, environment->server_proxy, request_block.source);
+                    sprintf(work, "UDA%s%s/%s", environment->api_delim, environment->server_proxy, request_block.source);
 
                 strcpy(request_block.source, work);
                 //strcpy(request_block.server, environment->server_proxy);

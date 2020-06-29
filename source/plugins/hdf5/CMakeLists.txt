@@ -20,7 +20,7 @@ uda_plugin(
   DESCRIPTION "HDF5 Data Reader"
   EXAMPLE "NEWHDF5::read()"
   LIBNAME hdf5_plugin
-  SOURCES hdf5plugin.c hdf5plugin.h readHDF58.c readHDF58.h
+  SOURCES hdf5plugin.cpp hdf5plugin.h readHDF58.cpp readHDF58.h
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
     ${HDF5_INCLUDE_DIRS}

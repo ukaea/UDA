@@ -17,7 +17,7 @@ extern "C" {
 #define THISPLUGIN_MAX_INTERFACE_VERSION    1        // Interface versions higher than this will not be understood!
 #define THISPLUGIN_DEFAULT_METHOD           "help"
 
-LIBRARY_API int templatePlugin(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
+LIBRARY_API int bytesPlugin(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 
 #ifdef __cplusplus
 }

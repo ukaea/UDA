@@ -1,6 +1,6 @@
 #include "logging.h"
 
-#include <stdarg.h>
+#include <cstdarg>
 
 int reopen_logs = 0;        // No need to Re-Open Logs
 

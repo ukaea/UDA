@@ -465,18 +465,18 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     // Prepend Proxy Host to Source to redirect client request
 
     /*! On parallel clusters where nodes are connected together on a private network, only the master node may have
-     * access to external data sources. Cluster nodes can access these external sources via an IDAM server running on
+     * access to external data sources. Cluster nodes can access these external sources via an UDA server running on
      * the master node.
-     * This server acts as a proxy server. It simply redirects requests to other external IDAM servers. To facilitate
-     * this redirection, each access request source string must be prepended with "IDAM::host:port/" within the proxy
+     * This server acts as a proxy server. It simply redirects requests to other external UDA servers. To facilitate
+     * this redirection, each access request source string must be prepended with "UDA::host:port/" within the proxy
      * server.
-     * The host:port component is defined by the system administrator via an environment variable "IDAM_PROXY".
-     * Clients don't need to specifiy redirection via a Proxy - it's automatic if the IDAM_PROXY environment variable
+     * The host:port component is defined by the system administrator via an environment variable "UDA_PROXY".
+     * Clients don't need to specifiy redirection via a Proxy - it's automatic if the UDA_PROXY environment variable
      * is defined.
-     * No prepending is done if the source is already a redirection, i.e. it begins "IDAM::".
+     * No prepending is done if the source is already a redirection, i.e. it begins "UDA::".
      *
-     * The name of the proxy reirection plugin is IDAM by default but may be changed using the environment variable
-     * IDAM_PROXYPLUGINNAME
+     * The name of the proxy reirection plugin is UDA by default but may be changed using the environment variable
+     * UDA_PROXYPLUGINNAME
     */
 
 # ifdef PROXYSERVER
@@ -544,7 +544,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
                 }
             }
 
-            // Prepend the redirection IDAM server details and replace the original
+            // Prepend the redirection UDA server details and replace the original
 
             if (request_block->source[0] == '/') {
                 if (request_block->api_delim[0] != '\0')
@@ -584,7 +584,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
         }
 
         // Test for Proxy calling itself indirectly => potential infinite loop
-        // The IDAM Plugin strips out the host and port data from the source so the originating server details are never passed.
+        // The UDA Plugin strips out the host and port data from the source so the originating server details are never passed.
 
         if (request_block->api_delim[0] != '\0') {
             sprintf(work, "UDA%s%s", request_block->api_delim, environment.server_this);
@@ -604,7 +604,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
             THROW_ERROR(999, "PROXY redirection: The source argument string is too long!");
         }
 
-        // Prepend the redirection IDAM server details
+        // Prepend the redirection UDA server details
 
         if (request_block->api_delim[0] != '\0') {
             sprintf(work, "UDA%s%s/%s", request_block->api_delim, environment.server_proxy, request_block->source);

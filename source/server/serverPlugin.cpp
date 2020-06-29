@@ -130,16 +130,17 @@ int idamServerRedirectStdStreams(int reset)
     static int originalErrFH = 0;
     static FILE* mdsmsgFH = nullptr;
 
-    char* env = nullptr;
     static char mksdir_template[MAXPATH] = { 0 };
     static char tempFile[MAXPATH] = { 0 };
 
-    static int singleFile = 0;
+    static bool singleFile = false;
 
     if (!reset) {
         if (!singleFile) {
-            env = getenv("UDA_PLUGIN_DEBUG_SINGLEFILE");        // Use a single file for all plugin data requests
-            if (env != nullptr) singleFile = 1;                    // Define UDA_PLUGIN_DEBUG to retain the file
+            const char* env = getenv("UDA_PLUGIN_DEBUG_SINGLEFILE");        // Use a single file for all plugin data requests
+            if (env != nullptr) {
+                singleFile = true;                    // Define UDA_PLUGIN_DEBUG to retain the file
+            }
         }
 
         if (mdsmsgFH != nullptr && singleFile) {
@@ -161,7 +162,7 @@ int idamServerRedirectStdStreams(int reset)
         UDA_LOG(UDA_LOG_DEBUG, "Redirect standard output to temporary file\n");
 
         if (mksdir_template[0] == '\0') {
-            env = getenv("UDA_PLUGIN_REDIVERT");
+            const char* env = getenv("UDA_PLUGIN_REDIVERT");
 
             if (env == nullptr) {
                 if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
@@ -172,8 +173,6 @@ int idamServerRedirectStdStreams(int reset)
             } else {
                 strcpy(mksdir_template, env);
             }
-        } else {
-            strcpy(tempFile, env);
         }
 
         strcpy(tempFile, mksdir_template);

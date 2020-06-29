@@ -1,10 +1,11 @@
 #include "freeIdamPut.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <clientserver/initStructs.h>
 
-void freeIdamServerPutDataBlock(PUTDATA_BLOCK *str) {
+void freeIdamServerPutDataBlock(PUTDATA_BLOCK* str)
+{
     //str->opaque_block  = NULL;
     //str->data          = NULL;		// Client app is responsible for freeing these heap variables
     //str->blockName     = NULL;		// as IDAM does not copy the data (to be reviewed!)
@@ -14,9 +15,10 @@ void freeIdamServerPutDataBlock(PUTDATA_BLOCK *str) {
     //if(str->blockNameLength  > 1 && str->blockName != NULL) free((void *)str->blockName);
 }
 
-void freeIdamServerPutDataBlockList(PUTDATA_BLOCK_LIST *putDataBlockList) {
-    if(putDataBlockList->putDataBlock != NULL && putDataBlockList->blockListSize > 0) {
-        free((void *)putDataBlockList->putDataBlock);
+void freeIdamServerPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
+{
+    if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {
+        free((void*)putDataBlockList->putDataBlock);
     }
     initIdamPutDataBlockList(putDataBlockList);
 }

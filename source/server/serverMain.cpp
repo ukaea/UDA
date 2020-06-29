@@ -2,8 +2,7 @@
 * IDAM Data Server: Program stub that call the shared library API
 *--------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
 #if defined(__GNUC__)
 #  include <unistd.h>
 #else
@@ -18,7 +17,7 @@ int main(int argc, char ** argv)
     // Optional sleep at startup
 
     char * env = getenv("UDA_SLEEP");
-    if (env != NULL) {
+    if (env != nullptr) {
         sleep((unsigned int)atoi(env));
     }
 

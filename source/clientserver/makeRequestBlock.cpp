@@ -243,7 +243,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                     //if(rc < 0) return -rc;
                     err = 999;
                     addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
-                                 "No File Format identifed: Please specify.");
+                                 "No File Format identified: Please specify.");
                     return err;
                 }
 

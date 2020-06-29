@@ -139,7 +139,7 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
     unsigned long* ul;
     unsigned long long* ull;
 
-    if (array == NULL) return;                                // No Data
+    if (array == nullptr) return;                                // No Data
     if (factor == (double)1.0E0 && offset == (double)0.0E0 && !invert) return;        // Nothing to be applied
 
 
@@ -204,7 +204,8 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
 
             case UDA_TYPE_UNSIGNED_LONG64:
                 ull = (unsigned long long*)array;
-                for (int i = 0; i < ndata; i++) ull[i] = (unsigned long long)factor * ull[i] + (unsigned long long)offset;
+                for (int i = 0; i < ndata; i++) ull[i] = (unsigned long long)factor * ull[i] +
+                                                         (unsigned long long)offset;
                 break;
 
             default:
@@ -220,7 +221,7 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
             case UDA_TYPE_FLOAT:
                 fp = (float*)array;
                 for (int i = 0; i < ndata; i++)
-                    if (fp[i] != 0.0) { fp[i] = 1.0 / fp[i]; }
+                    if (fp[i] != 0.0) { fp[i] = 1.0f / fp[i]; }
                     else { fp[i] = NAN; }
                 break;
 
@@ -358,18 +359,18 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                             data_block->dims[data_block->order].diff = actions.action[i].timeoffset.interval;
 
                             if (data_block->dims[data_block->order].compressed) {        // Free Heap
-                                void* cptr = NULL;
-                                if ((cptr = (void*)data_block->dims[data_block->order].sams) != NULL) free(cptr);
-                                if ((cptr = (void*)data_block->dims[data_block->order].offs) != NULL) free(cptr);
-                                if ((cptr = (void*)data_block->dims[data_block->order].ints) != NULL) free(cptr);
-                                data_block->dims[data_block->order].sams = NULL;
-                                data_block->dims[data_block->order].offs = NULL;
-                                data_block->dims[data_block->order].ints = NULL;
+                                void* cptr = nullptr;
+                                if ((cptr = (void*)data_block->dims[data_block->order].sams) != nullptr) free(cptr);
+                                if ((cptr = (void*)data_block->dims[data_block->order].offs) != nullptr) free(cptr);
+                                if ((cptr = (void*)data_block->dims[data_block->order].ints) != nullptr) free(cptr);
+                                data_block->dims[data_block->order].sams = nullptr;
+                                data_block->dims[data_block->order].offs = nullptr;
+                                data_block->dims[data_block->order].ints = nullptr;
                             } else {
-                                if (data_block->dims[data_block->order].dim != NULL) {
+                                if (data_block->dims[data_block->order].dim != nullptr) {
                                     free((void*)data_block->dims[data_block->order].dim);
                                 }
-                                data_block->dims[data_block->order].dim = NULL;
+                                data_block->dims[data_block->order].dim = nullptr;
                             }
 
                             data_block->dims[data_block->order].compressed = 1;
@@ -383,18 +384,18 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                     if (actions.action[i].timeoffset.method == 1) {
 
                         if (data_block->dims[data_block->order].compressed) {        // Free Heap with erroneous data
-                            void* cptr = NULL;
-                            if ((cptr = (void*)data_block->dims[data_block->order].sams) != NULL) free(cptr);
-                            if ((cptr = (void*)data_block->dims[data_block->order].offs) != NULL) free(cptr);
-                            if ((cptr = (void*)data_block->dims[data_block->order].ints) != NULL) free(cptr);
-                            data_block->dims[data_block->order].sams = NULL;
-                            data_block->dims[data_block->order].offs = NULL;
-                            data_block->dims[data_block->order].ints = NULL;
+                            void* cptr = nullptr;
+                            if ((cptr = (void*)data_block->dims[data_block->order].sams) != nullptr) free(cptr);
+                            if ((cptr = (void*)data_block->dims[data_block->order].offs) != nullptr) free(cptr);
+                            if ((cptr = (void*)data_block->dims[data_block->order].ints) != nullptr) free(cptr);
+                            data_block->dims[data_block->order].sams = nullptr;
+                            data_block->dims[data_block->order].offs = nullptr;
+                            data_block->dims[data_block->order].ints = nullptr;
                         } else {
-                            if (data_block->dims[data_block->order].dim != NULL) {
+                            if (data_block->dims[data_block->order].dim != nullptr) {
                                 free((void*)data_block->dims[data_block->order].dim);
                             }
-                            data_block->dims[data_block->order].dim = NULL;
+                            data_block->dims[data_block->order].dim = nullptr;
                         }
 
                         data_block->dims[data_block->order].method = 0;
@@ -695,8 +696,8 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                 }
                 break;
 
-            //----------------------------------------------------------------------------------------------
-            // Calibration Corrections
+                //----------------------------------------------------------------------------------------------
+                // Calibration Corrections
 
             case CALIBRATIONTYPE:
 
@@ -718,18 +719,18 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
                     if (STR_EQUALS("error", actions.action[i].calibration.target) ||
                         STR_EQUALS("all", actions.action[i].calibration.target)) {
-                            applyCalibration(data_block->error_type, data_block->data_n,
-                                             actions.action[i].calibration.factor,
-                                             actions.action[i].calibration.offset, actions.action[i].calibration.invert,
-                                             data_block->errhi);
+                        applyCalibration(data_block->error_type, data_block->data_n,
+                                         actions.action[i].calibration.factor,
+                                         actions.action[i].calibration.offset, actions.action[i].calibration.invert,
+                                         data_block->errhi);
                     }
 
                     if (STR_EQUALS("aserror", actions.action[i].calibration.target) ||
                         STR_EQUALS("all", actions.action[i].calibration.target)) {
-                            applyCalibration(data_block->error_type, data_block->data_n,
-                                             actions.action[i].calibration.factor,
-                                             actions.action[i].calibration.offset, actions.action[i].calibration.invert,
-                                             data_block->errlo);
+                        applyCalibration(data_block->error_type, data_block->data_n,
+                                         actions.action[i].calibration.factor,
+                                         actions.action[i].calibration.offset, actions.action[i].calibration.invert,
+                                         data_block->errlo);
                     }
 
                     // Dimension Corrections
@@ -757,16 +758,16 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                         if (data_block->dims[dimid].method == 0) {
                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                 (double)1.0E0) {
-                                                    data_block->dims[dimid].diff =
-                                                            data_block->dims[dimid].diff *
-                                                            actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                data_block->dims[dimid].diff =
+                                                        data_block->dims[dimid].diff *
+                                                        actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                             }
 
                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                 (double)0.0E0) {
-                                                    data_block->dims[dimid].dim0 =
-                                                            data_block->dims[dimid].dim0 +
-                                                            actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                data_block->dims[dimid].dim0 =
+                                                        data_block->dims[dimid].dim0 +
+                                                        actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                             }
 
                                         } else {
@@ -782,13 +783,13 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        fp[jj] = fp[jj] *
-                                                                                 (float)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    fp[jj] = fp[jj] *
+                                                                             (float)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        fp0[jj] = fp0[jj] +
-                                                                                  (float)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    fp0[jj] = fp0[jj] +
+                                                                              (float)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
@@ -797,13 +798,13 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        fp0[jj] = fp0[jj] *
-                                                                                  (float)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    fp0[jj] = fp0[jj] *
+                                                                              (float)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        fp0[jj] = fp0[jj] +
-                                                                                  (float)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    fp0[jj] = fp0[jj] +
+                                                                              (float)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
@@ -812,14 +813,14 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             fp = (float*)data_block->dims[dimid].ints;
                                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                 (double)0.0E0) {
-                                                                    fp0[0] = fp0[0] +
-                                                                             (float)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                fp0[0] = fp0[0] +
+                                                                         (float)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                             }
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++)
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        fp[jj] = fp[jj] *
-                                                                                 (float)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    fp[jj] = fp[jj] *
+                                                                             (float)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                             break;
                                                         default:
@@ -835,13 +836,13 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (double)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (double)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (double)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (double)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
@@ -849,27 +850,27 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar0[jj] = ar0[jj] *
-                                                                                  (double)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar0[jj] = ar0[jj] *
+                                                                              (double)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (double)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (double)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
                                                         case 3:
                                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                 (double)0.0E0) {
-                                                                    ar0[0] = ar0[0] +
-                                                                             (double)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                ar0[0] = ar0[0] +
+                                                                         (double)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                             }
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++)
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (double)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (double)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                             break;
                                                         default:
@@ -886,13 +887,13 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (char)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (char)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (char)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (char)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
@@ -900,27 +901,27 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar0[jj] = ar0[jj] *
-                                                                                  (char)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar0[jj] = ar0[jj] *
+                                                                              (char)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (char)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (char)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
                                                         case 3:
                                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                 (double)0.0E0) {
-                                                                    ar0[0] = ar0[0] +
-                                                                             (char)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                ar0[0] = ar0[0] +
+                                                                         (char)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                             }
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++)
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (char)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (char)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                             break;
                                                         default:
@@ -937,13 +938,13 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (short)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (short)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (short)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (short)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
@@ -951,27 +952,27 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar0[jj] = ar0[jj] *
-                                                                                  (short)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar0[jj] = ar0[jj] *
+                                                                              (short)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (short)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (short)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
                                                         case 3:
                                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                 (double)0.0E0) {
-                                                                    ar0[0] = ar0[0] +
-                                                                             (short)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                ar0[0] = ar0[0] +
+                                                                         (short)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                             }
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++)
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (short)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (short)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                             break;
                                                         default:
@@ -988,13 +989,13 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (int)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (int)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (int)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (int)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
@@ -1002,27 +1003,27 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar0[jj] = ar0[jj] *
-                                                                                  (int)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar0[jj] = ar0[jj] *
+                                                                              (int)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (int)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (int)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
                                                         case 3:
                                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                 (double)0.0E0) {
-                                                                    ar0[0] = ar0[0] +
-                                                                             (int)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                ar0[0] = ar0[0] +
+                                                                         (int)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                             }
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++)
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (int)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (int)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                             break;
                                                         default:
@@ -1039,13 +1040,13 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (long)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (long)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (long)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (long)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
@@ -1053,27 +1054,27 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar0[jj] = ar0[jj] *
-                                                                                  (long)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar0[jj] = ar0[jj] *
+                                                                              (long)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (long)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (long)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
                                                         case 3:
                                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                 (double)0.0E0) {
-                                                                    ar0[0] = ar0[0] +
-                                                                             (long)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                ar0[0] = ar0[0] +
+                                                                         (long)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                             }
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++)
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (long)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (long)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                             break;
                                                         default:
@@ -1090,13 +1091,13 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (unsigned char)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (unsigned char)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (unsigned char)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (unsigned char)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
@@ -1104,27 +1105,27 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar0[jj] = ar0[jj] *
-                                                                                  (unsigned char)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar0[jj] = ar0[jj] *
+                                                                              (unsigned char)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (unsigned char)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (unsigned char)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
                                                         case 3:
                                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                 (double)0.0E0) {
-                                                                    ar0[0] = ar0[0] +
-                                                                             (unsigned char)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                ar0[0] = ar0[0] +
+                                                                         (unsigned char)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                             }
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++)
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (unsigned char)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (unsigned char)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                             break;
                                                         default:
@@ -1141,13 +1142,13 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (unsigned short)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (unsigned short)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (unsigned short)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (unsigned short)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
@@ -1155,27 +1156,27 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar0[jj] = ar0[jj] *
-                                                                                  (unsigned short)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar0[jj] = ar0[jj] *
+                                                                              (unsigned short)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (unsigned short)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (unsigned short)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
                                                         case 3:
                                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                 (double)0.0E0) {
-                                                                    ar0[0] = ar0[0] +
-                                                                             (unsigned short)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                ar0[0] = ar0[0] +
+                                                                         (unsigned short)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                             }
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++)
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (unsigned short)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (unsigned short)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                             break;
                                                         default:
@@ -1192,13 +1193,13 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (unsigned int)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (unsigned int)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (unsigned int)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (unsigned int)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
@@ -1206,27 +1207,27 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar0[jj] = ar0[jj] *
-                                                                                  (unsigned int)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar0[jj] = ar0[jj] *
+                                                                              (unsigned int)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (unsigned int)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (unsigned int)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
                                                         case 3:
                                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                 (double)0.0E0) {
-                                                                    ar0[0] = ar0[0] +
-                                                                             (unsigned int)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                ar0[0] = ar0[0] +
+                                                                         (unsigned int)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                             }
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++)
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (unsigned int)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (unsigned int)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                             break;
                                                         default:
@@ -1243,13 +1244,13 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (unsigned long)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (unsigned long)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (unsigned long)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (unsigned long)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
@@ -1257,27 +1258,27 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++) {
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar0[jj] = ar0[jj] *
-                                                                                  (unsigned long)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar0[jj] = ar0[jj] *
+                                                                              (unsigned long)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                     (double)0.0E0) {
-                                                                        ar0[jj] = ar0[jj] +
-                                                                                  (unsigned long)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                    ar0[jj] = ar0[jj] +
+                                                                              (unsigned long)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                                 }
                                                             }
                                                             break;
                                                         case 3:
                                                             if (actions.action[i].calibration.dimensions[j].dimcalibration.offset !=
                                                                 (double)0.0E0) {
-                                                                    ar0[0] = ar0[0] +
-                                                                             (unsigned long)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
+                                                                ar0[0] = ar0[0] +
+                                                                         (unsigned long)actions.action[i].calibration.dimensions[j].dimcalibration.offset;
                                                             }
                                                             for (jj = 0; jj < data_block->dims[dimid].udoms; jj++)
                                                                 if (actions.action[i].calibration.dimensions[j].dimcalibration.factor !=
                                                                     (double)1.0E0) {
-                                                                        ar[jj] = ar[jj] *
-                                                                                 (unsigned long)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
+                                                                    ar[jj] = ar[jj] *
+                                                                             (unsigned long)actions.action[i].calibration.dimensions[j].dimcalibration.factor;
                                                                 }
                                                             break;
                                                         default:
@@ -1313,20 +1314,20 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
                                 if (STR_EQUALS("error", actions.action[i].calibration.target) ||
                                     STR_EQUALS("all", actions.action[i].calibration.target)) {
-                                        applyCalibration(data_block->dims[dimid].error_type, data_block->dims[dimid].dim_n,
-                                                         actions.action[i].calibration.dimensions[j].dimcalibration.factor,
-                                                         actions.action[i].calibration.dimensions[j].dimcalibration.offset,
-                                                         actions.action[i].calibration.dimensions[j].dimcalibration.invert,
-                                                         data_block->dims[dimid].errhi);
+                                    applyCalibration(data_block->dims[dimid].error_type, data_block->dims[dimid].dim_n,
+                                                     actions.action[i].calibration.dimensions[j].dimcalibration.factor,
+                                                     actions.action[i].calibration.dimensions[j].dimcalibration.offset,
+                                                     actions.action[i].calibration.dimensions[j].dimcalibration.invert,
+                                                     data_block->dims[dimid].errhi);
                                 }
 
                                 if (STR_EQUALS("aserror", actions.action[i].calibration.target) ||
                                     STR_EQUALS("all", actions.action[i].calibration.target)) {
-                                        applyCalibration(data_block->dims[dimid].error_type, data_block->dims[dimid].dim_n,
-                                                         actions.action[i].calibration.dimensions[j].dimcalibration.factor,
-                                                         actions.action[i].calibration.dimensions[j].dimcalibration.offset,
-                                                         actions.action[i].calibration.dimensions[j].dimcalibration.invert,
-                                                         data_block->dims[dimid].errlo);
+                                    applyCalibration(data_block->dims[dimid].error_type, data_block->dims[dimid].dim_n,
+                                                     actions.action[i].calibration.dimensions[j].dimcalibration.factor,
+                                                     actions.action[i].calibration.dimensions[j].dimcalibration.offset,
+                                                     actions.action[i].calibration.dimensions[j].dimcalibration.invert,
+                                                     data_block->dims[dimid].errlo);
                                 }
 
                             }

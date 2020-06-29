@@ -172,10 +172,10 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    const char* file_path = NULL;
+    const char* file_path = nullptr;
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, file_path);
 
-    const char* cdf_path = NULL;
+    const char* cdf_path = nullptr;
     FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, cdf_path);
 
     strcpy(data_source->path, file_path);
