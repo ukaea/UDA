@@ -45,7 +45,6 @@ else()
   add_subdirectory( testplugin )
   add_subdirectory( uda )
   add_subdirectory( viewport )
-  add_subdirectory( testdata )
 endif( DEFINED BUILD_PLUGINS )
 
 add_definitions( -DSERVERBUILD )

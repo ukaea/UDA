@@ -674,7 +674,7 @@ JNIEXPORT jstring JNICALL Java_jIdam_Idam_getLine(JNIEnv* env, jobject obj, jstr
 JNIEXPORT jint JNICALL Java_jIdam_Idam_sumArray1(JNIEnv* env, jobject obj, jintArray arr)
 {
     jint buf[10];
-    jint i, sum = 0;
+    jint sum = 0;
     (*env)->GetIntArrayRegion(env, arr, 0, 10, buf);
     for (int i = 0; i < 10; i++) sum += buf[i];
     return sum;
@@ -683,7 +683,7 @@ JNIEXPORT jint JNICALL Java_jIdam_Idam_sumArray1(JNIEnv* env, jobject obj, jintA
 JNIEXPORT jint JNICALL Java_jIdam_Idam_sumArray2(JNIEnv* env, jobject obj, jintArray arr)
 {
     jint* carr;
-    jint i, sum = 0;
+    jint sum = 0;
     carr = (*env)->GetIntArrayElements(env, arr, NULL);
     if (carr == NULL) return 0; /* exception occurred */
     for (int i = 0; i < 10; i++)sum += carr[i];
