@@ -123,6 +123,10 @@ cdef class Result:
         cdef int order = uda.getIdamOrder(self._handle)
         return order >= 0
 
+    def time_order(self):
+        cdef int order = uda.getIdamOrder(self._handle)
+        return order
+
     def time_dim(self, data_type):
         cdef int order = uda.getIdamOrder(self._handle)
         return Dim(self._handle, order, data_type)

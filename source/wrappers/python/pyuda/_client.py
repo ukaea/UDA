@@ -103,7 +103,7 @@ class Client(with_metaclass(ClientMeta, object)):
             result_str = result.data().tobytes().decode('utf-8')
         return result_str
 
-    def get(self, signal, source, **kwargs):
+    def get(self, signal, source, time_first=False, time_last=False, **kwargs):
         """
         IDAM get data method.
 
@@ -128,7 +128,15 @@ class Client(with_metaclass(ClientMeta, object)):
                 return StructuredData(tree.children()[0])
         elif result.is_string():
             return String(result)
-        return Signal(result)
+
+        signal = Signal(result)
+
+        if time_first:
+            signal.set_time_first()
+        elif time_last:
+            signal.set_time_last()
+
+        return signal
 
     def __getattr__(self, item):
         if item in self._registered_subclients:
