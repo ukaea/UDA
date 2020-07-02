@@ -20,6 +20,8 @@ Interprets the API arguments and assembles a Request data structure.
 #  define strcasecmp _stricmp
 #endif
 
+#include <string>
+
 #include <logging/logging.h>
 #include <clientserver/udaErrors.h>
 #include <clientserver/errorLog.h>
@@ -65,7 +67,7 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
      * These environment variables are legacy and not used by the server
     */
 
-    if (strstr(request_block->source, request_block->api_delim) == nullptr) {
+    if (environment->api_device[0] != '\0' && strstr(request_block->source, request_block->api_delim) == nullptr) {
         lstr = (int)strlen(request_block->source) + (int)strlen(environment->api_device) +
                (int)strlen(request_block->api_delim);
         if (lstr >= STRING_LENGTH) {
@@ -77,7 +79,7 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
         free(test);
     }
 
-    if (strstr(request_block->signal, request_block->api_delim) == nullptr) {
+    if (environment->api_archive[0] != '\0' && strstr(request_block->signal, request_block->api_delim) == nullptr) {
         lstr = (int)strlen(request_block->signal) + (int)strlen(environment->api_archive) +
                (int)strlen(request_block->api_delim);
         if (lstr >= STRING_LENGTH) {

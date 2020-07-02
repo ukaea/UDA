@@ -146,7 +146,6 @@ ENVIRONMENT* getIdamClientEnvironment()
     if ((env = getenv("UDA_DEVICE")) != nullptr) {
         strcpy(udaEnviron.api_device, env);
     } else {
-        strcpy(udaEnviron.api_device, "MAST");
         UDA_LOG(UDA_LOG_WARN, "API_DEVICE environmental variable not defined");
     }
 
