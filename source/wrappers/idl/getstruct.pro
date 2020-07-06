@@ -33,7 +33,7 @@ function checkheapmemory
    return, 0
 end   
 
-function checknamesarelegal, names
+function checknamesarelegal, names, verbose=verbose
 
 ; change to using:   IDL_VALIDNAME(name [, /CONVERT_ALL] [, /CONVERT_SPACES])
 
@@ -51,7 +51,7 @@ function checknamesarelegal, names
       w = WHERE(reserved eq strupcase(names[i]), nw)    ; IDL reserved words
       if(nw ne 0) then begin
          found    = 1
-     print,'WARNING: An Illegal structure name tag has been detected ['+names[i]+'] - Prefixing with '+prefix
+     if keyword_set(verbose) then print,'WARNING: An Illegal structure name tag has been detected ['+names[i]+'] - Prefixing with '+prefix
      names[i] = prefix+names[i]            ; No guarantee the name is unique!
       endif else begin
          
@@ -61,7 +61,7 @@ function checknamesarelegal, names
         c = badchars[j]
         r = strpos(names[i], string(c))            ; Search for illegal characters within the tag name
         if(r ge 0) then begin
-           print,'WARNING: An Illegal structure name tag has been detected ['+names[i]+'] - Replacing '+string(c)+' with '+sub
+           if keword_set(verbose) then print,'WARNING: An Illegal structure name tag has been detected ['+names[i]+'] - Replacing '+string(c)+' with '+sub
            b = BYTE(names[i])
            w = WHERE(b eq c, nw)    
            if(nw gt 0) then begin
@@ -74,7 +74,7 @@ function checknamesarelegal, names
      
      b = BYTE(strmid(names[i],0,1))            ; Numeric First character
      if(b ge BYTE('0') and b le BYTE('9')) then begin
-        print,'WARNING: An Illegal structure name tag has been detected ['+names[i]+'] - Prefixing with '+prefix
+        if keyword_set(verbose) then print,'WARNING: An Illegal structure name tag has been detected ['+names[i]+'] - Prefixing with '+prefix
         names[i] = prefix+names[i]        
             found = 1
          endif
@@ -130,7 +130,7 @@ function makeidamstructurearrayatomic, handle, tree, count, rank, shape, debug=d
    apointer  = getidamnodeatomicpointers(handle, tree, debug=debug, verbose=verbose)        ; Is this Atomic Component a Pointer ? 
  
    anamelist2 = anamelist
-   anamelist2 = checknamesarelegal(anamelist2)            ; Ensure names are OK: Legal IDL variable names! 
+   anamelist2 = checknamesarelegal(anamelist2, verbose=verbose)            ; Ensure names are OK: Legal IDL variable names! 
 
    xcount = getidamnodeatomicdatacount(handle, tree, anamelist[0], debug=debug, verbose=verbose)    ; Array of non-zero count?   
    if(xcount gt 0) then begin
@@ -249,7 +249,7 @@ function makeidamstructureitem, handle, tree, debug=debug, verbose=verbose
   
    if(acount gt 0) then begin
       anamelist2 = anamelist
-      anamelist2 = checknamesarelegal(anamelist2)            ; Ensure names are OK: Legal! 
+      anamelist2 = checknamesarelegal(anamelist2, verbose=verbose)            ; Ensure names are OK: Legal! 
       xcount = getidamnodeatomicdatacount(handle, tree, anamelist[0], debug=debug, verbose=verbose);
       if(xcount gt 0) then begin
          data = getidamnodeatomicdata(handle, tree, anamelist[0], debug=debug, verbose=verbose) 
@@ -292,7 +292,7 @@ function makeidamstructureitem, handle, tree, debug=debug, verbose=verbose
     
    if(scount gt 0) then begin
       snamelist2 = snamelist
-      snamelist2 = checknamesarelegal(snamelist2)            ; Ensure names are OK: Legal! 
+      snamelist2 = checknamesarelegal(snamelist2, verbose=verbose)            ; Ensure names are OK: Legal! 
 
 ;childcount = getidamnodechildrencount(handle, tree)
 ;if(childcount eq 0 and scount eq 1) then begin
