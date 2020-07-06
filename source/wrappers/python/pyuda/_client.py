@@ -63,6 +63,7 @@ class Client(with_metaclass(ClientMeta, object)):
             from mast.geom import GeomClient
             from mast import MastClient
             self._registered_subclients['geometry'] = GeomClient(self)
+            self._registered_subclients['get_images'] = MastClient(self)
             self._registered_subclients['get_shot_date_time'] = MastClient(self)
             self._registered_subclients['latest_shot'] = MastClient(self)
             self._registered_subclients['listGeomSignals'] = GeomClient(self)

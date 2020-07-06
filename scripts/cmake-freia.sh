@@ -6,6 +6,8 @@ module load mdsplus/6.1
 module load java/1.8
 module load udunits/2.2.24
 module load ida
+module load hdf5-C/1.8.13
+module load netcdf-C/4.3.2
 
 export HDF5_USE_SHLIB=yes
 export BOOST_ROOT=/usr/local/depot/boost-1.60
