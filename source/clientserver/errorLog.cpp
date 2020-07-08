@@ -158,7 +158,10 @@ void concatIdamError(IDAMERRORSTACK* errorstackout)
 
 void freeIdamErrorStack(IDAMERRORSTACK* errorstack)
 {
-    free(errorstack->idamerror);
+    // "FIX" : this is causing segfaults when using multiple clients (eg. get and put) 
+    //         apparently due to both trying to free the same memory. Needs fixing properly.
+    //    free(errorstack->idamerror);
+      
     errorstack->nerrors = 0;
     errorstack->idamerror = nullptr;
 }
