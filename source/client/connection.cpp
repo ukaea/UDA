@@ -21,6 +21,7 @@
 #    include <arpa/inet.h>
 #    include <netdb.h>
 #    include <netinet/tcp.h>
+#    include <cctype>
 #  endif
 #  include <unistd.h>
 #  include <strings.h>
@@ -175,8 +176,7 @@ void setHints(struct addrinfo* hints, const char* hostname)
         for (const auto& token : list) {
             size_t lstr = token.size();
             for (size_t j = 0; j < lstr; j++) {
-                isNumeric &= (token[j] >= '0' && token[j] <= '9');
-//                isNumeric &= (bool)std::isdigit(token[j]);
+                isNumeric &= (bool)std::isdigit(token[j]);
             }
         }
 
