@@ -8,6 +8,12 @@ if( WIN32 OR MINGW )
   if( NOT MINGW )
     find_package( dlfcn-win32 CONFIG REQUIRED )
   endif()
+else()
+  find_package( TIRPC QUIET)
+  if(TIRPC_FOUND)
+    add_definitions(-D__TIRPC__)
+    
+      endif()
 endif()
 
 configure_file(
@@ -55,6 +61,8 @@ include_directories(
 
 if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
+elseif(TIRPC_FOUND)
+  include_directories( ${TIRPC_INCLUDE_DIR} )
 endif()
 
 set( SOURCE_FILES
@@ -82,6 +90,8 @@ if( WIN32 OR MINGW )
   else()
     set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl )
   endif()
+elseif(TIRPC_FOUND)
+  set( LINK_LIB ${LINK_LIB} ${TIRPC_LIBRARIES})
 endif()
 
 target_link_libraries( plugins-static PRIVATE

@@ -3,6 +3,12 @@
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
+else()
+  find_package( TIRPC QUIET)
+  if(TIRPC_FOUND)
+    add_definitions(-D__TIRPC__)
+    
+      endif()
 endif()
 
 ########################################################################################################################
@@ -20,6 +26,8 @@ include_directories( ${CMAKE_SOURCE_DIR}/source )
 
 if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
+elseif(TIRPC_FOUND)
+  include_directories( ${TIRPC_INCLUDE_DIR} )
 endif()
 
 ########################################################################################################################

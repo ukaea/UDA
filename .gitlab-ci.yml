@@ -8,7 +8,7 @@ build:
   # instead of calling g++ directly you can also use some build toolkit like make
   # install the necessary build tools when needed
   before_script:
-    - apt update && apt -y install cmake python3-dev libssl-dev libboost-dev swig libxml2-dev pkg-config ninja-build
+    - apt update && apt -y install cmake python3-dev libssl-dev libboost-dev swig libxml2-dev pkg-config ninja-build libtirpc-dev
   script:
     - cmake -GNinja -Bbuild -H. -DCMAKE_INSTALL_PREFIX=. -DTARGET_TYPE=OTHER -DNO_MODULES=ON -DFAT_TESTS=ON
     - ninja -C build

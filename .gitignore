@@ -31,3 +31,5 @@ extlib/portablexdr-4.9.1/configure
 /java
 /install-*
 /.idea/uda.iml
+/.vscode
+/.devcontainer
