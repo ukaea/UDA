@@ -1,5 +1,17 @@
 find_package( LibMemcached )
 
+if( WIN32 OR MINGW )
+  find_package( XDR REQUIRED )
+  if( NOT MINGW )
+    find_package( dlfcn-win32 CONFIG REQUIRED )
+  endif()
+else()
+  find_package( TIRPC QUIET)
+  if(TIRPC_FOUND)
+    add_definitions(-D__TIRPC__)    
+  endif()
+endif()
+
 set( SRC_FILES
   cache.cpp
   fileCache.cpp

@@ -105,16 +105,13 @@ endif()
 include_directories(
   ${SRC_DIR}
   ${OPENSSL_INCLUDE_DIR}
+  ${LIBXML2_INCLUDE_DIR}
 )
 
 if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
 elseif(TIRPC_FOUND)
   include_directories( ${TIRPC_INCLUDE_DIR} )
-endif()
-
-if( NOT CLIENT_ONLY )
-  include_directories( ${LIBXML2_INCLUDE_DIR} )
 endif()
 
 add_library( clientserver-client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
