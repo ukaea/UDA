@@ -158,11 +158,11 @@ cdef put_string(const char* instruction, const char* data):
     cdef uda.PUTDATA_BLOCK put_data
     uda.initIdamPutDataBlock(&put_data)
 
-    cdef int len = strlen(data)
+    cdef int string_length = strlen(data)
 
     put_data.data_type = 17 # UDA_TYPE_STRING
     put_data.rank = 0
-    put_data.count = len
+    put_data.count = string_length + 1
     put_data.shape = NULL
     put_data.data = data
 
