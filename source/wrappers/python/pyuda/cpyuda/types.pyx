@@ -80,9 +80,19 @@ cdef object to_python_c(const char* type, int rank, int* shape, int point, void*
 
 cdef object to_python_i(int type, int rank, np.npy_intp* np_shape, void* data):
     cdef int np_type
-    strings = []
-    if type == 17:
+    cdef np.npy_intp shape[1024]
+
+    if type == 17 and rank <= 1:
         return (<char*>data).decode()
+    elif type == 17 and rank > 1:
+        slen = np_shape[rank-1]
+        for i in range(rank):
+            shape[i] = <np.npy_intp> np_shape[i] 
+
+        arr = np.PyArray_SimpleNewFromData(rank, shape, np.NPY_BYTE, data)
+        arr_bytes = bytearray(arr).decode()
+
+        return np.array([arr_bytes[s:s+slen] for s in range(0, len(arr_bytes), slen)], dtype='U'+repr(slen))
     else:
         np_type = uda_type_to_numpy_type(type)
         if np_type >= 0:

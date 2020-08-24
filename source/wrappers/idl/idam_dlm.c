@@ -782,18 +782,34 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
             ndims = 1;
         }
 
-        putData.shape = (int*)malloc(ndims * sizeof(int));
+	if (type != IDL_TYP_STRING) {
+          putData.shape = (int*)malloc(ndims * sizeof(int));
 
-        if (putData.rank > 1) {
+	  if (putData.rank > 1) {
             for (int i = 0; i < (int)putData.rank; i++) {
-                // REVERSE dimensions (IDL => C)
-                putData.shape[putData.rank - 1 - i] = (int)argv[1]->value.arr->dim[i];
+	      // REVERSE dimensions (IDL => C)
+	      putData.shape[putData.rank - 1 - i] = (int)argv[1]->value.arr->dim[i];
             }
-        } else if (putData.rank == 1) {
+	  } else if (putData.rank == 1) {
             putData.shape[0] = (int)argv[1]->value.arr->dim[0];
-        } else {
+	  } else {
             putData.shape[0] = 1;
-        }
+	  }
+	} else {
+          putData.shape = (int*)malloc((ndims+1) * sizeof(int));
+
+          for (int i = 0; i < (int)putData.rank; i++) {
+              putData.shape[i] = (int)argv[1]->value.arr->dim[i];
+              if (kw.debug) {
+                fprintf(stdout, "+++ idamPutAPI +++\n");
+                fprintf(stdout, "shape %d : %d\n", i, putData.shape[i]);
+              }
+          }
+
+          // initially set second dimension size to 0 : later will set it to max string length
+	  putData.shape[putData.rank] = 0;
+	  putData.rank = putData.rank + 1;	  
+	}
 
         if (kw.debug) {
             fprintf(stdout, "+++ idamPutAPI +++\n");
@@ -872,22 +888,23 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
         if (type == IDL_TYP_STRING) {
             int maxLength = 0;
-            IDL_STRING* sidl = NULL;
+            IDL_STRING* sidl = (IDL_STRING*) putData.data;
+            int nString = putData.count;
 
-            for (int i = 0; i < (int)putData.count; i++) {
-                sidl = (IDL_STRING*)putData.data;
-
-                if (sidl->slen > maxLength) {
-                    maxLength = sidl->slen;
+            for (int i = 0; i < (int)nString; i++) {
+                if (sidl[i].slen > maxLength) {
+                    maxLength = sidl[i].slen;
                 }
             }
 
-            new_string = (char*)malloc(
-                    putData.count * (maxLength + 1) * sizeof(char)); // Block of memory for the strings
+            putData.count = nString * (maxLength+1);
+            putData.shape[putData.rank - 1] = maxLength;
 
-            for (int i = 0; i < (int)putData.count; i++) {
-                sidl = (IDL_STRING*)putData.data;
-                strncpy(&new_string[i * (maxLength + 1)], (char*)sidl->s, sidl->slen); // should be NULL terminated
+            new_string = (char*)malloc(putData.count * sizeof(char)); // Block of memory for the strings
+
+            for (int i = 0; i < (int)nString; i++) {
+                strncpy(&new_string[i * (maxLength + 1)], IDL_STRING_STR(&sidl[i]), sidl[i].slen);
+                new_string[i * (maxLength + 1) + maxLength] = '\0';
             }
 
             putData.data = new_string;

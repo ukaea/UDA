@@ -127,7 +127,7 @@ class Client(with_metaclass(ClientMeta, object)):
                 return Video(StructuredData(tree))
             else:
                 return StructuredData(tree.children()[0])
-        elif result.is_string():
+        elif result.is_string() and result.rank() <= 1:
             return String(result)
 
         signal = Signal(result)

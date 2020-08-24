@@ -1,5 +1,6 @@
 #cython: language_level=3
 
+import numpy as np
 cimport uda
 cimport numpy as np
 from libc cimport string
@@ -112,6 +113,41 @@ numpy2uda_type_map = {
 cdef numpy_type_to_UDA_type(int type):
     return numpy2uda_type_map[type]
 
+cdef put_ndarray_string(const char* instruction, np.ndarray data):
+    cdef int rank = np.PyArray_NDIM(data)
+
+    if rank > 1:
+        raise UDAException("String arrays with more than 1 dimension are not supported for putting to the server")
+
+    cdef uda.PUTDATA_BLOCK put_data
+    uda.initIdamPutDataBlock(&put_data)
+
+    cdef np.npy_intp* shape = np.PyArray_DIMS(data)
+    cdef int size = data.dtype.itemsize
+    cdef int max_str_len = len(max(data, key=len))
+
+    put_data.data_type = UDA_TYPE_STRING
+    put_data.rank = rank + 1
+    put_data.count = np.PyArray_SIZE(data) * (max_str_len + 1)
+    put_data.shape = <int *> malloc((rank + 1) * sizeof(int))
+
+    cdef int i = 0
+    while i < rank:
+        put_data.shape[i] = shape[i]
+        i += 1
+    put_data.shape[rank] = max_str_len
+
+    cdef np.ndarray fixed_len_array = np.zeros(np.PyArray_SIZE(data), dtype='S'+str(max_str_len+1))
+    for sind, s in enumerate(data):
+        fixed_len_array[sind] = s
+
+    put_string = bytearray(fixed_len_array).decode().encode()
+    put_data.data = put_string
+
+    cdef int handle = uda.idamPutAPI(instruction, &put_data)
+    free(put_data.shape)
+    return Result(handle)
+
 
 cdef put_ndarray(const char* instruction, np.ndarray data):
     cdef uda.PUTDATA_BLOCK put_data
@@ -172,7 +208,10 @@ cdef put_string(const char* instruction, const char* data):
 
 def put_data(instruction, data=None):
     if isinstance(data, np.ndarray):
-        return put_ndarray(instruction, data)
+        if (np.PyArray_TYPE(data) != np.NPY_STRING and np.PyArray_TYPE(data) != np.NPY_UNICODE):
+            return put_ndarray(instruction, data)
+        else:
+            return put_ndarray_string(instruction, data)
     elif np.PyArray_CheckScalar(data):
         return put_scalar(instruction, data)
     elif isinstance(data, bytes):

@@ -352,14 +352,14 @@ function getdata, namearg, sourcearg, pass=passarg, tlast=tlast, tfirst=tfirst, 
      if(rank eq 1) then begin
         data = string(data)
         stringdata = 1
-    rank = 0 
+        rank = 0 
      endif else begin
         xxnum  = n_elements(data[0,*])
-    xxdata = strarr(xxnum)
-    for i=0, xxnum-1 do xxdata[i] = string(data[*,i])
-    data = xxdata
-    stringdata = 1
-    rank = 0 
+        xxdata = strarr(xxnum)
+        for i=0, xxnum-1 do xxdata[i] = string(data[*,i])
+        data = xxdata
+        stringdata = 1
+        rank = rank-1
      endelse    
   endif   
 
@@ -411,7 +411,7 @@ function getdata, namearg, sourcearg, pass=passarg, tlast=tlast, tfirst=tfirst, 
   endif else begin
     order=indgen(rank>1)
     dtype=order+1
-  endelse
+ endelse
 
   if exists(passarg) then begin
     struct={name:workname,          $
@@ -435,12 +435,15 @@ function getdata, namearg, sourcearg, pass=passarg, tlast=tlast, tfirst=tfirst, 
   endelse
 
   ;;if stringdata then rank = rank - 1        ; Reduce Rank for string data
-
   for j=0, (rank-1) do begin
-    i = j 
-    if(stringdata) then i = j+1 else i = j
 
-    ablk=getidamdimdata(header, order[i])    
+    i = j 
+
+    dim_order = order[i]
+;    if(stringdata) then i = j+1 else i = j
+    if (stringdata) then dim_order = dim_order + 1
+
+    ablk=getidamdimdata(header, dim_order)    
     if not_structure(ablk) then begin
       errmsg='Unable to read axis info ['+strtrim(i,2)+']'
       goto, errorcatch
