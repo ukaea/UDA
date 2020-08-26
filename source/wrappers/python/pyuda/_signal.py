@@ -163,7 +163,7 @@ class Signal(Data):
             self._time_index -= 1
 
     def reverse_dimension_order(self):
-        if self.rank() <= 1:
+        if self.rank <= 1:
             return
 
         self._dim_order_reversed = not self._dim_order_reversed
@@ -179,13 +179,13 @@ class Signal(Data):
         if self._cresult is None or not self._cresult.has_time_dim():
             return
 
-        if self.rank() <= 1:
+        if self.rank <= 1:
             return
 
-        if self.time_index > 0 and self.time_index < self.rank() - 1:
+        if self.time_index > 0 and self.time_index < self.rank - 1:
             raise NotImplementedError("Time is neither first nor last dimension so can not be set as first dimension")
 
-        if self.time_index == self.rank() - 1:
+        if self.time_index == self.rank - 1:
             # This will be time last, so reverse dimensions to set time first
             self.reverse_dimension_order()
 
@@ -193,10 +193,10 @@ class Signal(Data):
         if self._cresult is None or not self._cresult.has_time_dim():
             return
 
-        if self.rank() <= 1:
+        if self.rank <= 1:
             return
 
-        if self.time_index > 0 and self.time_index < self.rank() - 1:
+        if self.time_index > 0 and self.time_index < self.rank - 1:
             raise NotImplementedError("Time is neither first nor last dimension so can not be set as last dimension")
 
         if self.time_index == 0:
