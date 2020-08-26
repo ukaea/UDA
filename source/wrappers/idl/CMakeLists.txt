@@ -23,6 +23,12 @@ include_directories(
   ${IDL_INCLUDES}
 )
 
+if( MINGW OR WIN32 )
+  include_directories( ${XDR_INCLUDE_DIR} )
+elseif(TIRPC_FOUND)
+  include_directories( ${TIRPC_INCLUDE_DIR} )
+endif()
+
 if( FAT_IDL )
   add_definitions( -DFATCLIENT )
 
