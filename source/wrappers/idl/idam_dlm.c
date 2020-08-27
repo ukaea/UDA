@@ -782,34 +782,40 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
             ndims = 1;
         }
 
-	if (type != IDL_TYP_STRING) {
-          putData.shape = (int*)malloc(ndims * sizeof(int));
+        if (type != IDL_TYP_STRING) {
+            putData.shape = (int*)malloc(ndims * sizeof(int));
 
-	  if (putData.rank > 1) {
-            for (int i = 0; i < (int)putData.rank; i++) {
-	      // REVERSE dimensions (IDL => C)
-	      putData.shape[putData.rank - 1 - i] = (int)argv[1]->value.arr->dim[i];
+            if (putData.rank > 1) {
+                for (int i = 0; i < (int)putData.rank; i++) {
+                    // REVERSE dimensions (IDL => C)
+                    // putData.shape[putData.rank - 1 - i] = (int)argv[1]->value.arr->dim[i];
+                }
+            } else if (putData.rank == 1) {
+                putData.shape[0] = (int)argv[1]->value.arr->dim[0];
+            } else {
+                putData.shape[0] = 1;
             }
-	  } else if (putData.rank == 1) {
-            putData.shape[0] = (int)argv[1]->value.arr->dim[0];
-	  } else {
-            putData.shape[0] = 1;
-	  }
-	} else {
-          putData.shape = (int*)malloc((ndims+1) * sizeof(int));
+        } else {
 
-          for (int i = 0; i < (int)putData.rank; i++) {
-              putData.shape[i] = (int)argv[1]->value.arr->dim[i];
-              if (kw.debug) {
-                fprintf(stdout, "+++ idamPutAPI +++\n");
-                fprintf(stdout, "shape %d : %d\n", i, putData.shape[i]);
-              }
-          }
+            if (putData.rank > 1) {
+                fprintf(stdout, "ERROR: String arrays with more than 1 dimension are not supported for putting to the server\n");
+                return (IDL_GettmpLong(-999));
+            }
 
-          // initially set second dimension size to 0 : later will set it to max string length
-	  putData.shape[putData.rank] = 0;
-	  putData.rank = putData.rank + 1;	  
-	}
+            putData.shape = (int*)malloc((ndims+1) * sizeof(int));
+
+            for (int i = 0; i < (int)putData.rank; i++) {
+                putData.shape[i] = (int)argv[1]->value.arr->dim[i];
+                if (kw.debug) {
+                    fprintf(stdout, "+++ idamPutAPI +++\n");
+                    fprintf(stdout, "shape %d : %d\n", i, putData.shape[i]);
+                }
+            }
+
+            // initially set second dimension size to 0 : later will set it to max string length
+            putData.shape[putData.rank] = 0;
+            putData.rank = putData.rank + 1;
+        }
 
         if (kw.debug) {
             fprintf(stdout, "+++ idamPutAPI +++\n");

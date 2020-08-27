@@ -208,7 +208,7 @@ cdef put_string(const char* instruction, const char* data):
 
 def put_data(instruction, data=None):
     if isinstance(data, np.ndarray):
-        if (np.PyArray_TYPE(data) != np.NPY_STRING and np.PyArray_TYPE(data) != np.NPY_UNICODE):
+        if np.PyArray_TYPE(data) not in (np.NPY_STRING, np.NPY_UNICODE):
             return put_ndarray(instruction, data)
         else:
             return put_ndarray_string(instruction, data)
