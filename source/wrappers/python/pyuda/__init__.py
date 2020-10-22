@@ -16,12 +16,8 @@ UDAException = cpyuda.UDAException
 ProtocolException = cpyuda.ProtocolException
 ServerException = cpyuda.ServerException
 InvalidUseException = cpyuda.InvalidUseException
+Properties = cpyuda.Properties
 
-
-# import the enum values PROP_* from the c_uda library into a Properties class
-Properties = type('Properties', (), dict(
-    (p, getattr(cpyuda, p)) for p in dir(cpyuda) if p.startswith('PROP_')
-))
 
 __all__ = (UDAException, ProtocolException, ServerException, InvalidUseException,
            Client, Signal, Video, Dim, Properties, DEBUG, WARNING, INFO, ERROR)

@@ -8,19 +8,12 @@
 
 #include "udaClient.h"
 
-#ifdef __GNUC__
-
-#  include <unistd.h>
-
-#endif
-
 #include <cstdlib>
 
 #include <logging/logging.h>
 #include <clientserver/udaErrors.h>
 #include <clientserver/errorLog.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/manageSockets.h>
 #include <clientserver/userid.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
@@ -34,21 +27,18 @@
 #include "accAPI.h"
 
 #ifdef FATCLIENT
-
 #  include <clientserver/compressDim.h>
 #  include <server/udaServer.h>
-
 #else
 #  include "clientXDRStream.h"
 #  include <clientserver/xdrlib.h>
-#endif
-
-#ifdef MEMCACHE
-#  include <cache/cache.h>
-#endif
-
-#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-#  include <authentication/udaSSL.h>
+#  ifndef NOLIBMEMCACHED
+#    include <cache/memcache.h>
+#    include <cache/fileCache.h>
+#  endif
+#  ifndef SSLAUTHENTICATION
+#    include <authentication/udaSSL.h>
+#  endif
 #endif
 
 //------------------------------------------------ Static Globals ------------------------------------------------------
@@ -191,14 +181,15 @@ int idamClient(REQUEST_BLOCK* request_block)
     int allocMetaHeap = 0;
     int serverside = 0;
 
-#ifdef MEMCACHE
-    static IDAM_CACHE* cache;
-    request_block_ptr = request_block;    // Passed down to middleware player via global pointer
-#endif
-
-#if !defined(FATCLIENT) && !defined(SECURITYENABLED)
+#ifndef FATCLIENT
+#  ifndef NOLIBMEMCACHED
+    static UDA_CACHE* cache;
+    static unsigned int cacheStatus = UDA_CACHE_NOT_OPENED;
+#  endif // !NOLIBMEMCACHED
+#  ifndef SECURITYENABLED
     static int startupStates;
-#endif
+#  endif // !SECURITYENABLED
+#endif // !FATCLIENT
 
     DATA_SYSTEM* data_system = nullptr;
     SYSTEM_CONFIG* system_config = nullptr;
@@ -258,65 +249,70 @@ int idamClient(REQUEST_BLOCK* request_block)
         //-------------------------------------------------------------------------
         // Check the local cache for the data (GET methods only - Note: some GET methods may disguise PUT methods!)
 
-#  ifdef MEMCACHE
+        if (clientFlags & CLIENTFLAG_FILECACHE && !request_block->put) {
+            // Query the cache for the Data
+            DATA_BLOCK* data = udaFileCacheRead(request_block, logmalloclist, userdefinedtypelist, protocolVersion);
 
-        static unsigned int cacheStatus = CACHE_NOT_OPENED;
+            if (data != nullptr) {
+                // Success
+                data_block_idx = acc_getIdamNewDataHandle();
 
+                if (data_block_idx < 0) {            // Error
+                    err = -data_block_idx;
+                    break;
+                }
+
+                data_block = getIdamDataBlock(data_block_idx);
+
+                memcpy(data_block, data, sizeof(DATA_BLOCK));
+                free(data);
+
+                return data_block_idx;
+            }
+        }
+
+#  ifndef NOLIBMEMCACHED
         do {
-
             // Check Client Properties for permission to cache
-
             if (clientFlags & CLIENTFLAG_CACHE && !request_block->put &&
-                (cacheStatus == CACHE_AVAILABLE || cacheStatus == CACHE_NOT_OPENED)) {
+                (cacheStatus == UDA_CACHE_AVAILABLE || cacheStatus == UDA_CACHE_NOT_OPENED)) {
 
                 // Open the Cache
-
-                if (cacheStatus == CACHE_NOT_OPENED) {
-                    cache = idamOpenCache();
+                if (cacheStatus == UDA_CACHE_NOT_OPENED) {
+                    cache = udaOpenCache();
 
                     if (cache == nullptr) {
-                        cacheStatus = CACHE_NOT_AVAILABLE;
+                        cacheStatus = UDA_CACHE_NOT_AVAILABLE;
                         break;
                     }
 
-                    cacheStatus = CACHE_AVAILABLE;
+                    cacheStatus = UDA_CACHE_AVAILABLE;
                 }
 
                 // Query the cache for the Data
-
-                DATA_BLOCK* data = idamCacheRead(cache, request_block, logmalloclist, userdefinedtypelist,
+                DATA_BLOCK* data = udaCacheRead(cache, request_block, logmalloclist, userdefinedtypelist,
                                                  *getIdamClientEnvironment(), protocolVersion);
 
-                if (data != nullptr) {    // Success
+                if (data != nullptr) {
+                    // Success
+                    data_block_idx = acc_getIdamNewDataHandle();
 
-                    int lastHandle = -1;
-                    if ((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
-                        (lastHandle = getIdamThreadLastHandle()) >= 0) {
-                        if (clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) {
-                            idamFree(lastHandle);
-                        } else {
-                            initDataBlock(&Data_Block[lastHandle]);
-                        }
-                        // Application has responsibility for freeing heap in the Data Block
-                        Data_Block[lastHandle].handle = lastHandle;
-                        memcpy(&Data_Block[lastHandle], data, sizeof(DATA_BLOCK));
-                        free(data);
-                        return lastHandle;
-
-                    } else {        // re-use or create a new Data Block
-
-                        lastHandle = acc_getIdamNewDataHandle();
-
-                        memcpy(&Data_Block[lastHandle], data, sizeof(DATA_BLOCK));
-                        free(data);
-                        return lastHandle;
+                    if (data_block_idx < 0) {            // Error
+                        err = -data_block_idx;
+                        break;
                     }
+
+                    data_block = getIdamDataBlock(data_block_idx);
+
+                    memcpy(data_block, data, sizeof(DATA_BLOCK));
+                    free(data);
+
+                    return data_block_idx;
                 }
 
             }
         } while (0);
-
-#  endif // MEMCACHE
+#  endif // !NOLIBMEMCACHED
 
         //-------------------------------------------------------------------------
         // Manage Multiple UDA Server connections ...
@@ -527,18 +523,14 @@ int idamClient(REQUEST_BLOCK* request_block)
             if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                                  &client_block, protocolVersion)) != 0) {
                 addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (Client Block)");
-
                 UDA_LOG(UDA_LOG_DEBUG, "Error Sending Client Block\n");
-
                 break;
             }
 
             if (!(xdrrec_endofrecord(clientOutput, 1))) { // Send data now
                 err = PROTOCOL_ERROR_7;
                 addIdamError(CODEERRORTYPE, __func__, err, "Protocol 7 Error (Client Block)");
-
                 UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_endofrecord after Client Block\n");
-
                 break;
             }
 
@@ -548,9 +540,7 @@ int idamClient(REQUEST_BLOCK* request_block)
                     clientInput))) { // Wait for data, then position buffer reader to the start of a new record
                 err = PROTOCOL_ERROR_5;
                 addIdamError(CODEERRORTYPE, __func__, err, "Protocol 5 Error (Server Block)");
-
                 UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_skiprecord prior to Server Block\n");
-
                 break;
             }
 
@@ -561,9 +551,7 @@ int idamClient(REQUEST_BLOCK* request_block)
                 addIdamError(CODEERRORTYPE, __func__, err, "Protocol 11 Error (Server Block #1)");
                 // Assuming the server_block is corrupted, replace with a clean copy to avoid concatonation problems
                 server_block.idamerrorstack.nerrors = 0;
-
                 UDA_LOG(UDA_LOG_DEBUG, "Error receiving Server Block\n");
-
                 break;
             }
 
@@ -625,9 +613,7 @@ int idamClient(REQUEST_BLOCK* request_block)
                 err = 999;
                 addIdamError(CODEERRORTYPE, __func__, err,
                              "Data waiting in the input data buffer when none expected! Please contact the system administrator.");
-
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] excess data bytes waiting in input buffer!\n", count++);
-
                 break;
             }
 
@@ -643,14 +629,11 @@ int idamClient(REQUEST_BLOCK* request_block)
                 err = 999;
                 addIdamError(CODEERRORTYPE, __func__, err,
                              "Corrupted input data stream! Please contact the system administrator.");
-
                 UDA_LOG(UDA_LOG_DEBUG, "Unable to flush input buffer!!!\n");
-
                 break;
             }
 
             UDA_LOG(UDA_LOG_DEBUG, "xdrrec_eof rc = 1 => no more input, buffer flushed.\n");
-
         }
 
         //-------------------------------------------------------------------------
@@ -720,7 +703,6 @@ int idamClient(REQUEST_BLOCK* request_block)
         if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
                              &server_block, protocolVersion)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Protocol 11 Error (Server Block #2) = %d\n", err);
-
             addIdamError(CODEERRORTYPE, __func__, err, " Protocol 11 Error (Server Block #2)");
             // Assuming the server_block is corrupted, replace with a clean copy to avoid future concatonation problems
             server_block.idamerrorstack.nerrors = 0;
@@ -734,11 +716,8 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         if (server_block.idamerrorstack.nerrors > 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Server Block passed Server Error State %d\n", err);
-
             err = server_block.idamerrorstack.idamerror[0].code;      // Problem on the Server Side!
-
             UDA_LOG(UDA_LOG_DEBUG, "Server Block passed Server Error State %d\n", err);
-
             serverside = 1;        // Most Server Side errors are benign so don't close the server
             break;
         }
@@ -960,18 +939,26 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #endif      // <========================== End of FatClient Code Only
 
+#ifndef FATCLIENT
         //------------------------------------------------------------------------------
         // Cache the data if the server has passed permission and the application (client) has enabled caching
 
-#ifdef MEMCACHE
-#ifdef CACHEDEV
-        if (cacheStatus == CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE && Data_Block[acc_getCurrentDataBlockIndex()].cachePermission == PLUGINOKTOCACHE) {
-#else
-        if (cacheStatus == CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE) {
-#endif
-            idamCacheWrite(cache, request_block, data_block, logmalloclist, userdefinedtypelist, *environment, protocolVersion);
+        if (clientFlags & CLIENTFLAG_FILECACHE) {
+            udaFileCacheWrite(data_block, request_block, logmalloclist, userdefinedtypelist, protocolVersion);
         }
+
+#ifndef NOLIBMEMCACHED
+#ifdef CACHEDEV
+        if (cacheStatus == UDA_CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE
+            && data_block.cachePermission == UDA_PLUGIN_OK_TO_CACHE) {
+#else
+        if (cacheStatus == UDA_CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE) {
 #endif
+            udaCacheWrite(cache, request_block, data_block, logmalloclist, userdefinedtypelist, *environment,
+                          protocolVersion);
+        }
+#endif // !NOLIBMEMCACHED
+#endif // !FATCLIENT
 
         //------------------------------------------------------------------------------
         // End of Error Trap Loop
@@ -1182,7 +1169,7 @@ void idamFree(int handle)
 
         case UDA_OPAQUE_TYPE_STRUCTURES: {
             if (data_block->opaque_block != nullptr) {
-                GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)data_block->opaque_block;
+                auto general_block = (GENERAL_BLOCK*)data_block->opaque_block;
 
                 if (general_block->userdefinedtypelist != nullptr) {
 #ifndef FATCLIENT
@@ -1235,20 +1222,7 @@ void idamFree(int handle)
             break;
         }
 
-        case UDA_OPAQUE_TYPE_XDRFILE: {
-            if (data_block->opaque_block != nullptr) {
-                free(data_block->opaque_block);
-            }
-
-            data_block->opaque_block = nullptr;
-            data_block->data_type = UDA_TYPE_UNKNOWN;
-            data_block->opaque_count = 0;
-            data_block->opaque_type = UDA_OPAQUE_TYPE_UNKNOWN;
-            data_block->data = nullptr;
-
-            break;
-        }
-
+        case UDA_OPAQUE_TYPE_XDRFILE:
         case UDA_OPAQUE_TYPE_XDROBJECT: {
             if (data_block->opaque_block != nullptr) {
                 free(data_block->opaque_block);
@@ -1413,7 +1387,6 @@ void idamFreeAll()
 #endif // <========================== End of Client Server Code Only
 
     idamClosedown(CLOSE_ALL, nullptr);        // Close the Socket, XDR Streams and All Files
-
 }
 
 SERVER_BLOCK getIdamThreadServerBlock()
@@ -1618,7 +1591,7 @@ int getIdamServerErrorStackRecordCode(int record)
 const char* getIdamServerErrorStackRecordLocation(int record)
 {
     if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
-        return 0;
+        return nullptr;
     }
     return server_block.idamerrorstack.idamerror[record].location; // Server Error Stack Record Location
 }
@@ -1633,7 +1606,7 @@ const char* getIdamServerErrorStackRecordMsg(int record)
     UDA_LOG(UDA_LOG_DEBUG, "record %d\n", record);
     UDA_LOG(UDA_LOG_DEBUG, "count  %d\n", server_block.idamerrorstack.nerrors);
     if (record < 0 || (unsigned int)record >= server_block.idamerrorstack.nerrors) {
-        return 0;
+        return nullptr;
     }
     return server_block.idamerrorstack.idamerror[record].msg;   // Server Error Stack Record Message
 }

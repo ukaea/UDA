@@ -10,7 +10,6 @@
 
 #include "udaGetAPI.h"
 
-#include <stdarg.h>
 #ifndef _WIN32
 #  include <strings.h>
 #endif

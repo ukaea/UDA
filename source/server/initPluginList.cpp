@@ -2,7 +2,7 @@
 
 #include <cerrno>
 
-#include <cache/cache.h>
+#include <cache/memcache.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/protocol.h>
 #include <server/serverPlugin.h>

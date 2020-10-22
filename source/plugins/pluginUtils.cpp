@@ -8,7 +8,7 @@
 #endif
 
 
-#include <cache/cache.h>
+#include <cache/memcache.h>
 #include <client/udaClient.h>
 #include <clientserver/expand_path.h>
 #include <clientserver/freeDataBlock.h>

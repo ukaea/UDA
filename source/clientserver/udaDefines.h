@@ -85,16 +85,15 @@ extern unsigned int privateFlags;
 //--------------------------------------------------------
 // Client Flags: Client specified local properties (32 bits)
 
-#define CLIENTFLAG_FULLRESET -1    // ffff        Reset flags
-#define CLIENTFLAG_ALTDATA    1u    // 0001
-#define CLIENTFLAG_XDRFILE    2u    // 0010        Use an intermediate file with the XDR data rather than a data stream
-#define CLIENTFLAG_CACHE      4u    // 0100        Access data from the local cache and write new data to cache
-#define CLIENTFLAG_CLOSEDOWN  8u    // 1000        Immediate Closedown
-
-#define CLIENTFLAG_XDROBJECT    16u  // 10000        Use a XDR object in memory
-
-#define CLIENTFLAG_REUSELASTHANDLE     32u      // 100000       Reuse the last issued handle value (for this thread) - assume application has freed heap
-#define CLIENTFLAG_FREEREUSELASTHANDLE 64u      // 1000000      Free the heap associated with the last issued handle and reuse the handle value
+#define CLIENTFLAG_FULLRESET -1             // ffff     Reset flags
+#define CLIENTFLAG_ALTDATA    1u            // 0000 0001
+#define CLIENTFLAG_XDRFILE    2u            // 0000 0010    Use an intermediate file with the XDR data rather than a data stream
+#define CLIENTFLAG_CACHE      4u            // 0000 0100    Access data from the local cache and write new data to cache
+#define CLIENTFLAG_CLOSEDOWN  8u            // 0000 1000    Immediate Closedown
+#define CLIENTFLAG_XDROBJECT  16u           // 0001 0000    Use a XDR object in memory
+#define CLIENTFLAG_REUSELASTHANDLE     32u  // 0010 0000    Reuse the last issued handle value (for this thread) - assume application has freed heap
+#define CLIENTFLAG_FREEREUSELASTHANDLE 64u  // 0100 0000    Free the heap associated with the last issued handle and reuse the handle value
+#define CLIENTFLAG_FILECACHE 128u           // 1000 0000    Access data from and save data to local cache files
 
 extern unsigned int clientFlags;
 

@@ -150,5 +150,5 @@ class Client(with_metaclass(ClientMeta, object)):
         return cpyuda.get_property(prop)
 
     @classmethod
-    def set_property(cls, prop, value):
+    def set_property(cls, prop, value=None):
         cpyuda.set_property(prop, value)

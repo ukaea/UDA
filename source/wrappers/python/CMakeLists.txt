@@ -18,6 +18,11 @@ file( GLOB INSTALL_FILES pyuda/*.py )
 install( FILES ${INSTALL_FILES} DESTINATION python_installer/pyuda )
 
 find_package( OpenSSL REQUIRED )
+find_package( LibMemcached QUIET )
+
+if( LIBMEMCACHED_FOUND )
+  set( EXTRA_LIBS "memcached" )
+endif()
 
 get_filename_component( OPENSSL_LIB_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY )
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/setup.py @ONLY )

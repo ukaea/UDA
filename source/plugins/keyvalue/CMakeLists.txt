@@ -4,7 +4,7 @@
 find_package( LibXml2 QUIET )
 find_package( LevelDB QUIET )
 
-if( NOT LEVELDB_FOUND )
+if( NOT LevelDB_FOUND )
   message( WARNING "LevelDB not found - skipping keyvalue plugin" )
   return()
 elseif( NOT LIBXML2_FOUND )
@@ -24,8 +24,8 @@ uda_plugin(
   CONFIG_FILE keyvalue.cfg
   EXTRA_INCLUDE_DIRS
     ${LIBXML2_INCLUDE_DIR}
-    ${LEVELDB_INCLUDE_DIR}
+    ${LevelDB_INCLUDE_DIR}
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
-    ${LEVELDB_LIBRARIES}
+    ${LevelDB_LIBRARIES}
 )

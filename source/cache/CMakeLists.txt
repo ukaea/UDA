@@ -13,8 +13,9 @@ else()
 endif()
 
 set( SRC_FILES
-  cache.cpp
+  memcache.cpp
   fileCache.cpp
+  cache.cpp
 )
 
 include_directories(

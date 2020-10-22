@@ -8,8 +8,36 @@ from libc.stdlib cimport malloc, free
 from libc.string cimport strlen
 
 
+_properties = {
+    "get_datadble": ("GET_DATA_DOUBLE", False),
+    "get_dimdble": ("GET_DIM_DOUBLE", False),
+    "get_timedble": ("GET_TIME_DOUBLE", False),
+    "get_bytes": ("GET_BYTES", False),
+    "get_bad": ("GET_BAD", False),
+    "get_asis": ("GET_AS_IS", False),
+    "get_uncal": ("GET_UNCALIBRATED", False),
+    "get_notoff": ("GET_NOT_OFFSET", False),
+    "get_synthetic": ("GET_SYNTHETIC", False),
+    "get_scalar": ("GET_SCALAR", False),
+    "get_nodimdata": ("GET_NO_DIM_DATA", False),
+    "timeout": ("TIMEOUT", True),
+    "verbose": ("VERBOSE", False),
+    "debug": ("DEBUG", False),
+    "altdata": ("ALT_DATA", True),
+    "altrank": ("ALT_RANK", False),
+    "reuselasthandle": ("REUSE_LAST_HANDLE", False),
+    "freeandreuselasthandle": ("FREE_AND_REUSE_LAST_HANDLE", False),
+    "filecache": ("FILE_CACHE", False),
+}
+
+
+Properties = type('Properties', (), {v[0]:k for k,v in _properties.items()})
+
+
 def set_property(prop_name, value):
-    if prop_name in ('timeout', 'altRank'):
+    if prop_name.lower() not in _properties:
+        raise ValueError('invalid property ' + prop_name)
+    if _properties[prop_name][1]:
         prop_string = prop_name + '=' + str(value)
     else:
         prop_string = prop_name
@@ -17,8 +45,10 @@ def set_property(prop_name, value):
 
 
 def get_property(prop_name):
-    prop = uda.getIdamProperty(prop_name).decode()
-    if prop_name in ('timeout', 'altRank'):
+    if prop_name.lower() not in _properties:
+        raise ValueError('invalid property ' + prop_name)
+    prop = uda.getIdamProperty(prop_name.encode())
+    if _properties[prop_name][1]:
         return prop
     else:
         return bool(prop)

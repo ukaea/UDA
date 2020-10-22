@@ -4,7 +4,7 @@
 Contents of DATA_BLOCK structures written to a local cache
 Date/Time Stamp used to build in automatic obsolescence.
 Unique hash key used to identify cached data using signal/source arguments
-Cache located in directory given by environment variables IDAM_CACHE_DIR, IDAM_CACHE_TABLE
+Cache located in directory given by environment variables UDA_CACHE_DIR, UDA_CACHE_TABLE
 Maximum number of cached files prevents ...
 Maximum size ...
 Cache is communal: shared database table
@@ -20,54 +20,94 @@ unsigned int Hash key
 unsigned long long timestamp
 char Filename[]
 unsigned long long properties
-char signal[]	- cannot contain a ';' character
+char signal[]    - cannot contain a ';' character
 char source[]
 */
 
 #include "fileCache.h"
-
-#ifdef _WIN32
-int idamClientLockCache(FILE **db, short type) {
-    return 0;
-}
-#else
+#include "cache.h"
 
 #include <fcntl.h>
 #include <cstdlib>
 #include <cerrno>
 #include <string>
 #include <vector>
+#include <boost/algorithm/string.hpp>
+#include <boost/optional.hpp>
 
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
-#include <structures/struct.h>
-#include <client/clientXDRStream.h>
-#include <clientserver/xdrlib.h>
-#include <client/udaClient.h>
+#include <sstream>
 
-REQUEST_BLOCK* request_block_ptr = nullptr;
+constexpr int CACHE_MAXCOUNT            = 100; // Max Attempts at obtaining a database table lock
+constexpr int CACHE_HOURSVALID          = 0;
+constexpr int CACHE_MAXDEADRECORDS      = 10;
+constexpr int CACHE_MAXRECORDS          = 1000; // Including comment records
+constexpr int CACHE_FIRSTRECORDLENGTH   = 30;
+constexpr int CACHE_MAXLOCKTIME         = 100;  // Maximum Grace period after time expiry when a file record is locked
+constexpr int CACHE_NORECORD            = 1;
+constexpr int CACHE_RECORDFOUND         = 2;
+constexpr int CACHE_PURGERECORD         = 3;
+
+constexpr unsigned short CACHE_DEADRECORD   = 0;
+constexpr unsigned short CACHE_LIVERECORD   = 1;
+constexpr unsigned short CACHE_LOCKEDRECORD = 2; // Do Not purge this file - possibly in use
+
+namespace {
+
+enum class LockActionType : short
+{
+    READ    = F_RDLCK,
+    WRITE   = F_WRLCK,
+    UNLOCK  = F_UNLCK
+};
+
+struct CacheStats
+{
+    unsigned long recordCount;
+    unsigned long deadCount;
+    unsigned long endOffset;
+};
+
+struct CacheEntry
+{
+    size_t file_position = 0;
+    unsigned int status = 0;
+    std::string signal;
+    std::string source;
+    std::string filename;
+    unsigned long long timestamp = 0;
+    unsigned long long properties = 0;
+    unsigned long dbkey = 0;
+};
+
+} // anon namespace
+
+static int lock_cache_db_file(FILE** db, LockActionType type);
+static bool is_cache_time_valid(unsigned long long timestamp);
+static bool is_cache_locked_time_valid(unsigned long long timestamp);
+static bool is_cache_file_valid(const std::string& filename);
+static boost::optional<CacheStats> get_cache_stats(FILE* db);
+static int update_cache_stats(FILE* db, CacheStats stats);
+static boost::optional<CacheStats> purge_cache(FILE* db);
+static int get_cache_filename(const REQUEST_BLOCK* request_block, std::string& cacheFilename);
+static unsigned int xcrc32(const unsigned char* buf, int len, unsigned int init);
+
+constexpr const char* delimiter = ";";
 
 // Cache database table lock/unlock
 // nullptr File handle returned if there is no cache
 
-int idamClientLockCache(FILE** db, short type)
+int lock_cache_db_file(FILE** db, LockActionType type)
 {
-    // Types of Lock: F_RDLCK, F_WRLCK, or F_UNLCK
-
-    FILE* fh = nullptr;
-    struct flock lock;
-    struct timespec requested;
-    struct timespec remaining;
-    int err = 0;
-    int rc = 0;
-    int delay = 0;
-    int count = 0;
-
     // Open the Cache database table on locking and close on unlocking
 
-    if (type == F_WRLCK) {                    // Open the Database Table and apply an Exclusive lock
-        const char* dir = getenv("UDA_CACHE_DIR");        // Where the files are located
-        const char* table = getenv("UDA_CACHE_TABLE");        // List of cached files
+    FILE* fh = nullptr;
+
+    if (type == LockActionType::READ || type == LockActionType::WRITE) {
+        // Open the Database Table and apply an Exclusive lock
+        const char* dir = getenv("UDA_CACHE_DIR");      // Where the files are located
+        const char* table = getenv("UDA_CACHE_TABLE");  // List of cached files
 
         *db = nullptr;
         if (dir == nullptr || table == nullptr) {
@@ -75,15 +115,20 @@ int idamClientLockCache(FILE** db, short type)
             return 0;
         }
 
-        std::string dbfile = std::string{ dir } + "/" + table;
+        std::string dbfile = std::string{dir} + "/" + table;
 
         // Open the Cache database table
 
         errno = 0;
         fh = fopen(dbfile.c_str(), "r+");    // ASCII file: Read with update (over-write)
 
+        if (fh == nullptr && type == LockActionType::WRITE) {
+            errno = 0;
+            fh = fopen(dbfile.c_str(), "w");
+        }
+
         if (fh == nullptr || errno != 0) {
-            err = 999;
+            int err = 999;
             if (errno != 0) {
                 addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
             }
@@ -102,39 +147,48 @@ int idamClientLockCache(FILE** db, short type)
 
     int fd = fileno(fh);
 
-    lock.l_whence = SEEK_SET;        // Relative to the start of the file
-    lock.l_start = 0;            // Lock applies from this byte
-    lock.l_len = 0;            // To the end of the file
-    lock.l_type = type;        // Lock type to apply
+    flock lock = {};
+    lock.l_whence = SEEK_SET;               // Relative to the start of the file
+    lock.l_start = 0;                       // Lock applies from this byte
+    lock.l_len = 0;                         // To the end of the file
+    lock.l_type = static_cast<short>(type); // Lock type to apply
 
-    rc = fcntl(fd, F_SETLK, &lock);    // Manage the Cache table lock
+    int rc = fcntl(fd, F_SETLK, &lock);    // Manage the Cache table lock
 
-    if (type == F_UNLCK) {
+    if (type == LockActionType::UNLOCK) {
         *db = nullptr;
         fclose(fh);    // Close the database table
     }
 
-    if (rc == 0) return 0;        // Lock managed OK
+    if (rc == 0) {
+        // Lock managed OK
+        return 0;
+    }
 
-    if (type == F_UNLCK) {
-        err = 999;
+    if (type == LockActionType::UNLOCK) {
+        int err = 999;
         addIdamError(CODEERRORTYPE, __func__, err, "Cache file lock not released indicating problem with cache");
         return err;
     }
 
     // Problem obtaing an exclusive file lock - wait for a random time delay and try again
 
-    delay = 1 + (int)(10.0 * (rand() / (RAND_MAX + 1.0)));    // Random delay 1->10
-    requested.tv_sec = 0;
-    requested.tv_nsec = 1000 * delay;                // Microsecs
+    int count = 0;
 
     do {
-        rc = nanosleep(&requested, &remaining);
+        int delay = 1 + (int)(10.0 * (rand() / (RAND_MAX + 1.0))); // Random delay [1,10]
+
+        timespec requested = {};
+        requested.tv_sec = 0;
+        requested.tv_nsec = 1000 * delay; // Microsecs
+
+        timespec remaining = {};
+        nanosleep(&requested, &remaining);
         rc = fcntl(fd, F_SETLK, &lock);
     } while (rc == -1 && count++ < CACHE_MAXCOUNT);
 
     if (rc == -1 || count >= CACHE_MAXCOUNT) {
-        err = 999;
+        int err = 999;
         addIdamError(CODEERRORTYPE, __func__, err, "Unable to Lock the Cache Database");
         *db = nullptr;
         fclose(fh);
@@ -146,541 +200,484 @@ int idamClientLockCache(FILE** db, short type)
 
 // Time stamp test
 
-int idamClientCacheTimeValid(unsigned long long timestamp)
+bool is_cache_time_valid(unsigned long long timestamp)
 {
     timeval current = {};
     gettimeofday(&current, nullptr);
     if (timestamp >= (unsigned long long)current.tv_sec) {
         // Timestamp OK
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
 // Check the locked file time is within a reasonable time period - protect against possible bugs in file management
 
-int idamClientCacheLockedTimeValid(unsigned long long timestamp)
+bool is_cache_locked_time_valid(unsigned long long timestamp)
 {
     timeval current = {};
     gettimeofday(&current, nullptr);
     if ((timestamp + CACHE_MAXLOCKTIME) >= (unsigned long long)current.tv_sec) {
         // Timestamp OK
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
 // Test the File exists
 
-int idamClientCacheFileValid(const char* filename)
+bool is_cache_file_valid(const std::string& filename)
 {
     // TODO: add proper check
-    return filename != nullptr;
+    return true;
 }
 
 // Current table statistics
 
-int idamClientGetCacheStats(FILE* db, unsigned long* recordCount, unsigned long* deadCount, unsigned long* endOffset,
-                            char csvChar)
+boost::optional<CacheStats> get_cache_stats(FILE* db)
 {
-    int err = 0;
-    char* csv = nullptr;
-    char* next = nullptr;
-    char work[CACHE_FIRSTRECORDLENGTH + 1];
     rewind(db);
-    if (fgets(work, CACHE_FIRSTRECORDLENGTH, db) == nullptr) {
-        err = 999;
-        return err;
+    char buffer[CACHE_FIRSTRECORDLENGTH + 1];
+    if (fgets(buffer, CACHE_FIRSTRECORDLENGTH, db) == nullptr) {
+        fseek(db, 0, SEEK_END);
+        if (ftell(db) == 0) {
+            update_cache_stats(db, {});
+            return CacheStats{};
+        }
+        return {};
     }
-    LeftTrimString(TrimString(work));
-    next = work;
-    if ((csv = strchr(next, csvChar)) != nullptr) {
-        // Split the record into fields using delimiter character
-        csv[0] = '\0';
+
+    std::vector<std::string> tokens;
+    boost::split(tokens, buffer, boost::is_any_of(delimiter));
+
+    CacheStats stats = {};
+    stats.recordCount = std::stoul(tokens[0]);
+    stats.deadCount = std::stoul(tokens[1]);
+    stats.endOffset = std::stoul(tokens[2]);
+
+    return stats;
+}
+
+/**
+ * Update statistics
+ * @param db cache file
+ * @param stats
+ * @return 0 on success, else error code
+ */
+int update_cache_stats(FILE* db, CacheStats stats)
+{
+    std::stringstream ss;
+    ss << stats.recordCount << delimiter << stats.deadCount << delimiter << stats.endOffset;
+
+    std::string record = ss.str();
+
+    size_t size = record.size();
+    if (size < CACHE_FIRSTRECORDLENGTH - 1) {
+        rewind(db);
+        fwrite(record.c_str(), sizeof(char), size, db);
+        for (size_t i = size; i < CACHE_FIRSTRECORDLENGTH - 1; i++) {
+            // Pack remaining record with space chars
+            fputc(' ', db);
+        }
+        fputc('\n', db);
+    } else {
+        THROW_ERROR(999, "Invalid cache stats record");
     }
-    TrimString(next);
-    LeftTrimString(next);
-    *recordCount = (unsigned int)strtoul(next, nullptr, 10);
-    next = &csv[1];
-    if ((csv = strchr(next, csvChar)) != nullptr) csv[0] = '\0';
-    *deadCount = (unsigned int)strtoul(next, nullptr, 10);
-    next = &csv[1];
-    *endOffset = (unsigned int)strtoul(next, nullptr, 10);
+
+    fflush(db);
     return 0;
 }
 
-// Update statistics
-
-void idamClientUpdateCacheStats(FILE* db, unsigned long recordCount, unsigned long deadCount, unsigned long endOffset,
-                                char csvChar)
+boost::optional<CacheStats> purge_cache(FILE* db)
 {
-    char work[CACHE_FIRSTRECORDLENGTH + 1];
-    rewind(db);
-    // Updated statistics record
-    sprintf(work, "%lu%c%lu%c%lu", recordCount, csvChar, deadCount, csvChar, endOffset);
-    int lstr = (int)strlen(work);
-    for (int i = lstr; i < CACHE_FIRSTRECORDLENGTH; i++) {
-        // Pack remaining record with space chars
-        work[i] = ' ';
-    }
-    work[CACHE_FIRSTRECORDLENGTH - 1] = '\n';
-    work[CACHE_FIRSTRECORDLENGTH] = '\0';
-    fwrite(work, sizeof(char), CACHE_FIRSTRECORDLENGTH, db);                    // Update
-    fflush(db);
-}
-
-int idamClientPurgeCache(FILE* db, unsigned long recordCount, unsigned long* endOffset)
-{
-    unsigned short status = 0;
-    unsigned long dbkey = 0;
-    unsigned long validRecordCount = 0;
-
-    unsigned long long timestamp = 0;
-    char filename[MAXFILENAME];
-
-    char csvChar = ';';
-    char buffer[STRING_LENGTH];
-    char* p = nullptr;
-    char* csv = nullptr;
-    char* next = nullptr;
-
-    char* dir = getenv("UDA_CACHE_DIR");        // Where the files are located
-
     // Remove dead records to compact the database table
 
     fseek(db, CACHE_FIRSTRECORDLENGTH, SEEK_SET);        // rewind the file to the beginning of the second record
 
-    std::vector<std::string> table(recordCount);
-    std::vector<unsigned long long> timestamplist(recordCount);
+    std::vector<std::pair<unsigned long long, std::string>> table;
 
-    unsigned long count = 0;
-    while (count++ < recordCount && !feof(db) && fgets(buffer, STRING_LENGTH, db) != nullptr) {
-        // Read each record
-
-        LeftTrimString(TrimString(buffer));
-        dbkey = 0;
-
-        if (buffer[0] == '#') {            // Preserve comments
-            table[validRecordCount++] = buffer;
+    char* line = nullptr;
+    size_t n = 0;
+    while (getline(&line, &n, db) >= 0) {
+        if (line[0] == '#') {
+            // Preserve comments
+            table.emplace_back(std::make_pair(0, line));
             continue;
         }
 
-        if (buffer[0] == '\n') {
+        if (line[0] == '\n') {
             continue;
         }
 
-        for (int i = 0; i < 4; i++) {
-            if ((csv = strchr(next, csvChar)) != nullptr) csv[0] = '\0';
-            TrimString(next);
-            LeftTrimString(next);
-            switch (i) {
-                case 0:    // Status
-                    status = (unsigned short)strtoul(next, nullptr, 10);
-                    break;
-                case 1:    // Hash key
-                    dbkey = (unsigned int)strtoul(next, nullptr, 10);
-                    break;
-                case 2:    // Time Stamp
-                    timestamp = strtoull(next, nullptr, 10);
-                    break;
-                case 3:    // Cached Filename
-                    strcpy(filename, next);
-                    if ((p = strchr(filename, '\n')) != nullptr) p[0] = '\0';    // Remove training line feed
-                    break;
-                default:
-                    break;
-            }
-            if (status == CACHE_DEADRECORD) break;    // Skip this record - it's marked as dead! purge by ignoring it
-            if (csv != nullptr) next = &csv[1];    // Next element starting point
+        std::vector<std::string> tokens;
+        boost::split(tokens, line, boost::is_any_of(delimiter));
+
+        unsigned short status = std::stoul(tokens[0]);
+        unsigned int dbkey = std::stoul(tokens[1]);
+        unsigned long long timestamp = std::stoull(tokens[2]);
+        std::string filename = tokens[3];
+
+        if (status == CACHE_DEADRECORD) {
+            // Skip this record - it's marked as dead! purge by ignoring it
+            continue;
         }
+
         if (dbkey != 0) {
-            // Check the records is valid (always if locked by a process)
-            if ((status == CACHE_LOCKEDRECORD && idamClientCacheLockedTimeValid(timestamp)) ||
-                (idamClientCacheTimeValid(timestamp) && idamClientCacheFileValid(filename))) {
-                table[validRecordCount] = buffer;
-                timestamplist[validRecordCount] = timestamp;    // Sort on this to purge oldest records
-                validRecordCount++;
+            if ((status == CACHE_LOCKEDRECORD && is_cache_locked_time_valid(timestamp)) ||
+                (is_cache_time_valid(timestamp) && is_cache_file_valid(filename))) {
+                table.emplace_back(std::make_pair(timestamp, line));
             } else {
+                char* dir = getenv("UDA_CACHE_DIR");
                 std::string dbfile;
-                dbfile = std::string{ dir } + "/" + filename;
+                dbfile = std::string{dir} + "/" + filename;
                 // Delete the cached file and ignore the record - purge
                 remove(dbfile.c_str());
             }
         }
     }
 
-    // Drop the oldest record?
+    using pair_type = std::pair<unsigned long long, std::string>;
+    std::sort(table.begin(), table.end(), [](const pair_type& a, const pair_type& b){ return a.first < b.first; });
 
-    if (validRecordCount > CACHE_MAXRECORDS - 1) validRecordCount = CACHE_MAXRECORDS - 1;
+    while (table.size() > CACHE_MAXRECORDS) {
+        table.pop_back();
+    }
 
-    // Write the compacted table in time order (youngest first) following a sort on the timestamp
-
-    fseek(db, CACHE_FIRSTRECORDLENGTH, SEEK_SET);    // Position at the start of record 2
+    fseek(db, CACHE_FIRSTRECORDLENGTH, SEEK_SET); // Position at the start of records
 
     errno = 0;
-    for (unsigned long i = 0; i < validRecordCount; i++) {
-        size_t lstr = table[i].size();
-        count = fwrite(table[i].c_str(), sizeof(char), lstr, db);    // Write all valid records
-        if (count != lstr || errno != 0) {
-            int err = 999;
-            return -err;
+    for (const auto& pair : table) {
+        const auto& record = pair.second;
+        size_t count = fwrite(record.c_str(), sizeof(char), record.size(), db);
+        if (count != record.size() || errno != 0) {
+            addIdamError(CODEERRORTYPE, __func__, 999, "Failed to write cache record");
+            return {};
         }
     }
 
-    *endOffset = (unsigned long)ftell(db);            // Append or overwrite new records from this location (End of active records)
+    CacheStats stats = {};
+    stats.endOffset = ftell(db);
+    stats.recordCount = table.size();
+    stats.deadCount = 0;
 
-    fwrite("\n", sizeof(char), 1, db);        // Insert a new line at the end of the valid set of records
+    fwrite("\n", sizeof(char), 1, db);
 
-    // Update statistics
+    update_cache_stats(db, stats);
 
-    idamClientUpdateCacheStats(db, validRecordCount, 0, *endOffset, csvChar);
-
-    return (int)validRecordCount;
+    return stats;
 }
 
-int idamClientReadCache(DATA_BLOCK* data_block, char* filename, int protocolVersion)
+DATA_BLOCK* udaFileCacheRead(const REQUEST_BLOCK* request_block,
+                             LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                             int protocolVersion)
 {
-    int err = 0;
-    int rc = 0;
-    XDR XDRInput;
-    XDR* xdrs = clientInput;
+    std::string filename;
+    get_cache_filename(request_block, filename);
+
+    if (filename.empty()) {
+        return nullptr;
+    }
+
+    const char* dir = getenv("UDA_CACHE_DIR");
+    if (dir == nullptr) {
+        THROW_ERROR(0, "no cache directory defined");
+    }
+    std::string path = std::string{dir} + "/" + filename;
+
+    errno = 0;
+
     FILE* xdrfile = nullptr;
-    void* data = nullptr;
-
-    err = 0;
-
-    if (filename == nullptr || filename[0] == '\0') {
-        return 0;
+    if ((xdrfile = fopen(path.c_str(), "rb")) == nullptr || errno != 0) {
+        THROW_ERROR(0, "Unable to Open the Cached Data File");
     }
 
-    do {
-        // Error Trap
+    auto data_block = readCacheData(xdrfile, logmalloclist, userdefinedtypelist, protocolVersion);
 
-        // Create input xdr file stream
+    fclose(xdrfile);
 
-        errno = 0;
-
-        if ((xdrfile = fopen(filename, "rb")) == nullptr || errno != 0) {    // Read cached file
-            err = 999;
-            if (errno != 0) {
-                addIdamError(SYSTEMERRORTYPE, "idamClientReadCache", errno, "");
-            }
-            addIdamError(CODEERRORTYPE, __func__, err, "Unable to Open the Cached Data File");
-            break;
-        }
-
-        xdr_destroy(xdrs);    // *** xdrs not initialised?
-        XDRstdioFlag = 1;
-        xdrstdio_create(&XDRInput, xdrfile, XDR_DECODE);
-        xdrs = &XDRInput;                        // Switch from stream to file
-
-        // Initialise structure passing mechanism
-
-        auto logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-        initLogMallocList(logmalloclist);
-        auto userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-        auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
-        initUserDefinedTypeList(userdefinedtypelist);
-
-        rc = xdr_userdefinedtypelist(xdrs, userdefinedtypelist); // receive the full set of known named structures
-
-        if (!rc) {
-            err = 999;
-            addIdamError(CODEERRORTYPE, __func__, err, "Failure receiving Structure Definitions");
-            break;
-        }
-
-        initUserDefinedType(udt_received);
-
-        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data, protocolVersion); // receive the Data
-
-        if (!rc) {
-            err = 999;
-            addIdamError(CODEERRORTYPE, __func__, err, "Failure receiving Data and Structure Definition");
-            break;
-        }
-
-        // Close the stream and file
-
-        fflush(xdrfile);
-        fclose(xdrfile);
-
-        // Switch back to the normal xdr record stream
-
-        idamCreateXDRStream();
-        xdrs = clientInput;
-        XDRstdioFlag = 0;
-
-        if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
-
-            auto general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
-
-            auto s = (SARRAY*)data;
-            if (s->count != data_block->data_n) {                // check for consistency
-                err = 999;
-                addIdamError(CODEERRORTYPE, __func__, err, "Inconsistent S Array Counts");
-                break;
-            }
-            data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
-            data_block->opaque_block = (void*)general_block;
-            general_block->userdefinedtype = udt_received;
-            general_block->userdefinedtypelist = userdefinedtypelist;
-            general_block->logmalloclist = logmalloclist;
-            general_block->lastMallocIndex = 0;
-        } else {
-            err = 999;
-            addIdamError(CODEERRORTYPE, __func__, err, "Name of Received Data Structure Incorrect");
-            break;
-        }
-
-    } while (0);
-
-    return err;
+    return data_block;
 }
 
-// Identify the name of the required cache file
-
-int idamClientGetCacheFilename(REQUEST_BLOCK* request_block, char** cacheFilename)
+boost::optional<CacheEntry> processLine(const std::string& line, size_t position)
 {
-    int rc = 0;
-    unsigned short status = 0;
-    unsigned short outcome = 0;
-    unsigned long position = 0;
-    unsigned long endOffset = 0;
-    unsigned long recordCount = 0;
-    unsigned long deadCount = 0;
-    FILE* db = nullptr;
+    if (line[0] == '#' || line[0] == '\n') {
+        return {};
+    }
 
-    unsigned int dbkey = 0;
+    std::vector<std::string> tokens;
+    boost::split(tokens, line, boost::is_any_of(delimiter));
 
-    unsigned long long timestamp = 0;
-    char filename[MAXFILENAME];
-    //unsigned long long properties = 0;
+    CacheEntry entry;
+    entry.file_position = position;
 
-    char csvChar = ';';
-    char buffer[STRING_LENGTH];
-    char signal[STRING_LENGTH];
-    char source[STRING_LENGTH];
-    char* p, * csv, * next;
+    int i = 0;
+    for (const auto& token : tokens) {
+        switch (i) {
+            case 0:
+                entry.status = (unsigned short)std::stoi(token);
+                break;
+            case 1:
+                entry.dbkey = (unsigned int)std::stoul(token);
+                break;
+            case 2:
+                entry.timestamp = std::stoull(token);
+                break;
+            case 3:
+                entry.filename = token;
+                break;
+            case 4:
+                entry.properties = std::stoull(token);
+                break;
+            case 5:
+                entry.signal = token;
+                break;
+            case 6:
+                if (!token.empty() && token[token.size() - 1] == '\n') {
+                    entry.source = token.substr(0, token.size() - 1);
+                } else {
+                    entry.source = token;
+                }
+                break;
+            default:
+                break;
+        }
+        if (entry.status == CACHE_DEADRECORD) {
+            // Don't need the remaining information on this record!
+            break;
+        }
+        ++i;
+    }
 
-    // Lock the database
+    return entry;
+}
 
-    if ((rc = idamClientLockCache(&db, F_WRLCK)) != 0 || db == nullptr) return rc;
-
+unsigned int generate_hash_key(const REQUEST_BLOCK* request_block)
+{
     // Generate a Hash Key (not guaranteed unique)
-
     unsigned int key = 0;
     // combine CRC has keys
     key = xcrc32((const unsigned char*)request_block->signal, (int)strlen(request_block->signal), key);
     key = xcrc32((const unsigned char*)request_block->source, (int)strlen(request_block->source), key);
+    return key;
+}
 
-    // Sequentially read all records and test against the hash key (small file so not that inefficient)
-
-    outcome = CACHE_NORECORD;
-
-    // Table stats
-
-    idamClientGetCacheStats(db, &recordCount, &deadCount, &endOffset, csvChar);
-
-    fseek(db, CACHE_FIRSTRECORDLENGTH, SEEK_SET);    // Position at the start of record 2
-    position = (unsigned long)ftell(db);
-
-    while (!feof(db) && fgets(buffer, STRING_LENGTH, db) != nullptr) {
-        LeftTrimString(TrimString(buffer));
-        do {
-            dbkey = 0;
-            if (buffer[0] == '#') break;
-            if (buffer[0] == '\n') break;
-            next = buffer;
-
-            for (int i = 0; i < 7; i++) {
-                if ((csv = strchr(next, csvChar)) != nullptr) {
-                    csv[0] = '\0';
-                }    // Split the record into fields using delimiter character
-                TrimString(next);
-                LeftTrimString(next);
-                switch (i) {
-                    case 0:    // Status
-                        status = (unsigned short)strtoul(next, nullptr, 10);
-                        break;
-                    case 1:    // Hash key
-                        dbkey = (unsigned int)strtoul(next, nullptr, 10);
-                        break;
-                    case 2:    // Time Stamp
-                        timestamp = strtoull(next, nullptr, 10);
-                        break;
-                    case 3:    // Cached Filename
-                        strcpy(filename, next);
-                        if ((p = strchr(filename, '\n')) != nullptr) p[0] = '\0';    // Remove training line feed
-                        break;
-                    case 4:    // Properties
-                        //properties = (unsigned long long)strtoull(next, nullptr, 10);
-                        break;
-                    case 5:    // signal
-                        strcpy(signal, next);
-                        if ((p = strchr(signal, '\n')) != nullptr) p[0] = '\0';
-                        break;
-                    case 6:    // source
-                        strcpy(source, next);
-                        if ((p = strchr(source, '\n')) != nullptr) p[0] = '\0';
-                        break;
-                    default:
-                        break;
-                }
-                if (status == CACHE_DEADRECORD) break;    // Don't need the remaining information on this record!
-                if (csv != nullptr) next = &csv[1];        // Next element starting point
-            }
-        } while (0);
-
-        if (status == CACHE_DEADRECORD || buffer[0] == '#' || buffer[0] == '\n') continue;
-
-        if (key == dbkey) {            // Key found: Use this record if within time limitation and the file exists
-            if (idamClientCacheTimeValid(timestamp) && idamClientCacheFileValid(filename)) {
-                if ((strcmp(request_block->signal, signal) != 0) &&
-                    (strcmp(request_block->source, source) != 0)) {        // Additional Check
-                    outcome = CACHE_RECORDFOUND;
-                    break;
-                }        //  keep searching as signal and source strings do not match - possible hash key duplicate
-            } else {
-                if (status == CACHE_LIVERECORD ||
-                    (status == CACHE_LOCKEDRECORD &&
-                     idamClientCacheLockedTimeValid(timestamp))) {    // Record needs purging but only if not locked
-                    outcome = CACHE_PURGERECORD;
-                    deadCount++;
-                    break;
-                }
-            }
-        }
-
-        position = (unsigned long)ftell(db);    // Start of next record
+// Identify the name of the required cache file
+int get_cache_filename(const REQUEST_BLOCK* request_block, std::string& cacheFilename)
+{
+    // Lock the database
+    int rc = 0;
+    FILE* db = nullptr;
+    if ((rc = lock_cache_db_file(&db, LockActionType::READ)) != 0 || db == nullptr) {
+        return rc;
     }
 
-    if (outcome == CACHE_RECORDFOUND) {        // Record found and Timestamp OK
+    unsigned int key = generate_hash_key(request_block);
 
-        int lstr = (int)strlen(filename) + 1;
-        *cacheFilename = (char*)malloc(lstr * sizeof(char));
-        strcpy(*cacheFilename, filename);
+    // Sequentially read all records and test against the hash key (small file so not that inefficient)
+    unsigned short outcome = CACHE_NORECORD;
+
+    // Table stats
+    auto maybe_stats = get_cache_stats(db);
+    if (!maybe_stats) {
+        THROW_ERROR(999, "Unable to read cache stats");
+    }
+    CacheStats stats = maybe_stats.get();
+
+    fseek(db, CACHE_FIRSTRECORDLENGTH, SEEK_SET);    // Position at the start of record 2
+
+    CacheEntry found_entry;
+
+    char* line = nullptr;
+    size_t n = 0;
+    size_t position = CACHE_FIRSTRECORDLENGTH;
+    while (getline(&line, &n, db) >= 0) {
+        auto maybe_entry = processLine(line, position);
+        position += n;
+        if (!maybe_entry) {
+            continue;
+        }
+
+        auto& entry = maybe_entry.get();
+        if (entry.status == CACHE_DEADRECORD) {
+            continue;
+        }
+
+        if (key == entry.dbkey) {
+            found_entry = entry;
+
+            // Key found: Use this record if within time limitation and the file exists
+            if (is_cache_time_valid(entry.timestamp) && is_cache_file_valid(entry.filename)) {
+                if (entry.signal == request_block->signal && entry.source == request_block->source) {
+                    // Additional Check
+                    outcome = CACHE_RECORDFOUND;
+                    break;
+                }
+                //  keep searching as signal and source strings do not match - possible hash key duplicate
+            } else if (entry.status == CACHE_LIVERECORD ||
+                (entry.status == CACHE_LOCKEDRECORD && is_cache_locked_time_valid(entry.timestamp))) {
+                // Record needs purging but only if not locked
+                outcome = CACHE_PURGERECORD;
+                stats.deadCount++;
+                break;
+            }
+        }
+    }
+
+    free(line);
+
+    if (outcome == CACHE_RECORDFOUND) {
+        // Record found and Timestamp OK
+        cacheFilename = found_entry.filename;
 
         // Lock the cache file record using the status value only - not a record lock on the table
 
-        fseek(db, position, SEEK_SET);    // Goto start of last record read and change status to LOCKED
-        sprintf(buffer, "%d%c", CACHE_LOCKEDRECORD, csvChar);
+        // Goto start of last record read and change status to LOCKED
+        fseek(db, found_entry.file_position, SEEK_SET);
+        char buffer[3];
+        static_assert(CACHE_LOCKEDRECORD < 10, "CACHE_LOCKEDRECORD must be less than 10");
+        sprintf(buffer, "%d%c", CACHE_LOCKEDRECORD, delimiter[0]);
         fwrite(buffer, sizeof(char), 2, db);
 
     } else if (outcome == CACHE_PURGERECORD) {
-
         // Cache has expired. Remove table entry and delete the data file
 
-        fseek(db, position, SEEK_SET);    // Goto start of last record read and mark for removal: status changed to DEAD
-        sprintf(buffer, "%d%c", CACHE_DEADRECORD, csvChar);
+        // Goto start of last record read and mark for removal: status changed to DEAD
+        fseek(db, found_entry.file_position, SEEK_SET);
+        char buffer[3];
+        static_assert(CACHE_DEADRECORD < 10, "CACHE_DEADRECORD must be less than 10");
+        sprintf(buffer, "%d%c", CACHE_DEADRECORD, delimiter[0]);
         fwrite(buffer, sizeof(char), 2, db);
 
         // If there are too many dead records, then compact the database table
-
-        if (deadCount >= CACHE_MAXDEADRECORDS) {
-            recordCount = (unsigned long)idamClientPurgeCache(db, recordCount, &endOffset);
-            deadCount = 0;
+        if (stats.deadCount >= CACHE_MAXDEADRECORDS) {
+            auto maybe_updated_stats = purge_cache(db);
+            if (!maybe_stats) {
+                THROW_ERROR(999, "Failed to purge cache");
+            }
+            stats = maybe_updated_stats.get();
         } else {
             char* dir = getenv("UDA_CACHE_DIR");        // Where the files are located
-            std::string dbfile = std::string{ dir } + "/" + filename;
+            std::string dbfile = std::string{dir} + "/" + found_entry.filename;
             remove(dbfile.c_str());
         }
 
-        idamClientUpdateCacheStats(db, recordCount, deadCount, endOffset, csvChar);
-
+        update_cache_stats(db, stats);
     }
 
-    // Free	the Lock
+    // Free the Lock
 
-    rc = idamClientLockCache(&db, F_UNLCK);    // release lock
+    rc = lock_cache_db_file(&db, LockActionType::UNLOCK);    // release lock
 
     return rc;
 }
 
-
-// Write a new record
-
-int idamClientWriteCache(char* filename)
+int add_cache_record(const REQUEST_BLOCK* request_block, const char* filename)
 {
-    int err = 0;
-    int rc = 0;
-    FILE* db = nullptr;
-
-    REQUEST_BLOCK* request_block = request_block_ptr;    // Global pointer to the request block
-
-    unsigned short status = CACHE_LIVERECORD;
-    unsigned long recordCount;
-    unsigned long deadCount;
-    unsigned long endOffset;
-
-    unsigned long long timestamp = 0;
-    unsigned long long properties = 0;
-
-    char csvChar = ';';
-    char buffer[STRING_LENGTH];
-
     // Generate a Hash Key (not guaranteed unique)
-
     unsigned int key = 0;
     // combine CRC has keys
     key = xcrc32((const unsigned char*)request_block->signal, (int)strlen(request_block->signal), key);
     key = xcrc32((const unsigned char*)request_block->source, (int)strlen(request_block->source), key);
 
     // Generate a timestamp
-
-    struct timeval current;
+    timeval current = {};
     gettimeofday(&current, nullptr);
-
-    timestamp = (unsigned long long)current.tv_sec + CACHE_HOURSVALID * 3600 + 60;
+    unsigned long long timestamp = (unsigned long long)current.tv_sec + CACHE_HOURSVALID * 3600 + 60;
 
     // Create the new record string
-
-    sprintf(buffer, "%d%c%du%c%llu%c%s%c%llu%c%s%c%s\n", status, csvChar, key, csvChar,
-            timestamp, csvChar, filename, csvChar, properties, csvChar, request_block->signal,
-            csvChar, request_block->source);
+    std::stringstream ss;
+    ss  << CACHE_LIVERECORD << delimiter        // status
+        << key << delimiter
+        << timestamp << delimiter
+        << filename << delimiter
+        << 0 << delimiter                       // properties
+        << request_block->signal << delimiter
+        << request_block->source << '\n';
+    std::string record = ss.str();
 
     // Append the new record to the database table
-
-    if ((rc = idamClientLockCache(&db, F_WRLCK)) != 0 || db == nullptr) return rc;
+    int rc = 0;
+    FILE* db = nullptr;
+    if ((rc = lock_cache_db_file(&db, LockActionType::WRITE)) != 0 || db == nullptr) {
+        THROW_ERROR(rc, "Unable to get lock cache file");
+    }
 
     // Current table statistics
-
-    if ((err = idamClientGetCacheStats(db, &recordCount, &deadCount, &endOffset, csvChar)) != 0) {
-        rc = idamClientLockCache(&db, F_UNLCK);    // Free	the Lock and File
-        return err;
+    auto maybe_stats = get_cache_stats(db);
+    if (!maybe_stats) {
+        rc = lock_cache_db_file(&db, LockActionType::UNLOCK);    // Free the Lock and File
+        THROW_ERROR(rc, "Unable to get cache stats");
     }
+    CacheStats stats = maybe_stats.get();
 
     // Too many records when the new record is added?
 
-    if (recordCount >= CACHE_MAXRECORDS - 1 ||
-        deadCount >= CACHE_MAXDEADRECORDS) {        // purge dead records + oldest active record
-        recordCount = (unsigned long)idamClientPurgeCache(db, recordCount, &endOffset);
-        deadCount = 0;
+    if (stats.recordCount >= CACHE_MAXRECORDS - 1 || stats.deadCount >= CACHE_MAXDEADRECORDS) {
+        // purge dead records + oldest active record
+        auto maybe_updated_stats = purge_cache(db);
+        if (!maybe_updated_stats) {
+            THROW_ERROR(999, "Failed to purge cache");
+        }
+        stats = maybe_updated_stats.get();
     }
 
     // Append a new record at the file position (always the end of the valid set of records)
 
-    if (endOffset == 0) {
+    if (stats.endOffset == 0) {
         fseek(db, 0, SEEK_END);
-        endOffset = (unsigned long)ftell(db);
+        stats.endOffset = (unsigned long)ftell(db);
     }
 
-    fseek(db, endOffset, SEEK_SET);
-    fwrite(buffer, sizeof(char), strlen(buffer), db);
-    endOffset = (unsigned long)ftell(db);
-    fwrite("\n", sizeof(char), 1, db);
+    fseek(db, stats.endOffset, SEEK_SET);
+    fwrite(record.c_str(), sizeof(char), record.size(), db);
+    stats.endOffset = (unsigned long)ftell(db);
+    //fwrite("\n", sizeof(char), 1, db);
 
     fflush(db);
-    recordCount++;
+    stats.recordCount++;
 
-    // Update statistics
+    rc = update_cache_stats(db, stats);
+    if (rc != 0) {
+        THROW_ERROR(rc, "unable to update cache stats");
+    }
 
-    idamClientUpdateCacheStats(db, recordCount, deadCount, endOffset, csvChar);
+    return lock_cache_db_file(&db, LockActionType::UNLOCK);
+}
 
-    idamClientLockCache(&db, F_UNLCK);    // release lock
+std::string generate_cache_filename(const REQUEST_BLOCK* request_block)
+{
+    unsigned int key = generate_hash_key(request_block);
+    return std::string{"uda_"} + std::to_string(key) + ".cache";
+}
+
+int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+                      USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion)
+{
+    std::string filename = generate_cache_filename(request_block);
+
+    int rc = add_cache_record(request_block, filename.c_str());
+    if (rc != 0) {
+        THROW_ERROR(rc, "unable to add cache record");
+    }
+
+    errno = 0;
+
+    const char* dir = getenv("UDA_CACHE_DIR");
+    if (dir == nullptr) {
+        THROW_ERROR(999, "no cache directory defined");
+    }
+    std::string path = std::string{dir} + "/" + filename;
+
+    FILE* xdrfile = nullptr;
+    if ((xdrfile = fopen(path.c_str(), "wb")) == nullptr || errno != 0) {
+        THROW_ERROR(0, "unable to create the Cached Data File");
+    }
+
+    writeCacheData(xdrfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion);
+
+    fclose(xdrfile);
 
     return 0;
-
 }
 
 /*
@@ -692,23 +689,23 @@ int idamClientWriteCache(char* filename)
 
    if the data is available from the cache
         test the timestamp
-	if timestamp OK
-		read the data
-		free the lock
-	else
-		remove database entry
-		remove cached file
-		free the lock
-		access the original data source
+    if timestamp OK
+        read the data
+        free the lock
+    else
+        remove database entry
+        remove cached file
+        free the lock
+        access the original data source
    else
-	free the lock
-	access the original data source
+    free the lock
+    access the original data source
 
    if new data accessed
-   	lock the cache database
-	add new record
-	write new cache file
-	free the lock
+       lock the cache database
+    add new record
+    write new cache file
+    free the lock
 */
 
 //=========================================================================================
@@ -760,19 +757,19 @@ int idamClientWriteCache(char* filename)
 
      for (int i = 0; i < 256; i++)
        {
-	 for (c = i << 24, j = 8; j > 0; --j)
-	   c = c & 0x80000000 ? (c << 1) ^ 0x04c11db7 : (c << 1);
-	 table[i] = c;
+     for (c = i << 24, j = 8; j > 0; --j)
+       c = c & 0x80000000 ? (c << 1) ^ 0x04c11db7 : (c << 1);
+     table[i] = c;
        }
 
      printf ("static const unsigned int crc32_table[] =\n{\n");
      for (int i = 0; i < 256; i += 4)
        {
-	 printf ("  0x%08x, 0x%08x, 0x%08x, 0x%08x",
-		 table[i + 0], table[i + 1], table[i + 2], table[i + 3]);
-	 if (i + 4 < 256)
-	   putchar (',');
-	 putchar ('\n');
+     printf ("  0x%08x, 0x%08x, 0x%08x, 0x%08x",
+         table[i + 0], table[i + 1], table[i + 2], table[i + 3]);
+     if (i + 4 < 256)
+       putchar (',');
+     putchar ('\n');
        }
      printf ("};\n");
      return 0;
@@ -891,5 +888,3 @@ xcrc32(const unsigned char* buf, int len, unsigned int init)
     }
     return crc;
 }
-
-#endif // _WIN32

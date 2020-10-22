@@ -32,7 +32,7 @@
 #include <clientserver/socketStructs.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
-#include <cache/cache.h>
+#include <cache/memcache.h>
 
 #include "generateErrors.h"
 #include "getEnvironment.h"
@@ -473,6 +473,7 @@ void setIdamProperty(const char* property)
         }
         if (STR_IEQUALS(property, "reuseLastHandle")) clientFlags = clientFlags | CLIENTFLAG_REUSELASTHANDLE;
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) clientFlags = clientFlags | CLIENTFLAG_FREEREUSELASTHANDLE;
+        if (STR_IEQUALS(property, "fileCache")) clientFlags = clientFlags | CLIENTFLAG_FILECACHE;
     }
 }
 
@@ -501,12 +502,12 @@ int getIdamProperty(const char* property)
     } else {
         if (STR_IEQUALS(property, "timeout")) return user_timeout;
         if (STR_IEQUALS(property, "altRank")) return altRank;
-        if (STR_IEQUALS(property, "reuseLastHandle")) return (int)(clientFlags | CLIENTFLAG_REUSELASTHANDLE);
-        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) return (int)(clientFlags | CLIENTFLAG_FREEREUSELASTHANDLE);
+        if (STR_IEQUALS(property, "reuseLastHandle")) return (int)(clientFlags & CLIENTFLAG_REUSELASTHANDLE);
+        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) return (int)(clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE);
         if (STR_IEQUALS(property, "verbose")) return idamGetLogLevel() == UDA_LOG_INFO;
         if (STR_IEQUALS(property, "debug")) return idamGetLogLevel() == UDA_LOG_DEBUG;
-        if (STR_IEQUALS(property, "altData")) return (int)(clientFlags | CLIENTFLAG_ALTDATA);
-
+        if (STR_IEQUALS(property, "altData")) return (int)(clientFlags & CLIENTFLAG_ALTDATA);
+        if (STR_IEQUALS(property, "fileCache")) return (int)(clientFlags & CLIENTFLAG_FILECACHE);
     }
     return 0;
 }
@@ -543,6 +544,7 @@ void resetIdamProperty(const char* property)
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) {
             clientFlags = clientFlags & !CLIENTFLAG_FREEREUSELASTHANDLE;
         }
+        if (STR_IEQUALS(property, "fileCache")) clientFlags = clientFlags & !CLIENTFLAG_FILECACHE;
     }
 }
 
@@ -568,8 +570,10 @@ void resetIdamProperties()
     get_nodimdata = 0;
     idamSetLogLevel(UDA_LOG_NONE);
     user_timeout = TIMEOUT;
-    if (getenv("UDA_TIMEOUT")) user_timeout = atoi(getenv("UDA_TIMEOUT"));
-    clientFlags = clientFlags & !CLIENTFLAG_ALTDATA;
+    if (getenv("UDA_TIMEOUT")) {
+        user_timeout = atoi(getenv("UDA_TIMEOUT"));
+    }
+    clientFlags = 0;
     altRank = 0;
 }
 
