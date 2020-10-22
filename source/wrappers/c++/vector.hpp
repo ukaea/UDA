@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <algorithm>
 #include <boost/any.hpp>
 
 #include "data.hpp"

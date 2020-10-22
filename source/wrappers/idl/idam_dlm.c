@@ -1280,7 +1280,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
 
     char* signal;
     char source[STRING_LENGTH];
-    int exp_number;
+    int exp_number = 0;
 
     CLIENT_BLOCK cblock = saveIdamProperties();  // preserve the current set of client properties
 
