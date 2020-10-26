@@ -23,16 +23,15 @@
 
 #include <logging/logging.h>
 #include <clientserver/initStructs.h>
-#include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/allocData.h>
 #include <clientserver/protocol.h>
 #include <clientserver/memstream.h>
 #include <clientserver/xdrlib.h>
-#include <clientserver/socketStructs.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
 #include <cache/memcache.h>
+#include <version.h>
 
 #include "generateErrors.h"
 #include "getEnvironment.h"
@@ -759,6 +758,16 @@ int getIdamServerPort()
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     return environment->server_port;                             // Active UDA server service port number
+}
+
+const char* getUdaBuildVersion()
+{
+    return UDA_BUILD_VERSION;
+}
+
+const char* getUdaBuildDate()
+{
+    return UDA_BUILD_DATE;
 }
 
 //! the UDA server connection socket ID

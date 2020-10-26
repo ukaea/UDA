@@ -76,6 +76,16 @@ LIBRARY_API void idamFree(int handle);
 
 LIBRARY_API void idamFreeAll();
 
+/**
+ * Get the version of the client c-library.
+ */
+LIBRARY_API const char* getUdaBuildVersion();
+
+/**
+ * Get the date that the client c-library was built.
+ */
+LIBRARY_API const char* getUdaBuildDate();
+
 LIBRARY_API const char* getIdamServerHost();
 
 LIBRARY_API int getIdamServerPort();

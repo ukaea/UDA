@@ -62,6 +62,14 @@ def get_server_port():
     return uda.getIdamServerPort()
 
 
+def get_build_version():
+    return uda.getUdaBuildVersion()
+
+
+def get_build_date():
+    return uda.getUdaBuildDate()
+
+
 def set_server_host_name(host_name):
     uda.putIdamServerHost(host_name.encode())
 

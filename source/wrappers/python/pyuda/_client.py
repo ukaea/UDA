@@ -6,6 +6,7 @@ from ._signal import Signal
 from ._string import String
 from ._structured import StructuredData
 from ._video import Video
+from ._version import __version__
 
 from six import with_metaclass
 import logging
@@ -41,9 +42,6 @@ class ClientMeta(type):
         cpyuda.set_server_host_name(value)
 
 
-
-
-
 class Client(with_metaclass(ClientMeta, object)):
     """
     A class representing the IDAM client.
@@ -54,6 +52,9 @@ class Client(with_metaclass(ClientMeta, object)):
     __metaclass__ = ClientMeta
 
     def __init__(self, debug_level=logging.ERROR):
+        self.version = __version__
+        assert self.version == cpyuda.get_build_version().decode(), "mismatching pyuda and c-library versions"
+
         logging.basicConfig(level=debug_level)
         self.logger = logging.getLogger(__name__)
 
