@@ -25,6 +25,23 @@ char source[]
 */
 
 #include "fileCache.h"
+
+#ifdef _WIN32
+DATA_BLOCK* udaFileCacheRead(const REQUEST_BLOCK* request_block,
+                             LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                             int protocolVersion)
+{
+    return nullptr;
+}
+
+int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request_block,
+                      LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                      int protocolVersion)
+{
+    return 0;
+}
+#else
+
 #include "cache.h"
 
 #include <fcntl.h>
@@ -835,3 +852,5 @@ xcrc32(const unsigned char* buf, int len, unsigned int init)
     }
     return crc;
 }
+
+#endif // _WIN32
