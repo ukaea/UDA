@@ -87,6 +87,7 @@ endif()
 set( INSTALL_FILES
   getstruct.pro
   getdata.pro
+  getgeomdata.pro
   calluda.pro
   getfile.pro
   gettext.pro

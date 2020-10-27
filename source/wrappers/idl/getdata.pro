@@ -236,16 +236,8 @@ function getdata, namearg, sourcearg, pass=passarg, tlast=tlast, tfirst=tfirst, 
   
   ;---------------------------------------------------------------------------------------------------
   ; For geometry database access :
-  ; If signal starts with "GEOM::" or "SIGGEOM::" then use appropriate
-  ; function
-  ind_match = strpos(workname, 'SIGGEOM::')
-  if ind_match eq 0 then begin
-     workname = strlowcase(strmid(workname, strlen('SIGGEOM::')))
-     struct = getgeomsignaldata(workname, worksource, _extra=_extra)
-
-     return, struct
-  endif
-  
+  ; If signal starts with "GEOM::" then use appropriate
+  ; function  
   ind_match = strpos(workname, 'GEOM::')
   if ind_match eq 0 then begin
      workname = strlowcase(strmid(workname, strlen('GEOM::')))
