@@ -116,9 +116,9 @@ void freeTokenList(char*** tokenListArray, int* tokenCount)
     char** list = *tokenListArray;
     if (*tokenCount == 0 || *tokenListArray == nullptr) return;
     for (int i = 0; i < *tokenCount; i++) {
-        free((void*)list[i]);
+        free(list[i]);
     }
-    free((void*)list);
+    free(list);
     *tokenListArray = nullptr;        // Reset to avoid double free.
     *tokenCount = 0;
 }
@@ -159,7 +159,7 @@ int tokenList(const char* delims, char* input, char*** tokenListArray)
         strcpy(list[listCount++], item);
     }
 
-    free((void*)work);
+    free(work);
     *tokenListArray = list;
 
     return listCount;

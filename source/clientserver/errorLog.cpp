@@ -15,16 +15,16 @@
 #include <clientserver/udaErrors.h>
 #include <clientserver/stringUtils.h>
 
-static std::vector<IDAMERROR> udaerrorstack;
+static std::vector<UDA_ERROR> udaerrorstack;
 
 int udaNumErrors()
 {
     return udaerrorstack.size();
 }
 
-void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, IDAMERRORSTACK* errorstack)
+void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, UDA_ERROR_STACK* errorstack)
 {
-    IDAMERROR* errors = nullptr;
+    UDA_ERROR* errors = nullptr;
     unsigned int nerrors;
 
     if (errorstack == nullptr) {
@@ -73,7 +73,7 @@ void initIdamErrorStack()
     udaerrorstack.clear();
 }
 
-void initErrorRecords(const IDAMERRORSTACK* errorstack)
+void initErrorRecords(const UDA_ERROR_STACK* errorstack)
 {
     for (unsigned int i = 0; i < errorstack->nerrors; i++) {
         errorstack->idamerror[i].type = 0;
@@ -104,7 +104,7 @@ void printIdamErrorStack()
 
 void addIdamError(int type, const char* location, int code, const char* msg)
 {
-    IDAMERROR error;
+    UDA_ERROR error;
 
     error.type = type;
     error.code = code;
@@ -139,7 +139,7 @@ void addIdamError(int type, const char* location, int code, const char* msg)
 
 // Concatenate Error Stack structures
 
-void concatIdamError(IDAMERRORSTACK* errorstackout)
+void concatIdamError(UDA_ERROR_STACK* errorstackout)
 {
     if (udaerrorstack.empty()) {
         return;
@@ -148,7 +148,7 @@ void concatIdamError(IDAMERRORSTACK* errorstackout)
     unsigned int iold = errorstackout->nerrors;
     unsigned int inew = udaerrorstack.size() + errorstackout->nerrors;
 
-    errorstackout->idamerror = (IDAMERROR*)realloc((void*)errorstackout->idamerror, (inew * sizeof(IDAMERROR)));
+    errorstackout->idamerror = (UDA_ERROR*)realloc((void*)errorstackout->idamerror, (inew * sizeof(UDA_ERROR)));
 
     for (unsigned int i = iold; i < inew; i++) {
         errorstackout->idamerror[i] = udaerrorstack[i - iold];
@@ -156,7 +156,7 @@ void concatIdamError(IDAMERRORSTACK* errorstackout)
     errorstackout->nerrors = inew;
 }
 
-void freeIdamErrorStack(IDAMERRORSTACK* errorstack)
+void freeIdamErrorStack(UDA_ERROR_STACK* errorstack)
 {
     // "FIX" : this is causing segfaults when using multiple clients (eg. get and put) 
     //         apparently due to both trying to free the same memory. Needs fixing properly.

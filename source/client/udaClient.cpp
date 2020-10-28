@@ -1040,11 +1040,11 @@ int idamClient(REQUEST_BLOCK* request_block)
 
     } else {
         if (allocMetaHeap) {
-            free((void*)data_system);
-            free((void*)system_config);
-            free((void*)data_source);
-            free((void*)signal_rec);
-            free((void*)signal_desc);
+            free(data_system);
+            free(system_config);
+            free(data_source);
+            free(signal_rec);
+            free(signal_desc);
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Returning Error %d\n", err);
@@ -1175,15 +1175,15 @@ void idamFree(int handle)
 #ifndef FATCLIENT
                     if (userdefinedtypelist == general_block->userdefinedtypelist) {  // Is this the current setting?
                         freeUserDefinedTypeList(userdefinedtypelist);
-                        free((void*)userdefinedtypelist);
+                        free(userdefinedtypelist);
                         userdefinedtypelist = nullptr;
                     } else {
                         freeUserDefinedTypeList(general_block->userdefinedtypelist);
-                        free((void*)general_block->userdefinedtypelist);
+                        free(general_block->userdefinedtypelist);
                     }
 #else
                     freeUserDefinedTypeList(general_block->userdefinedtypelist);
-                    free((void*)general_block->userdefinedtypelist);
+                    free(general_block->userdefinedtypelist);
 #endif
                 }
 
@@ -1191,25 +1191,25 @@ void idamFree(int handle)
 #ifndef FATCLIENT
                     if (logmalloclist == general_block->logmalloclist) {
                         freeMallocLogList(logmalloclist);
-                        free((void*)logmalloclist);
+                        free(logmalloclist);
                         logmalloclist = nullptr;
                     } else {
                         freeMallocLogList(general_block->logmalloclist);
-                        free((void*)general_block->logmalloclist);
+                        free(general_block->logmalloclist);
                     }
 #else
                     freeMallocLogList(general_block->logmalloclist);
-                    free((void*)general_block->logmalloclist);
+                    free(general_block->logmalloclist);
 #endif
                 }
 
 #ifndef FATCLIENT
                 if (general_block->userdefinedtype != nullptr) {
                     freeUserDefinedType(general_block->userdefinedtype);
-                    free((void*)general_block->userdefinedtype);
+                    free(general_block->userdefinedtype);
                 }
 
-                free((void*)general_block);
+                free(general_block);
 #endif
             }
 
@@ -1245,66 +1245,66 @@ void idamFree(int handle)
     ddims = data_block->dims;
 
     if ((cptr = data_block->data) != nullptr) {
-        free((void*)cptr);
+        free(cptr);
         data_block->data = nullptr;    // Prevent another Free
     }
 
     if ((cptr = data_block->errhi) != nullptr) {
-        free((void*)cptr);
+        free(cptr);
         data_block->errhi = nullptr;
     }
 
     if ((cptr = data_block->errlo) != nullptr) {
-        free((void*)cptr);
+        free(cptr);
         data_block->errlo = nullptr;
     }
 
     if ((cptr = data_block->synthetic) != nullptr) {
-        free((void*)cptr);
+        free(cptr);
         data_block->synthetic = nullptr;
     }
 
     if (data_block->data_system != nullptr) {
-        free((void*)data_block->data_system);
+        free(data_block->data_system);
         data_block->data_system = nullptr;
     }
 
     if (data_block->system_config != nullptr) {
-        free((void*)data_block->system_config);
+        free(data_block->system_config);
         data_block->system_config = nullptr;
     }
 
     if (data_block->data_source != nullptr) {
-        free((void*)data_block->data_source);
+        free(data_block->data_source);
         data_block->data_source = nullptr;
     }
 
     if (data_block->signal_rec != nullptr) {
-        free((void*)data_block->signal_rec);
+        free(data_block->signal_rec);
         data_block->signal_rec = nullptr;
     }
 
     if (data_block->signal_desc != nullptr) {
-        free((void*)data_block->signal_desc);
+        free(data_block->signal_desc);
         data_block->signal_desc = nullptr;
     }
 
     if (ddims != nullptr && rank > 0) {
         for (int i = 0; i < rank; i++) {
             if ((cptr = data_block->dims[i].dim) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             if ((cptr = data_block->dims[i].synthetic) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             if ((cptr = data_block->dims[i].errhi) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             if ((cptr = data_block->dims[i].errlo) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             data_block->dims[i].dim = nullptr;    // Prevent another Free
@@ -1313,15 +1313,15 @@ void idamFree(int handle)
             data_block->dims[i].errlo = nullptr;
 
             if ((cptr = (char*)data_block->dims[i].sams) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             if ((cptr = data_block->dims[i].offs) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             if ((cptr = data_block->dims[i].ints) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             data_block->dims[i].sams = nullptr;
@@ -1329,7 +1329,7 @@ void idamFree(int handle)
             data_block->dims[i].ints = nullptr;
         }
 
-        free((void*)ddims);
+        free(ddims);
         data_block->dims = nullptr;    // Prevent another Free
     }
 
@@ -1615,7 +1615,7 @@ const char* getIdamServerErrorStackRecordMsg(int record)
 /**
 @return  the error message stack data structure
 */
-IDAMERRORSTACK* getIdamServerErrorStack()
+UDA_ERROR_STACK* getIdamServerErrorStack()
 {
     return &server_block.idamerrorstack;         // Server Error Stack Structure
 }

@@ -67,7 +67,7 @@ void freePluginList(PLUGINLIST* plugin_list)
             dlclose(plugin_list->plugin[i].pluginHandle);
         }
     }
-    free((void*)plugin_list->plugin);
+    free(plugin_list->plugin);
     plugin_list->plugin = nullptr;
     plugin_list->count = 0;
     plugin_list->mcount = 0;
@@ -119,7 +119,7 @@ void printPluginList(FILE* fd, const PLUGINLIST* plugin_list)
     }
 }
 
-int idamServerRedirectStdStreams(int reset)
+int udaServerRedirectStdStreams(int reset)
 {
     // Any OS messages will corrupt xdr streams so re-divert IO from plugin libraries to a temporary file
 
@@ -255,8 +255,8 @@ int idamServerRedirectStdStreams(int reset)
 // 5. open the library
 // 6. get plugin function address
 // 7. close the file
-int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
-                     const PLUGINLIST* plugin_list, const ENVIRONMENT* environment)
+int udaServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
+                    const PLUGINLIST* plugin_list, const ENVIRONMENT* environment)
 {
     int err = 0;
 
@@ -323,9 +323,9 @@ int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIG
 // changePlugin option disabled in this context
 // private malloc log and userdefinedtypelist
 
-int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_request_block,
-                         DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list,
-                         char* logRecord, const ENVIRONMENT* environment)
+int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_request_block,
+                        DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list,
+                        char* logRecord, const ENVIRONMENT* environment)
 {
 
     if (STR_EQUALS(client_block->DOI, "")) {
@@ -449,7 +449,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     // Redirect Output to temporary file if no file handles passed
 
     reset = 0;
-    if ((err = idamServerRedirectStdStreams(reset)) != 0) {
+    if ((err = udaServerRedirectStdStreams(reset)) != 0) {
         THROW_ERROR(err, "Error Redirecting Plugin Message Output");
     }
 
@@ -480,7 +480,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
     // Reset Redirected Output
 
     reset = 1;
-    if ((rc = idamServerRedirectStdStreams(reset)) != 0 || err != 0) {
+    if ((rc = udaServerRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
             addIdamError(CODEERRORTYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
@@ -502,7 +502,7 @@ int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_req
 //------------------------------------------------------------------------------------------------
 // Identify the Plugin to use to resolve Generic Name mappings and return its ID
 
-int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* environment)
+int udaServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* environment)
 {
     static unsigned short noPluginRegistered = 0;
     static int plugin_id = -1;
@@ -554,9 +554,9 @@ int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT*
 //------------------------------------------------------------------------------------------------
 // Execute the Generic Name mapping Plugin
 
-int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
-                             SIGNAL_DESC* signal_desc, SIGNAL* signal_rec, DATA_SOURCE* data_source,
-                             const ENVIRONMENT* environment)
+int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
+                            SIGNAL_DESC* signal_desc, SIGNAL* signal_rec, DATA_SOURCE* data_source,
+                            const ENVIRONMENT* environment)
 {
     int err, reset, rc;
     IDAM_PLUGIN_INTERFACE idam_plugin_interface;
@@ -594,7 +594,7 @@ int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUE
     // Redirect Output to temporary file if no file handles passed
 
     reset = 0;
-    if ((err = idamServerRedirectStdStreams(reset)) != 0) {
+    if ((err = udaServerRedirectStdStreams(reset)) != 0) {
         THROW_ERROR(err, "Error Redirecting Plugin Message Output");
     }
 
@@ -605,7 +605,7 @@ int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUE
     // Reset Redirected Output
 
     reset = 1;
-    if ((rc = idamServerRedirectStdStreams(reset)) != 0 || err != 0) {
+    if ((rc = udaServerRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
             addIdamError(CODEERRORTYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }

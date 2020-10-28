@@ -50,16 +50,10 @@ int idamParseOperation(SUBSET* sub)
                 if (IsNumber(t1)) {
                     sub->lbindex[i] = strtol(t1, &endp, 0);        // the Lower Index Value of the Bound
                     if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
-                        ierr = 9999;
-                        addIdamError(CODEERRORTYPE, "idamserverParseServerSide", ierr,
-                                     "Server Side Operation Syntax Error: Lower Index Bound ");
-                        return ierr;
+                        THROW_ERROR(9999, "Server Side Operation Syntax Error: Lower Index Bound");
                     }
                 } else {
-                    ierr = 9999;
-                    addIdamError(CODEERRORTYPE, "idamserverParseServerSide", ierr,
-                                 "Server Side Operation Syntax Error: Lower Index Bound ");
-                    return ierr;
+                    THROW_ERROR(9999, "Server Side Operation Syntax Error: Lower Index Bound");
                 }
             }
 
@@ -67,22 +61,15 @@ int idamParseOperation(SUBSET* sub)
                 if (IsNumber(t2)) {
                     sub->ubindex[i] = strtol(t2, &endp, 0);        // the Upper Index Value of the Bound
                     if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
-                        ierr = 9999;
-                        addIdamError(CODEERRORTYPE, "idamserverParseServerSide", ierr,
-                                     "Server Side Operation Syntax Error: Upper Index Bound ");
-                        return ierr;
+                        THROW_ERROR(9999, "Server Side Operation Syntax Error: Upper Index Bound");
                     }
                 } else {
-                    ierr = 9999;
-                    addIdamError(CODEERRORTYPE, "idamserverParseServerSide", ierr,
-                                 "Server Side Operation Syntax Error: Upper Index Bound ");
-                    return ierr;
+                    THROW_ERROR(9999, "Server Side Operation Syntax Error: Upper Index Bound");
                 }
             }
 
             strcpy(sub->operation[i], ":");            // Define Simple Operation
             continue;
-
         }
 
         if ((p = strstr(opcopy, "*")) != nullptr) {        // Ignore this Dimension

@@ -115,11 +115,11 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
             if (conf != nullptr) {
                 fclose(conf);
             }
-            free((void*)work);
+            free(work);
             return;
         }
 
-        if (work != nullptr) free((void*)work);
+        if (work != nullptr) free(work);
 
         /*
         record format: csv, empty records ignored, comment begins #, max record size 1023;
@@ -279,7 +279,6 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
 
                 // Issue Unique request ID
                 plugin_list->plugin[plugin_list->count].request = REQUEST_READ_START + offset++;
-
                 plugin_list->plugin[plugin_list->count].pluginHandle = nullptr;            // Library handle: Not opened
                 plugin_list->plugin[plugin_list->count].status = UDA_PLUGIN_NOT_OPERATIONAL;  // Not yet available
 

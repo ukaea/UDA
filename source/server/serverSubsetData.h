@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-LIBRARY_API int idamserverSubsetData(DATA_BLOCK *data_block, ACTION action, LOGMALLOCLIST* logmalloclist);
+LIBRARY_API int udaServerSubsetData(DATA_BLOCK *data_block, ACTION action, LOGMALLOCLIST* logmalloclist);
 LIBRARY_API int idamserverParseServerSide(REQUEST_BLOCK *request_block, ACTIONS *actions_serverside);
 
 #ifdef __cplusplus

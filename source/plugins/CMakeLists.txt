@@ -75,7 +75,7 @@ set( HEADER_FILES
   pluginStructs.h
   udaPlugin.h
   udaPluginFiles.h
-)
+        testplugin/teststructs.h testplugin/teststructs.cpp)
 
 add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
 add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )

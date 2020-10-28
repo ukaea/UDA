@@ -138,7 +138,7 @@ const uda::Result& uda::Client::get(const std::string& signalName, const std::st
     auto data = new Result(idamGetAPI(signalName.c_str(), dataSource.c_str()));
 
     if (data->errorCode() != OK) {
-        IDAMERRORSTACK* errorstack = getIdamServerErrorStack();
+        UDA_ERROR_STACK* errorstack = getIdamServerErrorStack();
         std::vector<std::string> backtrace;
         int code = errorstack->nerrors > 0 ? errorstack->idamerror[0].code : 0;
         std::string msg = errorstack->nerrors > 0 ? errorstack->idamerror[0].msg : "";

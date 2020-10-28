@@ -231,6 +231,10 @@ int idamClientFileAPI2(const char* file, const char* format, const char* owner,
             strcpy(request_block.file, file);
             strcpy(request_block.signal, signal);
             break;
+
+        default:
+            // do nothing;
+            break;
     }
 
     //-------------------------------------------------------------------------

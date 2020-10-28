@@ -1,5 +1,5 @@
-#ifndef UDA_CLIENTSERVER_IDAMSTRUCTS_H
-#define UDA_CLIENTSERVER_IDAMSTRUCTS_H
+#ifndef UDA_CLIENTSERVER_UDASTRUCTS_H
+#define UDA_CLIENTSERVER_UDASTRUCTS_H
 
 #ifdef __GNUC__
 #  include <sys/time.h>
@@ -298,24 +298,24 @@ typedef struct PutDataBlockList {
     PUTDATA_BLOCK* putDataBlock;    // Array of data blocks
 } PUTDATA_BLOCK_LIST;
 
-typedef struct IdamError {
+typedef struct UdaError {
     int type;                       // Error Classification
     int code;                       // Error Code
     char location[STRING_LENGTH];   // Where this Error is Located
     char msg[STRING_LENGTH];        // Message
-} IDAMERROR;
+} UDA_ERROR;
 
-typedef struct IdamErrorStack {
+typedef struct UdaErrorStack {
     unsigned int nerrors;           // Number of Errors
-    IDAMERROR* idamerror;           // Array of Errors
-} IDAMERRORSTACK;
+    UDA_ERROR* idamerror;           // Array of Errors
+} UDA_ERROR_STACK;
 
 typedef struct ServerBlock {
     int version;
     int error;
     char msg[STRING_LENGTH];
     int pid;                        // Server Application process id
-    IDAMERRORSTACK idamerrorstack;
+    UDA_ERROR_STACK idamerrorstack;
     char OSName[STRING_LENGTH];     // Name of the Server's Operating System, e.g. OSX
     char DOI[STRING_LENGTH];        // Server version/implementation DOI - to be logged with all data consumers
     SECURITY_BLOCK securityBlock;   // Contains encrypted tokens exchanged between client and server for mutual authentication
@@ -332,6 +332,33 @@ typedef struct NameValueList {
     int listSize;         // Allocated Size of the List
     NAMEVALUE* nameValue;  // List of individual name value pairs in parse order
 } NAMEVALUELIST;
+
+enum REQUEST {
+    REQUEST_SHUTDOWN = 1,
+    REQUEST_READ_GENERIC,       // Generic Signal via the IDAM Database
+    REQUEST_READ_IDA,           // an IDA File
+    REQUEST_READ_MDS,           // an MDSPlus Server
+    REQUEST_READ_IDAM,          // a Remote IDAM server
+    REQUEST_READ_FORMAT,        // Server to Choose Plugin for Requested Format
+    REQUEST_READ_CDF,           // netCDF File
+    REQUEST_READ_HDF5,          // HDF5 FIle
+    REQUEST_READ_XML,           // XML Document defining a Signal
+    REQUEST_READ_UFILE,         // TRANSP UFile
+    REQUEST_READ_FILE,          // Read a File: A Container of Bytes!
+    REQUEST_READ_SQL,           // Read from an SQL Data Source
+    REQUEST_READ_PPF,           // JET PPF
+    REQUEST_READ_JPF,           // JET JPF
+    REQUEST_READ_NEW_PLUGIN,
+    REQUEST_READ_NOTHING,       // Immediate Return without Error: Client Server Timing Tests
+    REQUEST_READ_BLOCKED,       // Disable Server Option for External Users (Not a client side option)
+    REQUEST_READ_HDATA,         // Hierarchical Data Structures
+    REQUEST_READ_SERVERSIDE,    // Server Side Functions
+    REQUEST_READ_UNKNOWN,       // Plugin Not Known
+    REQUEST_READ_WEB,           // a Remote or Local web server
+    REQUEST_READ_BIN,           // Binary file
+    REQUEST_READ_HELP,          // Help file
+    REQUEST_READ_DEVICE         // Request to an External Device's data server
+};
 
 typedef struct RequestBlock {
     int request;                       // Plugin or Shutdown Server
@@ -395,4 +422,4 @@ typedef struct Environment {
 }
 #endif
 
-#endif // UDA_CLIENTSERVER_IDAMSTRUCTS_H
+#endif // UDA_CLIENTSERVER_UDASTRUCTS_H

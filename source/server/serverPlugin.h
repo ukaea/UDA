@@ -25,20 +25,20 @@ LIBRARY_API void initPluginData(PLUGIN_DATA* plugin);
 
 LIBRARY_API void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment);
 
-LIBRARY_API int idamServerRedirectStdStreams(int reset);
+LIBRARY_API int udaServerRedirectStdStreams(int reset);
 
-LIBRARY_API int idamServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
-                     const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
+LIBRARY_API int udaServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
+                                const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
 
-LIBRARY_API int idamProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_request_block,
-                         DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list,
-                         char* logRecord, const ENVIRONMENT* environment);
+LIBRARY_API int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_request_block,
+                                    DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list,
+                                    char* logRecord, const ENVIRONMENT* environment);
 
-LIBRARY_API int idamServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
+LIBRARY_API int udaServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
 
-LIBRARY_API int idamServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
-                             SIGNAL_DESC* signal_desc, SIGNAL* signal_rec, DATA_SOURCE* data_source,
-                             const ENVIRONMENT* environment);
+LIBRARY_API int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
+                                        SIGNAL_DESC* signal_desc, SIGNAL* signal_rec, DATA_SOURCE* data_source,
+                                        const ENVIRONMENT* environment);
 
 #ifdef __cplusplus
 }

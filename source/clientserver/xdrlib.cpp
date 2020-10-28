@@ -297,7 +297,9 @@ bool_t xdr_server(XDR* xdrs, SERVER_BLOCK* str)
 
 bool_t xdr_request(XDR* xdrs, REQUEST_BLOCK* str, int protocolVersion)
 {
-    int rc = xdr_int(xdrs, &str->request);
+    int request = static_cast<int>(str->request);
+    int rc = xdr_int(xdrs, &request);
+    str->request = static_cast<REQUEST>(request);
     rc = rc && xdr_int(xdrs, &str->exp_number);
     rc = rc && xdr_int(xdrs, &str->pass);
     rc = rc && WrapXDRString(xdrs, (char*)str->tpass, STRING_LENGTH);

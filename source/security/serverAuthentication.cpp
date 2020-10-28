@@ -220,10 +220,10 @@ static int decryptClientToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmall
         THROW_ERROR(err, "Failed Decryption Step #2!");
     }
 
-    free((void*)client_ciphertext);
+    free(client_ciphertext);
     client_ciphertext = nullptr;
     client_ciphertextLength = 0;
-    free((void*)server_ciphertext);
+    free(server_ciphertext);
     server_ciphertext = nullptr;
     server_ciphertextLength = 0;
 
@@ -427,8 +427,8 @@ int serverAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
             break;
 
         case HOUSEKEEPING:
-            free((void*)privatekey);
-            free((void*)publickey);
+            free(privatekey);
+            free(publickey);
             if (client_mpiToken != nullptr) gcry_mpi_release(client_mpiToken);
             if (server_mpiToken != nullptr) gcry_mpi_release(server_mpiToken);
             break;

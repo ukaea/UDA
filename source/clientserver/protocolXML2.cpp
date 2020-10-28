@@ -425,7 +425,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
 // Free data object
 
-                        if (object != nullptr) free((void*)object);
+                        if (object != nullptr) free(object);
                         object = nullptr;
                         objectSize = 0;
 
@@ -748,7 +748,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                             // Free the object
 
-                            if (object != nullptr) free((void*)object);
+                            if (object != nullptr) free(object);
                             object = nullptr;
                             objectSize = 0;
                         }

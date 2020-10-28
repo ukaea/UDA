@@ -677,10 +677,10 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     // Subset Data or Map Data when all other actions have been applied
 
     if (isDerived && compId > -1) {
-        UDA_LOG(UDA_LOG_DEBUG, "Calling idamserverSubsetData (Derived)  %d\n", *depth);
+        UDA_LOG(UDA_LOG_DEBUG, "Calling udaServerSubsetData (Derived)  %d\n", *depth);
         printDataBlock(*data_block);
 
-        if ((rc = idamserverSubsetData(data_block, actions_desc->action[compId], logmalloclist)) != 0) {
+        if ((rc = udaServerSubsetData(data_block, actions_desc->action[compId], logmalloclist)) != 0) {
             (*depth)--;
             return rc;
         }
@@ -692,10 +692,10 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     if (!serverside && !isDerived && signal_desc->type == 'S') {
         for (int i = 0; i < actions_desc->nactions; i++) {
             if (actions_desc->action[i].actionType == SUBSETTYPE) {
-                UDA_LOG(UDA_LOG_DEBUG, "Calling idamserverSubsetData (SUBSET)   %d\n", *depth);
+                UDA_LOG(UDA_LOG_DEBUG, "Calling udaServerSubsetData (SUBSET)   %d\n", *depth);
                 printDataBlock(*data_block);
 
-                if ((rc = idamserverSubsetData(data_block, actions_desc->action[i], logmalloclist)) != 0) {
+                if ((rc = udaServerSubsetData(data_block, actions_desc->action[i], logmalloclist)) != 0) {
                     (*depth)--;
                     return rc;
                 }
@@ -710,10 +710,10 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
         for (int i = 0; i < actions_serverside.nactions; i++) {
             if (actions_serverside.action[i].actionType == SERVERSIDETYPE) {
                 for (int j = 0; j < actions_serverside.action[i].serverside.nsubsets; j++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Calling idamserverSubsetData (Serverside)   %d\n", *depth);
+                    UDA_LOG(UDA_LOG_DEBUG, "Calling udaServerSubsetData (Serverside)   %d\n", *depth);
                     printDataBlock(*data_block);
 
-                    if ((rc = idamserverSubsetData(data_block, actions_serverside.action[i], logmalloclist)) != 0) {
+                    if ((rc = udaServerSubsetData(data_block, actions_serverside.action[i], logmalloclist)) != 0) {
                         (*depth)--;
                         return rc;
                     }
@@ -736,12 +736,12 @@ int idamserverSwapSignalError(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, i
     if (data_block->rank == data_block2->rank && data_block->data_n == data_block2->data_n) {
 
         if (!asymmetry) {
-            if (data_block->errhi != nullptr) free((void*)data_block->errhi);    // Free unwanted Error Data Heap
+            if (data_block->errhi != nullptr) free(data_block->errhi);    // Free unwanted Error Data Heap
             data_block->errhi = data_block2->data;                // straight swap!
             data_block2->data = nullptr;                        // Prevent Double Heap Free
             data_block->errasymmetry = 0;
         } else {
-            if (data_block->errlo != nullptr) free((void*)data_block->errlo);
+            if (data_block->errlo != nullptr) free(data_block->errlo);
             data_block->errlo = data_block2->data;
             data_block2->data = nullptr;
             data_block->errasymmetry = 1;
@@ -979,7 +979,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 
         // Identify the required Plugin
 
-        int plugin_id = idamServerMetaDataPluginId(pluginlist, getIdamServerEnvironment());
+        int plugin_id = udaServerMetaDataPluginId(pluginlist, getIdamServerEnvironment());
         if (plugin_id < 0) {
             // No plugin so not possible to identify the requested data item
             THROW_ERROR(778, "Unable to identify requested data item");
@@ -993,8 +993,8 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 
         // Execute the plugin to resolve the identity of the data requested
 
-        int err = idamServerMetaDataPlugin(pluginlist, plugin_id, request_block, signal_desc, signal_rec, data_source,
-                                           getIdamServerEnvironment());
+        int err = udaServerMetaDataPlugin(pluginlist, plugin_id, request_block, signal_desc, signal_rec, data_source,
+                                          getIdamServerEnvironment());
 
         if (err != 0) {
             THROW_ERROR(err, "No Record Found for this Generic Signal");
@@ -1126,7 +1126,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
                 // Redirect Output to temporary file if no file handles passed
                 int reset = 0;
                 int rc;
-                if ((rc = idamServerRedirectStdStreams(reset)) != 0) {
+                if ((rc = udaServerRedirectStdStreams(reset)) != 0) {
                     THROW_ERROR(rc, "Error Redirecting Plugin Message Output");
                 }
 #endif
@@ -1137,7 +1137,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 #ifndef FATCLIENT
                 // Reset Redirected Output
                 reset = 1;
-                if ((rc = idamServerRedirectStdStreams(reset)) != 0) {
+                if ((rc = udaServerRedirectStdStreams(reset)) != 0) {
                     THROW_ERROR(rc, "Error Resetting Redirected Plugin Message Output");
                 }
 #endif
@@ -1150,10 +1150,10 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 
                 // Save Provenance with socket stream protection
 
-                idamServerRedirectStdStreams(0);
-                idamProvenancePlugin(&client_block, request_block, data_source, signal_desc, pluginlist, nullptr,
-                                     getIdamServerEnvironment());
-                idamServerRedirectStdStreams(1);
+                udaServerRedirectStdStreams(0);
+                udaProvenancePlugin(&client_block, request_block, data_source, signal_desc, pluginlist, nullptr,
+                                    getIdamServerEnvironment());
+                udaServerRedirectStdStreams(1);
 
                 // If no structures to pass back (only regular data) then free the user defined type list
 
@@ -1235,10 +1235,10 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
     //----------------------------------------------------------------------------
     // Save Provenance with socket stream protection
 
-    idamServerRedirectStdStreams(0);
-    idamProvenancePlugin(&client_block, request_block, data_source, signal_desc, pluginlist, nullptr,
-                         getIdamServerEnvironment());
-    idamServerRedirectStdStreams(1);
+    udaServerRedirectStdStreams(0);
+    udaProvenancePlugin(&client_block, request_block, data_source, signal_desc, pluginlist, nullptr,
+                        getIdamServerEnvironment());
+    udaServerRedirectStdStreams(1);
 
     return 0;
 }

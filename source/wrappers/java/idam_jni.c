@@ -340,7 +340,7 @@ JNIEXPORT jfloatArray JNICALL Java_jIdam_Idam_getIdamFloatData(JNIEnv* env, jobj
         float* data = (float*)malloc(dataNum * sizeof(float));
         getIdamFloatData((int)handle, data);
         (*env)->SetFloatArrayRegion(env, ret, 0, dataNum, data);
-        free((void*)data);
+        free(data);
     }
     return ret;
 }
@@ -361,7 +361,7 @@ JNIEXPORT jdoubleArray JNICALL Java_jIdam_Idam_getIdamDoubleData(JNIEnv* env, jo
         double* data = (double*)malloc(dataNum * sizeof(double));
         getIdamDoubleData((int)handle, data);
         (*env)->SetDoubleArrayRegion(env, ret, 0, dataNum, (jdouble*)data);
-        free((void*)data);
+        free(data);
     }
     return ret;
 }
@@ -515,7 +515,7 @@ JNIEXPORT jfloatArray JNICALL Java_jIdam_Idam_getIdamFloatDimData(JNIEnv* env, j
         float* data = (float*)malloc(dataNum * sizeof(float));
         getIdamFloatDimData((int)handle, (int)dimId, data);
         (*env)->SetFloatArrayRegion(env, ret, 0, dataNum, (jfloat*)data);
-        free((void*)data);
+        free(data);
     }
     return ret;
 }
@@ -536,7 +536,7 @@ JNIEXPORT jdoubleArray JNICALL Java_jIdam_Idam_getIdamDoubleDimData(JNIEnv* env,
         double* data = (double*)malloc(dataNum * sizeof(double));
         getIdamDoubleDimData((int)handle, (int)dimId, data);
         (*env)->SetDoubleArrayRegion(env, ret, 0, dataNum, (jdouble*)data);
-        free((void*)data);
+        free(data);
     }
     return ret;
 }

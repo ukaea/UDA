@@ -198,8 +198,8 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
     free(client2X509File);
 
     if (err != 0) {
-        free((void*)securityBlock->client_X509);
-        free((void*)securityBlock->client2_X509);
+        free(securityBlock->client_X509);
+        free(securityBlock->client2_X509);
 
         securityBlock->client_X509 = nullptr;
         securityBlock->client2_X509 = nullptr;
@@ -279,8 +279,8 @@ static int issueToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmalloclist, 
     securityBlock->client_ciphertext = nullptr;
     securityBlock->client_ciphertextLength = 0;
 
-    free((void*)securityBlock->client_X509);
-    free((void*)securityBlock->client2_X509);
+    free(securityBlock->client_X509);
+    free(securityBlock->client2_X509);
 
     securityBlock->client_X509 = nullptr;
     securityBlock->client2_X509 = nullptr;
@@ -362,8 +362,8 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
         THROW_ERROR(err, "Failed Authentication Step #5!");
     }
 
-    free((void*)client_ciphertext);
-    free((void*)server_ciphertext);
+    free(client_ciphertext);
+    free(server_ciphertext);
 
     return err;
 }
@@ -416,8 +416,8 @@ static int encryptServerToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmall
         THROW_ERROR(PROTOCOL_ERROR_7, "Protocol 7 Error (Client Block #6)");
     }
 
-    free((void*)server_ciphertext);
-    free((void*)client_ciphertext);
+    free(server_ciphertext);
+    free(client_ciphertext);
 #endif
 
     return err;
@@ -451,8 +451,8 @@ int clientAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
             break;
 
         case HOUSEKEEPING:
-            free((void*)publickey);
-            free((void*)privatekey);
+            free(publickey);
+            free(privatekey);
             if (client_mpiToken != nullptr) gcry_mpi_release(client_mpiToken);
             if (server_mpiToken != nullptr) gcry_mpi_release(server_mpiToken);
             break;

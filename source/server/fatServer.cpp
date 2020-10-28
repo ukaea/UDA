@@ -144,7 +144,7 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
         return err;
     }
 
-    idamAccessLog(FALSE, client_block, request_block, *server_block, &pluginList, getIdamServerEnvironment());
+    udaAccessLog(FALSE, client_block, request_block, *server_block, &pluginList, getIdamServerEnvironment());
 
     err = doFatServerClosedown(server_block, &data_block, &actions_desc, &actions_sig, data_block0);
 
@@ -301,12 +301,12 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     protocolVersion = serverVersion;
 
     if (protocolVersion >= 6) {
-        if ((err = idamServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc,
-                                    &pluginList, getIdamServerEnvironment())) != 0) {
+        if ((err = udaServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc,
+                                   &pluginList, getIdamServerEnvironment())) != 0) {
             return err;
         }
     } else {
-        if ((err = idamServerLegacyPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc)) !=
+        if ((err = udaServerLegacyPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc)) !=
             0) {
             return err;
         }

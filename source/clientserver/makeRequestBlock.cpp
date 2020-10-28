@@ -388,7 +388,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
             if (request_block->request == REQUEST_READ_UNKNOWN) {
                 UDA_LOG(UDA_LOG_DEBUG, "No plugin was identified for the format: %s\n", work2);
-                isForeign = 1;
+                isForeign = true;
                 strcpy(request_block->device_name, work2);                // Copy the DEVICE prefix
                 request_block->request = REQUEST_READ_GENERIC;            // The database will identify the target
 
@@ -515,7 +515,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
     // the Plugin Name is synonymous with the Archive Name and takes priority (The archive name is discarded as unimportant)
 
     if (request_block->request == REQUEST_READ_IDAM) {
-        reduceSignal = 0;
+        reduceSignal = false;
         err = extractArchive(request_block, reduceSignal, environment);
     } else {
         reduceSignal = !isForeign;                // Don't detach if a foreign device
@@ -581,7 +581,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                         pluginList.plugin[i].library[0] == '\0') {
                         request_block->request = REQUEST_READ_SERVERSIDE;            // Found
                         strcpy(request_block->format, pluginList.plugin[i].format);
-                        isFunction = 1;
+                        isFunction = true;
                         break;
                     }
                 }
@@ -591,13 +591,9 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
             UDA_LOG(UDA_LOG_DEBUG, "B request: %d\n", request_block->request);
 
         } else {
-
             // Select the Generic plugin: No source => no format or protocol or library was specified.
-
             request_block->request = REQUEST_READ_GENERIC;
-
             UDA_LOG(UDA_LOG_DEBUG, "C request: %d\n", request_block->request);
-
         }
 
     } else {
@@ -751,7 +747,7 @@ void extractFunctionName(char* str, REQUEST_BLOCK* request_block)
         } while ((p = strstr(work, request_block->api_delim)) != nullptr);
     }
     strcpy(request_block->function, work);
-    free((void*)work);
+    free(work);
 }
 
 int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList,
@@ -806,7 +802,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
             if (errno != 0) addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
             addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
                          "Unable to Identify the File's Format");
-            free((void*)cmd);
+            free(cmd);
             return -999;
         }
 
@@ -833,7 +829,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                         }
                         addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
                                      "Unable to Identify the File's Format");
-                        free((void*)cmd);
+                        free(cmd);
                         return -999;
                     }
 
@@ -861,7 +857,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                         }
                         addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
                                      "Unable to Identify the File's Format");
-                        free((void*)cmd);
+                        free(cmd);
                         return -999;
                     }
 
@@ -882,7 +878,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                 }
             }
         }
-        free((void*)cmd);
+        free(cmd);
 
 #else
         return rc;
@@ -1507,12 +1503,12 @@ void freeNameValueList(NAMEVALUELIST* nameValueList)
 {
     if (nameValueList->nameValue != nullptr) {
         for (int i = 0; i < nameValueList->pairCount; i++) {
-            if (nameValueList->nameValue[i].pair != nullptr) free((void*)nameValueList->nameValue[i].pair);
-            if (nameValueList->nameValue[i].name != nullptr) free((void*)nameValueList->nameValue[i].name);
-            if (nameValueList->nameValue[i].value != nullptr) free((void*)nameValueList->nameValue[i].value);
+            if (nameValueList->nameValue[i].pair != nullptr) free(nameValueList->nameValue[i].pair);
+            if (nameValueList->nameValue[i].name != nullptr) free(nameValueList->nameValue[i].name);
+            if (nameValueList->nameValue[i].value != nullptr) free(nameValueList->nameValue[i].value);
         }
     }
-    free((void*)nameValueList->nameValue);
+    free(nameValueList->nameValue);
     nameValueList->pairCount = 0;
     nameValueList->listSize = 0;
     nameValueList->nameValue = nullptr;
@@ -1589,7 +1585,7 @@ void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
 
     }
 
-    free((void*)copy);
+    free(copy);
 }
 
 int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short strip)
@@ -1650,8 +1646,8 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
                         TrimString(buffer);            // Check for non alpha-numeric character
                         lstr = (int)strlen(buffer);
                         if (!isalpha(buffer[lstr - 1]) && !isdigit(buffer[lstr - 1])) {    // Probable syntax error!
-                            free((void*)buffer);
-                            free((void*)copy);
+                            free(buffer);
+                            free(copy);
                             return -1;                // Flag an Error
                         }
                     }
@@ -1712,8 +1708,8 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
 
     // housekeeping
 
-    free((void*)buffer);
-    free((void*)copy);
+    free(buffer);
+    free(copy);
 
     for (int i = 0; i < nameValueList->pairCount; i++) {
         if (STR_IEQUALS(nameValueList->nameValue[i].name, "delimiter")) {        // replace with correct delimiter value

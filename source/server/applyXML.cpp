@@ -368,7 +368,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                 data_block->dims[data_block->order].ints = nullptr;
                             } else {
                                 if (data_block->dims[data_block->order].dim != nullptr) {
-                                    free((void*)data_block->dims[data_block->order].dim);
+                                    free(data_block->dims[data_block->order].dim);
                                 }
                                 data_block->dims[data_block->order].dim = nullptr;
                             }
@@ -393,7 +393,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                             data_block->dims[data_block->order].ints = nullptr;
                         } else {
                             if (data_block->dims[data_block->order].dim != nullptr) {
-                                free((void*)data_block->dims[data_block->order].dim);
+                                free(data_block->dims[data_block->order].dim);
                             }
                             data_block->dims[data_block->order].dim = nullptr;
                         }

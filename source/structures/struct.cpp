@@ -156,7 +156,7 @@ void freeNTreeNode(NTREE* ntree)
         for (int i = 0; i < ntree->branches; i++) {
             freeNTreeNode(ntree->children[i]);
         }
-        free((void*)ntree->children);
+        free(ntree->children);
     }
 }
 
@@ -813,7 +813,7 @@ int dupCountMallocLog(LOGMALLOCLIST* str)
     for (int i = 1; i < sortCount; i++) {
         if (sorted[i] == sorted[i - 1]) dupCount++;
     }
-    free((void*)sorted);
+    free(sorted);
     return dupCount;
 }
 
@@ -826,10 +826,10 @@ void freeMallocLog(LOGMALLOCLIST* str)
     if (str == nullptr) return;
     for (int i = 0; i < str->listcount; i++) {
         if (str->logmalloc[i].freed == 0) {
-            if (str->logmalloc[i].heap != nullptr && str->logmalloc[i].count > 0) free((void*)str->logmalloc[i].heap);
+            if (str->logmalloc[i].heap != nullptr && str->logmalloc[i].count > 0) free(str->logmalloc[i].heap);
             str->logmalloc[i].freed = 1;
             if (str->logmalloc[i].rank > 1 && str->logmalloc[i].shape != nullptr) {
-                free((void*)str->logmalloc[i].shape);
+                free(str->logmalloc[i].shape);
                 str->logmalloc[i].shape = nullptr;
             }
         }
@@ -845,7 +845,7 @@ void freeMallocLogList(LOGMALLOCLIST* str)
     if (str == nullptr) return;
     freeMallocLog(str);
     if (str->logmalloc != nullptr) {
-        free((void*)str->logmalloc);
+        free(str->logmalloc);
     }
     str->logmalloc = nullptr;
     initLogMallocList(str);
@@ -998,7 +998,7 @@ void addStruct(void* heap, const char* type)
 */
 void freeLogStructList()
 {
-    free((void*)logstructlist.logstruct);
+    free(logstructlist.logstruct);
     initLogStructList();
 }
 
@@ -1387,7 +1387,7 @@ int countUserDefinedType(USERDEFINEDTYPELIST* str)
 void freeCompoundField(COMPOUNDFIELD* str)
 {
     if (str == nullptr) return;
-    free((void*)str->shape);
+    free(str->shape);
     str->shape = nullptr;
 }
 
@@ -1402,10 +1402,10 @@ void freeUserDefinedType(USERDEFINEDTYPE* type)
     for (int i = 0; i < type->fieldcount; i++) {
         freeCompoundField(&type->compoundfield[i]);
     }
-    free((void*)type->compoundfield);
+    free(type->compoundfield);
     type->compoundfield = nullptr;
 
-    free((void*)type->image);
+    free(type->image);
     type->image = nullptr;
 }
 
@@ -1428,7 +1428,7 @@ void freeUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist)
     for (int i = 0; i < userdefinedtypelist->listCount; i++) {
         freeUserDefinedType(&userdefinedtypelist->userdefinedtype[i]);
     }
-    free((void*)userdefinedtypelist->userdefinedtype);
+    free(userdefinedtypelist->userdefinedtype);
     initUserDefinedTypeList(userdefinedtypelist);
 }
 
@@ -2469,7 +2469,7 @@ char** parseTarget(const char* target, int* ntargets)
         targetlist[0] = buffer;
     }
     if (*ntargets > 1 && buffer != nullptr) {
-        free((void*)buffer);
+        free(buffer);
     }
     return targetlist;
 }

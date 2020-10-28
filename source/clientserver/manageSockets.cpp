@@ -107,6 +107,6 @@ void closeClientSockets(SOCKETLIST* socks)
     for (int i = 0; i < socks->nsocks; i++) {
         closeClientSocket(socks, socks->sockets[i].fh);
     }
-    free((void*)socks->sockets);
+    free(socks->sockets);
     initSocketList(socks);
 }

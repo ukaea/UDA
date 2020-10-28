@@ -56,8 +56,8 @@ extern void idamgetapi_(char* data_object, char* data_source, int* handle, int l
     source[ldata_source] = '\0';
     TrimString(source);
     *handle = idamGetAPI(object, source);
-    free((void*) object);
-    free((void*) source);
+    free( object);
+    free( source);
     return;
 }
 
@@ -85,7 +85,7 @@ extern void idamapi_(char* signal, int* pulno, int* handle, int lsignal)
             if (ftnout != NULL) {
                 fclose(ftnout);
             }
-            free((void*) sig);
+            free( sig);
             return;
         }
         fprintf(ftnout, "Routine: idamAPI\n");
@@ -97,7 +97,7 @@ extern void idamapi_(char* signal, int* pulno, int* handle, int lsignal)
 
     *handle = idamGetAPI(sig, source);
 
-    free((void*) sig);
+    free( sig);
 
     return;
 }
@@ -127,7 +127,7 @@ extern void idampassapi_(char* signal, int* pulno, int* pass, int* handle, int l
             if (ftnout != NULL) {
                 fclose(ftnout);
             }
-            free((void*) sig);
+            free( sig);
             return;
         }
         fprintf(ftnout, "Routine: idamPassAPI\n");
@@ -139,7 +139,7 @@ extern void idampassapi_(char* signal, int* pulno, int* pass, int* handle, int l
 
     *handle = idamGetAPI(sig, source);
 
-    free((void*) sig);
+    free( sig);
 
     return;
 }
@@ -170,7 +170,7 @@ extern void idamgenapi_(char* archive, char* device, char* signal, int* pulno, i
             if (ftnout != NULL) {
                 fclose(ftnout);
             }
-            free((void*) sig);
+            free( sig);
             return;
         }
         fprintf(ftnout, "Routine: idamGenAPI\n");
@@ -181,7 +181,7 @@ extern void idamgenapi_(char* archive, char* device, char* signal, int* pulno, i
 
     *handle = idamGetAPI(sig, source);
 
-    free((void*) sig);
+    free( sig);
 
     return;
 }
@@ -209,9 +209,9 @@ extern void idamfileapi_(char* file, char* signal, char* format, int* handle,
 
     *handle = idamClientFileAPI(p, s, f);
 
-    free((void*) p);
-    free((void*) s);
-    free((void*) f);
+    free( p);
+    free( s);
+    free( f);
 
     return;
 }
@@ -245,8 +245,8 @@ extern void idamida_(char* file, char* signal, int* pulno, int* pass, int* handl
             if (ftnout != NULL) {
                 fclose(ftnout);
             }
-            free((void*) f);
-            free((void*) s);
+            free( f);
+            free( s);
             return;
         }
         fprintf(ftnout, "Routine: idamIDA\n");
@@ -261,8 +261,8 @@ extern void idamida_(char* file, char* signal, int* pulno, int* pass, int* handl
 
     *handle = idamClientAPI(f, s, ps, pno);
 
-    free((void*) f);
-    free((void*) s);
+    free( f);
+    free( s);
 
     return;
 }
@@ -302,9 +302,9 @@ extern void idammds_(char* server, char* tree, char* node, int* treenum, int* ha
                 fflush(ftnout);
                 fclose(ftnout);
             }
-            free((void*) s);
-            free((void*) t);
-            free((void*) n);
+            free( s);
+            free( t);
+            free( n);
             return;
         }
         fprintf(ftnout, "Routine: idamMDS\n");
@@ -319,9 +319,9 @@ extern void idammds_(char* server, char* tree, char* node, int* treenum, int* ha
 
     *handle = idamClientMDS(s, t, n, tnum);
 
-    free((void*) s);
-    free((void*) t);
-    free((void*) n);
+    free( s);
+    free( t);
+    free( n);
 
     return;
 }
@@ -410,7 +410,7 @@ extern void setidamproperty_(char* property, int lproperty)
     s[lproperty] = '\0';
     s = TrimString(s);
     setIdamProperty(s);
-    free((void*) s);
+    free( s);
 }
 
 extern void getidamproperty_(const char* property, int* value, int lproperty)
@@ -429,7 +429,7 @@ extern void resetidamproperty_(char* property, int lproperty)
     s[lproperty] = '\0';
     s = TrimString(s);
     resetIdamProperty(s);
-    free((void*) s);
+    free( s);
 }
 
 extern void resetidamproperties_()
@@ -459,7 +459,7 @@ extern void putidamserver_(char* h, int* port, int lh)
     host[lh] = '\0';
     TrimString(host);
     putIdamServer(host, *port);
-    free((void*) host);
+    free( host);
 }
 
 extern void putidamserverhost_(char* h, int lh)
@@ -469,7 +469,7 @@ extern void putidamserverhost_(char* h, int lh)
     host[lh] = '\0';
     TrimString(host);
     putIdamServerHost(host);
-    free((void*) host);
+    free( host);
 }
 
 extern void putidamserverport_(int* port)
@@ -658,7 +658,7 @@ extern void getidamdatatypeid_(char* t, int* id, int lt)
     type[lt] = '\0';
     TrimString(type);
     *id = getIdamDataTypeId(type);
-    free((void*) type);
+    free( type);
 }
 
 extern void getidamerrormodel_(int* handle, int* model, int* param_n, float* params)
@@ -678,7 +678,7 @@ extern void getidamerrormodelid_(char* m, int* id, int lm)
     model[lm] = '\0';
     TrimString(model);
     *id = getIdamErrorModelId(model);
-    free((void*) model);
+    free( model);
 }
 
 extern void getidamsyntheticdatablock_(int* handle, void* data)
@@ -1196,13 +1196,13 @@ extern void getidamenv_(char* str, int* rc, char* env, int lstr, int lenv)
 
     if (e == NULL) {
         *rc = 1;
-        free((void*) s);
+        free( s);
         return;
     } else {
         strncpy(env, e, lenv - 1);
         env[lenv - 1] = '\0';
     }
-    free((void*) s);
+    free( s);
 }
 
 extern void whereidamami_(void* var, char* loc, int lloc)

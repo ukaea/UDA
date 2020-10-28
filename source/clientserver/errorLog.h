@@ -25,13 +25,13 @@ extern "C" {
 #endif
 
 LIBRARY_API int udaNumErrors(void);
-LIBRARY_API void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, IDAMERRORSTACK* errorstack);
+LIBRARY_API void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, UDA_ERROR_STACK* errorstack);
 LIBRARY_API void initIdamErrorStack(void);
-LIBRARY_API void initErrorRecords(const IDAMERRORSTACK* errorstack);
+LIBRARY_API void initErrorRecords(const UDA_ERROR_STACK* errorstack);
 LIBRARY_API void printIdamErrorStack(void);
 LIBRARY_API void addIdamError(int type, const char* location, int code, const char* msg);
-LIBRARY_API void concatIdamError(IDAMERRORSTACK* errorstackout);
-LIBRARY_API void freeIdamErrorStack(IDAMERRORSTACK* errorstack);
+LIBRARY_API void concatIdamError(UDA_ERROR_STACK* errorstackout);
+LIBRARY_API void freeIdamErrorStack(UDA_ERROR_STACK* errorstack);
 LIBRARY_API void closeIdamError(void);
 
 #ifdef __cplusplus

@@ -574,7 +574,7 @@ typedef struct {
 
 void freeMem(UCHAR* memPtr)
 {
-    free((void*)memPtr);
+    free(memPtr);
 }
 
 
@@ -926,11 +926,11 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
         handle = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
 
         //      if (putData.rank >= 1 && putData.shape != NULL) {
-        free((void*)putData.shape);
+        free(putData.shape);
         //}
 
         if (type == IDL_TYP_STRING && new_string != NULL) {
-            free((void*)new_string);
+            free(new_string);
         }
 
     } else if (argc >= 2 && (argv[1]->flags & IDL_V_STRUCT) && argv[1]->type == IDL_TYP_STRUCT) {

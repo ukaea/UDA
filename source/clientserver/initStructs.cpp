@@ -46,7 +46,6 @@ void initRequestBlock(REQUEST_BLOCK* str)
 
     str->put = 0;
     initIdamPutDataBlockList(&str->putDataBlockList);
-
 }
 
 #ifdef _WIN32

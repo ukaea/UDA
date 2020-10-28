@@ -78,7 +78,7 @@ LIBRARY_API void putIdamServerSocket(int socket);
 
 LIBRARY_API void getIdamServer(const char** host, int* port, int* socket);
 
-LIBRARY_API IDAMERRORSTACK* getIdamServerErrorStack();
+LIBRARY_API UDA_ERROR_STACK* getIdamServerErrorStack();
 
 LIBRARY_API int getIdamErrorCode(int handle);
 

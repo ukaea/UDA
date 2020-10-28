@@ -113,7 +113,7 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
     // Housekeeping
 
     fclose(fh);        // Close the File
-    free((void*)bp);
+    free(bp);
 
     return err;
 }
@@ -218,7 +218,7 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
     // Housekeeping
 
     fclose(fh);        // Close the File
-    free((void*)bp);
+    free(bp);
 
     return err;
 }

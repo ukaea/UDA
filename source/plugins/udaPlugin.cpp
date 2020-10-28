@@ -313,7 +313,9 @@ int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list)
 int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
-        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) return plugin_list->plugin[i].request;
+        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) {
+            return plugin_list->plugin[i].request;
+        }
     }
     return REQUEST_READ_UNKNOWN;
 }
@@ -327,7 +329,9 @@ int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list)
 int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
-        if (STR_IEQUALS(plugin_list->plugin[i].extension, extension)) return plugin_list->plugin[i].request;
+        if (STR_IEQUALS(plugin_list->plugin[i].extension, extension)) {
+            return plugin_list->plugin[i].request;
+        }
     }
     return REQUEST_READ_UNKNOWN;
 }
@@ -537,8 +541,7 @@ int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLU
     makeRequestBlock(&request_block, *pluginlist, old_plugin_interface->environment);
 
     request_block.request = findPluginRequestByFormat(request_block.format, pluginlist);
-
-    if (request_block.request < 0) {
+    if (request_block.request == REQUEST_READ_UNKNOWN) {
         RAISE_PLUGIN_ERROR("Plugin not found!");
     }
 

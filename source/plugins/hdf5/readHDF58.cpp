@@ -226,7 +226,7 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
     if (rc < 0) {
         err = 999;
         addIdamError(CODEERRORTYPE, "readHDF5Att", err, "Error reading Attribute Data");
-        free((void*)data);
+        free(data);
         return err;
     }
 

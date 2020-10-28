@@ -39,7 +39,7 @@ extern "C" {
 #define PLUGINSQLMYSQL      2
 #define PLUGINSQLMONGODB    3
 
-typedef void (* ADDIDAMERRORFUNP)(IDAMERRORSTACK*, int, char*, int, char*);   // Write to the Error Log
+typedef void (* ADDIDAMERRORFUNP)(UDA_ERROR_STACK*, int, char*, int, char*);   // Write to the Error Log
 
 // Prototypes
 

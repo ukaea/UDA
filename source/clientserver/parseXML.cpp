@@ -699,7 +699,7 @@ void parseDimErrorModel(xmlDocPtr doc, xmlNodePtr cur, ERRORMODEL* mod)
                 for (int i = 0; i < str[n - 1].dimerrormodel.param_n; i++) {
                     str[n - 1].dimerrormodel.params[i] = params[i];
                 }
-                free((void*) params);
+                free( params);
             }
 
 
@@ -776,7 +776,7 @@ void parseErrorModel(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
                 for (int i = 0; i < str[n - 1].errormodel.param_n; i++) {
                     str[n - 1].errormodel.params[i] = params[i];
                 }
-                free((void*) params);
+                free( params);
             }
 
             parseDimErrorModel(doc, cur, &str[n - 1].errormodel);
