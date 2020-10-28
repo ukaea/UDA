@@ -20,6 +20,7 @@ _properties = {
     "get_synthetic": ("GET_SYNTHETIC", False),
     "get_scalar": ("GET_SCALAR", False),
     "get_nodimdata": ("GET_NO_DIM_DATA", False),
+    "get_meta": ("META", False),
     "timeout": ("TIMEOUT", True),
     "verbose": ("VERBOSE", False),
     "debug": ("DEBUG", False),
