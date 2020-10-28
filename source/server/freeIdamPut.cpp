@@ -15,7 +15,7 @@ void freeIdamServerPutDataBlock(PUTDATA_BLOCK* str)
     //if(str->blockNameLength  > 1 && str->blockName != NULL) free((void *)str->blockName);
 }
 
-void freeIdamServerPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
+void freeServerPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
 {
     if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {
         free(putDataBlockList->putDataBlock);

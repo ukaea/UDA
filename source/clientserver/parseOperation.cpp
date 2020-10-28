@@ -8,7 +8,7 @@
 #include "stringUtils.h"
 #include "errorLog.h"
 
-int idamParseOperation(SUBSET* sub)
+int parseOperation(SUBSET* sub)
 {
     char* p, * t1, * t2;
     char* endp = nullptr;
@@ -93,7 +93,7 @@ int idamParseOperation(SUBSET* sub)
             sub->ubindex[i] = strtol(opcopy, &endp, 0);        // the Index Value of the Bound
             if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
                 ierr = 9999;
-                addIdamError(CODEERRORTYPE, "idamserverParseServerSide", ierr,
+                addIdamError(CODEERRORTYPE, "serverParseServerSide", ierr,
                              "Server Side Operation Syntax Error: Single Index Bound ");
                 return ierr;
             }

@@ -2,16 +2,12 @@
 #define UDA_CLIENT_UPDATESELECTPARMS_H
 
 #include <time.h>
+#include <clientserver/export.h>
+
 #ifndef _WIN32
 #  include <sys/select.h>
 #else
 #  include <winsock.h>
-#endif
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
 #endif
 
 #ifdef __cplusplus

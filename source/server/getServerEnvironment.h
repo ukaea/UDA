@@ -2,19 +2,14 @@
 #define UDA_SERVER_GETSERVERENVIRONMENT_H
 
 #include <clientserver/udaStructs.h>
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
+#include <clientserver/export.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-LIBRARY_API void printIdamServerEnvironment(const ENVIRONMENT* environment);
-LIBRARY_API ENVIRONMENT* getIdamServerEnvironment();
+LIBRARY_API void printServerEnvironment(const ENVIRONMENT* environment);
+LIBRARY_API ENVIRONMENT* getServerEnvironment();
 
 #ifdef __cplusplus
 }

@@ -4,19 +4,14 @@
 #include <clientserver/parseXML.h>
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
+#include <clientserver/export.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-LIBRARY_API int udaServerSubsetData(DATA_BLOCK *data_block, ACTION action, LOGMALLOCLIST* logmalloclist);
-LIBRARY_API int idamserverParseServerSide(REQUEST_BLOCK *request_block, ACTIONS *actions_serverside);
+LIBRARY_API int serverSubsetData(DATA_BLOCK *data_block, ACTION action, LOGMALLOCLIST* logmalloclist);
+LIBRARY_API int serverParseServerSide(REQUEST_BLOCK *request_block, ACTIONS *actions_serverside);
 
 #ifdef __cplusplus
 }

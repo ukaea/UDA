@@ -1,11 +1,7 @@
 #ifndef UDA_XMLSTRUCTS_H
 #define UDA_XMLSTRUCTS_H
 
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
+#include "export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,7 +28,6 @@ typedef struct {
 typedef struct {
     char id[XMLMAXSTRING];          // ID
     INSTANCE instance;
-
     float aerr;                     // Absolute Error
     float rerr;                     // Relative Error
 } TOROIDALFIELD;
@@ -40,7 +35,6 @@ typedef struct {
 typedef struct {
     char id[XMLMAXSTRING];          // ID
     INSTANCE instance;
-
     float aerr;                     // Absolute Error
     float rerr;                     // Relative Error
 } PLASMACURRENT;
@@ -48,7 +42,6 @@ typedef struct {
 typedef struct {
     char id[XMLMAXSTRING];          // ID
     INSTANCE instance;
-
     float aerr;                     // Absolute Error
     float rerr;                     // Relative Error
 } DIAMAGNETIC;
@@ -56,7 +49,6 @@ typedef struct {
 typedef struct {
     char id[XMLMAXSTRING];          // ID
     INSTANCE instance;
-
     int nco;                        // Number of Coils
     int* coil;                      // List of Coil Connections
     int supply;                     // Supply Connections
@@ -65,7 +57,6 @@ typedef struct {
 typedef struct {
     char id[XMLMAXSTRING];          // ID
     INSTANCE instance;
-
     float r;                        // Radial Position
     float z;                        // Z Position
     float angle;                    // Angle
@@ -77,7 +68,6 @@ typedef struct {
 typedef struct {
     char id[XMLMAXSTRING];          // ID
     INSTANCE instance;
-
     float aerr;                     // Absolute Error
     float rerr;                     // Relative Error
 } PFSUPPLIES;
@@ -85,7 +75,6 @@ typedef struct {
 typedef struct {
     char id[XMLMAXSTRING];          // ID
     INSTANCE instance;
-
     int nco;                        // Number of Coordinates
     float* r;                       // Radial Position
     float* z;                       // Z Position
@@ -97,7 +86,6 @@ typedef struct {
 typedef struct {
     char id[XMLMAXSTRING];          // ID
     INSTANCE instance;
-
     int nco;                        // Number of Coordinates/Elements
     int modelnrnz[2];               // ?
     float* r;                       // Radial Position

@@ -2,27 +2,22 @@
 #define UDA_CLIENT_CLOSEDOWN_H
 
 #include <clientserver/socketStructs.h>
+#include <clientserver/export.h>
 
 #ifdef FATCLIENT
-#  define idamClosedown idamClosedownFat
-#endif
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
+#  define closedown closedownFat
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-enum ClosedownType {
+enum class ClosedownType {
     CLOSE_SOCKETS = 0,
     CLOSE_ALL = 1,
 };
 
-LIBRARY_API int idamClosedown(int type, SOCKETLIST* socket_list);
+LIBRARY_API int closedown(ClosedownType type, SOCKETLIST* socket_list);
 
 #ifdef __cplusplus
 }

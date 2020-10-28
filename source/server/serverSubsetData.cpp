@@ -51,7 +51,7 @@ static int serverNewDataArray2(DIMS* dims, int rank, int dimid,
                                char* data, int ndata, int data_type, int notoperation, int reverse,
                                int start, int end, int start1, int end1, int* n, void** newdata);
 
-int udaServerSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* logmalloclist)
+int serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* logmalloclist)
 {
     DIMS* dim;
     DIMS newdim;
@@ -1103,7 +1103,7 @@ int udaServerSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* lo
 // SS::SUBSET(\"xx\", [*, 3], member=\"name\", reform, function=\"minimum(dimid=0)\" )
 
 
-int idamserverParseServerSide(REQUEST_BLOCK* request_block, ACTIONS* actions_serverside)
+int serverParseServerSide(REQUEST_BLOCK* request_block, ACTIONS* actions_serverside)
 {
 
     char qchar[2];
@@ -1179,7 +1179,7 @@ int idamserverParseServerSide(REQUEST_BLOCK* request_block, ACTIONS* actions_ser
     // Overwrite the Request Block to enable the correct access to signal data before the subset operations are applied
 
     strcpy(request_block->archive, archive);
-    if (request_block->archive[0] == '\0') strcpy(request_block->archive, getIdamServerEnvironment()->api_archive);
+    if (request_block->archive[0] == '\0') strcpy(request_block->archive, getServerEnvironment()->api_archive);
 
     strcpy(request_block->signal, signal);
 

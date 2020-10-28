@@ -7,17 +7,10 @@
 
 #include <clientserver/udaTypes.h>
 #include <structures/genStructs.h>
+#include <clientserver/export.h>
 
 #ifdef SERVERBUILD
-
 #  include <server/udaServer.h>
-
-#endif
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
 #endif
 
 #ifdef __cplusplus

@@ -348,13 +348,13 @@ int idamClient(REQUEST_BLOCK* request_block)
             UDA_LOG(UDA_LOG_DEBUG, "Server Closed and New Instance Started\n");
 
             // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
-            idamClosedown(CLOSE_SOCKETS, nullptr);
+            closedown(ClosedownType::CLOSE_SOCKETS, nullptr);
         } else if (connectionOpen()) {
             // Assume the Server is Still Alive
             if (clientOutput->x_ops == nullptr || clientInput->x_ops == nullptr) {
                 addIdamError(CODEERRORTYPE, __func__, 999, "XDR Streams are Closed!");
                 UDA_LOG(UDA_LOG_DEBUG, "XDR Streams are Closed!\n");
-                idamClosedown(CLOSE_SOCKETS, nullptr);
+                closedown(ClosedownType::CLOSE_SOCKETS, nullptr);
                 initServer = true;
             } else {
                 initServer = false;
@@ -391,7 +391,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         // Create the XDR Record Streams
 
         if (initServer) {
-            idamCreateXDRStream();
+            createXDRStream();
         }
 
         //-------------------------------------------------------------------------
@@ -1001,7 +1001,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         UDA_LOG(UDA_LOG_DEBUG, "Handle %d\n", data_block_idx);
 
         if (err != 0 && !serverside) {
-            idamClosedown(CLOSE_SOCKETS, nullptr);    // Close Socket & XDR Streams but Not Files
+            closedown(ClosedownType::CLOSE_SOCKETS, nullptr);    // Close Socket & XDR Streams but Not Files
         }
 
         if (err == 0 && (getIdamDataStatus(data_block_idx)) == MIN_STATUS && !get_bad) {
@@ -1050,7 +1050,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         UDA_LOG(UDA_LOG_DEBUG, "Returning Error %d\n", err);
 
         if (err != 0 && !serverside) {
-            idamClosedown(CLOSE_SOCKETS, nullptr);
+            closedown(ClosedownType::CLOSE_SOCKETS, nullptr);
         }
 
         concatIdamError(&server_block.idamerrorstack);
@@ -1076,7 +1076,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         UDA_LOG(UDA_LOG_DEBUG, "Handle %d\n", data_block_idx);
 
         if (err != 0) {
-            idamClosedown(0, &socket_list);
+            closedown(ClosedownType::CLOSE_SOCKETS, &socket_list);
         }
 
         if (err == 0 && (getIdamDataStatus(data_block_idx) == MIN_STATUS) && !get_bad) {
@@ -1124,7 +1124,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         UDA_LOG(UDA_LOG_DEBUG, "Returning Error %d\n", err);
 
         if (err != 0) {
-            idamClosedown(0, &socket_list);
+            closedown(ClosedownType::CLOSE_SOCKETS, &socket_list);
         }
 
         concatIdamError(&server_block.idamerrorstack);
@@ -1386,7 +1386,7 @@ void idamFreeAll()
 
 #endif // <========================== End of Client Server Code Only
 
-    idamClosedown(CLOSE_ALL, nullptr);        // Close the Socket, XDR Streams and All Files
+    closedown(ClosedownType::CLOSE_ALL, nullptr);        // Close the Socket, XDR Streams and All Files
 }
 
 SERVER_BLOCK getIdamThreadServerBlock()

@@ -1,13 +1,8 @@
-#ifndef IDAM_STRUCTURES_ACCESSORS_H
-#define IDAM_STRUCTURES_ACCESSORS_H
+#ifndef UDA_STRUCTURES_ACCESSORS_H
+#define UDA_STRUCTURES_ACCESSORS_H
 
 #include <structures/genStructs.h>
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
+#include <clientserver/export.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -246,5 +241,4 @@ LIBRARY_API void defineCompoundField(COMPOUNDFIELD* field, const char* type, con
 }
 #endif
 
-#endif // IDAM_STRUCTURES_ACCESSORS_H
-
+#endif // UDA_STRUCTURES_ACCESSORS_H

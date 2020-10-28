@@ -25,18 +25,18 @@
 #  include <authentication/udaSSL.h>
 #endif
 
-int idamClosedown(int type, SOCKETLIST* socket_list)
+int closedown(ClosedownType type, SOCKETLIST* socket_list)
 {
     int rc = 0;
 
     UDA_LOG(UDA_LOG_DEBUG, "idamCloseDown called (%d)\n", type);
-    if (type == CLOSE_ALL) {
+    if (type == ClosedownType::CLOSE_ALL) {
         UDA_LOG(UDA_LOG_DEBUG, "Closing Log Files, Streams and Sockets\n");
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "Closing Streams and Sockets\n");
     }
 
-    if (type == CLOSE_ALL) {
+    if (type == ClosedownType::CLOSE_ALL) {
         idamCloseLogging();
         reopen_logs = TRUE;        // In case the User calls the IDAM API again!
     }
@@ -53,7 +53,7 @@ int idamClosedown(int type, SOCKETLIST* socket_list)
     env_port = 1;
 
 #else			// <========================== Fat Client Code Only
-    if (type == 1) {
+    if (type == ClosedownType::CLOSE_ALL) {
         closeServerSockets(socket_list);    // Close the Socket Connections to Other Data Servers
     }
 #endif

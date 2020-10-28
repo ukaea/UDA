@@ -2,12 +2,7 @@
 #define UDA_CLIENTSERVER_MAC_MEMSTREAM_H
 
 #include <stdio.h>
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
+#include "export.h"
 
 #ifdef __cplusplus
 extern "C"

@@ -452,7 +452,7 @@ void parseCompositeSubset(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
             parseFixedLengthArray(cur, "bound", (void*) str[n - 1].bound, UDA_TYPE_DOUBLE, &n0);
             parseFixedLengthArray(cur, "dimid", (void*) str[n - 1].dimid, UDA_TYPE_INT, &n1);
 
-            if (idamParseOperation(&str[n - 1]) != 0) return;
+            if (parseOperation(&str[n - 1]) != 0) return;
 
             for (int i = 0; i < str[n - 1].nbound; i++) {
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Bounding Values : %e\n", str[n - 1].bound[i]);
@@ -1092,7 +1092,7 @@ void parseSubset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             parseFixedLengthArray(cur, "bound", (void*) sub->bound, UDA_TYPE_DOUBLE, &n0);
             parseFixedLengthArray(cur, "dimid", (void*) sub->dimid, UDA_TYPE_INT, &n1);
 
-            if (idamParseOperation(sub) != 0) return;
+            if (parseOperation(sub) != 0) return;
 
             for (int i = 0; i < sub->nbound; i++) {
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension ID               : %d\n", sub->dimid[i]);

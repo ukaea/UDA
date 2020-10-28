@@ -273,7 +273,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         CreateXDRStream();
                         xdrs = serverOutput;
 #  else
-                        idamCreateXDRStream();
+                        createXDRStream();
                         xdrs = clientOutput;
 #  endif
                         XDRstdioFlag = 0;
@@ -471,7 +471,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             CreateXDRStream();
                             xdrs = serverInput;
 #  else
-                            idamCreateXDRStream();
+                            createXDRStream();
                             xdrs = clientInput;
 #  endif
                             XDRstdioFlag = 0;
@@ -619,7 +619,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             CreateXDRStream();
                             xdrs = serverInput;
 #  else
-                            idamCreateXDRStream();
+                            createXDRStream();
                             xdrs = clientInput;
 #  endif
                             XDRstdioFlag = 0;

@@ -37,8 +37,8 @@ int idamLegacyServer(CLIENT_BLOCK client_block) {
 
 // Legacy Server Entry point
 
-int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-                     USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list, int protocolVersion)
+int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
+                 USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list, int protocolVersion)
 {
 
     int rc, err = 0, depth, fatal = 0;
@@ -136,7 +136,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             // The client request may originate from a server.
             // Is the Originating server an externally facing server? If so then switch to this mode: preserve local access policy
 
-            ENVIRONMENT* environment = getIdamServerEnvironment();
+            ENVIRONMENT* environment = getServerEnvironment();
 
             if (!environment->external_user && (privateFlags & PRIVATEFLAG_EXTERNAL)) environment->external_user = 1;
 
@@ -278,7 +278,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
             //----------------------------------------------------------------------
             // Write to the Access Log
 
-            udaAccessLog(TRUE, client_block, request_block, server_block, pluginlist, getIdamServerEnvironment());
+            udaAccessLog(TRUE, client_block, request_block, server_block, pluginlist, getServerEnvironment());
 
             //----------------------------------------------------------------------
             // Initialise Data Structures
@@ -318,7 +318,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
 
             if (protocolVersion >= 6) {
                 if ((err = udaServerPlugin(&request_block, &data_source, &signal_desc, pluginlist,
-                                           getIdamServerEnvironment())) != 0) {
+                                           getServerEnvironment())) != 0) {
                     break;
                 }
             } else {
@@ -636,7 +636,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
         //----------------------------------------------------------------------
         // Complete & Write the Access Log Record
 
-        udaAccessLog(0, client_block, request_block, server_block, pluginlist, getIdamServerEnvironment());
+        udaAccessLog(0, client_block, request_block, server_block, pluginlist, getServerEnvironment());
 
         //----------------------------------------------------------------------------
         // Server Shutdown ? Next Instruction from Client
@@ -687,7 +687,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LO
         //----------------------------------------------------------------------------
         // Free PutData Blocks
 
-        freeIdamServerPutDataBlockList(&request_block.putDataBlockList);
+        freeServerPutDataBlockList(&request_block.putDataBlockList);
 
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap

@@ -3,12 +3,9 @@
 
 #include <clientserver/socketStructs.h>
 #include <clientserver/udaStructs.h>
+#include <clientserver/export.h>
 
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
+#include "closedown.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,7 +17,7 @@ LIBRARY_API extern char clientUsername[STRING_LENGTH];  // Only obtain userid on
 LIBRARY_API int connectionOpen();
 LIBRARY_API int reconnect(ENVIRONMENT* environment);
 LIBRARY_API int createConnection();
-LIBRARY_API void closeConnection(int type);
+LIBRARY_API void closeConnection(ClosedownType type);
 
 LIBRARY_API int clientWriteout(void* iohandle, char* buf, int count);
 LIBRARY_API int clientReadin(void* iohandle, char* buf, int count);

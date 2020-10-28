@@ -22,7 +22,7 @@ int startup(void)
     //----------------------------------------------------------------
     // Read Environment Variable Values (Held in a Global Structure)
 
-    const ENVIRONMENT* environment = getIdamServerEnvironment();
+    const ENVIRONMENT* environment = getServerEnvironment();
 
     //---------------------------------------------------------------
     // Open the Log Files
@@ -83,7 +83,7 @@ int startup(void)
         }
     }
 
-    printIdamServerEnvironment(environment);
+    printServerEnvironment(environment);
 
     return 0;
 }

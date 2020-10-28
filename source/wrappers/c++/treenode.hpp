@@ -5,17 +5,12 @@
 #include <vector>
 
 #include <structures/genStructs.h>
+#include <clientserver/export.h>
 
 #include "scalar.hpp"
 #include "vector.hpp"
 #include "array.hpp"
 #include "structdata.hpp"
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
 
 namespace uda {
 

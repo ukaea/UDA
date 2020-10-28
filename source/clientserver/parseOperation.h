@@ -2,18 +2,13 @@
 #define UDA_CLIENTSERVER_PARSEOPERATION_H
 
 #include "parseXML.h"
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
+#include "export.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-LIBRARY_API int idamParseOperation(SUBSET* sub);
+LIBRARY_API int parseOperation(SUBSET* sub);
 
 #ifdef __cplusplus
 }

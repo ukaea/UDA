@@ -3,14 +3,9 @@
 
 #include <rpc/types.h>
 #include <rpc/xdr.h>
+#include "export.h"
 
 #define MAXDOLOOPLIMIT 500			// ~50MB file
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
 
 #ifdef __cplusplus
 extern "C" {

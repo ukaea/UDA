@@ -27,7 +27,7 @@ extern "C" XDR* clientOutput = &clientXDRoutput;
 #endif
 
 
-void idamCreateXDRStream()
+void createXDRStream()
 {
     clientOutput->x_ops = nullptr;
     clientInput->x_ops = nullptr;

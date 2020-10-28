@@ -1,16 +1,11 @@
 #ifndef UDA_SECURITY_SERVERAUTHENTICATION_H
 #define UDA_SECURITY_SERVERAUTHENTICATION_H
 
+#include <clientserver/export.h>
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
 
 #include "security.h"
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
 
 #ifdef __cplusplus
 extern "C" {

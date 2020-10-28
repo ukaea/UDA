@@ -98,7 +98,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
                 serverside = 1;
                 initActions(&actions_serverside);
                 int rc;
-                if ((rc = idamserverParseServerSide(request_block, &actions_serverside)) != 0) {
+                if ((rc = serverParseServerSide(request_block, &actions_serverside)) != 0) {
                     return rc;
                 }
                 // Erase original SUBSET request
@@ -112,7 +112,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
                 serverside = 1;
                 initActions(&actions_serverside);
                 int rc;
-                if ((rc = idamserverParseServerSide(request_block, &actions_serverside)) != 0) {
+                if ((rc = serverParseServerSide(request_block, &actions_serverside)) != 0) {
                     return rc;
                 }
                 // Erase original SUBSET request
@@ -166,7 +166,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
         UDA_LOG(UDA_LOG_DEBUG, "parsing XML for a COMPOSITE Signal\n");
 
-        rc = idamserverParseSignalXML(*data_source, *signal_rec, *signal_desc, &actions_comp_desc, &actions_comp_sig);
+        rc = serverParseSignalXML(*data_source, *signal_rec, *signal_desc, &actions_comp_desc, &actions_comp_sig);
 
         UDA_LOG(UDA_LOG_DEBUG, "parsing XML RC? %d\n", rc);
 
@@ -330,7 +330,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
         if (!client_block.get_asis) {
 
             // Regular Signal
-            rc = idamserverParseSignalXML(*data_source, *signal_rec, *signal_desc, actions_desc, actions_sig);
+            rc = serverParseSignalXML(*data_source, *signal_rec, *signal_desc, actions_desc, actions_sig);
 
             if (rc == -1) {
                 if (!serverside) {
@@ -664,10 +664,10 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
         // All Signal Actions have Precedence over Signal_Desc Actions: Deselect if there is a conflict
 
-        idamserverDeselectSignalXML(actions_desc, actions_sig);
+        serverDeselectSignalXML(actions_desc, actions_sig);
 
-        idamserverApplySignalXML(client_block, data_source, signal_rec, signal_desc, data_block, *actions_desc);
-        idamserverApplySignalXML(client_block, data_source, signal_rec, signal_desc, data_block, *actions_sig);
+        serverApplySignalXML(client_block, data_source, signal_rec, signal_desc, data_block, *actions_desc);
+        serverApplySignalXML(client_block, data_source, signal_rec, signal_desc, data_block, *actions_sig);
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "#Timing After XML\n");
@@ -677,10 +677,10 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     // Subset Data or Map Data when all other actions have been applied
 
     if (isDerived && compId > -1) {
-        UDA_LOG(UDA_LOG_DEBUG, "Calling udaServerSubsetData (Derived)  %d\n", *depth);
+        UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Derived)  %d\n", *depth);
         printDataBlock(*data_block);
 
-        if ((rc = udaServerSubsetData(data_block, actions_desc->action[compId], logmalloclist)) != 0) {
+        if ((rc = serverSubsetData(data_block, actions_desc->action[compId], logmalloclist)) != 0) {
             (*depth)--;
             return rc;
         }
@@ -692,10 +692,10 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     if (!serverside && !isDerived && signal_desc->type == 'S') {
         for (int i = 0; i < actions_desc->nactions; i++) {
             if (actions_desc->action[i].actionType == SUBSETTYPE) {
-                UDA_LOG(UDA_LOG_DEBUG, "Calling udaServerSubsetData (SUBSET)   %d\n", *depth);
+                UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (SUBSET)   %d\n", *depth);
                 printDataBlock(*data_block);
 
-                if ((rc = udaServerSubsetData(data_block, actions_desc->action[i], logmalloclist)) != 0) {
+                if ((rc = serverSubsetData(data_block, actions_desc->action[i], logmalloclist)) != 0) {
                     (*depth)--;
                     return rc;
                 }
@@ -710,10 +710,10 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
         for (int i = 0; i < actions_serverside.nactions; i++) {
             if (actions_serverside.action[i].actionType == SERVERSIDETYPE) {
                 for (int j = 0; j < actions_serverside.action[i].serverside.nsubsets; j++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Calling udaServerSubsetData (Serverside)   %d\n", *depth);
+                    UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Serverside)   %d\n", *depth);
                     printDataBlock(*data_block);
 
-                    if ((rc = udaServerSubsetData(data_block, actions_serverside.action[i], logmalloclist)) != 0) {
+                    if ((rc = serverSubsetData(data_block, actions_serverside.action[i], logmalloclist)) != 0) {
                         (*depth)--;
                         return rc;
                     }
@@ -979,7 +979,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 
         // Identify the required Plugin
 
-        int plugin_id = udaServerMetaDataPluginId(pluginlist, getIdamServerEnvironment());
+        int plugin_id = udaServerMetaDataPluginId(pluginlist, getServerEnvironment());
         if (plugin_id < 0) {
             // No plugin so not possible to identify the requested data item
             THROW_ERROR(778, "Unable to identify requested data item");
@@ -994,7 +994,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
         // Execute the plugin to resolve the identity of the data requested
 
         int err = udaServerMetaDataPlugin(pluginlist, plugin_id, request_block, signal_desc, signal_rec, data_source,
-                                          getIdamServerEnvironment());
+                                          getServerEnvironment());
 
         if (err != 0) {
             THROW_ERROR(err, "No Record Found for this Generic Signal");
@@ -1055,7 +1055,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
         return -1;
     }
 
-    ENVIRONMENT* environment = getIdamServerEnvironment();
+    ENVIRONMENT* environment = getServerEnvironment();
 
     //------------------------------------------------------------------------------
     // Read Data via a Suitable Registered Plugin using a standard interface
@@ -1152,7 +1152,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 
                 udaServerRedirectStdStreams(0);
                 udaProvenancePlugin(&client_block, request_block, data_source, signal_desc, pluginlist, nullptr,
-                                    getIdamServerEnvironment());
+                                    getServerEnvironment());
                 udaServerRedirectStdStreams(1);
 
                 // If no structures to pass back (only regular data) then free the user defined type list
@@ -1237,7 +1237,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 
     udaServerRedirectStdStreams(0);
     udaProvenancePlugin(&client_block, request_block, data_source, signal_desc, pluginlist, nullptr,
-                        getIdamServerEnvironment());
+                        getServerEnvironment());
     udaServerRedirectStdStreams(1);
 
     return 0;

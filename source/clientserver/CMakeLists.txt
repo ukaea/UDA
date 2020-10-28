@@ -88,7 +88,7 @@ set( HEADER_FILES
   xdrHData.h
   xdrlib.h
   xmlStructs.h
-)
+        export.h)
 
 if( APPLE )
   list( APPEND SRC_FILES memstream.cpp )

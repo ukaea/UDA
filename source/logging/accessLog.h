@@ -2,15 +2,10 @@
 #define UDA_LOGGING_ACCESSLOG_H
 
 #include <plugins/udaPlugin.h>
+#include <clientserver/export.h>
 
 #define HOSTNAMELENGTH    20
 #define DATELENGTH        27
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
 
 #ifdef __cplusplus
 extern "C" {

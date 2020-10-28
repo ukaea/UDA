@@ -144,7 +144,7 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
         return err;
     }
 
-    udaAccessLog(FALSE, client_block, request_block, *server_block, &pluginList, getIdamServerEnvironment());
+    udaAccessLog(FALSE, client_block, request_block, *server_block, &pluginList, getServerEnvironment());
 
     err = doFatServerClosedown(server_block, &data_block, &actions_desc, &actions_sig, data_block0);
 
@@ -302,7 +302,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
 
     if (protocolVersion >= 6) {
         if ((err = udaServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc,
-                                   &pluginList, getIdamServerEnvironment())) != 0) {
+                                   &pluginList, getServerEnvironment())) != 0) {
             return err;
         }
     } else {
@@ -441,7 +441,7 @@ int startupFatServer(SERVER_BLOCK* server_block)
 
     if (!plugin_list_initialised) {
         pluginList.count = 0;
-        initPluginList(&pluginList, getIdamServerEnvironment());
+        initPluginList(&pluginList, getServerEnvironment());
         plugin_list_initialised = 1;
 
         UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");

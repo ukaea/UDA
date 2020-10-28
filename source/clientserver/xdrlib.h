@@ -2,6 +2,7 @@
 #define UDA_CLIENTSERVER_XDRLIB_H
 
 #include "udaStructs.h"
+#include "export.h"
 
 #include <rpc/types.h>
 #include <rpc/xdr.h>
@@ -15,12 +16,6 @@
 
 #ifdef __APPLE__
 #  define xdr_uint64_t xdr_u_int64_t
-#endif
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
 #endif
 
 #ifdef __cplusplus

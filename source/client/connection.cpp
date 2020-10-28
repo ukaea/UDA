@@ -521,9 +521,9 @@ int createConnection()
     return 0;
 }
 
-void closeConnection(int type)
+void closeConnection(ClosedownType type)
 {
-    if (clientSocket >= 0 && type != 1) {
+    if (clientSocket >= 0 && type != ClosedownType::CLOSE_ALL) {
         closeClientSocket(&client_socketlist, clientSocket);
     } else {
         closeClientSockets(&client_socketlist);

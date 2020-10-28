@@ -38,7 +38,7 @@ int udaServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source
 
 #ifndef FATCLIENT
 
-        ENVIRONMENT* environment = getIdamServerEnvironment();
+        ENVIRONMENT* environment = getServerEnvironment();
 
         if (request_block->request == REQUEST_READ_FORMAT) {
             if (environment->private_path_target[0] != '\0') {

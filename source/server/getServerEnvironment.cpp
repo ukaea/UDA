@@ -21,7 +21,7 @@ void putIdamServerEnvironment(const ENVIRONMENT* environment)
     g_environ = *environment;
 }
 
-void printIdamServerEnvironment(const ENVIRONMENT* environment)
+void printServerEnvironment(const ENVIRONMENT* environment)
 {
     UDA_LOG(UDA_LOG_INFO, "\nServer Environment Variable values\n\n");
     UDA_LOG(UDA_LOG_INFO, "Log Location    : %s\n", environment->logdir);
@@ -34,7 +34,7 @@ void printIdamServerEnvironment(const ENVIRONMENT* environment)
     UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environment->private_path_substitute);
 }
 
-ENVIRONMENT* getIdamServerEnvironment()
+ENVIRONMENT* getServerEnvironment()
 {
     char* env = nullptr;
 

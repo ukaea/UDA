@@ -12,14 +12,10 @@
 #  include <sys/select.h>
 #endif
 
+#include <clientserver/export.h>
+
 #define MIN_BLOCK_TIME	1000
 #define MAX_BLOCK_TIME	10000
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
 
 #ifdef __cplusplus
 extern "C" {

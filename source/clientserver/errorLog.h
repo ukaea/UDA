@@ -2,7 +2,7 @@
 #define UDA_CLIENTSERVER_ERRORLOG_H
 
 #include <clientserver/udaStructs.h>
-
+#include "export.h"
 #include <time.h>
 
 #define DATELENGTH	27
@@ -13,12 +13,6 @@
 #define SYSTEMERRORTYPE     1
 #define CODEERRORTYPE       2
 #define PLUGINERRORTYPE     3
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
 
 #ifdef __cplusplus
 extern "C" {
