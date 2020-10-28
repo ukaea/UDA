@@ -10,6 +10,7 @@ from ._video import Video
 from ._dim import Dim
 from ._structured import StructuredData
 from ._json import SignalEncoder, SignalDecoder
+from ._version import __version__, __version_info__
 
 
 UDAException = cpyuda.UDAException

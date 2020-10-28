@@ -11,6 +11,8 @@ endif()
 
 set( LOGGING_BACKEND "FILE" CACHE STRING "Choose logging backend [FILE;SYSLOG]" )
 
+include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
+
 add_subdirectory( cache )
 add_subdirectory( logging )
 add_subdirectory( authentication )
@@ -27,7 +29,14 @@ if( NOT CLIENT_ONLY )
   add_subdirectory( plugins )
 endif()
 
-install( FILES uda.h DESTINATION include/uda )
+string( TIMESTAMP BUILD_TIMESTAMP UTC )
+configure_file(
+  ${CMAKE_SOURCE_DIR}/source/version.h.in
+  ${CMAKE_BINARY_DIR}/source/version.h
+  @ONLY
+)
+
+install( FILES uda.h ${CMAKE_BINARY_DIR}/source/version.h DESTINATION include/uda )
 
 set( ENV_PATH )
 if( WIN32 AND NOT MINGW )
