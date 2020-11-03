@@ -682,7 +682,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
         //----------------------------------------------------------------------------
         // Free Name Value pair
 
-        freeNameValueList(&request_block.nameValueList);
+        free_name_value_list(&request_block.nameValueList);
 
         //----------------------------------------------------------------------------
         // Free PutData Blocks
@@ -749,7 +749,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
     fflush(nullptr);
 
-    idamCloseLogging();
+    udaCloseLogging();
 
     return 0;
 }

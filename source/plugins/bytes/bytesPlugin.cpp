@@ -154,7 +154,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     StringCopy(data_source->path, path, MAXPATH);
     UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables! \n");
-    expandEnvironmentVariables(data_source->path);
+    expand_environment_variables(data_source->path);
 
     return readBytes(*data_source, *signal_desc, data_block, idam_plugin_interface->environment);
 }

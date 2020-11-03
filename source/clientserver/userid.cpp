@@ -9,8 +9,7 @@
 #  include <Windows.h>
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
 
 #include "stringUtils.h"
 #include "udaDefines.h"
@@ -30,13 +29,9 @@ void userid(char* uid)
         return;
     } else
 #  endif
-    if ((user = getlogin()) != nullptr) {
-        copyString(user, uid, STRING_LENGTH);
-        return;
-    } else if ((user = getenv("USER")) != nullptr) {
-        copyString(user, uid, STRING_LENGTH);
-        return;
-    } else if ((user = getenv("LOGNAME")) != nullptr) {
+    if ((user = getlogin()) != nullptr
+            || (user = getenv("USER")) != nullptr
+            || (user = getenv("LOGNAME")) != nullptr) {
         copyString(user, uid, STRING_LENGTH);
         return;
     }

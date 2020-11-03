@@ -33,7 +33,7 @@
 #endif
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-#  include <authentication/udaSSL.h>
+#  include <authentication/udaServerSSL.h>
 #endif
 
 //--------------------------------------------------------------------------------------
@@ -808,7 +808,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
         //----------------------------------------------------------------------------
         // Free Name Value pair
 
-        freeNameValueList(&request_block->nameValueList);
+        free_name_value_list(&request_block->nameValueList);
 
         //----------------------------------------------------------------------------
         // Free PutData Blocks
@@ -881,7 +881,7 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
 
     fflush(nullptr);
 
-    idamCloseLogging();
+    udaCloseLogging();
 
     //----------------------------------------------------------------------------
     // Close the SSL binding and context
@@ -1038,7 +1038,6 @@ int startupServer(SERVER_BLOCK* server_block)
 {
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;
-    //static int fileParsed = 0;
 
     //-------------------------------------------------------------------------
     // Create the Server Log Directory: Fatal Error if any Problem Opening a Log?
@@ -1063,7 +1062,9 @@ int startupServer(SERVER_BLOCK* server_block)
     putUdaServerSSLSocket(0);
     
     int err = 0;
-    if ((err = startUdaServerSSL()) != 0) return err;
+    if ((err = startUdaServerSSL()) != 0) {
+        return err;
+    }
 
 #endif
 

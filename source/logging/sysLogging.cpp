@@ -8,22 +8,22 @@ static LOG_LEVEL log_level = UDA_LOG_NONE;
 
 int reopen_logs = 0;        // No need to Re-Open Logs
 
-void idamSetLogLevel(LOG_LEVEL mode)
+void udaSetLogLevel(LOG_LEVEL level)
 {
-    log_level = mode;
+    log_level = level;
 }
 
-LOG_LEVEL idamGetLogLevel()
+LOG_LEVEL udaGetLogLevel()
 {
     return log_level;
 }
 
-void idamCloseLogging()
+void udaCloseLogging()
 {
     closelog();
 }
 
-void idamSetLogFile(LOG_LEVEL mode, FILE* file_name)
+void udaSetLogFile(LOG_LEVEL mode, FILE* file)
 {
     openlog("uda", 0, 0);
 }
@@ -40,7 +40,7 @@ static int syslogPriority(LOG_LEVEL log_mode)
     }
 }
 
-void idamLogWithFunc(LOG_LEVEL mode, logFunc func)
+void udaLogWithFunc(LOG_LEVEL mode, logFunc func)
 {
     char tmpFileName[] = "UdaTempLogXXXXXX";
 
@@ -53,14 +53,14 @@ void idamLogWithFunc(LOG_LEVEL mode, logFunc func)
     size_t n = 0;
 
     while (getline(&line, &n, tmpFile) != EOF) {
-        idamLog(mode, "%s", line);
+        udaLog(mode, "%s", line);
     }
 
     free(line);
     fclose(tmpFile);
 }
 
-void idamLog(LOG_LEVEL mode, const char* fmt, ...)
+void udaLog(LOG_LEVEL mode, const char* fmt, ...)
 {
     if (mode >= log_level) {
         int priority = syslogPriority(mode);

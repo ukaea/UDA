@@ -265,7 +265,7 @@ int udaServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGN
     //----------------------------------------------------------------------------------------------
     // Decode the API Arguments: determine appropriate data reader plug-in
 
-    if ((err = makeRequestBlock(request_block, *plugin_list, environment)) != 0) {
+    if ((err = make_request_block(request_block, *plugin_list, environment)) != 0) {
         return err;
     }
 
@@ -408,7 +408,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_requ
 
     UDA_LOG(UDA_LOG_DEBUG, "Provenance Plugin signal: %s\n", request_block.signal);
 
-    makeRequestBlock(&request_block, *plugin_list, environment);
+    make_request_block(&request_block, *plugin_list, environment);
 
     int err, rc, reset;
     DATA_BLOCK data_block;
@@ -465,7 +465,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_requ
 
     UDA_LOG(UDA_LOG_DEBUG, "housekeeping\n");
 
-    freeNameValueList(&request_block.nameValueList);
+    free_name_value_list(&request_block.nameValueList);
 
     UDA_LOG(UDA_LOG_DEBUG, "testing for bug!!!\n");
     if (data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN ||

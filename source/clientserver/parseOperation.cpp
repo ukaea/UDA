@@ -1,9 +1,7 @@
 #include "parseOperation.h"
 
-#include <errno.h>
-#include <stdlib.h>
-
-#include <clientserver/udaErrors.h>
+#include <cerrno>
+#include <cstdlib>
 
 #include "stringUtils.h"
 #include "errorLog.h"
@@ -30,8 +28,12 @@ int parseOperation(SUBSET* sub)
 
         strcpy(opcopy, sub->operation[i]);
 
-        if ((p = strchr(opcopy, '[')) != nullptr) p[0] = ' ';
-        if ((p = strchr(opcopy, ']')) != nullptr) p[0] = ' ';
+        if ((p = strchr(opcopy, '[')) != nullptr) {
+            p[0] = ' ';
+        }
+        if ((p = strchr(opcopy, ']')) != nullptr) {
+            p[0] = ' ';
+        }
         LeftTrimString(opcopy);
         TrimString(opcopy);
 
@@ -72,7 +74,7 @@ int parseOperation(SUBSET* sub)
             continue;
         }
 
-        if ((p = strstr(opcopy, "*")) != nullptr) {        // Ignore this Dimension
+        if (strstr(opcopy, "*") != nullptr) {        // Ignore this Dimension
             sub->isindex[i] = 1;
             sub->ubindex[i] = -1;
             sub->lbindex[i] = -1;
@@ -80,7 +82,7 @@ int parseOperation(SUBSET* sub)
             continue;
         }
 
-        if ((p = strstr(opcopy, "#")) != nullptr) {        // Last Value in Dimension
+        if (strstr(opcopy, "#") != nullptr) {        // Last Value in Dimension
             sub->isindex[i] = 1;
             sub->ubindex[i] = -1;
             sub->lbindex[i] = -1;

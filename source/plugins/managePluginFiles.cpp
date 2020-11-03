@@ -40,8 +40,8 @@ int addIdamPluginFilePtr(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename, 
     void* old_handle = nullptr;
     int closed;
 
-    if ((old_handle = getOpenIdamPluginFilePtr(uda_files, filename)) !=
-        nullptr) {    // Is an Open File Handle already listed?
+    if ((old_handle = getOpenIdamPluginFilePtr(uda_files, filename)) != nullptr) {
+        // Is an Open File Handle already listed?
         if (old_handle == handle) return 1;
     }
 

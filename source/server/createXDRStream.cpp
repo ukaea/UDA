@@ -8,7 +8,7 @@
 #include "writer.h"
 
 #if !defined(FATCLIENT) && defined(SSLAUTHENTICATION)
-#include <authentication/udaSSL.h>
+#include <authentication/udaServerSSL.h>
 #endif
 
 void CreateXDRStream() {
@@ -17,7 +17,7 @@ void CreateXDRStream() {
 
 #if !defined(FATCLIENT) && defined(SSLAUTHENTICATION)
 
-    if(getUdaServerSSLDisabled()){
+    if (getUdaServerSSLDisabled()) {
 
 #if defined (__APPLE__) || defined(__TIRPC__)
        xdrrec_create( serverOutput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,

@@ -3768,7 +3768,7 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         strcpy(next_request_block.signal, signal);
         strcpy(next_request_block.source, source);
 
-        makeRequestBlock(&next_request_block, *pluginList, idam_plugin_interface->environment);
+        make_request_block(&next_request_block, *pluginList, idam_plugin_interface->environment);
 
         for (int i = 0; i < pluginList->count; i++) {
             if (next_request_block.request == pluginList->plugin[i].request) {
@@ -3782,7 +3782,7 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
         }
 
-        freeNameValueList(&next_request_block.nameValueList);
+        free_name_value_list(&next_request_block.nameValueList);
     }
 
     return err;

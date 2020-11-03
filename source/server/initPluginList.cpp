@@ -4,7 +4,6 @@
 
 #include <cache/memcache.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/protocol.h>
 #include <server/serverPlugin.h>
 
 #include "getPluginAddress.h"
@@ -32,7 +31,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
     plugin_list->plugin[plugin_list->count].is_private = UDA_PLUGIN_PUBLIC;
     strcpy(plugin_list->plugin[plugin_list->count].desc,
            "Generic Data Access request - no file format or server name specified, only the shot number");
-    strcpy(plugin_list->plugin[plugin_list->count].example, "idamGetAPI(\"signal name\", \"12345\")");
+    strcpy(plugin_list->plugin[plugin_list->count].example, R"(udaGetAPI("signal name", "12345"))");
     allocPluginList(plugin_list->count++, plugin_list);
 
     //----------------------------------------------------------------------------------------------------------------------
@@ -109,9 +108,8 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
 
         errno = 0;
         if ((conf = fopen(work, "r")) == nullptr || errno != 0) {
-            int err = 999;
-            addIdamError(SYSTEMERRORTYPE, __func__, errno, strerror(errno));
-            addIdamError(SYSTEMERRORTYPE, __func__, err, "No Server Plugin Configuration File found!");
+            ADD_SYS_ERROR(strerror(errno));
+            ADD_ERROR(999, "No Server Plugin Configuration File found!");
             if (conf != nullptr) {
                 fclose(conf);
             }
@@ -119,7 +117,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
             return;
         }
 
-        if (work != nullptr) free(work);
+        free(work);
 
         /*
         record format: csv, empty records ignored, comment begins #, max record size 1023;

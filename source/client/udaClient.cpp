@@ -36,8 +36,8 @@
 #    include <cache/memcache.h>
 #    include <cache/fileCache.h>
 #  endif
-#  ifndef SSLAUTHENTICATION
-#    include <authentication/udaSSL.h>
+#  ifdef SSLAUTHENTICATION
+#    include <authentication/udaClientSSL.h>
 #  endif
 #endif
 
@@ -384,7 +384,9 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
         // Create the SSL binding and context, and verify the server certificate
-        if ((err = startUdaClientSSL()) != 0) break;
+        if ((err = startUdaClientSSL()) != 0) {
+            break;
+        }
 #endif
 
         //-------------------------------------------------------------------------

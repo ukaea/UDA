@@ -261,7 +261,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
     //----------------------------------------------------------------------------
     // Free Name Value pair
 
-    freeNameValueList(&request_block->nameValueList);
+    free_name_value_list(&request_block->nameValueList);
 
     return err;
 }

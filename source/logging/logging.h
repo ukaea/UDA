@@ -10,7 +10,7 @@
 #  define UDA_LOG(LEVEL, FMT, ...) idamLog(LEVEL, "%s:%d >> " FMT, FILENAME, __LINE__, ##__VA_ARGS__)
 #else
 #  include <libgen.h>
-#  define UDA_LOG(LEVEL, FMT, ...) idamLog(LEVEL, "%s:%d >> " FMT, basename((char *)__FILE__), __LINE__, ##__VA_ARGS__)
+#  define UDA_LOG(LEVEL, FMT, ...) udaLog(LEVEL, "%s:%d >> " FMT, basename((char *)__FILE__), __LINE__, ##__VA_ARGS__)
 #endif
 
 #ifdef __cplusplus
@@ -30,12 +30,12 @@ typedef enum LogLevel {
 
 typedef void (* logFunc)(FILE*);
 
-LIBRARY_API void idamSetLogLevel(LOG_LEVEL log_level);
-LIBRARY_API LOG_LEVEL idamGetLogLevel();
-LIBRARY_API void idamCloseLogging();
-LIBRARY_API void idamSetLogFile(LOG_LEVEL mode, FILE* file_name);
-LIBRARY_API void idamLogWithFunc(LOG_LEVEL mode, logFunc func);
-LIBRARY_API void idamLog(LOG_LEVEL mode, const char* fmt, ...);
+LIBRARY_API void udaSetLogLevel(LOG_LEVEL level);
+LIBRARY_API LOG_LEVEL udaGetLogLevel();
+LIBRARY_API void udaCloseLogging();
+LIBRARY_API void udaSetLogFile(LOG_LEVEL mode, FILE* file);
+LIBRARY_API void udaLogWithFunc(LOG_LEVEL mode, logFunc func);
+LIBRARY_API void udaLog(LOG_LEVEL mode, const char* fmt, ...);
 
 #ifdef __cplusplus
 }

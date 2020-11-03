@@ -3,11 +3,13 @@
 * Is user authentication over SSL?
 *---------------------------------------------------------------------------------------------------------------------*/
 
-#include <cstdio>
 #include <cstdlib>
-#include <cerrno>
 #include <vector>
 #include <string>
+#include <fstream>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 #ifndef _WIN32
 #  include <strings.h>
@@ -16,9 +18,18 @@
 #include <client/udaClientHostList.h>
 #include <clientserver/stringUtils.h>
 #include <logging/logging.h>
-#include <fstream>
 
-static std::vector<HostData> hostlist;
+struct HostData {
+    std::string host_alias;
+    std::string host_name;
+    std::string certificate;
+    std::string key;
+    std::string ca_certificate;
+    int port;
+    bool isSSL;
+};
+
+static std::vector<HostData> host_list;
 static int hostId = -1;
 
 void udaClientPutHostNameId(int id)
@@ -26,25 +37,9 @@ void udaClientPutHostNameId(int id)
     hostId = id;
 }
 
-int udaClientGetHostNameId()
-{
-    return hostId;
-}
-
 void udaClientFreeHostList()
 {
-    hostlist.clear();
-}
-
-void udaClientInitHostData(HOSTDATA* host)
-{
-    host->hostalias[0] = '\0';
-    host->hostname[0] = '\0';
-    host->port = 0;
-    host->certificate[0] = '\0';
-    host->key[0] = '\0';
-    host->ca_certificate[0] = '\0';
-    host->isSSL = 0;
+    host_list.clear();
 }
 
 int udaClientFindHostByAlias(const char* alias)
@@ -52,8 +47,8 @@ int udaClientFindHostByAlias(const char* alias)
     udaClientInitHostList();
 
     int i = 0;
-    for (const auto& data : hostlist) {
-        if (STR_IEQUALS(data.hostalias, alias)) {
+    for (const auto& data : host_list) {
+        if (boost::iequals(data.host_alias, alias)) {
             return i;
         }
         ++i;
@@ -71,8 +66,8 @@ int udaClientFindHostByName(const char* name)
     }
 
     int i = 0;
-    for (const auto& data : hostlist) {
-        if (STR_IEQUALS(data.hostname, target)) {
+    for (const auto& data : host_list) {
+        if (boost::iequals(data.host_name, target)) {
             return i;
         }
         ++i;
@@ -80,19 +75,10 @@ int udaClientFindHostByName(const char* name)
     return -1;
 }
 
-char* udaClientGetHostName(int id)
+const char* udaClientGetHostName(int id)
 {
-    if (id >= 0 && id < (int)hostlist.size()) {
-        return hostlist[id].hostname;
-    } else {
-        return nullptr;
-    }
-}
-
-char* udaClientGetHostAlias(int id)
-{
-    if (id >= 0 && id < (int)hostlist.size()) {
-        return hostlist[id].hostalias;
+    if (id >= 0 && id < (int)host_list.size()) {
+        return host_list[id].host_name.c_str();
     } else {
         return nullptr;
     }
@@ -100,46 +86,10 @@ char* udaClientGetHostAlias(int id)
 
 int udaClientGetHostPort(int id)
 {
-    if (id >= 0 && id < (int)hostlist.size()) {
-        return hostlist[id].port;
+    if (id >= 0 && id < (int)host_list.size()) {
+        return host_list[id].port;
     } else {
         return -1;
-    }
-}
-
-char* udaClientGetHostCertificatePath(int id)
-{
-    if (id >= 0 && id < (int)hostlist.size()) {
-        return hostlist[id].certificate;
-    } else {
-        return nullptr;
-    }
-}
-
-char* udaClientGetHostKeyPath(int id)
-{
-    if (id >= 0 && id < (int)hostlist.size()) {
-        return hostlist[id].key;
-    } else {
-        return nullptr;
-    }
-}
-
-char* udaClientGetHostCAPath(int id)
-{
-    if (id >= 0 && id < (int)hostlist.size()) {
-        return hostlist[id].ca_certificate;
-    } else {
-        return nullptr;
-    }
-}
-
-int udaClientGetHostSSL(int id)
-{
-    if (id >= 0 && id < (int)hostlist.size()) {
-        return hostlist[id].isSSL;
-    } else {
-        return 0;
     }
 }
 
@@ -179,12 +129,8 @@ void udaClientInitHostList()
 
     // Read the hosts file
 
-    errno = 0;
-    FILE* conf = nullptr;
-    if ((conf = fopen(config_file.c_str(), "r")) == nullptr || errno != 0) {
-        if (conf != nullptr) {
-            fclose(conf);
-        }
+    std::ifstream conf(config_file);
+    if (!conf) {
         return;
     }
 
@@ -193,7 +139,7 @@ void udaClientInitHostList()
     // hostAlias and other attributes are not required
     // ordering is not important
 
-    // The hostname may be either a resolvable name or a numeric IP address. The latter may be in either IPv4 or IPv6 format.
+    // The host_name may be either a resolvable name or a numeric IP address. The latter may be in either IPv4 or IPv6 format.
 
     // The port number must be given separately from the IP address if the format is IPv6
     // The port number may be appended to the host name or IPv4 numeric address using the standard convention host:port pattern
@@ -201,110 +147,145 @@ void udaClientInitHostList()
     // if the host IP address or name is prefixed with SSL:// this is stripped off and the isSSL bool set true
     // if the certificates and private key are defined, the isSSL bool set true
 
-    std::string line;
-    char buffer[HOST_STRING];
-
     bool newHost = false;
     HostData new_data = {};
 
-    while (fgets(buffer, HOST_STRING, conf) != nullptr) {
-        convertNonPrintable2(buffer);                // convert non printable chars to spaces
-        LeftTrimString(TrimString(buffer));                // remove leading and trailing spaces
+    std::string line;
+    while (std::getline(conf, line)) {
+        boost::trim(line);
+        if (line.empty() || line[0] == '#') {
+            continue;
+        }
 
-        if (buffer[0] == '#') continue;
-        if (strlen(buffer) == 0) continue;
+        std::vector<std::string> tokens;
+        boost::split(tokens, line, boost::is_any_of(" "));
+        std::for_each(tokens.begin(), tokens.end(), [](std::string& s){ boost::trim(s); });
 
-        char* next = buffer;
-        char* split = strchr(next, ' ');            // Split the string on the first space character
-        if (split != nullptr) split[0] = '\0';          // Extract the attribute name
-        LeftTrimString(TrimString(next));
+        std::string name = tokens[0];
 
-        if (StringIEquals(next, "hostName")) {            // Trigger a new set of attributes
+        if (boost::iequals(name, "hostName")) {
+            // Trigger a new set of attributes
             if (newHost) {
-                hostlist.push_back(new_data);
+                host_list.push_back(new_data);
                 new_data = {};
             }
             newHost = false;
-            next = &split[1];
-            LeftTrimString(TrimString(next));
-            if (next[0] != '\0' && strlen(next) < HOST_STRING) {
-                strcpy(new_data.hostname, next);
+            if (tokens.size() > 1 && !tokens[1].empty()) {
+                new_data.host_name = tokens[1];
                 newHost = true;
             }
-        } else if (newHost && StringIEquals(next, "hostAlias")) {
-            next = &split[1];
-            LeftTrimString(TrimString(next));
-            if (next[0] != '\0' && strlen(next) < HOST_STRING) {
-                strcpy(new_data.hostalias, next);
+        } else if (newHost && boost::iequals(name, "hostAlias")) {
+            if (tokens.size() > 1 && !tokens[1].empty()) {
+                new_data.host_alias = tokens[1];
             }
-        } else if (newHost && StringIEquals(next, "port")) {
-            next = &split[1];
-            LeftTrimString(TrimString(next));
-            if (next[0] != '\0' && strlen(next) < HOST_STRING) {
-                new_data.port = atoi(next);
+        } else if (newHost && boost::iequals(name, "port")) {
+            if (tokens.size() > 1 && !tokens[1].empty()) {
+                new_data.port = std::stoi(tokens[1]);
             }
-        } else if (newHost && StringIEquals(next, "certificate")) {
-            next = &split[1];
-            LeftTrimString(TrimString(next));
-            if (next[0] != '\0' && strlen(next) < HOST_STRING) {
-                strcpy(new_data.certificate, next);
+        } else if (newHost && boost::iequals(name, "certificate")) {
+            if (tokens.size() > 1 && !tokens[1].empty()) {
+                new_data.certificate = tokens[1];
             }
-        } else if (newHost && StringIEquals(next, "privateKey")) {
-            next = &split[1];
-            LeftTrimString(TrimString(next));
-            if (next[0] != '\0' && strlen(next) < HOST_STRING) {
-                strcpy(new_data.key, next);
+        } else if (newHost && boost::iequals(name, "privateKey")) {
+            if (tokens.size() > 1 && !tokens[1].empty()) {
+                new_data.key = tokens[1];
             }
-        } else if (newHost && StringIEquals(next, "CA-Certificate")) {
-            next = &split[1];
-            LeftTrimString(TrimString(next));
-            if (next[0] != '\0' && strlen(next) < HOST_STRING) {
-                strcpy(new_data.ca_certificate, next);
+        } else if (newHost && boost::iequals(name, "CA-Certificate")) {
+            if (tokens.size() > 1 && !tokens[1].empty()) {
+                new_data.ca_certificate = tokens[1];
             }
         }
     }
 
     if (newHost) {
-        hostlist.push_back(new_data);
+        host_list.push_back(new_data);
     }
 
-    fclose(conf);
-
     // Flag the connection as with SSL Authentication
-    for (auto& data : hostlist) {
-        if (data.certificate[0] != '\0' && data.key[0] != '\0' && data.ca_certificate[0] != '\0') {
-            data.isSSL = 1;
+    for (auto& data : host_list) {
+        if (!data.certificate.empty() && !data.key.empty() && !data.ca_certificate.empty()) {
+            data.isSSL = true;
         }
 
-        const char* p = strcasestr(data.hostname, "SSL://");
-        if (p && p == data.hostname && strlen(p) > 6) {
-            data.isSSL = 1;
-            strcpy(data.hostname, &data.hostname[6]); // Strip prefix
+        if (boost::starts_with(data.host_name, "SSL://")) {
+            data.isSSL = true;
+            data.host_name = data.host_name.substr(6);
         }
     }
 
     // Extract and Strip the port number from the host name (a.b.c:9999, localhost:9999)
-    for (auto& data : hostlist) {
-        char* p = nullptr;
-        if ((!strcmp(data.hostname, "localhost")
-             || (p = strchr(data.hostname, '.')) != nullptr)
-            && (p = strrchr(data.hostname, ':')) != nullptr
-            && p[1] != '\0') {
-            data.port = atoi(&p[1]);
-            p[0] = '\0';
+    for (auto& data : host_list) {
+        size_t p;
+        if ((boost::iequals(data.host_name, "localhost") || data.host_name.find('.') != std::string::npos)
+            && (p = data.host_name.find(':')) != std::string::npos
+            && data.host_name.size() + 1 < p) {
+            data.port = atoi(&data.host_name[p]);
+            data.host_name.resize(p);
         }
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Number of named hosts %d\n", hostlist.size());
+    UDA_LOG(UDA_LOG_DEBUG, "Number of named hosts %d\n", host_list.size());
     int i = 0;
-    for (const auto& data : hostlist) {
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] Host Alias     : %s\n", i, data.hostalias);
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] Host Name      : %s\n", i, data.hostname);
+    for (const auto& data : host_list) {
+        UDA_LOG(UDA_LOG_DEBUG, "[%d] Host Alias     : %s\n", i, data.host_alias.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "[%d] Host Name      : %s\n", i, data.host_name.c_str());
         UDA_LOG(UDA_LOG_DEBUG, "[%d] Host Port      : %d\n", i, data.port);
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] Certificate    : %s\n", i, data.certificate);
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] Key            : %s\n", i, data.key);
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] CA Certificate : %s\n", i, data.ca_certificate);
+        UDA_LOG(UDA_LOG_DEBUG, "[%d] Certificate    : %s\n", i, data.certificate.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "[%d] Key            : %s\n", i, data.key.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "[%d] CA Certificate : %s\n", i, data.ca_certificate.c_str());
         UDA_LOG(UDA_LOG_DEBUG, "[%d] isSSL          : %d\n", i, data.isSSL);
         ++i;
     }
 }
+
+#if defined(SSLAUTHENTICATION)
+int udaClientGetHostNameId()
+{
+    return hostId;
+}
+
+const char* udaClientGetHostAlias(int id)
+{
+    if (id >= 0 && id < (int)host_list.size()) {
+        return host_list[id].host_alias.c_str();
+    } else {
+        return nullptr;
+    }
+}
+
+const char* udaClientGetHostCertificatePath(int id)
+{
+    if (id >= 0 && id < (int)host_list.size()) {
+        return host_list[id].certificate.c_str();
+    } else {
+        return nullptr;
+    }
+}
+
+const char* udaClientGetHostKeyPath(int id)
+{
+    if (id >= 0 && id < (int)host_list.size()) {
+        return host_list[id].key.c_str();
+    } else {
+        return nullptr;
+    }
+}
+
+const char* udaClientGetHostCAPath(int id)
+{
+    if (id >= 0 && id < (int)host_list.size()) {
+        return host_list[id].ca_certificate.c_str();
+    } else {
+        return nullptr;
+    }
+}
+
+int udaClientGetHostSSL(int id)
+{
+    if (id >= 0 && id < (int)host_list.size()) {
+        return host_list[id].isSSL;
+    } else {
+        return 0;
+    }
+}
+#endif

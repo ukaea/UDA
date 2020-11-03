@@ -32,6 +32,8 @@ LIBRARY_API void closeIdamError(void);
 }
 #endif
 
+#define ADD_ERROR(ERR, MSG) addIdamError(CODEERRORTYPE, __func__, ERR, MSG)
+#define ADD_SYS_ERROR(MSG) addIdamError(SYSTEMERRORTYPE, __func__, errno, MSG)
 #define THROW_ERROR(ERR, MSG) addIdamError(CODEERRORTYPE, __func__, ERR, MSG); return ERR;
 
 #endif // UDA_CLIENTSERVER_ERRORLOG_H

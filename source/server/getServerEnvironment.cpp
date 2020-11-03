@@ -16,11 +16,6 @@
 // 2019-07-04 Herve Ancher (CEA): Add prefix "g_" to avoid conflict with internal MinGW varaible
 static ENVIRONMENT g_environ;
 
-void putIdamServerEnvironment(const ENVIRONMENT* environment)
-{
-    g_environ = *environment;
-}
-
 void printServerEnvironment(const ENVIRONMENT* environment)
 {
     UDA_LOG(UDA_LOG_INFO, "\nServer Environment Variable values\n\n");

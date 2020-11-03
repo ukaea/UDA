@@ -1,46 +1,61 @@
 #include "makeRequestBlock.h"
 
-#include <stdbool.h>
-#include <errno.h>
+#include <cerrno>
+
 #if defined(__GNUC__)
+
 #  include <unistd.h>
+
 #endif
 
 #if defined(__GNUC__)
+
 #  include <libgen.h>
+
 #endif
 
 #include <logging/logging.h>
 #include <plugins/pluginStructs.h>
 
 #include "errorLog.h"
-#include "initStructs.h"
-#include "protocol.h"
 #include "stringUtils.h"
 #include "udaErrors.h"
 #include "udaStructs.h"
 
 #if !defined(__GNUC__) && defined(_WIN32)
 #  include <direct.h>
-
 #  define strcasecmp _stricmp
 #  define strncasecmp _strnicmp
 #  define getcwd _getcwd
 #  define chdir _chdir
 #endif
 
+#define MAXMAPDEPTH     10  // Maximum number of chained signal name mappings (Recursive depth)
+#define MAXREQDEPTH     4   // Maximum number of Device Name to Server Protocol and Host substitution
 
-static int localFindPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
+static void extract_function_name(const char* str, REQUEST_BLOCK* request_block);
+
+static int source_file_format_test(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList,
+                                   const ENVIRONMENT* environment);
+
+static int extract_archive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRONMENT* environment);
+
+static int generic_request_test(const char* source, REQUEST_BLOCK* request_block);
+
+static int extract_subset(REQUEST_BLOCK* request_block);
+
+static int find_plugin_id_by_format(const char* format, const PLUGINLIST* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
-        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) return i;
+        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) {
+            return i;
+        }
     }
     return -1;
 }
 
-int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment)
+int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment)
 {
-    int rc;
     int ldelim;
     int err = 0;
     char work[MAXMETA];
@@ -78,9 +93,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                      STR_IEQUALS(request_block->source, work2));            // default device name + delimiting string
 
     if ((request_block->signal[0] == '\0' || STR_IEQUALS(request_block->signal, work)) && noSource) {
-        err = 999;
-        addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err, "Neither Data Object nor Source specified!");
-        return err;
+        THROW_ERROR(999, "Neither Data Object nor Source specified!");
     }
 
     //------------------------------------------------------------------------------
@@ -190,7 +203,8 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
             break;
         }
 
-        if (test == nullptr || STR_IEQUALS(work2, environment->api_device)) {    // No delimiter present or default device?
+        if (test == nullptr ||
+            STR_IEQUALS(work2, environment->api_device)) {    // No delimiter present or default device?
 
             UDA_LOG(UDA_LOG_DEBUG, "No device name or format or protocol or library is present\n");
 
@@ -198,7 +212,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
             // Regular request: pulse or pulse/pass ==> Generic request
 
-            if (genericRequestTest(work, request_block)) break;
+            if (generic_request_test(work, request_block)) break;
 
             // Not a Server Side Function? 		Note: /a/b/fun(aaa) is a (bad!)file path and fun(a/b/c) is a function
 
@@ -221,7 +235,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
                 UDA_LOG(UDA_LOG_DEBUG, "No File Format has been specified. Selecting ....\n");
 
-                rc = sourceFileFormatTest(request_block->source, request_block, pluginList, environment);
+                int rc = source_file_format_test(request_block->source, request_block, pluginList, environment);
 
 #ifdef JETSERVER
                 if (rc < 0) {
@@ -240,14 +254,11 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
                 if (rc <= 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "File Format NOT identified from name extension!\n");
-                    //if(rc < 0) return -rc;
-                    err = 999;
-                    addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
-                                 "No File Format identified: Please specify.");
-                    return err;
+                    THROW_ERROR(999, "No File Format identified: Please specify.");
                 }
 
-                expandEnvironmentVariables(request_block->path);            // Resolve any Serverside environment variables
+                // Resolve any Serverside environment variables
+                expand_environment_variables(request_block->path);
 
                 UDA_LOG(UDA_LOG_DEBUG, "File Format identified from name extension!\n");
                 break;
@@ -264,23 +275,20 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                     TrimString(work2);
 
                     request_block->request = REQUEST_READ_SERVERSIDE;
-                    extractFunctionName(work, request_block);
+                    extract_function_name(work, request_block);
 
                     UDA_LOG(UDA_LOG_DEBUG, "**** Server Side Function ??? ****\n");
 
                     // Extract Name Value pairs
 
-                    if (nameValuePairs(work2, &request_block->nameValueList, strip) == -1) {
-                        err = 999;
-                        addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
-                                     "Name Value pair syntax is incorrect!");
-                        return err;
+                    if (name_value_pairs(work2, &request_block->nameValueList, strip) == -1) {
+                        THROW_ERROR(999, "Name Value pair syntax is incorrect!");
                     }
 
                     // Test for external library functions using the Archive name as the library name identifier
 
                     reduceSignal = false;
-                    extractArchive(request_block, reduceSignal, environment);
+                    extract_archive(request_block, reduceSignal, environment);
 
                     for (int i = 0; i < pluginList.count; i++) {
                         if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
@@ -292,10 +300,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                     break;
 
                 } else {
-
-                    err = 999;
-                    addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err, "No Data Access Plugin Identified!");
-                    return err;
+                    THROW_ERROR(999, "No Data Access Plugin Identified!");
                 }
             }
 
@@ -319,15 +324,15 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                                    test + ldelim);            // Complete String following :: delimiter
                             strcpy(request_block->file, "");                // Clean the filename
                             if (pluginList.plugin[i].plugin_class == UDA_PLUGIN_CLASS_FUNCTION) {
-                                isFunction = 1;
-                                extractFunctionName(work, request_block);
+                                isFunction = true;
+                                extract_function_name(work, request_block);
                             }
                         } else {
 #ifndef __GNUC__
-							char base[1024] = { 0 };
-							_splitpath(test + ldelim, NULL, base, NULL, NULL);
+                            char base[1024] = { 0 };
+                            _splitpath(test + ldelim, NULL, base, NULL, NULL);
 #else
-							char* base = basename(test + ldelim);
+                            char* base = basename(test + ldelim);
 #endif
                             strcpy(request_block->file, base);    // Final token
                         }
@@ -342,7 +347,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
                         static int depth = 0;
                         //int id = findPluginRequestByFormat(pluginList.plugin[i].deviceProtocol, &pluginList);
-                        int id = localFindPluginIdByFormat(pluginList.plugin[i].deviceProtocol, &pluginList);
+                        int id = find_plugin_id_by_format(pluginList.plugin[i].deviceProtocol, &pluginList);
                         if (id >= 0 && pluginList.plugin[id].plugin_class == UDA_PLUGIN_CLASS_SERVER) {
 
                             sprintf(work, "%s%s%s", pluginList.plugin[i].deviceProtocol, request_block->api_delim,
@@ -370,11 +375,9 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
                             strcpy(request_block->source, work);
                             if (depth++ > MAXREQDEPTH) {
-                                err = 999;
-                                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
-                                             "Too many chained Device Name to Server Protocol Host subtitutions!");
+                                THROW_ERROR(999, "Too many chained Device Name to Server Protocol Host subtitutions!");
                             }
-                            err = makeRequestBlock(request_block, pluginList, environment);
+                            err = make_request_block(request_block, pluginList, environment);
                             depth--;
                             return err;
                         }
@@ -401,7 +404,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
             if (isFile) {                                    // Resolve any Serverside environment variables
                 UDA_LOG(UDA_LOG_DEBUG, "File Format has been specified.\n");
-                expandEnvironmentVariables(request_block->path);
+                expand_environment_variables(request_block->path);
                 break;
             }
 
@@ -420,10 +423,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
             if (p == nullptr || p2 == nullptr || (p != nullptr && p2 == nullptr) || (p == nullptr && p2 != nullptr) ||
                 (p0 != nullptr && p != nullptr && p0 < p) || (p1 != nullptr && p2 != nullptr && p1 > p2)) {
-                err = 999;
-                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
-                             "Not a function when one is expected! - A Library plugin has been specified.");
-                return err;
+                THROW_ERROR(999, "Not a function when one is expected! - A Library plugin has been specified.");
             }
 
             // ToDo: Extract Data subset operations specified within the source argument
@@ -439,24 +439,17 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
                 // Extract Name Value pairs
 
-                if (nameValuePairs(work, &request_block->nameValueList, strip) == -1) {
-                    err = 999;
-                    addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
-                                 "Name Value pair syntax is incorrect!");
-                    return err;
+                if (name_value_pairs(work, &request_block->nameValueList, strip) == -1) {
+                    THROW_ERROR(999, "Name Value pair syntax is incorrect!");
                 }
 
                 // ToDo: Extract Data subset operations specified as a named value pair, tagged 'subset'
 
             } else {
-                err = 999;
-                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err, "Function syntax error - please correct");
-                return err;
+                THROW_ERROR(999, "Function syntax error - please correct");
             }
         }
-
     } while (0);
-      
 
     UDA_LOG(UDA_LOG_DEBUG, "Signal Argument\n");
 
@@ -492,10 +485,9 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
     //------------------------------------------------------------------------------
     // Extract Data subset operations from the data object (signal) string
 
-    if ((rc = extractSubset(request_block)) == -1) {
-        err = 999;
-        addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err, "Subset operation is incorrect!");
-        return err;
+    int rc = 0;
+    if ((rc = extract_subset(request_block)) == -1) {
+        THROW_ERROR(999, "Subset operation is incorrect!");
     }
 
     // as at 19Apr2011 no signals recorded in the IDAM database use either [ or { characters
@@ -516,10 +508,10 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
     if (request_block->request == REQUEST_READ_IDAM) {
         reduceSignal = false;
-        err = extractArchive(request_block, reduceSignal, environment);
+        err = extract_archive(request_block, reduceSignal, environment);
     } else {
         reduceSignal = !isForeign;                // Don't detach if a foreign device
-        err = extractArchive(request_block, reduceSignal, environment);
+        err = extract_archive(request_block, reduceSignal, environment);
     }
     if (request_block->archive[0] == '\0') {
         strcpy(request_block->archive, environment->api_archive);
@@ -532,8 +524,8 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
     // with function requests. However, for all these cases a source term would be specified. No library
     // would be part of this specification so there would be no ambiguity.
 
-    isFunction = 0;
-    
+    isFunction = false;
+
     if (!isServer && (p = strchr(request_block->signal, '(')) != nullptr && strchr(p, ')') != nullptr &&
         strcasecmp(request_block->archive, environment->api_archive) != 0) {
         strcpy(work, &p[1]);
@@ -541,13 +533,11 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
             p[0] = '\0';
             LeftTrimString(work);
             TrimString(work);
-            isFunction = 1;
-            if (nameValuePairs(work, &request_block->nameValueList, strip) == -1) {
-                err = 999;
-                addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err, "Name Value pair syntax is incorrect!");
-                return err;
+            isFunction = true;
+            if (name_value_pairs(work, &request_block->nameValueList, strip) == -1) {
+                THROW_ERROR(999, "Name Value pair syntax is incorrect!");
             }
-            extractFunctionName(request_block->signal, request_block);
+            extract_function_name(request_block->signal, request_block);
         }
     }
 
@@ -561,7 +551,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
         // If the signal could be a function call, check the archive name against the function library plugins
 
         if (isFunction && err == 0) {        // Test for known Function Libraries
-            isFunction = 0;
+            isFunction = false;
             for (int i = 0; i < pluginList.count; i++) {
                 if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
                     request_block->request = pluginList.plugin[i].request;            // Found
@@ -602,7 +592,7 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
         // Exception is Serverside function
 
         if (isFunction && strcasecmp(request_block->archive, environment->api_archive) != 0) {
-            int id = localFindPluginIdByFormat(request_block->archive, &pluginList);
+            int id = find_plugin_id_by_format(request_block->archive, &pluginList);
             if (id >= 0 && pluginList.plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
                 strcasecmp(pluginList.plugin[id].symbol, "serverside") != 0) {
                 if (request_block->request == REQUEST_READ_GENERIC ||
@@ -610,7 +600,6 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
                     request_block->request = pluginList.plugin[id].request;    // Found
                     strcpy(request_block->format, pluginList.plugin[id].format);
                     UDA_LOG(UDA_LOG_DEBUG, "D request: %d\n", request_block->request);
-
                 } else {
                     if (request_block->request != pluginList.plugin[id].request) {    // Inconsistent
                         // Let Source have priority over the Signal?
@@ -641,15 +630,14 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
 
         char* token;
         if ((token = strtok(work, "/")) != nullptr) {        // Tokenise
-
             if (IsNumber(token)) {                // This should be the tree Number otherwise only the server is passed
                 reverseString(token, work2);            // Un-Reverse the token
                 request_block->exp_number = (int)strtol(work2, nullptr, 10);    // Extract the Data Tree Number
                 if ((token = strtok(nullptr, "/")) != nullptr) {
                     reverseString(token, request_block->file);    // This should be the Tree Name
                     work2[0] = '\0';
-                    while ((token = strtok(nullptr, "/")) !=
-                           nullptr) {    // Everything Else is the Server Host and URL Path to the Tree
+                    while ((token = strtok(nullptr, "/")) != nullptr) {
+                        // Everything Else is the Server Host and URL Path to the Tree
                         strcat(work2, token);
                         strcat(work2, "/");
                     }
@@ -672,10 +660,8 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
         }
 
         if (err != 0) {
-            err = NO_SERVER_SPECIFIED;
-            addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
-                         "The MDSPlus Data Source does not comply with the naming models: server/tree/number or server/path/to/data/tree/number");
-            return err;
+            THROW_ERROR(NO_SERVER_SPECIFIED,
+                        "The MDSPlus Data Source does not comply with the naming models: server/tree/number or server/path/to/data/tree/number");
         }
     }
 
@@ -688,24 +674,24 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
         // Isolate the Server from the source IDAM::server:port/source or SSL://server:port/source
 
         strcpy(request_block->server, work);
-	
+
         char* s = nullptr;
         if ((s = strstr(work, "SSL://")) != nullptr) {
             char* token;
             if ((token = strstr(s + 6, "/")) != nullptr) {
-                token[0] = '\0';				// Break the String (work)
-                strcpy(request_block->server, s);		// Extract the Server Name and Port (with SSL:// prefix)
-                strcpy(request_block->file, token + 1);		// Extract the Source URL Argument
-            } 
+                token[0] = '\0';                // Break the String (work)
+                strcpy(request_block->server, s);        // Extract the Server Name and Port (with SSL:// prefix)
+                strcpy(request_block->file, token + 1);        // Extract the Source URL Argument
+            }
         } else {
             char* token;
             if ((token = strstr(work, "/")) != nullptr) {
-                token[0] = '\0';                		// Break the String (work)
-                strcpy(request_block->server, work);		// Extract the Server Name and Port
-                strcpy(request_block->file, token + 1);		// Extract the Source URL Argument
-            } 
+                token[0] = '\0';                        // Break the String (work)
+                strcpy(request_block->server, work);        // Extract the Server Name and Port
+                strcpy(request_block->file, token + 1);        // Extract the Source URL Argument
+            }
         }
-	
+
         UDA_LOG(UDA_LOG_DEBUG, "Server: %s\n", request_block->server);
         UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", request_block->file);
     }
@@ -726,14 +712,18 @@ int makeRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const 
     return 0;
 }
 
-void extractFunctionName(char* str, REQUEST_BLOCK* request_block)
+void extract_function_name(const char* str, REQUEST_BLOCK* request_block)
 {
     int lstr;
     char* p;
-    if (str[0] == '\0') return;
+    if (str[0] == '\0') {
+        return;
+    }
     char* work = (char*)malloc((strlen(str) + 1) * sizeof(char));
     strcpy(work, str);
-    if ((p = strchr(work, '(')) == nullptr) return;
+    if ((p = strchr(work, '(')) == nullptr) {
+        return;
+    }
     p[0] = '\0';
     p = strstr(work, request_block->api_delim);
     if (p != nullptr) {
@@ -750,13 +740,12 @@ void extractFunctionName(char* str, REQUEST_BLOCK* request_block)
     free(work);
 }
 
-int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList,
-                         const ENVIRONMENT* environment)
+/**
+ * returns true if a format was identified, false otherwise.
+ */
+int source_file_format_test(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList,
+                            const ENVIRONMENT* environment)
 {
-
-    // returns 1 (TRUE) if a format was identified, 0 (FALSE) otherwise.
-    // return negative error code if a problem occured.
-
     int rc = 0;
     const char* test;
 
@@ -780,13 +769,15 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
 
     // Does the path contain any Illegal (or problem) characters
 
-    if (!IsLegalFilePath((char*)source)) return rc;        // Not compliant with Portable Filename character set
+    if (!IsLegalFilePath((char*)source)) {
+        return rc;        // Not compliant with Portable Filename character set
+    }
 
     // Does the source have a file extension? If so choose the format using the extension, otherwise investigate the file.
 
     if ((test = strrchr(source, '.')) == nullptr) {
 
-    // No extension => test the first line of file, e.g. head -c10 <file>, but both netcdf and hdf5 use the same label HDF!
+        // No extension => test the first line of file, e.g. head -c10 <file>, but both netcdf and hdf5 use the same label HDF!
 
 #ifndef _WIN32
         const char* nc = " nc";
@@ -853,10 +844,9 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                     errno = 0;
                     if ((ph = popen(cmd, "r")) == nullptr) {
                         if (errno != 0) {
-                            addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
+                            ADD_SYS_ERROR("");
                         }
-                        addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
-                                     "Unable to Identify the File's Format");
+                        ADD_ERROR(999, "Unable to Identify the File's Format");
                         free(cmd);
                         return -999;
                     }
@@ -938,7 +928,7 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
         }
 
         if (source[0] == '/' && source[1] != '\0' && isdigit(source[1])) {        // Default File Format?
-            if (genericRequestTest(&source[1], request_block)) {        // Matches 99999/999
+            if (generic_request_test(&source[1], request_block)) {        // Matches 99999/999
                 request_block->request = REQUEST_READ_UNKNOWN;
                 strcpy(request_block->format, environment->api_format);        // the default Server File Format
                 break;
@@ -961,10 +951,10 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
                 strcpy(request_block->file, "");                        // Clean the filename
             } else {
 #ifndef __GNUC__
-				char base[1024] = { 0 };
-				_splitpath(request_block->source, NULL, base, NULL, NULL);
+                char base[1024] = { 0 };
+                _splitpath(request_block->source, NULL, base, NULL, NULL);
 #else
-				char* base = basename(request_block->source);
+                char* base = basename(request_block->source);
 #endif
                 strcpy(request_block->file, base);    // Final token
             }
@@ -975,10 +965,11 @@ int sourceFileFormatTest(const char* source, REQUEST_BLOCK* request_block, PLUGI
     return rc;
 }
 
-int genericRequestTest(const char* source, REQUEST_BLOCK* request_block)
+/**
+ * Return true if the Generic plugin was selected, false otherwise
+ */
+int generic_request_test(const char* source, REQUEST_BLOCK* request_block)
 {
-    // Return 1 (TRUE) if the Generic plugin was selected, 0 (FALSE) otherwise
-
     int rc = 0;
     char* token = nullptr;
     char work[STRING_LENGTH];
@@ -1040,9 +1031,8 @@ int genericRequestTest(const char* source, REQUEST_BLOCK* request_block)
 // Input Argument: reduceSignal - If TRUE (1) then extract the archive name and return the data object name
 //                                without the prefixed archive name.
 
-int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRONMENT* environment)
+int extract_archive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRONMENT* environment)
 {
-
     int err = 0, test1, test2;
     int ldelim = (int)strlen(request_block->api_delim);
     char* test, * token, * work;
@@ -1056,21 +1046,20 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRON
         if ((test = strstr(request_block->signal, request_block->api_delim)) != nullptr) {
 
             if (test - request_block->signal >= STRING_LENGTH - 1 || strlen(test + ldelim) >= MAXMETA - 1) {
-                err = ARCHIVE_NAME_TOO_LONG;
-                addIdamError(CODEERRORTYPE, "extractArchive", err, "The ARCHIVE Name is too long!");
+                ADD_ERROR(ARCHIVE_NAME_TOO_LONG, "The ARCHIVE Name is too long!");
                 return err;
             }
             strncpy(request_block->archive, request_block->signal, test - request_block->signal);
             request_block->archive[test - request_block->signal] = '\0';
             TrimString(request_block->archive);
-	    
-	    // If a plugin is prefixed by the local archive name then discard the archive name
-	    if(reduceSignal && !strcasecmp(request_block->archive, environment->api_archive)){
-	       request_block->archive[0] = '\0';
-	       strcpy(request_block->signal, &test[ldelim]);
-	       return extractArchive(request_block, reduceSignal, environment);
+
+            // If a plugin is prefixed by the local archive name then discard the archive name
+            if (reduceSignal && !strcasecmp(request_block->archive, environment->api_archive)) {
+                request_block->archive[0] = '\0';
+                strcpy(request_block->signal, &test[ldelim]);
+                return extract_archive(request_block, reduceSignal, environment);
             }
-	     
+
             if (!IsLegalFilePath(request_block->archive)) {
                 request_block->archive[0] = '\0';
                 return 0;
@@ -1117,7 +1106,7 @@ int extractArchive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRON
 //------------------------------------------------------------------------------
 // Does the Path contain with an Environment variable
 
-void expandEnvironmentVariables(char* path)
+void expand_environment_variables(char* path)
 {
     size_t lcwd = STRING_LENGTH - 1;
     char work[STRING_LENGTH];
@@ -1135,7 +1124,8 @@ void expandEnvironmentVariables(char* path)
     }
 
     if (chdir(path) == 0) {            // Change to path directory
-        char* pcwd = getcwd(cwd, lcwd);                    // The Current Working Directory is now the resolved directory name
+        // The Current Working Directory is now the resolved directory name
+        char* pcwd = getcwd(cwd, lcwd);
 
         UDA_LOG(UDA_LOG_DEBUG, "Expanding embedded environment variable:\n");
         UDA_LOG(UDA_LOG_DEBUG, "from: %s\n", path);
@@ -1206,7 +1196,7 @@ void expandEnvironmentVariables(char* path)
 //
 // Signal should avoid using subset like components in their name
 
-int extractSubset(REQUEST_BLOCK* request_block)
+int extract_subset(REQUEST_BLOCK* request_block)
 {
     // Return codes:
     //
@@ -1214,7 +1204,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
     //	0 => Not a subset operation - Not compliant with syntax
     //     -1 => Error
 
-    int err, rc = 1, lwork, subsetCount = 1;        // Number of subsetting operations
+    int rc = 1, lwork, subsetCount = 1;        // Number of subsetting operations
     char* p, * work, * token = nullptr;
 
     request_block->subset[0] = '\0';
@@ -1222,11 +1212,11 @@ int extractSubset(REQUEST_BLOCK* request_block)
 
     if ((token = strchr(request_block->signal, '[')) == nullptr &&
         (token = strchr(request_block->signal, '{')) == nullptr) {
-            return 0;
+        return 0;
     }
     if ((work = strrchr(request_block->signal, ']')) == nullptr &&
         (work = strrchr(request_block->signal, '}')) == nullptr) {
-            return 0;
+        return 0;
     }
     if (work < token) return 0;
 
@@ -1260,7 +1250,8 @@ int extractSubset(REQUEST_BLOCK* request_block)
     //		[a:*:c]		all items starting at a with stride c
     //		[a:b:c]		all items starting at a, ending at b with stride c
 
-    while ((token = strstr(work, "][")) != nullptr || (token = strstr(work, "}{")) != nullptr) {    // Adopt a single syntax
+    while ((token = strstr(work, "][")) != nullptr ||
+           (token = strstr(work, "}{")) != nullptr) {    // Adopt a single syntax
         token[0] = ',';
         token[1] = ' ';
     }
@@ -1299,7 +1290,9 @@ int extractSubset(REQUEST_BLOCK* request_block)
     subsetCount = 0;
     if ((token = strtok(work, ",")) != nullptr) {    // Process each subset instruction separately (work2)
         strcpy(work2[subsetCount++], token);
-        while (subsetCount < MAXRANK2 && (token = strtok(nullptr, ",")) != nullptr) strcpy(work2[subsetCount++], token);
+        while (subsetCount < MAXRANK2 && (token = strtok(nullptr, ",")) != nullptr) {
+            strcpy(work2[subsetCount++], token);
+        }
 
         do {
             for (int i = 0; i < subsetCount; i++) {
@@ -1355,9 +1348,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                             break;
                         }
                         if (request_block->datasubset.start[i] < 0) {
-                            err = 999;
-                            addIdamError(CODEERRORTYPE, "extractSubset", err,
-                                         "Invalid Start Index in subset operation");
+                            ADD_ERROR(999, "Invalid Start Index in subset operation");
                             rc = -1;
                             break;
                         }
@@ -1380,9 +1371,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                             break;
                         }
                         if (request_block->datasubset.stop[i] < 0) {
-                            err = 999;
-                            addIdamError(CODEERRORTYPE, "extractSubset", err,
-                                         "Invalid sample End Index in subset operation");
+                            ADD_ERROR(999, "Invalid sample End Index in subset operation");
                             rc = -1;
                             break;
                         }
@@ -1391,9 +1380,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                         request_block->datasubset.subset[i] = 1;
 
                         if (request_block->datasubset.stop[i] < request_block->datasubset.start[i]) {
-                            err = 999;
-                            addIdamError(CODEERRORTYPE, "extractSubset", err,
-                                         "Invalid Stop Index in subset operation");
+                            ADD_ERROR(999, "Invalid Stop Index in subset operation");
                             rc = -1;
                             break;
                         }
@@ -1417,9 +1404,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                                 break;
                             }
                             if (request_block->datasubset.stride[i] <= 0) {
-                                err = 999;
-                                addIdamError(CODEERRORTYPE, "extractSubset", err,
-                                             "Invalid sample stride length in subset operation");
+                                ADD_ERROR(999, "Invalid sample stride length in subset operation");
                                 rc = -1;
                                 break;
                             }
@@ -1456,9 +1441,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
                                 break;
                             }
                             if (request_block->datasubset.start[i] < 0) {
-                                err = 999;
-                                addIdamError(CODEERRORTYPE, "extractSubset", err,
-                                             "Invalid start index in subset operation");
+                                ADD_ERROR(999, "Invalid start index in subset operation");
                                 rc = -1;
                                 break;
                             }
@@ -1499,7 +1482,7 @@ int extractSubset(REQUEST_BLOCK* request_block)
 //
 // The returned value is the count of the name value pairs. If an error occurs, the returned value of the
 // pair count is -1.
-void freeNameValueList(NAMEVALUELIST* nameValueList)
+void free_name_value_list(NAMEVALUELIST* nameValueList)
 {
     if (nameValueList->nameValue != nullptr) {
         for (int i = 0; i < nameValueList->pairCount; i++) {
@@ -1514,7 +1497,7 @@ void freeNameValueList(NAMEVALUELIST* nameValueList)
     nameValueList->nameValue = nullptr;
 }
 
-void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
+void parse_name_value(const char* pair, NAMEVALUE* nameValue, unsigned short strip)
 {
     int lstr;
     char* p, * copy;
@@ -1557,13 +1540,13 @@ void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
     TrimString(nameValue->name);
     TrimString(nameValue->value);
     UDA_LOG(UDA_LOG_DEBUG, "Name: %s     Value: %s\n", nameValue->name, nameValue->value);
-    
+
     // Regardless of whether or not the Value is not enclosed in quotes, strip out a possible closing parenthesis character (seen in placeholder value substitution)
     // This would not be a valid value unless at the end of a string enclosed in quotes!
     lstr = (int)strlen(nameValue->value);
-    if (nameValue->value[lstr - 1] == ')') nameValue->value[lstr - 1] = '\0'; 
+    if (nameValue->value[lstr - 1] == ')') nameValue->value[lstr - 1] = '\0';
     UDA_LOG(UDA_LOG_DEBUG, "Name: %s     Value: %s\n", nameValue->name, nameValue->value);
-    
+
     if (strip) {            // remove enclosing single or double quotes
         lstr = (int)strlen(nameValue->name);
         if ((nameValue->name[0] == '\'' && nameValue->name[lstr - 1] == '\'') ||
@@ -1574,21 +1557,20 @@ void parseNameValue(char* pair, NAMEVALUE* nameValue, unsigned short strip)
             TrimString(nameValue->name);
         }
         lstr = (int)strlen(nameValue->value);
-	if ((nameValue->value[0] == '\'' && nameValue->value[lstr - 1] == '\'') ||
+        if ((nameValue->value[0] == '\'' && nameValue->value[lstr - 1] == '\'') ||
             (nameValue->value[0] == '"' && nameValue->value[lstr - 1] == '"')) {
             nameValue->value[0] = ' ';
             nameValue->value[lstr - 1] = ' ';
             LeftTrimString(nameValue->value);
             TrimString(nameValue->value);
         }
-	UDA_LOG(UDA_LOG_DEBUG, "Name: %s     Value: %s\n", nameValue->name, nameValue->value);
-
+        UDA_LOG(UDA_LOG_DEBUG, "Name: %s     Value: %s\n", nameValue->name, nameValue->value);
     }
 
     free(copy);
 }
 
-int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short strip)
+int name_value_pairs(const char* pairList, NAMEVALUELIST* nameValueList, unsigned short strip)
 {
     // Ignore delimiter in anything enclosed in single or double quotes
     // Recognise /name as name=TRUE
@@ -1617,7 +1599,7 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
 
     UDA_LOG(UDA_LOG_DEBUG, "Parsing name values from argument: %s\n", pairList);
 
-// Locate the delimiter name value pair if present - use default character ',' if not
+    // Locate the delimiter name value pair if present - use default character ',' if not
 
     if ((p = strcasestr(copy, "delimiter")) != nullptr) {
         strcpy(buffer, &p[9]);
@@ -1690,11 +1672,12 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Parsing name value: %s\n", buffer);
-        parseNameValue(buffer, &nameValue, strip);
+        parse_name_value(buffer, &nameValue, strip);
         UDA_LOG(UDA_LOG_DEBUG, "Name %s, Value: %s\n", nameValue.name, nameValue.value);
 
         //if (nameValue.name != nullptr && nameValue.value != nullptr) {
-        if (nameValue.name != nullptr) {        // Values may be nullptr for use case where placeholder substitution is used
+        if (nameValue.name !=
+            nullptr) {        // Values may be nullptr for use case where placeholder substitution is used
             pairCount++;
             if (pairCount > nameValueList->listSize) {
                 nameValueList->nameValue = (NAMEVALUE*)realloc((void*)nameValueList->nameValue,
@@ -1737,6 +1720,6 @@ int nameValuePairs(char* pairList, NAMEVALUELIST* nameValueList, unsigned short 
             }
         }
     }
-    
+
     return pairCount;
 }

@@ -22,7 +22,7 @@
 #endif
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-#  include <authentication/udaSSL.h>
+#  include <authentication/udaClientSSL.h>
 #endif
 
 int closedown(ClosedownType type, SOCKETLIST* socket_list)
@@ -37,7 +37,7 @@ int closedown(ClosedownType type, SOCKETLIST* socket_list)
     }
 
     if (type == ClosedownType::CLOSE_ALL) {
-        idamCloseLogging();
+        udaCloseLogging();
         reopen_logs = TRUE;        // In case the User calls the IDAM API again!
     }
 

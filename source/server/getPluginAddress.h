@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-LIBRARY_API int getPluginAddress(void **pluginHandle, const char *library, const char *symbol, PLUGINFUNP *idamPlugin);
+LIBRARY_API int getPluginAddress(void **pluginHandle, const char *library, const char *symbol, PLUGINFUNP *pluginfunp);
 
 #ifdef __cplusplus
 }

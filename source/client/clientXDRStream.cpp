@@ -12,7 +12,7 @@
 #include "connection.h"
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-#  include <authentication/udaSSL.h>
+#  include <authentication/udaClientSSL.h>
 #endif
 
 static XDR clientXDRinput;
@@ -36,7 +36,7 @@ void createXDRStream()
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 
-    if(getUdaClientSSLDisabled()){
+    if (getUdaClientSSLDisabled()) {
     
 #if defined (__APPLE__) || defined(__TIRPC__)
        xdrrec_create(clientOutput, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,

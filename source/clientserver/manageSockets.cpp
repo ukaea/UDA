@@ -4,11 +4,11 @@
 //
 //----------------------------------------------------------------------------------
 
-#ifndef _WIN32
+#include <cstdlib>
 
+#ifndef _WIN32
 #  include <unistd.h>
 #  include <strings.h>
-
 #else
 #  include <Windows.h>
 #  define strcasecmp _stricmp
@@ -16,11 +16,6 @@
 #endif
 
 #include "manageSockets.h"
-
-#include <stdlib.h>
-#include <memory.h>
-#include <stdio.h>
-
 #include "stringUtils.h"
 
 // Initialise

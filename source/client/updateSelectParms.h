@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-LIBRARY_API void idamUpdateSelectParms(int fd, fd_set* rfds, struct timeval* tv);
+LIBRARY_API void udaUpdateSelectParms(int fd, fd_set* rfds, struct timeval* tv);
 
 #ifdef __cplusplus
 }

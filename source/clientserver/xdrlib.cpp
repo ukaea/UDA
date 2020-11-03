@@ -8,12 +8,11 @@
 #include "xdrlib.h"
 
 #include <memory.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <logging/logging.h>
 #include <structures/struct.h>
 #include <clientserver/protocol.h>
-#include <clientserver/udaErrors.h>
 
 #include "printStructs.h"
 #include "errorLog.h"
@@ -31,19 +30,15 @@ int protocolVersionTypeTest(int protocol_version, int type)
     if (protocol_version < 3) {
         switch (type) {
             case UDA_TYPE_UNSIGNED_CHAR:
-                return 1;
             case UDA_TYPE_UNSIGNED_SHORT:
-                return 1;
             case UDA_TYPE_UNSIGNED_LONG:
-                return 1;
             case UDA_TYPE_UNSIGNED_LONG64:
-                return 1;
             case UDA_TYPE_COMPLEX:
-                return 1;
             case UDA_TYPE_DCOMPLEX:
                 return 1;
+            default:
+                return 0;
         }
-        return 0;
     } else {
         if (protocol_version < 4) {
             if (type == UDA_TYPE_COMPOUND) return 1;
@@ -54,7 +49,6 @@ int protocolVersionTypeTest(int protocol_version, int type)
     }
     return 0;        // Return Test False: This type is OK
 }
-
 
 //-----------------------------------------------------------------------
 // Strings

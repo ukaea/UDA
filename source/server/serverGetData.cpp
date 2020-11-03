@@ -19,29 +19,25 @@
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/printStructs.h>
-#include <clientserver/protocol.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/nameValueSubstitution.h>
 #include <structures/struct.h>
 
 #include "applyXML.h"
-#include "dumpFile.h"
 #include "getServerEnvironment.h"
 #include "makeServerRequestBlock.h"
 #include "serverPlugin.h"
 #include "serverSubsetData.h"
 
-static int idamserverSwapSignalError(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry);
-
-static int idamserverSwapSignalDim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2);
-
-static int idamserverSwapSignalDimError(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
-                                        int asymmetry);
-
-static int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block, DATA_BLOCK* data_block,
-                              DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
-                              const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-                              USERDEFINEDTYPELIST* userdefinedtypelist);
+static int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry);
+static int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2);
+static int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
+                                 int asymmetry);
+static int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block, DATA_BLOCK* data_block,
+                     DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
+                     const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
+                     USERDEFINEDTYPELIST* userdefinedtypelist);
 
 int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
                DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
@@ -124,8 +120,8 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     //--------------------------------------------------------------------------------------------------------------------------
     // Read the Data (Returns rc < 0 if the signal is a derived type or is defined in an XML document)
 
-    int rc = idamserverReadData(request_block, client_block, data_block, data_source, signal_rec, signal_desc,
-                                pluginlist, logmalloclist, userdefinedtypelist);
+    int rc = read_data(request_block, client_block, data_block, data_source, signal_rec, signal_desc,
+                       pluginlist, logmalloclist, userdefinedtypelist);
 
     UDA_LOG(UDA_LOG_DEBUG, "After idamserverReadData rc = %d\n", rc);
     UDA_LOG(UDA_LOG_DEBUG, "Is the Signal a Composite? %d\n", signal_desc->type == 'C');
@@ -397,7 +393,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
             // Replace Error Data
 
-            rc = idamserverSwapSignalError(data_block, &data_block2, 0);
+            rc = swap_signal_error(data_block, &data_block2, 0);
             freeDataBlock(&data_block2);
 
             if (rc != 0) {
@@ -443,7 +439,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
             // Replace Error Data
 
-            rc = idamserverSwapSignalError(data_block, &data_block2, 1);
+            rc = swap_signal_error(data_block, &data_block2, 1);
             freeDataBlock(&data_block2);
 
             if (rc != 0) {
@@ -544,8 +540,8 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
                     // Replace Dimension Data
 
-                    rc = idamserverSwapSignalDim(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
-                                                 data_block, &data_block2);
+                    rc = swap_signal_dim(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
+                                         data_block, &data_block2);
 
                     freeDataBlock(&data_block2);
 
@@ -592,8 +588,8 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
                     // Replace Dimension Error Data
 
-                    rc = idamserverSwapSignalDimError(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
-                                                      data_block, &data_block2, 0);
+                    rc = swap_signal_dim_error(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
+                                               data_block, &data_block2, 0);
 
                     freeDataBlock(&data_block2);
 
@@ -640,8 +636,8 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
                     // Replace Dimension Asymmetric Error Data
 
-                    rc = idamserverSwapSignalDimError(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
-                                                      data_block, &data_block2, 1);
+                    rc = swap_signal_dim_error(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
+                                               data_block, &data_block2, 1);
                     freeDataBlock(&data_block2);
 
                     if (rc != 0) {
@@ -729,7 +725,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     return 0;
 }
 
-int idamserverSwapSignalError(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry)
+int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry)
 {
     // Check Rank and Array Block Size are equal
 
@@ -756,7 +752,7 @@ int idamserverSwapSignalError(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, i
     return 0;
 }
 
-int idamserverSwapSignalDim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2)
+int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2)
 {
     void* cptr = nullptr;
 
@@ -872,8 +868,8 @@ int idamserverSwapSignalDim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, D
 }
 
 
-int idamserverSwapSignalDimError(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
-                                 int asymmetry)
+int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
+                          int asymmetry)
 {
     void* cptr = nullptr;
 
@@ -905,10 +901,10 @@ int idamserverSwapSignalDimError(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_blo
     return 0;
 }
 
-int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
-                       DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
-                       const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-                       USERDEFINEDTYPELIST* userdefinedtypelist)
+int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
+              DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
+              const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
+              USERDEFINEDTYPELIST* userdefinedtypelist)
 {
     // If err = 0 then standard signal data read
     // If err > 0 then an error occured
@@ -1015,7 +1011,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
     // Modifes HEAP in request_block
 
     {
-        int err = nameValueSubstitution(&request_block->nameValueList, request_block->tpass);
+        int err = name_value_substitution(&request_block->nameValueList, request_block->tpass);
         if (err != 0) return err;
     }
 

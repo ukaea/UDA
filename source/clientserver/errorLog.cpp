@@ -12,7 +12,6 @@
 #include <vector>
 
 #include <logging/logging.h>
-#include <clientserver/udaErrors.h>
 #include <clientserver/stringUtils.h>
 
 static std::vector<UDA_ERROR> udaerrorstack;
@@ -55,13 +54,13 @@ void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, UDA_ERROR_ST
     convertNonPrintable2(accessdate);
     TrimString(accessdate);
 
-    idamLog(UDA_LOG_ERROR, "0 %s [%s] [%d %s %d %d %s %s %s %s %s %s %s]\n",
+    udaLog(UDA_LOG_ERROR, "0 %s [%s] [%d %s %d %d %s %s %s %s %s %s %s]\n",
             client_block.uid, accessdate, request.request, request.signal, request.exp_number,
             request.pass, request.tpass, request.path, request.file, request.format, request.archive,
             request.device_name, request.server);
 
     for (unsigned int i = 0; i < nerrors; i++) {
-        idamLog(UDA_LOG_ERROR, "1 %s [%s] %d %d [%s] [%s]\n", client_block.uid, accessdate,
+        udaLog(UDA_LOG_ERROR, "1 %s [%s] %d %d [%s] [%s]\n", client_block.uid, accessdate,
                 errors[i].type, errors[i].code, errors[i].location, errors[i].msg);
     }
 }

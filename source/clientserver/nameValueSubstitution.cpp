@@ -1,13 +1,11 @@
-#include "makeRequestBlock.h"
+#include "nameValueSubstitution.h"
 
-#include <stdlib.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cerrno>
 
 #if defined(__GNUC__)
-
 #  include <unistd.h>
 #  include <strings.h>
-
 #endif
 
 #include <clientserver/udaErrors.h>
@@ -17,6 +15,8 @@
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>
 
+static void embedded_value_substitution(NAMEVALUELIST* nameValueList);
+
 // Deconstruct the text pass parameter (tpass) for name value placeholder substitution values
 // Identify name value placeholders in the signal argument and replace with substitution values
 // Add additional name-value pairs and keywords to the plugin input 
@@ -24,7 +24,7 @@
 // shot/tpass data source pattern: "12345/a,b,c, name=value, name=value, d, e, delimiter=',', placeholder='$'" 
 //				
 
-int nameValueSubstitution(NAMEVALUELIST* nameValueList, char* tpass)
+int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
 {
     int err = 0;
 
@@ -39,14 +39,14 @@ int nameValueSubstitution(NAMEVALUELIST* nameValueList, char* tpass)
     initNameValueList(&newNameValueList);
 
     unsigned short strip = 0;        // Do Not Remove enclosing quotes from name value pairs
-    if (nameValuePairs(tpass, &newNameValueList, strip) == -1) {
+    if (name_value_pairs(tpass, &newNameValueList, strip) == -1) {
         err = 999;
         addIdamError(CODEERRORTYPE, "nameValueSubstitution", err, "Name Value pair syntax is incorrect!");
         return err;
     }
 
     if (newNameValueList.pairCount == 0) {    // No passed substitution values or additional name value pairs
-        if (newNameValueList.nameValue != NULL) freeNameValueList(&newNameValueList);
+        if (newNameValueList.nameValue != nullptr) free_name_value_list(&newNameValueList);
         return 0;
     }
 
@@ -58,8 +58,8 @@ int nameValueSubstitution(NAMEVALUELIST* nameValueList, char* tpass)
     // How many placeholders? [beginning with a '$' character. Placeholders may be numbered, named or simply a single naked $ character]
 
     int placeholderCount = 0;
-    int* placeholderIndex = NULL;
-    int* tpassIndex = NULL;
+    int* placeholderIndex = nullptr;
+    int* tpassIndex = nullptr;
     int tpassPosition = 0;
     unsigned short usedCount = 0;
 
@@ -70,7 +70,7 @@ int nameValueSubstitution(NAMEVALUELIST* nameValueList, char* tpass)
 
             for (int i = 0; i < nameValueList->pairCount; i++) {
                 // Is it a placeholder? (Not a keyword and begining '$')
-                if (nameValueList->nameValue[i].value != NULL && nameValueList->nameValue[i].value[0] == '$') {
+                if (nameValueList->nameValue[i].value != nullptr && nameValueList->nameValue[i].value[0] == '$') {
                     placeholderIndex[placeholderCount] = i;                    // Identify which pair
                     tpassIndex[placeholderCount] = tpassPosition++;            // Ordering: Default substitution value to use - list position
                     if (nameValueList->nameValue[i].value[1] != '\0') {
@@ -117,8 +117,8 @@ int nameValueSubstitution(NAMEVALUELIST* nameValueList, char* tpass)
                 break;
             }
 
-// Replace placeholders with identifed values
-// Replacement values can be used multiple times
+            // Replace placeholders with identifed values
+            // Replacement values can be used multiple times
 
             for (int i = 0; i < placeholderCount; i++) {
                 if (tpassIndex[i] < 0 || tpassIndex[i] > newNameValueList.pairCount) {
@@ -130,10 +130,10 @@ int nameValueSubstitution(NAMEVALUELIST* nameValueList, char* tpass)
                     break;
                 }
 
-                if (nameValueList->nameValue[placeholderIndex[i]].value != NULL)
+                if (nameValueList->nameValue[placeholderIndex[i]].value != nullptr)
                     free(nameValueList->nameValue[placeholderIndex[i]].value);
                 nameValueList->nameValue[placeholderIndex[i]].value = newNameValueList.nameValue[tpassIndex[i]].value;
-                newNameValueList.nameValue[tpassIndex[i]].value = NULL;
+                newNameValueList.nameValue[tpassIndex[i]].value = nullptr;
                 usedCount++;
 
                 UDA_LOG(UDA_LOG_DEBUG, "Placeholder: [%d][%d] %s, Substitution Value [%d] %s\n", i, placeholderIndex[i],
@@ -143,15 +143,15 @@ int nameValueSubstitution(NAMEVALUELIST* nameValueList, char* tpass)
 
             // Remove all used NV pairs used in placeholder substitution
             for (int i = 0; i < placeholderCount; i++) {
-                if (newNameValueList.nameValue[tpassIndex[i]].pair != NULL)
+                if (newNameValueList.nameValue[tpassIndex[i]].pair != nullptr)
                     free(newNameValueList.nameValue[tpassIndex[i]].pair);
-                if (newNameValueList.nameValue[tpassIndex[i]].name != NULL)
+                if (newNameValueList.nameValue[tpassIndex[i]].name != nullptr)
                     free(newNameValueList.nameValue[tpassIndex[i]].name);
-                if (newNameValueList.nameValue[tpassIndex[i]].value != NULL)
+                if (newNameValueList.nameValue[tpassIndex[i]].value != nullptr)
                     free(newNameValueList.nameValue[tpassIndex[i]].value);
-                newNameValueList.nameValue[tpassIndex[i]].pair = NULL;
-                newNameValueList.nameValue[tpassIndex[i]].name = NULL;
-                newNameValueList.nameValue[tpassIndex[i]].value = NULL;
+                newNameValueList.nameValue[tpassIndex[i]].pair = nullptr;
+                newNameValueList.nameValue[tpassIndex[i]].name = nullptr;
+                newNameValueList.nameValue[tpassIndex[i]].value = nullptr;
             }
 
         } while (0);
@@ -160,7 +160,7 @@ int nameValueSubstitution(NAMEVALUELIST* nameValueList, char* tpass)
     free(tpassIndex);
     free(placeholderIndex);
     if (err != 0) {
-        freeNameValueList(&newNameValueList);
+        free_name_value_list(&newNameValueList);
         return err;
     }
 
@@ -174,25 +174,25 @@ int nameValueSubstitution(NAMEVALUELIST* nameValueList, char* tpass)
     }
 
     for (int i = 0; i < newNameValueList.pairCount; i++) {
-        if (newNameValueList.nameValue[i].name != NULL) {
+        if (newNameValueList.nameValue[i].name != nullptr) {
             nameValueList->nameValue[nameValueList->pairCount].pair = newNameValueList.nameValue[i].pair;
-            if (nameValueList->nameValue[nameValueList->pairCount].pair == NULL)
+            if (nameValueList->nameValue[nameValueList->pairCount].pair == nullptr)
                 nameValueList->nameValue[nameValueList->pairCount].pair = strdup("");
             nameValueList->nameValue[nameValueList->pairCount].name = newNameValueList.nameValue[i].name;
             nameValueList->nameValue[nameValueList->pairCount++].value = newNameValueList.nameValue[i].value;
             UDA_LOG(UDA_LOG_DEBUG, "[%d] Name = %s, Value = %s\n", i, newNameValueList.nameValue[i].name,
                     newNameValueList.nameValue[i].value);
-            newNameValueList.nameValue[i].pair = NULL;
-            newNameValueList.nameValue[i].name = NULL;
-            newNameValueList.nameValue[i].value = NULL;
+            newNameValueList.nameValue[i].pair = nullptr;
+            newNameValueList.nameValue[i].name = nullptr;
+            newNameValueList.nameValue[i].value = nullptr;
         }
     }
 
-    freeNameValueList(&newNameValueList);
+    free_name_value_list(&newNameValueList);
 
     // Scan all values for embedded placeholders and substitute
 
-    embeddedValueSubstitution(nameValueList);
+    embedded_value_substitution(nameValueList);
 
     return 0;
 }
@@ -202,7 +202,7 @@ int nameValueSubstitution(NAMEVALUELIST* nameValueList, char* tpass)
 
 // patterns with name values: string="UDA::getdata(variable='/a/b/c', shot=$shot, tstart=$tstart, tend=$tend)"	substitution for named string elements: $shot, $tstart, $tend
 
-void embeddedValueSubstitution(NAMEVALUELIST* nameValueList)
+void embedded_value_substitution(NAMEVALUELIST* nameValueList)
 {
     int m;
     NAMEVALUELIST newNameValueList;
@@ -231,7 +231,7 @@ void embeddedValueSubstitution(NAMEVALUELIST* nameValueList)
 
         // Extract NV pairs and keywords from the input placeholder value
 
-        int rc = nameValuePairs(work, &newNameValueList, strip);
+        int rc = name_value_pairs(work, &newNameValueList, strip);
         free(work);
         if (rc == -1) continue;
 
@@ -300,6 +300,6 @@ void embeddedValueSubstitution(NAMEVALUELIST* nameValueList)
             }
         }
     }
-    freeNameValueList(&newNameValueList);
+    free_name_value_list(&newNameValueList);
 }   
 

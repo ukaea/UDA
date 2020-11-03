@@ -378,12 +378,12 @@ void printCompoundField(COMPOUNDFIELD str)
         UDA_LOG(UDA_LOG_DEBUG, "shape    : [", str.shape[0]);
         for (int i = 0; i < str.rank; i++) {
             if (i < str.rank - 1) {
-                idamLog(UDA_LOG_DEBUG, "%d,", str.shape[i]);
+                udaLog(UDA_LOG_DEBUG, "%d,", str.shape[i]);
             } else {
-                idamLog(UDA_LOG_DEBUG, "%d", str.shape[i]);
+                udaLog(UDA_LOG_DEBUG, "%d", str.shape[i]);
             }
         }
-        idamLog(UDA_LOG_DEBUG, "]\n");
+        udaLog(UDA_LOG_DEBUG, "]\n");
     }
 }
 
