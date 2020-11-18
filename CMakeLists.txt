@@ -119,6 +119,7 @@ endif()
 
 add_definitions(
   -DOSTYPE=${CMAKE_SYSTEM_NAME}
+  -DUDA_EXPORT
 )
 
 if( WIN32 OR MINGW )

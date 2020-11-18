@@ -144,7 +144,7 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
         return err;
     }
 
-    idamAccessLog(FALSE, client_block, request_block, *server_block, &pluginList, getIdamServerEnvironment());
+    udaAccessLog(FALSE, client_block, request_block, *server_block, &pluginList, getServerEnvironment());
 
     err = doFatServerClosedown(server_block, &data_block, &actions_desc, &actions_sig, data_block0);
 
@@ -261,7 +261,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
     //----------------------------------------------------------------------------
     // Free Name Value pair
 
-    freeNameValueList(&request_block->nameValueList);
+    free_name_value_list(&request_block->nameValueList);
 
     return err;
 }
@@ -301,12 +301,12 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     protocolVersion = serverVersion;
 
     if (protocolVersion >= 6) {
-        if ((err = idamServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc,
-                                    &pluginList, getIdamServerEnvironment())) != 0) {
+        if ((err = udaServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc,
+                                   &pluginList, getServerEnvironment())) != 0) {
             return err;
         }
     } else {
-        if ((err = idamServerLegacyPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc)) !=
+        if ((err = udaServerLegacyPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc)) !=
             0) {
             return err;
         }
@@ -441,7 +441,7 @@ int startupFatServer(SERVER_BLOCK* server_block)
 
     if (!plugin_list_initialised) {
         pluginList.count = 0;
-        initPluginList(&pluginList, getIdamServerEnvironment());
+        initPluginList(&pluginList, getServerEnvironment());
         plugin_list_initialised = 1;
 
         UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");

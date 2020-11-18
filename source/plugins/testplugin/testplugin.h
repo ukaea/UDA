@@ -2,13 +2,7 @@
 #define UDA_PLUGIN_TESTPLUGIN_TESTPLUGIN_H
 
 #include <plugins/udaPlugin.h>
-
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
+#include <clientserver/export.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +25,6 @@ LIBRARY_API int tcp_connect(SYSSOCKET *ssock, int port);
 LIBRARY_API int c_connect(UDTSOCKET *usock, int port);
 LIBRARY_API int createUDTSocket(int *usock, int port, int rendezvous);
 LIBRARY_API int createTCPSocket(SYSSOCKET *ssock, int port, bool rendezvous);
-     
 #endif
 
 extern int testplugin(IDAM_PLUGIN_INTERFACE *idam_plugin_interface);

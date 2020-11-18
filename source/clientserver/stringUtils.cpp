@@ -1,8 +1,8 @@
 #include "stringUtils.h"
 
-#include <stdlib.h>
-#include <stdarg.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdarg>
+#include <cstdio>
 
 #ifdef __GNUC__
 #  include <strings.h>

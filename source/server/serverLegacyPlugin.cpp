@@ -20,13 +20,13 @@
 #  include <server/getServerEnvironment.h>
 #endif
 
-int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc)
+int udaServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc)
 {
     int err = 0;
     char* token = nullptr;
     char work[STRING_LENGTH];
 
-    UDA_LOG(UDA_LOG_DEBUG, "IdamServerLegacyPlugin: Start\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Start\n");
 
     //----------------------------------------------------------------------------
     // Start of Error Trap
@@ -38,7 +38,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
 
 #ifndef FATCLIENT
 
-        ENVIRONMENT* environment = getIdamServerEnvironment();
+        ENVIRONMENT* environment = getServerEnvironment();
 
         if (request_block->request == REQUEST_READ_FORMAT) {
             if (environment->private_path_target[0] != '\0') {
@@ -69,10 +69,8 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                     }
                 } else {
                     err = 999;
-                    addIdamError(CODEERRORTYPE, "idamServer", err,
-                                 "Unmatched count of Target and Substitute File Paths.");
+                    addIdamError(CODEERRORTYPE, __func__, err, "Unmatched count of Target and Substitute File Paths.");
                     break;
-
                 }
             }
         }
@@ -129,11 +127,11 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 data_source->type = ' ';
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: Read IDA \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: File Alias   : %s \n", request_block->file);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: File Path    : %s \n", request_block->path);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Signal       : %s \n", request_block->signal);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pulse Number : %d \n", request_block->exp_number);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pass Number  : %d \n", request_block->pass);
+                UDA_LOG(UDA_LOG_DEBUG, "File Alias   : %s \n", request_block->file);
+                UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", request_block->path);
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request_block->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", request_block->exp_number);
+                UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", request_block->pass);
                 break;
 
             case REQUEST_READ_NEW_PLUGIN:
@@ -148,11 +146,11 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 data_source->type = ' ';
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: Read IDA \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: File Alias   : %s \n", request_block->file);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: File Path    : %s \n", request_block->path);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Signal       : %s \n", request_block->signal);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pulse Number : %d \n", request_block->exp_number);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pass Number  : %d \n", request_block->pass);
+                UDA_LOG(UDA_LOG_DEBUG, "File Alias   : %s \n", request_block->file);
+                UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", request_block->path);
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request_block->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", request_block->exp_number);
+                UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", request_block->pass);
                 break;
 
             case REQUEST_READ_MDS:
@@ -169,17 +167,17 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 data_source->exp_number = request_block->exp_number;                // MDS+ Tree Number
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: Read MDS+ \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Server       : %s \n", request_block->server);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Tree         : %s \n", request_block->file);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Data Node    : %s \n", request_block->signal);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Tree Number  : %d \n", request_block->exp_number);
+                UDA_LOG(UDA_LOG_DEBUG, "Server       : %s \n", request_block->server);
+                UDA_LOG(UDA_LOG_DEBUG, "Tree         : %s \n", request_block->file);
+                UDA_LOG(UDA_LOG_DEBUG, "Data Node    : %s \n", request_block->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Tree Number  : %d \n", request_block->exp_number);
                 break;
 
             case REQUEST_READ_IDAM:
                 UDA_LOG(UDA_LOG_DEBUG, "Request: Read Remote IDAM Source \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Server       : %s \n", request_block->server);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Source       : %s \n", request_block->file);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Signal       : %s \n", request_block->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Server       : %s \n", request_block->server);
+                UDA_LOG(UDA_LOG_DEBUG, "Source       : %s \n", request_block->file);
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request_block->signal);
                 break;
 
             case REQUEST_READ_CDF:
@@ -187,8 +185,8 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 copyString(TrimString(request_block->signal), signal_desc->signal_name, MAXNAME);
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: readnetCDF \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: netCDF File  : %s \n", request_block->path);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Signal       : %s \n", request_block->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "netCDF File  : %s \n", request_block->path);
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request_block->signal);
                 break;
 
             case REQUEST_READ_HDF5:
@@ -196,8 +194,8 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 copyString(TrimString(request_block->signal), signal_desc->signal_name, MAXNAME);
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadHDF5 \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: HDF5 File    : %s \n", request_block->path);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Signal       : %s \n", request_block->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "HDF5 File    : %s \n", request_block->path);
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request_block->signal);
                 break;
 
             case REQUEST_READ_XML:
@@ -205,22 +203,22 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 data_source->pass = request_block->pass;
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadXML \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: XML File     : %s \n", request_block->path);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: XML Document : %s \n", request_block->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "XML File     : %s \n", request_block->path);
+                UDA_LOG(UDA_LOG_DEBUG, "XML Document : %s \n", request_block->signal);
                 break;
 
             case REQUEST_READ_UFILE:
                 strcpy(data_source->path, TrimString(request_block->path));    // UFile File Location
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadUFile \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: UFile File   : %s \n", request_block->path);
+                UDA_LOG(UDA_LOG_DEBUG, "UFile File   : %s \n", request_block->path);
                 break;
 
             case REQUEST_READ_FILE:
                 strcpy(data_source->path, TrimString(request_block->path));    // File Location
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadBytes \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: File  : %s \n", request_block->path);
+                UDA_LOG(UDA_LOG_DEBUG, "File  : %s \n", request_block->path);
                 break;
 
 
@@ -228,7 +226,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 strcpy(data_source->path, TrimString(request_block->path));    // File Location
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadHData \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: File  : %s \n", request_block->path);
+                UDA_LOG(UDA_LOG_DEBUG, "File  : %s \n", request_block->path);
                 break;
 
             case REQUEST_READ_SQL:
@@ -239,7 +237,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 strcpy(data_source->device_name, TrimString(request_block->device_name));
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadSQL \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: SQL   : %s \n", request_block->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "SQL   : %s \n", request_block->signal);
                 break;
 
             case REQUEST_READ_NOTHING:
@@ -277,11 +275,11 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 data_source->type = ' ';
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: Read PPF \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: File Alias   : %s \n", request_block->file);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: File Path    : %s \n", request_block->path);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Signal       : %s \n", request_block->signal);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pulse Number : %d \n", request_block->exp_number);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pass Number  : %d \n", request_block->pass);
+                UDA_LOG(UDA_LOG_DEBUG, "File Alias   : %s \n", request_block->file);
+                UDA_LOG(UDA_LOG_DEBUG, "File Path    : %s \n", request_block->path);
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request_block->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", request_block->exp_number);
+                UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", request_block->pass);
                 break;
 
             case REQUEST_READ_JPF:
@@ -289,14 +287,14 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
                 data_source->exp_number = request_block->exp_number;
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: Read JPF \n");
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Signal       : %s \n", request_block->signal);
-                UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Pulse Number : %d \n", request_block->exp_number);
+                UDA_LOG(UDA_LOG_DEBUG, "Signal       : %s \n", request_block->signal);
+                UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", request_block->exp_number);
                 break;
 
             default:
                 UDA_LOG(UDA_LOG_DEBUG, "Unknown Requested Data Access Routine (%d) \n", request_block->request);
                 err = 9999;
-                addIdamError(CODEERRORTYPE, "idamServer", err,
+                addIdamError(CODEERRORTYPE, __func__, err,
                              "Unknown Requested Data Access Routine");
                 break;
         }
@@ -308,7 +306,7 @@ int idamServerLegacyPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_sourc
 
     } while (0);
 
-    UDA_LOG(UDA_LOG_DEBUG, "IdamServerLegacyPlugin: End\n");
+    UDA_LOG(UDA_LOG_DEBUG, "End\n");
 
     return err;
 }

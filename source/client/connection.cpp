@@ -50,7 +50,7 @@
 #include "getEnvironment.h"
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-#  include <authentication/udaSSL.h>
+#  include <authentication/udaClientSSL.h>
 #endif
 
 #if defined(COMPILER_GCC) || defined(__clang__)
@@ -239,12 +239,12 @@ int createConnection()
     const char* hostname = environment->server_host;
     char serviceport[PORT_STRING];
 
-    // Check if the hostname is an alias for an IP address or domain name in the client configuration - replace if found
+    // Check if the host_name is an alias for an IP address or domain name in the client configuration - replace if found
 
     int hostId = udaClientFindHostByAlias(hostname);
     if (hostId >= 0) {
         if ((hostname = udaClientGetHostName(hostId)) == nullptr) {
-            addIdamError(CODEERRORTYPE, __func__, -1, "The hostname is not recognised for the host alias provided!");
+            addIdamError(CODEERRORTYPE, __func__, -1, "The host_name is not recognised for the host alias provided!");
             return -1;
         }
         if (strcasecmp(environment->server_host, hostname) != 0) {
@@ -268,7 +268,8 @@ int createConnection()
     // Does the host name contain the SSL protocol prefix? If so strip this off
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    if (!strncasecmp(hostname, "SSL://", 6)) {           // Should be stripped already if via the HOST client configuration file
+    if (!strncasecmp(hostname, "SSL://", 6)) {
+        // Should be stripped already if via the HOST client configuration file
         strcpy(environment->server_host, &hostname[6]);  // Replace
         putUdaClientSSLProtocol(1);
     } else {
@@ -368,7 +369,7 @@ int createConnection()
             udaClientPutHostNameId(-1);
             hostname = environment->server_host2;
 
-            // Check if the hostname is an alias for an IP address or name in the client configuration - replace if found
+            // Check if the host_name is an alias for an IP address or name in the client configuration - replace if found
 
             hostId = udaClientFindHostByAlias(hostname);
             if (hostId >= 0) {
@@ -396,7 +397,8 @@ int createConnection()
             // Does the host name contain the SSL protocol prefix? If so strip this off
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-            if (!strncasecmp(hostname, "SSL://", 6)){		// Should be stripped already if via the HOST client configuration file
+            if (!strncasecmp(hostname, "SSL://", 6)){
+                // Should be stripped already if via the HOST client configuration file
                 strcpy(environment->server_host2, &hostname[6]);    // Replace
                 putUdaClientSSLProtocol(1);
             } else {
@@ -521,9 +523,9 @@ int createConnection()
     return 0;
 }
 
-void closeConnection(int type)
+void closeConnection(ClosedownType type)
 {
-    if (clientSocket >= 0 && type != 1) {
+    if (clientSocket >= 0 && type != ClosedownType::CLOSE_ALL) {
         closeClientSocket(&client_socketlist, clientSocket);
     } else {
         closeClientSockets(&client_socketlist);
@@ -543,7 +545,7 @@ int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
     fd_set wfds;
     struct timeval tv = {};
 
-    idamUpdateSelectParms(clientSocket, &wfds, &tv);
+    udaUpdateSelectParms(clientSocket, &wfds, &tv);
 
     errno = 0;
 
@@ -568,7 +570,7 @@ int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
             }
         }
 
-        idamUpdateSelectParms(clientSocket, &wfds, &tv);
+        udaUpdateSelectParms(clientSocket, &wfds, &tv);
     }
 
     /* UNIX version
@@ -622,10 +624,10 @@ int clientReadin(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 
     /* Wait till it is possible to read from socket */
 
-    idamUpdateSelectParms(clientSocket, &rfds, &tv);
+    udaUpdateSelectParms(clientSocket, &rfds, &tv);
 
     while ((select(clientSocket + 1, &rfds, nullptr, nullptr, &tv) <= 0) && maxloop++ < MAXLOOP) {
-        idamUpdateSelectParms(clientSocket, &rfds, &tv);        // Keep trying ...
+        udaUpdateSelectParms(clientSocket, &rfds, &tv);        // Keep trying ...
     }
 
     // Read from it, checking for EINTR, as happens if called from IDL

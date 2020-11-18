@@ -5,12 +5,7 @@
 
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
+#include <clientserver/export.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -78,7 +73,7 @@ LIBRARY_API void putIdamServerSocket(int socket);
 
 LIBRARY_API void getIdamServer(const char** host, int* port, int* socket);
 
-LIBRARY_API IDAMERRORSTACK* getIdamServerErrorStack();
+LIBRARY_API UDA_ERROR_STACK* getIdamServerErrorStack();
 
 LIBRARY_API int getIdamErrorCode(int handle);
 

@@ -3,27 +3,22 @@
 #include <dlfcn.h>
 #include <cstdlib>
 
-#include <clientserver/udaErrors.h>
-#include <server/udaServer.h>
-
 /**
  * Return the function address for plugin data readers located in external shared libraries
  *
  * @param pluginHandle
  * @param library the full file path name to the registered plugin shared library
  * @param symbol the name of the library api function to be called
- * @param idamPlugin the address of the library function
+ * @param pluginfunp the address of the library function
  * @return
  */
-int getPluginAddress(void** pluginHandle, const char* library, const char* symbol, PLUGINFUNP* idamPlugin)
+int getPluginAddress(void** pluginHandle, const char* library, const char* symbol, PLUGINFUNP* pluginfunp)
 {
-    int err = 0;
-    int (* fptr)(IDAM_PLUGIN_INTERFACE*);               // Pointer to a Plugin function with standard interface
+    *pluginfunp = (PLUGINFUNP)nullptr;
 
-    *idamPlugin = (PLUGINFUNP)nullptr;                     // Default
-
-    if (library[0] == '\0' || symbol[0] == '\0') {      // Nothing to 'point' to! Is this an Error?
-        return err;
+    if (library[0] == '\0' || symbol[0] == '\0') {
+        // Nothing to 'point' to! Is this an Error?
+        return 0;
     }
 
     const char* plugin_dir = getenv("UDA_PLUGIN_DIR");
@@ -41,14 +36,13 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
 
     if (*pluginHandle == nullptr) {
         if ((*pluginHandle = dlopen(full_path, RTLD_LOCAL | RTLD_LAZY)) == nullptr) {
-            err = 999;
             const char* errmsg = dlerror();
             UDA_LOG(UDA_LOG_ERROR, "Cannot open the target shared library %s: %s\n", library, errmsg);
             if (fail_on_load != nullptr) {
-                addIdamError(SYSTEMERRORTYPE, __func__, err, "Cannot open the target shared library");
-                addIdamError(SYSTEMERRORTYPE, __func__, err, errmsg);
+                ADD_ERROR(999, "Cannot open the target shared library");
+                ADD_ERROR(999, errmsg);
             }
-            return err;
+            return 999;
         }
     }
 
@@ -58,23 +52,23 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
 
     // Find the address of the required plugin function
 
+    int (* fptr)(IDAM_PLUGIN_INTERFACE*);
     *(void**)(&fptr) = dlsym(*pluginHandle, symbol);
 
     char* errstr = dlerror();
 
     if (errstr == nullptr) {
-        *idamPlugin = (PLUGINFUNP)fptr;
+        *pluginfunp = (PLUGINFUNP)fptr;
     } else {
-        err = 999;
         UDA_LOG(UDA_LOG_ERROR, "Cannot open the target shared library %s: %s\n", library, errstr);
         if (fail_on_load != nullptr) {
-            addIdamError(CODEERRORTYPE, __func__, err, "Cannot locate the data reader with the target shared library");
-            addIdamError(CODEERRORTYPE, __func__, err, errstr);
+            ADD_ERROR(999, "Cannot locate the data reader with the target shared library");
+            ADD_ERROR(999, errstr);
         }
         dlclose(pluginHandle);
         *pluginHandle = nullptr;
-        return err;
+        return 999;
     }
 
-    return err;
+    return 0;
 }

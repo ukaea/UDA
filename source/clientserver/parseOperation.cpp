@@ -1,14 +1,12 @@
 #include "parseOperation.h"
 
-#include <errno.h>
-#include <stdlib.h>
-
-#include <clientserver/udaErrors.h>
+#include <cerrno>
+#include <cstdlib>
 
 #include "stringUtils.h"
 #include "errorLog.h"
 
-int idamParseOperation(SUBSET* sub)
+int parseOperation(SUBSET* sub)
 {
     char* p, * t1, * t2;
     char* endp = nullptr;
@@ -30,8 +28,12 @@ int idamParseOperation(SUBSET* sub)
 
         strcpy(opcopy, sub->operation[i]);
 
-        if ((p = strchr(opcopy, '[')) != nullptr) p[0] = ' ';
-        if ((p = strchr(opcopy, ']')) != nullptr) p[0] = ' ';
+        if ((p = strchr(opcopy, '[')) != nullptr) {
+            p[0] = ' ';
+        }
+        if ((p = strchr(opcopy, ']')) != nullptr) {
+            p[0] = ' ';
+        }
         LeftTrimString(opcopy);
         TrimString(opcopy);
 
@@ -50,16 +52,10 @@ int idamParseOperation(SUBSET* sub)
                 if (IsNumber(t1)) {
                     sub->lbindex[i] = strtol(t1, &endp, 0);        // the Lower Index Value of the Bound
                     if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
-                        ierr = 9999;
-                        addIdamError(CODEERRORTYPE, "idamserverParseServerSide", ierr,
-                                     "Server Side Operation Syntax Error: Lower Index Bound ");
-                        return ierr;
+                        THROW_ERROR(9999, "Server Side Operation Syntax Error: Lower Index Bound");
                     }
                 } else {
-                    ierr = 9999;
-                    addIdamError(CODEERRORTYPE, "idamserverParseServerSide", ierr,
-                                 "Server Side Operation Syntax Error: Lower Index Bound ");
-                    return ierr;
+                    THROW_ERROR(9999, "Server Side Operation Syntax Error: Lower Index Bound");
                 }
             }
 
@@ -67,25 +63,18 @@ int idamParseOperation(SUBSET* sub)
                 if (IsNumber(t2)) {
                     sub->ubindex[i] = strtol(t2, &endp, 0);        // the Upper Index Value of the Bound
                     if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
-                        ierr = 9999;
-                        addIdamError(CODEERRORTYPE, "idamserverParseServerSide", ierr,
-                                     "Server Side Operation Syntax Error: Upper Index Bound ");
-                        return ierr;
+                        THROW_ERROR(9999, "Server Side Operation Syntax Error: Upper Index Bound");
                     }
                 } else {
-                    ierr = 9999;
-                    addIdamError(CODEERRORTYPE, "idamserverParseServerSide", ierr,
-                                 "Server Side Operation Syntax Error: Upper Index Bound ");
-                    return ierr;
+                    THROW_ERROR(9999, "Server Side Operation Syntax Error: Upper Index Bound");
                 }
             }
 
             strcpy(sub->operation[i], ":");            // Define Simple Operation
             continue;
-
         }
 
-        if ((p = strstr(opcopy, "*")) != nullptr) {        // Ignore this Dimension
+        if (strstr(opcopy, "*") != nullptr) {        // Ignore this Dimension
             sub->isindex[i] = 1;
             sub->ubindex[i] = -1;
             sub->lbindex[i] = -1;
@@ -93,7 +82,7 @@ int idamParseOperation(SUBSET* sub)
             continue;
         }
 
-        if ((p = strstr(opcopy, "#")) != nullptr) {        // Last Value in Dimension
+        if (strstr(opcopy, "#") != nullptr) {        // Last Value in Dimension
             sub->isindex[i] = 1;
             sub->ubindex[i] = -1;
             sub->lbindex[i] = -1;
@@ -106,7 +95,7 @@ int idamParseOperation(SUBSET* sub)
             sub->ubindex[i] = strtol(opcopy, &endp, 0);        // the Index Value of the Bound
             if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
                 ierr = 9999;
-                addIdamError(CODEERRORTYPE, "idamserverParseServerSide", ierr,
+                addIdamError(CODEERRORTYPE, "serverParseServerSide", ierr,
                              "Server Side Operation Syntax Error: Single Index Bound ");
                 return ierr;
             }

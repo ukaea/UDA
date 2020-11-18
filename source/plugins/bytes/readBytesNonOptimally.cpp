@@ -27,7 +27,7 @@
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/md5Sum.h>
+#include <plugins/bytes/md5Sum.h>
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/initStructs.h>

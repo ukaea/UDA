@@ -2410,7 +2410,7 @@ IDL_VPTR IDL_CDECL getidamnodeatomicdata(int argc, IDL_VPTR argv[], char* argk) 
                             IDL_StrStore(&idlData[i], &str[offset]);           // Copy each string
                             idlData[i].slen = lstr;                    // Set the fixed string length
                             offset = (i + 1) * length;
-                            free((void*) s);
+                            free( s);
                         }
 
                         if (kw.debug) {

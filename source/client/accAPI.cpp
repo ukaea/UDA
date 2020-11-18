@@ -454,8 +454,8 @@ void setIdamProperty(const char* property)
                 if (IsNumber(value)) user_timeout = atoi(value);
             }
         } else {
-            if (STR_IEQUALS(property, "verbose")) idamSetLogLevel(UDA_LOG_INFO);
-            if (STR_IEQUALS(property, "debug")) idamSetLogLevel(UDA_LOG_DEBUG);
+            if (STR_IEQUALS(property, "verbose")) udaSetLogLevel(UDA_LOG_INFO);
+            if (STR_IEQUALS(property, "debug")) udaSetLogLevel(UDA_LOG_DEBUG);
             if (STR_IEQUALS(property, "altData")) clientFlags = clientFlags | CLIENTFLAG_ALTDATA;
             if (!strncasecmp(property, "altRank", 7)) {
                 strncpy(name, property, 55);
@@ -503,8 +503,8 @@ int getIdamProperty(const char* property)
         if (STR_IEQUALS(property, "altRank")) return altRank;
         if (STR_IEQUALS(property, "reuseLastHandle")) return (int)(clientFlags & CLIENTFLAG_REUSELASTHANDLE);
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) return (int)(clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE);
-        if (STR_IEQUALS(property, "verbose")) return idamGetLogLevel() == UDA_LOG_INFO;
-        if (STR_IEQUALS(property, "debug")) return idamGetLogLevel() == UDA_LOG_DEBUG;
+        if (STR_IEQUALS(property, "verbose")) return udaGetLogLevel() == UDA_LOG_INFO;
+        if (STR_IEQUALS(property, "debug")) return udaGetLogLevel() == UDA_LOG_DEBUG;
         if (STR_IEQUALS(property, "altData")) return (int)(clientFlags & CLIENTFLAG_ALTDATA);
         if (STR_IEQUALS(property, "fileCache")) return (int)(clientFlags & CLIENTFLAG_FILECACHE);
     }
@@ -535,8 +535,8 @@ void resetIdamProperty(const char* property)
         if (STR_IEQUALS(property, "get_scalar")) get_scalar = 0;
         if (STR_IEQUALS(property, "get_nodimdata")) get_nodimdata = 0;
     } else {
-        if (STR_IEQUALS(property, "verbose")) idamSetLogLevel(UDA_LOG_NONE);
-        if (STR_IEQUALS(property, "debug")) idamSetLogLevel(UDA_LOG_NONE);
+        if (STR_IEQUALS(property, "verbose")) udaSetLogLevel(UDA_LOG_NONE);
+        if (STR_IEQUALS(property, "debug")) udaSetLogLevel(UDA_LOG_NONE);
         if (STR_IEQUALS(property, "altData")) clientFlags = clientFlags & !CLIENTFLAG_ALTDATA;
         if (STR_IEQUALS(property, "altRank")) altRank = 0;
         if (STR_IEQUALS(property, "reuseLastHandle")) clientFlags = clientFlags & !CLIENTFLAG_REUSELASTHANDLE;
@@ -567,7 +567,7 @@ void resetIdamProperties()
     get_scalar = 0;
     get_bytes = 0;
     get_nodimdata = 0;
-    idamSetLogLevel(UDA_LOG_NONE);
+    udaSetLogLevel(UDA_LOG_NONE);
     user_timeout = TIMEOUT;
     if (getenv("UDA_TIMEOUT")) {
         user_timeout = atoi(getenv("UDA_TIMEOUT"));

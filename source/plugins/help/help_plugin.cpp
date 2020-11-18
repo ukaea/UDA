@@ -17,7 +17,7 @@
 *	init	Initialise the plugin: read all required data and process. Retain staticly for
 *		future reference.
 *---------------------------------------------------------------------------------------------------------------*/
-#include "idamServerHelp.h"
+#include "help_plugin.h"
 
 #include <stdlib.h>
 #ifdef __GNUC__
@@ -38,7 +38,7 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
-int idamServerHelp(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int helpPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     int err;
     static short init = 0;

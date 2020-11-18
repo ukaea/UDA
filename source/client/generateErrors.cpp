@@ -216,7 +216,7 @@ int generateIdamSyntheticData(int handle)
         }
 
         default:
-            free((void*)data);
+            free(data);
             return 0;
     }
 
@@ -228,7 +228,7 @@ int generateIdamSyntheticData(int handle)
     if (err != 0) {
         addIdamError(CODEERRORTYPE, "generateIdamSyntheticData", err,
                      "Unable to Generate Synthetic Data");
-        free((void*)data);
+        free(data);
         return err;
     }
 
@@ -311,7 +311,7 @@ int generateIdamSyntheticData(int handle)
     //--------------------------------------------------------------------------------------------------------------
     // Housekeeping
 
-    free((void*)data);
+    free(data);
 
     return 0;
 }
@@ -418,7 +418,7 @@ int generateIdamSyntheticDimData(int handle, int ndim)
             break;
         }
         default:
-            free((void*)data);
+            free(data);
             return 0;
     }
 
@@ -430,7 +430,7 @@ int generateIdamSyntheticDimData(int handle, int ndim)
     if (err != 0) {
         addIdamError(CODEERRORTYPE, "generateIdamSyntheticDimData", err,
                      "Unable to Generate Synthetic Dimensional Data");
-        free((void*)data);
+        free(data);
         return err;
     }
 
@@ -513,7 +513,7 @@ int generateIdamSyntheticDimData(int handle, int ndim)
     //--------------------------------------------------------------------------------------------------------------
     // Housekeeping
 
-    free((void*)data);
+    free(data);
 
     return 0;
 }
@@ -619,9 +619,9 @@ int generateIdamDataError(int handle)
             break;
         }
         default:
-            free((void*)data);
-            free((void*)errhi);
-            free((void*)errlo);
+            free(data);
+            free(errhi);
+            free(errlo);
             return 0;
     }
 
@@ -632,9 +632,9 @@ int generateIdamDataError(int handle)
                          (float*)errlo);
 
     if (err != 0) {
-        free((void*)data);
-        free((void*)errhi);
-        free((void*)errlo);
+        free(data);
+        free(errhi);
+        free(errlo);
         return err;
     }
 
@@ -764,9 +764,9 @@ int generateIdamDataError(int handle)
     //--------------------------------------------------------------------------------------------------------------
     // Housekeeping
 
-    free((void*)data);
-    free((void*)errhi);
-    free((void*)errlo);
+    free(data);
+    free(errhi);
+    free(errlo);
 
     return 0;
 }
@@ -875,9 +875,9 @@ int generateIdamDimDataError(int handle, int ndim)
             break;
         }
         default:
-            free((void*)data);
-            free((void*)errhi);
-            free((void*)errlo);
+            free(data);
+            free(errhi);
+            free(errlo);
             return 0;
     }
 
@@ -888,9 +888,9 @@ int generateIdamDimDataError(int handle, int ndim)
                          (float*)errlo);
 
     if (err != 0) {
-        free((void*)data);
-        free((void*)errhi);
-        free((void*)errlo);
+        free(data);
+        free(errhi);
+        free(errlo);
         return err;
     }
 
@@ -1019,9 +1019,9 @@ int generateIdamDimDataError(int handle, int ndim)
     //--------------------------------------------------------------------------------------------------------------
     // Housekeeping
 
-    free((void*)data);
-    free((void*)errhi);
-    free((void*)errlo);
+    free(data);
+    free(errhi);
+    free(errlo);
 
     return 0;
 }

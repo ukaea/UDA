@@ -9,6 +9,7 @@
 
 #include <cstdlib>
 #include <cerrno>
+#include <string>
 
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
@@ -17,17 +18,15 @@
 
 int startup(void)
 {
-    char idamFile[STRING_LENGTH];
-
     //----------------------------------------------------------------
     // Read Environment Variable Values (Held in a Global Structure)
 
-    const ENVIRONMENT* environment = getIdamServerEnvironment();
+    const ENVIRONMENT* environment = getServerEnvironment();
 
     //---------------------------------------------------------------
     // Open the Log Files
 
-    idamSetLogLevel((LOG_LEVEL)environment->loglevel);
+    udaSetLogLevel((LOG_LEVEL)environment->loglevel);
 
     if (environment->loglevel <= UDA_LOG_ACCESS) {
         char cmd[STRING_LENGTH];
@@ -35,9 +34,8 @@ int startup(void)
         system(cmd);
 
         errno = 0;
-        strcpy(idamFile, environment->logdir);
-        strcat(idamFile, "Access.log");
-        FILE* accout = fopen(idamFile, environment->logmode);
+        std::string log_file = std::string{ environment->logdir } + "Access.log";
+        FILE* accout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
             addIdamError(SYSTEMERRORTYPE, "startup", errno, "Access Log: ");
@@ -45,15 +43,14 @@ int startup(void)
                 fclose(accout);
             }
         } else {
-            idamSetLogFile(UDA_LOG_ACCESS, accout);
+            udaSetLogFile(UDA_LOG_ACCESS, accout);
         }
     }
 
     if (environment->loglevel <= UDA_LOG_ERROR) {
         errno = 0;
-        strcpy(idamFile, environment->logdir);
-        strcat(idamFile, "Error.log");
-        FILE* errout = fopen(idamFile, environment->logmode);
+        std::string log_file = std::string{ environment->logdir } + "Error.log";
+        FILE* errout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
             addIdamError(SYSTEMERRORTYPE, "startup", errno, "Error Log: ");
@@ -61,15 +58,14 @@ int startup(void)
                 fclose(errout);
             }
         } else {
-            idamSetLogFile(UDA_LOG_ERROR, errout);
+            udaSetLogFile(UDA_LOG_ERROR, errout);
         }
     }
 
     if (environment->loglevel <= UDA_LOG_WARN) {
         errno = 0;
-        strcpy(idamFile, environment->logdir);
-        strcat(idamFile, "DebugServer.log");
-        FILE* dbgout = fopen(idamFile, environment->logmode);
+        std::string log_file = std::string{ environment->logdir } + "DebugServer.log";
+        FILE* dbgout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
             addIdamError(SYSTEMERRORTYPE, "startup", errno, "Debug Log: ");
@@ -77,13 +73,13 @@ int startup(void)
                 fclose(dbgout);
             }
         } else {
-            idamSetLogFile(UDA_LOG_WARN, dbgout);
-            idamSetLogFile(UDA_LOG_DEBUG, dbgout);
-            idamSetLogFile(UDA_LOG_INFO, dbgout);
+            udaSetLogFile(UDA_LOG_WARN, dbgout);
+            udaSetLogFile(UDA_LOG_DEBUG, dbgout);
+            udaSetLogFile(UDA_LOG_INFO, dbgout);
         }
     }
 
-    printIdamServerEnvironment(environment);
+    printServerEnvironment(environment);
 
     return 0;
 }

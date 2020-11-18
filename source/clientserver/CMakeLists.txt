@@ -31,7 +31,6 @@ set( SRC_FILES
   initStructs.cpp
   makeRequestBlock.cpp
   manageSockets.cpp
-  md5Sum.cpp
   parseOperation.cpp
   parseXML.cpp
   printStructs.cpp
@@ -69,7 +68,6 @@ set( HEADER_FILES
   initXMLStructs.h
   makeRequestBlock.h
   manageSockets.h
-  md5Sum.h
   memstream.h
   parseOperation.h
   printStructs.h
@@ -88,6 +86,8 @@ set( HEADER_FILES
   xdrHData.h
   xdrlib.h
   xmlStructs.h
+  export.h
+  nameValueSubstitution.h
 )
 
 if( APPLE )

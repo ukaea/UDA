@@ -98,7 +98,7 @@ static void logToken(const char* msg, const gcry_mpi_t mpi_token)
 
     gcry_mpi_aprint(GCRYMPI_FMT_HEX, &token, &tokenLength, mpi_token);
     UDA_LOG(UDA_LOG_DEBUG, "%s MPI [%d] %s\n", msg, tokenLength, token);
-    free((void*)token);
+    free(token);
 }
 
 /**
@@ -166,18 +166,18 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             // Create an MPI from both the time and the quasi-random list
             gcry_mpi_t timeData;
             if (gcry_mpi_scan(&timeData, GCRYMPI_FMT_USG, timeList, timeLength, nullptr) != 0) {
-                free((void*)randList);
+                free(randList);
                 THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
             gcry_mpi_t randData;
             if (gcry_mpi_scan(&randData, GCRYMPI_FMT_USG, randList, tokenByteLength, nullptr) != 0) {
                 gcry_mpi_release(timeData);
-                free((void*)randList);
+                free(randList);
                 THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
-            free((void*)randList);
+            free(randList);
 
             // Multiply to generate a token
             *mpiToken = gcry_mpi_new(0);

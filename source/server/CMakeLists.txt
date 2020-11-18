@@ -22,7 +22,6 @@ endif()
 set( SRC_FILES
   applyXML.cpp
   closeServerSockets.cpp
-  dumpFile.cpp
   freeIdamPut.cpp
   getPluginAddress.cpp
   getServerEnvironment.cpp
@@ -41,7 +40,6 @@ set( HEADER_FILES
   applyXML.h
   closeServerSockets.h
   createXDRStream.h
-  dumpFile.h
   freeIdamPut.h
   getPluginAddress.h
   getServerEnvironment.h

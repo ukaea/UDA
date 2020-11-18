@@ -44,7 +44,7 @@ void closeServerSockets(SOCKETLIST* socks)
 {
     for (int i = 0; i < socks->nsocks; i++) closeServerSocket(socks, socks->sockets[i].fh);
     if (socks->sockets != nullptr) {
-        free((void*)socks->sockets);
+        free(socks->sockets);
     }
     initSocketList(socks);
 }

@@ -12,12 +12,12 @@ static FILE* access_log = nullptr;
 
 static LOG_LEVEL log_level = UDA_LOG_NONE;
 
-void idamSetLogLevel(LOG_LEVEL level)
+void udaSetLogLevel(LOG_LEVEL level)
 {
     log_level = level;
 }
 
-LOG_LEVEL idamGetLogLevel()
+LOG_LEVEL udaGetLogLevel()
 {
     return log_level;
 }
@@ -34,7 +34,7 @@ static FILE* idamGetLogFile(LOG_LEVEL mode)
     }
 }
 
-void idamSetLogFile(LOG_LEVEL mode, FILE* file)
+void udaSetLogFile(LOG_LEVEL mode, FILE* file)
 {
     switch (mode) {
         case UDA_LOG_ACCESS: access_log = file; break;
@@ -46,7 +46,7 @@ void idamSetLogFile(LOG_LEVEL mode, FILE* file)
     }
 }
 
-void idamLogWithFunc(LOG_LEVEL mode, logFunc func)
+void udaLogWithFunc(LOG_LEVEL mode, logFunc func)
 {
     FILE* log_file = idamGetLogFile(mode);
 
@@ -56,7 +56,7 @@ void idamLogWithFunc(LOG_LEVEL mode, logFunc func)
     }
 }
 
-void idamLog(LOG_LEVEL mode, const char * fmt, ...)
+void udaLog(LOG_LEVEL mode, const char * fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -71,7 +71,7 @@ void idamLog(LOG_LEVEL mode, const char * fmt, ...)
     va_end(args);
 }
 
-void idamCloseLogging()
+void udaCloseLogging()
 {
     if (access_log != nullptr) {
         fclose(access_log);

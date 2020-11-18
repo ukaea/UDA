@@ -85,8 +85,8 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
-void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block,
-                   const PLUGINLIST* pluginlist, const ENVIRONMENT* environment)
+void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block,
+                  const PLUGINLIST* pluginlist, const ENVIRONMENT* environment)
 {
     int err = 0;
 
@@ -214,24 +214,24 @@ void idamAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, S
         char* work = (char*)malloc(MAXMETA * sizeof(char));
 
         sprintf(work, "%s - %s [%s] [%d %s %d %d %s %s %s %s %s %s %s] %d %d [%s] %f %d %d [%d %d] [%s]",
-                host, client_block.uid, accessdate, request.request, request.signal, request.exp_number,
-                request.pass, request.tpass, request.path, request.file, request.format, request.archive,
-                request.device_name, request.server, err, (int)totalDataBlockSize, msg,
+                host, client_block.uid, accessdate, static_cast<int>(request.request), request.signal,
+                request.exp_number, request.pass, request.tpass, request.path, request.file, request.format,
+                request.archive, request.device_name, request.server, err, (int)totalDataBlockSize, msg,
                 elapsedtime, client_block.version, server_block.version, client_block.pid, server_block.pid,
                 client_block.DOI);
 
-        idamLog(UDA_LOG_ACCESS, "%s\n", work);
+        udaLog(UDA_LOG_ACCESS, "%s\n", work);
 
         // Save Provenance with socket stream protection
 
-        idamServerRedirectStdStreams(0);
-        idamProvenancePlugin(&client_block, &request, nullptr, nullptr, pluginlist, work, environment);
-        idamServerRedirectStdStreams(1);
+        udaServerRedirectStdStreams(0);
+        udaProvenancePlugin(&client_block, &request, nullptr, nullptr, pluginlist, work, environment);
+        udaServerRedirectStdStreams(1);
 
-        free((void*)work);
+        free(work);
 
     } else {
-        idamLog(UDA_LOG_ACCESS, "%s - %s [%s] [%d %s %d %d %s %s %s %s %s %s %s] %d %d [%s] %f %d %d [%d %d] [%s]\n",
+        udaLog(UDA_LOG_ACCESS, "%s - %s [%s] [%d %s %d %d %s %s %s %s %s %s %s] %d %d [%s] %f %d %d [%d %d] [%s]\n",
                 host, client_block.uid, accessdate, request.request, request.signal, request.exp_number,
                 request.pass, request.tpass, request.path, request.file, request.format, request.archive,
                 request.device_name, request.server, err, (int)totalDataBlockSize, msg,

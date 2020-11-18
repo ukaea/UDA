@@ -162,8 +162,8 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
         }
 
         addMalloc(logmalloclist, (void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1, sizeof(char), "char");
-        for (int i = 0; i < ntargets - 1; i++) free((void*)targetlist[i]);    // Free all others
-        free((void*)targetlist);                    // Free the list
+        for (int i = 0; i < ntargets - 1; i++) free(targetlist[i]);    // Free all others
+        free(targetlist);                    // Free the list
 
         // Search the user defined type definition for the last name - return if an atomic type
 
@@ -241,9 +241,9 @@ NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const cha
         addMalloc(logmalloclist, (void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1, sizeof(char), "char");
         for (int i = 0; i < ntargets - 1; i++) {
             // Free all others
-            free((void*)targetlist[i]);
+            free(targetlist[i]);
         }
-        free((void*)targetlist);     // Free the list
+        free(targetlist);     // Free the list
 
         return child; // Always the last node you look in !
     }
@@ -399,10 +399,10 @@ NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target)
 
         // Free all entries
         for (int i = 0; i < ntargets; i++) {
-            free((void*)targetlist[i]);
+            free(targetlist[i]);
         }
 
-        free((void*)targetlist);                    // Free the list
+        free(targetlist);                    // Free the list
 
         return child;
     }

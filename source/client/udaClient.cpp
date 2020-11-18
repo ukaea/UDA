@@ -36,8 +36,8 @@
 #    include <cache/memcache.h>
 #    include <cache/fileCache.h>
 #  endif
-#  ifndef SSLAUTHENTICATION
-#    include <authentication/udaSSL.h>
+#  ifdef SSLAUTHENTICATION
+#    include <authentication/udaClientSSL.h>
 #  endif
 #endif
 
@@ -348,13 +348,13 @@ int idamClient(REQUEST_BLOCK* request_block)
             UDA_LOG(UDA_LOG_DEBUG, "Server Closed and New Instance Started\n");
 
             // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
-            idamClosedown(CLOSE_SOCKETS, nullptr);
+            closedown(ClosedownType::CLOSE_SOCKETS, nullptr);
         } else if (connectionOpen()) {
             // Assume the Server is Still Alive
             if (clientOutput->x_ops == nullptr || clientInput->x_ops == nullptr) {
                 addIdamError(CODEERRORTYPE, __func__, 999, "XDR Streams are Closed!");
                 UDA_LOG(UDA_LOG_DEBUG, "XDR Streams are Closed!\n");
-                idamClosedown(CLOSE_SOCKETS, nullptr);
+                closedown(ClosedownType::CLOSE_SOCKETS, nullptr);
                 initServer = true;
             } else {
                 initServer = false;
@@ -384,14 +384,16 @@ int idamClient(REQUEST_BLOCK* request_block)
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
         // Create the SSL binding and context, and verify the server certificate
-        if ((err = startUdaClientSSL()) != 0) break;
+        if ((err = startUdaClientSSL()) != 0) {
+            break;
+        }
 #endif
 
         //-------------------------------------------------------------------------
         // Create the XDR Record Streams
 
         if (initServer) {
-            idamCreateXDRStream();
+            createXDRStream();
         }
 
         //-------------------------------------------------------------------------
@@ -1001,7 +1003,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         UDA_LOG(UDA_LOG_DEBUG, "Handle %d\n", data_block_idx);
 
         if (err != 0 && !serverside) {
-            idamClosedown(CLOSE_SOCKETS, nullptr);    // Close Socket & XDR Streams but Not Files
+            closedown(ClosedownType::CLOSE_SOCKETS, nullptr);    // Close Socket & XDR Streams but Not Files
         }
 
         if (err == 0 && (getIdamDataStatus(data_block_idx)) == MIN_STATUS && !get_bad) {
@@ -1040,17 +1042,17 @@ int idamClient(REQUEST_BLOCK* request_block)
 
     } else {
         if (allocMetaHeap) {
-            free((void*)data_system);
-            free((void*)system_config);
-            free((void*)data_source);
-            free((void*)signal_rec);
-            free((void*)signal_desc);
+            free(data_system);
+            free(system_config);
+            free(data_source);
+            free(signal_rec);
+            free(signal_desc);
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Returning Error %d\n", err);
 
         if (err != 0 && !serverside) {
-            idamClosedown(CLOSE_SOCKETS, nullptr);
+            closedown(ClosedownType::CLOSE_SOCKETS, nullptr);
         }
 
         concatIdamError(&server_block.idamerrorstack);
@@ -1076,7 +1078,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         UDA_LOG(UDA_LOG_DEBUG, "Handle %d\n", data_block_idx);
 
         if (err != 0) {
-            idamClosedown(0, &socket_list);
+            closedown(ClosedownType::CLOSE_SOCKETS, &socket_list);
         }
 
         if (err == 0 && (getIdamDataStatus(data_block_idx) == MIN_STATUS) && !get_bad) {
@@ -1124,7 +1126,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         UDA_LOG(UDA_LOG_DEBUG, "Returning Error %d\n", err);
 
         if (err != 0) {
-            idamClosedown(0, &socket_list);
+            closedown(ClosedownType::CLOSE_SOCKETS, &socket_list);
         }
 
         concatIdamError(&server_block.idamerrorstack);
@@ -1175,15 +1177,15 @@ void idamFree(int handle)
 #ifndef FATCLIENT
                     if (userdefinedtypelist == general_block->userdefinedtypelist) {  // Is this the current setting?
                         freeUserDefinedTypeList(userdefinedtypelist);
-                        free((void*)userdefinedtypelist);
+                        free(userdefinedtypelist);
                         userdefinedtypelist = nullptr;
                     } else {
                         freeUserDefinedTypeList(general_block->userdefinedtypelist);
-                        free((void*)general_block->userdefinedtypelist);
+                        free(general_block->userdefinedtypelist);
                     }
 #else
                     freeUserDefinedTypeList(general_block->userdefinedtypelist);
-                    free((void*)general_block->userdefinedtypelist);
+                    free(general_block->userdefinedtypelist);
 #endif
                 }
 
@@ -1191,25 +1193,25 @@ void idamFree(int handle)
 #ifndef FATCLIENT
                     if (logmalloclist == general_block->logmalloclist) {
                         freeMallocLogList(logmalloclist);
-                        free((void*)logmalloclist);
+                        free(logmalloclist);
                         logmalloclist = nullptr;
                     } else {
                         freeMallocLogList(general_block->logmalloclist);
-                        free((void*)general_block->logmalloclist);
+                        free(general_block->logmalloclist);
                     }
 #else
                     freeMallocLogList(general_block->logmalloclist);
-                    free((void*)general_block->logmalloclist);
+                    free(general_block->logmalloclist);
 #endif
                 }
 
 #ifndef FATCLIENT
                 if (general_block->userdefinedtype != nullptr) {
                     freeUserDefinedType(general_block->userdefinedtype);
-                    free((void*)general_block->userdefinedtype);
+                    free(general_block->userdefinedtype);
                 }
 
-                free((void*)general_block);
+                free(general_block);
 #endif
             }
 
@@ -1245,66 +1247,66 @@ void idamFree(int handle)
     ddims = data_block->dims;
 
     if ((cptr = data_block->data) != nullptr) {
-        free((void*)cptr);
+        free(cptr);
         data_block->data = nullptr;    // Prevent another Free
     }
 
     if ((cptr = data_block->errhi) != nullptr) {
-        free((void*)cptr);
+        free(cptr);
         data_block->errhi = nullptr;
     }
 
     if ((cptr = data_block->errlo) != nullptr) {
-        free((void*)cptr);
+        free(cptr);
         data_block->errlo = nullptr;
     }
 
     if ((cptr = data_block->synthetic) != nullptr) {
-        free((void*)cptr);
+        free(cptr);
         data_block->synthetic = nullptr;
     }
 
     if (data_block->data_system != nullptr) {
-        free((void*)data_block->data_system);
+        free(data_block->data_system);
         data_block->data_system = nullptr;
     }
 
     if (data_block->system_config != nullptr) {
-        free((void*)data_block->system_config);
+        free(data_block->system_config);
         data_block->system_config = nullptr;
     }
 
     if (data_block->data_source != nullptr) {
-        free((void*)data_block->data_source);
+        free(data_block->data_source);
         data_block->data_source = nullptr;
     }
 
     if (data_block->signal_rec != nullptr) {
-        free((void*)data_block->signal_rec);
+        free(data_block->signal_rec);
         data_block->signal_rec = nullptr;
     }
 
     if (data_block->signal_desc != nullptr) {
-        free((void*)data_block->signal_desc);
+        free(data_block->signal_desc);
         data_block->signal_desc = nullptr;
     }
 
     if (ddims != nullptr && rank > 0) {
         for (int i = 0; i < rank; i++) {
             if ((cptr = data_block->dims[i].dim) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             if ((cptr = data_block->dims[i].synthetic) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             if ((cptr = data_block->dims[i].errhi) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             if ((cptr = data_block->dims[i].errlo) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             data_block->dims[i].dim = nullptr;    // Prevent another Free
@@ -1313,15 +1315,15 @@ void idamFree(int handle)
             data_block->dims[i].errlo = nullptr;
 
             if ((cptr = (char*)data_block->dims[i].sams) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             if ((cptr = data_block->dims[i].offs) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             if ((cptr = data_block->dims[i].ints) != nullptr) {
-                free((void*)cptr);
+                free(cptr);
             }
 
             data_block->dims[i].sams = nullptr;
@@ -1329,7 +1331,7 @@ void idamFree(int handle)
             data_block->dims[i].ints = nullptr;
         }
 
-        free((void*)ddims);
+        free(ddims);
         data_block->dims = nullptr;    // Prevent another Free
     }
 
@@ -1386,7 +1388,7 @@ void idamFreeAll()
 
 #endif // <========================== End of Client Server Code Only
 
-    idamClosedown(CLOSE_ALL, nullptr);        // Close the Socket, XDR Streams and All Files
+    closedown(ClosedownType::CLOSE_ALL, nullptr);        // Close the Socket, XDR Streams and All Files
 }
 
 SERVER_BLOCK getIdamThreadServerBlock()
@@ -1615,7 +1617,7 @@ const char* getIdamServerErrorStackRecordMsg(int record)
 /**
 @return  the error message stack data structure
 */
-IDAMERRORSTACK* getIdamServerErrorStack()
+UDA_ERROR_STACK* getIdamServerErrorStack()
 {
     return &server_block.idamerrorstack;         // Server Error Stack Structure
 }

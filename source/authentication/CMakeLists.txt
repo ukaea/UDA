@@ -2,23 +2,14 @@ find_package( OpenSSL REQUIRED )
 
 # Sources
 
-set( SRC_FILES
-  udaClientSSL.cpp
-  udaServerSSL.cpp
-)
-
-set( HEADER_FILES
-  udaSSL.h
-)
-
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${OPENSSL_INCLUDE_DIR}
 )
 
-add_library( authentication-client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
+add_library( authentication-client-objects OBJECT udaClientSSL.cpp udaClientSSL.h udaServerSSL.h )
 
 if( NOT CLIENT_ONLY )
-  add_library( authentication-server-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
+  add_library( authentication-server-objects OBJECT udaServerSSL.cpp udaClientSSL.h )
   target_compile_definitions( authentication-server-objects PRIVATE -DSERVERBUILD )
 endif()

@@ -1,11 +1,7 @@
 #ifndef UDA_CLIENTSERVER_MD5SUM_H
 #define UDA_CLIENTSERVER_MD5SUM_H
 
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
+#include "clientserver/export.h"
 
 #ifdef __cplusplus
 extern "C" {

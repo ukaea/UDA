@@ -12,12 +12,7 @@
 #include <blitz/array.h>
 #include "singleValue.h"
 #include <sstream>
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
+#include <clientserver/export.h>
 
 //!  Utility routines
 namespace UtilitiesNs
@@ -36,9 +31,6 @@ namespace UtilitiesNs
 */
 LIBRARY_API SingleValueNs::SingleValue<double> timeAverage(const SingleValueNs::SingleValue<double> timeWindow, const SingleValueNs::SingleValue<double> timePoint, const SingleValueNs::SingleValue<int> index, const blitz::Array<double,1>& times, const blitz::Array<double,1>& values);
 
-
-
-
 //! Assigns the value of an  XML attribute to a SingleValueNs::SingleValue<double> object.
 /*!
   \param DomElement    The Dom element containing the given attribute.
@@ -48,7 +40,6 @@ LIBRARY_API SingleValueNs::SingleValue<double> timeAverage(const SingleValueNs::
 */
 LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, SingleValueNs::SingleValue<double>& attributeValue);
 
-
 //! Assigns the value of an  XML attribute to a SingleValueNs::SingleValue<int> object.
 /*!
   \param DomElement    The Dom element containing the given attribute.
@@ -57,7 +48,6 @@ LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::str
   \return If successful returns true, otherwise false
 */
 LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, SingleValueNs::SingleValue<int>& attributeValue);
-
 
 //! Assigns the value of an  XML attribute to a blitz::Array<double,1> object.
 /*!
@@ -72,7 +62,6 @@ LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::str
 */
 LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, blitz::Array<double,1>& attributeValue);
 
-
 //! Assigns the value of an  XML attribute to a blitz::Array<int,1> object.
 /*!
   The routine will first try to
@@ -85,7 +74,6 @@ LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::str
   \return If successful returns true, otherwise false
 */
 LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, blitz::Array<int,1>& attributeValue);
-
 
 //! Assigns the value of an  XML attribute to a blitz::Array<double,2> object.
 /*!
@@ -100,7 +88,6 @@ LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::str
 */
 LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, blitz::Array<double,2>& attributeValue);
 
-
 //! Assigns the value of an  XML attribute to a std::string object.
 /*!
   \param DomElement    The Dom element containing the given attribute.
@@ -114,7 +101,6 @@ LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::str
   \file utilities.h
   \brief contains global functions.
 */
-
 
 //! get the version of EFIT++ being run
 /*!
@@ -135,15 +121,8 @@ LIBRARY_API std::string getEfitVersion();
 */
 LIBRARY_API double getNaN() ;
 
-
-
 //! Function opens an XML file, parses it and returns a reference to the DOM document.
 LIBRARY_API bool openAndParseXmlFile(const std::string& xmlFileName, QDomDocument& domDocument);
-
-
-
-
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -161,8 +140,6 @@ template <class T> std::string valueToString( T value )
 
     return oss.str();
 }
-
-
 
 /////////////////////////////////////////////////////////////////////////////
 //

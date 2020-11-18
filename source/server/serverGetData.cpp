@@ -19,29 +19,25 @@
 #include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/printStructs.h>
-#include <clientserver/protocol.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/nameValueSubstitution.h>
 #include <structures/struct.h>
 
 #include "applyXML.h"
-#include "dumpFile.h"
 #include "getServerEnvironment.h"
 #include "makeServerRequestBlock.h"
 #include "serverPlugin.h"
 #include "serverSubsetData.h"
 
-static int idamserverSwapSignalError(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry);
-
-static int idamserverSwapSignalDim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2);
-
-static int idamserverSwapSignalDimError(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
-                                        int asymmetry);
-
-static int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block, DATA_BLOCK* data_block,
-                              DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
-                              const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-                              USERDEFINEDTYPELIST* userdefinedtypelist);
+static int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry);
+static int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2);
+static int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
+                                 int asymmetry);
+static int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block, DATA_BLOCK* data_block,
+                     DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
+                     const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
+                     USERDEFINEDTYPELIST* userdefinedtypelist);
 
 int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
                DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
@@ -98,7 +94,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
                 serverside = 1;
                 initActions(&actions_serverside);
                 int rc;
-                if ((rc = idamserverParseServerSide(request_block, &actions_serverside)) != 0) {
+                if ((rc = serverParseServerSide(request_block, &actions_serverside)) != 0) {
                     return rc;
                 }
                 // Erase original SUBSET request
@@ -112,7 +108,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
                 serverside = 1;
                 initActions(&actions_serverside);
                 int rc;
-                if ((rc = idamserverParseServerSide(request_block, &actions_serverside)) != 0) {
+                if ((rc = serverParseServerSide(request_block, &actions_serverside)) != 0) {
                     return rc;
                 }
                 // Erase original SUBSET request
@@ -124,8 +120,8 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     //--------------------------------------------------------------------------------------------------------------------------
     // Read the Data (Returns rc < 0 if the signal is a derived type or is defined in an XML document)
 
-    int rc = idamserverReadData(request_block, client_block, data_block, data_source, signal_rec, signal_desc,
-                                pluginlist, logmalloclist, userdefinedtypelist);
+    int rc = read_data(request_block, client_block, data_block, data_source, signal_rec, signal_desc,
+                       pluginlist, logmalloclist, userdefinedtypelist);
 
     UDA_LOG(UDA_LOG_DEBUG, "After idamserverReadData rc = %d\n", rc);
     UDA_LOG(UDA_LOG_DEBUG, "Is the Signal a Composite? %d\n", signal_desc->type == 'C');
@@ -166,7 +162,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
         UDA_LOG(UDA_LOG_DEBUG, "parsing XML for a COMPOSITE Signal\n");
 
-        rc = idamserverParseSignalXML(*data_source, *signal_rec, *signal_desc, &actions_comp_desc, &actions_comp_sig);
+        rc = serverParseSignalXML(*data_source, *signal_rec, *signal_desc, &actions_comp_desc, &actions_comp_sig);
 
         UDA_LOG(UDA_LOG_DEBUG, "parsing XML RC? %d\n", rc);
 
@@ -330,7 +326,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
         if (!client_block.get_asis) {
 
             // Regular Signal
-            rc = idamserverParseSignalXML(*data_source, *signal_rec, *signal_desc, actions_desc, actions_sig);
+            rc = serverParseSignalXML(*data_source, *signal_rec, *signal_desc, actions_desc, actions_sig);
 
             if (rc == -1) {
                 if (!serverside) {
@@ -397,7 +393,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
             // Replace Error Data
 
-            rc = idamserverSwapSignalError(data_block, &data_block2, 0);
+            rc = swap_signal_error(data_block, &data_block2, 0);
             freeDataBlock(&data_block2);
 
             if (rc != 0) {
@@ -443,7 +439,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
             // Replace Error Data
 
-            rc = idamserverSwapSignalError(data_block, &data_block2, 1);
+            rc = swap_signal_error(data_block, &data_block2, 1);
             freeDataBlock(&data_block2);
 
             if (rc != 0) {
@@ -544,8 +540,8 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
                     // Replace Dimension Data
 
-                    rc = idamserverSwapSignalDim(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
-                                                 data_block, &data_block2);
+                    rc = swap_signal_dim(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
+                                         data_block, &data_block2);
 
                     freeDataBlock(&data_block2);
 
@@ -592,8 +588,8 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
                     // Replace Dimension Error Data
 
-                    rc = idamserverSwapSignalDimError(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
-                                                      data_block, &data_block2, 0);
+                    rc = swap_signal_dim_error(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
+                                               data_block, &data_block2, 0);
 
                     freeDataBlock(&data_block2);
 
@@ -640,8 +636,8 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
                     // Replace Dimension Asymmetric Error Data
 
-                    rc = idamserverSwapSignalDimError(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
-                                                      data_block, &data_block2, 1);
+                    rc = swap_signal_dim_error(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
+                                               data_block, &data_block2, 1);
                     freeDataBlock(&data_block2);
 
                     if (rc != 0) {
@@ -664,10 +660,10 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
         // All Signal Actions have Precedence over Signal_Desc Actions: Deselect if there is a conflict
 
-        idamserverDeselectSignalXML(actions_desc, actions_sig);
+        serverDeselectSignalXML(actions_desc, actions_sig);
 
-        idamserverApplySignalXML(client_block, data_source, signal_rec, signal_desc, data_block, *actions_desc);
-        idamserverApplySignalXML(client_block, data_source, signal_rec, signal_desc, data_block, *actions_sig);
+        serverApplySignalXML(client_block, data_source, signal_rec, signal_desc, data_block, *actions_desc);
+        serverApplySignalXML(client_block, data_source, signal_rec, signal_desc, data_block, *actions_sig);
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "#Timing After XML\n");
@@ -677,10 +673,10 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     // Subset Data or Map Data when all other actions have been applied
 
     if (isDerived && compId > -1) {
-        UDA_LOG(UDA_LOG_DEBUG, "Calling idamserverSubsetData (Derived)  %d\n", *depth);
+        UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Derived)  %d\n", *depth);
         printDataBlock(*data_block);
 
-        if ((rc = idamserverSubsetData(data_block, actions_desc->action[compId], logmalloclist)) != 0) {
+        if ((rc = serverSubsetData(data_block, actions_desc->action[compId], logmalloclist)) != 0) {
             (*depth)--;
             return rc;
         }
@@ -692,10 +688,10 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     if (!serverside && !isDerived && signal_desc->type == 'S') {
         for (int i = 0; i < actions_desc->nactions; i++) {
             if (actions_desc->action[i].actionType == SUBSETTYPE) {
-                UDA_LOG(UDA_LOG_DEBUG, "Calling idamserverSubsetData (SUBSET)   %d\n", *depth);
+                UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (SUBSET)   %d\n", *depth);
                 printDataBlock(*data_block);
 
-                if ((rc = idamserverSubsetData(data_block, actions_desc->action[i], logmalloclist)) != 0) {
+                if ((rc = serverSubsetData(data_block, actions_desc->action[i], logmalloclist)) != 0) {
                     (*depth)--;
                     return rc;
                 }
@@ -710,10 +706,10 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
         for (int i = 0; i < actions_serverside.nactions; i++) {
             if (actions_serverside.action[i].actionType == SERVERSIDETYPE) {
                 for (int j = 0; j < actions_serverside.action[i].serverside.nsubsets; j++) {
-                    UDA_LOG(UDA_LOG_DEBUG, "Calling idamserverSubsetData (Serverside)   %d\n", *depth);
+                    UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Serverside)   %d\n", *depth);
                     printDataBlock(*data_block);
 
-                    if ((rc = idamserverSubsetData(data_block, actions_serverside.action[i], logmalloclist)) != 0) {
+                    if ((rc = serverSubsetData(data_block, actions_serverside.action[i], logmalloclist)) != 0) {
                         (*depth)--;
                         return rc;
                     }
@@ -729,19 +725,19 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     return 0;
 }
 
-int idamserverSwapSignalError(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry)
+int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry)
 {
     // Check Rank and Array Block Size are equal
 
     if (data_block->rank == data_block2->rank && data_block->data_n == data_block2->data_n) {
 
         if (!asymmetry) {
-            if (data_block->errhi != nullptr) free((void*)data_block->errhi);    // Free unwanted Error Data Heap
+            if (data_block->errhi != nullptr) free(data_block->errhi);    // Free unwanted Error Data Heap
             data_block->errhi = data_block2->data;                // straight swap!
             data_block2->data = nullptr;                        // Prevent Double Heap Free
             data_block->errasymmetry = 0;
         } else {
-            if (data_block->errlo != nullptr) free((void*)data_block->errlo);
+            if (data_block->errlo != nullptr) free(data_block->errlo);
             data_block->errlo = data_block2->data;
             data_block2->data = nullptr;
             data_block->errasymmetry = 1;
@@ -756,7 +752,7 @@ int idamserverSwapSignalError(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, i
     return 0;
 }
 
-int idamserverSwapSignalDim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2)
+int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2)
 {
     void* cptr = nullptr;
 
@@ -872,8 +868,8 @@ int idamserverSwapSignalDim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, D
 }
 
 
-int idamserverSwapSignalDimError(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
-                                 int asymmetry)
+int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
+                          int asymmetry)
 {
     void* cptr = nullptr;
 
@@ -905,10 +901,10 @@ int idamserverSwapSignalDimError(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_blo
     return 0;
 }
 
-int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
-                       DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
-                       const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-                       USERDEFINEDTYPELIST* userdefinedtypelist)
+int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
+              DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
+              const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
+              USERDEFINEDTYPELIST* userdefinedtypelist)
 {
     // If err = 0 then standard signal data read
     // If err > 0 then an error occured
@@ -979,7 +975,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 
         // Identify the required Plugin
 
-        int plugin_id = idamServerMetaDataPluginId(pluginlist, getIdamServerEnvironment());
+        int plugin_id = udaServerMetaDataPluginId(pluginlist, getServerEnvironment());
         if (plugin_id < 0) {
             // No plugin so not possible to identify the requested data item
             THROW_ERROR(778, "Unable to identify requested data item");
@@ -993,8 +989,8 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 
         // Execute the plugin to resolve the identity of the data requested
 
-        int err = idamServerMetaDataPlugin(pluginlist, plugin_id, request_block, signal_desc, signal_rec, data_source,
-                                           getIdamServerEnvironment());
+        int err = udaServerMetaDataPlugin(pluginlist, plugin_id, request_block, signal_desc, signal_rec, data_source,
+                                          getServerEnvironment());
 
         if (err != 0) {
             THROW_ERROR(err, "No Record Found for this Generic Signal");
@@ -1015,7 +1011,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
     // Modifes HEAP in request_block
 
     {
-        int err = nameValueSubstitution(&request_block->nameValueList, request_block->tpass);
+        int err = name_value_substitution(&request_block->nameValueList, request_block->tpass);
         if (err != 0) return err;
     }
 
@@ -1055,7 +1051,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
         return -1;
     }
 
-    ENVIRONMENT* environment = getIdamServerEnvironment();
+    ENVIRONMENT* environment = getServerEnvironment();
 
     //------------------------------------------------------------------------------
     // Read Data via a Suitable Registered Plugin using a standard interface
@@ -1126,7 +1122,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
                 // Redirect Output to temporary file if no file handles passed
                 int reset = 0;
                 int rc;
-                if ((rc = idamServerRedirectStdStreams(reset)) != 0) {
+                if ((rc = udaServerRedirectStdStreams(reset)) != 0) {
                     THROW_ERROR(rc, "Error Redirecting Plugin Message Output");
                 }
 #endif
@@ -1137,7 +1133,7 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 #ifndef FATCLIENT
                 // Reset Redirected Output
                 reset = 1;
-                if ((rc = idamServerRedirectStdStreams(reset)) != 0) {
+                if ((rc = udaServerRedirectStdStreams(reset)) != 0) {
                     THROW_ERROR(rc, "Error Resetting Redirected Plugin Message Output");
                 }
 #endif
@@ -1150,10 +1146,10 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 
                 // Save Provenance with socket stream protection
 
-                idamServerRedirectStdStreams(0);
-                idamProvenancePlugin(&client_block, request_block, data_source, signal_desc, pluginlist, nullptr,
-                                     getIdamServerEnvironment());
-                idamServerRedirectStdStreams(1);
+                udaServerRedirectStdStreams(0);
+                udaProvenancePlugin(&client_block, request_block, data_source, signal_desc, pluginlist, nullptr,
+                                    getServerEnvironment());
+                udaServerRedirectStdStreams(1);
 
                 // If no structures to pass back (only regular data) then free the user defined type list
 
@@ -1235,10 +1231,10 @@ int idamserverReadData(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
     //----------------------------------------------------------------------------
     // Save Provenance with socket stream protection
 
-    idamServerRedirectStdStreams(0);
-    idamProvenancePlugin(&client_block, request_block, data_source, signal_desc, pluginlist, nullptr,
-                         getIdamServerEnvironment());
-    idamServerRedirectStdStreams(1);
+    udaServerRedirectStdStreams(0);
+    udaProvenancePlugin(&client_block, request_block, data_source, signal_desc, pluginlist, nullptr,
+                        getServerEnvironment());
+    udaServerRedirectStdStreams(1);
 
     return 0;
 }

@@ -138,21 +138,21 @@ int main()
         authenticationStep = SERVER_DECRYPT_CLIENT_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(CODEERRORTYPE, "idamServer", err, "Client or Server Authentication Failed #2");
+            addIdamError(CODEERRORTYPE, __func__, err, "Client or Server Authentication Failed #2");
             break;
         }
 
         authenticationStep = SERVER_ENCRYPT_CLIENT_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(CODEERRORTYPE, "idamServer", err, "Client or Server Authentication Failed #3");
+            addIdamError(CODEERRORTYPE, __func__, err, "Client or Server Authentication Failed #3");
             break;
         }
 
         authenticationStep = SERVER_ISSUE_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(CODEERRORTYPE, "idamServer", err, "Client or Server Authentication Failed #4");
+            addIdamError(CODEERRORTYPE, __func__, err, "Client or Server Authentication Failed #4");
             break;
         }
 
@@ -190,7 +190,7 @@ int main()
         authenticationStep = SERVER_VERIFY_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(CODEERRORTYPE, "idamServer", err, "Client or Server Authentication Failed #7");
+            addIdamError(CODEERRORTYPE, __func__, err, "Client or Server Authentication Failed #7");
             break;
         }
 

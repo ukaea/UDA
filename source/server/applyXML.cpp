@@ -21,8 +21,8 @@
 #include <clientserver/udaTypes.h>
 #include <clientserver/stringUtils.h>
 
-int idamserverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC signal_desc,
-                             ACTIONS* actions_desc, ACTIONS* actions_sig)
+int serverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC signal_desc,
+                         ACTIONS* actions_desc, ACTIONS* actions_sig)
 {
 
 // return -1 if No Qualifying Actionable XML otherwise return 0
@@ -239,9 +239,9 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
 }
 
 
-void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_source, SIGNAL* signal,
-                              SIGNAL_DESC* signal_desc,
-                              DATA_BLOCK* data_block, ACTIONS actions)
+void serverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_source, SIGNAL* signal,
+                          SIGNAL_DESC* signal_desc,
+                          DATA_BLOCK* data_block, ACTIONS actions)
 {
 
     int ndata, dimid;
@@ -368,7 +368,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                                 data_block->dims[data_block->order].ints = nullptr;
                             } else {
                                 if (data_block->dims[data_block->order].dim != nullptr) {
-                                    free((void*)data_block->dims[data_block->order].dim);
+                                    free(data_block->dims[data_block->order].dim);
                                 }
                                 data_block->dims[data_block->order].dim = nullptr;
                             }
@@ -393,7 +393,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
                             data_block->dims[data_block->order].ints = nullptr;
                         } else {
                             if (data_block->dims[data_block->order].dim != nullptr) {
-                                free((void*)data_block->dims[data_block->order].dim);
+                                free(data_block->dims[data_block->order].dim);
                             }
                             data_block->dims[data_block->order].dim = nullptr;
                         }
@@ -1347,7 +1347,7 @@ void idamserverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_sourc
 
 // Combine the set of Actions from both sources with Signal XML having Priority of Signal_Desc XML
 
-void idamserverDeselectSignalXML(ACTIONS* actions_desc, ACTIONS* actions_sig)
+void serverDeselectSignalXML(ACTIONS* actions_desc, ACTIONS* actions_sig)
 {
 
     int type;

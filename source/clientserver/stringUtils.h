@@ -4,15 +4,10 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include "export.h"
 
 #ifndef _WIN32
 #  include <strings.h>
-#endif
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
 #endif
 
 #ifdef __cplusplus

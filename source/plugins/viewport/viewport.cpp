@@ -538,15 +538,15 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         }
 
                         count = newCount;
-                        free((void*)values);
-                        free((void*)coords);
+                        free(values);
+                        free(coords);
 
                         values = newValues;
                         coords = newCoords;
 
                     }
 
-                    free((void*)remove);
+                    free(remove);
                 }
 
                 // Reduce data to fix the device coordinates (relative pixels)
@@ -658,10 +658,10 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         UDA_LOG(UDA_LOG_DEBUG, "[%d] %d\n", i, frtot[i]);
                     }
 
-                    free((void*)column);
-                    free((void*)row);
-                    free((void*)fctot);
-                    free((void*)frtot);
+                    free(column);
+                    free(row);
+                    free(fctot);
+                    free(frtot);
 
                     // Build return values
 
@@ -780,7 +780,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                             goodCount++;
                         }
 
-                        free((void*)freq[i]);
+                        free(freq[i]);
 
                         if (i == 0) {
                             UDA_LOG(UDA_LOG_DEBUG, "&data = %p\n", data);
@@ -799,12 +799,12 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     }
                     // Free allocated heap
 
-                    free((void*)values);
-                    free((void*)coords);
-                    free((void*)freq);
-                    free((void*)verticalPixelValues);
-                    free((void*)verticalPixelBoundaries);
-                    free((void*)integral);
+                    free(values);
+                    free(coords);
+                    free(freq);
+                    free(verticalPixelValues);
+                    free(verticalPixelBoundaries);
+                    free(integral);
 
                     // data, errhi, errlo, horizontalPixelValues heap freed once the server transmits the data
                     // heap within the idam layer is freed on reset or clearCache or if the cache fills
@@ -827,12 +827,12 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                                 ID++;
                             }
                         }
-                        free((void*)good);
+                        free(good);
 
-                        free((void*)data);
-                        free((void*)errlo);
-                        free((void*)errhi);
-                        free((void*)horizontalPixelValues);
+                        free(data);
+                        free(errlo);
+                        free(errhi);
+                        free(horizontalPixelValues);
 
                         data = newData;
                         errlo = newErrlo;
@@ -877,7 +877,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                         data_block->errasymmetry = 1;
                         data_block->errlo = (char*)errlo;
                     } else {
-                        free((void*)errlo);
+                        free(errlo);
                     }
                     data_block->errhi = (char*)errhi;
                     data_block->error_type = UDA_TYPE_FLOAT;

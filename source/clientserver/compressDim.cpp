@@ -15,9 +15,9 @@
 
 #include "compressDim.h"
 
-#include <float.h>
-#include <math.h>
-#include <stdlib.h>
+#include <cfloat>
+#include <cmath>
+#include <cstdlib>
 #include <clientserver/udaTypes.h>
 
 #include "udaErrors.h"

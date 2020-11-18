@@ -1,13 +1,9 @@
-#ifndef IDAM_STRUCTURES_PARSEINCLUDEFILE_H
-#define IDAM_STRUCTURES_PARSEINCLUDEFILE_H
+#ifndef UDA_STRUCTURES_PARSEINCLUDEFILE_H
+#define UDA_STRUCTURES_PARSEINCLUDEFILE_H
 
 #include "genStructs.h"
 
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
+#include <clientserver/export.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,5 +15,5 @@ LIBRARY_API int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const
 }
 #endif
 
-#endif // IDAM_STRUCTURES_PARSEINCLUDEFILE_H
+#endif // UDA_STRUCTURES_PARSEINCLUDEFILE_H
 

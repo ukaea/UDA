@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <rpc/rpc.h>
+#include <cstdio>
 #if defined(__GNUC__)
 #  include <strings.h>
 #else
@@ -23,7 +22,6 @@
 #include "createXDRStream.h"
 #include "freeIdamPut.h"
 #include "getServerEnvironment.h"
-#include "makeServerRequestBlock.h"
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
@@ -35,12 +33,7 @@
 #endif
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-#include <authentication/udaSSL.h>
-#endif
-
-#ifdef NONETCDFPLUGIN
-void ncclose(int fh) {
-}
+#  include <authentication/udaServerSSL.h>
 #endif
 
 //--------------------------------------------------------------------------------------
@@ -192,7 +185,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, CLIENT_BL
     if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                          server_block, protocolVersion)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
-        addIdamError(CODEERRORTYPE, "idamServer", err, "Protocol 11 Error (Sending Server Block #2)");
+        addIdamError(CODEERRORTYPE, __func__, err, "Protocol 11 Error (Sending Server Block #2)");
         return err;
     }
 
@@ -622,7 +615,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     //----------------------------------------------------------------------
     // Write to the Access Log
 
-    idamAccessLog(TRUE, *client_block, *request_block, *server_block, &pluginList, getIdamServerEnvironment());
+    udaAccessLog(TRUE, *client_block, *request_block, *server_block, &pluginList, getServerEnvironment());
 
     //----------------------------------------------------------------------
     // Initialise Data Structures
@@ -659,12 +652,12 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     // Decide on Authentication procedure
 
     if (protocolVersion >= 6) {
-        if ((err = idamServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc,
-                                    &pluginList, getIdamServerEnvironment())) != 0) {
+        if ((err = udaServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc,
+                                   &pluginList, getServerEnvironment())) != 0) {
             return err;
         }
     } else {
-        if ((err = idamServerLegacyPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc)) !=
+        if ((err = udaServerLegacyPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc)) !=
             0) {
             return err;
         }
@@ -786,7 +779,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
         UDA_LOG(UDA_LOG_DEBUG, "Data structures sent to client\n");
         UDA_LOG(UDA_LOG_DEBUG, "Report To Client Error: %d [%d]\n", err, *fatal);
 
-        idamAccessLog(FALSE, *client_block, *request_block, *server_block, &pluginList, getIdamServerEnvironment());
+        udaAccessLog(FALSE, *client_block, *request_block, *server_block, &pluginList, getServerEnvironment());
 
         err = 0;
         next_protocol = PROTOCOL_SLEEP;
@@ -800,7 +793,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
         userdefinedtypelist = nullptr;
 
         freeMallocLogList(logmalloclist);
-        free((void*)logmalloclist);
+        free(logmalloclist);
         logmalloclist = nullptr;
 
         UDA_LOG(UDA_LOG_DEBUG, "freeDataBlock\n");
@@ -815,12 +808,12 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
         //----------------------------------------------------------------------------
         // Free Name Value pair
 
-        freeNameValueList(&request_block->nameValueList);
+        free_name_value_list(&request_block->nameValueList);
 
         //----------------------------------------------------------------------------
         // Free PutData Blocks
 
-        freeIdamServerPutDataBlockList(&request_block->putDataBlockList);
+        freeServerPutDataBlockList(&request_block->putDataBlockList);
 
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
@@ -839,8 +832,6 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
 
         UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
         initServerBlock(server_block, serverVersion);
-
-        UDA_LOG(UDA_LOG_DEBUG, "At End of Error Trap\n");
 
         //----------------------------------------------------------------------------
         // Server Wait Loop
@@ -890,7 +881,7 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
 
     fflush(nullptr);
 
-    idamCloseLogging();
+    udaCloseLogging();
 
     //----------------------------------------------------------------------------
     // Close the SSL binding and context
@@ -1036,7 +1027,8 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
     if (client_block->version <= legacyServerVersion) {
         UDA_LOG(UDA_LOG_DEBUG, "Diverting to the Legacy Server\n");
         UDA_LOG(UDA_LOG_DEBUG, "Client protocol %d\n", client_block->version);
-        return idamLegacyServer(*client_block, &pluginList, logmalloclist, userdefinedtypelist, &socket_list, protocolVersion);
+        return legacyServer(*client_block, &pluginList, logmalloclist, userdefinedtypelist, &socket_list,
+                            protocolVersion);
     }
 
     return err;
@@ -1046,7 +1038,6 @@ int startupServer(SERVER_BLOCK* server_block)
 {
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;
-    //static int fileParsed = 0;
 
     //-------------------------------------------------------------------------
     // Create the Server Log Directory: Fatal Error if any Problem Opening a Log?
@@ -1071,7 +1062,9 @@ int startupServer(SERVER_BLOCK* server_block)
     putUdaServerSSLSocket(0);
     
     int err = 0;
-    if ((err = startUdaServerSSL()) != 0) return err;
+    if ((err = startUdaServerSSL()) != 0) {
+        return err;
+    }
 
 #endif
 
@@ -1119,7 +1112,7 @@ int startupServer(SERVER_BLOCK* server_block)
 
     if (!plugin_list_initialised) {
         pluginList.count = 0;
-        initPluginList(&pluginList, getIdamServerEnvironment());
+        initPluginList(&pluginList, getServerEnvironment());
         plugin_list_initialised = 1;
 
         UDA_LOG(UDA_LOG_INFO, "List of Plugins available\n");

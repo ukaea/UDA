@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <string>
+
+#include <clientserver/export.h>
+
 #ifdef __GNUC__
 #  include <cxxabi.h>
 #else
@@ -10,13 +13,10 @@
 #endif
 
 #if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
 #  if !defined(__GNUC__)
 #    pragma warning(push)
 #    pragma warning(disable: 4251)
 #  endif
-#else
-#  define LIBRARY_API
 #endif
 
 namespace uda {

@@ -38,7 +38,7 @@ void initServerRequestBlock(REQUEST_BLOCK* str)
 
 int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList)
 {
-    return makeRequestBlock(request_block, pluginList, getIdamServerEnvironment());
+    return make_request_block(request_block, pluginList, getServerEnvironment());
 }
 
 #endif

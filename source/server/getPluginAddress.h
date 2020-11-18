@@ -2,18 +2,13 @@
 #define UDA_GETPLUGIN_ADDRESS_H
 
 #include <plugins/udaPlugin.h>
-
-#if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
-#else
-#  define LIBRARY_API
-#endif
+#include <clientserver/export.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-LIBRARY_API int getPluginAddress(void **pluginHandle, const char *library, const char *symbol, PLUGINFUNP *idamPlugin);
+LIBRARY_API int getPluginAddress(void **pluginHandle, const char *library, const char *symbol, PLUGINFUNP *pluginfunp);
 
 #ifdef __cplusplus
 }

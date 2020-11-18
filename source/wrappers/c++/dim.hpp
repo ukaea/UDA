@@ -1,19 +1,16 @@
-#ifndef IDAM_WRAPPERS_CPP_DIM_H
-#define IDAM_WRAPPERS_CPP_DIM_H
+#ifndef UDA_WRAPPERS_CPP_DIM_H
+#define UDA_WRAPPERS_CPP_DIM_H
 
 #include <string>
 #include <boost/multi_array/base.hpp>
-
+#include <clientserver/export.h>
 #include "vector.hpp"
 
 #if defined(_WIN32)
-#  define LIBRARY_API __declspec(dllexport)
 #  if !defined(__GNUC__)
 #    pragma warning(push)
 #    pragma warning(disable: 4251)
 #  endif
-#else
-#  define LIBRARY_API
 #endif
 
 namespace uda {
@@ -100,4 +97,4 @@ private:
 #  pragma warning(pop)
 #endif
 
-#endif //IDAM_WRAPPERS_CPP_DIM_H
+#endif // UDA_WRAPPERS_CPP_DIM_H
