@@ -14,13 +14,14 @@ cdef class Result:
 
     cdef int _handle
     cdef int _is_tree
-    _meta = {}
+    cdef dict _meta = None
 
     def __init__(self, int handle):
         self._handle = handle
         self._is_tree = 1 if uda.setIdamDataTree(handle) != 0 else 0
         cdef uda.SIGNAL_DESC* signal_desc
         cdef uda.DATA_SOURCE* source
+        self._meta = {}
         if handle >= 0 and uda.getIdamProperties(handle).get_meta:
             signal_desc = uda.getIdamSignalDesc(handle)
             self._meta["signal_name"] = signal_desc.signal_name

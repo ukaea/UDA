@@ -162,7 +162,7 @@ if( SERVER_ONLY )
 endif()
 
 if( NOT CLIENT_ONLY AND NOT BUILD_SHARED_LIBS )
-  message( FATAL_ERROR "cannot compile client AND server when BUILD_SHARED_LIBS is not setted" )
+  message( FATAL_ERROR "cannot compile client AND server when BUILD_SHARED_LIBS is not set" )
 endif()
 
 if( SSLAUTHENTICATION )
