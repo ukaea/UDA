@@ -156,7 +156,7 @@ int set_db_file_lock_state(FILE* db, LockActionType type)
 {
     int fd = fileno(db);
 
-    flock lock = {};
+    struct flock lock = {};
     lock.l_whence = SEEK_SET;               // Relative to the start of the file
     lock.l_start = 0;                       // Lock applies from this byte
     lock.l_len = 0;                         // To the end of the file

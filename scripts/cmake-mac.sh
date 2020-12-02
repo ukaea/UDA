@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cmake -GNinja -H. -Bbuild -DTARGET_TYPE=MAST \
-    -DNO_MODULES=ON \
-    -DCMAKE_INSTALL_PREFIX=$HOME/Projects/uda-develop \
-    -DCMAKE_BUILD_TYPE=Debug $*
+cmake -GNinja -H. -Bbuild \
+    -DBUILD_SHARED_LIBS=ON \
+    -DCMAKE_INSTALL_PREFIX=. \
+    -DCMAKE_BUILD_TYPE=Debug "$@"

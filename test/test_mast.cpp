@@ -41,7 +41,8 @@ TEST_CASE( "Test get anu_neutrons signal", "[MAST]" )
 
     REQUIRE( arr->type().name() == typeid(float).name() );
 
-    float* farr = arr->as<float>().data();
+    auto vec = arr->as<float>();
+    float* farr = vec.data();
 
     REQUIRE( farr != nullptr );
     REQUIRE( farr[100] == Approx(2.0580316e+11) );
