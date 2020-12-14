@@ -213,6 +213,7 @@ cdef put_ndarray(const char* instruction, np.ndarray data):
 
 cdef put_scalar(const char* instruction, object data):
     cdef uda.PUTDATA_BLOCK put_data
+    uda.initIdamPutDataBlock(&put_data)
 
     cdef np.dtype type = np.PyArray_DescrFromScalar(data)
     cdef char* bytes = <char *> malloc(type.itemsize)
