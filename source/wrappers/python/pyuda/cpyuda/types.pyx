@@ -64,7 +64,7 @@ cdef object to_python_c(const char* type, int rank, int* shape, int point, void*
     else:
         np_type = uda_field_type_to_numpy_type(type.decode())
         if np_type >= 0:
-            if point:
+            if point and rank == 0:
                 np_shape[0] = shape[0]
                 arr = np.PyArray_SimpleNewFromData(1, np_shape, np_type, data)
                 return arr
