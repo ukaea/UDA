@@ -3505,7 +3505,7 @@ void* getNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
         return nullptr;
     }
 
-    if (!strcmp(ntree->name, lastname)) {
+    if ((strchr(target, '.') != nullptr || strchr(target, '/') != nullptr) && !strcmp(ntree->name, lastname)) {
         return ntree->data;
     }
 

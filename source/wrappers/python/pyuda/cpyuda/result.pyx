@@ -14,7 +14,7 @@ cdef class Result:
 
     cdef int _handle
     cdef int _is_tree
-    cdef dict _meta = None
+    cdef dict _meta   
 
     def __init__(self, int handle):
         self._handle = handle
