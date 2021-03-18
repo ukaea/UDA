@@ -16,4 +16,4 @@ prepend-path        PYTHONPATH          $UDA_DIR/python
 prepend-path        LD_LIBRARY_PATH     $UDA_DIR/lib
 prepend-path        IDL_DLM_PATH        $UDA_DIR/dlm
 prepend-path        IDL_PATH            $UDA_DIR/idl
-prepend-path        PKG_CONFIG_PATH     $UDA_DIR/etc
+prepend-path        PKG_CONFIG_PATH     $UDA_DIR/lib/pkgconfig
