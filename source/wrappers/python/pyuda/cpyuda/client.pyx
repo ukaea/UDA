@@ -3,6 +3,7 @@
 import numpy as np
 cimport uda
 cimport numpy as np
+from cpython.version cimport PY_MAJOR_VERSION
 from libc cimport string
 from libc.stdlib cimport malloc, free
 from libc.string cimport strlen
@@ -31,9 +32,10 @@ _properties = {
     "filecache": ("FILE_CACHE", False),
 }
 
-
-Properties = type('Properties', (), {v[0]:k for k,v in _properties.items()})
-
+if PY_MAJOR_VERSION >= 3.0:
+    Properties = type('Properties', (), {v[0]:k for k,v in _properties.items()})
+else:
+    Properties = type(b'Properties', (), {v[0]:k for k,v in _properties.items()})
 
 def set_property(prop_name, value):
     if prop_name.lower() not in _properties:
