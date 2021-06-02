@@ -256,7 +256,7 @@ install( TARGETS server-exe
 )
 
 ########################################################################################################################
-# Configure files
+# Configure server files
 
 string( REPLACE ";" ":" EXTRA_LD_LIBRARY_PATHS "${EXTRA_LD_LIBRARY_PATHS}" )
 
@@ -268,14 +268,6 @@ set( ETC_FILES
   README.md
 )
 
-set( PKGCONFIG_FILES
-  uda-client.pc
-  uda-fat-client.pc
-  uda-cpp.pc
-  uda-fat-cpp.pc
-  uda-plugins.pc
-)
-
 set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )
 
 foreach( ETC_FILE ${ETC_FILES} )
@@ -285,14 +277,6 @@ foreach( ETC_FILE ${ETC_FILES} )
     @ONLY
   )
   list( APPEND GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/${ETC_FILE} )
-endforeach()
-
-foreach( PKGCONFIG_FILE ${PKGCONFIG_FILES} )
-  configure_file(
-    "${CMAKE_SOURCE_DIR}/source/etc/${PKGCONFIG_FILE}.in"
-    "${CMAKE_BINARY_DIR}/lib/pkgconfig/${PKGCONFIG_FILE}"
-    @ONLY
-  )
 endforeach()
 
 configure_file(

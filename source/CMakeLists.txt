@@ -32,6 +32,9 @@ if( NOT CLIENT_ONLY )
   add_subdirectory( plugins )
 endif()
 
+########################################################################################################################
+# Configure files
+
 string( TIMESTAMP BUILD_TIMESTAMP UTC )
 configure_file(
   ${CMAKE_SOURCE_DIR}/source/version.h.in
@@ -60,3 +63,19 @@ install(
   DESTINATION bin
   PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 )
+
+set( PKGCONFIG_FILES
+  uda-client.pc
+  uda-fat-client.pc
+  uda-cpp.pc
+  uda-fat-cpp.pc
+  uda-plugins.pc
+)
+
+foreach( PKGCONFIG_FILE ${PKGCONFIG_FILES} )
+  configure_file(
+    "${CMAKE_SOURCE_DIR}/source/etc/${PKGCONFIG_FILE}.in"
+    "${CMAKE_BINARY_DIR}/lib/pkgconfig/${PKGCONFIG_FILE}"
+    @ONLY
+  )
+endforeach()

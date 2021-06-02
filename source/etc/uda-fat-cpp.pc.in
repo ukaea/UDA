@@ -9,4 +9,4 @@ Description: The Universal Data Access library
 URL: http://www.iter.org/UDA
 Version: @PROJECT_VERSION@
 Cflags: -DFATCLIENT -std=c++11 -I${includedir} -I${includedir}/c++
-Libs: -L${libdir} -lfatuda_cpp -lmemcached
+Libs: -L${libdir} -lfatuda_cpp @CACHE_LIBRARIES@

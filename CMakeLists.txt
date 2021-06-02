@@ -149,11 +149,15 @@ endif()
 
 option( CLIENT_ONLY "Only build UDA client" OFF )
 option( SERVER_ONLY "Only build UDA server" OFF )
+option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
+
+# Wrapper configuration
 option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )
+option( NO_CXX_WRAPPER "Don't build C++ wrapper" OFF )
 option( NO_PYTHON_WRAPPER "Don't build Python wrapper" OFF )
 option( NO_JAVA_WRAPPER "Don't build Java wrapper" OFF )
-option( FAT_IDL "Build IDL wrapper using fatclient" OFF )
-option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
+option( NO_IDL_WRAPPER "Don't build IDL wrapper" OFF )
+option( FAT_IDL "Build IDL wrapper using fat-client" OFF )
 
 if( SERVER_ONLY )
   if( CLIENT_ONLY OR NO_WRAPPERS OR FAT_IDL )
