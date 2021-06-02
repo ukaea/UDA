@@ -788,7 +788,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
             if (putData.rank > 1) {
                 for (int i = 0; i < (int)putData.rank; i++) {
                     // REVERSE dimensions (IDL => C)
-                    // putData.shape[putData.rank - 1 - i] = (int)argv[1]->value.arr->dim[i];
+                    putData.shape[putData.rank - 1 - i] = (int)argv[1]->value.arr->dim[i];
                 }
             } else if (putData.rank == 1) {
                 putData.shape[0] = (int)argv[1]->value.arr->dim[0];
@@ -910,6 +910,17 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
             for (int i = 0; i < (int)nString; i++) {
                 strncpy(&new_string[i * (maxLength + 1)], IDL_STRING_STR(&sidl[i]), sidl[i].slen);
+	       
+
+		if (sidl[i].slen < maxLength) {
+		  for (int j = 0; j < (maxLength-sidl[i].slen); j++) {
+		    if (kw.debug) {
+		      fprintf(stdout, "Setting %d to null in string with length %d\n", i * (maxLength + 1) + maxLength - j - 1, sidl[i].slen);
+		    }
+		    new_string[i * (maxLength + 1) + maxLength - j - 1] = '\0';
+		  }
+		}
+
                 new_string[i * (maxLength + 1) + maxLength] = '\0';
             }
 

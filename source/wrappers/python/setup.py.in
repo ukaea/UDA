@@ -66,5 +66,5 @@ setup(
     url='https://git.iter.org/projects/IMAS/repos/uda/browse',
     packages=['pyuda'],
     ext_modules=cythonize([ext]),
-    install_requires=['numpy>=1.7'],
+    install_requires=['numpy>=1.7', 'matplotlib'],
 )
