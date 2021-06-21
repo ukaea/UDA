@@ -24,7 +24,7 @@ void initNameValueList(NAMEVALUELIST* nameValueList)
     nameValueList->nameValue = nullptr;
 }
 
-void initRequestBlock(REQUEST_BLOCK* str)
+void initRequestData(REQUEST_DATA* str)
 {
     str->request = 0;
     str->exp_number = 0;
@@ -45,7 +45,13 @@ void initRequestBlock(REQUEST_BLOCK* str)
     initNameValueList(&str->nameValueList);
 
     str->put = 0;
-    initIdamPutDataBlockList(&str->putDataBlockList);
+    initPutDataBlockList(&str->putDataBlockList);
+}
+
+void initRequestBlock(REQUEST_BLOCK* str)
+{
+    str->num_requests = 0;
+    str->requests = nullptr;
 }
 
 #ifdef _WIN32
@@ -279,7 +285,7 @@ void initIdamPutDataBlock(PUTDATA_BLOCK* str)
     str->blockName = nullptr;
 }
 
-void initIdamPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
+void initPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
 {
     putDataBlockList->putDataBlock = nullptr;
     putDataBlockList->blockCount = 0;

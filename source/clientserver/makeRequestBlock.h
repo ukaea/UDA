@@ -11,8 +11,9 @@ extern "C" {
 #endif
 
 LIBRARY_API int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment);
+LIBRARY_API int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONMENT* environment);
 LIBRARY_API int name_value_pairs(const char* pairList, NAMEVALUELIST* nameValueList, unsigned short strip);
-LIBRARY_API void free_name_value_list(NAMEVALUELIST* nameValueList);
+LIBRARY_API void freeNameValueList(NAMEVALUELIST* nameValueList);
 LIBRARY_API void expand_environment_variables(char* path);
 
 #ifdef __cplusplus

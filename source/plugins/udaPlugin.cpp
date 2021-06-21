@@ -526,23 +526,23 @@ bool findValue(const NAMEVALUELIST* namevaluelist, const char* name)
     return found;
 }
 
-int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface)
+int callPlugin(const PLUGINLIST* pluginlist, const char* singal, const IDAM_PLUGIN_INTERFACE* old_plugin_interface)
 {
     IDAM_PLUGIN_INTERFACE idam_plugin_interface = *old_plugin_interface;
-    REQUEST_BLOCK request_block = *old_plugin_interface->request_block;
-    idam_plugin_interface.request_block = &request_block;
+    REQUEST_DATA request = *old_plugin_interface->request_data;
+    idam_plugin_interface.request_data = &request;
 
-    request_block.source[0] = '\0';
-    strcpy(request_block.signal, request);
-    make_request_block(&request_block, *pluginlist, old_plugin_interface->environment);
+    request.source[0] = '\0';
+    strcpy(request.signal, singal);
+    makeRequestData(&request, *pluginlist, old_plugin_interface->environment);
 
-    request_block.request = findPluginRequestByFormat(request_block.format, pluginlist);
-    if (request_block.request == REQUEST_READ_UNKNOWN) {
+    request.request = findPluginRequestByFormat(request.format, pluginlist);
+    if (request.request == REQUEST_READ_UNKNOWN) {
         RAISE_PLUGIN_ERROR("Plugin not found!");
     }
 
     int err = 0;
-    int id = findPluginIdByRequest(request_block.request, pluginlist);
+    int id = findPluginIdByRequest(request.request, pluginlist);
     PLUGIN_DATA* plugin = &(pluginlist->plugin[id]);
     if (id >= 0 && plugin->idamPlugin != nullptr) {
         err = plugin->idamPlugin(&idam_plugin_interface);    // Call the data reader

@@ -46,7 +46,7 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
     }
 
     if (newNameValueList.pairCount == 0) {    // No passed substitution values or additional name value pairs
-        if (newNameValueList.nameValue != nullptr) free_name_value_list(&newNameValueList);
+        if (newNameValueList.nameValue != nullptr) freeNameValueList(&newNameValueList);
         return 0;
     }
 
@@ -160,7 +160,7 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
     free(tpassIndex);
     free(placeholderIndex);
     if (err != 0) {
-        free_name_value_list(&newNameValueList);
+        freeNameValueList(&newNameValueList);
         return err;
     }
 
@@ -188,7 +188,7 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
         }
     }
 
-    free_name_value_list(&newNameValueList);
+    freeNameValueList(&newNameValueList);
 
     // Scan all values for embedded placeholders and substitute
 
@@ -300,6 +300,6 @@ void embedded_value_substitution(NAMEVALUELIST* nameValueList)
             }
         }
     }
-    free_name_value_list(&newNameValueList);
+    freeNameValueList(&newNameValueList);
 }   
 

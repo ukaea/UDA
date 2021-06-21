@@ -110,8 +110,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Data Block\n");
                     addIdamError(CODEERRORTYPE, __func__, err,
                                  "Protocol 10 Error (Receiving Client Block)");
-                    concatIdamError(&server_block.idamerrorstack);
-                    closeIdamError();
+                    concatUdaError(&server_block.idamerrorstack);
+                    closeUdaError();
 
                     fatal = 1;
                     normalLegacyWait = 1;
@@ -155,8 +155,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block\n");
                     addIdamError(CODEERRORTYPE, __func__, err,
                                  "Protocol 11 Error (Sending Server Block #1)");
-                    concatIdamError(&server_block.idamerrorstack); // Update Server State with Error Stack
-                    closeIdamError();
+                    concatUdaError(&server_block.idamerrorstack); // Update Server State with Error Stack
+                    closeUdaError();
                     normalLegacyWait = 1;
                     fatal = 1;
                 }
@@ -288,14 +288,16 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             //----------------------------------------------------------------------------------------------
             // If this is a PUT request then receive the putData structure
 
-            initIdamPutDataBlockList(&(request_block.putDataBlockList));
+            REQUEST_DATA* request_data = &request_block.requests[0];
 
-            if (request_block.put) {
+            initPutDataBlockList(&(request_data->putDataBlockList));
+
+            if (request_data->put) {
 
                 protocol_id = PROTOCOL_PUTDATA_BLOCK_LIST;
 
                 if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                                    &(request_block.putDataBlockList), protocolVersion)) !=
+                                    &(request_data->putDataBlockList), protocolVersion)) !=
                     0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving putData Block List\n");
                     addIdamError(CODEERRORTYPE, __func__, err,
@@ -305,22 +307,24 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
                 rc = (int)xdrrec_eof(serverInput);
                 UDA_LOG(UDA_LOG_DEBUG, "putData Block List Received\n");
-                UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n", request_block.putDataBlockList.blockCount);
+                UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n", request_data->putDataBlockList.blockCount);
                 UDA_LOG(UDA_LOG_DEBUG, "XDR #C xdrrec_eof ? %d\n", rc);
             }
-
 
             //----------------------------------------------------------------------------------------------
             // Decode the API Arguments: determine appropriate data plug-in to use
             // Decide on Authentication procedure
 
-            if (protocolVersion >= 6) {
-                if ((err = udaServerPlugin(&request_block, &data_source, &signal_desc, pluginlist,
-                                           getServerEnvironment())) != 0) {
-                    break;
+            for (int i = 0; i < request_block.num_requests; ++i) {
+                auto request = &request_block.requests[i];
+                if (protocolVersion >= 6) {
+                    if ((err = udaServerPlugin(request, &data_source, &signal_desc, pluginlist,
+                                               getServerEnvironment())) != 0) {
+                        break;
+                    }
+                } else {
+                    if ((err = udaServerLegacyPlugin(request, &data_source, &signal_desc)) != 0) break;
                 }
-            } else {
-                if ((err = udaServerLegacyPlugin(&request_block, &data_source, &signal_desc)) != 0) break;
             }
 
             //------------------------------------------------------------------------------------------------
@@ -330,9 +334,12 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
             depth = 0;
 
-            err = udaGetData(&depth, &request_block, client_block, &data_block, &data_source, &signal_rec, &signal_desc,
-                             &actions_desc, &actions_sig, pluginlist, logmalloclist, userdefinedtypelist, socket_list,
-                             protocolVersion);
+            for (int i = 0; i < request_block.num_requests; ++i) {
+                auto request = &request_block.requests[i];
+                err = udaGetData(&depth, request, client_block, &data_block, &data_source, &signal_rec,
+                                 &signal_desc, &actions_desc, &actions_sig, pluginlist, logmalloclist,
+                                 userdefinedtypelist, socket_list, protocolVersion);
+            }
 
             UDA_LOG(UDA_LOG_DEBUG,
                     "======================== ******************** ==========================================\n");
@@ -411,8 +418,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             //----------------------------------------------------------------------------
             // Send Server Error State
 
-            concatIdamError(&server_block.idamerrorstack); // Update Server State with Error Stack
-            closeIdamError();
+            concatUdaError(&server_block.idamerrorstack); // Update Server State with Error Stack
+            closeUdaError();
 
             printServerBlock(server_block);
 
@@ -677,30 +684,23 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
         UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
         freeActions(&actions_sig);
 
-        //----------------------------------------------------------------------------
-        // Free Name Value pair
-
-        free_name_value_list(&request_block.nameValueList);
-
-        //----------------------------------------------------------------------------
-        // Free PutData Blocks
-
-        freePutDataBlockList(&request_block.putDataBlockList);
+        UDA_LOG(UDA_LOG_DEBUG, "freeRequestBlock\n");
+        freeRequestBlock(&request_block);
 
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
 
-        UDA_LOG(UDA_LOG_DEBUG, "concatIdamError\n");
-        concatIdamError(&server_block.idamerrorstack);        // Update Server State with Error Stack
+        UDA_LOG(UDA_LOG_DEBUG, "concatUdaError\n");
+        concatUdaError(&server_block.idamerrorstack);        // Update Server State with Error Stack
 
-        UDA_LOG(UDA_LOG_DEBUG, "closeIdamError\n");
-        closeIdamError();
+        UDA_LOG(UDA_LOG_DEBUG, "closeUdaError\n");
+        closeUdaError();
 
-        UDA_LOG(UDA_LOG_DEBUG, "idamErrorLog\n");
-        idamErrorLog(client_block, request_block, &server_block.idamerrorstack);
+        UDA_LOG(UDA_LOG_DEBUG, "udaErrorLog\n");
+        udaErrorLog(client_block, request_block, &server_block.idamerrorstack);
 
-        UDA_LOG(UDA_LOG_DEBUG, "closeIdamError\n");
-        closeIdamError();
+        UDA_LOG(UDA_LOG_DEBUG, "closeUdaError\n");
+        closeUdaError();
 
         UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
         initServerBlock(&server_block, serverVersion);
@@ -739,8 +739,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
     //----------------------------------------------------------------------------
     // Write the Error Log Record & Free Error Stack Heap
 
-    idamErrorLog(client_block, request_block, nullptr);
-    closeIdamError();
+    udaErrorLog(client_block, request_block, nullptr);
+    closeUdaError();
 
     //----------------------------------------------------------------------------
     // Close the Logs

@@ -12,6 +12,7 @@ extern "C" {
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
 LIBRARY_API int makeServerRequestBlock(REQUEST_BLOCK* request_block, PLUGINLIST pluginList);
+LIBRARY_API int makeServerRequestData(REQUEST_DATA* request, PLUGINLIST pluginList);
 
 #endif
 

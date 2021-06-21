@@ -94,13 +94,11 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     break;
 
                 case XDR_FREE_HEAP:
-
                     if (!xdr_request(xdrs, request_block, protocolVersion)) {
                         err = PROTOCOL_ERROR_3;
                         break;
                     }
                     break;
-
 
                 default:
                     err = PROTOCOL_ERROR_4;
@@ -758,7 +756,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         break;
                     }
 
-                    closeIdamError();    // Free Heap associated with Previous Data Access
+                    closeUdaError();    // Free Heap associated with Previous Data Access
 
                     if (!xdr_server1(xdrs, server_block, protocolVersion)) {
                         err = PROTOCOL_ERROR_22;

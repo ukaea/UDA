@@ -3,15 +3,11 @@
 #include <cerrno>
 
 #if defined(__GNUC__)
-
 #  include <unistd.h>
-
 #endif
 
 #if defined(__GNUC__)
-
 #  include <libgen.h>
-
 #endif
 
 #include <logging/logging.h>
@@ -33,16 +29,16 @@
 #define MAXMAPDEPTH     10  // Maximum number of chained signal name mappings (Recursive depth)
 #define MAXREQDEPTH     4   // Maximum number of Device Name to Server Protocol and Host substitution
 
-static void extract_function_name(const char* str, REQUEST_BLOCK* request_block);
+static void extract_function_name(const char* str, REQUEST_DATA* request);
 
-static int source_file_format_test(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList,
+static int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIST pluginList,
                                    const ENVIRONMENT* environment);
 
-static int extract_archive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRONMENT* environment);
+static int extract_archive(REQUEST_DATA* request, int reduceSignal, const ENVIRONMENT* environment);
 
-static int generic_request_test(const char* source, REQUEST_BLOCK* request_block);
+static int generic_request_test(const char* source, REQUEST_DATA* request);
 
-static int extract_subset(REQUEST_BLOCK* request_block);
+static int extract_subset(REQUEST_DATA* request);
 
 static int find_plugin_id_by_format(const char* format, const PLUGINLIST* plugin_list)
 {
@@ -54,7 +50,7 @@ static int find_plugin_id_by_format(const char* format, const PLUGINLIST* plugin
     return -1;
 }
 
-int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment)
+int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONMENT* environment)
 {
     int ldelim;
     int err = 0;
@@ -67,15 +63,15 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
     //------------------------------------------------------------------------------
     // Always use the client's delimiting string if provided, otherwise use the default delimiter
 
-    if ((ldelim = (int)strlen(request_block->api_delim)) == 0) {
-        strcpy(request_block->api_delim, environment->api_delim);
-        ldelim = (int)strlen(request_block->api_delim);
+    if ((ldelim = (int)strlen(request->api_delim)) == 0) {
+        strcpy(request->api_delim, environment->api_delim);
+        ldelim = (int)strlen(request->api_delim);
     }
 
     //------------------------------------------------------------------------------
     // Start with ignorance about which plugin to use
 
-    request_block->request = REQUEST_READ_UNKNOWN;
+    request->request = REQUEST_READ_UNKNOWN;
 
     //------------------------------------------------------------------------------
     // Check there is something to work with!
@@ -83,16 +79,16 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
     sprintf(work, "%s%s", environment->api_archive, environment->api_delim);    // default archive
     sprintf(work2, "%s%s", environment->api_device, environment->api_delim);    // default device
 
-    LeftTrimString(request_block->signal);
-    TrimString(request_block->signal);
-    LeftTrimString(request_block->source);
-    TrimString(request_block->source);
+    LeftTrimString(request->signal);
+    TrimString(request->signal);
+    LeftTrimString(request->source);
+    TrimString(request->source);
 
-    bool noSource = (request_block->source[0] == '\0' ||                // no source
-                     STR_IEQUALS(request_block->source, environment->api_device) ||    // default device name
-                     STR_IEQUALS(request_block->source, work2));            // default device name + delimiting string
+    bool noSource = (request->source[0] == '\0' ||                // no source
+                     STR_IEQUALS(request->source, environment->api_device) ||    // default device name
+                     STR_IEQUALS(request->source, work2));            // default device name + delimiting string
 
-    if ((request_block->signal[0] == '\0' || STR_IEQUALS(request_block->signal, work)) && noSource) {
+    if ((request->signal[0] == '\0' || STR_IEQUALS(request->signal, work)) && noSource) {
         THROW_ERROR(999, "Neither Data Object nor Source specified!");
     }
 
@@ -100,11 +96,11 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
     // Strip default device from the source if present and leading
 
     size_t lstr = strlen(work2);
-    if (!noSource && !strncasecmp(request_block->source, work2, lstr)) {
+    if (!noSource && !strncasecmp(request->source, work2, lstr)) {
         for (size_t i = 0; i < lstr; i++) {
-            request_block->source[i] = ' ';
+            request->source[i] = ' ';
         }
-        LeftTrimString(request_block->source);
+        LeftTrimString(request->source);
     }
 
     //------------------------------------------------------------------------------
@@ -114,7 +110,7 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
     bool isProxy = environment->server_proxy[0] != '\0';
 
     if (isProxy) {
-        request_block->request = REQUEST_READ_IDAM;
+        request->request = REQUEST_READ_IDAM;
     }
 
     //==============================================================================
@@ -166,22 +162,22 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
     bool isServer = false;
     bool isForeign = false;
 
-    char* test = strstr(request_block->source, request_block->api_delim);    // Delimiter present?
+    char* test = strstr(request->source, request->api_delim);    // Delimiter present?
     if (test != nullptr) {
-        strncpy(work2, request_block->source, test - request_block->source);
-        work2[test - request_block->source] = '\0';
+        strncpy(work2, request->source, test - request->source);
+        work2[test - request->source] = '\0';
         TrimString(work2);
         strcpy(work, test + ldelim);
     } else {
         work2[0] = '\0';
-        strcpy(work, request_block->source);
+        strcpy(work, request->source);
     }
 
     // Test for DEVICE::LIBRARY::function(argument)	 - More delimiter characters present?
 
     char* p;
     if (test != nullptr && STR_IEQUALS(work2, environment->api_device) &&
-        (p = strstr(work, request_block->api_delim)) != nullptr) {
+        (p = strstr(work, request->api_delim)) != nullptr) {
         lstr = (p - work);
         strncpy(work2, work, lstr);        // Ignore the default device name - force a pass to Scenario 2
         work2[lstr] = '\0';
@@ -199,7 +195,7 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
 
         if (noSource) {
             // No Source
-            strcpy(request_block->device_name, environment->api_device);    // Default Device Name
+            strcpy(request->device_name, environment->api_device);    // Default Device Name
             break;
         }
 
@@ -208,11 +204,11 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
 
             UDA_LOG(UDA_LOG_DEBUG, "No device name or format or protocol or library is present\n");
 
-            strcpy(request_block->device_name, environment->api_device);            // Default Device Name
+            strcpy(request->device_name, environment->api_device);            // Default Device Name
 
             // Regular request: pulse or pulse/pass ==> Generic request
 
-            if (generic_request_test(work, request_block)) break;
+            if (generic_request_test(work, request)) break;
 
             // Not a Server Side Function? 		Note: /a/b/fun(aaa) is a (bad!)file path and fun(a/b/c) is a function
 
@@ -235,7 +231,7 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
 
                 UDA_LOG(UDA_LOG_DEBUG, "No File Format has been specified. Selecting ....\n");
 
-                int rc = source_file_format_test(request_block->source, request_block, pluginList, environment);
+                int rc = source_file_format_test(request->source, request, pluginList, environment);
 
 #ifdef JETSERVER
                 if (rc < 0) {
@@ -258,7 +254,7 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
                 }
 
                 // Resolve any Serverside environment variables
-                expand_environment_variables(request_block->path);
+                expand_environment_variables(request->path);
 
                 UDA_LOG(UDA_LOG_DEBUG, "File Format identified from name extension!\n");
                 break;
@@ -274,26 +270,26 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
                     LeftTrimString(work2);
                     TrimString(work2);
 
-                    request_block->request = REQUEST_READ_SERVERSIDE;
-                    extract_function_name(work, request_block);
+                    request->request = REQUEST_READ_SERVERSIDE;
+                    extract_function_name(work, request);
 
                     UDA_LOG(UDA_LOG_DEBUG, "**** Server Side Function ??? ****\n");
 
                     // Extract Name Value pairs
 
-                    if (name_value_pairs(work2, &request_block->nameValueList, strip) == -1) {
+                    if (name_value_pairs(work2, &request->nameValueList, strip) == -1) {
                         THROW_ERROR(999, "Name Value pair syntax is incorrect!");
                     }
 
                     // Test for external library functions using the Archive name as the library name identifier
 
                     reduceSignal = false;
-                    extract_archive(request_block, reduceSignal, environment);
+                    extract_archive(request, reduceSignal, environment);
 
                     for (int i = 0; i < pluginList.count; i++) {
-                        if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
-                            request_block->request = pluginList.plugin[i].request;                // Found!
-                            strcpy(request_block->format, pluginList.plugin[i].format);
+                        if (STR_IEQUALS(request->archive, pluginList.plugin[i].format)) {
+                            request->request = pluginList.plugin[i].request;                // Found!
+                            strcpy(request->format, pluginList.plugin[i].format);
                             break;
                         }
                     }
@@ -316,16 +312,16 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
             for (int i = 0; i < pluginList.count; i++) {
                 if (STR_IEQUALS(work2, pluginList.plugin[i].format)) {
                     if (pluginList.plugin[i].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
-                        request_block->request = pluginList.plugin[i].request;        // Found
-                        strcpy(request_block->format, pluginList.plugin[i].format);
+                        request->request = pluginList.plugin[i].request;        // Found
+                        strcpy(request->format, pluginList.plugin[i].format);
                         if (pluginList.plugin[i].plugin_class !=
                             UDA_PLUGIN_CLASS_FILE) {            // The full file path fully resolved by the client
-                            strcpy(request_block->path,
+                            strcpy(request->path,
                                    test + ldelim);            // Complete String following :: delimiter
-                            strcpy(request_block->file, "");                // Clean the filename
+                            strcpy(request->file, "");                // Clean the filename
                             if (pluginList.plugin[i].plugin_class == UDA_PLUGIN_CLASS_FUNCTION) {
                                 isFunction = true;
-                                extract_function_name(work, request_block);
+                                extract_function_name(work, request);
                             }
                         } else {
 #ifndef __GNUC__
@@ -334,7 +330,7 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
 #else
                             char* base = basename(test + ldelim);
 #endif
-                            strcpy(request_block->file, base);    // Final token
+                            strcpy(request->file, base);    // Final token
                         }
                         isFile = pluginList.plugin[i].plugin_class == UDA_PLUGIN_CLASS_FILE;
                         isServer = pluginList.plugin[i].plugin_class == UDA_PLUGIN_CLASS_SERVER;
@@ -350,7 +346,7 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
                         int id = find_plugin_id_by_format(pluginList.plugin[i].deviceProtocol, &pluginList);
                         if (id >= 0 && pluginList.plugin[id].plugin_class == UDA_PLUGIN_CLASS_SERVER) {
 
-                            sprintf(work, "%s%s%s", pluginList.plugin[i].deviceProtocol, request_block->api_delim,
+                            sprintf(work, "%s%s%s", pluginList.plugin[i].deviceProtocol, request->api_delim,
                                     pluginList.plugin[i].deviceHost);
                             UDA_LOG(UDA_LOG_DEBUG, "work#1: %s\n", work);
 
@@ -373,11 +369,11 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
                             }
                             UDA_LOG(UDA_LOG_DEBUG, "work#4: %s\n", work);
 
-                            strcpy(request_block->source, work);
+                            strcpy(request->source, work);
                             if (depth++ > MAXREQDEPTH) {
                                 THROW_ERROR(999, "Too many chained Device Name to Server Protocol Host subtitutions!");
                             }
-                            err = make_request_block(request_block, pluginList, environment);
+                            err = makeRequestData(request, pluginList, environment);
                             depth--;
                             return err;
                         }
@@ -389,22 +385,22 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
             // The request must be a generic lookup of how to access data remotely for the specified device.
             // The external server providing access to the foreign device's data will interpret the arguments
 
-            if (request_block->request == REQUEST_READ_UNKNOWN) {
+            if (request->request == REQUEST_READ_UNKNOWN) {
                 UDA_LOG(UDA_LOG_DEBUG, "No plugin was identified for the format: %s\n", work2);
                 isForeign = true;
-                strcpy(request_block->device_name, work2);                // Copy the DEVICE prefix
-                request_block->request = REQUEST_READ_GENERIC;            // The database will identify the target
+                strcpy(request->device_name, work2);                // Copy the DEVICE prefix
+                request->request = REQUEST_READ_GENERIC;            // The database will identify the target
 
                 break;
             }
 
             // A match was found: The Source must be a format or a protocol or a library
 
-            strcpy(request_block->device_name, environment->api_device);            // Default Device Name
+            strcpy(request->device_name, environment->api_device);            // Default Device Name
 
             if (isFile) {                                    // Resolve any Serverside environment variables
                 UDA_LOG(UDA_LOG_DEBUG, "File Format has been specified.\n");
-                expand_environment_variables(request_block->path);
+                expand_environment_variables(request->path);
                 break;
             }
 
@@ -439,7 +435,7 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
 
                 // Extract Name Value pairs
 
-                if (name_value_pairs(work, &request_block->nameValueList, strip) == -1) {
+                if (name_value_pairs(work, &request->nameValueList, strip) == -1) {
                     THROW_ERROR(999, "Name Value pair syntax is incorrect!");
                 }
 
@@ -486,7 +482,7 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
     // Extract Data subset operations from the data object (signal) string
 
     int rc = 0;
-    if ((rc = extract_subset(request_block)) == -1) {
+    if ((rc = extract_subset(request)) == -1) {
         THROW_ERROR(999, "Subset operation is incorrect!");
     }
 
@@ -494,27 +490,27 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
     // there will be no confusion between subset operations and valid signal names
 
     if (rc == 1) {        // the subset has valid syntax so reduce the signal name by removing the subset instructions
-        p = strstr(request_block->signal, request_block->subset);
+        p = strstr(request->signal, request->subset);
         if (p != nullptr) p[0] = '\0';            // Remove subset operations from variable name
-        TrimString(request_block->signal);
+        TrimString(request->signal);
     } else {
-        request_block->subset[0] = '\0';
-        request_block->datasubset.subsetCount = 0;
+        request->subset[0] = '\0';
+        request->datasubset.subsetCount = 0;
     }
 
     //------------------------------------------------------------------------------
     // Extract the Archive Name and detach from the signal  (detachment is necessary when not passing on to another IDAM server)
     // the Plugin Name is synonymous with the Archive Name and takes priority (The archive name is discarded as unimportant)
 
-    if (request_block->request == REQUEST_READ_IDAM) {
+    if (request->request == REQUEST_READ_IDAM) {
         reduceSignal = false;
-        err = extract_archive(request_block, reduceSignal, environment);
+        err = extract_archive(request, reduceSignal, environment);
     } else {
         reduceSignal = !isForeign;                // Don't detach if a foreign device
-        err = extract_archive(request_block, reduceSignal, environment);
+        err = extract_archive(request, reduceSignal, environment);
     }
-    if (request_block->archive[0] == '\0') {
-        strcpy(request_block->archive, environment->api_archive);
+    if (request->archive[0] == '\0') {
+        strcpy(request->archive, environment->api_archive);
     }
 
     //------------------------------------------------------------------------------
@@ -526,18 +522,18 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
 
     isFunction = false;
 
-    if (!isServer && (p = strchr(request_block->signal, '(')) != nullptr && strchr(p, ')') != nullptr &&
-        strcasecmp(request_block->archive, environment->api_archive) != 0) {
+    if (!isServer && (p = strchr(request->signal, '(')) != nullptr && strchr(p, ')') != nullptr &&
+        strcasecmp(request->archive, environment->api_archive) != 0) {
         strcpy(work, &p[1]);
         if ((p = strrchr(work, ')')) != nullptr) {
             p[0] = '\0';
             LeftTrimString(work);
             TrimString(work);
             isFunction = true;
-            if (name_value_pairs(work, &request_block->nameValueList, strip) == -1) {
+            if (name_value_pairs(work, &request->nameValueList, strip) == -1) {
                 THROW_ERROR(999, "Name Value pair syntax is incorrect!");
             }
-            extract_function_name(request_block->signal, request_block);
+            extract_function_name(request->signal, request);
         }
     }
 
@@ -546,44 +542,44 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
 
     if (noSource) {
         UDA_LOG(UDA_LOG_DEBUG, "Signal Argument - No Source\n");
-        UDA_LOG(UDA_LOG_DEBUG, "request: %d\n", request_block->request);
+        UDA_LOG(UDA_LOG_DEBUG, "request: %d\n", request->request);
 
         // If the signal could be a function call, check the archive name against the function library plugins
 
         if (isFunction && err == 0) {        // Test for known Function Libraries
             isFunction = false;
             for (int i = 0; i < pluginList.count; i++) {
-                if (STR_IEQUALS(request_block->archive, pluginList.plugin[i].format)) {
-                    request_block->request = pluginList.plugin[i].request;            // Found
-                    strcpy(request_block->format, pluginList.plugin[i].format);
+                if (STR_IEQUALS(request->archive, pluginList.plugin[i].format)) {
+                    request->request = pluginList.plugin[i].request;            // Found
+                    strcpy(request->format, pluginList.plugin[i].format);
                     isFunction = (pluginList.plugin[i].plugin_class ==
                                   UDA_PLUGIN_CLASS_FUNCTION);        // Must be a known Library
                     break;
                 }
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "A request: %d\n", request_block->request);
+            UDA_LOG(UDA_LOG_DEBUG, "A request: %d\n", request->request);
             UDA_LOG(UDA_LOG_DEBUG, "isFunction: %d\n", isFunction);
 
             if (!isFunction) {                // Must be a default server-side function
                 for (int i = 0; i < pluginList.count; i++) {
                     if (STR_IEQUALS(pluginList.plugin[i].symbol, "SERVERSIDE") &&
                         pluginList.plugin[i].library[0] == '\0') {
-                        request_block->request = REQUEST_READ_SERVERSIDE;            // Found
-                        strcpy(request_block->format, pluginList.plugin[i].format);
+                        request->request = REQUEST_READ_SERVERSIDE;            // Found
+                        strcpy(request->format, pluginList.plugin[i].format);
                         isFunction = true;
                         break;
                     }
                 }
-                if (!isFunction) request_block->function[0] = '\0';
+                if (!isFunction) request->function[0] = '\0';
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "B request: %d\n", request_block->request);
+            UDA_LOG(UDA_LOG_DEBUG, "B request: %d\n", request->request);
 
         } else {
             // Select the Generic plugin: No source => no format or protocol or library was specified.
-            request_block->request = REQUEST_READ_GENERIC;
-            UDA_LOG(UDA_LOG_DEBUG, "C request: %d\n", request_block->request);
+            request->request = REQUEST_READ_GENERIC;
+            UDA_LOG(UDA_LOG_DEBUG, "C request: %d\n", request->request);
         }
 
     } else {
@@ -591,17 +587,17 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
         // Does the data object (Signal) have the form: LIBRARY::function?
         // Exception is Serverside function
 
-        if (isFunction && strcasecmp(request_block->archive, environment->api_archive) != 0) {
-            int id = find_plugin_id_by_format(request_block->archive, &pluginList);
+        if (isFunction && strcasecmp(request->archive, environment->api_archive) != 0) {
+            int id = find_plugin_id_by_format(request->archive, &pluginList);
             if (id >= 0 && pluginList.plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
                 strcasecmp(pluginList.plugin[id].symbol, "serverside") != 0) {
-                if (request_block->request == REQUEST_READ_GENERIC ||
-                    request_block->request == REQUEST_READ_UNKNOWN) {
-                    request_block->request = pluginList.plugin[id].request;    // Found
-                    strcpy(request_block->format, pluginList.plugin[id].format);
-                    UDA_LOG(UDA_LOG_DEBUG, "D request: %d\n", request_block->request);
+                if (request->request == REQUEST_READ_GENERIC ||
+                    request->request == REQUEST_READ_UNKNOWN) {
+                    request->request = pluginList.plugin[id].request;    // Found
+                    strcpy(request->format, pluginList.plugin[id].format);
+                    UDA_LOG(UDA_LOG_DEBUG, "D request: %d\n", request->request);
                 } else {
-                    if (request_block->request != pluginList.plugin[id].request) {    // Inconsistent
+                    if (request->request != pluginList.plugin[id].request) {    // Inconsistent
                         // Let Source have priority over the Signal?
                         UDA_LOG(UDA_LOG_DEBUG, "Inconsistent Plugin Libraries: Source selected over Signal\n");
                     }
@@ -609,7 +605,7 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
             }
         }
     }
-    UDA_LOG(UDA_LOG_DEBUG, "E request: %d\n", request_block->request);
+    UDA_LOG(UDA_LOG_DEBUG, "E request: %d\n", request->request);
 
     //---------------------------------------------------------------------------------------------------------------------
     // MDS+ Servers ...
@@ -624,7 +620,7 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
     //				MDS+::server
     //				MDS+::
 
-    if (request_block->request == REQUEST_READ_MDS && !isProxy) {
+    if (request->request == REQUEST_READ_MDS && !isProxy) {
 
         reverseString(test + ldelim, work);            // Drop the delimiters and Reverse the Source String
 
@@ -632,9 +628,9 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
         if ((token = strtok(work, "/")) != nullptr) {        // Tokenise
             if (IsNumber(token)) {                // This should be the tree Number otherwise only the server is passed
                 reverseString(token, work2);            // Un-Reverse the token
-                request_block->exp_number = (int)strtol(work2, nullptr, 10);    // Extract the Data Tree Number
+                request->exp_number = (int)strtol(work2, nullptr, 10);    // Extract the Data Tree Number
                 if ((token = strtok(nullptr, "/")) != nullptr) {
-                    reverseString(token, request_block->file);    // This should be the Tree Name
+                    reverseString(token, request->file);    // This should be the Tree Name
                     work2[0] = '\0';
                     while ((token = strtok(nullptr, "/")) != nullptr) {
                         // Everything Else is the Server Host and URL Path to the Tree
@@ -642,21 +638,21 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
                         strcat(work2, "/");
                     }
                     if (work2[0] == '/') strcpy(work2, &work2[1]);    // Drop Trailing /
-                    reverseString(work2, request_block->server);
+                    reverseString(work2, request->server);
                     token = test + ldelim;                // Preserve Leading /
-                    if (token[0] != '/' && request_block->server[0] == '/') {
-                        request_block->server[0] = ' ';
-                        LeftTrimString(request_block->server);
+                    if (token[0] != '/' && request->server[0] == '/') {
+                        request->server[0] = ' ';
+                        LeftTrimString(request->server);
                     }
                 } else {
                     err = 3;
                 }
             } else {
-                strcpy(request_block->server, test + ldelim);    // Server or null string (default server)
+                strcpy(request->server, test + ldelim);    // Server or null string (default server)
             }
 
         } else {
-            strcpy(request_block->server, "");            // Default Server
+            strcpy(request->server, "");            // Default Server
         }
 
         if (err != 0) {
@@ -668,51 +664,66 @@ int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, cons
     //---------------------------------------------------------------------------------------------------------------------
     // IDAM and WEB Servers ...      parse source modelled as: server:port/source
 
-    if (request_block->request == REQUEST_READ_IDAM || request_block->request == REQUEST_READ_WEB) {
+    if (request->request == REQUEST_READ_IDAM || request->request == REQUEST_READ_WEB) {
         strcpy(work, test + ldelim);                // Drop the delimiters
 
         // Isolate the Server from the source IDAM::server:port/source or SSL://server:port/source
 
-        strcpy(request_block->server, work);
+        strcpy(request->server, work);
 
         char* s = nullptr;
         if ((s = strstr(work, "SSL://")) != nullptr) {
             char* token;
             if ((token = strstr(s + 6, "/")) != nullptr) {
                 token[0] = '\0';                // Break the String (work)
-                strcpy(request_block->server, s);        // Extract the Server Name and Port (with SSL:// prefix)
-                strcpy(request_block->file, token + 1);        // Extract the Source URL Argument
+                strcpy(request->server, s);        // Extract the Server Name and Port (with SSL:// prefix)
+                strcpy(request->file, token + 1);        // Extract the Source URL Argument
             }
         } else {
             char* token;
             if ((token = strstr(work, "/")) != nullptr) {
                 token[0] = '\0';                        // Break the String (work)
-                strcpy(request_block->server, work);        // Extract the Server Name and Port
-                strcpy(request_block->file, token + 1);        // Extract the Source URL Argument
+                strcpy(request->server, work);        // Extract the Server Name and Port
+                strcpy(request->file, token + 1);        // Extract the Source URL Argument
             }
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Server: %s\n", request_block->server);
-        UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", request_block->file);
+        UDA_LOG(UDA_LOG_DEBUG, "Server: %s\n", request->server);
+        UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", request->file);
     }
 
     //---------------------------------------------------------------------------------------------------------------------
     // SQL Servers ...
 
-    if (request_block->request == REQUEST_READ_SQL) {
-        strcpy(request_block->server, request_block->path);
-        if ((test = strchr(request_block->server, '/')) != nullptr) {
+    if (request->request == REQUEST_READ_SQL) {
+        strcpy(request->server, request->path);
+        if ((test = strchr(request->server, '/')) != nullptr) {
             test[0] = '\0';
-            strcpy(request_block->path, &test[1]);
+            strcpy(request->path, &test[1]);
         } else {
-            request_block->path[0] = '\0';
+            request->path[0] = '\0';
         }
     }
 
     return 0;
 }
 
-void extract_function_name(const char* str, REQUEST_BLOCK* request_block)
+int make_request_block(REQUEST_BLOCK* request_block, PLUGINLIST pluginList, const ENVIRONMENT* environment)
+{
+    int rc = 0;
+
+    for (int i = 0; i < request_block->num_requests; ++i) {
+        auto request = &request_block->requests[0];
+        rc = makeRequestData(request, pluginList, environment);
+        if (rc != 0) {
+            break;
+        }
+    }
+
+    return rc;
+}
+
+void extract_function_name(const char* str, REQUEST_DATA* request)
 {
     int lstr;
     char* p;
@@ -725,25 +736,25 @@ void extract_function_name(const char* str, REQUEST_BLOCK* request_block)
         return;
     }
     p[0] = '\0';
-    p = strstr(work, request_block->api_delim);
+    p = strstr(work, request->api_delim);
     if (p != nullptr) {
         do {
-            lstr = (int)(p - work) + (int)strlen(request_block->api_delim);
+            lstr = (int)(p - work) + (int)strlen(request->api_delim);
             for (int i = 0; i < lstr; i++) {
                 work[i] = ' ';
             }
             TrimString(work);
             LeftTrimString(work);
-        } while ((p = strstr(work, request_block->api_delim)) != nullptr);
+        } while ((p = strstr(work, request->api_delim)) != nullptr);
     }
-    strcpy(request_block->function, work);
+    strcpy(request->function, work);
     free(work);
 }
 
 /**
  * returns true if a format was identified, false otherwise.
  */
-int source_file_format_test(const char* source, REQUEST_BLOCK* request_block, PLUGINLIST pluginList,
+int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIST pluginList,
                             const ENVIRONMENT* environment)
 {
     int rc = 0;
@@ -761,9 +772,9 @@ int source_file_format_test(const char* source, REQUEST_BLOCK* request_block, PL
     //------------------------------------------------------------------------------
     // Start with ignorance about which plugin to use
 
-    request_block->format[0] = '\0';
-    request_block->file[0] = '\0';
-    request_block->request = REQUEST_READ_UNKNOWN;
+    request->format[0] = '\0';
+    request->file[0] = '\0';
+    request->request = REQUEST_READ_UNKNOWN;
 
     if (source[0] == '\0') return rc;
 
@@ -885,7 +896,7 @@ int source_file_format_test(const char* source, REQUEST_BLOCK* request_block, PL
         int breakAgain = 0;
         for (int i = 0; i < pluginList.count; i++) {
             if (STR_IEQUALS(&test[1], pluginList.plugin[i].extension)) {
-                strcpy(request_block->format, pluginList.plugin[i].format);
+                strcpy(request->format, pluginList.plugin[i].format);
                 breakAgain = 1;
                 break;
             }
@@ -895,42 +906,42 @@ int source_file_format_test(const char* source, REQUEST_BLOCK* request_block, PL
         // Other regular types
 
         if (strlen(&test[1]) == 2 && IsNumber(&test[1])) {        // an integer number?
-            strcpy(request_block->format, "IDA3");
+            strcpy(request->format, "IDA3");
             break;
         }
         if (STR_IEQUALS(&test[1], "nc")) {
-            strcpy(request_block->format, "netcdf");
+            strcpy(request->format, "netcdf");
             break;
         }
         if (STR_IEQUALS(&test[1], "cdf")) {
-            strcpy(request_block->format, "netcdf");
+            strcpy(request->format, "netcdf");
             break;
         }
         if (STR_IEQUALS(&test[1], "hf")) {
-            strcpy(request_block->format, "hdf5");
+            strcpy(request->format, "hdf5");
             break;
         }
         if (STR_IEQUALS(&test[1], "h5")) {
-            strcpy(request_block->format, "hdf5");
+            strcpy(request->format, "hdf5");
             break;
         }
         if (STR_IEQUALS(&test[1], "hdf5")) {
-            strcpy(request_block->format, "hdf5");
+            strcpy(request->format, "hdf5");
             break;
         }
         if (STR_IEQUALS(&test[1], "xml")) {
-            strcpy(request_block->format, "xml");
+            strcpy(request->format, "xml");
             break;
         }
         if (STR_IEQUALS(&test[1], "csv")) {
-            strcpy(request_block->format, "csv");
+            strcpy(request->format, "csv");
             break;
         }
 
         if (source[0] == '/' && source[1] != '\0' && isdigit(source[1])) {        // Default File Format?
-            if (generic_request_test(&source[1], request_block)) {        // Matches 99999/999
-                request_block->request = REQUEST_READ_UNKNOWN;
-                strcpy(request_block->format, environment->api_format);        // the default Server File Format
+            if (generic_request_test(&source[1], request)) {        // Matches 99999/999
+                request->request = REQUEST_READ_UNKNOWN;
+                strcpy(request->format, environment->api_format);        // the default Server File Format
                 break;
             }
         }
@@ -942,21 +953,21 @@ int source_file_format_test(const char* source, REQUEST_BLOCK* request_block, PL
     // Test for known registered plugins for the File's format
 
     for (int i = 0; i < pluginList.count; i++) {
-        if (STR_IEQUALS(request_block->format, pluginList.plugin[i].format)) {
+        if (STR_IEQUALS(request->format, pluginList.plugin[i].format)) {
             rc = 1;
-            UDA_LOG(UDA_LOG_DEBUG, "Format identified, selecting specific plugin for %s\n", request_block->format);
-            request_block->request = pluginList.plugin[i].request;            // Found
+            UDA_LOG(UDA_LOG_DEBUG, "Format identified, selecting specific plugin for %s\n", request->format);
+            request->request = pluginList.plugin[i].request;            // Found
             if (pluginList.plugin[i].plugin_class !=
                 UDA_PLUGIN_CLASS_FILE) {                // The full file path fully resolved by the client
-                strcpy(request_block->file, "");                        // Clean the filename
+                strcpy(request->file, "");                        // Clean the filename
             } else {
 #ifndef __GNUC__
                 char base[1024] = { 0 };
                 _splitpath(request_block->source, NULL, base, NULL, NULL);
 #else
-                char* base = basename(request_block->source);
+                char* base = basename(request->source);
 #endif
-                strcpy(request_block->file, base);    // Final token
+                strcpy(request->file, base);    // Final token
             }
             break;
         }
@@ -968,7 +979,7 @@ int source_file_format_test(const char* source, REQUEST_BLOCK* request_block, PL
 /**
  * Return true if the Generic plugin was selected, false otherwise
  */
-int generic_request_test(const char* source, REQUEST_BLOCK* request_block)
+int generic_request_test(const char* source, REQUEST_DATA* request)
 {
     int rc = 0;
     char* token = nullptr;
@@ -977,9 +988,9 @@ int generic_request_test(const char* source, REQUEST_BLOCK* request_block)
     //------------------------------------------------------------------------------
     // Start with ignorance about which plugin to use
 
-    request_block->format[0] = '\0';
-    request_block->file[0] = '\0';
-    request_block->request = REQUEST_READ_UNKNOWN;
+    request->format[0] = '\0';
+    request->file[0] = '\0';
+    request->request = REQUEST_READ_UNKNOWN;
 
     if (source[0] == '\0') return rc;
     if (source[0] == '/') return rc;        // Directory based data
@@ -992,23 +1003,23 @@ int generic_request_test(const char* source, REQUEST_BLOCK* request_block)
 
     if (IsNumber((char*)source)) {                    // Is the source an integer number?
         rc = 1;
-        request_block->request = REQUEST_READ_GENERIC;
-        strcpy(request_block->path, "");                    // Clean the path
-        request_block->exp_number = (int)strtol(source, nullptr, 10);                // Plasma Shot Number
+        request->request = REQUEST_READ_GENERIC;
+        strcpy(request->path, "");                    // Clean the path
+        request->exp_number = (int)strtol(source, nullptr, 10);                // Plasma Shot Number
         UDA_LOG(UDA_LOG_DEBUG, "exp number identified, selecting GENERIC plugin.\n");
     } else {
         strcpy(work, source);
         if ((token = strtok(work, "/")) != nullptr) {                // Tokenise the remaining string
             if (IsNumber(token)) {                        // Is the First token an integer number?
                 rc = 1;
-                request_block->request = REQUEST_READ_GENERIC;
-                strcpy(request_block->path, "");                // Clean the path
-                request_block->exp_number = (int)strtol(token, nullptr, 10);
+                request->request = REQUEST_READ_GENERIC;
+                strcpy(request->path, "");                // Clean the path
+                request->exp_number = (int)strtol(token, nullptr, 10);
                 if ((token = strtok(nullptr, "/")) != nullptr) {            // Next Token
                     if (IsNumber(token)) {
-                        request_block->pass = (int)strtol(token, nullptr, 10);            // Must be the Pass number
+                        request->pass = (int)strtol(token, nullptr, 10);            // Must be the Pass number
                     } else {
-                        strcpy(request_block->tpass, token);            // capture anything else
+                        strcpy(request->tpass, token);            // capture anything else
                     }
                 }
                 UDA_LOG(UDA_LOG_DEBUG, "exp number and pass id identified, selecting GENERIC plugin.\n");
@@ -1031,37 +1042,37 @@ int generic_request_test(const char* source, REQUEST_BLOCK* request_block)
 // Input Argument: reduceSignal - If TRUE (1) then extract the archive name and return the data object name
 //                                without the prefixed archive name.
 
-int extract_archive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRONMENT* environment)
+int extract_archive(REQUEST_DATA* request, int reduceSignal, const ENVIRONMENT* environment)
 {
     int err = 0, test1, test2;
-    int ldelim = (int)strlen(request_block->api_delim);
+    int ldelim = (int)strlen(request->api_delim);
     char* test, * token, * work;
 
-    TrimString(request_block->signal);
+    TrimString(request->signal);
 
-    if (request_block->signal[0] != '\0' && environment->server_proxy[0] == '\0') {
+    if (request->signal[0] != '\0' && environment->server_proxy[0] == '\0') {
 
         UDA_LOG(UDA_LOG_DEBUG, "Testing for ARCHIVE::Signal\n");
 
-        if ((test = strstr(request_block->signal, request_block->api_delim)) != nullptr) {
+        if ((test = strstr(request->signal, request->api_delim)) != nullptr) {
 
-            if (test - request_block->signal >= STRING_LENGTH - 1 || strlen(test + ldelim) >= MAXMETA - 1) {
+            if (test - request->signal >= STRING_LENGTH - 1 || strlen(test + ldelim) >= MAXMETA - 1) {
                 ADD_ERROR(ARCHIVE_NAME_TOO_LONG, "The ARCHIVE Name is too long!");
                 return err;
             }
-            strncpy(request_block->archive, request_block->signal, test - request_block->signal);
-            request_block->archive[test - request_block->signal] = '\0';
-            TrimString(request_block->archive);
+            strncpy(request->archive, request->signal, test - request->signal);
+            request->archive[test - request->signal] = '\0';
+            TrimString(request->archive);
 
             // If a plugin is prefixed by the local archive name then discard the archive name
-            if (reduceSignal && !strcasecmp(request_block->archive, environment->api_archive)) {
-                request_block->archive[0] = '\0';
-                strcpy(request_block->signal, &test[ldelim]);
-                return extract_archive(request_block, reduceSignal, environment);
+            if (reduceSignal && !strcasecmp(request->archive, environment->api_archive)) {
+                request->archive[0] = '\0';
+                strcpy(request->signal, &test[ldelim]);
+                return extract_archive(request, reduceSignal, environment);
             }
 
-            if (!IsLegalFilePath(request_block->archive)) {
-                request_block->archive[0] = '\0';
+            if (!IsLegalFilePath(request->archive)) {
+                request->archive[0] = '\0';
                 return 0;
             }
 
@@ -1070,8 +1081,8 @@ int extract_archive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRO
             test1 = 0;
             test2 = 0;
 
-            if ((token = strchr(request_block->archive, '[')) != nullptr ||
-                (token = strchr(request_block->archive, '{')) != nullptr) {
+            if ((token = strchr(request->archive, '[')) != nullptr ||
+                (token = strchr(request->archive, '{')) != nullptr) {
                 test1 = (strlen(&token[1]) == 0 || IsNumber(&token[1]));
             }
 
@@ -1088,16 +1099,16 @@ int extract_archive(REQUEST_BLOCK* request_block, int reduceSignal, const ENVIRO
                 if (reduceSignal) {
                     work = (char*)malloc((strlen(test + ldelim) + 1) * sizeof(char));
                     strcpy(work, test + ldelim);
-                    strcpy(request_block->signal, work);    // Valid Archive & signal
+                    strcpy(request->signal, work);    // Valid Archive & signal
                     free(work);
-                    TrimString(request_block->signal);
+                    TrimString(request->signal);
                 }
             } else {
-                request_block->archive[0] = '\0';            // Reset Archive
+                request->archive[0] = '\0';            // Reset Archive
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "Archive %s\n", request_block->archive);
-            UDA_LOG(UDA_LOG_DEBUG, "Signal  %s\n", request_block->signal);
+            UDA_LOG(UDA_LOG_DEBUG, "Archive %s\n", request->archive);
+            UDA_LOG(UDA_LOG_DEBUG, "Signal  %s\n", request->signal);
         }
     }
     return err;
@@ -1196,7 +1207,7 @@ void expand_environment_variables(char* path)
 //
 // Signal should avoid using subset like components in their name
 
-int extract_subset(REQUEST_BLOCK* request_block)
+int extract_subset(REQUEST_DATA* request)
 {
     // Return codes:
     //
@@ -1207,15 +1218,15 @@ int extract_subset(REQUEST_BLOCK* request_block)
     int rc = 1, lwork, subsetCount = 1;        // Number of subsetting operations
     char* p, * work, * token = nullptr;
 
-    request_block->subset[0] = '\0';
-    request_block->datasubset.subsetCount = 0;
+    request->subset[0] = '\0';
+    request->datasubset.subsetCount = 0;
 
-    if ((token = strchr(request_block->signal, '[')) == nullptr &&
-        (token = strchr(request_block->signal, '{')) == nullptr) {
+    if ((token = strchr(request->signal, '[')) == nullptr &&
+        (token = strchr(request->signal, '{')) == nullptr) {
         return 0;
     }
-    if ((work = strrchr(request_block->signal, ']')) == nullptr &&
-        (work = strrchr(request_block->signal, '}')) == nullptr) {
+    if ((work = strrchr(request->signal, ']')) == nullptr &&
+        (work = strrchr(request->signal, '}')) == nullptr) {
         return 0;
     }
     if (work < token) return 0;
@@ -1227,7 +1238,7 @@ int extract_subset(REQUEST_BLOCK* request_block)
     work = (char*)malloc((lwork + 3) * sizeof(char));
 
     strcpy(work, token);
-    copyString(token, request_block->subset, STRING_LENGTH - 1);
+    copyString(token, request->subset, STRING_LENGTH - 1);
 
     work[0] = ' ';        // Remove lead/trailing brackets
     work[lwork - 1] = ' ';
@@ -1280,12 +1291,12 @@ int extract_subset(REQUEST_BLOCK* request_block)
     char* work4 = (char*)malloc(lwork * sizeof(char));
 
     for (int i = 0; i < subsetCount; i++) {
-        request_block->datasubset.start[i] = 0;
-        request_block->datasubset.stop[i] = 0;
-        request_block->datasubset.count[i] = 0;
-        request_block->datasubset.stride[i] = 0;
+        request->datasubset.start[i] = 0;
+        request->datasubset.stop[i] = 0;
+        request->datasubset.count[i] = 0;
+        request->datasubset.stride[i] = 0;
     }
-    request_block->datasubset.subsetCount = subsetCount;
+    request->datasubset.subsetCount = subsetCount;
 
     subsetCount = 0;
     if ((token = strtok(work, ",")) != nullptr) {    // Process each subset instruction separately (work2)
@@ -1297,7 +1308,7 @@ int extract_subset(REQUEST_BLOCK* request_block)
         do {
             for (int i = 0; i < subsetCount; i++) {
 
-                request_block->datasubset.subset[i] = 0;
+                request->datasubset.subset[i] = 0;
 
                 TrimString(work2[i]);
                 LeftTrimString(work2[i]);
@@ -1342,21 +1353,21 @@ int extract_subset(REQUEST_BLOCK* request_block)
                     if (work3[0][0] != '\0' && IsNumber(work3[0])) {    // [a:] or [a:*] or [a:b] etc
                         p = nullptr;
                         errno = 0;
-                        request_block->datasubset.start[i] = (int)strtol(work3[0], &p, 10);
+                        request->datasubset.start[i] = (int)strtol(work3[0], &p, 10);
                         if (errno != 0 || *p != 0 || p == work3[0]) {
                             rc = 0;
                             break;
                         }
-                        if (request_block->datasubset.start[i] < 0) {
+                        if (request->datasubset.start[i] < 0) {
                             ADD_ERROR(999, "Invalid Start Index in subset operation");
                             rc = -1;
                             break;
                         }
 
-                        request_block->datasubset.stop[i] = request_block->datasubset.start[i];
-                        request_block->datasubset.count[i] = 1;
-                        request_block->datasubset.stride[i] = 1;
-                        request_block->datasubset.subset[i] = 1;
+                        request->datasubset.stop[i] = request->datasubset.start[i];
+                        request->datasubset.count[i] = 1;
+                        request->datasubset.stride[i] = 1;
+                        request->datasubset.subset[i] = 1;
 
                     } else {
                         rc = 0;                    // Not an Error - not a subset operation
@@ -1365,21 +1376,21 @@ int extract_subset(REQUEST_BLOCK* request_block)
                     if (work3[1][0] != '\0' && IsNumber(work3[1])) {    // [a:b]
                         p = nullptr;
                         errno = 0;
-                        request_block->datasubset.stop[i] = (int)strtol(work3[1], &p, 10);
+                        request->datasubset.stop[i] = (int)strtol(work3[1], &p, 10);
                         if (errno != 0 || *p != 0 || p == work3[0]) {
                             rc = 0;
                             break;
                         }
-                        if (request_block->datasubset.stop[i] < 0) {
+                        if (request->datasubset.stop[i] < 0) {
                             ADD_ERROR(999, "Invalid sample End Index in subset operation");
                             rc = -1;
                             break;
                         }
-                        request_block->datasubset.count[i] =
-                                request_block->datasubset.stop[i] - request_block->datasubset.start[i] + 1;
-                        request_block->datasubset.subset[i] = 1;
+                        request->datasubset.count[i] =
+                                request->datasubset.stop[i] - request->datasubset.start[i] + 1;
+                        request->datasubset.subset[i] = 1;
 
-                        if (request_block->datasubset.stop[i] < request_block->datasubset.start[i]) {
+                        if (request->datasubset.stop[i] < request->datasubset.start[i]) {
                             ADD_ERROR(999, "Invalid Stop Index in subset operation");
                             rc = -1;
                             break;
@@ -1387,8 +1398,8 @@ int extract_subset(REQUEST_BLOCK* request_block)
 
                     } else {
                         if (strlen(work3[1]) == 0 || (strlen(work3[1]) == 1 && work3[1][0] == '*')) {    // [a:],[a:*]
-                            request_block->datasubset.count[i] = -1;
-                            request_block->datasubset.stop[i] = -1;            // To end of dimension
+                            request->datasubset.count[i] = -1;
+                            request->datasubset.stop[i] = -1;            // To end of dimension
                         } else {
                             rc = 0;
                             break;
@@ -1398,25 +1409,25 @@ int extract_subset(REQUEST_BLOCK* request_block)
                         if (IsNumber(work3[2])) {
                             p = nullptr;
                             errno = 0;
-                            request_block->datasubset.stride[i] = (int)strtol(work3[2], &p, 10);
+                            request->datasubset.stride[i] = (int)strtol(work3[2], &p, 10);
                             if (errno != 0 || *p != 0 || p == work3[0]) {
                                 rc = 0;
                                 break;
                             }
-                            if (request_block->datasubset.stride[i] <= 0) {
+                            if (request->datasubset.stride[i] <= 0) {
                                 ADD_ERROR(999, "Invalid sample stride length in subset operation");
                                 rc = -1;
                                 break;
                             }
-                            if (request_block->datasubset.stride[i] > 1)request_block->datasubset.subset[i] = 1;
+                            if (request->datasubset.stride[i] > 1)request->datasubset.subset[i] = 1;
 
-                            if (request_block->datasubset.stride[i] > 1 && request_block->datasubset.count[i] > 1) {
-                                if ((request_block->datasubset.count[i] % request_block->datasubset.stride[i]) > 0) {
-                                    request_block->datasubset.count[i] = 1 + request_block->datasubset.count[i] /
-                                                                             request_block->datasubset.stride[i];
+                            if (request->datasubset.stride[i] > 1 && request->datasubset.count[i] > 1) {
+                                if ((request->datasubset.count[i] % request->datasubset.stride[i]) > 0) {
+                                    request->datasubset.count[i] = 1 + request->datasubset.count[i] /
+                                                                       request->datasubset.stride[i];
                                 } else {
-                                    request_block->datasubset.count[i] =
-                                            request_block->datasubset.count[i] / request_block->datasubset.stride[i];
+                                    request->datasubset.count[i] =
+                                            request->datasubset.count[i] / request->datasubset.stride[i];
                                 }
                             }
 
@@ -1427,29 +1438,29 @@ int extract_subset(REQUEST_BLOCK* request_block)
                     }
                 } else {
                     if (work4[0] == '\0' || work4[0] == '*') {        // [], [*]
-                        request_block->datasubset.start[i] = 0;
-                        request_block->datasubset.stop[i] = -1;
-                        request_block->datasubset.count[i] = -1;
-                        request_block->datasubset.stride[i] = 1;
+                        request->datasubset.start[i] = 0;
+                        request->datasubset.stop[i] = -1;
+                        request->datasubset.count[i] = -1;
+                        request->datasubset.stride[i] = 1;
                     } else {
                         if (IsNumber(work4)) {                // [a]
                             p = nullptr;
                             errno = 0;
-                            request_block->datasubset.start[i] = (int)strtol(work4, &p, 10);
+                            request->datasubset.start[i] = (int)strtol(work4, &p, 10);
                             if (errno != 0 || *p != 0 || p == work3[0]) {
                                 rc = 0;
                                 break;
                             }
-                            if (request_block->datasubset.start[i] < 0) {
+                            if (request->datasubset.start[i] < 0) {
                                 ADD_ERROR(999, "Invalid start index in subset operation");
                                 rc = -1;
                                 break;
                             }
 
-                            request_block->datasubset.stop[i] = request_block->datasubset.start[i];
-                            request_block->datasubset.count[i] = 1;
-                            request_block->datasubset.stride[i] = 1;
-                            request_block->datasubset.subset[i] = 1;
+                            request->datasubset.stop[i] = request->datasubset.start[i];
+                            request->datasubset.count[i] = 1;
+                            request->datasubset.stride[i] = 1;
+                            request->datasubset.subset[i] = 1;
 
                         } else {
                             rc = 0;
@@ -1482,7 +1493,7 @@ int extract_subset(REQUEST_BLOCK* request_block)
 //
 // The returned value is the count of the name value pairs. If an error occurs, the returned value of the
 // pair count is -1.
-void free_name_value_list(NAMEVALUELIST* nameValueList)
+void freeNameValueList(NAMEVALUELIST* nameValueList)
 {
     if (nameValueList->nameValue != nullptr) {
         for (int i = 0; i < nameValueList->pairCount; i++) {

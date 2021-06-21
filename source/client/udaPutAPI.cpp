@@ -47,7 +47,7 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
         putDataBlockList = inPutDataBlockList;
     else {
         putDataBlockList = &emptyPutDataBlockList;
-        initIdamPutDataBlockList(putDataBlockList);
+        initPutDataBlockList(putDataBlockList);
     }
 
 //-------------------------------------------------------------------------
@@ -80,7 +80,7 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
     // Build the Request Data Block (Version and API dependent)
 
     if ((err = makeClientRequestBlock(putInstruction, "", &request_block)) != 0) {
-        closeIdamError();
+        closeUdaError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
             addIdamError(CODEERRORTYPE, __func__, 999, "Error processing the put instruction");
@@ -96,8 +96,8 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
     //-------------------------------------------------------------------------
     // Data to Put to the server
 
-    request_block.put = 1; // flags the direction of data (0 is default => get operation)
-    request_block.putDataBlockList = *putDataBlockList;
+    request_block.requests[0].put = 1; // flags the direction of data (0 is default => get operation)
+    request_block.requests[0].putDataBlockList = *putDataBlockList;
 
     err = idamClient(&request_block);
 
@@ -156,7 +156,7 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     // Build the Request Data Block (Version and API dependent)
 
     if ((err = makeClientRequestBlock(putInstruction, "", &request_block)) != 0) {
-        closeIdamError();
+        closeUdaError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
             addIdamError(CODEERRORTYPE, __func__, 999, "Error processing the put instruction");
@@ -169,15 +169,15 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     //-------------------------------------------------------------------------
     // Data to Put to the server
 
-    request_block.put = 1; // flags the direction of data (0 is default => get operation)
+    request_block.requests[0].put = 1; // flags the direction of data (0 is default => get operation)
 
-    addIdamPutDataBlockList(putData, &request_block.putDataBlockList);
+    addIdamPutDataBlockList(putData, &request_block.requests[0].putDataBlockList);
     err = idamClient(&request_block);
 
     //-------------------------------------------------------------------------
     // Free Heap
 
-    freeClientPutDataBlockList(&request_block.putDataBlockList);
+    freeClientPutDataBlockList(&request_block.requests[0].putDataBlockList);
 
     return err;
 

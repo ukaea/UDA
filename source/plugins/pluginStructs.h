@@ -33,7 +33,7 @@ typedef struct IdamPluginInterface {    // Standard Plugin interface
     FILE* dbgout;
     FILE* errout;
     DATA_BLOCK* data_block;
-    REQUEST_BLOCK* request_block;
+    REQUEST_DATA* request_data;
     CLIENT_BLOCK* client_block;
     DATA_SOURCE* data_source;
     SIGNAL_DESC* signal_desc;

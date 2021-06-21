@@ -48,9 +48,9 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     housekeeping = idam_plugin_interface->housekeeping;
 
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    REQUEST_DATA* request = idam_plugin_interface->request_data;
 
-    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -71,7 +71,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Initialise
 
-    if (!init || STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request->function, "init") || STR_IEQUALS(request->function, "initialise")) {
 
         // Default Server Host and Port
 
@@ -87,7 +87,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         UDA_LOG(UDA_LOG_DEBUG, "Handing over Server File Handles to UDA Client\n");
 
         init = 1;
-        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
+        if (STR_IEQUALS(request->function, "init") || STR_IEQUALS(request->function, "initialise")) {
             return 0;
         }
     }
@@ -96,17 +96,17 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Plugin Functions
     //----------------------------------------------------------------------------------------
 
-    if (STR_IEQUALS(request_block->function, "help")) {
+    if (STR_IEQUALS(request->function, "help")) {
         err = do_help(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "version")) {
+    } else if (STR_IEQUALS(request->function, "version")) {
         err = do_version(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "builddate")) {
+    } else if (STR_IEQUALS(request->function, "builddate")) {
         err = do_builddate(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
+    } else if (STR_IEQUALS(request->function, "defaultmethod")) {
         err = do_defaultmethod(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
+    } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
         err = do_maxinterfaceversion(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "get")) {
+    } else if (STR_IEQUALS(request->function, "get")) {
         err = do_get(idam_plugin_interface, oldServerHost, &oldPort);
     } else {
         THROW_ERROR(999, "Unknown function requested!");
@@ -273,15 +273,15 @@ Notes: there are three pathways depending on the request pattern
 
     DATA_SOURCE* data_source = idam_plugin_interface->data_source;
     SIGNAL_DESC* signal_desc = idam_plugin_interface->signal_desc;
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    REQUEST_DATA* request = idam_plugin_interface->request_data;
 
     if (data_source->source_id > 0 && signal_desc->signal_desc_id > 0) {
         pathway = 1;
-    } else if (request_block->path[0] != '\0' && request_block->server[0] == '\0') {
+    } else if (request->path[0] != '\0' && request->server[0] == '\0') {
         pathway = 2;
-    } else if (request_block->path[0] == '\0' && request_block->server[0] == '\0') {
+    } else if (request->path[0] == '\0' && request->server[0] == '\0') {
         pathway = 3;
-    } else if (request_block->server[0] != '\0') {
+    } else if (request->server[0] != '\0') {
         // Source URL may be an nullptr string
         pathway = 4;
     } else {
@@ -405,7 +405,7 @@ Notes: there are three pathways depending on the request pattern
         //----------------------------------------------------------------------
         // Device redirect or server protocol
 
-        strcpy(request_block->server, request_block->path);        // Extract the Server Name and Port
+        strcpy(request->server, request->path);        // Extract the Server Name and Port
         char* p = nullptr, * s = nullptr;
 
         if ((s = strstr(data_source->server, "SSL://")) != nullptr) {
@@ -418,7 +418,7 @@ Notes: there are three pathways depending on the request pattern
                             "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
             }
         } else {
-            if ((p = strchr(request_block->server, '/')) != nullptr) {
+            if ((p = strchr(request->server, '/')) != nullptr) {
                 // Isolate the Server from the source server:port/source
                 p[0] = '\0';                            // Break the String (work)
                 strcpy(source, p + 1);                // Extract the Source URL Argument
@@ -428,23 +428,23 @@ Notes: there are three pathways depending on the request pattern
             }
         }
 
-        if ((s = strstr(request_block->server, "SSL://")) != nullptr) {
+        if ((s = strstr(request->server, "SSL://")) != nullptr) {
             if ((p = strstr(s + 6, ":")) == nullptr) {
                 // look for a port number in the server name skipping SSL:// prefix
                 p = strstr(s + 6, " ");
             }
         } else {
-            if ((p = strstr(request_block->server, ":")) == nullptr) {
+            if ((p = strstr(request->server, ":")) == nullptr) {
                 // look for a port number in the server name skipping SSL:// prefix
-                p = strstr(request_block->server, " ");
+                p = strstr(request->server, " ");
             }
         }
 
         if (p != nullptr) {
             p[0] = '\0';
-            if (strcasecmp(oldServerHost, request_block->server) != 0) {
-                strcpy(oldServerHost, request_block->server);
-                putIdamServerHost(request_block->server);    // different host name?
+            if (strcasecmp(oldServerHost, request->server) != 0) {
+                strcpy(oldServerHost, request->server);
+                putIdamServerHost(request->server);    // different host name?
             }
             if (IsNumber(&p[1])) {
                 newPort = atoi(&p[1]);
@@ -457,19 +457,19 @@ Notes: there are three pathways depending on the request pattern
                             "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server port'");
             }
         } else {
-            if (strcasecmp(oldServerHost, request_block->server) != 0) {
-                strcpy(oldServerHost, request_block->server);
-                putIdamServerHost(request_block->server);
+            if (strcasecmp(oldServerHost, request->server) != 0) {
+                strcpy(oldServerHost, request->server);
+                putIdamServerHost(request->server);
             }
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", request_block->server);
+        UDA_LOG(UDA_LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", request->server);
         UDA_LOG(UDA_LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
         UDA_LOG(UDA_LOG_DEBUG, "Calling idamGetAPI API (Device redirect or server protocol based Request)\n");
-        UDA_LOG(UDA_LOG_DEBUG, "Signal: %s\n", request_block->signal);
+        UDA_LOG(UDA_LOG_DEBUG, "Signal: %s\n", request->signal);
         UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", source);
 
-        handle = idamGetAPI(request_block->signal, source);
+        handle = idamGetAPI(request->signal, source);
 
     } else if (pathway == 3) {
 
@@ -477,15 +477,15 @@ Notes: there are three pathways depending on the request pattern
         // Function library
 
         const char* host = nullptr;
-        bool isHost = findStringValue(&request_block->nameValueList, &host, "host");
+        bool isHost = findStringValue(&request->nameValueList, &host, "host");
 
         const char* signal = nullptr;
-        bool isSignal = findStringValue(&request_block->nameValueList, &signal, "signal");
+        bool isSignal = findStringValue(&request->nameValueList, &signal, "signal");
 
         const char* source = nullptr;
-        bool isSource = findStringValue(&request_block->nameValueList, &source, "source");
+        bool isSource = findStringValue(&request->nameValueList, &source, "source");
 
-        bool isPort = findIntValue(&request_block->nameValueList, &newPort, "port");
+        bool isPort = findIntValue(&request->nameValueList, &newPort, "port");
 
         // Set host and port
 
@@ -508,8 +508,8 @@ Notes: there are three pathways depending on the request pattern
             handle = idamGetAPI(signal, source);
         } else if (isSignal) {
             UDA_LOG(UDA_LOG_DEBUG, "Signal: %s\n", signal);
-            UDA_LOG(UDA_LOG_DEBUG, "idamAPIPlugin; Source: %s\n", request_block->source);
-            handle = idamGetAPI(signal, request_block->source);
+            UDA_LOG(UDA_LOG_DEBUG, "idamAPIPlugin; Source: %s\n", request->source);
+            handle = idamGetAPI(signal, request->source);
         } else {
             THROW_ERROR(999, "A data object (signal) has not been specified!");
         }
@@ -520,28 +520,28 @@ Notes: there are three pathways depending on the request pattern
         //----------------------------------------------------------------------
         // Server protocol
 
-        strcpy(source, request_block->file);                // The Source URL Argument
+        strcpy(source, request->file);                // The Source URL Argument
 
         char* p = nullptr;
         char* s = nullptr;
 
-        if ((s = strstr(request_block->server, "SSL://")) != nullptr) {
+        if ((s = strstr(request->server, "SSL://")) != nullptr) {
             if ((p = strstr(s + 6, ":")) == nullptr) {
                 // look for a port number in the server name
                 p = strstr(s + 6, " ");
             }
         } else {
-            if ((p = strstr(request_block->server, ":")) == nullptr) {
+            if ((p = strstr(request->server, ":")) == nullptr) {
                 // look for a port number in the server name
-                p = strstr(request_block->server, " ");
+                p = strstr(request->server, " ");
             }
         }
 
         if (p != nullptr) {                            // look for a port number in the server name
             p[0] = '\0';                        // Split
-            if (strcasecmp(oldServerHost, request_block->server) != 0) {    // Different Hosts?
-                strcpy(oldServerHost, request_block->server);        // Preserve
-                putIdamServerHost(request_block->server);        // Change to a different host name
+            if (strcasecmp(oldServerHost, request->server) != 0) {    // Different Hosts?
+                strcpy(oldServerHost, request->server);        // Preserve
+                putIdamServerHost(request->server);        // Change to a different host name
             }
             if (IsNumber(&p[1])) {
                 newPort = atoi(&p[1]);
@@ -556,19 +556,19 @@ Notes: there are three pathways depending on the request pattern
             }
         } else {
             // No port number passed
-            if (strcasecmp(oldServerHost, request_block->server) != 0) {    // Different Hosts?
-                strcpy(oldServerHost, request_block->server);
-                putIdamServerHost(request_block->server);
+            if (strcasecmp(oldServerHost, request->server) != 0) {    // Different Hosts?
+                strcpy(oldServerHost, request->server);
+                putIdamServerHost(request->server);
             }
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "UDA Server Host for UDA Plugin %s\n", request_block->server);
+        UDA_LOG(UDA_LOG_DEBUG, "UDA Server Host for UDA Plugin %s\n", request->server);
         UDA_LOG(UDA_LOG_DEBUG, "UDA Server Port for UDA Plugin %d\n", newPort);
         UDA_LOG(UDA_LOG_DEBUG, "Calling idamGetAPI API (Server protocol based Request)\n");
-        UDA_LOG(UDA_LOG_DEBUG, "Signal: %s\n", request_block->signal);
+        UDA_LOG(UDA_LOG_DEBUG, "Signal: %s\n", request->signal);
         UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", source);
 
-        handle = idamGetAPI(request_block->signal, source);
+        handle = idamGetAPI(request->signal, source);
     }
 
     resetIdamPrivateFlag(PRIVATEFLAG_FULLRESET);

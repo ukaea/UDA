@@ -41,16 +41,16 @@ void allocPluginList(int count, PLUGINLIST* plugin_list)
     }
 }
 
-void closePluginList(const PLUGINLIST* plugin_list)
+void resetPlugins(const PLUGINLIST* plugin_list)
 {
-    REQUEST_BLOCK request_block;
+    REQUEST_DATA request_block;
     IDAM_PLUGIN_INTERFACE idam_plugin_interface;
-    initRequestBlock(&request_block);
+    initRequestData(&request_block);
     strcpy(request_block.function, "reset");
 
     idam_plugin_interface.interfaceVersion = 1;
     idam_plugin_interface.housekeeping = 1;            // Force a full reset
-    idam_plugin_interface.request_block = &request_block;
+    idam_plugin_interface.request_data = &request_block;
     for (int i = 0; i < plugin_list->count; i++) {
         if (plugin_list->plugin[i].pluginHandle != nullptr) {
             plugin_list->plugin[i].idamPlugin(&idam_plugin_interface);        // Call the housekeeping method
@@ -60,7 +60,7 @@ void closePluginList(const PLUGINLIST* plugin_list)
 
 void freePluginList(PLUGINLIST* plugin_list)
 {
-    closePluginList(plugin_list);
+    resetPlugins(plugin_list);
     for (int i = 0; i < plugin_list->count; i++) {
         if (plugin_list->plugin[i].pluginHandle != nullptr) {
             dlclose(plugin_list->plugin[i].pluginHandle);
@@ -254,7 +254,7 @@ int udaServerRedirectStdStreams(int reset)
 // 5. open the library
 // 6. get plugin function address
 // 7. close the file
-int udaServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
+int udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
                     const PLUGINLIST* plugin_list, const ENVIRONMENT* environment)
 {
     int err = 0;
@@ -264,20 +264,20 @@ int udaServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGN
     //----------------------------------------------------------------------------------------------
     // Decode the API Arguments: determine appropriate data reader plug-in
 
-    if ((err = make_request_block(request_block, *plugin_list, environment)) != 0) {
+    if ((err = makeRequestData(request, *plugin_list, environment)) != 0) {
         return err;
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "request_block\n");
-    printRequestBlock(*request_block);
+    printRequestData(*request);
 
     //----------------------------------------------------------------------------------------------
     // Does the Path to Private Files contain hierarchical components not seen by the server?
     // If so make a substitution to resolve path problems.
 
-    if (strlen(request_block->server) == 0 && request_block->request != REQUEST_READ_SERVERSIDE) {
+    if (strlen(request->server) == 0 && request->request != REQUEST_READ_SERVERSIDE) {
         // Must be a File plugin
-        if ((err = pathReplacement(request_block->path, environment)) != 0) {
+        if ((err = pathReplacement(request->path, environment)) != 0) {
             return err;
         }
     }
@@ -285,20 +285,20 @@ int udaServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGN
     //----------------------------------------------------------------------
     // Copy request details into the data_source structure mimicking a SQL query
 
-    strcpy(data_source->source_alias, TrimString(request_block->file));
-    strcpy(data_source->filename, TrimString(request_block->file));
-    strcpy(data_source->path, TrimString(request_block->path));
+    strcpy(data_source->source_alias, TrimString(request->file));
+    strcpy(data_source->filename, TrimString(request->file));
+    strcpy(data_source->path, TrimString(request->path));
 
-    copyString(TrimString(request_block->signal), signal_desc->signal_name, MAXNAME);
+    copyString(TrimString(request->signal), signal_desc->signal_name, MAXNAME);
 
-    strcpy(data_source->server, TrimString(request_block->server));
+    strcpy(data_source->server, TrimString(request->server));
 
-    strcpy(data_source->format, TrimString(request_block->format));
-    strcpy(data_source->archive, TrimString(request_block->archive));
-    strcpy(data_source->device_name, TrimString(request_block->device_name));
+    strcpy(data_source->format, TrimString(request->format));
+    strcpy(data_source->archive, TrimString(request->archive));
+    strcpy(data_source->device_name, TrimString(request->device_name));
 
-    data_source->exp_number = request_block->exp_number;
-    data_source->pass = request_block->pass;
+    data_source->exp_number = request->exp_number;
+    data_source->pass = request->pass;
     data_source->type = ' ';
 
     UDA_LOG(UDA_LOG_DEBUG, "End\n");
@@ -322,9 +322,9 @@ int udaServerPlugin(REQUEST_BLOCK* request_block, DATA_SOURCE* data_source, SIGN
 // changePlugin option disabled in this context
 // private malloc log and userdefinedtypelist
 
-int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_request_block,
+int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_request,
                         DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list,
-                        char* logRecord, const ENVIRONMENT* environment)
+                        const char* logRecord, const ENVIRONMENT* environment)
 {
 
     if (STR_EQUALS(client_block->DOI, "")) {
@@ -338,7 +338,8 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_requ
     static int execMethod = 1;        // The default method used to write efficiently to the backend SQL server
     char* env = nullptr;
 
-    struct timeval tv_start, tv_stop;
+    struct timeval tv_start = {};
+    struct timeval tv_stop = {};
 
     gettimeofday(&tv_start, nullptr);
 
@@ -381,33 +382,34 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_requ
         return 0;
     }
 
-    REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
-    strcpy(request_block.api_delim, "::");
-    strcpy(request_block.source, "");
+    REQUEST_DATA request;
+    initRequestData(&request);
+
+    strcpy(request.api_delim, "::");
+    strcpy(request.source, "");
 
     // need 1> record the original and the actual signal and source terms with the source file DOI
     // mimic a client request
 
     if (logRecord == nullptr || strlen(logRecord) == 0) {
-        sprintf(request_block.signal, "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
+        sprintf(request.signal, "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
                                       "trueSignal='%s', trueSource='%s', trueSourceDOI='%s', execMethod=%d, status=new)",
                 plugin_list->plugin[plugin_id].format, client_block->DOI,
-                original_request_block->signal, original_request_block->source,
+                original_request->signal, original_request->source,
                 signal_desc->signal_name, data_source->path, "", execMethod);
     } else {
 
         // need 2> record the server log record
 
-        sprintf(request_block.signal, "%s::putSignal(uuid='%s',logRecord='%s', execMethod=%d, status=update)",
+        sprintf(request.signal, "%s::putSignal(uuid='%s',logRecord='%s', execMethod=%d, status=update)",
                 plugin_list->plugin[plugin_id].format, client_block->DOI, logRecord, execMethod);
     }
 
     // Activate the plugin
 
-    UDA_LOG(UDA_LOG_DEBUG, "Provenance Plugin signal: %s\n", request_block.signal);
+    UDA_LOG(UDA_LOG_DEBUG, "Provenance Plugin signal: %s\n", request.signal);
 
-    make_request_block(&request_block, *plugin_list, environment);
+    makeRequestData(&request, *plugin_list, environment);
 
     int err, rc, reset;
     DATA_BLOCK data_block;
@@ -435,7 +437,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_requ
     idam_plugin_interface.pluginVersion = 0;
     idam_plugin_interface.data_block = &data_block;
     idam_plugin_interface.client_block = client_block;
-    idam_plugin_interface.request_block = &request_block;
+    idam_plugin_interface.request_data = &request;
     idam_plugin_interface.data_source = data_source;
     idam_plugin_interface.signal_desc = signal_desc;
     idam_plugin_interface.environment = environment;
@@ -466,7 +468,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_requ
 
     UDA_LOG(UDA_LOG_DEBUG, "housekeeping\n");
 
-    free_name_value_list(&request_block.nameValueList);
+    freeNameValueList(&request.nameValueList);
 
     UDA_LOG(UDA_LOG_DEBUG, "testing for bug!!!\n");
     if (data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN ||
@@ -555,7 +557,7 @@ int udaServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* 
 //------------------------------------------------------------------------------------------------
 // Execute the Generic Name mapping Plugin
 
-int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_BLOCK* request_block,
+int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_DATA* request_block,
                             SIGNAL_DESC* signal_desc, SIGNAL* signal_rec, DATA_SOURCE* data_source,
                             const ENVIRONMENT* environment)
 {
@@ -582,7 +584,7 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
     idam_plugin_interface.pluginVersion = 0;
     idam_plugin_interface.data_block = &data_block;
     idam_plugin_interface.client_block = nullptr;
-    idam_plugin_interface.request_block = request_block;
+    idam_plugin_interface.request_data = request_block;
     idam_plugin_interface.data_source = data_source;
     idam_plugin_interface.signal_desc = signal_desc;
     idam_plugin_interface.environment = environment;

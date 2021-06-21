@@ -21,17 +21,17 @@ int udaNumErrors()
     return udaerrorstack.size();
 }
 
-void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, UDA_ERROR_STACK* errorstack)
+void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERROR_STACK* error_stack)
 {
     UDA_ERROR* errors = nullptr;
     unsigned int nerrors;
 
-    if (errorstack == nullptr) {
+    if (error_stack == nullptr) {
         errors = udaerrorstack.data();
         nerrors = udaerrorstack.size();
     } else {
-        errors = errorstack->idamerror;
-        nerrors = errorstack->nerrors;
+        errors = error_stack->idamerror;
+        nerrors = error_stack->nerrors;
     }
 
     if (nerrors == 0) {
@@ -54,10 +54,13 @@ void idamErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request, UDA_ERROR_ST
     convertNonPrintable2(accessdate);
     TrimString(accessdate);
 
-    udaLog(UDA_LOG_ERROR, "0 %s [%s] [%d %s %d %d %s %s %s %s %s %s %s]\n",
-            client_block.uid, accessdate, request.request, request.signal, request.exp_number,
-            request.pass, request.tpass, request.path, request.file, request.format, request.archive,
-            request.device_name, request.server);
+    for (int i = 0; i < request_block.num_requests; ++i) {
+        auto request = &request_block.requests[0];
+        udaLog(UDA_LOG_ERROR, "0 %s [%s] [%d %s %d %d %s %s %s %s %s %s %s]\n",
+               client_block.uid, accessdate, request->request, request->signal, request->exp_number,
+               request->pass, request->tpass, request->path, request->file, request->format, request->archive,
+               request->device_name, request->server);
+    }
 
     for (unsigned int i = 0; i < nerrors; i++) {
         udaLog(UDA_LOG_ERROR, "1 %s [%s] %d %d [%s] [%s]\n", client_block.uid, accessdate,
@@ -138,7 +141,7 @@ void addIdamError(int type, const char* location, int code, const char* msg)
 
 // Concatenate Error Stack structures
 
-void concatIdamError(UDA_ERROR_STACK* errorstackout)
+void concatUdaError(UDA_ERROR_STACK* errorstackout)
 {
     if (udaerrorstack.empty()) {
         return;
@@ -167,7 +170,7 @@ void freeIdamErrorStack(UDA_ERROR_STACK* errorstack)
 
 // Free Stack Heap
 
-void closeIdamError()
+void closeUdaError()
 {
     initIdamErrorStack();
 }

@@ -47,7 +47,7 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Standard v1 Plugin Interface
 
     DATA_BLOCK* data_block;
-    REQUEST_BLOCK* request_block;
+    REQUEST_DATA* request;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
@@ -56,7 +56,7 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
 
     data_block = idam_plugin_interface->data_block;
-    request_block = idam_plugin_interface->request_block;
+    request = idam_plugin_interface->request_data;
 
     unsigned short housekeeping = idam_plugin_interface->housekeeping;
 
@@ -68,7 +68,7 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Plugin must maintain a list of calls to other plugins: loop over and call each plugin with the housekeeping request
     // Plugin must destroy lists at end of housekeeping
 
-    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
         init = 0;
@@ -78,32 +78,32 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Initialise
 
-    if (!init || STR_IEQUALS(request_block->function, "init")
-        || STR_IEQUALS(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request->function, "init")
+        || STR_IEQUALS(request->function, "initialise")) {
 
         init = 1;
-        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
+        if (STR_IEQUALS(request->function, "init") || STR_IEQUALS(request->function, "initialise")) {
             return 0;
         }
     }
 
-    if (STR_IEQUALS(request_block->function, "help") || request_block->function[0] == '\0') {
+    if (STR_IEQUALS(request->function, "help") || request->function[0] == '\0') {
         const char* help = "\nHelp\tList of HELP plugin functions:\n\n"
                 "services()\tReturns a list of available services with descriptions\n"
                 "ping()\t\tReturn the Local Server Time in seconds and microseonds\n"
                 "servertime()\tReturn the Local Server Time in seconds and microseonds\n\n";
         return setReturnDataString(data_block, help, "Help help = description of this plugin");
-    } else if (STR_IEQUALS(request_block->function, "version")) {
+    } else if (STR_IEQUALS(request->function, "version")) {
         return setReturnDataIntScalar(data_block, THISPLUGIN_VERSION, "Plugin version number");
-    } else if (STR_IEQUALS(request_block->function, "builddate")) {
+    } else if (STR_IEQUALS(request->function, "builddate")) {
         return setReturnDataString(data_block, __DATE__, "Plugin build date");
-    } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
+    } else if (STR_IEQUALS(request->function, "defaultmethod")) {
         return setReturnDataString(data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
-    } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
+    } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
         return setReturnDataIntScalar(data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
-    } else if (STR_IEQUALS(request_block->function, "ping") || STR_IEQUALS(request_block->function, "servertime")) {
+    } else if (STR_IEQUALS(request->function, "ping") || STR_IEQUALS(request->function, "servertime")) {
         return do_ping(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "services")) {
+    } else if (STR_IEQUALS(request->function, "services")) {
         return do_services(idam_plugin_interface);
     } else {
         RAISE_PLUGIN_ERROR("Unknown function requested!");

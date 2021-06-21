@@ -355,7 +355,7 @@ enum REQUEST {
     REQUEST_READ_DEVICE         // Request to an External Device's data server
 };
 
-typedef struct RequestBlock {
+typedef struct RequestData {
     int request;                       // Plugin or Shutdown Server
     int exp_number;                    // Pulse No.,Tree No., etc
     int pass;                          // Pass, Sequence, etc
@@ -376,7 +376,11 @@ typedef struct RequestBlock {
 
     int put;                             // flag to set the server to a put state
     PUTDATA_BLOCK_LIST putDataBlockList; // Data to be put on the server
+} REQUEST_DATA;
 
+typedef struct RequestBlock {
+    int num_requests;
+    REQUEST_DATA* requests;
 } REQUEST_BLOCK;
 
 //---------------------------------------------------------------------------------------------------

@@ -8,6 +8,7 @@
 extern "C" {
 #endif
 
+LIBRARY_API void printRequestData(REQUEST_DATA str);
 LIBRARY_API void printRequestBlock(REQUEST_BLOCK str);
 LIBRARY_API void printClientBlock(CLIENT_BLOCK str);
 LIBRARY_API void printServerBlock(SERVER_BLOCK str);

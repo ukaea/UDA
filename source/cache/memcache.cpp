@@ -98,7 +98,7 @@ void udaFreeCache() // Will be called by the idamFreeAll function
 // The local cache should only be used to record data returned from a server after a GET method - Note: Put methods may be disguised in a GET call!
 // How to validate the cached data?
 
-char* generate_cache_key(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
+char* generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment)
 {
     // Check Client Properties for permission and requested method
     if (!(clientFlags & CLIENTFLAG_CACHE)) {
@@ -107,10 +107,10 @@ char* generate_cache_key(const REQUEST_BLOCK* request_block, ENVIRONMENT environ
 
     // **** TODO **** if(!(clientFlags & CLIENTFLAG_CACHE) || request_block->put) return nullptr;
     const char* delimiter = "&&";
-    size_t len = strlen(request_block->source) + strlen(request_block->signal) +
+    size_t len = strlen(request->source) + strlen(request->signal) +
                  strlen(environment.server_host) + 128;
     char* key = (char*)malloc(len * sizeof(char));
-    sprintf(key, "%s%s%s%s%s%s%d%s%d%s%d", request_block->signal, delimiter, request_block->source, delimiter,
+    sprintf(key, "%s%s%s%s%s%s%d%s%d%s%d", request->signal, delimiter, request->source, delimiter,
             environment.server_host, delimiter, environment.server_port, delimiter, environment.clientFlags, delimiter,
             privateFlags);
 
@@ -205,24 +205,31 @@ udaCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* 
         return -1;
     }
 #endif
+    int rc = 0;
 
-    char* key = generate_cache_key(request_block, environment);
-    UDA_LOG(UDA_LOG_DEBUG, "Caching value for key: %s\n", key);
+    for (int i = 0; i < request_block->num_requests; ++ i) {
+        char* key = generate_cache_key(&request_block->requests[i], environment);
+        UDA_LOG(UDA_LOG_DEBUG, "Caching value for key: %s\n", key);
 
-    if (key == nullptr) {
-        return -1;
+        if (key == nullptr) {
+            return -1;
+        }
+
+        char* buffer;
+        size_t bufsize = 0;
+
+        FILE* memfile = open_memstream(&buffer, &bufsize);
+
+        writeCacheData(memfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion);
+
+        rc = memcache_put(cache, key, buffer, bufsize);
+        if (rc) {
+            break;
+        }
+
+        free(key);
     }
 
-    char* buffer;
-    size_t bufsize = 0;
-
-    FILE* memfile = open_memstream(&buffer, &bufsize);
-
-    writeCacheData(memfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion);
-
-    int rc = memcache_put(cache, key, buffer, bufsize);
-
-    free(key);
     return rc;
 }
 
@@ -255,10 +262,10 @@ std::pair<char*, size_t> get_cache_value(UDA_CACHE* cache, const char* key)
     return { value, len };
 }
 
-DATA_BLOCK* udaCacheRead(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+DATA_BLOCK* udaCacheRead(UDA_CACHE* cache, const REQUEST_DATA* request_data, LOGMALLOCLIST* logmalloclist,
                           USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion)
 {
-    char* key = generate_cache_key(request_block, environment);
+    char* key = generate_cache_key(request_data, environment);
     if (key == nullptr) {
         return nullptr;
     }

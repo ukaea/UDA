@@ -279,8 +279,7 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str, int pr
     auto server_block = (SERVER_BLOCK*)str;
 
     switch (direction) {
-        case XDR_RECEIVE:
-            closeIdamError();    // Free Heap associated with Previous Data Access
+        case XDR_RECEIVE:closeUdaError();    // Free Heap associated with Previous Data Access
 
             if (!xdr_server1(xdrs, server_block, protocolVersion)) {
                 err = PROTOCOL_ERROR_22;
@@ -893,12 +892,32 @@ static int handle_request_block(XDR* xdrs, int direction, const void* str, int p
                 err = PROTOCOL_ERROR_1;
                 break;
             }
+            if (protocolVersion >= 8) {
+                request_block->requests = (REQUEST_DATA*)malloc(request_block->num_requests * sizeof(REQUEST_DATA));
+                for (int i = 0; i < request_block->num_requests; ++i) {
+                    initRequestData(&request_block->requests[i]);
+                    if (!xdr_request_data(xdrs, &request_block->requests[i], protocolVersion)) {
+                        err = PROTOCOL_ERROR_2;
+                        break;
+                    }
+                }
+                if (err) break;
+            }
             break;
 
         case XDR_SEND:
             if (!xdr_request(xdrs, request_block, protocolVersion)) {
                 err = PROTOCOL_ERROR_2;
                 break;
+            }
+            if (protocolVersion >= 8) {
+                for (int i = 0; i < request_block->num_requests; ++i) {
+                    if (!xdr_request_data(xdrs, &request_block->requests[i], protocolVersion)) {
+                        err = PROTOCOL_ERROR_2;
+                        break;
+                    }
+                }
+                if (err) break;
             }
             break;
 

@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-LIBRARY_API int udaServerLegacyPlugin(REQUEST_BLOCK *request_block, DATA_SOURCE *data_source, SIGNAL_DESC *signal_desc);
+LIBRARY_API int udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc);
 
 #ifdef __cplusplus
 }

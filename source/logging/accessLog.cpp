@@ -26,6 +26,9 @@
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 #  include <server/serverPlugin.h>
 #  include <server/udaServer.h>
+#include <sstream>
+#include <boost/format.hpp>
+
 #endif
 
 unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_block)
@@ -85,7 +88,7 @@ unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_blo
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
-void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SERVER_BLOCK server_block,
+void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, SERVER_BLOCK server_block,
                   const PLUGINLIST* pluginlist, const ENVIRONMENT* environment)
 {
     int err = 0;
@@ -96,7 +99,7 @@ void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SE
 #endif
 #ifndef IPV6PROTOCOL
 #  ifndef FATCLIENT
-    struct sockaddr_in addr;
+    struct sockaddr_in addr = {};
 #  endif
     static char host[INET6_ADDRSTRLEN + 1];
 #else
@@ -195,48 +198,46 @@ void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request, SE
 
     // Write the Log Record & Flush the fd
 
-    size_t wlen = strlen(host) + 1 +
-                  strlen(client_block.uid) + 1 +
-                  strlen(accessdate) + 1 +
-                  strlen(request.signal) + 1 +
-                  strlen(request.tpass) + 1 +
-                  strlen(request.path) + 1 +
-                  strlen(request.file) + 1 +
-                  strlen(request.format) + 1 +
-                  strlen(request.archive) + 1 +
-                  strlen(request.device_name) + 1 +
-                  strlen(request.server) + 1 +
-                  strlen(msg) + 1 +
-                  strlen(client_block.DOI) + 1 +
-                  1024;
+    for (int i = 0; i < request_block.num_requests; ++i) {
+        auto request = request_block.requests[i];
+        std::stringstream ss;
+        ss << host << " - "
+           << client_block.uid << " "
+           << "[" << accessdate << "] "
+           << "[" << request.request << " "
+            << "";
 
-    if (wlen < MAXMETA) {
-        char* work = (char*)malloc(MAXMETA * sizeof(char));
+        auto fmt = boost::format("%1% - %2% [%3%] [%4% %5% %6% %7% %8% %9% %10% %11% %12% %13% %14%] %15% %16% [%17%] %18% %19% %20% [%21% %22%] [%23%]")
+                   % host                  // 1
+            % client_block.uid      // 2
+            % accessdate            // 3
+            % request.request           // 4
+            % request.signal            // 5
+            % request.exp_number        // 6
+            % request.pass              // 7
+            % request.tpass             // 8
+            % request.path              // 9
+            % request.file              // 10
+            % request.format            // 11
+            % request.archive           // 12
+            % request.device_name       // 13
+            % request.server            // 14
+            % err                   // 15
+            % totalDataBlockSize    // 16
+            % msg                   // 17
+            % elapsedtime           // 18
+            % client_block.version  // 19
+            % server_block.version  // 20
+            % client_block.pid      // 21
+            % server_block.pid      // 22
+            % client_block.DOI;     // 23
+        auto str = fmt.str();
 
-        sprintf(work, "%s - %s [%s] [%d %s %d %d %s %s %s %s %s %s %s] %d %d [%s] %f %d %d [%d %d] [%s]",
-                host, client_block.uid, accessdate, static_cast<int>(request.request), request.signal,
-                request.exp_number, request.pass, request.tpass, request.path, request.file, request.format,
-                request.archive, request.device_name, request.server, err, (int)totalDataBlockSize, msg,
-                elapsedtime, client_block.version, server_block.version, client_block.pid, server_block.pid,
-                client_block.DOI);
-
-        udaLog(UDA_LOG_ACCESS, "%s\n", work);
-
-        // Save Provenance with socket stream protection
+        udaLog(UDA_LOG_ACCESS, "%s\n", str.c_str());
 
         udaServerRedirectStdStreams(0);
-        udaProvenancePlugin(&client_block, &request, nullptr, nullptr, pluginlist, work, environment);
+        udaProvenancePlugin(&client_block, &request, nullptr, nullptr, pluginlist, str.c_str(), environment);
         udaServerRedirectStdStreams(1);
-
-        free(work);
-
-    } else {
-        udaLog(UDA_LOG_ACCESS, "%s - %s [%s] [%d %s %d %d %s %s %s %s %s %s %s] %d %d [%s] %f %d %d [%d %d] [%s]\n",
-                host, client_block.uid, accessdate, request.request, request.signal, request.exp_number,
-                request.pass, request.tpass, request.path, request.file, request.format, request.archive,
-                request.device_name, request.server, err, (int)totalDataBlockSize, msg,
-                elapsedtime, client_block.version, server_block.version, client_block.pid, server_block.pid,
-                client_block.DOI);
     }
 
 }

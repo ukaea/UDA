@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 LIBRARY_API int serverSubsetData(DATA_BLOCK *data_block, ACTION action, LOGMALLOCLIST* logmalloclist);
-LIBRARY_API int serverParseServerSide(REQUEST_BLOCK *request_block, ACTIONS *actions_serverside);
+LIBRARY_API int serverParseServerSide(REQUEST_DATA *request_block, ACTIONS *actions_serverside);
 
 #ifdef __cplusplus
 }

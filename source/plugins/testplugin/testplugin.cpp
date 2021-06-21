@@ -141,13 +141,13 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Standard v1 Plugin Interface
 
-    REQUEST_BLOCK* request_block;
+    REQUEST_DATA* request;
 
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion >= 1) {
         idam_plugin_interface->pluginVersion = 1;
-        request_block = idam_plugin_interface->request_block;
+        request = idam_plugin_interface->request_data;
         housekeeping = idam_plugin_interface->housekeeping;
     } else {
         RAISE_PLUGIN_ERROR("Plugin Interface Version is Not Known: Unable to execute the request!");
@@ -163,7 +163,7 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Plugin must maintain a list of calls to other plugins: loop over and call each plugin with the housekeeping request
     // Plugin must destroy lists at end of housekeeping
 
-    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request->function, "reset")) {
         if (!init) return 0;        // Not previously initialised: Nothing to do!
         init = 0;
         UDA_LOG(UDA_LOG_DEBUG, "reset function executed\n");
@@ -173,17 +173,17 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Initialise
 
-    if (!init || STR_IEQUALS(request_block->function, "init")
-        || STR_IEQUALS(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request->function, "init")
+        || STR_IEQUALS(request->function, "initialise")) {
         init = 1;
         UDA_LOG(UDA_LOG_DEBUG, "plugin initialised\n");
-        if (STR_IEQUALS(request_block->function, "init")
-            || STR_IEQUALS(request_block->function, "initialise")) {
+        if (STR_IEQUALS(request->function, "init")
+            || STR_IEQUALS(request->function, "initialise")) {
             return 0;
         }
     }
 
-    if (!STR_IEQUALS(request_block->function, "test50")
+    if (!STR_IEQUALS(request->function, "test50")
         && idam_plugin_interface->userdefinedtypelist == nullptr) {
         RAISE_PLUGIN_ERROR("Unable to define Data Structures - nullptr list!");
     }
@@ -198,94 +198,94 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Plugin Functions
     //----------------------------------------------------------------------------------------
 
-    if (STR_IEQUALS(request_block->function, "help")) {
+    if (STR_IEQUALS(request->function, "help")) {
         err = do_help(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test0")
-               || STR_IEQUALS(request_block->function, "test1")) {
+    } else if (STR_IEQUALS(request->function, "test0")
+               || STR_IEQUALS(request->function, "test1")) {
         // Single String - not a Structure
         //      test0: passed as a char/byte array
         //      test1: passed as type STRING
         err = do_test0(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test2")
-               || STR_IEQUALS(request_block->function, "test3")) {
+    } else if (STR_IEQUALS(request->function, "test2")
+               || STR_IEQUALS(request->function, "test3")) {
         // Array of Strings - not a Structure
         //      test2: as a rank 2 char/byte array
         //      test3: as an array of type STRING
         err = do_test2(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test4")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test4")) {    // Simple Structure
         err = do_test4(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test5")) {    // Simple Structure with String Array
+    } else if (STR_IEQUALS(request->function, "test5")) {    // Simple Structure with String Array
         err = do_test5(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test6")) {    // Simple Structure with String Array
+    } else if (STR_IEQUALS(request->function, "test6")) {    // Simple Structure with String Array
         err = do_test6(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test7")) {    // Simple Structure with String Array
+    } else if (STR_IEQUALS(request->function, "test7")) {    // Simple Structure with String Array
         err = do_test7(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test8")) {    // Simple Structure with String Array
+    } else if (STR_IEQUALS(request->function, "test8")) {    // Simple Structure with String Array
         err = do_test8(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test9")) {    // Array of Structures with various String types
+    } else if (STR_IEQUALS(request->function, "test9")) {    // Array of Structures with various String types
         err = do_test9(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test9A")) {    // Array of Structures with string sub structures
+    } else if (STR_IEQUALS(request->function, "test9A")) {    // Array of Structures with string sub structures
         err = do_test9A(idam_plugin_interface);
     } else
 
     //=========================================================================================================
     // Integer Tests
 
-    if (STR_IEQUALS(request_block->function, "test10")) {           // Single Integer
+    if (STR_IEQUALS(request->function, "test10")) {           // Single Integer
         err = do_test10(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test11")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test11")) {    // Simple Structure
         err = do_test11(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test12")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test12")) {    // Simple Structure
         err = do_test12(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test13")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test13")) {    // Simple Structure
         err = do_test13(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test14")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test14")) {    // Simple Structure
         err = do_test14(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test15")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test15")) {    // Simple Structure
         err = do_test15(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test16")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test16")) {    // Simple Structure
         err = do_test16(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test18")) {    // array of multi-typed Structures
+    } else if (STR_IEQUALS(request->function, "test18")) {    // array of multi-typed Structures
         err = do_test18(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test19")) {    // array of multi-typed Structures
+    } else if (STR_IEQUALS(request->function, "test19")) {    // array of multi-typed Structures
         err = do_test19(idam_plugin_interface);
     } else
 
     //=========================================================================================================
     // Short Integer Tests
 
-    if (STR_IEQUALS(request_block->function, "test20")) {           // Single Short Integer
+    if (STR_IEQUALS(request->function, "test20")) {           // Single Short Integer
         err = do_test20(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test21")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test21")) {    // Simple Structure
         err = do_test21(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test22")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test22")) {    // Simple Structure
         err = do_test22(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test23")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test23")) {    // Simple Structure
         err = do_test23(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test24")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test24")) {    // Simple Structure
         err = do_test24(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test25")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test25")) {    // Simple Structure
         err = do_test25(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test26")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test26")) {    // Simple Structure
         err = do_test26(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test27")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test27")) {    // Simple Structure
         err = do_test27(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test28")) {    // Simple Structure
+    } else if (STR_IEQUALS(request->function, "test28")) {    // Simple Structure
         err = do_test28(idam_plugin_interface);
     } else
 
     //=====================================================================================================
     // Doubles
 
-    if (STR_IEQUALS(request_block->function, "test30")) {           // Simple Structure
+    if (STR_IEQUALS(request->function, "test30")) {           // Simple Structure
         err = do_test30(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test31")) {    // Rank 2 Array of Structures
+    } else if (STR_IEQUALS(request->function, "test31")) {    // Rank 2 Array of Structures
         err = do_test31(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test32")) {    // Compound Structure
+    } else if (STR_IEQUALS(request->function, "test32")) {    // Compound Structure
         err = do_test32(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test33")) {    // Compound Structure
+    } else if (STR_IEQUALS(request->function, "test33")) {    // Compound Structure
         err = do_test33(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test34")) {    // Compound Structure
+    } else if (STR_IEQUALS(request->function, "test34")) {    // Compound Structure
         err = do_test34(idam_plugin_interface);
 #ifdef PUTDATAENABLED
     } else if (STR_IEQUALS(request_block->function, "test40")) {
@@ -295,25 +295,25 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //=====================================================================================================
     // Misc
 
-    } else if (STR_IEQUALS(request_block->function, "plugin")) {
+    } else if (STR_IEQUALS(request->function, "plugin")) {
         err = do_plugin(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "errortest")) {
+    } else if (STR_IEQUALS(request->function, "errortest")) {
         err = do_errortest(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "scalartest")) {
+    } else if (STR_IEQUALS(request->function, "scalartest")) {
         err = do_scalartest(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "emptytest")) {
+    } else if (STR_IEQUALS(request->function, "emptytest")) {
         err = do_emptytest(idam_plugin_interface);
 #ifdef TESTUDT
     } else if (STR_IEQUALS(request_block->function, "test40")) {
         err = do_testudt(idam_plugin_interface);
 #endif
-    } else if (STR_IEQUALS(request_block->function, "test50")) {
+    } else if (STR_IEQUALS(request->function, "test50")) {
         err = do_test50(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test60")) {    // ENUM Type Data tests
+    } else if (STR_IEQUALS(request->function, "test60")) {    // ENUM Type Data tests
         err = do_test60(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test61")) {
+    } else if (STR_IEQUALS(request->function, "test61")) {
         err = do_test61(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "test62")) {
+    } else if (STR_IEQUALS(request->function, "test62")) {
         err = do_test62(idam_plugin_interface);
     } else {
         err = 999;
@@ -426,7 +426,7 @@ static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 static int do_test0(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    REQUEST_DATA* request = idam_plugin_interface->request_data;
 
     const char* help = "Hello World!";
 
@@ -439,7 +439,7 @@ static int do_test0(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         initDimBlock(&data_block->dims[i]);
     }
 
-    if (STR_IEQUALS(request_block->function, "test0")) {
+    if (STR_IEQUALS(request->function, "test0")) {
         data_block->data_type = UDA_TYPE_CHAR;
         strcpy(data_block->data_desc, "testplugins: test0 = single string as a char array");
     } else {
@@ -467,7 +467,7 @@ static int do_test0(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    REQUEST_DATA* request = idam_plugin_interface->request_data;
 
     // An array of strings can be formed in two distinct ways.
     // 1> A fixed block of contiguous memory with each string beginning at a well defined regular location - as if each
@@ -536,7 +536,7 @@ static int do_test2(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         initDimBlock(&data_block->dims[i]);
     }
 
-    if (STR_IEQUALS(request_block->function, "test2")) {
+    if (STR_IEQUALS(request->function, "test2")) {
         data_block->data_type = UDA_TYPE_CHAR;
         strcpy(data_block->data_desc, "testplugins: test2 = 2D array of chars");
     } else {
@@ -3234,10 +3234,10 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 static int do_test50(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    REQUEST_DATA* request = idam_plugin_interface->request_data;
 
     UDA_LOG(UDA_LOG_DEBUG, "TESTPLUGIN test50\n");
-    printRequestBlock(*request_block);
+    printRequestData(*request);
 
     // Return an array of strings with all passed parameters and substitutions
 
@@ -3246,13 +3246,13 @@ static int do_test50(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     work[0] = '\0';
 
     strcpy(work, "test50 passed parameters and substitutions\n");
-    sprintf(&work[strlen(work)], "Shot number:%d\n", request_block->exp_number);
-    sprintf(&work[strlen(work)], "Pass number:%d\n", request_block->pass);
-    sprintf(&work[strlen(work)], "substitution parameters:%s\n", request_block->tpass);
-    sprintf(&work[strlen(work)], "Number of name-value pairs: %d\n", request_block->nameValueList.pairCount);
-    for (int i = 0; i < request_block->nameValueList.pairCount; i++)
-        sprintf(&work[strlen(work)], "name: %s, value: %s\n", request_block->nameValueList.nameValue[i].name,
-                request_block->nameValueList.nameValue[i].value);
+    sprintf(&work[strlen(work)], "Shot number:%d\n", request->exp_number);
+    sprintf(&work[strlen(work)], "Pass number:%d\n", request->pass);
+    sprintf(&work[strlen(work)], "substitution parameters:%s\n", request->tpass);
+    sprintf(&work[strlen(work)], "Number of name-value pairs: %d\n", request->nameValueList.pairCount);
+    for (int i = 0; i < request->nameValueList.pairCount; i++)
+        sprintf(&work[strlen(work)], "name: %s, value: %s\n", request->nameValueList.nameValue[i].name,
+                request->nameValueList.nameValue[i].value);
 
     UDA_LOG(UDA_LOG_DEBUG, "test50: %s\n", work);
 
@@ -3737,12 +3737,12 @@ static int do_test62(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 // Calls to plugins must also respect access policy and user authentication policy
 static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    REQUEST_DATA* request = idam_plugin_interface->request_data;
 
     int err = 0;
 
     IDAM_PLUGIN_INTERFACE next_plugin_interface;
-    REQUEST_BLOCK next_request_block = {0};
+    REQUEST_DATA next_request = {0};
 
     const PLUGINLIST* pluginList = idam_plugin_interface->pluginList;
 
@@ -3755,23 +3755,23 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     const char* signal = nullptr;
     const char* source = nullptr;
 
-    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, signal);
-    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, source);
+    FIND_REQUIRED_STRING_VALUE(request->nameValueList, signal);
+    FIND_REQUIRED_STRING_VALUE(request->nameValueList, source);
 
     if (signal != nullptr || source != nullptr) {            // Identify the plugin to test
 
         next_plugin_interface = *idam_plugin_interface;    // New plugin interface
 
-        next_plugin_interface.request_block = &next_request_block;
-        strcpy(next_request_block.api_delim, request_block->api_delim);
+        next_plugin_interface.request_data = &next_request;
+        strcpy(next_request.api_delim, request->api_delim);
 
-        strcpy(next_request_block.signal, signal);
-        strcpy(next_request_block.source, source);
+        strcpy(next_request.signal, signal);
+        strcpy(next_request.source, source);
 
-        make_request_block(&next_request_block, *pluginList, idam_plugin_interface->environment);
+        makeRequestData(&next_request, *pluginList, idam_plugin_interface->environment);
 
         for (int i = 0; i < pluginList->count; i++) {
-            if (next_request_block.request == pluginList->plugin[i].request) {
+            if (next_request.request == pluginList->plugin[i].request) {
                 if (pluginList->plugin[i].idamPlugin != nullptr) {
                     err = pluginList->plugin[i].idamPlugin(&next_plugin_interface); // Call the data reader
                 } else {
@@ -3782,7 +3782,7 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             }
         }
 
-        free_name_value_list(&next_request_block.nameValueList);
+        freeNameValueList(&next_request.nameValueList);
     }
 
     return err;
@@ -3805,18 +3805,18 @@ static int do_errortest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int test = 0;
 
     initIdamErrorStack();
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    REQUEST_DATA* request = idam_plugin_interface->request_data;
 
-    FIND_REQUIRED_INT_VALUE(request_block->nameValueList, test);
+    FIND_REQUIRED_INT_VALUE(request->nameValueList, test);
 
     switch (test) {
         case 1:
             testError1();
-            concatIdamError(&idam_plugin_interface->error_stack);
+            concatUdaError(&idam_plugin_interface->error_stack);
             return err;
         case 2:
             testError2();
-            concatIdamError(&idam_plugin_interface->error_stack);
+            concatUdaError(&idam_plugin_interface->error_stack);
             return err;
         case 3: {
             const char* p = "crash!";        // force a server crash! (write to read-only memory)

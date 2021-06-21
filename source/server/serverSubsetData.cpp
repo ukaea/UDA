@@ -1102,7 +1102,7 @@ int serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* logma
 // SS::SUBSET(\"xx\", [*, 3], member=\"name\", reform, function=\"minimum(dimid=0)\" )
 
 
-int serverParseServerSide(REQUEST_BLOCK* request_block, ACTIONS* actions_serverside)
+int serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serverside)
 {
 
     char qchar[2];

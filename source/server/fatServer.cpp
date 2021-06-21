@@ -51,8 +51,8 @@ int malloc_source = MALLOCSOURCENONE;
 USERDEFINEDTYPELIST parseduserdefinedtypelist;
 unsigned int privateFlags = 0;
 
-int serverVersion = 7;
-static int protocolVersion = 7;
+int serverVersion = 8;
+static int protocolVersion = 8;
 
 SOCKETLIST socket_list;
 
@@ -165,8 +165,8 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
     // Gather Server Error State
 
     // Update Server State with Error Stack
-    concatIdamError(&server_block->idamerrorstack);
-    closeIdamError();
+    concatUdaError(&server_block->idamerrorstack);
+    closeUdaError();
 
     int err = 0;
 
@@ -257,10 +257,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
         remove(tempFile);
     }
 
-    //----------------------------------------------------------------------------
-    // Free Name Value pair
-
-    free_name_value_list(&request_block->nameValueList);
+    freeRequestBlock(request_block);
 
     return err;
 }
@@ -269,7 +266,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
                      SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK* data_block,
                      ACTIONS* actions_desc, ACTIONS* actions_sig)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "IdamServer: Start of Server Error Trap #1 Loop\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
     copyRequestBlock(request_block, *request_block0);
 
@@ -279,11 +276,14 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     printServerBlock(*server_block);
     printRequestBlock(*request_block);
 
-    char work[1024];
-    if (request_block->api_delim[0] != '\0') {
-        sprintf(work, "UDA%s", request_block->api_delim);
-    } else {
-        sprintf(work, "UDA%s", environment.api_delim);
+    for (int i = 0; i < request_block->num_requests; ++i) {
+        REQUEST_DATA* request = &request_block->requests[i];
+        char work[1024];
+        if (request->api_delim[0] != '\0') {
+            sprintf(work, "UDA%s", request->api_delim);
+        } else {
+            sprintf(work, "UDA%s", environment.api_delim);
+        }
     }
 
     //----------------------------------------------------------------------
@@ -298,16 +298,18 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     // Decide on Authentication procedure
 
     protocolVersion = serverVersion;
-
-    if (protocolVersion >= 6) {
-        if ((err = udaServerPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc,
-                                   &pluginList, getServerEnvironment())) != 0) {
-            return err;
-        }
-    } else {
-        if ((err = udaServerLegacyPlugin(request_block, &metadata_block->data_source, &metadata_block->signal_desc)) !=
-            0) {
-            return err;
+    for (int i = 0; i < request_block->num_requests; ++i) {
+        auto request = &request_block->requests[i];
+        if (protocolVersion >= 6) {
+            if ((err = udaServerPlugin(request, &metadata_block->data_source, &metadata_block->signal_desc,
+                                       &pluginList, getServerEnvironment())) != 0) {
+                return err;
+            }
+        } else {
+            if ((err = udaServerLegacyPlugin(request, &metadata_block->data_source, &metadata_block->signal_desc)) !=
+                0) {
+                return err;
+            }
         }
     }
 
@@ -318,9 +320,12 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
 
     int depth = 0;
 
-    err = udaGetData(&depth, request_block, *client_block, data_block, &metadata_block->data_source,
-                     &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
-                     &pluginList, logmalloclist, userdefinedtypelist, &socket_list, protocolVersion);
+    for (int i = 0; i < request_block->num_requests; ++i) {
+        auto request = &request_block->requests[i];
+        err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
+                         &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
+                         &pluginList, logmalloclist, userdefinedtypelist, &socket_list, protocolVersion);
+    }
 
     if (err != 0) {
         return err;
@@ -380,8 +385,8 @@ int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, ACT
 
     //----------------------------------------------------------------------------
 
-    concatIdamError(&server_block->idamerrorstack); // Update Server State with Global Error Stack
-    closeIdamError();
+    concatUdaError(&server_block->idamerrorstack); // Update Server State with Global Error Stack
+    closeUdaError();
 
     *data_block0 = *data_block;
 

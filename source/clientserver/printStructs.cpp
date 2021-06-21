@@ -8,9 +8,8 @@
 #include <clientserver/udaTypes.h>
 #include <clientserver/errorLog.h>
 
-void printRequestBlock(REQUEST_BLOCK str)
+void printRequestData(REQUEST_DATA str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "\nClient Request Block\n\n");
     UDA_LOG(UDA_LOG_DEBUG, "request     : %d\n", str.request);
     UDA_LOG(UDA_LOG_DEBUG, "exp_number  : %d\n", str.exp_number);
     UDA_LOG(UDA_LOG_DEBUG, "pass        : %d\n", str.pass);
@@ -35,6 +34,16 @@ void printRequestBlock(REQUEST_BLOCK str)
     for (int i = 0; i < str.nameValueList.pairCount; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "[%d] %s,   %s,   %s\n", i, str.nameValueList.nameValue[i].pair,
                 str.nameValueList.nameValue[i].name, str.nameValueList.nameValue[i].value);
+    }
+}
+
+void printRequestBlock(REQUEST_BLOCK str)
+{
+    UDA_LOG(UDA_LOG_DEBUG, "\nClient Request Block\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "# requests  : %d\n", str.num_requests);
+    for (int i = 0; i < str.num_requests; ++i) {
+        UDA_LOG(UDA_LOG_DEBUG, "number      : %d\n", i);
+        printRequestData(str.requests[0]);
     }
 }
 

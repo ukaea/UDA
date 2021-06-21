@@ -130,7 +130,7 @@ cdef extern from "client/accAPI.h":
 
 cdef extern from "clientserver/initStructs.h":
     void initIdamPutDataBlock(PUTDATA_BLOCK* str);
-    void initIdamPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+    void initPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
 cdef extern from "client/udaPutAPI.h":
     int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);

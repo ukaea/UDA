@@ -106,7 +106,7 @@ static bool is_cache_file_valid(const std::string& filename);
 static boost::optional<CacheStats> get_cache_stats(FILE* db);
 static int update_cache_stats(FILE* db, CacheStats stats);
 static boost::optional<CacheStats> purge_cache(FILE* db);
-static boost::optional<CacheEntry> find_cache_entry(const REQUEST_BLOCK* request_block);
+static boost::optional<CacheEntry> find_cache_entry(const REQUEST_DATA* request);
 static unsigned int xcrc32(const unsigned char* buf, int len, unsigned int init);
 static int set_entry_state(const CacheEntry& entry, EntryState state);
 static std::string get_file_path(const std::string& filename);
@@ -379,11 +379,11 @@ boost::optional<CacheStats> purge_cache(FILE* db)
     return stats;
 }
 
-DATA_BLOCK* udaFileCacheRead(const REQUEST_BLOCK* request_block,
+DATA_BLOCK* udaFileCacheRead(const REQUEST_DATA* request,
                              LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                              int protocolVersion)
 {
-    auto maybe_entry = find_cache_entry(request_block);
+    auto maybe_entry = find_cache_entry(request);
     if (!maybe_entry) {
         return nullptr;
     }
@@ -470,13 +470,13 @@ boost::optional<CacheEntry> processLine(const std::string& line, size_t position
     return entry;
 }
 
-unsigned int generate_hash_key(const REQUEST_BLOCK* request_block)
+unsigned int generate_hash_key(const REQUEST_DATA* request)
 {
     // Generate a Hash Key (not guaranteed unique)
     unsigned int key = 0;
     // combine CRC has keys
-    key = xcrc32((const unsigned char*)request_block->signal, (int)strlen(request_block->signal), key);
-    key = xcrc32((const unsigned char*)request_block->source, (int)strlen(request_block->source), key);
+    key = xcrc32((const unsigned char*)request->signal, (int)strlen(request->signal), key);
+    key = xcrc32((const unsigned char*)request->source, (int)strlen(request->source), key);
     return key;
 }
 
@@ -500,7 +500,7 @@ int set_entry_state(const CacheEntry& entry, EntryState state)
 }
 
 // Identify the name of the required cache file
-boost::optional<CacheEntry> find_cache_entry(const REQUEST_BLOCK* request_block)
+boost::optional<CacheEntry> find_cache_entry(const REQUEST_DATA* request)
 {
     // Lock the database
     FILE* db = open_db_file(false);
@@ -508,7 +508,7 @@ boost::optional<CacheEntry> find_cache_entry(const REQUEST_BLOCK* request_block)
         return {};
     }
 
-    unsigned int key = generate_hash_key(request_block);
+    unsigned int key = generate_hash_key(request);
 
     fseek(db, CACHE_STATSLENGTH, SEEK_SET);    // Position at the start of record 2
 
@@ -531,7 +531,7 @@ boost::optional<CacheEntry> find_cache_entry(const REQUEST_BLOCK* request_block)
         }
 
         if (key == entry.dbkey
-            && (entry.signal == request_block->signal && entry.source == request_block->source)) {
+            && (entry.signal == request->signal && entry.source == request->source)) {
             found_entry = entry;
             break;
         }
@@ -544,13 +544,13 @@ boost::optional<CacheEntry> find_cache_entry(const REQUEST_BLOCK* request_block)
     return found_entry;
 }
 
-int add_cache_record(const REQUEST_BLOCK* request_block, const char* filename)
+int add_cache_record(const REQUEST_DATA* request, const char* filename)
 {
     // Generate a Hash Key (not guaranteed unique)
     unsigned int key = 0;
     // combine CRC has keys
-    key = xcrc32((const unsigned char*)request_block->signal, (int)strlen(request_block->signal), key);
-    key = xcrc32((const unsigned char*)request_block->source, (int)strlen(request_block->source), key);
+    key = xcrc32((const unsigned char*)request->signal, (int)strlen(request->signal), key);
+    key = xcrc32((const unsigned char*)request->source, (int)strlen(request->source), key);
 
     // Generate a timestamp
     unsigned long long timestamp = 0;
@@ -563,13 +563,13 @@ int add_cache_record(const REQUEST_BLOCK* request_block, const char* filename)
     // Create the new record string
     std::stringstream ss;
     constexpr int properties = 0;
-    ss  << static_cast<int>(EntryState::LIVE) << delimiter
-        << key << delimiter
-        << timestamp << delimiter
-        << filename << delimiter
-        << properties << delimiter
-        << request_block->signal << delimiter
-        << request_block->source << '\n';
+    ss << static_cast<int>(EntryState::LIVE) << delimiter
+       << key << delimiter
+       << timestamp << delimiter
+       << filename << delimiter
+       << properties << delimiter
+       << request->signal << delimiter
+       << request->source << '\n';
     std::string record = ss.str();
 
     // Append the new record to the database table
@@ -608,22 +608,24 @@ int add_cache_record(const REQUEST_BLOCK* request_block, const char* filename)
     return set_db_file_lock_state(db, LockActionType::UNLOCK);
 }
 
-std::string generate_cache_filename(const REQUEST_BLOCK* request_block)
+std::string generate_cache_filename(const REQUEST_DATA* request)
 {
-    unsigned int key = generate_hash_key(request_block);
+    unsigned int key = generate_hash_key(request);
     return std::string{"uda_"} + std::to_string(key) + ".cache";
 }
 
 int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
                       USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion)
 {
-    auto maybe_entry = find_cache_entry(request_block);
+    REQUEST_DATA* request = &request_block->requests[0];
+
+    auto maybe_entry = find_cache_entry(request);
     if (maybe_entry) {
         // Entry already exists, do not add another
         return 0;
     }
 
-    std::string filename = generate_cache_filename(request_block);
+    std::string filename = generate_cache_filename(request);
     std::string path = get_file_path(filename);
 
     FILE* xdrfile;
@@ -636,7 +638,7 @@ int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request
 
     fclose(xdrfile);
 
-    int rc = add_cache_record(request_block, filename.c_str());
+    int rc = add_cache_record(request, filename.c_str());
     if (rc != 0) {
         THROW_ERROR(rc, "unable to add cache record");
     }

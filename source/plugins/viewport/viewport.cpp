@@ -50,9 +50,6 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Standard v1 Plugin Interface
 
-    DATA_BLOCK* data_block;
-    REQUEST_BLOCK* request_block;
-
     unsigned short housekeeping;
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
@@ -61,8 +58,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
 
-    data_block = idam_plugin_interface->data_block;
-    request_block = idam_plugin_interface->request_block;
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    REQUEST_DATA* request = idam_plugin_interface->request_data;
 
     housekeeping = idam_plugin_interface->housekeeping;
 
@@ -93,63 +90,63 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     float endValueY = 0.0;
 
     {
-        for (int i = 0; i < request_block->nameValueList.pairCount; i++) {
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "signal")) {
-                signal = request_block->nameValueList.nameValue[i].value;
+        for (int i = 0; i < request->nameValueList.pairCount; i++) {
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "signal")) {
+                signal = request->nameValueList.nameValue[i].value;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "source")) {
-                source = request_block->nameValueList.nameValue[i].value;
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "source")) {
+                source = request->nameValueList.nameValue[i].value;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "startValueX")) {
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "startValueX")) {
                 isStartValueX = true;
-                startValueX = (float)atof(request_block->nameValueList.nameValue[i].value);
+                startValueX = (float)atof(request->nameValueList.nameValue[i].value);
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "endValueX")) {
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "endValueX")) {
                 isEndValueX = true;
-                endValueX = (float)atof(request_block->nameValueList.nameValue[i].value);
+                endValueX = (float)atof(request->nameValueList.nameValue[i].value);
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "startValueY")) {
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "startValueY")) {
                 isStartValueY = true;
-                startValueY = (float)atof(request_block->nameValueList.nameValue[i].value);
+                startValueY = (float)atof(request->nameValueList.nameValue[i].value);
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "endValueY")) {
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "endValueY")) {
                 isEndValueY = true;
-                endValueY = (float)atof(request_block->nameValueList.nameValue[i].value);
+                endValueY = (float)atof(request->nameValueList.nameValue[i].value);
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "pixelHeight")) {
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "pixelHeight")) {
                 isPixelHeight = true;
-                pixelHeight = atoi(request_block->nameValueList.nameValue[i].value);
+                pixelHeight = atoi(request->nameValueList.nameValue[i].value);
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "pixelWidth")) {
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "pixelWidth")) {
                 isPixelWidth = true;
-                pixelWidth = atoi(request_block->nameValueList.nameValue[i].value);
+                pixelWidth = atoi(request->nameValueList.nameValue[i].value);
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "clearCache")) {
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "clearCache")) {
                 isClearCache = true;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "test")) {
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "test")) {
                 isTest = true;
-                test = atoi(request_block->nameValueList.nameValue[i].value);
+                test = atoi(request->nameValueList.nameValue[i].value);
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "mean")) {
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "mean")) {
                 isMean = true;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "mode")) {
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "mode")) {
                 isMode = true;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "median")) {
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "median")) {
                 isMedian = true;
                 continue;
             }
-            if (STR_IEQUALS(request_block->nameValueList.nameValue[i].name, "range")) {
+            if (STR_IEQUALS(request->nameValueList.nameValue[i].name, "range")) {
                 isRange = true;
                 continue;
             }
@@ -170,7 +167,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // A list must be maintained to register these plugin calls to manage housekeeping.
     // Calls to plugins must also respect access policy and user authentication policy
 
-    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -187,7 +184,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         return 0;
     }
 
-    if (STR_IEQUALS(request_block->function, "clearCache") || isClearCache) {
+    if (STR_IEQUALS(request->function, "clearCache") || isClearCache) {
 
         // Free Cached data if requested or filled
         
@@ -218,8 +215,8 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Initialise
 
-    if (!init || STR_IEQUALS(request_block->function, "init")
-        || STR_IEQUALS(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request->function, "init")
+        || STR_IEQUALS(request->function, "initialise")) {
 
         // Free Heap Cache & reset counters
         for (int i = 0; i < handleCount; i++) {
@@ -230,7 +227,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         handleCount = 0;
 
         init = 1;
-        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise")) {
+        if (STR_IEQUALS(request->function, "init") || STR_IEQUALS(request->function, "initialise")) {
             return 0;
         }
     }
@@ -243,7 +240,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // Help: A Description of library functionality
 
-        if (STR_IEQUALS(request_block->function, "help")) {
+        if (STR_IEQUALS(request->function, "help")) {
 
             p = (char*)malloc(sizeof(char) * 2 * 1024);
 
@@ -280,7 +277,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             //----------------------------------------------------------------------------------------
             // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
-        if (STR_IEQUALS(request_block->function, "version")) {
+        if (STR_IEQUALS(request->function, "version")) {
             initDataBlock(data_block);
             data_block->data_type = UDA_TYPE_INT;
             data_block->rank = 0;
@@ -296,7 +293,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             // Plugin Build Date
 
-        if (STR_IEQUALS(request_block->function, "builddate")) {
+        if (STR_IEQUALS(request->function, "builddate")) {
             initDataBlock(data_block);
             data_block->data_type = UDA_TYPE_STRING;
             data_block->rank = 0;
@@ -312,7 +309,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             // Plugin Default Method
 
-        if (STR_IEQUALS(request_block->function, "defaultmethod")) {
+        if (STR_IEQUALS(request->function, "defaultmethod")) {
             initDataBlock(data_block);
             data_block->data_type = UDA_TYPE_STRING;
             data_block->rank = 0;
@@ -328,7 +325,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             // Plugin Maximum Interface Version
 
-        if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
+        if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
             initDataBlock(data_block);
             data_block->data_type = UDA_TYPE_INT;
             data_block->rank = 0;
@@ -350,7 +347,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Real world coordinates: startValueX, endValueX, startValueY, endValueY
             // Device coordinates (relative) pixelWidth, pixelHeight
 
-        if (STR_IEQUALS(request_block->function, "get")) {
+        if (STR_IEQUALS(request->function, "get")) {
 
             // Context based Tests: required - pixelWidth, pixelHeight, Signal, Source
 

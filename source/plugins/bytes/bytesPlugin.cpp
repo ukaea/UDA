@@ -44,9 +44,9 @@ int bytesPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // A list must be maintained to register these plugin calls to manage housekeeping.
     // Calls to plugins must also respect access policy and user authentication policy
 
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    REQUEST_DATA* request = idam_plugin_interface->request_data;
 
-    if (idam_plugin_interface->housekeeping || STR_IEQUALS(request_block->function, "reset")) {
+    if (idam_plugin_interface->housekeeping || STR_IEQUALS(request->function, "reset")) {
         if (!init) return 0; // Not previously initialised: Nothing to do!
         // Free Heap & reset counters
         init = 0;
@@ -56,11 +56,11 @@ int bytesPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Initialise
 
-    if (!init || STR_IEQUALS(request_block->function, "init")
-        || STR_IEQUALS(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request->function, "init")
+        || STR_IEQUALS(request->function, "initialise")) {
 
         init = 1;
-        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
+        if (STR_IEQUALS(request->function, "init") || STR_IEQUALS(request->function, "initialise"))
             return 0;
     }
 
@@ -71,17 +71,17 @@ int bytesPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
-    if (STR_IEQUALS(request_block->function, "help")) {
+    if (STR_IEQUALS(request->function, "help")) {
         return do_help(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "version")) {
+    } else if (STR_IEQUALS(request->function, "version")) {
         return do_version(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "builddate")) {
+    } else if (STR_IEQUALS(request->function, "builddate")) {
         return do_builddate(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
+    } else if (STR_IEQUALS(request->function, "defaultmethod")) {
         return do_defaultmethod(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
+    } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
         return do_maxinterfaceversion(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "read")) {
+    } else if (STR_IEQUALS(request->function, "read")) {
         return do_read(idam_plugin_interface);
     } else {
         RAISE_PLUGIN_ERROR("Unknown function requested!");
@@ -150,7 +150,7 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     const char* path;
-    FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_block->nameValueList, path);
+    FIND_REQUIRED_STRING_VALUE(idam_plugin_interface->request_data->nameValueList, path);
 
     StringCopy(data_source->path, path, MAXPATH);
     UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables! \n");

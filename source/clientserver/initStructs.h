@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 LIBRARY_API void initNameValueList(NAMEVALUELIST* nameValueList);
+LIBRARY_API void initRequestData(REQUEST_DATA* str);
 LIBRARY_API void initRequestBlock(REQUEST_BLOCK* str);
 LIBRARY_API void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname);
 LIBRARY_API void initServerBlock(SERVER_BLOCK* str, int version);
@@ -20,7 +21,7 @@ LIBRARY_API void initDataSource(DATA_SOURCE* str);
 LIBRARY_API void initSignal(SIGNAL* str);
 LIBRARY_API void initSignalDesc(SIGNAL_DESC* str);
 LIBRARY_API void initIdamPutDataBlock(PUTDATA_BLOCK* str);
-LIBRARY_API void initIdamPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+LIBRARY_API void initPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
 #ifdef __cplusplus
 }

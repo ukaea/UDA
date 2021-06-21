@@ -21,6 +21,8 @@
 #include <structures/struct.h>
 #include <client/connection.h>
 #include <client/getEnvironment.h>
+#include <cache/fileCache.h>
+#include <cache/memcache.h>
 
 #include "closedown.h"
 #include "accAPI.h"
@@ -42,8 +44,8 @@
 
 //------------------------------------------------ Static Globals ------------------------------------------------------
 
-static int protocolVersion = 7;
-int clientVersion = 7;          // previous version
+static int protocolVersion = 8;
+int clientVersion = 8;          // previous version
 
 int get_nodimdata = 0;          // Don't send dimensional data: Send a simple Index
 int get_datadble = 0;           // Cast the Time Dimension to Double Precision
@@ -136,6 +138,85 @@ void updateClientBlock(CLIENT_BLOCK* str)
     str->get_nodimdata = get_nodimdata;
 
     str->privateFlags = privateFlags;
+}
+
+/**
+ * Check the local cache for the data (GET methods only - Note: some GET methods may disguise PUT methods!)
+ *
+ * @param request_data
+ * @param p_data_block
+ * @return
+ */
+int check_file_cache(const REQUEST_DATA* request_data, DATA_BLOCK** p_data_block, LOGMALLOCLIST* log_malloc_list,
+                     USERDEFINEDTYPELIST* user_defined_type_list)
+{
+    if (clientFlags & CLIENTFLAG_FILECACHE && !request_data->put) {
+        // Query the cache for the Data
+        DATA_BLOCK* data = udaFileCacheRead(request_data, log_malloc_list, user_defined_type_list, protocolVersion);
+
+        if (data != nullptr) {
+            // Success
+            int data_block_idx = acc_getIdamNewDataHandle();
+
+            if (data_block_idx < 0) {            // Error
+                return -data_block_idx;
+            }
+
+            *p_data_block = getIdamDataBlock(data_block_idx);
+
+            memcpy(*p_data_block, data, sizeof(DATA_BLOCK));
+            free(data);
+
+            return data_block_idx;
+        }
+    }
+
+    return -1;
+}
+
+int check_mem_cache(REQUEST_DATA* request_data, unsigned int cacheStatus, DATA_BLOCK** p_data_block,
+                    LOGMALLOCLIST* log_malloc_list, USERDEFINEDTYPELIST* user_defined_type_list)
+{
+    static UDA_CACHE* cache = nullptr;
+
+    // Check Client Properties for permission to cache
+    if (clientFlags & CLIENTFLAG_CACHE && !request_data->put &&
+        (cacheStatus == UDA_CACHE_AVAILABLE || cacheStatus == UDA_CACHE_NOT_OPENED)) {
+
+        // Open the Cache
+        if (cacheStatus == UDA_CACHE_NOT_OPENED) {
+            cache = udaOpenCache();
+
+            if (cache == nullptr) {
+                cacheStatus = UDA_CACHE_NOT_AVAILABLE;
+                return -1;
+            }
+
+            cacheStatus = UDA_CACHE_AVAILABLE;
+        }
+
+        // Query the cache for the Data
+        DATA_BLOCK* data = udaCacheRead(cache, request_data, log_malloc_list, user_defined_type_list,
+                                        *getIdamClientEnvironment(), protocolVersion);
+
+        if (data != nullptr) {
+            // Success
+            int data_block_idx = acc_getIdamNewDataHandle();
+
+            if (data_block_idx < 0) {            // Error
+                return -data_block_idx;
+            }
+
+            *p_data_block = getIdamDataBlock(data_block_idx);
+
+            memcpy(*p_data_block, data, sizeof(DATA_BLOCK));
+            free(data);
+
+            return data_block_idx;
+        }
+    }
+
+    return -1;
 }
 
 void copyClientBlock(CLIENT_BLOCK* str)
@@ -245,72 +326,16 @@ int idamClient(REQUEST_BLOCK* request_block)
         }
 #ifndef FATCLIENT   // <========================== Client Server Code Only
 
-        //-------------------------------------------------------------------------
-        // Check the local cache for the data (GET methods only - Note: some GET methods may disguise PUT methods!)
-
-        if (clientFlags & CLIENTFLAG_FILECACHE && !request_block->put) {
-            // Query the cache for the Data
-            DATA_BLOCK* data = udaFileCacheRead(request_block, logmalloclist, userdefinedtypelist, protocolVersion);
-
-            if (data != nullptr) {
-                // Success
-                data_block_idx = acc_getIdamNewDataHandle();
-
-                if (data_block_idx < 0) {            // Error
-                    err = -data_block_idx;
-                    break;
-                }
-
-                data_block = getIdamDataBlock(data_block_idx);
-
-                memcpy(data_block, data, sizeof(DATA_BLOCK));
-                free(data);
-
-                return data_block_idx;
-            }
+        int rc = check_file_cache(&request_block->requests[0], &data_block, logmalloclist, userdefinedtypelist);
+        if (rc >= 0) {
+            return rc;
         }
 
 #  ifndef NOLIBMEMCACHED
-        do {
-            // Check Client Properties for permission to cache
-            if (clientFlags & CLIENTFLAG_CACHE && !request_block->put &&
-                (cacheStatus == UDA_CACHE_AVAILABLE || cacheStatus == UDA_CACHE_NOT_OPENED)) {
-
-                // Open the Cache
-                if (cacheStatus == UDA_CACHE_NOT_OPENED) {
-                    cache = udaOpenCache();
-
-                    if (cache == nullptr) {
-                        cacheStatus = UDA_CACHE_NOT_AVAILABLE;
-                        break;
-                    }
-
-                    cacheStatus = UDA_CACHE_AVAILABLE;
-                }
-
-                // Query the cache for the Data
-                DATA_BLOCK* data = udaCacheRead(cache, request_block, logmalloclist, userdefinedtypelist,
-                                                 *getIdamClientEnvironment(), protocolVersion);
-
-                if (data != nullptr) {
-                    // Success
-                    data_block_idx = acc_getIdamNewDataHandle();
-
-                    if (data_block_idx < 0) {            // Error
-                        err = -data_block_idx;
-                        break;
-                    }
-
-                    data_block = getIdamDataBlock(data_block_idx);
-
-                    memcpy(data_block, data, sizeof(DATA_BLOCK));
-                    free(data);
-
-                    return data_block_idx;
-                }
-
-            }
-        } while (0);
+        rc = check_mem_cache(&request_block->requests[0], cacheStatus, &data_block, logmalloclist, userdefinedtypelist);
+        if (rc >= 0) {
+            return rc;
+        }
 #  endif // !NOLIBMEMCACHED
 
         //-------------------------------------------------------------------------
@@ -558,7 +583,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             // Flush (mark as at EOF) the input socket buffer (not all server state data may have been read - version dependent)
 
-            int rc = xdrrec_eof(clientInput);
+            rc = xdrrec_eof(clientInput);
 
             UDA_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
             UDA_LOG(UDA_LOG_DEBUG, "xdrrec_eof rc = %d [1 => no more input]\n", rc);
@@ -594,7 +619,6 @@ int idamClient(REQUEST_BLOCK* request_block)
         //-------------------------------------------------------------------------
         // Flush to EOF the input buffer (start of wait for new data) necessary when Zero data waiting but not an EOF!
 
-        int rc;
         if (!(rc = xdrrec_eof(clientInput))) { // Test for an EOF
 
             UDA_LOG(UDA_LOG_DEBUG, "xdrrec_eof rc = %d => more input when none expected!\n", rc);
@@ -663,14 +687,18 @@ int idamClient(REQUEST_BLOCK* request_block)
         //------------------------------------------------------------------------------
         // Pass the PUTDATA structure
 
-        if (request_block->put) {
-            protocol_id = PROTOCOL_PUTDATA_BLOCK_LIST;
+        for (int i = 0; i < request_block->num_requests; ++i) {
+            REQUEST_DATA* request = &request_block->requests[i];
 
-            if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                                 &(request_block->putDataBlockList), protocolVersion)) != 0) {
-                addIdamError(CODEERRORTYPE, __func__, err,
-                             "Protocol 1 Error (sending putDataBlockList from Request Block)");
-                break;
+            if (request->put) {
+                protocol_id = PROTOCOL_PUTDATA_BLOCK_LIST;
+
+                if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
+                                     &(request->putDataBlockList), protocolVersion)) != 0) {
+                    addIdamError(CODEERRORTYPE, __func__, err,
+                                 "Protocol 1 Error (sending putDataBlockList from Request Block)");
+                    break;
+                }
             }
         }
 
@@ -730,7 +758,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         allocMetaHeap = 0;
 
-        if (client_block.get_meta && !request_block->put) {
+        if (client_block.get_meta) {
 
             // Allocate memory for the Meta Data
 
@@ -1019,9 +1047,9 @@ int idamClient(REQUEST_BLOCK* request_block)
         //------------------------------------------------------------------------------
         // Concatenate Error Message Stacks & Write to the Error Log
 
-        concatIdamError(&server_block.idamerrorstack);
-        closeIdamError();
-        idamErrorLog(client_block, *request_block, &server_block.idamerrorstack);
+        concatUdaError(&server_block.idamerrorstack);
+        closeUdaError();
+        udaErrorLog(client_block, *request_block, &server_block.idamerrorstack);
 
         //------------------------------------------------------------------------------
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
@@ -1054,9 +1082,9 @@ int idamClient(REQUEST_BLOCK* request_block)
             closedown(ClosedownType::CLOSE_SOCKETS, nullptr);
         }
 
-        concatIdamError(&server_block.idamerrorstack);
-        closeIdamError();
-        idamErrorLog(client_block, *request_block, &server_block.idamerrorstack);
+        concatUdaError(&server_block.idamerrorstack);
+        closeUdaError();
+        udaErrorLog(client_block, *request_block, &server_block.idamerrorstack);
 
         if (err == 0) {
             return ERROR_CONDITION_UNKNOWN;
@@ -1099,10 +1127,10 @@ int idamClient(REQUEST_BLOCK* request_block)
         //------------------------------------------------------------------------------
         // Concatenate Error Message Stacks & Write to the Error Log
 
-        concatIdamError(&server_block.idamerrorstack);
-        closeIdamError();
+        concatUdaError(&server_block.idamerrorstack);
+        closeUdaError();
 
-        idamErrorLog(client_block, *request_block, &server_block.idamerrorstack);
+        udaErrorLog(client_block, *request_block, &server_block.idamerrorstack);
 
         //------------------------------------------------------------------------------
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
@@ -1128,8 +1156,8 @@ int idamClient(REQUEST_BLOCK* request_block)
             closedown(ClosedownType::CLOSE_SOCKETS, &socket_list);
         }
 
-        concatIdamError(&server_block.idamerrorstack);
-        idamErrorLog(client_block, *request_block, &server_block.idamerrorstack);
+        concatUdaError(&server_block.idamerrorstack);
+        udaErrorLog(client_block, *request_block, &server_block.idamerrorstack);
 
         if (err == 0) {
             return ERROR_CONDITION_UNKNOWN;
@@ -1367,7 +1395,7 @@ void idamFreeAll()
     logmalloclist = nullptr;
 #endif
 
-    closeIdamError();
+    closeUdaError();
 
 #ifndef FATCLIENT // <========================== Client Server Code Only
 

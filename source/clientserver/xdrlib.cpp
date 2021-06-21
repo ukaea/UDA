@@ -289,7 +289,7 @@ bool_t xdr_server(XDR* xdrs, SERVER_BLOCK* str)
 //-----------------------------------------------------------------------
 // Client Data Request Block
 
-bool_t xdr_request(XDR* xdrs, REQUEST_BLOCK* str, int protocolVersion)
+bool_t xdr_request_data(XDR* xdrs, REQUEST_DATA* str, int protocolVersion)
 {
     int request = static_cast<int>(str->request);
     int rc = xdr_int(xdrs, &request);
@@ -314,6 +314,22 @@ bool_t xdr_request(XDR* xdrs, REQUEST_BLOCK* str, int protocolVersion)
 
     if (protocolVersion >= 7) {
         rc = rc && xdr_int(xdrs, &str->put);
+    }
+
+    return rc;
+}
+
+bool_t xdr_request(XDR* xdrs, REQUEST_BLOCK* str, int protocolVersion)
+{
+    int rc = 1;
+
+    if (protocolVersion <= 7) {
+        str->num_requests = 1;
+        str->requests = (REQUEST_DATA*)malloc(sizeof(REQUEST_DATA));
+        rc = rc && xdr_request_data(xdrs, &str->requests[0], protocolVersion);
+    } else {
+        rc = rc && xdr_int(xdrs, &str->num_requests);
+        UDA_LOG(UDA_LOG_DEBUG, "number of requests: %d\n", str->num_requests);
     }
 
     return rc;

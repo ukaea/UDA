@@ -18,8 +18,6 @@
  */
 int idamClientMDS(const char* server, const char* tree, const char* node, int treenum)
 {
-    REQUEST_BLOCK request_block;
-
     //-------------------------------------------------------------------------
     // Open the Logs
 
@@ -28,20 +26,26 @@ int idamClientMDS(const char* server, const char* tree, const char* node, int tr
     //-------------------------------------------------------------------------
     // Passed Args
 
+    REQUEST_BLOCK request_block;
     initRequestBlock(&request_block);
 
-    request_block.request = REQUEST_READ_MDS;
-    request_block.exp_number = treenum;
+    request_block.num_requests = 1;
+    request_block.requests = (REQUEST_DATA*)malloc(sizeof(REQUEST_DATA));
+    auto request = &request_block.requests[0];
+    initRequestData(request);
 
-    strcpy(request_block.file, tree);
-    strcpy(request_block.signal, node);
-    strcpy(request_block.server, server);
+    request->request = REQUEST_READ_MDS;
+    request->exp_number = treenum;
+
+    strcpy(request->file, tree);
+    strcpy(request->signal, node);
+    strcpy(request->server, server);
 
     UDA_LOG(UDA_LOG_DEBUG, "Routine: ClientMDS\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Server 		 %s\n", request_block.server);
-    UDA_LOG(UDA_LOG_DEBUG, "Tree  		 %s\n", request_block.file);
-    UDA_LOG(UDA_LOG_DEBUG, "Node  		 %s\n", request_block.signal);
-    UDA_LOG(UDA_LOG_DEBUG, "Tree Number       %d\n", request_block.exp_number);
+    UDA_LOG(UDA_LOG_DEBUG, "Server 		 %s\n", request->server);
+    UDA_LOG(UDA_LOG_DEBUG, "Tree  		 %s\n", request->file);
+    UDA_LOG(UDA_LOG_DEBUG, "Node  		 %s\n", request->signal);
+    UDA_LOG(UDA_LOG_DEBUG, "Tree Number       %d\n", request->exp_number);
 
     //-------------------------------------------------------------------------
     // Fetch Data

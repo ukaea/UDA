@@ -54,11 +54,11 @@ extern int udaHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
 
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    REQUEST_DATA* request = idam_plugin_interface->request_data;
 
     housekeeping = idam_plugin_interface->housekeeping;
 
-    if (housekeeping || STR_IEQUALS(request_block->function, "reset")) {
+    if (housekeeping || STR_IEQUALS(request->function, "reset")) {
 
         if (!init) return 0;        // Not previously initialised: Nothing to do!
 
@@ -74,13 +74,13 @@ extern int udaHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Initialise
 
-    if (!init || STR_IEQUALS(request_block->function, "init")
-        || STR_IEQUALS(request_block->function, "initialise")) {
+    if (!init || STR_IEQUALS(request->function, "init")
+        || STR_IEQUALS(request->function, "initialise")) {
 
         initIdamPluginFileList(&pluginFileList);
 
         init = 1;
-        if (STR_IEQUALS(request_block->function, "init") || STR_IEQUALS(request_block->function, "initialise"))
+        if (STR_IEQUALS(request->function, "init") || STR_IEQUALS(request->function, "initialise"))
             return 0;
     }
 
@@ -88,17 +88,17 @@ extern int udaHDF5(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     // Plugin Functions
     //----------------------------------------------------------------------------------------
 
-    if (STR_IEQUALS(request_block->function, "help")) {
+    if (STR_IEQUALS(request->function, "help")) {
         return do_help(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "version")) {
+    } else if (STR_IEQUALS(request->function, "version")) {
         return do_version(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "builddate")) {
+    } else if (STR_IEQUALS(request->function, "builddate")) {
         return do_builddate(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
+    } else if (STR_IEQUALS(request->function, "defaultmethod")) {
         return do_defaultmethod(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
+    } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
         return do_maxinterfaceversion(idam_plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "read")) {
+    } else if (STR_IEQUALS(request->function, "read")) {
         return do_read(idam_plugin_interface);
     } else {
         RAISE_PLUGIN_ERROR("Unknown function requested!");
@@ -169,14 +169,14 @@ int do_read(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_SOURCE* data_source = idam_plugin_interface->data_source;
     SIGNAL_DESC* signal_desc = idam_plugin_interface->signal_desc;
-    REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
+    REQUEST_DATA* request = idam_plugin_interface->request_data;
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
     const char* file_path = nullptr;
-    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, file_path);
+    FIND_REQUIRED_STRING_VALUE(request->nameValueList, file_path);
 
     const char* cdf_path = nullptr;
-    FIND_REQUIRED_STRING_VALUE(request_block->nameValueList, cdf_path);
+    FIND_REQUIRED_STRING_VALUE(request->nameValueList, cdf_path);
 
     strcpy(data_source->path, file_path);
     strcpy(signal_desc->signal_name, cdf_path);

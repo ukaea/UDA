@@ -33,10 +33,10 @@ class TemplatePlugin
 public:
     void init(IDAM_PLUGIN_INTERFACE* plugin_interface)
     {
-        REQUEST_BLOCK* request_block = plugin_interface->request_block;
+        REQUEST_DATA* request = plugin_interface->request_data;
         if (!init_
-                || STR_IEQUALS(request_block->function, "init")
-                || STR_IEQUALS(request_block->function, "initialise")) {
+                || STR_IEQUALS(request->function, "init")
+                || STR_IEQUALS(request->function, "initialise")) {
             reset(plugin_interface);
             // Initialise plugin
             init_ = true;
@@ -90,9 +90,9 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
     // A list must be maintained to register these plugin calls to manage housekeeping.
     // Calls to plugins must also respect access policy and user authentication policy
 
-    REQUEST_BLOCK* request_block = plugin_interface->request_block;
+    REQUEST_DATA* request = plugin_interface->request_data;
 
-    if (plugin_interface->housekeeping || STR_IEQUALS(request_block->function, "reset")) {
+    if (plugin_interface->housekeeping || STR_IEQUALS(request->function, "reset")) {
         plugin.reset(plugin_interface);
         return 0;
     }
@@ -100,8 +100,8 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
     //----------------------------------------------------------------------------------------
     // Initialise
     plugin.init(plugin_interface);
-    if (STR_IEQUALS(request_block->function, "init")
-        || STR_IEQUALS(request_block->function, "initialise")) {
+    if (STR_IEQUALS(request->function, "init")
+        || STR_IEQUALS(request->function, "initialise")) {
         return 0;
     }
 
@@ -112,17 +112,17 @@ int templatePlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
     //----------------------------------------------------------------------------------------
     // Standard methods: version, builddate, defaultmethod, maxinterfaceversion
 
-    if (STR_IEQUALS(request_block->function, "help")) {
+    if (STR_IEQUALS(request->function, "help")) {
         return plugin.help(plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "version")) {
+    } else if (STR_IEQUALS(request->function, "version")) {
         return plugin.version(plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "builddate")) {
+    } else if (STR_IEQUALS(request->function, "builddate")) {
         return plugin.build_date(plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "defaultmethod")) {
+    } else if (STR_IEQUALS(request->function, "defaultmethod")) {
         return plugin.default_method(plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "maxinterfaceversion")) {
+    } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
         return plugin.max_interface_version(plugin_interface);
-    } else if (STR_IEQUALS(request_block->function, "functionName")) {
+    } else if (STR_IEQUALS(request->function, "functionName")) {
         return plugin.function(plugin_interface);
     } else {
         RAISE_PLUGIN_ERROR("Unknown function requested!");

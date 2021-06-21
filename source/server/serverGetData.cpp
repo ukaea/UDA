@@ -33,12 +33,12 @@ static int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, in
 static int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2);
 static int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
                                  int asymmetry);
-static int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block, DATA_BLOCK* data_block,
+static int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data_block,
                      DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
                      const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
                      USERDEFINEDTYPELIST* userdefinedtypelist);
 
-int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
+int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block,
                DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
                ACTIONS* actions_desc, ACTIONS* actions_sig, const PLUGINLIST* pluginlist,
                LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list,
@@ -46,7 +46,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 {
     int isDerived = 0, compId = -1, serverside = 0;
 
-    REQUEST_BLOCK request_block2;
+    REQUEST_DATA request_block2;
     DATA_BLOCK data_block2;
     DATA_SOURCE data_source2;
     SIGNAL signal_rec2;
@@ -63,9 +63,9 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
 #ifndef PROXYSERVER
     if (original_request == 0 || *depth == 0) {
-        original_request = request_block->request;
-        if (request_block->request != REQUEST_READ_XML) {
-            if (STR_STARTSWITH(request_block->signal, "<?xml")) original_xml = 1;
+        original_request = request_data->request;
+        if (request_data->request != REQUEST_READ_XML) {
+            if (STR_STARTSWITH(request_data->signal, "<?xml")) original_xml = 1;
         }
     }
 
@@ -88,30 +88,30 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     // Can't use REQUEST_READ_SERVERSIDE because data must be read first using a 'real' data reader or REQUEST_READ_GENERIC
 
     if (protocolVersion < 6) {
-        if (STR_IEQUALS(request_block->archive, "SS") || STR_IEQUALS(request_block->archive, "SERVERSIDE")) {
-            if (!strncasecmp(request_block->signal, "SUBSET(", 7)) {
+        if (STR_IEQUALS(request_data->archive, "SS") || STR_IEQUALS(request_data->archive, "SERVERSIDE")) {
+            if (!strncasecmp(request_data->signal, "SUBSET(", 7)) {
                 serverside = 1;
                 initActions(&actions_serverside);
                 int rc;
-                if ((rc = serverParseServerSide(request_block, &actions_serverside)) != 0) {
+                if ((rc = serverParseServerSide(request_data, &actions_serverside)) != 0) {
                     return rc;
                 }
                 // Erase original SUBSET request
-                copyString(TrimString(request_block->signal), signal_desc->signal_name, MAXNAME);
+                copyString(TrimString(request_data->signal), signal_desc->signal_name, MAXNAME);
             }
         }
-    } else if (STR_IEQUALS(request_block->function, "subset")) {
+    } else if (STR_IEQUALS(request_data->function, "subset")) {
         int id;
-        if ((id = findPluginIdByFormat(request_block->archive, pluginlist)) >= 0) {
+        if ((id = findPluginIdByFormat(request_data->archive, pluginlist)) >= 0) {
             if (STR_IEQUALS(pluginlist->plugin[id].symbol, "serverside")) {
                 serverside = 1;
                 initActions(&actions_serverside);
                 int rc;
-                if ((rc = serverParseServerSide(request_block, &actions_serverside)) != 0) {
+                if ((rc = serverParseServerSide(request_data, &actions_serverside)) != 0) {
                     return rc;
                 }
                 // Erase original SUBSET request
-                copyString(TrimString(request_block->signal), signal_desc->signal_name, MAXNAME);
+                copyString(TrimString(request_data->signal), signal_desc->signal_name, MAXNAME);
             }
         }
     }
@@ -119,10 +119,10 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     //--------------------------------------------------------------------------------------------------------------------------
     // Read the Data (Returns rc < 0 if the signal is a derived type or is defined in an XML document)
 
-    int rc = read_data(request_block, client_block, data_block, data_source, signal_rec, signal_desc,
+    int rc = read_data(request_data, client_block, data_block, data_source, signal_rec, signal_desc,
                        pluginlist, logmalloclist, userdefinedtypelist);
 
-    UDA_LOG(UDA_LOG_DEBUG, "After idamserverReadData rc = %d\n", rc);
+    UDA_LOG(UDA_LOG_DEBUG, "After read_data rc = %d\n", rc);
     UDA_LOG(UDA_LOG_DEBUG, "Is the Signal a Composite? %d\n", signal_desc->type == 'C');
 
     if (rc > 0) {
@@ -135,7 +135,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     // Allow Composites (C) or Signal Switch (S) through regardless of request type
 
     if (signal_desc->type != 'C' && !serverside && signal_desc->type != 'S' &&
-        (!(request_block->request == REQUEST_READ_GENERIC || request_block->request == REQUEST_READ_XML))) {
+        (!(request_data->request == REQUEST_READ_GENERIC || request_data->request == REQUEST_READ_XML))) {
         return 0;
     }
 
@@ -145,13 +145,13 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
     if (signal_desc->type == 'C') {
         // The Signal is a Derived/Composite Type so Parse the XML for the data signal identity and read the data
 
-        UDA_LOG(UDA_LOG_DEBUG, "Derived/Composite Signal %s\n", request_block->signal);
+        UDA_LOG(UDA_LOG_DEBUG, "Derived/Composite Signal %s\n", request_data->signal);
 
         isDerived = 1;                        // is True
 
         //derived_signal_desc     = *signal_desc;			    // Preserve details of Derived Signal Description Record
-        data_source->exp_number = request_block->exp_number;     // Needed for Pulse Number Range Check in XML Parser
-        data_source->pass = request_block->pass;                 // Needed for a Pass/Sequence Range Check in XML Parser
+        data_source->exp_number = request_data->exp_number;     // Needed for Pulse Number Range Check in XML Parser
+        data_source->pass = request_data->pass;                 // Needed for a Pass/Sequence Range Check in XML Parser
 
         // Allways Parse Signal XML to Identify the True Data Source for this Pulse Number - not subject to client request: get_asis
         // (First Valid Action Record found only - others ignored)
@@ -189,7 +189,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
                 if (strlen(actions_comp_desc.action[compId].composite.data_signal) > 0) {
                     // If we haven't a True Signal then can't identify the data required!
 
-                    request_block2 = *request_block; // Preserve details of the Original User Request (Do Not FREE Elements)
+                    request_block2 = *request_data; // Preserve details of the Original User Request (Do Not FREE Elements)
 
                     strcpy(request_block2.signal,
                            actions_comp_desc.action[compId].composite.data_signal);  // True Signal Identity
@@ -222,13 +222,13 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
                     //=======>>> Experimental ============================================
                     // Need to change formats from GENERIC if Composite and Signal Description record only exists and format Not Generic!
 
-                    if (request_block->request == REQUEST_READ_GENERIC && request_block->exp_number <= 0) {
-                        request_block->request = REQUEST_READ_XML;
+                    if (request_data->request == REQUEST_READ_GENERIC && request_data->exp_number <= 0) {
+                        request_data->request = REQUEST_READ_XML;
                     }
 
                     //=======>>>==========================================================
 
-                    if (request_block->request == REQUEST_READ_XML || request_block->exp_number <= 0) {
+                    if (request_data->request == REQUEST_READ_XML || request_data->exp_number <= 0) {
                         if ((strlen(actions_comp_desc.action[compId].composite.file) == 0 ||
                              strlen(actions_comp_desc.action[compId].composite.format) == 0) &&
                             request_block2.exp_number <= 0) {
@@ -357,7 +357,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
             UDA_LOG(UDA_LOG_DEBUG, "Substituting Error Data: %s\n",
                     actions_desc->action[compId].composite.error_signal);
 
-            request_block2 = *request_block;
+            request_block2 = *request_data;
             strcpy(request_block2.signal, actions_desc->action[compId].composite.error_signal);
 
             // Recursive Call for Error Data
@@ -372,9 +372,9 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
             // Check if the source file was originally defined in the client API?
 
             if (original_xml) {
-                strcpy(data_source2.format, request_block->format);
-                strcpy(data_source2.path, request_block->path);
-                strcpy(data_source2.filename, request_block->file);
+                strcpy(data_source2.format, request_data->format);
+                strcpy(data_source2.path, request_data->path);
+                strcpy(data_source2.filename, request_data->file);
             }
 
             rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
@@ -406,7 +406,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
             UDA_LOG(UDA_LOG_DEBUG, "Substituting Asymmetric Error Data: %s\n",
                     actions_desc->action[compId].composite.aserror_signal);
 
-            request_block2 = *request_block;
+            request_block2 = *request_data;
             strcpy(request_block2.signal, actions_desc->action[compId].composite.aserror_signal);
 
             // Recursive Call for Error Data
@@ -418,9 +418,9 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
             // Check if the source file was originally defined in the client API?
 
             if (original_xml) {
-                strcpy(data_source2.format, request_block->format);
-                strcpy(data_source2.path, request_block->path);
-                strcpy(data_source2.filename, request_block->file);
+                strcpy(data_source2.format, request_data->format);
+                strcpy(data_source2.path, request_data->path);
+                strcpy(data_source2.filename, request_data->file);
             }
 
             rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
@@ -469,8 +469,8 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
                     // Replace other properties if defined by the original client request or the XML DIMCOMPOSITE record
 
-                    if (strlen(request_block->path) > 0) strcpy(request_block2.path, request_block->file);
-                    if (strlen(request_block->format) > 0) strcpy(request_block2.format, request_block->format);
+                    if (strlen(request_data->path) > 0) strcpy(request_block2.path, request_data->file);
+                    if (strlen(request_data->format) > 0) strcpy(request_block2.format, request_data->format);
 
                     if (strlen(actions_desc->action[compId].composite.file) > 0) {
                         strcpy(request_block2.path, actions_desc->action[compId].composite.file);
@@ -554,7 +554,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
                     UDA_LOG(UDA_LOG_DEBUG, "Substituting Dimension Error Data\n");
 
-                    request_block2 = *request_block;
+                    request_block2 = *request_data;
                     strcpy(request_block2.signal,
                            actions_desc->action[compId].composite.dimensions[i].dimcomposite.dim_error);
 
@@ -567,9 +567,9 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
                     // Check if the source file was originally defined in the client API?
 
                     if (original_xml) {
-                        strcpy(data_source2.format, request_block->format);
-                        strcpy(data_source2.path, request_block->path);
-                        strcpy(data_source2.filename, request_block->file);
+                        strcpy(data_source2.format, request_data->format);
+                        strcpy(data_source2.path, request_data->path);
+                        strcpy(data_source2.filename, request_data->file);
                     }
 
                     rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
@@ -602,7 +602,7 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
 
                     UDA_LOG(UDA_LOG_DEBUG, "Substituting Dimension Asymmetric Error Data\n");
 
-                    request_block2 = *request_block;
+                    request_block2 = *request_data;
                     strcpy(request_block2.signal,
                            actions_desc->action[compId].composite.dimensions[i].dimcomposite.dim_aserror);
 
@@ -615,9 +615,9 @@ int udaGetData(int* depth, REQUEST_BLOCK* request_block, CLIENT_BLOCK client_blo
                     // Check if the source file was originally defined in the client API?
 
                     if (original_xml) {
-                        strcpy(data_source2.format, request_block->format);
-                        strcpy(data_source2.path, request_block->path);
-                        strcpy(data_source2.filename, request_block->file);
+                        strcpy(data_source2.format, request_data->format);
+                        strcpy(data_source2.path, request_data->path);
+                        strcpy(data_source2.filename, request_data->file);
                     }
 
                     rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
@@ -900,7 +900,7 @@ int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DAT
     return 0;
 }
 
-int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
+int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
               DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
               const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
               USERDEFINEDTYPELIST* userdefinedtypelist)
@@ -911,21 +911,21 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 
     char mapping[MAXMETA] = "";
 
-    printRequestBlock(*request_block);
+    printRequestData(*request);
 
     //------------------------------------------------------------------------------
     // Test for Subsetting or Mapping XML: These require parsing First to identify the data signals needed.
     // The exception is XML defining Composite signals. These have a specific Request type.
     //------------------------------------------------------------------------------
 #ifndef PROXYSERVER
-    if (request_block->request != REQUEST_READ_XML) {
-        if (STR_STARTSWITH(request_block->signal, "<?xml")) {
+    if (request->request != REQUEST_READ_XML) {
+        if (STR_STARTSWITH(request->signal, "<?xml")) {
             signal_desc->type = 'C';                             // Composite/Derived Type
             signal_desc->signal_name[0] = '\0';                  // The true signal is contained in the XML
-            strcpy(signal_desc->xml, request_block->signal);     // XML is passed via the signal string
-            strcpy(data_source->format, request_block->format);
-            strcpy(data_source->path, request_block->path);
-            strcpy(data_source->filename, request_block->file);
+            strcpy(signal_desc->xml, request->signal);     // XML is passed via the signal string
+            strcpy(data_source->format, request->format);
+            strcpy(data_source->path, request->path);
+            strcpy(data_source->filename, request->file);
             return -1;
         }
     }
@@ -947,12 +947,12 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
     // Rank, then allow normal Generic lookup.
     //------------------------------------------------------------------------------
 #ifndef PROXYSERVER
-    if (client_block.clientFlags & CLIENTFLAG_ALTDATA && request_block->request != REQUEST_READ_XML &&
-        STR_STARTSWITH(request_block->signal, "<?xml")) {
+    if (client_block.clientFlags & CLIENTFLAG_ALTDATA && request->request != REQUEST_READ_XML &&
+        STR_STARTSWITH(request->signal, "<?xml")) {
 
-        if (request_block->request != REQUEST_READ_GENERIC) {
+        if (request->request != REQUEST_READ_GENERIC) {
             // Must be a Private File so switch signal names
-            strcpy(request_block->signal, signal_desc->signal_name);        // Alias or Generic have no context wrt private files
+            strcpy(request->signal, signal_desc->signal_name);        // Alias or Generic have no context wrt private files
             signal_desc->xml[0] = '\0';                                     // No corrections to private data files
             strcpy(signal_desc->xml, mapping);                              // Only mapping XML is applicable
             if (mapping[0] != '\0') {
@@ -960,7 +960,7 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
             }                // Switched data with mapping Transform in XML
         } else {
             if (signal_desc->signal_alias[0] != '\0') {
-                strcpy(request_block->signal, signal_desc->signal_alias);   // Alias or Generic name is what is passed into sqlGeneric
+                strcpy(request->signal, signal_desc->signal_alias);   // Alias or Generic name is what is passed into sqlGeneric
             }
         }
     }
@@ -970,7 +970,7 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
     // Plugin sourced data (type 'P') will fail as there is no entry in the DATA_SOURCE table so ignore
     //------------------------------------------------------------------------------
 
-    if (request_block->request == REQUEST_READ_GENERIC) {
+    if (request->request == REQUEST_READ_GENERIC) {
 
         // Identify the required Plugin
 
@@ -984,11 +984,11 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 
         // If the plugin is registered as a FILE or LIBRARY type then call the default method as no method will have been specified
 
-        strcpy(request_block->function, pluginlist->plugin[plugin_id].method);
+        strcpy(request->function, pluginlist->plugin[plugin_id].method);
 
         // Execute the plugin to resolve the identity of the data requested
 
-        int err = udaServerMetaDataPlugin(pluginlist, plugin_id, request_block, signal_desc, signal_rec, data_source,
+        int err = udaServerMetaDataPlugin(pluginlist, plugin_id, request, signal_desc, signal_rec, data_source,
                                           getServerEnvironment());
 
         if (err != 0) {
@@ -999,9 +999,9 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
         // Plugin? Create a new Request Block to identify the request_id
 
         if (signal_desc->type == 'P') {
-            strcpy(request_block->signal, signal_desc->signal_name);
-            strcpy(request_block->source, data_source->path);
-            makeServerRequestBlock(request_block, *pluginlist);
+            strcpy(request->signal, signal_desc->signal_name);
+            strcpy(request->source, data_source->path);
+            makeServerRequestData(request, *pluginlist);
         }
 
     } // end of REQUEST_READ_GENERIC
@@ -1010,7 +1010,7 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
     // Modifes HEAP in request_block
 
     {
-        int err = name_value_substitution(&request_block->nameValueList, request_block->tpass);
+        int err = name_value_substitution(&request->nameValueList, request->tpass);
         if (err != 0) return err;
     }
 
@@ -1018,14 +1018,14 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
     // Client XML Specified Composite Signal
     //------------------------------------------------------------------------------
 
-    if (request_block->request == REQUEST_READ_XML) {
-        if (strlen(request_block->signal) > 0) {
-            strcpy(signal_desc->xml, request_block->signal);     // XML is passed via the signal string
-        } else if (strlen(request_block->path) > 0) {            // XML is passed via a file
+    if (request->request == REQUEST_READ_XML) {
+        if (strlen(request->signal) > 0) {
+            strcpy(signal_desc->xml, request->signal);     // XML is passed via the signal string
+        } else if (strlen(request->path) > 0) {            // XML is passed via a file
             FILE* xmlfile = nullptr;
             int nchar;
             errno = 0;
-            xmlfile = fopen(request_block->path, "r");
+            xmlfile = fopen(request->path, "r");
             int serrno = errno;
             if (serrno != 0 || xmlfile == nullptr) {
                 if (serrno != 0) {
@@ -1038,10 +1038,10 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
             }
             nchar = 0;
             while (!feof(xmlfile) && nchar < MAXMETA) {
-                request_block->signal[nchar++] = (char)getc(xmlfile);
+                request->signal[nchar++] = (char)getc(xmlfile);
             }
-            request_block->signal[nchar - 2] = '\0';    // Remove EOF Character and replace with String Terminator
-            strcpy(signal_desc->xml, request_block->signal);
+            request->signal[nchar - 2] = '\0';    // Remove EOF Character and replace with String Terminator
+            strcpy(signal_desc->xml, request->signal);
             fclose(xmlfile);
         } else {
             THROW_ERROR(123, "There is NO XML defining the signal");
@@ -1072,7 +1072,7 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
         idam_plugin_interface.sqlConnectionType = 0;
         idam_plugin_interface.data_block = data_block;
         idam_plugin_interface.client_block = &client_block;
-        idam_plugin_interface.request_block = request_block;
+        idam_plugin_interface.request_data = request;
         idam_plugin_interface.data_source = data_source;
         idam_plugin_interface.signal_desc = signal_desc;
         idam_plugin_interface.environment = environment;
@@ -1088,16 +1088,15 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 
         int plugin_id;
 
-        if (request_block->request != REQUEST_READ_GENERIC && request_block->request != REQUEST_READ_UNKNOWN) {
-            plugin_id = request_block->request;            // User has Specified a Plugin
+        if (request->request != REQUEST_READ_GENERIC && request->request != REQUEST_READ_UNKNOWN) {
+            plugin_id = request->request;            // User has Specified a Plugin
             UDA_LOG(UDA_LOG_DEBUG, "Plugin Request ID %d\n", plugin_id);
         } else {
             plugin_id = findPluginRequestByFormat(data_source->format, pluginlist);    // via Generic database query
             UDA_LOG(UDA_LOG_DEBUG, "findPluginRequestByFormat Plugin Request ID %d\n", plugin_id);
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n",
-                request_block->putDataBlockList.blockCount);
+        UDA_LOG(UDA_LOG_DEBUG, "Number of PutData Blocks: %d\n", request->putDataBlockList.blockCount);
 
         if (plugin_id != REQUEST_READ_UNKNOWN) {
 
@@ -1153,7 +1152,7 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
                 // Save Provenance with socket stream protection
 
                 udaServerRedirectStdStreams(0);
-                udaProvenancePlugin(&client_block, request_block, data_source, signal_desc, pluginlist, nullptr,
+                udaProvenancePlugin(&client_block, request, data_source, signal_desc, pluginlist, nullptr,
                                     getServerEnvironment());
                 udaServerRedirectStdStreams(1);
 
@@ -1170,15 +1169,15 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
                     return 0;
                 }
 
-                request_block->request = REQUEST_READ_GENERIC;            // Use a different Plugin
+                request->request = REQUEST_READ_GENERIC;            // Use a different Plugin
             }
         }
     }
 
     int plugin_id = REQUEST_READ_UNKNOWN;
 
-    if (request_block->request != REQUEST_READ_GENERIC) {
-        plugin_id = request_block->request;            // User API has Specified a Plugin
+    if (request->request != REQUEST_READ_GENERIC) {
+        plugin_id = request->request;            // User API has Specified a Plugin
     } else {
 
         // Test for known File formats and Server protocols
@@ -1224,7 +1223,7 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
     //----------------------------------------------------------------------------
     // Status values
 
-    if (request_block->request == REQUEST_READ_GENERIC) {
+    if (request->request == REQUEST_READ_GENERIC) {
         data_block->source_status = data_source->status;
         data_block->signal_status = signal_rec->status;
     }
@@ -1238,7 +1237,7 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
     // Save Provenance with socket stream protection
 
     udaServerRedirectStdStreams(0);
-    udaProvenancePlugin(&client_block, request_block, data_source, signal_desc, pluginlist, nullptr,
+    udaProvenancePlugin(&client_block, request, data_source, signal_desc, pluginlist, nullptr,
                         getServerEnvironment());
     udaServerRedirectStdStreams(1);
 

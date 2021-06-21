@@ -27,11 +27,17 @@ Interprets the API arguments and assembles a Request data structure.
 #include <clientserver/errorLog.h>
 #include <clientserver/expand_path.h>
 #include <clientserver/stringUtils.h>
+#include <clientserver/initStructs.h>
 
 int makeClientRequestBlock(const char* data_object, const char* data_source, REQUEST_BLOCK* request_block)
 {
     int lstr, ldelim, err = 0;
     char* test = nullptr;
+
+    request_block->num_requests = 1;
+    request_block->requests = (REQUEST_DATA*)malloc(sizeof(REQUEST_DATA));
+    REQUEST_DATA* request = &request_block->requests[0];
+    initRequestData(request);
 
     //------------------------------------------------------------------------------------------------------------------
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
@@ -39,13 +45,13 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     if (strlen(data_object) >= MAXMETA) {
         THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument string is too long!");
     } else {
-        strcpy(request_block->signal, data_object);    // Passed to the server without modification
+        strcpy(request->signal, data_object);    // Passed to the server without modification
     }
 
     if (strlen(data_source) >= STRING_LENGTH) {
         THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument string is too long!");
     } else {
-        strcpy(request_block->source, data_source);    // Passed to the server without modification
+        strcpy(request->source, data_source);    // Passed to the server without modification
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -58,7 +64,7 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
 
     ENVIRONMENT* environment = getIdamClientEnvironment();
 
-    strcpy(request_block->api_delim, environment->api_delim);        // Server needs to know how to parse the arguments
+    strcpy(request->api_delim, environment->api_delim);        // Server needs to know how to parse the arguments
 
     //------------------------------------------------------------------------------------------------------------------
     /* If the default ARCHIVE and/or DEVICE is overridden by local environment variables and the arguments do not contain
@@ -67,27 +73,27 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
      * These environment variables are legacy and not used by the server
     */
 
-    if (environment->api_device[0] != '\0' && strstr(request_block->source, request_block->api_delim) == nullptr) {
-        lstr = (int)strlen(request_block->source) + (int)strlen(environment->api_device) +
-               (int)strlen(request_block->api_delim);
+    if (environment->api_device[0] != '\0' && strstr(request->source, request->api_delim) == nullptr) {
+        lstr = (int)strlen(request->source) + (int)strlen(environment->api_device) +
+               (int)strlen(request->api_delim);
         if (lstr >= STRING_LENGTH) {
             THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument, prefixed with the Device Name, is too long!");
         }
         test = (char*)malloc((lstr + 1) * sizeof(char));
-        sprintf(test, "%s%s%s", environment->api_device, request_block->api_delim, request_block->source);
-        strcpy(request_block->source, test);
+        sprintf(test, "%s%s%s", environment->api_device, request->api_delim, request->source);
+        strcpy(request->source, test);
         free(test);
     }
 
-    if (environment->api_archive[0] != '\0' && strstr(request_block->signal, request_block->api_delim) == nullptr) {
-        lstr = (int)strlen(request_block->signal) + (int)strlen(environment->api_archive) +
-               (int)strlen(request_block->api_delim);
+    if (environment->api_archive[0] != '\0' && strstr(request->signal, request->api_delim) == nullptr) {
+        lstr = (int)strlen(request->signal) + (int)strlen(environment->api_archive) +
+               (int)strlen(request->api_delim);
         if (lstr >= STRING_LENGTH) {
             THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
         }
         test = (char*)malloc((lstr + 1) * sizeof(char));
-        sprintf(test, "%s%s%s", environment->api_archive, request_block->api_delim, request_block->signal);
-        strcpy(request_block->signal, test);
+        sprintf(test, "%s%s%s", environment->api_archive, request->api_delim, request->signal);
+        strcpy(request->signal, test);
         free(test);
     }
 
@@ -120,19 +126,19 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     // XXXX::a=b,c=d
     // XXXX::/path/to/data/resource
 
-    if ((test = strstr(request_block->source, request_block->api_delim)) == nullptr) {
-        if (strchr(request_block->source, '(') == nullptr &&
-            strchr(request_block->source, ')') == nullptr) {
+    if ((test = strstr(request->source, request->api_delim)) == nullptr) {
+        if (strchr(request->source, '(') == nullptr &&
+            strchr(request->source, ')') == nullptr) {
             // source is not a function call
-            strcpy(request_block->path, request_block->source);
-            expandFilePath(request_block->path, getIdamClientEnvironment());
+            strcpy(request->path, request->source);
+            expandFilePath(request->path, getIdamClientEnvironment());
         }
     } else {
         if (strchr(test, '(') == nullptr && strchr(test, ')') == nullptr) {
             // Prefixed and not a function call
-            ldelim = (int)strlen(request_block->api_delim);
-            strcpy(request_block->path, &test[ldelim]);
-            expandFilePath(request_block->path, getIdamClientEnvironment());
+            ldelim = (int)strlen(request->api_delim);
+            strcpy(request->path, &test[ldelim]);
+            expandFilePath(request->path, getIdamClientEnvironment());
         }
     }
 
