@@ -168,7 +168,7 @@ void lockIdamThread()
 /**
  * Unlock the thread and save the current STATE
  */
-void unlockIdamThread()
+void unlockUdaThread()
 {
 #ifdef __GNUC__
     thread_t threadId = pthread_self();
@@ -218,7 +218,7 @@ void freeIdamThread()
         initServerBlock(&(idamState[threadCount].server_block), 0);
         threadList[threadCount] = 0;
     }
-    unlockIdamThread();
+    unlockUdaThread();
 }
 
 #else

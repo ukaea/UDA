@@ -70,7 +70,7 @@ void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERR
 
 // Initialise the Error Stack
 
-void initIdamErrorStack()
+void initUdaErrorStack()
 {
     udaerrorstack.clear();
 }
@@ -172,5 +172,5 @@ void freeIdamErrorStack(UDA_ERROR_STACK* errorstack)
 
 void closeUdaError()
 {
-    initIdamErrorStack();
+    initUdaErrorStack();
 }

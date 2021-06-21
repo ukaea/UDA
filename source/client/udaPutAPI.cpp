@@ -79,7 +79,8 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
 
-    if ((err = makeClientRequestBlock(putInstruction, "", &request_block)) != 0) {
+    const char* source = "";
+    if ((err = makeClientRequestBlock(&putInstruction, &source, 1, &request_block)) != 0) {
         closeUdaError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
@@ -155,7 +156,8 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
 
-    if ((err = makeClientRequestBlock(putInstruction, "", &request_block)) != 0) {
+    const char* source = "";
+    if ((err = makeClientRequestBlock(&putInstruction, &source, 1, &request_block)) != 0) {
         closeUdaError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);

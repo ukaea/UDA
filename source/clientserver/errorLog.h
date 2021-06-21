@@ -20,7 +20,7 @@ extern "C" {
 
 LIBRARY_API int udaNumErrors(void);
 LIBRARY_API void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERROR_STACK* error_stack);
-LIBRARY_API void initIdamErrorStack(void);
+LIBRARY_API void initUdaErrorStack(void);
 LIBRARY_API void initErrorRecords(const UDA_ERROR_STACK* errorstack);
 LIBRARY_API void printIdamErrorStack(void);
 LIBRARY_API void addIdamError(int type, const char* location, int code, const char* msg);

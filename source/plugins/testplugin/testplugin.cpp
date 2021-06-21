@@ -3804,7 +3804,7 @@ static int do_errortest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int err = 0;
     int test = 0;
 
-    initIdamErrorStack();
+    initUdaErrorStack();
     REQUEST_DATA* request = idam_plugin_interface->request_data;
 
     FIND_REQUIRED_INT_VALUE(request->nameValueList, test);

@@ -157,14 +157,14 @@ int idamGetAPI(const char* data_object, const char* data_source)
     //-------------------------------------------------------------------------
     // Open the Logs
 
-    UDA_LOG(UDA_LOG_DEBUG, "Calling idamStartup\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Calling udaStartup\n");
 
-    if (idamStartup(0) != 0) {
-        unlockIdamThread();
+    if (udaStartup(0) != 0) {
+        unlockUdaThread();
         return PROBLEM_OPENING_LOGS;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Returned from idamStartup\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Returned from udaStartup\n");
 
     //-------------------------------------------------------------------------
     // Log all Arguments passed from Application
@@ -191,16 +191,16 @@ int idamGetAPI(const char* data_object, const char* data_source)
     // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initIdamErrorStack();
+        initUdaErrorStack();
         startup = 0;
     }
 
-    if ((err = makeClientRequestBlock(data_object, data_source, &request_block)) != 0) {
+    if ((err = makeClientRequestBlock(&data_object, &data_source, 1, &request_block)) != 0) {
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
             addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
         }
-        unlockIdamThread();
+        unlockUdaThread();
         return -err;
     }
 
@@ -225,6 +225,96 @@ int idamGetAPI(const char* data_object, const char* data_source)
 #endif
 
     // Unlock the thread
+    unlockUdaThread();
+    return err;
+}
+
+int idamGetBatchAPI(const char** signals, const char** sources, size_t count)
+{
+    // Lock the thread
+    lockIdamThread();
+
+    static short startup = 1;
+
+    //-------------------------------------------------------------------------
+    // Memory Debugger
+
+#ifdef MEMDEBUG
+    mtrace();
+#endif
+
+    //-------------------------------------------------------------------------
+    // Open the Logs
+
+    UDA_LOG(UDA_LOG_DEBUG, "Calling udaStartup\n");
+
+    if (udaStartup(0) != 0) {
+        unlockUdaThread();
+        return PROBLEM_OPENING_LOGS;
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "Returned from udaStartup\n");
+
+    //-------------------------------------------------------------------------
+    // Log all Arguments passed from Application
+
+#ifdef ARGSTACK
+    if(argstack == nullptr) {
+        char tempFile[] = "/tmp/idamStackXXXXXX";
+        mkstemp(tempFile);
+        argstack = fopen(tempFile, environment.logmode);
+        if(argstack != nullptr) fprintf(argstack, "idamGetAPI\n");
+    }
+    if(argstack != nullptr) {
+        fprintf(argstack,"[%s][%s]\n", data_object, data_source);
+        fflush(argstack);
+    }
+#endif
+
+    //-------------------------------------------------------------------------
+    // Initialise the Client Data Request Structure
+
+    REQUEST_BLOCK request_block;
+    initRequestBlock(&request_block);
+
+    //------------------------------------------------------------------------------
+    // Build the Request Data Block (Version and API dependent)
+
+    if (startup) {
+        initUdaErrorStack();
+        startup = 0;
+    }
+
+    int err = 0;
+    if ((err = makeClientRequestBlock(signals, sources, count, &request_block)) != 0) {
+        if (udaNumErrors() == 0) {
+            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+        }
+        unlockUdaThread();
+        return -err;
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "Routine: idamGetAPI\n");
+    printRequestBlock(request_block);
+
+    //-------------------------------------------------------------------------
+    // Fetch Data
+
+#ifdef TESTSERVERCLIENT
     unlockIdamThread();
+    return -1;
+#endif
+
+    err = idamClient(&request_block);
+
+    //-------------------------------------------------------------------------
+    // Memory Debugger Exit
+
+#ifdef MEMDEBUG
+    muntrace();
+#endif
+
+    // Unlock the thread
+    unlockUdaThread();
     return err;
 }

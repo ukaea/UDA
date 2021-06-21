@@ -8,7 +8,8 @@
 extern "C" {
 #endif
 
-LIBRARY_API int makeClientRequestBlock(const char *data_object, const char *data_source, REQUEST_BLOCK *request_block);
+LIBRARY_API int makeClientRequestBlock(const char** signals, const char** sources, int count,
+                                       REQUEST_BLOCK* request_block);
 
 #ifdef __cplusplus
 }

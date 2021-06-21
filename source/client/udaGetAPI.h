@@ -2,6 +2,7 @@
 #define UDA_CLIENT_UDAGETAPI_H
 
 #include <clientserver/export.h>
+#include <cstdlib>
 
 #ifdef __cplusplus
 extern "C" {
@@ -9,9 +10,11 @@ extern "C" {
 
 #ifdef FATCLIENT
 #  define idamGetAPI idamGetAPIFat
+#  define idamGetBatchAPI idamGetBatchAPIFat
 #endif
 
 LIBRARY_API int idamGetAPI(const char *data_object, const char *data_source);
+LIBRARY_API int idamGetBatchAPI(const char** signals, const char** sources, size_t count);
 
 #ifdef __cplusplus
 }

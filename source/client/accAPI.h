@@ -73,7 +73,7 @@ LIBRARY_API void putIdamServerSocket(int socket);
 
 LIBRARY_API void getIdamServer(const char** host, int* port, int* socket);
 
-LIBRARY_API UDA_ERROR_STACK* getIdamServerErrorStack();
+LIBRARY_API UDA_ERROR_STACK* getUdaServerErrorStack();
 
 LIBRARY_API int getIdamErrorCode(int handle);
 
@@ -249,7 +249,7 @@ LIBRARY_API int getIdamDimDataCheckSum(int handle, int ndim);
 
 LIBRARY_API void lockIdamThread();
 
-LIBRARY_API void unlockIdamThread();
+LIBRARY_API void unlockUdaThread();
 
 LIBRARY_API void freeIdamThread();
 

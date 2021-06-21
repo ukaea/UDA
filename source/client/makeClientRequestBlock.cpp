@@ -29,16 +29,8 @@ Interprets the API arguments and assembles a Request data structure.
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 
-int makeClientRequestBlock(const char* data_object, const char* data_source, REQUEST_BLOCK* request_block)
+int makeRequestData(const char* data_object, const char* data_source, REQUEST_DATA* request)
 {
-    int lstr, ldelim, err = 0;
-    char* test = nullptr;
-
-    request_block->num_requests = 1;
-    request_block->requests = (REQUEST_DATA*)malloc(sizeof(REQUEST_DATA));
-    REQUEST_DATA* request = &request_block->requests[0];
-    initRequestData(request);
-
     //------------------------------------------------------------------------------------------------------------------
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
 
@@ -74,24 +66,24 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     */
 
     if (environment->api_device[0] != '\0' && strstr(request->source, request->api_delim) == nullptr) {
-        lstr = (int)strlen(request->source) + (int)strlen(environment->api_device) +
+        int lstr = (int)strlen(request->source) + (int)strlen(environment->api_device) +
                (int)strlen(request->api_delim);
         if (lstr >= STRING_LENGTH) {
             THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument, prefixed with the Device Name, is too long!");
         }
-        test = (char*)malloc((lstr + 1) * sizeof(char));
+        char* test = (char*)malloc((lstr + 1) * sizeof(char));
         sprintf(test, "%s%s%s", environment->api_device, request->api_delim, request->source);
         strcpy(request->source, test);
         free(test);
     }
 
     if (environment->api_archive[0] != '\0' && strstr(request->signal, request->api_delim) == nullptr) {
-        lstr = (int)strlen(request->signal) + (int)strlen(environment->api_archive) +
+        int lstr = (int)strlen(request->signal) + (int)strlen(environment->api_archive) +
                (int)strlen(request->api_delim);
         if (lstr >= STRING_LENGTH) {
             THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
         }
-        test = (char*)malloc((lstr + 1) * sizeof(char));
+        char* test = (char*)malloc((lstr + 1) * sizeof(char));
         sprintf(test, "%s%s%s", environment->api_archive, request->api_delim, request->signal);
         strcpy(request->signal, test);
         free(test);
@@ -126,6 +118,7 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     // XXXX::a=b,c=d
     // XXXX::/path/to/data/resource
 
+    char* test = nullptr;
     if ((test = strstr(request->source, request->api_delim)) == nullptr) {
         if (strchr(request->source, '(') == nullptr &&
             strchr(request->source, ')') == nullptr) {
@@ -136,9 +129,26 @@ int makeClientRequestBlock(const char* data_object, const char* data_source, REQ
     } else {
         if (strchr(test, '(') == nullptr && strchr(test, ')') == nullptr) {
             // Prefixed and not a function call
-            ldelim = (int)strlen(request->api_delim);
+            int ldelim = (int)strlen(request->api_delim);
             strcpy(request->path, &test[ldelim]);
             expandFilePath(request->path, getIdamClientEnvironment());
+        }
+    }
+
+    return 0;
+}
+
+int makeClientRequestBlock(const char** signals, const char** sources, int count, REQUEST_BLOCK* request_block)
+{
+    request_block->num_requests = (int)count;
+    request_block->requests = (REQUEST_DATA*)malloc(count * sizeof(REQUEST_DATA));
+
+    int err = 0;
+    for (int i = 0; i < count; ++i) {
+        REQUEST_DATA* request = &request_block->requests[i];
+        initRequestData(request);
+        if ((err = makeRequestData(signals[i], sources[i], request))) {
+            return err;
         }
     }
 

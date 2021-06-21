@@ -61,7 +61,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
 
-    initIdamErrorStack();
+    initUdaErrorStack();
 
     initServerBlock(&server_block, serverVersion);
     initDataBlock(&data_block);

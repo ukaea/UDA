@@ -123,7 +123,7 @@ class LIBRARY_API Client {
 public:
     ~Client();
 
-    Client() : data_()
+    Client() : results_()
     {}
 
     static void setProperty(Property prop, bool value);
@@ -137,6 +137,9 @@ public:
     static int serverPort();
 
     const uda::Result& get(const std::string& signalName, const std::string& dataSource);
+    const uda::Result& get(const std::vector<std::string> signals, const std::string& source);
+    const uda::Result& get(const std::vector<std::pair<std::string, std::string>> requests);
+
     void put(const uda::Signal& putdata);
 
     void put(const std::string& instruction, char data);
@@ -166,7 +169,7 @@ public:
     void put(const std::string& instruction, const uda::Array& data);
 
 private:
-    std::vector<Result *> data_;
+    std::vector<Result *> results_;
 };
 
 }

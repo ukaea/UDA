@@ -305,7 +305,7 @@ int idamClient(REQUEST_BLOCK* request_block)
     }
 
     initServerBlock(&server_block, 0); // Reset previous Error Messages from the Server & Free Heap
-    initIdamErrorStack();
+    initUdaErrorStack();
 
     //-------------------------------------------------------------------------
     // Initialise Protocol Timings (in Debug Mode only)
@@ -324,13 +324,12 @@ int idamClient(REQUEST_BLOCK* request_block)
         if (tv_server_start == 0) {
             time(&tv_server_start);    // First Call: Start the Clock
         }
-#ifndef FATCLIENT   // <========================== Client Server Code Only
 
+#ifndef FATCLIENT   // <========================== Client Server Code Only
         int rc = check_file_cache(&request_block->requests[0], &data_block, logmalloclist, userdefinedtypelist);
         if (rc >= 0) {
             return rc;
         }
-
 #  ifndef NOLIBMEMCACHED
         rc = check_mem_cache(&request_block->requests[0], cacheStatus, &data_block, logmalloclist, userdefinedtypelist);
         if (rc >= 0) {
@@ -1644,7 +1643,7 @@ const char* getIdamServerErrorStackRecordMsg(int record)
 /**
 @return  the error message stack data structure
 */
-UDA_ERROR_STACK* getIdamServerErrorStack()
+UDA_ERROR_STACK* getUdaServerErrorStack()
 {
     return &server_block.idamerrorstack;         // Server Error Stack Structure
 }

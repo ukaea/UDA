@@ -38,7 +38,7 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
     //-------------------------------------------------------------------------
     // Open the Logs
 
-    if (idamStartup(0) != 0) return PROBLEM_OPENING_LOGS;
+    if (udaStartup(0) != 0) return PROBLEM_OPENING_LOGS;
 
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
@@ -49,7 +49,7 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
     // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initIdamErrorStack();
+        initUdaErrorStack();
         startup = 0;
     }
 
@@ -66,7 +66,7 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
         strcpy(data_source, file);
     }
 
-    if ((err = makeClientRequestBlock(signal, data_source, &request_block)) != 0) {
+    if ((err = makeClientRequestBlock(&signal, (const char**)&data_source, 1, &request_block)) != 0) {
         closeUdaError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
@@ -101,7 +101,7 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
     //-------------------------------------------------------------------------
     // Open the Logs
 
-    if (idamStartup(0) != 0) return PROBLEM_OPENING_LOGS;
+    if (udaStartup(0) != 0) return PROBLEM_OPENING_LOGS;
 
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
@@ -112,7 +112,7 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
     // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initIdamErrorStack();
+        initUdaErrorStack();
         startup = 0;
     }
 
@@ -125,7 +125,7 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
     else
         sprintf(data_source, "%s::%s", format, file);
 
-    if ((err = makeClientRequestBlock(signal, data_source, &request_block)) != 0) {
+    if ((err = makeClientRequestBlock(&signal, (const char**)&data_source, 1, &request_block)) != 0) {
         closeUdaError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);

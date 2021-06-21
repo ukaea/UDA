@@ -24,7 +24,7 @@
 #include "udaClient.h"
 #include "getEnvironment.h"
 
-int idamStartup(int reset)
+int udaStartup(int reset)
 {
     static int start_status = 0;
 

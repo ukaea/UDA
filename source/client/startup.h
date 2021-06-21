@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-LIBRARY_API int idamStartup(int reset);
+LIBRARY_API int udaStartup(int reset);
 
 #ifdef __cplusplus
 }

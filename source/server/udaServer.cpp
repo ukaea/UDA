@@ -124,7 +124,7 @@ int udaServer(CLIENT_BLOCK client_block)
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
 
-    initIdamErrorStack();
+    initUdaErrorStack();
     initServerBlock(&server_block, serverVersion);
     initDataBlock(&data_block);
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
@@ -1052,7 +1052,7 @@ int startupServer(SERVER_BLOCK* server_block)
         int err = FATAL_ERROR_LOGS;
         addIdamError(CODEERRORTYPE, __func__, err, "Fatal Error Opening the Server Logs");
         concatUdaError(&server_block->idamerrorstack);
-        initIdamErrorStack();
+        initUdaErrorStack();
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "New Server Instance\n");

@@ -21,7 +21,7 @@ int idamClientMDS(const char* server, const char* tree, const char* node, int tr
     //-------------------------------------------------------------------------
     // Open the Logs
 
-    if (idamStartup(0) != 0) return PROBLEM_OPENING_LOGS;
+    if (udaStartup(0) != 0) return PROBLEM_OPENING_LOGS;
 
     //-------------------------------------------------------------------------
     // Passed Args
