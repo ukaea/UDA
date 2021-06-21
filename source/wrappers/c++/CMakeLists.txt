@@ -67,15 +67,15 @@ set( CLIENT_OBJS
   $<TARGET_OBJECTS:authentication-client-objects>
 )
 
-set( LINK_LIB ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} )
+set( LINK_LIB ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${CACHE_LIBRARIES} )
 if( WIN32 OR MINGW )
   if( MINGW )
     set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dl stdc++ )
   else()
     set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl )
   endif()
-elseif(TIRPC_FOUND)
-  set( LINK_LIB ${LINK_LIB} ${TIRPC_LIBRARIES})
+elseif( TIRPC_FOUND )
+  set( LINK_LIB ${LINK_LIB} ${TIRPC_LIBRARIES} )
 endif()
 
 add_library( ${LIB_NAME}-static STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )

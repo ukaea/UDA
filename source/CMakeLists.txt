@@ -1,7 +1,7 @@
 include( LibXml2StrPrintfConfig )
 
 find_package( Boost REQUIRED )
-include_directories( ${Boost_INCLUDE_DIR} )
+include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 
 if( WIN32 AND NOT MINGW )
   add_definitions( /W2 /WX )

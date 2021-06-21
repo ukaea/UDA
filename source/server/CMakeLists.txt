@@ -22,8 +22,7 @@ endif()
 set( SRC_FILES
   applyXML.cpp
   closeServerSockets.cpp
-  freeIdamPut.cpp
-  getPluginAddress.cpp
+        getPluginAddress.cpp
   getServerEnvironment.cpp
   initPluginList.cpp
   makeServerRequestBlock.cpp
@@ -40,8 +39,7 @@ set( HEADER_FILES
   applyXML.h
   closeServerSockets.h
   createXDRStream.h
-  freeIdamPut.h
-  getPluginAddress.h
+        getPluginAddress.h
   getServerEnvironment.h
   initPluginList.h
   makeServerRequestBlock.h

@@ -413,6 +413,18 @@ typedef struct Environment {
     char _padding[1];
 } ENVIRONMENT;
 
+void freeClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+
+void freeDataBlock(DATA_BLOCK* data_block);
+
+void freeReducedDataBlock(DATA_BLOCK* data_block);
+
+void freeRequestBlock(REQUEST_BLOCK* request_block);
+
+void freeRequestData(REQUEST_DATA* request_data);
+
+void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+
 #ifdef __cplusplus
 }
 #endif

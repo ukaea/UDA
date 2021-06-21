@@ -1,4 +1,6 @@
 find_package( LibMemcached )
+find_package( Boost REQUIRED )
+find_package( OpenSSL REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -19,6 +21,8 @@ set( SRC_FILES
 )
 
 include_directories(
+  ${OPENSSL_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/source
 )
 

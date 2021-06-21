@@ -27,7 +27,6 @@ set( SRC_FILES
   copyStructs.cpp
   errorLog.cpp
   expand_path.cpp
-  freeDataBlock.cpp
   initStructs.cpp
   makeRequestBlock.cpp
   manageSockets.cpp
@@ -46,6 +45,7 @@ set( SRC_FILES
   userid.cpp
   xdrlib.cpp
   nameValueSubstitution.cpp
+  udaStructs.cpp
 #  utils.c
 )
 
@@ -63,7 +63,6 @@ set( HEADER_FILES
   copyStructs.h
   errorLog.h
   expand_path.h
-  freeDataBlock.h
   initStructs.h
   initXMLStructs.h
   makeRequestBlock.h

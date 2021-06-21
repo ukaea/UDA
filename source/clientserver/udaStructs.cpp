@@ -1,24 +1,41 @@
-// Free Heap Memory
-//-----------------------------------------------------------------------------
-
-#include "freeDataBlock.h"
-
-#include <cstdlib>
+#include "udaStructs.h"
 
 #include <logging/logging.h>
-#include <structures/struct.h>
 
 #include "initStructs.h"
+#include "udaTypes.h"
+#include "makeRequestBlock.h"
 
-// It is assumed that data pointers within each putDataBlock are private to the client application
-// and must be freed by the application.  
-
-void freeIdamClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
+void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
 {
     if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {
         free(putDataBlockList->putDataBlock);
     }
-    initIdamPutDataBlockList(putDataBlockList);
+    initPutDataBlockList(putDataBlockList);
+}
+
+void freeRequestData(REQUEST_DATA* request_data)
+{
+    freeNameValueList(&request_data->nameValueList);
+    freePutDataBlockList(&request_data->putDataBlockList);
+}
+
+void freeRequestBlock(REQUEST_BLOCK* request_block)
+{
+    for (int i = 0; i < request_block->num_requests; ++i) {
+        freeRequestData(&request_block->requests[0]);
+    }
+    free(request_block->requests);
+    request_block->num_requests = 0;
+    request_block->requests = nullptr;
+}
+
+void freeClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
+{
+    if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {
+        free(putDataBlockList->putDataBlock);
+    }
+    initPutDataBlockList(putDataBlockList);
 }
 
 void freeDataBlock(DATA_BLOCK* data_block)
