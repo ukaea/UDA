@@ -6,7 +6,6 @@
 #include "udaLegacyServer.h"
 
 #include <clientserver/errorLog.h>
-#include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
@@ -20,7 +19,6 @@
 #include <structures/struct.h>
 
 #include "closeServerSockets.h"
-#include "freeIdamPut.h"
 #include "getServerEnvironment.h"
 #include "makeServerRequestBlock.h"
 #include "serverGetData.h"
@@ -687,7 +685,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
         //----------------------------------------------------------------------------
         // Free PutData Blocks
 
-        freeServerPutDataBlockList(&request_block.putDataBlockList);
+        freePutDataBlockList(&request_block.putDataBlockList);
 
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap

@@ -5,7 +5,6 @@
 #  define strncasecmp _strnicmp
 #endif
 
-#include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/manageSockets.h>
@@ -20,7 +19,6 @@
 
 #include "closeServerSockets.h"
 #include "createXDRStream.h"
-#include "freeIdamPut.h"
 #include "getServerEnvironment.h"
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
@@ -813,7 +811,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK* data_block, CLIENT_BL
         //----------------------------------------------------------------------------
         // Free PutData Blocks
 
-        freeServerPutDataBlockList(&request_block->putDataBlockList);
+        freePutDataBlockList(&request_block->putDataBlockList);
 
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap

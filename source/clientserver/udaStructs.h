@@ -421,7 +421,7 @@ void freeReducedDataBlock(DATA_BLOCK* data_block);
 
 void freeRequestBlock(REQUEST_BLOCK* request_block);
 
-void freeRequestData(REQUEST_DATA* request_data);
+//void freeRequestData(REQUEST_DATA* request_data);
 
 void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 

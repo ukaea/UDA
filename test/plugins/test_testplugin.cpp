@@ -1600,7 +1600,7 @@ TEST_CASE( "Run errortest - test error reporting", "[plugins][TESTPLUGIN]" )
     REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=2)", ""), "[testplugin]: Test #2 of Error State Management\n" );
 #ifndef FATCLIENT
     // This test hard crashes the server code so can't be run in fat-client mode
-    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=3)", ""), " Protocol 11 Error (Server Block #2)" );
+    REQUIRE_THROWS_WITH( client.get("TESTPLUGIN::errortest(test=3)", ""), "[idamClient]:  Protocol 11 Error (Server Block #2)\n" );
 #endif
 }
 

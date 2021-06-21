@@ -16,7 +16,6 @@
 #  define strncasecmp _strnicmp
 #endif
 
-#include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/stringUtils.h>
@@ -1084,6 +1083,8 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
         idam_plugin_interface.pluginList = pluginlist;
         idam_plugin_interface.userdefinedtypelist = userdefinedtypelist;
         idam_plugin_interface.logmalloclist = logmalloclist;
+        idam_plugin_interface.error_stack.nerrors = 0;
+        idam_plugin_interface.error_stack.idamerror = nullptr;
 
         int plugin_id;
 
@@ -1129,6 +1130,11 @@ int read_data(REQUEST_BLOCK* request_block, CLIENT_BLOCK client_block,
 
                 // Call the plugin
                 int err = pluginlist->plugin[id].idamPlugin(&idam_plugin_interface);
+                for (unsigned int i = 0; i < idam_plugin_interface.error_stack.nerrors; ++i) {
+                    auto error = &idam_plugin_interface.error_stack.idamerror[i];
+                    addIdamError(error->type, error->location, error->code, error->msg);
+                }
+                freeIdamErrorStack(&idam_plugin_interface.error_stack);
 
 #ifndef FATCLIENT
                 // Reset Redirected Output

@@ -19,7 +19,6 @@
 #include <cache/memcache.h>
 #include <client/udaClient.h>
 #include <clientserver/expand_path.h>
-#include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
@@ -445,6 +444,8 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_BLOCK* original_requ
     idam_plugin_interface.pluginList = plugin_list;
     idam_plugin_interface.userdefinedtypelist = &userdefinedtypelist;
     idam_plugin_interface.logmalloclist = &logmalloclist;
+    idam_plugin_interface.error_stack.nerrors = 0;
+    idam_plugin_interface.error_stack.idamerror = nullptr;
 
     // Redirect Output to temporary file if no file handles passed
 
@@ -590,6 +591,8 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
     idam_plugin_interface.pluginList = plugin_list;
     idam_plugin_interface.userdefinedtypelist = &userdefinedtypelist;
     idam_plugin_interface.logmalloclist = &logmalloclist;
+    idam_plugin_interface.error_stack.nerrors = 0;
+    idam_plugin_interface.error_stack.idamerror = nullptr;
 
     // Redirect Output to temporary file if no file handles passed
 

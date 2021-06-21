@@ -15,7 +15,6 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/allocData.h>
-#include <clientserver/freeDataBlock.h>
 
 #include "makeClientRequestBlock.h"
 #include "udaGetAPI.h"
@@ -178,7 +177,7 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     //-------------------------------------------------------------------------
     // Free Heap
 
-    freeIdamClientPutDataBlockList(&request_block.putDataBlockList);
+    freeClientPutDataBlockList(&request_block.putDataBlockList);
 
     return err;
 

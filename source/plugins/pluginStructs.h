@@ -42,6 +42,7 @@ typedef struct IdamPluginInterface {    // Standard Plugin interface
     USERDEFINEDTYPELIST* userdefinedtypelist;
     void* sqlConnection;                // Opaque structure
     const PLUGINLIST* pluginList;       // List of data readers, filters, models, and servers
+    UDA_ERROR_STACK error_stack;
 } IDAM_PLUGIN_INTERFACE;
 
 typedef int (* PLUGINFUNP)(IDAM_PLUGIN_INTERFACE*);             // Plugin function type

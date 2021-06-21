@@ -4,7 +4,6 @@
 #include <cerrno>
 
 #include <clientserver/copyStructs.h>
-#include <clientserver/freeDataBlock.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/makeRequestBlock.h>

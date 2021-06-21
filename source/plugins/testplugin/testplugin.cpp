@@ -3804,6 +3804,7 @@ static int do_errortest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int err = 0;
     int test = 0;
 
+    initIdamErrorStack();
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
     FIND_REQUIRED_INT_VALUE(request_block->nameValueList, test);
@@ -3811,9 +3812,11 @@ static int do_errortest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     switch (test) {
         case 1:
             testError1();
+            concatIdamError(&idam_plugin_interface->error_stack);
             return err;
         case 2:
             testError2();
+            concatIdamError(&idam_plugin_interface->error_stack);
             return err;
         case 3: {
             const char* p = "crash!";        // force a server crash! (write to read-only memory)
