@@ -64,13 +64,14 @@ int uda::Result::errorCode() const
 }
 
 uda::Result::Result(int handle)
-        : handle_(handle), label_(handle >= 0 ? getIdamDataLabel(handle) : ""),
-          units_(handle >= 0 ? getIdamDataUnits(handle) : ""),
-          desc_(handle >= 0 ? getIdamDataDesc(handle) : ""),
-          type_(handle >= 0 ? idamTypeToTypeID(getIdamDataType(handle)) : &typeid(void)),
-          data_(handle >= 0 ? getIdamData(handle) : nullptr),
-          rank_(handle >= 0 ? static_cast<dim_type>(getIdamRank(handle)) : 0),
-          size_(handle >= 0 ? static_cast<std::size_t>(getIdamDataNum(handle)) : 0)
+        : handle_(handle)
+        , label_(handle >= 0 ? getIdamDataLabel(handle) : "")
+        , units_(handle >= 0 ? getIdamDataUnits(handle) : "")
+        , desc_(handle >= 0 ? getIdamDataDesc(handle) : "")
+        , type_(handle >= 0 ? idamTypeToTypeID(getIdamDataType(handle)) : &typeid(void))
+        , data_(handle >= 0 ? getIdamData(handle) : nullptr)
+        , rank_(handle >= 0 ? static_cast<dim_type>(getIdamRank(handle)) : 0)
+        , size_(handle >= 0 ? static_cast<std::size_t>(getIdamDataNum(handle)) : 0)
 {
     if (handle >= 0 && (bool)getIdamProperties(handle)->get_meta) {
         SIGNAL_DESC* signal_desc = getIdamSignalDesc(handle);

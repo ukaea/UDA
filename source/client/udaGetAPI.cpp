@@ -144,8 +144,7 @@ int idamGetAPI(const char* data_object, const char* data_source)
     lockIdamThread();
 
     int err = 0;
-    REQUEST_BLOCK request_block;
-    static short startup = 1;
+    static bool startup = true;
 
     //-------------------------------------------------------------------------
     // Memory Debugger
@@ -185,6 +184,7 @@ int idamGetAPI(const char* data_object, const char* data_source)
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
 
+    REQUEST_BLOCK request_block;
     initRequestBlock(&request_block);
 
     //------------------------------------------------------------------------------
@@ -192,7 +192,7 @@ int idamGetAPI(const char* data_object, const char* data_source)
 
     if (startup) {
         initUdaErrorStack();
-        startup = 0;
+        startup = false;
     }
 
     if ((err = makeClientRequestBlock(&data_object, &data_source, 1, &request_block)) != 0) {
@@ -233,12 +233,12 @@ int idamGetAPI(const char* data_object, const char* data_source)
     return handle;
 }
 
-int idamGetBatchAPI(const char** signals, const char** sources, size_t count)
+int idamGetBatchAPI(const char** signals, const char** sources, int count, int* handles)
 {
     // Lock the thread
     lockIdamThread();
 
-    static short startup = 1;
+    static bool startup = true;
 
     //-------------------------------------------------------------------------
     // Memory Debugger
@@ -286,7 +286,7 @@ int idamGetBatchAPI(const char** signals, const char** sources, size_t count)
 
     if (startup) {
         initUdaErrorStack();
-        startup = 0;
+        startup = false;
     }
 
     int err = 0;
@@ -309,11 +309,7 @@ int idamGetBatchAPI(const char** signals, const char** sources, size_t count)
     return -1;
 #endif
 
-    int handle;
-    err = idamClient(&request_block, &handle);
-    if (err < 0) {
-        handle = err;
-    }
+    err = idamClient(&request_block, handles);
 
     //-------------------------------------------------------------------------
     // Memory Debugger Exit
@@ -324,5 +320,5 @@ int idamGetBatchAPI(const char** signals, const char** sources, size_t count)
 
     // Unlock the thread
     unlockUdaThread();
-    return handle;
+    return err;
 }

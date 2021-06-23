@@ -4,6 +4,7 @@
 
 #include "client.hpp"
 
+#include <complex>
 #include <iterator>
 #include <boost/format.hpp>
 
@@ -12,7 +13,6 @@
 #include <client/udaClient.h>
 #include <client/udaPutAPI.h>
 #include <clientserver/udaTypes.h>
-#include <complex>
 #include <clientserver/initStructs.h>
 
 #include "data.hpp"
@@ -133,65 +133,102 @@ int uda::Client::serverPort()
     return getIdamServerPort();
 }
 
+[[noreturn]] void generate_exception()
+{
+    UDA_ERROR_STACK* errorstack = getUdaServerErrorStack();
+    std::vector<std::string> backtrace;
+    int code = errorstack->nerrors > 0 ? errorstack->idamerror[0].code : 0;
+    std::string msg = errorstack->nerrors > 0 ? errorstack->idamerror[0].msg : "";
+
+    backtrace.reserve(errorstack->nerrors);
+    for (unsigned int i = 0; i < errorstack->nerrors; ++i) {
+        backtrace.push_back(std::string("[") + errorstack->idamerror[i].location + "]: " + errorstack->idamerror[i].msg);
+    }
+
+    if ((code > 0 && code < 25) || (code > 60 && code < 66)) {
+        throw uda::ProtocolException(msg, backtrace);
+    } else {
+        throw uda::ServerException(msg, backtrace);
+    }
+}
+
 const uda::Result& uda::Client::get(const std::string& signalName, const std::string& dataSource)
 {
     auto result = new Result(idamGetAPI(signalName.c_str(), dataSource.c_str()));
 
     if (result->errorCode() != OK) {
-        UDA_ERROR_STACK* errorstack = getUdaServerErrorStack();
-        std::vector<std::string> backtrace;
-        int code = errorstack->nerrors > 0 ? errorstack->idamerror[0].code : 0;
-        std::string msg = errorstack->nerrors > 0 ? errorstack->idamerror[0].msg : "";
-
-        backtrace.reserve(errorstack->nerrors);
-        for (unsigned int i = 0; i < errorstack->nerrors; ++i) {
-            backtrace.push_back(std::string("[") + errorstack->idamerror[i].location + "]: " + errorstack->idamerror[i].msg);
-        }
         delete result;
-
-        if ((code > 0 && code < 25) || (code > 60 && code < 66)) {
-            throw ProtocolException(msg, backtrace);
-        } else {
-            throw ServerException(msg, backtrace);
-        }
+        generate_exception();
     }
 
     results_.push_back(result);
     return *result;
 }
 
-const uda::Result& uda::Client::get(const std::vector<std::string> signals, const std::string& source)
+uda::ResultList uda::Client::get_batch(const std::vector<std::string>& signals, const std::string& source)
+{
+    std::vector<std::pair<std::string, std::string>> requests;
+    for (const auto& signal : signals) {
+        requests.emplace_back(std::make_pair(signal, source));
+    }
+    return get_batch(requests);
+}
+
+uda::ResultList uda::Client::get_batch(const std::vector<std::pair<std::string, std::string>>& requests)
 {
     std::vector<const char*> c_signals;
     std::vector<const char*> c_sources;
-    for (const auto& signal : signals) {
-        c_signals.push_back(signal.c_str());
-        c_sources.push_back(source.c_str());
+    for (const auto& request : requests) {
+        c_signals.push_back(request.first.c_str());
+        c_sources.push_back(request.second.c_str());
     }
 
-    auto result = new Result(idamGetBatchAPI(c_signals.data(), c_sources.data(), c_signals.size()));
+    std::vector<int> handles(requests.size());
+    std::fill(handles.begin(), handles.end(), -1);
+    int rc = idamGetBatchAPI(c_signals.data(), c_sources.data(), (int)requests.size(), handles.data());
 
-    if (result->errorCode() != OK) {
-        UDA_ERROR_STACK* errorstack = getUdaServerErrorStack();
-        std::vector<std::string> backtrace;
-        int code = errorstack->nerrors > 0 ? errorstack->idamerror[0].code : 0;
-        std::string msg = errorstack->nerrors > 0 ? errorstack->idamerror[0].msg : "";
-
-        backtrace.reserve(errorstack->nerrors);
-        for (unsigned int i = 0; i < errorstack->nerrors; ++i) {
-            backtrace.push_back(std::string("[") + errorstack->idamerror[i].location + "]: " + errorstack->idamerror[i].msg);
-        }
-        delete result;
-
-        if ((code > 0 && code < 25) || (code > 60 && code < 66)) {
-            throw ProtocolException(msg, backtrace);
-        } else {
-            throw ServerException(msg, backtrace);
-        }
+    if (rc != 0) {
+        generate_exception();
     }
 
-    results_.push_back(result);
-    return *result;
+    std::unordered_map<int, size_t> indices;
+    for (auto handle : handles) {
+        auto result = new Result(handle);
+        if (result->errorCode() != OK) {
+            delete result;
+            generate_exception();
+        }
+        indices[handle] = results_.size();
+        results_.push_back(result);
+    }
+
+    return ResultList(indices, *this);
+}
+
+uda::ResultList::ResultList(std::unordered_map<int, size_t> indices, Client& client)
+    : indices_{std::move(indices)}
+    , client_{client}
+{
+}
+
+const uda::Result& uda::ResultList::at(int handle) const
+{
+    size_t index = indices_.at(handle);
+    return client_.at(index);
+}
+
+std::vector<int> uda::ResultList::handles() const
+{
+    std::vector<int> keys;
+    for (const auto& el : indices_) {
+        keys.push_back(el.first);
+    }
+    return keys;
+}
+
+const uda::Result& uda::Client::at(size_t index)
+{
+    return *results_.at(index);
 }
 
 static int typeIDToUDAType(const std::type_info& type)

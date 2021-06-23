@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <exception>
+#include <unordered_map>
+
 #include <clientserver/export.h>
 
 #include "UDA.hpp"
@@ -116,8 +118,18 @@ enum ErrorCodes
 };
 
 class Result;
-class IdamException;
 class Signal;
+class Client;
+
+class ResultList {
+public:
+    ResultList(std::unordered_map<int, size_t> indices, Client& client);
+    const Result& at(int handle) const;
+    std::vector<int> handles() const;
+private:
+    std::unordered_map<int, size_t> indices_;
+    Client& client_;
+};
 
 class LIBRARY_API Client {
 public:
@@ -137,8 +149,9 @@ public:
     static int serverPort();
 
     const uda::Result& get(const std::string& signalName, const std::string& dataSource);
-    const uda::Result& get(const std::vector<std::string> signals, const std::string& source);
-    const uda::Result& get(const std::vector<std::pair<std::string, std::string>> requests);
+
+    uda::ResultList get_batch(const std::vector<std::string>& signals, const std::string& source);
+    uda::ResultList get_batch(const std::vector<std::pair<std::string, std::string>>& requests);
 
     void put(const uda::Signal& putdata);
 
@@ -169,7 +182,10 @@ public:
     void put(const std::string& instruction, const uda::Array& data);
 
 private:
+    friend class ResultList;
+
     std::vector<Result *> results_;
+    const uda::Result& at(size_t index);
 };
 
 }
