@@ -599,7 +599,7 @@ Notes: there are three pathways depending on the request pattern
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    if (getIdamClientVersion() == 7) {
+    if (getIdamClientVersion() >= 7) {
         // This should contain everything!
         *data_block = *getIdamDataBlock(handle);
     } else {                        // use abstraction functions

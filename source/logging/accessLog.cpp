@@ -31,7 +31,16 @@
 
 #endif
 
-unsigned int countDataBlockSize(DATA_BLOCK* data_block, CLIENT_BLOCK* client_block)
+unsigned int countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block)
+{
+    unsigned int total = 0;
+    for (int i = 0; i < data_block_list->count; ++i) {
+        total += countDataBlockSize(&data_block_list->data[i], client_block);
+    }
+    return total;
+}
+
+unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* client_block)
 {
     int factor;
     DIMS dim;

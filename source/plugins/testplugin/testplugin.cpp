@@ -3093,7 +3093,7 @@ static int do_test40(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     int err = 0;
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    DATA_BLOCKX* data_block = idam_plugin_interface->data_block;
     REQUEST_BLOCK* request_block = idam_plugin_interface->request_block;
 
     USERDEFINEDTYPE usertype;

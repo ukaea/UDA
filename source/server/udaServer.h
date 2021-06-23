@@ -13,7 +13,7 @@ extern "C" {
 LIBRARY_API int udaServer(CLIENT_BLOCK client_block);
 
 LIBRARY_API int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0,
-              DATA_BLOCK* data_block0);
+              DATA_BLOCK_LIST* data_blocks0);
 
 //--------------------------------------------------------------
 // Static Global variables

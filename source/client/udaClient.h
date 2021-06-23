@@ -3,6 +3,7 @@
 
 // TODO: remove this and the XDR globals
 #include <rpc/rpc.h>
+#include <vector>
 
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
@@ -63,7 +64,7 @@ extern int get_synthetic;       // (Client Side) Return Synthetic Data if availa
 extern XDR* clientInput;           // XDR Input Stream handle
 extern XDR* clientOutput;          // XDR Output Stream handle
 
-LIBRARY_API int idamClient(REQUEST_BLOCK* request_block);
+LIBRARY_API int idamClient(REQUEST_BLOCK* request_block, int* indices);
 
 LIBRARY_API void updateClientBlock(CLIENT_BLOCK* str);
 

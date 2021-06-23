@@ -215,7 +215,11 @@ int idamGetAPI(const char* data_object, const char* data_source)
     return -1;
 #endif
 
-    err = idamClient(&request_block);
+    int handle;
+    err = idamClient(&request_block, &handle);
+    if (err < 0) {
+        handle = err;
+    }
 
     //-------------------------------------------------------------------------
     // Memory Debugger Exit
@@ -226,7 +230,7 @@ int idamGetAPI(const char* data_object, const char* data_source)
 
     // Unlock the thread
     unlockUdaThread();
-    return err;
+    return handle;
 }
 
 int idamGetBatchAPI(const char** signals, const char** sources, size_t count)
@@ -294,7 +298,7 @@ int idamGetBatchAPI(const char** signals, const char** sources, size_t count)
         return -err;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Routine: idamGetAPI\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Routine: idamGetBatchAPI\n");
     printRequestBlock(request_block);
 
     //-------------------------------------------------------------------------
@@ -305,7 +309,11 @@ int idamGetBatchAPI(const char** signals, const char** sources, size_t count)
     return -1;
 #endif
 
-    err = idamClient(&request_block);
+    int handle;
+    err = idamClient(&request_block, &handle);
+    if (err < 0) {
+        handle = err;
+    }
 
     //-------------------------------------------------------------------------
     // Memory Debugger Exit
@@ -316,5 +324,5 @@ int idamGetBatchAPI(const char** signals, const char** sources, size_t count)
 
     // Unlock the thread
     unlockUdaThread();
-    return err;
+    return handle;
 }

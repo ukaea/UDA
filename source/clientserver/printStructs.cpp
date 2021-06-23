@@ -39,7 +39,7 @@ void printRequestData(REQUEST_DATA str)
 
 void printRequestBlock(REQUEST_BLOCK str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "\nClient Request Block\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Client Request Block\n");
     UDA_LOG(UDA_LOG_DEBUG, "# requests  : %d\n", str.num_requests);
     for (int i = 0; i < str.num_requests; ++i) {
         UDA_LOG(UDA_LOG_DEBUG, "number      : %d\n", i);
@@ -49,7 +49,7 @@ void printRequestBlock(REQUEST_BLOCK str)
 
 void printClientBlock(CLIENT_BLOCK str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "\nClient State Block\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Client State Block\n");
     UDA_LOG(UDA_LOG_DEBUG, "version      : %d\n", str.version);
     UDA_LOG(UDA_LOG_DEBUG, "pid          : %d\n", str.pid);
     UDA_LOG(UDA_LOG_DEBUG, "uid          : %s\n", str.uid);
@@ -81,7 +81,7 @@ void printClientBlock(CLIENT_BLOCK str)
 
 void printServerBlock(SERVER_BLOCK str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "\nServer State Block\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Server State Block\n");
     UDA_LOG(UDA_LOG_DEBUG, "version          : %d\n", str.version);
     UDA_LOG(UDA_LOG_DEBUG, "error            : %d\n", str.error);
     UDA_LOG(UDA_LOG_DEBUG, "msg              : %s\n", str.msg);
@@ -91,10 +91,19 @@ void printServerBlock(SERVER_BLOCK str)
     printIdamErrorStack();
 }
 
+void printDataBlockList(DATA_BLOCK_LIST str)
+{
+    UDA_LOG(UDA_LOG_DEBUG, "Data Blocks\n");
+    UDA_LOG(UDA_LOG_DEBUG, "count        : %d\n", str.count);
+    for (int i = 0; i < str.count; ++i) {
+        UDA_LOG(UDA_LOG_DEBUG, "block number : %d\n", i);
+        printDataBlock(str.data[i]);
+    }
+}
 
 void printDataBlock(DATA_BLOCK str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "\nData Block Contents\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Data Block Contents\n");
     UDA_LOG(UDA_LOG_DEBUG, "handle       : %d\n", str.handle);
     UDA_LOG(UDA_LOG_DEBUG, "error code   : %d\n", str.errcode);
     UDA_LOG(UDA_LOG_DEBUG, "error msg    : %s\n", str.error_msg);
@@ -113,7 +122,9 @@ void printDataBlock(DATA_BLOCK str)
 
     switch (str.opaque_type) {
         case (UDA_OPAQUE_TYPE_XML_DOCUMENT):
-            if (str.opaque_block != nullptr) UDA_LOG(UDA_LOG_DEBUG, "\nXML: %s\n\n", (char*) str.opaque_block);
+            if (str.opaque_block != nullptr) {
+                UDA_LOG(UDA_LOG_DEBUG, "XML: %s\n", (char*) str.opaque_block);
+            }
             break;
         default:
             break;
@@ -160,7 +171,7 @@ void printDataBlock(DATA_BLOCK str)
     UDA_LOG(UDA_LOG_DEBUG, "data_desc   : %s\n", str.data_desc);
 
     for (int i = 0; i < (int)str.rank; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "\nDimension #%d Contents\n\n", i);
+        UDA_LOG(UDA_LOG_DEBUG, "Dimension #%d Contents\n", i);
         UDA_LOG(UDA_LOG_DEBUG, "data_type    : %d\n", str.dims[i].data_type);
         UDA_LOG(UDA_LOG_DEBUG, "error_type   : %d\n", str.dims[i].error_type);
         UDA_LOG(UDA_LOG_DEBUG, "errhi != nullptr: %d\n", str.dims[i].errhi != nullptr);
@@ -264,7 +275,7 @@ void printDataBlock(DATA_BLOCK str)
 
 void printSystemConfig(SYSTEM_CONFIG str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "\nSystem Configuration Record\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "System Configuration Record\n");
     UDA_LOG(UDA_LOG_DEBUG, "config_id   : %d\n", str.config_id);
     UDA_LOG(UDA_LOG_DEBUG, "system_id   : %d\n", str.system_id);
     UDA_LOG(UDA_LOG_DEBUG, "config_name : %s\n", str.config_name);
@@ -278,7 +289,7 @@ void printSystemConfig(SYSTEM_CONFIG str)
 
 void printDataSystem(DATA_SYSTEM str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "\nData System Record\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Data System Record\n");
     UDA_LOG(UDA_LOG_DEBUG, "system_id   : %d\n", str.system_id);
     UDA_LOG(UDA_LOG_DEBUG, "version     : %d\n", str.version);
     UDA_LOG(UDA_LOG_DEBUG, "type        : %c\n", str.type);
@@ -293,7 +304,7 @@ void printDataSystem(DATA_SYSTEM str)
 
 void printDataSource(DATA_SOURCE str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "\nData Source Record\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Data Source Record\n");
     UDA_LOG(UDA_LOG_DEBUG, "source_id     : %d\n", str.source_id);
     UDA_LOG(UDA_LOG_DEBUG, "config_id     : %d\n", str.config_id);
     UDA_LOG(UDA_LOG_DEBUG, "reason_id     : %d\n", str.reason_id);
@@ -328,7 +339,7 @@ void printDataSource(DATA_SOURCE str)
 
 void printSignal(SIGNAL str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "\nSignal Record\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Record\n");
     UDA_LOG(UDA_LOG_DEBUG, "source_id         : %d\n", str.source_id);
     UDA_LOG(UDA_LOG_DEBUG, "signal_desc_id    : %d\n", str.signal_desc_id);
     UDA_LOG(UDA_LOG_DEBUG, "status_desc_id    : %d\n", str.status_desc_id);
@@ -347,7 +358,7 @@ void printSignal(SIGNAL str)
 
 void printSignalDesc(SIGNAL_DESC str)
 {
-    UDA_LOG(UDA_LOG_DEBUG, "\nSignal Description Record\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Signal Description Record\n");
     UDA_LOG(UDA_LOG_DEBUG, "signal_desc_id: %d\n", str.signal_desc_id);
     UDA_LOG(UDA_LOG_DEBUG, "signal_alias  : %s\n", str.signal_alias);
     UDA_LOG(UDA_LOG_DEBUG, "signal_name   : %s\n", str.signal_name);

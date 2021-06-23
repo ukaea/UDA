@@ -24,7 +24,7 @@ void putIdamClientEnvironment(const ENVIRONMENT* environment)
 
 void printIdamClientEnvironment(const ENVIRONMENT* environment)
 {
-    UDA_LOG(UDA_LOG_INFO, "\nClient Environment Variable values\n\n");
+    UDA_LOG(UDA_LOG_INFO, "Client Environment Variable values\n");
     UDA_LOG(UDA_LOG_INFO, "Log Location    : %s\n", environment->logdir);
     UDA_LOG(UDA_LOG_INFO, "Log Write Mode  : %s\n", environment->logmode);
     UDA_LOG(UDA_LOG_INFO, "Log Level       : %d\n", environment->loglevel);

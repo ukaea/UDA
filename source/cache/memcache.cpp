@@ -196,8 +196,8 @@ int memcache_put(UDA_CACHE* cache, const char* key, const char* buffer, size_t b
 
 int
 udaCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
-               LOGMALLOCLIST* logmalloclist,
-               USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion)
+              LOGMALLOCLIST* logmalloclist,
+              USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion)
 {
 #ifdef CACHEDEV
     if (!data_block->cachePermission) {
@@ -263,7 +263,7 @@ std::pair<char*, size_t> get_cache_value(UDA_CACHE* cache, const char* key)
 }
 
 DATA_BLOCK* udaCacheRead(UDA_CACHE* cache, const REQUEST_DATA* request_data, LOGMALLOCLIST* logmalloclist,
-                          USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion)
+                         USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion)
 {
     char* key = generate_cache_key(request_data, environment);
     if (key == nullptr) {

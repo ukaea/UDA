@@ -50,5 +50,11 @@ int idamClientMDS(const char* server, const char* tree, const char* node, int tr
     //-------------------------------------------------------------------------
     // Fetch Data
 
-    return idamClient(&request_block);
+    int handle;
+    int err = idamClient(&request_block, &handle);
+    if (err < 0) {
+        handle = err;
+    }
+
+    return handle;
 }

@@ -82,28 +82,29 @@ void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
 
 static int startupFatServer(SERVER_BLOCK* server_block);
 
-static int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, ACTIONS* actions_desc,
-                                ACTIONS* actions_sig, DATA_BLOCK* data_block0);
+static int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, ACTIONS* actions_desc,
+                                ACTIONS* actions_sig, DATA_BLOCK_LIST* data_blocks0);
 
 static int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0, CLIENT_BLOCK* client_block,
-                            SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK* data_block,
+                            SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK_LIST* data_block,
                             ACTIONS* actions_desc, ACTIONS* actions_sig);
 
-static int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLOCK* data_block0,
+static int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
                            REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block);
 
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
 int
-fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0, DATA_BLOCK* data_block0)
+fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0,
+          DATA_BLOCK_LIST* data_blocks0)
 {
-    assert(data_block0 != nullptr);
+    assert(data_blocks0 != nullptr);
 
     METADATA_BLOCK metadata_block;
     memset(&metadata_block, '\0', sizeof(METADATA_BLOCK));
 
-    DATA_BLOCK data_block;
+    DATA_BLOCK_LIST data_blocks;
     REQUEST_BLOCK request_block;
 
     ACTIONS actions_desc;
@@ -114,7 +115,7 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
     // Reinitialised after each logging action
 
     initServerBlock(server_block, serverVersion);
-    initDataBlock(&data_block);
+    initDataBlockList(&data_blocks);
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
 
@@ -132,20 +133,20 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
 
     copyUserDefinedTypeList(&userdefinedtypelist);
 
-    err = handleRequestFat(&request_block, request_block0, &client_block, server_block, &metadata_block, &data_block,
+    err = handleRequestFat(&request_block, request_block0, &client_block, server_block, &metadata_block, &data_blocks,
                            &actions_desc, &actions_sig);
     if (err != 0) {
         return err;
     }
 
-    err = fatClientReturn(server_block, &data_block, data_block0, &request_block, &client_block, &metadata_block);
+    err = fatClientReturn(server_block, &data_blocks, data_blocks0, &request_block, &client_block, &metadata_block);
     if (err != 0) {
         return err;
     }
 
     udaAccessLog(FALSE, client_block, request_block, *server_block, &pluginList, getServerEnvironment());
 
-    err = doFatServerClosedown(server_block, &data_block, &actions_desc, &actions_sig, data_block0);
+    err = doFatServerClosedown(server_block, &data_blocks, &actions_desc, &actions_sig, data_blocks0);
 
     freeUserDefinedTypeList(userdefinedtypelist);
     free(userdefinedtypelist);
@@ -157,7 +158,92 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
     return err;
 }
 
-int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLOCK* data_block0,
+/**
+ * Hierarchical Data Structures: Transform into a Data Tree via XDR IO streams to/from a temporary file (inefficient!)
+ *
+ * Avoid multiple heap malloc and file writing by creating tree node directly.
+ *
+ * If user changes property ....
+ * Send temp file to client: files saved to specified temporary or scratch directory
+ * File must include a date-time stamp (prevent users from tampering: users can keep copy but only valid for a short
+ * period of time, e.g. 24Hrs.)
+ * Enable the client to read previous files if date-stamp is current - check made when file opened for read.
+ * Client manages a log of available files: records signal source argument pairs.
+ * Client deletes stale files automatically on startup.
+ * @return
+ */
+static int processHierarchicalData(DATA_BLOCK* data_block)
+{
+    int err = 0;
+
+    // Create an output XDR stream
+
+    FILE* xdrfile;
+    char tempFile[MAXPATH];
+    char* env;
+    if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
+        sprintf(tempFile, "%s/idamXDRXXXXXX", env);
+    } else {
+        strcpy(tempFile, "/tmp/idamXDRXXXXXX");
+    }
+
+    DATA_BLOCK data_block_copy = *data_block;
+
+    errno = 0;
+    if (mkstemp(tempFile) < 0 || errno != 0) {
+        THROW_ERROR(995, "Unable to Obtain a Temporary File Name");
+    }
+    if ((xdrfile = fopen(tempFile, "wb")) == nullptr) {
+        THROW_ERROR(999, "Unable to Open a Temporary XDR File for Writing");
+    }
+
+    XDR xdrServerOutput;
+    xdrstdio_create(&xdrServerOutput, xdrfile, XDR_ENCODE);
+
+    // Write data to the temporary file
+
+    int protocol_id = PROTOCOL_STRUCTURES;
+    protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, data_block,
+                protocolVersion);
+
+    // Close the stream and file
+
+    xdr_destroy(&xdrServerOutput);
+    fclose(xdrfile);
+
+    // Free Heap
+
+    freeReducedDataBlock(data_block);
+    *data_block = data_block_copy;
+
+    // Create an input XDR stream
+
+    if ((xdrfile = fopen(tempFile, "rb")) == nullptr) {
+        THROW_ERROR(999, "Unable to Open a Temporary XDR File for Reading");
+    }
+
+    XDR xdrServerInput;
+    xdrstdio_create(&xdrServerInput, xdrfile, XDR_DECODE);
+
+    // Read data from the temporary file
+
+    protocol_id = PROTOCOL_STRUCTURES;
+    err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
+                      data_block, protocolVersion);
+
+    // Close the stream and file
+
+    xdr_destroy(&xdrServerInput);
+    fclose(xdrfile);
+
+    // Remove the Temporary File
+
+    remove(tempFile);
+
+    return err;
+}
+
+int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
                     REQUEST_BLOCK* request_block,
                     CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block)
 {
@@ -175,86 +261,11 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
         return err;
     }
 
-    //------------------------------------------------------------------------------
-    // Hierarchical Data Structures: Transform into a Data Tree via XDR IO streams to/from a temporary file (inefficient!)
-
-    // Avoid multiple heap malloc and file writing by creating tree node directly
-
-    //-----------------------------------------------------------------------------------
-    // If user changes property ....
-    // Send temp file to client: files saved to specified temporary or scratch directory
-    // File must include a date-time stamp (prevent users from tampering: users can keep copy but only valid
-    // for a short period of time, e.g. 24Hrs.)
-    // Enable the client to read previous files if date-stamp is current - check made when file opened for read.
-    // Client manages a log of available files: records signal source argument pairs.
-    // Client deletes stale files automatically on startup.
-    //----------------------------------------------------------------------------------
-
-    if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
-
-        // Create an output XDR stream
-
-        FILE* xdrfile;
-        char tempFile[MAXPATH];
-        char* env;
-        if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
-            sprintf(tempFile, "%s/idamXDRXXXXXX", env);
-        } else {
-            strcpy(tempFile, "/tmp/idamXDRXXXXXX");
+    for (int i = 0; i < data_blocks->count; ++i) {
+        auto data_block = &data_blocks->data[i];
+        if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
+            processHierarchicalData(data_block);
         }
-
-        DATA_BLOCK data_block_copy = *data_block;
-
-        errno = 0;
-        if (mkstemp(tempFile) < 0 || errno != 0) {
-            THROW_ERROR(995, "Unable to Obtain a Temporary File Name");
-        }
-        if ((xdrfile = fopen(tempFile, "wb")) == nullptr) {
-            THROW_ERROR(999, "Unable to Open a Temporary XDR File for Writing");
-        }
-
-        XDR xdrServerOutput;
-        xdrstdio_create(&xdrServerOutput, xdrfile, XDR_ENCODE);
-
-        // Write data to the temporary file
-
-        int protocol_id = PROTOCOL_STRUCTURES;
-        protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, data_block,
-                    protocolVersion);
-
-        // Close the stream and file
-
-        xdr_destroy(&xdrServerOutput);
-        fclose(xdrfile);
-
-        // Free Heap
-
-        freeReducedDataBlock(data_block);
-        *data_block = data_block_copy;
-
-        // Create an input XDR stream
-
-        if ((xdrfile = fopen(tempFile, "rb")) == nullptr) {
-            THROW_ERROR(999, "Unable to Open a Temporary XDR File for Reading");
-        }
-
-        XDR xdrServerInput;
-        xdrstdio_create(&xdrServerInput, xdrfile, XDR_DECODE);
-
-        // Read data from the temporary file
-
-        protocol_id = PROTOCOL_STRUCTURES;
-        err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                          data_block, protocolVersion);
-
-        // Close the stream and file
-
-        xdr_destroy(&xdrServerInput);
-        fclose(xdrfile);
-
-        // Remove the Temporary File
-
-        remove(tempFile);
     }
 
     freeRequestBlock(request_block);
@@ -263,7 +274,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, DATA_BLO
 }
 
 int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0, CLIENT_BLOCK* client_block,
-                     SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK* data_block,
+                     SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK_LIST* data_blocks,
                      ACTIONS* actions_desc, ACTIONS* actions_sig)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
@@ -322,9 +333,14 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
 
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[i];
+        assert(i == data_blocks->count);
+        data_blocks->data = (DATA_BLOCK*)realloc(data_blocks->data, (data_blocks->count + 1) * sizeof(DATA_BLOCK));
+        auto data_block = &data_blocks->data[i];
+        initDataBlock(data_block);
         err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
                          &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
                          &pluginList, logmalloclist, userdefinedtypelist, &socket_list, protocolVersion);
+        ++data_blocks->count;
     }
 
     if (err != 0) {
@@ -347,7 +363,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     printDataSource(*data_source);
     printSignal(metadata_block->signal_rec);
     printSignalDesc(*signal_desc);
-    printDataBlock(*data_block);
+    printDataBlockList(*data_blocks);
     printIdamErrorStack();
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
@@ -356,8 +372,11 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     // Server-Side Data Processing
 
     if (client_block->get_dimdble || client_block->get_timedble || client_block->get_scalar) {
-        if (serverProcessing(*client_block, data_block) != 0) {
-            THROW_ERROR(779, "Server-Side Processing Error");
+        for (int i = 0; i < data_blocks->count; ++i) {
+            auto data_block = &data_blocks->data[i];
+            if (serverProcessing(*client_block, data_block) != 0) {
+                THROW_ERROR(779, "Server-Side Processing Error");
+            }
         }
     }
 
@@ -369,8 +388,8 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     return err;
 }
 
-int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, ACTIONS* actions_desc,
-                         ACTIONS* actions_sig, DATA_BLOCK* data_block0)
+int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, ACTIONS* actions_desc,
+                         ACTIONS* actions_sig, DATA_BLOCK_LIST* data_blocks0)
 {
     //----------------------------------------------------------------------------
     // Free Plugin List and Close all open library entries
@@ -388,9 +407,9 @@ int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK* data_block, ACT
     concatUdaError(&server_block->idamerrorstack); // Update Server State with Global Error Stack
     closeUdaError();
 
-    *data_block0 = *data_block;
+    *data_blocks0 = *data_blocks;
 
-    printDataBlock(*data_block0);
+    printDataBlockList(*data_blocks0);
 
     return 0;
 }

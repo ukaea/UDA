@@ -265,6 +265,11 @@ typedef struct DataBlock {
     unsigned int cachePermission;   // Permission for the Client to cache this structure.
 } DATA_BLOCK;
 
+typedef struct DataBlockList {
+    int count;
+    DATA_BLOCK* data;
+} DATA_BLOCK_LIST;
+
 typedef struct DataObject {
     unsigned short objectType;      // File or regular object
     unsigned int objectSize;
@@ -352,7 +357,8 @@ enum REQUEST {
     REQUEST_READ_WEB,           // a Remote or Local web server
     REQUEST_READ_BIN,           // Binary file
     REQUEST_READ_HELP,          // Help file
-    REQUEST_READ_DEVICE         // Request to an External Device's data server
+    REQUEST_READ_DEVICE,         // Request to an External Device's data server
+    REQUEST_CACHED,
 };
 
 typedef struct RequestData {
@@ -420,6 +426,8 @@ typedef struct Environment {
 void freeClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
 void freeDataBlock(DATA_BLOCK* data_block);
+
+void freeDataBlockList(DATA_BLOCK_LIST* data_block_list);
 
 void freeReducedDataBlock(DATA_BLOCK* data_block);
 

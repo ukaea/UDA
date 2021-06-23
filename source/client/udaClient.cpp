@@ -36,6 +36,9 @@
 #  ifndef NOLIBMEMCACHED
 #    include <cache/memcache.h>
 #    include <cache/fileCache.h>
+#include <cassert>
+#include <vector>
+
 #  endif
 #  ifdef SSLAUTHENTICATION
 #    include <authentication/udaClientSSL.h>
@@ -219,6 +222,17 @@ int check_mem_cache(REQUEST_DATA* request_data, unsigned int cacheStatus, DATA_B
     return -1;
 }
 
+void copyDataBlock(DATA_BLOCK* str, DATA_BLOCK* in)
+{
+    *str = *in;
+    memcpy(str->errparams, in->errparams, MAXERRPARAMS);
+    memcpy(str->data_units, in->data_units, STRING_LENGTH);
+    memcpy(str->data_label, in->data_label, STRING_LENGTH);
+    memcpy(str->data_desc, in->data_desc, STRING_LENGTH);
+    memcpy(str->error_msg, in->error_msg, STRING_LENGTH);
+    initClientBlock(&str->client_block, 0, "");
+}
+
 void copyClientBlock(CLIENT_BLOCK* str)
 {
     // other structure elements are set when the structure is initialised
@@ -249,33 +263,115 @@ void copyClientBlock(CLIENT_BLOCK* str)
       *** are there any instances where the data_block handle value is used?
 */
 
-int idamClient(REQUEST_BLOCK* request_block)
+#ifndef FATCLIENT
+/*
+ * Fetch Hierarchical Data Structures
+ *
+ * manages it's own client/server conversation current buffer status in protocolXML2 ...
+ */
+static int fetchHierarchicalData(DATA_BLOCK* data_block)
+{
+    if (data_block->data_type == UDA_TYPE_COMPOUND &&
+        data_block->opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
+
+        int protocol_id;
+        if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT) {
+            protocol_id = PROTOCOL_META;
+        } else if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES ||
+                   data_block->opaque_type == UDA_OPAQUE_TYPE_XDRFILE ||
+                   data_block->opaque_type == UDA_OPAQUE_TYPE_XDROBJECT) {
+            protocol_id = PROTOCOL_STRUCTURES;
+        } else {
+            protocol_id = PROTOCOL_EFIT;
+        }
+
+        UDA_LOG(UDA_LOG_DEBUG, "Receiving Hierarchical Data Structure from Server\n");
+
+        int err = 0;
+        if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
+                             data_block, protocolVersion)) != 0) {
+            addIdamError(CODEERRORTYPE, __func__, err, "Client Side Protocol Error (Opaque Structure Type)");
+            return err;
+        }
+    }
+
+    return 0;
+}
+#endif
+
+static int fetchMeta(DATA_SYSTEM* data_system, SYSTEM_CONFIG* system_config, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc)
+{
+    int err = 0;
+
+    // Allocate memory for the Meta Data
+    data_system = (DATA_SYSTEM*)malloc(sizeof(DATA_SYSTEM));
+    system_config = (SYSTEM_CONFIG*)malloc(sizeof(SYSTEM_CONFIG));
+    data_source = (DATA_SOURCE*)malloc(sizeof(DATA_SOURCE));
+    signal_rec = (SIGNAL*)malloc(sizeof(SIGNAL));
+    signal_desc = (SIGNAL_DESC*)malloc(sizeof(SIGNAL_DESC));
+
+    if (data_system == nullptr || system_config == nullptr || data_source == nullptr ||
+        signal_rec == nullptr || signal_desc == nullptr) {
+        err = ERROR_ALLOCATING_META_DATA_HEAP;
+        addIdamError(CODEERRORTYPE, __func__, err, "Error Allocating Heap for Meta Data");
+        return err;
+    }
+
+#ifndef FATCLIENT   // <========================== Client Server Code Only
+    if ((err = protocol2(clientInput, PROTOCOL_DATA_SYSTEM, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
+                         data_system, protocolVersion)) != 0) {
+        addIdamError(CODEERRORTYPE, __func__, err, "Protocol 4 Error (Data System)");
+        return err;
+    }
+    printDataSystem(*data_system);
+
+    if ((err = protocol2(clientInput, PROTOCOL_SYSTEM_CONFIG, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
+                         system_config, protocolVersion)) != 0) {
+        addIdamError(CODEERRORTYPE, __func__, err, "Protocol 5 Error (System Config)");
+        return err;
+    }
+    printSystemConfig(*system_config);
+
+    if ((err = protocol2(clientInput, PROTOCOL_DATA_SOURCE, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
+                         data_source, protocolVersion)) != 0) {
+        addIdamError(CODEERRORTYPE, __func__, err, "Protocol 6 Error (Data Source)");
+        return err;
+    }
+    printDataSource(*data_source);
+
+    if ((err = protocol2(clientInput, PROTOCOL_SIGNAL, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
+                         signal_rec, protocolVersion)) != 0) {
+        addIdamError(CODEERRORTYPE, __func__, err, "Protocol 7 Error (Signal)");
+        return err;
+    }
+    printSignal(*signal_rec);
+
+    if ((err = protocol2(clientInput, PROTOCOL_SIGNAL_DESC, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
+                         signal_desc, protocolVersion)) != 0) {
+        addIdamError(CODEERRORTYPE, __func__, err, "Protocol 8 Error (Signal Desc)");
+        return err;
+    }
+    printSignalDesc(*signal_desc);
+#endif
+
+    return err;
+}
+
+int idamClient(REQUEST_BLOCK* request_block, int* indices)
 {
     // Efficient reduced (filled) tcp packet protocol for efficiency over large RTT fat pipes
     // This client version will only be able to communicate with a version 7+ server
 
-    int err, newHandle;
-    int data_block_idx = -1;
-    DATA_BLOCK* data_block = nullptr;
+    int err;
 
-    int allocMetaHeap = 0;
+    bool allocMetaHeap = false;
     int serverside = 0;
 
 #ifndef FATCLIENT
-#  ifndef NOLIBMEMCACHED
-    static UDA_CACHE* cache;
-    static unsigned int cacheStatus = UDA_CACHE_NOT_OPENED;
-#  endif // !NOLIBMEMCACHED
 #  ifndef SECURITYENABLED
     static int startupStates;
 #  endif // !SECURITYENABLED
 #endif // !FATCLIENT
-
-    DATA_SYSTEM* data_system = nullptr;
-    SYSTEM_CONFIG* system_config = nullptr;
-    DATA_SOURCE* data_source = nullptr;
-    SIGNAL* signal_rec = nullptr;
-    SIGNAL_DESC* signal_desc = nullptr;
 
     static bool system_startup = true;
 
@@ -312,30 +408,59 @@ int idamClient(REQUEST_BLOCK* request_block)
 
     time(&protocol_time);
 
+    DATA_BLOCK_LIST cached_data_block_list;
+    cached_data_block_list.count = request_block->num_requests;
+    cached_data_block_list.data = (DATA_BLOCK*)malloc(cached_data_block_list.count * sizeof(DATA_BLOCK));
+
     //------------------------------------------------------------------------------
     // Error Trap: Some Errors are Fatal => Server Destroyed & Connections Closed
 
     // *** change error management when large RTT involved - why destroy the server if not warranted?
 
-    do {
+    bool data_received = false;
+    std::vector<int> data_block_indices(request_block->num_requests);
+    std::fill(data_block_indices.begin(), data_block_indices.end(), -1);
 
-        newHandle = 0;    // If a New Handle is Issued then Always Return with a Handle
+    DATA_SYSTEM* data_system = nullptr;
+    SYSTEM_CONFIG* system_config = nullptr;
+    DATA_SOURCE* data_source = nullptr;
+    SIGNAL* signal_rec = nullptr;
+    SIGNAL_DESC* signal_desc = nullptr;
+
+    do {
 
         if (tv_server_start == 0) {
             time(&tv_server_start);    // First Call: Start the Clock
         }
 
 #ifndef FATCLIENT   // <========================== Client Server Code Only
-        int rc = check_file_cache(&request_block->requests[0], &data_block, logmalloclist, userdefinedtypelist);
-        if (rc >= 0) {
-            return rc;
-        }
 #  ifndef NOLIBMEMCACHED
-        rc = check_mem_cache(&request_block->requests[0], cacheStatus, &data_block, logmalloclist, userdefinedtypelist);
-        if (rc >= 0) {
-            return rc;
-        }
+        static UDA_CACHE* cache;
+        static unsigned int cacheStatus = UDA_CACHE_NOT_OPENED;
 #  endif // !NOLIBMEMCACHED
+
+        int num_cached = 0;
+
+        for (int i = 0; i < request_block->num_requests; ++i) {
+            auto request = &request_block->requests[i];
+            DATA_BLOCK* data_block = &cached_data_block_list.data[i];
+
+            int rc = check_file_cache(request, &data_block, logmalloclist, userdefinedtypelist);
+            if (rc >= 0) {
+                request_block->requests[i].request = REQUEST_CACHED;
+                ++num_cached;
+                continue;
+            }
+
+#  ifndef NOLIBMEMCACHED
+            rc = check_mem_cache(request, cacheStatus, &data_block, logmalloclist, userdefinedtypelist);
+            if (rc >= 0) {
+                request_block->requests[i].request = REQUEST_CACHED;
+                ++num_cached;
+                continue;
+            }
+#  endif // !NOLIBMEMCACHED
+        }
 
         //-------------------------------------------------------------------------
         // Manage Multiple UDA Server connections ...
@@ -390,9 +515,9 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         if (initServer) {
             authenticationNeeded = 1;
-#if !defined(FATCLIENT) && !defined(SECURITYENABLED)
+#  if !defined(FATCLIENT) && !defined(SECURITYENABLED)
             startupStates = 0;
-#endif
+#  endif
             if ((createConnection()) != 0) {
                 err = NO_SOCKET_CONNECTION;
                 addIdamError(CODEERRORTYPE, __func__, err, "No Socket Connection to Server");
@@ -405,12 +530,12 @@ int idamClient(REQUEST_BLOCK* request_block)
         //-------------------------------------------------------------------------
         // Connect to the server with SSL (X509) authentication
 
-#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+#  if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
         // Create the SSL binding and context, and verify the server certificate
         if ((err = startUdaClientSSL()) != 0) {
             break;
         }
-#endif
+#  endif
 
         //-------------------------------------------------------------------------
         // Create the XDR Record Streams
@@ -582,7 +707,7 @@ int idamClient(REQUEST_BLOCK* request_block)
 
             // Flush (mark as at EOF) the input socket buffer (not all server state data may have been read - version dependent)
 
-            rc = xdrrec_eof(clientInput);
+            int rc = xdrrec_eof(clientInput);
 
             UDA_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
             UDA_LOG(UDA_LOG_DEBUG, "xdrrec_eof rc = %d [1 => no more input]\n", rc);
@@ -618,6 +743,7 @@ int idamClient(REQUEST_BLOCK* request_block)
         //-------------------------------------------------------------------------
         // Flush to EOF the input buffer (start of wait for new data) necessary when Zero data waiting but not an EOF!
 
+        int rc = 0;
         if (!(rc = xdrrec_eof(clientInput))) { // Test for an EOF
 
             UDA_LOG(UDA_LOG_DEBUG, "xdrrec_eof rc = %d => more input when none expected!\n", rc);
@@ -726,10 +852,8 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         UDA_LOG(UDA_LOG_DEBUG, "Waiting for Server Status Block\n");
 
-        protocol_id = PROTOCOL_SERVER_BLOCK;      // Receive Server Block: Server Aknowledgement
-
-        if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                             &server_block, protocolVersion)) != 0) {
+        if ((err = protocol2(clientInput, PROTOCOL_SERVER_BLOCK, XDR_RECEIVE, nullptr, logmalloclist,
+                             userdefinedtypelist, &server_block, protocolVersion)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Protocol 11 Error (Server Block #2) = %d\n", err);
             addIdamError(CODEERRORTYPE, __func__, err, " Protocol 11 Error (Server Block #2)");
             // Assuming the server_block is corrupted, replace with a clean copy to avoid future concatonation problems
@@ -758,126 +882,10 @@ int idamClient(REQUEST_BLOCK* request_block)
         allocMetaHeap = 0;
 
         if (client_block.get_meta) {
-
-            // Allocate memory for the Meta Data
-
-            data_system = (DATA_SYSTEM*)malloc(sizeof(DATA_SYSTEM));
-            system_config = (SYSTEM_CONFIG*)malloc(sizeof(SYSTEM_CONFIG));
-            data_source = (DATA_SOURCE*)malloc(sizeof(DATA_SOURCE));
-            signal_rec = (SIGNAL*)malloc(sizeof(SIGNAL));
-            signal_desc = (SIGNAL_DESC*)malloc(sizeof(SIGNAL_DESC));
-
-            if (data_system == nullptr || system_config == nullptr || data_source == nullptr ||
-                signal_rec == nullptr || signal_desc == nullptr) {
-                err = ERROR_ALLOCATING_META_DATA_HEAP;
-                addIdamError(CODEERRORTYPE, __func__, err, "Error Allocating Heap for Meta Data");
+            if ((err = fetchMeta(data_system, system_config, data_source, signal_rec, signal_desc)) != 0) {
                 break;
             }
-
-            allocMetaHeap = 1;      // Manage Heap if an Error Occurs
-
-            //------------------------------------------------------------------------------
-            // Receive the Data System Record
-
-#ifndef FATCLIENT   // <========================== Client Server Code Only
-
-            protocol_id = PROTOCOL_DATA_SYSTEM;
-
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                                 data_system, protocolVersion)) != 0) {
-                addIdamError(CODEERRORTYPE, __func__, err, "Protocol 4 Error (Data System)");
-                break;
-            }
-
-            printDataSystem(*data_system);
-
-            //------------------------------------------------------------------------------
-            // Receive the System Configuration Record
-
-            protocol_id = PROTOCOL_SYSTEM_CONFIG;
-
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                                 system_config, protocolVersion)) != 0) {
-                addIdamError(CODEERRORTYPE, __func__, err, "Protocol 5 Error (System Config)");
-                break;
-            }
-
-            printSystemConfig(*system_config);
-
-            //------------------------------------------------------------------------------
-            // Receive the Data Source Record
-
-            protocol_id = PROTOCOL_DATA_SOURCE;
-
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                                 data_source, protocolVersion)) != 0) {
-                addIdamError(CODEERRORTYPE, __func__, err, "Protocol 6 Error (Data Source)");
-                break;
-            }
-
-            printDataSource(*data_source);
-
-            //------------------------------------------------------------------------------
-            // Receive the Signal Record
-
-            protocol_id = PROTOCOL_SIGNAL;
-
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                                 signal_rec, protocolVersion)) != 0) {
-                addIdamError(CODEERRORTYPE, __func__, err, "Protocol 7 Error (Signal)");
-                break;
-            }
-
-            printSignal(*signal_rec);
-
-            //------------------------------------------------------------------------------
-            // Receive the Signal Description Record
-
-            protocol_id = PROTOCOL_SIGNAL_DESC;
-
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                                 signal_desc, protocolVersion)) != 0) {
-                addIdamError(CODEERRORTYPE, __func__, err, "Protocol 8 Error (Signal Desc)");
-                break;
-            }
-
-            UDA_LOG(UDA_LOG_DEBUG, "Signal Desc Block Received\n");
-            printSignalDesc(*signal_desc);
-
-        }  // End of Client/Server Protocol Management
-
-#else       // <========================== End of Client Server Code Only (not FATCLIENT)
-        }
-#endif      // <========================== End of Fat Client Code Only
-
-        //------------------------------------------------------------------------------
-        // Allocate memory for the Data Block Structure 
-        // Re-use existing stale Data Blocks
-
-        data_block_idx = acc_getIdamNewDataHandle();
-
-        if (data_block_idx < 0) {            // Error
-            err = -data_block_idx;
-            break;
-        }
-
-        newHandle = 1;                    // Flags Heap has been allocated
-        data_block = getIdamDataBlock(data_block_idx);
-
-        //------------------------------------------------------------------------------
-        // Copy the client server property values via the client_block
-
-        copyClientBlock(&(data_block->client_block));
-
-        //------------------------------------------------------------------------------
-        // Assign Meta Data to Data Block
-
-        if (client_block.get_meta && allocMetaHeap) {
-            data_block->data_system = data_system;
-            data_block->system_config = system_config;
-            data_block->data_source = data_source;
-            data_block->signal_rec = signal_rec;
-            data_block->signal_desc = signal_desc;
+            allocMetaHeap = true;
         }
 
 #ifndef FATCLIENT   // <========================== Client Server Code Only
@@ -885,10 +893,10 @@ int idamClient(REQUEST_BLOCK* request_block)
         //------------------------------------------------------------------------------
         // Fetch the data Block
 
-        protocol_id = PROTOCOL_DATA_BLOCK;
+        DATA_BLOCK_LIST recv_data_block_list;
 
-        if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                             data_block, protocolVersion)) != 0) {
+        if ((err = protocol2(clientInput, PROTOCOL_DATA_BLOCK_LIST, XDR_RECEIVE, nullptr, logmalloclist,
+                             userdefinedtypelist, &recv_data_block_list, protocolVersion)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Protocol 2 Error (Failure Receiving Data Block)\n");
 
             addIdamError(CODEERRORTYPE, __func__, err, "Protocol 2 Error (Failure Receiving Data Block)");
@@ -897,41 +905,58 @@ int idamClient(REQUEST_BLOCK* request_block)
 
         // Flush (mark as at EOF) the input socket buffer (All regular Data has been received)
 
-        printDataBlock(*data_block);
+        printDataBlockList(recv_data_block_list);
 
-        //------------------------------------------------------------------------------
-        // Fetch Hierarchical Data Structures
+        int recv_idx = 0;
+        for (int i = 0; i < request_block->num_requests; ++i) {
+            //------------------------------------------------------------------------------
+            // Allocate memory for the Data Block Structure
+            // Re-use existing stale Data Blocks
+            int data_block_idx = acc_getIdamNewDataHandle();
 
-        // manages it's own client/server conversation
-        // current buffer status
+            if (data_block_idx < 0) {            // Error
+                data_block_indices[i] = -data_block_idx;
+                continue;
+            }
 
-        // in protocolXML2 ...
-        // xdrrec_skiprecord        wait for new record
-        //                              xdr_int(xdrs, &packageType)
-        //                              xdrrec_endofrecord
-        // xdr_int(xdrs, &packageType)
+            DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
 
-        if (data_block->data_type == UDA_TYPE_COMPOUND &&
-            data_block->opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
-
-            if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT) {
-                protocol_id = PROTOCOL_META;
-            } else if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES ||
-                       data_block->opaque_type == UDA_OPAQUE_TYPE_XDRFILE ||
-                       data_block->opaque_type == UDA_OPAQUE_TYPE_XDROBJECT) {
-                protocol_id = PROTOCOL_STRUCTURES;
+            DATA_BLOCK* in_data;
+            if (request_block->requests[i].request == REQUEST_CACHED) {
+                in_data = &cached_data_block_list.data[i];
             } else {
-                protocol_id = PROTOCOL_EFIT;
+                in_data = &recv_data_block_list.data[recv_idx];
+                ++recv_idx;
             }
 
-            UDA_LOG(UDA_LOG_DEBUG, "Receiving Hierarchical Data Structure from Server\n");
+            copyDataBlock(data_block, &recv_data_block_list.data[i]);
+            copyClientBlock(&data_block->client_block);
 
-            if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                                 data_block, protocolVersion)) != 0) {
-                addIdamError(CODEERRORTYPE, __func__, err, "Client Side Protocol Error (Opaque Structure Type)");
-                break;
+            fetchHierarchicalData(data_block);
+
+            //------------------------------------------------------------------------------
+            // Cache the data if the server has passed permission and the application (client) has enabled caching
+            if (clientFlags & CLIENTFLAG_FILECACHE) {
+                udaFileCacheWrite(data_block, request_block, logmalloclist, userdefinedtypelist, protocolVersion);
             }
+
+#  ifndef NOLIBMEMCACHED
+#    ifdef CACHEDEV
+            if (cacheStatus == UDA_CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE
+            && data_block.cachePermission == UDA_PLUGIN_OK_TO_CACHE) {
+#    else
+            if (cacheStatus == UDA_CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE) {
+#    endif
+                udaCacheWrite(cache, request_block, data_block, logmalloclist, userdefinedtypelist, *environment,
+                              protocolVersion);
+            }
+#  endif // !NOLIBMEMCACHED
+
+            data_block_indices[i] = data_block_idx;
         }
+
+        data_received = true;
+        free(recv_data_block_list.data);
 
         UDA_LOG(UDA_LOG_DEBUG, "Hierarchical Structure Block Received\n");
 
@@ -940,54 +965,37 @@ int idamClient(REQUEST_BLOCK* request_block)
         //------------------------------------------------------------------------------
         // Fat Client Server
 
-        DATA_BLOCK data_block0;
-        initDataBlock(&data_block0);
-        err = fatServer(client_block, &server_block, request_block, &data_block0);
+        DATA_BLOCK_LIST data_block_list0;
+        initDataBlockList(&data_block_list0);
+        err = fatServer(client_block, &server_block, request_block, &data_block_list0);
 
-        data_block = getIdamDataBlock(data_block_idx); // data blocks may have been realloc'ed
-        *data_block = data_block0;
+        for (int i = 0; i < data_block_list0.count; ++i) {
+            DATA_BLOCK* data_block0 = &data_block_list0.data[i];
 
-        if (err != 0 || server_block.idamerrorstack.nerrors > 0) {
-            if (err == 0) {
-                err = SERVER_BLOCK_ERROR;
+            int data_block_idx = acc_getIdamNewDataHandle();
+            DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx); // data blocks may have been realloc'ed
+            copyDataBlock(data_block, data_block0);
+
+            if (err != 0 || server_block.idamerrorstack.nerrors > 0) {
+                if (err == 0) {
+                    err = SERVER_BLOCK_ERROR;
+                }
+
+                UDA_LOG(UDA_LOG_ERROR, "Error Returned from Data Server %d\n", err);
+                break;
             }
 
-            UDA_LOG(UDA_LOG_ERROR, "Error Returned from Data Server %d\n", err);
-            break;
+            // Decompresss Dimensional Data
+
+            for (int i = 0; i < (int)data_block->rank; i++) {            // Expand Compressed Regular Vector
+                err = uncompressDim(&(data_block->dims[i]));    // Allocate Heap as required
+                err = 0;                                        // Need to Test for Error Condition!
+            }
+
+            printDataBlock(*data_block);
         }
-
-        // Decompresss Dimensional Data
-
-        for (int i = 0; i < (int)data_block->rank; i++) {            // Expand Compressed Regular Vector
-            err = uncompressDim(&(data_block->dims[i]));    // Allocate Heap as required
-            err = 0;                                        // Need to Test for Error Condition!
-        }
-
-        printDataBlock(*data_block);
 
 #endif      // <========================== End of FatClient Code Only
-
-#ifndef FATCLIENT
-        //------------------------------------------------------------------------------
-        // Cache the data if the server has passed permission and the application (client) has enabled caching
-
-        if (clientFlags & CLIENTFLAG_FILECACHE) {
-            udaFileCacheWrite(data_block, request_block, logmalloclist, userdefinedtypelist, protocolVersion);
-        }
-
-#ifndef NOLIBMEMCACHED
-#ifdef CACHEDEV
-        if (cacheStatus == UDA_CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE
-            && data_block.cachePermission == UDA_PLUGIN_OK_TO_CACHE) {
-#else
-        if (cacheStatus == UDA_CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE) {
-#endif
-            udaCacheWrite(cache, request_block, data_block, logmalloclist, userdefinedtypelist, *environment,
-                          protocolVersion);
-        }
-#endif // !NOLIBMEMCACHED
-#endif // !FATCLIENT
-
         //------------------------------------------------------------------------------
         // End of Error Trap Loop
 
@@ -997,49 +1005,33 @@ int idamClient(REQUEST_BLOCK* request_block)
     //
     //  err == 0; newHandle = 0;   Cannot Happen: Close Server & Return an Error!
     //  err == 0; newHandle = 1;   Sleep Server & Return Handle
-    //  err != 0; newHandle = 0;   Close Server (unless it has occured server side) & Return -err
-    //  err != 0; newHandle = 1;   Close Server (unless it has occured server side) & Return Handle (Contains Error)
+    //  err != 0; newHandle = 0;   Close Server (unless it has occurred server side) & Return -err
+    //  err != 0; newHandle = 1;   Close Server (unless it has occurred server side) & Return Handle (Contains Error)
 
     UDA_LOG(UDA_LOG_DEBUG, "Error Code at end of Error Trap: %d\n", err);
-    UDA_LOG(UDA_LOG_DEBUG, "newHandle                      : %d\n", newHandle);
     UDA_LOG(UDA_LOG_DEBUG, "serverside                     : %d\n", serverside);
 
-    //------------------------------------------------------------------------------
-    // Server Sleeps: If error then assume Server has Closed Down
-
 #ifndef FATCLIENT   // <========================== Client Server Code Only
-
-    if (connectionOpen()) {
-        int next_protocol = PROTOCOL_CLOSEDOWN;       // Closedown (Die) is the default
-
-        if ((err == 0 && newHandle) || serverside) {
-            next_protocol = PROTOCOL_SLEEP;       // Sleep
-            time(&tv_server_start);           // Restart the Server Age Clock
-        }
-
-        UDA_LOG(UDA_LOG_DEBUG, "Sending Next Protocol %d\n", next_protocol);
-    }
 
     //------------------------------------------------------------------------------
     // Close all File Handles, Streams, sockets and Free Heap Memory
 
-    //rc = fflush(nullptr); // save anything ... the user might not follow correct procedure!
-
-    if (newHandle) {
-        UDA_LOG(UDA_LOG_DEBUG, "Handle %d\n", data_block_idx);
-
+    if (data_received) {
         if (err != 0 && !serverside) {
             closedown(ClosedownType::CLOSE_SOCKETS, nullptr);    // Close Socket & XDR Streams but Not Files
         }
 
-        if (err == 0 && (getIdamDataStatus(data_block_idx)) == MIN_STATUS && !get_bad) {
-            // If Data are not usable, flag the client
-            addIdamError(CODEERRORTYPE, __func__, DATA_STATUS_BAD, "Data Status is BAD ... Data are Not Usable!");
+        for (auto data_block_idx : data_block_indices) {
+            if (err == 0 && (getIdamDataStatus(data_block_idx)) == MIN_STATUS && !get_bad) {
+                // If Data are not usable, flag the client
+                addIdamError(CODEERRORTYPE, __func__, DATA_STATUS_BAD, "Data Status is BAD ... Data are Not Usable!");
 
-            if (data_block->errcode == 0) {
-                // Don't over-rule a server side error
-                data_block->errcode = DATA_STATUS_BAD;
-                strcpy(data_block->error_msg, "Data Status is BAD ... Data are Not Usable!");
+                DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
+                if (data_block->errcode == 0) {
+                    // Don't over-rule a server side error
+                    data_block->errcode = DATA_STATUS_BAD;
+                    strcpy(data_block->error_msg, "Data Status is BAD ... Data are Not Usable!");
+                }
             }
         }
 
@@ -1053,15 +1045,20 @@ int idamClient(REQUEST_BLOCK* request_block)
         //------------------------------------------------------------------------------
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
 
-        if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
-            data_block->errcode = getIdamServerErrorStackRecordCode(0);
-            strcpy(data_block->error_msg, getIdamServerErrorStackRecordMsg(0));
+        for (auto data_block_idx : data_block_indices) {
+            DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
+
+            if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
+                data_block->errcode = getIdamServerErrorStackRecordCode(0);
+                strcpy(data_block->error_msg, getIdamServerErrorStackRecordMsg(0));
+            }
         }
 
         //------------------------------------------------------------------------------
         // Normal Exit: Return to Client
 
-        return data_block_idx;
+        std::copy(data_block_indices.begin(), data_block_indices.end(), indices);
+        return 0;
 
         //------------------------------------------------------------------------------
         // Abnormal Exit: Return to Client
@@ -1100,27 +1097,32 @@ int idamClient(REQUEST_BLOCK* request_block)
 
     //rc = fflush(nullptr); // save anything ... the user might not follow correct procedure!
 
-    if (newHandle) {
-        UDA_LOG(UDA_LOG_DEBUG, "Handle %d\n", data_block_idx);
-
+    if (data_received) {
         if (err != 0) {
             closedown(ClosedownType::CLOSE_SOCKETS, &socket_list);
         }
 
-        if (err == 0 && (getIdamDataStatus(data_block_idx) == MIN_STATUS) && !get_bad) {
-            // If Data are not usable, flag the client
-            addIdamError(CODEERRORTYPE, __func__, DATA_STATUS_BAD, "Data Status is BAD ... Data are Not Usable!");
+        for (auto data_block_idx : data_block_indices) {
+            if (err == 0 && (getIdamDataStatus(data_block_idx) == MIN_STATUS) && !get_bad) {
+                // If Data are not usable, flag the client
+                addIdamError(CODEERRORTYPE, __func__, DATA_STATUS_BAD, "Data Status is BAD ... Data are Not Usable!");
 
-            if (data_block->errcode == 0) {
-                // Don't over-rule a server side error
-                data_block->errcode = DATA_STATUS_BAD;
-                strcpy(data_block->error_msg, "Data Status is BAD ... Data are Not Usable!");
+                DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
+                if (data_block->errcode == 0) {
+                    // Don't over-rule a server side error
+                    data_block->errcode = DATA_STATUS_BAD;
+                    strcpy(data_block->error_msg, "Data Status is BAD ... Data are Not Usable!");
+                }
             }
         }
 
-        if (err != 0 && data_block->errcode == 0) {
-            addIdamError(CODEERRORTYPE, __func__, err, "Unknown Error");
-            data_block->errcode = err;
+        for (auto data_block_idx : data_block_indices) {
+            DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
+
+            if (err != 0 && data_block->errcode == 0) {
+                addIdamError(CODEERRORTYPE, __func__, err, "Unknown Error");
+                data_block->errcode = err;
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -1134,15 +1136,20 @@ int idamClient(REQUEST_BLOCK* request_block)
         //------------------------------------------------------------------------------
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
 
-        if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
-            data_block->errcode = getIdamServerErrorStackRecordCode(0);
-            strcpy(data_block->error_msg, getIdamServerErrorStackRecordMsg(0));
+        for (auto data_block_idx : data_block_indices) {
+            DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
+
+            if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
+                data_block->errcode = getIdamServerErrorStackRecordCode(0);
+                strcpy(data_block->error_msg, getIdamServerErrorStackRecordMsg(0));
+            }
         }
 
         //------------------------------------------------------------------------------
         // Normal Exit: Return to Client
 
-        return data_block_idx;
+        std::copy(data_block_indices.begin(), data_block_indices.end(), indices);
+        return 0;
 
         //------------------------------------------------------------------------------
         // Abnormal Exit: Return to Client

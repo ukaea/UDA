@@ -3268,8 +3268,11 @@ void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectS
 
     USERDEFINEDTYPELIST* userdefinedtypelist = getIdamUserDefinedTypeList(handle);
     LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
-    protocol2(&xdrs, PROTOCOL_DATA_BLOCK, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
-              (void*)getIdamDataBlock(handle), protocolVersion);
+    DATA_BLOCK_LIST data_block_list;
+    data_block_list.count = 1;
+    data_block_list.data = getIdamDataBlock(handle);
+    protocol2(&xdrs, PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
+              &data_block_list, protocolVersion);
 
 #ifdef _WIN32
     fflush(memfile);

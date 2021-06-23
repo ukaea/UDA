@@ -412,7 +412,7 @@ void printUserDefinedType(USERDEFINEDTYPE str)
     UDA_LOG(UDA_LOG_DEBUG, "source      : %s\n", str.source);
     UDA_LOG(UDA_LOG_DEBUG, "ID Reference: %d\n", str.ref_id);
     UDA_LOG(UDA_LOG_DEBUG, "size        : %d\n", str.size);
-    UDA_LOG(UDA_LOG_DEBUG, "fieldcount  : %d\n\n", str.fieldcount);
+    UDA_LOG(UDA_LOG_DEBUG, "fieldcount  : %d\n", str.fieldcount);
 
     printImage(str.image, str.imagecount);
     UDA_LOG(UDA_LOG_DEBUG, "\n");
@@ -490,7 +490,7 @@ void printUserDefinedTypeList(USERDEFINEDTYPELIST str)
     for (int i = 0; i < str.listCount; i++) {
         printUserDefinedType(str.userdefinedtype[i]);
     }
-    UDA_LOG(UDA_LOG_DEBUG, "\n\n");
+    UDA_LOG(UDA_LOG_DEBUG, "\n");
 }
 
 /** Print the Tabulated Contents of a USERDEFINEDTYPELIST data structure.

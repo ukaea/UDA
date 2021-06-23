@@ -44,30 +44,19 @@
 #include "errorLog.h"
 
 static int handle_request_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
-
 static int handle_data_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
-
+static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int protocolVersion);
 static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                                      USERDEFINEDTYPELIST* userdefinedtypelist, const void* str, int protocolVersion);
-
 static int handle_next_protocol(XDR* xdrs, int direction, int* token);
-
 static int handle_data_system(XDR* xdrs, int direction, const void* str);
-
 static int handle_system_config(XDR* xdrs, int direction, const void* str);
-
 static int handle_data_source(XDR* xdrs, int direction, const void* str);
-
 static int handle_signal(XDR* xdrs, int direction, const void* str);
-
 static int handle_signal_desc(XDR* xdrs, int direction, const void* str);
-
 static int handle_client_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
-
 static int handle_server_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
-
 static int handle_dataobject(XDR* xdrs, int direction, const void* str);
-
 static int handle_dataobject_file(int direction, const void* str);
 
 #ifdef SECURITYENABLED
@@ -83,8 +72,8 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
         case PROTOCOL_REQUEST_BLOCK:
             err = handle_request_block(xdrs, direction, str, protocolVersion);
             break;
-        case PROTOCOL_DATA_BLOCK:
-            err = handle_data_block(xdrs, direction, str, protocolVersion);
+        case PROTOCOL_DATA_BLOCK_LIST:
+            err = handle_data_block_list(xdrs, direction, str, protocolVersion);
             break;
         case PROTOCOL_PUTDATA_BLOCK_LIST:
             err = handle_putdata_block_list(xdrs, direction, token, logmalloclist, userdefinedtypelist, str, protocolVersion);
@@ -695,7 +684,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
     auto data_block = (DATA_BLOCK*)str;
 
     switch (direction) {
-        case XDR_RECEIVE:
+        case XDR_RECEIVE: {
             if (!xdr_data_block1(xdrs, data_block, protocolVersion)) {
                 err = PROTOCOL_ERROR_61;
                 break;
@@ -782,10 +771,10 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                 }
 
             }
-
             break;
+        }
 
-        case XDR_SEND:
+        case XDR_SEND: {
 
             // Check client/server understands new data types
 
@@ -870,6 +859,59 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                 }
             }
             break;
+        }
+
+        case XDR_FREE_HEAP:
+            break;
+
+        default:
+            err = PROTOCOL_ERROR_4;
+            break;
+    }
+
+    return err;
+}
+
+static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int protocolVersion)
+{
+    int err = 0;
+    auto data_block_list = (DATA_BLOCK_LIST*)str;
+
+    switch (direction) {
+        case XDR_RECEIVE:
+            if (!xdr_data_block_list(xdrs, data_block_list, protocolVersion)) {
+                err = PROTOCOL_ERROR_1;
+                break;
+            }
+            data_block_list->data = (DATA_BLOCK*)malloc(data_block_list->count * sizeof(DATA_BLOCK));
+            for (int i = 0; i < data_block_list->count; ++i) {
+                DATA_BLOCK* data_block = &data_block_list->data[i];
+                initDataBlock(data_block);
+                err = handle_data_block(xdrs, XDR_RECEIVE, data_block, protocolVersion);
+                if (err != 0) {
+                    err = PROTOCOL_ERROR_2;
+                    break;
+                }
+            }
+            if (err) break;
+            break;
+
+        case XDR_SEND: {
+            if (!xdr_data_block_list(xdrs, data_block_list, protocolVersion)) {
+                err = PROTOCOL_ERROR_2;
+                break;
+            }
+            for (int i = 0; i < data_block_list->count; ++i) {
+                DATA_BLOCK* data_block = &data_block_list->data[i];
+                int rc = handle_data_block(xdrs, XDR_SEND, data_block, protocolVersion);
+                if (rc != 0) {
+                    err = PROTOCOL_ERROR_2;
+                    break;
+                }
+            }
+            if (err) break;
+            break;
+        }
 
         case XDR_FREE_HEAP:
             break;
@@ -892,17 +934,15 @@ static int handle_request_block(XDR* xdrs, int direction, const void* str, int p
                 err = PROTOCOL_ERROR_1;
                 break;
             }
-            if (protocolVersion >= 8) {
-                request_block->requests = (REQUEST_DATA*)malloc(request_block->num_requests * sizeof(REQUEST_DATA));
-                for (int i = 0; i < request_block->num_requests; ++i) {
-                    initRequestData(&request_block->requests[i]);
-                    if (!xdr_request_data(xdrs, &request_block->requests[i], protocolVersion)) {
-                        err = PROTOCOL_ERROR_2;
-                        break;
-                    }
+            request_block->requests = (REQUEST_DATA*)malloc(request_block->num_requests * sizeof(REQUEST_DATA));
+            for (int i = 0; i < request_block->num_requests; ++i) {
+                initRequestData(&request_block->requests[i]);
+                if (!xdr_request_data(xdrs, &request_block->requests[i], protocolVersion)) {
+                    err = PROTOCOL_ERROR_2;
+                    break;
                 }
-                if (err) break;
             }
+            if (err) break;
             break;
 
         case XDR_SEND:
@@ -910,15 +950,13 @@ static int handle_request_block(XDR* xdrs, int direction, const void* str, int p
                 err = PROTOCOL_ERROR_2;
                 break;
             }
-            if (protocolVersion >= 8) {
-                for (int i = 0; i < request_block->num_requests; ++i) {
-                    if (!xdr_request_data(xdrs, &request_block->requests[i], protocolVersion)) {
-                        err = PROTOCOL_ERROR_2;
-                        break;
-                    }
+            for (int i = 0; i < request_block->num_requests; ++i) {
+                if (!xdr_request_data(xdrs, &request_block->requests[i], protocolVersion)) {
+                    err = PROTOCOL_ERROR_2;
+                    break;
                 }
-                if (err) break;
             }
+            if (err) break;
             break;
 
         case XDR_FREE_HEAP:

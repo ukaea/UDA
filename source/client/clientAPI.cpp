@@ -77,8 +77,13 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
 
     //-------------------------------------------------------------------------
     // Fetch Data
+    int handle;
+    err = idamClient(&request_block, &handle);
+    if (err < 0) {
+        handle = err;
+    }
 
-    return idamClient(&request_block);
+    return handle;
 }
 
 /*---------------------------------------------------------------
@@ -136,9 +141,6 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
 
     //-------------------------------------------------------------------------
 
-    UDA_LOG(UDA_LOG_DEBUG, "Routine: ClientFileAPI\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Routine: ClientFileAPI\n");
-
     UDA_LOG(UDA_LOG_DEBUG, "Number of Requests: %d\n", request_block.num_requests);
     for (int i = 0; i < request_block.num_requests; ++i) {
         auto req = &request_block.requests[i];
@@ -149,6 +151,11 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
 
     //-------------------------------------------------------------------------
     // Fetch Data
+    int handle;
+    err = idamClient(&request_block, &handle);
+    if (err < 0) {
+        handle = err;
+    }
 
-    return idamClient(&request_block);
+    return handle;
 }

@@ -100,9 +100,13 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
     request_block.requests[0].put = 1; // flags the direction of data (0 is default => get operation)
     request_block.requests[0].putDataBlockList = *putDataBlockList;
 
-    err = idamClient(&request_block);
+    int handle;
+    err = idamClient(&request_block, &handle);
+    if (err < 0) {
+        handle = err;
+    }
 
-    return err;
+    return handle;
 
 }
 
@@ -174,14 +178,19 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     request_block.requests[0].put = 1; // flags the direction of data (0 is default => get operation)
 
     addIdamPutDataBlockList(putData, &request_block.requests[0].putDataBlockList);
-    err = idamClient(&request_block);
+
+    int handle;
+    err = idamClient(&request_block, &handle);
+    if (err < 0) {
+        handle = err;
+    }
 
     //-------------------------------------------------------------------------
     // Free Heap
 
     freeClientPutDataBlockList(&request_block.requests[0].putDataBlockList);
 
-    return err;
+    return handle;
 
 }
 

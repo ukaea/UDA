@@ -14,6 +14,7 @@ LIBRARY_API void initRequestBlock(REQUEST_BLOCK* str);
 LIBRARY_API void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname);
 LIBRARY_API void initServerBlock(SERVER_BLOCK* str, int version);
 LIBRARY_API void initDataBlock(DATA_BLOCK* str);
+LIBRARY_API void initDataBlockList(DATA_BLOCK_LIST* str);
 LIBRARY_API void initDimBlock(DIMS* str);
 LIBRARY_API void initDataSystem(DATA_SYSTEM* str);
 LIBRARY_API void initSystemConfig(SYSTEM_CONFIG* str);

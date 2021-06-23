@@ -15,7 +15,7 @@ extern "C" {
 
 #define PROTOCOL_REGULAR_START      0       // Identifies Regular Data Protocol Group
 #define PROTOCOL_REQUEST_BLOCK      1
-#define PROTOCOL_DATA_BLOCK         2
+#define PROTOCOL_DATA_BLOCK_LIST    2
 #define PROTOCOL_NEXT_PROTOCOL      3
 #define PROTOCOL_DATA_SYSTEM        4
 #define PROTOCOL_SYSTEM_CONFIG      5

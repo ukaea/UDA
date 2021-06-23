@@ -561,7 +561,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             //----------------------------------------------------------------------------
             // Send the Data
 
-            if (next_protocol != PROTOCOL_DATA_BLOCK) {
+            if (next_protocol != PROTOCOL_DATA_BLOCK_LIST) {
                 err = 997;
                 addIdamError(CODEERRORTYPE, __func__, err, "Protocol 3 Error: Incorrect Request");
                 break;
@@ -570,7 +570,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             printDataBlock(data_block);
             UDA_LOG(UDA_LOG_DEBUG, "Sending Data Block Structure to Client\n");
 
-            protocol_id = PROTOCOL_DATA_BLOCK;
+            protocol_id = PROTOCOL_DATA_BLOCK_LIST;
 
             if ((err = protocol(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                                 &data_block, protocolVersion)) != 0) {

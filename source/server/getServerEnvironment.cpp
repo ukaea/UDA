@@ -18,7 +18,7 @@ static ENVIRONMENT g_environ;
 
 void printServerEnvironment(const ENVIRONMENT* environment)
 {
-    UDA_LOG(UDA_LOG_INFO, "\nServer Environment Variable values\n\n");
+    UDA_LOG(UDA_LOG_INFO, "Server Environment Variable values\n");
     UDA_LOG(UDA_LOG_INFO, "Log Location    : %s\n", environment->logdir);
     UDA_LOG(UDA_LOG_INFO, "Log Write Mode  : %s\n", environment->logmode);
     UDA_LOG(UDA_LOG_INFO, "Log Level       : %d\n", environment->loglevel);

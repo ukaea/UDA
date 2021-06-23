@@ -178,6 +178,16 @@ void freeDataBlock(DATA_BLOCK* data_block)
     UDA_LOG(UDA_LOG_DEBUG, "Exit\n");
 }
 
+void freeDataBlockList(DATA_BLOCK_LIST* data_block_list)
+{
+    for (int i = 0; i < data_block_list->count; ++i) {
+        freeDataBlock(&data_block_list->data[i]);
+    }
+    free(data_block_list->data);
+    data_block_list->count = 0;
+    data_block_list->data = nullptr;
+}
+
 // Free Heap Memory & Zero all Integer values
 void freeReducedDataBlock(DATA_BLOCK* data_block)
 {

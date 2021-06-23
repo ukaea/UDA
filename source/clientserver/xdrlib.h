@@ -43,6 +43,7 @@ LIBRARY_API bool_t xdr_request_data(XDR* xdrs, REQUEST_DATA* str, int protocolVe
 LIBRARY_API bool_t xdr_putdatablocklist_block(XDR* xdrs, PUTDATA_BLOCK_LIST* str);
 LIBRARY_API bool_t xdr_putdata_block1(XDR* xdrs, PUTDATA_BLOCK* str);
 LIBRARY_API bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str);
+LIBRARY_API bool_t xdr_data_block_list(XDR* xdrs, DATA_BLOCK_LIST* str, int protocolVersion);
 LIBRARY_API bool_t xdr_data_block1(XDR* xdrs, DATA_BLOCK* str, int protocolVersion);
 LIBRARY_API bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str);
 LIBRARY_API bool_t xdr_data_block3(XDR* xdrs, DATA_BLOCK* str);

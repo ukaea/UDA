@@ -42,18 +42,6 @@
 int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
              USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion)
 {
-    DATA_BLOCK* data_block;
-    DIMS* dim;
-    DATA_SYSTEM* data_system;
-    SYSTEM_CONFIG* system_config;
-    DATA_SOURCE* data_source;
-    SIGNAL* signal;
-    SIGNAL_DESC* signal_desc;
-
-    REQUEST_BLOCK* request_block;
-    CLIENT_BLOCK* client_block;
-    SERVER_BLOCK* server_block;
-
     int err = 0;
 
     UDA_LOG(UDA_LOG_DEBUG, "\nPROTOCOL: protocolVersion = %d\n\n", protocolVersion);
@@ -68,7 +56,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
         if (protocol_id == PROTOCOL_REQUEST_BLOCK) {
 
-            request_block = (REQUEST_BLOCK*) str;
+            auto request_block = (REQUEST_BLOCK*) str;
 
             switch (direction) {
                 case XDR_RECEIVE:
@@ -111,9 +99,9 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         //----------------------------------------------------------------------------
         // Data Block
 
-        if (protocol_id == PROTOCOL_DATA_BLOCK) {
+        if (protocol_id == PROTOCOL_DATA_BLOCK_LIST) {
 
-            data_block = (DATA_BLOCK*) str;
+            auto data_block = (DATA_BLOCK*)str;
 
             switch (direction) {
                 case XDR_RECEIVE:
@@ -170,7 +158,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                         if (protocolVersion < 3) {
                             for (unsigned int i = 0; i < data_block->rank; i++) {
-                                dim = &data_block->dims[i];
+                                auto dim = &data_block->dims[i];
                                 if (protocolVersionTypeTest(protocolVersion, dim->data_type) ||
                                     protocolVersionTypeTest(protocolVersion, dim->error_type)) {
                                     err = PROTOCOL_ERROR_9999;
@@ -252,7 +240,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                         if (protocolVersion < 3) {
                             for (unsigned int i = 0; i < data_block->rank; i++) {
-                                dim = &data_block->dims[i];
+                                auto dim = &data_block->dims[i];
                                 if (protocolVersionTypeTest(protocolVersion, dim->data_type) ||
                                     protocolVersionTypeTest(protocolVersion, dim->error_type)) {
                                     err = PROTOCOL_ERROR_9999;
@@ -306,7 +294,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
         if (protocol_id == PROTOCOL_PUTDATA_BLOCK_LIST) {
 
-            PUTDATA_BLOCK_LIST* putDataBlockList = (PUTDATA_BLOCK_LIST*) str;
+            auto putDataBlockList = (PUTDATA_BLOCK_LIST*) str;
             PUTDATA_BLOCK putData;
 
             switch (direction) {
@@ -457,7 +445,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         // Data System record
 
         if (protocol_id == PROTOCOL_DATA_SYSTEM) {
-            data_system = (DATA_SYSTEM*) str;
+            auto data_system = (DATA_SYSTEM*) str;
 
             switch (direction) {
                 case XDR_RECEIVE:                    // From Client to Server
@@ -503,7 +491,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
         if (protocol_id == PROTOCOL_SYSTEM_CONFIG) {
 
-            system_config = (SYSTEM_CONFIG*) str;
+            auto system_config = (SYSTEM_CONFIG*) str;
 
             switch (direction) {
                 case XDR_RECEIVE:
@@ -551,7 +539,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
         if (protocol_id == PROTOCOL_DATA_SOURCE) {
 
-            data_source = (DATA_SOURCE*) str;
+            auto data_source = (DATA_SOURCE*) str;
 
             switch (direction) {
                 case XDR_RECEIVE:
@@ -598,7 +586,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
         if (protocol_id == PROTOCOL_SIGNAL) {
 
-            signal = (SIGNAL*) str;
+            auto signal = (SIGNAL*) str;
 
             switch (direction) {
 
@@ -646,7 +634,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
         if (protocol_id == PROTOCOL_SIGNAL_DESC) {
 
-            signal_desc = (SIGNAL_DESC*) str;
+            auto signal_desc = (SIGNAL_DESC*) str;
 
             switch (direction) {
 
@@ -695,7 +683,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
         if (protocol_id == PROTOCOL_CLIENT_BLOCK) {
 
-            client_block = (CLIENT_BLOCK*) str;
+            auto client_block = (CLIENT_BLOCK*) str;
 
             switch (direction) {
 
@@ -745,7 +733,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
         if (protocol_id == PROTOCOL_SERVER_BLOCK) {
 
-            server_block = (SERVER_BLOCK*) str;
+            auto server_block = (SERVER_BLOCK*) str;
 
             switch (direction) {
 

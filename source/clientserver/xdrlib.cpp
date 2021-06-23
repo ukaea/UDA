@@ -325,13 +325,25 @@ bool_t xdr_request(XDR* xdrs, REQUEST_BLOCK* str, int protocolVersion)
 
     if (protocolVersion <= 7) {
         str->num_requests = 1;
-        str->requests = (REQUEST_DATA*)malloc(sizeof(REQUEST_DATA));
-        rc = rc && xdr_request_data(xdrs, &str->requests[0], protocolVersion);
     } else {
         rc = rc && xdr_int(xdrs, &str->num_requests);
-        UDA_LOG(UDA_LOG_DEBUG, "number of requests: %d\n", str->num_requests);
     }
 
+    UDA_LOG(UDA_LOG_DEBUG, "number of requests: %d\n", str->num_requests);
+    return rc;
+}
+
+bool_t xdr_data_block_list(XDR* xdrs, DATA_BLOCK_LIST* str, int protocolVersion)
+{
+    int rc = 1;
+
+    if (protocolVersion <= 7) {
+        str->count = 1;
+    } else {
+        rc = rc && xdr_int(xdrs, &str->count);
+    }
+
+    UDA_LOG(UDA_LOG_DEBUG, "number of data blocks: %d\n", str->count);
     return rc;
 }
 

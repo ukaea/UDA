@@ -108,6 +108,12 @@ void initServerBlock(SERVER_BLOCK* str, int version)
 #endif
 }
 
+void initDataBlockList(DATA_BLOCK_LIST* str)
+{
+    str->count = 0;
+    str->data = nullptr;
+}
+
 void initDataBlock(DATA_BLOCK* str)
 {
     str->handle = 0;
