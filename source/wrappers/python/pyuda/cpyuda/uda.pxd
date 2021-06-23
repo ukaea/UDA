@@ -6,6 +6,7 @@ cdef extern from "client/udaClient.h":
 
 cdef extern from "client/udaGetAPI.h":
     int idamGetAPI(const char* data_object, const char* data_source);
+    int idamGetBatchAPI(const char** signals, const char** sources, int count, int* handles);
 
 cdef extern from "structures/genStructs.h":
     ctypedef struct NTREE:                  # N-ary Tree linking all related user defined data structures: definitions and data

@@ -97,6 +97,42 @@ def get_data(signal, source):
     return Result(handle)
 
 
+def get_data_batch(signals, sources):
+    assert len(signals) == len(sources)
+    cdef const char** signals_array = <const char**>malloc(len(signals) * sizeof(char*))
+    cdef const char** sources_array = <const char**>malloc(len(sources) * sizeof(char*))
+    cdef int* handles = <int*>malloc(len(signals) * sizeof(int))
+    signal_bytes = []
+    source_bytes = []
+    try:
+        for i, signal in enumerate(signals):
+            bytes = signal.encode()
+            signal_bytes.append(bytes)
+            signals_array[i] = bytes
+        for i, source in enumerate(sources):
+            bytes = source.encode()
+            source_bytes.append(bytes)
+            sources_array[i] = bytes
+        rc = uda.idamGetBatchAPI(signals_array, sources_array, len(signals), handles)
+        if rc < 0:
+            err_msg = uda.getIdamErrorMsg(rc)
+            err_code = uda.getIdamErrorCode(rc)
+            if err_msg == NULL or string.strlen(err_msg) == 0:
+                raise UDAException("unknown error occured")
+            elif err_code < 0:
+                raise ClientException(err_msg.decode())
+            else:
+                raise ServerException(err_msg.decode())
+        results = []
+        for i in range(len(signals)):
+            results.append(Result(handles[i]))
+        return results
+    finally:
+        free(signals_array)
+        free(sources_array)
+        free(handles)
+
+
 cdef put_nothing(const char* instruction):
     cdef int handle = uda.idamPutAPI(instruction, NULL)
     return Result(handle)

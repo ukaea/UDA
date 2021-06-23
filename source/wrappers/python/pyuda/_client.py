@@ -11,6 +11,7 @@ from ._version import __version__
 from six import with_metaclass
 import logging
 from collections import namedtuple
+from collections.abc import Iterable
 import sys
 try:
     from enum import Enum
@@ -111,17 +112,8 @@ class Client(with_metaclass(ClientMeta, object)):
             result_str = result.data().tobytes().decode('utf-8')
         return result_str
 
-    def get(self, signal, source, time_first=False, time_last=False, **kwargs):
-        """
-        IDAM get data method.
-
-        :param signal: the name of the signal to get
-        :param source: the source of the signal
-        :param kwargs: additional optional keywords for geometry data
-        :return: a subclass of pyuda.Data
-        """
-        # Standard signal
-        result = cpyuda.get_data(str(signal), str(source))
+    @classmethod
+    def _unpack(cls, result, time_first, time_last):
         if result.error_code() != 0:
             if result.error_message():
                 raise cpyuda.ServerException(result.error_message().decode())
@@ -145,6 +137,32 @@ class Client(with_metaclass(ClientMeta, object)):
             signal.set_time_last()
 
         return signal
+
+    def get_batch(self, signals, sources, time_first=False, time_last=False, **kwargs):
+        if not isinstance(signals, Iterable) or isinstance(signals, str):
+            raise ValueError("first argument must be a non-string iterable collection")
+        if isinstance(sources, str):
+            sources = [sources] * len(signals)
+        if len(signals) != len(sources):
+            raise ValueError("arguments must have the same number of elements")
+        results = cpyuda.get_data_batch(signals, sources)
+        signals = []
+        for result in results:
+            signals.append(self._unpack(result, time_first, time_last))
+        return signals
+
+    def get(self, signal, source, time_first=False, time_last=False, **kwargs):
+        """
+        IDAM get data method.
+
+        :param signal: the name of the signal to get
+        :param source: the source of the signal
+        :param kwargs: additional optional keywords for geometry data
+        :return: a subclass of pyuda.Data
+        """
+        # Standard signal
+        result = cpyuda.get_data(str(signal), str(source))
+        return self._unpack(result, time_first, time_last)
 
     def __getattr__(self, item):
         if item in self._registered_subclients:
