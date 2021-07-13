@@ -26,6 +26,7 @@
 
 #include "closedown.h"
 #include "accAPI.h"
+#include <vector>
 
 #ifdef FATCLIENT
 #  include <clientserver/compressDim.h>
@@ -37,8 +38,6 @@
 #    include <cache/memcache.h>
 #    include <cache/fileCache.h>
 #include <cassert>
-#include <vector>
-
 #  endif
 #  ifdef SSLAUTHENTICATION
 #    include <authentication/udaClientSSL.h>
@@ -364,10 +363,10 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
     int err;
 
-    bool allocMetaHeap = false;
     int serverside = 0;
 
 #ifndef FATCLIENT
+   bool allocMetaHeap = false;
 #  ifndef SECURITYENABLED
     static int startupStates;
 #  endif // !SECURITYENABLED
@@ -879,13 +878,17 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         //------------------------------------------------------------------------------
         // Return Database Meta Data if User Requests it
 
-        allocMetaHeap = 0;
+#ifndef FATCLIENT // <========================== Client Server Code Only
+    	allocMetaHeap = false;
+#endif // <===== End of Client Server Only Code
 
         if (client_block.get_meta) {
             if ((err = fetchMeta(data_system, system_config, data_source, signal_rec, signal_desc)) != 0) {
                 break;
             }
+#ifndef FATCLIENT // <========================== Client Server Code Only
             allocMetaHeap = true;
+#endif // <===== End of Client Server Only Code
         }
 
 #ifndef FATCLIENT   // <========================== Client Server Code Only
@@ -907,7 +910,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         printDataBlockList(recv_data_block_list);
 
-        int recv_idx = 0;
+//        int recv_idx = 0;
         for (int i = 0; i < request_block->num_requests; ++i) {
             //------------------------------------------------------------------------------
             // Allocate memory for the Data Block Structure
@@ -921,13 +924,13 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
             DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
 
-            DATA_BLOCK* in_data;
-            if (request_block->requests[i].request == REQUEST_CACHED) {
-                in_data = &cached_data_block_list.data[i];
-            } else {
-                in_data = &recv_data_block_list.data[recv_idx];
-                ++recv_idx;
-            }
+ //           DATA_BLOCK* in_data;
+ //           if (request_block->requests[i].request == REQUEST_CACHED) {
+ //               in_data = &cached_data_block_list.data[i];
+ //           } else {
+ //               in_data = &recv_data_block_list.data[recv_idx];
+ //               ++recv_idx;
+ //           }
 
             copyDataBlock(data_block, &recv_data_block_list.data[i]);
             copyClientBlock(&data_block->client_block);

@@ -3,7 +3,6 @@
 
 // TODO: remove this and the XDR globals
 #include <rpc/rpc.h>
-#include <vector>
 
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
