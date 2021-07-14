@@ -141,8 +141,12 @@ class Client(with_metaclass(ClientMeta, object)):
     def get_batch(self, signals, sources, time_first=False, time_last=False, **kwargs):
         if not isinstance(signals, Iterable) or isinstance(signals, str):
             raise ValueError("first argument must be a non-string iterable collection")
-        if isinstance(sources, str):
+        if isinstance(sources, int):
+            sources = [str(sources)] * len(signals)
+        elif isinstance(sources, str):
             sources = [sources] * len(signals)
+        else:
+            sources = [str(s) for s in sources]
         if len(signals) != len(sources):
             raise ValueError("arguments must have the same number of elements")
         results = cpyuda.get_data_batch(signals, sources)
