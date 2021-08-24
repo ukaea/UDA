@@ -5,8 +5,6 @@ from ._data import Data
 import json
 import numpy as np
 import base64
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
 
 class VideoEncoder(json.JSONEncoder):
@@ -63,6 +61,8 @@ class Video(Data):
             self.frames = [Frame(self, frames)]
 
     def plot(self):
+        import matplotlib.pyplot as plt
+        import matplotlib.animation as animation
         fig = plt.figure()
 
         ims = []

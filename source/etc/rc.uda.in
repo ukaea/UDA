@@ -17,7 +17,7 @@ SCRIPT=$TARGET
 HERE=$DIR
 PID=$HERE/xinetd.$HOST.pid
 LOG=$HERE/mylog.$HOST
-XINETD=/usr/local/sbin/xinetd
+XINETD=@XINETD_EXE@
 
 if [ -z "$XINETD" ] ; then
     echo "xinetd not found"

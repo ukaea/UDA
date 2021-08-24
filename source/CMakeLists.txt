@@ -52,6 +52,8 @@ else()
 endif()
 string( STRIP ${ENV_PATH} ENV_PATH )
 
+find_program( PYTHON_EXE NAMES python python3 PATHS /usr/bin/ )
+
 configure_file(
   ${CMAKE_SOURCE_DIR}/source/bin/install_plugin.in
   ${CMAKE_BINARY_DIR}/bin/install_plugin
@@ -79,3 +81,17 @@ foreach( PKGCONFIG_FILE ${PKGCONFIG_FILES} )
     @ONLY
   )
 endforeach()
+
+find_program( XINETD_EXE xinetd PATHS /usr/sbin/ /usr/local/sbin/ )
+
+configure_file(
+ ${CMAKE_SOURCE_DIR}/source/etc/rc.uda.in
+ ${CMAKE_BINARY_DIR}/etc/rc.uda
+ @ONLY
+)
+
+install(
+  FILES ${CMAKE_BINARY_DIR}/etc/rc.uda
+  DESTINATION etc
+  PERMISSIONS OWNER_EXECUTE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
+)

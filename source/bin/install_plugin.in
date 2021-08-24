@@ -1,4 +1,4 @@
-#!@ENV_PATH@ python
+#!@PYTHON_EXE@
 
 from __future__ import print_function
 
@@ -73,10 +73,13 @@ def main(args):
             plugins = parse(lines)
             if not plugin_name in plugins:
                 raise SystemExit('plugin %s not found in %s' % (args.plugin, plugin_conf))
+            extra_names = [name for name in plugins if name is not plugin_name]
             plugin = plugins[plugin_name]
         installed_plugins[plugin_name] = plugin
+        for name in extra_names:
+            installed_plugins[name] = plugins[name]
         write(plugins_conf, installed_plugins)
-            
+
 
 if __name__ == '__main__':
     import sys
