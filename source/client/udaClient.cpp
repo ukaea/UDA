@@ -34,11 +34,9 @@
 #else
 #  include "clientXDRStream.h"
 #  include <clientserver/xdrlib.h>
-#  ifndef NOLIBMEMCACHED
-#    include <cache/memcache.h>
-#    include <cache/fileCache.h>
+#include <cache/memcache.h>
+#include <cache/fileCache.h>
 #include <cassert>
-#  endif
 #  ifdef SSLAUTHENTICATION
 #    include <authentication/udaClientSSL.h>
 #  endif
@@ -141,7 +139,7 @@ void updateClientBlock(CLIENT_BLOCK* str)
 
     str->privateFlags = privateFlags;
 }
-
+#  ifndef NOLIBMEMCACHED
 /**
  * Check the local cache for the data (GET methods only - Note: some GET methods may disguise PUT methods!)
  *
@@ -175,7 +173,6 @@ int check_file_cache(const REQUEST_DATA* request_data, DATA_BLOCK** p_data_block
 
     return -1;
 }
-
 int check_mem_cache(REQUEST_DATA* request_data, unsigned int cacheStatus, DATA_BLOCK** p_data_block,
                     LOGMALLOCLIST* log_malloc_list, USERDEFINEDTYPELIST* user_defined_type_list)
 {
@@ -220,7 +217,7 @@ int check_mem_cache(REQUEST_DATA* request_data, unsigned int cacheStatus, DATA_B
 
     return -1;
 }
-
+#endif
 void copyDataBlock(DATA_BLOCK* str, DATA_BLOCK* in)
 {
     *str = *in;
@@ -436,22 +433,19 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 #  ifndef NOLIBMEMCACHED
         static UDA_CACHE* cache;
         static unsigned int cacheStatus = UDA_CACHE_NOT_OPENED;
-#  endif // !NOLIBMEMCACHED
 
         int num_cached = 0;
-
+#endif
         for (int i = 0; i < request_block->num_requests; ++i) {
-            auto request = &request_block->requests[i];
+            #  ifndef NOLIBMEMCACHED
+	    auto request = &request_block->requests[i];
             DATA_BLOCK* data_block = &cached_data_block_list.data[i];
-
             int rc = check_file_cache(request, &data_block, logmalloclist, userdefinedtypelist);
             if (rc >= 0) {
                 request_block->requests[i].request = REQUEST_CACHED;
                 ++num_cached;
                 continue;
             }
-
-#  ifndef NOLIBMEMCACHED
             rc = check_mem_cache(request, cacheStatus, &data_block, logmalloclist, userdefinedtypelist);
             if (rc >= 0) {
                 request_block->requests[i].request = REQUEST_CACHED;

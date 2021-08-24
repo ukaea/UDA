@@ -22,6 +22,12 @@ endif()
 add_definitions( -DNOTGENERICENABLED )
 add_definitions( -DNO_GSL_LIB )
 
+if( LIBMEMCACHED_FOUND )
+  set( EXTRA_LD_LIBRARY_PATHS "${EXTRA_LD_LIBRARY_PATHS};${LIBMEMCACHED_LIB_DIR}" CACHE INTERNAL "" )
+else()
+  add_definitions( -DNOLIBMEMCACHED )
+endif()
+
 ########################################################################################################################
 # Sources
 
