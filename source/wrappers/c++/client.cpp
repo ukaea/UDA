@@ -207,7 +207,7 @@ uda::ResultList uda::Client::get_batch(const std::vector<std::pair<std::string, 
 
 uda::ResultList::ResultList(std::unordered_map<int, size_t> indices, Client& client)
     : indices_{std::move(indices)}
-    , client_{client}
+  , client_(client)
 {
 }
 
