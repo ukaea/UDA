@@ -158,9 +158,9 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data
     //----------------------------------------------------------------------
     // Housekeeping
 
-    if (err != 0) {
-        freeDataBlock(data_block);
-    }
+//    if (err != 0) {
+//        freeDataBlock(data_block);
+//    }
 
     fclose(fh); // Close the File
 
