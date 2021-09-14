@@ -235,14 +235,14 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
 #ifdef JETSERVER
                 if (rc < 0) {
-                    strcpy(request_block->format, "PPF");       // Assume the Default Format (PPF?)
+                    strcpy(request->format, "PPF");       // Assume the Default Format (PPF?)
                     for (int i = 0; i < pluginList.count; i++) {
-                        if (STR_IEQUALS(request_block->format, pluginList.plugin[i].format)) {
-                            request_block->request = pluginList.plugin[i].request;
+                        if (STR_IEQUALS(request->format, pluginList.plugin[i].format)) {
+                            request->request = pluginList.plugin[i].request;
                             break;
                         }
                     }
-                    test = request_block->source;   // No prefix nor delimiter
+                    test = request->source;   // No prefix nor delimiter
                     ldelim = 0;                     // No offset required
                     rc = 1;
                 }
@@ -963,7 +963,7 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
             } else {
 #ifndef __GNUC__
                 char base[1024] = { 0 };
-                _splitpath(request_block->source, NULL, base, NULL, NULL);
+                _splitpath(request->source, NULL, base, NULL, NULL);
 #else
                 char* base = basename(request->source);
 #endif
