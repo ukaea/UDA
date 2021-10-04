@@ -295,16 +295,16 @@ static int fetchHierarchicalData(DATA_BLOCK* data_block)
 }
 #endif
 
-static int fetchMeta(DATA_SYSTEM* data_system, SYSTEM_CONFIG* system_config, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc)
+static int allocMeta(DATA_SYSTEM** data_system, SYSTEM_CONFIG** system_config, DATA_SOURCE** data_source, SIGNAL** signal_rec, SIGNAL_DESC** signal_desc)
 {
     int err = 0;
 
     // Allocate memory for the Meta Data
-    data_system = (DATA_SYSTEM*)malloc(sizeof(DATA_SYSTEM));
-    system_config = (SYSTEM_CONFIG*)malloc(sizeof(SYSTEM_CONFIG));
-    data_source = (DATA_SOURCE*)malloc(sizeof(DATA_SOURCE));
-    signal_rec = (SIGNAL*)malloc(sizeof(SIGNAL));
-    signal_desc = (SIGNAL_DESC*)malloc(sizeof(SIGNAL_DESC));
+    *data_system = (DATA_SYSTEM*)malloc(sizeof(DATA_SYSTEM));
+    *system_config = (SYSTEM_CONFIG*)malloc(sizeof(SYSTEM_CONFIG));
+    *data_source = (DATA_SOURCE*)malloc(sizeof(DATA_SOURCE));
+    *signal_rec = (SIGNAL*)malloc(sizeof(SIGNAL));
+    *signal_desc = (SIGNAL_DESC*)malloc(sizeof(SIGNAL_DESC));
 
     if (data_system == nullptr || system_config == nullptr || data_source == nullptr ||
         signal_rec == nullptr || signal_desc == nullptr) {
@@ -312,6 +312,13 @@ static int fetchMeta(DATA_SYSTEM* data_system, SYSTEM_CONFIG* system_config, DAT
         addIdamError(CODEERRORTYPE, __func__, err, "Error Allocating Heap for Meta Data");
         return err;
     }
+
+    return err;
+}
+
+static int fetchMeta(DATA_SYSTEM* data_system, SYSTEM_CONFIG* system_config, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc)
+{
+    int err = 0;
 
 #ifndef FATCLIENT   // <========================== Client Server Code Only
     if ((err = protocol2(clientInput, PROTOCOL_DATA_SYSTEM, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
@@ -877,6 +884,9 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 #endif // <===== End of Client Server Only Code
 
         if (client_block.get_meta) {
+            if ((err = allocMeta(&data_system, &system_config, &data_source, &signal_rec, &signal_desc)) != 0) {
+                break;
+            }
             if ((err = fetchMeta(data_system, system_config, data_source, signal_rec, signal_desc)) != 0) {
                 break;
             }
