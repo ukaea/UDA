@@ -21,8 +21,7 @@ else()
   find_package( TIRPC QUIET)
   if(TIRPC_FOUND)
     add_definitions(-D__TIRPC__)
-    
-      endif()
+  endif()
 endif()
 
 set( FAT_TESTS OFF CACHE BOOL "Build tests using fat-client" )

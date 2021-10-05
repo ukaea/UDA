@@ -174,10 +174,6 @@ if( SSLAUTHENTICATION )
   add_definitions( -DSSLAUTHENTICATION )
 endif() 
 
-add_definitions( -DNOTGENERICENABLED )
-add_definitions( -DNOMDSPLUSPLUGIN )
-add_definitions( -DNOIDAPLUGIN )
-
 if( BUILD_SHARED_LIBS )
   message( "Build shared libraries asked" )
 endif()
