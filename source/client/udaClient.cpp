@@ -939,6 +939,20 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             copyDataBlock(data_block, &recv_data_block_list.data[i]);
             copyClientBlock(&data_block->client_block);
 
+            if ((err = allocMeta(
+                    &data_block->data_system,
+                    &data_block->system_config,
+                    &data_block->data_source,
+                    &data_block->signal_rec,
+                    &data_block->signal_desc)) != 0) {
+                break;
+            }
+            *data_block->data_system    = *data_system;
+            *data_block->system_config  = *system_config;
+            *data_block->data_source    = *data_source;
+            *data_block->signal_rec     = *signal_rec;
+            *data_block->signal_desc    = *signal_desc;
+
             fetchHierarchicalData(data_block);
 
             //------------------------------------------------------------------------------
