@@ -42,9 +42,11 @@ def set_property(prop_name, value):
         raise ValueError('invalid property ' + prop_name)
     if _properties[prop_name][1]:
         prop_string = prop_name + '=' + str(value)
+        uda.setIdamProperty(prop_string.encode())
+    elif value:
+        uda.setIdamProperty(prop_name.encode())
     else:
-        prop_string = prop_name
-    uda.setIdamProperty(prop_string.encode())
+        uda.resetIdamProperty(prop_name.encode())
 
 
 def get_property(prop_name):
