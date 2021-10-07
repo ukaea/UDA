@@ -204,7 +204,6 @@ int idamGetAPI(const char* data_object, const char* data_source)
         return -err;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Routine: idamGetAPI\n");
     printRequestBlock(request_block);
 
     //-------------------------------------------------------------------------

@@ -686,8 +686,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
             // Flush (mark as at EOF) the input socket buffer (start of wait for data)
 
-            if (!(xdrrec_skiprecord(
-                    clientInput))) { // Wait for data, then position buffer reader to the start of a new record
+            // Wait for data, then position buffer reader to the start of a new record
+            if (!(xdrrec_skiprecord(clientInput))) {
                 err = PROTOCOL_ERROR_5;
                 addIdamError(CODEERRORTYPE, __func__, err, "Protocol 5 Error (Server Block)");
                 UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_skiprecord prior to Server Block\n");
@@ -716,11 +716,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             // Protocol Version: Lower of the client and server version numbers
             // This defines the set of elements within data structures passed between client and server
             // Must be the same on both sides of the socket
-
-            //protocolVersion = clientVersion;
-            if (client_block.version < server_block.version) {
-                protocolVersion = client_block.version;
-            }
+            protocolVersion = std::min(client_block.version, server_block.version);
 
             if (server_block.idamerrorstack.nerrors > 0) {
                 err = server_block.idamerrorstack.idamerror[0].code;      // Problem on the Server Side!
