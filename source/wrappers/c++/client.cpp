@@ -401,7 +401,7 @@ uda::Client::~Client()
     for (auto& data : results_) {
         delete(data);
     }
-    //idamFreeAll();
+    idamFreeAll();
 }
 
 void uda::Client::put(const std::string& instruction, const uda::Array& data)

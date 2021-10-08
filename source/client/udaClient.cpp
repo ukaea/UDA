@@ -378,8 +378,6 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
     static bool system_startup = true;
 
-    protocolVersion = clientVersion;
-
     time_t protocol_time;            // Time a Conversation Occured
 
     if (system_startup && getenv("UDA_TIMEOUT")) {
