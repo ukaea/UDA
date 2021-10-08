@@ -44,7 +44,9 @@
 
 //------------------------------------------------ Static Globals ------------------------------------------------------
 
+#ifndef FATCLIENT
 static int protocolVersion = 8;
+#endif
 int clientVersion = 8;          // previous version
 
 int get_nodimdata = 0;          // Don't send dimensional data: Send a simple Index
