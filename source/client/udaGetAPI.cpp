@@ -138,10 +138,22 @@ Legacy exception: treat PPF and JPF formats as server protocols => no file path 
 * @param data_source identifies the location of data.
 * @return a reference ID handle used to identify the accessed data in subsequent API accessor function calls.
 */
-int idamGetAPI(const char* data_object, const char* data_source)
+int idamGetAPI(const char* data_object, const char* data_source) {
+    return idamGetAPIWithHost(data_object, data_source, nullptr, 0);
+}
+
+int idamGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port)
 {
     // Lock the thread
     lockIdamThread();
+
+    if (host != nullptr) {
+        putIdamServerHost(host);
+    }
+
+    if (port) {
+        putIdamServerPort(port);
+    }
 
     int err = 0;
     static bool startup = true;
@@ -234,8 +246,21 @@ int idamGetAPI(const char* data_object, const char* data_source)
 
 int idamGetBatchAPI(const char** signals, const char** sources, int count, int* handles)
 {
+    return idamGetBatchAPIWithHost(signals, sources, count, handles, nullptr, 0);
+}
+
+int idamGetBatchAPIWithHost(const char** signals, const char** sources, int count, int* handles, const char* host, int port)
+{
     // Lock the thread
     lockIdamThread();
+
+    if (host != nullptr) {
+        putIdamServerHost(host);
+    }
+
+    if (port) {
+        putIdamServerPort(port);
+    }
 
     static bool startup = true;
 
