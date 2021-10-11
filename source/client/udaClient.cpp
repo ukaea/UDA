@@ -9,6 +9,8 @@
 #include "udaClient.h"
 
 #include <cstdlib>
+#include <vector>
+#include <algorithm>
 
 #include <logging/logging.h>
 #include <clientserver/udaErrors.h>
@@ -26,7 +28,6 @@
 
 #include "closedown.h"
 #include "accAPI.h"
-#include <vector>
 
 #ifdef FATCLIENT
 #  include <clientserver/compressDim.h>
