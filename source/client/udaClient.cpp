@@ -44,7 +44,7 @@
 
 //------------------------------------------------ Static Globals ------------------------------------------------------
 
-#ifndef FATCLIENT
+#if !defined(FATCLIENT) || !defined(NOLIBMEMCACHED)
 static int protocolVersion = 8;
 #endif
 int clientVersion = 8;          // previous version
