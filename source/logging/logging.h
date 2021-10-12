@@ -10,14 +10,14 @@
 #  define UDA_LOG(LEVEL, FMT, ...) udaLog(LEVEL, "%s:%d >> " FMT, FILENAME, __LINE__, ##__VA_ARGS__)
 #else
 #  include <libgen.h>
-#  include <ctime>
+#  include <time.h>
 #  include <sys/time.h>
-#  include <cstdint>
+#  include <stdint.h>
 #  define UIX_DEFINETIME \
         struct timeval uix_tmnow; \
         struct tm* uix_tm;        \
         char uix_buf[30];\
-        gettimeofday(&uix_tmnow, nullptr); \
+        gettimeofday(&uix_tmnow, NULL); \
         uix_tm = localtime(&uix_tmnow.tv_sec); \
         strftime(uix_buf, 30, "%Y:%m:%dT%H:%M:%S", uix_tm);
 #  define uix_printtime() { \
