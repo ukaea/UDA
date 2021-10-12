@@ -150,6 +150,7 @@ endif()
 option( CLIENT_ONLY "Only build UDA client" OFF )
 option( SERVER_ONLY "Only build UDA server" OFF )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
+option( NO_MEMCACHE "Do not attempt to build with libmemcached support" OFF )
 
 # Wrapper configuration
 option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )
