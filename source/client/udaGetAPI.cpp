@@ -244,12 +244,12 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     return handle;
 }
 
-int idamGetBatchAPI(const char** signals, const char** sources, int count, int* handles)
+int idamGetBatchAPI(const char** uda_signals, const char** sources, int count, int* handles)
 {
-    return idamGetBatchAPIWithHost(signals, sources, count, handles, nullptr, 0);
+    return idamGetBatchAPIWithHost(uda_signals, sources, count, handles, nullptr, 0);
 }
 
-int idamGetBatchAPIWithHost(const char** signals, const char** sources, int count, int* handles, const char* host, int port)
+int idamGetBatchAPIWithHost(const char** uda_signals, const char** sources, int count, int* handles, const char* host, int port)
 {
     // Lock the thread
     lockIdamThread();
@@ -314,7 +314,7 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
     }
 
     int err = 0;
-    if ((err = makeClientRequestBlock(signals, sources, count, &request_block)) != 0) {
+    if ((err = makeClientRequestBlock(uda_signals, sources, count, &request_block)) != 0) {
         if (udaNumErrors() == 0) {
             addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
         }
