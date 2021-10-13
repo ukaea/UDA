@@ -16,6 +16,7 @@
 #include <server/serverPlugin.h>
 #include <structures/parseIncludeFile.h>
 #include <structures/struct.h>
+#include <cache/memcache.h>
 
 #include "closeServerSockets.h"
 #include "createXDRStream.h"
@@ -87,11 +88,11 @@ static int startupServer(SERVER_BLOCK* server_block);
 
 static int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
                          METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
-                         DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown);
+                         DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, UDA_CACHE* cache);
 
 static int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                         SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
-                        ACTIONS* actions_sig, int* fatal);
+                        ACTIONS* actions_sig, int* fatal, UDA_CACHE* cache);
 
 static int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                           int trap1Err, METADATA_BLOCK* metadata_block);
@@ -129,6 +130,8 @@ int udaServer(CLIENT_BLOCK client_block)
     initActions(&actions_sig);
     initRequestBlock(&request_block);
 
+    UDA_CACHE* cache = udaOpenCache();
+
     if ((err = startupServer(&server_block)) != 0) return err;
 
 #ifdef SECURITYENABLED
@@ -145,7 +148,7 @@ int udaServer(CLIENT_BLOCK client_block)
     if (!err && !server_closedown) {
         int fatal = 0;
         doServerLoop(&request_block, &data_block_list, &client_block, &server_block, &metadata_block, &actions_desc,
-                     &actions_sig, &fatal);
+                     &actions_sig, &fatal, cache);
     }
 
     err = doServerClosedown(&client_block, &request_block, &data_block_list);
@@ -342,7 +345,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list,
 
 int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
                   METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
-                  DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown)
+                  DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, UDA_CACHE* cache)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
@@ -683,11 +686,20 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[i];
+
+        auto cache_block = udaCacheRead(cache, request, logmalloclist, userdefinedtypelist, environment, 8, CLIENTFLAG_CACHE);
+        if (cache_block != nullptr) {
+            data_block_list->data[i] = *cache_block;
+            continue;
+        }
+
         DATA_BLOCK* data_block = &data_block_list->data[i];
         int depth = 0;
         err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
                          &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
                          &pluginList, logmalloclist, userdefinedtypelist, &socket_list, protocolVersion);
+
+        udaCacheWrite(cache, request, data_block, logmalloclist, userdefinedtypelist, environment, 8, CLIENTFLAG_CACHE);
     }
 
     for (int i = 0; i < request_block->num_requests; ++i) {
@@ -770,7 +782,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
 int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                  SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
-                 ACTIONS* actions_sig, int* fatal)
+                 ACTIONS* actions_sig, int* fatal, UDA_CACHE* cache)
 {
     int err = 0;
 
@@ -791,7 +803,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
 
         int server_closedown = 0;
         err = handleRequest(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
-                            data_block_list, fatal, &server_closedown);
+                            data_block_list, fatal, &server_closedown, cache);
 
         if (server_closedown) {
             break;

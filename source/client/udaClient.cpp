@@ -33,13 +33,11 @@
 #  include <clientserver/compressDim.h>
 #  include <server/udaServer.h>
 #else
-
 #  include "clientXDRStream.h"
 #  include <clientserver/xdrlib.h>
 #include <cache/memcache.h>
 #include <cache/fileCache.h>
 #include <cassert>
-
 #  ifdef SSLAUTHENTICATION
 #    include <authentication/udaClientSSL.h>
 #  endif
@@ -146,7 +144,6 @@ void updateClientBlock(CLIENT_BLOCK* str)
 }
 
 #  ifndef NOLIBMEMCACHED
-
 /**
  * Check the local cache for the data (GET methods only - Note: some GET methods may disguise PUT methods!)
  *
@@ -225,7 +222,6 @@ int check_mem_cache(REQUEST_DATA* request_data, unsigned int cacheStatus, DATA_B
 
     return -1;
 }
-
 #endif
 
 void copyDataBlock(DATA_BLOCK* str, DATA_BLOCK* in)
@@ -270,7 +266,6 @@ void copyClientBlock(CLIENT_BLOCK* str)
 */
 
 #ifndef FATCLIENT
-
 /*
  * Fetch Hierarchical Data Structures
  *
@@ -304,7 +299,6 @@ static int fetchHierarchicalData(DATA_BLOCK* data_block)
 
     return 0;
 }
-
 #endif
 
 static int
@@ -456,9 +450,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         static unsigned int cacheStatus = UDA_CACHE_NOT_OPENED;
 
         int num_cached = 0;
-#endif
         for (int i = 0; i < request_block->num_requests; ++i) {
-#  ifndef NOLIBMEMCACHED
             auto request = &request_block->requests[i];
             DATA_BLOCK* data_block = &cached_data_block_list.data[i];
             int rc = check_file_cache(request, &data_block, logmalloclist, userdefinedtypelist);
@@ -473,8 +465,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                 ++num_cached;
                 continue;
             }
-#  endif // !NOLIBMEMCACHED
         }
+#  endif // !NOLIBMEMCACHED
 
         //-------------------------------------------------------------------------
         // Manage Multiple UDA Server connections ...
@@ -975,13 +967,13 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
 #  ifndef NOLIBMEMCACHED
 #    ifdef CACHEDEV
-            if (cacheStatus == UDA_CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE
-            && data_block.cachePermission == UDA_PLUGIN_OK_TO_CACHE) {
+            if (cache != nullptr && clientFlags & CLIENTFLAG_CACHE
+                && data_block.cachePermission == UDA_PLUGIN_OK_TO_CACHE) {
 #    else
-            if (cacheStatus == UDA_CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE) {
+            if (cache != nullptr && clientFlags & CLIENTFLAG_CACHE) {
 #    endif
-                udaCacheWrite(cache, request_block, data_block, logmalloclist, userdefinedtypelist, *environment,
-                              protocolVersion);
+                udaCacheWrite(cache, &request_block->requests[i], data_block, logmalloclist, userdefinedtypelist,
+                              *environment, protocolVersion, clientFlags);
             }
 #  endif // !NOLIBMEMCACHED
 
@@ -1057,7 +1049,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             closedown(ClosedownType::CLOSE_SOCKETS, nullptr);    // Close Socket & XDR Streams but Not Files
         }
 
-        for (auto data_block_idx: data_block_indices) {
+        for (auto data_block_idx : data_block_indices) {
             if (err == 0 && (getIdamDataStatus(data_block_idx)) == MIN_STATUS && !get_bad) {
                 // If Data are not usable, flag the client
                 addIdamError(CODEERRORTYPE, __func__, DATA_STATUS_BAD, "Data Status is BAD ... Data are Not Usable!");
@@ -1081,7 +1073,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         //------------------------------------------------------------------------------
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
 
-        for (auto data_block_idx: data_block_indices) {
+        for (auto data_block_idx : data_block_indices) {
             DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
 
             if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
@@ -1187,8 +1179,8 @@ if (data_received) {
     std::copy(data_block_indices.begin(), data_block_indices.end(), indices);
     return 0;
 
-    //------------------------------------------------------------------------------
-    // Abnormal Exit: Return to Client
+        //------------------------------------------------------------------------------
+        // Abnormal Exit: Return to Client
 
 } else {
 
@@ -1417,9 +1409,9 @@ void idamFreeAll()
     int protocol_id;
 #endif
 
-#ifdef MEMCACHE
+#ifndef NOLIBMEMCACHED
     // Free Cache connection object
-    idamFreeCache();
+    udaFreeCache();
 #endif
 
     for (int i = 0; i < acc_getCurrentDataBlockIndex(); ++i) {
