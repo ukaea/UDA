@@ -116,6 +116,11 @@ char* generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment, i
             environment.server_host, delimiter, environment.server_port, delimiter, environment.clientFlags, delimiter,
             privateFlags);
 
+    char* p = nullptr;
+    while ((p = strchr(key, ' ')) != nullptr) {
+        *p = '_';
+    }
+
     // *** TODO: Add server properties (set by the client) to the key - planned to use clientFlags (bit settings) but not implemented yet! ***
     // *** which server is the client connected to .... may not be the default in the ENVIRONMENT structure! - Investigate! ***
     // *** privateFlags is a global also in the CLIENT_BLOCK structure passed to the server (with clientFlags)
@@ -216,7 +221,7 @@ udaCacheWrite(UDA_CACHE* cache, const REQUEST_DATA* request_data, DATA_BLOCK* da
         return -1;
     }
 
-    char* buffer;
+    char* buffer = nullptr;
     size_t bufsize = 0;
 
     FILE* memfile = open_memstream(&buffer, &bufsize);
@@ -226,6 +231,7 @@ udaCacheWrite(UDA_CACHE* cache, const REQUEST_DATA* request_data, DATA_BLOCK* da
     rc = memcache_put(cache, key, buffer, bufsize);
 
     fclose(memfile);
+    free(buffer);
     free(key);
 
     return rc;
@@ -277,10 +283,17 @@ DATA_BLOCK* udaCacheRead(UDA_CACHE* cache, const REQUEST_DATA* request_data, LOG
         return nullptr;
     }
 
-    FILE* memfile = create_mem_file(value, len);
+    char* buffer = nullptr;
+    size_t bufsize = 0;
+
+    FILE* memfile = open_memstream(&buffer, &bufsize);
+
+    fwrite(value, sizeof(char), len, memfile);
+    fseek(memfile, 0L, SEEK_SET);
 
     auto data = readCacheData(memfile, logmalloclist, userdefinedtypelist, protocolVersion);
     fclose(memfile);
+    free(buffer);
 
     return data;
 }
