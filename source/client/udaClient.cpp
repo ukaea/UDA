@@ -176,30 +176,21 @@ int check_file_cache(const REQUEST_DATA* request_data, DATA_BLOCK** p_data_block
 
     return -1;
 }
-int check_mem_cache(REQUEST_DATA* request_data, unsigned int cacheStatus, DATA_BLOCK** p_data_block,
+
+int check_mem_cache(UDA_CACHE* cache, REQUEST_DATA* request_data, DATA_BLOCK** p_data_block,
                     LOGMALLOCLIST* log_malloc_list, USERDEFINEDTYPELIST* user_defined_type_list)
 {
-    static UDA_CACHE* cache = nullptr;
-
     // Check Client Properties for permission to cache
-    if (clientFlags & CLIENTFLAG_CACHE && !request_data->put &&
-        (cacheStatus == UDA_CACHE_AVAILABLE || cacheStatus == UDA_CACHE_NOT_OPENED)) {
+    if ((clientFlags & CLIENTFLAG_CACHE) && !request_data->put) {
 
         // Open the Cache
-        if (cacheStatus == UDA_CACHE_NOT_OPENED) {
+        if (cache == nullptr) {
             cache = udaOpenCache();
-
-            if (cache == nullptr) {
-                cacheStatus = UDA_CACHE_NOT_AVAILABLE;
-                return -1;
-            }
-
-            cacheStatus = UDA_CACHE_AVAILABLE;
         }
 
         // Query the cache for the Data
         DATA_BLOCK* data = udaCacheRead(cache, request_data, log_malloc_list, user_defined_type_list,
-                                        *getIdamClientEnvironment(), protocolVersion);
+                                        *getIdamClientEnvironment(), protocolVersion, clientFlags);
 
         if (data != nullptr) {
             // Success
@@ -440,13 +431,10 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 #ifndef FATCLIENT   // <========================== Client Server Code Only
 #  ifndef NOLIBMEMCACHED
         static UDA_CACHE* cache;
-        static unsigned int cacheStatus = UDA_CACHE_NOT_OPENED;
 
         int num_cached = 0;
-#endif
         for (int i = 0; i < request_block->num_requests; ++i) {
-            #  ifndef NOLIBMEMCACHED
-	    auto request = &request_block->requests[i];
+	        auto request = &request_block->requests[i];
             DATA_BLOCK* data_block = &cached_data_block_list.data[i];
             int rc = check_file_cache(request, &data_block, logmalloclist, userdefinedtypelist);
             if (rc >= 0) {
@@ -454,14 +442,14 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                 ++num_cached;
                 continue;
             }
-            rc = check_mem_cache(request, cacheStatus, &data_block, logmalloclist, userdefinedtypelist);
+            rc = check_mem_cache(cache, request, &data_block, logmalloclist, userdefinedtypelist);
             if (rc >= 0) {
                 request_block->requests[i].request = REQUEST_CACHED;
                 ++num_cached;
                 continue;
             }
-#  endif // !NOLIBMEMCACHED
         }
+#  endif // !NOLIBMEMCACHED
 
         //-------------------------------------------------------------------------
         // Manage Multiple UDA Server connections ...
@@ -962,13 +950,13 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
 #  ifndef NOLIBMEMCACHED
 #    ifdef CACHEDEV
-            if (cacheStatus == UDA_CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE
-            && data_block.cachePermission == UDA_PLUGIN_OK_TO_CACHE) {
+            if (cache != nullptr && clientFlags & CLIENTFLAG_CACHE
+                && data_block.cachePermission == UDA_PLUGIN_OK_TO_CACHE) {
 #    else
-            if (cacheStatus == UDA_CACHE_AVAILABLE && clientFlags & CLIENTFLAG_CACHE) {
+            if (cache != nullptr && clientFlags & CLIENTFLAG_CACHE) {
 #    endif
-                udaCacheWrite(cache, request_block, data_block, logmalloclist, userdefinedtypelist, *environment,
-                              protocolVersion);
+                udaCacheWrite(cache, &request_block->requests[i], data_block, logmalloclist, userdefinedtypelist,
+                              *environment, protocolVersion, clientFlags);
             }
 #  endif // !NOLIBMEMCACHED
 
@@ -1401,9 +1389,9 @@ void idamFreeAll()
     int protocol_id;
 #endif
 
-#ifdef MEMCACHE
+#ifndef NOLIBMEMCACHED
     // Free Cache connection object
-    idamFreeCache();
+    udaFreeCache();
 #endif
 
     for (int i = 0; i < acc_getCurrentDataBlockIndex(); ++i) {

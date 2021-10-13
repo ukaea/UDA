@@ -14,8 +14,8 @@
 #  include <sys/time.h>
 #  include <stdint.h>
 #  define UIX_DEFINETIME \
-        struct timeval uix_tmnow; \
-        struct tm* uix_tm;        \
+        struct timeval uix_tmnow = {}; \
+        struct tm* uix_tm = NULL;        \
         char uix_buf[30];\
         gettimeofday(&uix_tmnow, NULL); \
         uix_tm = localtime(&uix_tmnow.tv_sec); \

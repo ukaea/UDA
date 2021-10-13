@@ -34,12 +34,13 @@ LIBRARY_API UDA_CACHE* udaOpenCache();
 
 LIBRARY_API void udaFreeCache();
 
-LIBRARY_API int udaCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
-                              LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
-                              int protocolVersion);
+LIBRARY_API int udaCacheWrite(UDA_CACHE* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
+                              LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                              ENVIRONMENT environment, int protocolVersion, int flags);
 
 LIBRARY_API DATA_BLOCK* udaCacheRead(UDA_CACHE* cache, const REQUEST_DATA* request_data, LOGMALLOCLIST* logmalloclist,
-                                     USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion);
+                                     USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
+                                     int protocolVersion, int flags);
 
 #ifdef __cplusplus
 }
