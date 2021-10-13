@@ -37,8 +37,29 @@ then
 	export MDSPLUS_DIR=`cygpath.exe -u "$MDSPLUS_DIR"`
 	export PostgresSQL_ROOT=`cygpath.exe -u "$PostgresSQL_ROOT"`
 	export NETCDF_DIR=`cygpath.exe -u "$NETCDF_DIR"`
+elif [ -f /work/imas/core/_thisiscentos8corefolder.info ]
+then
+	echo "Linux environnement (CentOS8)"
+	# Stage 0 : load modules
+
+	# Set up environment for compilation
+	. /usr/share/Modules/init/sh
+	module use /work/imas/etc/modulefiles
+	module use /work/imas/etc/modules/all
+	module purge
+
+	# FOSS environment based upon GCC v6.4.0
+
+	module load CMake/3.18.4-GCCcore-10.2.0
+	module load PostgreSQL/13.2-GCCcore-10.2.0
+	module load libMemcached/1.0.18-GCCcore-10.2.0
+	module load SWIG/4.0.2-GCCcore-10.2.0
+	module load Boost/1.74.0-GCCcore-10.2.0
+	module load netCDF/4.7.4-gompi-2020b
+	module load HDF5/1.10.7-gompi-2020b
+	module load MDSplus-Java/7.96.17-GCCcore-10.2.0-Java-11
 else
-	echo "Linux environnement"
+	echo "Linux environnement (CentOS7)"
 	# Stage 0 : load modules
 
 	# Set up environment for compilation
