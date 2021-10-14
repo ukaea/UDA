@@ -47,7 +47,7 @@
 #include "accessors.h"
 
 #include <logging/logging.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <clientserver/stringUtils.h>
 
 #include "struct.h"

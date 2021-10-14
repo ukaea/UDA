@@ -523,7 +523,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
         int n;
         int ierr = 0;
-        
+
         if ((ierr = apply_sub_setting(dim, 1, dim_id, dim->dim, dim_n, dim->data_type, not_operation,
                                         start, end, start1, end1, stride, &n, (void**)&new_dim.dim)) != 0) {
             return ierr;
@@ -548,7 +548,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
         int n_data;
         char* new_data;
-        
+
         if ((ierr = apply_sub_setting(data_block->dims, data_block->rank, dim_id, data_block->data,
                                         data_block->data_n, data_block->data_type, not_operation,
                                         start, end, start1, end1, stride, &n_data, (void**)&new_data)) != 0) {
@@ -556,7 +556,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         }
 
         char* new_errhi;
-        
+
         if (data_block->error_type != UDA_TYPE_UNKNOWN && data_block->errhi != nullptr) {
             if ((ierr = apply_sub_setting(data_block->dims, data_block->rank, dim_id, data_block->errhi,
                                             data_block->data_n, data_block->error_type, not_operation,
@@ -566,7 +566,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
             free(data_block->errhi);                // Free Original Heap
             data_block->errhi = new_errhi;                // Replace with the Reshaped Array
         }
-        
+
         char* new_errlo;
 
         if (data_block->error_type != UDA_TYPE_UNKNOWN && dim->errlo != nullptr) {
@@ -601,7 +601,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
         data_block->dims[dim_id] = new_dim;                            // Replace with the subsetted dimension
     }
-    
+
     return 0;
 }
 

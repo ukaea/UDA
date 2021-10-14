@@ -1,8 +1,3 @@
-/*--------------------------------------------------------------------------------------------------------------------
-* Legacy Request Data structure from old Client versions
-*
-* No alteration to request_block are necessary - only interpretation.
-*---------------------------------------------------------------------------------------------------------------------*/
 #include "serverLegacyPlugin.h"
 
 #include <cstdlib>
@@ -13,8 +8,6 @@
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/protocol.h>
-#include <clientserver/udaErrors.h>
 
 #ifndef FATCLIENT
 #  include <server/getServerEnvironment.h>

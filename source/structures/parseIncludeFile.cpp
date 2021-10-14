@@ -21,9 +21,9 @@
 //----------------------------------------------------------------------------------------------------------------------------
 #include "parseIncludeFile.h"
 
-#include <errno.h>
+#include <cerrno>
 #include <string.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <clientserver/udaDefines.h>
 #include <clientserver/stringUtils.h>

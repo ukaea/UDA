@@ -1,6 +1,6 @@
 #include "protocolXML2Put.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <logging/logging.h>
 #include <structures/struct.h>

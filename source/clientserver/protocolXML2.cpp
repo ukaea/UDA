@@ -53,13 +53,12 @@
 **--------------------------------------------------------------------------------------------------*/
 #include "protocolXML2.h"
 
-#include <stdlib.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cerrno>
 
 #include <structures/struct.h>
 #include <logging/logging.h>
 #include <clientserver/memstream.h>
-#include <clientserver/mkstemp.h>
 
 #include "readXDRFile.h"
 #include "errorLog.h"
@@ -77,14 +76,11 @@
 #  include "udaErrors.h"
 #endif
 
-#define HASHXDR 1
-#ifdef HASHXDR
+#include <openssl/sha.h>
 
-#  include <openssl/sha.h>
-
-#  define PARTBLOCKINIT     1
-#  define PARTBLOCKUPDATE   2
-#  define PARTBLOCKOUTPUT   3
+#define PARTBLOCKINIT     1
+#define PARTBLOCKUPDATE   2
+#define PARTBLOCKOUTPUT   3
 
 extern "C" {
 
@@ -94,9 +90,7 @@ int sha1File(char* name, FILE* fh, unsigned char* md);
 
 }
 
-#endif // HASHXDR
-
-#define MAXELEMENTSHA1        20
+#define MAX_ELEMENT_SHA1        20
 
 int
 protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
@@ -117,11 +111,11 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
     char tempFile[MAXPATH] = "/tmp/idamXDRXXXXXX";
     char* env = nullptr;
 
-    unsigned char md[MAXELEMENTSHA1 + 1];        // SHA1 Hash
-    md[MAXELEMENTSHA1] = '\0';
+    unsigned char md[MAX_ELEMENT_SHA1 + 1];        // SHA1 Hash
+    md[MAX_ELEMENT_SHA1] = '\0';
     strcpy((char*)md, "12345678901234567890");
-    int hashSize = MAXELEMENTSHA1;
-    unsigned char mdr[MAXELEMENTSHA1];        // SHA1 Hash of data received
+    int hashSize = MAX_ELEMENT_SHA1;
+    unsigned char mdr[MAX_ELEMENT_SHA1];        // SHA1 Hash of data received
 
     if ((privateFlags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) {        // Intermediate XDR File, not stream
         if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
@@ -142,8 +136,8 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
     if ((xdrs->x_op == XDR_DECODE && protocolVersion < 3) || (xdrs->x_op == XDR_ENCODE && protocolVersion < 3)) {
         return 0;
     }
-
 #endif
+
     //----------------------------------------------------------------------------
     // Error Management Loop
 
@@ -305,7 +299,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
 #endif
 
-// Send the data
+                    // Send the data
 
                     // send the full set of known named structures
                     rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist);
@@ -348,11 +342,11 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     if ((privateFlags & PRIVATEFLAG_XDRFILE) &&
                         protocolVersion >= 5) {        // Server calling another server
 
-// Close the stream and file
+                        // Close the stream and file
 
                         fflush(xdrfile);
 
-// Switch back to the normal TCP socket xdr stream
+                        // Switch back to the normal TCP socket xdr stream
 
                         xdr_destroy(xdrs);        // Close the stdio stream
                         xdrs = priorxdrs;
@@ -360,15 +354,11 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                         fclose(xdrfile);
 
-// Send the Temporary File
+                        // Send the Temporary File
 
                         UDA_LOG(UDA_LOG_DEBUG, "sending temporary XDR file\n");
 
-#ifdef HASHXDRFILE
-                        err = sendXDRFile(xdrs, tempFile, md);	// Read and send with SHA1 hash
-#else
                         err = sendXDRFile(xdrs, tempFile);        // Read and send
-#endif
 
                         remove(tempFile);
 
@@ -377,24 +367,24 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     } else if ((privateFlags & PRIVATEFLAG_XDROBJECT) &&
                                protocolVersion >= 7) {        // Server calling another server
 
-// Close the stream and file
+                        // Close the stream and file
 
                         fflush(xdrfile);
 
-// Write object to a semi-persistent cache with metadata
-//
-// client request details	: signal+source arguments
-// MEMCACHE key			: Created for each new request not available from cache
-// MEMCACHE value
-//    type			: XDR object
-//    SHA1 hash			: md
-//    Log Entry			: provenance
-//    Size			: the amount of data
-//    Data  			: the XDR serialised data object
-// Date & Time			: internal to MEMCACHE - needed to purge old records
-// MEMCACHE connection object	: Created at server/client startup
+                        // Write object to a semi-persistent cache with metadata
+                        //
+                        // client request details	: signal+source arguments
+                        // MEMCACHE key			: Created for each new request not available from cache
+                        // MEMCACHE value
+                        //    type			: XDR object
+                        //    SHA1 hash			: md
+                        //    Log Entry			: provenance
+                        //    Size			: the amount of data
+                        //    Data  			: the XDR serialised data object
+                        // Date & Time			: internal to MEMCACHE - needed to purge old records
+                        // MEMCACHE connection object	: Created at server/client startup
 
-// Switch back to the normal TCP socket xdr stream
+                        // Switch back to the normal TCP socket xdr stream
 
                         xdr_destroy(xdrs);        // Close the stdio stream
                         xdrs = priorxdrs;
@@ -402,18 +392,13 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                         fclose(xdrfile);
 
-// hash the object
-
-#ifdef HASHXDR
+                        // hash the object
                         sha1Block(object, objectSize, md);
-#endif
 
-// Send the Object
-
+                        // Send the Object
                         UDA_LOG(UDA_LOG_DEBUG, "sending XDR object\n");
 
-// Send size, bytes, hash
-
+                        // Send size, bytes, hash
                         count = (int)objectSize;
                         rc = xdr_int(xdrs, &count)
                              && xdr_opaque(xdrs, (char*)object, (unsigned int)objectSize)
@@ -421,8 +406,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                         rc = rc && xdrrec_endofrecord(xdrs, 1);
 
-// Free data object
-
+                        // Free data object
                         if (object != nullptr) free(object);
                         object = nullptr;
                         objectSize = 0;
@@ -518,11 +502,12 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         break;
                     }
 
-// Read xdr file without unpacking the structures
+                    // Read xdr file without unpacking the structures
 
                     if (option == 3) {
 
-// Create a temporary XDR file, receive and write data to the file - do not unpack data structures, pass the file onward
+                        // Create a temporary XDR file, receive and write data to the file - do not unpack data
+                        // structures, pass the file onward
 
                         errno = 0;
                         if (mkstemp(tempFile) < 0 || errno != 0) {
@@ -536,22 +521,20 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                                     tempFile);
                             break;
                         }
-#ifdef HASHXDRFILE
-                        err = receiveXDRFile(xdrs, tempFile, md);	// Receive and write the file with SHA1 hash
-#else
+
                         err = receiveXDRFile(xdrs, tempFile);        // Receive and write the file
-#endif
 
                         if (err != 0) break;
 
                         char* fname = (char*)malloc(sizeof(char) * (strlen(tempFile) + 1));
                         strcpy(fname, tempFile);
-                        data_block->data = nullptr;                // No Data - not unpacked
+                        data_block->data = nullptr;                         // No Data - not unpacked
                         data_block->opaque_block = (void*)fname;            // File name
-                        data_block->opaque_type = UDA_OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
+                        data_block->opaque_type = UDA_OPAQUE_TYPE_XDRFILE;  // The data block is carrying the filename only
 
-// The temporary file is essentially cached
-// The opaque type has been changed so the future receiving server or client knows what it is and how to de-serialise it.
+                        // The temporary file is essentially cached
+                        // The opaque type has been changed so the future receiving server or client knows what it is
+                        // and how to de-serialise it.
 
                     } else if (option == 6) {
 
@@ -574,23 +557,20 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         data_block->opaque_type = UDA_OPAQUE_TYPE_XDROBJECT;
 
                         //data_block->hash = md;
-// Check the hash
 
-#ifdef HASHXDR
+                        // Check the hash
                         sha1Block(object, objectSize, mdr);
                         rc = 1;
-                        for (int i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
+                        for (int i = 0; i < MAX_ELEMENT_SHA1; i++) rc = rc && (md[i] == mdr[i]);
                         if (!rc) {
                             // ERROR
                         }
-#endif
 
-// The opaque type has been changed so the future receiving server or client knows what it is and how to de-serialise it.
+                        // The opaque type has been changed so the future receiving server or client knows what it is and how to de-serialise it.
 
                     }
 
-// Unpack data structures
-
+                    // Unpack data structures
                     if (option == 1 || option == 2 || option == 5) {
                         logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
                         initLogMallocList(logmalloclist);
@@ -609,7 +589,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                         if (option == 2) {
 
-// Create a temporary XDR file and receive data
+                            // Create a temporary XDR file and receive data
 
                             UDA_LOG(UDA_LOG_DEBUG, "creating temporary/cached XDR file\n");
 
@@ -626,13 +606,9 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                                 break;
                             }
 
-#ifdef HASHXDRFILE
-                            err = receiveXDRFile(xdrs, tempFile, md);		// Receive and write the file with SHA1 hash
-#else
                             err = receiveXDRFile(xdrs, tempFile);        // Receive and write the file
-#endif
 
-// Create input xdr file stream
+                            // Create input xdr file stream
 
                             if ((xdrfile = fopen(tempFile, "rb")) == nullptr) {    // Read temporary file
                                 err = 999;
@@ -660,25 +636,21 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             rc = rc && xdr_opaque(xdrs, (char*)object, (unsigned int)objectSize)
                                  && xdr_vector(xdrs, (char*)md, hashSize, sizeof(char), (xdrproc_t)xdr_char);
 
-// Check the hash
-
-#ifdef HASHXDR
+                            // Check the hash
                             sha1Block(object, objectSize, mdr);
                             rc = 1;
-                            for (int i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
+                            for (int i = 0; i < MAX_ELEMENT_SHA1; i++) rc = rc && (md[i] == mdr[i]);
                             if (!rc) {
                                 // ERROR
                             }
-#endif
 
-// Close current input xdr stream and create a memory stream
+                            // Close current input xdr stream and create a memory stream
 
                             XDRstdioFlag = 1;
                             xdrmem_create(&XDRInput, (char*)object, (unsigned int)objectSize, XDR_DECODE);
                             xdrs = &XDRInput;                // Switch from TCP stream to memory based object
 
                         }
-
 #endif
 
                         // receive the full set of known named structures
@@ -807,18 +779,14 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                              && xdr_opaque(xdrs, (char*)data_block->opaque_block, data_block->opaque_count)
                              && xdr_vector(xdrs, (char*)md, hashSize, sizeof(char), (xdrproc_t)xdr_char)
                              && xdrrec_endofrecord(xdrs, 1);
-                        // Check the hash
 
-#  ifdef HASHXDR
+                        // Check the hash
                         sha1Block(object, objectSize, mdr);
                         rc = 1;
-                        for (int i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
+                        for (int i = 0; i < MAX_ELEMENT_SHA1; i++) rc = rc && (md[i] == mdr[i]);
                         if (!rc) {
                             // ERROR
                         }
-#  endif
-
-
                     } else {
                         UDA_LOG(UDA_LOG_DEBUG, "Receiving forwarded XDR File\n");
 
@@ -836,15 +804,12 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         rc = rc && xdr_vector(xdrs, (char*)md, hashSize, sizeof(char), (xdrproc_t)xdr_char);
 
                         // Check the hash
-
-#  ifdef HASHXDR
                         sha1Block(object, objectSize, mdr);
                         rc = 1;
-                        for (int i = 0; i < MAXELEMENTSHA1; i++) rc = rc && (md[i] == mdr[i]);
+                        for (int i = 0; i < MAX_ELEMENT_SHA1; i++) rc = rc && (md[i] == mdr[i]);
                         if (!rc) {
                             // ERROR
                         }
-#  endif
 
                         if (privateFlags & PRIVATEFLAG_XDROBJECT) {        // Forward the object again
 
@@ -873,8 +838,8 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             xdrmem_create(&XDRInput, (char*)object, (unsigned int)objectSize, XDR_DECODE);
                             xdrs = &XDRInput;                // Switch from TCP stream to memory based object
 
-                            rc = xdr_userdefinedtypelist(xdrs,
-                                                         userdefinedtypelist);        // receive the full set of known named structures
+                            // receive the full set of known named structures
+                            rc = xdr_userdefinedtypelist(xdrs, userdefinedtypelist);
 
                             if (!rc) {
                                 err = 999;
@@ -946,14 +911,8 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                 } else if (data_block->opaque_type == UDA_OPAQUE_TYPE_XDRFILE) {
                     if (xdrs->x_op == XDR_ENCODE) {
-                        UDA_LOG(UDA_LOG_DEBUG, "Forwarding XDR File %s\n",
-                                (char*)data_block->opaque_block);
-
-#  ifdef HASHXDRFILE
-                        err = sendXDRFile(xdrs, (char *)data_block->opaque_block, md);	// Forward the xdr file
-#  else
+                        UDA_LOG(UDA_LOG_DEBUG, "Forwarding XDR File %s\n", (char*)data_block->opaque_block);
                         err = sendXDRFile(xdrs, (char*)data_block->opaque_block);        // Forward the xdr file
-#  endif
                     } else {
                         UDA_LOG(UDA_LOG_DEBUG, "Receiving forwarded XDR File\n");
 
@@ -971,11 +930,9 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                                     tempFile);
                             break;
                         }
-#  ifdef HASHXDRFILE
-                        err = receiveXDRFile(xdrs, tempFile, md);	// Receive and write the file
-#  else
+
                         err = receiveXDRFile(xdrs, tempFile);        // Receive and write the file
-#  endif
+
                         if (privateFlags & PRIVATEFLAG_XDRFILE) {    // Forward the file (option 3) again
 
                             // If this is an intermediate client then read the file without unpacking the structures
@@ -1153,8 +1110,6 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
     return err;
 }
 
-#ifdef HASHXDR
-
 // include libcrypto.so in link step
 // The hash output is 20 bytes
 // http://linux.die.net/man/3/sha1_update
@@ -1164,8 +1119,6 @@ void sha1Block(unsigned char* block, size_t blockSize, unsigned char* md)
 {
     SHA1(block, blockSize, md);
 }
-
-#endif
 
 #ifndef FATCLIENT
 

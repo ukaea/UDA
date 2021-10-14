@@ -1,11 +1,3 @@
-//------------------------------------------------------------------------------------------------------------------
-/*!
-Interprets the API arguments and assembles a Request data structure.
-
-returns An integer Error Code: If non zero, a problem occured.
-*/
-//------------------------------------------------------------------------------------------------------------------
-
 #include "makeServerRequestBlock.h"
 
 #include <clientserver/makeRequestBlock.h>

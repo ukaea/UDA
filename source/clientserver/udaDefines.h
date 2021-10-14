@@ -94,7 +94,7 @@ extern unsigned int privateFlags;
 extern unsigned int clientFlags;
 
 //--------------------------------------------------------
-// Error Models - added dgm 07Nov2013 from idamclientprivate.h
+// Error Models
 
 #define ERROR_MODEL_UNKNOWN            0    // Defined in idamclientserver.h
 #define ERROR_MODEL_DEFAULT            1
@@ -106,12 +106,20 @@ extern unsigned int clientFlags;
 #define ERROR_MODEL_UNDEFINED          7
 
 //--------------------------------------------------------
+// Caching
+
+#define UDA_PLUGIN_NOT_OK_TO_CACHE  0   // Plugin state management incompatible with client side cacheing
+#define UDA_PLUGIN_OK_TO_CACHE      1   // Data are OK for the Client to Cache
+
+#define UDA_PLUGIN_CACHE_DEFAULT  UDA_PLUGIN_NOT_OK_TO_CACHE // The cache permission to use as the default
+
+//--------------------------------------------------------
 // Character used to separate directory file path elements
 
 #ifndef _WIN32
-#define PATH_SEPARATOR  "/"
+#  define PATH_SEPARATOR  "/"
 #else
-#define PATH_SEPARATOR  "\\"
+#  define PATH_SEPARATOR  "\\"
 #endif
 
 //--------------------------------------------------------
@@ -129,7 +137,6 @@ LIBRARY_API int gettimeofday(struct timeval* tp, struct timezone* tzp);
 #endif
 
 #endif
-
 
 #ifdef __cplusplus
 }

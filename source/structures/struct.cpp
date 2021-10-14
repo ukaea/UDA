@@ -39,7 +39,7 @@
 
 #include "struct.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <stddef.h>
 
 #ifdef __GNUC__

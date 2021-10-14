@@ -1,11 +1,3 @@
-/*---------------------------------------------------------------
-* Server Error Log Utilities
-*
-* Log Format:	client userid, date, client request,
-*		error class, error code, error message
-*
-*--------------------------------------------------------------*/
-
 #include "errorLog.h"
 
 #include <cstdlib>

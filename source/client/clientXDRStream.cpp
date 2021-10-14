@@ -1,9 +1,6 @@
-// Create the Client Side XDR File Stream
-//
-//----------------------------------------------------------------
 #include "clientXDRStream.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <rpc/rpc.h>
 
 #include <logging/logging.h>

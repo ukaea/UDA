@@ -2,7 +2,7 @@
 
 #include "udaClientSSL.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <fcntl.h>
 #include <time.h>
 

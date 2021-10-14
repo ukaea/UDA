@@ -1,14 +1,3 @@
-/*---------------------------------------------------------------
-* Reads the Requested Data
-*
-* Input Arguments:	1) IDA File Name
-*			2) IDA Signal Name
-*			3) IDA Pass Number (-1 => LATEST)
-*			4) Plasma Pulse Number
-*
-* Returns:
-*
-*--------------------------------------------------------------*/
 #include "clientAPI.h"
 
 #ifdef __GNUC__
@@ -21,14 +10,10 @@
 #include <logging/logging.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/errorLog.h>
-#include <clientserver/expand_path.h>
-#include <clientserver/stringUtils.h>
-#include <clientserver/protocol.h>
 
 #include "makeClientRequestBlock.h"
 #include "startup.h"
 #include "udaClient.h"
-#include "getEnvironment.h"
 
 int idamClientAPI(const char* file, const char* signal, int pass, int exp_number)
 {

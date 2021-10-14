@@ -4,7 +4,7 @@
 
 #include "managePluginFiles.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #if defined(__GNUC__)
 #  include <strings.h>
 #endif

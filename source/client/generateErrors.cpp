@@ -13,7 +13,7 @@
 #include "generateErrors.h"
 
 #include <math.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <clientserver/udaTypes.h>
 #include <clientserver/errorLog.h>

@@ -10,7 +10,6 @@
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
-#include <clientserver/udaErrors.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
@@ -20,7 +19,6 @@
 
 #include "closeServerSockets.h"
 #include "getServerEnvironment.h"
-#include "makeServerRequestBlock.h"
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"

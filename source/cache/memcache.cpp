@@ -1,4 +1,4 @@
-#include "memcache.h"
+#include "memcache.hpp"
 #include "cache.h"
 
 #ifdef NOLIBMEMCACHED
@@ -7,7 +7,7 @@ struct UdaCache {
     int dummy_;
 };
 
-UDA_CACHE* udaOpenCache()
+uda::cache::UdaCache* udaOpenCache()
 { return nullptr; }
 
 void udaFreeCache()
@@ -16,12 +16,12 @@ void udaFreeCache()
 char* udaCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
 { return nullptr; }
 
-int udaCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
+int udaCacheWrite(uda::cache::UdaCache* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
                    LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
                    int protocolVersion)
 { return 0; }
 
-DATA_BLOCK* udaCacheRead(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+DATA_BLOCK* udaCacheRead(uda::cache::UdaCache* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
                           USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion)
 { return nullptr; }
 
@@ -29,146 +29,102 @@ DATA_BLOCK* udaCacheRead(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, L
 
 #include <libmemcached/memcached.h>
 #include <openssl/ssl.h>
+#include <tuple>
+#include <string>
+#include <sstream>
 
 #include <logging/logging.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/memstream.h>
 #include <clientserver/xdrlib.h>
-#include <tuple>
 #include <clientserver/errorLog.h>
 
-#define HASHXDR 1
-#ifdef HASHXDR
-#  define PARTBLOCKINIT        1
-#  define PARTBLOCKUPDATE      2
-#  define PARTBLOCKOUTPUT      3
-#endif // HASHXDR
+#define UDA_CACHE_HOST     "localhost"     // Override these with environment variables with the same name
+#define UDA_CACHE_PORT     11211
+#define UDA_CACHE_EXPIRY   86400           //24*3600       // Lifetime of the object in Secs
 
-#define MAXELEMENTSHA1 20
+#define MAX_ELEMENT_SHA1 20
+
+namespace uda {
+namespace cache {
 
 struct UdaCache {
     memcached_st memcache;
 };
 
-static UDA_CACHE* global_cache = nullptr;    // scope limited to this code module
-
-UDA_CACHE* udaOpenCache()
-{
-    auto cache = (UDA_CACHE*)malloc(sizeof(UDA_CACHE));
-    memcached_return_t rc;
-    memcached_server_st* servers;
-
-    const char* host = getenv("UDA_CACHE_HOST");   // Overrule the default settings
-    const char* port = getenv("UDA_CACHE_PORT");
-
-    if (host == nullptr && port == nullptr) {
-        servers = memcached_server_list_append(nullptr, UDA_CACHE_HOST, (in_port_t)UDA_CACHE_PORT, &rc);
-    } else if (host != nullptr && port != nullptr) {
-        servers = memcached_server_list_append(nullptr, host, (in_port_t)atoi(port), &rc);
-    } else if (host != nullptr) {
-        servers = memcached_server_list_append(nullptr, host, (in_port_t)UDA_CACHE_PORT, &rc);
-    } else {
-        servers = memcached_server_list_append(nullptr, UDA_CACHE_HOST, (in_port_t)atoi(port), &rc);
-    }
-
-    //memcached_create(&cache->memcache);       // Causes a segmentation Violation!
-    cache->memcache = *memcached_create(nullptr);
-    rc = memcached_server_push(&cache->memcache, servers);
-
-    if (rc == MEMCACHED_SUCCESS) {
-        UDA_LOG(UDA_LOG_DEBUG, "%s\n", "Added server successfully");
-    } else {
-        UDA_LOG(UDA_LOG_DEBUG, "Couldn't add server: %s\n", memcached_strerror(&cache->memcache, rc));
-        free(cache);
-        return nullptr;
-    }
-
-    global_cache = cache;   // Copy the pointer
-    return cache;
+}
 }
 
-void udaFreeCache() // Will be called by the idamFreeAll function
-{
-    memcached_free(&global_cache->memcache);
-    free(global_cache);
-    global_cache = nullptr;
-}
+namespace {
 
-// Use the requested signal and source with client specified properties to create a unique key
-// All parameters that may effect the data state, e.g. flags, host, port, properties, etc. must be included in the key
-// There is a 250 character limit - use SHA1 hash if it exceeds 250
-// The local cache should only be used to record data returned from a server after a GET method - Note: Put methods may be disguised in a GET call!
-// How to validate the cached data?
+static uda::cache::UdaCache* global_cache = nullptr;    // scope limited to this code module
 
-char* generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment, int flags)
+/**
+ * Use the requested signal and source with client specified properties to create a unique key.
+ *
+ * All parameters that may effect the data state, e.g. flags, host, port, properties, etc. must be included in the key.
+ *
+ * There is a 250 character limit - use SHA1 hash if it exceeds 250. The local cache should only be used to record data
+ * returned from a server after a GET method - Note: Put methods may be disguised in a GET call!
+ */
+std::string generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment, int flags)
 {
     // Check Properties for permission and requested method
     if (!(flags & CLIENTFLAG_CACHE)) {
-        return nullptr;
+        return {};
     }
 
-    // **** TODO **** if(!(clientFlags & CLIENTFLAG_CACHE) || request_block->put) return nullptr;
     const char* delimiter = "&&";
-    size_t len = strlen(request->source) + strlen(request->signal) +
-                 strlen(environment.server_host) + 128;
-    char* key = (char*)malloc(len * sizeof(char));
-    sprintf(key, "%s%s%s%s%s%s%d%s%d%s%d", request->signal, delimiter, request->source, delimiter,
-            environment.server_host, delimiter, environment.server_port, delimiter, environment.clientFlags, delimiter,
-            privateFlags);
+    std::stringstream ss;
+    ss << request->signal << delimiter
+       << request->source << delimiter
+       << environment.server_host << delimiter
+       << environment.server_port << delimiter
+       << flags << delimiter
+       << privateFlags;
 
-    char* p = nullptr;
-    while ((p = strchr(key, ' ')) != nullptr) {
-        *p = '_';
-    }
+    auto key = ss.str();
+    std::transform(key.begin(), key.end(), key.begin(), [](const decltype(key)::value_type c) {
+        if (std::isspace(c)) {
+            return '_';
+        }
+        return static_cast<decltype(key)::value_type>(std::tolower(c));
+    });
 
-    // *** TODO: Add server properties (set by the client) to the key - planned to use clientFlags (bit settings) but not implemented yet! ***
-    // *** which server is the client connected to .... may not be the default in the ENVIRONMENT structure! - Investigate! ***
-    // *** privateFlags is a global also in the CLIENT_BLOCK structure passed to the server (with clientFlags)
-
-    if (len < 250) {
+    if (key.length() < 250) {
         return key;
     }
 
-#ifndef HASHXDR
-    free(key);
-    return nullptr;
-    // No Hash function to create the key
-#else
     // Need a compact hash - use SHA1 as always 20 bytes (40 bytes when printable)
-    unsigned char md[MAXELEMENTSHA1 + 1];      // SHA1 Hash
-    md[MAXELEMENTSHA1] = '\0';
-    strcpy((char*)md, "                    ");
-    SHA1((unsigned char*)key, len, md);
-    // Convert to a printable string (40 characters) for the key (is this necessary?)
-    key[40] = '\0';
+    unsigned char hash[MAX_ELEMENT_SHA1 + 1];
+    memset(hash, ' ', MAX_ELEMENT_SHA1);
+    hash[MAX_ELEMENT_SHA1] = '\0';
+    SHA1(reinterpret_cast<const unsigned char*>(key.data()), key.length(), hash);
 
-    for (int j = 0; j < 20; j++) {
-        sprintf(&key[2 * j], "%2.2x", md[j]);
+    // Convert to a printable string (40 characters) for the key (is this necessary?)
+    std::string hash_key;
+    hash_key.resize(40);
+    for (int i = 0; i < 20; i++) {
+        sprintf(&hash_key[2 * i], "%2.2x", hash[i]);
     }
 
-    return key;
-#endif
+    return hash_key;
 }
 
-// Use NON-BLOCKING IO mode for performance?
-// Write only with the server's permission - which information should be kept in the cache is the concern of the server only
-// All data services should indicate whether or not the data returned is suitable for client side caching (all server plugin get methods must decide!)
-// The server should also set a recommmended expiration time (lifetime of the stored object) - overridden by the client if necessary
-
-int memcache_put(UDA_CACHE* cache, const char* key, const char* buffer, size_t bufsize)
+int memcache_put(uda::cache::UdaCache* cache, const char* key, const char* buffer, size_t bufsize)
 {
     // Expiration of the object
     static unsigned int age_max = UDA_CACHE_EXPIRY;
-    static int init = 1;
+    static bool init = false;
 
-    if (init) {
+    if (!init) {
         char* env = getenv("UDA_CACHE_EXPIRY");
 
         if (env != nullptr) {
             age_max = (unsigned int)atoi(env);
         }
 
-        init = 0;
+        init = true;
     }
 
     time_t life = time(nullptr);
@@ -201,8 +157,75 @@ int memcache_put(UDA_CACHE* cache, const char* key, const char* buffer, size_t b
     return 0;
 }
 
+std::pair<char*, size_t> get_cache_value(uda::cache::UdaCache* cache, const char* key)
+{
+    UDA_LOG(UDA_LOG_DEBUG, "Retrieving value for key: %s\n", key);
+    memcached_return rc;
+    size_t len = 0;
+    u_int32_t flags = 0;
+    char* value = memcached_get(&cache->memcache, key, strlen(key), &len, &flags, &rc);
+
+    if (rc != MEMCACHED_SUCCESS) {
+        UDA_LOG(UDA_LOG_ERROR, "Couldn't retrieve key: %s\n", memcached_strerror(&cache->memcache, rc));
+        return {nullptr, 0};
+    }
+
+    return {value, len};
+}
+
+} // anon namespace
+
+uda::cache::UdaCache* uda::cache::udaOpenCache()
+{
+    static bool init = false;
+    if (init) {
+        return global_cache;
+    }
+
+    auto cache = (uda::cache::UdaCache*)malloc(sizeof(uda::cache::UdaCache));
+    memcached_return_t rc;
+    memcached_server_st* servers;
+
+    const char* host = getenv("UDA_CACHE_HOST");   // Overrule the default settings
+    const char* port = getenv("UDA_CACHE_PORT");
+
+    if (host == nullptr && port == nullptr) {
+        servers = memcached_server_list_append(nullptr, UDA_CACHE_HOST, (in_port_t)UDA_CACHE_PORT, &rc);
+    } else if (host != nullptr && port != nullptr) {
+        servers = memcached_server_list_append(nullptr, host, (in_port_t)atoi(port), &rc);
+    } else if (host != nullptr) {
+        servers = memcached_server_list_append(nullptr, host, (in_port_t)UDA_CACHE_PORT, &rc);
+    } else {
+        servers = memcached_server_list_append(nullptr, UDA_CACHE_HOST, (in_port_t)atoi(port), &rc);
+    }
+
+    //memcached_create(&cache->memcache);       // Causes a segmentation Violation!
+    cache->memcache = *memcached_create(nullptr);
+    rc = memcached_server_push(&cache->memcache, servers);
+
+    if (rc == MEMCACHED_SUCCESS) {
+        UDA_LOG(UDA_LOG_DEBUG, "%s\n", "Added server successfully");
+    } else {
+        UDA_LOG(UDA_LOG_DEBUG, "Couldn't add server: %s\n", memcached_strerror(&cache->memcache, rc));
+        free(cache);
+        init = true;
+        return nullptr;
+    }
+
+    global_cache = cache;   // Copy the pointer
+    init = true;
+    return cache;
+}
+
+void uda::cache::udaFreeCache() // Will be called by the idamFreeAll function
+{
+    memcached_free(&global_cache->memcache);
+    free(global_cache);
+    global_cache = nullptr;
+}
+
 int
-udaCacheWrite(UDA_CACHE* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
+uda::cache::udaCacheWrite(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
               LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
               int protocolVersion, int flags)
 {
@@ -214,10 +237,10 @@ udaCacheWrite(UDA_CACHE* cache, const REQUEST_DATA* request_data, DATA_BLOCK* da
 #endif
     int rc = 0;
 
-    char* key = generate_cache_key(request_data, environment, flags);
-    UDA_LOG(UDA_LOG_DEBUG, "Caching value for key: %s\n", key);
+    auto key = generate_cache_key(request_data, environment, flags);
+    UDA_LOG(UDA_LOG_DEBUG, "Caching value for key: %s\n", key.c_str());
 
-    if (key == nullptr) {
+    if (key.empty()) {
         return -1;
     }
 
@@ -228,57 +251,26 @@ udaCacheWrite(UDA_CACHE* cache, const REQUEST_DATA* request_data, DATA_BLOCK* da
 
     writeCacheData(memfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion);
 
-    rc = memcache_put(cache, key, buffer, bufsize);
+    rc = memcache_put(cache, key.c_str(), buffer, bufsize);
 
     fclose(memfile);
     free(buffer);
-    free(key);
 
     return rc;
 }
 
-FILE* create_mem_file(const char* value, size_t len)
+DATA_BLOCK* uda::cache::udaCacheRead(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data,
+                                     LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                                     ENVIRONMENT environment, int protocolVersion, int flags)
 {
-    char* buffer;
-    size_t bufsize = 0;
-
-    FILE* memfile = open_memstream(&buffer, &bufsize);
-
-    fwrite(value, sizeof(char), len, memfile);
-    fseek(memfile, 0L, SEEK_SET);
-
-    return memfile;
-}
-
-std::pair<char*, size_t> get_cache_value(UDA_CACHE* cache, const char* key)
-{
-    UDA_LOG(UDA_LOG_DEBUG, "Retrieving value for key: %s\n", key);
-    memcached_return rc;
-    size_t len = 0;
-    u_int32_t flags = 0;
-    char* value = memcached_get(&cache->memcache, key, strlen(key), &len, &flags, &rc);
-
-    if (rc != MEMCACHED_SUCCESS) {
-        UDA_LOG(UDA_LOG_ERROR, "Couldn't retrieve key: %s\n", memcached_strerror(&cache->memcache, rc));
-        return { nullptr, 0 };
-    }
-
-    return { value, len };
-}
-
-DATA_BLOCK* udaCacheRead(UDA_CACHE* cache, const REQUEST_DATA* request_data, LOGMALLOCLIST* logmalloclist,
-                         USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion,
-                         int flags)
-{
-    char* key = generate_cache_key(request_data, environment, flags);
-    if (key == nullptr) {
+    auto key = generate_cache_key(request_data, environment, flags);
+    if (key.empty()) {
         return nullptr;
     }
 
     char* value;
     size_t len;
-    std::tie(value, len) = get_cache_value(cache, key);
-    free(key);
+    std::tie(value, len) = get_cache_value(cache, key.c_str());
     if (value == nullptr) {
         return nullptr;
     }

@@ -12,10 +12,7 @@
 #endif
 
 #include <clientserver/udaTypes.h>
-#include <security/authenticationUtils.h>
 #include <cstring>
-
-#include "errorLog.h"
 
 void initNameValueList(NAMEVALUELIST* nameValueList)
 {

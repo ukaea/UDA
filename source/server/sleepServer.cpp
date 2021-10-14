@@ -12,7 +12,6 @@
 #include <clientserver/protocol.h>
 #include <server/udaServer.h>
 #include <clientserver/xdrlib.h>
-#include <clientserver/udaErrors.h>
 
 int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion)
 {

@@ -1,13 +1,7 @@
-/*---------------------------------------------------------------
-* Accessor Functions
-*
-*/
-
 #include "accAPI.h"
 
 #include <cmath>
 #include <vector>
-#include <sys/stat.h>
 
 #ifdef __GNUC__
 #  include <pthread.h>
@@ -30,7 +24,7 @@
 #include <clientserver/xdrlib.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
-#include <cache/memcache.h>
+#include <cache/memcache.hpp>
 #include <version.h>
 
 #include "generateErrors.h"
