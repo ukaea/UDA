@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------
-* IDAM Naive Dimensional Data Compressor
+* UDA Naive Dimensional Data Compressor
 *
 * Input Arguments:	DIMS *		Dimensional Data
 *

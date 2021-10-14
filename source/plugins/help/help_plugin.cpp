@@ -19,7 +19,7 @@
 *---------------------------------------------------------------------------------------------------------------*/
 #include "help_plugin.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #ifdef __GNUC__
 #  include <strings.h>
 #else

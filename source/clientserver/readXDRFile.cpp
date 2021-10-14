@@ -17,10 +17,9 @@
 
 #include "readXDRFile.h"
 
-#include <stdlib.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cerrno>
 #include <logging/logging.h>
-#include <clientserver/udaErrors.h>
 
 #include "errorLog.h"
 
@@ -37,8 +36,8 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
     FILE* fh;
     char* bp = nullptr;
 
-//----------------------------------------------------------------------
-// Open the File as a Binary Stream
+    //----------------------------------------------------------------------
+    // Open the File as a Binary Stream
 
     errno = 0;
     fh = fopen(xdrfile, "rb");

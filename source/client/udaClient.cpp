@@ -24,7 +24,7 @@
 #include <client/connection.h>
 #include <client/getEnvironment.h>
 #include <cache/fileCache.h>
-#include <cache/memcache.h>
+#include <cache/memcache.hpp>
 
 #include "closedown.h"
 #include "accAPI.h"
@@ -35,7 +35,7 @@
 #else
 #  include "clientXDRStream.h"
 #  include <clientserver/xdrlib.h>
-#include <cache/memcache.h>
+#include <cache/memcache.hpp>
 #include <cache/fileCache.h>
 #include <cassert>
 #  ifdef SSLAUTHENTICATION
@@ -177,7 +177,7 @@ int check_file_cache(const REQUEST_DATA* request_data, DATA_BLOCK** p_data_block
     return -1;
 }
 
-int check_mem_cache(UDA_CACHE* cache, REQUEST_DATA* request_data, DATA_BLOCK** p_data_block,
+int check_mem_cache(uda::cache::UdaCache* cache, REQUEST_DATA* request_data, DATA_BLOCK** p_data_block,
                     LOGMALLOCLIST* log_malloc_list, USERDEFINEDTYPELIST* user_defined_type_list)
 {
     // Check Client Properties for permission to cache
@@ -185,7 +185,7 @@ int check_mem_cache(UDA_CACHE* cache, REQUEST_DATA* request_data, DATA_BLOCK** p
 
         // Open the Cache
         if (cache == nullptr) {
-            cache = udaOpenCache();
+            cache = uda::cache::udaOpenCache();
         }
 
         // Query the cache for the Data
@@ -430,7 +430,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
 #ifndef FATCLIENT   // <========================== Client Server Code Only
 #  ifndef NOLIBMEMCACHED
-        static UDA_CACHE* cache;
+        static uda::cache::UdaCache* cache;
 
         int num_cached = 0;
         for (int i = 0; i < request_block->num_requests; ++i) {
@@ -1385,13 +1385,13 @@ void idamFree(int handle)
 void idamFreeAll()
 {
     // Free All Heap Memory
-    #ifndef FATCLIENT
+#ifndef FATCLIENT
     int protocol_id;
 #endif
 
 #ifndef NOLIBMEMCACHED
     // Free Cache connection object
-    udaFreeCache();
+    uda::cache::udaFreeCache();
 #endif
 
     for (int i = 0; i < acc_getCurrentDataBlockIndex(); ++i) {

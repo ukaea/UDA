@@ -16,7 +16,7 @@
 #include <server/serverPlugin.h>
 #include <structures/parseIncludeFile.h>
 #include <structures/struct.h>
-#include <cache/memcache.h>
+#include <cache/memcache.hpp>
 
 #include "closeServerSockets.h"
 #include "createXDRStream.h"
@@ -88,11 +88,11 @@ static int startupServer(SERVER_BLOCK* server_block);
 
 static int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
                          METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
-                         DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, UDA_CACHE* cache);
+                         DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache);
 
 static int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                         SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
-                        ACTIONS* actions_sig, int* fatal, UDA_CACHE* cache);
+                        ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache);
 
 static int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                           int trap1Err, METADATA_BLOCK* metadata_block);
@@ -130,7 +130,7 @@ int udaServer(CLIENT_BLOCK client_block)
     initActions(&actions_sig);
     initRequestBlock(&request_block);
 
-    UDA_CACHE* cache = udaOpenCache();
+    uda::cache::UdaCache* cache = uda::cache::udaOpenCache();
 
     if ((err = startupServer(&server_block)) != 0) return err;
 
@@ -345,7 +345,7 @@ int reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list,
 
 int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
                   METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
-                  DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, UDA_CACHE* cache)
+                  DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
@@ -783,7 +783,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
 int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                  SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
-                 ACTIONS* actions_sig, int* fatal, UDA_CACHE* cache)
+                 ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache)
 {
     int err = 0;
 

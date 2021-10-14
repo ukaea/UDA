@@ -15,7 +15,7 @@
 
 #include "expand_path.h"
 
-#include <errno.h>
+#include <cerrno>
 
 #ifndef _WIN32
 
@@ -25,7 +25,7 @@
 #  include <Windows.h>
 #endif
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <logging/logging.h>
 #include <clientserver/udaErrors.h>

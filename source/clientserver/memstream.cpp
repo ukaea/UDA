@@ -6,9 +6,9 @@
 
 #include "memstream.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string.h>
-#include <errno.h>
+#include <cerrno>
 
 struct memstream {
     char** cp;

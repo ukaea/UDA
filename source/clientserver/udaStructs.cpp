@@ -2,9 +2,7 @@
 
 #include <logging/logging.h>
 
-#include "initStructs.h"
 #include "udaTypes.h"
-#include "makeRequestBlock.h"
 
 void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
 {

@@ -1,6 +1,6 @@
 #include "serverProcessing.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <logging/logging.h>
 #include <clientserver/udaTypes.h>

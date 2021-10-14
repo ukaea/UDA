@@ -1,7 +1,3 @@
-// Server Functions to Close Socket Connections to External Data Servers
-//
-//----------------------------------------------------------------------------------
-
 #include "closeServerSockets.h"
 
 #if defined(__GNUC__)

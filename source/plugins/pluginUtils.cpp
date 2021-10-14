@@ -1,13 +1,13 @@
 #include "pluginUtils.h"
 
-#include <stdlib.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cerrno>
 #include <dlfcn.h>
 #ifdef __GNUC__
 #  include <strings.h>
 #endif
 
-#include <cache/memcache.h>
+#include <cache/memcache.hpp>
 #include <client/udaClient.h>
 #include <clientserver/expand_path.h>
 #include <clientserver/freeDataBlock.h>

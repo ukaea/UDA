@@ -1,13 +1,6 @@
-/*---------------------------------------------------------------
-* Allocate Memory for XML based Hierarchical Data Structures
-*
-* returns 0 if No Heap Allocation Error occurs
-*
-*--------------------------------------------------------------*/
+#ifdef HIERARCHICAL_DATA
 
 #include "allocXMLData.h"
-
-#ifdef HIERARCHICAL_DATA
 
 int alloc_efit(EFIT* efit)
 {

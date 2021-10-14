@@ -16,7 +16,7 @@
 #  define dup2 _dup2
 #endif
 
-#include <cache/memcache.h>
+#include <cache/memcache.hpp>
 #include <client/udaClient.h>
 #include <clientserver/expand_path.h>
 #include <clientserver/initStructs.h>

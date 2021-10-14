@@ -1,4 +1,3 @@
-#include <logging/logging.h>
 #include "udaTypes.h"
 
 #include "udaStructs.h"

@@ -1,6 +1,6 @@
 #include "uda_plugin.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <client/accAPI.h>
 #include <clientserver/initStructs.h>

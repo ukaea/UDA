@@ -1,12 +1,3 @@
-//--------------------------------------------------------------------------------------------------------------------
-// Generic Data Access Tool
-// XML defined Derived Signals
-// XML corrections to Data
-//
-// Return Codes:	0 => OK, otherwise Error
-//
-//--------------------------------------------------------------------------------------------------------------------
-
 #include "serverGetData.h"
 
 #include <cerrno>

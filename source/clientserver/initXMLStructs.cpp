@@ -1,21 +1,6 @@
-/*---------------------------------------------------------------
-* Initialise IDAM Hierarchical XML Data Structures
-*
-* Input Arguments:
-*
-* Returns:
-*
-* Calls
-*
-* Notes:
-*
-* ToDo:
-*
-*--------------------------------------------------------------*/
+#ifdef HIERARCHICAL_DATA
 
 #include "initXMLStructs.h"
-
-#ifdef HIERARCHICAL_DATA
 
 void initEfit(EFIT* str)
 {

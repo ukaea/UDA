@@ -1,7 +1,3 @@
-/*---------------------------------------------------------------
-* IDAM Data Server: Program stub that call the shared library API
-*--------------------------------------------------------------*/
-
 #include <cstdlib>
 #if defined(__GNUC__)
 #  include <unistd.h>

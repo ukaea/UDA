@@ -1,6 +1,6 @@
 #include "xdrUserDefinedData.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <logging/logging.h>
 #include <clientserver/protocol.h>

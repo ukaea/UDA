@@ -1,6 +1,6 @@
 #include "writer.h"
 
-#include <errno.h>
+#include <cerrno>
 
 #include <logging/logging.h>
 #include <clientserver/udaDefines.h>

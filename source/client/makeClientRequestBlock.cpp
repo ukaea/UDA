@@ -13,7 +13,7 @@ Interprets the API arguments and assembles a Request data structure.
 #include "makeClientRequestBlock.h"
 #include "getEnvironment.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #ifdef __GNUC__
 #  include <strings.h>
 #elif defined(_WIN32)
