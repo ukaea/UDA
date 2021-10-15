@@ -1,25 +1,25 @@
 /*----------------------------------------------------------------------------------------------
 * Client - Server Conversation Protocol for XML based Hierarchical Data Structures
 *
-* Args:	xdrs		XDR Stream
+* Args:    xdrs        XDR Stream
 *
-*	protocol_id	Client/Server Conversation item: Data Exchange context
-*	direction	Send (0) or Receive (1) or Free (2)
-*	token		current error condition or next protocol or .... exchange token
+*    protocol_id    Client/Server Conversation item: Data Exchange context
+*    direction    Send (0) or Receive (1) or Free (2)
+*    token        current error condition or next protocol or .... exchange token
 *
-*	str		Information Structure depending on the protocol id ....
+*    str        Information Structure depending on the protocol id ....
 *
-*	100	efit
-*	101	pfcoils
-*	102	pfpassive
-*	103	pfsupplies
-*	104	fluxloop
-*	105	magprobe
-*	106	pfcircuit
-*	107	plasmacurrent
-*	108	diamagnetic
-*	109	toroidalfield
-*	110	limiter
+*    100    efit
+*    101    pfcoils
+*    102    pfpassive
+*    103    pfsupplies
+*    104    fluxloop
+*    105    magprobe
+*    106    pfcircuit
+*    107    plasmacurrent
+*    108    diamagnetic
+*    109    toroidalfield
+*    110    limiter
 *
 * Returns: error code if failure, otherwise 0
 *
@@ -28,28 +28,28 @@
 *
 * The DATA_BLOCK structure has the following fields used to pass and receive generalised data structures
 *
-* data_block->data_type		set to UDA_TYPE_COMPOUND (external to this routine)
-* data_block->data_n		set to the count of structure array elements (external to this routine)
+* data_block->data_type        set to UDA_TYPE_COMPOUND (external to this routine)
+* data_block->data_n        set to the count of structure array elements (external to this routine)
 *
-* data_block->data		sending (server side): set to the data array (external to this routine)
-*				receiving (client side): set to the root data tree node within this routine
+* data_block->data        sending (server side): set to the data array (external to this routine)
+*                receiving (client side): set to the root data tree node within this routine
 *
-* data_block->opaque_type	set to UDA_OPAQUE_TYPE_STRUCTURES (external to this routine)
-* data_block->count		set to 1 (external to this routine). Not Used!
+* data_block->opaque_type    set to UDA_OPAQUE_TYPE_STRUCTURES (external to this routine)
+* data_block->count        set to 1 (external to this routine). Not Used!
 *
-* data_block->opaque_block	sending (server side): set to the User Defined Data Structure Definition of
-*				the Data (external to this routine).
-*				receiving (client side): set to the SARRAY Data Structure Definition
+* data_block->opaque_block    sending (server side): set to the User Defined Data Structure Definition of
+*                the Data (external to this routine).
+*                receiving (client side): set to the SARRAY Data Structure Definition
 *
 * The SARRAY structure has the following:
 *
-* sarray.count			set to the count of structure array elements. Identical to data_block->data_n.
-* sarray.rank			set to 1 (Higher ranked arrays possible ?)
-* sarray.shape			set to [sarray.count] for consistency.
-* sarray.data			set to data_block->data
-* sarray.type			set to the name of the User Defined Structure type of data
-*				(data_block->opaque_block->name). This is registered within the Structure
-*				Type List.
+* sarray.count            set to the count of structure array elements. Identical to data_block->data_n.
+* sarray.rank            set to 1 (Higher ranked arrays possible ?)
+* sarray.shape            set to [sarray.count] for consistency.
+* sarray.data            set to data_block->data
+* sarray.type            set to the name of the User Defined Structure type of data
+*                (data_block->opaque_block->name). This is registered within the Structure
+*                Type List.
 **--------------------------------------------------------------------------------------------------*/
 #include "protocolXML.h"
 
@@ -303,10 +303,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Receiving from Server\n");
 
                     // 3 valid options:
-                    //	1> unpack structures, no xdr file involved	=> privateFlags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_STRUCTDATA
-                    //	2> unpack structures, from an xdr file		=> privateFlags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_XDRFILE
-                    //	3> xdr file only, no unpacking, passforward	=> privateFlags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_XDRFILE
-                    //	4> Error					=> privateFlags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_STRUCTDATA
+                    //    1> unpack structures, no xdr file involved    => privateFlags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_STRUCTDATA
+                    //    2> unpack structures, from an xdr file        => privateFlags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_XDRFILE
+                    //    3> xdr file only, no unpacking, passforward    => privateFlags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_XDRFILE
+                    //    4> Error                    => privateFlags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_STRUCTDATA
                     //
                     // Option 3 does not include intermediate file caching - option 2 only
 

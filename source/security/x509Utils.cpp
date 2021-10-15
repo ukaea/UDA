@@ -197,7 +197,7 @@ static int do_encode_md(gcry_md_hd_t md, int algo, int pkalgo, unsigned int nbit
 
         /* We encode the MD in this way:
          *
-         *	   0  A PAD(n bytes)   0  ASN(asnlen bytes)  MD(len bytes)
+         *       0  A PAD(n bytes)   0  ASN(asnlen bytes)  MD(len bytes)
          *
          * PAD consists of FF bytes.
          */

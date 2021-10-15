@@ -7,23 +7,23 @@
 #
 # These are used to sign and validate other X.509 certificates for user authentication over UDA.
 #
-# Inputs: 	1 key length (4096 bits is default)
-#		2 Duration of Certificate (365 days is default)
+# Inputs:     1 key length (4096 bits is default)
+#        2 Duration of Certificate (365 days is default)
 #
-# Defaults:	Directory of the CA root certificate and private key ~/.UDA/caroot
-#		Directory of the openssl configuration files ~/.UDA/caroot/openssl.cnf
+# Defaults:    Directory of the CA root certificate and private key ~/.UDA/caroot
+#        Directory of the openssl configuration files ~/.UDA/caroot/openssl.cnf
 #
-# Outputs:	certs/carootX509.pem	self-signed certificate
-#		certs/carootX509.der	self-signed certificate in der format
-#		private/carootskey.pem	CA key pair (secret key)  
-#		certs/carootpkey.pem	CA public key 
+# Outputs:    certs/carootX509.pem    self-signed certificate
+#        certs/carootX509.der    self-signed certificate in der format
+#        private/carootskey.pem    CA key pair (secret key)
+#        certs/carootpkey.pem    CA public key
 #
 # openssl commands: genrsa, req, x509, rsa 
 # commands with input configuration file: req
 #
 # Change History
 #
-# 14Dec2016 D.G.Muir	Original Version
+# 14Dec2016 D.G.Muir    Original Version
 #--------------------------------------------------------------------------
 
 LENGTH=${1:-4096}
@@ -38,10 +38,10 @@ mkdir $CADIR/crl $CADIR/newcerts $CADIR/private >/dev/null 2>&1
 mkdir $CADIR/newcerts $CADIR/private >/dev/null 2>&1
 mkdir $CADIR/private >/dev/null 2>&1
 
-touch $CADIR/index.txt		# database
+touch $CADIR/index.txt        # database
 
 if [ ! -e $CADIR/serial ] ; then
-   echo 1000 > $CADIR/serial	# certificate serial numbers
+   echo 1000 > $CADIR/serial    # certificate serial numbers
 fi
 
 cp -p $PWD/openssl.cnf $CADIR/. 

@@ -116,43 +116,43 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     //==============================================================================
     // Check if the data_source has one of these forms:
     //
-    //	pulse			plasma shot number - an integer
-    //	pulse/pass		include a pass or sequence number - this may be a text based component, e.g. LATEST
-    //	DEVICE::pulse		prefixed by a device name
-    //	DEVICE::pulse/pass
+    //    pulse            plasma shot number - an integer
+    //    pulse/pass        include a pass or sequence number - this may be a text based component, e.g. LATEST
+    //    DEVICE::pulse        prefixed by a device name
+    //    DEVICE::pulse/pass
     //
-    //	FORMAT::/path/to/my/file
-    //      FORMAT::./path/to/my/file		use client side resolution of ./ location contained in path otherwise ignore
-    //      FORMAT::../path/to/my/file		use client side resolution of ../ location
-    //	FORMAT::/scratch/path/to/my/file	use client side resolution of /scratch location (change name via environment variable)
+    //    FORMAT::/path/to/my/file
+    //      FORMAT::./path/to/my/file        use client side resolution of ./ location contained in path otherwise ignore
+    //      FORMAT::../path/to/my/file        use client side resolution of ../ location
+    //    FORMAT::/scratch/path/to/my/file    use client side resolution of /scratch location (change name via environment variable)
     //
-    //	FORMAT::pulse		FORMAT is the default FORMAT, e.g. IDA3
-    //	FORMAT::/pulse
-    //	FORMAT::/pulse/pass
-    //	/pulse
-    //	/pulse/pass
+    //    FORMAT::pulse        FORMAT is the default FORMAT, e.g. IDA3
+    //    FORMAT::/pulse
+    //    FORMAT::/pulse/pass
+    //    /pulse
+    //    /pulse/pass
     //
-    //	DEVICE::FORMAT::/path/to/my/file	Passed on to a different IDAM server without interpretation
-    //	DEVICE::FORMAT::pulse
+    //    DEVICE::FORMAT::/path/to/my/file    Passed on to a different IDAM server without interpretation
+    //    DEVICE::FORMAT::pulse
 
-    //	/path/to/my/file.ext			use file extension 'ext' to identify the correct FORMAT if known
+    //    /path/to/my/file.ext            use file extension 'ext' to identify the correct FORMAT if known
     //      ./path/to/my/file.ext
     //      ../path/to/my/file.ext
-    //	/scratch/path/to/my/file.ext
+    //    /scratch/path/to/my/file.ext
     //
-    //	PROTOCOL::server.host.name:port/U/R/L	server access requests - always requires the delimiter string element in string
+    //    PROTOCOL::server.host.name:port/U/R/L    server access requests - always requires the delimiter string element in string
     //
-    //	function(arguments or name value pair list)		server side processing of data
-    //	LIBRARY::function(arguments or name value pair list)	function plugin library
-    //	DEVICE::function(arguments or name value pair list)	Not allowed - use DEVICE::SERVERSIDE::function()
+    //    function(arguments or name value pair list)        server side processing of data
+    //    LIBRARY::function(arguments or name value pair list)    function plugin library
+    //    DEVICE::function(arguments or name value pair list)    Not allowed - use DEVICE::SERVERSIDE::function()
     //
-    //	DEVICE::FORMAT:: ...			If the DEVICE is not the default device, then a server protocol is invoked to pass
+    //    DEVICE::FORMAT:: ...            If the DEVICE is not the default device, then a server protocol is invoked to pass
     //                                              the request forward (FORMAT:: ...)
     //
     // Legacy exception: treat PPF and JPF formats as server protocols => no file path expansion required and ignored
     //
     //      PPF::/ddaname/pulse/pass/userid or PPF::ddaname/pulse/pass/userid
-    //	JPF::pulse or JPF::/pulse
+    //    JPF::pulse or JPF::/pulse
     //
     //------------------------------------------------------------------------------
     // Scenario #1: Format or protocol or library is present - there are no delimiters in the source string
@@ -173,7 +173,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
         strcpy(work, request->source);
     }
 
-    // Test for DEVICE::LIBRARY::function(argument)	 - More delimiter characters present?
+    // Test for DEVICE::LIBRARY::function(argument)     - More delimiter characters present?
 
     char* p;
     if (test != nullptr && STR_IEQUALS(work2, environment->api_device) &&
@@ -210,7 +210,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
             if (generic_request_test(work, request)) break;
 
-            // Not a Server Side Function? 		Note: /a/b/fun(aaa) is a (bad!)file path and fun(a/b/c) is a function
+            // Not a Server Side Function?         Note: /a/b/fun(aaa) is a (bad!)file path and fun(a/b/c) is a function
 
             char* p0 = strchr(work, '/');        // Path separator mixed with parenthesis?
             char* p1 = strrchr(work, '/');
@@ -261,7 +261,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
             } else {
 
-                // Internal Server Side Function ?	A file path may contain characters ( and ) !
+                // Internal Server Side Function ?    A file path may contain characters ( and ) !
 
                 if ((p = strchr(work, '(')) != nullptr && strchr(p, ')') != nullptr) {
                     strcpy(work2, &p[1]);
@@ -610,15 +610,15 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     //---------------------------------------------------------------------------------------------------------------------
     // MDS+ Servers ...
 
-    // MDS+ Source naming models:	MDS+::localhost/tree/number	any source with one or more / must have a trailing number
-    // 				MDS+::server/tree/number
-    //				MDS+::server/path/to/data/tree/number
-    //				MDS+::server/path.to.data/tree/number
-    //				MDS+::/path/to/data/tree/number
-    //				MDS+::/path.to.data/tree/number
-    // 				MDS+::tree/number
-    //				MDS+::server
-    //				MDS+::
+    // MDS+ Source naming models:    MDS+::localhost/tree/number    any source with one or more / must have a trailing number
+    //                 MDS+::server/tree/number
+    //                MDS+::server/path/to/data/tree/number
+    //                MDS+::server/path.to.data/tree/number
+    //                MDS+::/path/to/data/tree/number
+    //                MDS+::/path.to.data/tree/number
+    //                 MDS+::tree/number
+    //                MDS+::server
+    //                MDS+::
 
     if (request->request == REQUEST_READ_MDS && !isProxy) {
 
@@ -760,12 +760,12 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
     int rc = 0;
     const char* test;
 
-    // .99		IDA3 file
-    // .nc		netCDF4
-    // .cdf		netCDF3
-    // .hf		HDF
-    // .jpg		Binary
-    // .csv		ASCII
+    // .99        IDA3 file
+    // .nc        netCDF4
+    // .cdf        netCDF3
+    // .hf        HDF
+    // .jpg        Binary
+    // .csv        ASCII
 
     // Note: On JET the default data source is PPF. This is really a server protocol and not a file format.
 
@@ -998,8 +998,8 @@ int generic_request_test(const char* source, REQUEST_DATA* request)
     //------------------------------------------------------------------------------
     // Check if the source has one of these forms:
 
-    // pulse		plasma shot number - an integer
-    // pulse/pass		include a pass or sequence number - this may be a text based component, e.g. LATEST
+    // pulse        plasma shot number - an integer
+    // pulse/pass        include a pass or sequence number - this may be a text based component, e.g. LATEST
 
     if (IsNumber((char*)source)) {                    // Is the source an integer number?
         rc = 1;
@@ -1032,9 +1032,9 @@ int generic_request_test(const char* source, REQUEST_DATA* request)
 
 //------------------------------------------------------------------------------
 // Strip out the Archive or Plugin name from the data_object name
-// syntax:	ARCHIVE::Data_OBJECT or DATA_OBJECT
-//		ARCHIVE::PLUGIN::Function() or PLUGIN::Function()
-// conflict:	ARCHIVE::DATA_OBJECT[::] or DATA_OBJECT[::] subsetting operations
+// syntax:    ARCHIVE::Data_OBJECT or DATA_OBJECT
+//        ARCHIVE::PLUGIN::Function() or PLUGIN::Function()
+// conflict:    ARCHIVE::DATA_OBJECT[::] or DATA_OBJECT[::] subsetting operations
 //
 // NOTE: Archive/Plugin Name should not terminate with the character [ or { when a signal begins with the
 //       character ] or }. These clash with subsetting syntax.
@@ -1211,8 +1211,8 @@ int extract_subset(REQUEST_DATA* request)
 {
     // Return codes:
     //
-    //	1 => Valid subset
-    //	0 => Not a subset operation - Not compliant with syntax
+    //    1 => Valid subset
+    //    0 => Not a subset operation - Not compliant with syntax
     //     -1 => Error
 
     int rc = 1, lwork, subsetCount = 1;        // Number of subsetting operations
@@ -1248,18 +1248,18 @@ int extract_subset(REQUEST_DATA* request)
     //----------------------------------------------------------------------------------------------------------------------------
     // Split instructions using syntax [a:b:c][d:e:f] or [a:b:c, d:e:f] where [startIndex:stopIndex:stride]
     //
-    // Syntax	[a]		single items at index position a
-    //		[*]		all items
-    //		[]		all items
+    // Syntax    [a]        single items at index position a
+    //        [*]        all items
+    //        []        all items
     //
-    //		[:]		all items starting at 0
-    //		[a:]		all items starting at a
-    //		[a:*]		all items starting at a
-    //		[a:b]		all items starting at a and ending at b
+    //        [:]        all items starting at 0
+    //        [a:]        all items starting at a
+    //        [a:*]        all items starting at a
+    //        [a:b]        all items starting at a and ending at b
     //
-    //		[a::c]		all items starting at a with stride c
-    //		[a:*:c]		all items starting at a with stride c
-    //		[a:b:c]		all items starting at a, ending at b with stride c
+    //        [a::c]        all items starting at a with stride c
+    //        [a:*:c]        all items starting at a with stride c
+    //        [a:b:c]        all items starting at a, ending at b with stride c
 
     while ((token = strstr(work, "][")) != nullptr ||
            (token = strstr(work, "}{")) != nullptr) {    // Adopt a single syntax

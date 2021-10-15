@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------------------------
 // Serverside Data Subsetting Operations Data
 //
-// Return Codes:	0 => OK, otherwise Error
+// Return Codes:    0 => OK, otherwise Error
 //
 //--------------------------------------------------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@
 //
 // additional operations are:
 //
-//	reform - reduce the rank by 1 if the dimension length is 1 and the rank > 1
+//    reform - reduce the rank by 1 if the dimension length is 1 and the rank > 1
 
 
 // todo:
@@ -490,7 +490,7 @@ int serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* logma
                 start = subsetindices[0];
                 end = subsetindices[dim_n - 1];
 
-                if (notoperation && dim_n > 1) {        // Double Range	?
+                if (notoperation && dim_n > 1) {        // Double Range    ?
                     int range2 = 0;
                     if (dim_n == dim->dim_n) {
                         notoperation = 0;            // No Second Range found so switch OFF NOT Operation
@@ -1282,9 +1282,9 @@ int serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serversi
     // =0.15,!=0.15,<=0.05,>=0.05,!<=0.05,!>=0.05,<0.05,>0.05,0:25,25:0,25,*,25:,:25
     //
     // Identify Three Types of Operations:
-    //	A) Contains the characters: =,>, <, !, ~
-    //	B) : or Integer Value
-    //	C) * or #
+    //    A) Contains the characters: =,>, <, !, ~
+    //    B) : or Integer Value
+    //    C) * or #
     //
 
     for (int i = 0; i < nbound; i++) {

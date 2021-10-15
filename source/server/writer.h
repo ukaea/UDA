@@ -14,8 +14,8 @@
 
 #include <clientserver/export.h>
 
-#define MIN_BLOCK_TIME	1000
-#define MAX_BLOCK_TIME	10000
+#define MIN_BLOCK_TIME    1000
+#define MAX_BLOCK_TIME    10000
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,21 +34,21 @@ LIBRARY_API int Writeout(void* iohandle, char* buf, int count);
 //
 // There are two time constraints:
 //
-//	The Maximum Blocking period is 1ms when reading
-//	A Maximum number (MAXLOOP) of blocking periods is allowed before this time
-//	is modified: It is extended to 100ms to minimise server resource consumption. 
+//    The Maximum Blocking period is 1ms when reading
+//    A Maximum number (MAXLOOP) of blocking periods is allowed before this time
+//    is modified: It is extended to 100ms to minimise server resource consumption.
 //
 // When the Server is in a Holding state, it is listening to the Socket for either a
 // Closedown or a Data request. 
 //
 // Three Global variables are used to control the Blocking timeout
 //
-//	min_block_time
-//	max_block_time 
-//	tot_block_time
+//    min_block_time
+//    max_block_time
+//    tot_block_time
 //
 // A Maximum time (MAXBLOCK in seconds) from the last Data Request is permitted before the Server Automatically
-// closes down.	
+// closes down.
 //-----------------------------------------------------------------------------------------
 */
 LIBRARY_API int Readin(void* iohandle, char* buf, int count);

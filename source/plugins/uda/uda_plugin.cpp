@@ -258,13 +258,13 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, char* oldServerH
 Notes: there are three pathways depending on the request pattern
 
 1> request is the result of an SQL query against the metadata catalog
-	if the primary key fields of the data_source and signal_desc structures are non zero
+    if the primary key fields of the data_source and signal_desc structures are non zero
 2> request is a device redirect or a server protocol
-	path = server:port/source, server=""
+    path = server:port/source, server=""
 3> request is a function call
-	path = "", name-value pair arguments, server=""
+    path = "", name-value pair arguments, server=""
 4> request is a server call
-	server=server:port, path=source
+    server=server:port, path=source
 */
 
 // Identify execution pathway
@@ -298,7 +298,7 @@ Notes: there are three pathways depending on the request pattern
 
     // This fails if the legacy UDA plugin is called by a server in the forward chain and it set marked a 'private'
     // For IMAS development, this has been disabled
-    //if(environment.external_user) setIdamPrivateFlag(PRIVATEFLAG_EXTERNAL);	// Maintain external user status
+    //if(environment.external_user) setIdamPrivateFlag(PRIVATEFLAG_EXTERNAL);    // Maintain external user status
 
     // Set Userid
 
@@ -671,15 +671,15 @@ Notes: there are three pathways depending on the request pattern
     // If the Data are Hierarchical, then necessary to forward the xdr file
     //
     // List of structures from external server may conflict with local definitions
-    //	Don't use local definitions
+    //    Don't use local definitions
     //
     // No access to malloc log within client
     //
     // Data received is a Data Tree. This would need to be restructured - i.e., pointer extracted from
     // structure SARRAY (may be different to local SARRAY!)
-    //	Don't pass a data tree - use an XDR file instead.
-    //	Required if http is to be adopted as middleware protocol
-    // 	Relay everything from the external server back to the client without interpretation.
+    //    Don't pass a data tree - use an XDR file instead.
+    //    Required if http is to be adopted as middleware protocol
+    //     Relay everything from the external server back to the client without interpretation.
     //
     // Namespace issues: Both the Client and the Server use the same functions to Query. The PRE_LOAD requirement of MDS+
     // causes the UDA client library to be loaded ahead of the server library: Result confusion and seg fault errors.

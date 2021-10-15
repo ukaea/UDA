@@ -449,7 +449,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         int num_cached = 0;
         for (int i = 0; i < request_block->num_requests; ++i) {
-	        auto request = &request_block->requests[i];
+            auto request = &request_block->requests[i];
             DATA_BLOCK* data_block = &cached_data_block_list.data[i];
             int rc = check_file_cache(request, &data_block, logmalloclist, userdefinedtypelist, full_ntree,
                                       &log_struct_list);
@@ -882,7 +882,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Return Database Meta Data if User Requests it
 
 #ifndef FATCLIENT // <========================== Client Server Code Only
-    	allocMetaHeap = false;
+        allocMetaHeap = false;
 #endif // <===== End of Client Server Only Code
 
         if (client_block.get_meta) {

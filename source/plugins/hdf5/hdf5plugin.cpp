@@ -1,21 +1,21 @@
 /*---------------------------------------------------------------
 * v1 IDAM Plugin: HDF5 Data Reader
 *
-* Input Arguments:	IDAM_PLUGIN_INTERFACE *idam_plugin_interface
+* Input Arguments:    IDAM_PLUGIN_INTERFACE *idam_plugin_interface
 *
-* Returns:		0 if the plugin functionality was successful
-*			otherwise a Error Code is returned 
+* Returns:        0 if the plugin functionality was successful
+*            otherwise a Error Code is returned
 *
 * Standard functionality:
 *
-*	help	a description of what this plugin does together with a list of functions available
+*    help    a description of what this plugin does together with a list of functions available
 *
-*	reset	frees all previously allocated heap, closes file handles and resets all static parameters.
-*		This has the same functionality as setting the housekeeping directive in the plugin interface
-*		data structure to TRUE (1)
+*    reset    frees all previously allocated heap, closes file handles and resets all static parameters.
+*        This has the same functionality as setting the housekeeping directive in the plugin interface
+*        data structure to TRUE (1)
 *
-*	init	Initialise the plugin: read all required data and process. Retain staticly for
-*		future reference.	
+*    init    Initialise the plugin: read all required data and process. Retain staticly for
+*        future reference.
 *
 *---------------------------------------------------------------------------------------------------------------*/
 #include "hdf5plugin.h"

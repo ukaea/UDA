@@ -35,7 +35,7 @@ data:
    
    simpleByte = {1};
    simpleShort = {1};
-   simpleInt = {1};	
+   simpleInt = {1};
    simpleFloat = {4.5};
    simpleDouble = {4.5};
 }

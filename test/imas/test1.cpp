@@ -54,7 +54,7 @@ int main() {
     std::vector<float> values = arr->as<float>();
     
     for (int i = 0; i < arr->as<float>().size(); ++i) {
-    	out << time.at<float>(i) << "," << values.at(i) << "\n"; 
+        out << time.at<float>(i) << "," << values.at(i) << "\n";
     }
     //std::cout << str->str() << std::endl;
     return 0;

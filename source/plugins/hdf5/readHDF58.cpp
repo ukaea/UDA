@@ -1,22 +1,22 @@
 /*---------------------------------------------------------------
 * IDAM Plugin data Reader to Access DATA from HDF5 Files
 *
-* Input Arguments:	DATA_SOURCE data_source
-*			SIGNAL_DESC signal_desc
+* Input Arguments:    DATA_SOURCE data_source
+*            SIGNAL_DESC signal_desc
 *
-* Returns:		readHDF5	0 if read was successful
-*					otherwise a Error Code is returned
-*			DATA_BLOCK	Structure with Data from the HDF5 File
+* Returns:        readHDF5    0 if read was successful
+*                    otherwise a Error Code is returned
+*            DATA_BLOCK    Structure with Data from the HDF5 File
 *
-* Calls		freeDataBlock	to free Heap memory if an Error Occurs
+* Calls        freeDataBlock    to free Heap memory if an Error Occurs
 *
-* Notes: 	All memory required to hold data is allocated dynamically
-*		in heap storage. Pointers to these areas of memory are held
-*		by the passed DATA_BLOCK structure. Local memory allocations
-*		are freed on exit. However, the blocks reserved for data are
-*		not and MUST BE FREED by the calling routine.
+* Notes:     All memory required to hold data is allocated dynamically
+*        in heap storage. Pointers to these areas of memory are held
+*        by the passed DATA_BLOCK structure. Local memory allocations
+*        are freed on exit. However, the blocks reserved for data are
+*        not and MUST BE FREED by the calling routine.
 *
-* ToDo:		BUG - seg fault occurs when a signal name without a leading / is passed
+* ToDo:        BUG - seg fault occurs when a signal name without a leading / is passed
 *-----------------------------------------------------------------------------*/
 
 #include "readHDF58.h"
@@ -399,7 +399,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
             precision = (int)H5Tget_precision(datatype_id);        // Atomic Datatype's precision
 #ifdef H5TEST
             nativetype  =       H5Tget_native_type(datatype_id,H5T_DIR_ASCEND);  // the Native Datatype
-            typesize    = (int) H5Tget_size(datatype_id);			// Type Size (Bytes)
+            typesize    = (int) H5Tget_size(datatype_id);            // Type Size (Bytes)
 #endif
             classtype = H5Tget_class(datatype_id);            // Class
             is_signed = H5Tget_sign(datatype_id) != H5T_SGN_NONE;    // Whether or Not the Type is Signed
@@ -417,7 +417,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
             precision = (int)H5Tget_precision(datatype_id);        // Atomic Datatype's precision
 #ifdef H5TEST
             nativetype  = (hid_t) -1;
-            typesize    = (int) H5Tget_size(datatype_id);			// Type Size (Bytes)
+            typesize    = (int) H5Tget_size(datatype_id);            // Type Size (Bytes)
 #endif
             classtype = H5Tget_class(datatype_id);            // Class
             is_signed = H5Tget_sign(datatype_id) != H5T_SGN_NONE;    // Whether or Not the Type is Signed
@@ -742,7 +742,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
 
               if(metaxml != NULL){
                  data_block->opaque_type  = UDA_OPAQUE_TYPE_XML_DOCUMENT;
-        	 data_block->opaque_block = (void *)metaxml;
+             data_block->opaque_block = (void *)metaxml;
               }
         */
 

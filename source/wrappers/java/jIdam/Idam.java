@@ -3,19 +3,19 @@ package jIdam;
 public class Idam {
 
 
-	public static int TYPE_UNKNOWN;
-	public static int TYPE_CHAR;
-	public static int TYPE_SHORT;
-	public static int TYPE_INT;
-	public static int TYPE_LONG;
-	public static int TYPE_LONG64;
-	public static int TYPE_FLOAT;
-	public static int TYPE_DOUBLE;
-	public static int TYPE_UNSIGNED_CHAR;
-	public static int TYPE_UNSIGNED_SHORT;
-	public static int TYPE_UNSIGNED_INT;
-	public static int TYPE_UNSIGNED_LONG64;
-	public static int TYPE_UNSIGNED_LONG;
+    public static int TYPE_UNKNOWN;
+    public static int TYPE_CHAR;
+    public static int TYPE_SHORT;
+    public static int TYPE_INT;
+    public static int TYPE_LONG;
+    public static int TYPE_LONG64;
+    public static int TYPE_FLOAT;
+    public static int TYPE_DOUBLE;
+    public static int TYPE_UNSIGNED_CHAR;
+    public static int TYPE_UNSIGNED_SHORT;
+    public static int TYPE_UNSIGNED_INT;
+    public static int TYPE_UNSIGNED_LONG64;
+    public static int TYPE_UNSIGNED_LONG;
 
 // Idam API
 
@@ -24,9 +24,9 @@ public class Idam {
      public static native void idamFreeAll();
 
 // Multithread Idam API
-	public static native int  idamGetAPIMT(String signal, String source);
-	public static native int  idamCleanMyLocksMT();
-	public static native int  idamCleanAllLocksMT();
+    public static native int  idamGetAPIMT(String signal, String source);
+    public static native int  idamCleanMyLocksMT();
+    public static native int  idamCleanAllLocksMT();
      
 // Set Server Properties
      
@@ -87,7 +87,7 @@ public class Idam {
      public static native int getIdamDataType(int handle);
      public static native int getIdamErrorType(int handle);
      public static native int getIdamDataTypeId(String type);
-	 public static native int getIdamDataTypeSize(int type);
+     public static native int getIdamDataTypeSize(int type);
      
      public static native String getIdamDataLabel(int handle);
      public static native String getIdamDataUnits(int handle);
@@ -95,12 +95,12 @@ public class Idam {
      
 // Return data
 
-	 public static native char[] getIdamCharData(int handle);
-	 public static native byte[] getIdamByteData(int handle);
-	 public static native short[] getIdamShortData(int handle);
-	 public static native int[] getIdamIntData(int handle);
+     public static native char[] getIdamCharData(int handle);
+     public static native byte[] getIdamByteData(int handle);
+     public static native short[] getIdamShortData(int handle);
+     public static native int[] getIdamIntData(int handle);
      public static native float[] getIdamFloatData(int handle);
-	 public static native long[] getIdamLongData(int handle);
+     public static native long[] getIdamLongData(int handle);
      public static native double[] getIdamDoubleData(int handle);
 
 //     public static native float[] castIdamDataToFloat(int handle);     
@@ -119,11 +119,11 @@ public class Idam {
 
      public static native float[] getIdamFloatDimData(int handle, int dimId);     
      public static native double[] getIdamDoubleDimData(int handle, int dimId);
-	 public static native long[] getIdamLongDimData(int handle, int dimId);
-	 public static native int[] getIdamIntDimData(int handle, int dimId);
-	 public static native short[] getIdamShortDimData(int handle, int dimId);
-	 public static native char[] getIdamCharDimData(int handle, int dimId);
-	 public static native byte[] getIdamByteDimData(int handle, int dimId);
+     public static native long[] getIdamLongDimData(int handle, int dimId);
+     public static native int[] getIdamIntDimData(int handle, int dimId);
+     public static native short[] getIdamShortDimData(int handle, int dimId);
+     public static native char[] getIdamCharDimData(int handle, int dimId);
+     public static native byte[] getIdamByteDimData(int handle, int dimId);
 
 //     public static native float[] castIdamDimDataToFloat(int handle, int dimId);     
 //     public static native double[] castIdamDimDataToDouble(int handle, int dimId);
@@ -139,30 +139,30 @@ public class Idam {
                    
 // New UDA methods:
 
-	public static native String[] getVariablesRegex (String pPattern);
+    public static native String[] getVariablesRegex (String pPattern);
 
 // Link the regular idam library to libIdam.so
 
      static {
         try {
-	   		System.loadLibrary("uda_jni");
+               System.loadLibrary("uda_jni");
         } catch (UnsatisfiedLinkError e) {
             System.err.println("Native code library failed to load.\n" + e);
             System.exit(1);
         }
-		
-		TYPE_UNKNOWN = getIdamDataTypeId("unknown");
-    	TYPE_CHAR = getIdamDataTypeId("char");
-    	TYPE_SHORT = getIdamDataTypeId("short");
-    	TYPE_INT = getIdamDataTypeId("int");
-		TYPE_LONG = getIdamDataTypeId("long");
-    	TYPE_LONG64 = getIdamDataTypeId("long64");
-    	TYPE_FLOAT = getIdamDataTypeId("float");
-    	TYPE_DOUBLE = getIdamDataTypeId("double");
-    	TYPE_UNSIGNED_CHAR = getIdamDataTypeId("unsigned char");
-    	TYPE_UNSIGNED_SHORT = getIdamDataTypeId("unsigned shot");
-    	TYPE_UNSIGNED_INT = getIdamDataTypeId("unsigned int");
-    	TYPE_UNSIGNED_LONG = getIdamDataTypeId("unsigned long");
-		TYPE_UNSIGNED_LONG64 = getIdamDataTypeId("unsigned long64");
+
+        TYPE_UNKNOWN = getIdamDataTypeId("unknown");
+        TYPE_CHAR = getIdamDataTypeId("char");
+        TYPE_SHORT = getIdamDataTypeId("short");
+        TYPE_INT = getIdamDataTypeId("int");
+        TYPE_LONG = getIdamDataTypeId("long");
+        TYPE_LONG64 = getIdamDataTypeId("long64");
+        TYPE_FLOAT = getIdamDataTypeId("float");
+        TYPE_DOUBLE = getIdamDataTypeId("double");
+        TYPE_UNSIGNED_CHAR = getIdamDataTypeId("unsigned char");
+        TYPE_UNSIGNED_SHORT = getIdamDataTypeId("unsigned shot");
+        TYPE_UNSIGNED_INT = getIdamDataTypeId("unsigned int");
+        TYPE_UNSIGNED_LONG = getIdamDataTypeId("unsigned long");
+        TYPE_UNSIGNED_LONG64 = getIdamDataTypeId("unsigned long64");
      }
  }

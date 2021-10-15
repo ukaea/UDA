@@ -5,7 +5,7 @@
 #include <rpc/xdr.h>
 #include "export.h"
 
-#define MAXDOLOOPLIMIT 500			// ~50MB file
+#define MAXDOLOOPLIMIT 500            // ~50MB file
 
 #ifdef __cplusplus
 extern "C" {

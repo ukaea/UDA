@@ -1,10 +1,10 @@
 /*---------------------------------------------------------------
 * Allocate Memory for the Data and Dim Blocks and Data Error Block
 *
-* Arguments:	DATA_BLOCK *		Data Block Structure
+* Arguments:    DATA_BLOCK *        Data Block Structure
 *
-* Returns:	allocData		0 if heap allocation was successful
-*		DATA_BLOCK->data	Pointer to Memory Block
+* Returns:    allocData        0 if heap allocation was successful
+*        DATA_BLOCK->data    Pointer to Memory Block
 *
 *--------------------------------------------------------------*/
 

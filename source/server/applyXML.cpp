@@ -4,11 +4,11 @@
 * Returns:
 *
 * Notes: Actions defined within the SIGNAL record have a Higher priority than
-*	 Actions defined within the SIGNAL_DESC record.
+*     Actions defined within the SIGNAL_DESC record.
 *
 *        Priorities are subject to exp_number and pass range checks
 *
-*	 A specific time_offset correction occurs befor any time dimension rescaling.
+*     A specific time_offset correction occurs befor any time dimension rescaling.
 *
 *-----------------------------------------------------------------------------------------------*/
 

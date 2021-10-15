@@ -205,7 +205,7 @@ void freeReducedDataBlock(DATA_BLOCK* data_block)
     data_block->data_type    = UDA_TYPE_UNKNOWN;
     data_block->opaque_type  = UDA_OPAQUE_TYPE_UNKNOWN;
 
-    data_block->data         = nullptr;		// Added to Malloc Log List for freeing
+    data_block->data         = nullptr;        // Added to Malloc Log List for freeing
     return;
 #endif
 }

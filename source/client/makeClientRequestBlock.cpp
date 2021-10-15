@@ -109,10 +109,10 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
     */
 
     // Path expansion disabled - applications must provide the full path to data resources.
-    // XXXX::12345		shot number
-    // XXXX::12345/a 	keyword or pass number
-    // XXXX::12345/a,b,c	keywords or substitution values
-    // XXXX::12345/a=b,c=d	name-value pairs
+    // XXXX::12345        shot number
+    // XXXX::12345/a     keyword or pass number
+    // XXXX::12345/a,b,c    keywords or substitution values
+    // XXXX::12345/a=b,c=d    name-value pairs
     // XXXX::a
     // XXXX::a,b,c
     // XXXX::a=b,c=d
@@ -168,15 +168,15 @@ int shotRequestTest(const char* source)
     //------------------------------------------------------------------------------
     // Check if the source has one of these forms:
 
-    // pulse		plasma shot number - an integer
-    // pulse/pass		include a pass or sequence number - this may be a text based component, e.g. LATEST
+    // pulse        plasma shot number - an integer
+    // pulse/pass        include a pass or sequence number - this may be a text based component, e.g. LATEST
 
-    if (IsNumber((char*) source)) return 1;		// The source an integer number 
+    if (IsNumber((char*) source)) return 1;        // The source an integer number
         
     strcpy(work, source);
     
-    if ((token = strtok(work, "/")) != nullptr) {		// Tokenise the remaining string
-       if (IsNumber(token)) return 1;			// Is the First token an integer number?
+    if ((token = strtok(work, "/")) != nullptr) {        // Tokenise the remaining string
+       if (IsNumber(token)) return 1;            // Is the First token an integer number?
     }
 
     return 0;

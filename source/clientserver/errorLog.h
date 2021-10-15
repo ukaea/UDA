@@ -5,7 +5,7 @@
 #include "export.h"
 #include <time.h>
 
-#define DATELENGTH	27
+#define DATELENGTH    27
 
 //--------------------------------------------------------
 // Error Management

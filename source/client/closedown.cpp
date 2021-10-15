@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------
 * Close the Socket, XDR Streams, Open File Handles
 *
-* Argument: 	If 1 then full closedown otherwise only the
-*		Socket and XDR Streams.
+* Argument:     If 1 then full closedown otherwise only the
+*        Socket and XDR Streams.
 *
 * Returns:
 *
@@ -52,7 +52,7 @@ int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XD
     env_host = 1;            // Initialise at Startup
     env_port = 1;
 
-#else			// <========================== Fat Client Code Only
+#else            // <========================== Fat Client Code Only
     if (type == ClosedownType::CLOSE_ALL) {
         closeServerSockets(socket_list);    // Close the Socket Connections to Other Data Servers
     }

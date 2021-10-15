@@ -13,10 +13,10 @@ print('Fetching signal')
 print()
 
 try:
-	signal = client.get("ip", "13500")
+    signal = client.get("ip", "13500")
 except pyuda.UDAException as e:
-	print("Error:", e)
-	raise SystemExit()
+    print("Error:", e)
+    raise SystemExit()
 
 print('Type:', type(signal))
 print('Name:', signal.label)
@@ -40,10 +40,10 @@ print('Fetching structured data')
 print()
 
 try:
-	tree = client.get("/", "meta::listData(context=meta, shot=12100, cast=column)")
+    tree = client.get("/", "meta::listData(context=meta, shot=12100, cast=column)")
 except pyuda.UDAException as e:
-	print('Error:', e)
-	raise SystemExit()
+    print('Error:', e)
+    raise SystemExit()
 
 print('Type:', type(tree))
 tree.display()

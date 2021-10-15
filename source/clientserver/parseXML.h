@@ -62,7 +62,7 @@ typedef struct DimCalibration {
 } DIMCALIBRATION;
 
 typedef struct DimComposite {
-    int to_dim;                                 // duplicated as dimid 	// Swap to Dimension ID
+    int to_dim;                                 // duplicated as dimid     // Swap to Dimension ID
     int from_dim;                               // Swap from Dimension ID
     char file[SXMLMAXSTRING];
     char format[SXMLMAXSTRING];
@@ -79,7 +79,7 @@ typedef struct DimDocumentation {
 typedef struct DimErrorModel {
     int model;                                  // Error Model Id
     int param_n;                                // The number of parameters
-    //float *params;			                // Parameter Array
+    //float *params;                            // Parameter Array
     float params[MAXERRPARAMS];
 } DIMERRORMODEL;
 
@@ -137,7 +137,7 @@ typedef struct Composite {
 typedef struct ErrorModel {
     int model;                                  // Error Model Id
     int param_n;                                // The number of parameters
-    //float *params;			                // Parameter Array
+    //float *params;                            // Parameter Array
     float params[MAXERRPARAMS];
     int ndimensions;
     DIMENSION* dimensions;

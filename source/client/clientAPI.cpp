@@ -74,10 +74,10 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
 /*---------------------------------------------------------------
 * Reads the Requested Data
 *
-* Input Arguments:	1) File Name
-*			2) Signal Name
-*			3) File Format
-*			4) Plasma Pulse/Experiment Number
+* Input Arguments:    1) File Name
+*            2) Signal Name
+*            3) File Format
+*            4) Plasma Pulse/Experiment Number
 *
 * Returns:
 *

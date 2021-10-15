@@ -30,7 +30,7 @@ void ncclose(int fh) {
 }
 #endif
 
-unsigned int totalDataBlockSize = 0;
+unsigned int total_datablock_size = 0;
 
 int server_tot_block_time = 0;
 
@@ -151,7 +151,8 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
         return err;
     }
 
-    udaAccessLog(FALSE, client_block, request_block, *server_block, &pluginList, getServerEnvironment());
+    udaAccessLog(FALSE, client_block, request_block, *server_block, &pluginList, getServerEnvironment(),
+                 total_datablock_size);
 
     err = doFatServerClosedown(server_block, &data_blocks, &actions_desc, &actions_sig, data_blocks0);
 
@@ -450,7 +451,7 @@ int startupFatServer(SERVER_BLOCK* server_block)
 
     if (!fileParsed) {
         fileParsed = 1;
-	
+
         initUserDefinedTypeList(&parseduserdefinedtypelist);
         userdefinedtypelist = &parseduserdefinedtypelist; // Switch before Parsing input file
 

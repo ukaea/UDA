@@ -2,14 +2,14 @@
 /*! Expand/Resolve the Path/File Name to its Full Form, including link resolution.
 
  Environment Variables:
-				UDA_SCRATCHNAME
-				UDA_NETWORKNAME
-				HOSTNAME
+                UDA_SCRATCHNAME
+                UDA_NETWORKNAME
+                HOSTNAME
  Macros
-				SCRATCHDIR
-				NETPREFIX
-				HOSTNAME
-				NOHOSTPREFIX
+                SCRATCHDIR
+                NETPREFIX
+                HOSTNAME
+                NOHOSTPREFIX
 */
 //------------------------------------------------------------------------------------------------------------------
 
@@ -172,10 +172,10 @@ Client and server may see different network file paths. A path seen by the clien
 server. Generally, the path might contain additional hierarchical components that need removing. This is
 easily done by substitution.
 
-Examples:	/.automount/funsrv1/root/home/xyz -> /net/funsrv1/home/xyz
-		/.automount/funsrv1/root/home/xyz -> /home/xyz
-		/.automount/fuslsd/root/data/MAST_Data/013/13500/Pass0/amc0135.00 -> /net/fuslsd/data/MAST_Data/013/13500/Pass0/amc0135.00
-		/scratch/mydata -> /net/hostname/scratch/mydata
+Examples:    /.automount/funsrv1/root/home/xyz -> /net/funsrv1/home/xyz
+        /.automount/funsrv1/root/home/xyz -> /home/xyz
+        /.automount/fuslsd/root/data/MAST_Data/013/13500/Pass0/amc0135.00 -> /net/fuslsd/data/MAST_Data/013/13500/Pass0/amc0135.00
+        /scratch/mydata -> /net/hostname/scratch/mydata
 
 A list of Target path components is read from the environment variable UDA_PRIVATE_PATH_TARGET. The delimiter between
 components is , or : or ;.
@@ -206,7 +206,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
 //
 // This replacement also occurs on the UDA server
 //
-// pattern:	/A/B/C;/D/E/F -> /A/C;/E
+// pattern:    /A/B/C;/D/E/F -> /A/C;/E
 // use multiple wild card characters '*' for 'any' target path element name
 // target and replacement strings must begin with '/'
 //
@@ -463,20 +463,20 @@ int linkReplacement(char* path) {
 //------------------------------------------------------------------------------------------------------------------
 /*! Fully expand file directory paths to remove relative path or environment variable components.
 
- Examples:	filename			        use getpwd
-		./filename			            use cd; $PWD
-		../../filename			        use cd; $PWD
-		/abc/filename			        do nothing - fully resolved
-		~user/abc/filename		        use cd; $PWD
-		/scratch/abc/filename		    use hostname
-		/tmp/abc/def/filename		    use hostname
-		/fuslwx/scratch/abc/filename	do nothing - fully resolved
-		/fuslwx/tmp/abc/filename	    do nothing - fully resolved
-		/fuslwx/abc/filename		    do nothing - fully resolved
-		/99999  			            do nothing - Resolved by the Server Data Plugin
-		/99999/999 			            do nothing - Resolved by the Server Data Plugin
-		$ENVAR/abc/filename		        expand with the specified environment variable
-		$ENVAR/abc/$ENVAR/filename	    expand with the specified environment variable
+ Examples:    filename                    use getpwd
+        ./filename                        use cd; $PWD
+        ../../filename                    use cd; $PWD
+        /abc/filename                    do nothing - fully resolved
+        ~user/abc/filename                use cd; $PWD
+        /scratch/abc/filename            use hostname
+        /tmp/abc/def/filename            use hostname
+        /fuslwx/scratch/abc/filename    do nothing - fully resolved
+        /fuslwx/tmp/abc/filename        do nothing - fully resolved
+        /fuslwx/abc/filename            do nothing - fully resolved
+        /99999                          do nothing - Resolved by the Server Data Plugin
+        /99999/999                         do nothing - Resolved by the Server Data Plugin
+        $ENVAR/abc/filename                expand with the specified environment variable
+        $ENVAR/abc/$ENVAR/filename        expand with the specified environment variable
 
 @param path The file path to be resolved and expanded.
 @returns An integer Error Code: If non zero, a problem occured.
@@ -594,11 +594,11 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
 #ifdef SERVERELEMENTCHECK
     int t7,t8,t9;
-    t7 = strstr(path,environment->api_delim) != nullptr;		// Pass request forward to another server
-    t8 = strchr(path,':') != nullptr;				// Port number => Server
-    t9 = strchr(path,'(') != nullptr && strchr(path,')') != nullptr;	// Server Side Function
+    t7 = strstr(path,environment->api_delim) != nullptr;        // Pass request forward to another server
+    t8 = strchr(path,':') != nullptr;                // Port number => Server
+    t9 = strchr(path,'(') != nullptr && strchr(path,')') != nullptr;    // Server Side Function
 
-    if(t7 || t8 || t9) return 0;					// Server host, protocol, and server side functions
+    if(t7 || t8 || t9) return 0;                    // Server host, protocol, and server side functions
 #endif
 
     //------------------------------------------------------------------------------------------------------------------
@@ -768,8 +768,8 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     //----------------------------------------------------------------------------------------------
     /*! Does the path contain the client workstation's local Scratch directory (Must be visible by the server)
 
-     Model:	/scratch/a/b/c -> /hostname/scratch/a/b/c			(default)
-    	/scratch/a/b/c -> /netname/hostname/scratch/a/b/c
+     Model:    /scratch/a/b/c -> /hostname/scratch/a/b/c            (default)
+        /scratch/a/b/c -> /netname/hostname/scratch/a/b/c
 
     */
 
@@ -825,7 +825,7 @@ char* pathid(char* path)
 {
 
 #ifdef _WIN32
-    return path;		// No check for windows
+    return path;        // No check for windows
 #else
 
     char* p;

@@ -31,6 +31,8 @@ int idamLegacyServer(CLIENT_BLOCK client_block) {
 }
 #else
 
+constexpr int serverVersion = 8;
+
 // Legacy Server Entry point
 
 int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
@@ -42,6 +44,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
     int protocol_id, next_protocol;
 
     static unsigned short normalLegacyWait = 0;
+    static unsigned int total_datablock_size = 0;
 
     SYSTEM_CONFIG system_config;
     DATA_SYSTEM data_system;
@@ -100,7 +103,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             // Prior to this, client and server state blocks are exchanged. Control is not passed back.
             //
             // Errors: Fatal to Data Access: Return the Error Stack before stopping - at top of error trap #2
-            //	   Pass Back Server Block and Await Client Instruction
+            //       Pass Back Server Block and Await Client Instruction
 
             if (normalLegacyWait) {
                 rc = xdrrec_eof(server_input);
@@ -126,7 +129,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             server_timeout = client_block.timeout;        // User specified Server Lifetime
             privateFlags = client_block.privateFlags;    // Server to Server flags
             clientFlags = client_block.clientFlags;    // Client set flags
-            altRank = client_block.altRank;            // Rank of Alternative source
+            int altRank = client_block.altRank;            // Rank of Alternative source
 
             // Protocol Version: Lower of the client and server version numbers
             // This defines the set of elements within data structures passed between client and server
@@ -181,7 +184,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             // Client Request
             //
             // Errors: Fatal to Data Access
-            //	   Pass Back and Await Client Instruction
+            //       Pass Back and Await Client Instruction
 
             protocol_id = PROTOCOL_REQUEST_BLOCK;
 
@@ -280,7 +283,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             //----------------------------------------------------------------------
             // Write to the Access Log
 
-            udaAccessLog(TRUE, client_block, request_block, server_block, pluginlist, getServerEnvironment());
+            udaAccessLog(TRUE, client_block, request_block, server_block, pluginlist, getServerEnvironment(),
+                         total_datablock_size);
 
             //----------------------------------------------------------------------
             // Initialise Data Structures
@@ -645,14 +649,15 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
         //----------------------------------------------------------------------
         // Complete & Write the Access Log Record
 
-        udaAccessLog(0, client_block, request_block, server_block, pluginlist, getServerEnvironment());
+        udaAccessLog(0, client_block, request_block, server_block, pluginlist, getServerEnvironment(),
+                     total_datablock_size);
 
         //----------------------------------------------------------------------------
         // Server Shutdown ? Next Instruction from Client
         //
         // Protocols:   13 => Die
-        //		14 => Sleep
-        //		15 => Wakeup
+        //        14 => Sleep
+        //        15 => Wakeup
 
         // <========================== Client Server Code Only
 

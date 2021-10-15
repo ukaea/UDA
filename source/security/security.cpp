@@ -3,10 +3,10 @@
 //
 // Architecture models: (single/multiple tier network; mesh or bridge network)
 //
-// a)	client connects to a server
-// b)	client connects to a proxy that connects to a server
-// c)	client connects to a server that connects to a server etc. (multi-tier connection)
-// d)	client connects to a proxy that connects to a server that connects to a server etc. (multi-tier connection)
+// a)    client connects to a server
+// b)    client connects to a proxy that connects to a server
+// c)    client connects to a server that connects to a server etc. (multi-tier connection)
+// d)    client connects to a proxy that connects to a server that connects to a server etc. (multi-tier connection)
 //
 // IDAM servers without a public key server component must use PKI (Public Key Infrastructure) X.509 based certificates.
 // X.509 certificates establish the authenticity of the binding between a public key and its owner through a 
@@ -28,39 +28,39 @@
 // a) Mutual athentication for 2 claims of identity (the server may choose not to authenticate)
 // b) Proxy does not authenticate and passes through the claim of identity to the next server as a). 
 // c) Option:
-//	1) The User has one identity. Intermediate servers don't authenticate with each other or the client and 
+//    1) The User has one identity. Intermediate servers don't authenticate with each other or the client and
 //         pass through the claim of identity to the final server. Authentication occurs between the final server 
 //         and the user. 
-//	2) The User has one identity. Intermediate servers authenticate with each other but don't authenticate 
+//    2) The User has one identity. Intermediate servers authenticate with each other but don't authenticate
 //         with the client. They pass through the claim of identity to the final server. Authentication occurs 
 //         between the final server and the user.
-//	3) The User has one identity. All servers authenticate with the client.  **** Not adopted ****
-//	4) The User has two identities. The first server authenticates with the first user identity.
+//    3) The User has one identity. All servers authenticate with the client.  **** Not adopted ****
+//    4) The User has two identities. The first server authenticates with the first user identity.
 //         Intermediate servers don't authenticate with each other or the client and 
 //         pass through the claim of identity to the final server. Authentication occurs between the final server 
 //         and the user (second identity).  
-//	5) The User has two identities. The first server authenticates with the first user identity. 
+//    5) The User has two identities. The first server authenticates with the first user identity.
 //         Intermediate servers authenticate with each other but don't authenticate with the client. They
 //         pass through the second claim of identity to the final server. Authentication occurs between the final server 
 //         and the user (second identity).
-//	6) The User has n identities. Each of n servers authenticates with the n user identities. **** Not adopted ****
+//    6) The User has n identities. Each of n servers authenticates with the n user identities. **** Not adopted ****
 // d) Proxy does not authenticate and passes through the claims of identity to the multiple servers as c).
 // 
 // Steps:
 //
-// 1> 	Client issues a token (A), encrypts with the server's public key (->EASP), passes to server (with X.509)
-//	Server's public key could be obtained from a X.509 certificate (authenticated using signature and CA public key)
-// 2>	Server decrypts the passed cipher (EASP) with the server's private key (->A) 
-// 3>	Server encrypts the client token (A) with the client's public key (->EACP)
-//	Public key could be obtained from a X.509 certificate (authenticated using signature and CA public key)
-//	Public key could alternatively be obtained a user database.
-// 4>	Server issues a new token (B) also encrypted with the client's public key (->EBCP), passes 
-//	both to client. 
-// 5>	Client decrypts the passed ciphers (EACP, EBCP) with the client's private key (->A, ->B) and 
-//	checks token (A) => server authenticated (in addition to the X.509 certificate signature check)
-// 6>	Client encrypts passed token (B) with the server's public key (->EBSP), passes to server
-// 7>	Server decrypts the passed cipher (EBSP) with the server's private key (->B) and checks 
-//	token (B) => client authenticated (in addition to the X.509 certificate signature check).
+// 1>     Client issues a token (A), encrypts with the server's public key (->EASP), passes to server (with X.509)
+//    Server's public key could be obtained from a X.509 certificate (authenticated using signature and CA public key)
+// 2>    Server decrypts the passed cipher (EASP) with the server's private key (->A)
+// 3>    Server encrypts the client token (A) with the client's public key (->EACP)
+//    Public key could be obtained from a X.509 certificate (authenticated using signature and CA public key)
+//    Public key could alternatively be obtained a user database.
+// 4>    Server issues a new token (B) also encrypted with the client's public key (->EBCP), passes
+//    both to client.
+// 5>    Client decrypts the passed ciphers (EACP, EBCP) with the client's private key (->A, ->B) and
+//    checks token (A) => server authenticated (in addition to the X.509 certificate signature check)
+// 6>    Client encrypts passed token (B) with the server's public key (->EBSP), passes to server
+// 7>    Server decrypts the passed cipher (EBSP) with the server's private key (->B) and checks
+//    token (B) => client authenticated (in addition to the X.509 certificate signature check).
 //
 // 8>   Server issues a new token (B) encrypted with the client's public key (->EBCP), passes to client.
 //

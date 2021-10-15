@@ -22,7 +22,7 @@ static void embedded_value_substitution(NAMEVALUELIST* nameValueList);
 // Add additional name-value pairs and keywords to the plugin input 
 
 // shot/tpass data source pattern: "12345/a,b,c, name=value, name=value, d, e, delimiter=',', placeholder='$'" 
-//				
+//
 
 int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
 {
@@ -200,7 +200,7 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
 
 // Substitute named placeholders within value strings
 
-// patterns with name values: string="UDA::getdata(variable='/a/b/c', shot=$shot, tstart=$tstart, tend=$tend)"	substitution for named string elements: $shot, $tstart, $tend
+// patterns with name values: string="UDA::getdata(variable='/a/b/c', shot=$shot, tstart=$tstart, tend=$tend)"    substitution for named string elements: $shot, $tstart, $tend
 
 void embedded_value_substitution(NAMEVALUELIST* nameValueList)
 {
@@ -249,7 +249,7 @@ void embedded_value_substitution(NAMEVALUELIST* nameValueList)
                         continue;
                     }
 
-                    // Match by name (case sensitive) only 		    
+                    // Match by name (case sensitive) only
                     if (!strcmp(&newNameValueList.nameValue[j].value[1], nameValueList->nameValue[k].name)) {
 
                         UDA_LOG(UDA_LOG_DEBUG, "Substitution: embedded[%d] %s=%s with [%d] %s=%s\n",

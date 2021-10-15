@@ -2,12 +2,12 @@
 * v1 IDAM Plugin viewPort: re-bin data to visualise with a rectangular viewport defined by horizonal 
 * and vertical pixel ranges 
 *
-* Input Arguments:	IDAM_PLUGIN_INTERFACE *idam_plugin_interface
+* Input Arguments:    IDAM_PLUGIN_INTERFACE *idam_plugin_interface
 *
-* Returns:		0 if the plugin functionality was successful
-*			otherwise a Error Code is returned 
+* Returns:        0 if the plugin functionality was successful
+*            otherwise a Error Code is returned
 *
-* Standard functionality:	
+* Standard functionality:
 *
 *---------------------------------------------------------------------------------------------------------------*/
 #include "viewport.h"

@@ -106,8 +106,8 @@ macro( BUILD_TEST NAME SOURCE )
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
-	${LIBRARIES}
-	${LINK_STD}
+    ${LIBRARIES}
+    ${LINK_STD}
   )
 
   set_target_properties( ${NAME}
@@ -129,10 +129,10 @@ macro( BUILD_TEST NAME SOURCE )
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
-	${LIBRARIES}
+    ${LIBRARIES}
     ${LINK_M}
-	${LINK_DL}
-	${LINK_STD}
+    ${LINK_DL}
+    ${LINK_STD}
   )
   if( NOT WIN32 AND NOT MINGW )
     target_link_libraries( fat_${NAME} PRIVATE c )

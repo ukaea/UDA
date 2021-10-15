@@ -6,31 +6,31 @@ PHP_CPP Installation
 
 Needs the latest g++ compiler: v4.8.2
 
-	module gcc/4.8.2  on fuslw*** (not idam0,idam1,tm-icat*)
-	private module g++/4.8.2 on tm-icat1
-	
-		cpp installation on tm-icat1: /opt/gcc-4.8.2/
-		
+    module gcc/4.8.2  on fuslw*** (not idam0,idam1,tm-icat*)
+    private module g++/4.8.2 on tm-icat1
+
+        cpp installation on tm-icat1: /opt/gcc-4.8.2/
+
 Needs the php configuration script within the makefile:
 
-	PHP_CONFIG = /home/dgm/PHP/bin/php-config
-	PHP_BIN    = /home/dgm/PHP/bin/php		
-	PHP_COMPILER_FLAGS = ${COMPILER_FLAGS} `${PHP_CONFIG} --includes`	
-	PHP_LINKER_FLAGS   = ${LINKER_FLAGS} `${PHP_CONFIG} --ldflags`	
-	
+    PHP_CONFIG = /home/dgm/PHP/bin/php-config
+    PHP_BIN    = /home/dgm/PHP/bin/php
+    PHP_COMPILER_FLAGS = ${COMPILER_FLAGS} `${PHP_CONFIG} --includes`
+    PHP_LINKER_FLAGS   = ${LINKER_FLAGS} `${PHP_CONFIG} --ldflags`
+
 Needs the php include files => need the installation sources (from the php configuration file)
 
-	Build PHP (see /home/dgm/wordpress/PHP-CPP/php-5.5.12/notes)
-	version 5.5.12 sources installed at 
-	version 5.5.12 installed at /home/dgm/PHP
+    Build PHP (see /home/dgm/wordpress/PHP-CPP/php-5.5.12/notes)
+    version 5.5.12 sources installed at
+    version 5.5.12 installed at /home/dgm/PHP
 
 To run tests (make tests) needs 
-	
-	libstdc++.so.6 -> /opt/gcc-4.8.2/lib64/libstdc++.so.6.0.18
 
-***	Accidently erased previous version libstdc++.so.6.0.13 !!! (copy from tm-icat0?)
+    libstdc++.so.6 -> /opt/gcc-4.8.2/lib64/libstdc++.so.6.0.18
 
-	8 tests failed !
+***    Accidently erased previous version libstdc++.so.6.0.13 !!! (copy from tm-icat0?)
+
+    8 tests failed !
 
 ==========================================================================================================
 Building and Installing the PHP Extension on tm_icat1:
@@ -58,9 +58,9 @@ extension=idamphp.so
 or run /opt/lampp/htdocs/dgm/runme
 
 Apache access is set in the file /opt/lampp/etc/extra/httpd-xampp.conf
-1> comment out 	Require local
+1> comment out     Require local
 2> add
-	Order deny,allow
-	Allow from all
+    Order deny,allow
+    Allow from all
 3> stop/restart server via /opt/lampp/htdocs/dgm/runme
 

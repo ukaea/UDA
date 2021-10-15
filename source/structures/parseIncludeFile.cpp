@@ -1,6 +1,6 @@
 // To Do:
 //
-//	Only rank 1 arrays are handled. Higher rank causes a seg fault
+//    Only rank 1 arrays are handled. Higher rank causes a seg fault
 //
 //----------------------------------------------------------------------------------------------------------------------------
 // parse a standard include/header file for structure definitions.
@@ -104,45 +104,45 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
 //
 // 3 type of structure type defintion:
 //
-// struct AAA {		or
+// struct AAA {        or
 // struct AAA
 // {
-//	int 	a;		// Descriptions are captured if the begin with //
-//	float 	b;
+//    int     a;        // Descriptions are captured if the begin with //
+//    float     b;
 // };
-// typedef struct AAA AAA ;	assumed not split over lines
+// typedef struct AAA AAA ;    assumed not split over lines
 //
 // typedef struct
-// {			or
+// {            or
 // typedef struct{
-//	int 	a;
-//	float 	b;
+//    int     a;
+//    float     b;
 // } AAA;
 //
-// struct AAA {		or
-// struct AAA			This does not use a typedef: instead the type defintion
-// {				struct AAA aaa; is used
-//	int 	a;
-//	float 	b;
-// };				This is identical to the first definition. However, it is not
-//				followed by a typedef statement.
+// struct AAA {        or
+// struct AAA            This does not use a typedef: instead the type defintion
+// {                struct AAA aaa; is used
+//    int     a;
+//    float     b;
+// };                This is identical to the first definition. However, it is not
+//                followed by a typedef statement.
 //
 //
 // Assumed rules:
 //
-// 1> 	retain all #define using integer values for resolving array lengths.
-//	Arithmetic products like 123*234 cannot be resolved. Why recreate the preprocessor if not necessary.
-//	Compiler options cannot be resolved: Prune as necessary
-//	There are defCount defined values. Names do Not Match.
+// 1>     retain all #define using integer values for resolving array lengths.
+//    Arithmetic products like 123*234 cannot be resolved. Why recreate the preprocessor if not necessary.
+//    Compiler options cannot be resolved: Prune as necessary
+//    There are defCount defined values. Names do Not Match.
 //      Don't add constants to #defined values within array definitions.
-// 2>	The start of a Structure definition begins with 'struct' then the structure name.
-//	The structure contents are immediately followed by 'typedef struct' then the structure and type name (must be the same)
-// 3>	The start of a Structure definition begins with 'typedef struct'.
-//	The structure contents are immediately followed by the type name.
-// 4>	Don't use /* */ comment block syntax
-// 5>	Structure UNIONS are not used, not anything complex: simple structures are required.
-// 6>	multiple pointer types, e.g., char **, are not yet impemented
-// 7>	Structure elements should be aligned to avoid packing bytes: these may cause problems client side
+// 2>    The start of a Structure definition begins with 'struct' then the structure name.
+//    The structure contents are immediately followed by 'typedef struct' then the structure and type name (must be the same)
+// 3>    The start of a Structure definition begins with 'typedef struct'.
+//    The structure contents are immediately followed by the type name.
+// 4>    Don't use /* */ comment block syntax
+// 5>    Structure UNIONS are not used, not anything complex: simple structures are required.
+// 6>    multiple pointer types, e.g., char **, are not yet impemented
+// 7>    Structure elements should be aligned to avoid packing bytes: these may cause problems client side
 // 8>   If a typedef is not used, prefix the structure name with 'struct'
 //
 //
@@ -450,7 +450,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     } else {
                                         type[itemCount][0] = '\0';
                                         if (isConst) {
-                                            // strcat(type[itemCount], "const ");		// Not required
+                                            // strcat(type[itemCount], "const ");        // Not required
                                         }
                                         if (isUnsigned) {
                                             strcpy(type[itemCount], "unsigned ");
@@ -491,7 +491,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     TrimString(item[itemCount]);
                                     if ((p = strstr(item[itemCount], ";")) != nullptr) p[0] = '\0';
 
-                                    // Is this a pointer ?	(pointer size is NOT passed: 32/64 bit dependent)
+                                    // Is this a pointer ?    (pointer size is NOT passed: 32/64 bit dependent)
 
                                     pointer[itemCount] = 0;
                                     if (item[itemCount][0] == '*') {

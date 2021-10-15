@@ -92,9 +92,9 @@ void printIdamErrorStack()
 
 // Add an Error to the Stack
 //
-// Error Classes: 	0 => System Error (i.e. a Non Zero errno)
-//			1 => Code Error
-//			2 => Plugin Error
+// Error Classes:     0 => System Error (i.e. a Non Zero errno)
+//            1 => Code Error
+//            2 => Plugin Error
 
 void addIdamError(int type, const char* location, int code, const char* msg)
 {

@@ -3,10 +3,10 @@
 *
 * Log Format: Conforms to the Common Log Format for the first 6 fields
 *
-*		client address, client userid, date, client request,
-*		error code, data bytes returned
-* plus:		error message, elapsed time, client version, server version
-*		client process id
+*        client address, client userid, date, client request,
+*        error code, data bytes returned
+* plus:        error message, elapsed time, client version, server version
+*        client process id
 *
 *--------------------------------------------------------------*/
 
@@ -98,7 +98,7 @@ unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* clie
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
 void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, SERVER_BLOCK server_block,
-                  const PLUGINLIST* pluginlist, const ENVIRONMENT* environment)
+                  const PLUGINLIST* pluginlist, const ENVIRONMENT* environment, unsigned int total_datablock_size)
 {
     int err = 0;
 
@@ -217,22 +217,22 @@ void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_blo
             << "";
 
         auto fmt = boost::format("%1% - %2% [%3%] [%4% %5% %6% %7% %8% %9% %10% %11% %12% %13% %14%] %15% %16% [%17%] %18% %19% %20% [%21% %22%] [%23%]")
-                   % host                  // 1
+            % host                  // 1
             % client_block.uid      // 2
             % accessdate            // 3
-            % request.request           // 4
-            % request.signal            // 5
-            % request.exp_number        // 6
-            % request.pass              // 7
-            % request.tpass             // 8
-            % request.path              // 9
-            % request.file              // 10
-            % request.format            // 11
-            % request.archive           // 12
-            % request.device_name       // 13
-            % request.server            // 14
+            % request.request       // 4
+            % request.signal        // 5
+            % request.exp_number    // 6
+            % request.pass          // 7
+            % request.tpass         // 8
+            % request.path          // 9
+            % request.file          // 10
+            % request.format        // 11
+            % request.archive       // 12
+            % request.device_name   // 13
+            % request.server        // 14
             % err                   // 15
-            % totalDataBlockSize    // 16
+            % total_datablock_size  // 16
             % msg                   // 17
             % elapsedtime           // 18
             % client_block.version  // 19

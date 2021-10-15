@@ -136,17 +136,17 @@ bool_t xdr_securityBlock2(XDR* xdrs, SECURITY_BLOCK* str)
 
 
 // Notes:
-//		debug_level 	** Not Used
-//		get_datadble	** Client Side Only
-//		get_timedble
-//		get_dimdble
-//		get_scalar
-//		get_bytes
-//		get_bad		** Client Side Only
-//		get_meta
-//		get_asis
-//		get_uncal
-//		get_notoff
+//        debug_level     ** Not Used
+//        get_datadble    ** Client Side Only
+//        get_timedble
+//        get_dimdble
+//        get_scalar
+//        get_bytes
+//        get_bad        ** Client Side Only
+//        get_meta
+//        get_asis
+//        get_uncal
+//        get_notoff
 
 
 bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
@@ -164,7 +164,7 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
         rc = rc && xdr_u_int(xdrs, &str->clientFlags) && xdr_int(xdrs, &str->altRank);
     } else {
         int temp = 0;                                   // retain Legacy!
-        rc = rc && xdr_int(xdrs, &temp)                 // Changed type		(was verbose & not used)
+        rc = rc && xdr_int(xdrs, &temp)                 // Changed type        (was verbose & not used)
              && xdr_int(xdrs, &str->altRank);           //                  (was debug)
         str->clientFlags = (unsigned int)temp;
     }
@@ -461,7 +461,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         SARRAY sarray;                                // Structure array carrier structure
         SARRAY* psarray = &sarray;
-        int shape = str->data_n;                            // rank 1 array of dimension lengths	       
+        int shape = str->data_n;                            // rank 1 array of dimension lengths
         auto udt = (USERDEFINEDTYPE*)str->opaque_block;        // The data's structure definition
         auto u = findUserDefinedType(userdefinedtypelist, "SARRAY",
                                                  0); // Locate the carrier structure definition

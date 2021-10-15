@@ -1,19 +1,19 @@
 /*---------------------------------------------------------------
 * Test IDAM Plugin: Test regular and structured data passing middleware
 *
-* Input Arguments:	IDAM_PLUGIN_INTERFACE *idam_plugin_interface
+* Input Arguments:    IDAM_PLUGIN_INTERFACE *idam_plugin_interface
 *
-* Returns:		testplugin	0 if read was successful
-*					otherwise a Error Code is returned
-*			DATA_BLOCK	Structure with Data from the File
+* Returns:        testplugin    0 if read was successful
+*                    otherwise a Error Code is returned
+*            DATA_BLOCK    Structure with Data from the File
 *
-* Calls		freeDataBlock	to free Heap memory if an Error Occurs
+* Calls        freeDataBlock    to free Heap memory if an Error Occurs
 *
-* Notes: 	All memory required to hold data is allocated dynamically
-*		in heap storage. Pointers to these areas of memory are held
-*		by the passed DATA_BLOCK structure. Local memory allocations
-*		are freed on exit. However, the blocks reserved for data are
-*		not and MUST BE FREED by the calling routine.
+* Notes:     All memory required to hold data is allocated dynamically
+*        in heap storage. Pointers to these areas of memory are held
+*        by the passed DATA_BLOCK structure. Local memory allocations
+*        are freed on exit. However, the blocks reserved for data are
+*        not and MUST BE FREED by the calling routine.
 *
 *---------------------------------------------------------------------------------------------------------------*/
 
@@ -3701,7 +3701,7 @@ static int do_test62(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     //count = 1;
     //int rank = 1;
-    //int shape[] = {1};		// Shape of the shape array!
+    //int shape[] = {1};        // Shape of the shape array!
     addMalloc(idam_plugin_interface->logmalloclist, (void*)enumlist->enumarray_shape, 1, sizeof(int), "int");
 
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;

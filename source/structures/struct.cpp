@@ -3304,7 +3304,7 @@ int getNodeStructureComponentDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntre
         return 0;
     }
 
-//dgm 05Aug2015		structure and first component share the same address   
+//dgm 05Aug2015        structure and first component share the same address
     if (!strcmp(ntree->name, lastname)) return ntree->parent->branches;
 
     userdefinedtype = ntree->userdefinedtype;

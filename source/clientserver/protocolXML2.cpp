@@ -1,25 +1,25 @@
 /*----------------------------------------------------------------------------------------------
 * Client - Server Conversation Protocol for XML based Hierarchical Data Structures
 *
-* Args:	xdrs		XDR Stream
+* Args:    xdrs        XDR Stream
 *
-*	protocol_id	Client/Server Conversation item: Data Exchange context
-*	direction	Send (0) or Receive (1) or Free (2)
-*	token		current error condition or next protocol or .... exchange token
+*    protocol_id    Client/Server Conversation item: Data Exchange context
+*    direction    Send (0) or Receive (1) or Free (2)
+*    token        current error condition or next protocol or .... exchange token
 *
-*	str		Information Structure depending on the protocol id ....
+*    str        Information Structure depending on the protocol id ....
 *
-*	100	efit
-*	101	pfcoils
-*	102	pfpassive
-*	103	pfsupplies
-*	104	fluxloop
-*	105	magprobe
-*	106	pfcircuit
-*	107	plasmacurrent
-*	108	diamagnetic
-*	109	toroidalfield
-*	110	limiter
+*    100    efit
+*    101    pfcoils
+*    102    pfpassive
+*    103    pfsupplies
+*    104    fluxloop
+*    105    magprobe
+*    106    pfcircuit
+*    107    plasmacurrent
+*    108    diamagnetic
+*    109    toroidalfield
+*    110    limiter
 *
 * Returns: error code if failure, otherwise 0
 *
@@ -28,28 +28,28 @@
 *
 * The DATA_BLOCK structure has the following fields used to pass and receive generalised data structures
 *
-* data_block->data_type		set to UDA_TYPE_COMPOUND (external to this routine)
-* data_block->data_n		set to the count of structure array elements (external to this routine)
+* data_block->data_type        set to UDA_TYPE_COMPOUND (external to this routine)
+* data_block->data_n        set to the count of structure array elements (external to this routine)
 *
-* data_block->data		sending (server side): set to the data array (external to this routine)
-*				receiving (client side): set to the root data tree node within this routine
+* data_block->data        sending (server side): set to the data array (external to this routine)
+*                receiving (client side): set to the root data tree node within this routine
 *
-* data_block->opaque_type	set to UDA_OPAQUE_TYPE_STRUCTURES (external to this routine)
-* data_block->count		set to 1 (external to this routine). Not Used!
+* data_block->opaque_type    set to UDA_OPAQUE_TYPE_STRUCTURES (external to this routine)
+* data_block->count        set to 1 (external to this routine). Not Used!
 *
-* data_block->opaque_block	sending (server side): set to the User Defined Data Structure Definition of
-*				the Data (external to this routine).
-*				receiving (client side): set to the SARRAY Data Structure Definition
+* data_block->opaque_block    sending (server side): set to the User Defined Data Structure Definition of
+*                the Data (external to this routine).
+*                receiving (client side): set to the SARRAY Data Structure Definition
 *
 * The SARRAY structure has the following:
 *
-* sarray.count			set to the count of structure array elements. Identical to data_block->data_n.
-* sarray.rank			set to 1 (Higher ranked arrays possible ?)
-* sarray.shape			set to [sarray.count] for consistency.
-* sarray.data			set to data_block->data
-* sarray.type			set to the name of the User Defined Structure type of data
-*				(data_block->opaque_block->name). This is registered within the Structure
-*				Type List.
+* sarray.count            set to the count of structure array elements. Identical to data_block->data_n.
+* sarray.rank            set to 1 (Higher ranked arrays possible ?)
+* sarray.shape            set to [sarray.count] for consistency.
+* sarray.data            set to data_block->data
+* sarray.type            set to the name of the User Defined Structure type of data
+*                (data_block->opaque_block->name). This is registered within the Structure
+*                Type List.
 **--------------------------------------------------------------------------------------------------*/
 #include "protocolXML2.h"
 
@@ -378,16 +378,16 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                         // Write object to a semi-persistent cache with metadata
                         //
-                        // client request details	: signal+source arguments
-                        // MEMCACHE key			: Created for each new request not available from cache
+                        // client request details    : signal+source arguments
+                        // MEMCACHE key            : Created for each new request not available from cache
                         // MEMCACHE value
-                        //    type			: XDR object
-                        //    SHA1 hash			: md
-                        //    Log Entry			: provenance
-                        //    Size			: the amount of data
-                        //    Data  			: the XDR serialised data object
-                        // Date & Time			: internal to MEMCACHE - needed to purge old records
-                        // MEMCACHE connection object	: Created at server/client startup
+                        //    type            : XDR object
+                        //    SHA1 hash            : md
+                        //    Log Entry            : provenance
+                        //    Size            : the amount of data
+                        //    Data              : the XDR serialised data object
+                        // Date & Time            : internal to MEMCACHE - needed to purge old records
+                        // MEMCACHE connection object    : Created at server/client startup
 
                         // Switch back to the normal TCP socket xdr stream
 
@@ -430,13 +430,13 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     UDA_LOG(UDA_LOG_DEBUG, "Receiving from Server\n");
 
 // 5 valid options:
-//	1> unpack structures, no xdr file involved	=> privateFlags & PRIVATEFLAG_XDRFILE   == 0 && packageType == PACKAGE_STRUCTDATA
-//	2> unpack structures, from an xdr file		=> privateFlags & PRIVATEFLAG_XDRFILE   == 0 && packageType == PACKAGE_XDRFILE
-//	3> xdr file only, no unpacking, passforward	=> privateFlags & PRIVATEFLAG_XDRFILE        && packageType == PACKAGE_XDRFILE
-//	4> Error					=> privateFlags & PRIVATEFLAG_XDRFILE        && (packageType == PACKAGE_STRUCTDATA || packageType == PACKAGE_XDROBJECT)
-//	5> unpack structures, from an xdr object	=> privateFlags & PRIVATEFLAG_XDROBJECT == 0 && packageType == PACKAGE_XDROBJECT
-//	6> xdr object only, no unpacking, passforward	=> privateFlags & PRIVATEFLAG_XDROBJECT      && packageType == PACKAGE_XDROBJECT
-//	4> Error					=> privateFlags & PRIVATEFLAG_XDROBJECT      && (packageType == PACKAGE_STRUCTDATA || packageType == PACKAGE_XDRFILE)
+//    1> unpack structures, no xdr file involved    => privateFlags & PRIVATEFLAG_XDRFILE   == 0 && packageType == PACKAGE_STRUCTDATA
+//    2> unpack structures, from an xdr file        => privateFlags & PRIVATEFLAG_XDRFILE   == 0 && packageType == PACKAGE_XDRFILE
+//    3> xdr file only, no unpacking, passforward    => privateFlags & PRIVATEFLAG_XDRFILE        && packageType == PACKAGE_XDRFILE
+//    4> Error                    => privateFlags & PRIVATEFLAG_XDRFILE        && (packageType == PACKAGE_STRUCTDATA || packageType == PACKAGE_XDROBJECT)
+//    5> unpack structures, from an xdr object    => privateFlags & PRIVATEFLAG_XDROBJECT == 0 && packageType == PACKAGE_XDROBJECT
+//    6> xdr object only, no unpacking, passforward    => privateFlags & PRIVATEFLAG_XDROBJECT      && packageType == PACKAGE_XDROBJECT
+//    4> Error                    => privateFlags & PRIVATEFLAG_XDROBJECT      && (packageType == PACKAGE_STRUCTDATA || packageType == PACKAGE_XDRFILE)
 
 // Data Object Caching rules:
 // a) on send if the server is the origin of the data [what state variable flags this? Always when data are Not from an IDAM client plugin!]
@@ -1375,7 +1375,7 @@ int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK*
     FILE* xdrfile = nullptr;
 
 #ifdef CACHEDEV
-    if(data_block->totalDataBlockSize > 1000000 || data_block->data_type == UDA_TYPE_UNKNOWN) return 0;		// Size is too large and the type is not Atomic
+    if(data_block->totalDataBlockSize > 1000000 || data_block->data_type == UDA_TYPE_UNKNOWN) return 0;        // Size is too large and the type is not Atomic
 #endif
     do {
 

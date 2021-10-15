@@ -63,51 +63,51 @@ FUNCTION  putidamserverhost   1 1
 FUNCTION  putidamserverport   1 1
 FUNCTION  getidamserverhost   1 1
 FUNCTION  getidamserverport   0 0
-FUNCTION  getidamclientversion	0 0
-FUNCTION  getidamserverversion	0 0
-FUNCTION  putidamserversocket	1 1
-FUNCTION  getidamserversocket	0 0
-FUNCTION  puterrormodel		3 3 
-FUNCTION  geterrormodel   		1 1 KEYWORDS
-FUNCTION  putdimerrormodel		4 4 
-FUNCTION  getdimerrormodel		2 2 KEYWORDS
-FUNCTION  getdatatypeid		1 1
-FUNCTION  geterrormodelid		1 1  
-FUNCTION  geterrorasymmetry	1 1  
-FUNCTION  getdimerrorasymmetry	2 2
-FUNCTION  getlasthandle		0 0
-FUNCTION  getdomains		2 2 KEYWORDS
-FUNCTION  setidamdatatree			1 1 KEYWORDS
-FUNCTION  findidamtreestructurecomponent	3 3 KEYWORDS
-FUNCTION  findidamtreestructuredefinition	3 3 KEYWORDS
-FUNCTION  findidamtreestructure			3 3 KEYWORDS
-FUNCTION  getidamnodeatomiccount		2 2 KEYWORDS
-FUNCTION  getidamnodeatomicrank			2 2 KEYWORDS
-FUNCTION  getidamnodeatomicshape		2 2 KEYWORDS
-FUNCTION  getidamnodeatomicnames		2 2 KEYWORDS
-FUNCTION  getidamnodeatomictypes		2 2 KEYWORDS
-FUNCTION  getidamnodeatomicpointers		2 2 KEYWORDS
-FUNCTION  getidamnodeatomicdatacount		3 3 KEYWORDS
-FUNCTION  getidamnodeatomicdata			3 3 KEYWORDS
+FUNCTION  getidamclientversion    0 0
+FUNCTION  getidamserverversion    0 0
+FUNCTION  putidamserversocket    1 1
+FUNCTION  getidamserversocket    0 0
+FUNCTION  puterrormodel        3 3
+FUNCTION  geterrormodel           1 1 KEYWORDS
+FUNCTION  putdimerrormodel        4 4
+FUNCTION  getdimerrormodel        2 2 KEYWORDS
+FUNCTION  getdatatypeid        1 1
+FUNCTION  geterrormodelid        1 1
+FUNCTION  geterrorasymmetry    1 1
+FUNCTION  getdimerrorasymmetry    2 2
+FUNCTION  getlasthandle        0 0
+FUNCTION  getdomains        2 2 KEYWORDS
+FUNCTION  setidamdatatree            1 1 KEYWORDS
+FUNCTION  findidamtreestructurecomponent    3 3 KEYWORDS
+FUNCTION  findidamtreestructuredefinition    3 3 KEYWORDS
+FUNCTION  findidamtreestructure            3 3 KEYWORDS
+FUNCTION  getidamnodeatomiccount        2 2 KEYWORDS
+FUNCTION  getidamnodeatomicrank            2 2 KEYWORDS
+FUNCTION  getidamnodeatomicshape        2 2 KEYWORDS
+FUNCTION  getidamnodeatomicnames        2 2 KEYWORDS
+FUNCTION  getidamnodeatomictypes        2 2 KEYWORDS
+FUNCTION  getidamnodeatomicpointers        2 2 KEYWORDS
+FUNCTION  getidamnodeatomicdatacount        3 3 KEYWORDS
+FUNCTION  getidamnodeatomicdata            3 3 KEYWORDS
 
-FUNCTION  getidamnodestructurecount		2 2 KEYWORDS
-FUNCTION  getidamnodestructurenames		2 2 KEYWORDS
-FUNCTION  getidamnodestructurerank		2 2 KEYWORDS
-FUNCTION  getidamnodestructureshape		2 2 KEYWORDS
-FUNCTION  getidamnodestructuretypes		2 2 KEYWORDS
-FUNCTION  getidamnodestructurepointers		2 2 KEYWORDS
+FUNCTION  getidamnodestructurecount        2 2 KEYWORDS
+FUNCTION  getidamnodestructurenames        2 2 KEYWORDS
+FUNCTION  getidamnodestructurerank        2 2 KEYWORDS
+FUNCTION  getidamnodestructureshape        2 2 KEYWORDS
+FUNCTION  getidamnodestructuretypes        2 2 KEYWORDS
+FUNCTION  getidamnodestructurepointers        2 2 KEYWORDS
 
-FUNCTION  getidamnodestructuredatacount		2 2 KEYWORDS
-FUNCTION  getidamnodestructuredatarank		2 2 KEYWORDS
-FUNCTION  getidamnodestructuredatashape		2 2 KEYWORDS
+FUNCTION  getidamnodestructuredatacount        2 2 KEYWORDS
+FUNCTION  getidamnodestructuredatarank        2 2 KEYWORDS
+FUNCTION  getidamnodestructuredatashape        2 2 KEYWORDS
 
-FUNCTION  getidamnodeparent			2 2 KEYWORDS
-FUNCTION  getidamnodechild			3 3 KEYWORDS
-FUNCTION  getidamnodechildrencount		2 2 KEYWORDS
-FUNCTION  getidamnodechildid			3 3 KEYWORDS
-FUNCTION  printidamtree				2 2 KEYWORDS
-FUNCTION  printidamtreestructurenames		2 2 KEYWORDS
-FUNCTION  printidamtreestructurecomponentnames	2 2 KEYWORDS
-FUNCTION  printidamnodestructure		2 2 KEYWORDS
-FUNCTION  regulariseidamvlenstructures		2 2 KEYWORDS
+FUNCTION  getidamnodeparent            2 2 KEYWORDS
+FUNCTION  getidamnodechild            3 3 KEYWORDS
+FUNCTION  getidamnodechildrencount        2 2 KEYWORDS
+FUNCTION  getidamnodechildid            3 3 KEYWORDS
+FUNCTION  printidamtree                2 2 KEYWORDS
+FUNCTION  printidamtreestructurenames        2 2 KEYWORDS
+FUNCTION  printidamtreestructurecomponentnames    2 2 KEYWORDS
+FUNCTION  printidamnodestructure        2 2 KEYWORDS
+FUNCTION  regulariseidamvlenstructures        2 2 KEYWORDS
 

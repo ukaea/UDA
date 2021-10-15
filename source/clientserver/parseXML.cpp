@@ -1,11 +1,11 @@
 /*---------------------------------------------------------------
 * IDAM XML Parser
 *
-* Input Arguments:	char *xml
+* Input Arguments:    char *xml
 *
-* Returns:		parseXML	TRUE if parse was successful
+* Returns:        parseXML    TRUE if parse was successful
 
-*			ACTIONS		Actions Structure
+*            ACTIONS        Actions Structure
 *
 * Calls
 *

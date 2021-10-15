@@ -3,7 +3,7 @@
 #--------------------------------------------------------------------------
 # Print the Certificate's Contents
 
-TYPE=${1:-CLIENT}	# CAROOT, SERVER 
+TYPE=${1:-CLIENT}    # CAROOT, SERVER
 ROOT=${2:-$HOME/.UDA} 
 
 TARGET=${ROOT}/client/clientX509.pem
