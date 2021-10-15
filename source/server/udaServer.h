@@ -18,10 +18,6 @@ LIBRARY_API int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block,
 //--------------------------------------------------------------
 // Static Global variables
 
-extern unsigned int totalDataBlockSize;
-extern int serverVersion;
-extern int altRank;
-
 extern int server_tot_block_time;
 extern int server_timeout;
 

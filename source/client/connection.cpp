@@ -239,11 +239,11 @@ int createConnection(XDR* client_input, XDR* client_output)
 #endif
 
 #ifdef _WIN32                            // Initialise WINSOCK Once only
-    static unsigned int	initWinsock = 0;
+    static unsigned int    initWinsock = 0;
     WORD sockVersion;
     WSADATA wsaData;
     if (!initWinsock) {
-        sockVersion = MAKEWORD(2, 2);				// Select Winsock version 2.2
+        sockVersion = MAKEWORD(2, 2);                // Select Winsock version 2.2
         WSAStartup(sockVersion, &wsaData);
         initWinsock = 1;
     }

@@ -56,7 +56,7 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
 
 /* #ifndef FATCLIENT */
 /*         if (!idamGetAPICalledOnce) { */
-/* 	  LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
+/*       LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
 /*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
 /*         logmalloclist = nullptr; */
 /*         userdefinedtypelist = nullptr; */

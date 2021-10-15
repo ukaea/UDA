@@ -979,16 +979,16 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
 
                 // String handling is complicated ...
 
-                // Strings with a Fixed Length:	    Rank >= 1, Pointer = FALSE	(Convention)
+                // Strings with a Fixed Length:        Rank >= 1, Pointer = FALSE    (Convention)
                 // Strings with a Non-Fixed Length: Rank  = 0, Pointer = TRUE
                 // If the number of strings is arbitrary then the type is STRING* rather than STRING
 
                 // Strings:
-                //	char *p	 	        single scalar string of arbitrary length 		        => rank = 0, pointer = 1, type STRING
-                //	char **p;	        arbitrary number array of strings of arbitrary length 	=> rank = 0, pointer = 1, type STRING*
-                //	char p[int]	        single scalar string of fixed length 			        => rank = 1, pointer = 0, type STRING
-                //	char *p[int]	    fixed number array of strings of arbitrary length 	    => rank = 1, pointer = 0, type STRING*
-                //	char p[int][int]    fixed number array of strings of fixed length 		    => rank = 2, pointer = 0, type STRING
+                //    char *p                 single scalar string of arbitrary length                 => rank = 0, pointer = 1, type STRING
+                //    char **p;            arbitrary number array of strings of arbitrary length     => rank = 0, pointer = 1, type STRING*
+                //    char p[int]            single scalar string of fixed length                     => rank = 1, pointer = 0, type STRING
+                //    char *p[int]        fixed number array of strings of arbitrary length         => rank = 1, pointer = 0, type STRING*
+                //    char p[int][int]    fixed number array of strings of fixed length             => rank = 2, pointer = 0, type STRING
 
             case UDA_TYPE_STRING: {                    // Array of char terminated by \0
                 UDA_LOG(UDA_LOG_DEBUG, "Type: STRING\n");
@@ -1619,7 +1619,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                         rc = rc && xdrUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                              &data, protocolVersion, &full_ntree, log_struct_list);        // receive the Data
-                        //rc = rc && xdrUserDefinedTypeData(xdrs, udt_received, &data);		// receive the Data
+                        //rc = rc && xdrUserDefinedTypeData(xdrs, udt_received, &data);        // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "xdrUserDefinedTypeData received\n");
 

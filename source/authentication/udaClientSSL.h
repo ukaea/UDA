@@ -16,8 +16,8 @@
 #include <openssl/pem.h>
 #include <openssl/asn1.h>
 
-#define VERIFY_DEPTH	4
-#define X509STRINGSIZE	256
+#define VERIFY_DEPTH    4
+#define X509STRINGSIZE    256
 
 #include <clientserver/export.h>
 

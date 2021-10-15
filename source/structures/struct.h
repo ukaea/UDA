@@ -618,7 +618,7 @@ void printNode(NTREE* tree, NTREE* full_ntree);
 *
 * @param fd The File Descriptor, e.g., stdout
 * @param target The name of a User Defined Structure type. If an null string is passed, the structure 
-*		of the root node is used.
+*        of the root node is used.
 * @return Void
 */
 void printNodeStructureDefinition(const char* target, NTREE* full_ntree);

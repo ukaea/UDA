@@ -28,7 +28,7 @@ JNIEXPORT jint JNICALL Java_jIdam_Idam_idamLoad(JNIEnv *env, jobject oobj, jstri
       void *libhandle = dlopen((char *)library, RTLD_LOCAL | RTLD_LAZY);
       if(libhandle != NULL){
          void *fptr = dlsym(libhandle, "idamGetAPI");
-	 if(fptr != NULL)err = 0;
+     if(fptr != NULL)err = 0;
       }
    }
    (*env)->ReleaseStringUTFChars(env, _library, library);
@@ -721,7 +721,7 @@ JNIEXPORT jobjectArray JNICALL Java_jIdam_Idam_getVariablesRegex(JNIEnv* env, jo
 
     char* vStr = getIdamData(handle);
 
-//RC	char vStr[500]="PV:PERF1-SYSTEM0-DUMMY0|PV:CHANNEL1|PV:OFF:SIGNAL";
+//RC    char vStr[500]="PV:PERF1-SYSTEM0-DUMMY0|PV:CHANNEL1|PV:OFF:SIGNAL";
 
     if ((vStr == NULL) || (strlen(vStr) < 1)) {
         goto END;

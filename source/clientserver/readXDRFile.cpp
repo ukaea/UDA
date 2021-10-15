@@ -4,8 +4,8 @@
 * Input Arguments:
 *
 *
-* Returns:		 0 if read was successful
-*			 otherwise an Error Code is returned
+* Returns:         0 if read was successful
+*             otherwise an Error Code is returned
 *
 *
 * Calls

@@ -835,7 +835,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
         switch (type) {
             case IDL_TYP_BYTE:
-   	        // IDL bytes are unsigned
+               // IDL bytes are unsigned
                 putData.data_type = UDA_TYPE_UNSIGNED_CHAR;
                 break;
 
@@ -910,16 +910,16 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
             for (int i = 0; i < (int)nString; i++) {
                 strncpy(&new_string[i * (maxLength + 1)], IDL_STRING_STR(&sidl[i]), sidl[i].slen);
-	       
 
-		if (sidl[i].slen < maxLength) {
-		  for (int j = 0; j < (maxLength-sidl[i].slen); j++) {
-		    if (kw.debug) {
-		      fprintf(stdout, "Setting %d to null in string with length %d\n", i * (maxLength + 1) + maxLength - j - 1, sidl[i].slen);
-		    }
-		    new_string[i * (maxLength + 1) + maxLength - j - 1] = '\0';
-		  }
-		}
+
+        if (sidl[i].slen < maxLength) {
+          for (int j = 0; j < (maxLength-sidl[i].slen); j++) {
+            if (kw.debug) {
+              fprintf(stdout, "Setting %d to null in string with length %d\n", i * (maxLength + 1) + maxLength - j - 1, sidl[i].slen);
+            }
+            new_string[i * (maxLength + 1) + maxLength - j - 1] = '\0';
+          }
+        }
 
                 new_string[i * (maxLength + 1) + maxLength] = '\0';
             }
@@ -1025,7 +1025,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
                   freeIdamPutDataBlockList(putDataBlockList);
             */
-	    return (IDL_GettmpLong(-888));
+        return (IDL_GettmpLong(-888));
 
     } else if (argc >= 2 && argv[1]->type != IDL_TYP_STRUCT) { //argv[1]->type == IDL_TYP_STRING) {
 
@@ -1149,11 +1149,11 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
     if (handle < 0) {
       if (kw.verbose) {
-	    fprintf(stdout, "Bad Handle Returned from IDAM Call!\n");
-	
-	    if (error_msg != NULL) {
-	    fprintf(stdout, "[%d] %s\n", error_code, error_msg);
-	    }
+        fprintf(stdout, "Bad Handle Returned from IDAM Call!\n");
+
+        if (error_msg != NULL) {
+        fprintf(stdout, "[%d] %s\n", error_code, error_msg);
+        }
       }
       
       IDL_KW_FREE;

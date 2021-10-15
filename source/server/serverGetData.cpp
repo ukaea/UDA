@@ -154,7 +154,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
         isDerived = 1;                        // is True
 
-        //derived_signal_desc     = *signal_desc;			    // Preserve details of Derived Signal Description Record
+        //derived_signal_desc     = *signal_desc;                // Preserve details of Derived Signal Description Record
         data_source->exp_number = request_data->exp_number;     // Needed for Pulse Number Range Check in XML Parser
         data_source->pass = request_data->pass;                 // Needed for a Pass/Sequence Range Check in XML Parser
 

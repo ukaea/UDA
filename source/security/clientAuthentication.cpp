@@ -299,7 +299,7 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
 
     //---------------------------------------------------------------------------------------------------------------
     // Step 5: Client decrypts the passed ciphers (EACP, EBCP) with the client's private key (->A, ->B) and
-    //	   checks token (A) => server authenticated
+    //       checks token (A) => server authenticated
 
     // Receive the encrypted tokens (A,B) from the server
 

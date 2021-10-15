@@ -14,7 +14,7 @@ data:
    
    simpleByte = 1;
    simpleShort = 2;
-   simpleInt = 3;	
+   simpleInt = 3;
    simpleFloat = 4.5;
    simpleDouble = 4.5;
 }

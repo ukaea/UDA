@@ -14,9 +14,9 @@ int parseOperation(SUBSET* sub)
     // =0.15,!=0.15,<=0.05,>=0.05,!<=0.05,!>=0.05,<0.05,>0.05,0:25,25:0,25,*,25:,:25, 25:#
     //
     // Identify Three Types of Operations:
-    //	A) Contains the characters: =,>, <, !, ~
-    //	B) : or Integer Value
-    //	C) * or #  (* => ignore this dimension; # => Last Value in array)
+    //    A) Contains the characters: =,>, <, !, ~
+    //    B) : or Integer Value
+    //    C) * or #  (* => ignore this dimension; # => Last Value in array)
     //
     // If the operation string is enclosed in [ ] then ignore these
 

@@ -323,7 +323,7 @@ static int verifyToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_block, L
 
     //---------------------------------------------------------------------------------------------------------------
     // Step 7: Server decrypts the passed cipher (EBSP) with the server's private key (->B) and checks
-    //	   token (B) => client authenticated
+    //       token (B) => client authenticated
 
     // Receive the encrypted token (B) from the client
 

@@ -1,21 +1,21 @@
 /*---------------------------------------------------------------
 * Client - Server Conversation Protocol
 *
-* Args:	xdrs		XDR Stream
+* Args:    xdrs        XDR Stream
 *
-*	protocol_id	Client/Server Conversation item: Data Exchange context
-*	direction	Send (0) or Receive (1) or Free (2)
-*	token		current error condition or next protocol or .... exchange token
+*    protocol_id    Client/Server Conversation item: Data Exchange context
+*    direction    Send (0) or Receive (1) or Free (2)
+*    token        current error condition or next protocol or .... exchange token
 *
-*	str		Information Structure depending on the protocol id ....
+*    str        Information Structure depending on the protocol id ....
 *
-*	2	data_block	Data read from the external Source or Data to be written
-*				to an external source
-*	4	data_system	Database Data_Dystem table record
-*	5	system_config	Database System_Config table record
-*	6	data_source	Database Data_Source table record
-*	7	signal		Database Signal table record
-*	8	signal_desc	Database Signal_Desc table record
+*    2    data_block    Data read from the external Source or Data to be written
+*                to an external source
+*    4    data_system    Database Data_Dystem table record
+*    5    system_config    Database System_Config table record
+*    6    data_source    Database Data_Source table record
+*    7    signal        Database Signal table record
+*    8    signal_desc    Database Signal_Desc table record
 *
 * Returns: error code if failure, otherwise 0
 *

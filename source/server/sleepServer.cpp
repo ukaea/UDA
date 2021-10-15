@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------
 * Server Sleeps and Waits for a Wake-up Instruction from the Client
 *
-* Returns: 	1 (True)  if Next Client Request to be Served
-*		0 (False) if No Request within the Time Limit
+* Returns:     1 (True)  if Next Client Request to be Served
+*        0 (False) if No Request within the Time Limit
 *
 *--------------------------------------------------------------*/
 #include "sleepServer.h"

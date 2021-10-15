@@ -42,7 +42,7 @@
 
 int server_tot_block_time = 0;
 
-int serverVersion = 8;
+constexpr int serverVersion = 8;
 static int protocolVersion = 8;
 static int legacyServerVersion = 6;
 
@@ -54,7 +54,7 @@ int malloc_source = MALLOCSOURCENONE;
 
 USERDEFINEDTYPELIST parseduserdefinedtypelist;              // Initial set of User Defined Structure Types
 
-unsigned int totalDataBlockSize = 0;                        // Total amount sent for the last data request
+                        // Total amount sent for the last data request
 unsigned int clientFlags = 0;
 int altRank = 0;
 unsigned int privateFlags = 0;
@@ -78,17 +78,19 @@ static int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_bloc
                          METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
                          DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown,
                          uda::cache::UdaCache* cache,
-                         NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output);
+                         NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
+                         unsigned int* total_datablock_size);
 
 static int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                         SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
                         ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, NTREE* full_ntree,
-                        LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output);
+                        LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
+                        unsigned int* total_datablock_size);
 
 static int
 reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block, int trap1Err,
                METADATA_BLOCK* metadata_block, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, XDR* server_input,
-               XDR* server_output);
+               XDR* server_output, unsigned int* total_datablock_size);
 
 static int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list);
 
@@ -135,6 +137,8 @@ int udaServer(CLIENT_BLOCK client_block)
 
     uda::cache::UdaCache* cache = uda::cache::udaOpenCache();
 
+    static unsigned int total_datablock_size = 0;
+
     if ((err = startupServer(&server_block, server_input, server_output)) != 0) return err;
 
 #ifdef SECURITYENABLED
@@ -152,7 +156,8 @@ int udaServer(CLIENT_BLOCK client_block)
     if (!err && !server_closedown) {
         int fatal = 0;
         doServerLoop(&request_block, &data_block_list, &client_block, &server_block, &metadata_block, &actions_desc,
-                     &actions_sig, &fatal, cache, full_ntree, &log_struct_list, server_input, server_output);
+                     &actions_sig, &fatal, cache, full_ntree, &log_struct_list, server_input, server_output,
+                     &total_datablock_size);
     }
 
     err = doServerClosedown(&client_block, &request_block, &data_block_list);
@@ -163,7 +168,7 @@ int udaServer(CLIENT_BLOCK client_block)
 int
 reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block, int trap1Err,
                METADATA_BLOCK* metadata_block, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, XDR* server_input,
-               XDR* server_output)
+               XDR* server_output, unsigned int* total_datablock_size)
 {
     //----------------------------------------------------------------------------
     // Gather Server Error State
@@ -182,7 +187,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
     //------------------------------------------------------------------------------------------------
     // How much data to be sent?
 
-    totalDataBlockSize = countDataBlockListSize(data_block_list, client_block);
+    *total_datablock_size = countDataBlockListSize(data_block_list, client_block);
 
     printServerBlock(*server_block);
 
@@ -222,8 +227,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
     }
 
     if (client_block->get_meta) {
-
-        totalDataBlockSize +=
+        *total_datablock_size +=
                 sizeof(DATA_SYSTEM) + sizeof(SYSTEM_CONFIG) + sizeof(DATA_SOURCE) + sizeof(SIGNAL) +
                 sizeof(SIGNAL_DESC);
 
@@ -352,7 +356,8 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
 int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
                   METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
                   DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache,
-                  NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output)
+                  NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
+                  unsigned int* total_datablock_size)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
@@ -360,7 +365,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     // Client and Server States
     //
     // Errors: Fatal to Data Access
-    //	   Pass Back and Await Client Instruction
+    //       Pass Back and Await Client Instruction
 
     int err = 0;
 
@@ -452,7 +457,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     // Client Request
     //
     // Errors: Fatal to Data Access
-    //	   Pass Back and Await Client Instruction
+    //       Pass Back and Await Client Instruction
 
     if ((err = protocol2(server_input, PROTOCOL_REQUEST_BLOCK, XDR_RECEIVE, nullptr, logmalloclist,
                          userdefinedtypelist, request_block, protocolVersion, full_ntree, log_struct_list)) != 0) {
@@ -633,7 +638,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     //----------------------------------------------------------------------
     // Write to the Access Log
 
-    udaAccessLog(TRUE, *client_block, *request_block, *server_block, &pluginList, getServerEnvironment());
+    udaAccessLog(TRUE, *client_block, *request_block, *server_block, &pluginList, getServerEnvironment(),
+                 *total_datablock_size);
 
     //----------------------------------------------------------------------
     // Initialise Data Structures
@@ -793,7 +799,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                  SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
                  ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, NTREE* full_ntree,
-                 LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output)
+                 LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output, unsigned int* total_datablock_size)
 {
     int err = 0;
 
@@ -815,7 +821,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
         int server_closedown = 0;
         err = handleRequest(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
                             data_block_list, fatal, &server_closedown, cache, full_ntree, log_struct_list, server_input,
-                            server_output);
+                            server_output, total_datablock_size);
 
         if (server_closedown) {
             break;
@@ -824,12 +830,13 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
         UDA_LOG(UDA_LOG_DEBUG, "Handle Request Error: %d [%d]\n", err, *fatal);
 
         err = reportToClient(server_block, data_block_list, client_block, err, metadata_block, full_ntree,
-                             log_struct_list, server_input, server_output);
+                             log_struct_list, server_input, server_output, total_datablock_size);
 
         UDA_LOG(UDA_LOG_DEBUG, "Data structures sent to client\n");
         UDA_LOG(UDA_LOG_DEBUG, "Report To Client Error: %d [%d]\n", err, *fatal);
 
-        udaAccessLog(FALSE, *client_block, *request_block, *server_block, &pluginList, getServerEnvironment());
+        udaAccessLog(FALSE, *client_block, *request_block, *server_block, &pluginList, getServerEnvironment(),
+                     *total_datablock_size);
 
         err = 0;
         next_protocol = PROTOCOL_SLEEP;
@@ -957,7 +964,7 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
 
         // Receive the client_block
         // Test data validity of certificate
-        // Test certificate signature						=> has a valid certificate (not proof of authentication)
+        // Test certificate signature                        => has a valid certificate (not proof of authentication)
         // Decrypt token A with the server private key
         // Encrypt token A with the client public key
         // Generate new token B and encrypt with the client public key
@@ -978,9 +985,9 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
         }
 
         // Receive the client_block
-        // Decrypt token B with the server private key				=> Proof Client has valid private key == client authenticated
+        // Decrypt token B with the server private key                => Proof Client has valid private key == client authenticated
         // Test token B identical to that sent in step 4
-        // Generate a new token B and encrypt with the client public key	=> maintain mutual authentication
+        // Generate a new token B and encrypt with the client public key    => maintain mutual authentication
         // Send the server_block
 
         if ((err = serverAuthentication(client_block, server_block, SERVER_VERIFY_TOKEN)) != 0) {

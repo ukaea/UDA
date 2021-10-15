@@ -143,11 +143,11 @@ int udaServerRedirectStdStreams(int reset)
         }
 
         if (mdsmsgFH != nullptr && singleFile) {
-			// Multi platform compliance
+            // Multi platform compliance
             //stdout = mdsmsgFH;                                  // Redirect all IO to a temporary file
             //stderr = mdsmsgFH;
-			dup2(fileno(mdsmsgFH), fileno(stdout));
-			dup2(fileno(mdsmsgFH), fileno(stderr));
+            dup2(fileno(mdsmsgFH), fileno(stdout));
+            dup2(fileno(mdsmsgFH), fileno(stderr));
             return 0;
         }
 
@@ -225,8 +225,8 @@ int udaServerRedirectStdStreams(int reset)
             // Multi platform compliance
             //stdout = originalStdFH;
             //stderr = originalErrFH;
-			dup2(originalStdFH, fileno(stdout));
-			dup2(originalErrFH, fileno(stderr));
+            dup2(originalStdFH, fileno(stdout));
+            dup2(originalErrFH, fileno(stderr));
 
         } else {
 
@@ -312,12 +312,12 @@ int udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC
 // and client application (behaves as a normal plugin)
 //
 // Server needs are (private to the server):
-//	record (put) the original and the actual signal and source terms with the source file DOI
-//	record (put) the server log record
+//    record (put) the original and the actual signal and source terms with the source file DOI
+//    record (put) the server log record
 // Client needs are (the plugin exposes these to the client in the regular manner):
-//	list all provenance records for a specific client DOI - must be given
-//	change provenance records status to closed
-//	delete all closed records for a specific client DOI
+//    list all provenance records for a specific client DOI - must be given
+//    change provenance records status to closed
+//    delete all closed records for a specific client DOI
 //
 // changePlugin option disabled in this context
 // private malloc log and userdefinedtypelist

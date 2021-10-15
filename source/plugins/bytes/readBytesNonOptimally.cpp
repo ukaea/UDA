@@ -1,20 +1,20 @@
 /*---------------------------------------------------------------
 * IDAM Plugin data Reader to Access Files as a Block of Bytes without Interpretation
 *
-* Input Arguments:	DATA_SOURCE data_source
-*			SIGNAL_DESC signal_desc
+* Input Arguments:    DATA_SOURCE data_source
+*            SIGNAL_DESC signal_desc
 *
-* Returns:		readBytes	0 if read was successful
-*					otherwise an Error Code is returned
-*			DATA_BLOCK	Structure with Data from the target File
+* Returns:        readBytes    0 if read was successful
+*                    otherwise an Error Code is returned
+*            DATA_BLOCK    Structure with Data from the target File
 *
-* Calls		freeDataBlock	to free Heap memory if an Error Occurs
+* Calls        freeDataBlock    to free Heap memory if an Error Occurs
 *
-* Notes: 	All memory required to hold data is allocated dynamically
-*		in heap storage. Pointers to these areas of memory are held
-*		by the passed DATA_BLOCK structure. Local memory allocations
-*		are freed on exit. However, the blocks reserved for data are
-*		not and MUST BE FREED by the calling routine.
+* Notes:     All memory required to hold data is allocated dynamically
+*        in heap storage. Pointers to these areas of memory are held
+*        by the passed DATA_BLOCK structure. Local memory allocations
+*        are freed on exit. However, the blocks reserved for data are
+*        not and MUST BE FREED by the calling routine.
 **
 * ToDo:
 *
@@ -119,7 +119,7 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data
             break;
         }
 
-        //nchar--; 					// Remove EOF Character from end of Byte Block
+        //nchar--;                     // Remove EOF Character from end of Byte Block
         data_block->data_n = nchar;
         data_block->data = bp;
 

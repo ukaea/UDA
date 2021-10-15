@@ -44,7 +44,7 @@ int main() {
     std::vector<float> values = arr->as<float>();
     
     for (int i = 0; i < arr->as<float>().size(); ++i) {
-    	out << values.at(i) << "\n"; 
+        out << values.at(i) << "\n";
     }
 
     return 0;

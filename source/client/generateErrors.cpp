@@ -66,8 +66,8 @@ int idamErrorModel(int model, int param_n, float* params, int data_n, float* dat
 // Generate Synthetic Data using Random Number generators * PDFs
 //
 // NB: to change the default GSL library settings use the following environment variables
-//	GSL_RNG_SEED	12345		for the seed value
-//	GSL_RNG_TYPE	mrg		for the name of the random number generator
+//    GSL_RNG_SEED    12345        for the seed value
+//    GSL_RNG_TYPE    mrg        for the name of the random number generator
 
 int idamSyntheticModel(int model, int param_n, float* params, int data_n, float* data)
 {
@@ -81,35 +81,35 @@ int idamSyntheticModel(int model, int param_n, float* params, int data_n, float*
     float shift;
     static gsl_rng *random=nullptr;
 
-    if(random == nullptr) {		// Initialise the Random Number System
+    if(random == nullptr) {        // Initialise the Random Number System
         gsl_rng_env_setup();
         random = gsl_rng_alloc (gsl_rng_default);
-        gsl_rng_set(random, (unsigned long int) ERROR_MODEL_SEED);	// Seed the Random Number generator with the library default
+        gsl_rng_set(random, (unsigned long int) ERROR_MODEL_SEED);    // Seed the Random Number generator with the library default
     }
 
     switch (model) {
 
-    case ERROR_MODEL_GAUSSIAN:  	// Standard normal Distribution
+    case ERROR_MODEL_GAUSSIAN:      // Standard normal Distribution
         if(param_n < 1 || param_n > 2) return 1;
-        if(param_n == 2) gsl_rng_set(random, (unsigned long int) params[1]);		// Change the Seed before Sampling
+        if(param_n == 2) gsl_rng_set(random, (unsigned long int) params[1]);        // Change the Seed before Sampling
         for(i=0; i<data_n; i++) data[i] = data[i] + (float) gsl_ran_gaussian (random, (double) params[0]); // Random sample from PDF
         break;
 
-    case ERROR_MODEL_RESEED:  							// Change the Seed
+    case ERROR_MODEL_RESEED:                              // Change the Seed
         if(param_n == 1) gsl_rng_set(random, (unsigned long int) params[0]);
         break;
 
     case ERROR_MODEL_GAUSSIAN_SHIFT:
         if(param_n < 1 || param_n > 2) return 1;
-        if(param_n == 2) gsl_rng_set(random, (unsigned long int) params[1]);		// Change the Seed before Sampling
+        if(param_n == 2) gsl_rng_set(random, (unsigned long int) params[1]);        // Change the Seed before Sampling
         shift = (float) gsl_ran_gaussian (random, (double) params[0]);
-        for(i=0; i<data_n; i++) data[i] = data[i] + shift;				// Random linear shift of data array
+        for(i=0; i<data_n; i++) data[i] = data[i] + shift;                // Random linear shift of data array
         break;
 
     case ERROR_MODEL_POISSON:
         if(param_n < 0 || param_n > 1) return 1;
-        if(param_n == 1) gsl_rng_set(random, (unsigned long int) params[0]);				// Change the Seed before Sampling
-        for(i=0; i<data_n; i++) data[i] = data[i] + (float) gsl_ran_poisson(random, (double)data[i]);	// Randomly perturb data array
+        if(param_n == 1) gsl_rng_set(random, (unsigned long int) params[0]);                // Change the Seed before Sampling
+        for(i=0; i<data_n; i++) data[i] = data[i] + (float) gsl_ran_poisson(random, (double)data[i]);    // Randomly perturb data array
         break;
     }
 

@@ -57,7 +57,7 @@ std::pair<XDR*, XDR*> CreateXDRStream()
 #endif
     }
 
-#else	// SSLAUTHENTICATION
+#else    // SSLAUTHENTICATION
 
 #if defined (__APPLE__) || defined(__TIRPC__)
     xdrrec_create(&server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,

@@ -402,15 +402,15 @@ uda::Client::~Client()
 
 void uda::Client::put(const std::string& instruction, const uda::Array& data)
 {
-	// Use to convert size_t to int
-	struct Downcast
-	{
-		int operator() (size_t s) const
-		{
-			return static_cast<int>(s);
-		}
-	};
-	
+    // Use to convert size_t to int
+    struct Downcast
+    {
+        int operator() (size_t s) const
+        {
+            return static_cast<int>(s);
+        }
+    };
+
     PUTDATA_BLOCK putdata_block{};
     initIdamPutDataBlock(&putdata_block);
 
@@ -421,7 +421,7 @@ void uda::Client::put(const std::string& instruction, const uda::Array& data)
     std::vector<size_t> array_shape = data.shape();
 
     std::vector<int> shape;
-	// C++ error: conversion from 'size_t' to 'const int', possible loss of data
+    // C++ error: conversion from 'size_t' to 'const int', possible loss of data
     //std::copy(array_shape.begin(), array_shape.end(), std::back_inserter(shape));
     std::transform(array_shape.begin(), array_shape.end(), std::back_inserter(shape), Downcast());
 

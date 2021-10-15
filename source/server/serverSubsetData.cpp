@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------------------------
 // Serverside Data Subsetting Operations Data
 //
-// Return Codes:	0 => OK, otherwise Error
+// Return Codes:    0 => OK, otherwise Error
 //
 //--------------------------------------------------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@
 //
 // additional operations are:
 //
-//	reform - reduce the rank by 1 if the dimension length is 1 and the rank > 1
+//    reform - reduce the rank by 1 if the dimension length is 1 and the rank > 1
 
 
 // todo:
@@ -1566,6 +1566,16 @@ int serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serversi
     }
 
     subsets[nsubsets - 1].nbound = nbound;
+
+    //-------------------------------------------------------------------------------------------------------------
+    // Extract the Value Component from each separate Operation
+    // =0.15,!=0.15,<=0.05,>=0.05,!<=0.05,!>=0.05,<0.05,>0.05,0:25,25:0,25,*,25:,:25
+    //
+    // Identify Three Types of Operations:
+    //    A) Contains the characters: =,>, <, !, ~
+    //    B) : or Integer Value
+    //    C) * or #
+    //
 
     for (int i = 0; i < nbound; i++) {
         int rc = parseOperation(&subsets[nsubsets - 1]);

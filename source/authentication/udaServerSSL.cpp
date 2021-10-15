@@ -140,7 +140,7 @@ SSL_CTX* createUdaServerSSLContext()
 {
     const SSL_METHOD* method = SSLv23_server_method();        // standard TCP
 
-    // method = DTLSv1_server_method()		// reliable UDP
+    // method = DTLSv1_server_method()        // reliable UDP
 
     g_ctx = SSL_CTX_new(method);
 
@@ -243,7 +243,7 @@ int configureUdaServerSSLContext()
 /*   
   SSL_CTX_set_client_CA_list(g_ctx, SSL_load_client_CA_file(getenv("UDA_SERVER_CA_SSL_CERT")));
 
-   rc = load_CA(g_ssl, g_ctx, getenv("UDA_SERVER_CA_SSL_CERT"));	// calls SSL_CTX_add_client_CA(g_ctx, X509 *cacert) and         SSL_add_client_CA(g_ssl, X509 *cacert)
+   rc = load_CA(g_ssl, g_ctx, getenv("UDA_SERVER_CA_SSL_CERT"));    // calls SSL_CTX_add_client_CA(g_ctx, X509 *cacert) and         SSL_add_client_CA(g_ssl, X509 *cacert)
    if(rc == 0)fprintf(logout, "Unable to load Client CA!\n");
 */
 
@@ -523,7 +523,7 @@ int readUdaServerSSL(UNUSED void* iohandle, char* buf, int count)
             case SSL_ERROR_NONE:                    // clean read
                 break;
 
-            case SSL_ERROR_ZERO_RETURN:    // connection closed by client 	(not caught by select?)
+            case SSL_ERROR_ZERO_RETURN:    // connection closed by client     (not caught by select?)
                 reportServerSSLErrorCode(rc);
                 UDA_LOG(UDA_LOG_DEBUG, "Client socket connection closed!\n");
                 ADD_ERROR(999, "Client socket connection closed!");

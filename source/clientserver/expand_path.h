@@ -24,20 +24,20 @@ LIBRARY_API char* pathid(char* path);
 
 /*! Fully expand file directory paths to remove relative path or environment variable components.
 
- Examples:	filename			use getpwd
-		./filename			use cd; $PWD
-		../../filename			use cd; $PWD
-		/abc/filename			do nothing - fully resolved
-		~user/abc/filename		use cd; $PWD
-		/scratch/abc/filename		use hostname
-		/tmp/abc/def/filename		use hostname
-		/fuslwx/scratch/abc/filename	do nothing - fully resolved
-		/fuslwx/tmp/abc/filename	do nothing - fully resolved
-		/fuslwx/abc/filename		do nothing - fully resolved
-		/99999  			do nothing - Resolved by the Server Data Plugin
-		/99999/999 			do nothing - Resolved by the Server Data Plugin
-		$ENVAR/abc/filename		expand with the specified environment variable
-		$ENVAR/abc/$ENVAR/filename	expand with the specified environment variable
+ Examples:    filename            use getpwd
+        ./filename            use cd; $PWD
+        ../../filename            use cd; $PWD
+        /abc/filename            do nothing - fully resolved
+        ~user/abc/filename        use cd; $PWD
+        /scratch/abc/filename        use hostname
+        /tmp/abc/def/filename        use hostname
+        /fuslwx/scratch/abc/filename    do nothing - fully resolved
+        /fuslwx/tmp/abc/filename    do nothing - fully resolved
+        /fuslwx/abc/filename        do nothing - fully resolved
+        /99999              do nothing - Resolved by the Server Data Plugin
+        /99999/999             do nothing - Resolved by the Server Data Plugin
+        $ENVAR/abc/filename        expand with the specified environment variable
+        $ENVAR/abc/$ENVAR/filename    expand with the specified environment variable
 
 @param path The file path to be resolved and expanded.
 @returns An integer Error Code: If non zero, a problem occured.
@@ -71,10 +71,10 @@ Client and server may see different network file paths. A path seen by the clien
 server. Generally, the path might contain additional hierarchical components that need removing. This is
 easily done by substitution.
 
-Examples:	/.automount/funsrv1/root/home/xyz -> /net/funsrv1/home/xyz
-		/.automount/funsrv1/root/home/xyz -> /home/xyz
-		/.automount/fuslsd/root/data/MAST_Data/013/13500/Pass0/amc0135.00 -> /net/fuslsd/data/MAST_Data/013/13500/Pass0/amc0135.00
-		/scratch/mydata -> /net/hostname/scratch/mydata
+Examples:    /.automount/funsrv1/root/home/xyz -> /net/funsrv1/home/xyz
+        /.automount/funsrv1/root/home/xyz -> /home/xyz
+        /.automount/fuslsd/root/data/MAST_Data/013/13500/Pass0/amc0135.00 -> /net/fuslsd/data/MAST_Data/013/13500/Pass0/amc0135.00
+        /scratch/mydata -> /net/hostname/scratch/mydata
 
 A list of Target path components is read from the environment variable IDAM_PRIVATE_PATH_TARGET. The delimiter between
 components is , or : or ;.

@@ -1,21 +1,21 @@
 /*---------------------------------------------------------------
 * v1 IDAM Plugin: Standardised wrapper code around plugin functionality
 *
-* Input Arguments:	IDAM_PLUGIN_INTERFACE *idam_plugin_interface
+* Input Arguments:    IDAM_PLUGIN_INTERFACE *idam_plugin_interface
 *
-* Returns:		0 if read was successful
-*			otherwise a Error Code is returned 
+* Returns:        0 if read was successful
+*            otherwise a Error Code is returned
 *
-* Calls			freeDataBlock	to free Heap memory if an Error Occurs
+* Calls            freeDataBlock    to free Heap memory if an Error Occurs
 *
 * Standard functionality:
 *
-*	help	a description of what this plugin does together with a list of functions available
-*	reset	frees all previously allocated heap, closes file handles and resets all static parameters.
-*		This has the same functionality as setting the housekeeping directive in the plugin interface
-*		data structure to TRUE (1)
-*	init	Initialise the plugin: read all required data and process. Retain staticly for
-*		future reference.
+*    help    a description of what this plugin does together with a list of functions available
+*    reset    frees all previously allocated heap, closes file handles and resets all static parameters.
+*        This has the same functionality as setting the housekeeping directive in the plugin interface
+*        data structure to TRUE (1)
+*    init    Initialise the plugin: read all required data and process. Retain staticly for
+*        future reference.
 *---------------------------------------------------------------------------------------------------------------*/
 #include "help_plugin.h"
 

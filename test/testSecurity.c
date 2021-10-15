@@ -13,7 +13,7 @@
 #include <logging/logging.h>
 #include <security/authenticationUtils.h>
 
-IDAMERRORSTACK idamerrorstack;		// Local Error Stack
+IDAMERRORSTACK idamerrorstack;        // Local Error Stack
 
 #define digitp(p)   (*(p) >= '0' && *(p) <= '9')
 
@@ -125,15 +125,15 @@ int main()
         //-----------------------------------------------------------------------------------------------------------------------
         // Server steps:
         //
-        // Test date validity of X509 certificate				=> not expired
-        // Check database to verify not revoked	(not implemented)		=> not revoked
+        // Test date validity of X509 certificate                => not expired
+        // Check database to verify not revoked    (not implemented)        => not revoked
         //
-        // Test X509 certificate signature using the CA's public key		=> has a valid certificate signed by UKAEA
+        // Test X509 certificate signature using the CA's public key        => has a valid certificate signed by UKAEA
         // Decrypt token A with the server's private key
         // Encrypt token A with the client's public key from their X509 certificate
         //
         // Generate new token B (fixed or nonce) and encrypt with the client's public key
-        // Send encrypted tokens A, B					=> mutual proof each has valid private keys to match public keys
+        // Send encrypted tokens A, B                    => mutual proof each has valid private keys to match public keys
 
         authenticationStep = SERVER_DECRYPT_CLIENT_TOKEN;
 
@@ -159,7 +159,7 @@ int main()
         //-----------------------------------------------------------------------------------------------------------------------
         // Client step:
         // Decrypt tokens A, B
-        // Test token A is identical to that sent in step 1		=> proof server has a valid private key
+        // Test token A is identical to that sent in step 1        => proof server has a valid private key
 
         authenticationStep = CLIENT_DECRYPT_SERVER_TOKEN;    // Server Authentication Completed
 
@@ -184,7 +184,7 @@ int main()
         //-----------------------------------------------------------------------------------------------------------------------
         // Server step:
         // Decrypt token B with the server's private key
-        // Test token B is identical to that sent in step 4		=> maintain mutual authentication
+        // Test token B is identical to that sent in step 4        => maintain mutual authentication
         // Generate a new nonce token B and encrypt with the client public key
 
         authenticationStep = SERVER_VERIFY_TOKEN;

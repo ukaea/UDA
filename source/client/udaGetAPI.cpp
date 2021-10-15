@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------
 * Reads the Requested Data
 *
-* Input Arguments:	1) Signal Name (Alias or Generic)
-*			2) Data Source or Experiment Number
+* Input Arguments:    1) Signal Name (Alias or Generic)
+*            2) Data Source or Experiment Number
 *
 * Returns:
 *
@@ -120,18 +120,18 @@ treated as a private file within the data archive if FORMAT is the default file 
 
 </table>
 
-\b	PROTOCOL::server.host.name:port/U/R/L	server access requests - always requires the delimiter string element in string\n
+\b    PROTOCOL::server.host.name:port/U/R/L    server access requests - always requires the delimiter string element in string\n
 \n
-\b	function(arguments or name value pair list)		server side processing of data\n
-\b	LIBRARY::function(arguments or name value pair list)	function plugin library \n
-\b	DEVICE::function(arguments or name value pair list)	Not allowed - use DEVICE::SERVERSIDE::function()\n
+\b    function(arguments or name value pair list)        server side processing of data\n
+\b    LIBRARY::function(arguments or name value pair list)    function plugin library \n
+\b    DEVICE::function(arguments or name value pair list)    Not allowed - use DEVICE::SERVERSIDE::function()\n
 \n
-\b	DEVICE::FORMAT:: ...			If the DEVICE is not the default device, then a server protocol is invoked to pass
+\b    DEVICE::FORMAT:: ...            If the DEVICE is not the default device, then a server protocol is invoked to pass
                                                 the request forward (FORMAT:: ...)\n\n
 Legacy exception: treat PPF and JPF formats as server protocols => no file path expansion required and ignored\n
 \n
 \b      PPF::/ddaname/pulse/pass/userid or PPF::ddaname/pulse/pass/userid\n
-\b	JPF::pulse or JPF::/pulse\n
+\b    JPF::pulse or JPF::/pulse\n
 
 *
 * @param data_object identifies the data object to be accessed from a source

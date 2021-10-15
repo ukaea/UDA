@@ -221,7 +221,7 @@ if( WIN32 OR MINGW )
   install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extlib/lib/
     DESTINATION lib
-	  FILES_MATCHING PATTERN "*xdr*"
+      FILES_MATCHING PATTERN "*xdr*"
   )
 endif()
 
@@ -247,9 +247,9 @@ if( WIN32 OR MINGW )
     CONVERT_LIN_PATH( CMAKE_WIN_INSTALL_PREFIX )
     CONVERT_LIN_PATH( CMAKE_WIN_SOURCE_DIR )
     CONVERT_LIN_PATH( CMAKE_WIN_BINARY_DIR )
-	# For MinGW, it is required to use Windows style path for the NSIS command "File"
-	# otherwise it is not able to find files
-	set( CPACK_NSIS_FULL_INSTALL "File /r \\\"\\\${INST_DIR_WIN}\\\\*.*\\\"" )
+    # For MinGW, it is required to use Windows style path for the NSIS command "File"
+    # otherwise it is not able to find files
+    set( CPACK_NSIS_FULL_INSTALL "File /r \\\"\\\${INST_DIR_WIN}\\\\*.*\\\"" )
   endif()
   
   set( CPACK_TEMPORARY_INSTALL_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
