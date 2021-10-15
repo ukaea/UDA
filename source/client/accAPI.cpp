@@ -3235,7 +3235,8 @@ int getIdamDimDataCheckSum(int handle, int ndim)
 //===========================================================================================================
 // Access to (De)Serialiser
 
-void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectSize, char** key, size_t* keySize, int protocolVersion)
+void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectSize, char** key, size_t* keySize,
+                                      int protocolVersion, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list)
 {
     // Extract the serialised Data Block from Cache or serialise it if not cached (hash key in Data Block, empty if not cached)
     // Use Case: extract data in object form for storage in external data object store, e.g. CEPH, HDF5
@@ -3266,7 +3267,7 @@ void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectS
     data_block_list.count = 1;
     data_block_list.data = getIdamDataBlock(handle);
     protocol2(&xdrs, PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
-              &data_block_list, protocolVersion);
+              &data_block_list, protocolVersion, full_ntree, log_struct_list);
 
 #ifdef _WIN32
     fflush(memfile);
@@ -3294,12 +3295,12 @@ void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectS
 // Accessor Functions to General/Arbitrary Data Structures
 //----------------------------------------------------------------
 
-int setIdamDataTree(int handle)
+int setIdamDataTree(int handle, NTREE** full_ntree)
 {
     if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return 0;    // Return FALSE
     if (getIdamData(handle) == nullptr) return 0;
 
-    fullNTree = (NTREE*)getIdamData(handle); // Global pointer
+    *full_ntree = (NTREE*)getIdamData(handle); // Global pointer
     void* opaque_block = getIdamDataOpaqueBlock(handle);
     setUserDefinedTypeList(((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist);
     setLogMallocList(((GENERAL_BLOCK*)opaque_block)->logmalloclist);
@@ -3311,7 +3312,7 @@ int setIdamDataTree(int handle)
 
 NTREE* getIdamDataTree(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return 0;
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return nullptr;
     return (NTREE*)getIdamData(handle);
 }
 
@@ -3319,26 +3320,26 @@ NTREE* getIdamDataTree(int handle)
 
 USERDEFINEDTYPE* getIdamUserDefinedType(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return 0;
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return nullptr;
     void* opaque_block = getIdamDataOpaqueBlock(handle);
     return ((GENERAL_BLOCK*)opaque_block)->userdefinedtype;
 }
 
 USERDEFINEDTYPELIST* getIdamUserDefinedTypeList(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return 0;
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return nullptr;
     void* opaque_block = getIdamDataOpaqueBlock(handle);
     return ((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist;
 }
 
 LOGMALLOCLIST* getIdamLogMallocList(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return 0;
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return nullptr;
     void* opaque_block = getIdamDataOpaqueBlock(handle);
     return ((GENERAL_BLOCK*)opaque_block)->logmalloclist;
 }
 
-NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target)
+NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target, NTREE* full_ntree)
 {
-    return findNTreeStructureDefinition(node, target);
+    return findNTreeStructureDefinition(node, target, full_ntree);
 }

@@ -1,7 +1,3 @@
-//
-// Created by jholloc on 08/03/16.
-//
-
 #include "client.hpp"
 
 #include <complex>
@@ -401,7 +397,7 @@ uda::Client::~Client()
     for (auto& data : results_) {
         delete(data);
     }
-    idamFreeAll();
+//    udaFreeAll(nullptr, nullptr);
 }
 
 void uda::Client::put(const std::string& instruction, const uda::Array& data)

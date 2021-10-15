@@ -22,6 +22,7 @@ add_subdirectory( authentication )
 add_subdirectory( structures )
 add_subdirectory( clientserver )
 add_subdirectory( client )
+#add_subdirectory( client2 )
 
 if( NOT NO_WRAPPERS )
   add_subdirectory( wrappers )

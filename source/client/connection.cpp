@@ -61,15 +61,15 @@
 
 #define PORT_STRING    64
 
-static int clientSocket = -1;
+static int client_socket = -1;
 static SOCKETLIST client_socketlist;   // List of open sockets
 
 int connectionOpen()
 {
-    return clientSocket != -1;
+    return client_socket != -1;
 }
 
-int reconnect(ENVIRONMENT* environment)
+int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output)
 {
     int err = 0;
 
@@ -77,19 +77,19 @@ int reconnect(ENVIRONMENT* environment)
 
     time_t tv_server_start0 = tv_server_start;
     int user_timeout0 = user_timeout;
-    int clientSocket0 = clientSocket;
-    XDR* clientInput0 = clientInput;
-    XDR* clientOutput0 = clientOutput;
+    int clientSocket0 = client_socket;
+    XDR* clientInput0 = *client_input;
+    XDR* clientOutput0 = *client_output;
 
     // Identify the current Socket connection in the Socket List
 
-    int socketId = getSocketRecordId(&client_socketlist, clientSocket);
+    int socketId = getSocketRecordId(&client_socketlist, client_socket);
 
     // Instance a new server if the Client has changed the host and/or port number
 
     if (environment->server_reconnect) {
         time(&tv_server_start);         // Start a New Server AGE timer
-        clientSocket = -1;              // Flags no Socket is open
+        client_socket = -1;              // Flags no Socket is open
         environment->server_change_socket = 0;   // Client doesn't know the Socket ID so disable
     }
 
@@ -106,9 +106,9 @@ int reconnect(ENVIRONMENT* environment)
 
         tv_server_start = client_socketlist.sockets[socketId].tv_server_start;
         user_timeout = client_socketlist.sockets[socketId].user_timeout;
-        clientSocket = client_socketlist.sockets[socketId].fh;
-        clientInput = client_socketlist.sockets[socketId].Input;
-        clientOutput = client_socketlist.sockets[socketId].Output;
+        client_socket = client_socketlist.sockets[socketId].fh;
+        *client_input = client_socketlist.sockets[socketId].Input;
+        *client_output = client_socketlist.sockets[socketId].Output;
 
         environment->server_change_socket = 0;
         environment->server_socket = client_socketlist.sockets[socketId].fh;
@@ -186,7 +186,7 @@ void setHints(struct addrinfo* hints, const char* hostname)
     }
 }
 
-int createConnection()
+int createConnection(XDR* client_input, XDR* client_output)
 {
     int window_size = DB_READ_BLOCK_SIZE;        // 128K
     int rc;
@@ -214,7 +214,7 @@ int createConnection()
 
     ENVIRONMENT* environment = getIdamClientEnvironment();
 
-    if (clientSocket >= 0) {
+    if (client_socket >= 0) {
         // Check Already Opened?
         return 0;
     }
@@ -302,23 +302,23 @@ int createConnection()
     }
 
     errno = 0;
-    clientSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+    client_socket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 
-    if (clientSocket < 0 || errno != 0) {
+    if (client_socket < 0 || errno != 0) {
         if (errno != 0) {
             addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
         } else {
             addIdamError(CODEERRORTYPE, __func__, -1, "Problem Opening Socket");
         }
-        if (clientSocket != -1)
+        if (client_socket != -1)
 #ifndef _WIN32
         {
-            close(clientSocket);
+            close(client_socket);
         }
 #else
         closesocket(clientSocket);
 #endif
-        clientSocket = -1;
+        client_socket = -1;
         freeaddrinfo(result);
         return -1;
     }
@@ -326,7 +326,7 @@ int createConnection()
     // Connect to server
 
     errno = 0;
-    while ((rc = connect(clientSocket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
+    while ((rc = connect(client_socket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
 
     if (rc < 0 || (errno != 0 && errno != EINTR)) {
 
@@ -335,12 +335,11 @@ int createConnection()
         int ps;
         ps = getpid();
         srand((unsigned int)ps);                                                // Seed the random number generator with the process id
-        unsigned int delay =
-                max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0;         // random delay
+        unsigned int delay = max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0; // random delay
         sleep(delay);
         errno = 0;                                                           // wait period
         for (int i = 0; i < max_socket_attempts; i++) {                             // try again
-            while ((rc = connect(clientSocket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
+            while ((rc = connect(client_socket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
 
             if (rc == 0 && errno == 0) break;
 
@@ -361,11 +360,11 @@ int createConnection()
             freeaddrinfo(result);
             result = nullptr;
 #ifndef _WIN32
-            close(clientSocket);
+            close(client_socket);
 #else
             closesocket(clientSocket);
 #endif
-            clientSocket = -1;
+            client_socket = -1;
             udaClientPutHostNameId(-1);
             hostname = environment->server_host2;
 
@@ -422,29 +421,29 @@ int createConnection()
                 return -1;
             }
             errno = 0;
-            clientSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+            client_socket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 
-            if (clientSocket < 0 || errno != 0) {
+            if (client_socket < 0 || errno != 0) {
                 if (errno != 0) {
                     addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
                 } else {
                     addIdamError(CODEERRORTYPE, __func__, -1, "Problem Opening Socket");
                 }
-                if (clientSocket != -1)
+                if (client_socket != -1)
 #ifndef _WIN32
                 {
-                    close(clientSocket);
+                    close(client_socket);
                 }
 #else
                 closesocket(clientSocket);
 #endif
-                clientSocket = -1;
+                client_socket = -1;
                 freeaddrinfo(result);
                 return -1;
             }
 
             for (int i = 0; i < max_socket_attempts; i++) {
-                while ((rc = connect(clientSocket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
+                while ((rc = connect(client_socket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
                 if (rc == 0) {
                     int port = environment->server_port2;                // Swap data so that accessor function reports correctly
                     environment->server_port2 = environment->server_port;
@@ -465,15 +464,15 @@ int createConnection()
             } else {
                 addIdamError(CODEERRORTYPE, __func__, -1, "Unable to Connect to Server Stream Socket");
             }
-            if (clientSocket != -1)
+            if (client_socket != -1)
 #ifndef _WIN32
             {
-                close(clientSocket);
+                close(client_socket);
             }
 #else
             closesocket(clientSocket);
 #endif
-            clientSocket = -1;
+            client_socket = -1;
             if (result) freeaddrinfo(result);
             return -1;
         }
@@ -483,36 +482,36 @@ int createConnection()
 
     // Set the receive and send buffer sizes
 
-    setsockopt(clientSocket, SOL_SOCKET, SO_SNDBUF, (char*)&window_size, sizeof(window_size));
+    setsockopt(client_socket, SOL_SOCKET, SO_SNDBUF, (char*)&window_size, sizeof(window_size));
 
-    setsockopt(clientSocket, SOL_SOCKET, SO_RCVBUF, (char*)&window_size, sizeof(window_size));
+    setsockopt(client_socket, SOL_SOCKET, SO_RCVBUF, (char*)&window_size, sizeof(window_size));
 
     // Other Socket Options
 
     int on = 1;
-    if (setsockopt(clientSocket, SOL_SOCKET, SO_KEEPALIVE, (char*)&on, sizeof(on)) < 0) {
+    if (setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, (char*)&on, sizeof(on)) < 0) {
         addIdamError(CODEERRORTYPE, __func__, -1, "Error Setting KEEPALIVE on Socket");
-        close(clientSocket);
-        clientSocket = -1;
+        close(client_socket);
+        client_socket = -1;
         return -1;
     }
     on = 1;
-    if (setsockopt(clientSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&on, sizeof(on)) < 0) {
+    if (setsockopt(client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&on, sizeof(on)) < 0) {
         addIdamError(CODEERRORTYPE, __func__, -1, "Error Setting NODELAY on Socket");
-        close(clientSocket);
-        clientSocket = -1;
+        close(client_socket);
+        client_socket = -1;
         return -1;
     }
 
     // Add New Socket to the Socket's List
 
     addSocket(&client_socketlist, TYPE_UDA_SERVER, 1, environment->server_host, environment->server_port,
-              clientSocket);
-    client_socketlist.sockets[getSocketRecordId(&client_socketlist, clientSocket)].Input = clientInput;
-    client_socketlist.sockets[getSocketRecordId(&client_socketlist, clientSocket)].Output = clientOutput;
+              client_socket);
+    client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].Input = client_input;
+    client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].Output = client_output;
     environment->server_reconnect = 0;
     environment->server_change_socket = 0;
-    environment->server_socket = clientSocket;
+    environment->server_socket = client_socket;
 
     // Write the socket number to the SSL functions
 
@@ -525,13 +524,13 @@ int createConnection()
 
 void closeConnection(ClosedownType type)
 {
-    if (clientSocket >= 0 && type != ClosedownType::CLOSE_ALL) {
-        closeClientSocket(&client_socketlist, clientSocket);
+    if (client_socket >= 0 && type != ClosedownType::CLOSE_ALL) {
+        closeClientSocket(&client_socketlist, client_socket);
     } else {
         closeClientSockets(&client_socketlist);
     }
 
-    clientSocket = -1;
+    client_socket = -1;
 }
 
 int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
@@ -545,11 +544,11 @@ int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
     fd_set wfds;
     struct timeval tv = {};
 
-    udaUpdateSelectParms(clientSocket, &wfds, &tv);
+    udaUpdateSelectParms(client_socket, &wfds, &tv);
 
     errno = 0;
 
-    while (select(clientSocket + 1, nullptr, &wfds, nullptr, &tv) <= 0) {
+    while (select(client_socket + 1, nullptr, &wfds, nullptr, &tv) <= 0) {
 
         if (errno == ECONNRESET || errno == ENETUNREACH || errno == ECONNREFUSED) {
             if (errno == ECONNRESET) {
@@ -570,7 +569,7 @@ int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
             }
         }
 
-        udaUpdateSelectParms(clientSocket, &wfds, &tv);
+        udaUpdateSelectParms(client_socket, &wfds, &tv);
     }
 
     /* UNIX version
@@ -592,7 +591,7 @@ int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 
     while (BytesSent < (unsigned int)count) {
 #ifndef _WIN32
-        while (((rc = (int)write(clientSocket, buf, count)) == -1) && (errno == EINTR)) {}
+        while (((rc = (int)write(client_socket, buf, count)) == -1) && (errno == EINTR)) {}
 #else
         while (((rc = send(clientSocket, buf , count, 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
 #endif
@@ -624,16 +623,16 @@ int clientReadin(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 
     /* Wait till it is possible to read from socket */
 
-    udaUpdateSelectParms(clientSocket, &rfds, &tv);
+    udaUpdateSelectParms(client_socket, &rfds, &tv);
 
-    while ((select(clientSocket + 1, &rfds, nullptr, nullptr, &tv) <= 0) && maxloop++ < MAXLOOP) {
-        udaUpdateSelectParms(clientSocket, &rfds, &tv);        // Keep trying ...
+    while ((select(client_socket + 1, &rfds, nullptr, nullptr, &tv) <= 0) && maxloop++ < MAXLOOP) {
+        udaUpdateSelectParms(client_socket, &rfds, &tv);        // Keep trying ...
     }
 
     // Read from it, checking for EINTR, as happens if called from IDL
 
 #ifndef _WIN32
-    while (((rc = (int)read(clientSocket, buf, count)) == -1) && (errno == EINTR)) {}
+    while (((rc = (int)read(client_socket, buf, count)) == -1) && (errno == EINTR)) {}
 #else
     while ((( rc=recv( clientSocket, buf, count, 0)) == SOCKET_ERROR ) && (errno == EINTR)) {}
 #endif

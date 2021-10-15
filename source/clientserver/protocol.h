@@ -58,9 +58,11 @@ extern "C" {
 // Client Server XDR data Streams (DON'T CHANGE ORDER or Legacy client won't work!)
 
 LIBRARY_API int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-             USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion);
+                         USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
+                         LOGSTRUCTLIST* log_struct_list);
 LIBRARY_API int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-              USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion);
+                          USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
+                          LOGSTRUCTLIST* log_struct_list);
 
 #ifdef __cplusplus
 }

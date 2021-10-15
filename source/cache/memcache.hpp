@@ -14,13 +14,14 @@ UdaCache* udaOpenCache();
 
 void udaFreeCache();
 
-int udaCacheWrite(UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
+int udaCacheWrite(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
                   LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                  ENVIRONMENT environment, int protocolVersion, int flags);
+                  ENVIRONMENT environment, int protocolVersion, int flags, NTREE* full_ntree,
+                  LOGSTRUCTLIST* log_struct_list);
 
-DATA_BLOCK* udaCacheRead(UdaCache* cache, const REQUEST_DATA* request_data, LOGMALLOCLIST* logmalloclist,
+DATA_BLOCK* udaCacheRead(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, LOGMALLOCLIST* logmalloclist,
                          USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion,
-                         int flags);
+                         int flags, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list);
 
 }
 }

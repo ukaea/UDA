@@ -25,7 +25,7 @@
 #  include <authentication/udaClientSSL.h>
 #endif
 
-int closedown(ClosedownType type, SOCKETLIST* socket_list)
+int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XDR* client_output)
 {
     int rc = 0;
 
@@ -42,10 +42,10 @@ int closedown(ClosedownType type, SOCKETLIST* socket_list)
     }
 
 #ifndef FATCLIENT    // <========================== Client Server Code Only
-    if (clientInput->x_ops != nullptr) xdr_destroy(clientInput);
-    if (clientOutput->x_ops != nullptr) xdr_destroy(clientOutput);
-    clientOutput->x_ops = nullptr;
-    clientInput->x_ops = nullptr;
+    if (client_input->x_ops != nullptr) xdr_destroy(client_input);
+    if (client_output->x_ops != nullptr) xdr_destroy(client_output);
+    client_output->x_ops = nullptr;
+    client_input->x_ops = nullptr;
 
     closeConnection(type);
 

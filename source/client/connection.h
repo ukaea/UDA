@@ -15,8 +15,8 @@ LIBRARY_API extern int clientVersion;                   // Client Library Versio
 LIBRARY_API extern char clientUsername[STRING_LENGTH];  // Only obtain userid once
 
 LIBRARY_API int connectionOpen();
-LIBRARY_API int reconnect(ENVIRONMENT* environment);
-LIBRARY_API int createConnection();
+LIBRARY_API int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output);
+LIBRARY_API int createConnection(XDR* client_input, XDR* client_output);
 LIBRARY_API void closeConnection(ClosedownType type);
 
 LIBRARY_API int clientWriteout(void* iohandle, char* buf, int count);

@@ -393,10 +393,10 @@ typedef struct RequestBlock {
 // System Environment Variables
 
 typedef struct Environment {
-    int server_port;                                // Principal IDAM server port
-    int server_port2;                               // Backup IDAM server port
+    int server_port;                                // Principal UDA server port
+    int server_port2;                               // Backup UDA server port
     int sql_port;
-    int server_reconnect;                           // If the client changes to a different IDAM server then open a new socket
+    int server_reconnect;                           // If the client changes to a different UDA server then open a new socket
     int server_change_socket;                       // Connect to a Running Server
     int server_socket;                              // Clients must keep track of the sockets they open
     int data_path_id;                               // Identifies the algorithm that defines the default path to the standard data source.
@@ -406,9 +406,9 @@ typedef struct Environment {
     char logdir[MAXPATH];
     char logmode[2];
     int loglevel;
-    char server_host[MAXNAME];                      // Principal IDAM server host
-    char server_host2[MAXNAME];                     // Backup IDAM server host
-    char server_proxy[MAXNAME];                     // host:port - Running as a Proxy IDAM server: Prefix 'IDAM::host:port/' to redirect request
+    char server_host[MAXNAME];                      // Principal UDA server host
+    char server_host2[MAXNAME];                     // Backup UDA server host
+    char server_proxy[MAXNAME];                     // host:port - Running as a Proxy UDA server: Prefix 'UDA::host:port/' to redirect request
     char server_this[MAXNAME];                      // host:port - The current server. Used to trap potential infinite redirects
     char sql_host[MAXNAME];
     char sql_dbname[MAXNAME];

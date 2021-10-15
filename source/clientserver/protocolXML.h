@@ -15,7 +15,8 @@ extern "C" {
 #endif
 
 LIBRARY_API int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion);
+                            USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
+                            LOGSTRUCTLIST* log_struct_list);
 
 #ifdef __cplusplus
 }

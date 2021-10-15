@@ -5,7 +5,8 @@
 #include <clientserver/initStructs.h>
 
 void writeCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                    const DATA_BLOCK* data_block, int protocolVersion)
+                    const DATA_BLOCK* data_block, int protocolVersion, NTREE* full_ntree,
+                    LOGSTRUCTLIST* log_struct_list)
 {
     XDR xdrs;
     xdrstdio_create(&xdrs, fp, XDR_ENCODE);
@@ -15,13 +16,14 @@ void writeCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST*
     data_block_list.count = 1;
     data_block_list.data = (DATA_BLOCK*)data_block;
     protocol2(&xdrs, PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
-              &data_block_list, protocolVersion);
+              &data_block_list, protocolVersion, full_ntree, log_struct_list);
 
     xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
 }
 
 DATA_BLOCK*
-readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion)
+readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
+              NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list)
 {
     XDR xdrs;
     xdrstdio_create(&xdrs, fp, XDR_DECODE);
@@ -31,7 +33,7 @@ readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userd
 
     int token;
     protocol2(&xdrs, PROTOCOL_DATA_BLOCK_LIST, XDR_RECEIVE, &token, logmalloclist, userdefinedtypelist,
-              &data_block_list, protocolVersion);
+              &data_block_list, protocolVersion, full_ntree, log_struct_list);
 
     xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
 

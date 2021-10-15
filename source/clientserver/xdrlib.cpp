@@ -451,7 +451,7 @@ bool_t xdr_data_object2(XDR* xdrs, DATA_OBJECT* str)
 
 bool_t
 xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, DATA_BLOCK* str,
-                     int protocolVersion)
+                     int protocolVersion, bool xdr_stdio_flag, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list)
 {
     int err = 0, rc = 1;
     int packageType = 0;
@@ -462,8 +462,8 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
         SARRAY sarray;                                // Structure array carrier structure
         SARRAY* psarray = &sarray;
         int shape = str->data_n;                            // rank 1 array of dimension lengths	       
-        USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*)str->opaque_block;        // The data's structure definition
-        USERDEFINEDTYPE* u = findUserDefinedType(userdefinedtypelist, "SARRAY",
+        auto udt = (USERDEFINEDTYPE*)str->opaque_block;        // The data's structure definition
+        auto u = findUserDefinedType(userdefinedtypelist, "SARRAY",
                                                  0); // Locate the carrier structure definition
 
         if (udt == nullptr || u == nullptr) {
@@ -487,9 +487,9 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         // Send the data
 
-        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist);    // send the full set of known named structures
-        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u,
-                                          (void**)data, protocolVersion);            // send the Data
+        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);    // send the full set of known named structures
+        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
+                                          xdr_stdio_flag, &full_ntree, log_struct_list);            // send the Data
 
         if (!rc) {
             err = 999;
@@ -517,8 +517,8 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
         userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
         initUserDefinedTypeList(userdefinedtypelist);
 
-        rc = rc && xdr_userdefinedtypelist(xdrs,
-                                           userdefinedtypelist);        // receive the full set of known named structures
+        // receive the full set of known named structures
+        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
         if (!rc) {
             err = 999;
@@ -529,11 +529,11 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         // Receive data
 
-        USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
+        auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
         initUserDefinedType(udt_received);
 
         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                          &data, protocolVersion);            // receive the Data
+                                          &data, protocolVersion, xdr_stdio_flag, &full_ntree, log_struct_list);            // receive the Data
 
         if (!rc) {
             err = 999;
@@ -546,15 +546,15 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
-            GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
+            auto general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
 
-            SARRAY* s = (SARRAY*)data;
+            auto s = (SARRAY*)data;
             if (s->count != str->data_n) {                // check for consistency
                 err = 999;
                 addIdamError(CODEERRORTYPE, "protocolDataObject", err, "Inconsistent S Array Counts");
                 return 0;
             }
-            str->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
+            str->data = (char*)full_ntree;        // Global Root Node with the Carrier Structure containing data
             str->opaque_block = (void*)general_block;
             general_block->userdefinedtype = udt_received;
             general_block->userdefinedtypelist = userdefinedtypelist;

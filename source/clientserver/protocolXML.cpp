@@ -56,6 +56,7 @@
 #include <cstdlib>
 #include <cerrno>
 #include <memory.h>
+#include <tuple>
 
 #include <logging/logging.h>
 #include <structures/struct.h>
@@ -83,7 +84,8 @@
 #endif
 
 int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion)
+                USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
+                LOGSTRUCTLIST* log_struct_list)
 {
     DATA_BLOCK* data_block;
 
@@ -108,6 +110,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
     XDR XDROutput;
     FILE* xdrfile = nullptr;
 #endif
+    bool xdr_stdio_flag = false;
 
     //----------------------------------------------------------------------------
     // Check Versions
@@ -146,7 +149,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     SARRAY sarray;                                // Structure array carrier structure
                     SARRAY* psarray = &sarray;
                     int shape = data_block->data_n;                                                 // rank 1 array of dimension lengths
-                    USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*)data_block->opaque_block;              // The data's structure definition
+                    auto udt = (USERDEFINEDTYPE*)data_block->opaque_block;              // The data's structure definition
                     USERDEFINEDTYPE* u = findUserDefinedType(userdefinedtypelist, "SARRAY",
                                                              0);     // Locate the carrier structure definition
 
@@ -222,7 +225,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         // Close current output xdr stream and create stdio file stream
 
                         xdr_destroy(xdrs);
-                        XDRstdioFlag = 1;
+                        xdr_stdio_flag = true;
                         xdrstdio_create(&XDROutput, xdrfile, XDR_ENCODE);
                         xdrs = &XDROutput;                        // Switch from stream to file
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: stdio XDR file: %s\n", tempFile);
@@ -237,14 +240,15 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                     }
 #endif
-
-                    rc = rc && xdr_userdefinedtypelist(xdrs,
-                                                       userdefinedtypelist); // send the full set of known named structures
+                    // send the full set of known named structures
+                    rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Structure Definitions sent: rc = %d\n", rc);
 
+                    // send the Data
                     rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u,
-                                                      (void**)data, protocolVersion);        // send the Data
+                                                      (void**)data, protocolVersion, xdr_stdio_flag, &full_ntree,
+                                                      log_struct_list);
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Data sent: rc = %d\n", rc);
 
@@ -269,13 +273,17 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
 
 #  ifdef SERVERBUILD
-                        CreateXDRStream();
+                        XDR* serverInput;
+                        XDR* serverOutput;
+                        std::tie(serverInput, serverOutput) = CreateXDRStream();
                         xdrs = serverOutput;
 #  else
-                        createXDRStream();
+                        XDR* clientInput;
+                        XDR* clientOutput;
+                        std::tie(clientInput, clientOutput) = createXDRStream();
                         xdrs = clientOutput;
 #  endif
-                        XDRstdioFlag = 0;
+                        xdr_stdio_flag = false;
 
                         // Send the Temporary File
 
@@ -421,15 +429,14 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             }
 
                             xdr_destroy(xdrs);
-                            XDRstdioFlag = 1;
+                            xdr_stdio_flag = true;
                             xdrstdio_create(&XDRInput, xdrfile, XDR_DECODE);
                             xdrs = &XDRInput;                        // Switch from stream to file
 
                         }
 #endif // !FATCLIENT
-
-                        rc = rc && xdr_userdefinedtypelist(xdrs,
-                                                           userdefinedtypelist);        // receive the full set of known named structures
+                        // receive the full set of known named structures
+                        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: xdr_userdefinedtypelist #B\n");
 
@@ -443,7 +450,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         initUserDefinedType(udt_received);
 
                         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                          &data, protocolVersion);        // receive the Data
+                                                          &data, protocolVersion, xdr_stdio_flag, &full_ntree,
+                                                          log_struct_list); // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: xdrUserDefinedTypeData #B\n");
                         if (!rc) {
@@ -467,15 +475,18 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             //xdrs = priorxdrs;
 
 #  ifdef SERVERBUILD
-                            CreateXDRStream();
+                            XDR* serverInput;
+                            XDR* serverOuput;
+                            std::tie(serverInput, serverOuput) = CreateXDRStream();
                             xdrs = serverInput;
 #  else
-                            createXDRStream();
+                            XDR* clientInput;
+                            XDR* clientOutput;
+                            std::tie(clientInput, clientOutput) = createXDRStream();
                             xdrs = clientInput;
 #  endif
-                            XDRstdioFlag = 0;
+                            xdr_stdio_flag = false;
                             remove(tempFile);
-
                         }
 #endif // !FATCLIENT
 
@@ -490,7 +501,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                              "Inconsistent S Array Counts");
                                 break;
                             }
-                            data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
+                            data_block->data = (char*)full_ntree;        // Global Root Node with the Carrier Structure containing data
                             data_block->opaque_block = (void*)general_block;
                             general_block->userdefinedtype = udt_received;
                             general_block->userdefinedtypelist = userdefinedtypelist;
@@ -583,12 +594,12 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             }
 
                             xdr_destroy(xdrs);
-                            XDRstdioFlag = 1;
+                            xdr_stdio_flag = true;
                             xdrstdio_create(&XDRInput, xdrfile, XDR_DECODE);
                             xdrs = &XDRInput;
 
-                            rc = xdr_userdefinedtypelist(xdrs,
-                                                         userdefinedtypelist);        // receive the full set of known named structures
+                            // receive the full set of known named structures
+                            rc = xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
                             if (!rc) {
                                 err = 999;
@@ -600,7 +611,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             initUserDefinedType(udt_received);
 
                             rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                              &data, protocolVersion);        // receive the Data
+                                                              &data, protocolVersion, xdr_stdio_flag, &full_ntree,
+                                                              log_struct_list); // receive the Data
 
                             if (!rc) {
                                 err = 999;
@@ -615,13 +627,18 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             fclose(xdrfile);
 
 #  ifdef SERVERBUILD
-                            CreateXDRStream();
+                            XDR* serverInput;
+                            XDR* serverOuput;
+                            std::tie(serverInput, serverOuput) = CreateXDRStream();
                             xdrs = serverInput;
 #  else
-                            createXDRStream();
+                            XDR* clientInput;
+                            XDR* clientOutput;
+                            std::tie(clientInput, clientOutput) = createXDRStream();
                             xdrs = clientInput;
 #  endif
-                            XDRstdioFlag = 0;
+
+                            xdr_stdio_flag = false;
                             remove(tempFile);
 
                             // Regular client or server
@@ -629,16 +646,16 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             if (STR_EQUALS(udt_received->name,
                                            "SARRAY")) {            // expecting this carrier structure
 
-                                GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
+                                auto general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
 
-                                SARRAY* s = (SARRAY*)data;
+                                auto s = (SARRAY*)data;
                                 if (s->count != data_block->data_n) {                // check for consistency
                                     err = 999;
                                     addIdamError(CODEERRORTYPE, "protocolXML", err,
                                                  "Inconsistent S Array Counts");
                                     break;
                                 }
-                                data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
+                                data_block->data = (char*)full_ntree;        // Global Root Node with the Carrier Structure containing data
                                 data_block->opaque_block = (void*)general_block;
                                 data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                                 general_block->userdefinedtype = udt_received;

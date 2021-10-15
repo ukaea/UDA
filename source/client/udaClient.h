@@ -58,18 +58,13 @@ extern int get_datadble;        // (Client Side) Return Data in Double Precision
 extern int get_bad;             // (Client Side) return data with BAD Status value
 extern int get_synthetic;       // (Client Side) Return Synthetic Data if available instead of Original data
 
-// XDR data Streams
-
-extern XDR* clientInput;           // XDR Input Stream handle
-extern XDR* clientOutput;          // XDR Output Stream handle
-
 LIBRARY_API int idamClient(REQUEST_BLOCK* request_block, int* indices);
 
 LIBRARY_API void updateClientBlock(CLIENT_BLOCK* str);
 
 LIBRARY_API void idamFree(int handle);
 
-LIBRARY_API void idamFreeAll();
+LIBRARY_API void udaFreeAll(XDR* client_input, XDR* client_output, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list);
 
 /**
  * Get the version of the client c-library.
