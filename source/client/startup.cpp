@@ -94,7 +94,7 @@ int udaStartup(int reset)
         return -1;
     }
 
-    if (udaGetLogLevel() == UDA_LOG_ERROR) {
+    if (udaGetLogLevel() <= UDA_LOG_ERROR) {
         strcpy(idamFile, environment->logdir);
         strcat(idamFile, "Error.err");
         file = fopen(idamFile, environment->logmode);

@@ -190,10 +190,6 @@ extern int malloc_source;
 #define PACKAGE_STRUCTDATA  2
 #define PACKAGE_XDROBJECT   3
 
-extern NTREE* fullNTree;
-extern NTREELIST NTreeList;
-extern LOGSTRUCTLIST logstructlist;
-
 #ifdef __cplusplus
 }
 #endif

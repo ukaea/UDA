@@ -1417,11 +1417,12 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
 // Send/Receive Array of Structures
 
 int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                              USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion)
+                              USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion, NTREE** full_ntree,
+                              LOGSTRUCTLIST* log_struct_list)
 {
     int rc = 1;
 
-    initLogStructList(); // Initialise Linked List Structure Log
+    initLogStructList(log_struct_list); // Initialise Linked List Structure Log
 
     if (xdrs->x_op == XDR_DECODE) {
 
@@ -1434,7 +1435,7 @@ int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFIN
              xdrUserDefinedDataPut(xdrs, logmalloclist, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
                                    &dataNTree, protocolVersion);    // Data within Structures
 
-        fullNTree = dataNTree;            // Copy to Global
+        *full_ntree = dataNTree;            // Copy to Global
 
     } else {
 
@@ -1455,7 +1456,7 @@ int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFIN
         */
     }
 
-    freeLogStructList();                            // Free Linked List Structure Log heap
+    freeLogStructList(log_struct_list);                            // Free Linked List Structure Log heap
 
     return rc;
 }
@@ -1486,20 +1487,21 @@ bool_t xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str)
 
 
 int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                    USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion)
+                    USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
+                    LOGSTRUCTLIST* log_struct_list)
 {
     DATA_BLOCK* data_block;
 
     int rc = 1;
     int err = 0;
 
-//----------------------------------------------------------------------------
-// Error Management Loop
+    //----------------------------------------------------------------------------
+    // Error Management Loop
 
     do {
 
-//----------------------------------------------------------------------------
-// Generalised User Defined Data Structures
+        //----------------------------------------------------------------------------
+        // Generalised User Defined Data Structures
 
         if (protocol_id == PROTOCOL_STRUCTURES) {
 
@@ -1514,7 +1516,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                     SARRAY sarray;                                // Structure array carrier structure
                     SARRAY* psarray = &sarray;
                     int shape = data_block->data_n;                        // rank 1 array of dimension lengths
-                    USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*)data_block->opaque_block;    // The data's structure definition
+                    auto udt = (USERDEFINEDTYPE*)data_block->opaque_block;    // The data's structure definition
                     USERDEFINEDTYPE* u = findUserDefinedType(userdefinedtypelist, "SARRAY",
                                                              0); // Locate the carrier structure definition
 
@@ -1545,7 +1547,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                     UDA_LOG(UDA_LOG_DEBUG, "Sending Package Type: %d\n", packageType);
 
                     rc = xdr_int(xdrs, &packageType);        // Send data package type
-// **** the original protocolXML2 marks this as the end of a record and dispatches. This causes an error - unknown root cause
+                    // **** the original protocolXML2 marks this as the end of a record and dispatches. This causes an error - unknown root cause
 
                     rc = rc && xdr_userdefinedtypelistPut(xdrs,
                                                           userdefinedtypelist);        // send the full set of known named structures
@@ -1553,7 +1555,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                     UDA_LOG(UDA_LOG_DEBUG, "Structure Definitions sent: rc = %d\n", rc);
 
                     rc = rc && xdrUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, u,
-                                                         (void**)data, protocolVersion);        // send the Data
+                                                         (void**)data, protocolVersion, &full_ntree, log_struct_list);        // send the Data
 
                     UDA_LOG(UDA_LOG_DEBUG, "Structured Data sent: rc = %d\n", rc);
 
@@ -1564,7 +1566,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                         break;
                     }
 
-//======================================================================================================================
+                    //======================================================================================================================
 
                 } else {            // Receive Data
 
@@ -1572,7 +1574,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                     UDA_LOG(UDA_LOG_DEBUG, "Receiving Package Type\n");
 
-// **** the original protocolXML2 reads the next record. This causes an error - unknown root cause
+                    // **** the original protocolXML2 reads the next record. This causes an error - unknown root cause
 
                     rc = rc && xdr_int(xdrs, &packageType);        // Receive data package type
 
@@ -1589,7 +1591,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                     }
 
 
-// Unpack data structures
+                    // Unpack data structures
 
                     if (option == 1) {
 
@@ -1597,7 +1599,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                         initLogMallocList(logmalloclist);
 
                         userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-                        USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
+                        auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
 
                         initUserDefinedTypeList(userdefinedtypelist);
 
@@ -1616,7 +1618,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                         initUserDefinedType(udt_received);
 
                         rc = rc && xdrUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                             &data, protocolVersion);        // receive the Data
+                                                             &data, protocolVersion, &full_ntree, log_struct_list);        // receive the Data
                         //rc = rc && xdrUserDefinedTypeData(xdrs, udt_received, &data);		// receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "xdrUserDefinedTypeData received\n");
@@ -1630,9 +1632,9 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                         if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
-                            GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
+                            auto general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
 
-                            SARRAY* s = (SARRAY*)data;
+                            auto s = (SARRAY*)data;
                             if (s->count != data_block->data_n) {                // check for consistency
                                 err = 999;
                                 addIdamError(CODEERRORTYPE, "protocolXML2Put", err,
@@ -1645,7 +1647,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                             general_block->logmalloclist = logmalloclist;
                             general_block->lastMallocIndex = 0;
 
-                            data_block->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
+                            data_block->data = (char*)full_ntree;        // Global Root Node with the Carrier Structure containing data
 
                             data_block->opaque_block = (void*)general_block;        // Contains all the other information needed
 

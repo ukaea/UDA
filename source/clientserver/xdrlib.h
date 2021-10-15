@@ -75,8 +75,6 @@ LIBRARY_API bool_t xdr_signal(XDR* xdrs, SIGNAL* str);
 // From SIGNAL_DESC Table
 LIBRARY_API bool_t xdr_signal_desc(XDR* xdrs, SIGNAL_DESC* str);
 
-extern unsigned int XDRstdioFlag;
-
 #ifdef __cplusplus
 }
 #endif

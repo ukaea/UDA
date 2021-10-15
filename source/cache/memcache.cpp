@@ -226,8 +226,9 @@ void uda::cache::udaFreeCache() // Will be called by the idamFreeAll function
 
 int
 uda::cache::udaCacheWrite(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
-              LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
-              int protocolVersion, int flags)
+                          LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                          ENVIRONMENT environment, int protocolVersion, int flags, NTREE* full_ntree,
+                          LOGSTRUCTLIST* log_struct_list)
 {
 #ifdef CACHEDEV
     if (!data_block->cachePermission) {
@@ -249,7 +250,8 @@ uda::cache::udaCacheWrite(uda::cache::UdaCache* cache, const REQUEST_DATA* reque
 
     FILE* memfile = open_memstream(&buffer, &bufsize);
 
-    writeCacheData(memfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion);
+    writeCacheData(memfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion, full_ntree,
+                   log_struct_list);
 
     rc = memcache_put(cache, key.c_str(), buffer, bufsize);
 
@@ -260,8 +262,10 @@ uda::cache::udaCacheWrite(uda::cache::UdaCache* cache, const REQUEST_DATA* reque
 }
 
 DATA_BLOCK* uda::cache::udaCacheRead(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data,
-                                     LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                                     ENVIRONMENT environment, int protocolVersion, int flags)
+                                     LOGMALLOCLIST* logmalloclist,
+                                     USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
+                                     int protocolVersion,
+                                     int flags, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list)
 {
     auto key = generate_cache_key(request_data, environment, flags);
     if (key.empty()) {
@@ -283,7 +287,8 @@ DATA_BLOCK* uda::cache::udaCacheRead(uda::cache::UdaCache* cache, const REQUEST_
     fwrite(value, sizeof(char), len, memfile);
     fseek(memfile, 0L, SEEK_SET);
 
-    auto data = readCacheData(memfile, logmalloclist, userdefinedtypelist, protocolVersion);
+    auto data = readCacheData(memfile, logmalloclist, userdefinedtypelist, protocolVersion, full_ntree,
+                              log_struct_list);
     fclose(memfile);
     free(buffer);
 

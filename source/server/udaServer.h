@@ -22,10 +22,6 @@ extern unsigned int totalDataBlockSize;
 extern int serverVersion;
 extern int altRank;
 
-#ifndef FATCLIENT
-extern XDR* serverInput;
-extern XDR* serverOutput;
-#endif
 extern int server_tot_block_time;
 extern int server_timeout;
 

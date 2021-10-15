@@ -13,7 +13,9 @@
 #include <server/udaServer.h>
 #include <clientserver/xdrlib.h>
 
-int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion)
+int sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmalloclist,
+                USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, NTREE* full_ntree,
+                LOGSTRUCTLIST* log_struct_list)
 {
     int protocol_id, next_protocol, err, rc;
 
@@ -24,8 +26,8 @@ int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedty
 
     UDA_LOG(UDA_LOG_DEBUG, "Protocol 3 Listening for Next Client Request\n");
 
-    if ((err = protocol(serverInput, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist,
-                        nullptr, protocolVersion)) != 0) {
+    if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist,
+                        nullptr, protocolVersion, full_ntree, log_struct_list)) != 0) {
 
         UDA_LOG(UDA_LOG_DEBUG, "Protocol 3 Error Listening for Wake-up %d\n", err);
 
@@ -35,7 +37,7 @@ int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedty
         return 0;
     }
 
-    rc = xdrrec_eof(serverInput);
+    rc = xdrrec_eof(server_input);
     UDA_LOG(UDA_LOG_DEBUG, "Next Client Request Heard\n");
     UDA_LOG(UDA_LOG_DEBUG, "Serve Awakes!\n");
     UDA_LOG(UDA_LOG_DEBUG, "Next Protocol %d Received\n", next_protocol);
@@ -43,8 +45,8 @@ int sleepServer(LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedty
 
 #ifndef NOCHAT
     // Echo Next Protocol straight back to Client
-    if ((err = protocol(serverOutput, protocol_id, XDR_SEND, &next_protocol, logmalloclist, userdefinedtypelist,
-                        nullptr, protocolVersion)) != 0) {
+    if ((err = protocol(server_output, protocol_id, XDR_SEND, &next_protocol, logmalloclist, userdefinedtypelist,
+                        nullptr, protocolVersion, full_ntree, log_struct_list)) != 0) {
         addIdamError(CODEERRORTYPE, "sleepServer", err, "Protocol 3 Error Echoing Next Protocol ID");
         return 0;
     }

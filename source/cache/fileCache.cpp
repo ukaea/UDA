@@ -379,9 +379,9 @@ boost::optional<CacheStats> purge_cache(FILE* db)
     return stats;
 }
 
-DATA_BLOCK* udaFileCacheRead(const REQUEST_DATA* request,
-                             LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                             int protocolVersion)
+DATA_BLOCK*
+udaFileCacheRead(const REQUEST_DATA* request, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                 int protocolVersion, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list)
 {
     auto maybe_entry = find_cache_entry(request);
     if (!maybe_entry) {
@@ -408,7 +408,8 @@ DATA_BLOCK* udaFileCacheRead(const REQUEST_DATA* request,
         THROW_ERROR(0, "Unable to Open the Cached Data File");
     }
 
-    auto data_block = readCacheData(xdrfile, logmalloclist, userdefinedtypelist, protocolVersion);
+    auto data_block = readCacheData(xdrfile, logmalloclist, userdefinedtypelist, protocolVersion, full_ntree,
+                                    log_struct_list);
 
     fclose(xdrfile);
 
@@ -615,7 +616,8 @@ std::string generate_cache_filename(const REQUEST_DATA* request)
 }
 
 int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
-                      USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion)
+                      USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, NTREE* full_ntree,
+                      LOGSTRUCTLIST* log_struct_list)
 {
     REQUEST_DATA* request = &request_block->requests[0];
 
@@ -634,7 +636,8 @@ int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request
         THROW_ERROR(0, "unable to create the Cached Data File");
     }
 
-    writeCacheData(xdrfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion);
+    writeCacheData(xdrfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion, full_ntree,
+                   log_struct_list);
 
     fclose(xdrfile);
 

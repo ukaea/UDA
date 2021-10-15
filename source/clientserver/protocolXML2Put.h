@@ -17,13 +17,17 @@ LIBRARY_API int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, U
 
 // Send/Receive Array of Structures
 
-LIBRARY_API int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                              USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion);
+LIBRARY_API int
+xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                          USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion, NTREE** full_ntree,
+                          LOGSTRUCTLIST* log_struct_list);
 
 LIBRARY_API bool_t xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str);
 
 LIBRARY_API int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                    USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion);
+                                USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
+                                NTREE* full_ntree,
+                                LOGSTRUCTLIST* log_struct_list);
 
 #ifdef __cplusplus
 }
