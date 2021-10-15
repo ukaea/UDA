@@ -24,6 +24,7 @@
 #include "serverProcessing.h"
 #include "sleepServer.h"
 #include "udaServer.h"
+#include "writer.h"
 
 #ifdef LEGACYSERVER
 int idamLegacyServer(CLIENT_BLOCK client_block) {
@@ -63,6 +64,13 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
     LOGSTRUCTLIST log_struct_list;
     initLogStructList(&log_struct_list);
+
+    int server_tot_block_time = 0;
+    int server_timeout = TIMEOUT;        // user specified Server Lifetime
+
+    IoData io_data = {};
+    io_data.server_tot_block_time = &server_tot_block_time;
+    io_data.server_timeout = &server_timeout;
 
     //-------------------------------------------------------------------------
     // Initialise the Error Stack & the Server Status Structure
@@ -113,7 +121,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 protocol_id = PROTOCOL_CLIENT_BLOCK;
 
                 if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                                    &client_block, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                    &client_block, protocolVersion, full_ntree, &log_struct_list, &io_data)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Data Block\n");
                     addIdamError(CODEERRORTYPE, __func__, err,
                                  "Protocol 10 Error (Receiving Client Block)");
@@ -158,7 +166,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 UDA_LOG(UDA_LOG_DEBUG, "Sending Server Block\n");
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                                    &server_block, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                    &server_block, protocolVersion, full_ntree, &log_struct_list, &io_data)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block\n");
                     addIdamError(CODEERRORTYPE, __func__, err,
                                  "Protocol 11 Error (Sending Server Block #1)");
@@ -189,7 +197,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             protocol_id = PROTOCOL_REQUEST_BLOCK;
 
             if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                                &request_block, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                &request_block, protocolVersion, full_ntree, &log_struct_list, &io_data)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Request Block\n");
                 addIdamError(CODEERRORTYPE, __func__, err,
                              "Protocol 1 Error (Receiving Client Request)");
@@ -305,7 +313,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 protocol_id = PROTOCOL_PUTDATA_BLOCK_LIST;
 
                 if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                                    &(request_data->putDataBlockList), protocolVersion, full_ntree, &log_struct_list)) !=
+                                    &(request_data->putDataBlockList), protocolVersion, full_ntree, &log_struct_list,
+                                    &io_data)) !=
                     0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving putData Block List\n");
                     addIdamError(CODEERRORTYPE, __func__, err,
@@ -439,7 +448,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             protocol_id = PROTOCOL_SERVER_BLOCK;
 
             if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                                &server_block, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                &server_block, protocolVersion, full_ntree, &log_struct_list, &io_data)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
                 addIdamError(CODEERRORTYPE, __func__, err,
                              "Protocol 11 Error (Sending Server Block #2)");
@@ -470,7 +479,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 protocol_id = PROTOCOL_NEXT_PROTOCOL;
 
                 if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist,
-                                    userdefinedtypelist, nullptr, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                    userdefinedtypelist, nullptr, protocolVersion, full_ntree, &log_struct_list,
+                                    &io_data)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem #1 Receiving Next Protocol ID\n");
                     addIdamError(CODEERRORTYPE, __func__, err,
                                  "Protocol 3 (Next Protocol #1) Error");
@@ -494,7 +504,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 protocol_id = PROTOCOL_DATA_SYSTEM;
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                                    &data_system, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                    &data_system, protocolVersion, full_ntree, &log_struct_list, &io_data)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure\n");
                     addIdamError(CODEERRORTYPE, __func__, err, "Protocol 4 Error");
                     break;
@@ -506,7 +516,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 protocol_id = PROTOCOL_SYSTEM_CONFIG;
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                                    &system_config, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                    &system_config, protocolVersion, full_ntree, &log_struct_list, &io_data)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure\n");
                     addIdamError(CODEERRORTYPE, __func__, err, "Protocol 5 Error");
                     break;
@@ -518,7 +528,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 protocol_id = PROTOCOL_DATA_SOURCE;
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                                    &data_source, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                    &data_source, protocolVersion, full_ntree, &log_struct_list, &io_data)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure\n");
                     addIdamError(CODEERRORTYPE, __func__, err, "Protocol 6 Error");
                     break;
@@ -530,7 +540,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 protocol_id = PROTOCOL_SIGNAL;
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                                    &signal_rec, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                    &signal_rec, protocolVersion, full_ntree, &log_struct_list, &io_data)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure\n");
                     addIdamError(CODEERRORTYPE, __func__, err, "Protocol 7 Error");
                     break;
@@ -542,7 +552,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 protocol_id = PROTOCOL_SIGNAL_DESC;
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                                    &signal_desc, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                    &signal_desc, protocolVersion, full_ntree, &log_struct_list, &io_data)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure\n");
                     addIdamError(CODEERRORTYPE, __func__, err, "Protocol 8 Error");
                     break;
@@ -556,7 +566,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             protocol_id = PROTOCOL_NEXT_PROTOCOL;
 
             if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist,
-                                userdefinedtypelist, nullptr, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                userdefinedtypelist, nullptr, protocolVersion, full_ntree, &log_struct_list,
+                                &io_data)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem #2 Receiving Next Protocol ID\n");
                 addIdamError(CODEERRORTYPE, __func__, err, "Protocol 3 (Next Protocol #2) Error");
                 break;
@@ -581,7 +592,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             protocol_id = PROTOCOL_DATA_BLOCK_LIST;
 
             if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                                &data_block, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                &data_block, protocolVersion, full_ntree, &log_struct_list, &io_data)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure\n");
                 addIdamError(CODEERRORTYPE, __func__, err, "Protocol 2 Error");
                 break;
@@ -597,7 +608,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 protocol_id = PROTOCOL_NEXT_PROTOCOL;
 
                 if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist,
-                                    userdefinedtypelist, nullptr, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                    userdefinedtypelist, nullptr, protocolVersion, full_ntree, &log_struct_list,
+                                    &io_data)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem #2a Receiving Next Protocol ID\n");
                     addIdamError(CODEERRORTYPE, __func__, err,
                                  "Protocol 3 (Next Protocol #2) Error");
@@ -630,7 +642,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 UDA_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client\n");
 
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                                    &data_block, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                                    &data_block, protocolVersion, full_ntree, &log_struct_list, &io_data)) != 0) {
                     addIdamError(CODEERRORTYPE, __func__, err,
                                  "Server Side Protocol Error (Opaque Structure Type)");
                     break;
@@ -665,7 +677,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
         next_protocol = 0;
 
         if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist,
-                            nullptr, protocolVersion, full_ntree, &log_struct_list)) != 0) {
+                            nullptr, protocolVersion, full_ntree, &log_struct_list, &io_data)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem #3 Receiving Next Protocol ID\n");
             addIdamError(CODEERRORTYPE, __func__, err, "Protocol 3 (Server Shutdown) Error");
             break;
@@ -720,7 +732,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
         // Server Wait Loop
 
     } while (err == 0 && next_protocol == PROTOCOL_SLEEP
-            && sleepServer(server_input, server_output, logmalloclist, userdefinedtypelist, protocolVersion, full_ntree, &log_struct_list));
+            && sleepServer(server_input, server_output, logmalloclist, userdefinedtypelist, protocolVersion, full_ntree,
+                           &log_struct_list, server_tot_block_time, server_timeout, &io_data));
 
     //----------------------------------------------------------------------------
     // Server Destruct.....

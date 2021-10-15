@@ -4,6 +4,7 @@
 #include <stdio.h> // this must be included before rpc.h
 #include <rpc/rpc.h>
 #include <structures/genStructs.h>
+#include <server/writer.h>
 #include "export.h"
 
 #ifdef __cplusplus
@@ -16,7 +17,7 @@ extern "C" {
 
 LIBRARY_API int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                             USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
-                            LOGSTRUCTLIST* log_struct_list);
+                            LOGSTRUCTLIST* log_struct_list, IoData* io_data);
 
 #ifdef __cplusplus
 }

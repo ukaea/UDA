@@ -13,16 +13,16 @@
 
 int serverSocket = 0;
 
-void setSelectParms(int fd, fd_set* rfds, struct timeval* tv)
+void setSelectParms(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time)
 {
     FD_ZERO(rfds);    // Initialise the File Descriptor set
     FD_SET(fd, rfds);    // Identify the Socket in the FD set
     tv->tv_sec = 0;
     tv->tv_usec = MIN_BLOCK_TIME;    // minimum wait microsecs (1ms)
-    server_tot_block_time = 0;
+    *server_tot_block_time = 0;
 }
 
-void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv)
+void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time)
 {
     FD_ZERO(rfds);
     FD_SET(fd, rfds);
@@ -60,26 +60,28 @@ void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv)
 //-----------------------------------------------------------------------------------------
 */
 
-int Readin(void* iohandle, char* buf, int count)
+int server_read(void* iohandle, char* buf, int count)
 {
     int rc = 0;
     fd_set rfds;        // File Descriptor Set for Reading from the Socket
-    struct timeval tv, tvc;
+    timeval tv = {};
+    timeval tvc = {};
+
+    auto io_data = reinterpret_cast<IoData*>(iohandle);
 
     // Wait until there are data to be read from the socket
 
-    setSelectParms(serverSocket, &rfds, &tv);
+    setSelectParms(serverSocket, &rfds, &tv, io_data->server_tot_block_time);
     tvc = tv;
 
-    while (select(serverSocket + 1, &rfds, NULL, NULL, &tvc) <= 0) {
-        server_tot_block_time = server_tot_block_time + (int)tv.tv_usec / 1000;
-        if (server_tot_block_time > 1000 * server_timeout) {
-            UDA_LOG(UDA_LOG_DEBUG, "Total Wait Time Exceeds Lifetime Limit = %d (ms)\n", server_timeout * 1000);
+    while (select(serverSocket + 1, &rfds, nullptr, nullptr, &tvc) <= 0) {
+        *io_data->server_tot_block_time += (int)tv.tv_usec / 1000;
+        if (*io_data->server_tot_block_time > 1000 * *io_data->server_timeout) {
+            UDA_LOG(UDA_LOG_DEBUG, "Total Wait Time Exceeds Lifetime Limit = %d (ms)\n", *io_data->server_timeout * 1000);
+            return -1;
         }
 
-        if (server_tot_block_time > 1000 * server_timeout) return -1;
-
-        updateSelectParms(serverSocket, &rfds, &tv);        // Keep trying ...
+        updateSelectParms(serverSocket, &rfds, &tv, *io_data->server_tot_block_time);        // Keep trying ...
         tvc = tv;
     }
 
@@ -97,7 +99,7 @@ int Readin(void* iohandle, char* buf, int count)
     return rc;
 }
 
-int Writeout(void* iohandle, char* buf, int count)
+int server_write(void* iohandle, char* buf, int count)
 {
 
     // This routine is only called when there is something to write back to the Client
@@ -106,19 +108,21 @@ int Writeout(void* iohandle, char* buf, int count)
     int BytesSent = 0;
 
     fd_set wfds;        // File Descriptor Set for Writing to the Socket
-    struct timeval tv;
+    timeval tv = {};
+
+    auto io_data = reinterpret_cast<IoData*>(iohandle);
 
     // Block IO until the Socket is ready to write to Client
 
-    setSelectParms(serverSocket, &wfds, &tv);
+    setSelectParms(serverSocket, &wfds, &tv, io_data->server_tot_block_time);
 
-    while (select(serverSocket + 1, NULL, &wfds, NULL, &tv) <= 0) {
-        server_tot_block_time += tv.tv_usec / 1000;
-        if (server_tot_block_time / 1000 > server_timeout) {
-            UDA_LOG(UDA_LOG_DEBUG, "Total Blocking Time: %d (ms)\n", server_tot_block_time);
+    while (select(serverSocket + 1, nullptr, &wfds, nullptr, &tv) <= 0) {
+        *io_data->server_tot_block_time += tv.tv_usec / 1000;
+        if (*io_data->server_tot_block_time / 1000 > *io_data->server_timeout) {
+            UDA_LOG(UDA_LOG_DEBUG, "Total Blocking Time: %d (ms)\n", *io_data->server_tot_block_time);
+            return -1;
         }
-        if (server_tot_block_time / 1000 > server_timeout) return -1;
-        updateSelectParms(serverSocket, &wfds, &tv);
+        updateSelectParms(serverSocket, &wfds, &tv, *io_data->server_tot_block_time);
     }
 
     // Write to socket, checking for EINTR, as happens if called from IDL

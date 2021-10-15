@@ -85,7 +85,7 @@
 
 int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                 USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
-                LOGSTRUCTLIST* log_struct_list)
+                LOGSTRUCTLIST* log_struct_list, IoData* io_data)
 {
     DATA_BLOCK* data_block;
 
@@ -275,7 +275,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 #  ifdef SERVERBUILD
                         XDR* serverInput;
                         XDR* serverOutput;
-                        std::tie(serverInput, serverOutput) = CreateXDRStream();
+                        std::tie(serverInput, serverOutput) = CreateXDRStream(io_data);
                         xdrs = serverOutput;
 #  else
                         XDR* clientInput;
@@ -477,7 +477,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 #  ifdef SERVERBUILD
                             XDR* serverInput;
                             XDR* serverOuput;
-                            std::tie(serverInput, serverOuput) = CreateXDRStream();
+                            std::tie(serverInput, serverOuput) = CreateXDRStream(io_data);
                             xdrs = serverInput;
 #  else
                             XDR* clientInput;
@@ -629,7 +629,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 #  ifdef SERVERBUILD
                             XDR* serverInput;
                             XDR* serverOuput;
-                            std::tie(serverInput, serverOuput) = CreateXDRStream();
+                            std::tie(serverInput, serverOuput) = CreateXDRStream(io_data);
                             xdrs = serverInput;
 #  else
                             XDR* clientInput;
