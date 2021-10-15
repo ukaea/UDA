@@ -9,7 +9,7 @@
 
 #include "getServerEnvironment.h"
 
-int startup(void)
+int startup()
 {
     //----------------------------------------------------------------
     // Read Environment Variable Values (Held in a Global Structure)

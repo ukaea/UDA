@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef UDA_SERVER_WRITER_H
 #define UDA_SERVER_WRITER_H
 
@@ -22,13 +24,9 @@ struct IoData {
     int* server_timeout;
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-LIBRARY_API void setSelectParms(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time);
-LIBRARY_API void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time);
-LIBRARY_API int server_write(void* iohandle, char* buf, int count);
+void setSelectParms(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time);
+void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time);
+int server_write(void* iohandle, char* buf, int count);
 
 /*
 //-----------------------------------------------------------------------------------------
@@ -53,10 +51,6 @@ LIBRARY_API int server_write(void* iohandle, char* buf, int count);
 // closes down.
 //-----------------------------------------------------------------------------------------
 */
-LIBRARY_API int server_read(void* iohandle, char* buf, int count);
-
-#ifdef __cplusplus
-}
-#endif
+int server_read(void* iohandle, char* buf, int count);
 
 #endif // UDA_SERVER_WRITER_H

@@ -24,6 +24,7 @@
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
+#include "initPluginList.h"
 
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {
@@ -36,13 +37,10 @@ ENVIRONMENT environment;    // Holds local environment variable values
 static USERDEFINEDTYPELIST* userdefinedtypelist = nullptr;
 static LOGMALLOCLIST* logmalloclist = nullptr;
 
-unsigned int XDRstdioFlag = 1;
 int altRank = 0;
 unsigned int clientFlags = 0;
-NTREE* fullNTree = nullptr;
 
 int malloc_source = MALLOCSOURCENONE;
-USERDEFINEDTYPELIST parseduserdefinedtypelist;
 unsigned int privateFlags = 0;
 
 int serverVersion = 8;
@@ -74,7 +72,7 @@ void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
 }
 #endif
 
-static int startupFatServer(SERVER_BLOCK* server_block);
+static int startupFatServer(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduserdefinedtypelist);
 
 static int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, ACTIONS* actions_desc,
                                 ACTIONS* actions_sig, DATA_BLOCK_LIST* data_blocks0);
@@ -128,6 +126,8 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
 
+    USERDEFINEDTYPELIST parseduserdefinedtypelist;
+
     getInitialUserDefinedTypeList(&userdefinedtypelist);
     parseduserdefinedtypelist = *userdefinedtypelist;
     //printUserDefinedTypeList(*userdefinedtypelist);
@@ -135,12 +135,12 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
     logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
     initLogMallocList(logmalloclist);
 
-    int err = startupFatServer(server_block);
+    int err = startupFatServer(server_block, parseduserdefinedtypelist);
     if (err != 0) {
         return err;
     }
 
-    copyUserDefinedTypeList(&userdefinedtypelist);
+    copyUserDefinedTypeList(&userdefinedtypelist, parseduserdefinedtypelist);
 
     err = handleRequestFat(&request_block, request_block0, &client_block, server_block, &metadata_block, &data_blocks,
                            &actions_desc, &actions_sig);
@@ -426,7 +426,7 @@ int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block
     return 0;
 }
 
-int startupFatServer(SERVER_BLOCK* server_block)
+int startupFatServer(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduserdefinedtypelist)
 {
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;
@@ -447,7 +447,6 @@ int startupFatServer(SERVER_BLOCK* server_block)
     parseduserdefinedtypelist = *userdefinedtypelist;
     printUserDefinedTypeList(*userdefinedtypelist);
     userdefinedtypelist = nullptr;                                     // Startup State
-
 
     /*
     // this step needs doing once only - the first time a generalised user defined structure is encountered.

@@ -83,6 +83,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
 
+    USERDEFINEDTYPELIST parseduserdefinedtypelist;
+
     //----------------------------------------------------------------------------
     // Start of Server Wait Loop
 
