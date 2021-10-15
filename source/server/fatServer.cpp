@@ -30,12 +30,6 @@ void ncclose(int fh) {
 }
 #endif
 
-unsigned int total_datablock_size = 0;
-
-int server_tot_block_time = 0;
-
-int server_timeout = TIMEOUT;
-
 static PLUGINLIST pluginList;      // List of all data reader plugins (internal and external shared libraries)
 ENVIRONMENT environment;    // Holds local environment variable values
 
@@ -91,7 +85,7 @@ static int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request
 
 static int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
                            REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
-                           NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list);
+                           NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, IoData* io_data);
 
 //--------------------------------------------------------------------------------------
 // Server Entry point
@@ -115,6 +109,15 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
 
     LOGSTRUCTLIST log_struct_list;
     initLogStructList(&log_struct_list);
+
+    int server_tot_block_time = 0;
+    int server_timeout = TIMEOUT;        // user specified Server Lifetime
+
+    IoData io_data = {};
+    io_data.server_tot_block_time = &server_tot_block_time;
+    io_data.server_timeout = &server_timeout;
+
+    static unsigned int total_datablock_size = 0;
 
     //-------------------------------------------------------------------------
     // Initialise the Error Stack & the Server Status Structure
@@ -146,7 +149,7 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
     }
 
     err = fatClientReturn(server_block, &data_blocks, data_blocks0, &request_block, &client_block, &metadata_block,
-                          full_ntree, &log_struct_list);
+                          full_ntree, &log_struct_list, &io_data);
     if (err != 0) {
         return err;
     }
@@ -180,7 +183,8 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
  * Client deletes stale files automatically on startup.
  * @return
  */
-static int processHierarchicalData(DATA_BLOCK* data_block, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list)
+static int
+processHierarchicalData(DATA_BLOCK* data_block, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, IoData* io_data)
 {
     int err = 0;
 
@@ -212,7 +216,7 @@ static int processHierarchicalData(DATA_BLOCK* data_block, NTREE* full_ntree, LO
 
     int protocol_id = PROTOCOL_STRUCTURES;
     protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, data_block,
-                protocolVersion, full_ntree, log_struct_list);
+                protocolVersion, full_ntree, log_struct_list, io_data);
 
     // Close the stream and file
 
@@ -237,7 +241,7 @@ static int processHierarchicalData(DATA_BLOCK* data_block, NTREE* full_ntree, LO
 
     protocol_id = PROTOCOL_STRUCTURES;
     err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                      data_block, protocolVersion, full_ntree, log_struct_list);
+                      data_block, protocolVersion, full_ntree, log_struct_list, io_data);
 
     // Close the stream and file
 
@@ -253,7 +257,7 @@ static int processHierarchicalData(DATA_BLOCK* data_block, NTREE* full_ntree, LO
 
 int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
                     REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
-                    NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list)
+                    NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, IoData* io_data)
 {
     //----------------------------------------------------------------------------
     // Gather Server Error State
@@ -272,7 +276,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DA
     for (int i = 0; i < data_blocks->count; ++i) {
         auto data_block = &data_blocks->data[i];
         if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
-            processHierarchicalData(data_block, full_ntree, log_struct_list);
+            processHierarchicalData(data_block, full_ntree, log_struct_list, io_data);
         }
     }
 

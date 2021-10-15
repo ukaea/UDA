@@ -17,16 +17,18 @@
 #define MIN_BLOCK_TIME    1000
 #define MAX_BLOCK_TIME    10000
 
+struct IoData {
+    int* server_tot_block_time;
+    int* server_timeout;
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern int server_tot_block_time;
-extern int server_timeout;
-
-LIBRARY_API void setSelectParms(int fd, fd_set* rfds, struct timeval* tv);
-LIBRARY_API void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv);
-LIBRARY_API int Writeout(void* iohandle, char* buf, int count);
+LIBRARY_API void setSelectParms(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time);
+LIBRARY_API void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time);
+LIBRARY_API int server_write(void* iohandle, char* buf, int count);
 
 /*
 //-----------------------------------------------------------------------------------------
@@ -51,7 +53,7 @@ LIBRARY_API int Writeout(void* iohandle, char* buf, int count);
 // closes down.
 //-----------------------------------------------------------------------------------------
 */
-LIBRARY_API int Readin(void* iohandle, char* buf, int count);
+LIBRARY_API int server_read(void* iohandle, char* buf, int count);
 
 #ifdef __cplusplus
 }

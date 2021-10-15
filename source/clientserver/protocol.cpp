@@ -41,7 +41,7 @@
 
 int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
              USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
-             LOGSTRUCTLIST* log_struct_list)
+             LOGSTRUCTLIST* log_struct_list, IoData* io_data)
 {
     int err = 0;
 
@@ -806,7 +806,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
         if (protocol_id > PROTOCOL_OPAQUE_START && protocol_id < PROTOCOL_OPAQUE_STOP) {
             err = protocolXML(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
-                              protocolVersion, full_ntree, log_struct_list);
+                              protocolVersion, full_ntree, log_struct_list, io_data);
         }
 
         //----------------------------------------------------------------------------

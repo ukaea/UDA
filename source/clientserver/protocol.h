@@ -4,6 +4,7 @@
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 #include <structures/genStructs.h>
+#include <server/writer.h>
 #include "export.h"
 
 #ifdef __cplusplus
@@ -59,7 +60,7 @@ extern "C" {
 
 LIBRARY_API int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                          USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
-                         LOGSTRUCTLIST* log_struct_list);
+                         LOGSTRUCTLIST* log_struct_list, IoData* io_data);
 LIBRARY_API int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                           USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
                           LOGSTRUCTLIST* log_struct_list);

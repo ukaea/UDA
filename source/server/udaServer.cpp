@@ -40,13 +40,13 @@
 //--------------------------------------------------------------------------------------
 // static globals
 
-int server_tot_block_time = 0;
+
 
 constexpr int serverVersion = 8;
 static int protocolVersion = 8;
 static int legacyServerVersion = 6;
 
-int server_timeout = TIMEOUT;        // user specified Server Lifetime
+
 
 static USERDEFINEDTYPELIST* userdefinedtypelist = nullptr;            // User Defined Structure Types from Data Files & Plugins
 static LOGMALLOCLIST* logmalloclist = nullptr;                        // List of all Heap Allocations for Data: Freed after data is dispatched
@@ -72,27 +72,28 @@ typedef struct MetadataBlock {
     DATA_SYSTEM data_system;
 } METADATA_BLOCK;
 
-static int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output);
+static int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output, IoData* io_data);
 
 static int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
                          METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
                          DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown,
                          uda::cache::UdaCache* cache,
                          NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
-                         unsigned int* total_datablock_size);
+                         const unsigned int* total_datablock_size, int server_tot_block_time, int* server_timeout);
 
 static int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                         SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
                         ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, NTREE* full_ntree,
                         LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
-                        unsigned int* total_datablock_size);
+                        unsigned int* total_datablock_size, int server_tot_block_time, int * server_timeout);
 
 static int
 reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block, int trap1Err,
                METADATA_BLOCK* metadata_block, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, XDR* server_input,
                XDR* server_output, unsigned int* total_datablock_size);
 
-static int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list);
+static int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
+                             int server_tot_block_time, int server_timeout);
 
 #ifdef SECURITYENABLED
 static int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block);
@@ -125,6 +126,13 @@ int udaServer(CLIENT_BLOCK client_block)
     LOGSTRUCTLIST log_struct_list;
     initLogStructList(&log_struct_list);
 
+    int server_tot_block_time = 0;
+    int server_timeout = TIMEOUT;        // user specified Server Lifetime
+
+    IoData io_data = {};
+    io_data.server_tot_block_time = &server_tot_block_time;
+    io_data.server_timeout = &server_timeout;
+
     //-------------------------------------------------------------------------
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
@@ -139,7 +147,7 @@ int udaServer(CLIENT_BLOCK client_block)
 
     static unsigned int total_datablock_size = 0;
 
-    if ((err = startupServer(&server_block, server_input, server_output)) != 0) return err;
+    if ((err = startupServer(&server_block, server_input, server_output, &io_data)) != 0) return err;
 
 #ifdef SECURITYENABLED
     err = authenticateClient(&client_block, &server_block);
@@ -157,10 +165,10 @@ int udaServer(CLIENT_BLOCK client_block)
         int fatal = 0;
         doServerLoop(&request_block, &data_block_list, &client_block, &server_block, &metadata_block, &actions_desc,
                      &actions_sig, &fatal, cache, full_ntree, &log_struct_list, server_input, server_output,
-                     &total_datablock_size);
+                     &total_datablock_size, server_tot_block_time, &server_timeout);
     }
 
-    err = doServerClosedown(&client_block, &request_block, &data_block_list);
+    err = doServerClosedown(&client_block, &request_block, &data_block_list, server_tot_block_time, server_timeout);
 
     return err;
 }
@@ -357,7 +365,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
                   METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
                   DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache,
                   NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
-                  unsigned int* total_datablock_size)
+                  const unsigned int* total_datablock_size, int server_tot_block_time, int* server_timeout)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
@@ -384,7 +392,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
     if ((err = protocol2(server_input, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
                          client_block, protocolVersion, full_ntree, log_struct_list)) != 0) {
-        if (server_tot_block_time >= 1000 * server_timeout) {
+        if (server_tot_block_time >= 1000 * *server_timeout) {
             *fatal = 1;
             THROW_ERROR(999, "Server Time Out");
         }
@@ -399,7 +407,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
         return err;
     }
 
-    server_timeout = client_block->timeout;         // User specified Server Lifetime
+    *server_timeout = client_block->timeout;         // User specified Server Lifetime
     privateFlags = client_block->privateFlags;      // Server to Server flags
     clientFlags = client_block->clientFlags;        // Client set flags
     altRank = client_block->altRank;                // Rank of Alternative source
@@ -800,7 +808,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
                  SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
                  ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, NTREE* full_ntree,
-                 LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output, unsigned int* total_datablock_size)
+                 LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
+                 unsigned int* total_datablock_size, int server_tot_block_time, int* server_timeout)
 {
     int err = 0;
 
@@ -822,7 +831,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
         int server_closedown = 0;
         err = handleRequest(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
                             data_block_list, fatal, &server_closedown, cache, full_ntree, log_struct_list, server_input,
-                            server_output, total_datablock_size);
+                            server_output, total_datablock_size, server_tot_block_time, server_timeout);
 
         if (server_closedown) {
             break;
@@ -891,7 +900,8 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
     return err;
 }
 
-int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list)
+int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
+                      int server_tot_block_time, int server_timeout)
 {
     //----------------------------------------------------------------------------
     // Server Destruct.....
@@ -1085,7 +1095,7 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
     return err;
 }
 
-int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output)
+int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output, IoData* io_data)
 {
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;
@@ -1122,7 +1132,7 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
     //-------------------------------------------------------------------------
     // Create the XDR Record Streams
 
-    std::tie(server_input, server_output) = CreateXDRStream();
+    std::tie(server_input, server_output) = CreateXDRStream(io_data);
 
     UDA_LOG(UDA_LOG_DEBUG, "XDR Streams Created\n");
 

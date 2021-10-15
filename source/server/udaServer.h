@@ -18,9 +18,6 @@ LIBRARY_API int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block,
 //--------------------------------------------------------------
 // Static Global variables
 
-extern int server_tot_block_time;
-extern int server_timeout;
-
 extern USERDEFINEDTYPELIST parseduserdefinedtypelist;
 
 #ifdef __cplusplus
