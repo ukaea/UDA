@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef UDA_SERVER_CREATEXDRSTREAM_H
 #define UDA_SERVER_CREATEXDRSTREAM_H
 

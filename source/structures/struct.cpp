@@ -1081,7 +1081,7 @@ void copyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew)
 * @return void.
 */
 #if defined(SERVERBUILD)
-void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew) {
+void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, USERDEFINEDTYPELIST& parseduserdefinedtypelist) {
     USERDEFINEDTYPELIST* list = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
     initUserDefinedTypeList(list);
     list->listCount = parseduserdefinedtypelist.listCount; // Copy the standard set of structure definitions

@@ -28,6 +28,7 @@
 #include "serverProcessing.h"
 #include "serverStartup.h"
 #include "udaLegacyServer.h"
+#include "initPluginList.h"
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -40,13 +41,9 @@
 //--------------------------------------------------------------------------------------
 // static globals
 
-
-
 constexpr int serverVersion = 8;
 static int protocolVersion = 8;
 static int legacyServerVersion = 6;
-
-
 
 static USERDEFINEDTYPELIST* userdefinedtypelist = nullptr;            // User Defined Structure Types from Data Files & Plugins
 static LOGMALLOCLIST* logmalloclist = nullptr;                        // List of all Heap Allocations for Data: Freed after data is dispatched
@@ -78,7 +75,7 @@ static int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_bloc
                          METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
                          DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown,
                          uda::cache::UdaCache* cache,
-                         NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
+                         NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, XDR* server_input,
                          const unsigned int* total_datablock_size, int server_tot_block_time, int* server_timeout);
 
 static int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
@@ -364,7 +361,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
 int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
                   METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
                   DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache,
-                  NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output,
+                  NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, XDR* server_input,
                   const unsigned int* total_datablock_size, int server_tot_block_time, int* server_timeout)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
@@ -831,7 +828,7 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
         int server_closedown = 0;
         err = handleRequest(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
                             data_block_list, fatal, &server_closedown, cache, full_ntree, log_struct_list, server_input,
-                            server_output, total_datablock_size, server_tot_block_time, server_timeout);
+                            total_datablock_size, server_tot_block_time, server_timeout);
 
         if (server_closedown) {
             break;
