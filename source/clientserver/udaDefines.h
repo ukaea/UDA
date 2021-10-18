@@ -91,8 +91,6 @@ extern unsigned int privateFlags;
 #define CLIENTFLAG_FREEREUSELASTHANDLE 64u  // 0100 0000    Free the heap associated with the last issued handle and reuse the handle value
 #define CLIENTFLAG_FILECACHE 128u           // 1000 0000    Access data from and save data to local cache files
 
-extern unsigned int clientFlags;
-
 //--------------------------------------------------------
 // Error Models
 

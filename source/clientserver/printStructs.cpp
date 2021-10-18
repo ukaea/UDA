@@ -57,7 +57,7 @@ void printClientBlock(CLIENT_BLOCK str)
     UDA_LOG(UDA_LOG_DEBUG, "timeout      : %d\n", str.timeout);
     UDA_LOG(UDA_LOG_DEBUG, "compressDim  : %d\n", str.compressDim);
 
-    UDA_LOG(UDA_LOG_DEBUG, "clientFlags  : %d\n", str.clientFlags);
+    UDA_LOG(UDA_LOG_DEBUG, "udaClientFlags  : %d\n", str.clientFlags);
     UDA_LOG(UDA_LOG_DEBUG, "altRank      : %d\n", str.altRank);
 
     UDA_LOG(UDA_LOG_DEBUG, "get_nodimdata: %d\n", str.get_nodimdata);

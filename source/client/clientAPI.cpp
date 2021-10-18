@@ -23,7 +23,11 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
     //-------------------------------------------------------------------------
     // Open the Logs
 
-    if (udaStartup(0) != 0) return PROBLEM_OPENING_LOGS;
+    int alt_rank = 0;
+
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+
+    if (udaStartup(0, &alt_rank, client_flags) != 0) return PROBLEM_OPENING_LOGS;
 
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
@@ -91,7 +95,10 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
     //-------------------------------------------------------------------------
     // Open the Logs
 
-    if (udaStartup(0) != 0) return PROBLEM_OPENING_LOGS;
+    int alt_rank = 0;
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+
+    if (udaStartup(0, &alt_rank, client_flags) != 0) return PROBLEM_OPENING_LOGS;
 
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure

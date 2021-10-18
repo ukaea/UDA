@@ -56,7 +56,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // Resetting all UDA client properties
 
-        resetIdamProperties();
+        resetIdamProperties(udaClientFlags());
 
         putIdamServerHost(oldServerHost);    // Original Host
         putIdamServerPort(oldPort);    // Original Port
@@ -80,7 +80,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // Resetting all UDA client properties
 
-        resetIdamProperties();
+        resetIdamProperties(udaClientFlags());
 
         // Hand over Server IO File Handles to UDA Client library
 
@@ -307,19 +307,20 @@ Notes: there are three pathways depending on the request pattern
     // Set Properties
 
     CLIENT_BLOCK* client_block = idam_plugin_interface->client_block;
+    auto client_flags = udaClientFlags();
 
-    if (client_block->get_nodimdata) setIdamProperty("get_nodimdata");
-    if (client_block->get_timedble) setIdamProperty("get_timedble");
-    if (client_block->get_dimdble) setIdamProperty("get_dimdble");
-    if (client_block->get_datadble) setIdamProperty("get_datadble");
+    if (client_block->get_nodimdata) setIdamProperty("get_nodimdata", client_flags);
+    if (client_block->get_timedble) setIdamProperty("get_timedble", client_flags);
+    if (client_block->get_dimdble) setIdamProperty("get_dimdble", client_flags);
+    if (client_block->get_datadble) setIdamProperty("get_datadble", client_flags);
 
-    if (client_block->get_bad) setIdamProperty("get_bad");
-    if (client_block->get_meta) setIdamProperty("get_meta");
-    if (client_block->get_asis) setIdamProperty("get_asis");
-    if (client_block->get_uncal) setIdamProperty("get_uncal");
-    if (client_block->get_notoff) setIdamProperty("get_notoff");
-    if (client_block->get_scalar) setIdamProperty("get_scalar");
-    if (client_block->get_bytes) setIdamProperty("get_bytes");
+    if (client_block->get_bad) setIdamProperty("get_bad", client_flags);
+    if (client_block->get_meta) setIdamProperty("get_meta", client_flags);
+    if (client_block->get_asis) setIdamProperty("get_asis", client_flags);
+    if (client_block->get_uncal) setIdamProperty("get_uncal", client_flags);
+    if (client_block->get_notoff) setIdamProperty("get_notoff", client_flags);
+    if (client_block->get_scalar) setIdamProperty("get_scalar", client_flags);
+    if (client_block->get_bytes) setIdamProperty("get_bytes", client_flags);
 
     // Timeout ...
 
@@ -327,8 +328,8 @@ Notes: there are three pathways depending on the request pattern
 
     // Client Flags ...
 
-    resetIdamClientFlag(CLIENTFLAG_FULLRESET);
-    setIdamClientFlag(client_block->clientFlags);
+    resetIdamClientFlag(client_flags, CLIENTFLAG_FULLRESET);
+    setIdamClientFlag(client_flags, client_block->clientFlags);
 
     // Client application provenance
 
@@ -572,7 +573,7 @@ Notes: there are three pathways depending on the request pattern
     }
 
     resetIdamPrivateFlag(PRIVATEFLAG_FULLRESET);
-    resetIdamClientFlag(CLIENTFLAG_FULLRESET);
+    resetIdamClientFlag(client_flags, CLIENTFLAG_FULLRESET);
 
     //----------------------------------------------------------------------
     // Test for Errors: Close Socket and Free heap

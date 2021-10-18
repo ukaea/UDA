@@ -69,14 +69,15 @@ int connectionOpen()
     return client_socket != -1;
 }
 
-int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output)
+int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output, time_t* tv_server_start,
+              int* user_timeout)
 {
     int err = 0;
 
     // Save current client and server timer settings, Socket and XDR handles
 
-    time_t tv_server_start0 = tv_server_start;
-    int user_timeout0 = user_timeout;
+    time_t tv_server_start0 = *tv_server_start;
+    int user_timeout0 = *user_timeout;
     int clientSocket0 = client_socket;
     XDR* clientInput0 = *client_input;
     XDR* clientOutput0 = *client_output;
@@ -88,7 +89,7 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output)
     // Instance a new server if the Client has changed the host and/or port number
 
     if (environment->server_reconnect) {
-        time(&tv_server_start);         // Start a New Server AGE timer
+        time(tv_server_start);         // Start a New Server AGE timer
         client_socket = -1;              // Flags no Socket is open
         environment->server_change_socket = 0;   // Client doesn't know the Socket ID so disable
     }
@@ -104,8 +105,8 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output)
 
         // replace with previous timer settings and XDR handles
 
-        tv_server_start = client_socketlist.sockets[socketId].tv_server_start;
-        user_timeout = client_socketlist.sockets[socketId].user_timeout;
+        *tv_server_start = client_socketlist.sockets[socketId].tv_server_start;
+        *user_timeout = client_socketlist.sockets[socketId].user_timeout;
         client_socket = client_socketlist.sockets[socketId].fh;
         *client_input = client_socketlist.sockets[socketId].Input;
         *client_output = client_socketlist.sockets[socketId].Output;
