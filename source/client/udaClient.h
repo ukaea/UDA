@@ -59,11 +59,12 @@ typedef struct ClientFlags {
 
 LIBRARY_API int idamClient(REQUEST_BLOCK* request_block, int* indices);
 
-LIBRARY_API void updateClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags);
+LIBRARY_API void updateClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags, unsigned int private_flags);
 
 LIBRARY_API void idamFree(int handle);
 
-LIBRARY_API void udaFreeAll(XDR* client_input, XDR* client_output, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list);
+LIBRARY_API void udaFreeAll(XDR* client_input, XDR* client_output, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list,
+                            unsigned int private_flags, int malloc_source);
 
 LIBRARY_API CLIENT_FLAGS* udaClientFlags();
 

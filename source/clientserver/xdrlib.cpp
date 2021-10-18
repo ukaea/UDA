@@ -451,7 +451,8 @@ bool_t xdr_data_object2(XDR* xdrs, DATA_OBJECT* str)
 
 bool_t
 xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, DATA_BLOCK* str,
-                     int protocolVersion, bool xdr_stdio_flag, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list)
+                     int protocolVersion, bool xdr_stdio_flag, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list,
+                     int malloc_source)
 {
     int err = 0, rc = 1;
     int packageType = 0;
@@ -489,7 +490,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);    // send the full set of known named structures
         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
-                                          xdr_stdio_flag, &full_ntree, log_struct_list);            // send the Data
+                                          xdr_stdio_flag, &full_ntree, log_struct_list, malloc_source);            // send the Data
 
         if (!rc) {
             err = 999;
@@ -533,7 +534,8 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
         initUserDefinedType(udt_received);
 
         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                          &data, protocolVersion, xdr_stdio_flag, &full_ntree, log_struct_list);            // receive the Data
+                                          &data, protocolVersion, xdr_stdio_flag, &full_ntree, log_struct_list,
+                                          malloc_source);            // receive the Data
 
         if (!rc) {
             err = 999;

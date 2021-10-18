@@ -67,7 +67,8 @@ static uda::cache::UdaCache* global_cache = nullptr;    // scope limited to this
  * There is a 250 character limit - use SHA1 hash if it exceeds 250. The local cache should only be used to record data
  * returned from a server after a GET method - Note: Put methods may be disguised in a GET call!
  */
-std::string generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment, uint32_t flags)
+std::string
+generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment, uint32_t flags, unsigned int private_flags)
 {
     // Check Properties for permission and requested method
     if (!(flags & CLIENTFLAG_CACHE)) {
@@ -81,7 +82,7 @@ std::string generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environm
        << environment.server_host << delimiter
        << environment.server_port << delimiter
        << flags << delimiter
-       << privateFlags;
+       << private_flags;
 
     auto key = ss.str();
     std::transform(key.begin(), key.end(), key.begin(), [](const decltype(key)::value_type c) {
@@ -228,7 +229,7 @@ int
 uda::cache::udaCacheWrite(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
                           LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                           ENVIRONMENT environment, int protocolVersion, uint32_t flags, NTREE* full_ntree,
-                          LOGSTRUCTLIST* log_struct_list)
+                          LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
 #ifdef CACHEDEV
     if (!data_block->cachePermission) {
@@ -238,7 +239,7 @@ uda::cache::udaCacheWrite(uda::cache::UdaCache* cache, const REQUEST_DATA* reque
 #endif
     int rc = 0;
 
-    auto key = generate_cache_key(request_data, environment, flags);
+    auto key = generate_cache_key(request_data, environment, flags, private_flags);
     UDA_LOG(UDA_LOG_DEBUG, "Caching value for key: %s\n", key.c_str());
 
     if (key.empty()) {
@@ -251,7 +252,7 @@ uda::cache::udaCacheWrite(uda::cache::UdaCache* cache, const REQUEST_DATA* reque
     FILE* memfile = open_memstream(&buffer, &bufsize);
 
     writeCacheData(memfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion, full_ntree,
-                   log_struct_list);
+                   log_struct_list, private_flags, malloc_source);
 
     rc = memcache_put(cache, key.c_str(), buffer, bufsize);
 
@@ -265,9 +266,11 @@ DATA_BLOCK* uda::cache::udaCacheRead(uda::cache::UdaCache* cache, const REQUEST_
                                      LOGMALLOCLIST* logmalloclist,
                                      USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
                                      int protocolVersion,
-                                     uint32_t flags, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list)
+                                     uint32_t flags, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list,
+                                     unsigned int private_flags,
+                                     int malloc_source)
 {
-    auto key = generate_cache_key(request_data, environment, flags);
+    auto key = generate_cache_key(request_data, environment, flags, private_flags);
     if (key.empty()) {
         return nullptr;
     }
@@ -288,7 +291,7 @@ DATA_BLOCK* uda::cache::udaCacheRead(uda::cache::UdaCache* cache, const REQUEST_
     fseek(memfile, 0L, SEEK_SET);
 
     auto data = readCacheData(memfile, logmalloclist, userdefinedtypelist, protocolVersion, full_ntree,
-                              log_struct_list);
+                              log_struct_list, private_flags, malloc_source);
     fclose(memfile);
     free(buffer);
 

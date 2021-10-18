@@ -337,27 +337,27 @@ Rank Ordering is as follows:
 //--------------------------------------------------------------
 // Private Flags (Server to Server communication via an UDA client server plugin)
 
-//! Set a privateFlags property
-/** Set a/multiple specific bit/s in the privateFlags property sent between UDA servers.
+//! Set a private_flags property
+/** Set a/multiple specific bit/s in the private_flags property sent between UDA servers.
 *
 * @param flag The bit/s to be set to 1.
 * @return Void.
 */
-void setIdamPrivateFlag(unsigned int flag)
+void setIdamPrivateFlag(unsigned int flag, unsigned int* private_flags)
 {
-    privateFlags = privateFlags | flag;
+    *private_flags |= flag;
 }
 
-//! Reset a privateFlags property
-/** Reset a/multiple specific bit/s in the privateFlags property sent between UDA servers.
+//! Reset a private_flags property
+/** Reset a/multiple specific bit/s in the private_flags property sent between UDA servers.
 *
 * @param flag The bit/s to be set to 0.
 * @return Void.
 */
 
-void resetIdamPrivateFlag(unsigned int flag)
+void resetIdamPrivateFlag(unsigned int flag, unsigned int* private_flags)
 {
-    privateFlags = privateFlags & !flag;
+    *private_flags &= !flag;
 }
 
 //--------------------------------------------------------------
@@ -3248,7 +3248,8 @@ int getIdamDimDataCheckSum(int handle, int ndim)
 // Access to (De)Serialiser
 
 void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectSize, char** key, size_t* keySize,
-                                      int protocolVersion, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list)
+                                      int protocolVersion, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list,
+                                      int private_flags, int malloc_source)
 {
     // Extract the serialised Data Block from Cache or serialise it if not cached (hash key in Data Block, empty if not cached)
     // Use Case: extract data in object form for storage in external data object store, e.g. CEPH, HDF5
@@ -3279,7 +3280,7 @@ void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectS
     data_block_list.count = 1;
     data_block_list.data = getIdamDataBlock(handle);
     protocol2(&xdrs, PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
-              &data_block_list, protocolVersion, full_ntree, log_struct_list);
+              &data_block_list, protocolVersion, full_ntree, log_struct_list, private_flags, malloc_source);
 
 #ifdef _WIN32
     fflush(memfile);

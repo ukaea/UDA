@@ -526,7 +526,7 @@ int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int
 
 int xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                            USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion, bool xdr_stdio_flag,
-                           NTREE** full_ntree, LOGSTRUCTLIST* log_struct_list);
+                           NTREE** full_ntree, LOGSTRUCTLIST* log_struct_list, int malloc_source);
 
 int findUserDefinedTypeId(USERDEFINEDTYPELIST* userdefinedtypelist, const char* name);
 

@@ -76,8 +76,6 @@ extern "C" {
 
 #define PRIVATEFLAG_XDROBJECT    8   // 1000        Use an intermediate XDR data object rather than a data stream
 
-extern unsigned int privateFlags;
-
 //--------------------------------------------------------
 // Client Flags: Client specified local properties (32 bits)
 

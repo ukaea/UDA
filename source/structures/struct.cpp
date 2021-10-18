@@ -1854,7 +1854,7 @@ int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int
 
 int xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                            USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion, bool xdr_stdio_flag,
-                           NTREE** full_ntree, LOGSTRUCTLIST* log_struct_list)
+                           NTREE** full_ntree, LOGSTRUCTLIST* log_struct_list, int malloc_source)
 {
     int rc;
 
@@ -1872,7 +1872,7 @@ int xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDT
 
         rc = rc && xdr_userdefinedtype(xdrs, userdefinedtypelist, userdefinedtype);    // User Defined Type Definitions
         rc = rc && xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
-                                      &dataNTree, protocolVersion); // Data within Structures
+                                      &dataNTree, protocolVersion, malloc_source); // Data within Structures
 
         *full_ntree = dataNTree;   // Copy to Global
 
@@ -1886,7 +1886,7 @@ int xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDT
 
         rc = xdr_userdefinedtype(xdrs, userdefinedtypelist, userdefinedtype);     // User Defined Type Definitions
         rc = rc && xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
-                                      nullptr, protocolVersion);  // Data within Structures
+                                      nullptr, protocolVersion, malloc_source);  // Data within Structures
 
         if (!xdr_stdio_flag) {
             rc = rc && xdrrec_endofrecord(xdrs, 1);

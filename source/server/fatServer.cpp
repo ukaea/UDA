@@ -41,7 +41,7 @@ int altRank = 0;
 unsigned int clientFlags = 0;
 
 int malloc_source = MALLOCSOURCENONE;
-unsigned int privateFlags = 0;
+unsigned int private_flags = 0;
 
 int serverVersion = 8;
 static int protocolVersion = 8;
@@ -216,7 +216,7 @@ processHierarchicalData(DATA_BLOCK* data_block, NTREE* full_ntree, LOGSTRUCTLIST
 
     int protocol_id = PROTOCOL_STRUCTURES;
     protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, data_block,
-                protocolVersion, full_ntree, log_struct_list, io_data);
+                protocolVersion, full_ntree, log_struct_list, io_data, private_flags, malloc_source);
 
     // Close the stream and file
 
@@ -241,7 +241,7 @@ processHierarchicalData(DATA_BLOCK* data_block, NTREE* full_ntree, LOGSTRUCTLIST
 
     protocol_id = PROTOCOL_STRUCTURES;
     err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                      data_block, protocolVersion, full_ntree, log_struct_list, io_data);
+                      data_block, protocolVersion, full_ntree, log_struct_list, io_data, private_flags, malloc_source);
 
     // Close the stream and file
 
