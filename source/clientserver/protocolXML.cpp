@@ -85,7 +85,7 @@
 
 int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                 USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
-                LOGSTRUCTLIST* log_struct_list, IoData* io_data)
+                LOGSTRUCTLIST* log_struct_list, IoData* io_data, unsigned int private_flags, int malloc_source)
 {
     DATA_BLOCK* data_block;
 
@@ -185,12 +185,12 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     // If access is server to server then avoid multiple write/reads of structure components over xdr
                     // by creating a temporary xdr file and passing the file. Structures need only be created in the
                     // originating client, not the intermediate server clients. Control using a global properties flag:
-                    // privateFlags - passed from the originating client to all servers along the chain
+                    // private_flags - passed from the originating client to all servers along the chain
 
-                    UDA_LOG(UDA_LOG_DEBUG, "protocolXML: privateFlags   : %d \n", privateFlags);
+                    UDA_LOG(UDA_LOG_DEBUG, "protocolXML: private_flags   : %d \n", private_flags);
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: protocolVersion: %d \n", protocolVersion);
 
-                    if ((privateFlags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) {
+                    if ((private_flags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) {
                         char* env;
                         if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
                             // File to record XDR encoded data
@@ -248,7 +248,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     // send the Data
                     rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u,
                                                       (void**)data, protocolVersion, xdr_stdio_flag, &full_ntree,
-                                                      log_struct_list);
+                                                      log_struct_list, malloc_source);
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Data sent: rc = %d\n", rc);
 
@@ -261,7 +261,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
 #ifndef FATCLIENT
 
-                    if ((privateFlags & PRIVATEFLAG_XDRFILE) &&
+                    if ((private_flags & PRIVATEFLAG_XDRFILE) &&
                         protocolVersion >= 5) {        // Server calling another server
 
                         // Close the stream and file
@@ -303,10 +303,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Receiving from Server\n");
 
                     // 3 valid options:
-                    //    1> unpack structures, no xdr file involved    => privateFlags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_STRUCTDATA
-                    //    2> unpack structures, from an xdr file        => privateFlags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_XDRFILE
-                    //    3> xdr file only, no unpacking, passforward    => privateFlags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_XDRFILE
-                    //    4> Error                    => privateFlags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_STRUCTDATA
+                    //    1> unpack structures, no xdr file involved    => private_flags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_STRUCTDATA
+                    //    2> unpack structures, from an xdr file        => private_flags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_XDRFILE
+                    //    3> xdr file only, no unpacking, passforward    => private_flags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_XDRFILE
+                    //    4> Error                    => private_flags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_STRUCTDATA
                     //
                     // Option 3 does not include intermediate file caching - option 2 only
 
@@ -321,25 +321,25 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 #else
                     rc = 1;
 
-                    if (privateFlags & PRIVATEFLAG_XDRFILE) {
+                    if (private_flags & PRIVATEFLAG_XDRFILE) {
                         packageType = PACKAGE_XDRFILE;
                     } else {
                         packageType = PACKAGE_STRUCTDATA;
                     }
 #endif
 
-                    if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_STRUCTDATA) {
+                    if ((private_flags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_STRUCTDATA) {
                         option = 1;
-                    } else if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_XDRFILE &&
+                    } else if ((private_flags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_XDRFILE &&
                                protocolVersion >= 5) {
                         option = 2;
                     }
-                    if ((privateFlags & PRIVATEFLAG_XDRFILE) == 1 && packageType == PACKAGE_XDRFILE &&
+                    if ((private_flags & PRIVATEFLAG_XDRFILE) == 1 && packageType == PACKAGE_XDRFILE &&
                         protocolVersion >= 5) {
                         option = 3;
                     }
 
-                    UDA_LOG(UDA_LOG_DEBUG, "protocolXML: %d  %d\n", privateFlags & PRIVATEFLAG_XDRFILE,
+                    UDA_LOG(UDA_LOG_DEBUG, "protocolXML: %d  %d\n", private_flags & PRIVATEFLAG_XDRFILE,
                             packageType == PACKAGE_STRUCTDATA);
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Receive data option : %d\n", option);
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Receive package Type: %d\n", packageType);
@@ -395,7 +395,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: xdr_userdefinedtypelist #A\n");
 
 #ifndef FATCLIENT
-                        UDA_LOG(UDA_LOG_DEBUG, "protocolXML: privateFlags   : %d \n", privateFlags);
+                        UDA_LOG(UDA_LOG_DEBUG, "protocolXML: private_flags   : %d \n", private_flags);
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: protocolVersion: %d \n", protocolVersion);
 
                         if (option == 2) {
@@ -451,7 +451,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                           &data, protocolVersion, xdr_stdio_flag, &full_ntree,
-                                                          log_struct_list); // receive the Data
+                                                          log_struct_list, malloc_source); // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: xdrUserDefinedTypeData #B\n");
                         if (!rc) {
@@ -560,7 +560,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                         err = receiveXDRFile(xdrs, tempFile);        // Receive and write the file
 
-                        if (privateFlags & PRIVATEFLAG_XDRFILE) {    // Forward the file (option 3) again
+                        if (private_flags & PRIVATEFLAG_XDRFILE) {    // Forward the file (option 3) again
 
                             // If this is an intermediate client then read the file without unpacking the structures
 
@@ -612,7 +612,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                               &data, protocolVersion, xdr_stdio_flag, &full_ntree,
-                                                              log_struct_list); // receive the Data
+                                                              log_struct_list, malloc_source); // receive the Data
 
                             if (!rc) {
                                 err = 999;

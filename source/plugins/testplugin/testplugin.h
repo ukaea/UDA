@@ -27,7 +27,7 @@ LIBRARY_API int createUDTSocket(int *usock, int port, int rendezvous);
 LIBRARY_API int createTCPSocket(SYSSOCKET *ssock, int port, bool rendezvous);
 #endif
 
-extern int testplugin(IDAM_PLUGIN_INTERFACE *idam_plugin_interface);
+int testplugin(IDAM_PLUGIN_INTERFACE *idam_plugin_interface);
 
 #ifdef __cplusplus
 }

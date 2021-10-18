@@ -48,7 +48,8 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
 static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int protocolVersion);
 static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                                      USERDEFINEDTYPELIST* userdefinedtypelist, const void* str, int protocolVersion,
-                                     NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list);
+                                     NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
+                                     int malloc_source);
 static int handle_next_protocol(XDR* xdrs, int direction, int* token);
 static int handle_data_system(XDR* xdrs, int direction, const void* str);
 static int handle_system_config(XDR* xdrs, int direction, const void* str);
@@ -66,7 +67,7 @@ static int handle_security_block(XDR* xdrs, int direction, const void* str);
 
 int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
               USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
-              LOGSTRUCTLIST* log_struct_list)
+              LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     int err = 0;
 
@@ -79,7 +80,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             break;
         case PROTOCOL_PUTDATA_BLOCK_LIST:
             err = handle_putdata_block_list(xdrs, direction, token, logmalloclist, userdefinedtypelist, str,
-                                            protocolVersion, full_ntree, log_struct_list);
+                                            protocolVersion, full_ntree, log_struct_list, private_flags, malloc_source);
             break;
         case PROTOCOL_NEXT_PROTOCOL:
             err = handle_next_protocol(xdrs, direction, token);
@@ -120,7 +121,7 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
         default:
             if (protocol_id > PROTOCOL_OPAQUE_START && protocol_id < PROTOCOL_OPAQUE_STOP) {
                 err = protocolXML2(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
-                                   protocolVersion, full_ntree, log_struct_list);
+                                   protocolVersion, full_ntree, log_struct_list, private_flags, malloc_source);
             }
     }
 
@@ -538,7 +539,8 @@ static int handle_next_protocol(XDR* xdrs, int direction, int* token)
 
 static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                                      USERDEFINEDTYPELIST* userdefinedtypelist, const void* str, int protocolVersion,
-                                     NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list)
+                                     NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
+                                     int malloc_source)
 {
     int err = 0;
     auto putDataBlockList = (PUTDATA_BLOCK_LIST*)str;
@@ -602,7 +604,8 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
 
                     int protocol_id = PROTOCOL_STRUCTURES;
                     if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist,
-                                               data_block, protocolVersion, full_ntree, log_struct_list)) != 0) {
+                                               data_block, protocolVersion, full_ntree, log_struct_list,
+                                               private_flags, malloc_source)) != 0) {
                         // Fetch Structured data
                         break;
                     }
@@ -665,7 +668,8 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
 
                     int protocol_id = PROTOCOL_STRUCTURES;
                     if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist,
-                                               &data_block, protocolVersion, full_ntree, log_struct_list)) != 0) {
+                                               &data_block, protocolVersion, full_ntree, log_struct_list,
+                                               private_flags, malloc_source)) != 0) {
                         // Send Structured data
                         break;
                     }

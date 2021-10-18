@@ -20,7 +20,7 @@ static int recursiveDepthPut = 0;    // Keep count of recursive calls
 
 int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                           USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank,
-                          int* structShape, int index, NTREE** NTree, int protocolVersion)
+                          int* structShape, int index, NTREE** NTree, int protocolVersion, int malloc_source)
 {
     // Grow the data tree recursively through pointer elements within individual structures
     // Build a linked list tree structure when receiving data.
@@ -1336,16 +1336,16 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         if (id == 0) {                        // Only send/receive new structures
                             if (userdefinedtype->compoundfield[j].pointer) {
                                 rc = rc &&
-                                     xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, utype, (void**)p,
-                                                        count, structRank, structShape, i,
-                                                        &subNTree,
-                                                        protocolVersion);    // User Defined type // rc set to 0 somewhere => stops call
+                                        xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, utype, (void**)p,
+                                                           count, structRank, structShape, i,
+                                                           &subNTree,
+                                                           protocolVersion, malloc_source);    // User Defined type // rc set to 0 somewhere => stops call
                             } else {
                                 rc = rc &&
-                                     xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, utype, (void**)&p,
-                                                        count, structRank, structShape, i,
-                                                        &subNTree,
-                                                        protocolVersion);    // if rc is set to 0 somewhere => stops call
+                                        xdrUserDefinedData(xdrs, logmalloclist, userdefinedtypelist, utype, (void**)&p,
+                                                           count, structRank, structShape, i,
+                                                           &subNTree,
+                                                           protocolVersion, malloc_source);    // if rc is set to 0 somewhere => stops call
                             }
 
                             // Add the new data branch to the tree
@@ -1418,7 +1418,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
 
 int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                               USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion, NTREE** full_ntree,
-                              LOGSTRUCTLIST* log_struct_list)
+                              LOGSTRUCTLIST* log_struct_list, int malloc_source)
 {
     int rc = 1;
 
@@ -1432,8 +1432,8 @@ int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFIN
                                        userdefinedtype);                // User Defined Type Definitions
 
         rc = rc &&
-             xdrUserDefinedDataPut(xdrs, logmalloclist, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
-                                   &dataNTree, protocolVersion);    // Data within Structures
+                xdrUserDefinedDataPut(xdrs, logmalloclist, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
+                                      &dataNTree, protocolVersion, malloc_source);    // Data within Structures
 
         *full_ntree = dataNTree;            // Copy to Global
 
@@ -1449,8 +1449,8 @@ int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFIN
                                  userdefinedtype);                    // User Defined Type Definitions
 
         rc = rc &&
-             xdrUserDefinedDataPut(xdrs, logmalloclist, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
-                                   nullptr, protocolVersion);        // Data within Structures
+                xdrUserDefinedDataPut(xdrs, logmalloclist, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
+                                      nullptr, protocolVersion, malloc_source);        // Data within Structures
         /*
               if(!XDRstdioFlag) rc = rc && xdrrec_endofrecord(xdrs, 1);
         */
@@ -1488,7 +1488,7 @@ bool_t xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str)
 
 int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                     USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
-                    LOGSTRUCTLIST* log_struct_list)
+                    LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     DATA_BLOCK* data_block;
 
@@ -1555,7 +1555,8 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                     UDA_LOG(UDA_LOG_DEBUG, "Structure Definitions sent: rc = %d\n", rc);
 
                     rc = rc && xdrUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, u,
-                                                         (void**)data, protocolVersion, &full_ntree, log_struct_list);        // send the Data
+                                                         (void**)data, protocolVersion, &full_ntree, log_struct_list,
+                                                         malloc_source);        // send the Data
 
                     UDA_LOG(UDA_LOG_DEBUG, "Structured Data sent: rc = %d\n", rc);
 
@@ -1578,7 +1579,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                     rc = rc && xdr_int(xdrs, &packageType);        // Receive data package type
 
-                    if ((privateFlags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_STRUCTDATA) option = 1;
+                    if ((private_flags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_STRUCTDATA) option = 1;
 
                     UDA_LOG(UDA_LOG_DEBUG, "Receive data option : %d\n", option);
                     UDA_LOG(UDA_LOG_DEBUG, "Receive package Type: %d\n", packageType);
@@ -1618,7 +1619,8 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                         initUserDefinedType(udt_received);
 
                         rc = rc && xdrUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                             &data, protocolVersion, &full_ntree, log_struct_list);        // receive the Data
+                                                             &data, protocolVersion, &full_ntree, log_struct_list,
+                                                             malloc_source);        // receive the Data
                         //rc = rc && xdrUserDefinedTypeData(xdrs, udt_received, &data);        // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "xdrUserDefinedTypeData received\n");
