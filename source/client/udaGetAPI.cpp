@@ -144,17 +144,19 @@ int idamGetAPI(const char* data_object, const char* data_source) {
 
 int idamGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port)
 {
+    static bool env_host = false;
+    static bool env_port = false;
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
     lockIdamThread(client_flags);
 
     if (host != nullptr) {
-        putIdamServerHost(host);
+        putIdamServerHost(host, &env_host);
     }
 
     if (port) {
-        putIdamServerPort(port);
+        putIdamServerPort(port, &env_port);
     }
 
     int err = 0;
@@ -172,9 +174,9 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
 
     UDA_LOG(UDA_LOG_DEBUG, "Calling udaStartup\n");
 
-    int alt_rank = 0;
+    static bool reopen_logs = true;
 
-    if (udaStartup(0, &alt_rank, client_flags) != 0) {
+    if (udaStartup(0, client_flags, &reopen_logs) != 0) {
         unlockUdaThread(client_flags);
         return PROBLEM_OPENING_LOGS;
     }
@@ -255,17 +257,19 @@ int idamGetBatchAPI(const char** signals, const char** sources, int count, int* 
 
 int idamGetBatchAPIWithHost(const char** signals, const char** sources, int count, int* handles, const char* host, int port)
 {
+    static bool env_host = false;
+    static bool env_port = false;
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
     lockIdamThread(client_flags);
 
     if (host != nullptr) {
-        putIdamServerHost(host);
+        putIdamServerHost(host, &env_host);
     }
 
     if (port) {
-        putIdamServerPort(port);
+        putIdamServerPort(port, &env_port);
     }
 
     static bool startup = true;
@@ -282,9 +286,9 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
 
     UDA_LOG(UDA_LOG_DEBUG, "Calling udaStartup\n");
 
-    int alt_rank = 0;
+    static bool reopen_logs = true;
 
-    if (udaStartup(0, &alt_rank, client_flags) != 0) {
+    if (udaStartup(0, client_flags, &reopen_logs) != 0) {
         unlockUdaThread(client_flags);
         return PROBLEM_OPENING_LOGS;
     }

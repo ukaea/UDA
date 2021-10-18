@@ -21,10 +21,10 @@ int idamClientMDS(const char* server, const char* tree, const char* node, int tr
     //-------------------------------------------------------------------------
     // Open the Logs
 
-    int alt_rank = 0;
     CLIENT_FLAGS* client_flags = udaClientFlags();
+    static bool reopen_logs = true;
 
-    if (udaStartup(0, &alt_rank, client_flags) != 0) return PROBLEM_OPENING_LOGS;
+    if (udaStartup(0, client_flags, &reopen_logs) != 0) return PROBLEM_OPENING_LOGS;
 
     //-------------------------------------------------------------------------
     // Passed Args

@@ -58,8 +58,11 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         resetIdamProperties(udaClientFlags());
 
-        putIdamServerHost(oldServerHost);    // Original Host
-        putIdamServerPort(oldPort);    // Original Port
+        bool env_host = false;
+        bool env_port = false;
+
+        putIdamServerHost(oldServerHost, &env_host);    // Original Host
+        putIdamServerPort(oldPort, &env_port);    // Original Port
 
         // Free Heap & reset counters
 
@@ -175,6 +178,9 @@ int do_maxinterfaceversion(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, char* oldServerHost, int* oldPort)
 {
     int err = 0;
+
+    bool env_host = false;
+    bool env_port = false;
 
     // Version 6 structures
 
@@ -369,12 +375,12 @@ Notes: there are three pathways depending on the request pattern
                 p[0] = '\0';
                 if (strcasecmp(oldServerHost, data_source->server) != 0) {
                     strcpy(oldServerHost, data_source->server);
-                    putIdamServerHost(data_source->server);
+                    putIdamServerHost(data_source->server, &env_host);
                 }
                 if (IsNumber(&p[1])) {
                     newPort = atoi(&p[1]);
                     if (newPort != *oldPort) {
-                        putIdamServerPort(newPort);
+                        putIdamServerPort(newPort, &env_port);
                         *oldPort = newPort;
                     }
                 } else {
@@ -384,7 +390,7 @@ Notes: there are three pathways depending on the request pattern
             } else {
                 if (strcasecmp(oldServerHost, data_source->server) != 0) {
                     strcpy(oldServerHost, data_source->server);
-                    putIdamServerHost(data_source->server);
+                    putIdamServerHost(data_source->server, &env_host);
                 }
             }
         } else {
@@ -445,12 +451,12 @@ Notes: there are three pathways depending on the request pattern
             p[0] = '\0';
             if (strcasecmp(oldServerHost, request->server) != 0) {
                 strcpy(oldServerHost, request->server);
-                putIdamServerHost(request->server);    // different host name?
+                putIdamServerHost(request->server, &env_host);    // different host name?
             }
             if (IsNumber(&p[1])) {
                 newPort = atoi(&p[1]);
                 if (newPort != *oldPort) {
-                    putIdamServerPort(newPort);
+                    putIdamServerPort(newPort, &env_port);
                     *oldPort = newPort;
                 }
             } else {
@@ -460,7 +466,7 @@ Notes: there are three pathways depending on the request pattern
         } else {
             if (strcasecmp(oldServerHost, request->server) != 0) {
                 strcpy(oldServerHost, request->server);
-                putIdamServerHost(request->server);
+                putIdamServerHost(request->server, &env_host);
             }
         }
 
@@ -492,11 +498,11 @@ Notes: there are three pathways depending on the request pattern
 
         if (isHost && strcasecmp(oldServerHost, host) != 0) {
             strcpy(oldServerHost, host);
-            putIdamServerHost(host);
+            putIdamServerHost(host, &env_host);
         }
         if (isPort && *oldPort != newPort) {
             *oldPort = newPort;
-            putIdamServerPort(newPort);
+            putIdamServerPort(newPort, &env_port);
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", host);
@@ -542,13 +548,13 @@ Notes: there are three pathways depending on the request pattern
             p[0] = '\0';                        // Split
             if (strcasecmp(oldServerHost, request->server) != 0) {    // Different Hosts?
                 strcpy(oldServerHost, request->server);        // Preserve
-                putIdamServerHost(request->server);        // Change to a different host name
+                putIdamServerHost(request->server, &env_host);        // Change to a different host name
             }
             if (IsNumber(&p[1])) {
                 newPort = atoi(&p[1]);
                 if (newPort != *oldPort) {
                     // Different Ports?
-                    putIdamServerPort(newPort);
+                    putIdamServerPort(newPort, &env_port);
                     *oldPort = newPort;
                 }
             } else {
@@ -559,7 +565,7 @@ Notes: there are three pathways depending on the request pattern
             // No port number passed
             if (strcasecmp(oldServerHost, request->server) != 0) {    // Different Hosts?
                 strcpy(oldServerHost, request->server);
-                putIdamServerHost(request->server);
+                putIdamServerHost(request->server, &env_host);
             }
         }
 

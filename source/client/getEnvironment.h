@@ -18,9 +18,6 @@ LIBRARY_API void printIdamClientEnvironment(const ENVIRONMENT* environment);
 LIBRARY_API ENVIRONMENT* getIdamClientEnvironment();
 LIBRARY_API void putIdamClientEnvironment(const ENVIRONMENT* environment);
 
-extern int env_host;            // Flags to Read Environment variable at startup time
-extern int env_port;
-
 #ifdef __cplusplus
 }
 #endif

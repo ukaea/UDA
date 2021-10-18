@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-LIBRARY_API int udaStartup(int reset, int* alt_rank, CLIENT_FLAGS* client_flags);
+LIBRARY_API int udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_logs);
 
 #ifdef __cplusplus
 }
