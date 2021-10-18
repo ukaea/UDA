@@ -67,7 +67,7 @@ static uda::cache::UdaCache* global_cache = nullptr;    // scope limited to this
  * There is a 250 character limit - use SHA1 hash if it exceeds 250. The local cache should only be used to record data
  * returned from a server after a GET method - Note: Put methods may be disguised in a GET call!
  */
-std::string generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment, int flags)
+std::string generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment, uint32_t flags)
 {
     // Check Properties for permission and requested method
     if (!(flags & CLIENTFLAG_CACHE)) {
@@ -227,7 +227,7 @@ void uda::cache::udaFreeCache() // Will be called by the idamFreeAll function
 int
 uda::cache::udaCacheWrite(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
                           LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                          ENVIRONMENT environment, int protocolVersion, int flags, NTREE* full_ntree,
+                          ENVIRONMENT environment, int protocolVersion, uint32_t flags, NTREE* full_ntree,
                           LOGSTRUCTLIST* log_struct_list)
 {
 #ifdef CACHEDEV
@@ -265,7 +265,7 @@ DATA_BLOCK* uda::cache::udaCacheRead(uda::cache::UdaCache* cache, const REQUEST_
                                      LOGMALLOCLIST* logmalloclist,
                                      USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
                                      int protocolVersion,
-                                     int flags, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list)
+                                     uint32_t flags, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list)
 {
     auto key = generate_cache_key(request_data, environment, flags);
     if (key.empty()) {

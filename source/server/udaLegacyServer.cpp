@@ -136,10 +136,10 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 }
             }
 
-            server_timeout = client_block.timeout;        // User specified Server Lifetime
-            privateFlags = client_block.privateFlags;    // Server to Server flags
-            clientFlags = client_block.clientFlags;    // Client set flags
-            int altRank = client_block.altRank;            // Rank of Alternative source
+            server_timeout = client_block.timeout;          // User specified Server Lifetime
+            privateFlags = client_block.privateFlags;       // Server to Server flags
+            uint32_t client_flags = client_block.clientFlags;    // Client set flags
+            int alt_rank = client_block.altRank;            // Rank of Alternative source
 
             // Protocol Version: Lower of the client and server version numbers
             // This defines the set of elements within data structures passed between client and server
@@ -157,8 +157,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
             UDA_LOG(UDA_LOG_DEBUG, "client protocolVersion %d\n", protocolVersion);
             UDA_LOG(UDA_LOG_DEBUG, "privateFlags %d\n", privateFlags);
-            UDA_LOG(UDA_LOG_DEBUG, "clientFlags  %d\n", clientFlags);
-            UDA_LOG(UDA_LOG_DEBUG, "altRank      %d\n", altRank);
+            UDA_LOG(UDA_LOG_DEBUG, "udaClientFlags  %d\n", client_flags);
+            UDA_LOG(UDA_LOG_DEBUG, "altRank      %d\n", alt_rank);
             UDA_LOG(UDA_LOG_DEBUG, "external?    %d\n", environment->external_user);
 
             if (normalLegacyWait) {

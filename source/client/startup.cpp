@@ -24,7 +24,7 @@
 #include "udaClient.h"
 #include "getEnvironment.h"
 
-int udaStartup(int reset)
+int udaStartup(int reset, int* alt_rank, CLIENT_FLAGS* client_flags)
 {
     static int start_status = 0;
 
@@ -49,11 +49,11 @@ int udaStartup(int reset)
     // Coded user properties changes have priority
 
     if (environment->clientFlags != 0) {
-        clientFlags = clientFlags | environment->clientFlags;
+        client_flags->flags |= environment->clientFlags;
     }
 
-    if (environment->altRank != 0 && altRank == 0) {
-        altRank = environment->altRank;
+    if (environment->altRank != 0 && *alt_rank == 0) {
+        *alt_rank = environment->altRank;
     }
 
     //----------------------------------------------------------------

@@ -11,11 +11,9 @@
 extern "C" {
 #endif
 
-LIBRARY_API extern int clientVersion;                   // Client Library Version
-LIBRARY_API extern char clientUsername[STRING_LENGTH];  // Only obtain userid once
-
 LIBRARY_API int connectionOpen();
-LIBRARY_API int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output);
+LIBRARY_API int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output, time_t* tv_server_start,
+                          int* user_timeout);
 LIBRARY_API int createConnection(XDR* client_input, XDR* client_output);
 LIBRARY_API void closeConnection(ClosedownType type);
 

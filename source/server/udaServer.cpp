@@ -427,7 +427,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
     UDA_LOG(UDA_LOG_DEBUG, "client protocolVersion %d\n", protocolVersion);
     UDA_LOG(UDA_LOG_DEBUG, "privateFlags %d\n", privateFlags);
-    UDA_LOG(UDA_LOG_DEBUG, "clientFlags  %d\n", clientFlags);
+    UDA_LOG(UDA_LOG_DEBUG, "udaClientFlags  %d\n", clientFlags);
     UDA_LOG(UDA_LOG_DEBUG, "altRank      %d\n", altRank);
     UDA_LOG(UDA_LOG_DEBUG, "external?    %d\n", environment.external_user);
 

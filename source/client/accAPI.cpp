@@ -96,7 +96,7 @@ int getThreadId(thread_t id)
 }
 
 // Lock the thread and set the previous STATE  
-void lockIdamThread()
+void lockIdamThread(CLIENT_FLAGS* client_flags)
 {
     static unsigned int mutex_initialised = 0;
 
@@ -152,7 +152,7 @@ void lockIdamThread()
         //putIdamClientEnvironment(&idamState[id].environment);
         putIdamThreadClientBlock(&idamState[id].client_block);
         putIdamThreadServerBlock(&idamState[id].server_block);
-        clientFlags = idamState[id].client_block.clientFlags;
+        client_flags->flags = idamState[id].client_block.clientFlags;
         putIdamThreadLastHandle(idamState[id].lastHandle);
     } else {
         putIdamThreadLastHandle(-1);
@@ -162,7 +162,7 @@ void lockIdamThread()
 /**
  * Unlock the thread and save the current STATE
  */
-void unlockUdaThread()
+void unlockUdaThread(CLIENT_FLAGS* client_flags)
 {
 #ifdef __GNUC__
     thread_t threadId = pthread_self();
@@ -175,7 +175,7 @@ void unlockUdaThread()
         //idamState[id].environment = *getIdamClientEnvironment();
         idamState[id].client_block = getIdamThreadClientBlock();
         idamState[id].server_block = getIdamThreadServerBlock();
-        idamState[id].client_block.clientFlags = clientFlags;
+        idamState[id].client_block.clientFlags = client_flags->flags;
         idamState[id].lastHandle = getIdamThreadLastHandle();
     }
 #ifdef __GNUC__
@@ -188,9 +188,9 @@ void unlockUdaThread()
 /**
  * Free thread resources
  */
-void freeIdamThread()
+void freeIdamThread(CLIENT_FLAGS* client_flags)
 {
-    lockIdamThread();
+    lockIdamThread(client_flags);
 #ifdef __GNUC__
     thread_t threadId = pthread_self();
 #else
@@ -212,7 +212,7 @@ void freeIdamThread()
         initServerBlock(&(idamState[threadCount].server_block), 0);
         threadList[threadCount] = 0;
     }
-    unlockUdaThread();
+    unlockUdaThread(client_flags);
 }
 
 #else
@@ -240,27 +240,27 @@ void acc_freeDataBlocks()
     putIdamThreadLastHandle(-1);
 }
 
-DATA_BLOCK* acc_getCurrentDataBlock()
+DATA_BLOCK* acc_getCurrentDataBlock(CLIENT_FLAGS* client_flags)
 {
-    if ((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+    if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         getIdamThreadLastHandle() >= 0) {
         return &data_blocks[getIdamThreadLastHandle()];
     }
     return &data_blocks.back();
 }
 
-int acc_getCurrentDataBlockIndex()
+int acc_getCurrentDataBlockIndex(CLIENT_FLAGS* client_flags)
 {
-    if ((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+    if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         getIdamThreadLastHandle() >= 0) {
         return getIdamThreadLastHandle();
     }
     return data_blocks.size() - 1;
 }
 
-int acc_growIdamDataBlocks()
+int acc_growIdamDataBlocks(CLIENT_FLAGS* client_flags)
 {
-    if ((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+    if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         getIdamThreadLastHandle() >= 0) {
         return 0;
     }
@@ -284,13 +284,13 @@ static int findNewHandleIndex()
     return -1;
 }
 
-int acc_getIdamNewDataHandle()
+int acc_getIdamNewDataHandle(CLIENT_FLAGS* client_flags)
 {
     int newHandleIndex = -1;
 
-    if ((clientFlags & CLIENTFLAG_REUSELASTHANDLE || clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+    if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         (newHandleIndex = getIdamThreadLastHandle()) >= 0) {
-        if (clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE) {
+        if (client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) {
             idamFree(newHandleIndex);
         } else {
             // Application has responsibility for freeing heap in the Data Block
@@ -363,28 +363,28 @@ void resetIdamPrivateFlag(unsigned int flag)
 //--------------------------------------------------------------
 // Client Flags
 
-//! Set a clientFlags property
-/** Set a/multiple specific bit/s in the clientFlags property sent to the UDA server.
+//! Set a client_flags->flags property
+/** Set a/multiple specific bit/s in the client_flags->flags property sent to the UDA server.
 *
 * @param flag The bit/s to be set to 1.
 * @return Void.
 */
 
-void setIdamClientFlag(unsigned int flag)
+void setIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
 {
-    clientFlags = clientFlags | flag;
+    client_flags->flags = client_flags->flags | flag;
 }
 
-//! Reset a clientFlags property
-/** Reset a/multiple specific bit/s in the clientFlags property sent to the UDA server.
+//! Reset a client_flags->flags property
+/** Reset a/multiple specific bit/s in the client_flags->flags property sent to the UDA server.
 *
 * @param flag The bit/s to be set to 0.
 * @return Void.
 */
 
-void resetIdamClientFlag(unsigned int flag)
+void resetIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
 {
-    clientFlags = clientFlags & !flag;
+    client_flags->flags &= !flag;
 }
 
 //--------------------------------------------------------------
@@ -415,7 +415,7 @@ void resetIdamClientFlag(unsigned int flag)
 * @param property the name of the property to set true or a name value pair.
 * @return Void.
 */
-void setIdamProperty(const char* property)
+void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
 {
     // User settings for Client and Server behaviour
 
@@ -423,18 +423,18 @@ void setIdamProperty(const char* property)
     char* value;
 
     if (property[0] == 'g') {
-        if (STR_IEQUALS(property, "get_datadble")) get_datadble = 1;
-        if (STR_IEQUALS(property, "get_dimdble")) get_dimdble = 1;
-        if (STR_IEQUALS(property, "get_timedble")) get_timedble = 1;
-        if (STR_IEQUALS(property, "get_bytes")) get_bytes = 1;
-        if (STR_IEQUALS(property, "get_bad")) get_bad = 1;
-        if (STR_IEQUALS(property, "get_meta")) get_meta = 1;
-        if (STR_IEQUALS(property, "get_asis")) get_asis = 1;
-        if (STR_IEQUALS(property, "get_uncal")) get_uncal = 1;
-        if (STR_IEQUALS(property, "get_notoff")) get_notoff = 1;
-        if (STR_IEQUALS(property, "get_synthetic")) get_synthetic = 1;
-        if (STR_IEQUALS(property, "get_scalar")) get_scalar = 1;
-        if (STR_IEQUALS(property, "get_nodimdata")) get_nodimdata = 1;
+        if (STR_IEQUALS(property, "get_datadble")) client_flags->get_datadble = 1;
+        if (STR_IEQUALS(property, "get_dimdble")) client_flags->get_dimdble = 1;
+        if (STR_IEQUALS(property, "get_timedble")) client_flags->get_timedble = 1;
+        if (STR_IEQUALS(property, "get_bytes")) client_flags->get_bytes = 1;
+        if (STR_IEQUALS(property, "get_bad")) client_flags->get_bad = 1;
+        if (STR_IEQUALS(property, "get_meta")) client_flags->get_meta = 1;
+        if (STR_IEQUALS(property, "get_asis")) client_flags->get_asis = 1;
+        if (STR_IEQUALS(property, "get_uncal")) client_flags->get_uncal = 1;
+        if (STR_IEQUALS(property, "get_notoff")) client_flags->get_notoff = 1;
+        if (STR_IEQUALS(property, "get_synthetic")) client_flags->get_synthetic = 1;
+        if (STR_IEQUALS(property, "get_scalar")) client_flags->get_scalar = 1;
+        if (STR_IEQUALS(property, "get_nodimdata")) client_flags->get_nodimdata = 1;
     } else {
         if (property[0] == 't') {
             strncpy(name, property, 55);
@@ -445,12 +445,12 @@ void setIdamProperty(const char* property)
             strlwr(name);
             if ((value = strstr(name, "timeout=")) != nullptr) {
                 value = name + 8;
-                if (IsNumber(value)) user_timeout = atoi(value);
+                if (IsNumber(value)) client_flags->user_timeout = atoi(value);
             }
         } else {
             if (STR_IEQUALS(property, "verbose")) udaSetLogLevel(UDA_LOG_INFO);
             if (STR_IEQUALS(property, "debug")) udaSetLogLevel(UDA_LOG_DEBUG);
-            if (STR_IEQUALS(property, "altData")) clientFlags = clientFlags | CLIENTFLAG_ALTDATA;
+            if (STR_IEQUALS(property, "altData")) client_flags->flags = client_flags->flags | CLIENTFLAG_ALTDATA;
             if (!strncasecmp(property, "altRank", 7)) {
                 strncpy(name, property, 55);
                 name[55] = '\0';
@@ -460,13 +460,13 @@ void setIdamProperty(const char* property)
                 strlwr(name);
                 if ((value = strcasestr(name, "altRank=")) != nullptr) {
                     value = name + 8;
-                    if (IsNumber(value)) altRank = atoi(value);
+                    if (IsNumber(value)) client_flags->alt_rank = atoi(value);
                 }
             }
         }
-        if (STR_IEQUALS(property, "reuseLastHandle")) clientFlags = clientFlags | CLIENTFLAG_REUSELASTHANDLE;
-        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) clientFlags = clientFlags | CLIENTFLAG_FREEREUSELASTHANDLE;
-        if (STR_IEQUALS(property, "fileCache")) clientFlags = clientFlags | CLIENTFLAG_FILECACHE;
+        if (STR_IEQUALS(property, "reuseLastHandle")) client_flags->flags = client_flags->flags | CLIENTFLAG_REUSELASTHANDLE;
+        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) client_flags->flags = client_flags->flags | CLIENTFLAG_FREEREUSELASTHANDLE;
+        if (STR_IEQUALS(property, "fileCache")) client_flags->flags = client_flags->flags | CLIENTFLAG_FILECACHE;
     }
 }
 
@@ -475,32 +475,32 @@ void setIdamProperty(const char* property)
 * @param property the name of the property.
 * @return Void.
 */
-int getIdamProperty(const char* property)
+int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags, int user_timeout, int alt_rank)
 {
     // User settings for Client and Server behaviour
 
     if (property[0] == 'g') {
-        if (STR_IEQUALS(property, "get_datadble")) return get_datadble;
-        if (STR_IEQUALS(property, "get_dimdble")) return get_dimdble;
-        if (STR_IEQUALS(property, "get_timedble")) return get_timedble;
-        if (STR_IEQUALS(property, "get_bytes")) return get_bytes;
-        if (STR_IEQUALS(property, "get_bad")) return get_bad;
-        if (STR_IEQUALS(property, "get_meta")) return get_meta;
-        if (STR_IEQUALS(property, "get_asis")) return get_asis;
-        if (STR_IEQUALS(property, "get_uncal")) return get_uncal;
-        if (STR_IEQUALS(property, "get_notoff")) return get_notoff;
-        if (STR_IEQUALS(property, "get_synthetic")) return get_synthetic;
-        if (STR_IEQUALS(property, "get_scalar")) return get_scalar;
-        if (STR_IEQUALS(property, "get_nodimdata")) return get_nodimdata;
+        if (STR_IEQUALS(property, "get_datadble")) return client_flags->get_datadble;
+        if (STR_IEQUALS(property, "get_dimdble")) return client_flags->get_dimdble;
+        if (STR_IEQUALS(property, "get_timedble")) return client_flags->get_timedble;
+        if (STR_IEQUALS(property, "get_bytes")) return client_flags->get_bytes;
+        if (STR_IEQUALS(property, "get_bad")) return client_flags->get_bad;
+        if (STR_IEQUALS(property, "get_meta")) return client_flags->get_meta;
+        if (STR_IEQUALS(property, "get_asis")) return client_flags->get_asis;
+        if (STR_IEQUALS(property, "get_uncal")) return client_flags->get_uncal;
+        if (STR_IEQUALS(property, "get_notoff")) return client_flags->get_notoff;
+        if (STR_IEQUALS(property, "get_synthetic")) return client_flags->get_synthetic;
+        if (STR_IEQUALS(property, "get_scalar")) return client_flags->get_scalar;
+        if (STR_IEQUALS(property, "get_nodimdata")) return client_flags->get_nodimdata;
     } else {
         if (STR_IEQUALS(property, "timeout")) return user_timeout;
-        if (STR_IEQUALS(property, "altRank")) return altRank;
-        if (STR_IEQUALS(property, "reuseLastHandle")) return (int)(clientFlags & CLIENTFLAG_REUSELASTHANDLE);
-        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) return (int)(clientFlags & CLIENTFLAG_FREEREUSELASTHANDLE);
+        if (STR_IEQUALS(property, "altRank")) return alt_rank;
+        if (STR_IEQUALS(property, "reuseLastHandle")) return (int)(client_flags->flags & CLIENTFLAG_REUSELASTHANDLE);
+        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) return (int)(client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE);
         if (STR_IEQUALS(property, "verbose")) return udaGetLogLevel() == UDA_LOG_INFO;
         if (STR_IEQUALS(property, "debug")) return udaGetLogLevel() == UDA_LOG_DEBUG;
-        if (STR_IEQUALS(property, "altData")) return (int)(clientFlags & CLIENTFLAG_ALTDATA);
-        if (STR_IEQUALS(property, "fileCache")) return (int)(clientFlags & CLIENTFLAG_FILECACHE);
+        if (STR_IEQUALS(property, "altData")) return (int)(client_flags->flags & CLIENTFLAG_ALTDATA);
+        if (STR_IEQUALS(property, "fileCache")) return (int)(client_flags->flags & CLIENTFLAG_FILECACHE);
     }
     return 0;
 }
@@ -511,33 +511,33 @@ int getIdamProperty(const char* property)
 * @return Void.
 */
 
-void resetIdamProperty(const char* property)
+void resetIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
 {
     // User settings for Client and Server behaviour
 
     if (property[0] == 'g') {
-        if (STR_IEQUALS(property, "get_datadble")) get_datadble = 0;
-        if (STR_IEQUALS(property, "get_dimdble")) get_dimdble = 0;
-        if (STR_IEQUALS(property, "get_timedble")) get_timedble = 0;
-        if (STR_IEQUALS(property, "get_bytes")) get_bytes = 0;
-        if (STR_IEQUALS(property, "get_bad")) get_bad = 0;
-        if (STR_IEQUALS(property, "get_meta")) get_meta = 0;
-        if (STR_IEQUALS(property, "get_asis")) get_asis = 0;
-        if (STR_IEQUALS(property, "get_uncal")) get_uncal = 0;
-        if (STR_IEQUALS(property, "get_notoff")) get_notoff = 0;
-        if (STR_IEQUALS(property, "get_synthetic")) get_synthetic = 0;
-        if (STR_IEQUALS(property, "get_scalar")) get_scalar = 0;
-        if (STR_IEQUALS(property, "get_nodimdata")) get_nodimdata = 0;
+        if (STR_IEQUALS(property, "get_datadble")) client_flags->get_datadble = 0;
+        if (STR_IEQUALS(property, "get_dimdble")) client_flags->get_dimdble = 0;
+        if (STR_IEQUALS(property, "get_timedble")) client_flags->get_timedble = 0;
+        if (STR_IEQUALS(property, "get_bytes")) client_flags->get_bytes = 0;
+        if (STR_IEQUALS(property, "get_bad")) client_flags->get_bad = 0;
+        if (STR_IEQUALS(property, "get_meta")) client_flags->get_meta = 0;
+        if (STR_IEQUALS(property, "get_asis")) client_flags->get_asis = 0;
+        if (STR_IEQUALS(property, "get_uncal")) client_flags->get_uncal = 0;
+        if (STR_IEQUALS(property, "get_notoff")) client_flags->get_notoff = 0;
+        if (STR_IEQUALS(property, "get_synthetic")) client_flags->get_synthetic = 0;
+        if (STR_IEQUALS(property, "get_scalar")) client_flags->get_scalar = 0;
+        if (STR_IEQUALS(property, "get_nodimdata")) client_flags->get_nodimdata = 0;
     } else {
         if (STR_IEQUALS(property, "verbose")) udaSetLogLevel(UDA_LOG_NONE);
         if (STR_IEQUALS(property, "debug")) udaSetLogLevel(UDA_LOG_NONE);
-        if (STR_IEQUALS(property, "altData")) clientFlags = clientFlags & !CLIENTFLAG_ALTDATA;
-        if (STR_IEQUALS(property, "altRank")) altRank = 0;
-        if (STR_IEQUALS(property, "reuseLastHandle")) clientFlags = clientFlags & !CLIENTFLAG_REUSELASTHANDLE;
+        if (STR_IEQUALS(property, "altData")) client_flags->flags &= !CLIENTFLAG_ALTDATA;
+        if (STR_IEQUALS(property, "altRank")) client_flags->alt_rank = 0;
+        if (STR_IEQUALS(property, "reuseLastHandle")) client_flags->flags &= !CLIENTFLAG_REUSELASTHANDLE;
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) {
-            clientFlags = clientFlags & !CLIENTFLAG_FREEREUSELASTHANDLE;
+            client_flags->flags &= !CLIENTFLAG_FREEREUSELASTHANDLE;
         }
-        if (STR_IEQUALS(property, "fileCache")) clientFlags = clientFlags & !CLIENTFLAG_FILECACHE;
+        if (STR_IEQUALS(property, "fileCache")) client_flags->flags &= !CLIENTFLAG_FILECACHE;
     }
 }
 
@@ -545,29 +545,29 @@ void resetIdamProperty(const char* property)
 /**
 * @return Void.
 */
-void resetIdamProperties()
+void resetIdamProperties(CLIENT_FLAGS* client_flags)
 {
     // Reset on Both Client and Server
 
-    get_datadble = 0;
-    get_dimdble = 0;
-    get_timedble = 0;
-    get_bad = 0;
-    get_meta = 0;
-    get_asis = 0;
-    get_uncal = 0;
-    get_notoff = 0;
-    get_synthetic = 0;
-    get_scalar = 0;
-    get_bytes = 0;
-    get_nodimdata = 0;
+    client_flags->get_datadble = 0;
+    client_flags->get_dimdble = 0;
+    client_flags->get_timedble = 0;
+    client_flags->get_bad = 0;
+    client_flags->get_meta = 0;
+    client_flags->get_asis = 0;
+    client_flags->get_uncal = 0;
+    client_flags->get_notoff = 0;
+    client_flags->get_synthetic = 0;
+    client_flags->get_scalar = 0;
+    client_flags->get_bytes = 0;
+    client_flags->get_nodimdata = 0;
     udaSetLogLevel(UDA_LOG_NONE);
-    user_timeout = TIMEOUT;
+    client_flags->user_timeout = TIMEOUT;
     if (getenv("UDA_TIMEOUT")) {
-        user_timeout = atoi(getenv("UDA_TIMEOUT"));
+        client_flags->user_timeout = atoi(getenv("UDA_TIMEOUT"));
     }
-    clientFlags = 0;
-    altRank = 0;
+    client_flags->flags = 0;
+    client_flags->alt_rank = 0;
 }
 
 //! Return the client state associated with a specific data item
@@ -843,9 +843,9 @@ int getIdamDataStatus(int handle)
 /**
 \return   handle.
 */
-int getIdamLastHandle()
+int getIdamLastHandle(CLIENT_FLAGS* client_flags)
 {
-    return acc_getCurrentDataBlockIndex();
+    return acc_getCurrentDataBlockIndex(client_flags);
 }
 
 //!  returns the number of data items in the data object
@@ -1134,11 +1134,13 @@ void acc_setSyntheticDimData(int handle, int ndim, char* data)
 
 char* getIdamSyntheticData(int handle)
 {
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+
     int status = getIdamDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
-    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !get_bad) return nullptr;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || get_bad)) return nullptr;
-    if (!get_synthetic || data_blocks[handle].error_model == ERROR_MODEL_UNKNOWN) {
+    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return nullptr;
+    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return nullptr;
+    if (!client_flags->get_synthetic || data_blocks[handle].error_model == ERROR_MODEL_UNKNOWN) {
         return data_blocks[handle].data;
     }
     generateIdamSyntheticData(handle);
@@ -1152,11 +1154,13 @@ char* getIdamSyntheticData(int handle)
 */
 char* getIdamData(int handle)
 {
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+
     int status = getIdamDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
-    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !get_bad) return nullptr;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || get_bad)) return nullptr;
-    if (!get_synthetic) {
+    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return nullptr;
+    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return nullptr;
+    if (!client_flags->get_synthetic) {
         return data_blocks[handle].data;
     } else {
         return getIdamSyntheticData(handle);
@@ -1489,13 +1493,15 @@ void getIdamDoubleData(int handle, double* fp)
 
     // **** The double array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
 
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+
     int status = getIdamDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return;
-    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !get_bad) return;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || get_bad)) return;
+    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return;
+    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return;
 
     if (data_blocks[handle].data_type == UDA_TYPE_DOUBLE) {
-        if (!get_synthetic)
+        if (!client_flags->get_synthetic)
             memcpy((void*)fp, (void*)data_blocks[handle].data, (size_t)data_blocks[handle].data_n * sizeof(double));
         else {
             generateIdamSyntheticData(handle);
@@ -1514,7 +1520,7 @@ void getIdamDoubleData(int handle, double* fp)
 
         ndata = getIdamDataNum(handle);
 
-        if (!get_synthetic) {
+        if (!client_flags->get_synthetic) {
             array = data_blocks[handle].data;
         } else {
             generateIdamSyntheticData(handle);
@@ -1626,15 +1632,17 @@ void getIdamFloatData(int handle, float* fp)
 
     // **** The float array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
 
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+
     int status = getIdamDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
     }
-    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !get_bad) return;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || get_bad)) return;
+    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return;
+    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return;
 
     if (data_blocks[handle].data_type == UDA_TYPE_FLOAT) {
-        if (!get_synthetic)
+        if (!client_flags->get_synthetic)
             memcpy((void*)fp, (void*)data_blocks[handle].data, (size_t)data_blocks[handle].data_n * sizeof(float));
         else {
             generateIdamSyntheticData(handle);
@@ -1653,7 +1661,7 @@ void getIdamFloatData(int handle, float* fp)
 
         ndata = getIdamDataNum(handle);
 
-        if (!get_synthetic) {
+        if (!client_flags->get_synthetic) {
             array = data_blocks[handle].data;
         } else {
             generateIdamSyntheticData(handle);
@@ -2212,7 +2220,8 @@ char* getIdamSyntheticDimData(int handle, int ndim)
         (unsigned int)ndim >= data_blocks[handle].rank) {
         return nullptr;
     }
-    if (!get_synthetic || data_blocks[handle].dims[ndim].error_model == ERROR_MODEL_UNKNOWN) {
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+    if (!client_flags->get_synthetic || data_blocks[handle].dims[ndim].error_model == ERROR_MODEL_UNKNOWN) {
         return data_blocks[handle].dims[ndim].dim;
     }
     generateIdamSyntheticDimData(handle, ndim);
@@ -2231,7 +2240,8 @@ char* getIdamDimData(int handle, int ndim)
         (unsigned int)ndim >= data_blocks[handle].rank) {
         return nullptr;
     }
-    if (!get_synthetic) return data_blocks[handle].dims[ndim].dim;
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+    if (!client_flags->get_synthetic) return data_blocks[handle].dims[ndim].dim;
     return getIdamSyntheticDimData(handle, ndim);
 }
 
@@ -2311,8 +2321,9 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
         (unsigned int)ndim >= data_blocks[handle].rank) {
         return;
     }
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     if (data_blocks[handle].dims[ndim].data_type == UDA_TYPE_DOUBLE) {
-        if (!get_synthetic)
+        if (!client_flags->get_synthetic)
             memcpy((void*)fp, (void*)data_blocks[handle].dims[ndim].dim,
                    (size_t)data_blocks[handle].dims[ndim].dim_n * sizeof(double));
         else {
@@ -2329,7 +2340,7 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
         char* array;
 
         int ndata = data_blocks[handle].dims[ndim].dim_n;
-        if (!get_synthetic) {
+        if (!client_flags->get_synthetic) {
             array = data_blocks[handle].dims[ndim].dim;
         } else {
             generateIdamSyntheticDimData(handle, ndim);
@@ -2441,8 +2452,9 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
         (unsigned int)ndim >= data_blocks[handle].rank) {
             return;
     }
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     if (data_blocks[handle].dims[ndim].data_type == UDA_TYPE_FLOAT) {
-        if (!get_synthetic)
+        if (!client_flags->get_synthetic)
             memcpy((void*)fp, (void*)data_blocks[handle].dims[ndim].dim,
                    (size_t)data_blocks[handle].dims[ndim].dim_n * sizeof(float));
         else {
@@ -2459,7 +2471,7 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
         char* array;
 
         int ndata = data_blocks[handle].dims[ndim].dim_n;
-        if (!get_synthetic) {
+        if (!client_flags->get_synthetic) {
             array = data_blocks[handle].dims[ndim].dim;
         } else {
             generateIdamSyntheticDimData(handle, ndim);

@@ -6,12 +6,13 @@
 #endif
 
 #include <clientserver/export.h>
+#include "udaClient.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-LIBRARY_API int udaStartup(int reset);
+LIBRARY_API int udaStartup(int reset, int* alt_rank, CLIENT_FLAGS* client_flags);
 
 #ifdef __cplusplus
 }
