@@ -64,11 +64,11 @@ LIBRARY_API void putIdamErrorModel(int handle, int model, int param_n, const flo
 
 LIBRARY_API void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, const float* params);
 
-LIBRARY_API void putIdamServer(const char* host, int port);
+LIBRARY_API void putIdamServer(const char* host, int port, bool* env_host, bool* env_port);
 
-LIBRARY_API void putIdamServerHost(const char* host);
+LIBRARY_API void putIdamServerHost(const char* host, bool* env_host);
 
-LIBRARY_API void putIdamServerPort(int port);
+LIBRARY_API void putIdamServerPort(int port, bool* env_port);
 
 LIBRARY_API void putIdamServerSocket(int socket);
 

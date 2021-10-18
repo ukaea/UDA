@@ -24,14 +24,14 @@
 #include "udaClient.h"
 #include "getEnvironment.h"
 
-int udaStartup(int reset, int* alt_rank, CLIENT_FLAGS* client_flags)
+int udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_logs)
 {
     static int start_status = 0;
 
     //---------------------------------------------------------------
     // Are the Files Already Open?
 
-    if (start_status && !reset && !reopen_logs) return 0;
+    if (start_status && !reset && !*reopen_logs) return 0;
 
     //----------------------------------------------------------------
     // Read Environment Variable Values (Held in a Global Structure)
@@ -52,8 +52,8 @@ int udaStartup(int reset, int* alt_rank, CLIENT_FLAGS* client_flags)
         client_flags->flags |= environment->clientFlags;
     }
 
-    if (environment->altRank != 0 && *alt_rank == 0) {
-        *alt_rank = environment->altRank;
+    if (environment->altRank != 0 && client_flags->alt_rank == 0) {
+        client_flags->alt_rank = environment->altRank;
     }
 
     //----------------------------------------------------------------
@@ -79,11 +79,11 @@ int udaStartup(int reset, int* alt_rank, CLIENT_FLAGS* client_flags)
 
     FILE* file = nullptr;
 
-    char idamFile[STRING_LENGTH];
+    char log_file[STRING_LENGTH];
 
-    strcpy(idamFile, environment->logdir);
-    strcat(idamFile, "Debug.dbg");
-    file = fopen(idamFile, environment->logmode);
+    strcpy(log_file, environment->logdir);
+    strcat(log_file, "Debug.dbg");
+    file = fopen(log_file, environment->logmode);
     udaSetLogFile(UDA_LOG_WARN, file);
     udaSetLogFile(UDA_LOG_DEBUG, file);
     udaSetLogFile(UDA_LOG_INFO, file);
@@ -95,9 +95,9 @@ int udaStartup(int reset, int* alt_rank, CLIENT_FLAGS* client_flags)
     }
 
     if (udaGetLogLevel() <= UDA_LOG_ERROR) {
-        strcpy(idamFile, environment->logdir);
-        strcat(idamFile, "Error.err");
-        file = fopen(idamFile, environment->logmode);
+        strcpy(log_file, environment->logdir);
+        strcat(log_file, "Error.err");
+        file = fopen(log_file, environment->logmode);
         udaSetLogFile(UDA_LOG_ERROR, file);
     }
 
@@ -107,7 +107,7 @@ int udaStartup(int reset, int* alt_rank, CLIENT_FLAGS* client_flags)
         return -1;
     }
 
-    reopen_logs = 0;
+    *reopen_logs = false;
 
     return 0;
 }

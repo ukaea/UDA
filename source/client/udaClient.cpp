@@ -367,7 +367,10 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 #endif // !FATCLIENT
 
     static bool system_startup = true;
-    
+
+    static bool env_host = false;
+    static bool env_port = false;
+    static bool reopen_logs = false;
     static XDR* client_input = nullptr;
     static XDR* client_output = nullptr;
 
@@ -495,13 +498,15 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             UDA_LOG(UDA_LOG_DEBUG, "Server Closed and New Instance Started\n");
 
             // Close the Existing Socket and XDR Stream: Reopening will Instance a New Server
-            closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output);
+            closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output, &reopen_logs, &env_host,
+                      &env_port);
         } else if (connectionOpen()) {
             // Assume the Server is Still Alive
             if (client_output->x_ops == nullptr || client_input->x_ops == nullptr) {
                 addIdamError(CODEERRORTYPE, __func__, 999, "XDR Streams are Closed!");
                 UDA_LOG(UDA_LOG_DEBUG, "XDR Streams are Closed!\n");
-                closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output);
+                closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output, &reopen_logs, &env_host,
+                          &env_port);
                 initServer = true;
             } else {
                 initServer = false;
@@ -1038,7 +1043,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
     if (data_received) {
         if (err != 0 && !serverside) {
-            closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output);    // Close Socket & XDR Streams but Not Files
+            closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output, &reopen_logs, &env_host,
+                      &env_port);    // Close Socket & XDR Streams but Not Files
         }
 
         for (auto data_block_idx : data_block_indices) {
@@ -1095,7 +1101,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         UDA_LOG(UDA_LOG_DEBUG, "Returning Error %d\n", err);
 
         if (err != 0 && !serverside) {
-            closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output);
+            closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output, &reopen_logs, &env_host,
+                      &env_port);
         }
 
         concatUdaError(&server_block.idamerrorstack);
@@ -1119,7 +1126,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
     if (data_received) {
         if (err != 0) {
-            closedown(ClosedownType::CLOSE_SOCKETS, &socket_list, client_input, client_output);
+            closedown(ClosedownType::CLOSE_SOCKETS, &socket_list, client_input, client_output, &reopen_logs, &env_host, &env_port);
         }
 
         for (auto data_block_idx : data_block_indices) {
@@ -1179,7 +1186,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         UDA_LOG(UDA_LOG_DEBUG, "Returning Error %d\n", err);
 
         if (err != 0) {
-            closedown(ClosedownType::CLOSE_SOCKETS, &socket_list, client_input, client_output);
+            closedown(ClosedownType::CLOSE_SOCKETS, &socket_list, client_input, client_output, &reopen_logs, &env_host, &env_port);
         }
 
         concatUdaError(&server_block.idamerrorstack);
@@ -1443,7 +1450,11 @@ void udaFreeAll(XDR* client_input, XDR* client_output, NTREE* full_ntree, LOGSTR
 
 #endif // <========================== End of Client Server Code Only
 
-    closedown(ClosedownType::CLOSE_ALL, nullptr, client_input, client_output);        // Close the Socket, XDR Streams and All Files
+    bool reopen_logs = false;
+    bool env_host = false;
+    bool env_port = false;
+
+    closedown(ClosedownType::CLOSE_ALL, nullptr, client_input, client_output, &reopen_logs, &env_host, &env_port);        // Close the Socket, XDR Streams and All Files
 }
 
 SERVER_BLOCK getIdamThreadServerBlock()

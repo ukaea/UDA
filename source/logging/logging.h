@@ -31,8 +31,6 @@
 extern "C" {
 #endif
 
-extern int reopen_logs;         // Flags whether or Not Logs need to be Re-Opened
-
 typedef enum LogLevel {
     UDA_LOG_DEBUG = 1,
     UDA_LOG_INFO = 2,

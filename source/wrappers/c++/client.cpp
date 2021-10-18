@@ -115,14 +115,17 @@ int uda::Client::property(Property prop)
     }
 }
 
+bool uda::Client::env_host_ = false;
+bool uda::Client::env_port_ = false;
+
 void uda::Client::setServerHostName(const std::string& hostName)
 {
-    putIdamServerHost(hostName.c_str());
+    putIdamServerHost(hostName.c_str(), &env_host_);
 }
 
 void uda::Client::setServerPort(int portNumber)
 {
-    putIdamServerPort(portNumber);
+    putIdamServerPort(portNumber, &env_port_);
 }
 
 std::string uda::Client::serverHostName()

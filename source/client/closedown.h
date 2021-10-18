@@ -17,7 +17,9 @@ enum class ClosedownType {
     CLOSE_ALL = 1,
 };
 
-LIBRARY_API int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XDR* client_output);
+LIBRARY_API int
+closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XDR* client_output, bool* reopen_logs,
+          bool* env_host, bool* env_port);
 
 #ifdef __cplusplus
 }

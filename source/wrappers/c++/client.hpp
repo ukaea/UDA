@@ -186,6 +186,8 @@ private:
 
     std::vector<Result *> results_;
     const uda::Result& at(size_t index);
+    static bool env_host_;
+    static bool env_port_;
 };
 
 }

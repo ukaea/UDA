@@ -665,14 +665,14 @@ void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, const fl
 * @param port The port number the server is connected to.
 * @return void
 */
-void putIdamServer(const char* host, int port)
+void putIdamServer(const char* host, int port, bool* env_host, bool* env_port)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     environment->server_port = port;                             // UDA server service port number
     strcpy(environment->server_host, host);                      // UDA server's host name or IP address
     environment->server_reconnect = 1;                           // Create a new Server instance
-    env_host = 0;                                               // Skip initialsisation at Startup if these are called first
-    env_port = 0;
+    *env_host = false;                                           // Skip initialisation at Startup if these are called first
+    *env_port = false;
 }
 
 //! Set the UDA data server host name
@@ -680,12 +680,12 @@ void putIdamServer(const char* host, int port)
 * @param host The name of the server host computer.
 * @return void
 */
-void putIdamServerHost(const char* host)
+void putIdamServerHost(const char* host, bool* env_host)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     strcpy(environment->server_host, host);                      // UDA server's host name or IP address
     environment->server_reconnect = 1;                           // Create a new Server instance
-    env_host = 0;
+    *env_host = false;
 }
 
 //! Set the UDA data server port number
@@ -693,12 +693,12 @@ void putIdamServerHost(const char* host)
 * @param port The port number the server is connected to.
 * @return void
 */
-void putIdamServerPort(int port)
+void putIdamServerPort(int port, bool* env_port)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     environment->server_port = port;                             // UDA server service port number
     environment->server_reconnect = 1;                           // Create a new Server instance
-    env_port = 0;
+    *env_port = false;
 }
 
 //! Specify a specific UDA server socket connection to use

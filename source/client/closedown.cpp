@@ -25,7 +25,8 @@
 #  include <authentication/udaClientSSL.h>
 #endif
 
-int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XDR* client_output)
+int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XDR* client_output, bool* reopen_logs,
+              bool* env_host, bool* env_port)
 {
     int rc = 0;
 
@@ -38,7 +39,7 @@ int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XD
 
     if (type == ClosedownType::CLOSE_ALL) {
         udaCloseLogging();
-        reopen_logs = TRUE;        // In case the User calls the IDAM API again!
+        *reopen_logs = true;        // In case the User calls the IDAM API again!
     }
 
 #ifndef FATCLIENT    // <========================== Client Server Code Only
@@ -49,8 +50,8 @@ int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XD
 
     closeConnection(type);
 
-    env_host = 1;            // Initialise at Startup
-    env_port = 1;
+    *env_host = true;            // Initialise at Startup
+    *env_port = true;
 
 #else            // <========================== Fat Client Code Only
     if (type == ClosedownType::CLOSE_ALL) {
