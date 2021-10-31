@@ -68,15 +68,6 @@
 #include "protocol.h"
 #include "stringUtils.h"
 
-#ifdef SERVERBUILD
-#  include <server/udaServer.h>
-#  include <server/createXDRStream.h>
-#  include <server/serverStartup.h>
-#elif !defined(FATCLIENT)
-#  include <client/clientXDRStream.h>
-#  include <client/udaClient.h>
-#endif
-
 #ifdef HIERARCHICAL_DATA
 #  include "xmlStructs.h"
 #  include "allocXMLData.h"
@@ -85,7 +76,8 @@
 
 int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                 USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
-                LOGSTRUCTLIST* log_struct_list, IoData* io_data, unsigned int private_flags, int malloc_source)
+                LOGSTRUCTLIST* log_struct_list, IoData* io_data, unsigned int private_flags, int malloc_source,
+                CreateXDRStreams create_xdr_streams)
 {
     DATA_BLOCK* data_block;
 
@@ -271,18 +263,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                         // Create the XDR Record Streams
 
-
-#  ifdef SERVERBUILD
-                        XDR* serverInput;
-                        XDR* serverOutput;
-                        std::tie(serverInput, serverOutput) = CreateXDRStream(io_data);
-                        xdrs = serverOutput;
-#  else
-                        XDR* clientInput;
-                        XDR* clientOutput;
-                        std::tie(clientInput, clientOutput) = createXDRStream();
-                        xdrs = clientOutput;
-#  endif
+                        XDR* xdr_input;
+                        XDR* xdr_output;
+                        std::tie(xdr_input, xdr_output) = create_xdr_streams(io_data);
+                        xdrs = xdr_output;
                         xdr_stdio_flag = false;
 
                         // Send the Temporary File
@@ -388,7 +372,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         initLogMallocList(logmalloclist);
 
                         userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-                        USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
+                        auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
 
                         initUserDefinedTypeList(userdefinedtypelist);
 
@@ -474,17 +458,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             //xdrs = priorxdrs;
 
-#  ifdef SERVERBUILD
-                            XDR* serverInput;
-                            XDR* serverOuput;
-                            std::tie(serverInput, serverOuput) = CreateXDRStream(io_data);
-                            xdrs = serverInput;
-#  else
-                            XDR* clientInput;
-                            XDR* clientOutput;
-                            std::tie(clientInput, clientOutput) = createXDRStream();
-                            xdrs = clientInput;
-#  endif
+                            XDR* xdr_input;
+                            XDR* xdr_output;
+                            std::tie(xdr_input, xdr_output) = create_xdr_streams(io_data);
+                            xdrs = xdr_input;
                             xdr_stdio_flag = false;
                             remove(tempFile);
                         }
@@ -492,9 +469,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                         if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
-                            GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
+                            auto general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
 
-                            SARRAY* s = (SARRAY*)data;
+                            auto s = (SARRAY*)data;
                             if (s->count != data_block->data_n) {                // check for consistency
                                 err = 999;
                                 addIdamError(CODEERRORTYPE, "protocolXML", err,
@@ -580,7 +557,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             initLogMallocList(logmalloclist);
 
                             userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-                            USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
+                            auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
 
                             initUserDefinedTypeList(userdefinedtypelist);
 
@@ -626,17 +603,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             fflush(xdrfile);
                             fclose(xdrfile);
 
-#  ifdef SERVERBUILD
-                            XDR* serverInput;
-                            XDR* serverOuput;
-                            std::tie(serverInput, serverOuput) = CreateXDRStream(io_data);
-                            xdrs = serverInput;
-#  else
-                            XDR* clientInput;
-                            XDR* clientOutput;
-                            std::tie(clientInput, clientOutput) = createXDRStream();
-                            xdrs = clientInput;
-#  endif
+                            XDR* xdr_input;
+                            XDR* xdr_output;
+                            std::tie(xdr_input, xdr_output) = create_xdr_streams(io_data);
+                            xdrs = xdr_input;
 
                             xdr_stdio_flag = false;
                             remove(tempFile);

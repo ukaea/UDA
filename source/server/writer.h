@@ -19,11 +19,6 @@
 #define MIN_BLOCK_TIME    1000
 #define MAX_BLOCK_TIME    10000
 
-struct IoData {
-    int* server_tot_block_time;
-    int* server_timeout;
-};
-
 void setSelectParms(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time);
 void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time);
 int server_write(void* iohandle, char* buf, int count);

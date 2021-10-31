@@ -43,10 +43,19 @@ int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XD
     }
 
 #ifndef FATCLIENT    // <========================== Client Server Code Only
-    if (client_input->x_ops != nullptr) xdr_destroy(client_input);
-    if (client_output->x_ops != nullptr) xdr_destroy(client_output);
-    client_output->x_ops = nullptr;
-    client_input->x_ops = nullptr;
+    if (client_input != nullptr) {
+        if (client_input->x_ops != nullptr) {
+            xdr_destroy(client_input);
+        }
+        client_input->x_ops = nullptr;
+    }
+
+    if (client_output != nullptr) {
+        if (client_output->x_ops != nullptr) {
+            xdr_destroy(client_output);
+        }
+        client_output->x_ops = nullptr;
+    }
 
     closeConnection(type);
 

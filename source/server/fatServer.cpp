@@ -25,6 +25,7 @@
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
 #include "initPluginList.h"
+#include "createXDRStream.h"
 
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {
@@ -216,7 +217,7 @@ processHierarchicalData(DATA_BLOCK* data_block, NTREE* full_ntree, LOGSTRUCTLIST
 
     int protocol_id = PROTOCOL_STRUCTURES;
     protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, data_block,
-                protocolVersion, full_ntree, log_struct_list, io_data, private_flags, malloc_source);
+                protocolVersion, full_ntree, log_struct_list, io_data, private_flags, malloc_source, serverCreateXDRStream);
 
     // Close the stream and file
 
@@ -241,7 +242,8 @@ processHierarchicalData(DATA_BLOCK* data_block, NTREE* full_ntree, LOGSTRUCTLIST
 
     protocol_id = PROTOCOL_STRUCTURES;
     err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                      data_block, protocolVersion, full_ntree, log_struct_list, io_data, private_flags, malloc_source);
+                      data_block, protocolVersion, full_ntree, log_struct_list, io_data, private_flags, malloc_source,
+                      serverCreateXDRStream);
 
     // Close the stream and file
 

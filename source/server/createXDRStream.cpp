@@ -8,7 +8,7 @@
 #include <authentication/udaServerSSL.h>
 #endif
 
-std::pair<XDR*, XDR*> CreateXDRStream(IoData* io_data)
+std::pair<XDR*, XDR*> serverCreateXDRStream(IoData* io_data)
 {
     static XDR server_input = {};
     static XDR server_output = {};

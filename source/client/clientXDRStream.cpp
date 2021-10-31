@@ -12,19 +12,7 @@
 #  include <authentication/udaClientSSL.h>
 #endif
 
-//static XDR clientXDRinput;
-//static XDR clientXDRoutput;
-//
-//#if defined(__GNUC__)
-//XDR* &client_input = &clientXDRinput;
-//XDR* &client_output = &clientXDRoutput;
-//#else
-//extern "C" XDR* &client_input = &clientXDRinput;
-//extern "C" XDR* &client_output = &clientXDRoutput;
-//#endif
-
-
-std::pair<XDR*, XDR*> createXDRStream()
+std::pair<XDR*, XDR*> clientCreateXDRStream()
 {
     static XDR client_input = {};
     static XDR client_output = {};

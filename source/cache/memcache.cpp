@@ -176,7 +176,7 @@ std::pair<char*, size_t> get_cache_value(uda::cache::UdaCache* cache, const char
 
 } // anon namespace
 
-uda::cache::UdaCache* uda::cache::udaOpenCache()
+uda::cache::UdaCache* uda::cache::open_cache()
 {
     static bool init = false;
     if (init) {
@@ -218,7 +218,7 @@ uda::cache::UdaCache* uda::cache::udaOpenCache()
     return cache;
 }
 
-void uda::cache::udaFreeCache() // Will be called by the idamFreeAll function
+void uda::cache::free_cache() // Will be called by the idamFreeAll function
 {
     memcached_free(&global_cache->memcache);
     free(global_cache);
@@ -226,10 +226,10 @@ void uda::cache::udaFreeCache() // Will be called by the idamFreeAll function
 }
 
 int
-uda::cache::udaCacheWrite(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
-                          LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                          ENVIRONMENT environment, int protocolVersion, uint32_t flags, NTREE* full_ntree,
-                          LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
+                        LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                        ENVIRONMENT environment, int protocolVersion, uint32_t flags, NTREE* full_ntree,
+                        LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
 #ifdef CACHEDEV
     if (!data_block->cachePermission) {
@@ -262,13 +262,13 @@ uda::cache::udaCacheWrite(uda::cache::UdaCache* cache, const REQUEST_DATA* reque
     return rc;
 }
 
-DATA_BLOCK* uda::cache::udaCacheRead(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data,
-                                     LOGMALLOCLIST* logmalloclist,
-                                     USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
-                                     int protocolVersion,
-                                     uint32_t flags, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list,
-                                     unsigned int private_flags,
-                                     int malloc_source)
+DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data,
+                                   LOGMALLOCLIST* logmalloclist,
+                                   USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
+                                   int protocolVersion,
+                                   uint32_t flags, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list,
+                                   unsigned int private_flags,
+                                   int malloc_source)
 {
     auto key = generate_cache_key(request_data, environment, flags, private_flags);
     if (key.empty()) {

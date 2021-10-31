@@ -806,7 +806,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
         if (protocol_id > PROTOCOL_OPAQUE_START && protocol_id < PROTOCOL_OPAQUE_STOP) {
             err = protocolXML(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
-                              protocolVersion, full_ntree, log_struct_list, io_data, private_flags, malloc_source);
+                              protocolVersion, full_ntree, log_struct_list, io_data, private_flags, malloc_source,
+                              nullptr);
         }
 
         //----------------------------------------------------------------------------

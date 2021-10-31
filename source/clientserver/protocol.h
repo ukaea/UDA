@@ -1,15 +1,14 @@
+#pragma once
+
 #ifndef UDA_CLIENTSERVER_PROTOCOL_H
 #define UDA_CLIENTSERVER_PROTOCOL_H
 
 #include <rpc/types.h>
 #include <rpc/xdr.h>
-#include <structures/genStructs.h>
-#include <server/writer.h>
-#include "export.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <structures/genStructs.h>
+
+#include "export.h"
 
 //-------------------------------------------------------
 // Client Server Conversation Protocols
@@ -55,6 +54,8 @@ extern "C" {
 #define PROTOCOL_LIMITER            113
 #define PROTOCOL_OPAQUE_STOP        200
 
+struct IoData;
+
 //---------------------------------------------------------------------------------------------------
 // Client Server XDR data Streams (DON'T CHANGE ORDER or Legacy client won't work!)
 
@@ -64,9 +65,5 @@ LIBRARY_API int protocol(XDR* xdrs, int protocol_id, int direction, int* token, 
 LIBRARY_API int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                           USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
                           LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // UDA_CLIENTSERVER_PROTOCOL_H
