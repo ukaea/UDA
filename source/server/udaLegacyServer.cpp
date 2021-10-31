@@ -23,8 +23,7 @@
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
 #include "sleepServer.h"
-#include "udaServer.h"
-#include "writer.h"
+#include "createXDRStream.h"
 
 #ifdef LEGACYSERVER
 int idamLegacyServer(CLIENT_BLOCK client_block) {

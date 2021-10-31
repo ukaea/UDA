@@ -6,6 +6,6 @@
 
 #include <clientserver/export.h>
 
-std::pair<XDR*, XDR*> createXDRStream();
+std::pair<XDR*, XDR*> clientCreateXDRStream();
 
 #endif // UDA_CLIENT_CLIENTXDRSTREAM_H

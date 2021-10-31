@@ -10,7 +10,7 @@ static std::vector<UDA_ERROR> udaerrorstack;
 
 int udaNumErrors()
 {
-    return udaerrorstack.size();
+    return static_cast<int>(udaerrorstack.size());
 }
 
 void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERROR_STACK* error_stack)

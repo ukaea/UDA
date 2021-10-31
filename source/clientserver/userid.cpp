@@ -1,6 +1,3 @@
-// Request Userid from O/S
-//-------------------------------------------------------------------------
-
 #include "userid.h"
 
 #ifndef _WIN32
@@ -14,6 +11,10 @@
 #include "stringUtils.h"
 #include "udaDefines.h"
 
+/**
+ * Request userid from OS
+ * @param uid OUT
+ */
 void userid(char* uid)
 {
 #ifdef _WIN32

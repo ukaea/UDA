@@ -140,7 +140,7 @@ int udaServer(CLIENT_BLOCK client_block)
     initActions(&actions_sig);
     initRequestBlock(&request_block);
 
-    uda::cache::UdaCache* cache = uda::cache::udaOpenCache();
+    uda::cache::UdaCache* cache = uda::cache::open_cache();
 
     static unsigned int total_datablock_size = 0;
 
@@ -714,8 +714,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[i];
 
-        auto cache_block = udaCacheRead(cache, request, logmalloclist, userdefinedtypelist, environment, 8,
-                                        CLIENTFLAG_CACHE, full_ntree, log_struct_list, private_flags, malloc_source);
+        auto cache_block = cache_read(cache, request, logmalloclist, userdefinedtypelist, environment, 8,
+                                      CLIENTFLAG_CACHE, full_ntree, log_struct_list, private_flags, malloc_source);
         if (cache_block != nullptr) {
             data_block_list->data[i] = *cache_block;
             continue;
@@ -727,8 +727,8 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
                          &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
                          &pluginList, logmalloclist, userdefinedtypelist, &socket_list, protocolVersion);
 
-        udaCacheWrite(cache, request, data_block, logmalloclist, userdefinedtypelist, environment, 8, CLIENTFLAG_CACHE,
-                      full_ntree, log_struct_list, private_flags, malloc_source);
+        cache_write(cache, request, data_block, logmalloclist, userdefinedtypelist, environment, 8, CLIENTFLAG_CACHE,
+                    full_ntree, log_struct_list, private_flags, malloc_source);
     }
 
     for (int i = 0; i < request_block->num_requests; ++i) {
@@ -1137,7 +1137,7 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
     //-------------------------------------------------------------------------
     // Create the XDR Record Streams
 
-    std::tie(server_input, server_output) = CreateXDRStream(io_data);
+    std::tie(server_input, server_output) = serverCreateXDRStream(io_data);
 
     UDA_LOG(UDA_LOG_DEBUG, "XDR Streams Created\n");
 

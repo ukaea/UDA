@@ -163,13 +163,13 @@ int check_mem_cache(uda::cache::UdaCache* cache, REQUEST_DATA* request_data, DAT
 
         // Open the Cache
         if (cache == nullptr) {
-            cache = uda::cache::udaOpenCache();
+            cache = uda::cache::open_cache();
         }
 
         // Query the cache for the Data
-        DATA_BLOCK* data = udaCacheRead(cache, request_data, log_malloc_list, user_defined_type_list,
-                                        *getIdamClientEnvironment(), protocolVersion, client_flags->flags, full_ntree,
-                                        log_struct_list, private_flags, malloc_source);
+        DATA_BLOCK* data = cache_read(cache, request_data, log_malloc_list, user_defined_type_list,
+                                      *getIdamClientEnvironment(), protocolVersion, client_flags->flags, full_ntree,
+                                      log_struct_list, private_flags, malloc_source);
 
         if (data != nullptr) {
             // Success
@@ -282,8 +282,8 @@ static int allocMeta(DATA_SYSTEM** data_system, SYSTEM_CONFIG** system_config, D
     *signal_rec = (SIGNAL*)malloc(sizeof(SIGNAL));
     *signal_desc = (SIGNAL_DESC*)malloc(sizeof(SIGNAL_DESC));
 
-    if (data_system == nullptr || system_config == nullptr || data_source == nullptr ||
-        signal_rec == nullptr || signal_desc == nullptr) {
+    if (*data_system == nullptr || *system_config == nullptr || *data_source == nullptr ||
+            *signal_rec == nullptr || *signal_desc == nullptr) {
         err = ERROR_ALLOCATING_META_DATA_HEAP;
         addIdamError(CODEERRORTYPE, __func__, err, "Error Allocating Heap for Meta Data");
         return err;
@@ -542,7 +542,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Create the XDR Record Streams
 
         if (initServer) {
-            std::tie(client_input, client_output) = createXDRStream();
+            std::tie(client_input, client_output) = clientCreateXDRStream();
         }
 
         //-------------------------------------------------------------------------
@@ -977,9 +977,9 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 #    else
             if (cache != nullptr && client_flags->flags & CLIENTFLAG_CACHE) {
 #    endif
-                udaCacheWrite(cache, &request_block->requests[i], data_block, logmalloclist, userdefinedtypelist,
-                              *environment, protocolVersion, client_flags->flags, full_ntree, &log_struct_list,
-                              private_flags, malloc_source);
+                cache_write(cache, &request_block->requests[i], data_block, logmalloclist, userdefinedtypelist,
+                            *environment, protocolVersion, client_flags->flags, full_ntree, &log_struct_list,
+                            private_flags, malloc_source);
             }
 #  endif // !NOLIBMEMCACHED
 
@@ -1420,7 +1420,7 @@ void udaFreeAll(XDR* client_input, XDR* client_output, NTREE* full_ntree, LOGSTR
 
 #ifndef NOLIBMEMCACHED
     // Free Cache connection object
-    uda::cache::udaFreeCache();
+    uda::cache::free_cache();
 #endif
 
     CLIENT_FLAGS* client_flags = udaClientFlags();

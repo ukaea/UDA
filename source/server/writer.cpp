@@ -5,6 +5,8 @@
 #include <logging/logging.h>
 #include <clientserver/udaDefines.h>
 
+#include "createXDRStream.h"
+
 #if !defined(__GNUC__)
 #  include <io.h>
 #  define read _read

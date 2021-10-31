@@ -7,8 +7,12 @@
 #include <rpc/rpc.h>
 
 #include <clientserver/export.h>
-#include "writer.h"
 
-std::pair<XDR*, XDR*> CreateXDRStream(IoData* io_data);
+struct IoData {
+    int* server_tot_block_time;
+    int* server_timeout;
+};
+
+std::pair<XDR*, XDR*> serverCreateXDRStream(IoData* io_data);
 
 #endif // UDA_SERVER_CREATEXDRSTREAM_H

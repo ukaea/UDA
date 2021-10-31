@@ -22,7 +22,7 @@ endif()
 set( SRC_FILES
   applyXML.cpp
   closeServerSockets.cpp
-        getPluginAddress.cpp
+  getPluginAddress.cpp
   getServerEnvironment.cpp
   initPluginList.cpp
   makeServerRequestBlock.cpp
@@ -33,6 +33,7 @@ set( SRC_FILES
   serverStartup.cpp
   serverSubsetData.cpp
   writer.cpp
+  createXDRStream.cpp
 )
 
 set( HEADER_FILES

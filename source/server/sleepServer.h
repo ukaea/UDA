@@ -3,10 +3,12 @@
 #ifndef UDA_SERVER_SLEEPSERVER_H
 #define UDA_SERVER_SLEEPSERVER_H
 
+#include <rpc/rpc.h>
+
 #include <structures/genStructs.h>
 #include <clientserver/export.h>
-#include <rpc/rpc.h>
-#include "writer.h"
+
+struct IoData;
 
 int sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmalloclist,
                 USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, NTREE* full_ntree,
