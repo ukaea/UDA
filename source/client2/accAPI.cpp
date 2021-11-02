@@ -3229,7 +3229,7 @@ void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectS
 // Accessor Functions to General/Arbitrary Data Structures
 //----------------------------------------------------------------
 
-int udaSetDataTree(int handle, NTREE** full_ntree)
+int udaSetDataTree(int handle)
 {
     auto& instance = uda::client::ThreadClient::instance();
 
@@ -3240,7 +3240,7 @@ int udaSetDataTree(int handle, NTREE** full_ntree)
         return 0;
     }
 
-    *full_ntree = (NTREE*)udaGetData(handle); // Global pointer
+    instance.set_full_ntree((NTREE*)udaGetData(handle));
     void* opaque_block = udaGetDataOpaqueBlock(handle);
 
     instance.set_user_defined_type_list(((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist);
@@ -3253,7 +3253,9 @@ int udaSetDataTree(int handle, NTREE** full_ntree)
 
 NTREE* udaGetDataTree(int handle)
 {
-    if (udaGetDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return nullptr;
+    if (udaGetDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
+        return nullptr;
+    }
     return (NTREE*)udaGetData(handle);
 }
 

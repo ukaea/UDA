@@ -1056,3 +1056,8 @@ void uda::client::Client::set_log_malloc_list(LOGMALLOCLIST* logmalloclist)
 {
     logmalloclist_ = logmalloclist;
 }
+
+void uda::client::Client::set_full_ntree(NTREE* full_ntree)
+{
+    full_ntree_ = full_ntree;
+}

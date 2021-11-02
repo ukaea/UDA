@@ -56,6 +56,7 @@ public:
     ENVIRONMENT* environment();
     void set_user_defined_type_list(USERDEFINEDTYPELIST* userdefinedtypelist);
     void set_log_malloc_list(LOGMALLOCLIST* logmalloclist);
+    void set_full_ntree(NTREE* full_ntree);
 
     Client(const Client&) = delete;
     Client& operator=(const Client&) = delete;

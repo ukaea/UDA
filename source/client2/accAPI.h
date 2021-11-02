@@ -284,7 +284,7 @@ LIBRARY_API void udaPutThreadServerBlock(SERVER_BLOCK *str);
 
 LIBRARY_API void udaPutThreadClientBlock(CLIENT_BLOCK *str);
 
-LIBRARY_API int udaSetDataTree(int handle, NTREE** full_ntree);
+LIBRARY_API int udaSetDataTree(int handle);
 
 // Return a specific data tree
 
