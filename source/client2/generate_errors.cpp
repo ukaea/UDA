@@ -1,4 +1,4 @@
-#include "generateErrors.h"
+#include "generate_errors.hpp"
 
 #include <cmath>
 #include <cstdlib>
@@ -8,7 +8,7 @@
 #include <clientserver/allocData.h>
 
 #include "accAPI.h"
-#include "thread_client.h"
+#include "thread_client.hpp"
 
 #ifndef NO_GSL_LIB
 #  include <gsl/gsl_randist.h>

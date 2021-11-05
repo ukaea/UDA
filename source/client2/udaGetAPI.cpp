@@ -1,8 +1,8 @@
 #include "udaGetAPI.h"
 
 #include "client.hpp"
-#include "thread_client.h"
-#include "exceptions.h"
+#include "thread_client.hpp"
+#include "exceptions.hpp"
 
 #include <unordered_map>
 

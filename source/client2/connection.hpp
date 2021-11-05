@@ -9,7 +9,7 @@
 #include <clientserver/udaStructs.h>
 #include <clientserver/export.h>
 
-#include "closedown.h"
+#include "closedown.hpp"
 
 namespace uda {
 namespace client {

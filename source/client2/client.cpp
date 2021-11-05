@@ -5,7 +5,7 @@
 #include "error_codes.h"
 #include "client_xdr_stream.hpp"
 #include "accAPI.h"
-#include "exceptions.h"
+#include "exceptions.hpp"
 
 #include <clientserver/udaDefines.h>
 #include <logging/logging.h>
@@ -19,6 +19,7 @@
 #include <cache/fileCache.h>
 #include <clientserver/udaTypes.h>
 #include <clientserver/stringUtils.h>
+#include <clientserver/allocData.h>
 
 namespace {
 
@@ -94,8 +95,7 @@ uda::client::Client::Client()
 
     initUdaErrorStack();
 
-    environment_ = *uda::client::get_environment();
-
+    environment_ = load_environment(&env_host_, &env_port_);
     print_client_environment(environment_);
 
     //----------------------------------------------------------------
@@ -119,7 +119,6 @@ uda::client::Client::Client()
     //}
 
     cache_ = uda::cache::open_cache();
-    environment_ = *uda::client::get_environment();
 
     char username[STRING_LENGTH];
     userid(username);
@@ -1060,4 +1059,60 @@ void uda::client::Client::set_log_malloc_list(LOGMALLOCLIST* logmalloclist)
 void uda::client::Client::set_full_ntree(NTREE* full_ntree)
 {
     full_ntree_ = full_ntree;
+}
+
+int uda::client::Client::put(std::string_view put_instruction, PUTDATA_BLOCK* putdata_block)
+{
+    REQUEST_BLOCK request_block;
+    initRequestBlock(&request_block);
+
+    auto signal_ptr = put_instruction.data();
+    auto source_ptr = "";
+
+    if (make_request_block(&environment_, &signal_ptr, &source_ptr, 1, &request_block) != 0) {
+        if (udaNumErrors() == 0) {
+            UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source\n");
+            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+        }
+        throw uda::exceptions::ClientError("Error identifying the Data Source");
+    }
+
+    printRequestBlock(request_block);
+
+    request_block.requests[0].put = 1; // flags the direction of data (0 is default => get operation)
+    addIdamPutDataBlockList(putdata_block, &request_block.requests[0].putDataBlockList);
+
+    std::vector<int> indices(request_block.num_requests);
+    get_requests(request_block, indices.data());
+
+    freeClientPutDataBlockList(&request_block.requests[0].putDataBlockList);
+
+    return indices[0];
+}
+
+int uda::client::Client::put(std::string_view put_instruction, PUTDATA_BLOCK_LIST* putdata_block_list)
+{
+    REQUEST_BLOCK request_block;
+    initRequestBlock(&request_block);
+
+    auto signal_ptr = put_instruction.data();
+    auto source_ptr = "";
+
+    if (make_request_block(&environment_, &signal_ptr, &source_ptr, 1, &request_block) != 0) {
+        if (udaNumErrors() == 0) {
+            UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source\n");
+            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+        }
+        throw uda::exceptions::ClientError("Error identifying the Data Source");
+    }
+
+    printRequestBlock(request_block);
+
+    request_block.requests[0].put = 1; // flags the direction of data (0 is default => get operation)
+    request_block.requests[0].putDataBlockList = *putdata_block_list;
+
+    std::vector<int> indices(request_block.num_requests);
+    get_requests(request_block, indices.data());
+
+    return indices[0];
 }

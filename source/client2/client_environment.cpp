@@ -2,9 +2,7 @@
 #include <cstdlib>
 #include "client_environment.hpp"
 
-namespace {
-
-Environment load_environment(bool env_host, bool env_port)
+Environment uda::client::load_environment(bool* env_host, bool* env_port)
 {
     char* env = nullptr;
     Environment environment = {};
@@ -55,7 +53,7 @@ Environment load_environment(bool env_host, bool env_port)
 
     // UDA Server Host Name
 
-    if (env_host) {                            // Check Not already set by User
+    if (*env_host) {                            // Check Not already set by User
         if ((env = getenv("UDA_HOST")) != nullptr) {
             strcpy(environment.server_host, env);
         } else {
@@ -67,12 +65,12 @@ Environment load_environment(bool env_host, bool env_port)
         } else {
             UDA_LOG(UDA_LOG_WARN, "UDA_HOST2 environmental variable not defined");
         }
-        env_host = 0;
+        *env_host = false;
     }
 
     // UDA Server Port name
 
-    if (env_port) {
+    if (*env_port) {
         if ((env = getenv("UDA_PORT")) != nullptr) {
             environment.server_port = atoi(env);
         } else {
@@ -85,7 +83,7 @@ Environment load_environment(bool env_host, bool env_port)
             environment.server_port2 = 0;
             UDA_LOG(UDA_LOG_WARN, "UDA_PORT2 environmental variable not defined");
         }
-        env_port = 0;
+        *env_port = false;
     }
 
     // UDA Reconnect Status
@@ -190,22 +188,6 @@ Environment load_environment(bool env_host, bool env_port)
     environment.initialised = 1;        // Initialisation Complete
 
     return environment;
-}
-
-}
-
-Environment* uda::client::get_environment()
-{
-    static Environment environment = {};
-    static bool init = false;
-    static bool env_host = true;
-    static bool env_port = true;
-
-    if (!init) {
-        environment = load_environment(env_host, env_port);
-    }
-
-    return &environment;
 }
 
 void uda::client::print_client_environment(const Environment& environment)

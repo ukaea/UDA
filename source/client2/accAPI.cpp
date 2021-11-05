@@ -24,13 +24,10 @@
 #include <clientserver/xdrlib.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
-#include <cache/memcache.hpp>
 #include <version.h>
 
-#include "client_environment.hpp"
-#include "generateErrors.h"
-#include "handle.h"
-#include "thread_client.h"
+#include "generate_errors.hpp"
+#include "thread_client.hpp"
 
 #ifdef __APPLE__
 #  include <cstdlib>

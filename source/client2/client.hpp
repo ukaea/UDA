@@ -36,8 +36,13 @@ class Client
 {
 public:
     Client();
+
     int get(std::string_view data_signal, std::string_view data_source);
     std::vector<int> get(std::vector<std::pair<std::string, std::string>>& requests);
+
+    int put(std::string_view put_instruction, PUTDATA_BLOCK* putdata_block);
+    int put(std::string_view put_instruction, PUTDATA_BLOCK_LIST* putdata_block_list);
+
     void set_host(std::string_view host);
     void set_port(int port);
     void clear();

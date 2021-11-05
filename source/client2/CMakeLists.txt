@@ -32,6 +32,8 @@ add_definitions( -DNO_GSL_LIB )
 
 set( SRC_FILES
   udaGetAPI.cpp
+  udaPutAPI.cpp
+  accAPI.cpp
   client.cpp
   thread_client.cpp
   client_environment.cpp
@@ -40,27 +42,27 @@ set( SRC_FILES
   connection.cpp
   closedown.cpp
   host_list.cpp
-  accAPI.cpp
-  generateErrors.cpp
+  generate_errors.cpp
   handle.cpp
   exceptions.cpp
 )
 
 set( HEADER_FILES
   udaGetAPI.h
+  udaPutAPI.h
+  accAPI.h
+  error_codes.h
   client.hpp
-  thread_client.h
+  thread_client.hpp
   client_environment.hpp
   make_request_block.hpp
   client_xdr_stream.hpp
   connection.hpp
-  closedown.h
+  closedown.hpp
   host_list.hpp
-  error_codes.h
-  accAPI.h
-  generateErrors.h
-  handle.h
-  exceptions.cpp
+  generate_errors.hpp
+  handle.hpp
+  exceptions.hpp
 )
 
 include_directories(

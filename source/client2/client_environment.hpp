@@ -8,7 +8,7 @@
 namespace uda {
 namespace client {
 
-Environment* get_environment();
+Environment load_environment(bool* env_host, bool* env_port);
 void print_client_environment(const Environment& environment);
 
 }
