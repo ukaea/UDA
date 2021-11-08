@@ -74,6 +74,38 @@ int alloc_meta(DATA_SYSTEM** data_system, SYSTEM_CONFIG** system_config, DATA_SO
     return err;
 }
 
+void update_client_block(CLIENT_BLOCK& client_block, const ClientFlags& client_flags, unsigned int private_flags)
+{
+    client_block.timeout = client_flags.user_timeout;
+    client_block.clientFlags = client_flags.flags;
+    client_block.altRank = client_flags.alt_rank;
+    client_block.get_datadble = client_flags.get_datadble;
+    client_block.get_dimdble = client_flags.get_dimdble;
+    client_block.get_timedble = client_flags.get_timedble;
+    client_block.get_scalar = client_flags.get_scalar;
+    client_block.get_bytes = client_flags.get_bytes;
+    client_block.get_bad = client_flags.get_bad;
+    client_block.get_meta = client_flags.get_meta;
+    client_block.get_asis = client_flags.get_asis;
+    client_block.get_uncal = client_flags.get_uncal;
+    client_block.get_notoff = client_flags.get_notoff;
+    client_block.get_nodimdata = client_flags.get_nodimdata;
+    client_block.privateFlags = private_flags;
+
+    // Operating System Name
+
+    char* env;
+    if ((env = getenv("OSTYPE")) != nullptr) {
+        strcpy(client_block.OSName, env);
+    }
+
+    // Client's study DOI
+
+    if ((env = getenv("UDA_CLIENT_DOI")) != nullptr) {
+        strcpy(client_block.DOI, env);
+    }
+}
+
 } // anon namespace
 
 uda::client::Client::Client()
@@ -166,38 +198,6 @@ uda::client::Client::Client()
         addIdamError(SYSTEMERRORTYPE, __func__, errno, "failed to open error log");
         udaCloseLogging();
         return;
-    }
-}
-
-void updateClientBlock(CLIENT_BLOCK& client_block, const ClientFlags& client_flags, unsigned int private_flags)
-{
-    client_block.timeout = client_flags.user_timeout;
-    client_block.clientFlags = client_flags.flags;
-    client_block.altRank = client_flags.alt_rank;
-    client_block.get_datadble = client_flags.get_datadble;
-    client_block.get_dimdble = client_flags.get_dimdble;
-    client_block.get_timedble = client_flags.get_timedble;
-    client_block.get_scalar = client_flags.get_scalar;
-    client_block.get_bytes = client_flags.get_bytes;
-    client_block.get_bad = client_flags.get_bad;
-    client_block.get_meta = client_flags.get_meta;
-    client_block.get_asis = client_flags.get_asis;
-    client_block.get_uncal = client_flags.get_uncal;
-    client_block.get_notoff = client_flags.get_notoff;
-    client_block.get_nodimdata = client_flags.get_nodimdata;
-    client_block.privateFlags = private_flags;
-
-    // Operating System Name
-
-    char* env;
-    if ((env = getenv("OSTYPE")) != nullptr) {
-        strcpy(client_block.OSName, env);
-    }
-
-    // Client's study DOI
-
-    if ((env = getenv("UDA_CLIENT_DOI")) != nullptr) {
-        strcpy(client_block.DOI, env);
     }
 }
 
@@ -365,7 +365,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         private_flags_ |= atoi(env);
     }
 
-    updateClientBlock(client_block_, client_flags_, private_flags_);
+    update_client_block(client_block_, client_flags_, private_flags_);
     printClientBlock(client_block_);
 
     //-------------------------------------------------------------------------

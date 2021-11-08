@@ -50,7 +50,7 @@ DATA_BLOCK* udaGetCurrentDataBlock()
     return instance.current_data_block();
 }
 
-int udaGetIdamNewDataHandle()
+int udaGetNewDataHandle()
 {
     auto& instance = uda::client::ThreadClient::instance();
     return instance.new_handle();
@@ -85,7 +85,7 @@ Rank Ordering is as follows:
 * @param flag The bit/s to be set to 1.
 * @return Void.
 */
-void setIdamPrivateFlag(unsigned int flag)
+void udaSetPrivateFlag(unsigned int flag)
 {
     auto& instance = uda::client::ThreadClient::instance();
     instance.set_flag(flag, true);
@@ -98,7 +98,7 @@ void setIdamPrivateFlag(unsigned int flag)
 * @return Void.
 */
 
-void resetIdamPrivateFlag(unsigned int flag)
+void udaResetPrivateFlag(unsigned int flag)
 {
     auto& instance = uda::client::ThreadClient::instance();
     instance.reset_flag(flag, true);
@@ -114,7 +114,7 @@ void resetIdamPrivateFlag(unsigned int flag)
 * @return Void.
 */
 
-void setIdamClientFlag(unsigned int flag)
+void udaSetClientFlag(unsigned int flag)
 {
     auto& instance = uda::client::ThreadClient::instance();
     instance.set_flag(flag);
@@ -127,7 +127,7 @@ void setIdamClientFlag(unsigned int flag)
 * @return Void.
 */
 
-void resetIdamClientFlag(unsigned int flag)
+void udaResetClientFlag(unsigned int flag)
 {
     auto& instance = uda::client::ThreadClient::instance();
     instance.reset_flag(flag);
@@ -172,7 +172,7 @@ void udaSetProperty(const char* property, CLIENT_FLAGS* client_flags)
 * @param property the name of the property.
 * @return Void.
 */
-int getIdamProperty(const char* property, int user_timeout, int alt_rank)
+int udGetProperty(const char* property, int user_timeout, int alt_rank)
 {
     auto& instance = uda::client::ThreadClient::instance();
     return instance.get_property(property);
@@ -217,7 +217,7 @@ const CLIENT_BLOCK* udaGetProperties(int handle)
 */
 #if !defined(__APPLE__) && !defined(_WIN32)
 
-int getIdamMemoryFree()
+int udaGetMemoryFree()
 {
 #ifdef A64
     return 0;
@@ -227,7 +227,7 @@ int getIdamMemoryFree()
 #endif
 }
 
-int getIdamMemoryUsed()
+int udaGetMemoryUsed()
 {
 #ifdef A64
     return 0;
@@ -368,7 +368,7 @@ void udaGetServer(const char** host, int* port, int* socket)
 /**
 * @return the Name of the Host
 */
-const char* getIdamServerHost()
+const char* udaGetServerHost()
 {
     auto& instance = uda::client::ThreadClient::instance();
     auto environment = instance.environment();
@@ -379,7 +379,7 @@ const char* getIdamServerHost()
 /**
 * @return the Name of the Host
 */
-int getIdamServerPort()
+int udaGetServerPort()
 {
     auto& instance = uda::client::ThreadClient::instance();
     auto environment = instance.environment();
@@ -400,7 +400,7 @@ const char* getUdaBuildDate()
 /**
 * @return the connection socket ID
 */
-int getIdamServerSocket()
+int udaGetServerSocket()
 {
     auto& instance = uda::client::ThreadClient::instance();
     auto environment = instance.environment();
@@ -412,7 +412,7 @@ int getIdamServerSocket()
 * @param record the error stack record number
 * @return the error code
 */
-int getIdamServerErrorStackRecordCode(int record)
+int udaGetServerErrorStackRecordCode(int record)
 {
     auto& instance = uda::client::ThreadClient::instance();
     auto server_block = instance.server_block();
@@ -435,7 +435,7 @@ int udaGetErrorCode(int handle)
 
     // Error Code Returned from Server
     if (data_block == nullptr) {
-        return getIdamServerErrorStackRecordCode(0);
+        return udaGetServerErrorStackRecordCode(0);
     } else {
         return data_block->errcode;
     }
@@ -865,7 +865,7 @@ void udaSetSyntheticDimData(int handle, int ndim, char* data)
     data_block->dims[ndim].synthetic = data;
 }
 
-char* getIdamSyntheticData(int handle)
+char* udaGetSyntheticData(int handle)
 {
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
@@ -912,7 +912,7 @@ char* udaGetData(int handle)
     if (!client_flags->get_synthetic) {
         return data_block->data;
     } else {
-        return getIdamSyntheticData(handle);
+        return udaGetSyntheticData(handle);
     }
 }
 
@@ -2081,7 +2081,7 @@ void udaGetDimErrorModel(int handle, int ndim, int* model, int* param_n, float* 
     // *params  = data_block->dims[ndim].errparams;        // Array of Model Parameters
 }
 
-char* getIdamSyntheticDimData(int handle, int ndim)
+char* udaGenerateSyntheticDimData(int handle, int ndim)
 {
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
@@ -2117,7 +2117,7 @@ char* udaGetDimData(int handle, int ndim)
     if (!client_flags->get_synthetic) {
         return data_block->dims[ndim].dim;
     }
-    return getIdamSyntheticDimData(handle, ndim);
+    return udaGetSyntheticDimData(handle, ndim);
 }
 
 //! Returns the data label of a coordinate dimension
@@ -2463,7 +2463,7 @@ void udaGetFloatDimData(int handle, int ndim, float* fp)
 \param   data  A \b void pointer to a preallocated data buffer
 \return  void
 */
-void udaGgetIdamGenericDimData(int handle, int ndim, void* data)
+void udaGetGenericDimData(int handle, int ndim, void* data)
 {
     switch (udaGetDimType(handle, ndim)) {
         case UDA_TYPE_FLOAT:
@@ -3165,7 +3165,7 @@ int udaGetDimDataCheckSum(int handle, int ndim)
 //===========================================================================================================
 // Access to (De)Serialiser
 
-void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectSize, char** key, size_t* keySize,
+void udaGetClientSerialisedDataBlock(int handle, void** object, size_t* objectSize, char** key, size_t* keySize,
                                       int protocolVersion, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list,
                                       int private_flags, int malloc_source)
 {

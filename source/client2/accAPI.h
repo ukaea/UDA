@@ -46,7 +46,7 @@ typedef struct ClientFlags {
 
 LIBRARY_API DATA_BLOCK* udaGetCurrentDataBlock();
 
-LIBRARY_API int udaGetIdamNewDataHandle();
+LIBRARY_API int udaGetNewDataHandle();
 
 LIBRARY_API void udaFreeDataBlocks();
 
@@ -80,9 +80,9 @@ LIBRARY_API void udaPutDebugFileHandle(FILE* fh);
 
 #ifndef __APPLE__
 
-LIBRARY_API int getIdamMemoryFree();
+LIBRARY_API int udaGetMemoryFree();
 
-LIBRARY_API int getIdamMemoryUsed();
+LIBRARY_API int udaGetMemoryUsed();
 
 #endif
 
@@ -150,7 +150,7 @@ LIBRARY_API void udaSetSyntheticData(int handle, char* data);
 
 LIBRARY_API void udaSetSyntheticDimData(int handle, int ndim, char* data);
 
-LIBRARY_API char* getIdamSyntheticData(int handle);
+LIBRARY_API char* udaGetSyntheticData(int handle);
 
 LIBRARY_API char* udaGetData(int handle);
 
@@ -198,6 +198,8 @@ LIBRARY_API void udaGetDBlock(int handle, DATA_BLOCK* db);
 
 LIBRARY_API DATA_BLOCK* udaGetDataBlock(int handle);
 
+LIBRARY_API int udaGetServerErrorStackRecordCode(int record);
+
 LIBRARY_API const char* udaGetDataLabel(int handle);
 
 LIBRARY_API void udaGetDataLabelTdi(int handle, char* label);
@@ -220,7 +222,7 @@ LIBRARY_API int udaGetDimErrorAsymmetry(int handle, int ndim);
 
 LIBRARY_API void udaGetDimErrorModel(int handle, int ndim, int* model, int* param_n, float* params);
 
-LIBRARY_API char* getIdamSyntheticDimData(int handle, int ndim);
+LIBRARY_API char* udaGenerateSyntheticDimData(int handle, int ndim);
 
 LIBRARY_API char* udaGetDimData(int handle, int ndim);
 
@@ -269,20 +271,6 @@ LIBRARY_API int udaDataCheckSum(void* data, int data_n, int type);
 LIBRARY_API int udaGetDataCheckSum(int handle);
 
 LIBRARY_API int udaGetDimDataCheckSum(int handle, int ndim);
-
-LIBRARY_API int udaGetThreadLastHandle();
-
-LIBRARY_API void udaPutThreadLastHandle(int handle);
-
-LIBRARY_API int udaGetMaxThreadCount();
-
-LIBRARY_API SERVER_BLOCK udaGetThreadServerBlock();
-
-LIBRARY_API CLIENT_BLOCK udaGetThreadClientBlock();
-
-LIBRARY_API void udaPutThreadServerBlock(SERVER_BLOCK *str);
-
-LIBRARY_API void udaPutThreadClientBlock(CLIENT_BLOCK *str);
 
 LIBRARY_API int udaSetDataTree(int handle);
 
