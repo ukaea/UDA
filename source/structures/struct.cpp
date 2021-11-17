@@ -3509,6 +3509,11 @@ void* getNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
         return ntree->data;
     }
 
+
+    if (strcmp(ntree->name, lastname)==0 && strcmp(target, lastname)==0) {
+        return ntree->data;
+    }
+
     userdefinedtype = ntree->userdefinedtype;
     fieldcount = ntree->userdefinedtype->fieldcount;
     for (int i = 0; i < fieldcount; i++) {
