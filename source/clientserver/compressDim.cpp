@@ -2,6 +2,8 @@
 
 #include <cfloat>
 #include <cstdlib>
+#include <cstdint>
+
 #include <clientserver/udaTypes.h>
 
 #include "udaErrors.h"
