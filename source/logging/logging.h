@@ -24,7 +24,7 @@
             UIX_DEFINETIME \
             printf("%s.%dZ, ", uix_buf,(int32_t)uix_tmnow.tv_usec); \
         }
-#  define UDA_LOG(LEVEL, FMT, ...) do{ UIX_DEFINETIME udaLog(LEVEL, "%s.%dZ, %s:%d >> " FMT, uix_buf, (int32_t)uix_tmnow.tv_usec, basename((char *)__FILE__), __LINE__, ##__VA_ARGS__); } while(0)
+#  define UDA_LOG(LEVEL, FMT, ...) do{ if (LEVEL >= udaGetLogLevel()) {UIX_DEFINETIME udaLog(LEVEL, "%s.%dZ, %s:%d >> " FMT, uix_buf, (int32_t)uix_tmnow.tv_usec, basename((char *)__FILE__), __LINE__, ##__VA_ARGS__); }} while(0)
 #endif
 
 #ifdef __cplusplus
