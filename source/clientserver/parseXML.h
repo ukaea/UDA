@@ -1,8 +1,10 @@
 #ifndef UDA_CLIENTSERVER_PARSEXML_H
 #define UDA_CLIENTSERVER_PARSEXML_H
 
+#ifndef NOXMLPARSER
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
+#endif
 
 #include "udaDefines.h"
 #include "export.h"
@@ -174,8 +176,9 @@ typedef struct Actions {
     int nactions;                           // Number of Actions
     ACTION* action;                         // Array of Actions
 } ACTIONS;
-
+#ifndef NOXMLPARSER
 LIBRARY_API int parseDoc(char* docname, ACTIONS* actions);
+#endif
 LIBRARY_API void printAction(ACTION action);
 LIBRARY_API void printActions(ACTIONS actions);
 LIBRARY_API void initAction(ACTION* act);
