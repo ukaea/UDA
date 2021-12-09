@@ -178,8 +178,8 @@ int uncompressDim(DIMS* ddim)
             return decompress<int>(ddim);
         case UDA_TYPE_LONG:
             return decompress<long>(ddim);
-        case UDA_TYPE_LONG64:
-            return decompress<int64_t>(ddim);
+//        case UDA_TYPE_LONG64:
+//            return decompress<int64_t>(ddim);
         case UDA_TYPE_FLOAT:
             return decompress<float>(ddim);
         case UDA_TYPE_DOUBLE:
@@ -192,8 +192,8 @@ int uncompressDim(DIMS* ddim)
             return decompress<unsigned int>(ddim);
         case UDA_TYPE_UNSIGNED_LONG:
             return decompress<unsigned long>(ddim);
-        case UDA_TYPE_UNSIGNED_LONG64:
-            return decompress<uint64_t>(ddim);
+//        case UDA_TYPE_UNSIGNED_LONG64:
+//            return decompress<uint64_t>(ddim);
         default:
             return UNKNOWN_DATA_TYPE;
     }
