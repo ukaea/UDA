@@ -70,7 +70,7 @@ int decompress(DIMS* ddim)
 
     switch (ddim->method) {
         case 0:
-            dim_data[0] = (int)d0;
+            dim_data[0] = d0;
             for (int i = 1; i < ndata; i++) {
                 dim_data[i] = dim_data[i - 1] + diff;
             }
