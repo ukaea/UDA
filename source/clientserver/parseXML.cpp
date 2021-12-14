@@ -19,6 +19,8 @@
 #include <cstdlib>
 
 #include <logging/logging.h>
+#ifndef NOXMLPARSER
+
 #include <clientserver/udaTypes.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/parseOperation.h>
@@ -1194,7 +1196,7 @@ int parseDoc(char* docname, ACTIONS* actions)
 
     return 0;
 }
-
+#endif
 //==================================================================================================
 
 void print_dimensions(int ndim, DIMENSION* dims)

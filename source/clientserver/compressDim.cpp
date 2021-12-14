@@ -2,6 +2,8 @@
 
 #include <cfloat>
 #include <cstdlib>
+#include <cstdint>
+
 #include <clientserver/udaTypes.h>
 
 #include "udaErrors.h"
@@ -29,7 +31,7 @@ int compress(DIMS* ddim)
     bool constant = true;
     for (int i = 1; i < ndata; i++) {
         T diff = dim_data[i] - dim_data[i - 1];
-        T abs_diff = (diff - prev_diff) < 0 ? -(diff - prev_diff) : (diff - prev_diff);
+        T abs_diff = diff < prev_diff ? (prev_diff - diff) : (diff - prev_diff);
         if (abs_diff > precision) {
             constant = false;
             break;
@@ -62,13 +64,13 @@ int decompress(DIMS* ddim)
     }
     T* dim_data = (T*)ddim->dim;
 
-    T d0 = ddim->dim0;        // Default Compression Method
-    T diff = ddim->diff;
+    T d0 = (T)ddim->dim0;        // Default Compression Method
+    T diff = (T)ddim->diff;
     int count = 0;
 
     switch (ddim->method) {
         case 0:
-            dim_data[0] = (int)d0;
+            dim_data[0] = d0;
             for (int i = 1; i < ndata; i++) {
                 dim_data[i] = dim_data[i - 1] + diff;
             }
@@ -176,8 +178,8 @@ int uncompressDim(DIMS* ddim)
             return decompress<int>(ddim);
         case UDA_TYPE_LONG:
             return decompress<long>(ddim);
-        case UDA_TYPE_LONG64:
-            return decompress<int64_t>(ddim);
+//        case UDA_TYPE_LONG64:
+//            return decompress<int64_t>(ddim);
         case UDA_TYPE_FLOAT:
             return decompress<float>(ddim);
         case UDA_TYPE_DOUBLE:
@@ -190,8 +192,8 @@ int uncompressDim(DIMS* ddim)
             return decompress<unsigned int>(ddim);
         case UDA_TYPE_UNSIGNED_LONG:
             return decompress<unsigned long>(ddim);
-        case UDA_TYPE_UNSIGNED_LONG64:
-            return decompress<uint64_t>(ddim);
+//        case UDA_TYPE_UNSIGNED_LONG64:
+//            return decompress<uint64_t>(ddim);
         default:
             return UNKNOWN_DATA_TYPE;
     }

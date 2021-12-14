@@ -1,5 +1,6 @@
+if (NOT CLIENT_ONLY)
 include( LibXml2StrPrintfConfig )
-
+endif()
 find_package( Boost REQUIRED )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 
