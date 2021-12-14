@@ -89,9 +89,17 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output,
     // Instance a new server if the Client has changed the host and/or port number
 
     if (environment->server_reconnect) {
-        time(tv_server_start);         // Start a New Server AGE timer
-        client_socket = -1;              // Flags no Socket is open
-        environment->server_change_socket = 0;   // Client doesn't know the Socket ID so disable
+        //RC
+        int status;
+        int fh;
+        if (getSocket(&client_socketlist, TYPE_UDA_SERVER, &status, environment->server_host, environment->server_port, &fh) == 0) {
+            environment->server_socket=fh;
+            socketId = getSocketRecordId(&client_socketlist, fh);
+        } else {
+            time(tv_server_start);                     // Start a New Server AGE timer
+            client_socket = -1;                          // Flags no Socket is open
+            environment->server_change_socket = 0;      // Client doesn't know the Socket ID so disable
+        }
     }
 
     // Client manages connections through the Socket id and specifies which running server to connect to
@@ -157,6 +165,10 @@ void setHints(struct addrinfo* hints, const char* hostname)
     hints->ai_canonname = nullptr;
     hints->ai_addr = nullptr;
     hints->ai_next = nullptr;
+
+    // RC Fix IPv6 connection for localhost
+    hints->ai_family = AF_INET;
+    return;
 
     // Localhost? Which IP family? (AF_UNSPEC gives an 'Unknown Error'!)
 
@@ -276,9 +288,9 @@ int createConnection(XDR* client_input, XDR* client_output)
     } else {
         if(hostId >= 0 && udaClientGetHostSSL(hostId)){
             putUdaClientSSLProtocol(1);
-        } else { 
+        } else {
             putUdaClientSSLProtocol(0);
-        }   
+        }
     }
 #endif
 
@@ -289,7 +301,8 @@ int createConnection(XDR* client_input, XDR* client_output)
     setHints(&hints, hostname);
 
     errno = 0;
-    if ((rc = getaddrinfo(hostname, serviceport, &hints, &result)) != 0 || (errno != 0 && errno != ESRCH)) {
+    // RC if ((rc = getaddrinfo(hostname, serviceport, &hints, &result)) != 0 || (errno != 0 && errno != ESRCH)) {
+    if ((rc = getaddrinfo(hostname, serviceport, &hints, &result)) != 0) {
         addIdamError(SYSTEMERRORTYPE, __func__, rc, (char*)gai_strerror(rc));
         if (rc == EAI_SYSTEM || errno != 0) addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
         if (result) freeaddrinfo(result);
@@ -404,7 +417,7 @@ int createConnection(XDR* client_input, XDR* client_output)
             } else {
                 if(hostId >= 0 && udaClientGetHostSSL(hostId)){
                     putUdaClientSSLProtocol(1);
-                } else { 
+                } else {
                     putUdaClientSSLProtocol(0);
                 }
             }
