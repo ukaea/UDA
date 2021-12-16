@@ -23,6 +23,10 @@ template <typename T>
 int compress(DIMS* ddim)
 {
     T* dim_data = (T*)ddim->dim;
+    if (dim_data == nullptr) {
+        return 0;
+    }
+
     int ndata = ddim->dim_n;
     T prev_diff = dim_data[1] - dim_data[0];
     T mean_diff = (dim_data[ndata - 1] - dim_data[0]) / (ndata - 1);
