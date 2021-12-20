@@ -7,14 +7,15 @@ module ()
 
 module purge
 module load cineca
-module load itmenv
 module unload gnu
+module unload itm-gcc
+module load cmake/3.5.2
+module load itm-boost/1.78.0/gcc/4.8
 
 export CC=gcc
 export CXX=g++
-export BOOST_ROOT=$HOME/boost_1_62_0
 
 cmake -Bbuild-gcc-4 -H. -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_INSTALL_PREFIX=/gw/swimas/extra/uda/2.3.1/gcc/4.8.5 \
+    -DCMAKE_INSTALL_PREFIX=$BOOST_INSTALL \
     -DBUILD_SHARED_LIBS=ON \
     -DBUILD_PLUGINS=help\;uda $*
