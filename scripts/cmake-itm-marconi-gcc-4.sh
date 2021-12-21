@@ -16,6 +16,6 @@ export CC=gcc
 export CXX=g++
 
 cmake -Bbuild-gcc-4 -H. -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_INSTALL_PREFIX=$BOOST_INSTALL \
+    -DCMAKE_INSTALL_PREFIX=$UDA_INSTALL \
     -DBUILD_SHARED_LIBS=ON \
     -DBUILD_PLUGINS=help\;uda $*
