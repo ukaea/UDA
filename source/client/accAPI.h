@@ -34,7 +34,7 @@ LIBRARY_API void resetIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int fl
 
 LIBRARY_API void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags);
 
-LIBRARY_API int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags, int user_timeout, int alt_rank);
+LIBRARY_API int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags);
 
 LIBRARY_API void resetIdamProperty(const char* property, CLIENT_FLAGS* client_flags);
 
@@ -48,10 +48,6 @@ LIBRARY_API CLIENT_BLOCK* getIdamProperties(int handle);
 
 LIBRARY_API CLIENT_BLOCK* getIdamDataProperties(int handle);
 
-LIBRARY_API void putIdamErrorFileHandle(FILE* fh);
-
-LIBRARY_API void putIdamDebugFileHandle(FILE* fh);
-
 #ifndef __APPLE__
 
 LIBRARY_API int getIdamMemoryFree();
@@ -64,11 +60,11 @@ LIBRARY_API void putIdamErrorModel(int handle, int model, int param_n, const flo
 
 LIBRARY_API void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, const float* params);
 
-LIBRARY_API void putIdamServer(const char* host, int port, bool* env_host, bool* env_port);
+LIBRARY_API void putIdamServer(const char* host, int port);
 
-LIBRARY_API void putIdamServerHost(const char* host, bool* env_host);
+LIBRARY_API void putIdamServerHost(const char* host);
 
-LIBRARY_API void putIdamServerPort(int port, bool* env_port);
+LIBRARY_API void putIdamServerPort(int port);
 
 LIBRARY_API void putIdamServerSocket(int socket);
 

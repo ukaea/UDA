@@ -25,8 +25,7 @@
 #  include <authentication/udaClientSSL.h>
 #endif
 
-int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XDR* client_output, bool* reopen_logs,
-              bool* env_host, bool* env_port)
+int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XDR* client_output, bool* reopen_logs)
 {
     int rc = 0;
 
@@ -59,8 +58,9 @@ int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XD
 
     closeConnection(type);
 
-    *env_host = true;            // Initialise at Startup
-    *env_port = true;
+    // Initialise at Startup
+    udaSetEnvHost(true);
+    udaSetEnvPort(true);
 
 #else            // <========================== Fat Client Code Only
     if (type == ClosedownType::CLOSE_ALL) {

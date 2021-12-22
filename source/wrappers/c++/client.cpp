@@ -89,43 +89,38 @@ void uda::Client::setProperty(Property prop, int value)
 int uda::Client::property(Property prop)
 {
     auto client_flags = udaClientFlags();
-    int user_timeout = client_flags->user_timeout;
-    int alt_rank = client_flags->alt_rank;
     switch (prop) {
-        case PROP_DATADBLE:  return getIdamProperty("get_datadble", client_flags, user_timeout, alt_rank);
-        case PROP_DIMDBLE:   return getIdamProperty("get_dimdble", client_flags, user_timeout, alt_rank);
-        case PROP_TIMEDBLE:  return getIdamProperty("get_timedble", client_flags, user_timeout, alt_rank);
-        case PROP_BYTES:     return getIdamProperty("get_bytes", client_flags, user_timeout, alt_rank);
-        case PROP_BAD:       return getIdamProperty("get_bad", client_flags, user_timeout, alt_rank);
-        case PROP_META:      return getIdamProperty("get_meta", client_flags, user_timeout, alt_rank);
-        case PROP_ASIS:      return getIdamProperty("get_asis", client_flags, user_timeout, alt_rank);
-        case PROP_UNCAL:     return getIdamProperty("get_uncal", client_flags, user_timeout, alt_rank);
-        case PROP_NOTOFF:    return getIdamProperty("get_notoff", client_flags, user_timeout, alt_rank);
-        case PROP_SYNTHETIC: return getIdamProperty("get_synthetic", client_flags, user_timeout, alt_rank);
-        case PROP_SCALAR:    return getIdamProperty("get_scalar", client_flags, user_timeout, alt_rank);
-        case PROP_NODIMDATA: return getIdamProperty("get_nodimdata", client_flags, user_timeout, alt_rank);
-        case PROP_VERBOSE:   return getIdamProperty("verbose", client_flags, user_timeout, alt_rank);
-        case PROP_DEBUG:     return getIdamProperty("debug", client_flags, user_timeout, alt_rank);
-        case PROP_ALTDATA:   return getIdamProperty("altdata", client_flags, user_timeout, alt_rank);
-        case PROP_TIMEOUT:   return getIdamProperty("timeout", client_flags, user_timeout, alt_rank);
-        case PROP_ALTRANK:   return getIdamProperty("altrank", client_flags, user_timeout, alt_rank);
+        case PROP_DATADBLE:  return getIdamProperty("get_datadble", client_flags);
+        case PROP_DIMDBLE:   return getIdamProperty("get_dimdble", client_flags);
+        case PROP_TIMEDBLE:  return getIdamProperty("get_timedble", client_flags);
+        case PROP_BYTES:     return getIdamProperty("get_bytes", client_flags);
+        case PROP_BAD:       return getIdamProperty("get_bad", client_flags);
+        case PROP_META:      return getIdamProperty("get_meta", client_flags);
+        case PROP_ASIS:      return getIdamProperty("get_asis", client_flags);
+        case PROP_UNCAL:     return getIdamProperty("get_uncal", client_flags);
+        case PROP_NOTOFF:    return getIdamProperty("get_notoff", client_flags);
+        case PROP_SYNTHETIC: return getIdamProperty("get_synthetic", client_flags);
+        case PROP_SCALAR:    return getIdamProperty("get_scalar", client_flags);
+        case PROP_NODIMDATA: return getIdamProperty("get_nodimdata", client_flags);
+        case PROP_VERBOSE:   return getIdamProperty("verbose", client_flags);
+        case PROP_DEBUG:     return getIdamProperty("debug", client_flags);
+        case PROP_ALTDATA:   return getIdamProperty("altdata", client_flags);
+        case PROP_TIMEOUT:   return getIdamProperty("timeout", client_flags);
+        case PROP_ALTRANK:   return getIdamProperty("altrank", client_flags);
 
         default:
             throw UDAException("Unknown property");
     }
 }
 
-bool uda::Client::env_host_ = false;
-bool uda::Client::env_port_ = false;
-
 void uda::Client::setServerHostName(const std::string& hostName)
 {
-    putIdamServerHost(hostName.c_str(), &env_host_);
+    putIdamServerHost(hostName.c_str());
 }
 
 void uda::Client::setServerPort(int portNumber)
 {
-    putIdamServerPort(portNumber, &env_port_);
+    putIdamServerPort(portNumber);
 }
 
 std::string uda::Client::serverHostName()

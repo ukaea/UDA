@@ -23,6 +23,7 @@
 #include "startup.h"
 #include "udaClient.h"
 #include "accAPI.h"
+#include "getEnvironment.h"
 
 #ifdef MEMDEBUG
 #include <mcheck.h>
@@ -144,19 +145,17 @@ int idamGetAPI(const char* data_object, const char* data_source) {
 
 int idamGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port)
 {
-    static bool env_host = false;
-    static bool env_port = false;
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
     lockIdamThread(client_flags);
 
     if (host != nullptr) {
-        putIdamServerHost(host, &env_host);
+        putIdamServerHost(host);
     }
 
     if (port) {
-        putIdamServerPort(port, &env_port);
+        putIdamServerPort(port);
     }
 
     int err = 0;
@@ -257,19 +256,17 @@ int idamGetBatchAPI(const char** signals, const char** sources, int count, int* 
 
 int idamGetBatchAPIWithHost(const char** signals, const char** sources, int count, int* handles, const char* host, int port)
 {
-    static bool env_host = false;
-    static bool env_port = false;
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
     lockIdamThread(client_flags);
 
     if (host != nullptr) {
-        putIdamServerHost(host, &env_host);
+        putIdamServerHost(host);
     }
 
     if (port) {
-        putIdamServerPort(port, &env_port);
+        putIdamServerPort(port);
     }
 
     static bool startup = true;

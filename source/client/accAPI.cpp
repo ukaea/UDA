@@ -475,7 +475,7 @@ void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
 * @param property the name of the property.
 * @return Void.
 */
-int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags, int user_timeout, int alt_rank)
+int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags)
 {
     // User settings for Client and Server behaviour
 
@@ -493,8 +493,8 @@ int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags, int 
         if (STR_IEQUALS(property, "get_scalar")) return client_flags->get_scalar;
         if (STR_IEQUALS(property, "get_nodimdata")) return client_flags->get_nodimdata;
     } else {
-        if (STR_IEQUALS(property, "timeout")) return user_timeout;
-        if (STR_IEQUALS(property, "altRank")) return alt_rank;
+        if (STR_IEQUALS(property, "timeout")) return client_flags->user_timeout;
+        if (STR_IEQUALS(property, "altRank")) return client_flags->alt_rank;
         if (STR_IEQUALS(property, "reuseLastHandle")) return (int)(client_flags->flags & CLIENTFLAG_REUSELASTHANDLE);
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) return (int)(client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE);
         if (STR_IEQUALS(property, "verbose")) return udaGetLogLevel() == UDA_LOG_INFO;
@@ -665,14 +665,14 @@ void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, const fl
 * @param port The port number the server is connected to.
 * @return void
 */
-void putIdamServer(const char* host, int port, bool* env_host, bool* env_port)
+void putIdamServer(const char* host, int port)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
-    environment->server_port = port;                             // UDA server service port number
-    strcpy(environment->server_host, host);                      // UDA server's host name or IP address
-    environment->server_reconnect = 1;                           // Create a new Server instance
-    *env_host = false;                                           // Skip initialisation at Startup if these are called first
-    *env_port = false;
+    environment->server_port = port;                            // UDA server service port number
+    strcpy(environment->server_host, host);            // UDA server's host name or IP address
+    environment->server_reconnect = 1;                          // Create a new Server instance
+    udaSetEnvHost(false);                               // Skip initialisation at Startup if these are called first
+    udaSetEnvPort(false);
 }
 
 //! Set the UDA data server host name
@@ -680,12 +680,12 @@ void putIdamServer(const char* host, int port, bool* env_host, bool* env_port)
 * @param host The name of the server host computer.
 * @return void
 */
-void putIdamServerHost(const char* host, bool* env_host)
+void putIdamServerHost(const char* host)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     strcpy(environment->server_host, host);                      // UDA server's host name or IP address
     environment->server_reconnect = 1;                           // Create a new Server instance
-    *env_host = false;
+    udaSetEnvHost(false);
 }
 
 //! Set the UDA data server port number
@@ -693,12 +693,12 @@ void putIdamServerHost(const char* host, bool* env_host)
 * @param port The port number the server is connected to.
 * @return void
 */
-void putIdamServerPort(int port, bool* env_port)
+void putIdamServerPort(int port)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     environment->server_port = port;                             // UDA server service port number
     environment->server_reconnect = 1;                           // Create a new Server instance
-    *env_port = false;
+    udaSetEnvPort(false);
 }
 
 //! Specify a specific UDA server socket connection to use

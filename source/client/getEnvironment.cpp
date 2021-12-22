@@ -12,8 +12,8 @@
 
 #include <logging/logging.h>
 
-int env_host = 1;    // User can change these before startup so flag to the getEnvironment function
-int env_port = 1;
+bool env_host = true;    // User can change these before startup so flag to the getEnvironment function
+bool env_port = true;
 
 static ENVIRONMENT udaEnviron;
 
@@ -50,6 +50,22 @@ void printIdamClientEnvironment(const ENVIRONMENT* environment)
     UDA_LOG(UDA_LOG_INFO, "Default Format  : %s\n", environment->api_format);
     UDA_LOG(UDA_LOG_INFO, "Private File Path Target    : %s\n", environment->private_path_target);
     UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environment->private_path_substitute);
+}
+
+bool udaGetEnvHost() {
+    return env_host;
+}
+
+bool udaGetEnvPort() {
+    return env_port;
+}
+
+LIBRARY_API void udaSetEnvHost(bool value) {
+    env_host = value;
+}
+
+LIBRARY_API void udaSetEnvPort(bool value) {
+    env_port = value;
 }
 
 ENVIRONMENT* getIdamClientEnvironment()
@@ -116,7 +132,7 @@ ENVIRONMENT* getIdamClientEnvironment()
         } else {
             UDA_LOG(UDA_LOG_WARN, "UDA_HOST2 environmental variable not defined");
         }
-        env_host = 0;
+        env_host = false;
     }
 
     // UDA Server Port name

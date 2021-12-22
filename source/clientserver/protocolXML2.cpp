@@ -1420,7 +1420,7 @@ packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* dat
 
 int
 unpackXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist,
-                         USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, bool xdr_stdio_flag,
+                         USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
                          NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     int err = 0;
@@ -1433,8 +1433,6 @@ unpackXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* d
         // Create a memory stream
 
         xdrmem_create(&xdrObject, (char*)object, (unsigned int)objectSize, XDR_DECODE);
-
-        xdr_stdio_flag = true;
 
         // Data object meta data
 
@@ -1449,7 +1447,6 @@ unpackXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* d
         // Close the stream
 
         xdr_destroy(&xdrObject);
-        xdr_stdio_flag = false;
 
     } while (0);
 
