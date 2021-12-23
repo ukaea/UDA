@@ -24,9 +24,9 @@ LIBRARY_API int acc_getIdamNewDataHandle(CLIENT_FLAGS* client_flags);
 
 LIBRARY_API void acc_freeDataBlocks();
 
-LIBRARY_API void setIdamPrivateFlag(unsigned int flag, unsigned int* private_flags);
+LIBRARY_API void setIdamPrivateFlag(unsigned int flag);
 
-LIBRARY_API void resetIdamPrivateFlag(unsigned int flag, unsigned int* private_flags);
+LIBRARY_API void resetIdamPrivateFlag(unsigned int flag);
 
 LIBRARY_API void setIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag);
 

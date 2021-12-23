@@ -343,8 +343,9 @@ Rank Ordering is as follows:
 * @param flag The bit/s to be set to 1.
 * @return Void.
 */
-void setIdamPrivateFlag(unsigned int flag, unsigned int* private_flags)
+void setIdamPrivateFlag(unsigned int flag)
 {
+    unsigned int* private_flags = udaPrivateFlags();
     *private_flags |= flag;
 }
 
@@ -355,8 +356,9 @@ void setIdamPrivateFlag(unsigned int flag, unsigned int* private_flags)
 * @return Void.
 */
 
-void resetIdamPrivateFlag(unsigned int flag, unsigned int* private_flags)
+void resetIdamPrivateFlag(unsigned int flag)
 {
+    unsigned int* private_flags = udaPrivateFlags();
     *private_flags &= !flag;
 }
 

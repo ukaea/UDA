@@ -361,7 +361,7 @@ void copyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew);
 * @param anew The copy of the type definition list.
 * @return void.
 */
-void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, USERDEFINEDTYPELIST& parseduserdefinedtypelist);
+void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, const USERDEFINEDTYPELIST* parseduserdefinedtypelist);
 
 /** Create the Initial User Defined Structure Definition List.
 * 

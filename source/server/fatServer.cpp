@@ -139,7 +139,7 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
         return err;
     }
 
-    copyUserDefinedTypeList(&userdefinedtypelist, parseduserdefinedtypelist);
+    copyUserDefinedTypeList(&userdefinedtypelist, &parseduserdefinedtypelist);
 
     err = handleRequestFat(&request_block, request_block0, &client_block, server_block, &metadata_block, &data_blocks,
                            &actions_desc, &actions_sig);

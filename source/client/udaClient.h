@@ -68,6 +68,7 @@ udaFreeAll(XDR* client_input, XDR* client_output, LOGSTRUCTLIST* log_struct_list
            int malloc_source);
 
 LIBRARY_API CLIENT_FLAGS* udaClientFlags();
+LIBRARY_API unsigned int* udaPrivateFlags();
 
 /**
  * Get the version of the client c-library.

@@ -51,10 +51,7 @@ int malloc_source = MALLOCSOURCENONE;
 
 USERDEFINEDTYPELIST parseduserdefinedtypelist;              // Initial set of User Defined Structure Types
 
-                        // Total amount sent for the last data request
-unsigned int clientFlags = 0;
-int altRank = 0;
-unsigned int private_flags = 0;
+// Total amount sent for the last data request
 
 static PLUGINLIST pluginList;                // List of all data reader plugins (internal and external shared libraries)
 ENVIRONMENT environment;                // Holds local environment variable values
@@ -201,7 +198,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
     int protocol_id = PROTOCOL_SERVER_BLOCK;
 
     if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                         server_block, protocolVersion, log_struct_list, private_flags, malloc_source)) != 0) {
+                         server_block, protocolVersion, log_struct_list, 0, malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 11 Error (Sending Server Block #2)");
         return err;
@@ -242,7 +239,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
 
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                              &metadata_block->data_system, protocolVersion, log_struct_list,
-                             private_flags, malloc_source)) != 0) {
+                             0, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure\n");
             addIdamError(CODEERRORTYPE, __func__, err, "Protocol 4 Error");
             return err;
@@ -255,7 +252,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
 
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                              &metadata_block->system_config, protocolVersion, log_struct_list,
-                             private_flags, malloc_source)) != 0) {
+                             0, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure\n");
             addIdamError(CODEERRORTYPE, __func__, err, "Protocol 5 Error");
             return err;
@@ -268,7 +265,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
 
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                              &metadata_block->data_source, protocolVersion, log_struct_list,
-                             private_flags, malloc_source)) != 0) {
+                             0, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure\n");
             addIdamError(CODEERRORTYPE, __func__, err, "Protocol 6 Error");
             return err;
@@ -281,7 +278,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
 
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                              &metadata_block->signal_rec, protocolVersion, log_struct_list,
-                             private_flags, malloc_source)) != 0) {
+                             0, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure\n");
             addIdamError(CODEERRORTYPE, __func__, err, "Protocol 7 Error");
             return err;
@@ -294,7 +291,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
 
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                              &metadata_block->signal_desc, protocolVersion, log_struct_list,
-                             private_flags, malloc_source)) != 0) {
+                             0, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure\n");
             addIdamError(CODEERRORTYPE, __func__, err, "Protocol 8 Error");
             return err;
@@ -310,7 +307,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
 
     if ((err = protocol2(server_output, PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, nullptr, logmalloclist,
                          userdefinedtypelist, data_block_list, protocolVersion, log_struct_list,
-                         private_flags, malloc_source)) != 0) {
+                         0, malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure\n");
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 2 Error");
         return err;
@@ -351,7 +348,7 @@ reportToClient(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLI
             UDA_LOG(UDA_LOG_DEBUG, "Sending Hierarchical Data Structure to Client\n");
 
             if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                                 data_block, protocolVersion, log_struct_list, private_flags,
+                                 data_block, protocolVersion, log_struct_list, 0,
                                  malloc_source)) != 0) {
                 addIdamError(CODEERRORTYPE, __func__, err, "Server Side Protocol Error (Opaque Structure Type)");
                 return err;
@@ -394,7 +391,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     int protocol_id = PROTOCOL_CLIENT_BLOCK;
 
     if ((err = protocol2(server_input, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                         client_block, protocolVersion, log_struct_list, private_flags, malloc_source)) != 0) {
+                         client_block, protocolVersion, log_struct_list, 0, malloc_source)) != 0) {
         if (server_tot_block_time >= 1000 * *server_timeout) {
             *fatal = 1;
             THROW_ERROR(999, "Server Time Out");
@@ -411,9 +408,9 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     }
 
     *server_timeout = client_block->timeout;         // User specified Server Lifetime
-    private_flags = client_block->privateFlags;      // Server to Server flags
-    clientFlags = client_block->clientFlags;        // Client set flags
-    altRank = client_block->altRank;                // Rank of Alternative source
+    unsigned int private_flags = client_block->privateFlags;      // Server to Server flags
+    unsigned int clientFlags = client_block->clientFlags;        // Client set flags
+    int altRank = client_block->altRank;                // Rank of Alternative source
 
     // Protocol Version: Lower of the client and server version numbers
     // This defines the set of elements within data structures passed between client and server
@@ -1037,7 +1034,7 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
         int protocol_id = PROTOCOL_CLIENT_BLOCK;        // Recieve Client Block
 
         if ((err = protocol2(server_input, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                             client_block, protocolVersion, log_struct_list, private_flags,
+                             client_block, protocolVersion, log_struct_list, 0,
                              malloc_source)) != 0) {
             addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (Client Block)");
             UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
@@ -1077,7 +1074,7 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
     int protocol_id = PROTOCOL_SERVER_BLOCK;        // Receive Server Block: Server Aknowledgement
 
     if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                         server_block, protocolVersion, log_struct_list, private_flags, malloc_source)) != 0) {
+                         server_block, protocolVersion, log_struct_list, 0, malloc_source)) != 0) {
         THROW_ERROR(err, "Protocol 11 Error (Server Block #1)");
     }
 
@@ -1093,7 +1090,7 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
         UDA_LOG(UDA_LOG_DEBUG, "Diverting to the Legacy Server\n");
         UDA_LOG(UDA_LOG_DEBUG, "Client protocol %d\n", client_block->version);
         return legacyServer(*client_block, &pluginList, logmalloclist, userdefinedtypelist, &socket_list,
-                            protocolVersion, server_input, server_output, private_flags, malloc_source);
+                            protocolVersion, server_input, server_output, 0, malloc_source);
     }
 
     return err;

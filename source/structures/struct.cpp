@@ -1090,14 +1090,14 @@ void copyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew)
 * @return void.
 */
 #if defined(SERVERBUILD)
-void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, USERDEFINEDTYPELIST& parseduserdefinedtypelist) {
+void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, const USERDEFINEDTYPELIST* parseduserdefinedtypelist) {
     USERDEFINEDTYPELIST* list = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
     initUserDefinedTypeList(list);
-    list->listCount = parseduserdefinedtypelist.listCount; // Copy the standard set of structure definitions
-    list->userdefinedtype = (USERDEFINEDTYPE*)malloc(parseduserdefinedtypelist.listCount * sizeof(USERDEFINEDTYPE));
+    list->listCount = parseduserdefinedtypelist->listCount; // Copy the standard set of structure definitions
+    list->userdefinedtype = (USERDEFINEDTYPE*)malloc(parseduserdefinedtypelist->listCount * sizeof(USERDEFINEDTYPE));
 
     for (int i = 0; i < list->listCount; i++) {
-        USERDEFINEDTYPE usertypeOld = parseduserdefinedtypelist.userdefinedtype[i];
+        USERDEFINEDTYPE usertypeOld = parseduserdefinedtypelist->userdefinedtype[i];
         USERDEFINEDTYPE usertypeNew;
         initUserDefinedType(&usertypeNew);
         usertypeNew = usertypeOld;
@@ -1123,7 +1123,7 @@ void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, USERDEFINEDTYPELIST& pa
 }
 #else
 
-void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
+void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, const USERDEFINEDTYPELIST* parseduserdefinedtypelist)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Not SERVERBUILD - USERDEFINEDTYPELIST is not allocated\n");
 }

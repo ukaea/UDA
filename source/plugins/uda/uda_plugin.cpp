@@ -292,10 +292,9 @@ Notes: there are three pathways depending on the request pattern
     //----------------------------------------------------------------------
     // Private Flags, User Specified Flags and Properties for the Remote Server
 
-    unsigned int private_flags = 0;
-    resetIdamPrivateFlag(PRIVATEFLAG_FULLRESET, &private_flags);
+    resetIdamPrivateFlag(PRIVATEFLAG_FULLRESET);
     // Ensure Hierarchical Data are passed as an opaque object/file
-    setIdamPrivateFlag(PRIVATEFLAG_XDRFILE, &private_flags);
+    setIdamPrivateFlag(PRIVATEFLAG_XDRFILE);
 
     // This fails if the legacy UDA plugin is called by a server in the forward chain and it set marked a 'private'
     // For IMAS development, this has been disabled
@@ -573,7 +572,7 @@ Notes: there are three pathways depending on the request pattern
         handle = idamGetAPI(request->signal, source);
     }
 
-    resetIdamPrivateFlag(PRIVATEFLAG_FULLRESET, &private_flags);
+    resetIdamPrivateFlag(PRIVATEFLAG_FULLRESET);
     resetIdamClientFlag(client_flags, CLIENTFLAG_FULLRESET);
 
     //----------------------------------------------------------------------

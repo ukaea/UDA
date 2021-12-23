@@ -345,6 +345,13 @@ CLIENT_FLAGS* udaClientFlags()
     return &client_flags;
 }
 
+unsigned int* udaPrivateFlags()
+{
+    static unsigned int private_flags = 0;
+    return &private_flags;
+}
+
+
 int idamClient(REQUEST_BLOCK* request_block, int* indices)
 {
     // Efficient reduced (filled) tcp packet protocol for efficiency over large RTT fat pipes
@@ -366,12 +373,12 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
     static bool reopen_logs = false;
     static XDR* client_input = nullptr;
     static XDR* client_output = nullptr;
-    static unsigned int private_flags = 0;
     static int malloc_source = MALLOCSOURCENONE;
 
     LOGSTRUCTLIST log_struct_list;
     initLogStructList(&log_struct_list);
 
+    unsigned int* private_flags = udaPrivateFlags();
     CLIENT_FLAGS* client_flags = udaClientFlags();
     client_flags->alt_rank = 0;
     client_flags->user_timeout = TIMEOUT;
@@ -441,14 +448,14 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             auto request = &request_block->requests[i];
             DATA_BLOCK* data_block = &cached_data_block_list.data[i];
             int rc = check_file_cache(request, &data_block, logmalloclist, userdefinedtypelist,
-                                      &log_struct_list, client_flags, private_flags, malloc_source);
+                                      &log_struct_list, client_flags, *private_flags, malloc_source);
             if (rc >= 0) {
                 request_block->requests[i].request = REQUEST_CACHED;
                 ++num_cached;
                 continue;
             }
             rc = check_mem_cache(cache, request, &data_block, logmalloclist, userdefinedtypelist,
-                                 &log_struct_list, client_flags, private_flags, malloc_source);
+                                 &log_struct_list, client_flags, *private_flags, malloc_source);
             if (rc >= 0) {
                 request_block->requests[i].request = REQUEST_CACHED;
                 ++num_cached;
@@ -560,11 +567,11 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
 #ifndef FATCLIENT
         if ((env = getenv("UDA_PRIVATEFLAGS")) != nullptr) {
-            setIdamPrivateFlag(atoi(env), &private_flags);
+            setIdamPrivateFlag(atoi(env));
         }
 #endif
 
-        updateClientBlock(&client_block, client_flags, private_flags); // Allows User to Change Properties at run-time
+        updateClientBlock(&client_block, client_flags, *private_flags); // Allows User to Change Properties at run-time
 
         // Operating System Name
 
@@ -668,7 +675,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             int protocol_id = PROTOCOL_CLIENT_BLOCK;      // Send Client Block (proxy for authenticationStep = 6)
 
             if ((err = protocol2(client_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                                 &client_block, protocolVersion, &log_struct_list, private_flags,
+                                 &client_block, protocolVersion, &log_struct_list, *private_flags,
                                  malloc_source)) != 0) {
                 addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (Client Block)");
                 UDA_LOG(UDA_LOG_DEBUG, "Error Sending Client Block\n");
@@ -695,7 +702,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             protocol_id = PROTOCOL_SERVER_BLOCK;      // Receive Server Block: Server Aknowledgement (proxy for authenticationStep = 8)
 
             if ((err = protocol2(client_input, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                                 &server_block, protocolVersion, &log_struct_list, private_flags,
+                                 &server_block, protocolVersion, &log_struct_list, *private_flags,
                                  malloc_source)) != 0) {
                 addIdamError(CODEERRORTYPE, __func__, err, "Protocol 11 Error (Server Block #1)");
                 // Assuming the server_block is corrupted, replace with a clean copy to avoid concatonation problems
@@ -787,7 +794,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         int protocol_id = PROTOCOL_CLIENT_BLOCK;      // Send Client Block
 
         if ((err = protocol2(client_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                             &client_block, protocolVersion, &log_struct_list, private_flags,
+                             &client_block, protocolVersion, &log_struct_list, *private_flags,
                              malloc_source)) != 0) {
             addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (Client Block)");
             break;
@@ -800,7 +807,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         protocol_id = PROTOCOL_REQUEST_BLOCK;     // This is what the Client Wants
 
         if ((err = protocol2(client_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                             request_block, protocolVersion, &log_struct_list, private_flags,
+                             request_block, protocolVersion, &log_struct_list, *private_flags,
                              malloc_source)) != 0) {
             addIdamError(CODEERRORTYPE, __func__, err, "Protocol 1 Error (Request Block)");
             break;
@@ -817,7 +824,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
                 if ((err = protocol2(client_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                                      &(request->putDataBlockList), protocolVersion, &log_struct_list,
-                                     private_flags, malloc_source)) != 0) {
+                                     *private_flags, malloc_source)) != 0) {
                     addIdamError(CODEERRORTYPE, __func__, err,
                                  "Protocol 1 Error (sending putDataBlockList from Request Block)");
                     break;
@@ -852,7 +859,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         if ((err = protocol2(client_input, PROTOCOL_SERVER_BLOCK, XDR_RECEIVE, nullptr, logmalloclist,
                              userdefinedtypelist, &server_block, protocolVersion, &log_struct_list,
-                             private_flags, malloc_source)) != 0) {
+                             *private_flags, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Protocol 11 Error (Server Block #2) = %d\n", err);
             addIdamError(CODEERRORTYPE, __func__, err, " Protocol 11 Error (Server Block #2)");
             // Assuming the server_block is corrupted, replace with a clean copy to avoid future concatonation problems
@@ -887,7 +894,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                 break;
             }
             if ((err = fetchMeta(client_input, data_system, system_config, data_source, signal_rec, signal_desc,
-                                 &log_struct_list, private_flags, malloc_source)) != 0) {
+                                 &log_struct_list, *private_flags, malloc_source)) != 0) {
                 break;
             }
 #ifndef FATCLIENT // <========================== Client Server Code Only
@@ -904,7 +911,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         if ((err = protocol2(client_input, PROTOCOL_DATA_BLOCK_LIST, XDR_RECEIVE, nullptr, logmalloclist,
                              userdefinedtypelist, &recv_data_block_list, protocolVersion,
-                             &log_struct_list, private_flags, malloc_source)) != 0) {
+                             &log_struct_list, *private_flags, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Protocol 2 Error (Failure Receiving Data Block)\n");
 
             addIdamError(CODEERRORTYPE, __func__, err, "Protocol 2 Error (Failure Receiving Data Block)");
@@ -955,13 +962,13 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                 *data_block->signal_desc = *signal_desc;
             }
 
-            fetchHierarchicalData(client_input, data_block, &log_struct_list, private_flags, malloc_source);
+            fetchHierarchicalData(client_input, data_block, &log_struct_list, *private_flags, malloc_source);
 
             //------------------------------------------------------------------------------
             // Cache the data if the server has passed permission and the application (client) has enabled caching
             if (client_flags->flags & CLIENTFLAG_FILECACHE) {
                 udaFileCacheWrite(data_block, request_block, logmalloclist, userdefinedtypelist, protocolVersion,
-                                  &log_struct_list, private_flags, malloc_source);
+                                  &log_struct_list, *private_flags, malloc_source);
             }
 
 #  ifndef NOLIBMEMCACHED
@@ -973,7 +980,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 #    endif
                 cache_write(cache, &request_block->requests[i], data_block, logmalloclist, userdefinedtypelist,
                             *environment, protocolVersion, client_flags->flags, &log_struct_list,
-                            private_flags, malloc_source);
+                            *private_flags, malloc_source);
             }
 #  endif // !NOLIBMEMCACHED
 
