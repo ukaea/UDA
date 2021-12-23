@@ -3,26 +3,30 @@
 
 #ifdef NOLIBMEMCACHED
 
+namespace uda {
+namespace cache {
+
 struct UdaCache {
     int dummy_;
 };
 
-uda::cache::UdaCache* udaOpenCache()
+} } // namespace uda::cache
+
+uda::cache::UdaCache* uda::cache::open_cache()
 { return nullptr; }
 
-void udaFreeCache()
+void uda::cache::free_cache()
 {}
 
-char* udaCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
-{ return nullptr; }
-
-int udaCacheWrite(uda::cache::UdaCache* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
-                   LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
-                   int protocolVersion)
+int uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
+                LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                ENVIRONMENT environment, int protocolVersion, uint32_t flags,
+                LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 { return 0; }
 
-DATA_BLOCK* udaCacheRead(uda::cache::UdaCache* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
-                          USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion)
+DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, LOGMALLOCLIST* logmalloclist,
+                       USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion,
+                       uint32_t flags, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 { return nullptr; }
 
 #else

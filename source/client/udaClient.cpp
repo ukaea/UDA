@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <vector>
 #include <algorithm>
+#include <tuple>
 
 #include <logging/logging.h>
 #include <clientserver/udaErrors.h>
@@ -1506,7 +1507,7 @@ CLIENT_BLOCK saveIdamProperties(const CLIENT_FLAGS* client_flags)
     return cb;
 }
 
-void restoreIdamProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags, int* alt_rank)
+void restoreIdamProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags)
 {         // Restore Properties to a prior saved state
     client_block.get_datadble = cb.get_datadble;     // Overwrite Individual Global Structure Components
     client_block.get_dimdble = cb.get_dimdble;
@@ -1533,7 +1534,7 @@ void restoreIdamProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags, int* alt
     client_flags->get_bytes = client_block.get_bytes;
     client_flags->get_nodimdata = client_block.get_nodimdata;
     client_flags->flags = client_block.clientFlags;
-    *alt_rank = client_block.altRank;
+    client_flags->alt_rank = client_block.altRank;
 }
 
 //! get the UDA client study DOI

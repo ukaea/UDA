@@ -34,11 +34,11 @@ std::pair<XDR*, XDR*> uda::client::createXDRStream(IoData* io_data)
                      reinterpret_cast<int (*)(void *, void *, int)>(uda::client::readin),
                      reinterpret_cast<int (*)(void *, void *, int)>(uda::client::writeout));
 #else
-       xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
+       xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)io_data,
                      reinterpret_cast<int (*)(char *, char *, int)>(uda::client::readin),
                      reinterpret_cast<int (*)(char *, char *, int)>(uda::client::writeout));
 
-       xdrrec_create(&client_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
+       xdrrec_create(&client_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)io_data,
                      reinterpret_cast<int (*)(char *, char *, int)>(uda::client::readin),
                      reinterpret_cast<int (*)(char *, char *, int)>(uda::client::writeout));
 #endif    
@@ -72,11 +72,11 @@ std::pair<XDR*, XDR*> uda::client::createXDRStream(IoData* io_data)
                   reinterpret_cast<int (*)(void *, void *, int)>(uda::client::readin),
                   reinterpret_cast<int (*)(void *, void *, int)>(uda::client::writeout));
 #else
-    xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
+    xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)io_data,
                   reinterpret_cast<int (*)(char *, char *, int)>(uda::client::readin),
                   reinterpret_cast<int (*)(char *, char *, int)>(uda::client::writeout));
 
-    xdrrec_create(&client_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
+    xdrrec_create(&client_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)io_data,
                   reinterpret_cast<int (*)(char *, char *, int)>(uda::client::readin),
                   reinterpret_cast<int (*)(char *, char *, int)>(uda::client::writeout));
 #endif

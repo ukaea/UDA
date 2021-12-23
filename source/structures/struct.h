@@ -1,8 +1,8 @@
 #ifndef UDA_STRUCTURES_STRUCT_H
 #define UDA_STRUCTURES_STRUCT_H
 
-#include <cstdbool>
-#include <cstdio>
+#include <stdbool.h>
+#include <stdio.h>
 #include <rpc/rpc.h>
 
 #include <clientserver/udaTypes.h>

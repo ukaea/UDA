@@ -48,14 +48,13 @@ extern "C" {
 #define SCALARUCHAR     22
 #define ARRAYUCHAR      23
 
+typedef intptr_t VOIDTYPE;
+typedef uintptr_t UVOIDTYPE;
+
 #ifdef A64
-typedef int64_t             VOIDTYPE;       // Pointer arithmentic type for 64 bit architecture (8 byte pointer type)
-typedef uint64_t            UVOIDTYPE;
-#define ALIGNMENT           1               // Default Byte Boundary used for Structure Packing
+#  define ALIGNMENT           1               // Default Byte Boundary used for Structure Packing
 #else
-typedef int32_t             VOIDTYPE;       // Pointer arithmentic type for 32 bit architecture (4 byte pointer type)
-typedef uint32_t            UVOIDTYPE;
-#define ALIGNMENT           1               // Default Byte Boundary used for Structure Packing
+#  define ALIGNMENT           1               // Default Byte Boundary used for Structure Packing
 #endif
 
 typedef char STRING;

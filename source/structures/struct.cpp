@@ -809,14 +809,19 @@ int dupCountMallocLog(LOGMALLOCLIST* str)
     if (str->listcount <= 1) return 0;
 #ifdef A64
     unsigned long long* sorted = (unsigned long long*)malloc(str->listcount * sizeof(unsigned long long));
-    for (int i = 0; i < str->listcount; i++)
+    for (int i = 0; i < str->listcount; i++) {
         if (str->logmalloc[i].freed == 0) {
             sorted[sortCount++] = (unsigned long long)str->logmalloc[i].heap;
         }
+    }
     qsort((void*)sorted, (size_t)sortCount, (size_t)sizeof(unsigned long long), compare_ulonglong);
 #else
     unsigned long *sorted = (unsigned long *)malloc(str->listcount*sizeof(unsigned long));
-    for (i=0; i<str->listcount; i++)if (str->logmalloc[i].freed == 0) sorted[sortCount++] = (unsigned long)str->logmalloc[i].heap;
+    for (int i = 0; i < str->listcount; i++) {
+        if (str->logmalloc[i].freed == 0) {
+            sorted[sortCount++] = (unsigned long)str->logmalloc[i].heap;
+        }
+    }
     qsort((void *)sorted,(size_t)sortCount,(size_t)sizeof(unsigned long), compare_ulong);
 #endif
     for (int i = 1; i < sortCount; i++) {
@@ -2506,7 +2511,7 @@ void printNode(NTREE* tree)
     }
 #else
     UDA_LOG(UDA_LOG_DEBUG, "Parent  : %p   (%x) \n", (void *)tree->parent, (UVOIDTYPE)tree->parent);
-    for (i=0; i<tree->branches; i++) {
+    for (int i = 0; i < tree->branches; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "Children[%d]: %p   (%x) \n", i, (void *)tree->children[i], (UVOIDTYPE)tree->children[i]);
     }
 #endif
@@ -3841,7 +3846,7 @@ void printNTree2(NTREE* tree)
 #ifdef A64
     for (int i = 0; i < tree->branches; i++) UDA_LOG(UDA_LOG_DEBUG, "[%2d]: %llx\n", i, (UVOIDTYPE)tree->children[i]);
 #else
-    for (i=0; i<tree->branches; i++) UDA_LOG(UDA_LOG_DEBUG, "[%2d]: %x\n", i, (UVOIDTYPE)tree->children[i]);
+    for (int i = 0; i < tree->branches; i++) UDA_LOG(UDA_LOG_DEBUG, "[%2d]: %x\n", i, (UVOIDTYPE)tree->children[i]);
 #endif
     for (int i = 0; i < tree->branches; i++) printNTree2(tree->children[i]);
 }

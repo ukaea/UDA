@@ -68,13 +68,13 @@ std::pair<XDR*, XDR*> serverCreateXDRStream(IoData* io_data)
                   reinterpret_cast<int (*)(void*, void*, int)>(server_read),
                   reinterpret_cast<int (*)(void*, void*, int)>(server_write));
 #else
-    xdrrec_create( &server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
-                   reinterpret_cast<int (*)(char *, char *, int)>(server_read),
-                   reinterpret_cast<int (*)(char *, char *, int)>(server_write));
+    xdrrec_create(&server_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)io_data,
+                  reinterpret_cast<int (*)(char *, char *, int)>(server_read),
+                  reinterpret_cast<int (*)(char *, char *, int)>(server_write));
 
-    xdrrec_create( &server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, io_data,
-                   reinterpret_cast<int (*)(char *, char *, int)>(server_read),
-                   reinterpret_cast<int (*)(char *, char *, int)>(server_write));
+    xdrrec_create(&server_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)io_data,
+                  reinterpret_cast<int (*)(char *, char *, int)>(server_read),
+                  reinterpret_cast<int (*)(char *, char *, int)>(server_write));
 #endif
 
 #endif   // SSLAUTHENTICATION

@@ -347,10 +347,10 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         }
     }
 
-    bool authentication_needed = false;
+    //bool authentication_needed = false;
     bool startup_states = false;
     if (init_server) {
-        authentication_needed = true;
+        //authentication_needed = true;
         startup_states = true;
         if (connection_.create(client_input_, client_output_, host_list_) != 0) {
             int err = NO_SOCKET_CONNECTION;
@@ -395,13 +395,13 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
 
     err = receive_server_block();
 
-    bool server_side = false;
+    //bool server_side = false;
 
     if (server_block_.idamerrorstack.nerrors > 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Server Block passed Server Error State %d\n", err);
         err = server_block_.idamerrorstack.idamerror[0].code;      // Problem on the Server Side!
         UDA_LOG(UDA_LOG_DEBUG, "Server Block passed Server Error State %d\n", err);
-        server_side = true;        // Most Server Side errors are benign so don't close the server
+        //server_side = true;        // Most Server Side errors are benign so don't close the server
         return 0;
     }
 

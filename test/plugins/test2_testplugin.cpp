@@ -104,44 +104,44 @@ const std::vector<uda::Dim>& uda::Array::dims() const
 }
 
 template <typename T>
-uda::Scalar getScalar(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* name, NTREE* full_ntree)
+uda::Scalar getScalar(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* name)
 {
-    T* val = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)name, full_ntree));
+    T* val = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)name));
     return uda::Scalar(*val);
 }
 
 template <>
-uda::Scalar getScalar<char*>(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* name, NTREE* full_ntree)
+uda::Scalar getScalar<char*>(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* name)
 {
-    char* val = reinterpret_cast<char*>(getNodeStructureComponentData(logmalloclist, node, (char*)name, full_ntree));
+    char* val = reinterpret_cast<char*>(getNodeStructureComponentData(logmalloclist, node, (char*)name));
     return uda::Scalar(val);
 }
 
 template <>
-uda::Scalar getScalar<char**>(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* name, NTREE* full_ntree)
+uda::Scalar getScalar<char**>(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* name)
 {
-    char** val = reinterpret_cast<char**>(getNodeStructureComponentData(logmalloclist, node, (char*)name, full_ntree));
+    char** val = reinterpret_cast<char**>(getNodeStructureComponentData(logmalloclist, node, (char*)name));
     return uda::Scalar(val[0]);
 }
 
 uda::Scalar atomicScalar(const std::string& target, int handle, NTREE* ntree)
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
-    NTREE* node = findNTreeStructureComponent(logmalloclist, ntree, (char*)target.c_str(), nullptr); // Locate the named variable target
+    NTREE* node = findNTreeStructureComponent(logmalloclist, ntree, (char*)target.c_str()); // Locate the named variable target
     //NTREE * node = findNTreeStructureComponent(ntree, target.c_str()); // Locate the named variable target
     if (node == nullptr) {
         return uda::Scalar::Null;
     }
 
-    int acount = getNodeAtomicCount(node, nullptr); // Number of atomic typed structure members
+    int acount = getNodeAtomicCount(node); // Number of atomic typed structure members
     if (acount == 0) {
         return uda::Scalar::Null; // No atomic data
     }
 
-    char** anames = getNodeAtomicNames(logmalloclist, node, nullptr);
-    char** atypes = getNodeAtomicTypes(logmalloclist, node, nullptr);
-    int* arank = getNodeAtomicRank(logmalloclist, node, nullptr);
-    int** ashape = getNodeAtomicShape(logmalloclist, node, nullptr);
+    char** anames = getNodeAtomicNames(logmalloclist, node);
+    char** atypes = getNodeAtomicTypes(logmalloclist, node);
+    int* arank = getNodeAtomicRank(logmalloclist, node);
+    int** ashape = getNodeAtomicShape(logmalloclist, node);
 
     if (anames == nullptr || atypes == nullptr || arank == nullptr || ashape == nullptr) {
         return uda::Scalar::Null;
@@ -151,20 +151,20 @@ uda::Scalar atomicScalar(const std::string& target, int handle, NTREE* ntree)
         if (target == anames[i]
             && std::string("STRING") == atypes[i]
             && (arank[i] == 0 || arank[i] == 1)) {
-            return getScalar<char*>(logmalloclist, node, anames[i], nullptr);
+            return getScalar<char*>(logmalloclist, node, anames[i]);
         } else if (target == anames[i] && std::string("STRING *") == atypes[i] && arank[i] == 0) {
-            return getScalar<char**>(logmalloclist, node, anames[i], nullptr);
+            return getScalar<char**>(logmalloclist, node, anames[i]);
         } else if (target == anames[i]
                    && (arank[i] == 0
                        || (arank[i] == 1 && ashape[i][0] == 1))) {
-            if (std::string("short") == atypes[i]) return getScalar<short>(logmalloclist, node, anames[i], nullptr);
-            if (std::string("double") == atypes[i]) return getScalar<double>(logmalloclist, node, anames[i], nullptr);
-            if (std::string("float") == atypes[i]) return getScalar<float>(logmalloclist, node, anames[i], nullptr);
-            if (std::string("int") == atypes[i]) return getScalar<int>(logmalloclist, node, anames[i], nullptr);
-            if (std::string("char") == atypes[i]) return getScalar<char>(logmalloclist, node, anames[i], nullptr);
-            if (std::string("unsigned int") == atypes[i]) return getScalar<unsigned int>(logmalloclist, node, anames[i], nullptr);
-            if (std::string("unsigned short") == atypes[i]) return getScalar<unsigned short>(logmalloclist, node, anames[i], nullptr);
-            if (std::string("unsigned char") == atypes[i]) return getScalar<unsigned char>(logmalloclist, node, anames[i], nullptr);
+            if (std::string("short") == atypes[i]) return getScalar<short>(logmalloclist, node, anames[i]);
+            if (std::string("double") == atypes[i]) return getScalar<double>(logmalloclist, node, anames[i]);
+            if (std::string("float") == atypes[i]) return getScalar<float>(logmalloclist, node, anames[i]);
+            if (std::string("int") == atypes[i]) return getScalar<int>(logmalloclist, node, anames[i]);
+            if (std::string("char") == atypes[i]) return getScalar<char>(logmalloclist, node, anames[i]);
+            if (std::string("unsigned int") == atypes[i]) return getScalar<unsigned int>(logmalloclist, node, anames[i]);
+            if (std::string("unsigned short") == atypes[i]) return getScalar<unsigned short>(logmalloclist, node, anames[i]);
+            if (std::string("unsigned char") == atypes[i]) return getScalar<unsigned char>(logmalloclist, node, anames[i]);
         }
     }
 
@@ -172,14 +172,14 @@ uda::Scalar atomicScalar(const std::string& target, int handle, NTREE* ntree)
 }
 
 template <typename T>
-static uda::Vector getVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, int count, NTREE* full_ntree)
+static uda::Vector getVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, int count)
 {
-    T* data = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str(), full_ntree));
+    T* data = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
 
     return uda::Vector(data, (size_t)count);
 }
 
-uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, int* shape, NTREE* full_ntree)
+uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, int* shape)
 {
     int count = shape[1];
 
@@ -188,7 +188,7 @@ uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std
         return uda::Vector::Null;
     }
 
-    auto val = reinterpret_cast<char*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str(), full_ntree));
+    auto val = reinterpret_cast<char*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
 
     for (int j = 0; j < count; j++) {
         data[j] = &val[j * shape[0]];
@@ -197,14 +197,14 @@ uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std
     return uda::Vector(data, (size_t)count);
 }
 
-uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, NTREE* full_ntree)
+uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target)
 {
     auto data = static_cast<char**>(malloc(sizeof(char*)));
     if (data == nullptr) {
         return uda::Vector::Null;
     }
 
-    auto val = reinterpret_cast<char*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str(), full_ntree));
+    auto val = reinterpret_cast<char*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
     data[0] = val;
 
     return uda::Vector(data, (size_t)1);
@@ -213,22 +213,22 @@ uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std
 uda::Vector atomicVector(const std::string& target, int handle, NTREE* ntree)
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
-    NTREE* node = findNTreeStructureComponent(logmalloclist, ntree, (char*)target.c_str(), nullptr);
+    NTREE* node = findNTreeStructureComponent(logmalloclist, ntree, (char*)target.c_str());
     //NTREE * node = findNTreeStructureComponent(ntree, (char *)target.c_str()); // Locate the named variable target
     if (node == nullptr) {
         return uda::Vector::Null;
     }
 
-    int acount = getNodeAtomicCount(node, nullptr); // Number of atomic typed structure members
+    int acount = getNodeAtomicCount(node); // Number of atomic typed structure members
     if (acount == 0) {
         return uda::Vector::Null; // No atomic data
     }
 
-    char** anames = getNodeAtomicNames(logmalloclist, node, nullptr);
-    char** atypes = getNodeAtomicTypes(logmalloclist, node, nullptr);
-    int* apoint = getNodeAtomicPointers(logmalloclist, node, nullptr);
-    int* arank = getNodeAtomicRank(logmalloclist, node, nullptr);
-    int** ashape = getNodeAtomicShape(logmalloclist, node, nullptr);
+    char** anames = getNodeAtomicNames(logmalloclist, node);
+    char** atypes = getNodeAtomicTypes(logmalloclist, node);
+    int* apoint = getNodeAtomicPointers(logmalloclist, node);
+    int* arank = getNodeAtomicRank(logmalloclist, node);
+    int** ashape = getNodeAtomicShape(logmalloclist, node);
 
     if (anames == nullptr || atypes == nullptr || apoint == nullptr || arank == nullptr || ashape == nullptr) {
         return uda::Vector::Null;
@@ -238,32 +238,32 @@ uda::Vector atomicVector(const std::string& target, int handle, NTREE* ntree)
         if (target == anames[i]) {
             if (std::string("STRING *") == atypes[i] && ((arank[i] == 0 && apoint[i] == 1) || (arank[i] == 1 && apoint[i] == 0))) {
                 // String array in a single data structure
-                char** val = reinterpret_cast<char**>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str(), nullptr));
+                char** val = reinterpret_cast<char**>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
                 return uda::Vector(val, (size_t)ashape[i][0]);
             } else if (arank[i] == 0 && apoint[i] == 1) {
-                int count = getNodeStructureComponentDataCount(logmalloclist, node, (char*)target.c_str(), nullptr);
-                if (std::string("STRING *") == atypes[i]) return getVector<char*>(logmalloclist, node, target, count, nullptr);
-                if (std::string("char *") == atypes[i]) return getVector<char>(logmalloclist, node, target, count, nullptr);
-                if (std::string("short *") == atypes[i]) return getVector<short>(logmalloclist, node, target, count, nullptr);
-                if (std::string("double *") == atypes[i]) return getVector<double>(logmalloclist, node, target, count, nullptr);
-                if (std::string("float *") == atypes[i]) return getVector<float>(logmalloclist, node, target, count, nullptr);
-                if (std::string("int *") == atypes[i]) return getVector<int>(logmalloclist, node, target, count, nullptr);
-                if (std::string("unsigned int *") == atypes[i]) return getVector<unsigned int>(logmalloclist, node, target, count, nullptr);
-                if (std::string("unsigned short *") == atypes[i]) return getVector<unsigned short>(logmalloclist, node, target, count, nullptr);
-                if (std::string("unsigned char *") == atypes[i]) return getVector<unsigned char>(logmalloclist, node, target, count, nullptr);
+                int count = getNodeStructureComponentDataCount(logmalloclist, node, (char*)target.c_str());
+                if (std::string("STRING *") == atypes[i]) return getVector<char*>(logmalloclist, node, target, count);
+                if (std::string("char *") == atypes[i]) return getVector<char>(logmalloclist, node, target, count);
+                if (std::string("short *") == atypes[i]) return getVector<short>(logmalloclist, node, target, count);
+                if (std::string("double *") == atypes[i]) return getVector<double>(logmalloclist, node, target, count);
+                if (std::string("float *") == atypes[i]) return getVector<float>(logmalloclist, node, target, count);
+                if (std::string("int *") == atypes[i]) return getVector<int>(logmalloclist, node, target, count);
+                if (std::string("unsigned int *") == atypes[i]) return getVector<unsigned int>(logmalloclist, node, target, count);
+                if (std::string("unsigned short *") == atypes[i]) return getVector<unsigned short>(logmalloclist, node, target, count);
+                if (std::string("unsigned char *") == atypes[i]) return getVector<unsigned char>(logmalloclist, node, target, count);
             } else if (arank[i] == 1) {
 //                if (std::string("STRING") == atypes[i]) return getVector<char>(logmalloclist, node, target, ashape[i][0]);
 //                if (std::string("STRING") == atypes[i]) return getStringVector(logmalloclist, node, target);
-                if (std::string("char") == atypes[i]) return getVector<char>(logmalloclist, node, target, ashape[i][0], nullptr);
-                if (std::string("short") == atypes[i]) return getVector<short>(logmalloclist, node, target, ashape[i][0], nullptr);
-                if (std::string("double") == atypes[i]) return getVector<double>(logmalloclist, node, target, ashape[i][0], nullptr);
-                if (std::string("float") == atypes[i]) return getVector<float>(logmalloclist, node, target, ashape[i][0], nullptr);
-                if (std::string("int") == atypes[i]) return getVector<int>(logmalloclist, node, target, ashape[i][0], nullptr);
-                if (std::string("unsigned int") == atypes[i]) return getVector<unsigned int>(logmalloclist, node, target, ashape[i][0], nullptr);
-                if (std::string("unsigned short") == atypes[i]) return getVector<unsigned short>(logmalloclist, node, target, ashape[i][0], nullptr);
-                if (std::string("unsigned char") == atypes[i]) return getVector<unsigned char>(logmalloclist, node, target, ashape[i][0], nullptr);
+                if (std::string("char") == atypes[i]) return getVector<char>(logmalloclist, node, target, ashape[i][0]);
+                if (std::string("short") == atypes[i]) return getVector<short>(logmalloclist, node, target, ashape[i][0]);
+                if (std::string("double") == atypes[i]) return getVector<double>(logmalloclist, node, target, ashape[i][0]);
+                if (std::string("float") == atypes[i]) return getVector<float>(logmalloclist, node, target, ashape[i][0]);
+                if (std::string("int") == atypes[i]) return getVector<int>(logmalloclist, node, target, ashape[i][0]);
+                if (std::string("unsigned int") == atypes[i]) return getVector<unsigned int>(logmalloclist, node, target, ashape[i][0]);
+                if (std::string("unsigned short") == atypes[i]) return getVector<unsigned short>(logmalloclist, node, target, ashape[i][0]);
+                if (std::string("unsigned char") == atypes[i]) return getVector<unsigned char>(logmalloclist, node, target, ashape[i][0]);
             } else if (arank[i] == 2 && std::string("STRING") == atypes[i]) {
-                return getStringVector(logmalloclist, node, target, ashape[i], nullptr);
+                return getStringVector(logmalloclist, node, target, ashape[i]);
             }
         }
     }
@@ -272,9 +272,9 @@ uda::Vector atomicVector(const std::string& target, int handle, NTREE* ntree)
 }
 
 template <typename T>
-static uda::Array getArray(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, int* shape, int rank, NTREE* full_ntree)
+static uda::Array getArray(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, int* shape, int rank)
 {
-    auto data = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str(), full_ntree));
+    auto data = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
 
     std::vector<uda::Dim> dims;
     for (int i = 0; i < rank; ++i) {
@@ -291,22 +291,22 @@ static uda::Array getArray(LOGMALLOCLIST* logmalloclist, NTREE* node, const std:
 uda::Array atomicArray(const std::string& target, int handle, NTREE* ntree)
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
-    NTREE* node = findNTreeStructureComponent(logmalloclist, ntree, (char*)target.c_str(), nullptr);
+    NTREE* node = findNTreeStructureComponent(logmalloclist, ntree, (char*)target.c_str());
     //NTREE * node = findNTreeStructureComponent(node_, (char *)target.c_str()); // Locate the named variable target
     if (node == nullptr) {
         return uda::Array::Null;
     }
 
-    int acount = getNodeAtomicCount(node, nullptr); // Number of atomic typed structure members
+    int acount = getNodeAtomicCount(node); // Number of atomic typed structure members
     if (acount == 0) {
         return uda::Array::Null; // No atomic data
     }
 
-    char** anames = getNodeAtomicNames(logmalloclist, node, nullptr);
-    char** atypes = getNodeAtomicTypes(logmalloclist, node, nullptr);
-    int* apoint = getNodeAtomicPointers(logmalloclist, node, nullptr);
-    int* arank = getNodeAtomicRank(logmalloclist, node, nullptr);
-    int** ashape = getNodeAtomicShape(logmalloclist, node, nullptr);
+    char** anames = getNodeAtomicNames(logmalloclist, node);
+    char** atypes = getNodeAtomicTypes(logmalloclist, node);
+    int* apoint = getNodeAtomicPointers(logmalloclist, node);
+    int* arank = getNodeAtomicRank(logmalloclist, node);
+    int** ashape = getNodeAtomicShape(logmalloclist, node);
 
     if (anames == nullptr || atypes == nullptr || apoint == nullptr || arank == nullptr || ashape == nullptr) {
         return uda::Array::Null;
@@ -314,14 +314,14 @@ uda::Array atomicArray(const std::string& target, int handle, NTREE* ntree)
 
     for (int i = 0; i < acount; i++) {
         if (target == anames[i]) {
-            if (std::string("STRING") == atypes[i]) return getArray<char*>(logmalloclist, node, target, ashape[i], arank[i], nullptr);
-            if (std::string("short") == atypes[i]) return getArray<short>(logmalloclist, node, target, ashape[i], arank[i], nullptr);
-            if (std::string("double") == atypes[i]) return getArray<double>(logmalloclist, node, target, ashape[i], arank[i], nullptr);
-            if (std::string("float") == atypes[i]) return getArray<float>(logmalloclist, node, target, ashape[i], arank[i], nullptr);
-            if (std::string("int") == atypes[i]) return getArray<int>(logmalloclist, node, target, ashape[i], arank[i], nullptr);
-            if (std::string("unsigned int") == atypes[i]) return getArray<unsigned int>(logmalloclist, node, target, ashape[i], arank[i], nullptr);
-            if (std::string("unsigned short") == atypes[i]) return getArray<unsigned short>(logmalloclist, node, target, ashape[i], arank[i], nullptr);
-            if (std::string("unsigned char") == atypes[i]) return getArray<unsigned char>(logmalloclist, node, target, ashape[i], arank[i], nullptr);
+            if (std::string("STRING") == atypes[i]) return getArray<char*>(logmalloclist, node, target, ashape[i], arank[i]);
+            if (std::string("short") == atypes[i]) return getArray<short>(logmalloclist, node, target, ashape[i], arank[i]);
+            if (std::string("double") == atypes[i]) return getArray<double>(logmalloclist, node, target, ashape[i], arank[i]);
+            if (std::string("float") == atypes[i]) return getArray<float>(logmalloclist, node, target, ashape[i], arank[i]);
+            if (std::string("int") == atypes[i]) return getArray<int>(logmalloclist, node, target, ashape[i], arank[i]);
+            if (std::string("unsigned int") == atypes[i]) return getArray<unsigned int>(logmalloclist, node, target, ashape[i], arank[i]);
+            if (std::string("unsigned short") == atypes[i]) return getArray<unsigned short>(logmalloclist, node, target, ashape[i], arank[i]);
+            if (std::string("unsigned char") == atypes[i]) return getArray<unsigned char>(logmalloclist, node, target, ashape[i], arank[i]);
         }
     }
 
@@ -521,22 +521,22 @@ TEST_CASE( "Run test4 - pass struct containing char array", "[plugins][TESTPLUGI
     NTREE* ntree = udaGetDataTree(handle);
     REQUIRE( ntree != nullptr );
 
-    getNodeChildrenCount(ntree, nullptr);
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    getNodeChildrenCount(ntree);
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     
     USERDEFINEDTYPELIST* userdefinedtypelist = udaGetUserDefinedTypeList(handle);
-    USERDEFINEDTYPE* type = getNodeUserDefinedType(ntree, nullptr);
+    USERDEFINEDTYPE* type = getNodeUserDefinedType(ntree);
     printUserDefinedTypeTable(userdefinedtypelist, *type);
 
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
-    printNTreeStructureNames(logmalloclist, ntree, nullptr);
+    printNTreeStructureNames(logmalloclist, ntree);
     
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
 
     uda::Scalar value = atomicScalar("value", handle, ntree);
 
@@ -559,21 +559,21 @@ TEST_CASE( "Run test5 - pass struct containing array of strings", "[plugins][TES
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
 
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
     
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == false );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "STRING" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 2 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][0] == 56 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][1] == 3 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == false );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "STRING" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 2 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][0] == 56 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][1] == 3 );
 
     uda::Vector value = atomicVector("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -601,20 +601,20 @@ TEST_CASE( "Run test6 - pass struct containing string", "[plugins][TESTPLUGIN]" 
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
 
     USERDEFINEDTYPELIST* userdefinedtypelist = udaGetUserDefinedTypeList(handle);
-    USERDEFINEDTYPE* type = getNodeUserDefinedType(ntree, nullptr);
+    USERDEFINEDTYPE* type = getNodeUserDefinedType(ntree);
     printUserDefinedTypeTable(userdefinedtypelist, *type);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
-    printNTreeStructureNames(logmalloclist, ntree, nullptr);
+    printNTreeStructureNames(logmalloclist, ntree);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
 
     uda::Scalar value = atomicScalar("value", handle, ntree);
 
@@ -637,19 +637,19 @@ TEST_CASE( "Run test7 - pass struct containing array of strings", "[plugins][TES
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == false );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "STRING *" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 1 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][0] == 3 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == false );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "STRING *" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 1 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][0] == 3 );
 
     uda::Vector value = atomicVector("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -677,18 +677,18 @@ TEST_CASE( "Run test8 - pass struct containing array of string pointers", "[plug
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == true );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "STRING *" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 0 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == true );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "STRING *" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 0 );
 
     uda::Vector value = atomicVector("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -716,41 +716,41 @@ TEST_CASE( "Run test9 - pass 4 structs containing multiple types of string array
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 4 );
+    REQUIRE( getNodeChildrenCount(ntree) == 4 );
 
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
     
     for (int i = 0; i < 4; ++i)
     {
-        NTREE* child = getNodeChild(ntree, i, nullptr);
+        NTREE* child = getNodeChild(ntree, i);
 
-        REQUIRE( std::string{ getNodeStructureName(child, nullptr) } == "data" );
-        REQUIRE( getNodeChildrenCount(child, nullptr) == 0 );
-        REQUIRE( getNodeAtomicCount(child, nullptr) == 5 );
+        REQUIRE( std::string{ getNodeStructureName(child) } == "data" );
+        REQUIRE( getNodeChildrenCount(child) == 0 );
+        REQUIRE( getNodeAtomicCount(child) == 5 );
 
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child, nullptr)[0] } == "v1" );
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child, nullptr)[1] } == "v2" );
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child, nullptr)[2] } == "v3" );
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child, nullptr)[3] } == "v4" );
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child, nullptr)[4] } == "v5" );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child)[0] } == "v1" );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child)[1] } == "v2" );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child)[2] } == "v3" );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child)[3] } == "v4" );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child)[4] } == "v5" );
 
-        REQUIRE( getNodeAtomicPointers(logmalloclist, child, nullptr)[0] == false );
-        REQUIRE( getNodeAtomicPointers(logmalloclist, child, nullptr)[1] == false );
-        REQUIRE( getNodeAtomicPointers(logmalloclist, child, nullptr)[2] == true );
-        REQUIRE( getNodeAtomicPointers(logmalloclist, child, nullptr)[3] == false );
-        REQUIRE( getNodeAtomicPointers(logmalloclist, child, nullptr)[4] == true );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, child)[0] == false );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, child)[1] == false );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, child)[2] == true );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, child)[3] == false );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, child)[4] == true );
 
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child, nullptr)[0] } == "STRING" );
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child, nullptr)[1] } == "STRING" );
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child, nullptr)[2] } == "STRING" );
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child, nullptr)[3] } == "STRING *" );
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child, nullptr)[4] } == "STRING *" );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child)[0] } == "STRING" );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child)[1] } == "STRING" );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child)[2] } == "STRING" );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child)[3] } == "STRING *" );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child)[4] } == "STRING *" );
         
-        REQUIRE( getNodeAtomicRank(logmalloclist, child, nullptr)[0] == 1 );
-        REQUIRE( getNodeAtomicRank(logmalloclist, child, nullptr)[1] == 2 );
-        REQUIRE( getNodeAtomicRank(logmalloclist, child, nullptr)[2] == 0 );
-        REQUIRE( getNodeAtomicRank(logmalloclist, child, nullptr)[3] == 1 );
-        REQUIRE( getNodeAtomicRank(logmalloclist, child, nullptr)[4] == 0 );
+        REQUIRE( getNodeAtomicRank(logmalloclist, child)[0] == 1 );
+        REQUIRE( getNodeAtomicRank(logmalloclist, child)[1] == 2 );
+        REQUIRE( getNodeAtomicRank(logmalloclist, child)[2] == 0 );
+        REQUIRE( getNodeAtomicRank(logmalloclist, child)[3] == 1 );
+        REQUIRE( getNodeAtomicRank(logmalloclist, child)[4] == 0 );
 
         // v1
         {
@@ -848,18 +848,18 @@ TEST_CASE( "Run test11 - pass struct containing single int", "[plugins][TESTPLUG
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == false );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "int" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 0 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == false );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "int" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 0 );
 
     uda::Scalar value = atomicScalar("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -883,19 +883,19 @@ TEST_CASE( "Run test12 - pass struct containing 1D array of ints", "[plugins][TE
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == false );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "int" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 1 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][0] == 3 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == false );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "int" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 1 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][0] == 3 );
 
     uda::Vector value = atomicVector("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -924,20 +924,20 @@ TEST_CASE( "Run test13 - pass struct containing 2D array of ints", "[plugins][TE
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == false );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "int" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 2 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][0] == 2 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][1] == 3 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == false );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "int" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 2 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][0] == 2 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][1] == 3 );
 
     uda::Array value = atomicArray("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -973,18 +973,18 @@ TEST_CASE( "Run test14 - pass struct containing single int passed as pointer", "
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == true );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "int" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 0 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == true );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "int" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 0 );
 
     uda::Scalar value = atomicScalar("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -1008,19 +1008,19 @@ TEST_CASE( "Run test15 - pass struct containing 1D array of ints passed as point
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == true );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "int" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 1 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][0] == 3 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == true );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "int" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 1 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][0] == 3 );
 
     uda::Vector value = atomicVector("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -1049,20 +1049,20 @@ TEST_CASE( "Run test16 - pass struct containing 2D array of ints passed as point
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == true );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "int" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 2 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][0] == 2 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][1] == 3 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == true );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "int" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 2 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][0] == 2 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][1] == 3 );
 
     uda::Array value = atomicArray("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -1098,20 +1098,20 @@ TEST_CASE( "Run test18 - pass large number of structs containing single int", "[
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 100000 );
+    REQUIRE( getNodeChildrenCount(ntree) == 100000 );
 
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
     
     for (int i = 0; i < 100000; ++i) {
-        NTREE* child = getNodeChild(ntree, i, nullptr);
+        NTREE* child = getNodeChild(ntree, i);
 
-        REQUIRE( std::string{ getNodeStructureName(child, nullptr) } == "data" );
-        REQUIRE( getNodeChildrenCount(child, nullptr) == 0 );
-        REQUIRE( getNodeAtomicCount(child, nullptr) == 1 );
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child, nullptr)[0] } == "value" );
-        REQUIRE( getNodeAtomicPointers(logmalloclist, child, nullptr)[0] == false );
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child, nullptr)[0] } == "int" );
-        REQUIRE( getNodeAtomicRank(logmalloclist, child, nullptr)[0] == 0 );
+        REQUIRE( std::string{ getNodeStructureName(child) } == "data" );
+        REQUIRE( getNodeChildrenCount(child) == 0 );
+        REQUIRE( getNodeAtomicCount(child) == 1 );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child)[0] } == "value" );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, child)[0] == false );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child)[0] } == "int" );
+        REQUIRE( getNodeAtomicRank(logmalloclist, child)[0] == 0 );
 
         uda::Scalar value = atomicScalar("value", handle, child);
         REQUIRE( !value.isNull() );
@@ -1136,20 +1136,20 @@ TEST_CASE( "Run test19 - pass 3 structs containing array of structs", "[plugins]
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 3 );
+    REQUIRE( getNodeChildrenCount(ntree) == 3 );
 
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
     
     for (int i = 0; i < 3; ++i) {
-        NTREE* child = getNodeChild(ntree, i, nullptr);
+        NTREE* child = getNodeChild(ntree, i);
 
-        REQUIRE(std::string{ getNodeStructureName(child, nullptr) } == "data");
-        REQUIRE(getNodeChildrenCount(child, nullptr) == 7);
-        REQUIRE(getNodeAtomicCount(child, nullptr) == 1);
-        REQUIRE(std::string{ getNodeAtomicNames(logmalloclist, child, nullptr)[0] } == "value");
-        REQUIRE(getNodeAtomicPointers(logmalloclist, child, nullptr)[0] == false);
-        REQUIRE(std::string{ getNodeAtomicTypes(logmalloclist, child, nullptr)[0] } == "int");
-        REQUIRE(getNodeAtomicRank(logmalloclist, child, nullptr)[0] == 0);
+        REQUIRE(std::string{ getNodeStructureName(child) } == "data");
+        REQUIRE(getNodeChildrenCount(child) == 7);
+        REQUIRE(getNodeAtomicCount(child) == 1);
+        REQUIRE(std::string{ getNodeAtomicNames(logmalloclist, child)[0] } == "value");
+        REQUIRE(getNodeAtomicPointers(logmalloclist, child)[0] == false);
+        REQUIRE(std::string{ getNodeAtomicTypes(logmalloclist, child)[0] } == "int");
+        REQUIRE(getNodeAtomicRank(logmalloclist, child)[0] == 0);
 
         uda::Scalar value = atomicScalar("value", handle, child);
         REQUIRE(!value.isNull());
@@ -1160,15 +1160,15 @@ TEST_CASE( "Run test19 - pass 3 structs containing array of structs", "[plugins]
         REQUIRE(value.as<int>() == 3 + i);
 
         for (int j = 0; j < 7; ++j) {
-            NTREE* subchild = getNodeChild(child, j, nullptr);
+            NTREE* subchild = getNodeChild(child, j);
 
-            REQUIRE(std::string{ getNodeStructureName(subchild, nullptr) } == "vals");
-            REQUIRE(getNodeChildrenCount(subchild, nullptr) == 0);
-            REQUIRE(getNodeAtomicCount(subchild, nullptr) == 1);
-            REQUIRE(std::string{ getNodeAtomicNames(logmalloclist, subchild, nullptr)[0] } == "value");
-            REQUIRE(getNodeAtomicPointers(logmalloclist, subchild, nullptr)[0] == false);
-            REQUIRE(std::string{ getNodeAtomicTypes(logmalloclist, subchild, nullptr)[0] } == "int");
-            REQUIRE(getNodeAtomicRank(logmalloclist, subchild, nullptr)[0] == 0);
+            REQUIRE(std::string{ getNodeStructureName(subchild) } == "vals");
+            REQUIRE(getNodeChildrenCount(subchild) == 0);
+            REQUIRE(getNodeAtomicCount(subchild) == 1);
+            REQUIRE(std::string{ getNodeAtomicNames(logmalloclist, subchild)[0] } == "value");
+            REQUIRE(getNodeAtomicPointers(logmalloclist, subchild)[0] == false);
+            REQUIRE(std::string{ getNodeAtomicTypes(logmalloclist, subchild)[0] } == "int");
+            REQUIRE(getNodeAtomicRank(logmalloclist, subchild)[0] == 0);
 
             value = atomicScalar("value", handle, subchild);
             REQUIRE(!value.isNull());
@@ -1212,18 +1212,18 @@ TEST_CASE( "Run test21 - pass struct containing single short", "[plugins][TESTPL
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == false );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "short" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 0 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == false );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "short" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 0 );
 
     uda::Scalar value = atomicScalar("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -1247,19 +1247,19 @@ TEST_CASE( "Run test22 - pass struct containing 1D array of shorts", "[plugins][
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == false );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "short" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 1 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][0] == 3 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == false );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "short" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 1 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][0] == 3 );
 
     uda::Vector value = atomicVector("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -1288,20 +1288,20 @@ TEST_CASE( "Run test23 - pass struct containing 2D array of shorts", "[plugins][
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == false );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "short" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 2 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][0] == 3 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][1] == 2 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == false );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "short" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 2 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][0] == 3 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][1] == 2 );
 
     uda::Array value = atomicArray("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -1337,18 +1337,18 @@ TEST_CASE( "Run test24 - pass struct containing single short passed as pointer",
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == true );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "short" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 0 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == true );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "short" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 0 );
 
     uda::Scalar value = atomicScalar("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -1372,19 +1372,19 @@ TEST_CASE( "Run test25 - pass struct containing 1D array of shorts passed as poi
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == true );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "short" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 1 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][0] == 3 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == true );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "short" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 1 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][0] == 3 );
 
     uda::Vector value = atomicVector("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -1413,20 +1413,20 @@ TEST_CASE( "Run test26 - pass struct containing 2D array of shorts passed as poi
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == true );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "short" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 2 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][0] == 3 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][1] == 2 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == true );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "short" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 2 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][0] == 3 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][1] == 2 );
 
     uda::Array value = atomicArray("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -1462,21 +1462,21 @@ TEST_CASE( "Run test27 - pass struct containing 3D array of shorts", "[plugins][
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == false );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "short" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 3 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][0] == 4 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][1] == 3 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][2] == 2 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == false );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "short" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 3 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][0] == 4 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][1] == 3 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][2] == 2 );
 
     uda::Array value = atomicArray("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -1509,21 +1509,21 @@ TEST_CASE( "Run test28 - pass struct containing 3D array of shorts passed as poi
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "value" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == true );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "short" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 3 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][0] == 4 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][1] == 3 );
-    REQUIRE( getNodeAtomicShape(logmalloclist, ntree, nullptr)[0][2] == 2 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "value" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == true );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "short" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 3 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][0] == 4 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][1] == 3 );
+    REQUIRE( getNodeAtomicShape(logmalloclist, ntree)[0][2] == 2 );
 
     uda::Array value = atomicArray("value", handle, ntree);
     REQUIRE( !value.isNull() );
@@ -1556,22 +1556,22 @@ TEST_CASE( "Run test30 - pass struct containing 2 doubles", "[plugins][TESTPLUGI
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 0 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 2 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "R" );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[1] } == "Z" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == false );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[1] == false );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "double" );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[1] } == "double" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 0 );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[1] == 0 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 0 );
+    REQUIRE( getNodeAtomicCount(ntree) == 2 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "R" );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[1] } == "Z" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == false );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[1] == false );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "double" );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[1] } == "double" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 0 );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[1] == 0 );
 
     uda::Scalar R = atomicScalar("R", handle, ntree);
     REQUIRE( !R.isNull() );
@@ -1599,24 +1599,24 @@ TEST_CASE( "Run test31 - pass 100 structs containing 2 doubles", "[plugins][TEST
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 100 );
+    REQUIRE( getNodeChildrenCount(ntree) == 100 );
 
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
     
     for (int i = 0; i < 100; ++i) {
-        NTREE* child = getNodeChild(ntree, i, nullptr);
+        NTREE* child = getNodeChild(ntree, i);
 
-        REQUIRE( std::string{ getNodeStructureName(child, nullptr) } == "data" );
-        REQUIRE( getNodeChildrenCount(child, nullptr) == 0 );
-        REQUIRE( getNodeAtomicCount(child, nullptr) == 2 );
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child, nullptr)[0] } == "R" );
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child, nullptr)[1] } == "Z" );
-        REQUIRE( getNodeAtomicPointers(logmalloclist, child, nullptr)[0] == false );
-        REQUIRE( getNodeAtomicPointers(logmalloclist, child, nullptr)[1] == false );
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child, nullptr)[0] } == "double" );
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child, nullptr)[1] } == "double" );
-        REQUIRE( getNodeAtomicRank(logmalloclist, child, nullptr)[0] == 0 );
-        REQUIRE( getNodeAtomicRank(logmalloclist, child, nullptr)[1] == 0 );
+        REQUIRE( std::string{ getNodeStructureName(child) } == "data" );
+        REQUIRE( getNodeChildrenCount(child) == 0 );
+        REQUIRE( getNodeAtomicCount(child) == 2 );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child)[0] } == "R" );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, child)[1] } == "Z" );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, child)[0] == false );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, child)[1] == false );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child)[0] } == "double" );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, child)[1] } == "double" );
+        REQUIRE( getNodeAtomicRank(logmalloclist, child)[0] == 0 );
+        REQUIRE( getNodeAtomicRank(logmalloclist, child)[1] == 0 );
 
         uda::Scalar R = atomicScalar("R", handle, child);
         REQUIRE( !R.isNull() );
@@ -1645,18 +1645,18 @@ TEST_CASE( "Run test32 - pass struct containing array of 100 structs containing 
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 100 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "count" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == false );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "int" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 0 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 100 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "count" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == false );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "int" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 0 );
 
     uda::Scalar count = atomicScalar("count", handle, ntree);
     REQUIRE( !count.isNull() );
@@ -1665,19 +1665,19 @@ TEST_CASE( "Run test32 - pass struct containing array of 100 structs containing 
     REQUIRE( count.as<int>() == 100 );
 
     for (int i = 0; i < 100; ++i) {
-        NTREE* coord = getNodeChild(ntree, i, nullptr);
+        NTREE* coord = getNodeChild(ntree, i);
 
-        REQUIRE( std::string{ getNodeStructureName(coord, nullptr) } == "coords" );
-        REQUIRE( getNodeChildrenCount(coord, nullptr) == 0 );
-        REQUIRE( getNodeAtomicCount(coord, nullptr) == 2 );
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, coord, nullptr)[0] } == "R" );
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, coord, nullptr)[1] } == "Z" );
-        REQUIRE( getNodeAtomicPointers(logmalloclist, coord, nullptr)[0] == false );
-        REQUIRE( getNodeAtomicPointers(logmalloclist, coord, nullptr)[1] == false );
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, coord, nullptr)[0] } == "double" );
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, coord, nullptr)[1] } == "double" );
-        REQUIRE( getNodeAtomicRank(logmalloclist, coord, nullptr)[0] == 0 );
-        REQUIRE( getNodeAtomicRank(logmalloclist, coord, nullptr)[1] == 0 );
+        REQUIRE( std::string{ getNodeStructureName(coord) } == "coords" );
+        REQUIRE( getNodeChildrenCount(coord) == 0 );
+        REQUIRE( getNodeAtomicCount(coord) == 2 );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, coord)[0] } == "R" );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, coord)[1] } == "Z" );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, coord)[0] == false );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, coord)[1] == false );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, coord)[0] } == "double" );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, coord)[1] } == "double" );
+        REQUIRE( getNodeAtomicRank(logmalloclist, coord)[0] == 0 );
+        REQUIRE( getNodeAtomicRank(logmalloclist, coord)[1] == 0 );
 
         uda::Scalar R = atomicScalar("R", handle, coord);
         REQUIRE( !R.isNull() );
@@ -1706,18 +1706,18 @@ TEST_CASE( "Run test33 - pass struct containing array of 100 structs containing 
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 100 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "count" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == false );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "int" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 0 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 100 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "count" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == false );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "int" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 0 );
 
     uda::Scalar count = atomicScalar("count", handle, ntree);
     REQUIRE( !count.isNull() );
@@ -1726,19 +1726,19 @@ TEST_CASE( "Run test33 - pass struct containing array of 100 structs containing 
     REQUIRE( count.as<int>() == 100 );
 
     for (int i = 0; i < 100; ++i) {
-        NTREE* coord = getNodeChild(ntree, i, nullptr);
+        NTREE* coord = getNodeChild(ntree, i);
 
-        REQUIRE( std::string{ getNodeStructureName(coord, nullptr) } == "coords" );
-        REQUIRE( getNodeChildrenCount(coord, nullptr) == 0 );
-        REQUIRE( getNodeAtomicCount(coord, nullptr) == 2 );
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, coord, nullptr)[0] } == "R" );
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, coord, nullptr)[1] } == "Z" );
-        REQUIRE( getNodeAtomicPointers(logmalloclist, coord, nullptr)[0] == false );
-        REQUIRE( getNodeAtomicPointers(logmalloclist, coord, nullptr)[1] == false );
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, coord, nullptr)[0] } == "double" );
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, coord, nullptr)[1] } == "double" );
-        REQUIRE( getNodeAtomicRank(logmalloclist, coord, nullptr)[0] == 0 );
-        REQUIRE( getNodeAtomicRank(logmalloclist, coord, nullptr)[1] == 0 );
+        REQUIRE( std::string{ getNodeStructureName(coord) } == "coords" );
+        REQUIRE( getNodeChildrenCount(coord) == 0 );
+        REQUIRE( getNodeAtomicCount(coord) == 2 );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, coord)[0] } == "R" );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, coord)[1] } == "Z" );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, coord)[0] == false );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, coord)[1] == false );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, coord)[0] } == "double" );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, coord)[1] } == "double" );
+        REQUIRE( getNodeAtomicRank(logmalloclist, coord)[0] == 0 );
+        REQUIRE( getNodeAtomicRank(logmalloclist, coord)[1] == 0 );
 
         uda::Scalar R = atomicScalar("R", handle, coord);
         REQUIRE( !R.isNull() );
@@ -1767,18 +1767,18 @@ TEST_CASE( "Run test34 - pass struct containing array of 100 structs containing 
 
     REQUIRE( udaSetDataTree(handle) == 1 );
 
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 1 );
+    REQUIRE( getNodeChildrenCount(ntree) == 1 );
 
-    ntree = getNodeChild(ntree, 0, nullptr);
+    ntree = getNodeChild(ntree, 0);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    REQUIRE( std::string{ getNodeStructureName(ntree, nullptr) } == "data" );
-    REQUIRE( getNodeChildrenCount(ntree, nullptr) == 100 );
-    REQUIRE( getNodeAtomicCount(ntree, nullptr) == 1 );
-    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree, nullptr)[0] } == "count" );
-    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree, nullptr)[0] == false );
-    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree, nullptr)[0] } == "int" );
-    REQUIRE( getNodeAtomicRank(logmalloclist, ntree, nullptr)[0] == 0 );
+    REQUIRE( std::string{ getNodeStructureName(ntree) } == "data" );
+    REQUIRE( getNodeChildrenCount(ntree) == 100 );
+    REQUIRE( getNodeAtomicCount(ntree) == 1 );
+    REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, ntree)[0] } == "count" );
+    REQUIRE( getNodeAtomicPointers(logmalloclist, ntree)[0] == false );
+    REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, ntree)[0] } == "int" );
+    REQUIRE( getNodeAtomicRank(logmalloclist, ntree)[0] == 0 );
 
     uda::Scalar count = atomicScalar("count", handle, ntree);
     REQUIRE( !count.isNull() );
@@ -1787,23 +1787,23 @@ TEST_CASE( "Run test34 - pass struct containing array of 100 structs containing 
     REQUIRE( count.as<int>() == 100 );
 
     for (int i = 0; i < 100; ++i) {
-        NTREE* coord = getNodeChild(ntree, i, nullptr);
+        NTREE* coord = getNodeChild(ntree, i);
 
-        REQUIRE( std::string{ getNodeStructureName(coord, nullptr) } == "coords" );
-        REQUIRE( getNodeChildrenCount(coord, nullptr) == 0 );
-        REQUIRE( getNodeAtomicCount(coord, nullptr) == 2 );
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, coord, nullptr)[0] } == "R" );
-        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, coord, nullptr)[1] } == "Z" );
-        REQUIRE( getNodeAtomicPointers(logmalloclist, coord, nullptr)[0] == true );
-        REQUIRE( getNodeAtomicPointers(logmalloclist, coord, nullptr)[1] == true );
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, coord, nullptr)[0] } == "unsigned char *" );
-        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, coord, nullptr)[1] } == "unsigned char *" );
-        REQUIRE( getNodeAtomicRank(logmalloclist, coord, nullptr)[0] == 0 );
-        REQUIRE( getNodeAtomicRank(logmalloclist, coord, nullptr)[1] == 0 );
-        REQUIRE( getNodeAtomicRank(logmalloclist, coord, nullptr)[0] == 0 );
-        REQUIRE( getNodeAtomicRank(logmalloclist, coord, nullptr)[1] == 0 );
-        REQUIRE( getNodeAtomicShape(logmalloclist, coord, nullptr)[0][0] == 10 );
-        REQUIRE( getNodeAtomicShape(logmalloclist, coord, nullptr)[1][0] == 10 );
+        REQUIRE( std::string{ getNodeStructureName(coord) } == "coords" );
+        REQUIRE( getNodeChildrenCount(coord) == 0 );
+        REQUIRE( getNodeAtomicCount(coord) == 2 );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, coord)[0] } == "R" );
+        REQUIRE( std::string{ getNodeAtomicNames(logmalloclist, coord)[1] } == "Z" );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, coord)[0] == true );
+        REQUIRE( getNodeAtomicPointers(logmalloclist, coord)[1] == true );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, coord)[0] } == "unsigned char *" );
+        REQUIRE( std::string{ getNodeAtomicTypes(logmalloclist, coord)[1] } == "unsigned char *" );
+        REQUIRE( getNodeAtomicRank(logmalloclist, coord)[0] == 0 );
+        REQUIRE( getNodeAtomicRank(logmalloclist, coord)[1] == 0 );
+        REQUIRE( getNodeAtomicRank(logmalloclist, coord)[0] == 0 );
+        REQUIRE( getNodeAtomicRank(logmalloclist, coord)[1] == 0 );
+        REQUIRE( getNodeAtomicShape(logmalloclist, coord)[0][0] == 10 );
+        REQUIRE( getNodeAtomicShape(logmalloclist, coord)[1][0] == 10 );
 
         uda::Vector R = atomicVector("R", handle, coord);
         REQUIRE( !R.isNull() );

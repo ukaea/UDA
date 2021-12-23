@@ -85,9 +85,9 @@ endif()
 if( CMAKE_VERSION VERSION_GREATER 3.0.9 )
   if( CMAKE_C_COMPILER_ID STREQUAL "Intel" )
     set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17" )
   else()
-    set( CMAKE_CXX_STANDARD 11 )
+    set( CMAKE_CXX_STANDARD 17 )
     set( CMAKE_CXX_STANDARD_REQUIRED ON )
     # C++ extension = OFF to use STD instead GNU
     set( CMAKE_CXX_EXTENSIONS OFF )
@@ -195,25 +195,15 @@ endif()
 ########################################################################################################################
 # Create module
 
-set( UDA_HOST "localhost" CACHE STRING "default host to use to connect to server" )
-set( UDA_PORT "56565" CACHE STRING "default port to use to connect to server" )
-
 configure_file(
   ${CMAKE_SOURCE_DIR}/source/etc/module.in
   ${CMAKE_BINARY_DIR}/etc/uda/${PROJECT_VERSION}
   @ONLY
 )
 
-set( MODULE_PATH "modulefiles/uda" CACHE PATH "location to install module files to" )
-set( MODULE_NAME "${PROJECT_VERSION}" CACHE STRING "name of the module file" )
-string( CONFIGURE "${MODULE_PATH}" MODULE_PATH_EXPANDED @ONLY )
-
-get_filename_component( MODULE_PATH_EXPANDED ${MODULE_PATH_EXPANDED} REALPATH BASE_DIR "${CMAKE_INSTALL_PREFIX}" )
-
 install(
   FILES ${CMAKE_BINARY_DIR}/etc/uda/${PROJECT_VERSION}
-  DESTINATION ${MODULE_PATH_EXPANDED}
-  RENAME ${MODULE_NAME}
+  DESTINATION modulefiles/uda
 )
 
 # Portablexdr 4.9.1 libraries

@@ -2,6 +2,7 @@
 #define UDA_CLIENT_ACCAPI_H
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #include <clientserver/udaStructs.h>
 #include <structures/genStructs.h>
@@ -40,9 +41,9 @@ LIBRARY_API void resetIdamProperty(const char* property, CLIENT_FLAGS* client_fl
 
 LIBRARY_API void resetIdamProperties(CLIENT_FLAGS* client_flags);
 
-LIBRARY_API CLIENT_BLOCK saveIdamProperties(const CLIENT_FLAGS* client_flags, int alt_rank);
+LIBRARY_API CLIENT_BLOCK saveIdamProperties(const CLIENT_FLAGS* client_flags);
 
-LIBRARY_API void restoreIdamProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags, int* alt_rank);
+LIBRARY_API void restoreIdamProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags);
 
 LIBRARY_API CLIENT_BLOCK* getIdamProperties(int handle);
 
