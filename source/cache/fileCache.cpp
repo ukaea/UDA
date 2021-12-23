@@ -381,8 +381,7 @@ boost::optional<CacheStats> purge_cache(FILE* db)
 
 DATA_BLOCK*
 udaFileCacheRead(const REQUEST_DATA* request, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                 int protocolVersion, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
-                 int malloc_source)
+                 int protocolVersion, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     auto maybe_entry = find_cache_entry(request);
     if (!maybe_entry) {
@@ -409,7 +408,7 @@ udaFileCacheRead(const REQUEST_DATA* request, LOGMALLOCLIST* logmalloclist, USER
         THROW_ERROR(0, "Unable to Open the Cached Data File");
     }
 
-    auto data_block = readCacheData(xdrfile, logmalloclist, userdefinedtypelist, protocolVersion, full_ntree,
+    auto data_block = readCacheData(xdrfile, logmalloclist, userdefinedtypelist, protocolVersion,
                                     log_struct_list, private_flags, malloc_source);
 
     fclose(xdrfile);
@@ -617,8 +616,8 @@ std::string generate_cache_filename(const REQUEST_DATA* request)
 }
 
 int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
-                      USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, NTREE* full_ntree,
-                      LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+                      USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
+                      unsigned int private_flags, int malloc_source)
 {
     REQUEST_DATA* request = &request_block->requests[0];
 
@@ -637,7 +636,7 @@ int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request
         THROW_ERROR(0, "unable to create the Cached Data File");
     }
 
-    writeCacheData(xdrfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion, full_ntree,
+    writeCacheData(xdrfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion,
                    log_struct_list, private_flags, malloc_source);
 
     fclose(xdrfile);

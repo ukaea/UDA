@@ -213,36 +213,40 @@ uda::client::Client::fetch_meta()
     SIGNAL* signal_rec = &metadata_.signal_rec;
     SIGNAL_DESC* signal_desc = &metadata_.signal_desc;
 
-    if ((err = protocol2(client_input_, PROTOCOL_DATA_SYSTEM, XDR_RECEIVE, nullptr, logmalloclist_, userdefinedtypelist_,
-                         data_system, protocol_version_, full_ntree_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
+    if ((err = protocol2(client_input_, PROTOCOL_DATA_SYSTEM, XDR_RECEIVE, nullptr, logmalloclist_,
+                         userdefinedtypelist_,
+                         data_system, protocol_version_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 4 Error (Data System)");
         return err;
     }
     printDataSystem(*data_system);
 
-    if ((err = protocol2(client_input_, PROTOCOL_SYSTEM_CONFIG, XDR_RECEIVE, nullptr, logmalloclist_, userdefinedtypelist_,
-                         system_config, protocol_version_, full_ntree_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
+    if ((err = protocol2(client_input_, PROTOCOL_SYSTEM_CONFIG, XDR_RECEIVE, nullptr, logmalloclist_,
+                         userdefinedtypelist_,
+                         system_config, protocol_version_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 5 Error (System Config)");
         return err;
     }
     printSystemConfig(*system_config);
 
-    if ((err = protocol2(client_input_, PROTOCOL_DATA_SOURCE, XDR_RECEIVE, nullptr, logmalloclist_, userdefinedtypelist_,
-                         data_source, protocol_version_, full_ntree_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
+    if ((err = protocol2(client_input_, PROTOCOL_DATA_SOURCE, XDR_RECEIVE, nullptr, logmalloclist_,
+                         userdefinedtypelist_,
+                         data_source, protocol_version_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 6 Error (Data Source)");
         return err;
     }
     printDataSource(*data_source);
 
     if ((err = protocol2(client_input_, PROTOCOL_SIGNAL, XDR_RECEIVE, nullptr, logmalloclist_, userdefinedtypelist_,
-                         signal_rec, protocol_version_, full_ntree_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
+                         signal_rec, protocol_version_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 7 Error (Signal)");
         return err;
     }
     printSignal(*signal_rec);
 
-    if ((err = protocol2(client_input_, PROTOCOL_SIGNAL_DESC, XDR_RECEIVE, nullptr, logmalloclist_, userdefinedtypelist_,
-                         signal_desc, protocol_version_, full_ntree_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
+    if ((err = protocol2(client_input_, PROTOCOL_SIGNAL_DESC, XDR_RECEIVE, nullptr, logmalloclist_,
+                         userdefinedtypelist_,
+                         signal_desc, protocol_version_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 8 Error (Signal Desc)");
         return err;
     }
@@ -273,7 +277,7 @@ uda::client::Client::fetch_hierarchical_data(DATA_BLOCK* data_block)
 
         int err = 0;
         if ((err = protocol2(client_input_, protocol_id, XDR_RECEIVE, nullptr, logmalloclist_, userdefinedtypelist_,
-                             data_block, protocol_version_, full_ntree_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
+                             data_block, protocol_version_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
             addIdamError(CODEERRORTYPE, __func__, err, "Client Side Protocol Error (Opaque Structure Type)");
             return err;
         }
@@ -413,7 +417,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
     DATA_BLOCK_LIST recv_data_block_list;
 
     if ((err = protocol2(client_input_, PROTOCOL_DATA_BLOCK_LIST, XDR_RECEIVE, nullptr, logmalloclist_,
-                         userdefinedtypelist_, &recv_data_block_list, protocol_version_, full_ntree_,
+                         userdefinedtypelist_, &recv_data_block_list, protocol_version_,
                          &log_struct_list_, private_flags_, malloc_source_)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Protocol 2 Error (Failure Receiving Data Block)\n");
 
@@ -461,12 +465,12 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         // Cache the data if the server has passed permission and the application (client) has enabled caching
         if (client_flags_.flags & CLIENTFLAG_FILECACHE) {
             udaFileCacheWrite(data_block, &request_block, logmalloclist_, userdefinedtypelist_, protocol_version_,
-                              full_ntree_, &log_struct_list_, private_flags_, malloc_source_);
+                              &log_struct_list_, private_flags_, malloc_source_);
         }
 
         if (cache_ != nullptr && client_flags_.flags & CLIENTFLAG_CACHE) {
             cache_write(cache_, &request_block.requests[i], data_block, logmalloclist_, userdefinedtypelist_,
-                        environment_, protocol_version_, client_flags_.flags, full_ntree_, &log_struct_list_,
+                        environment_, protocol_version_, client_flags_.flags, &log_struct_list_,
                         private_flags_, malloc_source_);
         }
 
@@ -557,7 +561,7 @@ int uda::client::Client::send_putdata(const RequestBlock& request_block)
             int protocol_id = PROTOCOL_PUTDATA_BLOCK_LIST;
             int err = 0;
             if ((err = protocol2(client_output_, protocol_id, XDR_SEND, nullptr, logmalloclist_, userdefinedtypelist_,
-                                 &(request->putDataBlockList), protocol_version_, full_ntree_, &log_struct_list_,
+                                 &(request->putDataBlockList), protocol_version_, &log_struct_list_,
                                  private_flags_, malloc_source_)) != 0) {
                 addIdamError(CODEERRORTYPE, __func__, err,
                              "Protocol 1 Error (sending putDataBlockList from Request Block)");
@@ -684,7 +688,7 @@ int uda::client::Client::send_request_block(RequestBlock& request_block)
     int protocol_id = PROTOCOL_REQUEST_BLOCK;     // This is what the Client Wants
     int err = 0;
     if ((err = protocol2(client_output_, protocol_id, XDR_SEND, nullptr, logmalloclist_, userdefinedtypelist_,
-                         &request_block, protocol_version_, full_ntree_, &log_struct_list_, private_flags_,
+                         &request_block, protocol_version_, &log_struct_list_, private_flags_,
                          malloc_source_)) != 0) {
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 1 Error (Request Block)");
         throw uda::exceptions::ClientError("Protocol 1 Error (Request Block)");
@@ -698,7 +702,7 @@ int uda::client::Client::send_client_block()
     int protocol_id = PROTOCOL_CLIENT_BLOCK;      // Send Client Block
     int err = 0;
     if ((err = protocol2(client_output_, protocol_id, XDR_SEND, nullptr, logmalloclist_, userdefinedtypelist_,
-                         &client_block_, protocol_version_, full_ntree_, &log_struct_list_, private_flags_,
+                         &client_block_, protocol_version_, &log_struct_list_, private_flags_,
                          malloc_source_)) != 0) {
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (Client Block)");
         throw uda::exceptions::ClientError("Protocol 10 Error (Client Block)");
@@ -715,7 +719,7 @@ int uda::client::Client::perform_handshake()
 
     int err = 0;
     if ((err = protocol2(client_output_, protocol_id, XDR_SEND, nullptr, logmalloclist_, userdefinedtypelist_,
-                         &client_block_, protocol_version_, full_ntree_, &log_struct_list_, private_flags_,
+                         &client_block_, protocol_version_, &log_struct_list_, private_flags_,
                          malloc_source_)) != 0) {
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (Client Block)");
         UDA_LOG(UDA_LOG_DEBUG, "Error Sending Client Block\n");
@@ -742,7 +746,7 @@ int uda::client::Client::perform_handshake()
     protocol_id = PROTOCOL_SERVER_BLOCK;      // Receive Server Block: Server Aknowledgement (proxy for authenticationStep = 8)
 
     if ((err = protocol2(client_input_, protocol_id, XDR_RECEIVE, nullptr, logmalloclist_, userdefinedtypelist_,
-                         &server_block_, protocol_version_, full_ntree_, &log_struct_list_, private_flags_,
+                         &server_block_, protocol_version_, &log_struct_list_, private_flags_,
                          malloc_source_)) != 0) {
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 11 Error (Server Block #1)");
         // Assuming the server_block is corrupted, replace with a clean copy to avoid concatonation problems
@@ -806,7 +810,7 @@ int uda::client::Client::receive_server_block()
 
     int err = 0;
     if ((err = protocol2(client_input_, PROTOCOL_SERVER_BLOCK, XDR_RECEIVE, nullptr, logmalloclist_,
-                         userdefinedtypelist_, &server_block_, protocol_version_, full_ntree_, &log_struct_list_,
+                         userdefinedtypelist_, &server_block_, protocol_version_, &log_struct_list_,
                          private_flags_, malloc_source_)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Protocol 11 Error (Server Block #2) = %d\n", err);
         addIdamError(CODEERRORTYPE, __func__, err, " Protocol 11 Error (Server Block #2)");

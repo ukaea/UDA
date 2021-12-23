@@ -16,8 +16,9 @@
 * more rigour to the search.  
 * @param lastname Returns the name of the element, i.e., the name of the last item in the name hierarchy.
 * @return the Tree Node containing the named element.
-*/ 
-NTREE *findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE *ntree, const char * target, const char **lastname, NTREE* full_ntree);
+*/
+NTREE*
+findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, const char** lastname);
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
 * The name of the structure is also returned.  
@@ -29,7 +30,7 @@ NTREE *findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE *ntree, 
 * @param lastname Returns the name of the Structure, i.e., the name of the last node in the name hierarchy.
 * @return the Data Tree Node with the structure name.
 */
-NTREE *findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE *ntree, const char * target, const char **lastname, NTREE* full_ntree);
+NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, const char** lastname);
 
 /** Find (search type A) and return a Pointer to the Data Tree Node with a data structure that contains a named element. 
 *
@@ -39,8 +40,8 @@ NTREE *findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE *ntree, const cha
 * @param target The name of the structure element or member (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * This element may be either a structure itself or an atomic typed element.
 * @return the Data Tree Node.
-*/ 
-NTREE *findNTreeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE *ntree, const char * target, NTREE* full_ntree);
+*/
+NTREE* findNTreeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
 
 /** Find (search type A) and return a Pointer to the Child Data Tree Node with a data structure that contains a named element. 
 *
@@ -50,8 +51,8 @@ NTREE *findNTreeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE *ntree, c
 * @param target The name of the structure element or member (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * This element may be either a structure itself or an atomic typed element.
 * @return the Data Tree Node.
-*/ 
-NTREE *findNTreeChildStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE *ntree, const char * target, NTREE* full_ntree);
+*/
+NTREE* findNTreeChildStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
 *
@@ -60,8 +61,8 @@ NTREE *findNTreeChildStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE *ntr
 * @param ntree A pointer to a parent tree node. If NULL the root node is assumed. 
 * @param target The name of the Structure (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * @return the Data Tree Node.
-*/ 
-NTREE *findNTreeStructure(LOGMALLOCLIST* logmalloclist, NTREE *ntree, const char * target, NTREE* full_ntree);
+*/
+NTREE* findNTreeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
 *
@@ -71,7 +72,7 @@ NTREE *findNTreeStructure(LOGMALLOCLIST* logmalloclist, NTREE *ntree, const char
 * @param target The name of the Structure (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * @return the child Data Tree Node.
 */
-NTREE *findNTreeChildStructure(LOGMALLOCLIST* logmalloclist, NTREE *ntree, const char * target, NTREE* full_ntree);
+NTREE* findNTreeChildStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
 
 /** Find and return a Pointer to a Data Tree Node with a data structure located at a specific memory location.
 *
@@ -81,7 +82,7 @@ NTREE *findNTreeChildStructure(LOGMALLOCLIST* logmalloclist, NTREE *ntree, const
 * @param data The heap address of the data.
 * @return the Data Tree Node.
 */
-NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data, NTREE* full_ntree);
+NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data);
 
 /** Locate a tree node with structured data having the specified Structure Definition name. 
 *
@@ -91,7 +92,7 @@ NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data, NTREE* full_ntree);
 * @param target The name of the Structure Definition.
 * @return A pointer to the First tree node found with the targeted structure definition.
 */
-NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target, NTREE* full_ntree);
+NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target);
 
 /** Locate a tree node with structured data having the specified Structure Definition name. 
 *
@@ -101,7 +102,7 @@ NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target, NTREE* ful
 * @param target The name of the Structure Definition.
 * @return A pointer to the First tree node found with the targeted structure definition.
 */
-NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target, NTREE* full_ntree);
+NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target);
 
 /** Locate a tree node with structured data having a Specific Structure Class. 
 *
@@ -111,7 +112,7 @@ NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target, NT
 * @param class The Structure Class, e.g., UDA_TYPE_VLEN.
 * @return A pointer to the First tree node found with the targeted structure class.
 */
-NTREE* idam_findNTreeStructureClass(NTREE* tree, int class_, NTREE* full_ntree);
+NTREE* idam_findNTreeStructureClass(NTREE* tree, int cls);
 
 /** Identify the largest count of a Variable Length Array with a given structure type. 
 *
@@ -122,7 +123,7 @@ NTREE* idam_findNTreeStructureClass(NTREE* tree, int class_, NTREE* full_ntree);
 * @param reset Reset the counbter to zero.
 * @return An integer returning the maximum count value.
 */
-int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset, NTREE* full_ntree);
+int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset);
 
 /** Regularise a specific VLEN structure. 
 *
@@ -133,7 +134,8 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset, 
 * @param count The maximum count size for the VLEN data arrays.
 * @return An integer returning an error code: 0 => OK.
 */
-int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE *tree, USERDEFINEDTYPELIST* userdefinedtypelist, const char * target, unsigned int count, NTREE* full_ntree);
+int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist,
+                                  const char* target, unsigned int count);
 
 /** Regularise the Shape of All VLEN structured data arrays in the data tree: necessary for accessing in some languages, e.g. IDL. 
 *
@@ -142,7 +144,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE *tree, USE
 * @param tree A pointer to a parent tree node. If NULL the root node is assumed.  
 * @return An integer returning an error code: 0 => OK.
 */
-int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE *tree, USERDEFINEDTYPELIST* userdefinedtypelist, NTREE* full_ntree);
+int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist);
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
@@ -154,8 +156,8 @@ int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE *tree, USERDEFIN
 *
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return the Count of structured data array elements.
-*/ 
-int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE *ntree, NTREE* full_ntree);
+*/
+int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
 
 /** Return the Size (bytes) of the structured data array attached to this tree node. 
 *
@@ -163,8 +165,8 @@ int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE *ntree, NTREE*
 *
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return the Size (bytes) of the structured data array.
-*/ 
-int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE *ntree, NTREE* full_ntree);
+*/
+int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
 
 /** Return the rank of the structured data array attached to this tree node. 
 *
@@ -173,7 +175,7 @@ int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE *ntree, NTREE* 
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return The rank of the structured data array.
 */
-int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE *ntree, NTREE* full_ntree);
+int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
 
 /** Return the shape of the structured data array attached to this tree node. 
 *
@@ -181,8 +183,8 @@ int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE *ntree, NTREE* 
 *
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return A pointer to the integer shape array of the structured data array.
-*/ 
-int *getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE *ntree, NTREE* full_ntree);
+*/
+int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
 
 /** Return a pointer to the structured data type name of the data array attached to this tree node. 
 *
@@ -191,7 +193,7 @@ int *getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE *ntree, NTREE
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return the data type name of the structured data array.
 */
-const char *getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE *ntree, NTREE* full_ntree);
+const char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
  
 /** Return a pointer to the data attached to this tree node.  
 *
@@ -200,7 +202,7 @@ const char *getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE *nt
 * @param ntree A pointer to a tree node. If NULL the root node is assumed. 
 * @return A void pointer to the data .
 */
-void* getNodeStructureData(NTREE* ntree, NTREE* full_ntree);
+void* getNodeStructureData(NTREE* ntree);
 
 //----------------------------------------------------------------------------------------------------------
 // Sundry utility functions

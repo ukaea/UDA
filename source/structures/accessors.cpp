@@ -62,11 +62,11 @@
 * @return the Tree Node containing the named element.
 */
 
-NTREE* findNTreeStructureComponent1(NTREE* ntree, const char* target, NTREE* full_ntree)
+NTREE* findNTreeStructureComponent1(NTREE* ntree, const char* target)
 {
-    NTREE* child = nullptr;
-
-    if (ntree == nullptr) ntree = full_ntree;
+    if (ntree == nullptr) {
+        ntree = udaGetFullNTree();
+    }
 
     // Single entity name expected - test
 
@@ -92,7 +92,8 @@ NTREE* findNTreeStructureComponent1(NTREE* ntree, const char* target, NTREE* ful
     // Recursively Search Child nodes for structured type data
 
     for (int i = 0; i < ntree->branches; i++) {
-        if ((child = findNTreeStructureComponent1(ntree->children[i], target, full_ntree)) != nullptr) {
+        NTREE* child = nullptr;
+        if ((child = findNTreeStructureComponent1(ntree->children[i], target)) != nullptr) {
             return child;
         }
     }
@@ -120,19 +121,19 @@ Search all but the last on the child tree nodes.
 The first name must be searched for down the tree from the root or starting node
 All subsequent names must be within child nodes unless the last name
 */
-NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
-                                    const char** lastname, NTREE* full_ntree)
+NTREE*
+findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, const char** lastname)
 {
-    NTREE* child = nullptr, * found = nullptr;
-
-    if (ntree == nullptr) ntree = full_ntree;
+    if (ntree == nullptr) {
+        ntree = udaGetFullNTree();
+    }
 
     // Is the hierarchical name of the form: a.b.c or a/b/c
 
     if ((strchr(target, '.') != nullptr) || strchr(target, '/') != nullptr) {
         int ntargets;
         char** targetlist = nullptr;
-        child = ntree;
+        NTREE* child = ntree;
 
         targetlist = parseTarget(target, &ntargets);    // Deconstruct the Name and search for each hierarchy group
 
@@ -140,7 +141,7 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
 
         // Search recursively for the first name
 
-        if ((child = findNTreeStructureComponent1(child, targetlist[0], full_ntree)) == nullptr) {
+        if ((child = findNTreeStructureComponent1(child, targetlist[0])) == nullptr) {
             // Not found
             return nullptr;
         }
@@ -148,7 +149,7 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
         // Search child nodes for all names but the last name
 
         for (int i = 1; i < ntargets - 1; i++) {
-            found = nullptr;
+            NTREE* found = nullptr;
             for (int j = 0; j < child->branches; j++) {
                 if (STR_EQUALS(child->children[j]->name, targetlist[i])) {
                     found = child->children[j];
@@ -188,7 +189,10 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
 
     *lastname = target;
 
-    if ((child = findNTreeStructureComponent1(ntree, target, full_ntree)) != nullptr) return child;        // Found
+    NTREE* child;
+    if ((child = findNTreeStructureComponent1(ntree, target)) != nullptr) {
+        return child;        // Found
+    }
 
     return nullptr;        // Not found
 
@@ -204,28 +208,29 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
 * @param lastname Returns the name of the Structure, i.e., the name of the last node in the name hierarchy.
 * @return the Data Tree Node with the structure name.
 */
-NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, const char** lastname, NTREE* full_ntree)
+NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, const char** lastname)
 {
-    NTREE* child = nullptr;
-    NTREE* test = nullptr;
-    if (ntree == nullptr) ntree = full_ntree;
+    if (ntree == nullptr) {
+        ntree = udaGetFullNTree();
+    }
 
     // Is the hierarchical name of the form: a.b.c or a/b/c
 
     if ((strchr(target, '.') != nullptr) || strchr(target, '/') != nullptr) {
         int ntargets;
         char** targetlist = nullptr;
-        child = ntree;
+        NTREE* child = ntree;
 
         targetlist = parseTarget(target, &ntargets); // Deconstruct Name and search for each hierarchy group
 
         for (int i = 0; i < ntargets; i++) {    // Drill Down to requested named structure element
             if (i < ntargets - 1) {
-                child = findNTreeStructure2(logmalloclist, child, targetlist[i], lastname, full_ntree);
+                child = findNTreeStructure2(logmalloclist, child, targetlist[i], lastname);
             } else {
-                if ((test = findNTreeStructure2(logmalloclist, child, targetlist[i], lastname, full_ntree)) ==
+                NTREE* test = nullptr;
+                if ((test = findNTreeStructure2(logmalloclist, child, targetlist[i], lastname)) ==
                     nullptr) { // Last element may not be a structure
-                    if (findNTreeStructureComponent2(logmalloclist, child, targetlist[i], lastname, full_ntree) == nullptr) {
+                    if (findNTreeStructureComponent2(logmalloclist, child, targetlist[i], lastname) == nullptr) {
                         child = nullptr;
                     }
                 } else {
@@ -278,10 +283,10 @@ NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const cha
 * This element may be either a structure itself or an atomic typed element.
 * @return the Data Tree Node.
 */
-NTREE* findNTreeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, NTREE* full_ntree)
+NTREE* findNTreeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
 {
     const char* lastname = nullptr;
-    return findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname, full_ntree);
+    return findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
 }
 
 /** Find (search type A) and return a Pointer to the Child Data Tree Node with a data structure that contains a named element. 
@@ -293,18 +298,17 @@ NTREE* findNTreeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, c
 * This element may be either a structure itself or an atomic typed element.
 * @return the Data Tree Node.
 */
-NTREE* findNTreeChildStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, NTREE* full_ntree)
+NTREE* findNTreeChildStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
 {
-    NTREE* child = nullptr;
-
     if (ntree == nullptr) {
-        ntree = full_ntree;
+        ntree = udaGetFullNTree();
     }
 
     // Search each child branch
 
     for (int i = 0; i < ntree->branches; i++) {
-        if ((child = findNTreeStructureComponent(logmalloclist, ntree->children[i], target, full_ntree)) != nullptr) return child;
+        NTREE* child = nullptr;
+        if ((child = findNTreeStructureComponent(logmalloclist, ntree->children[i], target)) != nullptr) return child;
     }
 
     return nullptr;
@@ -318,10 +322,10 @@ NTREE* findNTreeChildStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntr
 * @param target The name of the Structure (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * @return the Data Tree Node.
 */
-NTREE* findNTreeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, NTREE* full_ntree)
+NTREE* findNTreeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
 {
     const char* lastname = nullptr;
-    return findNTreeStructure2(logmalloclist, ntree, target, &lastname, full_ntree);
+    return findNTreeStructure2(logmalloclist, ntree, target, &lastname);
 }
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
@@ -332,16 +336,17 @@ NTREE* findNTreeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char
 * @param target The name of the Structure (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
 * @return the child Data Tree Node.
 */
-NTREE* findNTreeChildStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, NTREE* full_ntree)
+NTREE* findNTreeChildStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
 {
-    NTREE* child = nullptr;
-
-    if (ntree == nullptr) ntree = full_ntree;
+    if (ntree == nullptr) {
+        ntree = udaGetFullNTree();
+    }
 
     // Search each child branch
 
     for (int i = 0; i < ntree->branches; i++) {
-        if ((child = findNTreeStructure(logmalloclist, ntree->children[i], target, full_ntree)) != nullptr) {
+        NTREE* child = nullptr;
+        if ((child = findNTreeStructure(logmalloclist, ntree->children[i], target)) != nullptr) {
             return child;
         }
     }
@@ -357,15 +362,17 @@ NTREE* findNTreeChildStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const
 * @param data The heap address of the data.
 * @return the Data Tree Node.
 */
-NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data, NTREE* full_ntree)
+NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data)
 {
-    NTREE* next;
-    if (ntree == nullptr) ntree = full_ntree;
+    if (ntree == nullptr) {
+        ntree = udaGetFullNTree();
+    }
     if (data == ntree->data) {
         return ntree;
     }
     for (int i = 0; i < ntree->branches; i++) {
-        if ((next = findNTreeStructureMalloc(ntree->children[i], data, full_ntree)) != nullptr) {
+        NTREE* next;
+        if ((next = findNTreeStructureMalloc(ntree->children[i], data)) != nullptr) {
             return next;
         }
     }
@@ -380,22 +387,25 @@ NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data, NTREE* full_ntree)
 * @param target The name of the Structure Definition.
 * @return A pointer to the First tree node found with the targeted structure definition.
 */
-NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target, NTREE* full_ntree)
+NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target)
 {
-    NTREE* child = nullptr;
-    if (ntree == nullptr) ntree = full_ntree;
+    if (ntree == nullptr) {
+        ntree = udaGetFullNTree();
+    }
 
     // Is the hierarchical name of the form: a.b.c or a/b/c
 
     if ((strchr(target, '.') != nullptr) || strchr(target, '/') != nullptr) {
         int ntargets;
         char** targetlist = nullptr;
-        child = ntree;
+        NTREE* child = ntree;
 
         targetlist = parseTarget(target, &ntargets); // Deconstruct the Name and search for each hierarchy group
 
         for (int i = 0; i < ntargets; i++) { // Drill Down to requested named structure type
-            if ((child = findNTreeStructureDefinition(child, targetlist[i], full_ntree)) == nullptr) break;
+            if ((child = findNTreeStructureDefinition(child, targetlist[i])) == nullptr) {
+                break;
+            }
         }
 
         // Free all entries
@@ -413,7 +423,8 @@ NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target, NTREE* ful
     }
 
     for (int i = 0; i < ntree->branches; i++) {
-        if ((child = findNTreeStructureDefinition(ntree->children[i], target, full_ntree)) != nullptr) {
+        NTREE* child = nullptr;
+        if ((child = findNTreeStructureDefinition(ntree->children[i], target)) != nullptr) {
             return child;
         }
     }
@@ -421,12 +432,10 @@ NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target, NTREE* ful
     return nullptr;
 }
 
-NTREE* xfindNTreeStructureDefinition(NTREE* tree, const char* target, NTREE* full_ntree)
+NTREE* xfindNTreeStructureDefinition(NTREE* tree, const char* target)
 {
-    NTREE* next;
-
     if (tree == nullptr) {
-        tree = full_ntree;
+        tree = udaGetFullNTree();
     }
 
     if (STR_EQUALS(tree->userdefinedtype->name, target)) {
@@ -434,7 +443,8 @@ NTREE* xfindNTreeStructureDefinition(NTREE* tree, const char* target, NTREE* ful
     }
 
     for (int i = 0; i < tree->branches; i++) {
-        if ((next = findNTreeStructureDefinition(tree->children[i], target, full_ntree)) != nullptr) {
+        NTREE* next;
+        if ((next = findNTreeStructureDefinition(tree->children[i], target)) != nullptr) {
             return next;
         }
     }
@@ -450,12 +460,12 @@ NTREE* xfindNTreeStructureDefinition(NTREE* tree, const char* target, NTREE* ful
 * @param target The name of the Structure Definition.
 * @return A pointer to the First tree node found with the targeted structure definition.
 */
-NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target, NTREE* full_ntree)
+NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target)
 {
     NTREE* next;
 
     if (tree == nullptr) {
-        tree = full_ntree;
+        tree = udaGetFullNTree();
     }
 
     for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
@@ -466,7 +476,7 @@ NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target, NT
     }
 
     for (int i = 0; i < tree->branches; i++) {
-        if ((next = findNTreeStructureComponentDefinition(tree->children[i], target, full_ntree)) != nullptr) {
+        if ((next = findNTreeStructureComponentDefinition(tree->children[i], target)) != nullptr) {
             return next;
         }
     }
@@ -482,12 +492,12 @@ NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target, NT
 * @param class The Structure Class, e.g., UDA_TYPE_VLEN.
 * @return A pointer to the First tree node found with the targeted structure class.
 */
-NTREE* idam_findNTreeStructureClass(NTREE* tree, int cls, NTREE* full_ntree)
+NTREE* idam_findNTreeStructureClass(NTREE* tree, int cls)
 {
     NTREE* next;
 
     if (tree == nullptr) {
-        tree = full_ntree;
+        tree = udaGetFullNTree();
     }
 
     if (tree->userdefinedtype->idamclass == cls) {
@@ -495,7 +505,7 @@ NTREE* idam_findNTreeStructureClass(NTREE* tree, int cls, NTREE* full_ntree)
     }
 
     for (int i = 0; i < tree->branches; i++) {
-        if ((next = idam_findNTreeStructureClass(tree->children[i], cls, full_ntree)) != nullptr) {
+        if ((next = idam_findNTreeStructureClass(tree->children[i], cls)) != nullptr) {
             return next;
         }
     }
@@ -512,24 +522,24 @@ NTREE* idam_findNTreeStructureClass(NTREE* tree, int cls, NTREE* full_ntree)
 * @param reset Reset the counbter to zero.
 * @return An integer returning the maximum count value.
 */
-int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset, NTREE* full_ntree)
+int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
 {
     static unsigned int count = 0;
     if (reset) count = 0;
 
     if (tree == nullptr) {
-        tree = full_ntree;
+        tree = udaGetFullNTree();
     }
 
     if (tree->userdefinedtype->idamclass == UDA_TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
-        VLENTYPE* vlen = (VLENTYPE*)tree->data;
+        auto vlen = (VLENTYPE*)tree->data;
         if (vlen->len > count) {
             count = vlen->len;
         }
     }
 
     for (int i = 0; i < tree->branches; i++) {
-        count = (unsigned int)idam_maxCountVlenStructureArray(tree->children[i], target, 0, full_ntree);
+        count = (unsigned int)idam_maxCountVlenStructureArray(tree->children[i], target, 0);
     }
 
     return count;
@@ -545,14 +555,15 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset, 
 * @return An integer returning an error code: 0 => OK.
 */
 int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist,
-        const char* target, unsigned int count, NTREE* full_ntree)
+                                  const char* target, unsigned int count)
 {
-    int rc = 0, size = 0, resetBranches = 0;
-    void* old = nullptr, * newnew = nullptr;
-
     if (tree == nullptr) {
-        tree = full_ntree;
+        tree = udaGetFullNTree();
     }
+
+    int resetBranches = 0;
+    int size = 0;
+    void* newnew = nullptr;
 
     if (tree->userdefinedtype->idamclass == UDA_TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
         VLENTYPE* vlen = (VLENTYPE*)tree->data;
@@ -565,7 +576,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
 
         // VLEN Memory is contiguous so re-allocate: regularise by expanding to a consistent array size (No longer a VLEN!)
 
-        old = vlen->data;
+        void* old = vlen->data;
         USERDEFINEDTYPE* child = findUserDefinedType(userdefinedtypelist, tree->userdefinedtype->compoundfield[1].type, 0);
         vlen->data = realloc(vlen->data, count * child->size);    // Expand Heap to regularise
         newnew = vlen->data;
@@ -580,11 +591,12 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
         }
 
         resetBranches = vlen->len;  // Flag requirement to add extra tree nodes
-
     }
 
     for (int i = 0; i < tree->branches; i++) {
-        if ((rc = idam_regulariseVlenStructures(logmalloclist, tree->children[i], userdefinedtypelist, target, count, full_ntree)) != 0) {
+        int rc;
+        if ((rc = idam_regulariseVlenStructures(logmalloclist, tree->children[i], userdefinedtypelist, target,
+                                                count)) != 0) {
             return rc;
         }
     }
@@ -593,7 +605,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
 
     if (resetBranches > 0) {
         tree->branches = count;   // Only update once all True children have been regularised
-        old = (void*)tree->children;
+        void* old = (void*)tree->children;
         tree->children = (NTREE**)realloc((void*)tree->children, count * sizeof(void*));
 
         unsigned int ui;
@@ -613,10 +625,9 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
         for (ui = (unsigned int)resetBranches; ui < count; ui++) {
             tree->children[ui]->data = (char*)newnew + ui * size;
         }
-
     }
 
-    return rc;
+    return 0;
 }
 
 
@@ -627,17 +638,20 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
 * @param tree A pointer to a parent tree node. If nullptr the root node is assumed.
 * @return An integer returning an error code: 0 => OK.
 */
-int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist, NTREE* full_ntree)
+int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
     int rc = 0, count = 0;
     NTREE* nt = nullptr;
-    if (tree == nullptr) tree = full_ntree;
+    if (tree == nullptr) {
+        tree = udaGetFullNTree();
+    }
 
     do {
-        if ((nt = idam_findNTreeStructureClass(tree, UDA_TYPE_VLEN, full_ntree)) != nullptr) {
-            count = idam_maxCountVlenStructureArray(tree, nt->userdefinedtype->name, 1, full_ntree);
+        if ((nt = idam_findNTreeStructureClass(tree, UDA_TYPE_VLEN)) != nullptr) {
+            count = idam_maxCountVlenStructureArray(tree, nt->userdefinedtype->name, 1);
             if (count > 0) {
-                rc = idam_regulariseVlenStructures(logmalloclist, tree, userdefinedtypelist, nt->userdefinedtype->name, count, full_ntree);
+                rc = idam_regulariseVlenStructures(logmalloclist, tree, userdefinedtypelist, nt->userdefinedtype->name,
+                                                   count);
             }
             if (rc != 0) {
                 return rc;
@@ -660,12 +674,12 @@ int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFIN
 * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
 * @return the Count of structured data array elements.
 */
-int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree, NTREE* full_ntree)
+int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size;
     const char* type;
     if (ntree == nullptr) {
-        ntree = full_ntree;
+        ntree = udaGetFullNTree();
     }
     findMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
     return count;
@@ -678,12 +692,12 @@ int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree, NTREE*
 * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
 * @return the Size (bytes) of the structured data array.
 */
-int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree, NTREE* full_ntree)
+int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size;
     const char* type;
     if (ntree == nullptr) {
-        ntree = full_ntree;
+        ntree = udaGetFullNTree();
     }
     findMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
     return size;
@@ -696,13 +710,13 @@ int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree, NTREE* 
 * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
 * @return The rank of the structured data array.
 */
-int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree, NTREE* full_ntree)
+int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size, rank;
     int* shape;
     const char* type;
     if (ntree == nullptr) {
-        ntree = full_ntree;
+        ntree = udaGetFullNTree();
     }
     findMalloc2(logmalloclist, (void*)&ntree->data, &count, &size, &type, &rank, &shape);
     return rank;
@@ -715,13 +729,13 @@ int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree, NTREE* 
 * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
 * @return A pointer to the integer shape array of the structured data array.
 */
-int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree, NTREE* full_ntree)
+int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size, rank;
     int* shape;
     const char* type;
     if (ntree == nullptr) {
-        ntree = full_ntree;
+        ntree = udaGetFullNTree();
     }
 
     if (ntree->parent != nullptr) {
@@ -753,12 +767,12 @@ int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree, NTREE
 * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
 * @return the data type name of the structured data array.
 */
-const char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree, NTREE* full_ntree)
+const char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 {
     int count, size;
     const char* type = nullptr;
     if (ntree == nullptr) {
-        ntree = full_ntree;
+        ntree = udaGetFullNTree();
     }
     findMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
     return type;
@@ -771,10 +785,10 @@ const char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* nt
 * @param ntree A pointer to a tree node. If nullptr the root node is assumed.
 * @return A void pointer to the data .
 */
-void* getNodeStructureData(NTREE* ntree, NTREE* full_ntree)
+void* getNodeStructureData(NTREE* ntree)
 {
     if (ntree == nullptr) {
-        ntree = full_ntree;
+        ntree = udaGetFullNTree();
     }
     return ntree->data;
 }

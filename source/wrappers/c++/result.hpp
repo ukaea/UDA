@@ -105,7 +105,6 @@ private:
     size_t size_;
     bool istree_;
     std::map<std::string, std::string> meta_;
-    NTREE* full_ntree_;
 };
 
 }

@@ -3198,7 +3198,7 @@ void udaGetClientSerialisedDataBlock(int handle, void** object, size_t* objectSi
     data_block_list.count = 1;
     data_block_list.data = udaGetDataBlock(handle);
     protocol2(&xdrs, PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
-              &data_block_list, protocolVersion, full_ntree, log_struct_list, private_flags, malloc_source);
+              &data_block_list, protocolVersion, log_struct_list, private_flags, malloc_source);
 
 #ifdef _WIN32
     fflush(memfile);
@@ -3281,5 +3281,5 @@ LOGMALLOCLIST* udaGetLogMallocList(int handle)
 
 NTREE* udaFindNTreeStructureDefinition(NTREE* node, const char* target, NTREE* full_ntree)
 {
-    return findNTreeStructureDefinition(node, target, full_ntree);
+    return findNTreeStructureDefinition(node, target);
 }

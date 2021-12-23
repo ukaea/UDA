@@ -264,7 +264,7 @@ LIBRARY_API void putIdamThreadServerBlock(SERVER_BLOCK *str);
 
 LIBRARY_API void putIdamThreadClientBlock(CLIENT_BLOCK *str);
 
-LIBRARY_API int setIdamDataTree(int handle, NTREE** full_ntree);
+LIBRARY_API int setIdamDataTree(int handle);
 
 // Return a specific data tree
 
@@ -278,7 +278,7 @@ LIBRARY_API USERDEFINEDTYPELIST* getIdamUserDefinedTypeList(int handle);
 
 LIBRARY_API LOGMALLOCLIST* getIdamLogMallocList(int handle);
 
-LIBRARY_API NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target, NTREE* full_ntree);
+LIBRARY_API NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target);
 
 #ifdef __cplusplus
 }

@@ -1417,7 +1417,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
 // Send/Receive Array of Structures
 
 int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                              USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion, NTREE** full_ntree,
+                              USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion,
                               LOGSTRUCTLIST* log_struct_list, int malloc_source)
 {
     int rc = 1;
@@ -1435,8 +1435,7 @@ int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFIN
                 xdrUserDefinedDataPut(xdrs, logmalloclist, userdefinedtypelist, userdefinedtype, data, 1, 0, nullptr, 0,
                                       &dataNTree, protocolVersion, malloc_source);    // Data within Structures
 
-        *full_ntree = dataNTree;            // Copy to Global
-
+        udaSetFullNTree(dataNTree); // Copy to Global
     } else {
 
         if (userdefinedtype == nullptr) {
@@ -1487,7 +1486,7 @@ bool_t xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str)
 
 
 int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                    USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
+                    USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
                     LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     DATA_BLOCK* data_block;
@@ -1555,7 +1554,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                     UDA_LOG(UDA_LOG_DEBUG, "Structure Definitions sent: rc = %d\n", rc);
 
                     rc = rc && xdrUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, u,
-                                                         (void**)data, protocolVersion, &full_ntree, log_struct_list,
+                                                         (void**)data, protocolVersion, log_struct_list,
                                                          malloc_source);        // send the Data
 
                     UDA_LOG(UDA_LOG_DEBUG, "Structured Data sent: rc = %d\n", rc);
@@ -1619,7 +1618,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                         initUserDefinedType(udt_received);
 
                         rc = rc && xdrUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                             &data, protocolVersion, &full_ntree, log_struct_list,
+                                                             &data, protocolVersion, log_struct_list,
                                                              malloc_source);        // receive the Data
                         //rc = rc && xdrUserDefinedTypeData(xdrs, udt_received, &data);        // receive the Data
 
@@ -1649,7 +1648,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                             general_block->logmalloclist = logmalloclist;
                             general_block->lastMallocIndex = 0;
 
-                            data_block->data = (char*)full_ntree;        // Global Root Node with the Carrier Structure containing data
+                            data_block->data = (char*)udaGetFullNTree();        // Global Root Node with the Carrier Structure containing data
 
                             data_block->opaque_block = (void*)general_block;        // Contains all the other information needed
 

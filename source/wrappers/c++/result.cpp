@@ -86,7 +86,7 @@ uda::Result::Result(int handle)
         meta_["pass"] = std::to_string(source->pass);
         meta_["pass_date"] = source->pass_date;
     }
-    istree_ = (setIdamDataTree(handle, &full_ntree_) != 0);
+    istree_ = (setIdamDataTree(handle) != 0);
 }
 
 uda::Result::~Result()
@@ -337,5 +337,5 @@ uda::Data* uda::Result::errors() const
 
 uda::TreeNode uda::Result::tree() const
 {
-    return { handle_, getIdamDataTree(handle_), full_ntree_ };
+    return { handle_, getIdamDataTree(handle_) };
 }

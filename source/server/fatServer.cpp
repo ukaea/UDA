@@ -84,7 +84,7 @@ static int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request
 
 static int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
                            REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
-                           NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, IoData* io_data);
+                           LOGSTRUCTLIST* log_struct_list, IoData* io_data);
 
 //--------------------------------------------------------------------------------------
 // Server Entry point
@@ -103,8 +103,6 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
 
     ACTIONS actions_desc;
     ACTIONS actions_sig;
-
-    NTREE* full_ntree = nullptr;
 
     LOGSTRUCTLIST log_struct_list;
     initLogStructList(&log_struct_list);
@@ -150,7 +148,7 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
     }
 
     err = fatClientReturn(server_block, &data_blocks, data_blocks0, &request_block, &client_block, &metadata_block,
-                          full_ntree, &log_struct_list, &io_data);
+                          &log_struct_list, &io_data);
     if (err != 0) {
         return err;
     }
@@ -185,7 +183,7 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
  * @return
  */
 static int
-processHierarchicalData(DATA_BLOCK* data_block, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, IoData* io_data)
+processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list, IoData* io_data)
 {
     int err = 0;
 
@@ -217,7 +215,7 @@ processHierarchicalData(DATA_BLOCK* data_block, NTREE* full_ntree, LOGSTRUCTLIST
 
     int protocol_id = PROTOCOL_STRUCTURES;
     protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, data_block,
-                protocolVersion, full_ntree, log_struct_list, io_data, private_flags, malloc_source, serverCreateXDRStream);
+                protocolVersion, log_struct_list, io_data, private_flags, malloc_source, serverCreateXDRStream);
 
     // Close the stream and file
 
@@ -242,7 +240,7 @@ processHierarchicalData(DATA_BLOCK* data_block, NTREE* full_ntree, LOGSTRUCTLIST
 
     protocol_id = PROTOCOL_STRUCTURES;
     err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                      data_block, protocolVersion, full_ntree, log_struct_list, io_data, private_flags, malloc_source,
+                      data_block, protocolVersion, log_struct_list, io_data, private_flags, malloc_source,
                       serverCreateXDRStream);
 
     // Close the stream and file
@@ -259,7 +257,7 @@ processHierarchicalData(DATA_BLOCK* data_block, NTREE* full_ntree, LOGSTRUCTLIST
 
 int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
                     REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
-                    NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, IoData* io_data)
+                    LOGSTRUCTLIST* log_struct_list, IoData* io_data)
 {
     //----------------------------------------------------------------------------
     // Gather Server Error State
@@ -278,7 +276,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DA
     for (int i = 0; i < data_blocks->count; ++i) {
         auto data_block = &data_blocks->data[i];
         if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
-            processHierarchicalData(data_block, full_ntree, log_struct_list, io_data);
+            processHierarchicalData(data_block, log_struct_list, io_data);
         }
     }
 

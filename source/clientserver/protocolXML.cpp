@@ -75,7 +75,7 @@
 #endif
 
 int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
+                USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
                 LOGSTRUCTLIST* log_struct_list, IoData* io_data, unsigned int private_flags, int malloc_source,
                 CreateXDRStreams create_xdr_streams)
 {
@@ -239,7 +239,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                     // send the Data
                     rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u,
-                                                      (void**)data, protocolVersion, xdr_stdio_flag, &full_ntree,
+                                                      (void**)data, protocolVersion, xdr_stdio_flag,
                                                       log_struct_list, malloc_source);
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Data sent: rc = %d\n", rc);
@@ -434,7 +434,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         initUserDefinedType(udt_received);
 
                         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                          &data, protocolVersion, xdr_stdio_flag, &full_ntree,
+                                                          &data, protocolVersion, xdr_stdio_flag,
                                                           log_struct_list, malloc_source); // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: xdrUserDefinedTypeData #B\n");
@@ -478,7 +478,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                              "Inconsistent S Array Counts");
                                 break;
                             }
-                            data_block->data = (char*)full_ntree;        // Global Root Node with the Carrier Structure containing data
+                            data_block->data = (char*)udaGetFullNTree();        // Global Root Node with the Carrier Structure containing data
                             data_block->opaque_block = (void*)general_block;
                             general_block->userdefinedtype = udt_received;
                             general_block->userdefinedtypelist = userdefinedtypelist;
@@ -588,7 +588,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             initUserDefinedType(udt_received);
 
                             rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                              &data, protocolVersion, xdr_stdio_flag, &full_ntree,
+                                                              &data, protocolVersion, xdr_stdio_flag,
                                                               log_struct_list, malloc_source); // receive the Data
 
                             if (!rc) {
@@ -625,7 +625,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                                  "Inconsistent S Array Counts");
                                     break;
                                 }
-                                data_block->data = (char*)full_ntree;        // Global Root Node with the Carrier Structure containing data
+                                data_block->data = (char*)udaGetFullNTree();        // Global Root Node with the Carrier Structure containing data
                                 data_block->opaque_block = (void*)general_block;
                                 data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                                 general_block->userdefinedtype = udt_received;

@@ -11,13 +11,12 @@ extern "C" {
 
 LIBRARY_API DATA_BLOCK*
 udaFileCacheRead(const REQUEST_DATA* request, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                 int protocolVersion, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
-                 int malloc_source);
+                 int protocolVersion, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source);
 
 LIBRARY_API int
 udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
-                  USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, NTREE* full_ntree,
-                  LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source);
+                  USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
+                  unsigned int private_flags, int malloc_source);
 
 #ifdef __cplusplus
 }

@@ -94,7 +94,7 @@ int sha1File(char* name, FILE* fh, unsigned char* md);
 
 int
 protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-             USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
+             USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
              LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     DATA_BLOCK* data_block;
@@ -322,7 +322,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
 
                     rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u,
-                                                      (void**)data, protocolVersion, xdr_stdio_flag, &full_ntree,
+                                                      (void**)data, protocolVersion, xdr_stdio_flag,
                                                       log_struct_list, malloc_source);        // send the Data
 
                     UDA_LOG(UDA_LOG_DEBUG, "Data sent: rc = %d\n", rc);
@@ -676,7 +676,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         initUserDefinedType(udt_received);
 
                         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                          &data, protocolVersion, xdr_stdio_flag, &full_ntree,
+                                                          &data, protocolVersion, xdr_stdio_flag,
                                                           log_struct_list, malloc_source);        // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "xdrUserDefinedTypeData #B\n");
@@ -738,7 +738,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                                              "Inconsistent S Array Counts");
                                 break;
                             }
-                            data_block->data = (char*)full_ntree;        // Global Root Node with the Carrier Structure containing data
+                            data_block->data = (char*)udaGetFullNTree();        // Global Root Node with the Carrier Structure containing data
                             data_block->opaque_block = (void*)general_block;
                             general_block->userdefinedtype = udt_received;
                             general_block->userdefinedtypelist = userdefinedtypelist;
@@ -858,7 +858,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             initUserDefinedType(udt_received);
 
                             rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                              &data, protocolVersion, xdr_stdio_flag, &full_ntree,
+                                                              &data, protocolVersion, xdr_stdio_flag,
                                                               log_struct_list, malloc_source);        // receive the Data
 
                             if (!rc) {
@@ -895,7 +895,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                                                  "Inconsistent S Array Counts");
                                     break;
                                 }
-                                data_block->data = (char*)full_ntree;        // Global Root Node with the Carrier Structure containing data
+                                data_block->data = (char*)udaGetFullNTree();        // Global Root Node with the Carrier Structure containing data
                                 data_block->opaque_block = (void*)general_block;
                                 data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                                 general_block->userdefinedtype = udt_received;
@@ -991,7 +991,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             initUserDefinedType(udt_received);
 
                             rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                              &data, protocolVersion, xdr_stdio_flag, &full_ntree,
+                                                              &data, protocolVersion, xdr_stdio_flag,
                                                               log_struct_list, malloc_source);        // receive the Data
 
                             if (!rc) {
@@ -1022,16 +1022,15 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             if (STR_EQUALS(udt_received->name,
                                            "SARRAY")) {            // expecting this carrier structure
 
-                                GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
-
-                                SARRAY* s = (SARRAY*)data;
+                                auto general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
+                                auto s = (SARRAY*)data;
                                 if (s->count != data_block->data_n) {                // check for consistency
                                     err = 999;
                                     addIdamError(CODEERRORTYPE, "protocolXML", err,
                                                  "Inconsistent S Array Counts");
                                     break;
                                 }
-                                data_block->data = (char*)full_ntree;        // Global Root Node with the Carrier Structure containing data
+                                data_block->data = (char*)udaGetFullNTree();        // Global Root Node with the Carrier Structure containing data
                                 data_block->opaque_block = (void*)general_block;
                                 data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                                 general_block->userdefinedtype = udt_received;
@@ -1127,8 +1126,7 @@ void sha1Block(unsigned char* block, size_t blockSize, unsigned char* md)
 #ifndef FATCLIENT
 
 int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filename, DATA_BLOCK* data_block,
-                  int protocolVersion, bool xdr_stdio_flag, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list,
-                  int malloc_source)
+                  int protocolVersion, bool xdr_stdio_flag, LOGSTRUCTLIST* log_struct_list, int malloc_source)
 {
     int rc = 1, err = 0;
     void* data = nullptr;
@@ -1183,7 +1181,7 @@ int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filena
         initUserDefinedType(udt_received);
 
         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
-                                          protocolVersion, xdr_stdio_flag, &full_ntree, log_struct_list, malloc_source);
+                                          protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
 
         if (!rc) {
             err = 999;
@@ -1225,7 +1223,7 @@ int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filena
             return err;
         }
 
-        data_block->data = (char*)full_ntree;        // Global Root Node with the Carrier Structure containing data
+        data_block->data = (char*)udaGetFullNTree();        // Global Root Node with the Carrier Structure containing data
         data_block->opaque_block = (void*)general_block;
         data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
         general_block->userdefinedtype = udt_received;
@@ -1243,8 +1241,8 @@ int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filena
 }
 
 int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* object, size_t objectSize,
-                    DATA_BLOCK* data_block, int protocolVersion, bool xdr_stdio_flag, NTREE* full_ntree,
-                    LOGSTRUCTLIST* log_struct_list, int malloc_source)
+                    DATA_BLOCK* data_block, int protocolVersion, bool xdr_stdio_flag, LOGSTRUCTLIST* log_struct_list,
+                    int malloc_source)
 {
 
     int rc = 1, err = 0;
@@ -1293,7 +1291,7 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
         initUserDefinedType(udt_received);
 
         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
-                                          protocolVersion, xdr_stdio_flag, &full_ntree, log_struct_list, malloc_source);
+                                          protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
 
         if (!rc) {
             err = 999;
@@ -1330,7 +1328,7 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
             return err;
         }
 
-        data_block->data = (char*)full_ntree;        // Global Root Node with the Carrier Structure containing data
+        data_block->data = (char*)udaGetFullNTree();        // Global Root Node with the Carrier Structure containing data
         data_block->opaque_block = (void*)general_block;
         data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
         general_block->userdefinedtype = udt_received;
@@ -1354,8 +1352,8 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
 
 int
 packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist,
-                       USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, bool xdr_stdio_flag,
-                       NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+                       USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
+                       unsigned int private_flags, int malloc_source)
 {
     int err = 0;
     XDR xdrObject;
@@ -1389,7 +1387,6 @@ packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* dat
 
         // Create stdio file stream
 
-        xdr_stdio_flag = true;
         xdrstdio_create(&xdrObject, xdrfile, XDR_ENCODE);
 
         // Data object meta data
@@ -1400,7 +1397,7 @@ packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* dat
         data_block_list.count = 1;
         data_block_list.data = data_block;
         err = protocol2(&xdrObject, PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
-                        &data_block_list, protocolVersion, full_ntree, log_struct_list, private_flags, malloc_source);
+                        &data_block_list, protocolVersion, log_struct_list, private_flags, malloc_source);
 
         // Close the stream and file
 
@@ -1408,7 +1405,6 @@ packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* dat
         fclose(xdrfile);
 
         xdr_destroy(&xdrObject);
-        xdr_stdio_flag = false;
 
     } while (0);
 
@@ -1420,8 +1416,8 @@ packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* dat
 
 int
 unpackXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist,
-                         USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
-                         NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+                         USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
+                         unsigned int private_flags, int malloc_source)
 {
     int err = 0;
     XDR xdrObject;
@@ -1442,7 +1438,7 @@ unpackXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* d
         data_block_list.count = 1;
         data_block_list.data = data_block;
         err = protocol2(&xdrObject, PROTOCOL_DATA_BLOCK_LIST, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                        &data_block_list, protocolVersion, full_ntree, log_struct_list, private_flags, malloc_source);
+                        &data_block_list, protocolVersion, log_struct_list, private_flags, malloc_source);
 
         // Close the stream
 

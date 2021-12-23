@@ -60,10 +60,12 @@ struct IoData;
 // Client Server XDR data Streams (DON'T CHANGE ORDER or Legacy client won't work!)
 
 LIBRARY_API int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                         USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
-                         LOGSTRUCTLIST* log_struct_list, IoData* io_data, unsigned int private_flags, int malloc_source);
+                         USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
+                         LOGSTRUCTLIST* log_struct_list,
+                         IoData* io_data, unsigned int private_flags, int malloc_source);
 LIBRARY_API int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                          USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, NTREE* full_ntree,
-                          LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source);
+                          USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
+                          LOGSTRUCTLIST* log_struct_list,
+                          unsigned int private_flags, int malloc_source);
 
 #endif // UDA_CLIENTSERVER_PROTOCOL_H

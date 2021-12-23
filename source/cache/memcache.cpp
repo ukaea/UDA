@@ -228,7 +228,7 @@ void uda::cache::free_cache() // Will be called by the idamFreeAll function
 int
 uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
                         LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                        ENVIRONMENT environment, int protocolVersion, uint32_t flags, NTREE* full_ntree,
+                        ENVIRONMENT environment, int protocolVersion, uint32_t flags,
                         LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
 #ifdef CACHEDEV
@@ -251,7 +251,7 @@ uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* request
 
     FILE* memfile = open_memstream(&buffer, &bufsize);
 
-    writeCacheData(memfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion, full_ntree,
+    writeCacheData(memfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion,
                    log_struct_list, private_flags, malloc_source);
 
     rc = memcache_put(cache, key.c_str(), buffer, bufsize);
@@ -266,8 +266,7 @@ DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DA
                                    LOGMALLOCLIST* logmalloclist,
                                    USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
                                    int protocolVersion,
-                                   uint32_t flags, NTREE* full_ntree, LOGSTRUCTLIST* log_struct_list,
-                                   unsigned int private_flags,
+                                   uint32_t flags, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
                                    int malloc_source)
 {
     auto key = generate_cache_key(request_data, environment, flags, private_flags);
@@ -290,7 +289,7 @@ DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DA
     fwrite(value, sizeof(char), len, memfile);
     fseek(memfile, 0L, SEEK_SET);
 
-    auto data = readCacheData(memfile, logmalloclist, userdefinedtypelist, protocolVersion, full_ntree,
+    auto data = readCacheData(memfile, logmalloclist, userdefinedtypelist, protocolVersion,
                               log_struct_list, private_flags, malloc_source);
     fclose(memfile);
     free(buffer);

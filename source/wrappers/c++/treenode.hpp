@@ -51,13 +51,12 @@ public:
     NTREE* node() { return node_; }
 
 private:
-    TreeNode(int handle, NTREE* node, NTREE* full_ntree)
-        : handle_(handle), node_(node), full_ntree_(full_ntree)
+    TreeNode(int handle, NTREE* node)
+        : handle_(handle), node_(node)
     {}
     friend class Result;
     int handle_;
     NTREE* node_;
-    NTREE* full_ntree_;
 };
 
 
