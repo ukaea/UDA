@@ -99,7 +99,7 @@ int serverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC sig
             (actions_desc->action[i].exp_range[1] == 0 ||
              (actions_desc->action[i].exp_range[1] > 0 &&
               actions_desc->action[i].exp_range[1] >= data_source.exp_number)) &&
-            (data_source.pass = -1 ||
+            (data_source.pass == -1 ||
                                 ((actions_desc->action[i].pass_range[0] == -1 ||
                                   (actions_desc->action[i].pass_range[0] > -1 &&
                                    actions_desc->action[i].pass_range[0] <= data_source.pass)) &&
