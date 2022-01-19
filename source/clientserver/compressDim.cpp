@@ -28,6 +28,10 @@ int compress(DIMS* ddim)
     }
 
     int ndata = ddim->dim_n;
+    if (ndata <= 1){
+        // prevent divide by 0 errors or accessing out-of-range memory
+        return 1;
+    }
     T prev_diff = dim_data[1] - dim_data[0];
     T mean_diff = (dim_data[ndata - 1] - dim_data[0]) / (ndata - 1);
     T precision = Precision<T>::precision;
@@ -120,6 +124,11 @@ int decompress(DIMS* ddim)
  */
 int compressDim(DIMS* ddim)
 {
+    if (!ddim || !ddim->dim || ddim->compressed) {
+        // No Data or Already Compressed or Functionality disabled
+        return 1;
+    }
+
     switch (ddim->data_type) {
         case UDA_TYPE_CHAR:
             return compress<char>(ddim);
