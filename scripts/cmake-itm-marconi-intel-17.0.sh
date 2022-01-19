@@ -13,7 +13,9 @@ module load cmake/3.5.2
 export CC=icc
 export CXX=icpc
 
-cmake -Bbuild-intel-17 -H. -DCMAKE_BUILD_TYPE=Debug \
+BUILD_DIR ?=build-intel-17
+
+cmake -B$BUILD_DIR -H. -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_INSTALL_PREFIX=$UDA_INSTALL \
     -DBUILD_SHARED_LIBS=ON \
     -DBUILD_PLUGINS=help\;uda $*

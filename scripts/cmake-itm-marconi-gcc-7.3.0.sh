@@ -16,7 +16,9 @@ module load cmake/3.5.2
 export CC=gcc
 export CXX=g++
 
-cmake -Bbuild-gcc-7 -H. -DCMAKE_BUILD_TYPE=Debug \
+BUILD_DIR ?= build-gcc-7
+
+cmake -B$BUILD_DIR -H. -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_INSTALL_PREFIX=$UDA_INSTALL \
     -DBUILD_SHARED_LIBS=ON \
     -DBUILD_PLUGINS=help\;uda $*
