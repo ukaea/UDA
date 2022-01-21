@@ -195,15 +195,24 @@ endif()
 ########################################################################################################################
 # Create module
 
+set( UDA_HOST "localhost" CACHE STRING "default host to use to connect to server" )
+set( UDA_PORT "56565" CACHE STRING "default port to use to connect to server" )
+
 configure_file(
   ${CMAKE_SOURCE_DIR}/source/etc/module.in
   ${CMAKE_BINARY_DIR}/etc/uda/${PROJECT_VERSION}
   @ONLY
 )
 
+set( MODULE_PATH "modulefiles/uda" CACHE PATH "location to install module files to" )
+set( MODULE_NAME "${PROJECT_VERSION}" CACHE STRING "name of the module file" )
+
+get_filename_component( MODULE_PATH ${MODULE_PATH} REALPATH BASE_DIR "${CMAKE_INSTALL_PREFIX}" )
+
 install(
   FILES ${CMAKE_BINARY_DIR}/etc/uda/${PROJECT_VERSION}
-  DESTINATION modulefiles/uda
+  DESTINATION ${MODULE_PATH}
+  RENAME ${MODULE_NAME}
 )
 
 # Portablexdr 4.9.1 libraries
