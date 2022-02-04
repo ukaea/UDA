@@ -206,12 +206,15 @@ configure_file(
 
 set( MODULE_PATH "modulefiles/uda" CACHE PATH "location to install module files to" )
 set( MODULE_NAME "${PROJECT_VERSION}" CACHE STRING "name of the module file" )
+string( CONFIGURE "${MODULE_PATH}" MODULE_PATH_EXPANDED @ONLY )
 
-get_filename_component( MODULE_PATH ${MODULE_PATH} REALPATH BASE_DIR "${CMAKE_INSTALL_PREFIX}" )
+get_filename_component( MODULE_PATH_EXPANDED ${MODULE_PATH_EXPANDED} REALPATH BASE_DIR "${CMAKE_INSTALL_PREFIX}" )
+
+message( FATAL_ERROR ">>>>> ${MODULE_PATH_EXPANDED}" )
 
 install(
   FILES ${CMAKE_BINARY_DIR}/etc/uda/${PROJECT_VERSION}
-  DESTINATION ${MODULE_PATH}
+  DESTINATION ${MODULE_PATH_EXPANDED}
   RENAME ${MODULE_NAME}
 )
 
