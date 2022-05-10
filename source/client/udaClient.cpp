@@ -1030,6 +1030,9 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
     UDA_LOG(UDA_LOG_DEBUG, "Error Code at end of Error Trap: %d\n", err);
     UDA_LOG(UDA_LOG_DEBUG, "serverside                     : %d\n", serverside);
+free(cached_data_block_list.data);
+ 
+cached_data_block_list.data=NULL;
 
 #ifndef FATCLIENT   // <========================== Client Server Code Only
 
@@ -1389,7 +1392,7 @@ void idamFree(int handle)
     }
 
     // closeIdamError(&server_block.idamerrorstack);
-
+freeIdamErrorStack(&server_block.idamerrorstack);
     initDataBlock(data_block);
     data_block->handle = -1;        // Flag this as ready for re-use
 }
