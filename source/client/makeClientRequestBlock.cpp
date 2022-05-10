@@ -28,6 +28,7 @@ Interprets the API arguments and assembles a Request data structure.
 #include <clientserver/expand_path.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/makeRequestBlock.h>
 
 int makeRequestData(const char* data_object, const char* data_source, REQUEST_DATA* request)
 {
