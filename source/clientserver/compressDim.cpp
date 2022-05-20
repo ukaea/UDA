@@ -47,7 +47,7 @@ int compress(DIMS* ddim)
         prev_diff = diff;
     }
 
-    if (constant) {
+    if (!constant) {
         ddim->compressed = 0;
         return 1;        // Data not regular
     }
@@ -66,7 +66,7 @@ int decompress(DIMS* ddim)
     int ndata = ddim->dim_n;
 
     if (ddim->dim == nullptr) {
-        if ((ddim->dim = (char*)malloc(ndata * sizeof(char))) == nullptr) {
+        if ((ddim->dim = (char*)malloc(ndata * sizeof(T))) == nullptr) {
             return UNCOMPRESS_ALLOCATING_HEAP;
         }
     }
