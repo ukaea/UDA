@@ -3197,7 +3197,7 @@ void udaGetClientSerialisedDataBlock(int handle, void** object, size_t* objectSi
     DATA_BLOCK_LIST data_block_list;
     data_block_list.count = 1;
     data_block_list.data = udaGetDataBlock(handle);
-    protocol2(&xdrs, PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
+    protocol2(&xdrs, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
               &data_block_list, protocolVersion, log_struct_list, private_flags, malloc_source);
 
 #ifdef _WIN32

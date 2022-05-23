@@ -153,7 +153,7 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
         return err;
     }
 
-    udaAccessLog(FALSE, client_block, request_block, *server_block, &pluginList, getServerEnvironment(),
+    udaAccessLog(FALSE, client_block, request_block, *server_block,
                  total_datablock_size);
 
     err = doFatServerClosedown(server_block, &data_blocks, &actions_desc, &actions_sig, data_blocks0);
@@ -202,10 +202,10 @@ processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list, 
 
     errno = 0;
     if (mkstemp(tempFile) < 0 || errno != 0) {
-        THROW_ERROR(995, "Unable to Obtain a Temporary File Name");
+        UDA_THROW_ERROR(995, "Unable to Obtain a Temporary File Name");
     }
     if ((xdrfile = fopen(tempFile, "wb")) == nullptr) {
-        THROW_ERROR(999, "Unable to Open a Temporary XDR File for Writing");
+        UDA_THROW_ERROR(999, "Unable to Open a Temporary XDR File for Writing");
     }
 
     XDR xdrServerOutput;
@@ -213,7 +213,7 @@ processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list, 
 
     // Write data to the temporary file
 
-    int protocol_id = PROTOCOL_STRUCTURES;
+    int protocol_id = UDA_PROTOCOL_STRUCTURES;
     protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, data_block,
                 protocolVersion, log_struct_list, io_data, private_flags, malloc_source, serverCreateXDRStream);
 
@@ -230,7 +230,7 @@ processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list, 
     // Create an input XDR stream
 
     if ((xdrfile = fopen(tempFile, "rb")) == nullptr) {
-        THROW_ERROR(999, "Unable to Open a Temporary XDR File for Reading");
+        UDA_THROW_ERROR(999, "Unable to Open a Temporary XDR File for Reading");
     }
 
     XDR xdrServerInput;
@@ -238,7 +238,7 @@ processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list, 
 
     // Read data from the temporary file
 
-    protocol_id = PROTOCOL_STRUCTURES;
+    protocol_id = UDA_PROTOCOL_STRUCTURES;
     err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
                       data_block, protocolVersion, log_struct_list, io_data, private_flags, malloc_source,
                       serverCreateXDRStream);
@@ -387,7 +387,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
         for (int i = 0; i < data_blocks->count; ++i) {
             auto data_block = &data_blocks->data[i];
             if (serverProcessing(*client_block, data_block) != 0) {
-                THROW_ERROR(779, "Server-Side Processing Error");
+                UDA_THROW_ERROR(779, "Server-Side Processing Error");
             }
         }
     }

@@ -108,8 +108,8 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
 
         errno = 0;
         if ((conf = fopen(work, "r")) == nullptr || errno != 0) {
-            ADD_SYS_ERROR(strerror(errno));
-            ADD_ERROR(999, "No Server Plugin Configuration File found!");
+            UDA_ADD_SYS_ERROR(strerror(errno));
+            UDA_ADD_ERROR(999, "No Server Plugin Configuration File found!");
             if (conf != nullptr) {
                 fclose(conf);
             }

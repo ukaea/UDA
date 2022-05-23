@@ -18,13 +18,13 @@ int make_request_data(const Environment* environment, const char* data_object, c
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
 
     if (strlen(data_object) >= MAXMETA) {
-        THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument string is too long!");
+        UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument string is too long!");
     } else {
         strcpy(request->signal, data_object);    // Passed to the server without modification
     }
 
     if (strlen(data_source) >= STRING_LENGTH) {
-        THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument string is too long!");
+        UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument string is too long!");
     } else {
         strcpy(request->source, data_source);    // Passed to the server without modification
     }
@@ -49,7 +49,7 @@ int make_request_data(const Environment* environment, const char* data_object, c
     if (environment->api_device[0] != '\0' && strstr(request->source, request->api_delim) == nullptr) {
         auto source = (boost::format("%1%%2%%3%") % environment->api_device % request->api_delim % request->source).str();
         if (source.length() >= STRING_LENGTH) {
-            THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument, prefixed with the Device Name, is too long!");
+            UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument, prefixed with the Device Name, is too long!");
         }
         strcpy(request->source, source.c_str());
     }
@@ -57,8 +57,8 @@ int make_request_data(const Environment* environment, const char* data_object, c
     if (environment->api_archive[0] != '\0' && strstr(request->signal, request->api_delim) == nullptr) {
         auto signal = (boost::format("%1%%2%%3%") % environment->api_archive % request->api_delim % request->signal).str();
         if (signal.length() >= STRING_LENGTH) {
-            THROW_ERROR(SIGNAL_ARG_TOO_LONG,
-                        "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
+            UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG,
+                            "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
         }
         strcpy(request->signal, signal.c_str());
     }

@@ -41,7 +41,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         UDA_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        THROW_ERROR(999, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
+        UDA_THROW_ERROR(999, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
@@ -71,7 +71,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Initialise
 
-    if (!init || STR_IEQUALS(request->function, "init") || STR_IEQUALS(request->function, "initialise")) {
+    if (!init || STR_IEQUALS(request->function, "create") || STR_IEQUALS(request->function, "initialise")) {
 
         // Default Server Host and Port
 
@@ -87,7 +87,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         UDA_LOG(UDA_LOG_DEBUG, "Handing over Server File Handles to UDA Client\n");
 
         init = 1;
-        if (STR_IEQUALS(request->function, "init") || STR_IEQUALS(request->function, "initialise")) {
+        if (STR_IEQUALS(request->function, "create") || STR_IEQUALS(request->function, "initialise")) {
             return 0;
         }
     }
@@ -109,7 +109,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     } else if (STR_IEQUALS(request->function, "get")) {
         err = do_get(idam_plugin_interface, oldServerHost, &oldPort);
     } else {
-        THROW_ERROR(999, "Unknown function requested!");
+        UDA_THROW_ERROR(999, "Unknown function requested!");
     }
 
     //--------------------------------------------------------------------------------------
@@ -286,7 +286,7 @@ Notes: there are three pathways depending on the request pattern
         pathway = 4;
     } else {
         UDA_LOG(UDA_LOG_ERROR, "Execution pathway not recognised: Unable to execute the request!\n");
-        THROW_ERROR(999, "Execution pathway not recognised: Unable to execute the request!");
+        UDA_THROW_ERROR(999, "Execution pathway not recognised: Unable to execute the request!");
     }
 
     //----------------------------------------------------------------------
@@ -378,8 +378,8 @@ Notes: there are three pathways depending on the request pattern
                         *oldPort = newPort;
                     }
                 } else {
-                    THROW_ERROR(999,
-                                "The Server Port must be an Integer Number passed using the formats 'server:port' or 'server port'");
+                    UDA_THROW_ERROR(999,
+                                    "The Server Port must be an Integer Number passed using the formats 'server:port' or 'server port'");
                 }
             } else {
                 if (strcasecmp(oldServerHost, data_source->server) != 0) {
@@ -388,7 +388,7 @@ Notes: there are three pathways depending on the request pattern
                 }
             }
         } else {
-            THROW_ERROR(999, "No Server has been specified!");
+            UDA_THROW_ERROR(999, "No Server has been specified!");
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", data_source->server);
@@ -415,8 +415,8 @@ Notes: there are three pathways depending on the request pattern
                 p[0] = '\0';                            // Break the String (work)
                 strcpy(source, p + 1);                // Extract the Source URL Argument
             } else {
-                THROW_ERROR(999,
-                            "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
+                UDA_THROW_ERROR(999,
+                                "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
             }
         } else {
             if ((p = strchr(request->server, '/')) != nullptr) {
@@ -424,8 +424,8 @@ Notes: there are three pathways depending on the request pattern
                 p[0] = '\0';                            // Break the String (work)
                 strcpy(source, p + 1);                // Extract the Source URL Argument
             } else {
-                THROW_ERROR(999,
-                            "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
+                UDA_THROW_ERROR(999,
+                                "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
             }
         }
 
@@ -454,8 +454,8 @@ Notes: there are three pathways depending on the request pattern
                     *oldPort = newPort;
                 }
             } else {
-                THROW_ERROR(999,
-                            "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server port'");
+                UDA_THROW_ERROR(999,
+                                "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server port'");
             }
         } else {
             if (strcasecmp(oldServerHost, request->server) != 0) {
@@ -512,7 +512,7 @@ Notes: there are three pathways depending on the request pattern
             UDA_LOG(UDA_LOG_DEBUG, "idamAPIPlugin; Source: %s\n", request->source);
             handle = idamGetAPI(signal, request->source);
         } else {
-            THROW_ERROR(999, "A data object (signal) has not been specified!");
+            UDA_THROW_ERROR(999, "A data object (signal) has not been specified!");
         }
     } else if (pathway == 4) {
 
@@ -552,8 +552,8 @@ Notes: there are three pathways depending on the request pattern
                     *oldPort = newPort;
                 }
             } else {
-                THROW_ERROR(999,
-                            "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server port'");
+                UDA_THROW_ERROR(999,
+                                "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server port'");
             }
         } else {
             // No port number passed
@@ -582,9 +582,9 @@ Notes: there are three pathways depending on the request pattern
             getIdamErrorCode(handle));
 
     if (handle < 0) {
-        THROW_ERROR(abs(handle), getIdamServerErrorStackRecordMsg(0));
+        UDA_THROW_ERROR(abs(handle), getIdamServerErrorStackRecordMsg(0));
     } else if ((err = getIdamErrorCode(handle)) != 0) {
-        THROW_ERROR(err, getIdamErrorMsg(handle));
+        UDA_THROW_ERROR(err, getIdamErrorMsg(handle));
     }
 
     //----------------------------------------------------------------------

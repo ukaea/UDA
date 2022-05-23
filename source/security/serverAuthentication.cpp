@@ -158,9 +158,9 @@ static SECURITY_BLOCK* receiveSecurityBlock(CLIENT_BLOCK* client_block, LOGMALLO
 #ifndef TESTIDAMSECURITY
     if (!xdrrec_skiprecord(serverInput)) {
         UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
-        addIdamError(CODEERRORTYPE, __func__, PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #2)");
+        addIdamError(CODEERRORTYPE, __func__, UDA_PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #2)");
     } else {
-        int protocol_id = PROTOCOL_CLIENT_BLOCK;        // Recieve Client Block
+        int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;        // Recieve Client Block
 
         int err = 0;
         if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, client_block)) != 0) {
@@ -301,14 +301,14 @@ static int issueToken(SERVER_BLOCK* server_block, LOGMALLOCLIST* logmalloclist, 
     securityBlock->server_ciphertextLength = (unsigned short)server_ciphertextLength;
 
 #ifndef TESTIDAMSECURITY
-    int protocol_id = PROTOCOL_SERVER_BLOCK;
+    int protocol_id = UDA_PROTOCOL_SERVER_BLOCK;
 
     if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, server_block)) != 0) {
         addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (securityBlock #4)");
     }
 
     if (!xdrrec_endofrecord(serverOutput, 1)) {
-        addIdamError(CODEERRORTYPE, __func__, PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
+        addIdamError(CODEERRORTYPE, __func__, UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
     }
 #endif
 
@@ -328,11 +328,11 @@ static int verifyToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_block, L
     // Receive the encrypted token (B) from the client
 
 #ifndef TESTIDAMSECURITY
-    int protocol_id = PROTOCOL_CLIENT_BLOCK;
+    int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;
 
     if (!xdrrec_skiprecord(serverInput)) {
         UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
-        THROW_ERROR(PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #7)");
+        THROW_ERROR(UDA_PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #7)");
     }
 
     if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, client_block)) != 0) {
@@ -378,14 +378,14 @@ static int verifyToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_block, L
     securityBlock->client_ciphertextLength = (unsigned short)client_ciphertextLength;
 
 #ifndef TESTIDAMSECURITY
-    protocol_id = PROTOCOL_SERVER_BLOCK;
+    protocol_id = UDA_PROTOCOL_SERVER_BLOCK;
 
     if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, server_block)) != 0) {
         THROW_ERROR(err, "Protocol 10 Error (securityBlock #7)");
     }
 
     if (!xdrrec_endofrecord(serverOutput, 1)) {
-        THROW_ERROR(PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block #7)");
+        THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block #7)");
     }
 #endif
 

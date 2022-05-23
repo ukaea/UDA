@@ -215,7 +215,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     if ((err = makeClientRequestBlock(&data_object, &data_source, 1, &request_block)) != 0) {
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         unlockUdaThread(client_flags);
         return -err;
@@ -325,7 +325,7 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
     int err = 0;
     if ((err = makeClientRequestBlock(signals, sources, count, &request_block)) != 0) {
         if (udaNumErrors() == 0) {
-            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         unlockUdaThread(client_flags);
         return -err;

@@ -119,7 +119,7 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
 
     if ((space_id = H5Aget_space(att_id)) < 0) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "readHDF5Att", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5Att", err,
                      "Error Querying for Attribute Space Information");
         return err;
     }
@@ -131,7 +131,7 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
 
     if (size == 0) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "readHDF5Att", err, "Attribute Size is Zero!");
+        addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5Att", err, "Attribute Size is Zero!");
         return err;
     }
 
@@ -150,7 +150,7 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
 
     if (data_block->data_type == UDA_TYPE_UNKNOWN) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "readHDF5Att", err, "Attribute Data Type is Unknown!");
+        addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5Att", err, "Attribute Data Type is Unknown!");
         return err;
     }
 
@@ -164,7 +164,7 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
 
     if (data == NULL) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "readHDF5Att", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5Att", err,
                      "Unable to Allocate HEAP Memory for Attribute Data");
         return err;
     }
@@ -225,7 +225,7 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
 
     if (rc < 0) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "readHDF5Att", err, "Error reading Attribute Data");
+        addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5Att", err, "Error reading Attribute Data");
         free(data);
         return err;
     }
@@ -241,7 +241,7 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
     if (data_block->rank >= 1 && data_block->data_n > 1) {
         if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
             err = HDF5_ERROR_ALLOCATING_DIM_HEAP;
-            addIdamError(CODEERRORTYPE, "readHDF5", err, "Problem Allocating Dimension Heap Memory");
+            addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5", err, "Problem Allocating Dimension Heap Memory");
             return err;
         }
 
@@ -308,9 +308,9 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
         if ((int)file_id < 0 || serrno != 0) {
             err = HDF5_ERROR_OPENING_FILE;
             if (serrno != 0) {
-                addIdamError(SYSTEMERRORTYPE, "readHDF5", serrno, "");
+                addIdamError(UDA_SYSTEM_ERROR_TYPE, "readHDF5", serrno, "");
             }
-            addIdamError(CODEERRORTYPE, "readHDF5", err, "Error Opening HDF5 File");
+            addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5", err, "Error Opening HDF5 File");
             break;
         }
 
@@ -360,7 +360,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
             // Must be an error!
 
             err = HDF5_ERROR_OPENING_DATASET;
-            addIdamError(CODEERRORTYPE, "readHDF5", err, "Error Opening the Signal Dataset");
+            addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5", err, "Error Opening the Signal Dataset");
             break;
         }
 
@@ -373,7 +373,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
         if ((status = H5Oget_info(dataset_id, &dataset_info)) < 0) {
 #endif
             err = HDF5_ERROR_IDENTIFYING_DATA_ITEM;
-            addIdamError(CODEERRORTYPE, "readHDF5", err, "Error Accessing Signal Dataset Information");
+            addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5", err, "Error Accessing Signal Dataset Information");
             break;
         }
 
@@ -389,7 +389,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
         if (dataset_type == H5O_TYPE_DATASET) {                    // Dataset Object
             if ((space_id = H5Dget_space(dataset_id)) < 0) {
                 err = HDF5_ERROR_OPENING_DATASPACE;
-                addIdamError(CODEERRORTYPE, "readHDF5", err,
+                addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5", err,
                              "Error Opening the Dataspace for the Dataset");
                 break;
             }
@@ -407,7 +407,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
         } else {                                // Assume an Attribute Object
             if ((space_id = H5Aget_space(dataset_id)) < 0) {
                 err = HDF5_ERROR_OPENING_DATASPACE;
-                addIdamError(CODEERRORTYPE, "readHDF5", err,
+                addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5", err,
                              "Error Opening the Dataspace for the Attribute");
                 break;
             }
@@ -466,7 +466,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
 
         if (size == 0) {
             if (err == 0) err = HDF5_ERROR_NO_STORAGE_SIZE;
-            addIdamError(CODEERRORTYPE, "readHDF5", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5", err,
                          "No Storage Size returned for this data item");
             break;
         }
@@ -477,7 +477,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
         if (data_block->rank > 0) {
             if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
                 err = HDF5_ERROR_ALLOCATING_DIM_HEAP;
-                addIdamError(CODEERRORTYPE, "readHDF5", err,
+                addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5", err,
                              "Problem Allocating Dimension Heap Memory");
                 break;
             }
@@ -550,7 +550,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
 
         if (data_block->data_type == UDA_TYPE_UNKNOWN) {
             err = HDF5_ERROR_UNKNOWN_TYPE;
-            addIdamError(CODEERRORTYPE, "readHDF5", err, "Unknown Data Type for this data item");
+            addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5", err, "Unknown Data Type for this data item");
             break;
 
         }
@@ -569,7 +569,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
                 hid_t att_id = -1;
                 if ((att_id = H5Aopen_idx(dataset_id, (unsigned int)i)) < 0) {
                     err = HDF5_ERROR_OPENING_ATTRIBUTE;
-                    addIdamError(CODEERRORTYPE, "readHDF5", err, "Problem Allocating Dimension Heap Memory");
+                    addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5", err, "Problem Allocating Dimension Heap Memory");
                     break;
                 }
                 hid_t att_type = H5Aget_type(att_id);
@@ -721,13 +721,13 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
 
         if (data == NULL) {
             err = HDF5_ERROR_ALLOCATING_DATA_HEAP;
-            addIdamError(CODEERRORTYPE, "readHDF5", err, "Problem Allocating Data Heap Memory");
+            addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5", err, "Problem Allocating Data Heap Memory");
             break;
         }
 
         if (status < 0) {
             err = HDF5_ERROR_READING_DATA;
-            addIdamError(CODEERRORTYPE, "readHDF5", err, "Problem Reading Data from the File");
+            addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5", err, "Problem Reading Data from the File");
             break;
         }
 

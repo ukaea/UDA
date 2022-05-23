@@ -1892,7 +1892,7 @@ int xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDT
     } else {
 
         if (userdefinedtype == nullptr) {
-            addIdamError(CODEERRORTYPE, "xdrUserDefinedTypeData", 999,
+            addIdamError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedTypeData", 999,
                          "No User Defined Type passed - cannot send!");
             return 0;
         }
@@ -2622,12 +2622,12 @@ void* getNodeStructureArrayData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, int 
 {
     char* p;
     if (index < 0) {
-        addIdamError(CODEERRORTYPE, "getNodeStructureArrayData", 999, "The Tree Node array index < 0");
+        addIdamError(UDA_CODE_ERROR_TYPE, "getNodeStructureArrayData", 999, "The Tree Node array index < 0");
         return nullptr;
     }
     if (ntree == nullptr) ntree = udaGetFullNTree();
     if (getNodeStructureDataCount(logmalloclist, ntree) < (index + 1)) {
-        addIdamError(CODEERRORTYPE, "getNodeStructureArrayData", 999,
+        addIdamError(UDA_CODE_ERROR_TYPE, "getNodeStructureArrayData", 999,
                      "The Tree Node array index > allocated array dimension");
         return nullptr;
     }
@@ -2652,11 +2652,11 @@ getNodeStructureComponentArrayData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, c
     char* pp;
     const char* type;
     if (structureindex < 0) {
-        addIdamError(CODEERRORTYPE, "getNodeStructureComponentArrayData", 999,
+        addIdamError(UDA_CODE_ERROR_TYPE, "getNodeStructureComponentArrayData", 999,
                      "The Tree Node Structure array index < 0");
     }
     if (componentindex < 0) {
-        addIdamError(CODEERRORTYPE, "getNodeStructureComponentArrayData", 999,
+        addIdamError(UDA_CODE_ERROR_TYPE, "getNodeStructureComponentArrayData", 999,
                      "The Tree Node Structure Component array index < 0");
         return nullptr;
     }
@@ -2677,14 +2677,14 @@ getNodeStructureComponentArrayData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, c
             }
             if (size == 0) return nullptr;
             if (count <= componentindex) {
-                addIdamError(CODEERRORTYPE, "getNodeStructureComponentArrayData", 999,
+                addIdamError(UDA_CODE_ERROR_TYPE, "getNodeStructureComponentArrayData", 999,
                              "The Tree Node Structure Component array index > allocated array dimension");
                 return nullptr;
             }
             return (void*)&p[componentindex * size];
         }
     }
-    addIdamError(CODEERRORTYPE, "getNodeStructureComponentArrayData", 999,
+    addIdamError(UDA_CODE_ERROR_TYPE, "getNodeStructureComponentArrayData", 999,
                  "The named Tree Node Structure Component array is not a member of the Data structure");
     return nullptr;
 }
@@ -3691,7 +3691,7 @@ void printNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
                 }
             }
             if (node == nullptr) {
-                addIdamError(CODEERRORTYPE, "printNodeStructure", 999,
+                addIdamError(UDA_CODE_ERROR_TYPE, "printNodeStructure", 999,
                              "Structure Array element Node not Found!");
                 return;
             }

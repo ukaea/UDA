@@ -33,7 +33,7 @@ int startup()
         FILE* accout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
-            addIdamError(SYSTEMERRORTYPE, "startup", errno, "Access Log: ");
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Access Log: ");
             if (accout != nullptr) {
                 fclose(accout);
             }
@@ -48,7 +48,7 @@ int startup()
         FILE* errout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
-            addIdamError(SYSTEMERRORTYPE, "startup", errno, "Error Log: ");
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Error Log: ");
             if (errout != nullptr) {
                 fclose(errout);
             }
@@ -63,7 +63,7 @@ int startup()
         FILE* dbgout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
-            addIdamError(SYSTEMERRORTYPE, "startup", errno, "Debug Log: ");
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Debug Log: ");
             if (dbgout != nullptr) {
                 fclose(dbgout);
             }

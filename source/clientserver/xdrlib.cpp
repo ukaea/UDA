@@ -156,7 +156,9 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
              && xdr_int(xdrs, &str->timeout)
              && WrapXDRString(xdrs, (char*)str->uid, STRING_LENGTH);
 
-    if (str->version < protocolVersion) protocolVersion = str->version;
+    if (str->version < protocolVersion) {
+        protocolVersion = str->version;
+    }
 
     // clientFlags and altRank do not exist in the CLIENT_BLOCK structure prior to version 6
 
@@ -189,7 +191,9 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
 
     // privateFlags does not exist in the CLIENT_BLOCK structure prior to version 5
 
-    if (protocolVersion >= 5) rc = rc && xdr_u_int(xdrs, &str->privateFlags);
+    if (protocolVersion >= 5) {
+        rc = rc && xdr_u_int(xdrs, &str->privateFlags);
+    }
 
     if (xdrs->x_op == XDR_DECODE && protocolVersion < 6) {
         str->clientFlags = 0;        // The original properties have no effect on the server whatever the version
@@ -468,7 +472,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         if (udt == nullptr || u == nullptr) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "protocolDataObject", err, "nullptr User defined data Structure Definition");
+            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "nullptr User defined data Structure Definition");
             return 0;
         }
 
@@ -493,7 +497,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         if (!rc) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "protocolDataObject", err, "Bad Return Code passing data structures");
+            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Bad Return Code passing data structures");
             return 0;
         }
 
@@ -503,7 +507,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         if (packageType != PACKAGE_XDROBJECT) {
             err = 999;
-            addIdamError(SYSTEMERRORTYPE, "protocolDataObject", err, "Incorrect package Type option");
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolDataObject", err, "Incorrect package Type option");
             return 0;
         }
 
@@ -522,7 +526,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         if (!rc) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "protocolDataObject", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err,
                          "Failure receiving Structure Definitions");
             return 0;
         }
@@ -538,7 +542,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         if (!rc) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "protocolDataObject", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err,
                          "Failure receiving Data and it's Structure Definition");
             return 0;
         }
@@ -552,7 +556,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
             auto s = (SARRAY*)data;
             if (s->count != str->data_n) {                // check for consistency
                 err = 999;
-                addIdamError(CODEERRORTYPE, "protocolDataObject", err, "Inconsistent S Array Counts");
+                addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Inconsistent S Array Counts");
                 return 0;
             }
             str->data = (char*)udaGetFullNTree();        // Global Root Node with the Carrier Structure containing data
@@ -564,7 +568,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         } else {
             err = 999;
-            addIdamError(CODEERRORTYPE, "protocolDataObject", err, "Name of Received Data Structure Incorrect");
+            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Name of Received Data Structure Incorrect");
             return 0;
         }
     }

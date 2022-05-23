@@ -150,13 +150,13 @@ int memcache_put(uda::cache::UdaCache* cache, const char* key, const char* buffe
     memcached_return_t rc = memcached_set(&cache->memcache, key, strlen(key), buffer, bufsize, life, (uint32_t)0);
 
     if (rc != MEMCACHED_SUCCESS) {
-        THROW_ERROR(-1, memcached_strerror(&cache->memcache, rc));
+        UDA_THROW_ERROR(-1, memcached_strerror(&cache->memcache, rc));
     }
 
     rc = memcached_flush_buffers(&cache->memcache);
 
     if (rc != MEMCACHED_SUCCESS) {
-        THROW_ERROR(-1, memcached_strerror(&cache->memcache, rc));
+        UDA_THROW_ERROR(-1, memcached_strerror(&cache->memcache, rc));
     }
 
     return 0;

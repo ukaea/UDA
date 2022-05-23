@@ -35,7 +35,7 @@ void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERR
 
     struct tm* broken = gmtime(&calendar);
 
-    static char accessdate[DATELENGTH];     // The Calendar Time as a formatted String
+    static char accessdate[UDA_DATE_LENGTH];     // The Calendar Time as a formatted String
     
 #ifndef _WIN32
     asctime_r(broken, accessdate);
@@ -109,7 +109,7 @@ void addIdamError(int type, const char* location, int code, const char* msg)
 
     size_t lmsg0 = strlen(error.msg);
 
-    if (type == SYSTEMERRORTYPE) {
+    if (type == UDA_SYSTEM_ERROR_TYPE) {
         const char* errmsg = strerror(code);
         size_t lmsg1 = strlen(errmsg);
         if (lmsg0 == 0) {

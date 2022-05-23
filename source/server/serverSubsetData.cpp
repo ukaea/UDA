@@ -94,7 +94,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
             UDA_LOG(UDA_LOG_ERROR, "DIM id = %d,  Rank = %d, Test = %d \n",
                     dim_id, data_block->rank, dim_id >= (int)data_block->rank);
             printDataBlock(*data_block);
-            THROW_ERROR(9999, "Data Subsetting is Impossible as the subset Dimension is not Compatible with the Rank of the Signal");
+            UDA_THROW_ERROR(9999, "Data Subsetting is Impossible as the subset Dimension is not Compatible with the Rank of the Signal");
             return 9999;
         }
 
@@ -160,7 +160,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
                                         if ((shape = udt->compoundfield[i].shape) == nullptr &&
                                             udt->compoundfield[i].rank > 1) {
-                                            THROW_ERROR(999, "The Data Structure member's shape data is missing (rank > 1)");
+                                            UDA_THROW_ERROR(999, "The Data Structure member's shape data is missing (rank > 1)");
                                         }
 
                                     } else {        // mapType == 3
@@ -217,7 +217,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                                         }
                                     } else {
                                         if (rank > 1) {
-                                            THROW_ERROR(999, "The Data Structure member's shape data is missing (rank > 1)");
+                                            UDA_THROW_ERROR(999, "The Data Structure member's shape data is missing (rank > 1)");
                                         }
                                     }
                                 }
@@ -234,7 +234,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                         }
 
                         if (mapType == 3) {
-                            THROW_ERROR(999, "Unable to subset an array of Data Structures when the target "
+                            UDA_THROW_ERROR(999, "Unable to subset an array of Data Structures when the target "
                                              "member is also an array. (Functionality has not been implemented!)");
                         }
 
@@ -441,7 +441,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
             stride = (int)(maybe_stride.init ? maybe_stride.value : 1);
 
             if (start > end) {
-                THROW_ERROR(999, "start must be before end")
+                UDA_THROW_ERROR(999, "start must be before end")
             }
             reshape = 1;
             dim_n = abs((end - start) / stride);
@@ -475,7 +475,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
             if ((dim_n = get_subset_indices(operation, dim, value, subset_indices)) == 0) {
                 free(subset_indices);
-                THROW_ERROR(9999, "No Data were found that satisfies a subset");
+                UDA_THROW_ERROR(9999, "No Data were found that satisfies a subset");
             }
 
             // Start and End of Subset Ranges
@@ -500,12 +500,12 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                 }
                 if (dim_n != end - start + 1 + range2) {        // Dimension array is Not well ordered!
                     free(subset_indices);
-                    THROW_ERROR(9999, "The Dimensional Array is Not Ordered: Unable to Subset");
+                    UDA_THROW_ERROR(9999, "The Dimensional Array is Not Ordered: Unable to Subset");
                 }
             } else {
                 if (dim_n != end - start + 1) {        // Dimension array is Not well ordered!
                     free(subset_indices);
-                    THROW_ERROR(9999, "The Dimensional Array is Not Ordered: Unable to Subset");
+                    UDA_THROW_ERROR(9999, "The Dimensional Array is Not Ordered: Unable to Subset");
                 }
             }
             free(subset_indices);
@@ -664,7 +664,7 @@ int apply_minimum(SUBSET subset, DATA_BLOCK* data_block)
     if (dim_id < 0 || dim_id >= (int)data_block->rank) {
         UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dim_id = %d,  Rank = %d\n", dim_id,
                 data_block->rank);
-        THROW_ERROR(999, "The dimension ID identified via the subset function is outside the rank bounds of the array!");
+        UDA_THROW_ERROR(999, "The dimension ID identified via the subset function is outside the rank bounds of the array!");
     }
 
     switch (data_block->data_type) {
@@ -852,7 +852,7 @@ int apply_maximum(SUBSET subset, DATA_BLOCK* data_block)
     if (dim_id < 0 || dim_id >= (int)data_block->rank) {
         UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dim_id = %d,  Rank = %d\n", dim_id,
                 data_block->rank);
-        THROW_ERROR(999, "The dimension ID identified via the subset function is outside the rank bounds of the array!");
+        UDA_THROW_ERROR(999, "The dimension ID identified via the subset function is outside the rank bounds of the array!");
     }
 
     switch (data_block->data_type) {
@@ -1189,15 +1189,15 @@ int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
 {
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
     if (data_block->rank != 3) {
-        THROW_ERROR(999, "The function rotateRZ only operates on rank 3 arrays");
+        UDA_THROW_ERROR(999, "The function rotateRZ only operates on rank 3 arrays");
     }
     int order = data_block->order;
     if (order < 0) {
-        THROW_ERROR(999, "The function rotateRZ expects a Time coordinate");
+        UDA_THROW_ERROR(999, "The function rotateRZ expects a Time coordinate");
     }
     int type = data_block->data_type;
     if (type != UDA_TYPE_DOUBLE) {
-        THROW_ERROR(999, "The function rotateRZ is configured for type DOUBLE only");
+        UDA_THROW_ERROR(999, "The function rotateRZ is configured for type DOUBLE only");
     }
     int nt, nr, nz, count;
     count = data_block->data_n;
@@ -1233,7 +1233,7 @@ int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
         data_block->dims[1] = d2;
         data_block->dims[2] = d1;
     } else if (order == 1) {        // array[nz][nt][nr]
-        THROW_ERROR(999, "The function rotateRZ only operates on arrays with shape [nz][nr][nt] or [nt][nz][nr]");
+        UDA_THROW_ERROR(999, "The function rotateRZ only operates on arrays with shape [nz][nr][nt] or [nt][nz][nr]");
     } else if (order == 2) {        // array[nt][nz][nr] -> [nt][nr][nz]
         nr = data_block->dims[0].dim_n;
         nz = data_block->dims[1].dim_n;
@@ -1262,7 +1262,7 @@ int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
         data_block->dims[0] = d1;
         data_block->dims[1] = d0;
     } else {
-        THROW_ERROR(999, "rotateRZ: Incorrect ORDER value found!");
+        UDA_THROW_ERROR(999, "rotateRZ: Incorrect ORDER value found!");
     }
     free(data_block->data);
     data_block->data = (char*)newData;
@@ -1299,7 +1299,7 @@ int apply_functions(SUBSET subset, DATA_BLOCK* data_block)
         return apply_rotate_rz(subset, data_block);
     }
 
-    THROW_ERROR(999, "Unknown function");
+    UDA_THROW_ERROR(999, "Unknown function");
 }
 
 int serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST* logmalloclist)
@@ -1317,7 +1317,7 @@ int serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST
 
     if (data_block->rank > 2 &&
         !(action.actionType == UDA_SUBSET_TYPE && !strncasecmp(action.subset.function, "rotateRZ", 8))) {
-        THROW_ERROR(9999, "Not Configured to Subset Data with Rank Higher than 2");
+        UDA_THROW_ERROR(9999, "Not Configured to Subset Data with Rank Higher than 2");
     }
 
     //-----------------------------------------------------------------------------------------------------------------------
@@ -1397,7 +1397,7 @@ int serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serversi
 
     size_t quote_pos = signal.find(quote_char, 8);
     if (quote_pos == std::string::npos) {
-        THROW_ERROR(9999, "Syntax Error: The Signal Name has no Terminating Quotation character!");
+        UDA_THROW_ERROR(9999, "Syntax Error: The Signal Name has no Terminating Quotation character!");
     }
 
     std::string remainder = signal.substr(quote_pos + 1);
@@ -1424,20 +1424,20 @@ int serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serversi
 
     if (remainder[0] != ',') {
         // Locate the separation character
-        THROW_ERROR(9999, "Syntax Error: No Comma after the Signal Name");
+        UDA_THROW_ERROR(9999, "Syntax Error: No Comma after the Signal Name");
     }
 
     size_t lbracket_pos = remainder.find('[');
 
     if (lbracket_pos == std::string::npos) {
         // Locate the Operation
-        THROW_ERROR(9999, "Syntax Error: No [ enclosing the Operation");
+        UDA_THROW_ERROR(9999, "Syntax Error: No [ enclosing the Operation");
     }
 
     size_t rbracket_pos = remainder.find(']', lbracket_pos);
 
     if (rbracket_pos == std::string::npos) {
-        THROW_ERROR(9999, "Syntax Error: No ] enclosing the Operation ");
+        UDA_THROW_ERROR(9999, "Syntax Error: No ] enclosing the Operation ");
     }
 
     std::string operation = remainder.substr(lbracket_pos + 1, rbracket_pos - lbracket_pos - 1);
@@ -1473,7 +1473,7 @@ int serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serversi
 
     int nactions = actions_serverside->nactions + 1;
     if ((action = (ACTION*)realloc((void*)actions_serverside->action, nactions * sizeof(ACTION))) == nullptr) {
-        THROW_ERROR(9999, "Unable to Allocate Heap memory");
+        UDA_THROW_ERROR(9999, "Unable to Allocate Heap memory");
     }
 
     initAction(&action[nactions - 1]);
@@ -1486,7 +1486,7 @@ int serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serversi
 
     int nsubsets = 1;
     if ((subsets = (SUBSET*)malloc(sizeof(SUBSET))) == nullptr) {
-        THROW_ERROR(9999, "Unable to Allocate Heap memory");
+        UDA_THROW_ERROR(9999, "Unable to Allocate Heap memory");
     }
 
     for (int i = 0; i < nsubsets; i++) {
@@ -1553,7 +1553,7 @@ int serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serversi
     boost::split(tokens, op_string, boost::is_any_of(","), boost::token_compress_off);
 
     if (tokens.size() > UDA_MAX_DATA_RANK) {
-        THROW_ERROR(9999, "The number of Dimensional Operations exceeds the Internal Limit");
+        UDA_THROW_ERROR(9999, "The number of Dimensional Operations exceeds the Internal Limit");
     }
 
     for (auto& token : tokens) {
@@ -1771,7 +1771,7 @@ int apply_sub_setting_for_type(DIMS* dims, int rank, int dim_id,
 
     T* p = nullptr;
     if ((p = (T*)malloc(ndata * sizeof(T))) == nullptr) {
-        THROW_ERROR(9999, "Unable to Allocate Heap memory");
+        UDA_THROW_ERROR(9999, "Unable to Allocate Heap memory");
     }
 
     auto dp = (T*)data;        // the Originating Data Array
@@ -1941,7 +1941,7 @@ int apply_sub_setting(DIMS* dims, int rank, int dim_id,
         default:
             UDA_LOG(UDA_LOG_ERROR, "Invalid data type for sub-setting operation!\n");
             UDA_LOG(UDA_LOG_ERROR, "Data Type: %d    Rank: %d\n", data_type, rank);
-            THROW_ERROR(9999, "Invalid data type for sub-setting operation!");
+            UDA_THROW_ERROR(9999, "Invalid data type for sub-setting operation!");
     }
 
     return 0;

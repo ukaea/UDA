@@ -98,7 +98,7 @@ unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* clie
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
 void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, SERVER_BLOCK server_block,
-                  const PLUGINLIST* pluginlist, const ENVIRONMENT* environment, unsigned int total_datablock_size)
+                  unsigned int total_datablock_size)
 {
     int err = 0;
 
@@ -119,7 +119,7 @@ void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_blo
 #endif
     static struct timeval et_start;
     static struct timeval et_end;
-    static char accessdate[DATELENGTH];     // The Calendar Time as a formatted String
+    static char accessdate[UDA_DATE_LENGTH];     // The Calendar Time as a formatted String
 
     errno = 0;
 
@@ -197,7 +197,7 @@ void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_blo
     // Request Completed Time: Elasped & CPU
 
     gettimeofday(&et_end, nullptr);
-    double elapsedtime = (double)((et_end.tv_sec - et_start.tv_sec) * 1000);    // millisecs
+    auto elapsedtime = (double)((et_end.tv_sec - et_start.tv_sec) * 1000);    // millisecs
 
     if (et_end.tv_usec < et_start.tv_usec) {
         elapsedtime = elapsedtime - 1.0 + (double)(1000000 + et_end.tv_usec - et_start.tv_usec) / 1000.0;
@@ -244,9 +244,9 @@ void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_blo
 
         udaLog(UDA_LOG_ACCESS, "%s\n", str.c_str());
 
-        udaServerRedirectStdStreams(0);
-        udaProvenancePlugin(&client_block, &request, nullptr, nullptr, pluginlist, str.c_str(), environment);
-        udaServerRedirectStdStreams(1);
+//        udaServerRedirectStdStreams(0);
+//        udaProvenancePlugin(&client_block, &request, nullptr, nullptr, pluginlist, str.c_str(), environment);
+//        udaServerRedirectStdStreams(1);
     }
 
 }

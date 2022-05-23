@@ -15,7 +15,7 @@ void writeCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST*
     DATA_BLOCK_LIST data_block_list;
     data_block_list.count = 1;
     data_block_list.data = (DATA_BLOCK*)data_block;
-    protocol2(&xdrs, PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
+    protocol2(&xdrs, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
               &data_block_list, protocolVersion, log_struct_list, private_flags, malloc_source);
 
     xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
@@ -32,7 +32,7 @@ readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userd
     initDataBlockList(&data_block_list);
 
     int token;
-    protocol2(&xdrs, PROTOCOL_DATA_BLOCK_LIST, XDR_RECEIVE, &token, logmalloclist, userdefinedtypelist,
+    protocol2(&xdrs, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_RECEIVE, &token, logmalloclist, userdefinedtypelist,
               &data_block_list, protocolVersion, log_struct_list, private_flags, malloc_source);
 
     xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs

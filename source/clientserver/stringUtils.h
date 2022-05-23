@@ -98,6 +98,32 @@ LIBRARY_API bool StringEndsWith(const char* str, const char* find);
 
 #ifdef __cplusplus
 }
+
+#include <string>
+
+namespace uda {
+// remove non printable characters
+static inline void convert_non_printable(std::string& str)
+{
+    std::replace_if(str.begin(), str.end(), [](char c){
+        return c < ' ' || c > '~';
+    }, ' ');
+}
+
+// trim from start (in place)
+static inline void ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }));
+}
+
+// trim from end (in place)
+static inline void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+}
+}
 #endif
 
 #endif // UDA_CLIENTSERVER_TRIMSTRING_H

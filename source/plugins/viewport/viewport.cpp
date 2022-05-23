@@ -359,7 +359,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
                 if ((handle = idamGetAPI(signal, source)) < 0 || getIdamErrorCode(handle) != 0) {
                     err = 999;
-                    addIdamError(CODEERRORTYPE, "viewPort", err, (char*)getIdamErrorMsg(handle));
+                    addIdamError(UDA_CODE_ERROR_TYPE, "viewPort", err, (char*)getIdamErrorMsg(handle));
                     break;
                 }
 
@@ -885,7 +885,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
             } else {
                 err = 999;
-                addIdamError(CODEERRORTYPE, "viewPort", err, "A viewport for rank > 1 data has not been implemented!");
+                addIdamError(UDA_CODE_ERROR_TYPE, "viewPort", err, "A viewport for rank > 1 data has not been implemented!");
                 break;
             }
 
@@ -896,7 +896,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
             // Error ...
 
             err = 999;
-            addIdamError(CODEERRORTYPE, "viewport", err, "Unknown function requested!");
+            addIdamError(UDA_CODE_ERROR_TYPE, "viewport", err, "Unknown function requested!");
             break;
         }
 

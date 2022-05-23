@@ -58,7 +58,7 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
         closeUdaError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
     }
@@ -125,7 +125,7 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
         closeUdaError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
     }

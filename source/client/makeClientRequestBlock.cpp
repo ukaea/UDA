@@ -36,13 +36,13 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
 
     if (strlen(data_object) >= MAXMETA) {
-        THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument string is too long!");
+        UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument string is too long!");
     } else {
         strcpy(request->signal, data_object);    // Passed to the server without modification
     }
 
     if (strlen(data_source) >= STRING_LENGTH) {
-        THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument string is too long!");
+        UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument string is too long!");
     } else {
         strcpy(request->source, data_source);    // Passed to the server without modification
     }
@@ -70,7 +70,7 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
         int lstr = (int)strlen(request->source) + (int)strlen(environment->api_device) +
                (int)strlen(request->api_delim);
         if (lstr >= STRING_LENGTH) {
-            THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument, prefixed with the Device Name, is too long!");
+            UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument, prefixed with the Device Name, is too long!");
         }
         char* test = (char*)malloc((lstr + 1) * sizeof(char));
         sprintf(test, "%s%s%s", environment->api_device, request->api_delim, request->source);
@@ -82,7 +82,7 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
         int lstr = (int)strlen(request->signal) + (int)strlen(environment->api_archive) +
                (int)strlen(request->api_delim);
         if (lstr >= STRING_LENGTH) {
-            THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
+            UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
         }
         char* test = (char*)malloc((lstr + 1) * sizeof(char));
         sprintf(test, "%s%s%s", environment->api_archive, request->api_delim, request->signal);

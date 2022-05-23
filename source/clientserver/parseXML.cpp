@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------
-* IDAM XML Parser
+* UDA XML Parser
 *
 * Input Arguments:    char *xml
 *
@@ -17,6 +17,7 @@
 #include "parseXML.h"
 
 #include <cstdlib>
+#include <sstream>
 
 #include <logging/logging.h>
 #ifndef NOXMLPARSER
@@ -91,6 +92,39 @@ float* parse_float_array(xmlDocPtr doc, xmlNodePtr cur, const char* target, int*
         cur = cur->next;
     }
     return value;
+}
+
+template <typename T>
+void parse_fixed_length_array(xmlNodePtr cur, const char* target, void* array, int* n)
+{
+    xmlChar* att = nullptr;
+    *n = 0;
+    const char* delim = ",";
+    char* item;
+    int nco = 0;
+
+    if ((att = xmlGetProp(cur, (xmlChar*)target)) != nullptr) {
+        convertNonPrintable((char*)att);
+        if (strlen((char*)att) > 0) {
+            int l = (int)strlen((char*)att);
+            UDA_LOG(UDA_LOG_DEBUG, "parseFixedLengthArray: [%d] %s %s \n", l, target, att);
+            item = strtok((char*)att, delim);
+            if (item != nullptr) {
+                nco++;
+                auto p = (T*)array;
+                std::stringstream ss{ item };
+                ss >> p[nco - 1];
+
+                while ((item = strtok(nullptr, delim)) != nullptr && nco <= MAXDATARANK) {
+                    nco++;
+                    ss = std::stringstream{ item };
+                    ss >> p[nco - 1];
+                }
+            }
+        }
+        *n = nco;
+        xmlFree(att);
+    }
 }
 
 void parse_fixed_length_array(xmlNodePtr cur, const char* target, void* array, int arraytype, int* n)
@@ -1159,12 +1193,12 @@ int parseDoc(char* docname, ACTIONS* actions)
     if ((doc = xmlParseDoc((xmlChar*)docname)) == nullptr) {
         xmlFreeDoc(doc);
         xmlCleanupParser();
-        addIdamError(CODEERRORTYPE, "parseDoc", 1, "XML Not Parsed");
+        addIdamError(UDA_CODE_ERROR_TYPE, "parseDoc", 1, "XML Not Parsed");
         return 1;
     }
 
     if ((cur = xmlDocGetRootElement(doc)) == nullptr) {
-        addIdamError(CODEERRORTYPE, "parseDoc", 1, "Empty XML Document");
+        addIdamError(UDA_CODE_ERROR_TYPE, "parseDoc", 1, "Empty XML Document");
         xmlFreeDoc(doc);
         xmlCleanupParser();
         return 1;

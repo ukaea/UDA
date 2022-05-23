@@ -321,7 +321,7 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         err = do_test62(idam_plugin_interface);
     } else {
         err = 999;
-        addIdamError(CODEERRORTYPE, "testplugin", err, "Unknown function requested!");
+        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Unknown function requested!");
     }
 
     return err;
@@ -331,14 +331,14 @@ void testError1()
 {
     // Test of Error Management within Plugins
     int err = 9991;
-    addIdamError(CODEERRORTYPE, "testplugin", err, "Test #1 of Error State Management");
+    addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Test #1 of Error State Management");
 }
 
 void testError2()
 {
     // Test of Error Management within Plugins
     int err = 9992;
-    addIdamError(CODEERRORTYPE, "testplugin", err, "Test #2 of Error State Management");
+    addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Test #2 of Error State Management");
 }
 
 static int do_help(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
@@ -3780,7 +3780,7 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
                     err = pluginList->plugin[i].idamPlugin(&next_plugin_interface); // Call the data reader
                 } else {
                     err = 999;
-                    addIdamError(CODEERRORTYPE, "No Data Access plugin available for this data request", err, "");
+                    addIdamError(UDA_CODE_ERROR_TYPE, "No Data Access plugin available for this data request", err, "");
                 }
                 break;
             }
@@ -3834,7 +3834,7 @@ static int do_errortest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         }
     }
 
-    THROW_ERROR(9990 + test, "Test of Error State Management");
+    UDA_THROW_ERROR(9990 + test, "Test of Error State Management");
 }
 
 static int do_scalartest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)

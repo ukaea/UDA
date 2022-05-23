@@ -39,8 +39,8 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
             const char* errmsg = dlerror();
             UDA_LOG(UDA_LOG_ERROR, "Cannot open the target shared library %s: %s\n", library, errmsg);
             if (fail_on_load != nullptr) {
-                ADD_ERROR(999, "Cannot open the target shared library");
-                ADD_ERROR(999, errmsg);
+                UDA_ADD_ERROR(999, "Cannot open the target shared library");
+                UDA_ADD_ERROR(999, errmsg);
             }
             return 999;
         }
@@ -62,8 +62,8 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
     } else {
         UDA_LOG(UDA_LOG_ERROR, "Cannot open the target shared library %s: %s\n", library, errstr);
         if (fail_on_load != nullptr) {
-            ADD_ERROR(999, "Cannot locate the data reader with the target shared library");
-            ADD_ERROR(999, errstr);
+            UDA_ADD_ERROR(999, "Cannot locate the data reader with the target shared library");
+            UDA_ADD_ERROR(999, errstr);
         }
         dlclose(pluginHandle);
         *pluginHandle = nullptr;

@@ -69,7 +69,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
     // Limit the Recursive Depth
 
     if (*depth == UDA_XML_MAX_RECURSIVE) {
-        THROW_ERROR(7777, "Recursive Depth (Derived or Substitute Data) Exceeds Internal Limit");
+        UDA_THROW_ERROR(7777, "Recursive Depth (Derived or Substitute Data) Exceeds Internal Limit");
     }
 
     (*depth)++;
@@ -174,7 +174,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
             freeActions(&actions_comp_desc);
             freeActions(&actions_comp_sig);
             (*depth)--;
-            THROW_ERROR(8881, "Unable to Parse XML");
+            UDA_THROW_ERROR(8881, "Unable to Parse XML");
         }
 
         // Identify which XML statements are in Range (Only signal_desc xml need be checked as signal xml is specific to a single pulse/pass)
@@ -240,7 +240,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                             freeActions(&actions_comp_desc);
                             freeActions(&actions_comp_sig);
                             (*depth)--;
-                            THROW_ERROR(8888, "User Specified Composite Data Signal Not Fully Defined: Format?, File?");
+                            UDA_THROW_ERROR(8888, "User Specified Composite Data Signal Not Fully Defined: Format?, File?");
                         }
                         strcpy(request_block2.path, actions_comp_desc.action[compId].composite.file);
 
@@ -255,7 +255,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                                 freeActions(&actions_comp_desc);
                                 freeActions(&actions_comp_sig);
                                 (*depth)--;
-                                THROW_ERROR(8889, "User Specified Composite Data Signal's File Format NOT Recognised");
+                                UDA_THROW_ERROR(8889, "User Specified Composite Data Signal's File Format NOT Recognised");
                             }
                         }
 
@@ -309,7 +309,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                         freeActions(&actions_comp_desc);
                         freeActions(&actions_comp_sig);
                         (*depth)--;
-                        THROW_ERROR(7770, "Composite Data Signal Not Available - No XML Document to define it!");
+                        UDA_THROW_ERROR(7770, "Composite Data Signal Not Available - No XML Document to define it!");
                     }
                 }
             }
@@ -340,7 +340,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
             } else {
                 if (rc == 1) {
                     (*depth)--;
-                    THROW_ERROR(7770, "Error Parsing Signal XML Document");
+                    UDA_THROW_ERROR(7770, "Error Parsing Signal XML Document");
                 }
             }
         } else {
@@ -514,8 +514,8 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                         freeActions(&actions_comp_desc2);
                         freeActions(&actions_comp_sig2);
                         (*depth)--;
-                        THROW_ERROR(9999,
-                                    "User Specified Composite Dimension Data Signal's File Format NOT Recognised");
+                        UDA_THROW_ERROR(9999,
+                                        "User Specified Composite Dimension Data Signal's File Format NOT Recognised");
                     }
 
                     // If the Archive is XML and the signal contains a ServerSide SUBSET function then parse and replace
@@ -750,7 +750,7 @@ int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymm
         data_block->error_type = data_block2->data_type;
 
     } else {
-        THROW_ERROR(7777, "Error Data Substitution Not Possible - Incompatible Lengths");
+        UDA_THROW_ERROR(7777, "Error Data Substitution Not Possible - Incompatible Lengths");
     }
 
     return 0;
@@ -810,7 +810,7 @@ int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOC
             strcpy(data_block->dims[dimcomposite.to_dim].dim_label, data_block2->data_label);
 
         } else {
-            THROW_ERROR(7777, "Dimension Data Substitution Not Possible - Incompatible Lengths");
+            UDA_THROW_ERROR(7777, "Dimension Data Substitution Not Possible - Incompatible Lengths");
         }
 
         // Swap Signal Dimension Data
@@ -864,7 +864,7 @@ int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOC
                        data_block2->dims[dimcomposite.from_dim].dim_label);
 
             } else {
-                THROW_ERROR(7777, "Dimension Data Substitution Not Possible - Incompatible Lengths");
+                UDA_THROW_ERROR(7777, "Dimension Data Substitution Not Possible - Incompatible Lengths");
             }
         }
     }
@@ -899,7 +899,7 @@ int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DAT
             data_block->dims[dimcomposite.to_dim].error_type = data_block2->data_type;
 
         } else {
-            THROW_ERROR(7777, "Dimension Error Data Substitution Not Possible - Incompatible Lengths");
+            UDA_THROW_ERROR(7777, "Dimension Error Data Substitution Not Possible - Incompatible Lengths");
         }
     }
     return 0;
@@ -982,7 +982,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
         int plugin_id = udaServerMetaDataPluginId(pluginlist, getServerEnvironment());
         if (plugin_id < 0) {
             // No plugin so not possible to identify the requested data item
-            THROW_ERROR(778, "Unable to identify requested data item");
+            UDA_THROW_ERROR(778, "Unable to identify requested data item");
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Metadata Plugin ID = %d\nExecuting the plugin\n", plugin_id);
@@ -997,7 +997,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
                                           getServerEnvironment());
 
         if (err != 0) {
-            THROW_ERROR(err, "No Record Found for this Generic Signal");
+            UDA_THROW_ERROR(err, "No Record Found for this Generic Signal");
         }
         UDA_LOG(UDA_LOG_DEBUG, "Metadata Plugin Executed\nSignal Type: %c\n", signal_desc->type);
 
@@ -1012,7 +1012,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
     } // end of REQUEST_READ_GENERIC
 
     // Placeholder name-value substitution and additional name-value pairs
-    // Modifes HEAP in request_block
+    // Modifies HEAP in request_block
 
     {
         int err = name_value_substitution(&request->nameValueList, request->tpass);
@@ -1034,12 +1034,12 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
             int serrno = errno;
             if (serrno != 0 || xmlfile == nullptr) {
                 if (serrno != 0) {
-                    addIdamError(SYSTEMERRORTYPE, "idamserverReadData", serrno, "");
+                    addIdamError(UDA_SYSTEM_ERROR_TYPE, "idamserverReadData", serrno, "");
                 }
                 if (xmlfile != nullptr) {
                     fclose(xmlfile);
                 }
-                THROW_ERROR(122, "Unable to Open the XML File defining the signal");
+                UDA_THROW_ERROR(122, "Unable to Open the XML File defining the signal");
             }
             nchar = 0;
             while (!feof(xmlfile) && nchar < MAXMETA) {
@@ -1049,7 +1049,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
             strcpy(signal_desc->xml, request->signal);
             fclose(xmlfile);
         } else {
-            THROW_ERROR(123, "There is NO XML defining the signal");
+            UDA_THROW_ERROR(123, "There is NO XML defining the signal");
         }
         signal_desc->type = 'C';
         return -1;
@@ -1108,12 +1108,12 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
             int id;
             if ((id = findPluginIdByRequest(plugin_id, pluginlist)) == -1) {
                 UDA_LOG(UDA_LOG_DEBUG, "Error locating data plugin %d\n", plugin_id);
-                THROW_ERROR(999, "Error locating data plugin");
+                UDA_THROW_ERROR(999, "Error locating data plugin");
             }
 
 #ifndef ITERSERVER
             if (pluginlist->plugin[id].is_private == UDA_PLUGIN_PRIVATE && environment->external_user) {
-                THROW_ERROR(999, "Access to this data class is not available.");
+                UDA_THROW_ERROR(999, "Access to this data class is not available.");
             }
 #endif
             if (pluginlist->plugin[id].external == UDA_PLUGIN_EXTERNAL &&
@@ -1128,7 +1128,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
                 int reset = 0;
                 int rc;
                 if ((rc = udaServerRedirectStdStreams(reset)) != 0) {
-                    THROW_ERROR(rc, "Error Redirecting Plugin Message Output");
+                    UDA_THROW_ERROR(rc, "Error Redirecting Plugin Message Output");
                 }
 #endif
 
@@ -1144,7 +1144,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
                 // Reset Redirected Output
                 reset = 1;
                 if ((rc = udaServerRedirectStdStreams(reset)) != 0) {
-                    THROW_ERROR(rc, "Error Resetting Redirected Plugin Message Output");
+                    UDA_THROW_ERROR(rc, "Error Resetting Redirected Plugin Message Output");
                 }
 #endif
 
@@ -1165,7 +1165,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
 
                 if (data_block->opaque_block == nullptr) {
                     if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES && data_block->opaque_count > 0) {
-                        THROW_ERROR(999, "Opaque Data Block is Null Pointer");
+                        UDA_THROW_ERROR(999, "Opaque Data Block is Null Pointer");
                     }
                 }
 
@@ -1202,7 +1202,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
         }
 
         if (id >= 0 && pluginlist->plugin[id].is_private == UDA_PLUGIN_PRIVATE && environment->external_user) {
-            THROW_ERROR(999, "Access to this data class is not available.");
+            UDA_THROW_ERROR(999, "Access to this data class is not available.");
         }
 
         // Don't append the file name to the path - if it's already present!

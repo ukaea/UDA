@@ -45,7 +45,7 @@ class ClientMeta(type):
 
 class Client(with_metaclass(ClientMeta, object)):
     """
-    A class representing the IDAM client.
+    A class representing the UDA client.
 
     This is a pythonic wrapper around the low level c_uda.Client class which contains the wrapped C++ calls to
     UDA.
@@ -159,7 +159,7 @@ class Client(with_metaclass(ClientMeta, object)):
 
     def get(self, signal, source, time_first=False, time_last=False, **kwargs):
         """
-        IDAM get data method.
+        UDA get data method.
 
         :param signal: the name of the signal to get
         :param source: the source of the signal

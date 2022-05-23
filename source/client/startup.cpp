@@ -89,7 +89,7 @@ int udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_logs)
     udaSetLogFile(UDA_LOG_INFO, file);
 
     if (errno != 0) {
-        addIdamError(SYSTEMERRORTYPE, __func__, errno, "failed to open debug log");
+        addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "failed to open debug log");
         udaCloseLogging();
         return -1;
     }
@@ -102,7 +102,7 @@ int udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_logs)
     }
 
     if (errno != 0) {
-        addIdamError(SYSTEMERRORTYPE, __func__, errno, "failed to open error log");
+        addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "failed to open error log");
         udaCloseLogging();
         return -1;
     }

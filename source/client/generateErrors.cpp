@@ -74,7 +74,7 @@ int idamSyntheticModel(int model, int param_n, float* params, int data_n, float*
 
 #ifdef NO_GSL_LIB
     int err = 999;
-    addIdamError(CODEERRORTYPE, "idamSyntheticModel", err,
+    addIdamError(UDA_CODE_ERROR_TYPE, "idamSyntheticModel", err,
                  "Random Number Generators from the GSL library required.");
     return 999;
 #else
@@ -143,7 +143,7 @@ int generateIdamSyntheticData(int handle)
 
     if (getIdamDataType(handle) == UDA_TYPE_DCOMPLEX || getIdamDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "generateIdamSyntheticData", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticData", err,
                      "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
@@ -226,7 +226,7 @@ int generateIdamSyntheticData(int handle)
     err = idamSyntheticModel(model, param_n, params, getIdamDataNum(handle), data);
 
     if (err != 0) {
-        addIdamError(CODEERRORTYPE, "generateIdamSyntheticData", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticData", err,
                      "Unable to Generate Synthetic Data");
         free(data);
         return err;
@@ -237,7 +237,7 @@ int generateIdamSyntheticData(int handle)
 
     if (acc_getSyntheticData(handle) == nullptr) {
         if ((err = allocArray(getIdamDataType(handle), getIdamDataNum(handle), &synthetic))) {
-            addIdamError(CODEERRORTYPE, "generateIdamSyntheticData", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticData", err,
                          "Problem Allocating Heap Memory for Synthetic Data");
             return err;
         }
@@ -344,14 +344,14 @@ int generateIdamSyntheticDimData(int handle, int ndim)
 
     if (getIdamDataType(handle) == UDA_TYPE_DCOMPLEX || getIdamDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "generateIdamSyntheticDimData", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", err,
                      "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
 
     float* data;
     if ((data = (float*)malloc(getIdamDimNum(handle, ndim) * sizeof(float))) == nullptr) {
-        addIdamError(CODEERRORTYPE, "generateIdamSyntheticDimData", 1,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", 1,
                      "Problem Allocating Heap Memory for Synthetic Dimensional Data");
         return 1;
     }
@@ -428,7 +428,7 @@ int generateIdamSyntheticDimData(int handle, int ndim)
     err = idamSyntheticModel(model, param_n, params, getIdamDimNum(handle, ndim), data);
 
     if (err != 0) {
-        addIdamError(CODEERRORTYPE, "generateIdamSyntheticDimData", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", err,
                      "Unable to Generate Synthetic Dimensional Data");
         free(data);
         return err;
@@ -439,7 +439,7 @@ int generateIdamSyntheticDimData(int handle, int ndim)
 
     if (acc_getSyntheticDimData(handle, ndim) == nullptr) {
         if ((err = allocArray(getIdamDimType(handle, ndim), getIdamDimNum(handle, ndim), &synthetic))) {
-            addIdamError(CODEERRORTYPE, "generateIdamSyntheticDimData", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", err,
                          "Problem Allocating Heap Memory for Synthetic Dimensional Data");
             return err;
         }
@@ -544,7 +544,7 @@ int generateIdamDataError(int handle)
 
     if (getIdamDataType(handle) == UDA_TYPE_DCOMPLEX || getIdamDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "generateIdamDataError", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamDataError", err,
                      "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
@@ -800,7 +800,7 @@ int generateIdamDimDataError(int handle, int ndim)
 
     if (getIdamDataType(handle) == UDA_TYPE_DCOMPLEX || getIdamDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "generateIdamDimDataError", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamDimDataError", err,
                      "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }

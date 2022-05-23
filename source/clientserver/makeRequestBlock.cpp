@@ -91,7 +91,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
                      STR_IEQUALS(request->source, work2));            // default device name + delimiting string
 
     if ((request->signal[0] == '\0' || STR_IEQUALS(request->signal, work)) && noSource) {
-        THROW_ERROR(999, "Neither Data Object nor Source specified!");
+        UDA_THROW_ERROR(999, "Neither Data Object nor Source specified!");
     }
 
     //------------------------------------------------------------------------------
@@ -224,7 +224,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
                 if ((p0 != nullptr || p1 != nullptr) && (p != nullptr || p2 != nullptr)) {
                     err = 999;
-                    addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
+                    addIdamError(UDA_CODE_ERROR_TYPE, "makeServerRequestBlock", err,
                                  "Source syntax: path with parenthesis () is incorrect!");
                     return err;
                 }
@@ -252,7 +252,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
                 if (rc <= 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "File Format NOT identified from name extension!\n");
-                    THROW_ERROR(999, "No File Format identified: Please specify.");
+                    UDA_THROW_ERROR(999, "No File Format identified: Please specify.");
                 }
 
                 // Resolve any Serverside environment variables
@@ -280,7 +280,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
                     // Extract Name Value pairs
 
                     if (name_value_pairs(work2, &request->nameValueList, strip) == -1) {
-                        THROW_ERROR(999, "Name Value pair syntax is incorrect!");
+                        UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!");
                     }
 
                     // Test for external library functions using the Archive name as the library name identifier
@@ -298,7 +298,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
                     break;
 
                 } else {
-                    THROW_ERROR(999, "No Data Access Plugin Identified!");
+                    UDA_THROW_ERROR(999, "No Data Access Plugin Identified!");
                 }
             }
 
@@ -373,7 +373,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
                             strcpy(request->source, work);
                             if (depth++ > MAXREQDEPTH) {
-                                THROW_ERROR(999, "Too many chained Device Name to Server Protocol Host subtitutions!");
+                                UDA_THROW_ERROR(999, "Too many chained Device Name to Server Protocol Host subtitutions!");
                             }
                             err = makeRequestData(request, pluginList, environment);
                             depth--;
@@ -421,7 +421,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
             if (p == nullptr || p2 == nullptr || (p != nullptr && p2 == nullptr) || (p == nullptr && p2 != nullptr) ||
                 (p0 != nullptr && p != nullptr && p0 < p) || (p1 != nullptr && p2 != nullptr && p1 > p2)) {
-                THROW_ERROR(999, "Not a function when one is expected! - A Library plugin has been specified.");
+                UDA_THROW_ERROR(999, "Not a function when one is expected! - A Library plugin has been specified.");
             }
 
             // ToDo: Extract Data subset operations specified within the source argument
@@ -438,13 +438,13 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
                 // Extract Name Value pairs
 
                 if (name_value_pairs(work, &request->nameValueList, strip) == -1) {
-                    THROW_ERROR(999, "Name Value pair syntax is incorrect!");
+                    UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!");
                 }
 
                 // ToDo: Extract Data subset operations specified as a named value pair, tagged 'subset'
 
             } else {
-                THROW_ERROR(999, "Function syntax error - please correct");
+                UDA_THROW_ERROR(999, "Function syntax error - please correct");
             }
         }
     } while (0);
@@ -485,7 +485,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
     int rc = 0;
     if ((rc = extract_subset(request)) == -1) {
-        THROW_ERROR(999, "Subset operation is incorrect!");
+        UDA_THROW_ERROR(999, "Subset operation is incorrect!");
     }
 
     // as at 19Apr2011 no signals recorded in the IDAM database use either [ or { characters
@@ -533,7 +533,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
             TrimString(work);
             isFunction = true;
             if (name_value_pairs(work, &request->nameValueList, strip) == -1) {
-                THROW_ERROR(999, "Name Value pair syntax is incorrect!");
+                UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!");
             }
             extract_function_name(request->signal, request);
         }
@@ -658,8 +658,8 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
         }
 
         if (err != 0) {
-            THROW_ERROR(NO_SERVER_SPECIFIED,
-                        "The MDSPlus Data Source does not comply with the naming models: server/tree/number or server/path/to/data/tree/number");
+            UDA_THROW_ERROR(NO_SERVER_SPECIFIED,
+                            "The MDSPlus Data Source does not comply with the naming models: server/tree/number or server/path/to/data/tree/number");
         }
     }
 
@@ -803,8 +803,8 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
         sprintf(cmd, "head -c10 %s 2>/dev/null", source);
         errno = 0;
         if ((ph = popen(cmd, "r")) == nullptr) {
-            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
-            addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
+            if (errno != 0) addIdamError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
+            addIdamError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999,
                          "Unable to Identify the File's Format");
             free(cmd);
             return -999;
@@ -813,7 +813,7 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
         cmd[0] = '\0';
         if (!feof(ph)) {
             if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                THROW_ERROR(-999, "failed to read command");
+                UDA_THROW_ERROR(-999, "failed to read command");
             }
         }
         pclose(ph);
@@ -833,9 +833,9 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
                     errno = 0;
                     if ((ph = popen(cmd, "r")) == nullptr) {
                         if (errno != 0) {
-                            addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
+                            addIdamError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
                         }
-                        addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
+                        addIdamError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999,
                                      "Unable to Identify the File's Format");
                         free(cmd);
                         return -999;
@@ -844,7 +844,7 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
                     cmd[0] = '\0';
                     if (!feof(ph)) {
                         if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                            THROW_ERROR(-999, "failed to read command");
+                            UDA_THROW_ERROR(-999, "failed to read command");
                         }
                     }
                     pclose(ph);
@@ -865,9 +865,9 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
                     errno = 0;
                     if ((ph = popen(cmd, "r")) == nullptr) {
                         if (errno != 0) {
-                            ADD_SYS_ERROR("");
+                            UDA_ADD_SYS_ERROR("");
                         }
-                        ADD_ERROR(999, "Unable to Identify the File's Format");
+                        UDA_ADD_ERROR(999, "Unable to Identify the File's Format");
                         free(cmd);
                         return -999;
                     }
@@ -876,31 +876,31 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
                     if (!feof(ph)) {
                         // IDA3 interface version V3.13 with file structure IDA3.1
                         if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                            THROW_ERROR(-999, "failed to read command output");
+                            UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // Build JW Jan 25 2007 09:08:47
                         if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                            THROW_ERROR(-999, "failed to read command output");
+                            UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // Compiled without high level read/write CUTS
                         if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                            THROW_ERROR(-999, "failed to read command output");
+                            UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // Opening ida file
                         if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                            THROW_ERROR(-999, "failed to read command output");
+                            UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // ida_open error ?
                         if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                            THROW_ERROR(-999, "failed to read command output");
+                            UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     pclose(ph);
@@ -1091,7 +1091,7 @@ int extract_archive(REQUEST_DATA* request, int reduceSignal, const ENVIRONMENT* 
         if ((test = strstr(request->signal, request->api_delim)) != nullptr) {
 
             if (test - request->signal >= STRING_LENGTH - 1 || strlen(test + ldelim) >= MAXMETA - 1) {
-                ADD_ERROR(ARCHIVE_NAME_TOO_LONG, "The ARCHIVE Name is too long!");
+                UDA_ADD_ERROR(ARCHIVE_NAME_TOO_LONG, "The ARCHIVE Name is too long!");
                 return err;
             }
             strncpy(request->archive, request->signal, test - request->signal);
@@ -1285,11 +1285,11 @@ int parse_element(SUBSET& subset, const std::string& element)
                 subset.stride[index] = parse_integer(tokens[2]);
                 break;
             default:
-                ADD_ERROR(999, "Invalid number of elements in subset operation");
+                UDA_ADD_ERROR(999, "Invalid number of elements in subset operation");
                 return 999;
         }
     } catch (std::runtime_error& ex) {
-        ADD_ERROR(999, ex.what());
+        UDA_ADD_ERROR(999, ex.what());
         return 999;
     }
 

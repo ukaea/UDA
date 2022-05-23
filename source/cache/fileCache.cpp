@@ -171,7 +171,7 @@ int set_db_file_lock_state(FILE* db, LockActionType type)
 
     if (type == LockActionType::UNLOCK) {
         int err = 999;
-        addIdamError(CODEERRORTYPE, __func__, err,
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err,
                      "cache file lock not released indicating problem with cache");
         return err;
     }
@@ -192,7 +192,7 @@ int set_db_file_lock_state(FILE* db, LockActionType type)
 
     if (rc == -1 || count >= CACHE_MAXCOUNT) {
         int err = 999;
-        addIdamError(CODEERRORTYPE, __func__, err, "unable to lock the cache database");
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "unable to lock the cache database");
         return err;
     }
 
@@ -263,7 +263,7 @@ boost::optional<CacheStats> get_cache_stats(FILE* db)
     if (stats.deadCount >= CACHE_MAXDEADRECORDS) {
         auto maybe_updated_stats = purge_cache(db);
         if (!maybe_updated_stats) {
-            addIdamError(CODEERRORTYPE, __func__, 999, "failed to purge cache");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "failed to purge cache");
             return {};
         }
         stats = maybe_updated_stats.get();
@@ -295,7 +295,7 @@ int update_cache_stats(FILE* db, CacheStats stats)
         }
         fputc('\n', db);
     } else {
-        THROW_ERROR(999, "invalid cache stats record");
+        UDA_THROW_ERROR(999, "invalid cache stats record");
     }
 
     fflush(db);
@@ -364,7 +364,7 @@ boost::optional<CacheStats> purge_cache(FILE* db)
         const auto& record = pair.second;
         size_t count = fwrite(record.c_str(), sizeof(char), record.size(), db);
         if (count != record.size() || errno != 0) {
-            addIdamError(CODEERRORTYPE, __func__, 999, "Failed to write cache record");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to write cache record");
             return {};
         }
     }
@@ -405,7 +405,7 @@ udaFileCacheRead(const REQUEST_DATA* request, LOGMALLOCLIST* logmalloclist, USER
 
     FILE* xdrfile;
     if ((xdrfile = fopen(path.c_str(), "rb")) == nullptr || errno != 0) {
-        THROW_ERROR(0, "Unable to Open the Cached Data File");
+        UDA_THROW_ERROR(0, "Unable to Open the Cached Data File");
     }
 
     auto data_block = readCacheData(xdrfile, logmalloclist, userdefinedtypelist, protocolVersion,
@@ -577,14 +577,14 @@ int add_cache_record(const REQUEST_DATA* request, const char* filename)
     int rc = 0;
     FILE* db = open_db_file(true);
     if (db == nullptr || (rc = set_db_file_lock_state(db, LockActionType::WRITE)) != 0) {
-        THROW_ERROR(rc, "unable to get lock cache file");
+        UDA_THROW_ERROR(rc, "unable to get lock cache file");
     }
 
     // Current table statistics
     auto maybe_stats = get_cache_stats(db);
     if (!maybe_stats) {
         rc = set_db_file_lock_state(db, LockActionType::UNLOCK);    // Free the Lock and File
-        THROW_ERROR(rc, "unable to get cache stats");
+        UDA_THROW_ERROR(rc, "unable to get cache stats");
     }
     CacheStats stats = maybe_stats.get();
 
@@ -603,7 +603,7 @@ int add_cache_record(const REQUEST_DATA* request, const char* filename)
 
     rc = update_cache_stats(db, stats);
     if (rc != 0) {
-        THROW_ERROR(rc, "unable to update cache stats");
+        UDA_THROW_ERROR(rc, "unable to update cache stats");
     }
 
     return set_db_file_lock_state(db, LockActionType::UNLOCK);
@@ -633,7 +633,7 @@ int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request
     FILE* xdrfile;
     errno = 0;
     if ((xdrfile = fopen(path.c_str(), "wb")) == nullptr || errno != 0) {
-        THROW_ERROR(0, "unable to create the Cached Data File");
+        UDA_THROW_ERROR(0, "unable to create the Cached Data File");
     }
 
     writeCacheData(xdrfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion,
@@ -643,7 +643,7 @@ int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request
 
     int rc = add_cache_record(request, filename.c_str());
     if (rc != 0) {
-        THROW_ERROR(rc, "unable to add cache record");
+        UDA_THROW_ERROR(rc, "unable to add cache record");
     }
 
     return 0;

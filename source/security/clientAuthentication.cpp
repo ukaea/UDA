@@ -262,7 +262,7 @@ static int issueToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmalloclist, 
     securityBlock->server_ciphertextLength = 0;
 
 #ifndef TESTIDAMSECURITY
-    int protocol_id = PROTOCOL_CLIENT_BLOCK;
+    int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;
 
     if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, &client_block)) != 0) {
         THROW_ERROR(err, "Protocol 10 Error (securityBlock #1)");
@@ -270,7 +270,7 @@ static int issueToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmalloclist, 
 
     // Send to server
     if (!xdrrec_endofrecord(clientOutput, 1)) {
-        THROW_ERROR(PROTOCOL_ERROR_7, "Protocol 7 Error (Client Block #1)");
+        THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Client Block #1)");
     }
 
     // No need to resend the client's certificates or encrypted token A
@@ -305,10 +305,10 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
 
 #ifndef TESTIDAMSECURITY
     if (!xdrrec_endofrecord(clientInput, 1)) {
-        THROW_ERROR(PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block #5)");
+        THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block #5)");
     }
 
-    int protocol_id = PROTOCOL_SERVER_BLOCK;
+    int protocol_id = UDA_PROTOCOL_SERVER_BLOCK;
 
     if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, &server_block)) != 0) {
         THROW_ERROR(err, "Protocol 11 Error (securityBlock #5)");
@@ -405,7 +405,7 @@ static int encryptServerToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmall
     securityBlock->client_ciphertextLength = 0;
 
 #ifndef TESTIDAMSECURITY
-    int protocol_id = PROTOCOL_CLIENT_BLOCK;
+    int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;
 
     if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, &client_block)) != 0) {
         THROW_ERROR(err, "Protocol 10 Error (securityBlock #6)");
@@ -413,7 +413,7 @@ static int encryptServerToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmall
 
     // Send to server
     if (!xdrrec_endofrecord(clientOutput, 1)) {
-        THROW_ERROR(PROTOCOL_ERROR_7, "Protocol 7 Error (Client Block #6)");
+        THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Client Block #6)");
     }
 
     free(server_ciphertext);

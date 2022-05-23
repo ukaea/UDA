@@ -16,7 +16,7 @@ LIBRARY_API unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT
 
 LIBRARY_API void
 udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, SERVER_BLOCK server_block,
-             const PLUGINLIST* pluginlist, const ENVIRONMENT* environment, unsigned int total_datablock_size);
+             unsigned int total_datablock_size);
 
 #ifdef __cplusplus
 }
