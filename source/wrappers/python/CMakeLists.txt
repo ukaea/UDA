@@ -1,15 +1,6 @@
 file( GLOB CYTHON_FILES pyuda/cpyuda/*.pyx )
-set( CPYTHON_INSTALL_FILE ${CMAKE_CURRENT_BINARY_DIR}/cpyuda.pyx )
 
-add_custom_target( cpyuda ALL DEPENDS ${CPYTHON_INSTALL_FILE} )
-add_custom_command(
-  OUTPUT ${CPYTHON_INSTALL_FILE}
-  DEPENDS ${CYTHON_FILES}
-  COMMAND cat ${CYTHON_FILES} > ${CPYTHON_INSTALL_FILE}
-  COMMAND ${CMAKE_COMMAND} -E touch ${CPYTHON_INSTALL_FILE}
-)
-
-install( FILES ${CPYTHON_INSTALL_FILE} pyuda/cpyuda/uda.pxd DESTINATION python_installer/pyuda/cpyuda )
+install( FILES ${CYTHON_FILES} pyuda/cpyuda/uda.pxd DESTINATION python_installer/pyuda/cpyuda )
 
 file( GLOB INSTALL_FILES pyuda/*.py )
 
