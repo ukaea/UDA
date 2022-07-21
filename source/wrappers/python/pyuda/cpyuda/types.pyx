@@ -28,6 +28,8 @@ __field_types = {
     "unsigned char": np.NPY_UINT8, # UDA_TYPE_UNSIGNED_CHAR = 8,
     "unsigned short": np.NPY_UINT16, # UDA_TYPE_UNSIGNED_SHORT = 9,
     "unsigned long": np.NPY_UINT64, # UDA_TYPE_UNSIGNED_LONG = 10,
+    "long long": np.NPY_INT64,              # UDA_TYPE_LONG64 = 11,
+    "unsigned long long": np.NPY_UINT64,    # UDA_TYPE_UNSIGNED_LONG64 = 12,
 }
 
 
