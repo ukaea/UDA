@@ -2,17 +2,18 @@
 
 cimport numpy as np
 from cpython.bytes cimport PyBytes_FromStringAndSize
+from cpython.ref cimport Py_INCREF
 
 
 np.import_array()
 
 
 cdef class Dim:
-    cdef int _handle
+    cdef Handle _handle
     cdef int _num
     cdef int _data_type
 
-    def __init__(self, int handle, int num, int data_type):
+    def __init__(self, Handle handle, int num, int data_type):
         self._handle = handle
         self._num = num
         self._data_type = data_type
@@ -56,7 +57,10 @@ cdef class Dim:
         cdef np.npy_intp shape[1]
         shape[0] = <np.npy_intp> size
         cdef int numpy_type = uda_type_to_numpy_type(type)
-        return np.PyArray_SimpleNewFromData(1, shape, numpy_type, <void*> data)
+        arr = np.PyArray_SimpleNewFromData(1, shape, numpy_type, <void*> data)
+        np.PyArray_SetBaseObject(arr, self._handle)
+        Py_INCREF(self._handle)
+        return arr
 
     def bytes(self):
         cdef const char* data = self._data()

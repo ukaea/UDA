@@ -3,6 +3,7 @@
 cimport uda
 cimport numpy as np
 from cpython.bytes cimport PyBytes_FromStringAndSize
+from cpython.ref cimport Py_INCREF
 
 import numpy
 
@@ -12,11 +13,11 @@ np.import_array()
 
 cdef class Result:
 
-    cdef int _handle
+    cdef Handle _handle
     cdef int _is_tree
-    cdef dict _meta   
+    cdef dict _meta
 
-    def __init__(self, int handle):
+    def __init__(self, Handle handle):
         self._handle = handle
         self._is_tree = 1 if uda.setIdamDataTree(handle) != 0 else 0
         cdef uda.SIGNAL_DESC* signal_desc
@@ -83,7 +84,11 @@ cdef class Result:
             for i in range(rank):
                 size = uda.getIdamDimNum(self._handle, rank - 1 - i)
                 shape[i] = <np.npy_intp> size
-        return to_python_i(type, rank, shape, <void *>data)
+        arr = to_python_i(type, rank, shape, <void *>data)
+        if isinstance(arr, np.ndarray):
+            np.PyArray_SetBaseObject(arr, self._handle)
+            Py_INCREF(self._handle)
+        return arr
 
     def data(self):
         return self._data(DataType.DATA)

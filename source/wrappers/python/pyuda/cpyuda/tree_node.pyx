@@ -8,7 +8,7 @@ np.import_array()
 
 cdef class TreeNode:
 
-    cdef int _handle
+    cdef Handle _handle
     cdef uda.NTREE* _node
     cdef list _children
     cdef int _children_init
@@ -22,7 +22,7 @@ cdef class TreeNode:
         self._values = {}
 
     @staticmethod
-    cdef new_(int handle, uda.NTREE* node):
+    cdef new_(Handle handle, uda.NTREE* node):
         tree_node = TreeNode()
         tree_node._handle = handle
         tree_node._node = node

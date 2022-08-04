@@ -96,7 +96,7 @@ def get_data(signal, source):
             raise ClientException(err_msg.decode())
         else:
             raise ServerException(err_msg.decode())
-    return Result(handle)
+    return Result(Handle(handle))
 
 
 def get_data_batch(signals, sources):
@@ -127,7 +127,7 @@ def get_data_batch(signals, sources):
                 raise ServerException(err_msg.decode())
         results = []
         for i in range(len(signals)):
-            results.append(Result(handles[i]))
+            results.append(Result(Handle(handles[i])))
         return results
     finally:
         free(signals_array)
@@ -137,7 +137,7 @@ def get_data_batch(signals, sources):
 
 cdef put_nothing(const char* instruction):
     cdef int handle = uda.idamPutAPI(instruction, NULL)
-    return Result(handle)
+    return Result(Handle(handle))
 
 
 cdef int UDA_TYPE_UNKNOWN = 0,
@@ -225,7 +225,7 @@ cdef put_ndarray_string(const char* instruction, np.ndarray data):
 
     cdef int handle = uda.idamPutAPI(instruction, &put_data)
     free(put_data.shape)
-    return Result(handle)
+    return Result(Handle(handle))
 
 
 cdef put_ndarray(const char* instruction, np.ndarray data):
@@ -248,7 +248,7 @@ cdef put_ndarray(const char* instruction, np.ndarray data):
 
     cdef int handle = uda.idamPutAPI(instruction, &put_data)
     free(put_data.shape)
-    return Result(handle)
+    return Result(Handle(handle))
 
 
 cdef put_scalar(const char* instruction, object data):
@@ -267,7 +267,7 @@ cdef put_scalar(const char* instruction, object data):
 
     cdef int handle = uda.idamPutAPI(instruction, &put_data)
     free(bytes)
-    return Result(handle)
+    return Result(Handle(handle))
 
 
 cdef put_string(const char* instruction, const char* data):
@@ -283,7 +283,7 @@ cdef put_string(const char* instruction, const char* data):
     put_data.data = data
 
     cdef int handle = uda.idamPutAPI(instruction, &put_data)
-    return Result(handle)
+    return Result(Handle(handle))
 
 
 def put_data(instruction, data=None):

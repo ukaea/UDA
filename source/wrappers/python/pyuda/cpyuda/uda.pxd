@@ -3,6 +3,7 @@ cdef extern from "client/udaClient.h":
     int getIdamServerPort();
     const char* getUdaBuildVersion();
     const char* getUdaBuildDate();
+    void idamFree(int handle);
 
 cdef extern from "client/udaGetAPI.h":
     int idamGetAPI(const char* data_object, const char* data_source);
