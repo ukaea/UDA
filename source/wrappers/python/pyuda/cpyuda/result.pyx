@@ -97,13 +97,13 @@ cdef class Result:
         return self._data(DataType.ERRORS)
 
     def label(self):
-        return uda.getIdamDataLabel(self._handle).decode() if self._handle >= 0 else ""
+        return uda.getIdamDataLabel(self._handle).decode(errors='replace') if self._handle >= 0 else ""
 
     def units(self):
-        return uda.getIdamDataUnits(self._handle).decode() if self._handle >= 0 else ""
+        return uda.getIdamDataUnits(self._handle).decode(errors='replace') if self._handle >= 0 else ""
 
     def description(self):
-        return uda.getIdamDataDesc(self._handle).decode() if self._handle >= 0 else ""
+        return uda.getIdamDataDesc(self._handle).decode(errors='replace') if self._handle >= 0 else ""
 
     def shape(self):
         cdef int rank = uda.getIdamRank(self._handle)

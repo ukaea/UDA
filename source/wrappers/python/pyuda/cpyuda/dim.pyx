@@ -20,11 +20,11 @@ cdef class Dim:
 
     def label(self):
         cdef const char* label = uda.getIdamDimLabel(self._handle, self._num)
-        return label.decode()
+        return label.decode(errors='replace')
 
     def units(self):
         cdef const char* units = uda.getIdamDimUnits(self._handle, self._num)
-        return units.decode()
+        return units.decode(errors='replace')
 
     cdef int _size(self):
         cdef int size = uda.getIdamDimNum(self._handle, self._num)
