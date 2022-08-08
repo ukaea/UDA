@@ -79,6 +79,7 @@ class Client(with_metaclass(ClientMeta, object)):
             self._registered_subclients['list_file_signals'] = MastClient(self)            
             self._registered_subclients['list_signals'] = MastClient(self)
             self._registered_subclients['put'] = MastClient(self)
+            self._registered_subclients['list_shots'] = MastClient(self)
         except ImportError:
             pass
 
