@@ -83,7 +83,7 @@ class StructuredData(Data):
         if len(tokens) == 0:
             return self
         name = tokens[0]
-        found = tuple(c for c in self.children if c.name == name)
+        found = tuple(c for c in self.children if c.name.lower() == name.lower())
         if len(found) == 0:
             raise KeyError("Cannot find child " + name + " in node " + self.name)
         if len(found) == 1:
