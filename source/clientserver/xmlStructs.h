@@ -9,7 +9,7 @@ extern "C" {
 
 #define XMLMAXSTRING    56
 #define XMLMAX          200*1024
-#define XMLMAXLOOP      1024        // Max Number of Array elements
+#define UDA_XML_MAX_LOOP      1024        // Max Number of Array elements
 
 //---------------------------------------------------------------------------
 // Flux Loop Data Structures

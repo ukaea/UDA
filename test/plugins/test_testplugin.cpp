@@ -1628,6 +1628,162 @@ TEST_CASE( "Run scalartest - return a simple scalar value", "[plugins][TESTPLUGI
     REQUIRE( value->as<int>() == 10 );
 }
 
+TEST_CASE( "Run array1dtest - return a simple 1d array value", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("TESTPLUGIN::array1dtest()", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    uda::Array* array = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( array != nullptr );
+
+    auto vec = array->as<double>();
+
+    REQUIRE( vec.size() == 100 );
+    REQUIRE( vec[0] == Approx(0.0) );
+    REQUIRE( vec[1] == Approx(1.0) );
+    REQUIRE( vec[2] == Approx(2.0) );
+    REQUIRE( vec[3] == Approx(3.0) );
+    REQUIRE( vec[4] == Approx(4.0) );
+}
+
+TEST_CASE( "Test array subsetting - take first 10 values", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("SS::SUBSET(\"TESTPLUGIN::array1dtest()\", [0:10])", "");
+//    const uda::Result& result = client.get("TESTPLUGIN::array1dtest()[0:10]", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto array = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( array != nullptr );
+
+    auto vec = array->as<double>();
+
+    REQUIRE( vec.size() == 10 );
+    REQUIRE( vec[0] == Approx(0.0) );
+    REQUIRE( vec[1] == Approx(1.0) );
+    REQUIRE( vec[2] == Approx(2.0) );
+    REQUIRE( vec[3] == Approx(3.0) );
+    REQUIRE( vec[4] == Approx(4.0) );
+}
+
+TEST_CASE( "Test array subsetting - take last 10 values", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("SS::SUBSET(\"TESTPLUGIN::array1dtest()\", [-10:])", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto array = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( array != nullptr );
+
+    auto vec = array->as<double>();
+
+    REQUIRE( vec.size() == 10 );
+    REQUIRE( vec[0] == Approx(90.0) );
+    REQUIRE( vec[1] == Approx(91.0) );
+    REQUIRE( vec[2] == Approx(92.0) );
+    REQUIRE( vec[3] == Approx(93.0) );
+    REQUIRE( vec[4] == Approx(94.0) );
+}
+
+TEST_CASE( "Test array subsetting - take every 5th value", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("SS::SUBSET(\"TESTPLUGIN::array1dtest()\", [::5])", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto array = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( array != nullptr );
+
+    auto vec = array->as<double>();
+
+    REQUIRE( vec.size() == 20 );
+    REQUIRE( vec[0] == Approx(0.0) );
+    REQUIRE( vec[1] == Approx(5.0) );
+    REQUIRE( vec[2] == Approx(10.0) );
+    REQUIRE( vec[3] == Approx(15.0) );
+    REQUIRE( vec[4] == Approx(20.0) );
+}
+
+TEST_CASE( "Test array subsetting - reverse elements", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("SS::SUBSET(\"TESTPLUGIN::array1dtest()\", [::-1])", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto array = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( array != nullptr );
+
+    auto vec = array->as<double>();
+
+    REQUIRE( vec.size() == 100 );
+    REQUIRE( vec[0] == Approx(99.0) );
+    REQUIRE( vec[1] == Approx(98.0) );
+    REQUIRE( vec[2] == Approx(97.0) );
+    REQUIRE( vec[3] == Approx(96.0) );
+    REQUIRE( vec[4] == Approx(95.0) );
+}
+
 TEST_CASE( "Run emptytest - return no data", "[plugins][TESTPLUGIN]" )
 {
 #include "setup.inc"

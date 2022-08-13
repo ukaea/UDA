@@ -77,7 +77,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
     //--------------------------------------------------------------------------------------------------------------------------
     // Limit the Recursive Depth
 
-    if (*depth == XMLMAXRECURSIVE) {
+    if (*depth == UDA_XML_MAX_RECURSIVE) {
         THROW_ERROR(7777, "Recursive Depth (Derived or Substitute Data) Exceeds Internal Limit");
     }
 
@@ -93,7 +93,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                 serverside = 1;
                 initActions(&actions_serverside);
                 int rc;
-                if ((rc = serverParseServerSide(request_data, &actions_serverside)) != 0) {
+                if ((rc = serverParseServerSide(request_data, &actions_serverside, pluginlist)) != 0) {
                     return rc;
                 }
                 // Erase original SUBSET request
@@ -107,7 +107,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                 serverside = 1;
                 initActions(&actions_serverside);
                 int rc;
-                if ((rc = serverParseServerSide(request_data, &actions_serverside)) != 0) {
+                if ((rc = serverParseServerSide(request_data, &actions_serverside, pluginlist)) != 0) {
                     return rc;
                 }
                 // Erase original SUBSET request
@@ -177,7 +177,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
         compId = -1;
         if (rc == 0) {
             for (int i = 0; i < actions_comp_desc.nactions; i++) {
-                if (actions_comp_desc.action[i].actionType == COMPOSITETYPE && actions_comp_desc.action[i].inRange) {
+                if (actions_comp_desc.action[i].actionType == UDA_COMPOSITE_TYPE && actions_comp_desc.action[i].inRange) {
                     compId = i;
                     break;            // First Record found only!
                 }
@@ -454,7 +454,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
     if (isDerived && compId > -1) {
         for (int i = 0; i < actions_desc->action[compId].composite.ndimensions; i++) {
-            if (actions_desc->action[compId].composite.dimensions[i].dimType == DIMCOMPOSITETYPE) {
+            if (actions_desc->action[compId].composite.dimensions[i].dimType == UDA_DIM_COMPOSITE_TYPE) {
                 if (strlen(actions_desc->action[compId].composite.dimensions[i].dimcomposite.dim_signal) > 0) {
 
                     UDA_LOG(UDA_LOG_DEBUG, "Substituting Dimension Data\n");
@@ -686,7 +686,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
     if (!serverside && !isDerived && signal_desc->type == 'S') {
         for (int i = 0; i < actions_desc->nactions; i++) {
-            if (actions_desc->action[i].actionType == SUBSETTYPE) {
+            if (actions_desc->action[i].actionType == UDA_SUBSET_TYPE) {
                 UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (SUBSET)   %d\n", *depth);
                 printDataBlock(*data_block);
 
@@ -703,7 +703,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
     if (serverside) {
         for (int i = 0; i < actions_serverside.nactions; i++) {
-            if (actions_serverside.action[i].actionType == SERVERSIDETYPE) {
+            if (actions_serverside.action[i].actionType == UDA_SERVER_SIDE_TYPE) {
                 for (int j = 0; j < actions_serverside.action[i].serverside.nsubsets; j++) {
                     UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Serverside)   %d\n", *depth);
                     printDataBlock(*data_block);

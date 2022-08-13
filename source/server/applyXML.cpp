@@ -274,7 +274,7 @@ void serverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_source, S
             //----------------------------------------------------------------------------------------------
             // Documentation Changes: Label/Units Corrections
 
-            case DOCUMENTATIONTYPE:
+            case UDA_DOCUMENTATION_TYPE:
                 if (strlen(actions.action[i].documentation.label) > 0)
                     strcpy(data_block->data_label, actions.action[i].documentation.label);
 
@@ -285,7 +285,7 @@ void serverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_source, S
                     strcpy(data_block->data_desc, actions.action[i].documentation.description);
 
                 for (int j = 0; j < actions.action[i].documentation.ndimensions; j++) {
-                    if (actions.action[i].documentation.dimensions[j].dimType == DIMDOCUMENTATIONTYPE) {
+                    if (actions.action[i].documentation.dimensions[j].dimType == UDA_DIM_DOCUMENTATION_TYPE) {
                         if (actions.action[i].documentation.dimensions[j].dimid > -1 &&
                             (unsigned int)actions.action[i].documentation.dimensions[j].dimid < data_block->rank) {
                             if (strlen(actions.action[i].documentation.dimensions[j].dimdocumentation.label) > 0)
@@ -302,14 +302,14 @@ void serverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_source, S
                 //----------------------------------------------------------------------------------------------
                 // Error Models (Asymmetry is decided by the model's properties, not by the XML)
 
-            case ERRORMODELTYPE:
+            case UDA_ERROR_MODEL_TYPE:
                 data_block->error_model = actions.action[i].errormodel.model;
                 data_block->error_param_n = actions.action[i].errormodel.param_n;
                 for (int j = 0; j < data_block->error_param_n; j++)
                     data_block->errparams[j] = actions.action[i].errormodel.params[j];
 
                 for (int j = 0; j < actions.action[i].errormodel.ndimensions; j++) {
-                    if (actions.action[i].errormodel.dimensions[j].dimType == DIMERRORMODELTYPE) {
+                    if (actions.action[i].errormodel.dimensions[j].dimType == UDA_DIM_ERROR_MODEL_TYPE) {
                         if (actions.action[i].errormodel.dimensions[j].dimid > -1 &&
                             (unsigned int)actions.action[i].errormodel.dimensions[j].dimid < data_block->rank) {
                             data_block->dims[actions.action[i].errormodel.dimensions[j].dimid].error_model =
@@ -335,7 +335,7 @@ void serverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_source, S
                 // timeoffset.method == 1 => Create a New Time Vector using both Offset and Interval values.
                 // timeoffset.method == 2 => Create a New Time Vector using an interval value only. Use the Original Starting value if possible.
 
-            case TIMEOFFSETTYPE:
+            case UDA_TIME_OFFSET_TYPE:
 
                 if (client_block.get_notoff || data_block->order < 0) {
                     break;
@@ -699,7 +699,7 @@ void serverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_source, S
                 //----------------------------------------------------------------------------------------------
                 // Calibration Corrections
 
-            case CALIBRATIONTYPE:
+            case UDA_CALIBRATION_TYPE:
 
                 if (!client_block.get_uncal) {
 
@@ -739,7 +739,7 @@ void serverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_source, S
 
                         dimid = actions.action[i].calibration.dimensions[j].dimid;
 
-                        if (actions.action[i].calibration.dimensions[j].dimType == DIMCALIBRATIONTYPE &&
+                        if (actions.action[i].calibration.dimensions[j].dimType == UDA_DIM_CALIBRATION_TYPE &&
                             actions.action[i].actionId != 0 && dimid > -1 && (unsigned int)dimid < data_block->rank) {
 
                             if (strlen(actions.action[i].calibration.dimensions[j].dimcalibration.units) > 0)

@@ -76,7 +76,7 @@ float* parse_float_array(xmlDocPtr doc, xmlNodePtr cur, const char* target, int*
                     value = (float*)realloc((void*)value, nco * sizeof(float));
                     value[nco - 1] = atof(item);
                     UDA_LOG(UDA_LOG_DEBUG, "parseFloatArray: [%d] %s %f\n", nco, item, value[nco - 1]);
-                    while ((item = strtok(nullptr, delim)) != nullptr && nco <= XMLMAXLOOP) {
+                    while ((item = strtok(nullptr, delim)) != nullptr && nco <= UDA_XML_MAX_LOOP) {
                         nco++;
                         value = (float*)realloc((void*)value, nco * sizeof(float));
                         value[nco - 1] = atof(item);
@@ -164,7 +164,7 @@ void parse_fixed_length_array(xmlNodePtr cur, const char* target, void* array, i
                         return;
                 }
 
-                while ((item = strtok(nullptr, delim)) != nullptr && nco <= MAXDATARANK) {
+                while ((item = strtok(nullptr, delim)) != nullptr && nco <= UDA_MAX_DATA_RANK) {
                     nco++;
                     switch (arraytype) {
                         case UDA_TYPE_FLOAT: {
@@ -228,7 +228,7 @@ void parse_fixed_length_array(xmlNodePtr cur, const char* target, void* array, i
     }
 }
 
-void parse_fixed_length_str_array(xmlNodePtr cur, const char* target, char array[MAXDATARANK][SXMLMAXSTRING], int* n)
+void parse_fixed_length_str_array(xmlNodePtr cur, const char* target, char array[UDA_MAX_DATA_RANK][UDA_SXML_MAX_STRING], int* n)
 {
     xmlChar* att = nullptr;
     *n = 0;
@@ -243,20 +243,20 @@ void parse_fixed_length_str_array(xmlNodePtr cur, const char* target, char array
             item = strtok((char*)att, delim);
             if (item != nullptr) {
                 nco++;
-                if (strlen(item) < SXMLMAXSTRING) {
+                if (strlen(item) < UDA_SXML_MAX_STRING) {
                     strcpy(array[nco - 1], item);
                 } else {
-                    strncpy(array[nco - 1], item, SXMLMAXSTRING - 1);
-                    array[nco - 1][SXMLMAXSTRING - 1] = '\0';
+                    strncpy(array[nco - 1], item, UDA_SXML_MAX_STRING - 1);
+                    array[nco - 1][UDA_SXML_MAX_STRING - 1] = '\0';
                 }
 
-                while ((item = strtok(nullptr, delim)) != nullptr && nco <= MAXDATARANK) {
+                while ((item = strtok(nullptr, delim)) != nullptr && nco <= UDA_MAX_DATA_RANK) {
                     nco++;
-                    if (strlen(item) < SXMLMAXSTRING) {
+                    if (strlen(item) < UDA_SXML_MAX_STRING) {
                         strcpy(array[nco - 1], item);
                     } else {
-                        strncpy(array[nco - 1], item, SXMLMAXSTRING - 1);
-                        array[nco - 1][SXMLMAXSTRING - 1] = '\0';
+                        strncpy(array[nco - 1], item, UDA_SXML_MAX_STRING - 1);
+                        array[nco - 1][UDA_SXML_MAX_STRING - 1] = '\0';
                     }
                 }
             }
@@ -339,7 +339,7 @@ void parse_time_offset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             str = (ACTION*)realloc((void*)str, n * sizeof(ACTION));
 
             initAction(&str[n - 1]);
-            str[n - 1].actionType = TIMEOFFSETTYPE;
+            str[n - 1].actionType = UDA_TIME_OFFSET_TYPE;
             init_time_offset(&str[n - 1].timeoffset);
 
             // Attributes
@@ -472,21 +472,24 @@ void parseCompositeSubset(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
             // Fixed Length Attribute Arrays
 
             parse_fixed_length_str_array(cur, "operation", str[n - 1].operation, &str[n - 1].nbound);
-            for (int i = 0; i < str[n - 1].nbound; i++)
+            for (int i = 0; i < str[n - 1].nbound; i++) {
                 str[n - 1].dimid[i] = i;                    // Ordering is as DATA[4][3][2][1][0]
+            }
 
             parse_fixed_length_array(cur, "bound", (void*)str[n - 1].bound, UDA_TYPE_DOUBLE, &n0);
             parse_fixed_length_array(cur, "dimid", (void*)str[n - 1].dimid, UDA_TYPE_INT, &n1);
 
-            if (parseOperation(&str[n - 1]) != 0) return;
+            if (parseOperation(&str[n - 1]) != 0) {
+                return;
+            }
 
             for (int i = 0; i < str[n - 1].nbound; i++) {
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Bounding Values : %e\n", str[n - 1].bound[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Operation       : %s\n", str[n - 1].operation[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension ID               : %d\n", str[n - 1].dimid[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Is Index?       : %d\n", str[n - 1].isindex[i]);
-                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Lower Index     : %d\n", (int)str[n - 1].lbindex[i]);
-                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Upper Index     : %d\n", (int)str[n - 1].ubindex[i]);
+                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Lower Index     : %d\n", (int)str[n - 1].lbindex[i].get_value_or(0));
+                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Upper Index     : %d\n", (int)str[n - 1].ubindex[i].get_value_or(0));
             }
         }
         cur = cur->next;
@@ -517,7 +520,7 @@ void parseDimComposite(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
             str = (DIMENSION*)realloc((void*)str, n * sizeof(DIMENSION));
 
             init_dimension(&str[n - 1]);
-            str[n - 1].dimType = DIMCOMPOSITETYPE;
+            str[n - 1].dimType = UDA_DIM_COMPOSITE_TYPE;
             init_dim_composite(&str[n - 1].dimcomposite);
 
             // Attributes
@@ -590,7 +593,7 @@ void parseComposite(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             str = (ACTION*)realloc((void*)str, n * sizeof(ACTION));
 
             initAction(&str[n - 1]);
-            str[n - 1].actionType = COMPOSITETYPE;
+            str[n - 1].actionType = UDA_COMPOSITE_TYPE;
             init_composite(&str[n - 1].composite);
 
             // Attributes
@@ -701,7 +704,7 @@ void parseDimErrorModel(xmlDocPtr doc, xmlNodePtr cur, ERRORMODEL* mod)
             str = (DIMENSION*)realloc((void*)str, n * sizeof(DIMENSION));
 
             init_dimension(&str[n - 1]);
-            str[n - 1].dimType = DIMERRORMODELTYPE;
+            str[n - 1].dimType = UDA_DIM_ERROR_MODEL_TYPE;
             init_dim_error_model(&str[n - 1].dimerrormodel);
 
             // Attributes
@@ -753,7 +756,7 @@ void parse_error_model(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             str = (ACTION*)realloc((void*)str, n * sizeof(ACTION));
 
             initAction(&str[n - 1]);
-            str[n - 1].actionType = ERRORMODELTYPE;
+            str[n - 1].actionType = UDA_ERROR_MODEL_TYPE;
             init_error_model(&str[n - 1].errormodel);
 
             // Attributes
@@ -829,7 +832,7 @@ void parseDimDocumentation(xmlDocPtr doc, xmlNodePtr cur, DOCUMENTATION* documen
             str = (DIMENSION*)realloc((void*)str, n * sizeof(DIMENSION));
 
             init_dimension(&str[n - 1]);
-            str[n - 1].dimType = DIMDOCUMENTATIONTYPE;
+            str[n - 1].dimType = UDA_DIM_DOCUMENTATION_TYPE;
             init_dim_documentation(&str[n - 1].dimdocumentation);
 
             // Attributes
@@ -867,7 +870,7 @@ void parse_documentation(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             str = (ACTION*)realloc((void*)str, n * sizeof(ACTION));
 
             initAction(&str[n - 1]);
-            str[n - 1].actionType = DOCUMENTATIONTYPE;
+            str[n - 1].actionType = UDA_DOCUMENTATION_TYPE;
             init_documentation(&str[n - 1].documentation);
 
             // Attributes
@@ -932,7 +935,7 @@ void parseDimCalibration(xmlDocPtr doc, xmlNodePtr cur, CALIBRATION* cal)
             str = (DIMENSION*)realloc((void*)str, n * sizeof(DIMENSION));
 
             init_dimension(&str[n - 1]);
-            str[n - 1].dimType = DIMCALIBRATIONTYPE;
+            str[n - 1].dimType = UDA_DIM_CALIBRATION_TYPE;
             init_dim_calibration(&str[n - 1].dimcalibration);
 
             // Attributes
@@ -980,7 +983,7 @@ void parse_calibration(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             str = (ACTION*)realloc((void*)str, n * sizeof(ACTION));
 
             initAction(&str[n - 1]);
-            str[n - 1].actionType = CALIBRATIONTYPE;
+            str[n - 1].actionType = UDA_CALIBRATION_TYPE;
             init_calibration(&str[n - 1].calibration);
 
             // Attributes
@@ -1064,7 +1067,7 @@ void parse_subset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             str = (ACTION*)realloc((void*)str, n * sizeof(ACTION));
 
             initAction(&str[n - 1]);
-            str[n - 1].actionType = SUBSETTYPE;
+            str[n - 1].actionType = UDA_SUBSET_TYPE;
             sub = &str[n - 1].subset;
             initSubset(sub);
 
@@ -1112,21 +1115,24 @@ void parse_subset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             // Fixed Length Attribute Arrays
 
             parse_fixed_length_str_array(cur, "operation", &sub->operation[0], &sub->nbound);
-            for (int i = 0; i < sub->nbound; i++)
+            for (int i = 0; i < sub->nbound; i++) {
                 sub->dimid[i] = i;                    // Ordering is as DATA[4][3][2][1][0]
+            }
 
             parse_fixed_length_array(cur, "bound", (void*)sub->bound, UDA_TYPE_DOUBLE, &n0);
             parse_fixed_length_array(cur, "dimid", (void*)sub->dimid, UDA_TYPE_INT, &n1);
 
-            if (parseOperation(sub) != 0) return;
+            if (parseOperation(sub) != 0) {
+                return;
+            }
 
             for (int i = 0; i < sub->nbound; i++) {
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension ID               : %d\n", sub->dimid[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Bounding Values : %e\n", sub->bound[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Operation       : %s\n", sub->operation[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Is Index?       : %d\n", sub->isindex[i]);
-                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Lower Index     : %d\n", (int)sub->lbindex[i]);
-                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Upper Index     : %d\n", (int)sub->ubindex[i]);
+                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Lower Index     : %d\n", (int)sub->lbindex[i].get_value_or(0));
+                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Upper Index     : %d\n", (int)sub->ubindex[i].get_value_or(0));
             }
         }
         cur = cur->next;
@@ -1207,13 +1213,13 @@ void print_dimensions(int ndim, DIMENSION* dims)
 
         switch (dims[i].dimType) {
 
-            case DIMCALIBRATIONTYPE:
+            case UDA_DIM_CALIBRATION_TYPE:
                 UDA_LOG(UDA_LOG_DEBUG, "factor     : %.12f\n", dims[i].dimcalibration.factor);
                 UDA_LOG(UDA_LOG_DEBUG, "Offset     : %.12f\n", dims[i].dimcalibration.offset);
                 UDA_LOG(UDA_LOG_DEBUG, "Units      : %s\n", dims[i].dimcalibration.units);
                 break;
 
-            case DIMCOMPOSITETYPE:
+            case UDA_DIM_COMPOSITE_TYPE:
                 UDA_LOG(UDA_LOG_DEBUG, "to Dim       : %d\n", dims[i].dimcomposite.to_dim);
                 UDA_LOG(UDA_LOG_DEBUG, "from Dim     : %d\n", dims[i].dimcomposite.from_dim);
                 UDA_LOG(UDA_LOG_DEBUG, "Dim signal   : %s\n", dims[i].dimcomposite.dim_signal);
@@ -1224,12 +1230,12 @@ void print_dimensions(int ndim, DIMENSION* dims)
 
                 break;
 
-            case DIMDOCUMENTATIONTYPE:
+            case UDA_DIM_DOCUMENTATION_TYPE:
                 UDA_LOG(UDA_LOG_DEBUG, "Dim Label  : %s\n", dims[i].dimdocumentation.label);
                 UDA_LOG(UDA_LOG_DEBUG, "Dim Units  : %s\n", dims[i].dimdocumentation.units);
                 break;
 
-            case DIMERRORMODELTYPE:
+            case UDA_DIM_ERROR_MODEL_TYPE:
                 UDA_LOG(UDA_LOG_DEBUG, "Error Model Id            : %d\n", dims[i].dimerrormodel.model);
                 UDA_LOG(UDA_LOG_DEBUG, "Number of Model Parameters: %d\n", dims[i].dimerrormodel.param_n);
                 for (int j = 0; j < dims[i].dimerrormodel.param_n; j++)
@@ -1243,7 +1249,7 @@ void print_dimensions(int ndim, DIMENSION* dims)
     }
 }
 
-void printAction(ACTION action)
+void printAction(const ACTION& action)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Action XML Id    : %d\n", action.actionId);
     UDA_LOG(UDA_LOG_DEBUG, "Action Type      : %d\n", action.actionType);
@@ -1252,20 +1258,20 @@ void printAction(ACTION action)
     UDA_LOG(UDA_LOG_DEBUG, "Pass Number Range: %d -> %d\n", action.pass_range[0], action.pass_range[1]);
 
     switch (action.actionType) {
-        case TIMEOFFSETTYPE:
+        case UDA_TIME_OFFSET_TYPE:
             UDA_LOG(UDA_LOG_DEBUG, "TIMEOFFSET xml\n");
             UDA_LOG(UDA_LOG_DEBUG, "Method         : %d\n", action.timeoffset.method);
             UDA_LOG(UDA_LOG_DEBUG, "Time Offset    : %.12f\n", action.timeoffset.offset);
             UDA_LOG(UDA_LOG_DEBUG, "Time Interval  : %.12f\n", action.timeoffset.interval);
             break;
-        case DOCUMENTATIONTYPE:
+        case UDA_DOCUMENTATION_TYPE:
             UDA_LOG(UDA_LOG_DEBUG, "DOCUMENTATION xml\n");
             UDA_LOG(UDA_LOG_DEBUG, "Description: %s\n", action.documentation.description);
             UDA_LOG(UDA_LOG_DEBUG, "Data Label : %s\n", action.documentation.label);
             UDA_LOG(UDA_LOG_DEBUG, "Data Units : %s\n", action.documentation.units);
             print_dimensions(action.documentation.ndimensions, action.documentation.dimensions);
             break;
-        case CALIBRATIONTYPE:
+        case UDA_CALIBRATION_TYPE:
             UDA_LOG(UDA_LOG_DEBUG, "CALIBRATION xml\n");
             UDA_LOG(UDA_LOG_DEBUG, "Target     : %s\n", action.calibration.target);
             UDA_LOG(UDA_LOG_DEBUG, "Factor     : %f\n", action.calibration.factor);
@@ -1274,7 +1280,7 @@ void printAction(ACTION action)
             UDA_LOG(UDA_LOG_DEBUG, "Data Units : %s\n", action.calibration.units);
             print_dimensions(action.calibration.ndimensions, action.calibration.dimensions);
             break;
-        case COMPOSITETYPE:
+        case UDA_COMPOSITE_TYPE:
             UDA_LOG(UDA_LOG_DEBUG, "COMPOSITE xml\n");
             UDA_LOG(UDA_LOG_DEBUG, "Composite Data Signal    : %s\n", action.composite.data_signal);
             UDA_LOG(UDA_LOG_DEBUG, "Composite Error Signal   : %s\n", action.composite.error_signal);
@@ -1285,7 +1291,7 @@ void printAction(ACTION action)
             UDA_LOG(UDA_LOG_DEBUG, "Composite Time Dimension : %d\n", action.composite.order);
             print_dimensions(action.composite.ndimensions, action.composite.dimensions);
             break;
-        case ERRORMODELTYPE:
+        case UDA_ERROR_MODEL_TYPE:
             UDA_LOG(UDA_LOG_DEBUG, "ERRORMODEL xml\n");
             UDA_LOG(UDA_LOG_DEBUG, "Error Model Id            : %d\n", action.errormodel.model);
             UDA_LOG(UDA_LOG_DEBUG, "Number of Model Parameters: %d\n", action.errormodel.param_n);
@@ -1294,7 +1300,7 @@ void printAction(ACTION action)
             print_dimensions(action.errormodel.ndimensions, action.errormodel.dimensions);
             break;
 
-        case SERVERSIDETYPE:
+        case UDA_SERVER_SIDE_TYPE:
             UDA_LOG(UDA_LOG_DEBUG, "SERVERSIDE Actions\n");
             UDA_LOG(UDA_LOG_DEBUG, "Number of Serverside Subsets: %d\n", action.serverside.nsubsets);
             for (int i = 0; i < action.serverside.nsubsets; i++) {
@@ -1313,7 +1319,7 @@ void printAction(ACTION action)
             }
             UDA_LOG(UDA_LOG_DEBUG, "Number of Serverside mappings: %d\n", action.serverside.nmaps);
             break;
-        case SUBSETTYPE:
+        case UDA_SUBSET_TYPE:
             UDA_LOG(UDA_LOG_DEBUG, "SUBSET Actions\n");
             UDA_LOG(UDA_LOG_DEBUG, "Number of Subsets: 1\n");
             UDA_LOG(UDA_LOG_DEBUG, "Number of Subsetting Operations: %d\n", action.subset.nbound);
@@ -1442,18 +1448,21 @@ void init_error_model(ERRORMODEL* act)
 {
     act->model = ERROR_MODEL_UNKNOWN;    // No Error Model
     act->param_n = 0;            // No. Model parameters
-    for (int i = 0; i < MAXERRPARAMS; i++)act->params[i] = 0.0;
+    for (int i = 0; i < MAXERRPARAMS; i++) {
+        act->params[i] = 0.0;
+    }
     act->ndimensions = 0;
     act->dimensions = nullptr;
 }
 
 void initSubset(SUBSET* act)
 {
-    for (int i = 0; i < MAXDATARANK; i++) {
+    for (int i = 0; i < UDA_MAX_DATA_RANK; i++) {
         act->bound[i] = 0.0;                // Subsetting Float Bounds
         act->ubindex[i] = 0;                // Subsetting Integer Bounds (Upper Index)
         act->lbindex[i] = 0;                // Lower Index
-        act->isindex[i] = 0;                // Flag the Bound is an Integer Type
+        act->stride[i] = 0;
+        act->isindex[i] = false;                // Flag the Bound is an Integer Type
         act->dimid[i] = -1;                // Dimension IDs
         act->operation[i][0] = '\0';            // Subsetting Operations
     }
@@ -1501,7 +1510,7 @@ void freeActions(ACTIONS* actions)
 
         switch (actions->action[i].actionType) {
 
-            case COMPOSITETYPE:
+            case UDA_COMPOSITE_TYPE:
                 if ((cptr = (void*)actions->action[i].composite.dimensions) != nullptr) {
                     free(cptr);
                     actions->action[i].composite.dimensions = nullptr;
@@ -1519,7 +1528,7 @@ void freeActions(ACTIONS* actions)
                 }
                 break;
 
-            case ERRORMODELTYPE:
+            case UDA_ERROR_MODEL_TYPE:
                 actions->action[i].errormodel.param_n = 0;
 
                 for (int j = 0; j < actions->action[i].errormodel.ndimensions; j++)
@@ -1531,7 +1540,7 @@ void freeActions(ACTIONS* actions)
 
                 break;
 
-            case CALIBRATIONTYPE:
+            case UDA_CALIBRATION_TYPE:
                 if ((cptr = (void*)actions->action[i].calibration.dimensions) != nullptr) {
                     free(cptr);
                     actions->action[i].calibration.dimensions = nullptr;
@@ -1539,7 +1548,7 @@ void freeActions(ACTIONS* actions)
                 }
                 break;
 
-            case DOCUMENTATIONTYPE:
+            case UDA_DOCUMENTATION_TYPE:
                 if ((cptr = (void*)actions->action[i].documentation.dimensions) != nullptr) {
                     free(cptr);
                     actions->action[i].documentation.dimensions = nullptr;
@@ -1547,7 +1556,7 @@ void freeActions(ACTIONS* actions)
                 }
                 break;
 
-            case SERVERSIDETYPE:
+            case UDA_SERVER_SIDE_TYPE:
                 if (actions->action[i].serverside.nsubsets > 0) {
                     if ((cptr = (void*)actions->action[i].serverside.subsets) != nullptr) free(cptr);
                     actions->action[i].serverside.subsets = nullptr;

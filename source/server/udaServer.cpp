@@ -681,11 +681,10 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     // Read the Data or Create the Composite/Derived Data
     // Apply XML Actions to Data
 
-    int depth = 0;
-
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[i];
         DATA_BLOCK* data_block = &data_block_list->data[i];
+        int depth = 0;
         err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
                          &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
                          &pluginList, logmalloclist, userdefinedtypelist, &socket_list, protocolVersion);
@@ -706,7 +705,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     UDA_LOG(UDA_LOG_DEBUG, "File Name    : %s \n", data_source->filename);
     UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source->exp_number);
     UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source->pass);
-    UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
+//    UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
     printRequestBlock(*request_block);
     printDataSource(*data_source);
     printSignal(metadata_block->signal_rec);

@@ -381,7 +381,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
                 }
             }
 
-            // If no match was found then the prefix must be a foreign Device Name not entered in the server configuration file.
+            // If no match was found then the prefix must be a foreign Device Name not entered into the server configuration file.
             // The request must be a generic lookup of how to access data remotely for the specified device.
             // The external server providing access to the foreign device's data will interpret the arguments
 
@@ -1358,11 +1358,11 @@ int extract_subset(REQUEST_DATA* request)
                             rc = 0;
                             break;
                         }
-                        if (request->datasubset.start[i] < 0) {
-                            ADD_ERROR(999, "Invalid Start Index in subset operation");
-                            rc = -1;
-                            break;
-                        }
+//                        if (request->datasubset.start[i] < 0) {
+//                            ADD_ERROR(999, "Invalid Start Index in subset operation");
+//                            rc = -1;
+//                            break;
+//                        }
 
                         request->datasubset.stop[i] = request->datasubset.start[i];
                         request->datasubset.count[i] = 1;

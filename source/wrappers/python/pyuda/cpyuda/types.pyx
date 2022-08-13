@@ -18,16 +18,16 @@ __uda2np_map = {
 __np2uda_map = dict((__uda2np_map[i], i) for i in __uda2np_map)
 
 __field_types = {
-    "char": np.NPY_INT8, # UDA_TYPE_CHAR = 1,
-    "short": np.NPY_INT16, # UDA_TYPE_SHORT = 2,
-    "int": np.NPY_INT32, # UDA_TYPE_INT = 3,
-    "unsigned int": np.NPY_UINT32, # UDA_TYPE_UNSIGNED_INT = 4,
-    "long": np.NPY_INT64, # UDA_TYPE_LONG = 5,
-    "float": np.NPY_FLOAT32, # UDA_TYPE_FLOAT = 6,
-    "double": np.NPY_FLOAT64, # UDA_TYPE_DOUBLE = 7,
-    "unsigned char": np.NPY_UINT8, # UDA_TYPE_UNSIGNED_CHAR = 8,
-    "unsigned short": np.NPY_UINT16, # UDA_TYPE_UNSIGNED_SHORT = 9,
-    "unsigned long": np.NPY_UINT64, # UDA_TYPE_UNSIGNED_LONG = 10,
+    "char": np.NPY_INT8,                    # UDA_TYPE_CHAR = 1,
+    "short": np.NPY_INT16,                  # UDA_TYPE_SHORT = 2,
+    "int": np.NPY_INT32,                    # UDA_TYPE_INT = 3,
+    "unsigned int": np.NPY_UINT32,          # UDA_TYPE_UNSIGNED_INT = 4,
+    "long": np.NPY_INT64,                   # UDA_TYPE_LONG = 5,
+    "float": np.NPY_FLOAT32,                # UDA_TYPE_FLOAT = 6,
+    "double": np.NPY_FLOAT64,               # UDA_TYPE_DOUBLE = 7,
+    "unsigned char": np.NPY_UINT8,          # UDA_TYPE_UNSIGNED_CHAR = 8,
+    "unsigned short": np.NPY_UINT16,        # UDA_TYPE_UNSIGNED_SHORT = 9,
+    "unsigned long": np.NPY_UINT64,         # UDA_TYPE_UNSIGNED_LONG = 10,
     "long long": np.NPY_INT64,              # UDA_TYPE_LONG64 = 11,
     "unsigned long long": np.NPY_UINT64,    # UDA_TYPE_UNSIGNED_LONG64 = 12,
 }

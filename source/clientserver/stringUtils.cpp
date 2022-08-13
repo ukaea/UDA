@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cstdarg>
 #include <cstdio>
+#include <string>
 
 #ifdef __GNUC__
 #  include <strings.h>

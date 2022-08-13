@@ -44,7 +44,7 @@ TEST_CASE("Test magnetics/bpol_probe/#/field/data", "[IMAS][HL2A]")
 	//REQUIRE(!arr->isNull());
 
 	printf("===============================================================================\r\n");
-	printf("Total Data Size is : [%d]   Dim Size is : [%d]\r\n", arr->size(), dim.size());
+	printf("Total Data Size is : [%lu]   Dim Size is : [%lu]\r\n", arr->size(), dim.size());
 	printf("------------------------------------------------------------------------------\r\n");
 	printf("Top 1000 records\r\n");
 	printf("------------------------------------------------------------------------------\r\n");
@@ -94,7 +94,7 @@ TEST_CASE("Test magnetics/flux_loop/#/flux/data", "[IMAS][HL2A][FLUX]")
 	//REQUIRE(!arr->isNull());
 
 	printf("===============================================================================\r\n");
-	printf("Total Data Size is : [%d]   Dim Size is : [%d]\r\n", arr->size(), dim.size());
+	printf("Total Data Size is : [%lu]   Dim Size is : [%lu]\r\n", arr->size(), dim.size());
 	printf("------------------------------------------------------------------------------\r\n");
 	printf("Top 1000 records\r\n");
 	printf("------------------------------------------------------------------------------\r\n");

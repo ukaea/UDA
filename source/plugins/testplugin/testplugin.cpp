@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------
-* Test IDAM Plugin: Test regular and structured data passing middleware
+* Test UDA Plugin: Test regular and structured data passing middleware
 *
 * Input Arguments:	IDAM_PLUGIN_INTERFACE *idam_plugin_interface
 *
@@ -126,6 +126,8 @@ static int do_plugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 static int do_errortest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 static int do_scalartest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+
+static int do_array1dtest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
 static int do_emptytest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
@@ -301,6 +303,8 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         err = do_errortest(idam_plugin_interface);
     } else if (STR_IEQUALS(request->function, "scalartest")) {
         err = do_scalartest(idam_plugin_interface);
+    } else if (STR_IEQUALS(request->function, "array1dtest")) {
+        err = do_array1dtest(idam_plugin_interface);
     } else if (STR_IEQUALS(request->function, "emptytest")) {
         err = do_emptytest(idam_plugin_interface);
 #ifdef TESTUDT
@@ -3848,6 +3852,32 @@ static int do_scalartest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     return 0;
 }
 
+static int do_array1dtest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+{
+    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+
+    initDataBlock(data_block);
+
+    constexpr int N = 100;
+    auto p = (double*)malloc(N * sizeof(double));
+    for (int i = 0; i < N; ++i) {
+        p[i] = i;
+    }
+    data_block->data = (char*)p;
+    data_block->data_n = 100;
+    data_block->data_type = UDA_TYPE_DOUBLE;
+    data_block->rank = 1;
+    data_block->dims = (DIMS*)malloc(sizeof(DIMS));
+
+    initDimBlock(data_block->dims);
+    data_block->dims[0].dim_n = 100;
+    data_block->dims[0].data_type = UDA_TYPE_INT;
+    data_block->dims[0].compressed = 1;
+    data_block->dims[0].dim0 = 0;
+    data_block->dims[0].diff = 1;
+
+    return 0;
+}
 
 static int do_emptytest(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {

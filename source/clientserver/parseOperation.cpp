@@ -1,18 +1,12 @@
 #include "parseOperation.h"
 
-#include <cerrno>
-#include <cstdlib>
+#include <boost/algorithm/string.hpp>
 
 #include "stringUtils.h"
 #include "errorLog.h"
 
 int parseOperation(SUBSET* sub)
 {
-    char* p, * t1, * t2;
-    char* endp = nullptr;
-    char opcopy[SXMLMAXSTRING];
-    int ierr = 0;
-
     //-------------------------------------------------------------------------------------------------------------
     // Extract the Value Component from each separate Operation
     // =0.15,!=0.15,<=0.05,>=0.05,!<=0.05,!>=0.05,<0.05,>0.05,0:25,25:0,25,*,25:,:25, 25:#
@@ -26,84 +20,89 @@ int parseOperation(SUBSET* sub)
 
     for (int i = 0; i < sub->nbound; i++) {
 
-        strcpy(opcopy, sub->operation[i]);
+        std::string operation = sub->operation[i];
 
-        if ((p = strchr(opcopy, '[')) != nullptr) {
-            p[0] = ' ';
+        boost::starts_with(operation, "[");
+
+        boost::trim_left_if(operation, [](char c){ return c == '['; });
+        boost::trim_right_if(operation, [](char c){ return c == ']'; });
+
+        if (boost::starts_with(operation, "[")) {
+            operation = operation.substr(1);
         }
-        if ((p = strchr(opcopy, ']')) != nullptr) {
-            p[0] = ' ';
+
+        if (boost::ends_with(operation, "]")) {
+            operation = operation.substr(0, operation.size() - 1);
         }
-        LeftTrimString(opcopy);
-        TrimString(opcopy);
 
-        if ((p = strchr(opcopy, ':')) != nullptr) {        // Integer Type Array Index Bounds
-            t2 = &p[1];
-            opcopy[p - opcopy] = '\0';            // Split the Operation String into two components
-            t1 = opcopy;
+        boost::trim(operation);
 
-            sub->isindex[i] = 1;
-            sub->ubindex[i] = -1;
-            sub->lbindex[i] = -1;
+        if (boost::contains(operation, ":")) {
+            std::vector<std::string> tokens;
+            boost::split(tokens, operation, boost::is_any_of(":"), boost::token_compress_off);
 
-            if (t1[0] == '#') sub->lbindex[i] = -2;        // Reverse the data as # => Final array value
+            if (tokens.size() < 2 || tokens.size() > 3) {
+                THROW_ERROR(9999, "Server Side Operation Syntax Error: Too Many :");
+            }
 
-            if (strlen(t1) > 0 && t1[0] != '*' && t1[0] != '#') {
-                if (IsNumber(t1)) {
-                    sub->lbindex[i] = strtol(t1, &endp, 0);        // the Lower Index Value of the Bound
-                    if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
-                        THROW_ERROR(9999, "Server Side Operation Syntax Error: Lower Index Bound");
-                    }
-                } else {
-                    THROW_ERROR(9999, "Server Side Operation Syntax Error: Lower Index Bound");
+            sub->isindex[i] = true;
+            sub->ubindex[i] = boost::none;
+            sub->lbindex[i] = boost::none;
+            sub->stride[i] = boost::none;
+            strcpy(sub->operation[i], ":");
+
+            if (!tokens[0].empty() && tokens[0] != "#" && tokens[0] != "*") {
+                size_t n = 0;
+                long num = std::stol(tokens[0], &n, 10);
+                if (n != tokens[0].size()) {
+                    THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Lower Index Bound");
                 }
+                sub->lbindex[i] = num;
             }
 
-            if (strlen(t2) > 0 && t2[0] != '*' && t2[0] != '#') {
-                if (IsNumber(t2)) {
-                    sub->ubindex[i] = strtol(t2, &endp, 0);        // the Upper Index Value of the Bound
-                    if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
-                        THROW_ERROR(9999, "Server Side Operation Syntax Error: Upper Index Bound");
-                    }
-                } else {
-                    THROW_ERROR(9999, "Server Side Operation Syntax Error: Upper Index Bound");
+            if (!tokens[1].empty() && tokens[1] != "#" && tokens[1] != "*") {
+                size_t n = 0;
+                long num = std::stol(tokens[1], &n, 10);
+                if (n != tokens[1].size()) {
+                    THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Upper Index Bound");
                 }
+                sub->ubindex[i] = num;
             }
 
-            strcpy(sub->operation[i], ":");            // Define Simple Operation
-            continue;
-        }
-
-        if (strstr(opcopy, "*") != nullptr) {        // Ignore this Dimension
-            sub->isindex[i] = 1;
-            sub->ubindex[i] = -1;
-            sub->lbindex[i] = -1;
-            strcpy(sub->operation[i], "*");            // Define Simple Operation
-            continue;
-        }
-
-        if (strstr(opcopy, "#") != nullptr) {        // Last Value in Dimension
-            sub->isindex[i] = 1;
-            sub->ubindex[i] = -1;
-            sub->lbindex[i] = -1;
-            strcpy(sub->operation[i], "#");            // Define Simple Operation
-            continue;
-        }
-
-        if (IsNumber(opcopy)) {                    // Single Index value
-            sub->isindex[i] = 1;
-            sub->ubindex[i] = strtol(opcopy, &endp, 0);        // the Index Value of the Bound
-            if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
-                ierr = 9999;
-                addIdamError(CODEERRORTYPE, "serverParseServerSide", ierr,
-                             "Server Side Operation Syntax Error: Single Index Bound ");
-                return ierr;
+            if (tokens.size() == 3 && !tokens[2].empty()) {
+                size_t n = 0;
+                long num = std::stol(tokens[2], &n, 10);
+                if (n != tokens[2].size()) {
+                    THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Stride");
+                }
+                sub->stride[i] = num;
             }
-            sub->lbindex[i] = sub->ubindex[i];
-            strcpy(sub->operation[i], ":");        // Define Simple Operation
-            continue;
-        }
+        } else if (operation == "*") {
+            // Ignore this Dimension
+            sub->isindex[i] = true;
+            sub->ubindex[i] = boost::none;
+            sub->lbindex[i] = 0;
+            sub->stride[i] = boost::none;
+        } else if (operation == "#") {
+            // Last Value in Dimension
+            sub->isindex[i] = true;
+            sub->ubindex[i] = boost::none;
+            sub->lbindex[i] = -1;
+            sub->stride[i] = boost::none;
+        } else {
+            size_t n = 0;
+            long num = std::stol(operation, &n, 10);
 
+            if (n != operation.size()) {
+                THROW_ERROR(9999, "Server Side Operation Syntax Error: Single Index Bound");
+            }
+
+            sub->isindex[i] = true;
+            sub->ubindex[i] = num + 1;
+            sub->lbindex[i] = num;
+            sub->stride[i] = boost::none;
+            strcpy(sub->operation[i], ":");
+        }
     }
 
     return 0;
