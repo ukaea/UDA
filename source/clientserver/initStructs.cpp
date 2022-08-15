@@ -41,7 +41,7 @@ void initRequestData(REQUEST_DATA* str)
     str->signal[0] = '\0';
     str->source[0] = '\0';
     str->subset[0] = '\0';
-    str->datasubset.subsetCount = 0;
+    str->datasubset.nbound = 0;
     initNameValueList(&str->nameValueList);
 
     str->put = 0;

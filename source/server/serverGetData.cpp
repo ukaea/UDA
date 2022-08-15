@@ -130,6 +130,20 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
         return rc;        // An Error Occurred
     }
 
+    // Perform data subsetting if requested
+
+    if (request_data->datasubset.nbound > 0) {
+        UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (SUBSET)   %d\n", *depth);
+        ACTION action = {};
+        initAction(&action);
+        action.actionType = UDA_SUBSET_TYPE;
+        action.subset = request_data->datasubset;
+        if ((rc = serverSubsetData(data_block, action, logmalloclist)) != 0) {
+            (*depth)--;
+            return rc;
+        }
+    }
+
     //--------------------------------------------------------------------------------------------------------------------------
     // If the Request is Not for a Generic Signal then exit - No XML source to apply to data as it is just regular data.
     // Allow Composites (C) or Signal Switch (S) through regardless of request type

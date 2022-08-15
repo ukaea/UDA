@@ -1,6 +1,8 @@
 #include "makeRequestBlock.h"
 
 #include <cerrno>
+#include <vector>
+#include <boost/algorithm/string.hpp>
 
 #if defined(__GNUC__)
 #  include <unistd.h>
@@ -495,7 +497,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
         TrimString(request->signal);
     } else {
         request->subset[0] = '\0';
-        request->datasubset.subsetCount = 0;
+        request->datasubset.nbound = 0;
     }
 
     //------------------------------------------------------------------------------
@@ -1202,51 +1204,69 @@ void expand_environment_variables(char* path)
     }
 }
 
-//----------------------------------------------------------------------
-// Parse subset instructions- [start:end:stride] or {start:end:stride}
-//
-// Signal should avoid using subset like components in their name
-
-int extract_subset(REQUEST_DATA* request)
+boost::optional<long> parse_integer(const std::string& value)
 {
-    // Return codes:
-    //
-    //	1 => Valid subset
-    //	0 => Not a subset operation - Not compliant with syntax
-    //     -1 => Error
-
-    int rc = 1, lwork, subsetCount = 1;        // Number of subsetting operations
-    char* p, * work, * token = nullptr;
-
-    request->subset[0] = '\0';
-    request->datasubset.subsetCount = 0;
-
-    if ((token = strchr(request->signal, '[')) == nullptr &&
-        (token = strchr(request->signal, '{')) == nullptr) {
-        return 0;
+    if (value.empty()) {
+        return boost::none;
     }
-    if ((work = strrchr(request->signal, ']')) == nullptr &&
-        (work = strrchr(request->signal, '}')) == nullptr) {
-        return 0;
+    size_t idx;
+    long num = std::stol(value, &idx, 10);
+    if (idx != value.size()) {
+        throw std::runtime_error("Invalid integer");
     }
-    if (work < token) return 0;
+    return num;
+}
 
-    // Test the subset operation specified complies with the syntax: [start:end:stride]
-    // Parse for detailed instructions
+int parse_element(SUBSET& subset, const std::string& element)
+{
+    std::vector<std::string> tokens;
+    boost::split(tokens, element, boost::is_any_of(":"), boost::token_compress_off);
 
-    lwork = (int)strlen(token);
-    work = (char*)malloc((lwork + 3) * sizeof(char));
+    int index = subset.nbound;
+    strcpy(subset.operation[index], ":");
+    subset.dimid[index] = index;
 
-    strcpy(work, token);
-    copyString(token, request->subset, STRING_LENGTH - 1);
+    try {
+        switch (tokens.size()) {
+            case 0:
+                subset.lbindex[index] = boost::none;
+                subset.ubindex[index] = boost::none;
+                subset.stride[index] = boost::none;
+                break;
+            case 1:
+                // TODO: handle non-slice operations? i.e. [>=4], etc.
+                subset.lbindex[index] = parse_integer(tokens[0]);
+                subset.ubindex[index] = boost::none;
+                subset.stride[index] = boost::none;
+                break;
+            case 2:
+                subset.lbindex[index] = parse_integer(tokens[0]);
+                subset.ubindex[index] = parse_integer(tokens[1]);
+                subset.stride[index] = boost::none;
+                break;
+            case 3:
+                subset.lbindex[index] = parse_integer(tokens[0]);
+                subset.ubindex[index] = parse_integer(tokens[1]);
+                subset.stride[index] = parse_integer(tokens[2]);
+                break;
+            default:
+                ADD_ERROR(999, "Invalid number of elements in subset operation");
+                return 999;
+        }
+    } catch (std::runtime_error& ex) {
+        ADD_ERROR(999, ex.what());
+        return 999;
+    }
 
-    work[0] = ' ';        // Remove lead/trailing brackets
-    work[lwork - 1] = ' ';
+    subset.nbound += 1;
 
-    lwork = lwork + 2;        // expand "::" to "0:*:"
+    return 0;
+}
 
+int parse_operation(SUBSET& subset, const std::string& operation)
+{
     //----------------------------------------------------------------------------------------------------------------------------
-    // Split instructions using syntax [a:b:c][d:e:f] or [a:b:c, d:e:f] where [startIndex:stopIndex:stride]
+    // Split instructions using syntax [a:b:c, d:e:f] where [startIndex:stopIndex:stride]
     //
     // Syntax	[a]		single items at index position a
     //		[*]		all items
@@ -1261,227 +1281,65 @@ int extract_subset(REQUEST_DATA* request)
     //		[a:*:c]		all items starting at a with stride c
     //		[a:b:c]		all items starting at a, ending at b with stride c
 
-    while ((token = strstr(work, "][")) != nullptr ||
-           (token = strstr(work, "}{")) != nullptr) {    // Adopt a single syntax
-        token[0] = ',';
-        token[1] = ' ';
-    }
-    p = work;
-    while ((token = strchr(p, ',')) != nullptr) {        // Count the Dimensions
-        p = &token[1];
-        subsetCount++;
-    }
-    if (subsetCount > MAXRANK2) subsetCount = MAXRANK2;
+    std::vector<std::string> tokens;
+    boost::split(tokens, operation, boost::is_any_of(","), boost::token_compress_off);
 
-    // Array of subset instructions for each dimension
-
-    char** work2 = (char**)malloc(subsetCount * sizeof(char*));
-    for (int i = 0; i < subsetCount; i++) {
-        work2[i] = (char*)malloc(lwork * sizeof(char));
-        work2[i][0] = '\0';
-    }
-
-    // 3 subset details
-
-    char** work3 = (char**)malloc(3 * sizeof(char*));
-    for (int i = 0; i < 3; i++) {
-        work3[i] = (char*)malloc(lwork * sizeof(char));
-        work3[i][0] = '\0';
-    }
-    char* work4 = (char*)malloc(lwork * sizeof(char));
-
-    for (int i = 0; i < subsetCount; i++) {
-        request->datasubset.start[i] = 0;
-        request->datasubset.stop[i] = 0;
-        request->datasubset.count[i] = 0;
-        request->datasubset.stride[i] = 0;
-    }
-    request->datasubset.subsetCount = subsetCount;
-
-    subsetCount = 0;
-    if ((token = strtok(work, ",")) != nullptr) {    // Process each subset instruction separately (work2)
-        strcpy(work2[subsetCount++], token);
-        while (subsetCount < MAXRANK2 && (token = strtok(nullptr, ",")) != nullptr) {
-            strcpy(work2[subsetCount++], token);
+    for (const auto& token : tokens) {
+        int rc = parse_element(subset, token);
+        if (rc != 0) {
+            return rc;
         }
-
-        do {
-            for (int i = 0; i < subsetCount; i++) {
-
-                request->datasubset.subset[i] = 0;
-
-                TrimString(work2[i]);
-                LeftTrimString(work2[i]);
-                for (int j = 0; j < 3; j++)work3[j][0] = '\0';
-
-                if (work2[i][0] == ':') {
-                    work4[0] = '0';
-                    work4[1] = '\0';
-                    if (work2[i][1] != ':') {
-                        strcat(work4, work2[i]);
-                        strcpy(work2[i], work4);
-                    } else {
-                        strcat(work4, ":*");
-                        strcat(work4, &work2[i][1]);
-                        strcpy(work2[i], work4);
-                    }
-                } else {
-                    if ((p = strstr(work2[i], "::")) != nullptr) {
-                        p[0] = '\0';
-                        strcpy(work4, work2[i]);
-                        strcat(work4, ":*");
-                        strcat(work4, &p[1]);
-                        strcpy(work2[i], work4);
-                    } else {
-                        strcpy(work4, work2[i]);
-                    }
-                }
-
-                if (strchr(work2[i], ':') != nullptr && (token = strtok(work2[i], ":")) != nullptr) {
-                    int j = 0;
-                    strcpy(work3[j++], token);
-                    while (j < 3 && (token = strtok(nullptr, ":")) != nullptr) {
-                        strcpy(work3[j++], token);
-                    }
-                    for (int jj = 0; jj < 3; jj++) {
-                        TrimString(work3[jj]);
-                    }
-                    for (int jj = 0; jj < 3; jj++) {
-                        LeftTrimString(work3[jj]);
-                    }
-
-                    if (work3[0][0] != '\0' && IsNumber(work3[0])) {    // [a:] or [a:*] or [a:b] etc
-                        p = nullptr;
-                        errno = 0;
-                        request->datasubset.start[i] = (int)strtol(work3[0], &p, 10);
-                        if (errno != 0 || *p != 0 || p == work3[0]) {
-                            rc = 0;
-                            break;
-                        }
-//                        if (request->datasubset.start[i] < 0) {
-//                            ADD_ERROR(999, "Invalid Start Index in subset operation");
-//                            rc = -1;
-//                            break;
-//                        }
-
-                        request->datasubset.stop[i] = request->datasubset.start[i];
-                        request->datasubset.count[i] = 1;
-                        request->datasubset.stride[i] = 1;
-                        request->datasubset.subset[i] = 1;
-
-                    } else {
-                        rc = 0;                    // Not an Error - not a subset operation
-                        break;
-                    }
-                    if (work3[1][0] != '\0' && IsNumber(work3[1])) {    // [a:b]
-                        p = nullptr;
-                        errno = 0;
-                        request->datasubset.stop[i] = (int)strtol(work3[1], &p, 10);
-                        if (errno != 0 || *p != 0 || p == work3[0]) {
-                            rc = 0;
-                            break;
-                        }
-                        if (request->datasubset.stop[i] < 0) {
-                            ADD_ERROR(999, "Invalid sample End Index in subset operation");
-                            rc = -1;
-                            break;
-                        }
-                        request->datasubset.count[i] =
-                                request->datasubset.stop[i] - request->datasubset.start[i] + 1;
-                        request->datasubset.subset[i] = 1;
-
-                        if (request->datasubset.stop[i] < request->datasubset.start[i]) {
-                            ADD_ERROR(999, "Invalid Stop Index in subset operation");
-                            rc = -1;
-                            break;
-                        }
-
-                    } else {
-                        if (strlen(work3[1]) == 0 || (strlen(work3[1]) == 1 && work3[1][0] == '*')) {    // [a:],[a:*]
-                            request->datasubset.count[i] = -1;
-                            request->datasubset.stop[i] = -1;            // To end of dimension
-                        } else {
-                            rc = 0;
-                            break;
-                        }
-                    }
-                    if (work3[2][0] != '\0') {
-                        if (IsNumber(work3[2])) {
-                            p = nullptr;
-                            errno = 0;
-                            request->datasubset.stride[i] = (int)strtol(work3[2], &p, 10);
-                            if (errno != 0 || *p != 0 || p == work3[0]) {
-                                rc = 0;
-                                break;
-                            }
-                            if (request->datasubset.stride[i] <= 0) {
-                                ADD_ERROR(999, "Invalid sample stride length in subset operation");
-                                rc = -1;
-                                break;
-                            }
-                            if (request->datasubset.stride[i] > 1)request->datasubset.subset[i] = 1;
-
-                            if (request->datasubset.stride[i] > 1 && request->datasubset.count[i] > 1) {
-                                if ((request->datasubset.count[i] % request->datasubset.stride[i]) > 0) {
-                                    request->datasubset.count[i] = 1 + request->datasubset.count[i] /
-                                                                       request->datasubset.stride[i];
-                                } else {
-                                    request->datasubset.count[i] =
-                                            request->datasubset.count[i] / request->datasubset.stride[i];
-                                }
-                            }
-
-                        } else {
-                            rc = 0;
-                            break;
-                        }
-                    }
-                } else {
-                    if (work4[0] == '\0' || work4[0] == '*') {        // [], [*]
-                        request->datasubset.start[i] = 0;
-                        request->datasubset.stop[i] = -1;
-                        request->datasubset.count[i] = -1;
-                        request->datasubset.stride[i] = 1;
-                    } else {
-                        if (IsNumber(work4)) {                // [a]
-                            p = nullptr;
-                            errno = 0;
-                            request->datasubset.start[i] = (int)strtol(work4, &p, 10);
-                            if (errno != 0 || *p != 0 || p == work3[0]) {
-                                rc = 0;
-                                break;
-                            }
-                            if (request->datasubset.start[i] < 0) {
-                                ADD_ERROR(999, "Invalid start index in subset operation");
-                                rc = -1;
-                                break;
-                            }
-
-                            request->datasubset.stop[i] = request->datasubset.start[i];
-                            request->datasubset.count[i] = 1;
-                            request->datasubset.stride[i] = 1;
-                            request->datasubset.subset[i] = 1;
-
-                        } else {
-                            rc = 0;
-                            break;
-                        }
-                    }
-                }
-            }
-        } while (0);
-    } else {
-        rc = 0;
     }
 
-    free(work);
-    for (int i = 0; i < subsetCount; i++)free(work2[i]);
-    free(work2);
-    for (int i = 0; i < 3; i++)free(work3[i]);
-    free(work3);
-    free(work4);
+    return 0;
+}
 
-    return rc;
+
+//----------------------------------------------------------------------
+// Parse subset instructions- [start:end:stride] or {start:end:stride}
+//
+// Signal should avoid using subset like components in their name
+
+int extract_subset(REQUEST_DATA* request)
+{
+    // Return codes:
+    //
+    //	1 => Valid subset
+    //	0 => Not a subset operation - Not compliant with syntax
+    //     -1 => Error
+
+    request->subset[0] = '\0';
+    initSubset(&request->datasubset);
+
+    std::string signal = request->signal;
+
+    std::vector<std::string> operations = {};
+
+    size_t lbracket_pos = signal.find('[');
+    size_t rbracket_pos = signal.find(']', lbracket_pos);
+
+    if (lbracket_pos == std::string::npos) {
+        return 0;
+    }
+    std::string subset = signal.substr(lbracket_pos);
+
+    while (lbracket_pos != std::string::npos && rbracket_pos != std::string::npos) {
+        std::string operation = signal.substr(lbracket_pos + 1, rbracket_pos - lbracket_pos - 1);
+        operations.push_back(operation);
+
+        lbracket_pos = signal.find('[', rbracket_pos);
+        rbracket_pos = signal.find(']', lbracket_pos);
+    }
+
+    for (const auto& operation : operations) {
+        int rc = parse_operation(request->datasubset, operation);
+        if (rc != 0) {
+            return rc;
+        }
+    }
+
+    strcpy(request->subset, subset.c_str());
+    return 1;
 }
 
 // name value pairs take the general form: name1=value1, name2=value2, ...

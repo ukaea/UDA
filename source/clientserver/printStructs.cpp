@@ -25,10 +25,12 @@ void printRequestData(REQUEST_DATA str)
     UDA_LOG(UDA_LOG_DEBUG, "source      : %s\n", str.source);
     UDA_LOG(UDA_LOG_DEBUG, "api_delim   : %s\n", str.api_delim);
     UDA_LOG(UDA_LOG_DEBUG, "subset      : %s\n", str.subset);
-    UDA_LOG(UDA_LOG_DEBUG, "subsetCount : %d\n", str.datasubset.subsetCount);
-    for (int i = 0; i < str.datasubset.subsetCount; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "[%d] %d   %d   %d   %d   %d\n", i, str.datasubset.subset[i], str.datasubset.start[i],
-                str.datasubset.stop[i], str.datasubset.count[i], str.datasubset.stride[i]);
+    UDA_LOG(UDA_LOG_DEBUG, "subsetCount : %d\n", str.datasubset.nbound);
+    for (int i = 0; i < str.datasubset.nbound; i++) {
+        UDA_LOG(UDA_LOG_DEBUG, "[%d] %d   %d   %d   %d\n", i, str.datasubset.dimid[i],
+                str.datasubset.lbindex[i].get_value_or(0),
+                str.datasubset.ubindex[i].get_value_or(0),
+                str.datasubset.stride[i].get_value_or(1));
     }
     UDA_LOG(UDA_LOG_DEBUG, "nameValueCount : %d\n", str.nameValueList.pairCount);
     for (int i = 0; i < str.nameValueList.pairCount; i++) {

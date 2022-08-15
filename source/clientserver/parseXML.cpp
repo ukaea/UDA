@@ -1459,9 +1459,9 @@ void initSubset(SUBSET* act)
 {
     for (int i = 0; i < UDA_MAX_DATA_RANK; i++) {
         act->bound[i] = 0.0;                // Subsetting Float Bounds
-        act->ubindex[i] = 0;                // Subsetting Integer Bounds (Upper Index)
-        act->lbindex[i] = 0;                // Lower Index
-        act->stride[i] = 0;
+        act->ubindex[i] = boost::none;                // Subsetting Integer Bounds (Upper Index)
+        act->lbindex[i] = boost::none;                // Lower Index
+        act->stride[i] = boost::none;               // Stride
         act->isindex[i] = false;                // Flag the Bound is an Integer Type
         act->dimid[i] = -1;                // Dimension IDs
         act->operation[i][0] = '\0';            // Subsetting Operations

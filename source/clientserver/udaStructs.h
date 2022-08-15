@@ -7,6 +7,7 @@
 
 #include "udaDefines.h"
 #include "export.h"
+#include "parseXML.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -377,8 +378,8 @@ typedef struct RequestData {
     char function[STRING_LENGTH];       // Server-Side function or attached plugin function
     char api_delim[MAXNAME];            // Delimiter string to use decoding the signal and source arguments
     char subset[STRING_LENGTH];         // Subset instructions
-    DATASUBSET datasubset;               // Parsed subset instructions (Server Side)
-    NAMEVALUELIST nameValueList;         // Set of Name-Value pairs (Server Side Function)
+    SUBSET datasubset;                  // Parsed subset instructions (Server Side)
+    NAMEVALUELIST nameValueList;        // Set of Name-Value pairs (Server Side Function)
 
     int put;                             // flag to set the server to a put state
     PUTDATA_BLOCK_LIST putDataBlockList; // Data to be put on the server
