@@ -1,5 +1,7 @@
 #include "parseOperation.h"
 
+#include<vector>
+#include<string>
 #include <boost/algorithm/string.hpp>
 
 #include "stringUtils.h"
