@@ -46,9 +46,9 @@ int parseOperation(SUBSET* sub)
             }
 
             sub->isindex[i] = true;
-            sub->ubindex[i] = boost::none;
-            sub->lbindex[i] = boost::none;
-            sub->stride[i] = boost::none;
+            sub->ubindex[i] = { .init = false, .value = 0 };
+            sub->lbindex[i] = { .init = false, .value = 0 };
+            sub->stride[i] = { .init = false, .value = 0 };
             strcpy(sub->operation[i], ":");
 
             if (!tokens[0].empty() && tokens[0] != "#" && tokens[0] != "*") {
@@ -57,7 +57,7 @@ int parseOperation(SUBSET* sub)
                 if (n != tokens[0].size()) {
                     THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Lower Index Bound");
                 }
-                sub->lbindex[i] = num;
+                sub->lbindex[i] = { .init = true, .value = num };
             }
 
             if (!tokens[1].empty() && tokens[1] != "#" && tokens[1] != "*") {
@@ -66,7 +66,7 @@ int parseOperation(SUBSET* sub)
                 if (n != tokens[1].size()) {
                     THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Upper Index Bound");
                 }
-                sub->ubindex[i] = num;
+                sub->ubindex[i] = { .init = true, .value = num };
             }
 
             if (tokens.size() == 3 && !tokens[2].empty()) {
@@ -75,20 +75,20 @@ int parseOperation(SUBSET* sub)
                 if (n != tokens[2].size()) {
                     THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Stride");
                 }
-                sub->stride[i] = num;
+                sub->stride[i] = { .init = true, .value = num };
             }
         } else if (operation == "*") {
             // Ignore this Dimension
             sub->isindex[i] = true;
-            sub->ubindex[i] = boost::none;
-            sub->lbindex[i] = 0;
-            sub->stride[i] = boost::none;
+            sub->ubindex[i] = { .init = false, .value = 0 };
+            sub->lbindex[i] = { .init = true, .value = 0 };
+            sub->stride[i] = { .init = false, .value = 0 };
         } else if (operation == "#") {
             // Last Value in Dimension
             sub->isindex[i] = true;
-            sub->ubindex[i] = boost::none;
-            sub->lbindex[i] = -1;
-            sub->stride[i] = boost::none;
+            sub->ubindex[i] = { .init = false, .value = 0 };
+            sub->lbindex[i] = { .init = true, .value = -1 };
+            sub->stride[i] = { .init = false, .value = 0 };
         } else {
             size_t n = 0;
             long num = std::stol(operation, &n, 10);
@@ -98,9 +98,9 @@ int parseOperation(SUBSET* sub)
             }
 
             sub->isindex[i] = true;
-            sub->ubindex[i] = num + 1;
-            sub->lbindex[i] = num;
-            sub->stride[i] = boost::none;
+            sub->ubindex[i] = { .init = true, .value = num + 1 };
+            sub->lbindex[i] = { .init = true, .value = num };
+            sub->stride[i] = { .init = false, .value = 0 };
             strcpy(sub->operation[i], ":");
         }
     }

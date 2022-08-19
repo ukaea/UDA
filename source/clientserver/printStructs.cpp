@@ -28,9 +28,9 @@ void printRequestData(REQUEST_DATA str)
     UDA_LOG(UDA_LOG_DEBUG, "subsetCount : %d\n", str.datasubset.nbound);
     for (int i = 0; i < str.datasubset.nbound; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "[%d] %d   %d   %d   %d\n", i, str.datasubset.dimid[i],
-                str.datasubset.lbindex[i].get_value_or(0),
-                str.datasubset.ubindex[i].get_value_or(0),
-                str.datasubset.stride[i].get_value_or(1));
+                str.datasubset.lbindex[i].value,
+                str.datasubset.ubindex[i].value,
+                str.datasubset.stride[i].value);
     }
     UDA_LOG(UDA_LOG_DEBUG, "nameValueCount : %d\n", str.nameValueList.pairCount);
     for (int i = 0; i < str.nameValueList.pairCount; i++) {

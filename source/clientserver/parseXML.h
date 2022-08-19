@@ -9,8 +9,6 @@
 #include "udaDefines.h"
 #include "export.h"
 
-#include <boost/optional.hpp>
-
 #define UDA_SXML_MAX_STRING           1024
 #define UDA_MAX_DATA_RANK             8
 #define UDA_XML_MAX_DESC              1024
@@ -31,14 +29,19 @@
 #define UDA_SUBSET_TYPE         7
 #define UDA_MAP_TYPE            8
 
+typedef struct OptionalLong {
+    bool init;
+    long value;
+} OPTIONAL_LONG;
+
 typedef struct Subset {
     int nbound;                                 // the Number of Subsetting Operations
     int reform;                                 // reduce Rank if any dimension has length 1
     int order;                                  // Time Dimension order
     double bound[UDA_MAX_DATA_RANK];                  // Array of Floating point Bounding values
-    boost::optional<long> stride[UDA_MAX_DATA_RANK];                   // Array of Integer values: Striding values
-    boost::optional<long> ubindex[UDA_MAX_DATA_RANK];                  // Array of Integer values: Bounding or Upper Index
-    boost::optional<long> lbindex[UDA_MAX_DATA_RANK];                  // Array of Integer values: Lower Index
+    OPTIONAL_LONG stride[UDA_MAX_DATA_RANK];                   // Array of Integer values: Striding values
+    OPTIONAL_LONG ubindex[UDA_MAX_DATA_RANK];                  // Array of Integer values: Bounding or Upper Index
+    OPTIONAL_LONG lbindex[UDA_MAX_DATA_RANK];                  // Array of Integer values: Lower Index
     char operation[UDA_MAX_DATA_RANK][UDA_SXML_MAX_STRING];           // Array of Subsetting Operations
     int dimid[UDA_MAX_DATA_RANK];                     // Array of Dimension IDs to subset
     bool isindex[UDA_MAX_DATA_RANK];                   // Flag the Operation Bound is an Integer Type

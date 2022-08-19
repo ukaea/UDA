@@ -1180,6 +1180,10 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
 
                 if (!idam_plugin_interface.changePlugin) {
                     // job done!
+
+                    data_block->source_status = data_source->status;
+                    data_block->signal_status = signal_rec->status;
+
                     return 0;
                 }
 

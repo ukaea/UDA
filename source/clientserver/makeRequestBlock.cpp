@@ -1204,17 +1204,17 @@ void expand_environment_variables(char* path)
     }
 }
 
-boost::optional<long> parse_integer(const std::string& value)
+OPTIONAL_LONG parse_integer(const std::string& value)
 {
     if (value.empty()) {
-        return boost::none;
+        return { .init = false, .value = 0 };
     }
     size_t idx;
     long num = std::stol(value, &idx, 10);
     if (idx != value.size()) {
         throw std::runtime_error("Invalid integer");
     }
-    return num;
+    return { .init = true, .value = num };
 }
 
 int parse_element(SUBSET& subset, const std::string& element)
@@ -1229,20 +1229,20 @@ int parse_element(SUBSET& subset, const std::string& element)
     try {
         switch (tokens.size()) {
             case 0:
-                subset.lbindex[index] = boost::none;
-                subset.ubindex[index] = boost::none;
-                subset.stride[index] = boost::none;
+                subset.lbindex[index] = { .init = false, .value = 0 };
+                subset.ubindex[index] = { .init = false, .value = 0 };
+                subset.stride[index] = { .init = false, .value = 0 };
                 break;
             case 1:
                 // TODO: handle non-slice operations? i.e. [>=4], etc.
                 subset.lbindex[index] = parse_integer(tokens[0]);
-                subset.ubindex[index] = boost::none;
-                subset.stride[index] = boost::none;
+                subset.ubindex[index] = { .init = false, .value = 0 };
+                subset.stride[index] = { .init = false, .value = 0 };
                 break;
             case 2:
                 subset.lbindex[index] = parse_integer(tokens[0]);
                 subset.ubindex[index] = parse_integer(tokens[1]);
-                subset.stride[index] = boost::none;
+                subset.stride[index] = { .init = false, .value = 0 };
                 break;
             case 3:
                 subset.lbindex[index] = parse_integer(tokens[0]);

@@ -488,8 +488,8 @@ void parseCompositeSubset(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Operation       : %s\n", str[n - 1].operation[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Dimension ID               : %d\n", str[n - 1].dimid[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Is Index?       : %d\n", str[n - 1].isindex[i]);
-                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Lower Index     : %d\n", (int)str[n - 1].lbindex[i].get_value_or(0));
-                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Upper Index     : %d\n", (int)str[n - 1].ubindex[i].get_value_or(0));
+                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Lower Index     : %d\n", (int)str[n - 1].lbindex[i].value);
+                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Upper Index     : %d\n", (int)str[n - 1].ubindex[i].value);
             }
         }
         cur = cur->next;
@@ -1131,8 +1131,8 @@ void parse_subset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Bounding Values : %e\n", sub->bound[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Operation       : %s\n", sub->operation[i]);
                 UDA_LOG(UDA_LOG_DEBUG, "Subsetting Is Index?       : %d\n", sub->isindex[i]);
-                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Lower Index     : %d\n", (int)sub->lbindex[i].get_value_or(0));
-                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Upper Index     : %d\n", (int)sub->ubindex[i].get_value_or(0));
+                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Lower Index     : %d\n", (int)sub->lbindex[i].value);
+                UDA_LOG(UDA_LOG_DEBUG, "Subsetting Upper Index     : %d\n", (int)sub->ubindex[i].value);
             }
         }
         cur = cur->next;
@@ -1459,9 +1459,9 @@ void initSubset(SUBSET* act)
 {
     for (int i = 0; i < UDA_MAX_DATA_RANK; i++) {
         act->bound[i] = 0.0;                // Subsetting Float Bounds
-        act->ubindex[i] = boost::none;                // Subsetting Integer Bounds (Upper Index)
-        act->lbindex[i] = boost::none;                // Lower Index
-        act->stride[i] = boost::none;               // Stride
+        act->ubindex[i] = { .init = false, .value = 0 };                // Subsetting Integer Bounds (Upper Index)
+        act->lbindex[i] = { .init = false, .value = 0 };                // Lower Index
+        act->stride[i] = { .init = false, .value = 0 };               // Stride
         act->isindex[i] = false;                // Flag the Bound is an Integer Type
         act->dimid[i] = -1;                // Dimension IDs
         act->operation[i][0] = '\0';            // Subsetting Operations

@@ -359,9 +359,9 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         }                // This means No subset - Part of an array Reshape Operation
 
         if (operation[0] == ':'
-                && subset.lbindex[j].get_value_or(0) == 0
-                && (subset.ubindex[j].get_value_or(data_block->dims[dim_id].dim_n) == data_block->dims[dim_id].dim_n)
-                && subset.stride[j].get_value_or(1) == 1) {
+                && (subset.lbindex[j].init ? subset.lbindex[j].value : 0) == 0
+                && (subset.ubindex[j].init ? subset.lbindex[j].value : data_block->dims[dim_id].dim_n) == data_block->dims[dim_id].dim_n
+                && (subset.stride[j].init ? subset.stride[j].value : 1) == 1) {
             continue;    // subset spans the complete dimension
         }
 
@@ -426,23 +426,23 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
             auto maybe_end = subset.ubindex[j];           // Number after the first :
             auto maybe_stride = subset.stride[j];     // Number after the second :
 
-            start = (int)maybe_start.get_value_or(0);
+            start = (int)(maybe_start.init ? maybe_start.value : 0);
             if (start < 0) {
                 start = dim->dim_n + start;
             }
 
-            end = (int)maybe_end.get_value_or(dim->dim_n);
+            end = (int)(maybe_end.init ? maybe_end.value : dim->dim_n);
             if (end < 0) {
                 end = dim->dim_n + end;
             }
 
-            stride = (int)maybe_stride.get_value_or(1);
+            stride = (int)(maybe_stride.init ? maybe_stride.value : 1);
 
             if (start > end) {
                 THROW_ERROR(999, "start must be before end")
             }
             reshape = 1;
-            dim_n = end - start;
+            dim_n = (end - start) / stride;
         }
 
         if (operation[0] == '#') {            // Reshape Operation - Highest array position (last value)
