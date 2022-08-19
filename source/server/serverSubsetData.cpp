@@ -444,7 +444,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                 THROW_ERROR(999, "start must be before end")
             }
             reshape = 1;
-            dim_n = end - start;
+            dim_n = (end - start) / stride;
         }
 
         if (operation[0] == '#') {            // Reshape Operation - Highest array position (last value)
