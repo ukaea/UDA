@@ -1313,22 +1313,35 @@ int extract_subset(REQUEST_DATA* request)
 
     std::string signal = request->signal;
 
-    std::vector<std::string> operations = {};
+    if (signal.empty() || signal[signal.size() - 1] != ']') {
+        return 0;
+    }
 
-    size_t lbracket_pos = signal.find('[');
-    size_t rbracket_pos = signal.find(']', lbracket_pos);
+    size_t rbracket_pos = signal.size() - 1;
+    size_t lbracket_pos = signal.rfind('[', rbracket_pos);
 
     if (lbracket_pos == std::string::npos) {
         return 0;
     }
-    std::string subset = signal.substr(lbracket_pos);
+
+    std::deque<std::string> subsets = {};
+    std::deque<std::string> operations = {};
 
     while (lbracket_pos != std::string::npos && rbracket_pos != std::string::npos) {
-        std::string operation = signal.substr(lbracket_pos + 1, rbracket_pos - lbracket_pos - 1);
-        operations.push_back(operation);
+        if (rbracket_pos - lbracket_pos - 1 > 0) {
+            std::string operation = signal.substr(lbracket_pos + 1, rbracket_pos - lbracket_pos - 1);
+            operations.push_front(operation);
 
-        lbracket_pos = signal.find('[', rbracket_pos);
-        rbracket_pos = signal.find(']', lbracket_pos);
+            std::string subset = signal.substr(lbracket_pos, rbracket_pos - lbracket_pos);
+            subsets.push_front(subset);
+        }
+
+        if (lbracket_pos == 0 || signal[lbracket_pos - 1] != ']') {
+            break;
+        }
+
+        rbracket_pos = lbracket_pos - 1;
+        lbracket_pos = signal.rfind('[', rbracket_pos);
     }
 
     for (const auto& operation : operations) {
@@ -1338,6 +1351,7 @@ int extract_subset(REQUEST_DATA* request)
         }
     }
 
+    std::string subset = boost::join(subsets, "");
     strcpy(request->subset, subset.c_str());
     return 1;
 }

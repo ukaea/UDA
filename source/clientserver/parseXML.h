@@ -29,6 +29,10 @@
 #define UDA_SUBSET_TYPE         7
 #define UDA_MAP_TYPE            8
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct OptionalLong {
     bool init;
     long value;
@@ -49,10 +53,6 @@ typedef struct Subset {
     char member[UDA_SXML_MAX_STRING];                 // Name of Structure Member to extract and to subset
     char function[UDA_SXML_MAX_STRING];               // Apply this named function to the subsetted data
 } SUBSET;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct Map {
     int nmap;                                   // the Number of Mapping Operations
