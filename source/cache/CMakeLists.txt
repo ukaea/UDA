@@ -1,6 +1,7 @@
 find_package( LibMemcached )
 find_package( Boost REQUIRED )
 find_package( OpenSSL REQUIRED )
+find_package( LibXml2 REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -24,6 +25,7 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
   ${Boost_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/source
+  ${LIBXML2_INCLUDE_DIR}
 )
 
 if( MINGW OR WIN32 )

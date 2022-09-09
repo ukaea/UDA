@@ -18,9 +18,7 @@
 #include <errno.h>
 
 #ifndef _WIN32
-
 #  include <unistd.h>
-
 #else
 #  include <Windows.h>
 #endif
@@ -425,15 +423,19 @@ int linkReplacement(char* path)
 
     errno = 0;
     if ((ph = popen(cmd, "r")) == nullptr) {
-        if (errno != 0) addIdamError(SYSTEMERRORTYPE, "linkReplacement", errno, "");
+        if (errno != 0) addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
         err = 1;
-        addIdamError(CODEERRORTYPE, "linkReplacement", err, "Unable to Dereference Symbolic links");
+        addIdamError(CODEERRORTYPE, __func__, err, "Unable to Dereference Symbolic links");
         path[0] = '\0';
         return err;
     }
 
-    if (!feof(ph)) fgets(cmd, STRING_LENGTH - 1, ph);
-    fclose(ph);
+    if (!feof(ph)) {
+        if (fgets(cmd, STRING_LENGTH - 1, ph) == nullptr) {
+            THROW_ERROR(999, "failed to read line from command");
+        }
+    }
+    pclose(ph);
 
     //------------------------------------------------------------------------------------
     //! Extract the Dereferenced path. Accept only if it is Not a Relative path
@@ -714,7 +716,10 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
          */
 
         if (chdir(path) != 0) {
-            chdir(ocwd);            // Ensure the Original WD
+            // Ensure the Original WD
+            if (chdir(ocwd) != 0) {
+                THROW_ERROR(999, "Failed to chdir back to original working directory");
+            };
             strcpy(path, opath);        // Return to the Original path name
             UDA_LOG(UDA_LOG_DEBUG, "Unable to identify the Directory of the file: %s\n"
                                    "The server will know if a true error exists: Plugin & Environment dependent", path);
@@ -833,8 +838,8 @@ char* pathid(char* path)
     char pwd[STRING_LENGTH];
     strcpy(work, path);
 
-// the path string may contain malign embedded linux commands: is chdir secure?
-// basic check
+    // the path string may contain malign embedded linux commands: is chdir secure?
+    // basic check
 
     if (!IsLegalFilePath(path)) {
         addIdamError(CODEERRORTYPE, "pathid", 999, "The directory path has incorrect syntax");
@@ -847,18 +852,21 @@ char* pathid(char* path)
         if (chdir(path) == 0) {
             if ((p = getcwd(pwd, STRING_LENGTH - 1)) != nullptr) {
                 strcpy(path, p);
-                chdir(pwd);
+                if (chdir(pwd) != 0) {
+                    addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
+                    addIdamError(CODEERRORTYPE, __func__, 999, "The directory path is not available");
+                }
                 TrimString(path);
                 LeftTrimString(path);
                 return path;
             }
         } else {
             if (errno == EACCES) {
-                addIdamError(SYSTEMERRORTYPE, "pathid", errno, "");
-                addIdamError(CODEERRORTYPE, "pathid", 999, "The directory path is not available");
+                addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
+                addIdamError(CODEERRORTYPE, __func__, 999, "The directory path is not available");
             } else if (errno == ENOENT || errno == ENOTDIR) {
-                addIdamError(SYSTEMERRORTYPE, "pathid", errno, "");
-                addIdamError(CODEERRORTYPE, "pathid", 999, "The directory path does not exist");
+                addIdamError(SYSTEMERRORTYPE, __func__, errno, "");
+                addIdamError(CODEERRORTYPE, __func__, 999, "The directory path does not exist");
             }
         }
     }

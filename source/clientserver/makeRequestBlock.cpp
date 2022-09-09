@@ -811,8 +811,12 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
         }
 
         cmd[0] = '\0';
-        if (!feof(ph)) fgets(cmd, lstr - 1, ph);
-        fclose(ph);
+        if (!feof(ph)) {
+            if (fgets(cmd, lstr - 1, ph) == nullptr) {
+                THROW_ERROR(-999, "failed to read command");
+            }
+        }
+        pclose(ph);
 
         test = blank;
         convertNonPrintable2(cmd);
@@ -838,8 +842,12 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
                     }
 
                     cmd[0] = '\0';
-                    if (!feof(ph)) fgets(cmd, lstr - 1, ph);
-                    fclose(ph);
+                    if (!feof(ph)) {
+                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
+                            THROW_ERROR(-999, "failed to read command");
+                        }
+                    }
+                    pclose(ph);
                     convertNonPrintable2(cmd);
                     LeftTrimString(cmd);
                     TrimString(cmd);
@@ -866,18 +874,42 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
 
                     cmd[0] = '\0';
                     if (!feof(ph)) {
-                        fgets(cmd, lstr - 1, ph);
-                    }        // IDA3 interface version V3.13 with file structure IDA3.1
-                    if (!feof(ph)) fgets(cmd, lstr - 1, ph);        // Build JW Jan 25 2007 09:08:47
-                    if (!feof(ph)) fgets(cmd, lstr - 1, ph);        // Compiled without high level read/write CUTS
-                    if (!feof(ph)) fgets(cmd, lstr - 1, ph);        // Opening ida file
-                    if (!feof(ph)) fgets(cmd, lstr - 1, ph);        // ida_open error ?
-                    fclose(ph);
+                        // IDA3 interface version V3.13 with file structure IDA3.1
+                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
+                            THROW_ERROR(-999, "failed to read command output");
+                        }
+                    }
+                    if (!feof(ph)) {
+                        // Build JW Jan 25 2007 09:08:47
+                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
+                            THROW_ERROR(-999, "failed to read command output");
+                        }
+                    }
+                    if (!feof(ph)) {
+                        // Compiled without high level read/write CUTS
+                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
+                            THROW_ERROR(-999, "failed to read command output");
+                        }
+                    }
+                    if (!feof(ph)) {
+                        // Opening ida file
+                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
+                            THROW_ERROR(-999, "failed to read command output");
+                        }
+                    }
+                    if (!feof(ph)) {
+                        // ida_open error ?
+                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
+                            THROW_ERROR(-999, "failed to read command output");
+                        }
+                    }
+                    pclose(ph);
                     convertNonPrintable2(cmd);
                     LeftTrimString(cmd);
                     TrimString(cmd);
-                    if (strncmp(cmd, "ida_open error", 14) != 0)test = ida;    // Legacy IDA file
-
+                    if (strncmp(cmd, "ida_open error", 14) != 0) {
+                        test = ida;    // Legacy IDA file
+                    }
                 }
             }
         }
@@ -1147,7 +1179,10 @@ void expand_environment_variables(char* path)
         if (pcwd != nullptr) {
             strcpy(path, cwd);    // The expanded path
         }
-        chdir(ocwd);                        // Return to the Original WD
+        if (chdir(ocwd) != 0) {
+            // Return to the Original WD
+            UDA_LOG(UDA_LOG_ERROR, "failed to reset working directory\n");
+        }
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "expandEnvironmentvariables: Direct substitution! \n");
 

@@ -31,7 +31,9 @@ int startup(void)
     if (environment->loglevel <= UDA_LOG_ACCESS) {
         char cmd[STRING_LENGTH];
         sprintf(cmd, "mkdir -p %s 2>/dev/null", environment->logdir);
-        system(cmd);
+        if (system(cmd) != 0) {
+            THROW_ERROR(999, "mkdir command failed");
+        }
 
         errno = 0;
         std::string log_file = std::string{ environment->logdir } + "Access.log";

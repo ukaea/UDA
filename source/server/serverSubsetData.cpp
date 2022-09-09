@@ -11,6 +11,7 @@
 #include "plugins/udaPlugin.h"
 #include "clientserver/makeRequestBlock.h"
 
+#include <vector>
 #include <cmath>
 #include <cfloat>
 #include <cerrno>

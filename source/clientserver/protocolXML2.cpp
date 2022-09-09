@@ -90,8 +90,6 @@ extern "C" {
 
 void sha1Block(unsigned char* block, size_t blockSize, unsigned char* md);
 
-void sha1PartBlock(unsigned char* partBlock, size_t partBlockSize, unsigned char* md, unsigned int state);
-
 int sha1File(char* name, FILE* fh, unsigned char* md);
 
 }
@@ -1165,19 +1163,6 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 void sha1Block(unsigned char* block, size_t blockSize, unsigned char* md)
 {
     SHA1(block, blockSize, md);
-}
-
-// Hash a set of data blocks
-void sha1PartBlock(unsigned char* partBlock, size_t partBlockSize, unsigned char* md, unsigned int state)
-{
-    static SHA_CTX sc;
-    if (state == PARTBLOCKINIT) {
-        SHA1_Init(&sc);
-    } else if (state == PARTBLOCKUPDATE) {
-        SHA1_Update(&sc, partBlock, partBlockSize);
-    } else if (state == PARTBLOCKOUTPUT) {
-        SHA1_Final(md, &sc);
-    }
 }
 
 #endif

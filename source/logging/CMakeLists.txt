@@ -10,6 +10,8 @@ else()
   endif()
 endif()
 
+find_package( LibXml2 REQUIRED )
+
 ########################################################################################################################
 # Sources
 
@@ -21,7 +23,10 @@ else()
   message( FATAL_ERROR "Unknown logging backend ${LOGGING_BACKEND}" )
 endif()
 
-include_directories( ${CMAKE_SOURCE_DIR}/source )
+include_directories(
+  ${CMAKE_SOURCE_DIR}/source
+  ${LIBXML2_INCLUDE_DIR}
+)
 
 if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )

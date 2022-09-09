@@ -12,8 +12,7 @@ else()
   find_package( TIRPC QUIET)
   if(TIRPC_FOUND)
     add_definitions(-D__TIRPC__)
-    
-      endif()
+  endif()
 endif()
 
 configure_file(
@@ -57,6 +56,7 @@ add_definitions( -DSERVERBUILD )
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
+  ${LIBXML2_INCLUDE_DIR}
 )
 
 if( MINGW OR WIN32 )

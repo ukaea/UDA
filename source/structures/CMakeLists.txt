@@ -7,9 +7,10 @@ else()
   find_package( TIRPC QUIET)
   if(TIRPC_FOUND)
     add_definitions(-D__TIRPC__)
-    
-      endif()
+  endif()
 endif()
+
+find_package( LibXml2 REQUIRED )
 
 ########################################################################################################################
 # Sources
@@ -23,6 +24,7 @@ set( SRC_FILES
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
+  ${LIBXML2_INCLUDE_DIR}
 )
 
 if( MINGW OR WIN32 )

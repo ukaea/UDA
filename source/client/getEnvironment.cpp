@@ -79,7 +79,9 @@ ENVIRONMENT* getIdamClientEnvironment()
     if (udaEnviron.loglevel <= UDA_LOG_ACCESS) {
         char cmd[STRING_LENGTH];
         sprintf(cmd, "mkdir -p %s 2>/dev/null", udaEnviron.logdir);
-        system(cmd);
+        if (system(cmd) != 0) {
+            // TODO: How to log error before log files are open?
+        };
     }
     
     // Log Output Write Mode

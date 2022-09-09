@@ -12,9 +12,7 @@ else()
   find_package( TIRPC QUIET)
   if(TIRPC_FOUND)
     add_definitions(-D__TIRPC__)
-    
-      endif()
-
+  endif()
 endif()
 
 include_directories(

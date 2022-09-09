@@ -39,7 +39,7 @@ set( HEADER_FILES
   applyXML.h
   closeServerSockets.h
   createXDRStream.h
-        getPluginAddress.h
+  getPluginAddress.h
   getServerEnvironment.h
   initPluginList.h
   makeServerRequestBlock.h
