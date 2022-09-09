@@ -11,10 +11,11 @@
 #include "plugins/udaPlugin.h"
 #include "clientserver/makeRequestBlock.h"
 
-#include <vector>
 #include <cmath>
 #include <cfloat>
 #include <cerrno>
+#include <vector>
+#include <string>
 #if defined(__GNUC__)
 #  include <strings.h>
 #else
