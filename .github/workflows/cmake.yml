@@ -20,7 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: apt-get update && apt-get install -y git libboost-dev libssl-dev cmake build-essential pkg-config libxml2-dev
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y git libboost-dev libssl-dev cmake build-essential pkg-config libxml2-dev
 
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
