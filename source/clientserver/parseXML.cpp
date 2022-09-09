@@ -1249,7 +1249,7 @@ void print_dimensions(int ndim, DIMENSION* dims)
     }
 }
 
-void printAction(const ACTION& action)
+void printAction(ACTION action)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Action XML Id    : %d\n", action.actionId);
     UDA_LOG(UDA_LOG_DEBUG, "Action Type      : %d\n", action.actionType);

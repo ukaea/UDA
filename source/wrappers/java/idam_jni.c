@@ -667,7 +667,9 @@ JNIEXPORT jstring JNICALL Java_jIdam_Idam_getLine(JNIEnv* env, jobject obj, jstr
     /* We assume here that the user does not type more than
      * 127 characters */
 
-    scanf("%s", buf);
+    if (scanf("%s", buf) <= 0) {
+        buf[0] = '\0';
+    };
     return (*env)->NewStringUTF(env, buf);
 }
 

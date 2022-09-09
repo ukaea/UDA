@@ -13,8 +13,7 @@ else()
   find_package( TIRPC QUIET)
   if(TIRPC_FOUND)
     add_definitions(-D__TIRPC__)
-    
-      endif()
+  endif()
 endif()
 
 include( UseJava )
@@ -24,6 +23,7 @@ set( CMAKE_JAVA_COMPILE_FLAGS "-source" "1.6" "-target" "1.6" )
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${JNI_INCLUDE_DIRS}
+  ${LIBXML2_INCLUDE_DIR}
 )
 
 if( MINGW OR WIN32 )

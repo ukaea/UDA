@@ -186,7 +186,7 @@ typedef struct Actions {
 #ifndef NOXMLPARSER
 LIBRARY_API int parseDoc(char* docname, ACTIONS* actions);
 #endif
-LIBRARY_API void printAction(const ACTION& action);
+LIBRARY_API void printAction(ACTION action);
 LIBRARY_API void printActions(ACTIONS actions);
 LIBRARY_API void initAction(ACTION* act);
 LIBRARY_API void initActions(ACTIONS* act);
