@@ -6,6 +6,8 @@
 #include <libxml/parser.h>
 #endif
 
+#include <stdbool.h>
+
 #include "udaDefines.h"
 #include "export.h"
 
