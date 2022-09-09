@@ -1,7 +1,5 @@
 if (NOT CLIENT_ONLY)
 include( LibXml2StrPrintfConfig )
-find_package( LibXml2 REQUIRED )
-include_directories( SYSTEM ${LIBXML2_INCLUDE_DIR} )
 endif()
 find_package( Boost REQUIRED )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
