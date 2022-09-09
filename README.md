@@ -1,7 +1,6 @@
 # Universal Data Access (UDA)
 
-[![pipeline status](https://git.ccfe.ac.uk/MAST-U/UDA/badges/develop/pipeline.svg)](https://git.ccfe.ac.uk/MAST-U/UDA/commits/develop)
-[![coverage report](https://git.ccfe.ac.uk/MAST-U/UDA/badges/develop/coverage.svg)](https://git.ccfe.ac.uk/MAST-U/UDA/commits/develop)
+![Build Workflow](https://github.com/ukaea/UDA/actions/workflows/cmake.yml/badge.svg)
 
 The UDA API provides plugin driven data abstraction.
 
