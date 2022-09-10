@@ -25,7 +25,7 @@ int startup()
         char cmd[STRING_LENGTH];
         sprintf(cmd, "mkdir -p %s 2>/dev/null", environment->logdir);
         if (system(cmd) != 0) {
-            THROW_ERROR(999, "mkdir command failed");
+            UDA_THROW_ERROR(999, "mkdir command failed");
         }
 
         errno = 0;

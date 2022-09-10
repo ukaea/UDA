@@ -70,15 +70,15 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
     //-----------------------------------------------------------------------------------------------------------------------
     // How many sets of subsetting operations?
 
-    if (action.actionType == COMPOSITETYPE) {            // XML Based subsetting
+    if (action.actionType == UDA_COMPOSITE_TYPE) {            // XML Based subsetting
         if (action.composite.nsubsets == 0) return 0;        // Nothing to Subset
         nsubsets = action.composite.nsubsets;
     } else {
-        if (action.actionType == SERVERSIDETYPE) {        // Client Requested subsetting
+        if (action.actionType == UDA_SERVER_SIDE_TYPE) {        // Client Requested subsetting
             if (action.serverside.nsubsets == 0) return 0;    // Nothing to Subset
             nsubsets = action.serverside.nsubsets;
         } else {
-            if (action.actionType == SUBSETTYPE) {            // Client Requested subsetting
+            if (action.actionType == UDA_SUBSET_TYPE) {            // Client Requested subsetting
                 nsubsets = 1;
             } else {
                 return 0;
@@ -90,7 +90,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
     // Check Rank
 
     if (data_block->rank > 2 &&
-        !(action.actionType == SUBSETTYPE && !strncasecmp(action.subset.function, "rotateRZ", 8))) {
+        !(action.actionType == UDA_SUBSET_TYPE && !strncasecmp(action.subset.function, "rotateRZ", 8))) {
         UDA_THROW_ERROR(9999, "Not Configured to Subset Data with Rank Higher than 2");
     }
 
@@ -99,13 +99,13 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
 
     for (int i = 0; i < nsubsets; i++) {                        // the number of sets of Subset Operations
 
-        if (action.actionType == COMPOSITETYPE) {
+        if (action.actionType == UDA_COMPOSITE_TYPE) {
             subset = action.composite.subsets[i];                // the set of Subset Operations
         } else {
-            if (action.actionType == SERVERSIDETYPE) {
+            if (action.actionType == UDA_SERVER_SIDE_TYPE) {
                 subset = action.serverside.subsets[i];
             } else {
-                if (action.actionType == SUBSETTYPE) {
+                if (action.actionType == UDA_SUBSET_TYPE) {
                     subset = action.subset;
                 }
             }
@@ -395,8 +395,10 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                 continue;
             }                // This means No subset - Part of an array Reshape Operation
 
-            if (operation[0] == ':' && subset.lbindex[j] == 0 &&
-                (subset.ubindex[j] == -1 || subset.ubindex[j] == data_block->dims[dimid].dim_n - 1)) {
+            if (operation[0] == ':'
+                && (subset.lbindex[j].init ? subset.lbindex[j].value : 0) == 0
+                && (subset.ubindex[j].init ? subset.lbindex[j].value : data_block->dims[dimid].dim_n) == data_block->dims[dimid].dim_n
+                && (subset.stride[j].init ? subset.stride[j].value : 1) == 1) {
                 continue;    // subset spans the complete dimension
             }
 
@@ -450,8 +452,8 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                 continue;        // This means No dimensional subset - Part of an array Reshape Operation
 
             if (operation[0] == ':') {            // Reshape Operation - Index Range Specified
-                start = (int)subset.lbindex[j];        // Number before the :
-                end = (int)subset.ubindex[j];        // Number after the :
+                start = (int)subset.lbindex[j].value;        // Number before the :
+                end = (int)subset.ubindex[j].value;        // Number after the :
                 if (start == -1) start = 0;
                 if (start == -2) start = dim->dim_n - 1;    // Final array element requested
                 if (end == -1) end = dim->dim_n - 1;
@@ -1198,7 +1200,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
 
     initAction(&action[nactions - 1]);
 
-    action[nactions - 1].actionType = SERVERSIDETYPE;
+    action[nactions - 1].actionType = UDA_SERVER_SIDE_TYPE;
     action[nactions - 1].inRange = 1;
     action[nactions - 1].actionId = nactions;
 
@@ -1256,7 +1258,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
     if ((p = strtok(opcopy, ",")) != nullptr) {        // Tokenise into Individual Operations on each Dimension
         subsets[nsubsets - 1].dimid[nbound] = nbound;    // Identify the Dimension to apply the operation on
         nbound++;
-        if (strlen(p) < SXMLMAXSTRING) {
+        if (strlen(p) < UDA_SXML_MAX_STRING) {
             strcpy(subsets[nsubsets - 1].operation[nbound - 1], p);
             MidTrimString(subsets[nsubsets - 1].operation[nbound - 1]);    // Remove internal white space
         } else {
@@ -1267,11 +1269,11 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
         while ((p = strtok(nullptr, ",")) != nullptr) {
             subsets[nsubsets - 1].dimid[nbound] = nbound;
             nbound++;
-            if (nbound > MAXDATARANK) {
+            if (nbound > UDA_MAX_DATA_RANK) {
                 free(subsets);
                 UDA_THROW_ERROR(9999, "The number of Dimensional Operations exceeds the Internal Limit");
             }
-            if (strlen(p) < SXMLMAXSTRING) {
+            if (strlen(p) < UDA_SXML_MAX_STRING) {
                 strcpy(subsets[nsubsets - 1].operation[nbound - 1], p);
                 MidTrimString(subsets[nsubsets - 1].operation[nbound - 1]);    // Remove white space
             } else {
@@ -1302,18 +1304,18 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
             opcopy[p - opcopy] = '\0';            // Split the Operation String into two components
             t1 = opcopy;
 
-            subsets[nsubsets - 1].isindex[i] = 1;
-            subsets[nsubsets - 1].ubindex[i] = -1;
-            subsets[nsubsets - 1].lbindex[i] = -1;
+            subsets[nsubsets - 1].isindex[i] = true;
+            subsets[nsubsets - 1].ubindex[i] = { .init=true, .value=-1 };
+            subsets[nsubsets - 1].lbindex[i] = { .init=true, .value=-1 };
 
             if (t1[0] == '#') {
-                subsets[nsubsets - 1].lbindex[i] = -2;
+                subsets[nsubsets - 1].lbindex[i] = { .init=true, .value=-1 };
             }        // Reverse the data as # => Final array value
 
             if (strlen(t1) > 0 && t1[0] != '*' && t1[0] != '#') {
                 if (IsNumber(t1)) {
-                    subsets[nsubsets - 1].lbindex[i] = strtol(t1, &endp,
-                                                              0);        // the Lower Index Value of the Bound
+                    // the Lower Index Value of the Bound
+                    subsets[nsubsets - 1].lbindex[i] = { .init=true, .value=strtol(t1, &endp, 0) };
                     if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
                         free(subsets);
                         UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Lower Index Bound");
@@ -1325,8 +1327,8 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
             }
             if (strlen(t2) > 0 && t2[0] != '*' && t2[0] != '#') {
                 if (IsNumber(t2)) {
-                    subsets[nsubsets - 1].ubindex[i] = strtol(t2, &endp,
-                                                              0);        // the Upper Index Value of the Bound
+                    // the Upper Index Value of the Bound
+                    subsets[nsubsets - 1].ubindex[i] = { .init=true, .value=strtol(t2, &endp, 0) };
                     if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
                         free(subsets);
                         UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Upper Index Bound");
@@ -1341,24 +1343,25 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
         }
 
         if ((p = strstr(opcopy, "*")) != nullptr) {            // Ignore this Dimension
-            subsets[nsubsets - 1].isindex[i] = 1;
-            subsets[nsubsets - 1].ubindex[i] = -1;
-            subsets[nsubsets - 1].lbindex[i] = -1;
+            subsets[nsubsets - 1].isindex[i] = true;
+            subsets[nsubsets - 1].ubindex[i] = { .init=true, .value=-1 };
+            subsets[nsubsets - 1].lbindex[i] = { .init=true, .value=-1 };
             strcpy(subsets[nsubsets - 1].operation[i], "*");        // Define Simple Operation
             continue;
         }
 
         if ((p = strstr(opcopy, "#")) != nullptr) {            // Last Value in Dimension
-            subsets[nsubsets - 1].isindex[i] = 1;
-            subsets[nsubsets - 1].ubindex[i] = -1;
-            subsets[nsubsets - 1].lbindex[i] = -1;
+            subsets[nsubsets - 1].isindex[i] = true;
+            subsets[nsubsets - 1].ubindex[i] = { .init=true, .value=-1 };
+            subsets[nsubsets - 1].lbindex[i] = { .init=true, .value=-1 };
             strcpy(subsets[nsubsets - 1].operation[i], "#");        // Define Simple Operation
             continue;
         }
 
         if (IsNumber(opcopy)) {            // Single Index value
-            subsets[nsubsets - 1].isindex[i] = 1;
-            subsets[nsubsets - 1].ubindex[i] = strtol(opcopy, &endp, 0);        // the Index Value of the Bound
+            subsets[nsubsets - 1].isindex[i] = true;
+            // the Index Value of the Bound
+            subsets[nsubsets - 1].ubindex[i] = { .init=true, .value=strtol(opcopy, &endp, 0) };
             if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
                 free(subsets);
                 UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Single Index Bound");

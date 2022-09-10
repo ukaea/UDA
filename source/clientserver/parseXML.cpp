@@ -115,7 +115,7 @@ void parse_fixed_length_array(xmlNodePtr cur, const char* target, void* array, i
                 std::stringstream ss{ item };
                 ss >> p[nco - 1];
 
-                while ((item = strtok(nullptr, delim)) != nullptr && nco <= MAXDATARANK) {
+                while ((item = strtok(nullptr, delim)) != nullptr && nco <= UDA_MAX_DATA_RANK) {
                     nco++;
                     ss = std::stringstream{ item };
                     ss >> p[nco - 1];
