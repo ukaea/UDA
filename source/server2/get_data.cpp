@@ -1161,8 +1161,12 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
         // Don't append the file name to the path - if it's already present!
 
         if (strstr(metadata_block_.data_source.path, metadata_block_.data_source.filename) == nullptr) {
-            strcat(metadata_block_.data_source.path, "/");
-            strcat(metadata_block_.data_source.path, metadata_block_.data_source.filename);
+            if (strlen(metadata_block_.data_source.path) + strlen(metadata_block_.data_source.filename) + 1 < MAXPATH) {
+                strcat(metadata_block_.data_source.path, "/");
+                strcat(metadata_block_.data_source.path, metadata_block_.data_source.filename);
+            } else {
+                UDA_THROW_ERROR(999, "Path + Filename too long");
+            }
         }
 
         if (maybe_plugin) {

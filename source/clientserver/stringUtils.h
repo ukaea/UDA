@@ -1,5 +1,7 @@
-#ifndef UDA_CLIENTSERVER_TRIMSTRING_H
-#define UDA_CLIENTSERVER_TRIMSTRING_H
+#pragma once
+
+#ifndef UDA_CLIENTSERVER_STRINGUTILS_H
+#define UDA_CLIENTSERVER_STRINGUTILS_H
 
 #include <string.h>
 #include <ctype.h>
@@ -100,6 +102,7 @@ LIBRARY_API bool StringEndsWith(const char* str, const char* find);
 }
 
 #include <string>
+#include <algorithm>
 
 namespace uda {
 // remove non printable characters
@@ -124,7 +127,7 @@ static inline void rtrim(std::string &s) {
     }).base(), s.end());
 }
 }
-#endif
+#endif // defined(__cplusplus)
 
-#endif // UDA_CLIENTSERVER_TRIMSTRING_H
+#endif // UDA_CLIENTSERVER_STRINGUTILS_H
 

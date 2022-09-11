@@ -30,7 +30,9 @@ Environment uda::client::load_environment(bool* env_host, bool* env_port)
     if (environment.loglevel <= UDA_LOG_ACCESS) {
         char cmd[STRING_LENGTH];
         sprintf(cmd, "mkdir -p %s 2>/dev/null", environment.logdir);
-        system(cmd);
+        if (system(cmd) != 0) {
+            // TODO: How to log error before log files are open?
+        };
     }
 
     // Log Output Write Mode

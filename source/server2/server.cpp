@@ -77,7 +77,9 @@ void uda::Server::start_logs()
     if (environment_->loglevel <= UDA_LOG_ACCESS) {
         char cmd[STRING_LENGTH];
         sprintf(cmd, "mkdir -p %s 2>/dev/null", environment_->logdir);
-        system(cmd);
+        if (system(cmd) != 0) {
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "mkdir command failed");
+        }
 
         errno = 0;
         std::string log_file = std::string{ environment_->logdir } + "Access.log";

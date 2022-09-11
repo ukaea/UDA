@@ -13,6 +13,9 @@ foreach( TEST_FILE ${TEST_FILES} )
 endforeach()
 
 add_executable( cpp_testplugin ${EXE_FLAG} ${HELPER_FILES} test2_testplugin.cpp )
+target_include_directories( cpp_testplugin PRIVATE
+  ${LIBXML2_INCLUDE_DIR}
+)
 target_link_libraries( cpp_testplugin PRIVATE
   ${Boost_LIBRARIES}
   client2-shared
