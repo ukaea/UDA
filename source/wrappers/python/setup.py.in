@@ -40,10 +40,12 @@ ext = Extension(
     'cpyuda',
     ['pyuda/cpyuda/cpyuda.pyx'],
     include_dirs=[
+        '/usr/include/tirpc',
+        '/usr/include/libxml2',
         root + '/include/uda',
         numpy.get_include(),
     ],
-    libraries=['ssl', 'crypto'] + extra_libs,
+    libraries=['ssl', 'crypto', 'xml2'] + extra_libs,
     library_dirs=[
         '@OPENSSL_LIB_DIR@',
     ],

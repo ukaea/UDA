@@ -589,7 +589,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 # else
 
     for (int i = 0; i < request_block->num_requests; ++i) {
-        REQUEST_DATA* request = &request_block->requests[0];
+        REQUEST_DATA* request = &request_block->requests[i];
 
         char work[1024];
         if (request->api_delim[0] != '\0') {

@@ -17,13 +17,13 @@ UDA binaries can be downloaded from:
 
     <url>
 
-The source code can be download from:
+The source code can be downloaded from:
 
-    <url>
+    https://github.com/ukaea/UDA/releases/
 
 The UDA git repository can be cloned:
 
-    git clone ssh://git@git.iter.org/imas/uda.git -b develop
+    git clone git@github.com:ukaea/UDA.git
 
 ## Building from source
 

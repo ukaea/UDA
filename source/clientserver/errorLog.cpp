@@ -47,7 +47,7 @@ void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERR
     TrimString(accessdate);
 
     for (int i = 0; i < request_block.num_requests; ++i) {
-        auto request = &request_block.requests[0];
+        auto request = &request_block.requests[i];
         udaLog(UDA_LOG_ERROR, "0 %s [%s] [%d %s %d %d %s %s %s %s %s %s %s]\n",
                client_block.uid, accessdate, request->request, request->signal, request->exp_number,
                request->pass, request->tpass, request->path, request->file, request->format, request->archive,
