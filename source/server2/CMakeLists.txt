@@ -35,10 +35,6 @@ set( SRC_FILES
   xdr_protocol.cpp
 )
 
-set( HEADER_FILES
-  udaServer.h
-)
-
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -53,7 +49,6 @@ add_definitions( -DSERVERBUILD )
 
 add_library( server2-objects OBJECT
   ${SRC_FILES}
-  ${HEADER_FILES}
 )
 
 set( SERVER2_OBJ
@@ -292,8 +287,4 @@ install(
   FILES
     ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf
   DESTINATION etc
-)
-
-install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/server
 )
