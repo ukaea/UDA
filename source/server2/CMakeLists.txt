@@ -3,6 +3,7 @@
 
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
+find_package( spdlog REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )

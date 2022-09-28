@@ -11,6 +11,7 @@ namespace server {
 enum class ErrorCode {
     ProtocolVersionError,
     ProtocolError,
+    StartupError,
 };
 
 class Exception : public std::exception
@@ -36,6 +37,12 @@ class ProtocolVersionError : public Exception
 {
 public:
     explicit ProtocolVersionError(const char* msg) : Exception(ErrorCode::ProtocolError, msg) {}
+};
+
+class StartupException : public Exception
+{
+public:
+    explicit StartupException(const char* msg) : Exception(ErrorCode::StartupError, msg) {}
 };
 
 } // namespace server

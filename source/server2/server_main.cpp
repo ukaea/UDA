@@ -6,9 +6,10 @@
 #  define sleep Sleep
 #endif
 
-#include "udaServer.h"
+#include "server.hpp"
+#include "server_exceptions.h"
 
-int main(int argc, char ** argv)
+int main()
 {
     // Optional sleep at startup
 
@@ -19,9 +20,12 @@ int main(int argc, char ** argv)
 
     // Run server
 
-    ClientBlock client_block = {0};
+    try {
+        uda::Server server;
+        server.run();
+    } catch (uda::server::Exception& ex) {
+        return ex.code();
+    }
 
-    int rc = udaServer(client_block);
-
-    return rc;
+    return 0;
 }

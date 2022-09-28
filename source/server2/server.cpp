@@ -1,7 +1,5 @@
 #include "server.hpp"
 
-#include "udaServer.h"
-
 #include <string>
 #include <unistd.h>
 
@@ -18,17 +16,6 @@
 #include "server_processing.h"
 #include "structures/struct.h"
 #include "server_exceptions.h"
-
-int udaServer(CLIENT_BLOCK client_block)
-{
-    try {
-        uda::Server server;
-        server.run();
-    } catch (uda::server::Exception& ex) {
-        return ex.code();
-    }
-    return 0;
-}
 
 void free_data_blocks(std::vector<DataBlock>& data_blocks)
 {
@@ -79,6 +66,7 @@ void uda::Server::start_logs()
         sprintf(cmd, "mkdir -p %s 2>/dev/null", environment_->logdir);
         if (system(cmd) != 0) {
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "mkdir command failed");
+            throw uda::server::StartupException("mkdir command failed");
         }
 
         errno = 0;
@@ -87,6 +75,7 @@ void uda::Server::start_logs()
 
         if (errno != 0) {
             addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__ , errno, "Access Log: ");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open access log");
             if (accout != nullptr) {
                 fclose(accout);
             }
@@ -102,6 +91,7 @@ void uda::Server::start_logs()
 
         if (errno != 0) {
             addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Error Log: ");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open error log");
             if (errout != nullptr) {
                 fclose(errout);
             }
