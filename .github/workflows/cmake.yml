@@ -16,9 +16,12 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         release: [Release]
         ssl: [ON, OFF]
-        include:
-          - client-only: ON
-            ssl: OFF
+        client-only: [OFF]
+#        include:
+#          - client-only: ON
+#            ssl: OFF
+#          - client-only: OFF
+#            ssl: OFF
 
     runs-on: ${{ matrix.os }}
 
