@@ -78,7 +78,7 @@ jobs:
         run: cmake --build ${{github.workspace}}/build --config ${{ matrix.release }}
 
       - name: Install
-        run: cmake --install ${{github.workspace}}/build --config ${{ matrix.release }}
+        run: sudo cmake --install ${{github.workspace}}/build --config ${{ matrix.release }}
 
 #      - name: Test
 #        working-directory: ${{github.workspace}}/build
