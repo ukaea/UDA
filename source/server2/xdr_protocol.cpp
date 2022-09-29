@@ -151,9 +151,7 @@ void uda::XdrProtocol::create_streams()
     server_input_.x_ops = nullptr;
 
 #if defined(SSLAUTHENTICATION)
-
     if (getUdaServerSSLDisabled()) {
-
 #if defined (__APPLE__) || defined(__TIRPC__)
        xdrrec_create( &server_output_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &io_data_,
                       reinterpret_cast<int (*)(void *, void *, int)>(server_read),
@@ -163,11 +161,11 @@ void uda::XdrProtocol::create_streams()
                       reinterpret_cast<int (*)(void *, void *, int)>(server_read),
                       reinterpret_cast<int (*)(void *, void *, int)>(server_write));
 #else
-       xdrrec_create( &server_output_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &io_data_,
+       xdrrec_create( &server_output_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&io_data_,
                       reinterpret_cast<int (*)(char *, char *, int)>(server_read),
                       reinterpret_cast<int (*)(char *, char *, int)>(server_write));
 
-       xdrrec_create( &server_input_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &io_data_,
+       xdrrec_create( &server_input_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&io_data_,
                       reinterpret_cast<int (*)(char *, char *, int)>(server_read),
                       reinterpret_cast<int (*)(char *, char *, int)>(server_write));
 #endif
@@ -181,16 +179,15 @@ void uda::XdrProtocol::create_streams()
                       reinterpret_cast<int (*)(void *, void *, int)>(readUdaServerSSL),
                       reinterpret_cast<int (*)(void *, void *, int)>(writeUdaServerSSL));
 #else
-       xdrrec_create( &server_output_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &io_data_,
+       xdrrec_create( &server_output_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&io_data_,
                       reinterpret_cast<int (*)(char *, char *, int)>(readUdaServerSSL),
                       reinterpret_cast<int (*)(char *, char *, int)>(writeUdaServerSSL));
 
-       xdrrec_create( &server_input_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, &io_data_,
+       xdrrec_create( &server_input_, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, (char*)&io_data_,
                       reinterpret_cast<int (*)(char *, char *, int)>(readUdaServerSSL),
                       reinterpret_cast<int (*)(char *, char *, int)>(writeUdaServerSSL));
 #endif
     }
-
 #else // SSLAUTHENTICATION
 
 #if defined (__APPLE__) || defined(__TIRPC__)
