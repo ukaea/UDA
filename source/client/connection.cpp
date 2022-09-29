@@ -277,7 +277,7 @@ int createConnection(XDR* client_input, XDR* client_output)
             environment->server_port = port;
         }
     }
-#ifndef FATCLIENT
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     putClientHost(host);
 #endif
     sprintf(serviceport, "%d", environment->server_port);
@@ -383,7 +383,7 @@ int createConnection(XDR* client_input, XDR* client_output)
             closesocket(clientSocket);
 #endif
             client_socket = -1;
-#ifndef FATCLIENT
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
             putClientHost(nullptr);
 #endif
             hostname = environment->server_host2;
@@ -411,7 +411,7 @@ int createConnection(XDR* client_input, XDR* client_output)
                     environment->server_port2 = port;
                 }
             }
-#ifndef FATCLIENT
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
             putClientHost(host);
 #endif
             sprintf(serviceport, "%d", environment->server_port2);
