@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef UDA_CLIENT_CONNECTION_H
 #define UDA_CLIENT_CONNECTION_H
 
@@ -11,14 +13,14 @@
 extern "C" {
 #endif
 
-LIBRARY_API int connectionOpen();
-LIBRARY_API int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output, time_t* tv_server_start,
+int connectionOpen();
+int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output, time_t* tv_server_start,
                           int* user_timeout);
-LIBRARY_API int createConnection(XDR* client_input, XDR* client_output);
-LIBRARY_API void closeConnection(ClosedownType type);
+int createConnection(XDR* client_input, XDR* client_output);
+void closeConnection(ClosedownType type);
 
-LIBRARY_API int clientWriteout(void* iohandle, char* buf, int count);
-LIBRARY_API int clientReadin(void* iohandle, char* buf, int count);
+int clientWriteout(void* iohandle, char* buf, int count);
+int clientReadin(void* iohandle, char* buf, int count);
 
 #ifdef __cplusplus
 }

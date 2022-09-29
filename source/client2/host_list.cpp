@@ -16,7 +16,7 @@
 #include <clientserver/stringUtils.h>
 #include <logging/logging.h>
 
-const uda::client::HostData* uda::client::HostList::find_by_alias(std::string_view alias) const
+const HostData* uda::client::HostList::find_by_alias(std::string_view alias) const
 {
     for (const auto& data : hosts_) {
         if (boost::iequals(data.host_alias, alias)) {
@@ -27,7 +27,7 @@ const uda::client::HostData* uda::client::HostList::find_by_alias(std::string_vi
     return nullptr;
 }
 
-const uda::client::HostData* uda::client::HostList::find_by_name(std::string_view name) const
+const HostData* uda::client::HostList::find_by_name(std::string_view name) const
 {
     std::string_view target = name;
     if (name.find("SSL://") == 0) {

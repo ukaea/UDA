@@ -16,6 +16,9 @@
 #include "server_processing.h"
 #include "structures/struct.h"
 #include "server_exceptions.h"
+#ifdef SSLAUTHENTICATION
+#  include "authentication/udaServerSSL.h"
+#endif
 
 void free_data_blocks(std::vector<DataBlock>& data_blocks)
 {

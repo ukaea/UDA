@@ -225,8 +225,8 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
         return 0;
     }
 
-#if defined(SSLAUTHENTICATION)
-    putUdaClientSSLSocket(clientSocket);
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+    putUdaClientSSLSocket(client_socket);
 #endif
 
 #ifdef _WIN32                            // Initialise WINSOCK Once only
@@ -268,17 +268,17 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 
     // Does the host name contain the SSL protocol prefix? If so strip this off
 
-#if defined(SSLAUTHENTICATION)
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     if (!strncasecmp(hostname, "SSL://", 6)) {
         // Should be stripped already if via the HOST client configuration file
         strcpy(environment.server_host, &hostname[6]);  // Replace
         putUdaClientSSLProtocol(1);
     } else {
-        if(hostId >= 0 && udaClientGetHostSSL(hostId)){
+        if (host != nullptr && host->isSSL) {
             putUdaClientSSLProtocol(1);
         } else { 
             putUdaClientSSLProtocol(0);
-        }   
+        }
     }
 #endif
 
@@ -394,7 +394,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
                 strcpy(environment.server_host2, &hostname[6]);    // Replace
                 putUdaClientSSLProtocol(1);
             } else {
-                if(hostId >= 0 && udaClientGetHostSSL(hostId)){
+                if (host != nullptr && host->isSSL) {
                     putUdaClientSSLProtocol(1);
                 } else { 
                     putUdaClientSSLProtocol(0);
@@ -518,7 +518,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
     // Write the socket number to the SSL functions
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    putUdaClientSSLSocket(clientSocket);
+    putUdaClientSSLSocket(client_socket);
 #endif
 
     return 0;

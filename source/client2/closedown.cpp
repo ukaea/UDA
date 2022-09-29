@@ -4,7 +4,7 @@
 
 #include "connection.hpp"
 
-#if defined(SSLAUTHENTICATION)
+#ifdef SSLAUTHENTICATION
 #  include <authentication/udaClientSSL.h>
 #endif
 
@@ -49,7 +49,7 @@ int uda::client::closedown(ClosedownType type, Connection* connection, XDR* clie
 
     // Close the SSL binding and context
 
-#if defined(SSLAUTHENTICATION)
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     closeUdaClientSSL();
 #endif
 

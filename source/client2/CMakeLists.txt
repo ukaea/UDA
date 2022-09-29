@@ -44,6 +44,7 @@ set( SRC_FILES
   generate_errors.cpp
   handle.cpp
   exceptions.cpp
+  updateSelectParms.cpp
 )
 
 set( HEADER_FILES

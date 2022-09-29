@@ -6,6 +6,9 @@
 #include "clientserver/udaErrors.h"
 #include "clientserver/udaTypes.h"
 #include "structures/struct.h"
+#ifdef SSLAUTHENTICATION
+#  include "authentication/udaServerSSL.h"
+#endif
 
 #include <cerrno>
 #include <unistd.h>

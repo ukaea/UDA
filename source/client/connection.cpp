@@ -233,7 +233,7 @@ int createConnection(XDR* client_input, XDR* client_output)
     }
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    putUdaClientSSLSocket(clientSocket);
+    putUdaClientSSLSocket(client_socket);
 #endif
 
 #ifdef _WIN32                            // Initialise WINSOCK Once only
@@ -254,28 +254,32 @@ int createConnection(XDR* client_input, XDR* client_output)
 
     // Check if the host_name is an alias for an IP address or domain name in the client configuration - replace if found
 
-    int hostId = udaClientFindHostByAlias(hostname);
-    if (hostId >= 0) {
-        if ((hostname = udaClientGetHostName(hostId)) == nullptr) {
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, -1, "The host_name is not recognised for the host alias provided!");
+    auto host = udaClientFindHostByAlias(hostname);
+    if (host != nullptr) {
+        if (host->host_name.empty()) {
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, -1,
+                         "The host_name is not recognised for the host alias provided!");
             return -1;
         }
+        hostname = host->host_name.c_str();
         if (strcasecmp(environment->server_host, hostname) != 0) {
             strcpy(environment->server_host, hostname);    // Replace
         }
-        int port = udaClientGetHostPort(hostId);
+        int port = host->port;
         if (port > 0 && environment->server_port != port) {
             environment->server_port = port;
         }
-    } else if ((hostId = udaClientFindHostByName(hostname)) >= 0) {
+    } else if ((host = udaClientFindHostByName(hostname)) != nullptr) {
         // No alias found, maybe the domain name or ip address is listed
-        int port = udaClientGetHostPort(hostId);
+        int port = host->port;
         if (port > 0 && environment->server_port != port) {
             // Replace if found and different
             environment->server_port = port;
         }
     }
-    udaClientPutHostNameId(hostId);
+#ifndef FATCLIENT
+    putClientHost(host);
+#endif
     sprintf(serviceport, "%d", environment->server_port);
 
     // Does the host name contain the SSL protocol prefix? If so strip this off
@@ -286,7 +290,7 @@ int createConnection(XDR* client_input, XDR* client_output)
         strcpy(environment->server_host, &hostname[6]);  // Replace
         putUdaClientSSLProtocol(1);
     } else {
-        if(hostId >= 0 && udaClientGetHostSSL(hostId)){
+        if (host != nullptr && host->isSSL) {
             putUdaClientSSLProtocol(1);
         } else {
             putUdaClientSSLProtocol(0);
@@ -379,32 +383,37 @@ int createConnection(XDR* client_input, XDR* client_output)
             closesocket(clientSocket);
 #endif
             client_socket = -1;
-            udaClientPutHostNameId(-1);
+#ifndef FATCLIENT
+            putClientHost(nullptr);
+#endif
             hostname = environment->server_host2;
 
             // Check if the host_name is an alias for an IP address or name in the client configuration - replace if found
 
-            hostId = udaClientFindHostByAlias(hostname);
-            if (hostId >= 0) {
-                if ((hostname = udaClientGetHostName(hostId)) == nullptr) {
+            host = udaClientFindHostByAlias(hostname);
+            if (host != nullptr) {
+                if (host->host_name.empty()) {
                     addIdamError(UDA_CODE_ERROR_TYPE, __func__, -1,
                                  "The hostname2 is not recognised for the host alias provided!");
                     return -1;
                 }
+                hostname = host->host_name.c_str();
                 if (strcasecmp(environment->server_host2, hostname) != 0) {
                     strcpy(environment->server_host2, hostname);
                 }
-                int port = udaClientGetHostPort(hostId);
+                int port = host->port;
                 if (port > 0 && environment->server_port2 != port) {
                     environment->server_port2 = port;
                 }
-            } else if ((hostId = udaClientFindHostByName(hostname)) >= 0) {    // No alias found
-                int port = udaClientGetHostPort(hostId);
+            } else if ((host = udaClientFindHostByName(hostname)) != nullptr) {    // No alias found
+                int port = host->port;
                 if (port > 0 && environment->server_port2 != port) {
                     environment->server_port2 = port;
                 }
             }
-            udaClientPutHostNameId(hostId);
+#ifndef FATCLIENT
+            putClientHost(host);
+#endif
             sprintf(serviceport, "%d", environment->server_port2);
 
             // Does the host name contain the SSL protocol prefix? If so strip this off
@@ -415,7 +424,7 @@ int createConnection(XDR* client_input, XDR* client_output)
                 strcpy(environment->server_host2, &hostname[6]);    // Replace
                 putUdaClientSSLProtocol(1);
             } else {
-                if(hostId >= 0 && udaClientGetHostSSL(hostId)){
+                if (host != nullptr && host->isSSL) {
                     putUdaClientSSLProtocol(1);
                 } else {
                     putUdaClientSSLProtocol(0);
@@ -530,7 +539,7 @@ int createConnection(XDR* client_input, XDR* client_output)
     // Write the socket number to the SSL functions
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-    putUdaClientSSLSocket(clientSocket);
+    putUdaClientSSLSocket(client_socket);
 #endif
 
     return 0;
