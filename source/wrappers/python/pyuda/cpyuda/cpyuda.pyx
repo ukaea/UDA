@@ -1,3 +1,4 @@
+include "handle.pyx"
 include "client.pyx"
 include "dim.pyx"
 include "exceptions.pyx"
