@@ -16,7 +16,6 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         release: [Release]
         ssl: [ON, OFF]
-        client-only: [ON, OFF]
         include:
           - client-only: ON
             ssl: OFF
