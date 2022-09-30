@@ -73,7 +73,7 @@ JNIEXPORT void JNICALL Java_jIdam_Idam_idamFree(JNIEnv* env, jobject obj, jint h
 
 JNIEXPORT void JNICALL Java_jIdam_Idam_idamFreeAll(JNIEnv* env, jobject obj)
 {
-    udaFreeAll();
+//    udaFreeAll();
 }
 
 
