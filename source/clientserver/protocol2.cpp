@@ -221,6 +221,7 @@ static int handle_dataobject_file(int direction, const void* str)
             err = UDA_PROTOCOL_ERROR_4;
             break;
     }
+
     return err;
 }
 

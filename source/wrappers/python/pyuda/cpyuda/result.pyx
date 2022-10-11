@@ -62,6 +62,13 @@ cdef class Result:
         cdef int type = uda.getIdamDataType(self._handle)
         return type == 17
 
+    def is_capnp(self):
+        cdef int type = uda.getIdamDataType(self._handle)
+        return type == 22
+
+    def capnp_tree(self):
+        return CapnpTreeNode.new_(self._handle, NULL, NULL)
+
     cdef const char* _get_data(self, int data_type):
         cdef const char* data
         if data_type == DataType.DATA:

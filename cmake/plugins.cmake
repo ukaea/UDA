@@ -84,7 +84,7 @@ macro( uda_plugin )
     add_definitions( ${DEF} )
   endforeach()
   
-  set( LIBRARIES client-shared plugins-shared ${OPENSSL_LIBRARIES} )
+  set( LIBRARIES client-shared plugins-shared serialisation-static ${OPENSSL_LIBRARIES} )
   if( WIN32 OR MINGW )
     if( MINGW )
       set( LIBRARIES ${LIBRARIES} ${XDR_LIBRARIES} dl stdc++ )

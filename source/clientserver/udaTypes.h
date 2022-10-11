@@ -39,6 +39,7 @@ typedef enum UdaType {
     UDA_TYPE_OPAQUE = 19,
     UDA_TYPE_ENUM = 20,
     UDA_TYPE_VOID  = 21,
+    UDA_TYPE_CAPNP = 22,
     UDA_TYPE_STRING2 = 99
 } UDA_TYPE;
 

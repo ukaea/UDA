@@ -658,6 +658,9 @@ bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str)
         case UDA_TYPE_COMPOUND:
             return 1;    // Nothing to send so retain good return code
 
+        case UDA_TYPE_CAPNP:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char);
+
         default:
             return 0;
     }
@@ -1507,4 +1510,16 @@ bool_t xdr_signal_desc(XDR* xdrs, SIGNAL_DESC* str)
            && WrapXDRString(xdrs, (char*)str->modified, DATE_LENGTH)
            && WrapXDRString(xdrs, (char*)str->xml, MAXMETA)
            && WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH);
+}
+
+bool_t xdr_hdc_buffer_length(XDR* xdrs, uint64_t* n)
+{
+    int rc = xdr_u_longlong_t(xdrs, n);
+    return rc;
+}
+
+bool_t xdr_hdc_buffer(XDR* xdrs, char* buffer, uint64_t n)
+{
+    int rc = xdr_vector(xdrs, buffer, n, sizeof(char), (xdrproc_t)xdr_char);
+    return rc;
 }

@@ -6,6 +6,7 @@ from ._signal import Signal
 from ._string import String
 from ._structured import StructuredData
 from ._video import Video
+from ._tree import Tree
 from ._version import __version__
 
 from six import with_metaclass
@@ -129,6 +130,8 @@ class Client(with_metaclass(ClientMeta, object)):
                 return StructuredData(tree.children()[0])
         elif result.is_string() and result.rank() <= 1:
             return String(result)
+        elif result.is_capnp():
+            return Tree(result.capnp_tree())
 
         signal = Signal(result)
 

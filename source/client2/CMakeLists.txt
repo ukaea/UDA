@@ -2,9 +2,7 @@
 # Dependencies
 
 find_package( OpenSSL REQUIRED )
-if( NOT CLIENT_ONLY )
-  find_package( LibXml2 REQUIRED )
-endif()
+find_package( LibXml2 REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -68,11 +66,8 @@ set( HEADER_FILES
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${OPENSSL_INCLUDE_DIR}
+  ${LIBXML2_INCLUDE_DIR}
 )
-
-if( NOT CLIENT_ONLY )
-  include_directories( ${LIBXML2_INCLUDE_DIR} )
-endif()
 
 add_library( client2-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
 

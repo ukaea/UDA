@@ -108,6 +108,7 @@ macro( BUILD_TEST NAME SOURCE )
     ${CACHE_LIBRARIES}
     ${LIBRARIES}
     ${LINK_STD}
+    serialisation-static
   )
 
   set_target_properties( ${NAME}
@@ -133,6 +134,7 @@ macro( BUILD_TEST NAME SOURCE )
     ${LINK_M}
     ${LINK_DL}
     ${LINK_STD}
+    serialisation-static
   )
   if( NOT WIN32 AND NOT MINGW )
     target_link_libraries( fat_${NAME} PRIVATE c )
