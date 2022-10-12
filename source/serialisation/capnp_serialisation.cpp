@@ -5,6 +5,7 @@
 #include <capnp/serialize-packed.h>
 #include <memory>
 #include <vector>
+#include <algorithm>
 
 #include <clientserver/udaTypes.h>
 
