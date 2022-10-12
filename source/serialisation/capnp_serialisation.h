@@ -4,6 +4,7 @@
 #define UDA_CLIENTSERVER_CAPNP_SERIALISATION_H
 
 #include <cstdlib>
+#include <cstdint>
 
 #ifdef __cplusplus
 extern "C" {
