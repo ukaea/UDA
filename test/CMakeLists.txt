@@ -54,6 +54,7 @@ set( TESTS
 )
 
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
+include_directories( SYSTEM ${LIBXML2_INCLUDE_DIR} )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR} )
 
 link_directories( ${CMAKE_BINARY_DIR}/source/wrappers/c++ )
@@ -91,7 +92,6 @@ set( LINK_M )
 if( ( WIN32 AND MINGW ) OR NOT WIN32 )
   set( LINK_M m )
 endif()
-
 
 macro( BUILD_TEST NAME SOURCE )
   set( LINK_PROJECT ${PROJECT_NAME}_cpp-static )
