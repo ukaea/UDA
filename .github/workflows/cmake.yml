@@ -41,6 +41,8 @@ jobs:
           libxml2-dev
           libspdlog-dev
           ninja-build
+          capnproto
+          libcapnp-dev
 
       - name: Install macos dependencies
         if: matrix.os == 'macos-latest'
@@ -54,6 +56,7 @@ jobs:
           libxml2
           spdlog
           ninja
+          capnp
 
       - name: Configure CMake (linux)
         if: matrix.os == 'ubuntu-latest'
