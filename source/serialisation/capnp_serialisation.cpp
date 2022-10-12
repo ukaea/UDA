@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <cassert>
 
 #include <clientserver/udaTypes.h>
 
