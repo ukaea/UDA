@@ -470,7 +470,12 @@ bool uda_capnp_read_shape(NodeReader* node, size_t* shape)
     }
     auto array = node->node.getArray();
     auto shape_array = array.getShape();
-    std::copy(shape_array.begin(), shape_array.end(), shape);
+    size_t i = 0;
+    for (auto el : shape_array) {
+        shape[i] = el;
+        ++i;
+    }
+//    std::copy(shape_array.begin(), shape_array.end(), shape);
     return true;
 }
 
