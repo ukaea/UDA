@@ -806,7 +806,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPEL
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
-                            if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
+                            if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                         &userdefinedtype->compoundfield[j - 1].name[6])) {
