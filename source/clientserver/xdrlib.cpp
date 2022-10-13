@@ -485,7 +485,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
         data = (void*)&psarray;                     // Pointer to the SARRAY array pointer
         addNonMalloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
 
-        packageType = PACKAGE_XDROBJECT;            // The package is an XDR serialised object
+        packageType = UDA_PACKAGE_XDROBJECT;            // The package is an XDR serialised object
 
         rc = xdr_int(xdrs, &packageType);           // Send data package type
 
@@ -505,7 +505,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         rc = rc && xdr_int(xdrs, &packageType);        // Receive data package type
 
-        if (packageType != PACKAGE_XDROBJECT) {
+        if (packageType != UDA_PACKAGE_XDROBJECT) {
             err = 999;
             addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolDataObject", err, "Incorrect package Type option");
             return 0;

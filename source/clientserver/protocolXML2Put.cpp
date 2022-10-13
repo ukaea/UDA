@@ -179,7 +179,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         // In these cases, a best guess is made to the type and count based on expectations and the heap allocated - very unsatisfactory!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
-                            if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
+                            if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
                                 STR_IEQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
@@ -261,7 +261,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
-                            if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
+                            if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
                                 STR_IEQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
@@ -344,7 +344,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
-                            if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
+                            if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
                                 STR_IEQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
@@ -426,7 +426,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
-                            if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
+                            if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
                                 STR_IEQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
@@ -508,7 +508,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
-                            if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
+                            if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
                                 STR_IEQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
@@ -590,7 +590,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
-                            if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
+                            if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
                                 STR_IEQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
@@ -668,7 +668,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
-                            if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
+                            if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
@@ -749,7 +749,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
-                            if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
+                            if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
@@ -830,7 +830,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                     &shape);    // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
-                            if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
+                            if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
@@ -854,7 +854,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                 }
                             }
                         } else {
-                            if (malloc_source == MALLOCSOURCESOAP && (count == 0 || size == 0) &&
+                            if (malloc_source == UDA_MALLOC_SOURCE_SOAP && (count == 0 || size == 0) &&
                                 *p != 0) {        // Assume SOAP string
                                 isSOAP = 1;
                                 if (d != nullptr) {
@@ -931,7 +931,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                             break;
                         }
 
-                        if (malloc_source == MALLOCSOURCEDOM) {                            // Bad address range?
+                        if (malloc_source == UDA_MALLOC_SOURCE_DOM) {                            // Bad address range?
                             count = 0;
                             rc = rc && xdr_int(xdrs, &count);            // No data to send
                             break;
@@ -940,7 +940,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         findMalloc(logmalloclist, (void*)p, &count, &size,
                                    &type);        // Assume 0 means No Pointer data to send!
 
-                        if (malloc_source == MALLOCSOURCEDOM && (count == 0 || size == 0) && d != nullptr) {
+                        if (malloc_source == UDA_MALLOC_SOURCE_DOM && (count == 0 || size == 0) && d != nullptr) {
                             int lstr = (int)strlen(d);
                             if (lstr < MAXSOAPSTACKSTRING) {
                                 count = lstr + 1;
@@ -953,7 +953,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                             int lstr = (int)strlen(d);
                             count = size;
                             size = sizeof(char);
-                            if (malloc_source == MALLOCSOURCEDOM && lstr > count - 1 && lstr < MAXSOAPSTACKSTRING) {
+                            if (malloc_source == UDA_MALLOC_SOURCE_DOM && lstr > count - 1 && lstr < MAXSOAPSTACKSTRING) {
                                 count = lstr + 1;            // A bug in xml DOM?
                             }
                         }
@@ -1206,7 +1206,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                         // Interpret an 'unknown' void data type using knowledge of the gSOAP or DOM systems
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {        // arises from a malloc redirection
-                            if (malloc_source == MALLOCSOURCESOAP && j > 0 &&
+                            if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j - 1].name, "__size") &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].name,
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
@@ -1218,7 +1218,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                 if (count > 0) {
                                     int totalsize, ssize;
                                     totalsize = count * size;
-                                    if (malloc_source == MALLOCSOURCEDOM &&
+                                    if (malloc_source == UDA_MALLOC_SOURCE_DOM &&
                                         STR_EQUALS(userdefinedtype->compoundfield[j].type, "void")) {
                                         ssize = sizeof(char);    // Assume xml void pointer type is to char
                                         type = chartype;
@@ -1325,7 +1325,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
 
                         id = 0;
 
-                        if (0 && malloc_source == MALLOCSOURCEDOM && xdrs->x_op == XDR_ENCODE &&
+                        if (0 && malloc_source == UDA_MALLOC_SOURCE_DOM && xdrs->x_op == XDR_ENCODE &&
                             userdefinedtype->compoundfield[j].pointer) {
                             char* stype;
                             void* heap;
@@ -1541,7 +1541,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                     rc = 1;
 
-                    packageType = PACKAGE_STRUCTDATA;        // The package is regular XDR
+                    packageType = UDA_PACKAGE_STRUCTDATA;        // The package is regular XDR
 
                     UDA_LOG(UDA_LOG_DEBUG, "Sending Package Type: %d\n", packageType);
 
@@ -1578,7 +1578,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                     rc = rc && xdr_int(xdrs, &packageType);        // Receive data package type
 
-                    if ((private_flags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_STRUCTDATA) option = 1;
+                    if ((private_flags & PRIVATEFLAG_XDRFILE) == 0 && packageType == UDA_PACKAGE_STRUCTDATA) option = 1;
 
                     UDA_LOG(UDA_LOG_DEBUG, "Receive data option : %d\n", option);
                     UDA_LOG(UDA_LOG_DEBUG, "Receive package Type: %d\n", packageType);

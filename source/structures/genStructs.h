@@ -176,14 +176,14 @@ typedef struct GeneralBlock {                   // Generalised Data Structures: 
     unsigned int lastMallocIndex;               // Associate last search entry position found in the Malloc Log
 } GENERAL_BLOCK;
 
-#define MALLOCSOURCENONE    0
-#define MALLOCSOURCESOAP    1
-#define MALLOCSOURCEDOM     2
-#define MALLOCSOURCENETCDF  3
+#define UDA_MALLOC_SOURCE_NONE    0
+#define UDA_MALLOC_SOURCE_SOAP    1
+#define UDA_MALLOC_SOURCE_DOM     2
+#define UDA_MALLOC_SOURCE_NETCDF  3
 
-#define PACKAGE_XDRFILE     1
-#define PACKAGE_STRUCTDATA  2
-#define PACKAGE_XDROBJECT   3
+#define UDA_PACKAGE_XDRFILE     1
+#define UDA_PACKAGE_STRUCTDATA  2
+#define UDA_PACKAGE_XDROBJECT   3
 
 #ifdef __cplusplus
 }

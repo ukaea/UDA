@@ -98,7 +98,7 @@ private:
     LOGMALLOCLIST* logmalloclist_ = nullptr;                        // List of all Heap Allocations for Data
     NTREE* full_ntree_ = nullptr;
     LOGSTRUCTLIST log_struct_list_ = {};
-    int malloc_source_ = MALLOCSOURCENONE;
+    int malloc_source_ = UDA_MALLOC_SOURCE_NONE;
     MetadataBlock metadata_ = {};
 
     int send_putdata(const RequestBlock& request_block);

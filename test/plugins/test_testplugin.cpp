@@ -1861,7 +1861,7 @@ TEST_CASE( "Test capnp serialisation", "[plugins][TESTPLUGIN]" )
 
     auto tree = uda_capnp_deserialise(data, data_n);
 
-    uda_capnp_print_tree_reader(tree);
+//    uda_capnp_print_tree_reader(tree);
 
     auto root = uda_capnp_read_root(tree);
     auto node = uda_capnp_read_child(tree, root, "double_array");

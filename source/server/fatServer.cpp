@@ -35,17 +35,17 @@ void ncclose(int fh) {
 static PLUGINLIST pluginList;      // List of all data reader plugins (internal and external shared libraries)
 ENVIRONMENT environment;    // Holds local environment variable values
 
-static USERDEFINEDTYPELIST* userdefinedtypelist = nullptr;
-static LOGMALLOCLIST* logmalloclist = nullptr;
+static USERDEFINEDTYPELIST* user_defined_type_list = nullptr;
+static LOGMALLOCLIST* log_malloc_list = nullptr;
 
 int altRank = 0;
 unsigned int clientFlags = 0;
 
-int malloc_source = MALLOCSOURCENONE;
+int malloc_source = UDA_MALLOC_SOURCE_NONE;
 unsigned int private_flags = 0;
 
-int serverVersion = 8;
-static int protocolVersion = 8;
+int server_version = 8;
+static int protocol_version = 8;
 
 SOCKETLIST socket_list;
 
@@ -62,12 +62,12 @@ extern "C" {
 
 void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist_in)
 {
-    userdefinedtypelist = userdefinedtypelist_in;
+    user_defined_type_list = userdefinedtypelist_in;
 }
 
 void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
 {
-    logmalloclist = logmalloclist_in;
+    log_malloc_list = logmalloclist_in;
 }
 
 }
@@ -120,26 +120,26 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
 
-    initServerBlock(server_block, serverVersion);
+    initServerBlock(server_block, server_version);
     initDataBlockList(&data_blocks);
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
 
     USERDEFINEDTYPELIST parseduserdefinedtypelist;
 
-    getInitialUserDefinedTypeList(&userdefinedtypelist);
-    parseduserdefinedtypelist = *userdefinedtypelist;
+    getInitialUserDefinedTypeList(&user_defined_type_list);
+    parseduserdefinedtypelist = *user_defined_type_list;
     //printUserDefinedTypeList(*userdefinedtypelist);
 
-    logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-    initLogMallocList(logmalloclist);
+    log_malloc_list = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
+    initLogMallocList(log_malloc_list);
 
     int err = startupFatServer(server_block, parseduserdefinedtypelist);
     if (err != 0) {
         return err;
     }
 
-    copyUserDefinedTypeList(&userdefinedtypelist, &parseduserdefinedtypelist);
+    copyUserDefinedTypeList(&user_defined_type_list, &parseduserdefinedtypelist);
 
     err = handleRequestFat(&request_block, request_block0, &client_block, server_block, &metadata_block, &data_blocks,
                            &actions_desc, &actions_sig);
@@ -158,9 +158,9 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
 
     err = doFatServerClosedown(server_block, &data_blocks, &actions_desc, &actions_sig, data_blocks0);
 
-    freeUserDefinedTypeList(userdefinedtypelist);
-    free(userdefinedtypelist);
-    userdefinedtypelist = nullptr;
+    freeUserDefinedTypeList(user_defined_type_list);
+    free(user_defined_type_list);
+    user_defined_type_list = nullptr;
 
     //freeMallocLogList(logmalloclist);
     //free(logmalloclist);
@@ -214,8 +214,8 @@ processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list, 
     // Write data to the temporary file
 
     int protocol_id = UDA_PROTOCOL_STRUCTURES;
-    protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, data_block,
-                protocolVersion, log_struct_list, io_data, private_flags, malloc_source, serverCreateXDRStream);
+    protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list, data_block,
+                protocol_version, log_struct_list, io_data, private_flags, malloc_source, serverCreateXDRStream);
 
     // Close the stream and file
 
@@ -239,8 +239,8 @@ processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list, 
     // Read data from the temporary file
 
     protocol_id = UDA_PROTOCOL_STRUCTURES;
-    err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                      data_block, protocolVersion, log_struct_list, io_data, private_flags, malloc_source,
+    err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
+                      data_block, protocol_version, log_struct_list, io_data, private_flags, malloc_source,
                       serverCreateXDRStream);
 
     // Close the stream and file
@@ -320,10 +320,10 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     // Decode the API Arguments: determine appropriate data plug-in to use
     // Decide on Authentication procedure
 
-    protocolVersion = serverVersion;
+    protocol_version = server_version;
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[i];
-        if (protocolVersion >= 6) {
+        if (protocol_version >= 6) {
             if ((err = udaServerPlugin(request, &metadata_block->data_source, &metadata_block->signal_desc,
                                        &pluginList, getServerEnvironment())) != 0) {
                 return err;
@@ -351,7 +351,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
         initDataBlock(data_block);
         err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
                          &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
-                         &pluginList, logmalloclist, userdefinedtypelist, &socket_list, protocolVersion);
+                         &pluginList, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
         ++data_blocks->count;
     }
 
@@ -443,10 +443,10 @@ int startupFatServer(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduser
     //----------------------------------------------------------------------
     // Initialise General Structure Passing
 
-    getInitialUserDefinedTypeList(&userdefinedtypelist);
-    parseduserdefinedtypelist = *userdefinedtypelist;
-    printUserDefinedTypeList(*userdefinedtypelist);
-    userdefinedtypelist = nullptr;                                     // Startup State
+    getInitialUserDefinedTypeList(&user_defined_type_list);
+    parseduserdefinedtypelist = *user_defined_type_list;
+    printUserDefinedTypeList(*user_defined_type_list);
+    user_defined_type_list = nullptr;                                     // Startup State
 
     /*
     // this step needs doing once only - the first time a generalised user defined structure is encountered.

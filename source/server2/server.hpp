@@ -55,7 +55,7 @@ private:
     std::vector<Sockets> sockets_;
     Plugins plugins_;
     bool server_closedown_ = false;
-    int malloc_source_ = MALLOCSOURCENONE;
+    int malloc_source_ = UDA_MALLOC_SOURCE_NONE;
     std::vector<DATA_BLOCK> data_blocks_;
     size_t total_datablock_size_;
     MetadataBlock metadata_block_;

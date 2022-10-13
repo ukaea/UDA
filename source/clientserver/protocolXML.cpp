@@ -210,7 +210,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             break;
                         }
 
-                        int packageType = PACKAGE_XDRFILE;          // The package is a file
+                        int packageType = UDA_PACKAGE_XDRFILE;          // The package is a file
                         rc = xdr_int(xdrs, &packageType);       // Send data package type
                         rc = rc && xdrrec_endofrecord(xdrs, 1);
 
@@ -223,7 +223,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: stdio XDR file: %s\n", tempFile);
 
                     } else {
-                        int packageType = PACKAGE_STRUCTDATA;        // The package is regular XDR
+                        int packageType = UDA_PACKAGE_STRUCTDATA;        // The package is regular XDR
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Sending Package Type: %d\n", packageType);
 
@@ -306,25 +306,25 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     rc = 1;
 
                     if (private_flags & PRIVATEFLAG_XDRFILE) {
-                        packageType = PACKAGE_XDRFILE;
+                        packageType = UDA_PACKAGE_XDRFILE;
                     } else {
-                        packageType = PACKAGE_STRUCTDATA;
+                        packageType = UDA_PACKAGE_STRUCTDATA;
                     }
 #endif
 
-                    if ((private_flags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_STRUCTDATA) {
+                    if ((private_flags & PRIVATEFLAG_XDRFILE) == 0 && packageType == UDA_PACKAGE_STRUCTDATA) {
                         option = 1;
-                    } else if ((private_flags & PRIVATEFLAG_XDRFILE) == 0 && packageType == PACKAGE_XDRFILE &&
+                    } else if ((private_flags & PRIVATEFLAG_XDRFILE) == 0 && packageType == UDA_PACKAGE_XDRFILE &&
                                protocolVersion >= 5) {
                         option = 2;
                     }
-                    if ((private_flags & PRIVATEFLAG_XDRFILE) == 1 && packageType == PACKAGE_XDRFILE &&
+                    if ((private_flags & PRIVATEFLAG_XDRFILE) == 1 && packageType == UDA_PACKAGE_XDRFILE &&
                         protocolVersion >= 5) {
                         option = 3;
                     }
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: %d  %d\n", private_flags & PRIVATEFLAG_XDRFILE,
-                            packageType == PACKAGE_STRUCTDATA);
+                            packageType == UDA_PACKAGE_STRUCTDATA);
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Receive data option : %d\n", option);
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Receive package Type: %d\n", packageType);
 

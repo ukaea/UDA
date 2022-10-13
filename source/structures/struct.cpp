@@ -64,8 +64,8 @@
 #  include <server/udaServer.h>
 #endif
 
-static unsigned int lastMallocIndex = 0;                           // Malloc Log search index last value
-static unsigned int* lastMallocIndexValue = &lastMallocIndex;      // Preserve Malloc Log search index last value in GENERAL_STRUCT
+static unsigned int last_malloc_index = 0;                           // Malloc Log search index last value
+static unsigned int* last_malloc_index_value = &last_malloc_index;      // Preserve Malloc Log search index last value in GENERAL_STRUCT
 static NTREE* full_ntree = nullptr;
 
 NTREE* udaGetFullNTree() {
@@ -78,8 +78,8 @@ void udaSetFullNTree(NTREE* ntree) {
 
 void setLastMallocIndexValue(unsigned int* lastMallocIndexValue_in)
 {
-    lastMallocIndexValue = lastMallocIndexValue_in;
-    lastMallocIndex = *lastMallocIndexValue;
+    last_malloc_index_value = lastMallocIndexValue_in;
+    last_malloc_index = *last_malloc_index_value;
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -885,31 +885,31 @@ void findMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size,
 
     if ((target = *((VOIDTYPE*)heap)) == 0) return;
 
-    if (lastMallocIndex >= (unsigned int)logmalloclist->listcount) {  // Defensive check
-        lastMallocIndex = 0;
-        *lastMallocIndexValue = lastMallocIndex;
+    if (last_malloc_index >= (unsigned int)logmalloclist->listcount) {  // Defensive check
+        last_malloc_index = 0;
+        *last_malloc_index_value = last_malloc_index;
     }
 
-    for (unsigned int i = lastMallocIndex; i < (unsigned int)logmalloclist->listcount; i++) {
+    for (unsigned int i = last_malloc_index; i < (unsigned int)logmalloclist->listcount; i++) {
         candidate = (VOIDTYPE)logmalloclist->logmalloc[i].heap;
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
             *size = logmalloclist->logmalloc[i].size;
             *type = logmalloclist->logmalloc[i].type;
-            lastMallocIndex = i;
-            *lastMallocIndexValue = lastMallocIndex;
+            last_malloc_index = i;
+            *last_malloc_index_value = last_malloc_index;
             return;
         }
     }
 
-    for (unsigned int i = 0; i < lastMallocIndex; i++) {
+    for (unsigned int i = 0; i < last_malloc_index; i++) {
         candidate = (VOIDTYPE)logmalloclist->logmalloc[i].heap;
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
             *size = logmalloclist->logmalloc[i].size;
             *type = logmalloclist->logmalloc[i].type;
-            lastMallocIndex = i;
-            *lastMallocIndexValue = lastMallocIndex;
+            last_malloc_index = i;
+            *last_malloc_index_value = last_malloc_index;
             return;
         }
     }
@@ -941,12 +941,12 @@ findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size, con
 
     if ((target = *((VOIDTYPE*)heap)) == 0) return;
 
-    if (lastMallocIndex >= (unsigned int)logmalloclist->listcount) {  // Defensive check
-        lastMallocIndex = 0;
-        *lastMallocIndexValue = lastMallocIndex;
+    if (last_malloc_index >= (unsigned int)logmalloclist->listcount) {  // Defensive check
+        last_malloc_index = 0;
+        *last_malloc_index_value = last_malloc_index;
     }
 
-    for (unsigned int i = lastMallocIndex; i < (unsigned int)logmalloclist->listcount; i++) {
+    for (unsigned int i = last_malloc_index; i < (unsigned int)logmalloclist->listcount; i++) {
         candidate = (VOIDTYPE)logmalloclist->logmalloc[i].heap;
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
@@ -956,13 +956,13 @@ findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size, con
             if (*rank > 1) {
                 *shape = logmalloclist->logmalloc[i].shape;
             }
-            lastMallocIndex = i;    // Start at the current log entry
-            *lastMallocIndexValue = lastMallocIndex;
+            last_malloc_index = i;    // Start at the current log entry
+            *last_malloc_index_value = last_malloc_index;
             return;
         }
     }
 
-    for (unsigned int i = 0; i < lastMallocIndex; i++) {   // Start search at the first log entry
+    for (unsigned int i = 0; i < last_malloc_index; i++) {   // Start search at the first log entry
         candidate = (VOIDTYPE)logmalloclist->logmalloc[i].heap;
         if (target == candidate) {
             *count = logmalloclist->logmalloc[i].count;
@@ -972,8 +972,8 @@ findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size, con
             if (*rank > 1) {
                 *shape = logmalloclist->logmalloc[i].shape;
             }
-            lastMallocIndex = i;
-            *lastMallocIndexValue = lastMallocIndex;
+            last_malloc_index = i;
+            *last_malloc_index_value = last_malloc_index;
             return;
         }
     }

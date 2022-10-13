@@ -31,7 +31,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block) {
 }
 #else
 
-constexpr int serverVersion = 8;
+constexpr int server_version = 8;
 
 // Legacy Server Entry point
 
@@ -75,7 +75,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
     initUdaErrorStack();
 
-    initServerBlock(&server_block, serverVersion);
+    initServerBlock(&server_block, server_version);
     initDataBlock(&data_block);
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
@@ -143,8 +143,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             // This defines the set of elements within data structures passed between client and server
             // Must be the same on both sides of the socket
 
-            protocolVersion = serverVersion;
-            if (client_block.version < serverVersion) protocolVersion = client_block.version;
+            protocolVersion = server_version;
+            if (client_block.version < server_version) protocolVersion = client_block.version;
 
             // The client request may originate from a server.
             // Is the Originating server an externally facing server? If so then switch to this mode: preserve local access policy
@@ -735,7 +735,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
         closeUdaError();
 
         UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
-        initServerBlock(&server_block, serverVersion);
+        initServerBlock(&server_block, server_version);
 
         UDA_LOG(UDA_LOG_DEBUG, "At End of Error Trap\n");
 
