@@ -50,7 +50,6 @@ else()
   add_subdirectory( testplugin )
   add_subdirectory( uda )
   add_subdirectory( viewport )
-  add_subdirectory( netcdf )
 endif( DEFINED BUILD_PLUGINS )
 
 add_definitions( -DSERVERBUILD )
