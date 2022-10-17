@@ -1,6 +1,6 @@
 ---
 title: UDA
-description: hello
+description: UDA documentation
 feature_image: "assets/images/gradient-dark-blue-futuristic-digital-background.jpg"
 feature_text: |
   ## Universal Data Access (UDA)

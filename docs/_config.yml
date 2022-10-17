@@ -32,6 +32,10 @@ lang: en-GB # Set the site language
 repo: "https://github.com/ukaea/UDA"
 email: "jonathan.hollocombe@ukaea.uk"
 
+favicons: # Favicons are also used in the manifest file. Syntax is 'size: path'
+  16: '/assets/logos/favicon-16x16.png'
+  32: '/assets/logos/favicon-32x32.png'
+
 # Pagination
 paginate: 5
 paginate_path: blog/page:num
