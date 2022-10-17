@@ -21,8 +21,8 @@ plugins:
 - jekyll-remote-theme
 
 # Site settings
-url: 'https://hollocom.be/test_jekyll'
-baseurl: '/test_jekyll'
+url: 'https://ukaea.github.io/UDA/'
+baseurl: '/UDA'
 title: 'UDA'
 description: 'UDA documentation'
 permalink: pretty
