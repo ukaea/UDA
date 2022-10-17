@@ -420,8 +420,13 @@ int startUdaClientSSL()
             UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
             UDA_LOG(UDA_LOG_DEBUG, "Server X509 not before date is before the current date!\n");
             UDA_LOG(UDA_LOG_DEBUG,
+<<<<<<< HEAD
                     "The Server's SSL/x509 certificate is Not Valid - the Vaidity Date is in the future!\n");
             THROW_ERROR(999, "The Server's SSL/x509 certificate is Not Valid - the Vaidity Date is in the future");
+=======
+                    "The Server's SSL/x509 certificate is Not Valid - the Validity Date is in the future!\n");
+            UDA_THROW_ERROR(999, "The Server's SSL/x509 certificate is Not Valid - the Validity Date is in the future");
+>>>>>>> Adding Jekyll docs.
         }
 
         count = 0;
@@ -442,16 +447,6 @@ int startUdaClientSSL()
 
         UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
 
-/*      
-      // Write the certificate to a tmp file
-      char template[] = "/tmp/UDAServer-X509-XXXXXX";
-      char *xname = mktemp(&template);
-      FILE *tmp = fopen(xname, "wb+");
-      if(tmp){
-         PEM_write_X509(tmp, peer);
- fclose(tmp);
-      }
-*/
         X509_free(peer);
 
     } else {

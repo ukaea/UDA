@@ -1,0 +1,70 @@
+# Set theme
+remote_theme: daviddarnes/alembic@main
+
+# File excludes
+exclude:
+- README.md
+- Gemfile
+- Gemfile.lock
+
+# Set plugins
+plugins:
+- jekyll-sitemap
+- jekyll-mentions
+- jekyll-paginate
+- jekyll-seo-tag
+- jekyll-redirect-from
+- jekyll-feed
+- jekyll-commonmark
+- jekyll-include-cache
+- jemoji
+- jekyll-remote-theme
+
+# Site settings
+url: 'https://hollocom.be/test_jekyll'
+baseurl: '/test_jekyll'
+title: 'UDA'
+description: 'UDA documentation'
+permalink: pretty
+logo: "/assets/images/uda_logo.svg"
+encoding: utf-8 # Make sure the encoding is right
+lang: en-GB # Set the site language
+repo: "https://github.com/ukaea/UDA"
+email: "jonathan.hollocombe@ukaea.uk"
+
+# Pagination
+paginate: 5
+paginate_path: blog/page:num
+
+# Header nav
+navigation_header:
+- title: Home
+  url: /
+- title: Source
+  url: https://github.com/ukaea/UDA
+
+# Footer nav
+navigation_footer:
+- title: Back to top
+  url: "#top"
+
+custom_fonts:
+- urls: https://fonts.googleapis.com/css2?family=Roboto
+  preconnect: true
+- urls: https://fonts.googleapis.com/css2?family=Roboto%20Mono
+  preconnect: true
+
+# Collection settings
+defaults:
+  -
+    scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: post # Set the default layout for posts
+  -
+    scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: page # Set the default layout for pages

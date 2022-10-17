@@ -1,0 +1,39 @@
+---
+title: false
+styles: false
+---
+
+$bodytype: (
+  font-family: 'Roboto, sans-serif',
+  regular: 400,
+  bold: 700,
+  italic: italic,
+  cap-height: 0.66
+) !default;
+
+$headingtype: (
+  font-family: 'Roboto, sans-serif',
+  regular: 400,
+  bold: 700,
+  cap-height: 0.66
+) !default;
+
+$monospacetype: (
+  font-family: '"Roboto Mono", monospace',
+  regular: 400,
+  cap-height: 0.68
+) !default;
+
+.logo img {
+  min-height: 2rem;
+}
+
+.feature .typeset h2 {
+  color: white;
+}
+
+.feature {
+  color: white;
+}
+
+@import "alembic";
