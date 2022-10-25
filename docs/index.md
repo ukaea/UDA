@@ -1,11 +1,10 @@
 ---
+layout: default
 title: UDA
-description: UDA documentation
-feature_image: "assets/images/gradient-dark-blue-futuristic-digital-background.jpg"
-feature_text: |
-  ## Universal Data Access (UDA)
-  Easy access of heterogeneous data sources via a common data representation
+nav_order: 1
 ---
+
+# UDA 
 
 UDA (Universal Data Access) is a client-server infrastructure designed to enable
 the reading and passing of heterogeneous data format back to a client in a

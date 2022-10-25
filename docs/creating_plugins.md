@@ -1,4 +1,5 @@
 ---
+layout: default
 title: Creating a UDA plugin
 ---
 
