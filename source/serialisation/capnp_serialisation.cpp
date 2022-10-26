@@ -245,6 +245,7 @@ struct TreeNodeTypeConverter {
 };
 
 template <typename T> TreeNode::Type TreeNodeTypeConverter<T>::type = TreeNode::Type::VOID;
+template <> TreeNode::Type TreeNodeTypeConverter<char>::type = TreeNode::Type::STRING;
 template <> TreeNode::Type TreeNodeTypeConverter<int8_t>::type = TreeNode::Type::INT8;
 template <> TreeNode::Type TreeNodeTypeConverter<int16_t>::type = TreeNode::Type::INT16;
 template <> TreeNode::Type TreeNodeTypeConverter<int32_t>::type = TreeNode::Type::INT32;
@@ -257,7 +258,7 @@ template <> TreeNode::Type TreeNodeTypeConverter<float>::type = TreeNode::Type::
 template <> TreeNode::Type TreeNodeTypeConverter<double>::type = TreeNode::Type::FLT64;
 
 template <typename T>
-void uda_capnp_add_array(NodeBuilder* node, T* data, size_t size)
+void uda_capnp_add_array(NodeBuilder* node, const T* data, size_t size)
 {
     assert(!node->node.isChildren());
     auto array = node->node.initArray();
@@ -265,56 +266,62 @@ void uda_capnp_add_array(NodeBuilder* node, T* data, size_t size)
     array.setLen(size);
     auto shape = array.initShape(1);
     shape.set(0, size);
-    kj::ArrayPtr<kj::byte> ptr(reinterpret_cast<kj::byte*>(data), size * sizeof(T));
+    // ArrayPtr needs a non-const buffer, but we are only reading from it
+    kj::ArrayPtr<kj::byte> ptr(reinterpret_cast<kj::byte*>(const_cast<T*>(data)), size * sizeof(T));
     array.setData(ptr);
 }
 
-void uda_capnp_add_array_f32(NodeBuilder* node, float* data, size_t size)
+void uda_capnp_add_array_f32(NodeBuilder* node, const float* data, size_t size)
 {
     return uda_capnp_add_array(node, data, size);
 }
 
-void uda_capnp_add_array_f64(NodeBuilder* node, double* data, size_t size)
+void uda_capnp_add_array_f64(NodeBuilder* node, const double* data, size_t size)
 {
     return uda_capnp_add_array(node, data, size);
 }
 
-void uda_capnp_add_array_i8(NodeBuilder* node, int8_t* data, size_t size)
+void uda_capnp_add_array_i8(NodeBuilder* node, const int8_t* data, size_t size)
 {
     return uda_capnp_add_array(node, data, size);
 }
 
-void uda_capnp_add_array_i16(NodeBuilder* node, int16_t* data, size_t size)
+void uda_capnp_add_array_i16(NodeBuilder* node, const int16_t* data, size_t size)
 {
     return uda_capnp_add_array(node, data, size);
 }
 
-void uda_capnp_add_array_i32(NodeBuilder* node, int32_t* data, size_t size)
+void uda_capnp_add_array_i32(NodeBuilder* node, const int32_t* data, size_t size)
 {
     return uda_capnp_add_array(node, data, size);
 }
 
-void uda_capnp_add_array_i64(NodeBuilder* node, int64_t* data, size_t size)
+void uda_capnp_add_array_i64(NodeBuilder* node, const int64_t* data, size_t size)
 {
     return uda_capnp_add_array(node, data, size);
 }
 
-void uda_capnp_add_array_u8(NodeBuilder* node, uint8_t* data, size_t size)
+void uda_capnp_add_array_u8(NodeBuilder* node, const uint8_t* data, size_t size)
 {
     return uda_capnp_add_array(node, data, size);
 }
 
-void uda_capnp_add_array_u16(NodeBuilder* node, uint16_t* data, size_t size)
+void uda_capnp_add_array_u16(NodeBuilder* node, const uint16_t* data, size_t size)
 {
     return uda_capnp_add_array(node, data, size);
 }
 
-void uda_capnp_add_array_u32(NodeBuilder* node, uint32_t* data, size_t size)
+void uda_capnp_add_array_u32(NodeBuilder* node, const uint32_t* data, size_t size)
 {
     return uda_capnp_add_array(node, data, size);
 }
 
-void uda_capnp_add_array_u64(NodeBuilder* node, uint64_t* data, size_t size)
+void uda_capnp_add_array_u64(NodeBuilder* node, const uint64_t* data, size_t size)
+{
+    return uda_capnp_add_array(node, data, size);
+}
+
+void uda_capnp_add_array_char(NodeBuilder* node, const char* data, size_t size)
 {
     return uda_capnp_add_array(node, data, size);
 }
@@ -377,6 +384,11 @@ void uda_capnp_add_u32(NodeBuilder* node, uint32_t data)
 }
 
 void uda_capnp_add_u64(NodeBuilder* node, uint64_t data)
+{
+    uda_capnp_add_scalar(node, data);
+}
+
+void uda_capnp_add_char(NodeBuilder* node, char data)
 {
     uda_capnp_add_scalar(node, data);
 }
