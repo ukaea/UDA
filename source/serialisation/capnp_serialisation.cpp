@@ -170,9 +170,10 @@ Buffer uda_capnp_serialise(TreeBuilder* tree)
     return Buffer{ buffer, arr.size() };
 }
 
-TreeReader* uda_capnp_deserialise(char* bytes, size_t size)
+TreeReader* uda_capnp_deserialise(const char* bytes, size_t size)
 {
-    kj::ArrayPtr<kj::byte> buffer(reinterpret_cast<kj::byte*>(bytes), size);
+    // ArrayPtr requires non const ptr, but we are only using this to read from the bytes array
+    kj::ArrayPtr<kj::byte> buffer(reinterpret_cast<kj::byte*>(const_cast<char*>(bytes)), size);
     kj::ArrayInputStream in(buffer);
 
     auto message_reader = std::make_shared<capnp::PackedMessageReader>(in);

@@ -27,7 +27,7 @@ struct TreeReader;
 struct NodeReader;
 
 Buffer uda_capnp_serialise(TreeBuilder* tree);
-TreeReader* uda_capnp_deserialise(char* bytes, size_t size);
+TreeReader* uda_capnp_deserialise(const char* bytes, size_t size);
 
 NodeReader* uda_capnp_read_root(TreeReader* tree);
 size_t uda_capnp_num_children(NodeReader* node);
