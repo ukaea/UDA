@@ -152,17 +152,6 @@ cdef extern from "structures/struct.h":
     void* getNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
 
 
-# requires cython v3.0+, we're currently using previous version (maybe also has to be in a .pyx file rather than .pyd?)
-#cdef extern from "client/closedown.h":
-#    cpdef enum class ClosedownType(int):
-#        CLOSE_SOCKETS = 0,
-#        CLOSE_ALL = 1,
-
-
-#cdef extern from "client/getEnvironment.h":
-#    ENVIRONMENT* getIdamClientEnvironment();
-
-
 cdef extern from "client/connection.h":
     int resetClientConnection();
     void closeClientConnection();
