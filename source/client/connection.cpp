@@ -69,6 +69,17 @@ int connectionOpen()
     return clientSocket != -1;
 }
 
+int resetClientConnection()
+{
+    ENVIRONMENT* env = getIdamClientEnvironment();
+    return reconnect(env);
+}
+
+void closeClientConnection()
+{
+    closeConnection(ClosedownType::CLOSE_ALL);
+}
+
 int reconnect(ENVIRONMENT* environment)
 {
     int err = 0;
@@ -87,21 +98,23 @@ int reconnect(ENVIRONMENT* environment)
 
     // Instance a new server if the Client has changed the host and/or port number
 
-    if (environment->server_reconnect) {
-  //RC
-                int status;
-                int fh;
-                if (getSocket(&client_socketlist, TYPE_UDA_SERVER, &status, environment->server_host, environment->server_port, &fh) == 0) {
-                        environment->server_socket=fh;
-                        socketId = getSocketRecordId(&client_socketlist, fh);
-                }
-                else {
-        time(&tv_server_start);         // Start a New Server AGE timer
-        clientSocket = -1;              // Flags no Socket is open
-        environment->server_change_socket = 0;   // Client doesn't know the Socket ID so disable
-                }
-    
-}
+    if (environment->server_reconnect) 
+    {
+        //RC
+        int status;
+        int fh;
+        if (getSocket(&client_socketlist, TYPE_UDA_SERVER, &status, environment->server_host, environment->server_port, &fh) == 0) 
+        {
+                environment->server_socket=fh;
+                socketId = getSocketRecordId(&client_socketlist, fh);
+        }
+        else 
+        {
+            time(&tv_server_start);         // Start a New Server AGE timer
+            clientSocket = -1;              // Flags no Socket is open
+            environment->server_change_socket = 0;   // Client doesn't know the Socket ID so disable
+        }
+    }
 
     // Client manages connections through the Socket id and specifies which running server to connect to
 

@@ -83,6 +83,14 @@ def set_server_port(port):
     uda.putIdamServerPort(port)
 
 
+def close_connection():
+    uda.closeClientConnection()
+
+
+def reset_connection():
+    uda.resetClientConnection()
+
+
 def get_data(signal, source):
     handle = uda.idamGetAPI(signal.encode(), source.encode())
     cdef const char* err_msg
