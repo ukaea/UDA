@@ -14,7 +14,7 @@ size_t uda::TreeNode::numChildren() const
     return getNodeChildrenCount(node_);
 }
 
-std::vector<const uda::TreeNode> uda::TreeNode::children() const
+const std::vector<uda::TreeNode> uda::TreeNode::children() const
 {
     int numChildren = getNodeChildrenCount(node_);
 
@@ -24,7 +24,7 @@ std::vector<const uda::TreeNode> uda::TreeNode::children() const
         vec.push_back(TreeNode{ handle_, child });
     }
 
-    return { vec.begin(), vec.end() };
+    return vec;
 }
 
 std::vector<uda::TreeNode> uda::TreeNode::children()

@@ -20,9 +20,9 @@ public:
     TreeNode findStructureDefinition(const std::string& name);
     TreeNode findStructureComponent(const std::string& name);
     TreeNode parent();
-    size_t numChildren() const;
+    [[nodiscard]] size_t numChildren() const;
     std::vector<uda::TreeNode> children();
-    std::vector<const uda::TreeNode> children() const;
+    [[nodiscard]] const std::vector<uda::TreeNode> children() const;
 
     uda::TreeNode child(int num);
     void printNode();
@@ -34,16 +34,16 @@ public:
     std::vector<std::string> structureNames();
     std::vector<std::string> structureTypes();
 
-    std::string name() const;
+    [[nodiscard]] std::string name() const;
 
-    int atomicCount() const;
-    std::vector<std::string> atomicNames() const;
-    std::vector<std::string> atomicTypes() const;
-    std::vector<bool> atomicPointers() const;
-    std::vector<size_t> atomicRank() const;
-    std::vector<std::vector<size_t>> atomicShape() const;
+    [[nodiscard]] int atomicCount() const;
+    [[nodiscard]] std::vector<std::string> atomicNames() const;
+    [[nodiscard]] std::vector<std::string> atomicTypes() const;
+    [[nodiscard]] std::vector<bool> atomicPointers() const;
+    [[nodiscard]] std::vector<size_t> atomicRank() const;
+    [[nodiscard]] std::vector<std::vector<size_t>> atomicShape() const;
 
-    void * structureComponentData(const std::string& name) const;
+    [[nodiscard]] void* structureComponentData(const std::string& name) const;
     Scalar atomicScalar(const std::string& target);
     Vector atomicVector(const std::string& target);
     Array atomicArray(const std::string& target);
