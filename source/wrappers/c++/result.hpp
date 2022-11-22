@@ -34,7 +34,7 @@ public:
     int errorCode() const;
 
     /**
-     * Return the recieved data object, this will be a subclass of Data, i.e. one of @code{String}, @code{Array},
+     * Return the received data object, this will be a subclass of Data, i.e. one of @code{String}, @code{Array},
      * @code{Scalar}, etc.
      *
      * @return the data object
@@ -42,7 +42,7 @@ public:
     Data* data() const;
 
     /**
-     * Return whether the recieved data has associated error values.
+     * Return whether the received data has associated error values.
      *
      * If true then @code{errors()} will return the error values.
      *
