@@ -2,9 +2,8 @@
 # Dependencies
 
 find_package( OpenSSL REQUIRED )
-if( NOT CLIENT_ONLY )
-  find_package( LibXml2 REQUIRED )
-endif()
+find_package( LibXml2 REQUIRED )
+
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -70,11 +69,8 @@ set( HEADER_FILES
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${OPENSSL_INCLUDE_DIR}
+  ${LIBXML2_INCLUDE_DIR}
 )
-
-if( NOT CLIENT_ONLY )
-  include_directories( ${LIBXML2_INCLUDE_DIR} )
-endif()
 
 add_library( client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
 
@@ -107,9 +103,8 @@ if( BUILD_SHARED_LIBS )
   add_library( client-shared SHARED ${CLIENT_OBJS} )
 endif()
 
-set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} )
+set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} ${LIBXML2_LIBRARIES})
 if( NOT CLIENT_ONLY )
-  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${LIBXML2_LIBRARIES} )
   if( MINGW )
     set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} iconv lzma z )
   endif()
