@@ -27,7 +27,7 @@ if( LIBMEMCACHED_FOUND )
 endif()
 
 get_filename_component( OPENSSL_LIB_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY )
-get_filename_component( LIBXML_LIB_DIR ${LIBXML_LIBRARY} DIRECTORY )
+get_filename_component( LIBXML_LIB_DIR ${LIBXML2_LIBRARIES} DIRECTORY )
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/setup.py @ONLY )
 
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.py DESTINATION python_installer )
