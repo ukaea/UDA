@@ -74,11 +74,11 @@ cdef object to_python_c(const char* type, int rank, int* shape, int point, void*
             if point and rank == 0:
                 np_shape[0] = shape[0]
                 arr = np.PyArray_SimpleNewFromData(1, np_shape, np_type, data)
-                np.pyArray_SetBaseObject(arr, <object>base)
+                np.PyArray_SetBaseObject(arr, <object>base)
                 return arr
             else:
                 arr = np.PyArray_SimpleNewFromData(rank, np_shape, np_type, data)
-                np.pyArray_SetBaseObject(arr, <object>base)
+                np.PyArray_SetBaseObject(arr, <object>base)
                 if rank == 0:
                     return arr.sum()
                 else:
