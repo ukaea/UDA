@@ -42,7 +42,7 @@ ext = Extension(
     include_dirs=[
         root + '/include/uda',
         numpy.get_include(),
-        '@LIBXML_INCLUDE_DIR@'
+        '@LIBXML2_INCLUDE_DIR@'
     ],
     libraries=['ssl', 'crypto', 'xml2'] + extra_libs,
     library_dirs=[
