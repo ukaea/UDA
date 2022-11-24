@@ -184,6 +184,9 @@ if( BUILD_SHARED_LIBS )
   message( "Build shared libraries asked" )
 endif()
 
+# Server config options
+set (UDA_SERVER_PORT "56565" CACHE string "define port number in server configuration files")
+set (UDA_SERVER_HOST "`hostname`" CACHE string "define hostname in server configuration files")
 ########################################################################################################################
 # Source directories
 
