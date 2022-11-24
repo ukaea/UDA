@@ -50,7 +50,7 @@ cdef int uda_field_type_to_numpy_type(str type):
     return __field_types.get(base_type, -1)
 
 
-cpdef object to_python_c(const char* type, int rank, int* shape, int point, void* data, PyObject* base):
+cdef object to_python_c(const char* type, int rank, int* shape, int point, void* data, PyObject* base):
     cdef np.npy_intp np_shape[1024]
     cdef int i
     for i in range(rank):
