@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <marker id="marker-0" viewBox="0 0 100 100" overflow="visible" orient="auto" refX="50" refY="50" bx:pinned="true"/>
+  </defs>
+  <line style="fill: rgb(216, 216, 216); stroke: rgb(158, 158, 158); stroke-width: 10px; stroke-dasharray: 25, 8; stroke-dashoffset: 8px;" x1="174.807" y1="249.597" x2="322.623" y2="250.428"/>
+  <polyline style="fill: none; stroke: rgb(158, 158, 158); stroke-width: 10px;" points="311.618 238.501 328.117 249.627 311.954 261.499"/>
+  <ellipse style="fill: rgb(158, 158, 158);" cx="176.492" cy="249.47" rx="10.448" ry="10.794"/>
+  <path style="stroke: rgb(0, 0, 0); fill: none; stroke-width: 10px; stroke-linecap: round;" d="M 141.07 203.667 L 140.676 256.896 C 140.676 278.176 155.553 295.908 173.099 296.01 C 190.487 296.111 208.543 282.646 208.543 259.001 L 209.902 203.767 L 231.931 203.622 C 254.136 203.622 281.458 218.324 281.458 247.772 C 281.458 279.778 256.218 296.556 229.037 296.556"/>
+  <path style="stroke: rgb(0, 0, 0); fill: none; stroke-width: 10px; stroke-linecap: round;" d="M 280.826 252.331 L 280.936 237.332 C 280.936 223.356 293.444 204.3 319.858 204.278 C 349.968 204.254 358.957 226.106 358.957 238.767 L 359.323 296.173"/>
+</svg>
