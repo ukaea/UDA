@@ -69,5 +69,5 @@ setup(
     url='https://git.iter.org/projects/IMAS/repos/uda/browse',
     packages=['pyuda'],
     ext_modules=cythonize([ext]),
-    install_requires=['numpy>=1.7', 'cython>=0.29'],
+    install_requires=['numpy>=1.7', 'Cython>=0.29'],
 )
