@@ -899,7 +899,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                 }
                 data_block->data = (char*)count;
                 data_block->data_units[0] = '\0';
-                sprintf(data_block->data_label, "count(dimid=%d)", dimid);
+                snprintf(data_block->data_label, STRING_LENGTH, "count(dimid=%d)", dimid);
             }
         }
 

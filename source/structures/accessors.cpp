@@ -842,124 +842,124 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
         case SCALARDOUBLE:
             field->atomictype = UDA_TYPE_DOUBLE;
             strcpy(field->type, "double");
-            sprintf(field->desc, "[double %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[double %s] %s", name, desc);
             field->size = field->count * sizeof(double);
             break;
         case ARRAYDOUBLE:
             field->atomictype = UDA_TYPE_DOUBLE;
             strcpy(field->type, "double *");
-            sprintf(field->desc, "[double *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[double *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(double*);
             break;
         case SCALARFLOAT:
             field->atomictype = UDA_TYPE_FLOAT;
             strcpy(field->type, "float");
-            sprintf(field->desc, "[float %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[float %s] %s", name, desc);
             field->size = field->count * sizeof(float);
             break;
         case ARRAYFLOAT:
             field->atomictype = UDA_TYPE_FLOAT;
             strcpy(field->type, "float *");
-            sprintf(field->desc, "[float *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[float *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(float*);
             break;
         case SCALARLONG64:
             field->atomictype = UDA_TYPE_LONG64;
             strcpy(field->type, "long long");
-            sprintf(field->desc, "[long long %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[long long %s] %s", name, desc);
             field->size = field->count * sizeof(long long);
             break;
         case ARRAYLONG64:
             field->atomictype = UDA_TYPE_LONG64;
             strcpy(field->type, "long long *");
-            sprintf(field->desc, "[long long *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[long long *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(long long*);
             break;
         case SCALARULONG64:
             field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
             strcpy(field->type, "unsigned long long");
-            sprintf(field->desc, "[unsigned long long %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned long long %s] %s", name, desc);
             field->size = field->count * sizeof(unsigned long long);
             break;
         case ARRAYULONG64:
             field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
             strcpy(field->type, "unsigned long long *");
-            sprintf(field->desc, "[unsigned long long *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned long long *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(unsigned long long*);
             break;
         case SCALARINT:
             field->atomictype = UDA_TYPE_INT;
             strcpy(field->type, "int");
-            sprintf(field->desc, "[int %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[int %s] %s", name, desc);
             field->size = field->count * sizeof(int);
             break;
         case ARRAYINT:
             field->atomictype = UDA_TYPE_INT;
             strcpy(field->type, "int *");
-            sprintf(field->desc, "[int *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[int *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(int*);
             break;
         case SCALARUINT:
             field->atomictype = UDA_TYPE_UNSIGNED_INT;
             strcpy(field->type, "unsigned int");
-            sprintf(field->desc, "[unsigned int %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned int %s] %s", name, desc);
             field->size = field->count * sizeof(unsigned int);
             break;
         case ARRAYUINT:
             field->atomictype = UDA_TYPE_UNSIGNED_INT;
             strcpy(field->type, "unsigned int *");
-            sprintf(field->desc, "[unsigned int *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned int *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(unsigned int*);
             break;
         case SCALARSHORT:
             field->atomictype = UDA_TYPE_SHORT;
             strcpy(field->type, "short");
-            sprintf(field->desc, "[short %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[short %s] %s", name, desc);
             field->size = field->count * sizeof(short);
             break;
         case ARRAYSHORT:
             field->atomictype = UDA_TYPE_SHORT;
             strcpy(field->type, "short *");
-            sprintf(field->desc, "[short *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[short *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(short*);
             break;
         case SCALARUSHORT:
             field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
             strcpy(field->type, "unsigned short");
-            sprintf(field->desc, "[unsigned short %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned short %s] %s", name, desc);
             field->size = field->count * sizeof(unsigned short);
             break;
         case ARRAYUSHORT:
             field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
             strcpy(field->type, "unsigned short *");
-            sprintf(field->desc, "[unsigned short *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned short *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(unsigned short*);
             break;
         case SCALARCHAR:
             field->atomictype = UDA_TYPE_CHAR;
             strcpy(field->type, "char");
-            sprintf(field->desc, "[char %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[char %s] %s", name, desc);
             field->size = field->count * sizeof(char);
             break;
         case ARRAYCHAR:
             field->atomictype = UDA_TYPE_CHAR;
             strcpy(field->type, "char *");
-            sprintf(field->desc, "[char *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[char *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(char*);
             break;
         case SCALARSTRING:
             field->atomictype = UDA_TYPE_STRING;
             strcpy(field->type, "STRING");
-            sprintf(field->desc, "[char *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[char *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(char*);
             field->offset = (int)newoffset((size_t)*offset, "char *"); // must be an explicit char pointer (STRING Convention!)
@@ -970,27 +970,27 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
             //Bug Fix dgm 07Jul2014: atomictype was missing!
             field->atomictype = UDA_TYPE_STRING;
             strcpy(field->type, "STRING *");
-            sprintf(field->desc, "[char **%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[char **%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(char**);
             break;
         case ARRAYVOID:
             field->atomictype = UDA_TYPE_VOID;
             strcpy(field->type, "void *");
-            sprintf(field->desc, "[void *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[void *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(void*);
             break;
         case SCALARUCHAR:
             field->atomictype = UDA_TYPE_UNSIGNED_CHAR;
             strcpy(field->type, "unsigned char");
-            sprintf(field->desc, "[char %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[char %s] %s", name, desc);
             field->size = field->count * sizeof(unsigned char);
             break;
         case ARRAYUCHAR:
             field->atomictype = UDA_TYPE_UNSIGNED_CHAR;
             strcpy(field->type, "unsigned char *");
-            sprintf(field->desc, "[unsigned char *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned char *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(unsigned char*);
             break;

@@ -1,14 +1,7 @@
-/*---------------------------------------------------------------
-* Read Client Environment Variables
-*
-* Reads and returns values for a Standard list of IDAM Environment variables
-*
-* Change History
-*
-*--------------------------------------------------------------*/
 #include "getEnvironment.h"
 
 #include <cstdlib>
+#include <fmt/format.h>
 
 #include <logging/logging.h>
 
@@ -93,9 +86,8 @@ ENVIRONMENT* getIdamClientEnvironment()
     }
 
     if (udaEnviron.loglevel <= UDA_LOG_ACCESS) {
-        char cmd[STRING_LENGTH];
-        sprintf(cmd, "mkdir -p %s 2>/dev/null", udaEnviron.logdir);
-        if (system(cmd) != 0) {
+        std::string cmd = fmt::format("mkdir -p %s 2>/dev/null", udaEnviron.logdir);
+        if (system(cmd.c_str()) != 0) {
             // TODO: How to log error before log files are open?
         };
     }

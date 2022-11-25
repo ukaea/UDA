@@ -2,6 +2,7 @@
 
 #include <dlfcn.h>
 #include <cstdlib>
+#include <fmt/format.h>
 
 /**
  * Return the function address for plugin data readers located in external shared libraries
@@ -22,10 +23,9 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
     }
 
     const char* plugin_dir = getenv("UDA_PLUGIN_DIR");
-    char* full_path;
+    std::string full_path;
     if (plugin_dir != nullptr) {
-        full_path = (char*)malloc(strlen(plugin_dir) + strlen(library) + 2);
-        sprintf(full_path, "%s/%s", plugin_dir, library);
+        full_path = fmt::format("{}/{}", plugin_dir, library);
     } else {
         full_path = strdup(library);
     }
@@ -35,7 +35,7 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
     const char* fail_on_load = getenv("UDA_PLUGIN_FAIL_ON_LOAD");
 
     if (*pluginHandle == nullptr) {
-        if ((*pluginHandle = dlopen(full_path, RTLD_LOCAL | RTLD_LAZY)) == nullptr) {
+        if ((*pluginHandle = dlopen(full_path.c_str(), RTLD_LOCAL | RTLD_LAZY)) == nullptr) {
             const char* errmsg = dlerror();
             UDA_LOG(UDA_LOG_ERROR, "Cannot open the target shared library %s: %s\n", library, errmsg);
             if (fail_on_load != nullptr) {
@@ -45,8 +45,6 @@ int getPluginAddress(void** pluginHandle, const char* library, const char* symbo
             return 999;
         }
     }
-
-    free(full_path);
 
     // Register the handle with the plugin manager: Close at server shut down only
 

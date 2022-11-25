@@ -2,6 +2,7 @@
 
 #include <string>
 #include <unistd.h>
+#include <fmt/format.h>
 
 #include "clientserver/initStructs.h"
 #include "server_environment.hpp"
@@ -65,9 +66,8 @@ uda::Server::Server()
 void uda::Server::start_logs()
 {
     if (environment_->loglevel <= UDA_LOG_ACCESS) {
-        char cmd[STRING_LENGTH];
-        sprintf(cmd, "mkdir -p %s 2>/dev/null", environment_->logdir);
-        if (system(cmd) != 0) {
+        std::string cmd = fmt::format("mkdir -p {} 2>/dev/null", environment_->logdir);
+        if (system(cmd.c_str()) != 0) {
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "mkdir command failed");
             throw uda::server::StartupException("mkdir command failed");
         }
@@ -503,11 +503,11 @@ int uda::Server::handle_request()
     for (int i = 0; i < request_block_.num_requests; ++i) {
         REQUEST_DATA* request = &request_block_.requests[0];
 
-        char work[1024];
+        char work[STRING_LENGTH];
         if (request->api_delim[0] != '\0') {
-            sprintf(work, "UDA%s", request->api_delim);
+            snprintf(work, STRING_LENGTH, "UDA%s", request->api_delim);
         } else {
-            sprintf(work, "UDA%s", environment_->api_delim);
+            snprintf(work, STRING_LENGTH, "UDA%s", environment_->api_delim);
         }
 
         if (environment_->server_proxy[0] != '\0' && strncasecmp(request->source, work, strlen(work)) != 0) {
@@ -523,9 +523,9 @@ int uda::Server::handle_request()
             // The UDA Plugin strips out the host and port data from the source so the originating server details are never passed.
 
             if (request->api_delim[0] != '\0') {
-                sprintf(work, "UDA%s%s", request->api_delim, environment_->server_this);
+                snprintf(work, STRING_LENGTH, "UDA%s%s", request->api_delim, environment_->server_this);
             } else {
-                sprintf(work, "UDA%s%s", environment_->api_delim, environment_->server_this);
+                snprintf(work, STRING_LENGTH, "UDA%s%s", environment_->api_delim, environment_->server_this);
             }
 
             if (strstr(request->source, work) != nullptr) {
@@ -543,9 +543,9 @@ int uda::Server::handle_request()
             // Prepend the redirection UDA server details
 
             if (request->api_delim[0] != '\0') {
-                sprintf(work, "UDA%s%s/%s", request->api_delim, environment_->server_proxy, request->source);
+                snprintf(work, STRING_LENGTH, "UDA%s%s/%s", request->api_delim, environment_->server_proxy, request->source);
             } else {
-                sprintf(work, "UDA%s%s/%s", environment_->api_delim, environment_->server_proxy, request->source);
+                snprintf(work, STRING_LENGTH, "UDA%s%s/%s", environment_->api_delim, environment_->server_proxy, request->source);
             }
 
             strcpy(request->source, work);

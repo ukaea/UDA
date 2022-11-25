@@ -1,27 +1,11 @@
-/*---------------------------------------------------------------
-* v1 IDAM Plugin: Standardised wrapper code around plugin functionality
-*
-* Input Arguments:    IDAM_PLUGIN_INTERFACE *idam_plugin_interface
-*
-* Returns:        0 if read was successful
-*            otherwise a Error Code is returned
-*
-* Calls            freeDataBlock    to free Heap memory if an Error Occurs
-*
-* Standard functionality:
-*
-*    help    a description of what this plugin does together with a list of functions available
-*    reset    frees all previously allocated heap, closes file handles and resets all static parameters.
-*        This has the same functionality as setting the housekeeping directive in the plugin interface
-*        data structure to TRUE (1)
-*    init    Initialise the plugin: read all required data and process. Retain staticly for
-*        future reference.
-*---------------------------------------------------------------------------------------------------------------*/
 #include "help_plugin.h"
 
 #include <cstdlib>
+
 #ifdef __GNUC__
+
 #  include <strings.h>
+
 #else
 #  include <winsock2.h>
 #endif
@@ -33,6 +17,7 @@
 #include <logging/logging.h>
 #include <plugins/udaPlugin.h>
 #include <clientserver/stringUtils.h>
+#include <fmt/format.h>
 
 static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
 
@@ -70,7 +55,7 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (housekeeping || STR_IEQUALS(request->function, "reset")) {
 
-        if (!init) return 0;        // Not previously initialised: Nothing to do!
+        if (!init) { return 0; }        // Not previously initialised: Nothing to do!
         init = 0;
         return 0;
     }
@@ -89,9 +74,9 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (STR_IEQUALS(request->function, "help") || request->function[0] == '\0') {
         const char* help = "\nHelp\tList of HELP plugin functions:\n\n"
-                "services()\tReturns a list of available services with descriptions\n"
-                "ping()\t\tReturn the Local Server Time in seconds and microseonds\n"
-                "servertime()\tReturn the Local Server Time in seconds and microseonds\n\n";
+                           "services()\tReturns a list of available services with descriptions\n"
+                           "ping()\t\tReturn the Local Server Time in seconds and microseonds\n"
+                           "servertime()\tReturn the Local Server Time in seconds and microseonds\n\n";
         return setReturnDataString(data_block, help, "Help help = description of this plugin");
     } else if (STR_IEQUALS(request->function, "version")) {
         return setReturnDataIntScalar(data_block, THISPLUGIN_VERSION, "Plugin version number");
@@ -122,7 +107,8 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // define the returned data structure
 
-    struct HELP_PING {
+    struct HELP_PING
+    {
         unsigned int seconds;    // Server time in seconds
         unsigned int microseconds;    // Server time in microseconds
     };
@@ -169,7 +155,7 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     data_block->data_n = 1;
     data_block->data = (char*)data;
 
-    strcpy(data_block->data_desc, "Local IDAM server time");
+    strcpy(data_block->data_desc, "Local UDA server time");
     strcpy(data_block->data_label, "servertime");
     strcpy(data_block->data_units, "");
 
@@ -191,9 +177,7 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // Document is a single block of chars
 
-    char* rec = (char*)malloc(STRING_LENGTH * sizeof(char));
-    char* doc = (char*)malloc(20 * STRING_LENGTH * sizeof(char));
-    doc[0] = '\0';
+    std::string doc;
 
     // Total Number of registered plugins available
 
@@ -202,156 +186,145 @@ static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     const PLUGINLIST* pluginList = idam_plugin_interface->pluginList;
 
     count = 0;
-    for (int i = 0; i < pluginList->count; i++)
+    for (int i = 0; i < pluginList->count; i++) {
         if (pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
             (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
              (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
-                 count++;
+            count++;
         }
+    }
 
-    sprintf(rec, "\nTotal number of registered plugins available: %d\n", count);
-    strcat(doc, rec);
+    doc = fmt::format("\nTotal number of registered plugins available: {}\n", count);
 
     for (int j = 0; j < 5; j++) {
         count = 0;
-        strcat(doc, line);
+        doc += line;
         switch (j) {
             case 0: {
                 target = UDA_PLUGIN_CLASS_FILE;
 
-                for (int i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++) {
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
                          (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user)) &&
                         pluginList->plugin[i].format[0] != '\0' && pluginList->plugin[i].extension[0] != '\0') {
-                            count++;
+                        count++;
                     }
+                }
 
-                sprintf(rec, "\nNumber of plugins for data file formats: %d\n\n", count);
-                strcat(doc, rec);
+                doc += fmt::format("\nNumber of plugins for data file formats: {}\n\n", count);
 
-                for (int i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++) {
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
                          (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user)) &&
                         pluginList->plugin[i].format[0] != '\0' && pluginList->plugin[i].extension[0] != '\0') {
-                        sprintf(rec, "File format:\t\t%s\n", pluginList->plugin[i].format);
-                        strcat(doc, rec);
-                        sprintf(rec, "Filename extension:\t%s\n", pluginList->plugin[i].extension);
-                        strcat(doc, rec);
-                        sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
-                        strcat(doc, rec);
-                        sprintf(rec, "Example API call:\t%s\n\n", pluginList->plugin[i].example);
-                        strcat(doc, rec);
+                        doc += fmt::format("File format:\t\t{}\n", pluginList->plugin[i].format);
+                        doc += fmt::format("Filename extension:\t{}\n", pluginList->plugin[i].extension);
+                        doc += fmt::format("Description:\t\t{}\n", pluginList->plugin[i].desc);
+                        doc += fmt::format("Example API call:\t{}\n\n", pluginList->plugin[i].example);
                     }
+                }
                 break;
             }
             case 1: {
                 target = UDA_PLUGIN_CLASS_FUNCTION;
-                for (int i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++) {
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
                          (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
-                             count++;
+                        count++;
                     }
-                sprintf(rec, "\nNumber of plugins for Libraries: %d\n\n", count);
-                strcat(doc, rec);
-                for (int i = 0; i < pluginList->count; i++)
+                }
+                doc += fmt::format("\nNumber of plugins for Libraries: {}\n\n", count);
+                for (int i = 0; i < pluginList->count; i++) {
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
                          (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
-                        sprintf(rec, "Library name:\t\t%s\n", pluginList->plugin[i].format);
-                        strcat(doc, rec);
-                        sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
-                        strcat(doc, rec);
-                        sprintf(rec, "Example API call:\t%s\n\n", pluginList->plugin[i].example);
-                        strcat(doc, rec);
+                        doc += fmt::format("Library name:\t\t{}\n", pluginList->plugin[i].format);
+                        doc += fmt::format("Description:\t\t{}\n", pluginList->plugin[i].desc);
+                        doc += fmt::format("Example API call:\t{}\n\n", pluginList->plugin[i].example);
                     }
+                }
                 break;
             }
             case 2: {
                 target = UDA_PLUGIN_CLASS_SERVER;
-                for (int i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++) {
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
                          (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
-                             count++;
+                        count++;
                     }
-                sprintf(rec, "\nNumber of plugins for Data Servers: %d\n\n", count);
-                strcat(doc, rec);
-                for (int i = 0; i < pluginList->count; i++)
+                }
+                doc += fmt::format("\nNumber of plugins for Data Servers: {}\n\n", count);
+                for (int i = 0; i < pluginList->count; i++) {
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
                          (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
-                        sprintf(rec, "Server name:\t\t%s\n", pluginList->plugin[i].format);
-                        strcat(doc, rec);
-                        sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
-                        strcat(doc, rec);
-                        sprintf(rec, "Example API call:\t%s\n\n", pluginList->plugin[i].example);
-                        strcat(doc, rec);
+                        doc += fmt::format("Server name:\t\t{}\n", pluginList->plugin[i].format);
+                        doc += fmt::format("Description:\t\t{}\n", pluginList->plugin[i].desc);
+                        doc += fmt::format("Example API call:\t{}\n\n", pluginList->plugin[i].example);
                     }
+                }
                 break;
             }
             case 3: {
                 target = UDA_PLUGIN_CLASS_DEVICE;
-                for (int i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++) {
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
                          (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
-                             count++;
+                        count++;
                     }
-                sprintf(rec, "\nNumber of plugins for External Devices: %d\n\n", count);
-                strcat(doc, rec);
-                for (int i = 0; i < pluginList->count; i++)
+                }
+                doc += fmt::format("\nNumber of plugins for External Devices: {}\n\n", count);
+                for (int i = 0; i < pluginList->count; i++) {
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
                          (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
-                        sprintf(rec, "External device name:\t%s\n", pluginList->plugin[i].format);
-                        strcat(doc, rec);
-                        sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
-                        strcat(doc, rec);
-                        sprintf(rec, "Example API call:\t%s\n\n", pluginList->plugin[i].example);
-                        strcat(doc, rec);
+                        doc += fmt::format("External device name:\t{}\n", pluginList->plugin[i].format);
+                        doc += fmt::format("Description:\t\t{}\n", pluginList->plugin[i].desc);
+                        doc += fmt::format("Example API call:\t{}\n\n", pluginList->plugin[i].example);
                     }
+                }
                 break;
             }
             case 4: {
                 target = UDA_PLUGIN_CLASS_OTHER;
-                for (int i = 0; i < pluginList->count; i++)
+                for (int i = 0; i < pluginList->count; i++) {
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
                          (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
-                             count++;
+                        count++;
                     }
-                sprintf(rec, "\nNumber of plugins for Other data services: %d\n\n", count);
-                strcat(doc, rec);
-                for (int i = 0; i < pluginList->count; i++)
+                }
+                doc += fmt::format("\nNumber of plugins for Other data services: {}\n\n", count);
+                for (int i = 0; i < pluginList->count; i++) {
                     if (pluginList->plugin[i].plugin_class == target &&
                         pluginList->plugin[i].status == UDA_PLUGIN_OPERATIONAL &&
                         (pluginList->plugin[i].is_private == UDA_PLUGIN_PUBLIC ||
                          (pluginList->plugin[i].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user))) {
-                        sprintf(rec, "Data service name:\t%s\n", pluginList->plugin[i].format);
-                        strcat(doc, rec);
-                        sprintf(rec, "Description:\t\t%s\n", pluginList->plugin[i].desc);
-                        strcat(doc, rec);
-                        sprintf(rec, "Example API call:\t%s\n\n", pluginList->plugin[i].example);
-                        strcat(doc, rec);
+                        doc += fmt::format("Data service name:\t{}\n", pluginList->plugin[i].format);
+                        doc += fmt::format("Description:\t\t{}\n", pluginList->plugin[i].desc);
+                        doc += fmt::format("Example API call:\t{}\n\n", pluginList->plugin[i].example);
                     }
+                }
                 break;
             }
         }
     }
 
-    strcat(doc, "\n\n");
+    doc += "\n\n";
 
-    return setReturnDataString(idam_plugin_interface->data_block, doc, "Description of IDAM data access services");
+    return setReturnDataString(idam_plugin_interface->data_block, doc.c_str(), "Description of UDA data access services");
 }

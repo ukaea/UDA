@@ -77,6 +77,7 @@
 #endif
 
 #include <openssl/sha.h>
+#include <fmt/format.h>
 
 #define PARTBLOCKINIT     1
 #define PARTBLOCKUPDATE   2
@@ -110,7 +111,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
     XDR* priorxdrs = xdrs;        // Preserve the current stream object
 
-    char tempFile[MAXPATH] = "/tmp/idamXDRXXXXXX";
+    std::string temp_file = "/tmp/idamXDRXXXXXX";
     char* env = nullptr;
 
     unsigned char md[MAX_ELEMENT_SHA1 + 1];        // SHA1 Hash
@@ -122,7 +123,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
     if ((private_flags & PRIVATEFLAG_XDRFILE) && protocolVersion >= 5) {        // Intermediate XDR File, not stream
         if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
             // File to record XDR encoded data
-            sprintf(tempFile, "%s/idamXDRXXXXXX", env);
+            temp_file = fmt::format("{}/idamXDRXXXXXX", env);
         }
     }
 
@@ -217,21 +218,21 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         UDA_LOG(UDA_LOG_DEBUG, "creating temporary/cache XDR file\n");
 
                         errno = 0;
-                        if (mkstemp(tempFile) < 0 || errno != 0) {
+                        if (mkstemp(temp_file.data()) < 0 || errno != 0) {
                             err = 999;
                             if (errno != 0) err = errno;
                             addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
                                          " Unable to Obtain a Temporary/Cache File Name");
                             break;
                         }
-                        if ((xdrfile = fopen(tempFile, "wb")) == nullptr) {
+                        if ((xdrfile = fopen(temp_file.c_str(), "wb")) == nullptr) {
                             err = 999;
                             addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
                                          " Unable to Open a Temporary/Cache XDR File for Writing");
                             break;
                         }
 
-                        UDA_LOG(UDA_LOG_DEBUG, "stdio XDR file: %s\n", tempFile);
+                        UDA_LOG(UDA_LOG_DEBUG, "stdio XDR file: %s\n", temp_file.c_str());
 
                         packageType = UDA_PACKAGE_XDRFILE;              // The package is a file with XDR serialised data
                         rc = xdr_int(xdrs, &packageType);           // Send data package type
@@ -361,9 +362,9 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                         UDA_LOG(UDA_LOG_DEBUG, "sending temporary XDR file\n");
 
-                        err = sendXDRFile(xdrs, tempFile);        // Read and send
+                        err = sendXDRFile(xdrs, temp_file.c_str());        // Read and send
 
-                        remove(tempFile);
+                        remove(temp_file.c_str());
 
                         if (err != 0) break;
 
@@ -512,26 +513,24 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         // structures, pass the file onward
 
                         errno = 0;
-                        if (mkstemp(tempFile) < 0 || errno != 0) {
+                        if (mkstemp(temp_file.data()) < 0 || errno != 0) {
                             err = 998;
                             if (errno != 0) err = errno;
                             addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
                                          "Unable to Obtain a Temporary File Name [3]");
                             err = 998;
-                            addIdamError(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
+                            addIdamError(UDA_CODE_ERROR_TYPE, "protocolXML", err, temp_file.c_str());
                             UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [3], tempFile=[%s]\n",
-                                    tempFile);
+                                    temp_file.c_str());
                             break;
                         }
 
-                        err = receiveXDRFile(xdrs, tempFile);        // Receive and write the file
+                        err = receiveXDRFile(xdrs, temp_file.c_str());        // Receive and write the file
 
                         if (err != 0) break;
 
-                        char* fname = (char*)malloc(sizeof(char) * (strlen(tempFile) + 1));
-                        strcpy(fname, tempFile);
                         data_block->data = nullptr;                         // No Data - not unpacked
-                        data_block->opaque_block = (void*)fname;            // File name
+                        data_block->opaque_block = strdup(temp_file.c_str());            // File name
                         data_block->opaque_type = UDA_OPAQUE_TYPE_XDRFILE;  // The data block is carrying the filename only
 
                         // The temporary file is essentially cached
@@ -596,23 +595,23 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             UDA_LOG(UDA_LOG_DEBUG, "creating temporary/cached XDR file\n");
 
                             errno = 0;
-                            if (mkstemp(tempFile) < 0 || errno != 0) {
+                            if (mkstemp(temp_file.data()) < 0 || errno != 0) {
                                 err = 997;
                                 if (errno != 0) err = errno;
                                 addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
                                              " Unable to Obtain a Temporary File Name [2]");
                                 err = 997;
-                                addIdamError(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
+                                addIdamError(UDA_CODE_ERROR_TYPE, "protocolXML", err, temp_file.c_str());
                                 UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [2], tempFile=[%s]\n",
-                                        tempFile);
+                                        temp_file.c_str());
                                 break;
                             }
 
-                            err = receiveXDRFile(xdrs, tempFile);        // Receive and write the file
+                            err = receiveXDRFile(xdrs, temp_file.c_str());        // Receive and write the file
 
                             // Create input xdr file stream
 
-                            if ((xdrfile = fopen(tempFile, "rb")) == nullptr) {    // Read temporary file
+                            if ((xdrfile = fopen(temp_file.c_str(), "rb")) == nullptr) {    // Read temporary file
                                 err = 999;
                                 addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
                                              " Unable to Open a Temporary XDR File for Writing");
@@ -709,7 +708,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             xdr_stdio_flag = false;
 
                             fclose(xdrfile);
-                            remove(tempFile);
+                            remove(temp_file.c_str());
 
                         } else if (option == 5) {
 
@@ -923,28 +922,26 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         // Create a temporary XDR file, receive and write data to the file
 
                         errno = 0;
-                        if (mkstemp(tempFile) < 0 || errno != 0) {
+                        if (mkstemp(temp_file.data()) < 0 || errno != 0) {
                             err = 996;
                             if (errno != 0) err = errno;
                             addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
                                          " Unable to Obtain a Temporary File Name");
                             err = 996;
-                            addIdamError(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
+                            addIdamError(UDA_CODE_ERROR_TYPE, "protocolXML", err, temp_file.c_str());
                             UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name, tempFile=[%s]\n",
-                                    tempFile);
+                                    temp_file.c_str());
                             break;
                         }
 
-                        err = receiveXDRFile(xdrs, tempFile);        // Receive and write the file
+                        err = receiveXDRFile(xdrs, temp_file.c_str());        // Receive and write the file
 
                         if (private_flags & PRIVATEFLAG_XDRFILE) {    // Forward the file (option 3) again
 
                             // If this is an intermediate client then read the file without unpacking the structures
 
-                            char* fname = (char*)malloc(sizeof(char) * (strlen(tempFile) + 1));
-                            strcpy(fname, tempFile);
                             data_block->data = nullptr;                // No Data - not unpacked
-                            data_block->opaque_block = (void*)fname;            // File name
+                            data_block->opaque_block = strdup(temp_file.c_str());            // File name
                             data_block->opaque_type = UDA_OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
 
                             UDA_LOG(UDA_LOG_DEBUG, "Forwarding Received forwarded XDR File\n");
@@ -963,7 +960,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                             // Create input xdr file stream
 
-                            if ((xdrfile = fopen(tempFile, "rb")) == nullptr) {    // Read temporary file
+                            if ((xdrfile = fopen(temp_file.c_str(), "rb")) == nullptr) {    // Read temporary file
                                 err = 999;
                                 addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
                                              " Unable to Open a Temporary XDR File for Writing");
@@ -1016,7 +1013,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             fclose(xdrfile);
 
                             // Remove the Temporary File
-                            remove(tempFile);
+                            remove(temp_file.c_str());
 
                             // Regular client or server
 

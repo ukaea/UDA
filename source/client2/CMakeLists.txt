@@ -3,6 +3,7 @@
 
 find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
+find_package( fmt REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -100,7 +101,7 @@ if( BUILD_SHARED_LIBS )
   add_library( client2-shared SHARED ${CLIENT_OBJS} )
 endif()
 
-set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} )
+set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} fmt::fmt )
 if( NOT CLIENT_ONLY )
   set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${LIBXML2_LIBRARIES} )
   if( MINGW )

@@ -49,6 +49,7 @@ void expandFilePath(char *path) {
 #else
 
 #include <boost/algorithm/string.hpp>
+#include <fmt/format.h>
 
 #define MAXPATHSUBS         10
 #define MAXPATHSUBSLENGTH   256
@@ -285,7 +286,6 @@ int linkReplacement(char* path)
     int err;
     FILE* ph = nullptr;
     char* p;
-    char cmd[STRING_LENGTH];
 
     //------------------------------------------------------------------------------------
     //! Dereference path links using a command pipe: Ignore any errors
@@ -293,10 +293,10 @@ int linkReplacement(char* path)
     // If the user has embedded linux commands within the source string, they will be exposed here
     // within the client's environment - not the server's.
 
-    sprintf(cmd, "ls -l %s 2>&1;", path);
+    std::string cmd = fmt::format("ls -l {} 2>&1;", path);
 
     errno = 0;
-    if ((ph = popen(cmd, "r")) == nullptr) {
+    if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
         if (errno != 0) addIdamError(UDA_SYSTEM_ERROR_TYPE, "linkReplacement", errno, "");
         err = 1;
         addIdamError(UDA_CODE_ERROR_TYPE, "linkReplacement", err, "Unable to Dereference Symbolic links");
@@ -304,8 +304,9 @@ int linkReplacement(char* path)
         return err;
     }
 
+    char buffer[STRING_LENGTH];
     if (!feof(ph)) {
-        if (fgets(cmd, STRING_LENGTH - 1, ph) == nullptr) {
+        if (fgets(buffer, STRING_LENGTH - 1, ph) == nullptr) {
             UDA_THROW_ERROR(999, "failed to read line from command");
         }
     }
@@ -314,7 +315,7 @@ int linkReplacement(char* path)
     //------------------------------------------------------------------------------------
     //! Extract the Dereferenced path. Accept only if it is Not a Relative path
 
-    if ((p = strstr(cmd, " -> ")) != nullptr) {
+    if ((p = strstr(buffer, " -> ")) != nullptr) {
         if (p[4] == '/') {
             strcpy(path, p + 4);
             convertNonPrintable2(path);
@@ -432,7 +433,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     // Override compiler options
 
     if ((env = getenv("UDA_SCRATCHNAME")) != nullptr) {    // Check for Environment Variable
-        sprintf(scratch, "/%s/", env);
+        snprintf(scratch, STRING_LENGTH, "/%s/", env);
         lscratch = (int)strlen(scratch);
     }
 
@@ -524,7 +525,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         if ((fp = strrchr(path, '/')) == nullptr) {        // Search backwards - extract filename
             strcpy(work1, path);
-            sprintf(path, "%s/%s", cwd, work1);        // prepend the CWD and return
+            snprintf(path, STRING_LENGTH, "%s/%s", cwd, work1);        // prepend the CWD and return
             if ((err = linkReplacement(path)) != 0) {
                 return err;
             }
@@ -640,7 +641,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         //! Prepend the expanded/resolved directory name to the File Name
 
-        sprintf(path, "%s/%s", work1, file);        // Prepend the path to the filename
+        snprintf(path, STRING_LENGTH, "%s/%s", work1, file);        // Prepend the path to the filename
 
     }    // End of t1 - t5 tests
 
@@ -673,14 +674,15 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
                 hostid(host);                // Identify the Name of the Current Workstation or Host
             }
 
+            // TODO: refactor this function so that we do not have to guess the path size
             if (strlen(netname) > 0 && strlen(host) > 0) {
-                sprintf(path, "/%s/%s%s", netname, host, work);    // prepend /netname/hostname to /scratch/...
+                snprintf(path, STRING_LENGTH, "/%s/%s%s", netname, host, work);    // prepend /netname/hostname to /scratch/...
             } else {
                 if (strlen(netname) > 0) {
-                    sprintf(path, "/%s%s", netname, work);
+                    snprintf(path, STRING_LENGTH, "/%s%s", netname, work);
                 } else {
                     if (strlen(host) > 0) {
-                        sprintf(path, "/%s%s", host, work);
+                        snprintf(path, STRING_LENGTH, "/%s%s", host, work);
                     }
                 }
             }

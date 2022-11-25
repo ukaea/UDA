@@ -164,7 +164,7 @@ int udaServerRedirectStdStreams(int reset)
 
             if (env == nullptr) {
                 if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
-                    sprintf(mksdir_template, "%s/idamPLUGINXXXXXX", env);
+                    snprintf(mksdir_template, MAXPATH, "%s/idamPLUGINXXXXXX", env);
                 } else {
                     strcpy(mksdir_template, "/tmp/idamPLUGINXXXXXX");
                 }
@@ -391,7 +391,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     // mimic a client request
 
     if (logRecord == nullptr || strlen(logRecord) == 0) {
-        sprintf(request.signal, "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
+        snprintf(request.signal, MAXMETA, "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
                                       "trueSignal='%s', trueSource='%s', trueSourceDOI='%s', execMethod=%d, status=new)",
                 plugin_list->plugin[plugin_id].format, client_block->DOI,
                 original_request->signal, original_request->source,
@@ -400,7 +400,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
 
         // need 2> record the server log record
 
-        sprintf(request.signal, "%s::putSignal(uuid='%s',logRecord='%s', execMethod=%d, status=update)",
+        snprintf(request.signal, MAXMETA, "%s::putSignal(uuid='%s',logRecord='%s', execMethod=%d, status=update)",
                 plugin_list->plugin[plugin_id].format, client_block->DOI, logRecord, execMethod);
     }
 

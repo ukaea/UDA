@@ -23,7 +23,7 @@ int startup()
 
     if (environment->loglevel <= UDA_LOG_ACCESS) {
         char cmd[STRING_LENGTH];
-        sprintf(cmd, "mkdir -p %s 2>/dev/null", environment->logdir);
+        snprintf(cmd, STRING_LENGTH, "mkdir -p %s 2>/dev/null", environment->logdir);
         if (system(cmd) != 0) {
             UDA_THROW_ERROR(999, "mkdir command failed");
         }

@@ -6,7 +6,6 @@ include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 
 find_package( LibXml2 REQUIRED )
 
-
 if( WIN32 AND NOT MINGW )
   add_definitions( /W2 /WX )
 else()

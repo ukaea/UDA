@@ -34,6 +34,7 @@
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
 #include <serialisation/capnp_serialisation.h>
+#include <fmt/format.h>
 
 #include "teststructs.h"
 
@@ -3255,29 +3256,26 @@ static int do_test50(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     // Return an array of strings with all passed parameters and substitutions
 
-    int count = 10 * 1024;
-    char* work = (char*)malloc(count * sizeof(char));
-    work[0] = '\0';
+    std::string work = "test50 passed parameters and substitutions\n";
+    work += fmt::format("Shot number: {}\n", request->exp_number);
+    work += fmt::format("Pass number: {}\n", request->pass);
+    work += fmt::format("substitution parameters: {}\n", request->tpass);
+    work += fmt::format("Number of name-value pairs: {}\n", request->nameValueList.pairCount);
+    for (int i = 0; i < request->nameValueList.pairCount; i++) {
+        work += fmt::format("name: {}, value: {}\n", request->nameValueList.nameValue[i].name,
+                            request->nameValueList.nameValue[i].value);
+    }
 
-    strcpy(work, "test50 passed parameters and substitutions\n");
-    sprintf(&work[strlen(work)], "Shot number:%d\n", request->exp_number);
-    sprintf(&work[strlen(work)], "Pass number:%d\n", request->pass);
-    sprintf(&work[strlen(work)], "substitution parameters:%s\n", request->tpass);
-    sprintf(&work[strlen(work)], "Number of name-value pairs: %d\n", request->nameValueList.pairCount);
-    for (int i = 0; i < request->nameValueList.pairCount; i++)
-        sprintf(&work[strlen(work)], "name: %s, value: %s\n", request->nameValueList.nameValue[i].name,
-                request->nameValueList.nameValue[i].value);
-
-    UDA_LOG(UDA_LOG_DEBUG, "test50: %s\n", work);
+    UDA_LOG(UDA_LOG_DEBUG, "test50: %s\n", work.c_str());
 
     initDataBlock(data_block);
 
     data_block->rank = 0;
-    data_block->data_n = count;
+    data_block->data_n = work.size();
     data_block->data_type = UDA_TYPE_STRING;
     strcpy(data_block->data_desc, "testplugins:test50 = passing placeholders and substitution values to plugins");
 
-    data_block->data = (char*)work;
+    data_block->data = strdup(work.c_str());
 
     strcpy(data_block->data_label, "");
     strcpy(data_block->data_units, "");

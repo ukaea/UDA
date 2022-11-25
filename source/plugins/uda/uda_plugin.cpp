@@ -9,6 +9,7 @@
 #include <logging/logging.h>
 #include <plugins/udaPlugin.h>
 #include <client/udaClient.h>
+#include <fmt/format.h>
 
 #if !defined(__GNUC__)
 #  define strcasecmp _stricmp
@@ -345,11 +346,11 @@ Notes: there are three pathways depending on the request pattern
 
     if (pathway == 1) {    // Request via the Database
 
-        char signal[2 * MAXNAME + 2];
-        char source[2 * MAXNAME + 2];
+        std::string signal;
+        std::string source;
 
-        sprintf(signal, "%s::%s", data_source->archive, signal_desc->signal_name);
-        sprintf(source, "%s::%d", data_source->device_name, data_source->exp_number);
+        signal = fmt::format("{}::{}", data_source->archive, signal_desc->signal_name);
+        source = fmt::format("{}::{}", data_source->device_name, data_source->exp_number);
 
         if (data_source->server[0] != '\0') {
             char* p = nullptr, * s = nullptr;
@@ -394,10 +395,10 @@ Notes: there are three pathways depending on the request pattern
         UDA_LOG(UDA_LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", data_source->server);
         UDA_LOG(UDA_LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
         UDA_LOG(UDA_LOG_DEBUG, "Calling idamGetAPI API (Database based Request)\n");
-        UDA_LOG(UDA_LOG_DEBUG, "Signal: %s\n", signal);
-        UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", source);
+        UDA_LOG(UDA_LOG_DEBUG, "Signal: %s\n", signal.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", source.c_str());
 
-        handle = idamGetAPI(signal, source);
+        handle = idamGetAPI(signal.c_str(), source.c_str());
 
     } else if (pathway == 2) {
 

@@ -280,7 +280,7 @@ int createConnection(XDR* client_input, XDR* client_output)
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     putClientHost(host);
 #endif
-    sprintf(serviceport, "%d", environment->server_port);
+    snprintf(serviceport, PORT_STRING, "%d", environment->server_port);
 
     // Does the host name contain the SSL protocol prefix? If so strip this off
 
@@ -414,7 +414,7 @@ int createConnection(XDR* client_input, XDR* client_output)
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
             putClientHost(host);
 #endif
-            sprintf(serviceport, "%d", environment->server_port2);
+            snprintf(serviceport, PORT_STRING, "%d", environment->server_port2);
 
             // Does the host name contain the SSL protocol prefix? If so strip this off
 

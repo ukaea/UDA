@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef UDA_CLIENTSERVER_READXDRFILE_H
 #define UDA_CLIENTSERVER_READXDRFILE_H
 
@@ -7,16 +9,8 @@
 
 #define MAXDOLOOPLIMIT 500            // ~50MB file
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-LIBRARY_API int sendXDRFile(XDR* xdrs, char* xdrfile);
-LIBRARY_API int receiveXDRFile(XDR* xdrs, char* xdrfile);
-
-#ifdef __cplusplus
-}
-#endif
+int sendXDRFile(XDR* xdrs, const char* xdrfile);
+int receiveXDRFile(XDR* xdrs, const char* xdrfile);
 
 #endif // UDA_CLIENTSERVER_READXDRFILE_H
 

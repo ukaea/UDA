@@ -47,9 +47,9 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
     char data_source[STRING_LENGTH + 1];
     if (strlen(file) == 0) {
         if (pass < 0)
-            sprintf(data_source, "%d", exp_number);
+            snprintf(data_source, STRING_LENGTH + 1, "%d", exp_number);
         else
-            sprintf(data_source, "%d/%d", exp_number, pass);
+            snprintf(data_source, STRING_LENGTH + 1, "%d/%d", exp_number, pass);
     } else {
         strcpy(data_source, file);
     }
@@ -116,10 +116,11 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
 
     int err;
     char data_source[STRING_LENGTH + 1];
-    if (strlen(format) == 0)
+    if (strlen(format) == 0) {
         strcpy(data_source, file);
-    else
-        sprintf(data_source, "%s::%s", format, file);
+    } else {
+        snprintf(data_source, STRING_LENGTH + 1, "%s::%s", format, file);
+    }
 
     if ((err = makeClientRequestBlock(&signal, (const char**)&data_source, 1, &request_block)) != 0) {
         closeUdaError();

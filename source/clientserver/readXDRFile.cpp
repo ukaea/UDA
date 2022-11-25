@@ -1,20 +1,3 @@
-/*---------------------------------------------------------------
-* IDAM XDR File Read/Writer
-*
-* Input Arguments:
-*
-*
-* Returns:         0 if read was successful
-*             otherwise an Error Code is returned
-*
-*
-* Calls
-*
-* Notes:
-*
-* ToDo:
-*-----------------------------------------------------------------------------*/
-
 #include "readXDRFile.h"
 
 #include <cstdlib>
@@ -29,7 +12,7 @@
 
 #define MAXDOLOOPLIMIT 500            // ~50MB file
 
-int sendXDRFile(XDR* xdrs, char* xdrfile)
+int sendXDRFile(XDR* xdrs, const char* xdrfile)
 {
 
     int err = 0, rc = 1, nchar, bufsize, count;
@@ -117,7 +100,7 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
     return err;
 }
 
-int receiveXDRFile(XDR* xdrs, char* xdrfile)
+int receiveXDRFile(XDR* xdrs, const char* xdrfile)
 {
     int err = 0, rc = 1, nchar, bufsize, count, doLoopLimit = 0;
     FILE* fh;

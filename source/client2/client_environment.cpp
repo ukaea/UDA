@@ -1,6 +1,7 @@
 #include <logging/logging.h>
 #include <cstdlib>
 #include "client_environment.hpp"
+#include <fmt/format.h>
 
 Environment uda::client::load_environment(bool* env_host, bool* env_port)
 {
@@ -28,9 +29,8 @@ Environment uda::client::load_environment(bool* env_host, bool* env_port)
     }
 
     if (environment.loglevel <= UDA_LOG_ACCESS) {
-        char cmd[STRING_LENGTH];
-        sprintf(cmd, "mkdir -p %s 2>/dev/null", environment.logdir);
-        if (system(cmd) != 0) {
+        std::string cmd = fmt::format("mkdir -p {} 2>/dev/null", environment.logdir);
+        if (system(cmd.c_str()) != 0) {
             // TODO: How to log error before log files are open?
         };
     }

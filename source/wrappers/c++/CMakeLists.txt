@@ -4,6 +4,7 @@
 find_package( Boost REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
+find_package( fmt REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( OpenSSL REQUIRED )
@@ -66,7 +67,7 @@ set( CLIENT_OBJS
   $<TARGET_OBJECTS:authentication-client-objects>
 )
 
-set( LINK_LIB ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${CACHE_LIBRARIES} )
+set( LINK_LIB ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${CACHE_LIBRARIES} fmt::fmt )
 if( WIN32 OR MINGW )
   if( MINGW )
     set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dl stdc++ )

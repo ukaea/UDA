@@ -264,7 +264,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
             environment.server_port = port;
         }
     }
-    sprintf(serviceport, "%d", environment.server_port);
+    snprintf(serviceport, PORT_STRING, "%d", environment.server_port);
 
     // Does the host name contain the SSL protocol prefix? If so strip this off
 
@@ -384,7 +384,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
                     environment.server_port2 = port;
                 }
             }
-            sprintf(serviceport, "%d", environment.server_port2);
+            snprintf(serviceport, PORT_STRING, "%d", environment.server_port2);
 
             // Does the host name contain the SSL protocol prefix? If so strip this off
 

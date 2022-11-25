@@ -1,4 +1,7 @@
 #include "memcache.hpp"
+
+#include <fmt/format.h>
+
 #include "cache.h"
 
 #ifdef NOLIBMEMCACHED
@@ -108,9 +111,9 @@ generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment, uint32_
 
     // Convert to a printable string (40 characters) for the key (is this necessary?)
     std::string hash_key;
-    hash_key.resize(40);
+    hash_key.reserve(40);
     for (int i = 0; i < 20; i++) {
-        sprintf(&hash_key[2 * i], "%2.2x", hash[i]);
+        hash_key += fmt::format("{:2.2x}", hash[i]);
     }
 
     return hash_key;

@@ -14,6 +14,7 @@
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>
+#include <fmt/format.h>
 
 static void embedded_value_substitution(NAMEVALUELIST* nameValueList);
 
@@ -276,20 +277,17 @@ void embedded_value_substitution(NAMEVALUELIST* nameValueList)
                             UDA_LOG(UDA_LOG_DEBUG, "Substituting %s with %s\n", newNameValueList.nameValue[j].value,
                                     nameValueList->nameValue[k].value);
 
-                            char* replace = (char*)malloc(
-                                    (strlen(original) + strlen(nameValueList->nameValue[k].value) + 2) * sizeof(char));
-                            replace[0] = '\0';
                             p[0] = '\0';
-                            sprintf(replace, "%s%s%s", original, nameValueList->nameValue[k].value, &p[lstr]);
+                            std::string replace = fmt::format("{}{}{}", original, nameValueList->nameValue[k].value, &p[lstr]);
 
                             UDA_LOG(UDA_LOG_DEBUG, "original %s\n", original);
                             UDA_LOG(UDA_LOG_DEBUG, "value    %s\n", nameValueList->nameValue[k].value);
                             UDA_LOG(UDA_LOG_DEBUG, "residual %s\n", &p[lstr]);
-                            UDA_LOG(UDA_LOG_DEBUG, "Modified Original %s\n", replace);
+                            UDA_LOG(UDA_LOG_DEBUG, "Modified Original %s\n", replace.c_str());
 
                             free(original);
                             free(nameValueList->nameValue[i].value);
-                            nameValueList->nameValue[i].value = replace;
+                            nameValueList->nameValue[i].value = strdup(replace.c_str());
 
                             break;
 

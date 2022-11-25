@@ -14,6 +14,7 @@
 
 #include <logging/logging.h>
 #include <plugins/pluginStructs.h>
+#include <fmt/format.h>
 
 #include "errorLog.h"
 #include "stringUtils.h"
@@ -78,8 +79,8 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     //------------------------------------------------------------------------------
     // Check there is something to work with!
 
-    sprintf(work, "%s%s", environment->api_archive, environment->api_delim);    // default archive
-    sprintf(work2, "%s%s", environment->api_device, environment->api_delim);    // default device
+    snprintf(work, MAXMETA, "%s%s", environment->api_archive, environment->api_delim);    // default archive
+    snprintf(work2, MAXMETA, "%s%s", environment->api_device, environment->api_delim);    // default device
 
     LeftTrimString(request->signal);
     TrimString(request->signal);
@@ -106,7 +107,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     }
 
     //------------------------------------------------------------------------------
-    // Is this server acting as an IDAM Proxy? If all access requests are being re-directed then do nothing to the arguments.
+    // Is this server acting as an UDA Proxy? If all access requests are being re-directed then do nothing to the arguments.
     // They are just passed onwards without interpretation.
 
     bool isProxy = environment->server_proxy[0] != '\0';
@@ -134,7 +135,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     //    /pulse
     //    /pulse/pass
     //
-    //    DEVICE::FORMAT::/path/to/my/file    Passed on to a different IDAM server without interpretation
+    //    DEVICE::FORMAT::/path/to/my/file    Passed on to a different UDA server without interpretation
     //    DEVICE::FORMAT::pulse
 
     //    /path/to/my/file.ext            use file extension 'ext' to identify the correct FORMAT if known
@@ -348,7 +349,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
                         int id = find_plugin_id_by_format(pluginList.plugin[i].deviceProtocol, &pluginList);
                         if (id >= 0 && pluginList.plugin[id].plugin_class == UDA_PLUGIN_CLASS_SERVER) {
 
-                            sprintf(work, "%s%s%s", pluginList.plugin[i].deviceProtocol, request->api_delim,
+                            snprintf(work, MAXMETA, "%s%s%s", pluginList.plugin[i].deviceProtocol, request->api_delim,
                                     pluginList.plugin[i].deviceHost);
                             UDA_LOG(UDA_LOG_DEBUG, "work#1: %s\n", work);
 
@@ -488,7 +489,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
         UDA_THROW_ERROR(999, "Subset operation is incorrect!");
     }
 
-    // as at 19Apr2011 no signals recorded in the IDAM database use either [ or { characters
+    // as at 19Apr2011 no signals recorded in the UDA database use either [ or { characters
     // there will be no confusion between subset operations and valid signal names
 
     if (rc == 1) {        // the subset has valid syntax so reduce the signal name by removing the subset instructions
@@ -501,7 +502,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     }
 
     //------------------------------------------------------------------------------
-    // Extract the Archive Name and detach from the signal  (detachment is necessary when not passing on to another IDAM server)
+    // Extract the Archive Name and detach from the signal  (detachment is necessary when not passing on to another UDA server)
     // the Plugin Name is synonymous with the Archive Name and takes priority (The archive name is discarded as unimportant)
 
     if (request->request == REQUEST_READ_IDAM) {
@@ -518,7 +519,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     //------------------------------------------------------------------------------
     // Extract Name Value Pairs from the data object (signal) without modifying
 
-    // as at 22Sep2011 261 signals recorded in the IDAM database used parenthesis characters so could be confused
+    // as at 22Sep2011 261 signals recorded in the UDA database used parenthesis characters so could be confused
     // with function requests. However, for all these cases a source term would be specified. No library
     // would be part of this specification so there would be no ambiguity.
 
@@ -664,12 +665,12 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     }
 
     //---------------------------------------------------------------------------------------------------------------------
-    // IDAM and WEB Servers ...      parse source modelled as: server:port/source
+    // UDA and WEB Servers ...      parse source modelled as: server:port/source
 
     if (request->request == REQUEST_READ_IDAM || request->request == REQUEST_READ_WEB) {
         strcpy(work, test + ldelim);                // Drop the delimiters
 
-        // Isolate the Server from the source IDAM::server:port/source or SSL://server:port/source
+        // Isolate the Server from the source UDA::server:port/source or SSL://server:port/source
 
         strcpy(request->server, work);
 
@@ -799,60 +800,58 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
         const char* blank = "   ";
         FILE* ph = nullptr;
         int lstr = STRING_LENGTH;
-        char* cmd = (char*)malloc(lstr * sizeof(char));
-        sprintf(cmd, "head -c10 %s 2>/dev/null", source);
+        std::string cmd;
+        cmd = fmt::format("head -c10 {} 2>/dev/null", source);
         errno = 0;
-        if ((ph = popen(cmd, "r")) == nullptr) {
+        if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
             if (errno != 0) addIdamError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
             addIdamError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999,
                          "Unable to Identify the File's Format");
-            free(cmd);
             return -999;
         }
 
-        cmd[0] = '\0';
+        char buffer[STRING_LENGTH];
         if (!feof(ph)) {
-            if (fgets(cmd, lstr - 1, ph) == nullptr) {
+            if (fgets(buffer, lstr - 1, ph) == nullptr) {
                 UDA_THROW_ERROR(-999, "failed to read command");
             }
         }
         pclose(ph);
 
         test = blank;
-        convertNonPrintable2(cmd);
-        LeftTrimString(cmd);
-        TrimString(cmd);
+        convertNonPrintable2(buffer);
+        LeftTrimString(buffer);
+        TrimString(buffer);
 
-        if (STR_EQUALS(cmd, "CDF")) {    // Legacy netCDF file
+        if (STR_EQUALS(buffer, "CDF")) {    // Legacy netCDF file
             test = nc;
         } else {
-            if (STR_EQUALS(cmd, "HDF")) {    // Either a netCDF or a HDF5 file: use utility programs to reveal!
+            if (STR_EQUALS(buffer, "HDF")) {    // Either a netCDF or a HDF5 file: use utility programs to reveal!
                 char* env = getenv("UDA_DUMP_NETCDF");
                 if (env != nullptr) {
-                    sprintf(cmd, "%s -h %s 2>/dev/null | head -c10 2>/dev/null", env, source);
+                    cmd = fmt::format("{} -h {} 2>/dev/null | head -c10 2>/dev/null", env, source);
                     errno = 0;
-                    if ((ph = popen(cmd, "r")) == nullptr) {
+                    if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
                         if (errno != 0) {
                             addIdamError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
                         }
                         addIdamError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999,
                                      "Unable to Identify the File's Format");
-                        free(cmd);
                         return -999;
                     }
 
-                    cmd[0] = '\0';
+                    buffer[0] = '\0';
                     if (!feof(ph)) {
-                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
+                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
                             UDA_THROW_ERROR(-999, "failed to read command");
                         }
                     }
                     pclose(ph);
-                    convertNonPrintable2(cmd);
-                    LeftTrimString(cmd);
-                    TrimString(cmd);
+                    convertNonPrintable2(buffer);
+                    LeftTrimString(buffer);
+                    TrimString(buffer);
 
-                    if (STR_EQUALS(cmd, "netcdf")) {        // netCDF file written to an HDF5 file
+                    if (STR_EQUALS(buffer, "netcdf")) {        // netCDF file written to an HDF5 file
                         test = nc;
                     } else {
                         if (cmd[0] == '\0') test = hf;        // HDF5 file
@@ -861,59 +860,57 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
             } else {                    // an IDA File?
                 char* env = getenv("UDA_DUMP_IDA");
                 if (env != nullptr) {
-                    sprintf(cmd, "%s -h %s 2>/dev/null 2>/dev/null", env, source);
+                    cmd = fmt::format("{} -h {} 2>/dev/null 2>/dev/null", env, source);
                     errno = 0;
-                    if ((ph = popen(cmd, "r")) == nullptr) {
+                    if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
                         if (errno != 0) {
                             UDA_ADD_SYS_ERROR("");
                         }
                         UDA_ADD_ERROR(999, "Unable to Identify the File's Format");
-                        free(cmd);
                         return -999;
                     }
 
-                    cmd[0] = '\0';
+                    buffer[0] = '\0';
                     if (!feof(ph)) {
                         // IDA3 interface version V3.13 with file structure IDA3.1
-                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
+                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
                             UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // Build JW Jan 25 2007 09:08:47
-                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
+                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
                             UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // Compiled without high level read/write CUTS
-                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
+                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
                             UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // Opening ida file
-                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
+                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
                             UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // ida_open error ?
-                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
+                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
                             UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     pclose(ph);
-                    convertNonPrintable2(cmd);
-                    LeftTrimString(cmd);
-                    TrimString(cmd);
-                    if (strncmp(cmd, "ida_open error", 14) != 0) {
+                    convertNonPrintable2(buffer);
+                    LeftTrimString(buffer);
+                    TrimString(buffer);
+                    if (strncmp(buffer, "ida_open error", 14) != 0) {
                         test = ida;    // Legacy IDA file
                     }
                 }
             }
         }
-        free(cmd);
 
 #else
         return rc;

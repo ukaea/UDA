@@ -1,3 +1,4 @@
+#include <fmt/format.h>
 #include <cstdio>
 #if defined(__GNUC__)
 #  include <strings.h>
@@ -601,14 +602,14 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     for (int i = 0; i < request_block->num_requests; ++i) {
         REQUEST_DATA* request = &request_block->requests[i];
 
-        char work[1024];
+        std::string work;
         if (request->api_delim[0] != '\0') {
-            sprintf(work, "UDA%s", request->api_delim);
+            work = fmt::format("UDA{}", request->api_delim);
         } else {
-            sprintf(work, "UDA%s", environment.api_delim);
+            work = fmt::format("UDA{}", environment.api_delim);
         }
 
-        if (environment.server_proxy[0] != '\0' && strncasecmp(request->source, work, strlen(work)) != 0) {
+        if (environment.server_proxy[0] != '\0' && strncasecmp(request->source, work.c_str(), work.size()) != 0) {
 
             // Check the Server Version is Compatible with the Originating client version ?
 
@@ -621,12 +622,12 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
             // The UDA Plugin strips out the host and port data from the source so the originating server details are never passed.
 
             if (request->api_delim[0] != '\0') {
-                sprintf(work, "UDA%s%s", request->api_delim, environment.server_this);
+                work = fmt::format("UDA{}{}", request->api_delim, environment.server_this);
             } else {
-                sprintf(work, "UDA%s%s", environment.api_delim, environment.server_this);
+                work = fmt::format("UDA{}{}", environment.api_delim, environment.server_this);
             }
 
-            if (strstr(request->source, work) != nullptr) {
+            if (strstr(request->source, work.c_str()) != nullptr) {
                 UDA_THROW_ERROR(999,
                                 "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
             }
@@ -641,12 +642,12 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
             // Prepend the redirection UDA server details
 
             if (request->api_delim[0] != '\0') {
-                sprintf(work, "UDA%s%s/%s", request->api_delim, environment.server_proxy, request->source);
+                work = fmt::format("UDA{}{}/{}", request->api_delim, environment.server_proxy, request->source);
             } else {
-                sprintf(work, "UDA%s%s/%s", environment.api_delim, environment.server_proxy, request->source);
+                work = fmt::format("UDA{}{}/{}", environment.api_delim, environment.server_proxy, request->source);
             }
 
-            strcpy(request->source, work);
+            strcpy(request->source, work.c_str());
 
             UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to %s\n", environment.server_proxy);
             UDA_LOG(UDA_LOG_DEBUG, "source: %s\n", request->source);

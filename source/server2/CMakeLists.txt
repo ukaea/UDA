@@ -4,6 +4,7 @@
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 find_package( spdlog REQUIRED )
+find_package( fmt REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -121,6 +122,7 @@ target_link_libraries( server2-static PRIVATE
   ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
   ${LINK_DL}
+  fmt::fmt
 )
 
 if( BUILD_SHARED_LIBS )
@@ -139,6 +141,7 @@ if( BUILD_SHARED_LIBS )
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
     ${LINK_DL}
+    fmt::fmt
   )
 endif()
 

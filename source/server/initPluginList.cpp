@@ -5,6 +5,7 @@
 #include <cache/memcache.hpp>
 #include <clientserver/stringUtils.h>
 #include <server/serverPlugin.h>
+#include <fmt/format.h>
 
 #include "getPluginAddress.h"
 
@@ -82,42 +83,32 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
         char* config = getenv("UDA_PLUGIN_CONFIG");            // Server plugin configuration file
         FILE* conf = nullptr;
         const char* filename = "udaPlugins.conf";                // Default name
-        char* work = nullptr, * csv, * next, * p;
+        std::string work;
 
         // Locate the plugin registration file
 
-        int lstr;
         if (config == nullptr) {
             root = getenv("UDA_SERVERROOT");                // Where udaPlugins.conf is located by default
             if (root == nullptr) {
-                lstr = (int)strlen(filename) + 3;
-                work = (char*)malloc(lstr * sizeof(char));
-                sprintf(work, "./%s", filename);            // Default ROOT is the server's Working Directory
+                work = fmt::format("./{}", filename); // Default ROOT is the server's Working Directory
             } else {
-                lstr = (int)strlen(filename) + (int)strlen(root) + 2;
-                work = (char*)malloc(lstr * sizeof(char));
-                sprintf(work, "%s/%s", root, filename);
+                work = fmt::format("{}/{}", root, filename);
             }
         } else {
-            lstr = (int)strlen(config) + 1;
-            work = (char*)malloc(lstr * sizeof(char));            // Alternative File Name and Path
-            strcpy(work, config);
+            work = config; // Alternative File Name and Path
         }
 
         // Read the registration file
 
         errno = 0;
-        if ((conf = fopen(work, "r")) == nullptr || errno != 0) {
+        if ((conf = fopen(work.c_str(), "r")) == nullptr || errno != 0) {
             UDA_ADD_SYS_ERROR(strerror(errno));
             UDA_ADD_ERROR(999, "No Server Plugin Configuration File found!");
             if (conf != nullptr) {
                 fclose(conf);
             }
-            free(work);
             return;
         }
-
-        free(work);
 
         /*
         record format: csv, empty records ignored, comment begins #, max record size 1023;
@@ -140,18 +131,19 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
         cachePermission and publicUse may use one of the following values: "Y|N,1|0,T|F,True|False"
         */
 
-        while (fgets(buffer, STRING_LENGTH, conf) != nullptr) {
+        while (fgets(buffer, STRING_LENGTH - 1, conf) != nullptr) {
             convertNonPrintable2(buffer);
             LeftTrimString(TrimString(buffer));
             do {
                 if (buffer[0] == '#') break;
                 if (strlen(buffer) == 0) break;
-                next = buffer;
+                char* next = buffer;
                 initPluginData(&plugin_list->plugin[plugin_list->count]);
                 for (int i = 0; i < 10; i++) {
-                    csv = strchr(next, csvChar);                // Split the string
-                    if (csv != nullptr && i <= 8)
+                    char* csv = strchr(next, csvChar);                // Split the string
+                    if (csv != nullptr && i <= 8) {
                         csv[0] = '\0';            // Extract the sub-string ignoring the example - has a comma within text
+                    }
                     LeftTrimString(TrimString(next));
                     switch (i) {
 
@@ -182,6 +174,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
 
                                 if (plugin_list->plugin[plugin_list->count].plugin_class == UDA_PLUGIN_CLASS_FILE) {
                                     // Plugin method name using a dot syntax
+                                    char* p;
                                     if ((p = strchr(plugin_list->plugin[plugin_list->count].symbol, '.')) != nullptr) {
                                         p[0] = '\0';                                // Remove the method name from the symbol text
                                         strcpy(plugin_list->plugin[plugin_list->count].method, &p[1]);        // Save the method name
@@ -258,15 +251,17 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                             strcpy(plugin_list->plugin[plugin_list->count].desc, LeftTrimString(next));
                             break;
 
-                        case 9:    // Example
+                        case 9: {
+                            // Example
 
                             LeftTrimString(next);
-                            p = strchr(next, '\n');
+                            char* p = strchr(next, '\n');
                             if (p != nullptr) {
                                 p[0] = '\0';
                             }
                             strcpy(plugin_list->plugin[plugin_list->count].example, LeftTrimString(next));
                             break;
+                        }
 
                         default:
                             break;
