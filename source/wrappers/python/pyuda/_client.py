@@ -183,3 +183,9 @@ class Client(with_metaclass(ClientMeta, object)):
     @classmethod
     def set_property(cls, prop, value=None):
         cpyuda.set_property(prop, value)
+
+    def close_connection(self):
+        cpyuda.close_connection()
+
+    def reset_connection(self):
+        cpyuda.reset_connection()

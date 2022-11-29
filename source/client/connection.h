@@ -19,6 +19,9 @@ LIBRARY_API int reconnect(ENVIRONMENT* environment);
 LIBRARY_API int createConnection();
 LIBRARY_API void closeConnection(ClosedownType type);
 
+LIBRARY_API int resetClientConnection();
+LIBRARY_API void closeClientConnection();
+
 LIBRARY_API int clientWriteout(void* iohandle, char* buf, int count);
 LIBRARY_API int clientReadin(void* iohandle, char* buf, int count);
 

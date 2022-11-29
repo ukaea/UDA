@@ -8,7 +8,7 @@ service @USER@uda
     flags           = IPv4 NOLIBWRAP KEEPALIVE NODELAY
     type            = UNLISTED
     protocol        = tcp
-    port            = 56565
+    port            = @UDA_SERVER_PORT@
     socket_type     = stream
     wait            = no
     user            = @USER@

@@ -150,3 +150,8 @@ cdef extern from "structures/struct.h":
     int* getNodeAtomicRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
     int** getNodeAtomicShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
     void* getNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
+
+
+cdef extern from "client/connection.h":
+    int resetClientConnection();
+    void closeClientConnection();

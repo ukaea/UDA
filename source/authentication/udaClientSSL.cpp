@@ -442,16 +442,6 @@ int startUdaClientSSL()
 
         UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
 
-/*      
-      // Write the certificate to a tmp file
-      char template[] = "/tmp/UDAServer-X509-XXXXXX";
-      char *xname = mktemp(&template);
-      FILE *tmp = fopen(xname, "wb+");
-      if(tmp){
-         PEM_write_X509(tmp, peer);
- fclose(tmp);
-      }
-*/
         X509_free(peer);
 
     } else {
