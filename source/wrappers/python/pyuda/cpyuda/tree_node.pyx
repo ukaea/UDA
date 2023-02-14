@@ -59,7 +59,7 @@ cdef class TreeNode:
         cdef int* shape = ashape[idx]
 
         cdef void* data = uda.getNodeStructureComponentData(logmalloclist, self._node, name)
-        return to_python_c(type, rank, shape, point, data)
+        return to_python_c(type, rank, shape, point, data, <PyObject*>self)
 
     cdef _import_data(self):
         cdef uda.LOGMALLOCLIST* logmalloclist = uda.getIdamLogMallocList(self._handle)

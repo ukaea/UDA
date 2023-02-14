@@ -24,8 +24,8 @@ export UDA_DUMP_HDF5=`which h5dump 2>/dev/null`
 # UDA Server Host
 #------------------------------------------------------------------------------------------------------
 
-export UDA_HOST=`hostname`
-export UDA_PORT=56565
+export UDA_HOST=@UDA_SERVER_HOST@
+export UDA_PORT=@UDA_SERVER_PORT@
 
 #------------------------------------------------------------------------------------------------------
 # Plugin Registration + Structure Passing configuration

@@ -1,3 +1,7 @@
+
+from cpython.ref cimport PyObject
+from cpython.ref cimport Py_INCREF
+
 __uda2np_map = {
     1: np.NPY_INT8, # UDA_TYPE_CHAR = 1,
     2: np.NPY_INT16, # UDA_TYPE_SHORT = 2,
@@ -46,7 +50,7 @@ cdef int uda_field_type_to_numpy_type(str type):
     return __field_types.get(base_type, -1)
 
 
-cdef object to_python_c(const char* type, int rank, int* shape, int point, void* data):
+cdef object to_python_c(const char* type, int rank, int* shape, int point, void* data, PyObject* base):
     cdef np.npy_intp np_shape[1024]
     cdef int i
     for i in range(rank):
@@ -66,12 +70,15 @@ cdef object to_python_c(const char* type, int rank, int* shape, int point, void*
     else:
         np_type = uda_field_type_to_numpy_type(type.decode())
         if np_type >= 0:
+            Py_INCREF(<object>base)
             if point and rank == 0:
                 np_shape[0] = shape[0]
                 arr = np.PyArray_SimpleNewFromData(1, np_shape, np_type, data)
+                np.PyArray_SetBaseObject(arr, <object>base)
                 return arr
             else:
                 arr = np.PyArray_SimpleNewFromData(rank, np_shape, np_type, data)
+                np.PyArray_SetBaseObject(arr, <object>base)
                 if rank == 0:
                     return arr.sum()
                 else:

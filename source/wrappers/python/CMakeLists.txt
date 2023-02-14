@@ -10,6 +10,7 @@ configure_file( ${CMAKE_CURRENT_LIST_DIR}/pyuda/_version.py.in ${CMAKE_CURRENT_B
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py DESTINATION python_installer/pyuda )
 
 find_package( OpenSSL REQUIRED )
+find_package( LibXml2 REQUIRED )
 find_package( LibMemcached QUIET )
 
 if( LIBMEMCACHED_FOUND )
@@ -17,6 +18,7 @@ if( LIBMEMCACHED_FOUND )
 endif()
 
 get_filename_component( OPENSSL_LIB_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY )
+get_filename_component( LIBXML_LIB_DIR ${LIBXML2_LIBRARIES} DIRECTORY )
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/setup.py @ONLY )
 
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.py DESTINATION python_installer )

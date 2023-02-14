@@ -69,6 +69,17 @@ int connectionOpen()
     return client_socket != -1;
 }
 
+int resetClientConnection()
+{
+    ENVIRONMENT* env = getIdamClientEnvironment();
+    return reconnect(env);
+}
+
+void closeClientConnection()
+{
+    closeConnection(ClosedownType::CLOSE_ALL);
+}
+
 int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output, time_t* tv_server_start,
               int* user_timeout)
 {
