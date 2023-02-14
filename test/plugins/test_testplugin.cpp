@@ -1836,6 +1836,7 @@ TEST_CASE( "Run emptytest - return no data", "[plugins][TESTPLUGIN]" )
     REQUIRE( data->isNull() );
 }
 
+#ifdef CAPNP_ENABLED
 TEST_CASE( "Test capnp serialisation", "[plugins][TESTPLUGIN]" )
 {
 #include "setup.inc"
@@ -1886,3 +1887,4 @@ TEST_CASE( "Test capnp serialisation", "[plugins][TESTPLUGIN]" )
     REQUIRE( array[10] == Approx(1.0) );
     REQUIRE( array[29] == Approx(2.9) );
 }
+#endif // CAPNP_ENABLED

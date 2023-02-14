@@ -71,9 +71,13 @@ if( WIN32 OR MINGW )
   endif()
   include_directories( ${XDR_INCLUDE_DIR} )
   set( LIBRARIES ${XDR_LIBRARIES} ws2_32 )
-elseif(TIRPC_FOUND)
+elseif( TIRPC_FOUND )
   include_directories( ${TIRPC_INCLUDE_DIR} )
   set( LINK_LIB ${LINK_LIB} ${TIRPC_LIBRARIES})
+endif()
+
+if( ENABLE_CAPNP )
+  set( LIBRARIES ${LIBRARIES} serialisation-static )
 endif()
 
 set( LINK_DL )
@@ -108,7 +112,6 @@ macro( BUILD_TEST NAME SOURCE )
     ${CACHE_LIBRARIES}
     ${LIBRARIES}
     ${LINK_STD}
-    serialisation-static
   )
 
   set_target_properties( ${NAME}
@@ -134,7 +137,6 @@ macro( BUILD_TEST NAME SOURCE )
     ${LINK_M}
     ${LINK_DL}
     ${LINK_STD}
-    serialisation-static
   )
   if( NOT WIN32 AND NOT MINGW )
     target_link_libraries( fat_${NAME} PRIVATE c )

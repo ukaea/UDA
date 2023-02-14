@@ -156,6 +156,7 @@ option( CLIENT_ONLY "Only build UDA client" OFF )
 option( SERVER_ONLY "Only build UDA server" OFF )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( NO_MEMCACHE "Do not attempt to build with libmemcached support" OFF )
+option( ENABLE_CAPNP "Enable Cap’n Proto serialisation" OFF )
 
 # Wrapper configuration
 option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )
@@ -185,8 +186,9 @@ if( BUILD_SHARED_LIBS )
 endif()
 
 # Server config options
-set (UDA_SERVER_PORT "56565" CACHE string "define port number in server configuration files")
-set (UDA_SERVER_HOST "`hostname`" CACHE string "define hostname in server configuration files")
+set( UDA_SERVER_PORT "56565" CACHE STRING "define port number in server configuration files" )
+set( UDA_SERVER_HOST "`hostname`" CACHE STRING "define hostname in server configuration files" )
+
 ########################################################################################################################
 # Source directories
 

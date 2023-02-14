@@ -134,9 +134,11 @@ static int do_array1dtest(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 static int do_emptytest(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
+#ifdef CAPNP_ENABLED
 static int do_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 static int do_nested_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
+#endif // CAPNP_ENABLED
 
 #ifdef TESTUDT
 static int do_testudt(IDAM_PLUGIN_INTERFACE* plugin_interface);
@@ -326,10 +328,12 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
         err = do_test61(plugin_interface);
     } else if (STR_IEQUALS(request->function, "test62")) {
         err = do_test62(plugin_interface);
+#ifdef CAPNP_ENABLED
     } else if (STR_IEQUALS(request->function, "capnp")) {
         err = do_capnp_test(plugin_interface);
     } else if (STR_IEQUALS(request->function, "nested_capnp")) {
         err = do_nested_capnp_test(plugin_interface);
+#endif // CAPNP_ENABLED
     } else {
         err = 999;
         addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Unknown function requested!");
@@ -3894,6 +3898,7 @@ int do_emptytest(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
+#ifdef CAPNP_ENABLED
 int do_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     auto tree = uda_capnp_new_tree();
@@ -3992,6 +3997,7 @@ int do_nested_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     return 0;
 }
+#endif // CAPNP_ENABLED
 
 #ifdef TESTUDT
 

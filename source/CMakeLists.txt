@@ -1,5 +1,5 @@
-if (NOT CLIENT_ONLY)
-include( LibXml2StrPrintfConfig )
+if( NOT CLIENT_ONLY )
+  include( LibXml2StrPrintfConfig )
 endif()
 find_package( Boost REQUIRED )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
@@ -26,7 +26,10 @@ add_subdirectory( structures )
 add_subdirectory( clientserver )
 add_subdirectory( client )
 add_subdirectory( client2 )
-add_subdirectory( serialisation )
+if( ENABLE_CAPNP )
+  add_compile_definitions( CAPNP_ENABLED=1 )
+  add_subdirectory( serialisation )
+endif()
 
 if( NOT NO_WRAPPERS )
   add_subdirectory( wrappers )
@@ -91,9 +94,9 @@ endforeach()
 find_program( XINETD_EXE xinetd PATHS /usr/sbin/ /usr/local/sbin/ )
 
 configure_file(
- ${CMAKE_SOURCE_DIR}/source/etc/rc.uda.in
- ${CMAKE_BINARY_DIR}/etc/rc.uda
- @ONLY
+  ${CMAKE_SOURCE_DIR}/source/etc/rc.uda.in
+  ${CMAKE_BINARY_DIR}/etc/rc.uda
+  @ONLY
 )
 
 install(
