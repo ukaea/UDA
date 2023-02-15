@@ -24,6 +24,7 @@
 #endif
 
 #include <cstdlib>
+#include <vector>
 
 #include <logging/logging.h>
 #include <clientserver/udaErrors.h>
