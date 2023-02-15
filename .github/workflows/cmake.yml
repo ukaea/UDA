@@ -2,9 +2,14 @@ name: Build
 
 on:
   push:
-    branches: [ "main", "develop", "feature/**", "releases/**" ]
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+      - 'release/**'
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 #env:
 #  BUILD_TYPE: Release
