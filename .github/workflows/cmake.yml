@@ -93,11 +93,12 @@ jobs:
 
       - name: Install pyuda
         run: >
+          cp -r /usr/local/python_installer ${{github.workspace}}/python_installer &&
           python3 -m venv ${{github.workspace}}/venv &&
           source ${{github.workspace}}/venv/bin/activate &&
           pip3 install --upgrade pip &&
           pip3 install Cython numpy &&
-          sudo pip3 install /usr/local/python_installer
+          pip3 install ${{github.workspace}}/python_installer
 
 #      - name: Test
 #        working-directory: ${{github.workspace}}/build
