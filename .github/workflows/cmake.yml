@@ -97,7 +97,7 @@ jobs:
           source ${{github.workspace}}/venv/bin/activate &&
           pip3 install --upgrade pip &&
           pip3 install Cython numpy &&
-          pip3 install /usr/local/python_installer
+          sudo pip3 install /usr/local/python_installer
 
 #      - name: Test
 #        working-directory: ${{github.workspace}}/build
