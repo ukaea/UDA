@@ -177,5 +177,4 @@ cdef extern from "serialisation/capnp_serialisation.h":
     void uda_capnp_print_tree_reader(TreeReader* tree);
 
 cdef extern from "client/connection.h":
-    int resetClientConnection();
-    void closeClientConnection();
+    void closeAllConnections();

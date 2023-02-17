@@ -545,6 +545,11 @@ int createConnection(XDR* client_input, XDR* client_output)
     return 0;
 }
 
+void closeAllConnections()
+{
+    closeConnection(ClosedownType::CLOSE_ALL);
+}
+
 void closeConnection(ClosedownType type)
 {
     if (client_socket >= 0 && type != ClosedownType::CLOSE_ALL) {

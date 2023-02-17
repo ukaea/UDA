@@ -86,11 +86,7 @@ def set_server_port(port):
 
 
 def close_connection():
-    uda.closeClientConnection()
-
-
-def reset_connection():
-    uda.resetClientConnection()
+    uda.closeAllConnections()
 
 
 def get_data(signal, source):

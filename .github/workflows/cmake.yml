@@ -91,6 +91,14 @@ jobs:
       - name: Install
         run: sudo cmake --install ${{github.workspace}}/build --config ${{ matrix.release }}
 
+      - name: Install pyuda
+        run: >
+          python3 -m venv ${{github.workspace}}/venv &&
+          source ${{github.workspace}}/venv/bin/activate &&
+          pip3 install --upgrade pip &&
+          pip3 install Cython numpy &&
+          pip3 install /usr/local/python_installer
+
 #      - name: Test
 #        working-directory: ${{github.workspace}}/build
 #        # Execute tests defined by the CMake configuration.

@@ -13,8 +13,14 @@ find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( LibMemcached QUIET )
 
+set( UDA_LIBS )
+
 if( LIBMEMCACHED_FOUND )
   set( EXTRA_LIBS "memcached" )
+endif()
+if( ENABLE_CAPNP )
+  set( EXTRA_LIBS ${EXTRA_LIBS} capnp )
+  set( UDA_LIBS ${UDA_LIBS} serialisation )
 endif()
 
 get_filename_component( OPENSSL_LIB_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY )
