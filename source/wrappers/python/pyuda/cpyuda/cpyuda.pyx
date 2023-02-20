@@ -5,4 +5,5 @@ include "exceptions.pyx"
 include "result.pyx"
 include "tree_node.pyx"
 include "types.pyx"
-include "capnp_tree.pyx"
+IF CAPNP:
+    include "capnp_tree.pyx"

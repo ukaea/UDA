@@ -5,7 +5,10 @@ import sys
 import sysconfig
 from distutils.core import setup, Extension
 from Cython.Build import cythonize
+from Cython.Compiler.Main import default_options
 import numpy
+
+default_options['compile_time_env'] = {'CAPNP': @CAPNP_FLAG@}
 
 extra_link_args = []
 extra_compile_args = ['-std=c++11']

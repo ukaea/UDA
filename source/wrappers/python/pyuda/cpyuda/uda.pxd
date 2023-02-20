@@ -156,25 +156,26 @@ cdef extern from "structures/struct.h":
     int** getNodeAtomicShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
     void* getNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
 
-cdef extern from "serialisation/capnp_serialisation.h":
-    ctypedef struct TreeReader
-    ctypedef struct NodeReader
-    ctypedef struct Optional_Size_t:
-        cbool has_value
-        size_t value
+IF CAPNP:
+    cdef extern from "serialisation/capnp_serialisation.h":
+        ctypedef struct TreeReader
+        ctypedef struct NodeReader
+        ctypedef struct Optional_Size_t:
+            cbool has_value
+            size_t value
 
-    TreeReader* uda_capnp_deserialise(char* bytes, size_t size);
+        TreeReader* uda_capnp_deserialise(char* bytes, size_t size);
 
-    NodeReader* uda_capnp_read_root(TreeReader* tree);
-    size_t uda_capnp_num_children(NodeReader* node);
-    NodeReader* uda_capnp_read_child(TreeReader* tree, NodeReader* node, const char* name);
-    NodeReader* uda_capnp_read_child_n(TreeReader* tree, NodeReader* node, size_t index);
-    const char* uda_capnp_read_name(NodeReader* node);
-    int uda_capnp_read_type(NodeReader* node);
-    Optional_Size_t uda_capnp_read_rank(NodeReader* node);
-    cbool uda_capnp_read_shape(NodeReader* node, size_t* shape);
-    cbool uda_capnp_read_data(NodeReader* node, char* data);
-    void uda_capnp_print_tree_reader(TreeReader* tree);
+        NodeReader* uda_capnp_read_root(TreeReader* tree);
+        size_t uda_capnp_num_children(NodeReader* node);
+        NodeReader* uda_capnp_read_child(TreeReader* tree, NodeReader* node, const char* name);
+        NodeReader* uda_capnp_read_child_n(TreeReader* tree, NodeReader* node, size_t index);
+        const char* uda_capnp_read_name(NodeReader* node);
+        int uda_capnp_read_type(NodeReader* node);
+        Optional_Size_t uda_capnp_read_rank(NodeReader* node);
+        cbool uda_capnp_read_shape(NodeReader* node, size_t* shape);
+        cbool uda_capnp_read_data(NodeReader* node, char* data);
+        void uda_capnp_print_tree_reader(TreeReader* tree);
 
 cdef extern from "client/connection.h":
     void closeAllConnections();
