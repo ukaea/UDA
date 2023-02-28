@@ -431,7 +431,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
             if ((p = strchr(work, '(')) != nullptr && strchr(p, ')') != nullptr) {
                 strcpy(work, &p[1]);
-                p = strchr(work, ')');
+                p = strrchr(work, ')');
                 p[0] = '\0';
                 LeftTrimString(work);
                 TrimString(work);
