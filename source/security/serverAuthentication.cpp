@@ -94,7 +94,7 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
 // get the server's Private key from a PEM file (for decryption) and convert to S-Expression
 
         if ((err = importPEMPrivateKey(serverPrivateKeyFile, &privatekey)) != 0) {
-            addIdamError(CODEERRORTYPE, __func__, err, "Failed to load Server's Private Key File");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Failed to load Server's Private Key File");
             break;
         }
 
@@ -109,7 +109,7 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
 
         if (gcry_pk_testkey(privatekey) != 0) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "idamServerAuthentication", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "idamServerAuthentication", err,
                          "The Server's Private Authentication Key is Invalid!");
             break;
         }
@@ -158,13 +158,13 @@ static SECURITY_BLOCK* receiveSecurityBlock(CLIENT_BLOCK* client_block, LOGMALLO
 #ifndef TESTIDAMSECURITY
     if (!xdrrec_skiprecord(serverInput)) {
         UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
-        addIdamError(CODEERRORTYPE, __func__, UDA_PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #2)");
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, UDA_PROTOCOL_ERROR_5, "Protocol 5 Error (Client Block #2)");
     } else {
         int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;        // Recieve Client Block
 
         int err = 0;
         if ((err = protocol2(serverInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, client_block)) != 0) {
-            addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (Client Block #2)");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block #2)");
             UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
         }
 
@@ -304,11 +304,11 @@ static int issueToken(SERVER_BLOCK* server_block, LOGMALLOCLIST* logmalloclist, 
     int protocol_id = UDA_PROTOCOL_SERVER_BLOCK;
 
     if ((err = protocol2(serverOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, server_block)) != 0) {
-        addIdamError(CODEERRORTYPE, __func__, err, "Protocol 10 Error (securityBlock #4)");
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (securityBlock #4)");
     }
 
     if (!xdrrec_endofrecord(serverOutput, 1)) {
-        addIdamError(CODEERRORTYPE, __func__, UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block)");
     }
 #endif
 

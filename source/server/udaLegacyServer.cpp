@@ -241,7 +241,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
                 if(client_block.version < 6) {
                     err = 999;
-                    addIdamError(CODEERRORTYPE, __func__, err,
+                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err,
                                  "PROXY redirection: Originating Client Version not compatible with the PROXY server interface.");
                     break;
                 }
@@ -256,7 +256,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
                 if(strstr(request_block.source, work) != nullptr) {
                     err = 999;
-                    addIdamError(CODEERRORTYPE, __func__, err,
+                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err,
                                  "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
                     break;
                 }
@@ -265,7 +265,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
                 if(strlen(request_block.source) >= (STRING_LENGTH-1 - strlen(environment->server_proxy) - 4+strlen(request_block.api_delim))) {
                     err = 999;
-                    addIdamError(CODEERRORTYPE, __func__, err,
+                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err,
                                  "PROXY redirection: The source argument string is too long!");
                     break;
                 }

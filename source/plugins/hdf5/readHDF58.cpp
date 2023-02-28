@@ -34,7 +34,7 @@ int readHDF5(DATA_SOURCE data_source,
              SIGNAL_DESC signal_desc,
              DATA_BLOCK *data_block) {
     int err = 999;
-    addIdamError(CODEERRORTYPE, "readHDF5", err, "Cannot Read HDF5 Files - PLUGIN NOT ENABLED");
+    addIdamError(UDA_CODE_ERROR_TYPE, "readHDF5", err, "Cannot Read HDF5 Files - PLUGIN NOT ENABLED");
     return err;
 }
 

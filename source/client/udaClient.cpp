@@ -612,7 +612,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             unsigned short authenticationStep = 1;     // Client Certificate authenticated by server
 
             if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
-                addIdamError(CODEERRORTYPE, __func__, err, "Client or Server Authentication Failed #1");
+                addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #1");
                 break;
             }
 
@@ -623,7 +623,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             authenticationStep = 5;
 
             if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
-                addIdamError(CODEERRORTYPE, __func__, err, "Client or Server Authentication Failed #5");
+                addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #5");
                 break;
             }
 
@@ -633,7 +633,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             authenticationStep = 6;
 
             if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
-                addIdamError(CODEERRORTYPE, __func__, err, "Client or Server Authentication Failed #6");
+                addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #6");
                 break;
             }
 
@@ -644,7 +644,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             authenticationStep = 8;
 
             if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
-                addIdamError(CODEERRORTYPE, __func__, err, "Client or Server Authentication Failed #8");
+                addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #8");
                 break;
             }
 
