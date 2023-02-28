@@ -44,7 +44,6 @@ then
 
     # Set up environment for compilation
     . /usr/share/Modules/init/sh
-    module use /work/imas/etc/modulefiles
     module use /work/imas/etc/modules/all
     module purge
 
@@ -64,7 +63,6 @@ else
 
     # Set up environment for compilation
     . /usr/share/Modules/init/sh
-    module use /work/imas/etc/modulefiles
     module use /work/imas/etc/modules/all
     module purge
 
