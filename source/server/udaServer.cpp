@@ -526,7 +526,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
     if (strlen(request_block->source) >=
         (STRING_LENGTH - 1 - strlen(proxyName) - strlen(environment.server_proxy) - strlen(request_block->api_delim))) {
-        THROW_ERROR(999, "PROXY redirection: The source argument string is too long!");
+        UDA_THROW_ERROR(999, "PROXY redirection: The source argument string is too long!");
     }
 
     // Prepend the client request and test for a redirection request via the proxy's plugin
@@ -556,7 +556,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
             // Check the Server Version is Compatible with the Originating client version ?
 
             if (client_block->version < 6) {
-                THROW_ERROR(999, "PROXY redirection: Originating Client Version not compatible with the PROXY server interface.");
+                UDA_THROW_ERROR(999, "PROXY redirection: Originating Client Version not compatible with the PROXY server interface.");
             }
 
             // Test for Proxy calling itself indirectly => potential infinite loop
@@ -572,7 +572,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
                 }
 
                 if (strstr(request_block->source, work) != nullptr) {
-                    THROW_ERROR(999, "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
+                    UDA_THROW_ERROR(999, "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
                 }
             }
 
@@ -993,17 +993,17 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
 
         int err = 0;
         if ((err = serverAuthentication(client_block, server_block, SERVER_DECRYPT_CLIENT_TOKEN)) != 0) {
-            THROW_ERROR(err, "Client or Server Authentication Failed #2");
+            UDA_THROW_ERROR(err, "Client or Server Authentication Failed #2");
         }
 
         if ((err = serverAuthentication(client_block, server_block, SERVER_ENCRYPT_CLIENT_TOKEN)) != 0) {
-            THROW_ERROR(err, "Client or Server Authentication Failed #3");
+            UDA_THROW_ERROR(err, "Client or Server Authentication Failed #3");
         }
 
         // Send the server_block
 
         if ((err = serverAuthentication(client_block, server_block, SERVER_ISSUE_TOKEN)) != 0) {
-            THROW_ERROR(err, "Client or Server Authentication Failed #4");
+            UDA_THROW_ERROR(err, "Client or Server Authentication Failed #4");
         }
 
         // Receive the client_block
@@ -1013,7 +1013,7 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
         // Send the server_block
 
         if ((err = serverAuthentication(client_block, server_block, SERVER_VERIFY_TOKEN)) != 0) {
-            THROW_ERROR(err, "Client or Server Authentication Failed #7");
+            UDA_THROW_ERROR(err, "Client or Server Authentication Failed #7");
         }
 
         authenticationNeeded = 0;
@@ -1169,7 +1169,7 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
 
         char* token = nullptr;
         if ((token = getenv("UDA_SARRAY_CONFIG")) == nullptr) {
-            THROW_ERROR(999, "No Environment variable UDA_SARRAY_CONFIG");
+            UDA_THROW_ERROR(999, "No Environment variable UDA_SARRAY_CONFIG");
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);

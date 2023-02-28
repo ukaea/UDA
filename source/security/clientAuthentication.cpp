@@ -247,7 +247,7 @@ static int issueToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmalloclist, 
                             &server_ciphertext, &server_ciphertextLength);
 
     if (err != 0) {
-        THROW_ERROR(err, "Failed Preparing Authentication Step #1!");
+        UDA_THROW_ERROR(err, "Failed Preparing Authentication Step #1!");
     }
 
 // Send the encrypted token to the server together with Client's claim of identity
@@ -265,12 +265,12 @@ static int issueToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmalloclist, 
     int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;
 
     if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, &client_block)) != 0) {
-        THROW_ERROR(err, "Protocol 10 Error (securityBlock #1)");
+        UDA_THROW_ERROR(err, "Protocol 10 Error (securityBlock #1)");
     }
 
     // Send to server
     if (!xdrrec_endofrecord(clientOutput, 1)) {
-        THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Client Block #1)");
+        UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Client Block #1)");
     }
 
     // No need to resend the client's certificates or encrypted token A
@@ -305,13 +305,13 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
 
 #ifndef TESTIDAMSECURITY
     if (!xdrrec_endofrecord(clientInput, 1)) {
-        THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block #5)");
+        UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Server Block #5)");
     }
 
     int protocol_id = UDA_PROTOCOL_SERVER_BLOCK;
 
     if ((err = protocol2(clientInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist, &server_block)) != 0) {
-        THROW_ERROR(err, "Protocol 11 Error (securityBlock #5)");
+        UDA_THROW_ERROR(err, "Protocol 11 Error (securityBlock #5)");
     }
 
     // Flush (mark as at EOF) the input socket buffer (not all server state data may have been read - version dependent)
@@ -333,7 +333,7 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
     // Check for FATAL Server Errors
 
     if (server_block->idamerrorstack.nerrors != 0) {
-        THROW_ERROR(999, "Server Side Authentication Failed!");
+        UDA_THROW_ERROR(999, "Server Side Authentication Failed!");
     }
 
     // Extract Ciphers
@@ -341,7 +341,7 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
     SECURITY_BLOCK* securityBlock = &server_block->securityBlock;
 
     if (securityBlock->authenticationStep != CLIENT_DECRYPT_SERVER_TOKEN - 1) {
-        THROW_ERROR(999, "Authentication Step Inconsistency!");
+        UDA_THROW_ERROR(999, "Authentication Step Inconsistency!");
     }
 
     unsigned char* client_ciphertext = securityBlock->client_ciphertext;
@@ -359,7 +359,7 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
                             &server_ciphertext, &server_ciphertextLength);
 
     if (err != 0) {
-        THROW_ERROR(err, "Failed Authentication Step #5!");
+        UDA_THROW_ERROR(err, "Failed Authentication Step #5!");
     }
 
     free(client_ciphertext);
@@ -391,7 +391,7 @@ static int encryptServerToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmall
                             &server_ciphertext, &server_ciphertextLength);
 
     if (err != 0) {
-        THROW_ERROR(err, "Failed Preparing Authentication Step #6!");
+        UDA_THROW_ERROR(err, "Failed Preparing Authentication Step #6!");
     }
 
     // Send the encrypted token to the server via the CLIENT_BLOCK data structure
@@ -408,12 +408,12 @@ static int encryptServerToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmall
     int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;
 
     if ((err = protocol2(clientOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, &client_block)) != 0) {
-        THROW_ERROR(err, "Protocol 10 Error (securityBlock #6)");
+        UDA_THROW_ERROR(err, "Protocol 10 Error (securityBlock #6)");
     }
 
     // Send to server
     if (!xdrrec_endofrecord(clientOutput, 1)) {
-        THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Client Block #6)");
+        UDA_THROW_ERROR(UDA_PROTOCOL_ERROR_7, "Protocol 7 Error (Client Block #6)");
     }
 
     free(server_ciphertext);
@@ -458,7 +458,7 @@ int clientAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
             break;
 
         default:
-            THROW_ERROR(999, "Unknown authentication step");
+            UDA_THROW_ERROR(999, "Unknown authentication step");
     }
 
     if (err != 0) {

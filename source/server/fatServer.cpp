@@ -450,7 +450,7 @@ int startupFatServer(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduser
 
         char* token = nullptr;
         if ((token = getenv("UDA_SARRAY_CONFIG")) == nullptr) {
-            THROW_ERROR(999, "No Environment variable UDA_SARRAY_CONFIG");
+            UDA_THROW_ERROR(999, "No Environment variable UDA_SARRAY_CONFIG");
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);

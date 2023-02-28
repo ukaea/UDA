@@ -427,7 +427,7 @@ int uda::Server::handle_request()
 
     if (strlen(request_block_.source) >=
         (STRING_LENGTH - 1 - strlen(proxyName) - strlen(environment_->server_proxy) - strlen(request_block_.api_delim))) {
-        THROW_ERROR(999, "PROXY redirection: The source argument string is too long!");
+        UDA_THROW_ERROR(999, "PROXY redirection: The source argument string is too long!");
     }
 
     // Prepend the client request and test for a redirection request via the proxy's plugin
@@ -457,7 +457,7 @@ int uda::Server::handle_request()
             // Check the Server Version is Compatible with the Originating client version ?
 
             if (client_block->version < 6) {
-                THROW_ERROR(999, "PROXY redirection: Originating Client Version not compatible with the PROXY server interface.");
+                UDA_THROW_ERROR(999, "PROXY redirection: Originating Client Version not compatible with the PROXY server interface.");
             }
 
             // Test for Proxy calling itself indirectly => potential infinite loop
@@ -473,7 +473,7 @@ int uda::Server::handle_request()
                 }
 
                 if (strstr(request_block_.source, work) != nullptr) {
-                    THROW_ERROR(999, "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
+                    UDA_THROW_ERROR(999, "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
                 }
             }
 

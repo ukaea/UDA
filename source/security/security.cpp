@@ -117,7 +117,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
         case NONCETEST: {
             const char* txt = "QWERTYqwerty0123456789";
             if (gcry_mpi_scan(mpiToken, GCRYMPI_FMT_USG, txt, strlen(txt), nullptr) != 0) {
-                THROW_ERROR(999, "Unable to generate MPI Token");
+                UDA_THROW_ERROR(999, "Unable to generate MPI Token");
             }
         }
             break;
@@ -127,7 +127,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             *mpiToken = gcry_mpi_new((unsigned int)tokenByteLength * 8);
             gcry_mpi_randomize(*mpiToken, (unsigned int)tokenByteLength * 8, GCRY_WEAK_RANDOM);
             if (*mpiToken == nullptr) {
-                THROW_ERROR(999, "Unable to generate MPI Token");
+                UDA_THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
         }
@@ -138,7 +138,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             *mpiToken = gcry_mpi_new((unsigned int)tokenByteLength * 8);
             gcry_mpi_randomize(*mpiToken, (unsigned int)tokenByteLength * 8, GCRY_STRONG_RANDOM);
             if (*mpiToken == nullptr) {
-                THROW_ERROR(999, "Unable to generate MPI Token");
+                UDA_THROW_ERROR(999, "Unable to generate MPI Token");
             }
         }
             break;
@@ -167,14 +167,14 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             gcry_mpi_t timeData;
             if (gcry_mpi_scan(&timeData, GCRYMPI_FMT_USG, timeList, timeLength, nullptr) != 0) {
                 free(randList);
-                THROW_ERROR(999, "Unable to generate MPI Token");
+                UDA_THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
             gcry_mpi_t randData;
             if (gcry_mpi_scan(&randData, GCRYMPI_FMT_USG, randList, tokenByteLength, nullptr) != 0) {
                 gcry_mpi_release(timeData);
                 free(randList);
-                THROW_ERROR(999, "Unable to generate MPI Token");
+                UDA_THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
             free(randList);
@@ -186,7 +186,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             if (*mpiToken == nullptr) {
                 gcry_mpi_release(timeData);
                 gcry_mpi_release(randData);
-                THROW_ERROR(999, "Unable to generate MPI Token");
+                UDA_THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
             gcry_mpi_release(timeData);
@@ -199,7 +199,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
         }
 
         default:
-        THROW_ERROR(999, "Unknown token type");
+        UDA_THROW_ERROR(999, "Unknown token type");
     }
 
     return err;
@@ -256,7 +256,7 @@ static int generateToken(gcry_mpi_t* mpi_token, unsigned short tokenType, unsign
             gcry_mpi_release(*mpi_token);
             *mpi_token = nullptr;
         }
-        THROW_ERROR(err, "Error Generating Token");
+        UDA_THROW_ERROR(err, "Error Generating Token");
     }
 
     logToken("Generated", *mpi_token);
@@ -282,7 +282,7 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
             mpiTokenSexp = nullptr;
         }
         addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error Generating Token S-Exp");
-        THROW_ERROR(999, gpg_strerror(gerr));
+        UDA_THROW_ERROR(999, gpg_strerror(gerr));
     }
 
     switch (encryptionMethod) {
@@ -293,7 +293,7 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
             if ((gerr = gcry_pk_encrypt(&encr, mpiTokenSexp, key)) != 0) {
                 if (mpiTokenSexp != nullptr) gcry_sexp_release(mpiTokenSexp);
                 addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Encryption Error");
-                THROW_ERROR(999, gpg_strerror(gerr));
+                UDA_THROW_ERROR(999, gpg_strerror(gerr));
             }
 
             if (mpiTokenSexp != nullptr) gcry_sexp_release(mpiTokenSexp);
@@ -303,13 +303,13 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
             // Extract the ciphertext from the S-expression
             if ((encrypted_token = extract_a_from_sexp(encr)) == nullptr) {
                 if (encr != nullptr) gcry_sexp_release(encr);
-                THROW_ERROR(999, "Poor Encryption");
+                UDA_THROW_ERROR(999, "Poor Encryption");
             }
 
             // Check the ciphertext does not match the plaintext
             if (!gcry_mpi_cmp(*mpi_token, encrypted_token)) {
                 if (encrypted_token != nullptr) gcry_mpi_release(encrypted_token);
-                THROW_ERROR(999, "Poor Encryption");
+                UDA_THROW_ERROR(999, "Poor Encryption");
             }
 
             // Return the ciphertext
@@ -319,7 +319,7 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
                 if (encr != nullptr) gcry_sexp_release(encr);
                 if (encrypted_token != nullptr) gcry_mpi_release(encrypted_token);
                 *ciphertext = nullptr;
-                THROW_ERROR(999, "Ciphertext extraction error");
+                UDA_THROW_ERROR(999, "Ciphertext extraction error");
             }
 
             *ciphertext = (unsigned char*)malloc(*ciphertext_len * sizeof(unsigned char));
@@ -328,7 +328,7 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
             if (*ciphertext == nullptr) {
                 if (encr != nullptr) gcry_sexp_release(encr);
                 if (encrypted_token != nullptr) gcry_mpi_release(encrypted_token);
-                THROW_ERROR(999, "Ciphertext extraction error");
+                UDA_THROW_ERROR(999, "Ciphertext extraction error");
             }
 
             logToken("Encrypted", encrypted_token);
@@ -339,7 +339,7 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
         }
 
         default:
-        THROW_ERROR(999, "Unknown encryption method");
+        UDA_THROW_ERROR(999, "Unknown encryption method");
     }
 
     return err;
@@ -357,13 +357,13 @@ static int decryptToken(gcry_mpi_t* mpi_token, gcry_sexp_t key, unsigned char** 
 
     if ((gerr = gcry_sexp_create(&encr, (void*)*ciphertext, *ciphertext_len, 1, nullptr)) != 0) {
         addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error Generating Token S-Exp");
-        THROW_ERROR(999, (char*)gpg_strerror(gerr));
+        UDA_THROW_ERROR(999, (char*)gpg_strerror(gerr));
     }
 
     if ((gerr = gcry_pk_decrypt(&decr, encr, key)) != 0) {
         gcry_sexp_release(encr);
         addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Decryption Error");
-        THROW_ERROR(999, (char*)gpg_strerror(gerr));
+        UDA_THROW_ERROR(999, (char*)gpg_strerror(gerr));
     }
 
     gcry_sexp_release(encr);
@@ -383,7 +383,7 @@ static int decryptToken(gcry_mpi_t* mpi_token, gcry_sexp_t key, unsigned char** 
     gcry_sexp_release(decr);
 
     if (!plaintext) {
-        THROW_ERROR(999, "S-Exp contains no plaintext!");
+        UDA_THROW_ERROR(999, "S-Exp contains no plaintext!");
     }
 
     logToken("Decrypted", plaintext);
@@ -411,7 +411,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
     if (!initialised) {
         // Check version of runtime gcrypt library.
         if (!gcry_check_version(GCRYPT_VERSION)) {
-            THROW_ERROR(999, "Library version incorrect!");
+            UDA_THROW_ERROR(999, "Library version incorrect!");
         }
 
         // Disable secure memory.
@@ -471,7 +471,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
             // Check that the decrypted token matches the original token.
             if (gcry_mpi_cmp(mpiTokenA, received_token)) {
                 gcry_mpi_release(received_token);
-                THROW_ERROR(999, "Server Authentication Failed!");
+                UDA_THROW_ERROR(999, "Server Authentication Failed!");
             }
 
             gcry_mpi_release(received_token);
@@ -497,7 +497,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
             // Check that the decrypted token matches the original token.
             if (gcry_mpi_cmp(mpiTokenB, received_token)) {
                 gcry_mpi_release(received_token);
-                THROW_ERROR(999, "Client Authentication Failed!");
+                UDA_THROW_ERROR(999, "Client Authentication Failed!");
             }
 
             gcry_mpi_release(received_token);
@@ -509,7 +509,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
         }
 
         default: {
-            THROW_ERROR(999, "Uknown User Authentication Step");
+            UDA_THROW_ERROR(999, "Uknown User Authentication Step");
         }
 
     }
