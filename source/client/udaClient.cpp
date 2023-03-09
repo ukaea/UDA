@@ -509,13 +509,12 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 #  if !defined(FATCLIENT) && !defined(SECURITYENABLED)
             startupStates = 0;
 #  endif
-            if ((createConnection(client_input, client_output)) != 0) {
+			time(&tv_server_start);        // Start the Clock again: Age of Server
+            if ((createConnection()) != 0) {
                 err = NO_SOCKET_CONNECTION;
                 addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "No Socket Connection to Server");
                 break;
             }
-
-            time(&tv_server_start);        // Start the Clock again: Age of Server
         }
 
         //-------------------------------------------------------------------------
