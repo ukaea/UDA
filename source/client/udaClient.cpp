@@ -510,7 +510,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             startupStates = 0;
 #  endif
 			time(&tv_server_start);        // Start the Clock again: Age of Server
-            if ((createConnection()) != 0) {
+            if ((createConnection(client_input, client_output, &tv_server_start,client_flags->user_timeout)) != 0) {
                 err = NO_SOCKET_CONNECTION;
                 addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "No Socket Connection to Server");
                 break;
