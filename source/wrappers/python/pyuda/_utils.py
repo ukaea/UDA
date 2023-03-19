@@ -7,11 +7,12 @@ import cpyuda
 
 UDAException = cpyuda.UDAException
 
+
 def cdata_scalar_to_value(scalar):
     """
-    Convert an IDAM C++ Scalar object to an equivalent python type.
+    Convert a UDA C++ Scalar object to an equivalent python type.
 
-    :param scalar: an IDAM C++ scalar as wrapped by the low level c_uda library
+    :param scalar: a UDA C++ scalar as wrapped by the low level c_uda library
     :return: a number or string
     """
     if scalar.type() == 'float32':

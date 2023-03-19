@@ -28,7 +28,7 @@ JNIEXPORT jint JNICALL Java_jIdam_Idam_idamLoad(JNIEnv *env, jobject oobj, jstri
       void *libhandle = dlopen((char *)library, RTLD_LOCAL | RTLD_LAZY);
       if(libhandle != NULL){
          void *fptr = dlsym(libhandle, "idamGetAPI");
-	 if(fptr != NULL)err = 0;
+     if(fptr != NULL)err = 0;
       }
    }
    (*env)->ReleaseStringUTFChars(env, _library, library);
@@ -73,7 +73,7 @@ JNIEXPORT void JNICALL Java_jIdam_Idam_idamFree(JNIEnv* env, jobject obj, jint h
 
 JNIEXPORT void JNICALL Java_jIdam_Idam_idamFreeAll(JNIEnv* env, jobject obj)
 {
-    idamFreeAll();
+//    udaFreeAll();
 }
 
 
@@ -95,12 +95,12 @@ JNIEXPORT void JNICALL Java_jIdam_Idam_resetIdamPrivateFlag(JNIEnv* env, jobject
 
 JNIEXPORT void JNICALL Java_jIdam_Idam_setIdamClientFlag(JNIEnv* env, jobject obj, jint flag)
 {
-    setIdamClientFlag((unsigned int)flag);
+    setIdamClientFlag(udaClientFlags(), (unsigned int)flag);
 }
 
 JNIEXPORT void JNICALL Java_jIdam_Idam_resetIdamClientFlag(JNIEnv* env, jobject obj, jint flag)
 {
-    resetIdamClientFlag((unsigned int)flag);
+    resetIdamClientFlag(udaClientFlags(), (unsigned int)flag);
 }
 
 //--------------------------------------------------------------
@@ -110,7 +110,7 @@ JNIEXPORT void JNICALL Java_jIdam_Idam_setIdamProperty(JNIEnv* env, jobject obj,
 {
     const char* property = (*env)->GetStringUTFChars(env, _property, NULL);
     if (property == NULL) return;
-    setIdamProperty(property);
+    setIdamProperty(property, udaClientFlags());
     (*env)->ReleaseStringUTFChars(env, _property, property);
 }
 
@@ -118,7 +118,7 @@ JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamProperty(JNIEnv* env, jobject obj,
 {
     const char* property = (*env)->GetStringUTFChars(env, _property, NULL);
     if (property == NULL) return 0;
-    jint value = (jint)getIdamProperty(property);
+    jint value = (jint)getIdamProperty(property, udaClientFlags());
     (*env)->ReleaseStringUTFChars(env, _property, property);
     return (value);
 }
@@ -127,13 +127,13 @@ JNIEXPORT void JNICALL Java_jIdam_Idam_resetIdamProperty(JNIEnv* env, jobject ob
 {
     const char* property = (*env)->GetStringUTFChars(env, _property, NULL);
     if (property == NULL) return;
-    resetIdamProperty(property);
+    resetIdamProperty(property, udaClientFlags());
     (*env)->ReleaseStringUTFChars(env, _property, property);
 }
 
 JNIEXPORT void JNICALL Java_jIdam_Idam_resetIdamProperties(JNIEnv* env, jobject obj)
 {
-    resetIdamProperties();
+    resetIdamProperties(udaClientFlags());
 }
 
 //--------------------------------------------------------------
@@ -257,7 +257,7 @@ JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamDataStatus(JNIEnv* env, jobject ob
 
 JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamLastHandle(JNIEnv* env, jobject obj)
 {
-    return (jint)getIdamLastHandle();
+    return (jint)getIdamLastHandle(udaClientFlags());
 }
 
 
@@ -721,7 +721,7 @@ JNIEXPORT jobjectArray JNICALL Java_jIdam_Idam_getVariablesRegex(JNIEnv* env, jo
 
     char* vStr = getIdamData(handle);
 
-//RC	char vStr[500]="PV:PERF1-SYSTEM0-DUMMY0|PV:CHANNEL1|PV:OFF:SIGNAL";
+//RC    char vStr[500]="PV:PERF1-SYSTEM0-DUMMY0|PV:CHANNEL1|PV:OFF:SIGNAL";
 
     if ((vStr == NULL) || (strlen(vStr) < 1)) {
         goto END;

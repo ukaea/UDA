@@ -47,7 +47,7 @@
 #include "accessors.h"
 
 #include <logging/logging.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <clientserver/stringUtils.h>
 
 #include "struct.h"
@@ -64,9 +64,9 @@
 
 NTREE* findNTreeStructureComponent1(NTREE* ntree, const char* target)
 {
-    NTREE* child = nullptr;
-
-    if (ntree == nullptr) ntree = fullNTree;
+    if (ntree == nullptr) {
+        ntree = udaGetFullNTree();
+    }
 
     // Single entity name expected - test
 
@@ -92,6 +92,7 @@ NTREE* findNTreeStructureComponent1(NTREE* ntree, const char* target)
     // Recursively Search Child nodes for structured type data
 
     for (int i = 0; i < ntree->branches; i++) {
+        NTREE* child = nullptr;
         if ((child = findNTreeStructureComponent1(ntree->children[i], target)) != nullptr) {
             return child;
         }
@@ -120,18 +121,19 @@ Search all but the last on the child tree nodes.
 The first name must be searched for down the tree from the root or starting node
 All subsequent names must be within child nodes unless the last name
 */
-NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, const char** lastname)
+NTREE*
+findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, const char** lastname)
 {
-    NTREE* child = nullptr, * found = nullptr;
-
-    if (ntree == nullptr) ntree = fullNTree;
+    if (ntree == nullptr) {
+        ntree = udaGetFullNTree();
+    }
 
     // Is the hierarchical name of the form: a.b.c or a/b/c
 
     if ((strchr(target, '.') != nullptr) || strchr(target, '/') != nullptr) {
         int ntargets;
         char** targetlist = nullptr;
-        child = ntree;
+        NTREE* child = ntree;
 
         targetlist = parseTarget(target, &ntargets);    // Deconstruct the Name and search for each hierarchy group
 
@@ -147,7 +149,7 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
         // Search child nodes for all names but the last name
 
         for (int i = 1; i < ntargets - 1; i++) {
-            found = nullptr;
+            NTREE* found = nullptr;
             for (int j = 0; j < child->branches; j++) {
                 if (STR_EQUALS(child->children[j]->name, targetlist[i])) {
                     found = child->children[j];
@@ -187,7 +189,10 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
 
     *lastname = target;
 
-    if ((child = findNTreeStructureComponent1(ntree, target)) != nullptr) return child;        // Found
+    NTREE* child;
+    if ((child = findNTreeStructureComponent1(ntree, target)) != nullptr) {
+        return child;        // Found
+    }
 
     return nullptr;        // Not found
 
@@ -205,16 +210,16 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
 */
 NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target, const char** lastname)
 {
-    NTREE* child = nullptr;
-    NTREE* test = nullptr;
-    if (ntree == nullptr) ntree = fullNTree;
+    if (ntree == nullptr) {
+        ntree = udaGetFullNTree();
+    }
 
     // Is the hierarchical name of the form: a.b.c or a/b/c
 
     if ((strchr(target, '.') != nullptr) || strchr(target, '/') != nullptr) {
         int ntargets;
         char** targetlist = nullptr;
-        child = ntree;
+        NTREE* child = ntree;
 
         targetlist = parseTarget(target, &ntargets); // Deconstruct Name and search for each hierarchy group
 
@@ -222,6 +227,7 @@ NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const cha
             if (i < ntargets - 1) {
                 child = findNTreeStructure2(logmalloclist, child, targetlist[i], lastname);
             } else {
+                NTREE* test = nullptr;
                 if ((test = findNTreeStructure2(logmalloclist, child, targetlist[i], lastname)) ==
                     nullptr) { // Last element may not be a structure
                     if (findNTreeStructureComponent2(logmalloclist, child, targetlist[i], lastname) == nullptr) {
@@ -294,15 +300,14 @@ NTREE* findNTreeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, c
 */
 NTREE* findNTreeChildStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
 {
-    NTREE* child = nullptr;
-
     if (ntree == nullptr) {
-        ntree = fullNTree;
+        ntree = udaGetFullNTree();
     }
 
     // Search each child branch
 
     for (int i = 0; i < ntree->branches; i++) {
+        NTREE* child = nullptr;
         if ((child = findNTreeStructureComponent(logmalloclist, ntree->children[i], target)) != nullptr) return child;
     }
 
@@ -333,13 +338,14 @@ NTREE* findNTreeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char
 */
 NTREE* findNTreeChildStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target)
 {
-    NTREE* child = nullptr;
-
-    if (ntree == nullptr) ntree = fullNTree;
+    if (ntree == nullptr) {
+        ntree = udaGetFullNTree();
+    }
 
     // Search each child branch
 
     for (int i = 0; i < ntree->branches; i++) {
+        NTREE* child = nullptr;
         if ((child = findNTreeStructure(logmalloclist, ntree->children[i], target)) != nullptr) {
             return child;
         }
@@ -358,12 +364,14 @@ NTREE* findNTreeChildStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const
 */
 NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data)
 {
-    NTREE* next;
-    if (ntree == nullptr) ntree = fullNTree;
+    if (ntree == nullptr) {
+        ntree = udaGetFullNTree();
+    }
     if (data == ntree->data) {
         return ntree;
     }
     for (int i = 0; i < ntree->branches; i++) {
+        NTREE* next;
         if ((next = findNTreeStructureMalloc(ntree->children[i], data)) != nullptr) {
             return next;
         }
@@ -381,20 +389,23 @@ NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data)
 */
 NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target)
 {
-    NTREE* child = nullptr;
-    if (ntree == nullptr) ntree = fullNTree;
+    if (ntree == nullptr) {
+        ntree = udaGetFullNTree();
+    }
 
     // Is the hierarchical name of the form: a.b.c or a/b/c
 
     if ((strchr(target, '.') != nullptr) || strchr(target, '/') != nullptr) {
         int ntargets;
         char** targetlist = nullptr;
-        child = ntree;
+        NTREE* child = ntree;
 
         targetlist = parseTarget(target, &ntargets); // Deconstruct the Name and search for each hierarchy group
 
         for (int i = 0; i < ntargets; i++) { // Drill Down to requested named structure type
-            if ((child = findNTreeStructureDefinition(child, targetlist[i])) == nullptr) break;
+            if ((child = findNTreeStructureDefinition(child, targetlist[i])) == nullptr) {
+                break;
+            }
         }
 
         // Free all entries
@@ -412,6 +423,7 @@ NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target)
     }
 
     for (int i = 0; i < ntree->branches; i++) {
+        NTREE* child = nullptr;
         if ((child = findNTreeStructureDefinition(ntree->children[i], target)) != nullptr) {
             return child;
         }
@@ -422,10 +434,8 @@ NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target)
 
 NTREE* xfindNTreeStructureDefinition(NTREE* tree, const char* target)
 {
-    NTREE* next;
-
     if (tree == nullptr) {
-        tree = fullNTree;
+        tree = udaGetFullNTree();
     }
 
     if (STR_EQUALS(tree->userdefinedtype->name, target)) {
@@ -433,6 +443,7 @@ NTREE* xfindNTreeStructureDefinition(NTREE* tree, const char* target)
     }
 
     for (int i = 0; i < tree->branches; i++) {
+        NTREE* next;
         if ((next = findNTreeStructureDefinition(tree->children[i], target)) != nullptr) {
             return next;
         }
@@ -454,7 +465,7 @@ NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target)
     NTREE* next;
 
     if (tree == nullptr) {
-        tree = fullNTree;
+        tree = udaGetFullNTree();
     }
 
     for (int i = 0; i < tree->userdefinedtype->fieldcount; i++) {
@@ -486,7 +497,7 @@ NTREE* idam_findNTreeStructureClass(NTREE* tree, int cls)
     NTREE* next;
 
     if (tree == nullptr) {
-        tree = fullNTree;
+        tree = udaGetFullNTree();
     }
 
     if (tree->userdefinedtype->idamclass == cls) {
@@ -517,11 +528,11 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
     if (reset) count = 0;
 
     if (tree == nullptr) {
-        tree = fullNTree;
+        tree = udaGetFullNTree();
     }
 
     if (tree->userdefinedtype->idamclass == UDA_TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
-        VLENTYPE* vlen = (VLENTYPE*)tree->data;
+        auto vlen = (VLENTYPE*)tree->data;
         if (vlen->len > count) {
             count = vlen->len;
         }
@@ -544,14 +555,15 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
 * @return An integer returning an error code: 0 => OK.
 */
 int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist,
-        const char* target, unsigned int count)
+                                  const char* target, unsigned int count)
 {
-    int rc = 0, size = 0, resetBranches = 0;
-    void* old = nullptr, * newnew = nullptr;
-
     if (tree == nullptr) {
-        tree = fullNTree;
+        tree = udaGetFullNTree();
     }
+
+    int resetBranches = 0;
+    int size = 0;
+    void* newnew = nullptr;
 
     if (tree->userdefinedtype->idamclass == UDA_TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
         VLENTYPE* vlen = (VLENTYPE*)tree->data;
@@ -564,7 +576,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
 
         // VLEN Memory is contiguous so re-allocate: regularise by expanding to a consistent array size (No longer a VLEN!)
 
-        old = vlen->data;
+        void* old = vlen->data;
         USERDEFINEDTYPE* child = findUserDefinedType(userdefinedtypelist, tree->userdefinedtype->compoundfield[1].type, 0);
         vlen->data = realloc(vlen->data, count * child->size);    // Expand Heap to regularise
         newnew = vlen->data;
@@ -579,11 +591,12 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
         }
 
         resetBranches = vlen->len;  // Flag requirement to add extra tree nodes
-
     }
 
     for (int i = 0; i < tree->branches; i++) {
-        if ((rc = idam_regulariseVlenStructures(logmalloclist, tree->children[i], userdefinedtypelist, target, count)) != 0) {
+        int rc;
+        if ((rc = idam_regulariseVlenStructures(logmalloclist, tree->children[i], userdefinedtypelist, target,
+                                                count)) != 0) {
             return rc;
         }
     }
@@ -592,7 +605,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
 
     if (resetBranches > 0) {
         tree->branches = count;   // Only update once all True children have been regularised
-        old = (void*)tree->children;
+        void* old = (void*)tree->children;
         tree->children = (NTREE**)realloc((void*)tree->children, count * sizeof(void*));
 
         unsigned int ui;
@@ -612,10 +625,9 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
         for (ui = (unsigned int)resetBranches; ui < count; ui++) {
             tree->children[ui]->data = (char*)newnew + ui * size;
         }
-
     }
 
-    return rc;
+    return 0;
 }
 
 
@@ -630,13 +642,16 @@ int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFIN
 {
     int rc = 0, count = 0;
     NTREE* nt = nullptr;
-    if (tree == nullptr) tree = fullNTree;
+    if (tree == nullptr) {
+        tree = udaGetFullNTree();
+    }
 
     do {
         if ((nt = idam_findNTreeStructureClass(tree, UDA_TYPE_VLEN)) != nullptr) {
             count = idam_maxCountVlenStructureArray(tree, nt->userdefinedtype->name, 1);
             if (count > 0) {
-                rc = idam_regulariseVlenStructures(logmalloclist, tree, userdefinedtypelist, nt->userdefinedtype->name, count);
+                rc = idam_regulariseVlenStructures(logmalloclist, tree, userdefinedtypelist, nt->userdefinedtype->name,
+                                                   count);
             }
             if (rc != 0) {
                 return rc;
@@ -664,7 +679,7 @@ int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     int count, size;
     const char* type;
     if (ntree == nullptr) {
-        ntree = fullNTree;
+        ntree = udaGetFullNTree();
     }
     findMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
     return count;
@@ -682,7 +697,7 @@ int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     int count, size;
     const char* type;
     if (ntree == nullptr) {
-        ntree = fullNTree;
+        ntree = udaGetFullNTree();
     }
     findMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
     return size;
@@ -701,7 +716,7 @@ int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     int* shape;
     const char* type;
     if (ntree == nullptr) {
-        ntree = fullNTree;
+        ntree = udaGetFullNTree();
     }
     findMalloc2(logmalloclist, (void*)&ntree->data, &count, &size, &type, &rank, &shape);
     return rank;
@@ -720,7 +735,7 @@ int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     int* shape;
     const char* type;
     if (ntree == nullptr) {
-        ntree = fullNTree;
+        ntree = udaGetFullNTree();
     }
 
     if (ntree->parent != nullptr) {
@@ -757,7 +772,7 @@ const char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* nt
     int count, size;
     const char* type = nullptr;
     if (ntree == nullptr) {
-        ntree = fullNTree;
+        ntree = udaGetFullNTree();
     }
     findMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
     return type;
@@ -773,7 +788,7 @@ const char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* nt
 void* getNodeStructureData(NTREE* ntree)
 {
     if (ntree == nullptr) {
-        ntree = fullNTree;
+        ntree = udaGetFullNTree();
     }
     return ntree->data;
 }
@@ -827,124 +842,124 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
         case SCALARDOUBLE:
             field->atomictype = UDA_TYPE_DOUBLE;
             strcpy(field->type, "double");
-            sprintf(field->desc, "[double %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[double %s] %s", name, desc);
             field->size = field->count * sizeof(double);
             break;
         case ARRAYDOUBLE:
             field->atomictype = UDA_TYPE_DOUBLE;
             strcpy(field->type, "double *");
-            sprintf(field->desc, "[double *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[double *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(double*);
             break;
         case SCALARFLOAT:
             field->atomictype = UDA_TYPE_FLOAT;
             strcpy(field->type, "float");
-            sprintf(field->desc, "[float %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[float %s] %s", name, desc);
             field->size = field->count * sizeof(float);
             break;
         case ARRAYFLOAT:
             field->atomictype = UDA_TYPE_FLOAT;
             strcpy(field->type, "float *");
-            sprintf(field->desc, "[float *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[float *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(float*);
             break;
         case SCALARLONG64:
             field->atomictype = UDA_TYPE_LONG64;
             strcpy(field->type, "long long");
-            sprintf(field->desc, "[long long %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[long long %s] %s", name, desc);
             field->size = field->count * sizeof(long long);
             break;
         case ARRAYLONG64:
             field->atomictype = UDA_TYPE_LONG64;
             strcpy(field->type, "long long *");
-            sprintf(field->desc, "[long long *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[long long *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(long long*);
             break;
         case SCALARULONG64:
             field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
             strcpy(field->type, "unsigned long long");
-            sprintf(field->desc, "[unsigned long long %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned long long %s] %s", name, desc);
             field->size = field->count * sizeof(unsigned long long);
             break;
         case ARRAYULONG64:
             field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
             strcpy(field->type, "unsigned long long *");
-            sprintf(field->desc, "[unsigned long long *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned long long *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(unsigned long long*);
             break;
         case SCALARINT:
             field->atomictype = UDA_TYPE_INT;
             strcpy(field->type, "int");
-            sprintf(field->desc, "[int %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[int %s] %s", name, desc);
             field->size = field->count * sizeof(int);
             break;
         case ARRAYINT:
             field->atomictype = UDA_TYPE_INT;
             strcpy(field->type, "int *");
-            sprintf(field->desc, "[int *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[int *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(int*);
             break;
         case SCALARUINT:
             field->atomictype = UDA_TYPE_UNSIGNED_INT;
             strcpy(field->type, "unsigned int");
-            sprintf(field->desc, "[unsigned int %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned int %s] %s", name, desc);
             field->size = field->count * sizeof(unsigned int);
             break;
         case ARRAYUINT:
             field->atomictype = UDA_TYPE_UNSIGNED_INT;
             strcpy(field->type, "unsigned int *");
-            sprintf(field->desc, "[unsigned int *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned int *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(unsigned int*);
             break;
         case SCALARSHORT:
             field->atomictype = UDA_TYPE_SHORT;
             strcpy(field->type, "short");
-            sprintf(field->desc, "[short %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[short %s] %s", name, desc);
             field->size = field->count * sizeof(short);
             break;
         case ARRAYSHORT:
             field->atomictype = UDA_TYPE_SHORT;
             strcpy(field->type, "short *");
-            sprintf(field->desc, "[short *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[short *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(short*);
             break;
         case SCALARUSHORT:
             field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
             strcpy(field->type, "unsigned short");
-            sprintf(field->desc, "[unsigned short %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned short %s] %s", name, desc);
             field->size = field->count * sizeof(unsigned short);
             break;
         case ARRAYUSHORT:
             field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
             strcpy(field->type, "unsigned short *");
-            sprintf(field->desc, "[unsigned short *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned short *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(unsigned short*);
             break;
         case SCALARCHAR:
             field->atomictype = UDA_TYPE_CHAR;
             strcpy(field->type, "char");
-            sprintf(field->desc, "[char %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[char %s] %s", name, desc);
             field->size = field->count * sizeof(char);
             break;
         case ARRAYCHAR:
             field->atomictype = UDA_TYPE_CHAR;
             strcpy(field->type, "char *");
-            sprintf(field->desc, "[char *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[char *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(char*);
             break;
         case SCALARSTRING:
             field->atomictype = UDA_TYPE_STRING;
             strcpy(field->type, "STRING");
-            sprintf(field->desc, "[char *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[char *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(char*);
             field->offset = (int)newoffset((size_t)*offset, "char *"); // must be an explicit char pointer (STRING Convention!)
@@ -955,27 +970,27 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
             //Bug Fix dgm 07Jul2014: atomictype was missing!
             field->atomictype = UDA_TYPE_STRING;
             strcpy(field->type, "STRING *");
-            sprintf(field->desc, "[char **%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[char **%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(char**);
             break;
         case ARRAYVOID:
             field->atomictype = UDA_TYPE_VOID;
             strcpy(field->type, "void *");
-            sprintf(field->desc, "[void *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[void *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(void*);
             break;
         case SCALARUCHAR:
             field->atomictype = UDA_TYPE_UNSIGNED_CHAR;
             strcpy(field->type, "unsigned char");
-            sprintf(field->desc, "[char %s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[char %s] %s", name, desc);
             field->size = field->count * sizeof(unsigned char);
             break;
         case ARRAYUCHAR:
             field->atomictype = UDA_TYPE_UNSIGNED_CHAR;
             strcpy(field->type, "unsigned char *");
-            sprintf(field->desc, "[unsigned char *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[unsigned char *%s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(unsigned char*);
             break;

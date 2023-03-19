@@ -62,6 +62,19 @@ cdef class Result:
         cdef int type = uda.getIdamDataType(self._handle)
         return type == 17
 
+    def is_capnp(self):
+        IF CAPNP:
+            cdef int type = uda.getIdamDataType(self._handle)
+            return type == 22
+        ELSE:
+            raise NotImplementedError('UDA built without Capn Proto support.')
+
+    def capnp_tree(self):
+        IF CAPNP:
+            return CapnpTreeNode.new_(self._handle, NULL, NULL)
+        ELSE:
+            raise NotImplementedError('UDA built without Capn Proto support.')
+
     cdef const char* _get_data(self, int data_type):
         cdef const char* data
         if data_type == DataType.DATA:

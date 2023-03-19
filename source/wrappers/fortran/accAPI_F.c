@@ -2,7 +2,7 @@
 *
 * ToDo:
 *
-*	Check all accessors are available for fortran
+*    Check all accessors are available for fortran
 *
 *
 * Fortran APIs and Accessor Functions
@@ -25,15 +25,15 @@
 
 //--------------------------------------------------------------------------------------------------
 /* Notes:
- 		All names are lower case
- 		Function names are appended with an underscore _
- 		All functions return VOID
- 		Character Strings are Passed by Pointer with an Additional Integer (Passed by Value)
- 		appended to the argument list. This is inserted automatically by the system and is not seen.
- 		Character strings are passed back by writting direcly to the pointer address. The terminating
- 		null character is not passed back.
-		Floats are passed back by directly copying the structure contents to the address provided. No
-		changes are made to array column/row ordering.
+         All names are lower case
+         Function names are appended with an underscore _
+         All functions return VOID
+         Character Strings are Passed by Pointer with an Additional Integer (Passed by Value)
+         appended to the argument list. This is inserted automatically by the system and is not seen.
+         Character strings are passed back by writting direcly to the pointer address. The terminating
+         null character is not passed back.
+        Floats are passed back by directly copying the structure contents to the address provided. No
+        changes are made to array column/row ordering.
 */
 
 //--------------------------------------------------------------------------------------------------
@@ -250,9 +250,9 @@ extern void idamida_(char* file, char* signal, int* pulno, int* pass, int* handl
             return;
         }
         fprintf(ftnout, "Routine: idamIDA\n");
-        fprintf(ftnout, "File    	     %s\n", f);
+        fprintf(ftnout, "File             %s\n", f);
         fprintf(ftnout, "Signal        %s\n", s);
-        fprintf(ftnout, "Pass    	     %d\n", ps);
+        fprintf(ftnout, "Pass             %d\n", ps);
         fprintf(ftnout, "Pulno         %d\n", pno);
         fprintf(ftnout, "Length File   %d (%d)\n", (int) strlen(f), lfile);
         fprintf(ftnout, "Length Signal %d (%d)\n", (int) strlen(s), lsignal);
@@ -309,8 +309,8 @@ extern void idammds_(char* server, char* tree, char* node, int* treenum, int* ha
         }
         fprintf(ftnout, "Routine: idamMDS\n");
         fprintf(ftnout, "Server        %s\n", s);
-        fprintf(ftnout, "Tree    	     %s\n", t);
-        fprintf(ftnout, "Node    	     %s\n", n);
+        fprintf(ftnout, "Tree             %s\n", t);
+        fprintf(ftnout, "Node             %s\n", n);
         fprintf(ftnout, "Tree Number   %d\n", tnum);
         fprintf(ftnout, "Length Server %d (%d)\n", (int) strlen(s), lserver);
         fprintf(ftnout, "Length Tree   %d (%d)\n", (int) strlen(t), ltree);

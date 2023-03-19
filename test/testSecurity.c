@@ -13,7 +13,7 @@
 #include <logging/logging.h>
 #include <security/authenticationUtils.h>
 
-IDAMERRORSTACK idamerrorstack;		// Local Error Stack
+IDAMERRORSTACK idamerrorstack;        // Local Error Stack
 
 #define digitp(p)   (*(p) >= '0' && *(p) <= '9')
 
@@ -44,7 +44,7 @@ int extractIdamX509SExpKey(ksba_cert_t cert, gcry_sexp_t* key_sexp)
 
     if ((p = ksba_cert_get_public_key(cert)) == NULL) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "extractIdamX509SExpKey", err, "Failure to get the Public key!");
+        addIdamError(UDA_CODE_ERROR_TYPE, "extractIdamX509SExpKey", err, "Failure to get the Public key!");
         return err;
     }
 
@@ -52,7 +52,7 @@ int extractIdamX509SExpKey(ksba_cert_t cert, gcry_sexp_t* key_sexp)
 
     if ((n = gcry_sexp_canon_len(p, 0, NULL, NULL)) == 0) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "extractIdamX509SExpKey", err, "did not return a proper S-Exp!");
+        addIdamError(UDA_CODE_ERROR_TYPE, "extractIdamX509SExpKey", err, "did not return a proper S-Exp!");
         ksba_free(p);
         return err;
     }
@@ -61,7 +61,7 @@ int extractIdamX509SExpKey(ksba_cert_t cert, gcry_sexp_t* key_sexp)
 
     if ((errCode = gcry_sexp_sscan(key_sexp, NULL, (char*)p, n)) != 0) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "extractIdamX509SExpKey", err, "S-Exp creation failed!");
+        addIdamError(UDA_CODE_ERROR_TYPE, "extractIdamX509SExpKey", err, "S-Exp creation failed!");
         ksba_free(p);
         return err;
     }
@@ -118,53 +118,53 @@ int main()
         AUTHENTICATION_STEP authenticationStep = CLIENT_ISSUE_TOKEN;   // Client Authentication
 
         if ((err = clientAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(CODEERRORTYPE, "idamClient", err, "Client or Server Authentication Failed #1");
+            addIdamError(UDA_CODE_ERROR_TYPE, "idamClient", err, "Client or Server Authentication Failed #1");
             break;
         }
 
         //-----------------------------------------------------------------------------------------------------------------------
         // Server steps:
         //
-        // Test date validity of X509 certificate				=> not expired
-        // Check database to verify not revoked	(not implemented)		=> not revoked
+        // Test date validity of X509 certificate                => not expired
+        // Check database to verify not revoked    (not implemented)        => not revoked
         //
-        // Test X509 certificate signature using the CA's public key		=> has a valid certificate signed by UKAEA
+        // Test X509 certificate signature using the CA's public key        => has a valid certificate signed by UKAEA
         // Decrypt token A with the server's private key
         // Encrypt token A with the client's public key from their X509 certificate
         //
         // Generate new token B (fixed or nonce) and encrypt with the client's public key
-        // Send encrypted tokens A, B					=> mutual proof each has valid private keys to match public keys
+        // Send encrypted tokens A, B                    => mutual proof each has valid private keys to match public keys
 
         authenticationStep = SERVER_DECRYPT_CLIENT_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(CODEERRORTYPE, __func__, err, "Client or Server Authentication Failed #2");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #2");
             break;
         }
 
         authenticationStep = SERVER_ENCRYPT_CLIENT_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(CODEERRORTYPE, __func__, err, "Client or Server Authentication Failed #3");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #3");
             break;
         }
 
         authenticationStep = SERVER_ISSUE_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(CODEERRORTYPE, __func__, err, "Client or Server Authentication Failed #4");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #4");
             break;
         }
 
         //-----------------------------------------------------------------------------------------------------------------------
         // Client step:
         // Decrypt tokens A, B
-        // Test token A is identical to that sent in step 1		=> proof server has a valid private key
+        // Test token A is identical to that sent in step 1        => proof server has a valid private key
 
         authenticationStep = CLIENT_DECRYPT_SERVER_TOKEN;    // Server Authentication Completed
 
         if ((err = clientAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(CODEERRORTYPE, "idamClient", err, "Client or Server Authentication Failed #5");
+            addIdamError(UDA_CODE_ERROR_TYPE, "idamClient", err, "Client or Server Authentication Failed #5");
             break;
         }
 
@@ -177,20 +177,20 @@ int main()
         authenticationStep = CLIENT_ENCRYPT_SERVER_TOKEN;    // Client Authentication Completed
 
         if ((err = clientAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(CODEERRORTYPE, "idamClient", err, "Client or Server Authentication Failed #6");
+            addIdamError(UDA_CODE_ERROR_TYPE, "idamClient", err, "Client or Server Authentication Failed #6");
             break;
         }
 
         //-----------------------------------------------------------------------------------------------------------------------
         // Server step:
         // Decrypt token B with the server's private key
-        // Test token B is identical to that sent in step 4		=> maintain mutual authentication
+        // Test token B is identical to that sent in step 4        => maintain mutual authentication
         // Generate a new nonce token B and encrypt with the client public key
 
         authenticationStep = SERVER_VERIFY_TOKEN;
 
         if ((err = serverAuthentication(&client_block, &server_block, &logmalloclist, &userdefinedtypelist, authenticationStep)) != 0) {
-            addIdamError(CODEERRORTYPE, __func__, err, "Client or Server Authentication Failed #7");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #7");
             break;
         }
 
@@ -202,7 +202,7 @@ int main()
         //        authenticationStep = 8;            // Paired with Server step #7
         //
         //        if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
-        //            addIdamError(CODEERRORTYPE, "idamClient", err,
+        //            addIdamError(UDA_CODE_ERROR_TYPE, "idamClient", err,
         //                         "Client or Server Authentication Failed #8");
         //            break;
         //        }

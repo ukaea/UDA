@@ -1,7 +1,3 @@
-//
-// Created by jholloc on 08/03/16.
-//
-
 #include "client.hpp"
 
 #include <complex>
@@ -48,7 +44,10 @@ void uda::Client::setProperty(Property prop, bool value)
             throw UDAException("Unknown property");
     }
 
-    value ? setIdamProperty(name.c_str()) : resetIdamProperty(name.c_str());
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+    value
+        ? setIdamProperty(name.c_str(), client_flags)
+        : resetIdamProperty(name.c_str(), client_flags);
 }
 
 void uda::Client::setProperty(Property prop, int value)
@@ -75,11 +74,11 @@ void uda::Client::setProperty(Property prop, int value)
 
         case PROP_TIMEOUT:
             name = (boost::format("timeout=%1%") % value).str();
-            setIdamProperty(name.c_str());
+            setIdamProperty(name.c_str(), udaClientFlags());
             break;
         case PROP_ALTRANK:
             name = (boost::format("altrank=%1%") % value).str();
-            setIdamProperty(name.c_str());
+            setIdamProperty(name.c_str(), udaClientFlags());
             break;
 
         default:
@@ -89,24 +88,25 @@ void uda::Client::setProperty(Property prop, int value)
 
 int uda::Client::property(Property prop)
 {
+    auto client_flags = udaClientFlags();
     switch (prop) {
-        case PROP_DATADBLE:  return getIdamProperty("get_datadble");
-        case PROP_DIMDBLE:   return getIdamProperty("get_dimdble");
-        case PROP_TIMEDBLE:  return getIdamProperty("get_timedble");
-        case PROP_BYTES:     return getIdamProperty("get_bytes");
-        case PROP_BAD:       return getIdamProperty("get_bad");
-        case PROP_META:      return getIdamProperty("get_meta");
-        case PROP_ASIS:      return getIdamProperty("get_asis");
-        case PROP_UNCAL:     return getIdamProperty("get_uncal");
-        case PROP_NOTOFF:    return getIdamProperty("get_notoff");
-        case PROP_SYNTHETIC: return getIdamProperty("get_synthetic");
-        case PROP_SCALAR:    return getIdamProperty("get_scalar");
-        case PROP_NODIMDATA: return getIdamProperty("get_nodimdata");
-        case PROP_VERBOSE:   return getIdamProperty("verbose");
-        case PROP_DEBUG:     return getIdamProperty("debug");
-        case PROP_ALTDATA:   return getIdamProperty("altdata");
-        case PROP_TIMEOUT:   return getIdamProperty("timeout");
-        case PROP_ALTRANK:   return getIdamProperty("altrank");
+        case PROP_DATADBLE:  return getIdamProperty("get_datadble", client_flags);
+        case PROP_DIMDBLE:   return getIdamProperty("get_dimdble", client_flags);
+        case PROP_TIMEDBLE:  return getIdamProperty("get_timedble", client_flags);
+        case PROP_BYTES:     return getIdamProperty("get_bytes", client_flags);
+        case PROP_BAD:       return getIdamProperty("get_bad", client_flags);
+        case PROP_META:      return getIdamProperty("get_meta", client_flags);
+        case PROP_ASIS:      return getIdamProperty("get_asis", client_flags);
+        case PROP_UNCAL:     return getIdamProperty("get_uncal", client_flags);
+        case PROP_NOTOFF:    return getIdamProperty("get_notoff", client_flags);
+        case PROP_SYNTHETIC: return getIdamProperty("get_synthetic", client_flags);
+        case PROP_SCALAR:    return getIdamProperty("get_scalar", client_flags);
+        case PROP_NODIMDATA: return getIdamProperty("get_nodimdata", client_flags);
+        case PROP_VERBOSE:   return getIdamProperty("verbose", client_flags);
+        case PROP_DEBUG:     return getIdamProperty("debug", client_flags);
+        case PROP_ALTDATA:   return getIdamProperty("altdata", client_flags);
+        case PROP_TIMEOUT:   return getIdamProperty("timeout", client_flags);
+        case PROP_ALTRANK:   return getIdamProperty("altrank", client_flags);
 
         default:
             throw UDAException("Unknown property");
@@ -401,20 +401,20 @@ uda::Client::~Client()
     for (auto& data : results_) {
         delete(data);
     }
-    idamFreeAll();
+//    udaFreeAll(nullptr, nullptr);
 }
 
 void uda::Client::put(const std::string& instruction, const uda::Array& data)
 {
-	// Use to convert size_t to int
-	struct Downcast
-	{
-		int operator() (size_t s) const
-		{
-			return static_cast<int>(s);
-		}
-	};
-	
+    // Use to convert size_t to int
+    struct Downcast
+    {
+        int operator() (size_t s) const
+        {
+            return static_cast<int>(s);
+        }
+    };
+
     PUTDATA_BLOCK putdata_block{};
     initIdamPutDataBlock(&putdata_block);
 
@@ -425,7 +425,7 @@ void uda::Client::put(const std::string& instruction, const uda::Array& data)
     std::vector<size_t> array_shape = data.shape();
 
     std::vector<int> shape;
-	// C++ error: conversion from 'size_t' to 'const int', possible loss of data
+    // C++ error: conversion from 'size_t' to 'const int', possible loss of data
     //std::copy(array_shape.begin(), array_shape.end(), std::back_inserter(shape));
     std::transform(array_shape.begin(), array_shape.end(), std::back_inserter(shape), Downcast());
 

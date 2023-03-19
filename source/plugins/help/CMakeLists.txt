@@ -2,6 +2,7 @@
 # Dependencies
 
 find_package( LibXml2 QUIET )
+find_package( fmt REQUIRED )
 
 if( NOT LIBXML2_FOUND )
   message( WARNING "Libxml2 not found - skipping help plugin" )
@@ -32,4 +33,5 @@ uda_plugin(
     ${LIBXML2_INCLUDE_DIR}
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
+    fmt::fmt
 )

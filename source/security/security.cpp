@@ -3,10 +3,10 @@
 //
 // Architecture models: (single/multiple tier network; mesh or bridge network)
 //
-// a)	client connects to a server
-// b)	client connects to a proxy that connects to a server
-// c)	client connects to a server that connects to a server etc. (multi-tier connection)
-// d)	client connects to a proxy that connects to a server that connects to a server etc. (multi-tier connection)
+// a)    client connects to a server
+// b)    client connects to a proxy that connects to a server
+// c)    client connects to a server that connects to a server etc. (multi-tier connection)
+// d)    client connects to a proxy that connects to a server that connects to a server etc. (multi-tier connection)
 //
 // IDAM servers without a public key server component must use PKI (Public Key Infrastructure) X.509 based certificates.
 // X.509 certificates establish the authenticity of the binding between a public key and its owner through a 
@@ -28,39 +28,39 @@
 // a) Mutual athentication for 2 claims of identity (the server may choose not to authenticate)
 // b) Proxy does not authenticate and passes through the claim of identity to the next server as a). 
 // c) Option:
-//	1) The User has one identity. Intermediate servers don't authenticate with each other or the client and 
+//    1) The User has one identity. Intermediate servers don't authenticate with each other or the client and
 //         pass through the claim of identity to the final server. Authentication occurs between the final server 
 //         and the user. 
-//	2) The User has one identity. Intermediate servers authenticate with each other but don't authenticate 
+//    2) The User has one identity. Intermediate servers authenticate with each other but don't authenticate
 //         with the client. They pass through the claim of identity to the final server. Authentication occurs 
 //         between the final server and the user.
-//	3) The User has one identity. All servers authenticate with the client.  **** Not adopted ****
-//	4) The User has two identities. The first server authenticates with the first user identity.
+//    3) The User has one identity. All servers authenticate with the client.  **** Not adopted ****
+//    4) The User has two identities. The first server authenticates with the first user identity.
 //         Intermediate servers don't authenticate with each other or the client and 
 //         pass through the claim of identity to the final server. Authentication occurs between the final server 
 //         and the user (second identity).  
-//	5) The User has two identities. The first server authenticates with the first user identity. 
+//    5) The User has two identities. The first server authenticates with the first user identity.
 //         Intermediate servers authenticate with each other but don't authenticate with the client. They
 //         pass through the second claim of identity to the final server. Authentication occurs between the final server 
 //         and the user (second identity).
-//	6) The User has n identities. Each of n servers authenticates with the n user identities. **** Not adopted ****
+//    6) The User has n identities. Each of n servers authenticates with the n user identities. **** Not adopted ****
 // d) Proxy does not authenticate and passes through the claims of identity to the multiple servers as c).
 // 
 // Steps:
 //
-// 1> 	Client issues a token (A), encrypts with the server's public key (->EASP), passes to server (with X.509)
-//	Server's public key could be obtained from a X.509 certificate (authenticated using signature and CA public key)
-// 2>	Server decrypts the passed cipher (EASP) with the server's private key (->A) 
-// 3>	Server encrypts the client token (A) with the client's public key (->EACP)
-//	Public key could be obtained from a X.509 certificate (authenticated using signature and CA public key)
-//	Public key could alternatively be obtained a user database.
-// 4>	Server issues a new token (B) also encrypted with the client's public key (->EBCP), passes 
-//	both to client. 
-// 5>	Client decrypts the passed ciphers (EACP, EBCP) with the client's private key (->A, ->B) and 
-//	checks token (A) => server authenticated (in addition to the X.509 certificate signature check)
-// 6>	Client encrypts passed token (B) with the server's public key (->EBSP), passes to server
-// 7>	Server decrypts the passed cipher (EBSP) with the server's private key (->B) and checks 
-//	token (B) => client authenticated (in addition to the X.509 certificate signature check).
+// 1>     Client issues a token (A), encrypts with the server's public key (->EASP), passes to server (with X.509)
+//    Server's public key could be obtained from a X.509 certificate (authenticated using signature and CA public key)
+// 2>    Server decrypts the passed cipher (EASP) with the server's private key (->A)
+// 3>    Server encrypts the client token (A) with the client's public key (->EACP)
+//    Public key could be obtained from a X.509 certificate (authenticated using signature and CA public key)
+//    Public key could alternatively be obtained a user database.
+// 4>    Server issues a new token (B) also encrypted with the client's public key (->EBCP), passes
+//    both to client.
+// 5>    Client decrypts the passed ciphers (EACP, EBCP) with the client's private key (->A, ->B) and
+//    checks token (A) => server authenticated (in addition to the X.509 certificate signature check)
+// 6>    Client encrypts passed token (B) with the server's public key (->EBSP), passes to server
+// 7>    Server decrypts the passed cipher (EBSP) with the server's private key (->B) and checks
+//    token (B) => client authenticated (in addition to the X.509 certificate signature check).
 //
 // 8>   Server issues a new token (B) encrypted with the client's public key (->EBCP), passes to client.
 //
@@ -117,7 +117,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
         case NONCETEST: {
             const char* txt = "QWERTYqwerty0123456789";
             if (gcry_mpi_scan(mpiToken, GCRYMPI_FMT_USG, txt, strlen(txt), nullptr) != 0) {
-                THROW_ERROR(999, "Unable to generate MPI Token");
+                UDA_THROW_ERROR(999, "Unable to generate MPI Token");
             }
         }
             break;
@@ -127,7 +127,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             *mpiToken = gcry_mpi_new((unsigned int)tokenByteLength * 8);
             gcry_mpi_randomize(*mpiToken, (unsigned int)tokenByteLength * 8, GCRY_WEAK_RANDOM);
             if (*mpiToken == nullptr) {
-                THROW_ERROR(999, "Unable to generate MPI Token");
+                UDA_THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
         }
@@ -138,7 +138,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             *mpiToken = gcry_mpi_new((unsigned int)tokenByteLength * 8);
             gcry_mpi_randomize(*mpiToken, (unsigned int)tokenByteLength * 8, GCRY_STRONG_RANDOM);
             if (*mpiToken == nullptr) {
-                THROW_ERROR(999, "Unable to generate MPI Token");
+                UDA_THROW_ERROR(999, "Unable to generate MPI Token");
             }
         }
             break;
@@ -167,14 +167,14 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             gcry_mpi_t timeData;
             if (gcry_mpi_scan(&timeData, GCRYMPI_FMT_USG, timeList, timeLength, nullptr) != 0) {
                 free(randList);
-                THROW_ERROR(999, "Unable to generate MPI Token");
+                UDA_THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
             gcry_mpi_t randData;
             if (gcry_mpi_scan(&randData, GCRYMPI_FMT_USG, randList, tokenByteLength, nullptr) != 0) {
                 gcry_mpi_release(timeData);
                 free(randList);
-                THROW_ERROR(999, "Unable to generate MPI Token");
+                UDA_THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
             free(randList);
@@ -186,7 +186,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
             if (*mpiToken == nullptr) {
                 gcry_mpi_release(timeData);
                 gcry_mpi_release(randData);
-                THROW_ERROR(999, "Unable to generate MPI Token");
+                UDA_THROW_ERROR(999, "Unable to generate MPI Token");
             }
 
             gcry_mpi_release(timeData);
@@ -199,7 +199,7 @@ static int createMPIToken(unsigned short tokenType, unsigned short tokenByteLeng
         }
 
         default:
-        THROW_ERROR(999, "Unknown token type");
+        UDA_THROW_ERROR(999, "Unknown token type");
     }
 
     return err;
@@ -256,7 +256,7 @@ static int generateToken(gcry_mpi_t* mpi_token, unsigned short tokenType, unsign
             gcry_mpi_release(*mpi_token);
             *mpi_token = nullptr;
         }
-        THROW_ERROR(err, "Error Generating Token");
+        UDA_THROW_ERROR(err, "Error Generating Token");
     }
 
     logToken("Generated", *mpi_token);
@@ -281,8 +281,8 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
             gcry_sexp_release(mpiTokenSexp);
             mpiTokenSexp = nullptr;
         }
-        addIdamError(CODEERRORTYPE, __func__, 999, "Error Generating Token S-Exp");
-        THROW_ERROR(999, gpg_strerror(gerr));
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error Generating Token S-Exp");
+        UDA_THROW_ERROR(999, gpg_strerror(gerr));
     }
 
     switch (encryptionMethod) {
@@ -292,8 +292,8 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
             // Encrypt
             if ((gerr = gcry_pk_encrypt(&encr, mpiTokenSexp, key)) != 0) {
                 if (mpiTokenSexp != nullptr) gcry_sexp_release(mpiTokenSexp);
-                addIdamError(CODEERRORTYPE, __func__, 999, "Encryption Error");
-                THROW_ERROR(999, gpg_strerror(gerr));
+                addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Encryption Error");
+                UDA_THROW_ERROR(999, gpg_strerror(gerr));
             }
 
             if (mpiTokenSexp != nullptr) gcry_sexp_release(mpiTokenSexp);
@@ -303,13 +303,13 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
             // Extract the ciphertext from the S-expression
             if ((encrypted_token = extract_a_from_sexp(encr)) == nullptr) {
                 if (encr != nullptr) gcry_sexp_release(encr);
-                THROW_ERROR(999, "Poor Encryption");
+                UDA_THROW_ERROR(999, "Poor Encryption");
             }
 
             // Check the ciphertext does not match the plaintext
             if (!gcry_mpi_cmp(*mpi_token, encrypted_token)) {
                 if (encrypted_token != nullptr) gcry_mpi_release(encrypted_token);
-                THROW_ERROR(999, "Poor Encryption");
+                UDA_THROW_ERROR(999, "Poor Encryption");
             }
 
             // Return the ciphertext
@@ -319,7 +319,7 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
                 if (encr != nullptr) gcry_sexp_release(encr);
                 if (encrypted_token != nullptr) gcry_mpi_release(encrypted_token);
                 *ciphertext = nullptr;
-                THROW_ERROR(999, "Ciphertext extraction error");
+                UDA_THROW_ERROR(999, "Ciphertext extraction error");
             }
 
             *ciphertext = (unsigned char*)malloc(*ciphertext_len * sizeof(unsigned char));
@@ -328,7 +328,7 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
             if (*ciphertext == nullptr) {
                 if (encr != nullptr) gcry_sexp_release(encr);
                 if (encrypted_token != nullptr) gcry_mpi_release(encrypted_token);
-                THROW_ERROR(999, "Ciphertext extraction error");
+                UDA_THROW_ERROR(999, "Ciphertext extraction error");
             }
 
             logToken("Encrypted", encrypted_token);
@@ -339,7 +339,7 @@ encryptToken(gcry_mpi_t* mpi_token, unsigned short encryptionMethod, gcry_sexp_t
         }
 
         default:
-        THROW_ERROR(999, "Unknown encryption method");
+        UDA_THROW_ERROR(999, "Unknown encryption method");
     }
 
     return err;
@@ -356,14 +356,14 @@ static int decryptToken(gcry_mpi_t* mpi_token, gcry_sexp_t key, unsigned char** 
     gcry_sexp_t decr = nullptr; // Decrypted token
 
     if ((gerr = gcry_sexp_create(&encr, (void*)*ciphertext, *ciphertext_len, 1, nullptr)) != 0) {
-        addIdamError(CODEERRORTYPE, __func__, 999, "Error Generating Token S-Exp");
-        THROW_ERROR(999, (char*)gpg_strerror(gerr));
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error Generating Token S-Exp");
+        UDA_THROW_ERROR(999, (char*)gpg_strerror(gerr));
     }
 
     if ((gerr = gcry_pk_decrypt(&decr, encr, key)) != 0) {
         gcry_sexp_release(encr);
-        addIdamError(CODEERRORTYPE, __func__, 999, "Decryption Error");
-        THROW_ERROR(999, (char*)gpg_strerror(gerr));
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Decryption Error");
+        UDA_THROW_ERROR(999, (char*)gpg_strerror(gerr));
     }
 
     gcry_sexp_release(encr);
@@ -383,7 +383,7 @@ static int decryptToken(gcry_mpi_t* mpi_token, gcry_sexp_t key, unsigned char** 
     gcry_sexp_release(decr);
 
     if (!plaintext) {
-        THROW_ERROR(999, "S-Exp contains no plaintext!");
+        UDA_THROW_ERROR(999, "S-Exp contains no plaintext!");
     }
 
     logToken("Decrypted", plaintext);
@@ -411,7 +411,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
     if (!initialised) {
         // Check version of runtime gcrypt library.
         if (!gcry_check_version(GCRYPT_VERSION)) {
-            THROW_ERROR(999, "Library version incorrect!");
+            UDA_THROW_ERROR(999, "Library version incorrect!");
         }
 
         // Disable secure memory.
@@ -471,7 +471,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
             // Check that the decrypted token matches the original token.
             if (gcry_mpi_cmp(mpiTokenA, received_token)) {
                 gcry_mpi_release(received_token);
-                THROW_ERROR(999, "Server Authentication Failed!");
+                UDA_THROW_ERROR(999, "Server Authentication Failed!");
             }
 
             gcry_mpi_release(received_token);
@@ -497,7 +497,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
             // Check that the decrypted token matches the original token.
             if (gcry_mpi_cmp(mpiTokenB, received_token)) {
                 gcry_mpi_release(received_token);
-                THROW_ERROR(999, "Client Authentication Failed!");
+                UDA_THROW_ERROR(999, "Client Authentication Failed!");
             }
 
             gcry_mpi_release(received_token);
@@ -509,7 +509,7 @@ int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD 
         }
 
         default: {
-            THROW_ERROR(999, "Uknown User Authentication Step");
+            UDA_THROW_ERROR(999, "Uknown User Authentication Step");
         }
 
     }

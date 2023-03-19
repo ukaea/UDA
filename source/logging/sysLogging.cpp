@@ -2,7 +2,7 @@
 
 #include <syslog.h>
 #include <stdarg.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 static LOG_LEVEL log_level = UDA_LOG_NONE;
 

@@ -13,7 +13,7 @@
 #include "generateErrors.h"
 
 #include <math.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <clientserver/udaTypes.h>
 #include <clientserver/errorLog.h>
@@ -66,50 +66,50 @@ int idamErrorModel(int model, int param_n, float* params, int data_n, float* dat
 // Generate Synthetic Data using Random Number generators * PDFs
 //
 // NB: to change the default GSL library settings use the following environment variables
-//	GSL_RNG_SEED	12345		for the seed value
-//	GSL_RNG_TYPE	mrg		for the name of the random number generator
+//    GSL_RNG_SEED    12345        for the seed value
+//    GSL_RNG_TYPE    mrg        for the name of the random number generator
 
 int idamSyntheticModel(int model, int param_n, float* params, int data_n, float* data)
 {
 
 #ifdef NO_GSL_LIB
     int err = 999;
-    addIdamError(CODEERRORTYPE, "idamSyntheticModel", err,
+    addIdamError(UDA_CODE_ERROR_TYPE, "idamSyntheticModel", err,
                  "Random Number Generators from the GSL library required.");
     return 999;
 #else
     float shift;
     static gsl_rng *random=nullptr;
 
-    if(random == nullptr) {		// Initialise the Random Number System
+    if(random == nullptr) {        // Initialise the Random Number System
         gsl_rng_env_setup();
         random = gsl_rng_alloc (gsl_rng_default);
-        gsl_rng_set(random, (unsigned long int) ERROR_MODEL_SEED);	// Seed the Random Number generator with the library default
+        gsl_rng_set(random, (unsigned long int) ERROR_MODEL_SEED);    // Seed the Random Number generator with the library default
     }
 
     switch (model) {
 
-    case ERROR_MODEL_GAUSSIAN:  	// Standard normal Distribution
+    case ERROR_MODEL_GAUSSIAN:      // Standard normal Distribution
         if(param_n < 1 || param_n > 2) return 1;
-        if(param_n == 2) gsl_rng_set(random, (unsigned long int) params[1]);		// Change the Seed before Sampling
+        if(param_n == 2) gsl_rng_set(random, (unsigned long int) params[1]);        // Change the Seed before Sampling
         for(i=0; i<data_n; i++) data[i] = data[i] + (float) gsl_ran_gaussian (random, (double) params[0]); // Random sample from PDF
         break;
 
-    case ERROR_MODEL_RESEED:  							// Change the Seed
+    case ERROR_MODEL_RESEED:                              // Change the Seed
         if(param_n == 1) gsl_rng_set(random, (unsigned long int) params[0]);
         break;
 
     case ERROR_MODEL_GAUSSIAN_SHIFT:
         if(param_n < 1 || param_n > 2) return 1;
-        if(param_n == 2) gsl_rng_set(random, (unsigned long int) params[1]);		// Change the Seed before Sampling
+        if(param_n == 2) gsl_rng_set(random, (unsigned long int) params[1]);        // Change the Seed before Sampling
         shift = (float) gsl_ran_gaussian (random, (double) params[0]);
-        for(i=0; i<data_n; i++) data[i] = data[i] + shift;				// Random linear shift of data array
+        for(i=0; i<data_n; i++) data[i] = data[i] + shift;                // Random linear shift of data array
         break;
 
     case ERROR_MODEL_POISSON:
         if(param_n < 0 || param_n > 1) return 1;
-        if(param_n == 1) gsl_rng_set(random, (unsigned long int) params[0]);				// Change the Seed before Sampling
-        for(i=0; i<data_n; i++) data[i] = data[i] + (float) gsl_ran_poisson(random, (double)data[i]);	// Randomly perturb data array
+        if(param_n == 1) gsl_rng_set(random, (unsigned long int) params[0]);                // Change the Seed before Sampling
+        for(i=0; i<data_n; i++) data[i] = data[i] + (float) gsl_ran_poisson(random, (double)data[i]);    // Randomly perturb data array
         break;
     }
 
@@ -143,7 +143,7 @@ int generateIdamSyntheticData(int handle)
 
     if (getIdamDataType(handle) == UDA_TYPE_DCOMPLEX || getIdamDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "generateIdamSyntheticData", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticData", err,
                      "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
@@ -226,7 +226,7 @@ int generateIdamSyntheticData(int handle)
     err = idamSyntheticModel(model, param_n, params, getIdamDataNum(handle), data);
 
     if (err != 0) {
-        addIdamError(CODEERRORTYPE, "generateIdamSyntheticData", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticData", err,
                      "Unable to Generate Synthetic Data");
         free(data);
         return err;
@@ -237,7 +237,7 @@ int generateIdamSyntheticData(int handle)
 
     if (acc_getSyntheticData(handle) == nullptr) {
         if ((err = allocArray(getIdamDataType(handle), getIdamDataNum(handle), &synthetic))) {
-            addIdamError(CODEERRORTYPE, "generateIdamSyntheticData", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticData", err,
                          "Problem Allocating Heap Memory for Synthetic Data");
             return err;
         }
@@ -344,14 +344,14 @@ int generateIdamSyntheticDimData(int handle, int ndim)
 
     if (getIdamDataType(handle) == UDA_TYPE_DCOMPLEX || getIdamDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "generateIdamSyntheticDimData", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", err,
                      "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
 
     float* data;
     if ((data = (float*)malloc(getIdamDimNum(handle, ndim) * sizeof(float))) == nullptr) {
-        addIdamError(CODEERRORTYPE, "generateIdamSyntheticDimData", 1,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", 1,
                      "Problem Allocating Heap Memory for Synthetic Dimensional Data");
         return 1;
     }
@@ -428,7 +428,7 @@ int generateIdamSyntheticDimData(int handle, int ndim)
     err = idamSyntheticModel(model, param_n, params, getIdamDimNum(handle, ndim), data);
 
     if (err != 0) {
-        addIdamError(CODEERRORTYPE, "generateIdamSyntheticDimData", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", err,
                      "Unable to Generate Synthetic Dimensional Data");
         free(data);
         return err;
@@ -439,7 +439,7 @@ int generateIdamSyntheticDimData(int handle, int ndim)
 
     if (acc_getSyntheticDimData(handle, ndim) == nullptr) {
         if ((err = allocArray(getIdamDimType(handle, ndim), getIdamDimNum(handle, ndim), &synthetic))) {
-            addIdamError(CODEERRORTYPE, "generateIdamSyntheticDimData", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", err,
                          "Problem Allocating Heap Memory for Synthetic Dimensional Data");
             return err;
         }
@@ -544,7 +544,7 @@ int generateIdamDataError(int handle)
 
     if (getIdamDataType(handle) == UDA_TYPE_DCOMPLEX || getIdamDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "generateIdamDataError", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamDataError", err,
                      "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
@@ -800,7 +800,7 @@ int generateIdamDimDataError(int handle, int ndim)
 
     if (getIdamDataType(handle) == UDA_TYPE_DCOMPLEX || getIdamDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        addIdamError(CODEERRORTYPE, "generateIdamDimDataError", err,
+        addIdamError(UDA_CODE_ERROR_TYPE, "generateIdamDimDataError", err,
                      "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }

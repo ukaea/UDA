@@ -1,11 +1,11 @@
 #ifndef UDA_CLIENTSERVER_UDATYPES_H
 #define UDA_CLIENTSERVER_UDATYPES_H
 
-// Client and ServerData Types
-//
-//----------------------------------------------------------------
-
-#include <stdlib.h>
+#ifdef __cplusplus
+#  include <cstdlib>
+#else
+#  include <stdlib.h>
+#endif
 
 #include "export.h"
 
@@ -13,7 +13,9 @@
 extern "C" {
 #endif
 
-// Data Type Codes
+/**
+ * Data Type Codes
+ */
 typedef enum UdaType {
     UDA_TYPE_UNKNOWN = 0,
     UDA_TYPE_CHAR = 1,
@@ -37,29 +39,19 @@ typedef enum UdaType {
     UDA_TYPE_OPAQUE = 19,
     UDA_TYPE_ENUM = 20,
     UDA_TYPE_VOID  = 21,
+    UDA_TYPE_CAPNP = 22,
     UDA_TYPE_STRING2 = 99
 } UDA_TYPE;
 
-//-------------------------------------------------------
-// Opaque Structure Types
-
+/**
+ * Opaque Structure Types
+ */
 typedef enum UdaOpaqueTypes {
     UDA_OPAQUE_TYPE_UNKNOWN = 0,
     UDA_OPAQUE_TYPE_XML_DOCUMENT = 1,
     UDA_OPAQUE_TYPE_STRUCTURES =  2,
     UDA_OPAQUE_TYPE_XDRFILE = 3,
-    UDA_OPAQUE_TYPE_XDROBJECT = 4,
-    UDA_OPAQUE_TYPE_EFIT = 100,
-    UDA_OPAQUE_TYPE_PFCOILS = 101,
-    UDA_OPAQUE_TYPE_PFPASSIVE = 102,
-    UDA_OPAQUE_TYPE_PFSUPPLIES = 103,
-    UDA_OPAQUE_TYPE_FLUXLOOP = 104,
-    UDA_OPAQUE_TYPE_MAGPROBE  = 105,
-    UDA_OPAQUE_TYPE_PFCIRCUIT = 106,
-    UDA_OPAQUE_TYPE_PLASMACURRENT = 107,
-    UDA_OPAQUE_TYPE_DIAMAGNETIC = 108,
-    UDA_OPAQUE_TYPE_TOROIDALFIELD = 109,
-    UDA_OPAQUE_TYPE_LIMITER = 110
+    UDA_OPAQUE_TYPE_XDROBJECT = 4
 } UDA_OPAQUE_TYPE;
 
 LIBRARY_API size_t getSizeOf(UDA_TYPE data_type);

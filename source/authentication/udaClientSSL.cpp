@@ -2,7 +2,7 @@
 
 #include "udaClientSSL.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <fcntl.h>
 #include <time.h>
 
@@ -18,6 +18,12 @@ static bool g_sslOK = false;        // SSL Authentication has been passed sucess
 static bool g_sslInit = false;      // Global initialisation of SSL completed
 static SSL* g_ssl = nullptr;
 static SSL_CTX* g_ctx = nullptr;
+static const HostData* g_host = nullptr;
+
+void putClientHost(const HostData* host)
+{
+    g_host = host;
+}
 
 bool getUdaClientSSLDisabled()
 {
@@ -132,7 +138,7 @@ void reportSSLErrorCode(int rc)
             strcpy(msg, "SSL_ERROR_SSL");
             break;
     }
-    ADD_ERROR(999, msg);
+    UDA_ADD_ERROR(999, msg);
     UDA_LOG(UDA_LOG_DEBUG, "Error - %s\n", msg);
     UDA_LOG(UDA_LOG_DEBUG, "Error - %s\n", ERR_error_string(ERR_get_error(), nullptr));
     UDA_LOG(UDA_LOG_DEBUG, "State - %s\n", SSL_state_string(getUdaClientSSL()));
@@ -148,7 +154,7 @@ SSL_CTX* createUdaClientSSLContext()
     putUdaClientSSLCTX(ctx);
 
     if (!ctx) {
-        ADD_ERROR(999, "Unable to create SSL context");
+        UDA_ADD_ERROR(999, "Unable to create SSL context");
         return nullptr;
     }
 
@@ -169,7 +175,7 @@ SSL_CTX* createUdaClientSSLContext()
     return ctx;
 }
 
-int configureUdaClientSSLContext()
+int configureUdaClientSSLContext(const HostData* host)
 {
     //SSL_CTX_set_ecdh_auto(g_ctx, 1);
 
@@ -182,16 +188,16 @@ int configureUdaClientSSLContext()
     if (!cert || !key || !ca) {
         // Check the client hosts configuration file
         int hostId = -1;
-        if ((hostId = udaClientGetHostNameId()) >= 0) {
+        if (host != nullptr) {
             // Socket connection was opened with a host entry in the configuration file
             if (!cert) {
-                cert = udaClientGetHostCertificatePath(hostId);
+                cert = host->certificate.c_str();
             }
             if (!key) {
-                key = udaClientGetHostKeyPath(hostId);
+                key = host->key.c_str();
             }
             if (!ca) {
-                ca = udaClientGetHostCAPath(hostId);
+                ca = host->ca_certificate.c_str();
             }
             UDA_LOG(UDA_LOG_DEBUG,
                     "SSL certificates and private key obtained from the hosts configuration file. Host id = %d\n",
@@ -200,15 +206,15 @@ int configureUdaClientSSLContext()
         if (!cert || !key || !ca || cert[0] == '\0' || key[0] == '\0' || ca[0] == '\0') {
             if (!cert || cert[0] == '\0') {
                 UDA_LOG(UDA_LOG_DEBUG, "No Client SSL certificate\n");
-                ADD_ERROR(999, "No client SSL certificate!");
+                UDA_ADD_ERROR(999, "No client SSL certificate!");
             }
             if (!key || key[0] == '\0') {
                 UDA_LOG(UDA_LOG_DEBUG, "No Client Private Key\n");
-                ADD_ERROR(999, "No client SSL key!");
+                UDA_ADD_ERROR(999, "No client SSL key!");
             }
             if (!ca || ca[0] == '\0') {
                 UDA_LOG(UDA_LOG_DEBUG, "No CA SSL certificate\n");
-                ADD_ERROR(999, "No Certificate Authority certificate!");
+                UDA_ADD_ERROR(999, "No Certificate Authority certificate!");
             }
             UDA_LOG(UDA_LOG_DEBUG, "Error: No SSL certificates and/or private key!\n");
             return 999;
@@ -221,24 +227,24 @@ int configureUdaClientSSLContext()
 
     if (SSL_CTX_use_certificate_file(g_ctx, cert, SSL_FILETYPE_PEM) <= 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Error: Failed to set the client certificate!\n");
-        THROW_ERROR(999, "Failed to set the client certificate!");
+        UDA_THROW_ERROR(999, "Failed to set the client certificate!");
     }
 
     if (SSL_CTX_use_PrivateKey_file(g_ctx, key, SSL_FILETYPE_PEM) <= 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Error: Failed to set the client key!\n");
-        THROW_ERROR(999, "Failed to set the client key!");
+        UDA_THROW_ERROR(999, "Failed to set the client key!");
     }
 
     // Check key and certificate match
     if (SSL_CTX_check_private_key(g_ctx) == 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Error: Private key does not match the certificate public key!\n");
-        THROW_ERROR(999, "Private key does not match the certificate public key!");
+        UDA_THROW_ERROR(999, "Private key does not match the certificate public key!");
     }
 
     // Load certificates of trusted CAs based on file provided
     if (SSL_CTX_load_verify_locations(g_ctx, ca, nullptr) < 1) {
         UDA_LOG(UDA_LOG_DEBUG, "Error: Error setting the certificate authority verify locations!\n");
-        THROW_ERROR(999, "Error setting the certificate authority verify locations!");
+        UDA_THROW_ERROR(999, "Error setting the certificate authority verify locations!");
     }
 
     // Peer certificate verification
@@ -252,7 +258,7 @@ int configureUdaClientSSLContext()
 
     if (!fd) {
         UDA_LOG(UDA_LOG_DEBUG, "Unable to open client certificate [%s] to verify certificate validity\n", cert);
-        THROW_ERROR(999, "Unable to open client certificate to verify certificate validity!");
+        UDA_THROW_ERROR(999, "Unable to open client certificate to verify certificate validity!");
     }
 
     X509* clientCert = PEM_read_X509(fd, nullptr, nullptr, nullptr);
@@ -262,7 +268,7 @@ int configureUdaClientSSLContext()
     if (!clientCert) {
         X509_free(clientCert);
         UDA_LOG(UDA_LOG_DEBUG, "Unable to parse client certificate [%s] to verify certificate validity\n", cert);
-        THROW_ERROR(999, "Unable to parse client certificate [%s] to verify certificate validity");
+        UDA_THROW_ERROR(999, "Unable to parse client certificate [%s] to verify certificate validity");
     }
 
     const ASN1_TIME* before = X509_get_notBefore(clientCert);
@@ -291,7 +297,7 @@ int configureUdaClientSSLContext()
         UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
         UDA_LOG(UDA_LOG_DEBUG, "Client X509 not before date is before the current date!\n");
         UDA_LOG(UDA_LOG_DEBUG, "The client SSL/x509 certificate is Not Valid - the Vaidity Date is in the future!\n");
-        THROW_ERROR(999, "The client SSL/x509 certificate is Not Valid - the Vaidity Date is in the future");
+        UDA_THROW_ERROR(999, "The client SSL/x509 certificate is Not Valid - the Vaidity Date is in the future");
     }
 
     count = 0;
@@ -307,7 +313,7 @@ int configureUdaClientSSLContext()
         UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
         UDA_LOG(UDA_LOG_DEBUG, "Client X509 not after date is after the current date!\n");
         UDA_LOG(UDA_LOG_DEBUG, "The client SSL/x509 certificate is Not Valid - the Date has Expired!\n");
-        THROW_ERROR(999, "The client SSL/x509 certificate is Not Valid - the Date has Expired!");
+        UDA_THROW_ERROR(999, "The client SSL/x509 certificate is Not Valid - the Date has Expired!");
     }
     X509_free(clientCert);
 
@@ -331,10 +337,9 @@ int startUdaClientSSL()
     if (!g_sslProtocol && !getenv("UDA_CLIENT_SSL_AUTHENTICATE")) {
         g_sslDisabled = true;
 
-        int hostId = -1;
-        if ((hostId = udaClientGetHostNameId()) >= 0) {
+        if (g_host != nullptr) {
             // Socket connection was opened with a host entry in the configuration file
-            if (!udaClientGetHostSSL(hostId)) {
+            if (!g_host->isSSL) {
                 // 3 files are Not present or SSL:// not specified
                 return 0;
             } else {
@@ -354,10 +359,11 @@ int startUdaClientSSL()
     initUdaClientSSL();
 
     if (!(g_ctx = createUdaClientSSLContext())) {
-        THROW_ERROR(999, "Unable to create the SSL context!");
+        UDA_THROW_ERROR(999, "Unable to create the SSL context!");
     }
-    if (configureUdaClientSSLContext() != 0) {
-        THROW_ERROR(999, "Unable to configure the SSL context!");
+
+    if (g_host == nullptr || configureUdaClientSSLContext(g_host) != 0) {
+        UDA_THROW_ERROR(999, "Unable to configure the SSL context!");
     }
 
     // Bind an SSL object with the socket
@@ -370,7 +376,7 @@ int startUdaClientSSL()
     if ((rc = SSL_connect(g_ssl)) < 1) {
         UDA_LOG(UDA_LOG_DEBUG, "Error connecting to the server!\n");
         if (errno != 0) {
-            ADD_SYS_ERROR("Error connecting to the server!");
+            UDA_ADD_SYS_ERROR("Error connecting to the server!");
         }
         reportSSLErrorCode(rc);
         return 999;
@@ -384,10 +390,10 @@ int startUdaClientSSL()
 
         if ((rc = SSL_get_verify_result(g_ssl)) != X509_V_OK) {
             // returns X509_V_OK if the certificate was not obtained as no error occurred!
-            ADD_ERROR(999, X509_verify_cert_error_string(rc));
+            UDA_ADD_ERROR(999, X509_verify_cert_error_string(rc));
             X509_free(peer);
             UDA_LOG(UDA_LOG_DEBUG, "SSL Server certificate presented but verification error!\n");
-            THROW_ERROR(999, "SSL Server certificate presented but verification error!");
+            UDA_THROW_ERROR(999, "SSL Server certificate presented but verification error!");
         }
 
         // Server's details - not required apart from logging
@@ -421,7 +427,7 @@ int startUdaClientSSL()
             UDA_LOG(UDA_LOG_DEBUG, "Server X509 not before date is before the current date!\n");
             UDA_LOG(UDA_LOG_DEBUG,
                     "The Server's SSL/x509 certificate is Not Valid - the Vaidity Date is in the future!\n");
-            THROW_ERROR(999, "The Server's SSL/x509 certificate is Not Valid - the Vaidity Date is in the future");
+            UDA_THROW_ERROR(999, "The Server's SSL/x509 certificate is Not Valid - the Vaidity Date is in the future");
         }
 
         count = 0;
@@ -437,7 +443,7 @@ int startUdaClientSSL()
             UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
             UDA_LOG(UDA_LOG_DEBUG, "Server X509 not after date is after the current date!\n");
             UDA_LOG(UDA_LOG_DEBUG, "The Server's SSL/x509 certificate is Not Valid - the Date has Expired!\n");
-            THROW_ERROR(999, "The Server's SSL/x509 certificate is Not Valid - the Date has Expired!");
+            UDA_THROW_ERROR(999, "The Server's SSL/x509 certificate is Not Valid - the Date has Expired!");
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Current Time               : %s\n", c_time_string);
@@ -447,7 +453,7 @@ int startUdaClientSSL()
     } else {
         X509_free(peer);
         UDA_LOG(UDA_LOG_DEBUG, "Server certificate not presented for verification!\n");
-        THROW_ERROR(999, "Server certificate not presented for verification!");
+        UDA_THROW_ERROR(999, "Server certificate not presented for verification!");
     }
 
     // Print out connection details
@@ -509,7 +515,7 @@ int writeUdaClientSSL(void* iohandle, char* buf, int count)
             if (rc != count) {    // Check the write is complete
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "Incomplete write to socket!\n");
-                addIdamError(CODEERRORTYPE, "writeUdaClientSSL", err, "Incomplete write to socket!");
+                addIdamError(UDA_CODE_ERROR_TYPE, "writeUdaClientSSL", err, "Incomplete write to socket!");
                 return -1;
             }
             break;
@@ -518,7 +524,7 @@ int writeUdaClientSSL(void* iohandle, char* buf, int count)
             reportSSLErrorCode(rc);
             err = 999;
             UDA_LOG(UDA_LOG_DEBUG, "Write to socket failed!\n");
-            addIdamError(CODEERRORTYPE, "writeUdaClientSSL", err, "Write to socket failed!");
+            addIdamError(UDA_CODE_ERROR_TYPE, "writeUdaClientSSL", err, "Write to socket failed!");
 #ifndef _WIN32
             int fopts = 0;
             if ((rc = fcntl(g_sslSocket, F_GETFL, &fopts)) < 0 ||
@@ -549,14 +555,14 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
 
         if (rc < 0) {    // Error
             int serrno = errno;
-            addIdamError(SYSTEMERRORTYPE, "readUdaClientSSL", errno, "Socket is Closed!");
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "readUdaClientSSL", errno, "Socket is Closed!");
             if (serrno == EBADF) {
                 UDA_LOG(UDA_LOG_DEBUG, "Socket is closed!\n");
             } else {
                 UDA_LOG(UDA_LOG_DEBUG, "Read error - %s\n", strerror(serrno));
             }
             err = 999;
-            addIdamError(CODEERRORTYPE, "readUdaClientSSL", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err,
                          "Socket is Closed! Data request failed. Restarting connection.");
             UDA_LOG(UDA_LOG_DEBUG,
                     "Socket is Closed! Data request failed. Restarting connection.\n");
@@ -590,7 +596,7 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
                 reportSSLErrorCode(rc);
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "Server socket connection closed!\n");
-                addIdamError(CODEERRORTYPE, "readUdaClientSSL", err,
+                addIdamError(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err,
                              "Server socket connection closed!");
                 return -1;
 
@@ -602,21 +608,21 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
                 reportSSLErrorCode(rc);
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "A read operation failed!\n");
-                addIdamError(CODEERRORTYPE, "readUdaClientSSL", err, "A read operation failed!");
+                addIdamError(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err, "A read operation failed!");
                 return -1;
 
             case SSL_ERROR_SYSCALL:    //some I/O error occured - disconnect?
                 reportSSLErrorCode(rc);
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "Socket read I/O error!\n");
-                addIdamError(CODEERRORTYPE, "readUdaClientSSL", err, "Socket read I/O error!");
+                addIdamError(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err, "Socket read I/O error!");
                 return -1;
 
             default:            //some other error
                 reportSSLErrorCode(rc);
                 err = 999;
                 UDA_LOG(UDA_LOG_DEBUG, "Read from socket failed!\n");
-                addIdamError(CODEERRORTYPE, "readUdaClientSSL", err, "Read from socket failed!");
+                addIdamError(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err, "Read from socket failed!");
 #ifndef _WIN32
                 int fopts = 0;
                 if ((rc = fcntl(g_sslSocket, F_GETFL, &fopts)) < 0 ||

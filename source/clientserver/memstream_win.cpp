@@ -3,9 +3,9 @@
 #include "memstream.h"
 
 #include <windows.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string.h>
-#include <errno.h>
+#include <cerrno>
 #include <io.h>
 
 #define MAX_CACHE_SIZE 500000000

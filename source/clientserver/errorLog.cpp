@@ -1,11 +1,3 @@
-/*---------------------------------------------------------------
-* Server Error Log Utilities
-*
-* Log Format:	client userid, date, client request,
-*		error class, error code, error message
-*
-*--------------------------------------------------------------*/
-
 #include "errorLog.h"
 
 #include <cstdlib>
@@ -18,7 +10,7 @@ static std::vector<UDA_ERROR> udaerrorstack;
 
 int udaNumErrors()
 {
-    return udaerrorstack.size();
+    return static_cast<int>(udaerrorstack.size());
 }
 
 void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERROR_STACK* error_stack)
@@ -43,7 +35,7 @@ void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERR
 
     struct tm* broken = gmtime(&calendar);
 
-    static char accessdate[DATELENGTH];     // The Calendar Time as a formatted String
+    static char accessdate[UDA_DATE_LENGTH];     // The Calendar Time as a formatted String
     
 #ifndef _WIN32
     asctime_r(broken, accessdate);
@@ -55,7 +47,7 @@ void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERR
     TrimString(accessdate);
 
     for (int i = 0; i < request_block.num_requests; ++i) {
-        auto request = &request_block.requests[0];
+        auto request = &request_block.requests[i];
         udaLog(UDA_LOG_ERROR, "0 %s [%s] [%d %s %d %d %s %s %s %s %s %s %s]\n",
                client_block.uid, accessdate, request->request, request->signal, request->exp_number,
                request->pass, request->tpass, request->path, request->file, request->format, request->archive,
@@ -100,9 +92,9 @@ void printIdamErrorStack()
 
 // Add an Error to the Stack
 //
-// Error Classes: 	0 => System Error (i.e. a Non Zero errno)
-//			1 => Code Error
-//			2 => Plugin Error
+// Error Classes:     0 => System Error (i.e. a Non Zero errno)
+//            1 => Code Error
+//            2 => Plugin Error
 
 void addIdamError(int type, const char* location, int code, const char* msg)
 {
@@ -117,7 +109,7 @@ void addIdamError(int type, const char* location, int code, const char* msg)
 
     size_t lmsg0 = strlen(error.msg);
 
-    if (type == SYSTEMERRORTYPE) {
+    if (type == UDA_SYSTEM_ERROR_TYPE) {
         const char* errmsg = strerror(code);
         size_t lmsg1 = strlen(errmsg);
         if (lmsg0 == 0) {

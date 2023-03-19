@@ -23,14 +23,14 @@ endif( XDR_INCLUDE_DIR AND XDR_LIBRARIES )
 find_path( XDR_INCLUDE_DIR rpc/xdr.h
   HINTS
     ${XDR_ROOT}
-	extlib
+    extlib
     ENV XDR_ROOT
   PATH_SUFFIXES include include/rpc )
 
 find_library( XDR_LIBRARIES NAMES xdr portablexdr
   HINTS
     ${XDR_ROOT}
-	extlib
+    extlib
     ENV XDR_ROOT
   PATH_SUFFIXES lib lib64 )
 

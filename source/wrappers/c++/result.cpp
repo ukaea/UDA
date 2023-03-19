@@ -69,7 +69,7 @@ uda::Result::Result(int handle)
         , units_(handle >= 0 ? getIdamDataUnits(handle) : "")
         , desc_(handle >= 0 ? getIdamDataDesc(handle) : "")
         , type_(handle >= 0 ? idamTypeToTypeID(getIdamDataType(handle)) : &typeid(void))
-        , data_(handle >= 0 ? getIdamData(handle) : nullptr)
+        , uda_type_(handle >= 0 ? getIdamDataType(handle) : UDA_TYPE_UNKNOWN)
         , rank_(handle >= 0 ? static_cast<dim_type>(getIdamRank(handle)) : 0)
         , size_(handle >= 0 ? static_cast<std::size_t>(getIdamDataNum(handle)) : 0)
 {
@@ -207,7 +207,7 @@ uda::Data* getDataAsString(int handle)
     return new uda::String(data);
 }
 
-uda::Data* getDataAsStringArray(int handle, const uda::Result* result)
+uda::Data* getDataAsStringArray(int handle)
 {
     char* data = getIdamData(handle);
 
@@ -271,7 +271,7 @@ uda::Data* uda::Result::data() const
             if (rank == 1 || rank == 0) {
                 return getDataAsString(handle_);
             } else {
-                return getDataAsStringArray(handle_, this);
+                return getDataAsStringArray(handle_);
             }
         default:
             return &Array::Null;
@@ -328,14 +328,19 @@ uda::Data* uda::Result::errors() const
             if (rank == 1) {
                 return getDataAsString(handle_);
             } else {
-                return getDataAsStringArray(handle_, this);
+                return getDataAsStringArray(handle_);
             }
         default:
             return &Array::Null;
     }
 }
 
+const char* uda::Result::raw_data() const
+{
+    return getIdamData(handle_);
+}
+
 uda::TreeNode uda::Result::tree() const
 {
-    return TreeNode(handle_, getIdamDataTree(handle_));
+    return { handle_, getIdamDataTree(handle_) };
 }

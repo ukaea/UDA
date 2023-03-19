@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef UDA_CLIENTSERVER_SOCKETSTRUCTS_H
 #define UDA_CLIENTSERVER_SOCKETSTRUCTS_H
 
@@ -7,9 +9,17 @@
 #include <rpc/rpc.h>
 #include "export.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <string>
+
+struct HostData {
+    std::string host_alias;
+    std::string host_name;
+    std::string certificate;
+    std::string key;
+    std::string ca_certificate;
+    int port;
+    bool isSSL;
+};
 
 //-------------------------------------------------------
 // Socket Types
@@ -37,9 +47,5 @@ typedef struct SocketList {
     int nsocks;             // Number of Sockets
     SOCKETS* sockets;      // Array of Socket Management Data
 } SOCKETLIST;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // UDA_CLIENTSERVER_SOCKETSTRUCTS_H

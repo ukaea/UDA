@@ -16,7 +16,7 @@
 #  define dup2 _dup2
 #endif
 
-#include <cache/memcache.h>
+#include <cache/memcache.hpp>
 #include <client/udaClient.h>
 #include <clientserver/expand_path.h>
 #include <clientserver/initStructs.h>
@@ -98,7 +98,6 @@ void initPluginData(PLUGIN_DATA* plugin)
 void printPluginList(FILE* fd, const PLUGINLIST* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
-        fprintf(fd, "Request    : %d\n", plugin_list->plugin[i].request);
         fprintf(fd, "Format     : %s\n", plugin_list->plugin[i].format);
         fprintf(fd, "Library    : %s\n", plugin_list->plugin[i].library);
         fprintf(fd, "Symbol     : %s\n", plugin_list->plugin[i].symbol);
@@ -143,11 +142,11 @@ int udaServerRedirectStdStreams(int reset)
         }
 
         if (mdsmsgFH != nullptr && singleFile) {
-			// Multi platform compliance
+            // Multi platform compliance
             //stdout = mdsmsgFH;                                  // Redirect all IO to a temporary file
             //stderr = mdsmsgFH;
-			dup2(fileno(mdsmsgFH), fileno(stdout));
-			dup2(fileno(mdsmsgFH), fileno(stderr));
+            dup2(fileno(mdsmsgFH), fileno(stdout));
+            dup2(fileno(mdsmsgFH), fileno(stderr));
             return 0;
         }
 
@@ -165,7 +164,7 @@ int udaServerRedirectStdStreams(int reset)
 
             if (env == nullptr) {
                 if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
-                    sprintf(mksdir_template, "%s/idamPLUGINXXXXXX", env);
+                    snprintf(mksdir_template, MAXPATH, "%s/idamPLUGINXXXXXX", env);
                 } else {
                     strcpy(mksdir_template, "/tmp/idamPLUGINXXXXXX");
                 }
@@ -183,13 +182,13 @@ int udaServerRedirectStdStreams(int reset)
         int fd = mkstemp(tempFile);
         if (fd < 0 || errno != 0) {
             int err = (errno != 0) ? errno : 994;
-            THROW_ERROR(err, "Unable to Obtain a Temporary File Name");
+            UDA_THROW_ERROR(err, "Unable to Obtain a Temporary File Name");
         }
 
         mdsmsgFH = fdopen(fd, "a");
 
         if (mdsmsgFH == nullptr || errno != 0) {
-            THROW_ERROR(999, "Unable to Trap Plugin Error Messages.");
+            UDA_THROW_ERROR(999, "Unable to Trap Plugin Error Messages.");
         }
 
         // Multi platform compliance
@@ -207,7 +206,7 @@ int udaServerRedirectStdStreams(int reset)
                     int rc = fclose(mdsmsgFH);
                     if (rc) {
                         int err = errno;
-                        THROW_ERROR(err, strerror(err));
+                        UDA_THROW_ERROR(err, strerror(err));
                     }
                 }
                 mdsmsgFH = nullptr;
@@ -216,7 +215,7 @@ int udaServerRedirectStdStreams(int reset)
                     int rc = remove(tempFile);    // Delete the temporary file
                     if (rc) {
                         int err = errno;
-                        THROW_ERROR(err, strerror(err));
+                        UDA_THROW_ERROR(err, strerror(err));
                     }
                     tempFile[0] = '\0';
                 }
@@ -225,8 +224,8 @@ int udaServerRedirectStdStreams(int reset)
             // Multi platform compliance
             //stdout = originalStdFH;
             //stderr = originalErrFH;
-			dup2(originalStdFH, fileno(stdout));
-			dup2(originalErrFH, fileno(stderr));
+            dup2(originalStdFH, fileno(stdout));
+            dup2(originalErrFH, fileno(stderr));
 
         } else {
 
@@ -312,12 +311,12 @@ int udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC
 // and client application (behaves as a normal plugin)
 //
 // Server needs are (private to the server):
-//	record (put) the original and the actual signal and source terms with the source file DOI
-//	record (put) the server log record
+//    record (put) the original and the actual signal and source terms with the source file DOI
+//    record (put) the server log record
 // Client needs are (the plugin exposes these to the client in the regular manner):
-//	list all provenance records for a specific client DOI - must be given
-//	change provenance records status to closed
-//	delete all closed records for a specific client DOI
+//    list all provenance records for a specific client DOI - must be given
+//    change provenance records status to closed
+//    delete all closed records for a specific client DOI
 //
 // changePlugin option disabled in this context
 // private malloc log and userdefinedtypelist
@@ -392,7 +391,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     // mimic a client request
 
     if (logRecord == nullptr || strlen(logRecord) == 0) {
-        sprintf(request.signal, "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
+        snprintf(request.signal, MAXMETA, "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
                                       "trueSignal='%s', trueSource='%s', trueSourceDOI='%s', execMethod=%d, status=new)",
                 plugin_list->plugin[plugin_id].format, client_block->DOI,
                 original_request->signal, original_request->source,
@@ -401,7 +400,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
 
         // need 2> record the server log record
 
-        sprintf(request.signal, "%s::putSignal(uuid='%s',logRecord='%s', execMethod=%d, status=update)",
+        snprintf(request.signal, MAXMETA, "%s::putSignal(uuid='%s',logRecord='%s', execMethod=%d, status=update)",
                 plugin_list->plugin[plugin_id].format, client_block->DOI, logRecord, execMethod);
     }
 
@@ -424,7 +423,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     // Check the Interface Compliance
 
     if (plugin_list->plugin[plugin_id].interfaceVersion > 1) {
-        THROW_ERROR(999, "The Provenance Plugin's Interface Version is not Implemented.");
+        UDA_THROW_ERROR(999, "The Provenance Plugin's Interface Version is not Implemented.");
     }
 
     USERDEFINEDTYPELIST userdefinedtypelist;
@@ -453,7 +452,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
 
     reset = 0;
     if ((err = udaServerRedirectStdStreams(reset)) != 0) {
-        THROW_ERROR(err, "Error Redirecting Plugin Message Output");
+        UDA_THROW_ERROR(err, "Error Redirecting Plugin Message Output");
     }
 
     // Call the plugin
@@ -485,7 +484,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     reset = 1;
     if ((rc = udaServerRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
-            addIdamError(CODEERRORTYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
         if (err != 0) {
             return err;
@@ -567,7 +566,7 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
     // Check the Interface Compliance
 
     if (plugin_list->plugin[plugin_id].interfaceVersion > 1) {
-        THROW_ERROR(999, "The Plugin's Interface Version is not Implemented.");
+        UDA_THROW_ERROR(999, "The Plugin's Interface Version is not Implemented.");
     }
 
     DATA_BLOCK data_block;
@@ -600,7 +599,7 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
 
     reset = 0;
     if ((err = udaServerRedirectStdStreams(reset)) != 0) {
-        THROW_ERROR(err, "Error Redirecting Plugin Message Output");
+        UDA_THROW_ERROR(err, "Error Redirecting Plugin Message Output");
     }
 
     // Call the plugin (Error handling is managed within)
@@ -612,7 +611,7 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
     reset = 1;
     if ((rc = udaServerRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
-            addIdamError(CODEERRORTYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
         if (err != 0) return err;
         return rc;

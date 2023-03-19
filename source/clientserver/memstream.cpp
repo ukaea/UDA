@@ -1,12 +1,14 @@
 /* Use funopen(3) to provide open_memstream(3) like functionality. */
 
-#ifdef __APPLE__
+#include <cstdio>
+
+#if defined(__APPLE__) && __DARWIN_C_LEVEL < 200809L
 
 #include "memstream.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string.h>
-#include <errno.h>
+#include <cerrno>
 
 struct memstream {
     char** cp;

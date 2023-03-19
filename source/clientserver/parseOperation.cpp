@@ -14,9 +14,9 @@ int parseOperation(SUBSET* sub)
     // =0.15,!=0.15,<=0.05,>=0.05,!<=0.05,!>=0.05,<0.05,>0.05,0:25,25:0,25,*,25:,:25, 25:#
     //
     // Identify Three Types of Operations:
-    //	A) Contains the characters: =,>, <, !, ~
-    //	B) : or Integer Value
-    //	C) * or #  (* => ignore this dimension; # => Last Value in array)
+    //    A) Contains the characters: =,>, <, !, ~
+    //    B) : or Integer Value
+    //    C) * or #  (* => ignore this dimension; # => Last Value in array)
     //
     // If the operation string is enclosed in [ ] then ignore these
 
@@ -44,7 +44,7 @@ int parseOperation(SUBSET* sub)
             boost::split(tokens, operation, boost::is_any_of(":"), boost::token_compress_off);
 
             if (tokens.size() < 2 || tokens.size() > 3) {
-                THROW_ERROR(9999, "Server Side Operation Syntax Error: Too Many :");
+                UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Too Many :");
             }
 
             sub->isindex[i] = true;
@@ -57,7 +57,7 @@ int parseOperation(SUBSET* sub)
                 size_t n = 0;
                 long num = std::stol(tokens[0], &n, 10);
                 if (n != tokens[0].size()) {
-                    THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Lower Index Bound");
+                    UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Lower Index Bound");
                 }
                 sub->lbindex[i] = { .init = true, .value = num };
             }
@@ -66,7 +66,7 @@ int parseOperation(SUBSET* sub)
                 size_t n = 0;
                 long num = std::stol(tokens[1], &n, 10);
                 if (n != tokens[1].size()) {
-                    THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Upper Index Bound");
+                    UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Upper Index Bound");
                 }
                 sub->ubindex[i] = { .init = true, .value = num };
             }
@@ -75,7 +75,7 @@ int parseOperation(SUBSET* sub)
                 size_t n = 0;
                 long num = std::stol(tokens[2], &n, 10);
                 if (n != tokens[2].size()) {
-                    THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Stride");
+                    UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Invalid Stride");
                 }
                 sub->stride[i] = { .init = true, .value = num };
             }
@@ -96,7 +96,7 @@ int parseOperation(SUBSET* sub)
             long num = std::stol(operation, &n, 10);
 
             if (n != operation.size()) {
-                THROW_ERROR(9999, "Server Side Operation Syntax Error: Single Index Bound");
+                UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Single Index Bound");
             }
 
             sub->isindex[i] = true;

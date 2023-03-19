@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef UDA_AUTHENTICATION_CLIENT_SSL_H
 #define UDA_AUTHENTICATION_CLIENT_SSL_H
 
@@ -16,27 +18,22 @@
 #include <openssl/pem.h>
 #include <openssl/asn1.h>
 
-#define VERIFY_DEPTH	4
-#define X509STRINGSIZE	256
+#define VERIFY_DEPTH    4
+#define X509STRINGSIZE    256
 
 #include <clientserver/export.h>
+#include <clientserver/socketStructs.h>
+#include <client/udaClientHostList.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-LIBRARY_API bool getUdaClientSSLDisabled();
-LIBRARY_API SSL *getUdaClientSSL();
-LIBRARY_API void putUdaClientSSLSocket(int s);
-LIBRARY_API void closeUdaClientSSL();
-LIBRARY_API void putUdaClientSSLProtocol(int specified);
-LIBRARY_API int startUdaClientSSL();
-LIBRARY_API int readUdaClientSSL(void* iohandle, char* buf, int count);
-LIBRARY_API int writeUdaClientSSL(void* iohandle, char* buf, int count);
-
-#ifdef __cplusplus
-}
-#endif
+bool getUdaClientSSLDisabled();
+SSL *getUdaClientSSL();
+void putUdaClientSSLSocket(int s);
+void closeUdaClientSSL();
+void putUdaClientSSLProtocol(int specified);
+int startUdaClientSSL();
+int readUdaClientSSL(void* iohandle, char* buf, int count);
+int writeUdaClientSSL(void* iohandle, char* buf, int count);
+void putClientHost(const HostData* host);
 
 #endif // SSLAUTHENTICATION
 

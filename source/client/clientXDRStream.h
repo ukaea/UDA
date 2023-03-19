@@ -1,16 +1,11 @@
 #ifndef UDA_CLIENT_CLIENTXDRSTREAM_H
 #define UDA_CLIENT_CLIENTXDRSTREAM_H
 
+#include <utility>
+#include <rpc/rpc.h>
+
 #include <clientserver/export.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-LIBRARY_API void createXDRStream();
-
-#ifdef __cplusplus
-}
-#endif
+std::pair<XDR*, XDR*> clientCreateXDRStream();
 
 #endif // UDA_CLIENT_CLIENTXDRSTREAM_H

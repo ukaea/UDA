@@ -1,6 +1,6 @@
 #include "x509Utils.h"
 
-#include <errno.h>
+#include <cerrno>
 
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
@@ -197,7 +197,7 @@ static int do_encode_md(gcry_md_hd_t md, int algo, int pkalgo, unsigned int nbit
 
         /* We encode the MD in this way:
          *
-         *	   0  A PAD(n bytes)   0  ASN(asnlen bytes)  MD(len bytes)
+         *       0  A PAD(n bytes)   0  ASN(asnlen bytes)  MD(len bytes)
          *
          * PAD consists of FF bytes.
          */
@@ -533,7 +533,7 @@ int importSecurityDoc(const char* file, unsigned char** contents, unsigned short
         if (fd != nullptr) {
             fclose(fd);
         }
-        THROW_ERROR(999, "Cannot open the security document: key or certificate");
+        UDA_THROW_ERROR(999, "Cannot open the security document: key or certificate");
     }
 
     size_t fileLength = fread(*contents, sizeof(char), UDA_MAXKEY, fd);
@@ -541,7 +541,7 @@ int importSecurityDoc(const char* file, unsigned char** contents, unsigned short
     if (!feof(fd) || fileLength == UDA_MAXKEY) {
         free(*contents);
         fclose(fd);
-        THROW_ERROR(999, "Security document length limit hit!");
+        UDA_THROW_ERROR(999, "Security document length limit hit!");
     }
 
     *length = (unsigned short)fileLength;
@@ -556,11 +556,11 @@ int makeX509CertObject(unsigned char* doc, unsigned short docLength, ksba_cert_t
     ksba_cert_t certificate;
 
     if (ksba_cert_new(&certificate) != 0) {
-        THROW_ERROR(999, "Problem creating the certificate object!");
+        UDA_THROW_ERROR(999, "Problem creating the certificate object!");
     }
 
     if (ksba_cert_init_from_mem(certificate, (const void*)doc, (size_t)docLength) != 0) {
-        THROW_ERROR(999, "Problem initialising the certificate object!");
+        UDA_THROW_ERROR(999, "Problem initialising the certificate object!");
     }
 
     *cert = certificate;
@@ -582,21 +582,21 @@ int extractX509SExpKey(ksba_cert_t cert, gcry_sexp_t* key_sexp)
     size_t n;
 
     if ((p = ksba_cert_get_public_key(cert)) == nullptr) {
-        THROW_ERROR(999, "Failure to get the Public key!");
+        UDA_THROW_ERROR(999, "Failure to get the Public key!");
     }
 
 // Get the length of the canonical S-Expression (public key)
 
     if ((n = gcry_sexp_canon_len(p, 0, nullptr, nullptr)) == 0) {
         ksba_free(p);
-        THROW_ERROR(999, "did not return a proper S-Exp!");
+        UDA_THROW_ERROR(999, "did not return a proper S-Exp!");
     }
 
 // Create an internal S-Expression from the external representation
 
     if (gcry_sexp_sscan(key_sexp, nullptr, (char*)p, n) != 0) {
         ksba_free(p);
-        THROW_ERROR(999, "S-Exp creation failed!");
+        UDA_THROW_ERROR(999, "S-Exp creation failed!");
     }
 
     ksba_free(p);
@@ -614,28 +614,28 @@ int importX509Reader(const char* fileName, ksba_cert_t* cert)
 
     fp = fopen(fileName, "rb");
     if (!fp) {
-        addIdamError(CODEERRORTYPE, __func__, 999, "Problem opening the certificate file");
-        THROW_ERROR(999, strerror(errno));
+        addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Problem opening the certificate file");
+        UDA_THROW_ERROR(999, strerror(errno));
     }
 
     err = ksba_reader_new(&r);
     if (err) {
-        THROW_ERROR(999, "can't create certificate reader");
+        UDA_THROW_ERROR(999, "can't create certificate reader");
     }
 
     err = ksba_reader_set_file(r, fp);
     if (err) {
-        THROW_ERROR(999, "can't set file reader");
+        UDA_THROW_ERROR(999, "can't set file reader");
     }
 
     err = ksba_cert_new(cert);
     if (err) {
-        THROW_ERROR(999, "Problem creating a new certificate object!");
+        UDA_THROW_ERROR(999, "Problem creating a new certificate object!");
     }
 
     err = ksba_cert_read_der(*cert, r);
     if (err) {
-        THROW_ERROR(999, "Problem initialising the certificate object!");
+        UDA_THROW_ERROR(999, "Problem initialising the certificate object!");
     }
 
     fclose(fp);
@@ -683,7 +683,7 @@ int testX509Dates(ksba_cert_t certificate)
             broken->tm_hour, broken->tm_min, broken->tm_sec);
 
     if ((strcmp(work, startDateTime) <= 0) || (strcmp(endDateTime, work) <= 0)) {        // dates are in ascending order
-        THROW_ERROR(999, "X509 Certificate is Invalid: Time Expired!");
+        UDA_THROW_ERROR(999, "X509 Certificate is Invalid: Time Expired!");
     }
 
     return err;
@@ -705,28 +705,28 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
 // Extract the digest algorithm OID used for the signature
 
     if ((algoid = ksba_cert_get_digest_algo(cert)) == nullptr) {
-        THROW_ERROR(999, "unknown digest algorithm OID");
+        UDA_THROW_ERROR(999, "unknown digest algorithm OID");
     }
 
 // Map the algorithm OID to an algorithm identifier
 
     int algo;
     if ((algo = gcry_md_map_name(algoid)) == 0) {
-        THROW_ERROR(999, "unknown digest algorithm identifier");
+        UDA_THROW_ERROR(999, "unknown digest algorithm identifier");
     }
 
 // Create a new digest object with the same algorithm as the certificate signature
 
     gcry_md_hd_t md;
     if (gcry_md_open(&md, algo, 0) != 0) {
-        THROW_ERROR(999, "md_open failed!");
+        UDA_THROW_ERROR(999, "md_open failed!");
     }
 
 // Hash the certificate
 
     if (ksba_cert_hash(cert, 1, HASH_FNC, md) != 0) {
         gcry_md_close(md);
-        THROW_ERROR(999, "cert hash failed!");
+        UDA_THROW_ERROR(999, "cert hash failed!");
     }
 
 // Finalise the digest calculation
@@ -738,7 +738,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
     ksba_sexp_t p;
     if ((p = ksba_cert_get_sig_val(cert)) == nullptr) {
         gcry_md_close(md);
-        THROW_ERROR(999, "Failure to get the certificate signature!");
+        UDA_THROW_ERROR(999, "Failure to get the certificate signature!");
     }
 
 // Get the length of the canonical S-Expression (certificate signature)
@@ -747,7 +747,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
     if ((n = gcry_sexp_canon_len(p, 0, nullptr, nullptr)) == 0) {
         gcry_md_close(md);
         ksba_free(p);
-        THROW_ERROR(999, "libksba did not return a proper S-Exp!");
+        UDA_THROW_ERROR(999, "libksba did not return a proper S-Exp!");
     }
 
 // Create an internal S-Expression from the external representation
@@ -755,7 +755,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
     gcry_sexp_t s_sig;
     if (gcry_sexp_sscan(&s_sig, nullptr, (char*)p, n) != 0) {
         gcry_md_close(md);
-        THROW_ERROR(999, "gcry_sexp_scan failed!");
+        UDA_THROW_ERROR(999, "gcry_sexp_scan failed!");
     }
 
     ksba_free(p);
@@ -764,7 +764,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
 
     if ((p = ksba_cert_get_public_key(issuer_cert)) == nullptr) {
         gcry_md_close(md);
-        THROW_ERROR(999, "Failure to get the Public key!");
+        UDA_THROW_ERROR(999, "Failure to get the Public key!");
     }
 
 // Get the length of the canonical S-Expression (public key)
@@ -773,7 +773,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
         gcry_md_close(md);
         ksba_free(p);
         gcry_sexp_release(s_sig);
-        THROW_ERROR(999, "libksba did not return a proper S-Exp!");
+        UDA_THROW_ERROR(999, "libksba did not return a proper S-Exp!");
     }
 
 // Create an internal S-Expression from the external representation
@@ -783,7 +783,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
         gcry_md_close(md);
         ksba_free(p);
         gcry_sexp_release(s_sig);
-        THROW_ERROR(999, "gcry_sexp_scan failed!");
+        UDA_THROW_ERROR(999, "gcry_sexp_scan failed!");
     }
 
     ksba_free(p);
@@ -794,7 +794,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
         gcry_md_close(md);
         gcry_sexp_release(s_sig);
         gcry_sexp_release(s_pkey);
-        THROW_ERROR(999, "do_encode_md failed!");
+        UDA_THROW_ERROR(999, "do_encode_md failed!");
     }
 
 // put hash into the S-Exp s_hash
@@ -807,7 +807,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
 // Verify the signature, data, public key
 
     if (gcry_pk_verify(s_sig, s_hash, s_pkey) != 0) {
-        THROW_ERROR(999, "Signature verification failed!");
+        UDA_THROW_ERROR(999, "Signature verification failed!");
     }
 
     gcry_md_close(md);
@@ -835,7 +835,7 @@ int importPEMPrivateKey(const char* keyFile, gcry_sexp_t* key_sexp)
 
     FILE* fp;
     if ((fp = fopen(keyFile, "rb")) == nullptr) {
-        THROW_ERROR(999, "Failed to open private key file");
+        UDA_THROW_ERROR(999, "Failed to open private key file");
     }
 
     size_t buflen;
@@ -843,13 +843,13 @@ int importPEMPrivateKey(const char* keyFile, gcry_sexp_t* key_sexp)
     fclose(fp);
 
     if (!buffer) {
-        THROW_ERROR(999, "Failed to read private key file");
+        UDA_THROW_ERROR(999, "Failed to read private key file");
     }
 
     size_t oldBuflen = buflen;
     if ((err = base64_decode(buffer, oldBuflen, &buflen)) != 0) {
         gcry_free(buffer);
-        THROW_ERROR(err, "Failed to decode private key buffer");
+        UDA_THROW_ERROR(err, "Failed to decode private key buffer");
     }
 
 // Parse the ASN.1 structure.
@@ -861,17 +861,17 @@ int importPEMPrivateKey(const char* keyFile, gcry_sexp_t* key_sexp)
 
     if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_SEQUENCE || ti.class || !ti.cons || ti.ndef) {
         gcry_free(buffer);
-        THROW_ERROR(err, "Failed to parse tag from private key buffer");
+        UDA_THROW_ERROR(err, "Failed to parse tag from private key buffer");
     }
 
     if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_INTEGER || ti.class || ti.cons || ti.ndef) {
         gcry_free(buffer);
-        THROW_ERROR(err, "Failed to parse tag from private key buffer");
+        UDA_THROW_ERROR(err, "Failed to parse tag from private key buffer");
     }
 
     if (ti.length != 1 || *der) {
         gcry_free(buffer);
-        THROW_ERROR(err, "Incorrect tag length");
+        UDA_THROW_ERROR(err, "Incorrect tag length");
     }
 
     der += ti.length;
@@ -882,14 +882,14 @@ int importPEMPrivateKey(const char* keyFile, gcry_sexp_t* key_sexp)
 
         if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_INTEGER || ti.class || ti.cons || ti.ndef) {
             gcry_free(buffer);
-            THROW_ERROR(999, "Failed to parse tag from private key buffer");
+            UDA_THROW_ERROR(999, "Failed to parse tag from private key buffer");
         }
 
         gcry_error_t gerr = gcry_mpi_scan(keyparms + idx, GCRYMPI_FMT_USG, der, ti.length, nullptr);
 
         if (gerr) {
             gcry_free(buffer);
-            THROW_ERROR(999, gcry_strerror(gerr));
+            UDA_THROW_ERROR(999, gcry_strerror(gerr));
         }
 
         der += ti.length;
@@ -898,7 +898,7 @@ int importPEMPrivateKey(const char* keyFile, gcry_sexp_t* key_sexp)
 
     if (idx != n_keyparms) {
         gcry_free(buffer);
-        THROW_ERROR(999, "Incorrect number of key params in private key");
+        UDA_THROW_ERROR(999, "Incorrect number of key params in private key");
     }
 
     gcry_free(buffer);
@@ -918,7 +918,7 @@ int importPEMPrivateKey(const char* keyFile, gcry_sexp_t* key_sexp)
 
     if (gerr) {
         gcry_free(buffer);
-        THROW_ERROR(999, gcry_strerror(gerr));
+        UDA_THROW_ERROR(999, gcry_strerror(gerr));
     }
 
     for (idx = 0; idx < n_keyparms; idx++) {
@@ -943,7 +943,7 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
 
     FILE* fp;
     if ((fp = fopen(keyFile, "rb")) == nullptr) {
-        THROW_ERROR(999, "Failed to open public key file");
+        UDA_THROW_ERROR(999, "Failed to open public key file");
     }
 
     size_t buflen;
@@ -951,13 +951,13 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
     fclose(fp);
 
     if (!buffer) {
-        THROW_ERROR(999, "Failed to read public key file");
+        UDA_THROW_ERROR(999, "Failed to read public key file");
     }
 
     size_t oldBuflen = buflen;
     if ((err = base64_decode(buffer, oldBuflen, &buflen)) != 0) {
         gcry_free(buffer);
-        THROW_ERROR(999, "Failed to decode public key");
+        UDA_THROW_ERROR(999, "Failed to decode public key");
     }
 
     // Parse the ASN.1 structure.
@@ -968,12 +968,12 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
 
     if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_SEQUENCE || ti.class || !ti.cons || ti.ndef) {
         gcry_free(buffer);
-        THROW_ERROR(err, "Failed to parse tag from public key buffer");
+        UDA_THROW_ERROR(err, "Failed to parse tag from public key buffer");
     }
 
     if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_SEQUENCE || ti.class || !ti.cons || ti.ndef) {
         gcry_free(buffer);
-        THROW_ERROR(err, "Failed to parse tag from public key buffer");
+        UDA_THROW_ERROR(err, "Failed to parse tag from public key buffer");
     }
 
 // We skip the description of the key parameters and assume it is RSA.
@@ -983,12 +983,12 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
 
     if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_BIT_STRING || ti.class || ti.cons || ti.ndef) {
         gcry_free(buffer);
-        THROW_ERROR(err, "Failed to parse tag from public key buffer");
+        UDA_THROW_ERROR(err, "Failed to parse tag from public key buffer");
     }
 
     if (ti.length < 1 || *der) {
         gcry_free(buffer);
-        THROW_ERROR(err, "Incorrect tag length");
+        UDA_THROW_ERROR(err, "Incorrect tag length");
     }
 
     der += 1;
@@ -998,7 +998,7 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
 
     if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_SEQUENCE || ti.class || !ti.cons || ti.ndef) {
         gcry_free(buffer);
-        THROW_ERROR(err, "Failed to parse tag from public key buffer");
+        UDA_THROW_ERROR(err, "Failed to parse tag from public key buffer");
     }
 
     int idx;
@@ -1009,14 +1009,14 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
 
         if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_INTEGER || ti.class || ti.cons || ti.ndef) {
             gcry_free(buffer);
-            THROW_ERROR(err, "Failed to parse tag from public key buffer");
+            UDA_THROW_ERROR(err, "Failed to parse tag from public key buffer");
         }
 
         gcry_error_t gerr = gcry_mpi_scan(keyparms + idx, GCRYMPI_FMT_USG, der, ti.length, nullptr);
 
         if (gerr) {
             gcry_free(buffer);
-            THROW_ERROR(err, gcry_strerror(gerr));
+            UDA_THROW_ERROR(err, gcry_strerror(gerr));
         }
         der += ti.length;
         derlen -= ti.length;
@@ -1024,7 +1024,7 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
 
     if (idx != n_keyparms) {
         gcry_free(buffer);
-        THROW_ERROR(err, "Incorrect number of params in public key");
+        UDA_THROW_ERROR(err, "Incorrect number of params in public key");
     }
 
     gcry_free(buffer);
@@ -1036,7 +1036,7 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
     gcry_error_t gerr = gcry_sexp_build(&s_key, nullptr, "(public-key(rsa(n%m)(e%m)))", keyparms[0], keyparms[1]);
     if (gerr) {
         gcry_free(buffer);
-        THROW_ERROR(err, gcry_strerror(gerr));
+        UDA_THROW_ERROR(err, gcry_strerror(gerr));
     }
 
     for (idx = 0; idx < n_keyparms; idx++) gcry_mpi_release(keyparms[idx]);

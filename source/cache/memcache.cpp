@@ -1,60 +1,196 @@
-#include "memcache.h"
+#include "memcache.hpp"
+
+#include <fmt/format.h>
+
 #include "cache.h"
 
 #ifdef NOLIBMEMCACHED
+
+namespace uda {
+namespace cache {
 
 struct UdaCache {
     int dummy_;
 };
 
-UDA_CACHE* udaOpenCache()
+} } // namespace uda::cache
+
+uda::cache::UdaCache* uda::cache::open_cache()
 { return nullptr; }
 
-void udaFreeCache()
+void uda::cache::free_cache()
 {}
 
-char* udaCacheKey(const REQUEST_BLOCK* request_block, ENVIRONMENT environment)
-{ return nullptr; }
-
-int udaCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
-                   LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
-                   int protocolVersion)
+int uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
+                LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                ENVIRONMENT environment, int protocolVersion, uint32_t flags,
+                LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 { return 0; }
 
-DATA_BLOCK* udaCacheRead(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
-                          USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion)
+DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, LOGMALLOCLIST* logmalloclist,
+                       USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion,
+                       uint32_t flags, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 { return nullptr; }
 
 #else
 
 #include <libmemcached/memcached.h>
 #include <openssl/ssl.h>
+#include <tuple>
+#include <string>
+#include <sstream>
 
 #include <logging/logging.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/memstream.h>
 #include <clientserver/xdrlib.h>
-#include <tuple>
 #include <clientserver/errorLog.h>
 
-#define HASHXDR 1
-#ifdef HASHXDR
-#  define PARTBLOCKINIT        1
-#  define PARTBLOCKUPDATE      2
-#  define PARTBLOCKOUTPUT      3
-#endif // HASHXDR
+#define UDA_CACHE_HOST     "localhost"     // Override these with environment variables with the same name
+#define UDA_CACHE_PORT     11211
+#define UDA_CACHE_EXPIRY   86400           //24*3600       // Lifetime of the object in Secs
 
-#define MAXELEMENTSHA1 20
+#define MAX_ELEMENT_SHA1 20
+
+namespace uda {
+namespace cache {
 
 struct UdaCache {
     memcached_st memcache;
 };
 
-static UDA_CACHE* global_cache = nullptr;    // scope limited to this code module
+}
+}
 
-UDA_CACHE* udaOpenCache()
+namespace {
+
+static uda::cache::UdaCache* global_cache = nullptr;    // scope limited to this code module
+
+/**
+ * Use the requested signal and source with client specified properties to create a unique key.
+ *
+ * All parameters that may effect the data state, e.g. flags, host, port, properties, etc. must be included in the key.
+ *
+ * There is a 250 character limit - use SHA1 hash if it exceeds 250. The local cache should only be used to record data
+ * returned from a server after a GET method - Note: Put methods may be disguised in a GET call!
+ */
+std::string
+generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment, uint32_t flags, unsigned int private_flags)
 {
-    auto cache = (UDA_CACHE*)malloc(sizeof(UDA_CACHE));
+    // Check Properties for permission and requested method
+    if (!(flags & CLIENTFLAG_CACHE)) {
+        return {};
+    }
+
+    const char* delimiter = "&&";
+    std::stringstream ss;
+    ss << request->signal << delimiter
+       << request->source << delimiter
+       << environment.server_host << delimiter
+       << environment.server_port << delimiter
+       << flags << delimiter
+       << private_flags;
+
+    auto key = ss.str();
+    std::transform(key.begin(), key.end(), key.begin(), [](const decltype(key)::value_type c) {
+        if (std::isspace(c)) {
+            return '_';
+        }
+        return static_cast<decltype(key)::value_type>(std::tolower(c));
+    });
+
+    if (key.length() < 250) {
+        return key;
+    }
+
+    // Need a compact hash - use SHA1 as always 20 bytes (40 bytes when printable)
+    unsigned char hash[MAX_ELEMENT_SHA1 + 1];
+    memset(hash, ' ', MAX_ELEMENT_SHA1);
+    hash[MAX_ELEMENT_SHA1] = '\0';
+    SHA1(reinterpret_cast<const unsigned char*>(key.data()), key.length(), hash);
+
+    // Convert to a printable string (40 characters) for the key (is this necessary?)
+    std::string hash_key;
+    hash_key.reserve(40);
+    for (int i = 0; i < 20; i++) {
+        hash_key += fmt::format("{:2.2x}", hash[i]);
+    }
+
+    return hash_key;
+}
+
+int memcache_put(uda::cache::UdaCache* cache, const char* key, const char* buffer, size_t bufsize)
+{
+    // Expiration of the object
+    static unsigned int age_max = UDA_CACHE_EXPIRY;
+    static bool init = false;
+
+    if (!init) {
+        char* env = getenv("UDA_CACHE_EXPIRY");
+
+        if (env != nullptr) {
+            age_max = (unsigned int)atoi(env);
+        }
+
+        init = true;
+    }
+
+    time_t life = time(nullptr);
+
+#ifdef CACHEDEV
+    if (data_block->cacheExpiryTime > 0) {
+        // Object expiration time is set by the server
+        life += data_block->cacheExpiryTime;
+    } else {
+        // Add the default or client overridden lifetime for the object to the current time
+        life += age_max;
+    }
+#else
+    // Add the default or client overridden lifetime for the object to the current time
+    life += age_max;
+#endif
+
+    memcached_return_t rc = memcached_set(&cache->memcache, key, strlen(key), buffer, bufsize, life, (uint32_t)0);
+
+    if (rc != MEMCACHED_SUCCESS) {
+        UDA_THROW_ERROR(-1, memcached_strerror(&cache->memcache, rc));
+    }
+
+    rc = memcached_flush_buffers(&cache->memcache);
+
+    if (rc != MEMCACHED_SUCCESS) {
+        UDA_THROW_ERROR(-1, memcached_strerror(&cache->memcache, rc));
+    }
+
+    return 0;
+}
+
+std::pair<char*, size_t> get_cache_value(uda::cache::UdaCache* cache, const char* key)
+{
+    UDA_LOG(UDA_LOG_DEBUG, "Retrieving value for key: %s\n", key);
+    memcached_return rc;
+    size_t len = 0;
+    u_int32_t flags = 0;
+    char* value = memcached_get(&cache->memcache, key, strlen(key), &len, &flags, &rc);
+
+    if (rc != MEMCACHED_SUCCESS) {
+        UDA_LOG(UDA_LOG_ERROR, "Couldn't retrieve key: %s\n", memcached_strerror(&cache->memcache, rc));
+        return {nullptr, 0};
+    }
+
+    return {value, len};
+}
+
+} // anon namespace
+
+uda::cache::UdaCache* uda::cache::open_cache()
+{
+    static bool init = false;
+    if (init) {
+        return global_cache;
+    }
+
+    auto cache = (uda::cache::UdaCache*)malloc(sizeof(uda::cache::UdaCache));
     memcached_return_t rc;
     memcached_server_st* servers;
 
@@ -80,124 +216,27 @@ UDA_CACHE* udaOpenCache()
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "Couldn't add server: %s\n", memcached_strerror(&cache->memcache, rc));
         free(cache);
+        init = true;
         return nullptr;
     }
 
     global_cache = cache;   // Copy the pointer
+    init = true;
     return cache;
 }
 
-void udaFreeCache() // Will be called by the idamFreeAll function
+void uda::cache::free_cache() // Will be called by the idamFreeAll function
 {
     memcached_free(&global_cache->memcache);
-}
-
-// Use the requested signal and source with client specified properties to create a unique key
-// All parameters that may effect the data state, e.g. flags, host, port, properties, etc. must be included in the key
-// There is a 250 character limit - use SHA1 hash if it exceeds 250
-// The local cache should only be used to record data returned from a server after a GET method - Note: Put methods may be disguised in a GET call!
-// How to validate the cached data?
-
-char* generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment)
-{
-    // Check Client Properties for permission and requested method
-    if (!(clientFlags & CLIENTFLAG_CACHE)) {
-        return nullptr;
-    }
-
-    // **** TODO **** if(!(clientFlags & CLIENTFLAG_CACHE) || request_block->put) return nullptr;
-    const char* delimiter = "&&";
-    size_t len = strlen(request->source) + strlen(request->signal) +
-                 strlen(environment.server_host) + 128;
-    char* key = (char*)malloc(len * sizeof(char));
-    sprintf(key, "%s%s%s%s%s%s%d%s%d%s%d", request->signal, delimiter, request->source, delimiter,
-            environment.server_host, delimiter, environment.server_port, delimiter, environment.clientFlags, delimiter,
-            privateFlags);
-
-    // *** TODO: Add server properties (set by the client) to the key - planned to use clientFlags (bit settings) but not implemented yet! ***
-    // *** which server is the client connected to .... may not be the default in the ENVIRONMENT structure! - Investigate! ***
-    // *** privateFlags is a global also in the CLIENT_BLOCK structure passed to the server (with clientFlags)
-
-    if (len < 250) {
-        return key;
-    }
-
-#ifndef HASHXDR
-    free(key);
-    return nullptr;
-    // No Hash function to create the key
-#else
-    // Need a compact hash - use SHA1 as always 20 bytes (40 bytes when printable)
-    unsigned char md[MAXELEMENTSHA1 + 1];      // SHA1 Hash
-    md[MAXELEMENTSHA1] = '\0';
-    strcpy((char*)md, "                    ");
-    SHA1((unsigned char*)key, len, md);
-    // Convert to a printable string (40 characters) for the key (is this necessary?)
-    key[40] = '\0';
-
-    for (int j = 0; j < 20; j++) {
-        sprintf(&key[2 * j], "%2.2x", md[j]);
-    }
-
-    return key;
-#endif
-}
-
-// Use NON-BLOCKING IO mode for performance?
-// Write only with the server's permission - which information should be kept in the cache is the concern of the server only
-// All data services should indicate whether or not the data returned is suitable for client side caching (all server plugin get methods must decide!)
-// The server should also set a recommmended expiration time (lifetime of the stored object) - overridden by the client if necessary
-
-int memcache_put(UDA_CACHE* cache, const char* key, const char* buffer, size_t bufsize)
-{
-    // Expiration of the object
-    static unsigned int age_max = UDA_CACHE_EXPIRY;
-    static int init = 1;
-
-    if (init) {
-        char* env = getenv("UDA_CACHE_EXPIRY");
-
-        if (env != nullptr) {
-            age_max = (unsigned int)atoi(env);
-        }
-
-        init = 0;
-    }
-
-    time_t life = time(nullptr);
-
-#ifdef CACHEDEV
-    if (data_block->cacheExpiryTime > 0) {
-        // Object expiration time is set by the server
-        life += data_block->cacheExpiryTime;
-    } else {
-        // Add the default or client overridden lifetime for the object to the current time
-        life += age_max;
-    }
-#else
-    // Add the default or client overridden lifetime for the object to the current time
-    life += age_max;
-#endif
-
-    memcached_return_t rc = memcached_set(&cache->memcache, key, strlen(key), buffer, bufsize, life, (uint32_t)0);
-
-    if (rc != MEMCACHED_SUCCESS) {
-        THROW_ERROR(-1, memcached_strerror(&cache->memcache, rc));
-    }
-
-    rc = memcached_flush_buffers(&cache->memcache);
-
-    if (rc != MEMCACHED_SUCCESS) {
-        THROW_ERROR(-1, memcached_strerror(&cache->memcache, rc));
-    }
-
-    return 0;
+    free(global_cache);
+    global_cache = nullptr;
 }
 
 int
-udaCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* data_block,
-              LOGMALLOCLIST* logmalloclist,
-              USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion)
+uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
+                        LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                        ENVIRONMENT environment, int protocolVersion, uint32_t flags,
+                        LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
 #ifdef CACHEDEV
     if (!data_block->cachePermission) {
@@ -207,35 +246,49 @@ udaCacheWrite(UDA_CACHE* cache, const REQUEST_BLOCK* request_block, DATA_BLOCK* 
 #endif
     int rc = 0;
 
-    for (int i = 0; i < request_block->num_requests; ++ i) {
-        char* key = generate_cache_key(&request_block->requests[i], environment);
-        UDA_LOG(UDA_LOG_DEBUG, "Caching value for key: %s\n", key);
+    auto key = generate_cache_key(request_data, environment, flags, private_flags);
+    UDA_LOG(UDA_LOG_DEBUG, "Caching value for key: %s\n", key.c_str());
 
-        if (key == nullptr) {
-            return -1;
-        }
-
-        char* buffer;
-        size_t bufsize = 0;
-
-        FILE* memfile = open_memstream(&buffer, &bufsize);
-
-        writeCacheData(memfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion);
-
-        rc = memcache_put(cache, key, buffer, bufsize);
-        if (rc) {
-            break;
-        }
-
-        free(key);
+    if (key.empty()) {
+        return -1;
     }
+
+    char* buffer = nullptr;
+    size_t bufsize = 0;
+
+    FILE* memfile = open_memstream(&buffer, &bufsize);
+
+    writeCacheData(memfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion,
+                   log_struct_list, private_flags, malloc_source);
+
+    rc = memcache_put(cache, key.c_str(), buffer, bufsize);
+
+    fclose(memfile);
+    free(buffer);
 
     return rc;
 }
 
-FILE* create_mem_file(const char* value, size_t len)
+DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data,
+                                   LOGMALLOCLIST* logmalloclist,
+                                   USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
+                                   int protocolVersion,
+                                   uint32_t flags, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
+                                   int malloc_source)
 {
-    char* buffer;
+    auto key = generate_cache_key(request_data, environment, flags, private_flags);
+    if (key.empty()) {
+        return nullptr;
+    }
+
+    char* value;
+    size_t len;
+    std::tie(value, len) = get_cache_value(cache, key.c_str());
+    if (value == nullptr) {
+        return nullptr;
+    }
+
+    char* buffer = nullptr;
     size_t bufsize = 0;
 
     FILE* memfile = open_memstream(&buffer, &bufsize);
@@ -243,44 +296,12 @@ FILE* create_mem_file(const char* value, size_t len)
     fwrite(value, sizeof(char), len, memfile);
     fseek(memfile, 0L, SEEK_SET);
 
-    return memfile;
-}
+    auto data = readCacheData(memfile, logmalloclist, userdefinedtypelist, protocolVersion,
+                              log_struct_list, private_flags, malloc_source);
+    fclose(memfile);
+    free(buffer);
 
-std::pair<char*, size_t> get_cache_value(UDA_CACHE* cache, const char* key)
-{
-    UDA_LOG(UDA_LOG_DEBUG, "Retrieving value for key: %s\n", key);
-    memcached_return rc;
-    size_t len = 0;
-    u_int32_t flags = 0;
-    char* value = memcached_get(&cache->memcache, key, strlen(key), &len, &flags, &rc);
-
-    if (rc != MEMCACHED_SUCCESS) {
-        UDA_LOG(UDA_LOG_ERROR, "Couldn't retrieve key: %s\n", memcached_strerror(&cache->memcache, rc));
-        return { nullptr, 0 };
-    }
-
-    return { value, len };
-}
-
-DATA_BLOCK* udaCacheRead(UDA_CACHE* cache, const REQUEST_DATA* request_data, LOGMALLOCLIST* logmalloclist,
-                         USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion)
-{
-    char* key = generate_cache_key(request_data, environment);
-    if (key == nullptr) {
-        return nullptr;
-    }
-
-    char* value;
-    size_t len;
-    std::tie(value, len) = get_cache_value(cache, key);
-    free(key);
-    if (value == nullptr) {
-        return nullptr;
-    }
-
-    FILE* memfile = create_mem_file(value, len);
-
-    return readCacheData(memfile, logmalloclist, userdefinedtypelist, protocolVersion);
+    return data;
 }
 
 #endif // NOLIBMEMCACHED

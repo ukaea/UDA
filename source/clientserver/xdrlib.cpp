@@ -136,17 +136,17 @@ bool_t xdr_securityBlock2(XDR* xdrs, SECURITY_BLOCK* str)
 
 
 // Notes:
-//		debug_level 	** Not Used
-//		get_datadble	** Client Side Only
-//		get_timedble
-//		get_dimdble
-//		get_scalar
-//		get_bytes
-//		get_bad		** Client Side Only
-//		get_meta
-//		get_asis
-//		get_uncal
-//		get_notoff
+//        debug_level     ** Not Used
+//        get_datadble    ** Client Side Only
+//        get_timedble
+//        get_dimdble
+//        get_scalar
+//        get_bytes
+//        get_bad        ** Client Side Only
+//        get_meta
+//        get_asis
+//        get_uncal
+//        get_notoff
 
 
 bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
@@ -156,7 +156,9 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
              && xdr_int(xdrs, &str->timeout)
              && WrapXDRString(xdrs, (char*)str->uid, STRING_LENGTH);
 
-    if (str->version < protocolVersion) protocolVersion = str->version;
+    if (str->version < protocolVersion) {
+        protocolVersion = str->version;
+    }
 
     // clientFlags and altRank do not exist in the CLIENT_BLOCK structure prior to version 6
 
@@ -164,7 +166,7 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
         rc = rc && xdr_u_int(xdrs, &str->clientFlags) && xdr_int(xdrs, &str->altRank);
     } else {
         int temp = 0;                                   // retain Legacy!
-        rc = rc && xdr_int(xdrs, &temp)                 // Changed type		(was verbose & not used)
+        rc = rc && xdr_int(xdrs, &temp)                 // Changed type        (was verbose & not used)
              && xdr_int(xdrs, &str->altRank);           //                  (was debug)
         str->clientFlags = (unsigned int)temp;
     }
@@ -189,7 +191,9 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
 
     // privateFlags does not exist in the CLIENT_BLOCK structure prior to version 5
 
-    if (protocolVersion >= 5) rc = rc && xdr_u_int(xdrs, &str->privateFlags);
+    if (protocolVersion >= 5) {
+        rc = rc && xdr_u_int(xdrs, &str->privateFlags);
+    }
 
     if (xdrs->x_op == XDR_DECODE && protocolVersion < 6) {
         str->clientFlags = 0;        // The original properties have no effect on the server whatever the version
@@ -451,7 +455,7 @@ bool_t xdr_data_object2(XDR* xdrs, DATA_OBJECT* str)
 
 bool_t
 xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, DATA_BLOCK* str,
-                     int protocolVersion)
+                     int protocolVersion, bool xdr_stdio_flag, LOGSTRUCTLIST* log_struct_list, int malloc_source)
 {
     int err = 0, rc = 1;
     int packageType = 0;
@@ -461,14 +465,14 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         SARRAY sarray;                                // Structure array carrier structure
         SARRAY* psarray = &sarray;
-        int shape = str->data_n;                            // rank 1 array of dimension lengths	       
-        USERDEFINEDTYPE* udt = (USERDEFINEDTYPE*)str->opaque_block;        // The data's structure definition
-        USERDEFINEDTYPE* u = findUserDefinedType(userdefinedtypelist, "SARRAY",
+        int shape = str->data_n;                            // rank 1 array of dimension lengths
+        auto udt = (USERDEFINEDTYPE*)str->opaque_block;        // The data's structure definition
+        auto u = findUserDefinedType(userdefinedtypelist, "SARRAY",
                                                  0); // Locate the carrier structure definition
 
         if (udt == nullptr || u == nullptr) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "protocolDataObject", err, "nullptr User defined data Structure Definition");
+            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "nullptr User defined data Structure Definition");
             return 0;
         }
 
@@ -481,19 +485,19 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
         data = (void*)&psarray;                     // Pointer to the SARRAY array pointer
         addNonMalloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
 
-        packageType = PACKAGE_XDROBJECT;            // The package is an XDR serialised object
+        packageType = UDA_PACKAGE_XDROBJECT;            // The package is an XDR serialised object
 
         rc = xdr_int(xdrs, &packageType);           // Send data package type
 
         // Send the data
 
-        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist);    // send the full set of known named structures
-        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u,
-                                          (void**)data, protocolVersion);            // send the Data
+        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);    // send the full set of known named structures
+        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
+                                          xdr_stdio_flag, log_struct_list, malloc_source);            // send the Data
 
         if (!rc) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "protocolDataObject", err, "Bad Return Code passing data structures");
+            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Bad Return Code passing data structures");
             return 0;
         }
 
@@ -501,9 +505,9 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         rc = rc && xdr_int(xdrs, &packageType);        // Receive data package type
 
-        if (packageType != PACKAGE_XDROBJECT) {
+        if (packageType != UDA_PACKAGE_XDROBJECT) {
             err = 999;
-            addIdamError(SYSTEMERRORTYPE, "protocolDataObject", err, "Incorrect package Type option");
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolDataObject", err, "Incorrect package Type option");
             return 0;
         }
 
@@ -517,27 +521,28 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
         userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
         initUserDefinedTypeList(userdefinedtypelist);
 
-        rc = rc && xdr_userdefinedtypelist(xdrs,
-                                           userdefinedtypelist);        // receive the full set of known named structures
+        // receive the full set of known named structures
+        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
         if (!rc) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "protocolDataObject", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err,
                          "Failure receiving Structure Definitions");
             return 0;
         }
 
         // Receive data
 
-        USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
+        auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
         initUserDefinedType(udt_received);
 
         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                          &data, protocolVersion);            // receive the Data
+                                          &data, protocolVersion, xdr_stdio_flag, log_struct_list,
+                                          malloc_source);            // receive the Data
 
         if (!rc) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "protocolDataObject", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err,
                          "Failure receiving Data and it's Structure Definition");
             return 0;
         }
@@ -546,15 +551,15 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
 
-            GENERAL_BLOCK* general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
+            auto general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
 
-            SARRAY* s = (SARRAY*)data;
+            auto s = (SARRAY*)data;
             if (s->count != str->data_n) {                // check for consistency
                 err = 999;
-                addIdamError(CODEERRORTYPE, "protocolDataObject", err, "Inconsistent S Array Counts");
+                addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Inconsistent S Array Counts");
                 return 0;
             }
-            str->data = (char*)fullNTree;        // Global Root Node with the Carrier Structure containing data
+            str->data = (char*)udaGetFullNTree();        // Global Root Node with the Carrier Structure containing data
             str->opaque_block = (void*)general_block;
             general_block->userdefinedtype = udt_received;
             general_block->userdefinedtypelist = userdefinedtypelist;
@@ -563,7 +568,7 @@ xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIS
 
         } else {
             err = 999;
-            addIdamError(CODEERRORTYPE, "protocolDataObject", err, "Name of Received Data Structure Incorrect");
+            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Name of Received Data Structure Incorrect");
             return 0;
         }
     }
@@ -652,6 +657,9 @@ bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str)
 
         case UDA_TYPE_COMPOUND:
             return 1;    // Nothing to send so retain good return code
+
+        case UDA_TYPE_CAPNP:
+            return xdr_vector(xdrs, str->data, (u_int)str->data_n, sizeof(char), (xdrproc_t)xdr_char);
 
         default:
             return 0;
@@ -1502,4 +1510,16 @@ bool_t xdr_signal_desc(XDR* xdrs, SIGNAL_DESC* str)
            && WrapXDRString(xdrs, (char*)str->modified, DATE_LENGTH)
            && WrapXDRString(xdrs, (char*)str->xml, MAXMETA)
            && WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH);
+}
+
+bool_t xdr_hdc_buffer_length(XDR* xdrs, uint64_t* n)
+{
+    int rc = xdr_u_longlong_t(xdrs, n);
+    return rc;
+}
+
+bool_t xdr_hdc_buffer(XDR* xdrs, char* buffer, uint64_t n)
+{
+    int rc = xdr_vector(xdrs, buffer, n, sizeof(char), (xdrproc_t)xdr_char);
+    return rc;
 }

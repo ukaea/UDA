@@ -10,14 +10,12 @@
 #include "udaPutAPI.h"
 
 #include <logging/logging.h>
-#include <structures/struct.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/allocData.h>
 
 #include "makeClientRequestBlock.h"
-#include "udaGetAPI.h"
 #include "udaClient.h"
 
 // Create a list of data blocks to be sent to the server
@@ -58,7 +56,7 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
 
 /* #ifndef FATCLIENT */
 /*         if (!idamGetAPICalledOnce) { */
-/* 	  LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
+/*       LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
 /*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
 /*         logmalloclist = nullptr; */
 /*         userdefinedtypelist = nullptr; */
@@ -84,7 +82,7 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
         closeUdaError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
-            addIdamError(CODEERRORTYPE, __func__, 999, "Error processing the put instruction");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;
     }
@@ -165,7 +163,7 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
         closeUdaError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
-            addIdamError(CODEERRORTYPE, __func__, 999, "Error processing the put instruction");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;
     }

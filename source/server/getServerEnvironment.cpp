@@ -1,12 +1,3 @@
-/*---------------------------------------------------------------
-* Read Server Environment Variables
-*
-* Reads and returns values for a Standard list of UDA Server Environment variables
-*
-* Change History
-*
-*--------------------------------------------------------------*/
-
 #include "getServerEnvironment.h"
 
 #include <cstdlib>

@@ -68,33 +68,33 @@ LIBRARY_API bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** va
 #define RAISE_PLUGIN_ERROR_AND_EXIT(MSG, plugin_interface_ptr) \
 { int UNIQUE_VAR(err) = 999; \
 UDA_LOG(UDA_LOG_ERROR, "%s\n", MSG); \
-addIdamError(CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
+addIdamError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG); \
 concatUdaError(&plugin_interface_ptr->error_stack); \
 return UNIQUE_VAR(err); }
 
 #define RAISE_PLUGIN_ERROR(MSG) \
 { int UNIQUE_VAR(err) = 999; \
 UDA_LOG(UDA_LOG_ERROR, "%s\n", MSG); \
-addIdamError(CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
+addIdamError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG); \
 return UNIQUE_VAR(err); }
 
 #define RAISE_PLUGIN_ERROR_F(MSG, FMT, ...) \
 { int UNIQUE_VAR(err) = 999; \
 UDA_LOG(UDA_LOG_ERROR, "%s\n", FMT, __VA_ARGS__); \
-addIdamError(CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
+addIdamError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG); \
 return UNIQUE_VAR(err); }
 
 #define RAISE_PLUGIN_ERROR_AND_EXIT_F(plugin_interface_ptr, MSG, FMT, ...) \
 { int UNIQUE_VAR(err) = 999; \
 UDA_LOG(UDA_LOG_ERROR, "%s\n", FMT, __VA_ARGS__); \
-addIdamError(CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
+addIdamError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG); \
 concatUdaError(&plugin_interface_ptr->error_stack); \
 return UNIQUE_VAR(err); }
 
 #define RAISE_PLUGIN_ERROR_EX(MSG, CODE) \
 int UNIQUE_VAR(err) = 999; \
 UDA_LOG(UDA_LOG_ERROR, "%s", MSG); \
-addIdamError(CODEERRORTYPE, __func__, UNIQUE_VAR(err), MSG); \
+addIdamError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG); \
 CODE; \
 return UNIQUE_VAR(err);
 

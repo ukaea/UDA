@@ -1,4 +1,3 @@
-#include <logging/logging.h>
 #include "udaTypes.h"
 
 #include "udaStructs.h"
@@ -36,6 +35,8 @@ size_t getSizeOf(UDA_TYPE data_type)
             return sizeof(COMPLEX);
         case UDA_TYPE_DCOMPLEX:
             return sizeof(DCOMPLEX);
+        case UDA_TYPE_CAPNP:
+            return sizeof(char);
         default:
             return 0;
     }

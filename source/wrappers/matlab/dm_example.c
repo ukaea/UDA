@@ -24,18 +24,18 @@ int main()
             getIdamErrorMsg(handle));
 
     if (handle >= 0 && getIdamErrorCode(handle) == 0) { // Test Data Access was OK
-        fprintf(stdout, "Returned Source Status: 	%d\n", getIdamSourceStatus(handle));
-        fprintf(stdout, "Returned Signal Status: 	%d\n", getIdamSignalStatus(handle));
-        fprintf(stdout, "Returned Data Status  : 	%d\n", getIdamDataStatus(handle));
-        fprintf(stdout, "No. Data Elements     : 	%d\n", getIdamDataNum(handle));
-        fprintf(stdout, "Rank                  : 	%d\n", getIdamRank(handle));
-        fprintf(stdout, "Order of Time Vector  : 	%d\n", getIdamOrder(handle));
-        fprintf(stdout, "Data Description      : 	%s\n", getIdamDataDesc(handle));
-        fprintf(stdout, "Data Units            : 	%s\n", getIdamDataUnits(handle));
-        fprintf(stdout, "Data Label            : 	%s\n", getIdamDataLabel(handle));
-        fprintf(stdout, "Data Type             : 	%d\n", getIdamDataType(handle));
-        fprintf(stdout, "Error Type            : 	%d\n", getIdamErrorType(handle));
-        fprintf(stdout, "Error Asymmetry?      : 	%d\n", getIdamErrorAsymmetry(handle));
+        fprintf(stdout, "Returned Source Status:     %d\n", getIdamSourceStatus(handle));
+        fprintf(stdout, "Returned Signal Status:     %d\n", getIdamSignalStatus(handle));
+        fprintf(stdout, "Returned Data Status  :     %d\n", getIdamDataStatus(handle));
+        fprintf(stdout, "No. Data Elements     :     %d\n", getIdamDataNum(handle));
+        fprintf(stdout, "Rank                  :     %d\n", getIdamRank(handle));
+        fprintf(stdout, "Order of Time Vector  :     %d\n", getIdamOrder(handle));
+        fprintf(stdout, "Data Description      :     %s\n", getIdamDataDesc(handle));
+        fprintf(stdout, "Data Units            :     %s\n", getIdamDataUnits(handle));
+        fprintf(stdout, "Data Label            :     %s\n", getIdamDataLabel(handle));
+        fprintf(stdout, "Data Type             :     %d\n", getIdamDataType(handle));
+        fprintf(stdout, "Error Type            :     %d\n", getIdamErrorType(handle));
+        fprintf(stdout, "Error Asymmetry?      :     %d\n", getIdamErrorAsymmetry(handle));
 
         nmax = 10;
         ndata = getIdamDataNum(handle);
@@ -70,21 +70,21 @@ int main()
 
         if (rank > 0) {         // Are there dimensions?
             for (irank = 0; irank < rank; irank++) {
-                fprintf(stdout, "Dimension Id                  : 	%d\n", irank);
+                fprintf(stdout, "Dimension Id                  :     %d\n", irank);
 
                 if (irank == getIdamOrder(handle)) {
                     fprintf(stdout, "This is the Time Dimension\n");
                 }
 
-                fprintf(stdout, "No. Dimension Elements        : 	%d\n",
+                fprintf(stdout, "No. Dimension Elements        :     %d\n",
                         getIdamDimNum(handle, irank));
-                fprintf(stdout, "Dimension units               : 	%s\n",
+                fprintf(stdout, "Dimension units               :     %s\n",
                         getIdamDimUnits(handle, irank));
-                fprintf(stdout, "Dimension Label               : 	%s\n",
+                fprintf(stdout, "Dimension Label               :     %s\n",
                         getIdamDimLabel(handle, irank));
-                fprintf(stdout, "Dimension Data Type           : 	%d\n",
+                fprintf(stdout, "Dimension Data Type           :     %d\n",
                         getIdamDimType(handle, irank));
-                fprintf(stdout, "Dimension Error Type          : 	%d\n",
+                fprintf(stdout, "Dimension Error Type          :     %d\n",
                         getIdamDimErrorType(handle, irank));
                 fprintf(stdout, "Dimension Error Asymmetry     :      %d\n",
                         getIdamDimErrorAsymmetry(handle, irank));

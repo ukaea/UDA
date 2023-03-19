@@ -1,14 +1,3 @@
-/*---------------------------------------------------------------
-* Reads the Requested Data
-*
-* Input Arguments:	1) IDA File Name
-*			2) IDA Signal Name
-*			3) IDA Pass Number (-1 => LATEST)
-*			4) Plasma Pulse Number
-*
-* Returns:
-*
-*--------------------------------------------------------------*/
 #include "clientAPI.h"
 
 #ifdef __GNUC__
@@ -21,24 +10,23 @@
 #include <logging/logging.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/errorLog.h>
-#include <clientserver/expand_path.h>
-#include <clientserver/stringUtils.h>
-#include <clientserver/protocol.h>
 
 #include "makeClientRequestBlock.h"
 #include "startup.h"
 #include "udaClient.h"
-#include "getEnvironment.h"
 
 int idamClientAPI(const char* file, const char* signal, int pass, int exp_number)
 {
     REQUEST_BLOCK request_block;
     static short startup = 1;
+    static bool reopen_logs = true;
 
     //-------------------------------------------------------------------------
     // Open the Logs
 
-    if (udaStartup(0) != 0) return PROBLEM_OPENING_LOGS;
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+
+    if (udaStartup(0, client_flags, &reopen_logs) != 0) return PROBLEM_OPENING_LOGS;
 
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
@@ -59,9 +47,9 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
     char data_source[STRING_LENGTH + 1];
     if (strlen(file) == 0) {
         if (pass < 0)
-            sprintf(data_source, "%d", exp_number);
+            snprintf(data_source, STRING_LENGTH + 1, "%d", exp_number);
         else
-            sprintf(data_source, "%d/%d", exp_number, pass);
+            snprintf(data_source, STRING_LENGTH + 1, "%d/%d", exp_number, pass);
     } else {
         strcpy(data_source, file);
     }
@@ -70,7 +58,7 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
         closeUdaError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
     }
@@ -89,10 +77,10 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
 /*---------------------------------------------------------------
 * Reads the Requested Data
 *
-* Input Arguments:	1) File Name
-*			2) Signal Name
-*			3) File Format
-*			4) Plasma Pulse/Experiment Number
+* Input Arguments:    1) File Name
+*            2) Signal Name
+*            3) File Format
+*            4) Plasma Pulse/Experiment Number
 *
 * Returns:
 *
@@ -102,11 +90,14 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
 {
     REQUEST_BLOCK request_block;
     static short startup = 1;
+    static bool reopen_logs = true;
 
     //-------------------------------------------------------------------------
     // Open the Logs
 
-    if (udaStartup(0) != 0) return PROBLEM_OPENING_LOGS;
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+
+    if (udaStartup(0, client_flags, &reopen_logs) != 0) return PROBLEM_OPENING_LOGS;
 
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
@@ -125,16 +116,17 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
 
     int err;
     char data_source[STRING_LENGTH + 1];
-    if (strlen(format) == 0)
+    if (strlen(format) == 0) {
         strcpy(data_source, file);
-    else
-        sprintf(data_source, "%s::%s", format, file);
+    } else {
+        snprintf(data_source, STRING_LENGTH + 1, "%s::%s", format, file);
+    }
 
     if ((err = makeClientRequestBlock(&signal, (const char**)&data_source, 1, &request_block)) != 0) {
         closeUdaError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
     }

@@ -2,39 +2,107 @@ name: Build
 
 on:
   push:
-    branches: [ "main", "develop", "feature/**", "releases/**" ]
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+      - 'release/**'
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+#env:
+#  BUILD_TYPE: Release
 
 jobs:
   build:
-    # The CMake configure and build commands are platform-agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        release: [Release]
+        ssl: [ON, OFF]
+        client-only: [OFF]
+        capnp: [ON, OFF]
+#        include:
+#          - client-only: ON
+#            ssl: OFF
+#          - client-only: OFF
+#            ssl: OFF
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y git libboost-dev libssl-dev cmake build-essential pkg-config libxml2-dev
+      - name: Install linux dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          sudo apt-get update && sudo apt-get install -y
+          git
+          libboost-dev
+          libssl-dev
+          cmake
+          build-essential
+          pkg-config
+          libxml2-dev
+          libspdlog-dev
+          ninja-build
+          capnproto
+          libcapnp-dev
 
-      - name: Configure CMake
-        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-        run: cmake -B ${{github.workspace}}/build -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      - name: Install macos dependencies
+        if: matrix.os == 'macos-latest'
+        run: >
+          brew update && brew install
+          git
+          boost
+          openssl
+          cmake
+          pkg-config
+          libxml2
+          spdlog
+          ninja
+          capnp
+
+      - name: Configure CMake (linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          cmake -G Ninja -B ${{github.workspace}}/build
+          -DBUILD_SHARED_LIBS=ON
+          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
+          -DSSLAUTHENTICATION=${{ matrix.ssl }}
+          -DCLIENT_ONLY=${{ matrix.client-only }}
+          -DENABLE_CAPNP=${{ matrix.capnp }}
+
+      - name: Configure CMake (macos)
+        if: matrix.os == 'macos-latest'
+        run: >
+          cmake -G Ninja -B ${{github.workspace}}/build
+          -DBUILD_SHARED_LIBS=ON
+          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
+          -DSSLAUTHENTICATION=${{ matrix.ssl }}
+          -DCLIENT_ONLY=${{ matrix.client-only }}
+          -DENABLE_CAPNP=${{ matrix.capnp }}
+          -DOPENSSL_ROOT_DIR="$(brew --prefix openssl@1.1)"
 
       - name: Build
-        # Build your program with the given configuration
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        run: cmake --build ${{github.workspace}}/build --config ${{ matrix.release }}
+
+      - name: Install
+        run: sudo cmake --install ${{github.workspace}}/build --config ${{ matrix.release }}
+
+      - name: Install pyuda
+        run: >
+          cp -r /usr/local/python_installer ${{github.workspace}}/python_installer &&
+          python3 -m venv ${{github.workspace}}/venv &&
+          source ${{github.workspace}}/venv/bin/activate &&
+          pip3 install --upgrade pip &&
+          pip3 install Cython numpy &&
+          pip3 install ${{github.workspace}}/python_installer
 
 #      - name: Test
 #        working-directory: ${{github.workspace}}/build
 #        # Execute tests defined by the CMake configuration.
 #        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-#        run: ctest -C ${{env.BUILD_TYPE}}
+#        run: ctest -C ${{ matrix.release }}
 

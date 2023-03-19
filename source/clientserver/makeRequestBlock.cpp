@@ -14,6 +14,7 @@
 
 #include <logging/logging.h>
 #include <plugins/pluginStructs.h>
+#include <fmt/format.h>
 
 #include "errorLog.h"
 #include "stringUtils.h"
@@ -78,8 +79,8 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     //------------------------------------------------------------------------------
     // Check there is something to work with!
 
-    sprintf(work, "%s%s", environment->api_archive, environment->api_delim);    // default archive
-    sprintf(work2, "%s%s", environment->api_device, environment->api_delim);    // default device
+    snprintf(work, MAXMETA, "%s%s", environment->api_archive, environment->api_delim);    // default archive
+    snprintf(work2, MAXMETA, "%s%s", environment->api_device, environment->api_delim);    // default device
 
     LeftTrimString(request->signal);
     TrimString(request->signal);
@@ -91,7 +92,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
                      STR_IEQUALS(request->source, work2));            // default device name + delimiting string
 
     if ((request->signal[0] == '\0' || STR_IEQUALS(request->signal, work)) && noSource) {
-        THROW_ERROR(999, "Neither Data Object nor Source specified!");
+        UDA_THROW_ERROR(999, "Neither Data Object nor Source specified!");
     }
 
     //------------------------------------------------------------------------------
@@ -106,7 +107,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     }
 
     //------------------------------------------------------------------------------
-    // Is this server acting as an IDAM Proxy? If all access requests are being re-directed then do nothing to the arguments.
+    // Is this server acting as an UDA Proxy? If all access requests are being re-directed then do nothing to the arguments.
     // They are just passed onwards without interpretation.
 
     bool isProxy = environment->server_proxy[0] != '\0';
@@ -118,43 +119,43 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     //==============================================================================
     // Check if the data_source has one of these forms:
     //
-    //	pulse			plasma shot number - an integer
-    //	pulse/pass		include a pass or sequence number - this may be a text based component, e.g. LATEST
-    //	DEVICE::pulse		prefixed by a device name
-    //	DEVICE::pulse/pass
+    //    pulse            plasma shot number - an integer
+    //    pulse/pass        include a pass or sequence number - this may be a text based component, e.g. LATEST
+    //    DEVICE::pulse        prefixed by a device name
+    //    DEVICE::pulse/pass
     //
-    //	FORMAT::/path/to/my/file
-    //      FORMAT::./path/to/my/file		use client side resolution of ./ location contained in path otherwise ignore
-    //      FORMAT::../path/to/my/file		use client side resolution of ../ location
-    //	FORMAT::/scratch/path/to/my/file	use client side resolution of /scratch location (change name via environment variable)
+    //    FORMAT::/path/to/my/file
+    //      FORMAT::./path/to/my/file        use client side resolution of ./ location contained in path otherwise ignore
+    //      FORMAT::../path/to/my/file        use client side resolution of ../ location
+    //    FORMAT::/scratch/path/to/my/file    use client side resolution of /scratch location (change name via environment variable)
     //
-    //	FORMAT::pulse		FORMAT is the default FORMAT, e.g. IDA3
-    //	FORMAT::/pulse
-    //	FORMAT::/pulse/pass
-    //	/pulse
-    //	/pulse/pass
+    //    FORMAT::pulse        FORMAT is the default FORMAT, e.g. IDA3
+    //    FORMAT::/pulse
+    //    FORMAT::/pulse/pass
+    //    /pulse
+    //    /pulse/pass
     //
-    //	DEVICE::FORMAT::/path/to/my/file	Passed on to a different IDAM server without interpretation
-    //	DEVICE::FORMAT::pulse
+    //    DEVICE::FORMAT::/path/to/my/file    Passed on to a different UDA server without interpretation
+    //    DEVICE::FORMAT::pulse
 
-    //	/path/to/my/file.ext			use file extension 'ext' to identify the correct FORMAT if known
+    //    /path/to/my/file.ext            use file extension 'ext' to identify the correct FORMAT if known
     //      ./path/to/my/file.ext
     //      ../path/to/my/file.ext
-    //	/scratch/path/to/my/file.ext
+    //    /scratch/path/to/my/file.ext
     //
-    //	PROTOCOL::server.host.name:port/U/R/L	server access requests - always requires the delimiter string element in string
+    //    PROTOCOL::server.host.name:port/U/R/L    server access requests - always requires the delimiter string element in string
     //
-    //	function(arguments or name value pair list)		server side processing of data
-    //	LIBRARY::function(arguments or name value pair list)	function plugin library
-    //	DEVICE::function(arguments or name value pair list)	Not allowed - use DEVICE::SERVERSIDE::function()
+    //    function(arguments or name value pair list)        server side processing of data
+    //    LIBRARY::function(arguments or name value pair list)    function plugin library
+    //    DEVICE::function(arguments or name value pair list)    Not allowed - use DEVICE::SERVERSIDE::function()
     //
-    //	DEVICE::FORMAT:: ...			If the DEVICE is not the default device, then a server protocol is invoked to pass
+    //    DEVICE::FORMAT:: ...            If the DEVICE is not the default device, then a server protocol is invoked to pass
     //                                              the request forward (FORMAT:: ...)
     //
     // Legacy exception: treat PPF and JPF formats as server protocols => no file path expansion required and ignored
     //
     //      PPF::/ddaname/pulse/pass/userid or PPF::ddaname/pulse/pass/userid
-    //	JPF::pulse or JPF::/pulse
+    //    JPF::pulse or JPF::/pulse
     //
     //------------------------------------------------------------------------------
     // Scenario #1: Format or protocol or library is present - there are no delimiters in the source string
@@ -175,7 +176,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
         strcpy(work, request->source);
     }
 
-    // Test for DEVICE::LIBRARY::function(argument)	 - More delimiter characters present?
+    // Test for DEVICE::LIBRARY::function(argument)     - More delimiter characters present?
 
     char* p;
     if (test != nullptr && STR_IEQUALS(work2, environment->api_device) &&
@@ -212,7 +213,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
             if (generic_request_test(work, request)) break;
 
-            // Not a Server Side Function? 		Note: /a/b/fun(aaa) is a (bad!)file path and fun(a/b/c) is a function
+            // Not a Server Side Function?         Note: /a/b/fun(aaa) is a (bad!)file path and fun(a/b/c) is a function
 
             char* p0 = strchr(work, '/');        // Path separator mixed with parenthesis?
             char* p1 = strrchr(work, '/');
@@ -224,7 +225,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
                 if ((p0 != nullptr || p1 != nullptr) && (p != nullptr || p2 != nullptr)) {
                     err = 999;
-                    addIdamError(CODEERRORTYPE, "makeServerRequestBlock", err,
+                    addIdamError(UDA_CODE_ERROR_TYPE, "makeServerRequestBlock", err,
                                  "Source syntax: path with parenthesis () is incorrect!");
                     return err;
                 }
@@ -252,7 +253,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
                 if (rc <= 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "File Format NOT identified from name extension!\n");
-                    THROW_ERROR(999, "No File Format identified: Please specify.");
+                    UDA_THROW_ERROR(999, "No File Format identified: Please specify.");
                 }
 
                 // Resolve any Serverside environment variables
@@ -263,7 +264,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
             } else {
 
-                // Internal Server Side Function ?	A file path may contain characters ( and ) !
+                // Internal Server Side Function ?    A file path may contain characters ( and ) !
 
                 if ((p = strchr(work, '(')) != nullptr && strchr(p, ')') != nullptr) {
                     strcpy(work2, &p[1]);
@@ -280,7 +281,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
                     // Extract Name Value pairs
 
                     if (name_value_pairs(work2, &request->nameValueList, strip) == -1) {
-                        THROW_ERROR(999, "Name Value pair syntax is incorrect!");
+                        UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!");
                     }
 
                     // Test for external library functions using the Archive name as the library name identifier
@@ -298,7 +299,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
                     break;
 
                 } else {
-                    THROW_ERROR(999, "No Data Access Plugin Identified!");
+                    UDA_THROW_ERROR(999, "No Data Access Plugin Identified!");
                 }
             }
 
@@ -348,7 +349,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
                         int id = find_plugin_id_by_format(pluginList.plugin[i].deviceProtocol, &pluginList);
                         if (id >= 0 && pluginList.plugin[id].plugin_class == UDA_PLUGIN_CLASS_SERVER) {
 
-                            sprintf(work, "%s%s%s", pluginList.plugin[i].deviceProtocol, request->api_delim,
+                            snprintf(work, MAXMETA, "%s%s%s", pluginList.plugin[i].deviceProtocol, request->api_delim,
                                     pluginList.plugin[i].deviceHost);
                             UDA_LOG(UDA_LOG_DEBUG, "work#1: %s\n", work);
 
@@ -373,7 +374,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
                             strcpy(request->source, work);
                             if (depth++ > MAXREQDEPTH) {
-                                THROW_ERROR(999, "Too many chained Device Name to Server Protocol Host subtitutions!");
+                                UDA_THROW_ERROR(999, "Too many chained Device Name to Server Protocol Host subtitutions!");
                             }
                             err = makeRequestData(request, pluginList, environment);
                             depth--;
@@ -421,7 +422,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
             if (p == nullptr || p2 == nullptr || (p != nullptr && p2 == nullptr) || (p == nullptr && p2 != nullptr) ||
                 (p0 != nullptr && p != nullptr && p0 < p) || (p1 != nullptr && p2 != nullptr && p1 > p2)) {
-                THROW_ERROR(999, "Not a function when one is expected! - A Library plugin has been specified.");
+                UDA_THROW_ERROR(999, "Not a function when one is expected! - A Library plugin has been specified.");
             }
 
             // ToDo: Extract Data subset operations specified within the source argument
@@ -430,7 +431,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
             if ((p = strchr(work, '(')) != nullptr && strchr(p, ')') != nullptr) {
                 strcpy(work, &p[1]);
-                p = strchr(work, ')');
+                p = strrchr(work, ')');
                 p[0] = '\0';
                 LeftTrimString(work);
                 TrimString(work);
@@ -438,13 +439,13 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
                 // Extract Name Value pairs
 
                 if (name_value_pairs(work, &request->nameValueList, strip) == -1) {
-                    THROW_ERROR(999, "Name Value pair syntax is incorrect!");
+                    UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!");
                 }
 
                 // ToDo: Extract Data subset operations specified as a named value pair, tagged 'subset'
 
             } else {
-                THROW_ERROR(999, "Function syntax error - please correct");
+                UDA_THROW_ERROR(999, "Function syntax error - please correct");
             }
         }
     } while (0);
@@ -485,10 +486,10 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
     int rc = 0;
     if ((rc = extract_subset(request)) == -1) {
-        THROW_ERROR(999, "Subset operation is incorrect!");
+        UDA_THROW_ERROR(999, "Subset operation is incorrect!");
     }
 
-    // as at 19Apr2011 no signals recorded in the IDAM database use either [ or { characters
+    // as at 19Apr2011 no signals recorded in the UDA database use either [ or { characters
     // there will be no confusion between subset operations and valid signal names
 
     if (rc == 1) {        // the subset has valid syntax so reduce the signal name by removing the subset instructions
@@ -501,7 +502,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     }
 
     //------------------------------------------------------------------------------
-    // Extract the Archive Name and detach from the signal  (detachment is necessary when not passing on to another IDAM server)
+    // Extract the Archive Name and detach from the signal  (detachment is necessary when not passing on to another UDA server)
     // the Plugin Name is synonymous with the Archive Name and takes priority (The archive name is discarded as unimportant)
 
     if (request->request == REQUEST_READ_IDAM) {
@@ -518,7 +519,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     //------------------------------------------------------------------------------
     // Extract Name Value Pairs from the data object (signal) without modifying
 
-    // as at 22Sep2011 261 signals recorded in the IDAM database used parenthesis characters so could be confused
+    // as at 22Sep2011 261 signals recorded in the UDA database used parenthesis characters so could be confused
     // with function requests. However, for all these cases a source term would be specified. No library
     // would be part of this specification so there would be no ambiguity.
 
@@ -533,7 +534,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
             TrimString(work);
             isFunction = true;
             if (name_value_pairs(work, &request->nameValueList, strip) == -1) {
-                THROW_ERROR(999, "Name Value pair syntax is incorrect!");
+                UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!");
             }
             extract_function_name(request->signal, request);
         }
@@ -612,15 +613,15 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
     //---------------------------------------------------------------------------------------------------------------------
     // MDS+ Servers ...
 
-    // MDS+ Source naming models:	MDS+::localhost/tree/number	any source with one or more / must have a trailing number
-    // 				MDS+::server/tree/number
-    //				MDS+::server/path/to/data/tree/number
-    //				MDS+::server/path.to.data/tree/number
-    //				MDS+::/path/to/data/tree/number
-    //				MDS+::/path.to.data/tree/number
-    // 				MDS+::tree/number
-    //				MDS+::server
-    //				MDS+::
+    // MDS+ Source naming models:    MDS+::localhost/tree/number    any source with one or more / must have a trailing number
+    //                 MDS+::server/tree/number
+    //                MDS+::server/path/to/data/tree/number
+    //                MDS+::server/path.to.data/tree/number
+    //                MDS+::/path/to/data/tree/number
+    //                MDS+::/path.to.data/tree/number
+    //                 MDS+::tree/number
+    //                MDS+::server
+    //                MDS+::
 
     if (request->request == REQUEST_READ_MDS && !isProxy) {
 
@@ -658,18 +659,18 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
         }
 
         if (err != 0) {
-            THROW_ERROR(NO_SERVER_SPECIFIED,
-                        "The MDSPlus Data Source does not comply with the naming models: server/tree/number or server/path/to/data/tree/number");
+            UDA_THROW_ERROR(NO_SERVER_SPECIFIED,
+                            "The MDSPlus Data Source does not comply with the naming models: server/tree/number or server/path/to/data/tree/number");
         }
     }
 
     //---------------------------------------------------------------------------------------------------------------------
-    // IDAM and WEB Servers ...      parse source modelled as: server:port/source
+    // UDA and WEB Servers ...      parse source modelled as: server:port/source
 
     if (request->request == REQUEST_READ_IDAM || request->request == REQUEST_READ_WEB) {
         strcpy(work, test + ldelim);                // Drop the delimiters
 
-        // Isolate the Server from the source IDAM::server:port/source or SSL://server:port/source
+        // Isolate the Server from the source UDA::server:port/source or SSL://server:port/source
 
         strcpy(request->server, work);
 
@@ -762,12 +763,12 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
     int rc = 0;
     const char* test;
 
-    // .99		IDA3 file
-    // .nc		netCDF4
-    // .cdf		netCDF3
-    // .hf		HDF
-    // .jpg		Binary
-    // .csv		ASCII
+    // .99        IDA3 file
+    // .nc        netCDF4
+    // .cdf        netCDF3
+    // .hf        HDF
+    // .jpg        Binary
+    // .csv        ASCII
 
     // Note: On JET the default data source is PPF. This is really a server protocol and not a file format.
 
@@ -799,60 +800,58 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
         const char* blank = "   ";
         FILE* ph = nullptr;
         int lstr = STRING_LENGTH;
-        char* cmd = (char*)malloc(lstr * sizeof(char));
-        sprintf(cmd, "head -c10 %s 2>/dev/null", source);
+        std::string cmd;
+        cmd = fmt::format("head -c10 {} 2>/dev/null", source);
         errno = 0;
-        if ((ph = popen(cmd, "r")) == nullptr) {
-            if (errno != 0) addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
-            addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
+        if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
+            if (errno != 0) addIdamError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
+            addIdamError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999,
                          "Unable to Identify the File's Format");
-            free(cmd);
             return -999;
         }
 
-        cmd[0] = '\0';
+        char buffer[STRING_LENGTH];
         if (!feof(ph)) {
-            if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                THROW_ERROR(-999, "failed to read command");
+            if (fgets(buffer, lstr - 1, ph) == nullptr) {
+                UDA_THROW_ERROR(-999, "failed to read command");
             }
         }
         pclose(ph);
 
         test = blank;
-        convertNonPrintable2(cmd);
-        LeftTrimString(cmd);
-        TrimString(cmd);
+        convertNonPrintable2(buffer);
+        LeftTrimString(buffer);
+        TrimString(buffer);
 
-        if (STR_EQUALS(cmd, "CDF")) {    // Legacy netCDF file
+        if (STR_EQUALS(buffer, "CDF")) {    // Legacy netCDF file
             test = nc;
         } else {
-            if (STR_EQUALS(cmd, "HDF")) {    // Either a netCDF or a HDF5 file: use utility programs to reveal!
+            if (STR_EQUALS(buffer, "HDF")) {    // Either a netCDF or a HDF5 file: use utility programs to reveal!
                 char* env = getenv("UDA_DUMP_NETCDF");
                 if (env != nullptr) {
-                    sprintf(cmd, "%s -h %s 2>/dev/null | head -c10 2>/dev/null", env, source);
+                    cmd = fmt::format("{} -h {} 2>/dev/null | head -c10 2>/dev/null", env, source);
                     errno = 0;
-                    if ((ph = popen(cmd, "r")) == nullptr) {
+                    if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
                         if (errno != 0) {
-                            addIdamError(SYSTEMERRORTYPE, "sourceFileFormatTest", errno, "");
+                            addIdamError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
                         }
-                        addIdamError(CODEERRORTYPE, "sourceFileFormatTest", 999,
+                        addIdamError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999,
                                      "Unable to Identify the File's Format");
-                        free(cmd);
                         return -999;
                     }
 
-                    cmd[0] = '\0';
+                    buffer[0] = '\0';
                     if (!feof(ph)) {
-                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                            THROW_ERROR(-999, "failed to read command");
+                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
+                            UDA_THROW_ERROR(-999, "failed to read command");
                         }
                     }
                     pclose(ph);
-                    convertNonPrintable2(cmd);
-                    LeftTrimString(cmd);
-                    TrimString(cmd);
+                    convertNonPrintable2(buffer);
+                    LeftTrimString(buffer);
+                    TrimString(buffer);
 
-                    if (STR_EQUALS(cmd, "netcdf")) {        // netCDF file written to an HDF5 file
+                    if (STR_EQUALS(buffer, "netcdf")) {        // netCDF file written to an HDF5 file
                         test = nc;
                     } else {
                         if (cmd[0] == '\0') test = hf;        // HDF5 file
@@ -861,59 +860,57 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
             } else {                    // an IDA File?
                 char* env = getenv("UDA_DUMP_IDA");
                 if (env != nullptr) {
-                    sprintf(cmd, "%s -h %s 2>/dev/null 2>/dev/null", env, source);
+                    cmd = fmt::format("{} -h {} 2>/dev/null 2>/dev/null", env, source);
                     errno = 0;
-                    if ((ph = popen(cmd, "r")) == nullptr) {
+                    if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
                         if (errno != 0) {
-                            ADD_SYS_ERROR("");
+                            UDA_ADD_SYS_ERROR("");
                         }
-                        ADD_ERROR(999, "Unable to Identify the File's Format");
-                        free(cmd);
+                        UDA_ADD_ERROR(999, "Unable to Identify the File's Format");
                         return -999;
                     }
 
-                    cmd[0] = '\0';
+                    buffer[0] = '\0';
                     if (!feof(ph)) {
                         // IDA3 interface version V3.13 with file structure IDA3.1
-                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                            THROW_ERROR(-999, "failed to read command output");
+                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
+                            UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // Build JW Jan 25 2007 09:08:47
-                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                            THROW_ERROR(-999, "failed to read command output");
+                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
+                            UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // Compiled without high level read/write CUTS
-                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                            THROW_ERROR(-999, "failed to read command output");
+                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
+                            UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // Opening ida file
-                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                            THROW_ERROR(-999, "failed to read command output");
+                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
+                            UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     if (!feof(ph)) {
                         // ida_open error ?
-                        if (fgets(cmd, lstr - 1, ph) == nullptr) {
-                            THROW_ERROR(-999, "failed to read command output");
+                        if (fgets(buffer, lstr - 1, ph) == nullptr) {
+                            UDA_THROW_ERROR(-999, "failed to read command output");
                         }
                     }
                     pclose(ph);
-                    convertNonPrintable2(cmd);
-                    LeftTrimString(cmd);
-                    TrimString(cmd);
-                    if (strncmp(cmd, "ida_open error", 14) != 0) {
+                    convertNonPrintable2(buffer);
+                    LeftTrimString(buffer);
+                    TrimString(buffer);
+                    if (strncmp(buffer, "ida_open error", 14) != 0) {
                         test = ida;    // Legacy IDA file
                     }
                 }
             }
         }
-        free(cmd);
 
 #else
         return rc;
@@ -1032,8 +1029,8 @@ int generic_request_test(const char* source, REQUEST_DATA* request)
     //------------------------------------------------------------------------------
     // Check if the source has one of these forms:
 
-    // pulse		plasma shot number - an integer
-    // pulse/pass		include a pass or sequence number - this may be a text based component, e.g. LATEST
+    // pulse        plasma shot number - an integer
+    // pulse/pass        include a pass or sequence number - this may be a text based component, e.g. LATEST
 
     if (IsNumber((char*)source)) {                    // Is the source an integer number?
         rc = 1;
@@ -1066,9 +1063,9 @@ int generic_request_test(const char* source, REQUEST_DATA* request)
 
 //------------------------------------------------------------------------------
 // Strip out the Archive or Plugin name from the data_object name
-// syntax:	ARCHIVE::Data_OBJECT or DATA_OBJECT
-//		ARCHIVE::PLUGIN::Function() or PLUGIN::Function()
-// conflict:	ARCHIVE::DATA_OBJECT[::] or DATA_OBJECT[::] subsetting operations
+// syntax:    ARCHIVE::Data_OBJECT or DATA_OBJECT
+//        ARCHIVE::PLUGIN::Function() or PLUGIN::Function()
+// conflict:    ARCHIVE::DATA_OBJECT[::] or DATA_OBJECT[::] subsetting operations
 //
 // NOTE: Archive/Plugin Name should not terminate with the character [ or { when a signal begins with the
 //       character ] or }. These clash with subsetting syntax.
@@ -1091,7 +1088,7 @@ int extract_archive(REQUEST_DATA* request, int reduceSignal, const ENVIRONMENT* 
         if ((test = strstr(request->signal, request->api_delim)) != nullptr) {
 
             if (test - request->signal >= STRING_LENGTH - 1 || strlen(test + ldelim) >= MAXMETA - 1) {
-                ADD_ERROR(ARCHIVE_NAME_TOO_LONG, "The ARCHIVE Name is too long!");
+                UDA_ADD_ERROR(ARCHIVE_NAME_TOO_LONG, "The ARCHIVE Name is too long!");
                 return err;
             }
             strncpy(request->archive, request->signal, test - request->signal);
@@ -1285,11 +1282,11 @@ int parse_element(SUBSET& subset, const std::string& element)
                 subset.stride[index] = parse_integer(tokens[2]);
                 break;
             default:
-                ADD_ERROR(999, "Invalid number of elements in subset operation");
+                UDA_ADD_ERROR(999, "Invalid number of elements in subset operation");
                 return 999;
         }
     } catch (std::runtime_error& ex) {
-        ADD_ERROR(999, ex.what());
+        UDA_ADD_ERROR(999, ex.what());
         return 999;
     }
 
@@ -1303,18 +1300,18 @@ int parse_operation(SUBSET& subset, const std::string& operation)
     //----------------------------------------------------------------------------------------------------------------------------
     // Split instructions using syntax [a:b:c, d:e:f] where [startIndex:stopIndex:stride]
     //
-    // Syntax	[a]		single items at index position a
-    //		[*]		all items
-    //		[]		all items
+    // Syntax    [a]        single items at index position a
+    //        [*]        all items
+    //        []        all items
     //
-    //		[:]		all items starting at 0
-    //		[a:]		all items starting at a
-    //		[a:*]		all items starting at a
-    //		[a:b]		all items starting at a and ending at b
+    //        [:]        all items starting at 0
+    //        [a:]        all items starting at a
+    //        [a:*]        all items starting at a
+    //        [a:b]        all items starting at a and ending at b
     //
-    //		[a::c]		all items starting at a with stride c
-    //		[a:*:c]		all items starting at a with stride c
-    //		[a:b:c]		all items starting at a, ending at b with stride c
+    //        [a::c]        all items starting at a with stride c
+    //        [a:*:c]        all items starting at a with stride c
+    //        [a:b:c]        all items starting at a, ending at b with stride c
 
     std::vector<std::string> tokens;
     boost::split(tokens, operation, boost::is_any_of(","), boost::token_compress_off);

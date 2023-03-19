@@ -1,19 +1,12 @@
-/*---------------------------------------------------------------
-* Read Client Environment Variables
-*
-* Reads and returns values for a Standard list of IDAM Environment variables
-*
-* Change History
-*
-*--------------------------------------------------------------*/
 #include "getEnvironment.h"
 
 #include <cstdlib>
+#include <fmt/format.h>
 
 #include <logging/logging.h>
 
-int env_host = 1;    // User can change these before startup so flag to the getEnvironment function
-int env_port = 1;
+bool env_host = true;    // User can change these before startup so flag to the getEnvironment function
+bool env_port = true;
 
 static ENVIRONMENT udaEnviron;
 
@@ -52,6 +45,22 @@ void printIdamClientEnvironment(const ENVIRONMENT* environment)
     UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environment->private_path_substitute);
 }
 
+bool udaGetEnvHost() {
+    return env_host;
+}
+
+bool udaGetEnvPort() {
+    return env_port;
+}
+
+LIBRARY_API void udaSetEnvHost(bool value) {
+    env_host = value;
+}
+
+LIBRARY_API void udaSetEnvPort(bool value) {
+    env_port = value;
+}
+
 ENVIRONMENT* getIdamClientEnvironment()
 {
     char* env = nullptr;
@@ -77,9 +86,8 @@ ENVIRONMENT* getIdamClientEnvironment()
     }
 
     if (udaEnviron.loglevel <= UDA_LOG_ACCESS) {
-        char cmd[STRING_LENGTH];
-        sprintf(cmd, "mkdir -p %s 2>/dev/null", udaEnviron.logdir);
-        if (system(cmd) != 0) {
+        std::string cmd = fmt::format("mkdir -p %s 2>/dev/null", udaEnviron.logdir);
+        if (system(cmd.c_str()) != 0) {
             // TODO: How to log error before log files are open?
         };
     }
@@ -116,7 +124,7 @@ ENVIRONMENT* getIdamClientEnvironment()
         } else {
             UDA_LOG(UDA_LOG_WARN, "UDA_HOST2 environmental variable not defined");
         }
-        env_host = 0;
+        env_host = false;
     }
 
     // UDA Server Port name

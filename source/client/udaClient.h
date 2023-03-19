@@ -15,6 +15,7 @@ extern "C" {
 #ifdef FATCLIENT
 #  define idamClient idamClientFat
 #  define idamFreeAll idamFreeAllFat
+#  define udaClientFlags udaClientFlagsFat
 #endif
 
 //--------------------------------------------------------------
@@ -34,42 +35,40 @@ extern "C" {
 #define MIN_STATUS          (-1)        // Deny Access to Data if this Status Value
 #define DATA_STATUS_BAD     (-17000)    // Error Code if Status is Bad
 
-extern int altRank;
-
-extern time_t tv_server_start;  // Server Startup Time
-extern time_t tv_server_end;    // Current Time & Server Age
-
-extern int user_timeout;        // user specified Server Lifetime
-
-// Control Flags
-
-extern int get_dimdble;         // (Server Side) Return Dimensional Data in Double Precision
-extern int get_timedble;        // (Server Side) Server Side cast of time dimension to double precision if in compresed format
-extern int get_scalar;          // (Server Side) Reduce Rank from 1 to 0 (Scalar) if time data are all zero
-extern int get_bytes;           // (Server Side) Return IDA Data in native byte or integer array without IDA signal's
+typedef struct ClientFlags {
+    int get_dimdble;         // (Server Side) Return Dimensional Data in Double Precision
+    int get_timedble;        // (Server Side) Server Side cast of time dimension to double precision if in compresed format
+    int get_scalar;          // (Server Side) Reduce Rank from 1 to 0 (Scalar) if time data are all zero
+    int get_bytes;           // (Server Side) Return IDA Data in native byte or integer array without IDA signal's
 // calibration factor applied
-extern int get_meta;            // (Server Side) return All Meta Data
-extern int get_asis;            // (Server Side) Apply no XML based corrections to Data or Dimensions
-extern int get_uncal;           // (Server Side) Apply no XML based Calibrations to Data
-extern int get_notoff;          // (Server Side) Apply no XML based Timing Corrections to Data
-extern int get_nodimdata;
+    int get_meta;            // (Server Side) return All Meta Data
+    int get_asis;            // (Server Side) Apply no XML based corrections to Data or Dimensions
+    int get_uncal;           // (Server Side) Apply no XML based Calibrations to Data
+    int get_notoff;          // (Server Side) Apply no XML based Timing Corrections to Data
+    int get_nodimdata;
 
-extern int get_datadble;        // (Client Side) Return Data in Double Precision
-extern int get_bad;             // (Client Side) return data with BAD Status value
-extern int get_synthetic;       // (Client Side) Return Synthetic Data if available instead of Original data
+    int get_datadble;        // (Client Side) Return Data in Double Precision
+    int get_bad;             // (Client Side) return data with BAD Status value
+    int get_synthetic;       // (Client Side) Return Synthetic Data if available instead of Original data
 
-// XDR data Streams
+    uint32_t flags;
 
-extern XDR* clientInput;           // XDR Input Stream handle
-extern XDR* clientOutput;          // XDR Output Stream handle
+    int user_timeout;
+    int alt_rank;
+} CLIENT_FLAGS;
 
 LIBRARY_API int idamClient(REQUEST_BLOCK* request_block, int* indices);
 
-LIBRARY_API void updateClientBlock(CLIENT_BLOCK* str);
+LIBRARY_API void updateClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags, unsigned int private_flags);
 
 LIBRARY_API void idamFree(int handle);
 
-LIBRARY_API void idamFreeAll();
+LIBRARY_API void
+udaFreeAll(XDR* client_input, XDR* client_output, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
+           int malloc_source);
+
+LIBRARY_API CLIENT_FLAGS* udaClientFlags();
+LIBRARY_API unsigned int* udaPrivateFlags();
 
 /**
  * Get the version of the client c-library.

@@ -3,6 +3,7 @@
 
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
+find_package( fmt REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -22,7 +23,7 @@ endif()
 set( SRC_FILES
   applyXML.cpp
   closeServerSockets.cpp
-        getPluginAddress.cpp
+  getPluginAddress.cpp
   getServerEnvironment.cpp
   initPluginList.cpp
   makeServerRequestBlock.cpp
@@ -33,6 +34,7 @@ set( SRC_FILES
   serverStartup.cpp
   serverSubsetData.cpp
   writer.cpp
+  createXDRStream.cpp
 )
 
 set( HEADER_FILES
@@ -111,9 +113,9 @@ elseif(TIRPC_FOUND)
   set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES})
 endif()
 
-target_link_libraries( server-static PRIVATE ${LINK_XDR} )
+target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt )
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( server-shared PRIVATE ${LINK_XDR} )
+  target_link_libraries( server-shared PRIVATE ${LINK_XDR} fmt::fmt )
 endif()
 
 add_executable( server-exe ${EXE_FLAG} serverMain.cpp )
@@ -160,7 +162,7 @@ if( BUILD_SHARED_LIBS )
   if( WIN32 OR MINGW )
     if( MINGW )
       set( CLIENT_SHARED ${CLIENT_SHARED} ws2_32 stdc++ )
-	else()
+    else()
       set( CLIENT_SHARED ${CLIENT_SHARED} ws2_32 )
     endif()
   endif()

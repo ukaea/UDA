@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------
 * Close the Socket, XDR Streams, Open File Handles
 *
-* Argument: 	If 1 then full closedown otherwise only the
-*		Socket and XDR Streams.
+* Argument:     If 1 then full closedown otherwise only the
+*        Socket and XDR Streams.
 *
 * Returns:
 *
@@ -25,7 +25,7 @@
 #  include <authentication/udaClientSSL.h>
 #endif
 
-int closedown(ClosedownType type, SOCKETLIST* socket_list)
+int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XDR* client_output, bool* reopen_logs)
 {
     int rc = 0;
 
@@ -38,21 +38,31 @@ int closedown(ClosedownType type, SOCKETLIST* socket_list)
 
     if (type == ClosedownType::CLOSE_ALL) {
         udaCloseLogging();
-        reopen_logs = TRUE;        // In case the User calls the IDAM API again!
+        *reopen_logs = true;        // In case the User calls the IDAM API again!
     }
 
 #ifndef FATCLIENT    // <========================== Client Server Code Only
-    if (clientInput->x_ops != nullptr) xdr_destroy(clientInput);
-    if (clientOutput->x_ops != nullptr) xdr_destroy(clientOutput);
-    clientOutput->x_ops = nullptr;
-    clientInput->x_ops = nullptr;
+    if (client_input != nullptr) {
+        if (client_input->x_ops != nullptr) {
+            xdr_destroy(client_input);
+        }
+        client_input->x_ops = nullptr;
+    }
+
+    if (client_output != nullptr) {
+        if (client_output->x_ops != nullptr) {
+            xdr_destroy(client_output);
+        }
+        client_output->x_ops = nullptr;
+    }
 
     closeConnection(type);
 
-    env_host = 1;            // Initialise at Startup
-    env_port = 1;
+    // Initialise at Startup
+    udaSetEnvHost(true);
+    udaSetEnvPort(true);
 
-#else			// <========================== Fat Client Code Only
+#else            // <========================== Fat Client Code Only
     if (type == ClosedownType::CLOSE_ALL) {
         closeServerSockets(socket_list);    // Close the Socket Connections to Other Data Servers
     }

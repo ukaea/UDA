@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------
 * Reads the Requested Data
 *
-* Input Arguments:	1) Signal Name (Alias or Generic)
-*			2) Data Source or Experiment Number
+* Input Arguments:    1) Signal Name (Alias or Generic)
+*            2) Data Source or Experiment Number
 *
 * Returns:
 *
@@ -23,6 +23,7 @@
 #include "startup.h"
 #include "udaClient.h"
 #include "accAPI.h"
+#include "getEnvironment.h"
 
 #ifdef MEMDEBUG
 #include <mcheck.h>
@@ -120,18 +121,18 @@ treated as a private file within the data archive if FORMAT is the default file 
 
 </table>
 
-\b	PROTOCOL::server.host.name:port/U/R/L	server access requests - always requires the delimiter string element in string\n
+\b    PROTOCOL::server.host.name:port/U/R/L    server access requests - always requires the delimiter string element in string\n
 \n
-\b	function(arguments or name value pair list)		server side processing of data\n
-\b	LIBRARY::function(arguments or name value pair list)	function plugin library \n
-\b	DEVICE::function(arguments or name value pair list)	Not allowed - use DEVICE::SERVERSIDE::function()\n
+\b    function(arguments or name value pair list)        server side processing of data\n
+\b    LIBRARY::function(arguments or name value pair list)    function plugin library \n
+\b    DEVICE::function(arguments or name value pair list)    Not allowed - use DEVICE::SERVERSIDE::function()\n
 \n
-\b	DEVICE::FORMAT:: ...			If the DEVICE is not the default device, then a server protocol is invoked to pass
+\b    DEVICE::FORMAT:: ...            If the DEVICE is not the default device, then a server protocol is invoked to pass
                                                 the request forward (FORMAT:: ...)\n\n
 Legacy exception: treat PPF and JPF formats as server protocols => no file path expansion required and ignored\n
 \n
 \b      PPF::/ddaname/pulse/pass/userid or PPF::ddaname/pulse/pass/userid\n
-\b	JPF::pulse or JPF::/pulse\n
+\b    JPF::pulse or JPF::/pulse\n
 
 *
 * @param data_object identifies the data object to be accessed from a source
@@ -144,8 +145,10 @@ int idamGetAPI(const char* data_object, const char* data_source) {
 
 int idamGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port)
 {
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+
     // Lock the thread
-    lockIdamThread();
+    lockIdamThread(client_flags);
 
     if (host != nullptr) {
         putIdamServerHost(host);
@@ -170,8 +173,10 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
 
     UDA_LOG(UDA_LOG_DEBUG, "Calling udaStartup\n");
 
-    if (udaStartup(0) != 0) {
-        unlockUdaThread();
+    static bool reopen_logs = true;
+
+    if (udaStartup(0, client_flags, &reopen_logs) != 0) {
+        unlockUdaThread(client_flags);
         return PROBLEM_OPENING_LOGS;
     }
 
@@ -210,9 +215,9 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     if ((err = makeClientRequestBlock(&data_object, &data_source, 1, &request_block)) != 0) {
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
-        unlockUdaThread();
+        unlockUdaThread(client_flags);
         return -err;
     }
 
@@ -240,7 +245,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
 #endif
 freeClientRequestBlock(&request_block);
     // Unlock the thread
-    unlockUdaThread();
+    unlockUdaThread(client_flags);
     return handle;
 }
 
@@ -251,8 +256,10 @@ int idamGetBatchAPI(const char** signals, const char** sources, int count, int* 
 
 int idamGetBatchAPIWithHost(const char** signals, const char** sources, int count, int* handles, const char* host, int port)
 {
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+
     // Lock the thread
-    lockIdamThread();
+    lockIdamThread(client_flags);
 
     if (host != nullptr) {
         putIdamServerHost(host);
@@ -276,8 +283,10 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
 
     UDA_LOG(UDA_LOG_DEBUG, "Calling udaStartup\n");
 
-    if (udaStartup(0) != 0) {
-        unlockUdaThread();
+    static bool reopen_logs = true;
+
+    if (udaStartup(0, client_flags, &reopen_logs) != 0) {
+        unlockUdaThread(client_flags);
         return PROBLEM_OPENING_LOGS;
     }
 
@@ -316,9 +325,9 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
     int err = 0;
     if ((err = makeClientRequestBlock(signals, sources, count, &request_block)) != 0) {
         if (udaNumErrors() == 0) {
-            addIdamError(CODEERRORTYPE, __func__, 999, "Error identifying the Data Source");
+            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
-        unlockUdaThread();
+        unlockUdaThread(client_flags);
         return -err;
     }
 
@@ -343,6 +352,6 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
 #endif
 
     // Unlock the thread
-    unlockUdaThread();
+    unlockUdaThread(client_flags);
     return err;
 }

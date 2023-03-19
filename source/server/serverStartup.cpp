@@ -1,10 +1,3 @@
-/*---------------------------------------------------------------
-* Open Server Side Log Files
-*
-* Returns:
-*
-*--------------------------------------------------------------*/
-
 #include "serverStartup.h"
 
 #include <cstdlib>
@@ -16,7 +9,7 @@
 
 #include "getServerEnvironment.h"
 
-int startup(void)
+int startup()
 {
     //----------------------------------------------------------------
     // Read Environment Variable Values (Held in a Global Structure)
@@ -30,9 +23,9 @@ int startup(void)
 
     if (environment->loglevel <= UDA_LOG_ACCESS) {
         char cmd[STRING_LENGTH];
-        sprintf(cmd, "mkdir -p %s 2>/dev/null", environment->logdir);
+        snprintf(cmd, STRING_LENGTH, "mkdir -p %s 2>/dev/null", environment->logdir);
         if (system(cmd) != 0) {
-            THROW_ERROR(999, "mkdir command failed");
+            UDA_THROW_ERROR(999, "mkdir command failed");
         }
 
         errno = 0;
@@ -40,7 +33,7 @@ int startup(void)
         FILE* accout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
-            addIdamError(SYSTEMERRORTYPE, "startup", errno, "Access Log: ");
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Access Log: ");
             if (accout != nullptr) {
                 fclose(accout);
             }
@@ -55,7 +48,7 @@ int startup(void)
         FILE* errout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
-            addIdamError(SYSTEMERRORTYPE, "startup", errno, "Error Log: ");
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Error Log: ");
             if (errout != nullptr) {
                 fclose(errout);
             }
@@ -70,7 +63,7 @@ int startup(void)
         FILE* dbgout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
-            addIdamError(SYSTEMERRORTYPE, "startup", errno, "Debug Log: ");
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Debug Log: ");
             if (dbgout != nullptr) {
                 fclose(dbgout);
             }

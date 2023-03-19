@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef UDA_SERVER_INITPLUGINLIST_H
 #define UDA_SERVER_INITPLUGINLIST_H
 
@@ -5,14 +7,6 @@
 #include <plugins/pluginStructs.h>
 #include <clientserver/export.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-LIBRARY_API void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment);
-
-#ifdef __cplusplus
-}
-#endif
+void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment);
 
 #endif // UDA_SERVER_INITPLUGINLIST_H

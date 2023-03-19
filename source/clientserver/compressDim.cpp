@@ -22,6 +22,11 @@ template <> double Precision<double>::precision = DBL_EPSILON;
 template <typename T>
 int compress(DIMS* ddim)
 {
+    if (ddim->compressed == 1) {
+        // already compressed - nothing to do.
+        return 0;
+    }
+
     T* dim_data = (T*)ddim->dim;
     if (dim_data == nullptr) {
         return 0;

@@ -13,7 +13,7 @@ Interprets the API arguments and assembles a Request data structure.
 #include "makeClientRequestBlock.h"
 #include "getEnvironment.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #ifdef __GNUC__
 #  include <strings.h>
 #elif defined(_WIN32)
@@ -29,6 +29,7 @@ Interprets the API arguments and assembles a Request data structure.
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/makeRequestBlock.h>
+#include <fmt/format.h>
 
 int makeRequestData(const char* data_object, const char* data_source, REQUEST_DATA* request)
 {
@@ -36,13 +37,13 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
 
     if (strlen(data_object) >= MAXMETA) {
-        THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument string is too long!");
+        UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument string is too long!");
     } else {
         strcpy(request->signal, data_object);    // Passed to the server without modification
     }
 
     if (strlen(data_source) >= STRING_LENGTH) {
-        THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument string is too long!");
+        UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument string is too long!");
     } else {
         strcpy(request->source, data_source);    // Passed to the server without modification
     }
@@ -70,24 +71,20 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
         int lstr = (int)strlen(request->source) + (int)strlen(environment->api_device) +
                (int)strlen(request->api_delim);
         if (lstr >= STRING_LENGTH) {
-            THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument, prefixed with the Device Name, is too long!");
+            UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument, prefixed with the Device Name, is too long!");
         }
-        char* test = (char*)malloc((lstr + 1) * sizeof(char));
-        sprintf(test, "%s%s%s", environment->api_device, request->api_delim, request->source);
-        strcpy(request->source, test);
-        free(test);
+        std::string test = fmt::format("{}{}{}", environment->api_device, request->api_delim, request->source);
+        strcpy(request->source, test.c_str());
     }
 
     if (environment->api_archive[0] != '\0' && strstr(request->signal, request->api_delim) == nullptr) {
         int lstr = (int)strlen(request->signal) + (int)strlen(environment->api_archive) +
                (int)strlen(request->api_delim);
         if (lstr >= STRING_LENGTH) {
-            THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
+            UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
         }
-        char* test = (char*)malloc((lstr + 1) * sizeof(char));
-        sprintf(test, "%s%s%s", environment->api_archive, request->api_delim, request->signal);
-        strcpy(request->signal, test);
-        free(test);
+        std::string test = fmt::format("{}{}{}", environment->api_archive, request->api_delim, request->signal);
+        strcpy(request->signal, test.c_str());
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -110,10 +107,10 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
     */
 
     // Path expansion disabled - applications must provide the full path to data resources.
-    // XXXX::12345		shot number
-    // XXXX::12345/a 	keyword or pass number
-    // XXXX::12345/a,b,c	keywords or substitution values
-    // XXXX::12345/a=b,c=d	name-value pairs
+    // XXXX::12345        shot number
+    // XXXX::12345/a     keyword or pass number
+    // XXXX::12345/a,b,c    keywords or substitution values
+    // XXXX::12345/a=b,c=d    name-value pairs
     // XXXX::a
     // XXXX::a,b,c
     // XXXX::a=b,c=d
@@ -183,15 +180,15 @@ int shotRequestTest(const char* source)
     //------------------------------------------------------------------------------
     // Check if the source has one of these forms:
 
-    // pulse		plasma shot number - an integer
-    // pulse/pass		include a pass or sequence number - this may be a text based component, e.g. LATEST
+    // pulse        plasma shot number - an integer
+    // pulse/pass        include a pass or sequence number - this may be a text based component, e.g. LATEST
 
-    if (IsNumber((char*) source)) return 1;		// The source an integer number 
+    if (IsNumber((char*) source)) return 1;        // The source an integer number
         
     strcpy(work, source);
     
-    if ((token = strtok(work, "/")) != nullptr) {		// Tokenise the remaining string
-       if (IsNumber(token)) return 1;			// Is the First token an integer number?
+    if ((token = strtok(work, "/")) != nullptr) {        // Tokenise the remaining string
+       if (IsNumber(token)) return 1;            // Is the First token an integer number?
     }
 
     return 0;

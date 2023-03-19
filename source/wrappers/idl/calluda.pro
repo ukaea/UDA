@@ -1,5 +1,5 @@
 ;--------------------------------------------------------------------------
-; Function: VARTYPE (Version 2.10)			R.Martin Jan.2000
+; Function: VARTYPE (Version 2.10)            R.Martin Jan.2000
 ;
 ; Updated to include new variable types available in IDL5
 ;
@@ -7,35 +7,35 @@
 ;
 ;   1.result=VARTYPE(var)
 ;
-;	The return value in this case is a string containing the IDL data
-;	type in UPPER case letters. If the varibale is not defined the 
-;	string contains 'NotDefined'. If the parameter {var} is a struture
-;	whose first tag is UTYPE the return value is the contents of the
-;	field UTYPE - the returned string is in LOWER case.
+;    The return value in this case is a string containing the IDL data
+;    type in UPPER case letters. If the varibale is not defined the
+;    string contains 'NotDefined'. If the parameter {var} is a struture
+;    whose first tag is UTYPE the return value is the contents of the
+;    field UTYPE - the returned string is in LOWER case.
 ;
 ;   2.result=VARTYPE(var, /real)
 ;
-;	The return value is TRUE if {var} is a number of any type,
-;	except complex.
+;    The return value is TRUE if {var} is a number of any type,
+;    except complex.
 ;
 ;   3.result=VARTYPE(var, /integer)
 ;
-;	The return value is TRUE if {var} is an integer of any type,
-;	eg. BYTE, INTEGER, LONG
+;    The return value is TRUE if {var} is an integer of any type,
+;    eg. BYTE, INTEGER, LONG
 ;
 ;--------------------------------------------------------------------------
 
-function vartype, 		$;
-	arg,          		$;
-	integer=integer,	$;
-	notinteger=notinteger,	$;
-	real=real,		$;
-	notreal=notreal,	$;
-	string=strkey,		$;
-	notstring=notstrkey,	$;
-        structure=structure,	$;
-	version=dver
-	
+function vartype,         $;
+    arg,                  $;
+    integer=integer,    $;
+    notinteger=notinteger,    $;
+    real=real,        $;
+    notreal=notreal,    $;
+    string=strkey,        $;
+    notstring=notstrkey,    $;
+        structure=structure,    $;
+    version=dver
+
 ;-------------------------------------------------------------------------
 ; {Check input flags /VERSION & /HELP}
 ;
@@ -70,9 +70,9 @@ function vartype, 		$;
 ; {Determine variable type and return as string}
 ;
 
-  vtype=['NotDefined', 'BYTE', 'INTEGER*2', 'INTEGER*4', 'REAL*4', 	$
-	'REAL*8', 'COMPLEX*4', 'STRING', 'STRUCTURE', 'COMPLEX*8',	$
-	'POINTER', 'OBJECT', 'BYTE*2', 'BYTE*4', 'INTEGER*8', 'BYTE*8']
+  vtype=['NotDefined', 'BYTE', 'INTEGER*2', 'INTEGER*4', 'REAL*4',     $
+    'REAL*8', 'COMPLEX*4', 'STRING', 'STRUCTURE', 'COMPLEX*8',    $
+    'POINTER', 'OBJECT', 'BYTE*2', 'BYTE*4', 'INTEGER*8', 'BYTE*8']
   vtype=vtype(ntype)
 
   if (vtype eq 'STRUCTURE') then begin
@@ -96,16 +96,16 @@ end
 ; Notes: The function SIZE returns information about a variable in a
 ; INT*4(n) where the n-2 element gives the variable type.
 ;
-;     Number	Type   	
-;	0	Undefined
-;	1	Byte
-;	2	Int*2
-;	3	Int*4
-;	4	Real*4
-;	5	Real*8
-;	6	complex
-;	7	String
-;	8	Structure
+;     Number    Type
+;    0    Undefined
+;    1    Byte
+;    2    Int*2
+;    3    Int*4
+;    4    Real*4
+;    5    Real*8
+;    6    complex
+;    7    String
+;    8    Structure
 ;
 ;----------------------------------------------------------------------
 ; Modification
@@ -316,7 +316,7 @@ function calluda, arg, $
                  s[i] = getdimnum(header.handle, long(i))
               endfor      
            endif else begin    
-              s[0]=size(data, /dim)		;; OK if data is an array but not a top level structure array
+              s[0]=size(data, /dim)        ;; OK if data is an array but not a top level structure array
            endelse
            
            data=reform(data, s)
@@ -338,7 +338,7 @@ function calluda, arg, $
               data = xxdata
               stringdata = 1
               rank = 0 
-           endelse	
+           endelse
         endif             
 
         ; ====================================================================================================  
@@ -359,7 +359,7 @@ function calluda, arg, $
         struct={name:workcall,          $
                 source:worksource,      $
                 data:data,              $
-                dunits:data_units,	$
+                dunits:data_units,    $
                 dlabel:data_label}
 
         for j=0, (rank-1) do begin
@@ -458,7 +458,7 @@ function calluda, arg, $
            s=replicate(1L, rank)
            ;; OK if data is an array but not a top level structure array
            ;; but have already checked for structure so should be OK
-           s[0]=size(data, /dim)		
+           s[0]=size(data, /dim)
            data=reform(data, s)
         endif
 
@@ -475,7 +475,7 @@ function calluda, arg, $
               data = xxdata
               stringdata = 1
               rank = 0 
-           endelse	
+           endelse
         endif             
 
         ; ====================================================================================================  

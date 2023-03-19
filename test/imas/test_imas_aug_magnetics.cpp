@@ -128,26 +128,26 @@ TEST_CASE( "Test bpol_probe toroidal_angle", "[IMAS][AUG][BPOL]" )
 #  include "setup.inc"
 #endif
 
-	uda::Client client;
+    uda::Client client;
 
-	const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/toroidal_angle', expName='AUG', type=double, rank=0, shot=" SHOT_NUM ", )", "");
+    const uda::Result& result = client.get("imas::get(idx=0, group='magnetics', variable='bpol_probe/1/toroidal_angle', expName='AUG', type=double, rank=0, shot=" SHOT_NUM ", )", "");
 
-	REQUIRE( result.errorCode() == 0 );
-	REQUIRE( result.errorMessage().empty() );
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
 
-	uda::Data* data = result.data();
+    uda::Data* data = result.data();
 
-	REQUIRE( data != nullptr );
-	REQUIRE( !data->isNull() );
-	REQUIRE( data->type().name() == typeid(double).name() );
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
 
-	auto val = dynamic_cast<uda::Scalar*>(data);
+    auto val = dynamic_cast<uda::Scalar*>(data);
 
-	REQUIRE( val != nullptr );
+    REQUIRE( val != nullptr );
     REQUIRE( !val->isNull() );
 
-	REQUIRE( val->type().name() == typeid(double).name() );
-	REQUIRE( val->as<double>() == Approx(0.0) );
+    REQUIRE( val->type().name() == typeid(double).name() );
+    REQUIRE( val->as<double>() == Approx(0.0) );
 }
 
 /*

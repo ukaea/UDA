@@ -34,7 +34,7 @@ public:
     int errorCode() const;
 
     /**
-     * Return the recieved data object, this will be a subclass of Data, i.e. one of @code{String}, @code{Array},
+     * Return the received data object, this will be a subclass of Data, i.e. one of @code{String}, @code{Array},
      * @code{Scalar}, etc.
      *
      * @return the data object
@@ -42,7 +42,7 @@ public:
     Data* data() const;
 
     /**
-     * Return whether the recieved data has associated error values.
+     * Return whether the received data has associated error values.
      *
      * If true then @code{errors()} will return the error values.
      *
@@ -54,6 +54,9 @@ public:
 
     const std::type_info& type() const
     { return *type_; };
+
+    int uda_type() const
+    { return uda_type_; }
 
     const std::string& label() const
     { return label_; }
@@ -84,6 +87,8 @@ public:
     bool isTree() const
     { return istree_; }
 
+    const char* raw_data() const;
+
     TreeNode tree() const;
 
 private:
@@ -91,16 +96,12 @@ private:
 
     friend class Client;
 
-    template <typename T>
-    T as()
-    { return boost::any_cast<T>(data_); }
-
     const int handle_;
     std::string label_;
     std::string units_;
     std::string desc_;
     const std::type_info* type_;
-    boost::any data_;
+    int uda_type_;
     dim_type rank_;
     size_t size_;
     bool istree_;

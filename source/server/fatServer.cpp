@@ -24,35 +24,28 @@
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
+#include "initPluginList.h"
+#include "createXDRStream.h"
 
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {
 }
 #endif
 
-unsigned int totalDataBlockSize = 0;
-
-int server_tot_block_time = 0;
-
-int server_timeout = TIMEOUT;
-
 static PLUGINLIST pluginList;      // List of all data reader plugins (internal and external shared libraries)
 ENVIRONMENT environment;    // Holds local environment variable values
 
-static USERDEFINEDTYPELIST* userdefinedtypelist = nullptr;
-static LOGMALLOCLIST* logmalloclist = nullptr;
+static USERDEFINEDTYPELIST* user_defined_type_list = nullptr;
+static LOGMALLOCLIST* log_malloc_list = nullptr;
 
-unsigned int XDRstdioFlag = 1;
 int altRank = 0;
 unsigned int clientFlags = 0;
-NTREE* fullNTree = nullptr;
 
-int malloc_source = MALLOCSOURCENONE;
-USERDEFINEDTYPELIST parseduserdefinedtypelist;
-unsigned int privateFlags = 0;
+int malloc_source = UDA_MALLOC_SOURCE_NONE;
+unsigned int private_flags = 0;
 
-int serverVersion = 8;
-static int protocolVersion = 8;
+int server_version = 8;
+static int protocol_version = 8;
 
 SOCKETLIST socket_list;
 
@@ -69,18 +62,18 @@ extern "C" {
 
 void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist_in)
 {
-    userdefinedtypelist = userdefinedtypelist_in;
+    user_defined_type_list = userdefinedtypelist_in;
 }
 
 void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
 {
-    logmalloclist = logmalloclist_in;
+    log_malloc_list = logmalloclist_in;
 }
 
 }
 #endif
 
-static int startupFatServer(SERVER_BLOCK* server_block);
+static int startupFatServer(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduserdefinedtypelist);
 
 static int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, ACTIONS* actions_desc,
                                 ACTIONS* actions_sig, DATA_BLOCK_LIST* data_blocks0);
@@ -90,7 +83,8 @@ static int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request
                             ACTIONS* actions_desc, ACTIONS* actions_sig);
 
 static int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
-                           REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block);
+                           REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
+                           LOGSTRUCTLIST* log_struct_list, IoData* io_data);
 
 //--------------------------------------------------------------------------------------
 // Server Entry point
@@ -110,28 +104,42 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
     ACTIONS actions_desc;
     ACTIONS actions_sig;
 
+    LOGSTRUCTLIST log_struct_list;
+    initLogStructList(&log_struct_list);
+
+    int server_tot_block_time = 0;
+    int server_timeout = TIMEOUT;        // user specified Server Lifetime
+
+    IoData io_data = {};
+    io_data.server_tot_block_time = &server_tot_block_time;
+    io_data.server_timeout = &server_timeout;
+
+    static unsigned int total_datablock_size = 0;
+
     //-------------------------------------------------------------------------
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
 
-    initServerBlock(server_block, serverVersion);
+    initServerBlock(server_block, server_version);
     initDataBlockList(&data_blocks);
     initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
 
-    getInitialUserDefinedTypeList(&userdefinedtypelist);
-    parseduserdefinedtypelist = *userdefinedtypelist;
+    USERDEFINEDTYPELIST parseduserdefinedtypelist;
+
+    getInitialUserDefinedTypeList(&user_defined_type_list);
+    parseduserdefinedtypelist = *user_defined_type_list;
     //printUserDefinedTypeList(*userdefinedtypelist);
 
-    logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-    initLogMallocList(logmalloclist);
+    log_malloc_list = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
+    initLogMallocList(log_malloc_list);
 
-    int err = startupFatServer(server_block);
+    int err = startupFatServer(server_block, parseduserdefinedtypelist);
     if (err != 0) {
         return err;
     }
 
-    copyUserDefinedTypeList(&userdefinedtypelist);
+    copyUserDefinedTypeList(&user_defined_type_list, &parseduserdefinedtypelist);
 
     err = handleRequestFat(&request_block, request_block0, &client_block, server_block, &metadata_block, &data_blocks,
                            &actions_desc, &actions_sig);
@@ -139,18 +147,20 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
         return err;
     }
 
-    err = fatClientReturn(server_block, &data_blocks, data_blocks0, &request_block, &client_block, &metadata_block);
+    err = fatClientReturn(server_block, &data_blocks, data_blocks0, &request_block, &client_block, &metadata_block,
+                          &log_struct_list, &io_data);
     if (err != 0) {
         return err;
     }
 
-    udaAccessLog(FALSE, client_block, request_block, *server_block, &pluginList, getServerEnvironment());
+    udaAccessLog(FALSE, client_block, request_block, *server_block,
+                 total_datablock_size);
 
     err = doFatServerClosedown(server_block, &data_blocks, &actions_desc, &actions_sig, data_blocks0);
 
-    freeUserDefinedTypeList(userdefinedtypelist);
-    free(userdefinedtypelist);
-    userdefinedtypelist = nullptr;
+    freeUserDefinedTypeList(user_defined_type_list);
+    free(user_defined_type_list);
+    user_defined_type_list = nullptr;
 
     //freeMallocLogList(logmalloclist);
     //free(logmalloclist);
@@ -172,7 +182,8 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
  * Client deletes stale files automatically on startup.
  * @return
  */
-static int processHierarchicalData(DATA_BLOCK* data_block)
+static int
+processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list, IoData* io_data)
 {
     int err = 0;
 
@@ -182,7 +193,7 @@ static int processHierarchicalData(DATA_BLOCK* data_block)
     char tempFile[MAXPATH];
     char* env;
     if ((env = getenv("UDA_WORK_DIR")) != nullptr) {
-        sprintf(tempFile, "%s/idamXDRXXXXXX", env);
+        snprintf(tempFile, MAXPATH, "%s/idamXDRXXXXXX", env);
     } else {
         strcpy(tempFile, "/tmp/idamXDRXXXXXX");
     }
@@ -191,10 +202,10 @@ static int processHierarchicalData(DATA_BLOCK* data_block)
 
     errno = 0;
     if (mkstemp(tempFile) < 0 || errno != 0) {
-        THROW_ERROR(995, "Unable to Obtain a Temporary File Name");
+        UDA_THROW_ERROR(995, "Unable to Obtain a Temporary File Name");
     }
     if ((xdrfile = fopen(tempFile, "wb")) == nullptr) {
-        THROW_ERROR(999, "Unable to Open a Temporary XDR File for Writing");
+        UDA_THROW_ERROR(999, "Unable to Open a Temporary XDR File for Writing");
     }
 
     XDR xdrServerOutput;
@@ -202,9 +213,9 @@ static int processHierarchicalData(DATA_BLOCK* data_block)
 
     // Write data to the temporary file
 
-    int protocol_id = PROTOCOL_STRUCTURES;
-    protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist, data_block,
-                protocolVersion);
+    int protocol_id = UDA_PROTOCOL_STRUCTURES;
+    protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list, data_block,
+                protocol_version, log_struct_list, io_data, private_flags, malloc_source, serverCreateXDRStream);
 
     // Close the stream and file
 
@@ -219,7 +230,7 @@ static int processHierarchicalData(DATA_BLOCK* data_block)
     // Create an input XDR stream
 
     if ((xdrfile = fopen(tempFile, "rb")) == nullptr) {
-        THROW_ERROR(999, "Unable to Open a Temporary XDR File for Reading");
+        UDA_THROW_ERROR(999, "Unable to Open a Temporary XDR File for Reading");
     }
 
     XDR xdrServerInput;
@@ -227,9 +238,10 @@ static int processHierarchicalData(DATA_BLOCK* data_block)
 
     // Read data from the temporary file
 
-    protocol_id = PROTOCOL_STRUCTURES;
-    err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, logmalloclist, userdefinedtypelist,
-                      data_block, protocolVersion);
+    protocol_id = UDA_PROTOCOL_STRUCTURES;
+    err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
+                      data_block, protocol_version, log_struct_list, io_data, private_flags, malloc_source,
+                      serverCreateXDRStream);
 
     // Close the stream and file
 
@@ -244,8 +256,8 @@ static int processHierarchicalData(DATA_BLOCK* data_block)
 }
 
 int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
-                    REQUEST_BLOCK* request_block,
-                    CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block)
+                    REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
+                    LOGSTRUCTLIST* log_struct_list, IoData* io_data)
 {
     //----------------------------------------------------------------------------
     // Gather Server Error State
@@ -264,7 +276,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DA
     for (int i = 0; i < data_blocks->count; ++i) {
         auto data_block = &data_blocks->data[i];
         if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
-            processHierarchicalData(data_block);
+            processHierarchicalData(data_block, log_struct_list, io_data);
         }
     }
 
@@ -287,16 +299,6 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     printServerBlock(*server_block);
     printRequestBlock(*request_block);
 
-    for (int i = 0; i < request_block->num_requests; ++i) {
-        REQUEST_DATA* request = &request_block->requests[i];
-        char work[1024];
-        if (request->api_delim[0] != '\0') {
-            sprintf(work, "UDA%s", request->api_delim);
-        } else {
-            sprintf(work, "UDA%s", environment.api_delim);
-        }
-    }
-
     //----------------------------------------------------------------------
     // Initialise Data Structures
 
@@ -308,10 +310,10 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     // Decode the API Arguments: determine appropriate data plug-in to use
     // Decide on Authentication procedure
 
-    protocolVersion = serverVersion;
+    protocol_version = server_version;
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[i];
-        if (protocolVersion >= 6) {
+        if (protocol_version >= 6) {
             if ((err = udaServerPlugin(request, &metadata_block->data_source, &metadata_block->signal_desc,
                                        &pluginList, getServerEnvironment())) != 0) {
                 return err;
@@ -339,7 +341,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
         initDataBlock(data_block);
         err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
                          &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
-                         &pluginList, logmalloclist, userdefinedtypelist, &socket_list, protocolVersion);
+                         &pluginList, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
         ++data_blocks->count;
     }
 
@@ -375,7 +377,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
         for (int i = 0; i < data_blocks->count; ++i) {
             auto data_block = &data_blocks->data[i];
             if (serverProcessing(*client_block, data_block) != 0) {
-                THROW_ERROR(779, "Server-Side Processing Error");
+                UDA_THROW_ERROR(779, "Server-Side Processing Error");
             }
         }
     }
@@ -414,7 +416,7 @@ int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block
     return 0;
 }
 
-int startupFatServer(SERVER_BLOCK* server_block)
+int startupFatServer(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduserdefinedtypelist)
 {
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;
@@ -431,11 +433,10 @@ int startupFatServer(SERVER_BLOCK* server_block)
     //----------------------------------------------------------------------
     // Initialise General Structure Passing
 
-    getInitialUserDefinedTypeList(&userdefinedtypelist);
-    parseduserdefinedtypelist = *userdefinedtypelist;
-    printUserDefinedTypeList(*userdefinedtypelist);
-    userdefinedtypelist = nullptr;                                     // Startup State
-
+    getInitialUserDefinedTypeList(&user_defined_type_list);
+    parseduserdefinedtypelist = *user_defined_type_list;
+    printUserDefinedTypeList(*user_defined_type_list);
+    user_defined_type_list = nullptr;                                     // Startup State
 
     /*
     // this step needs doing once only - the first time a generalised user defined structure is encountered.
@@ -443,13 +444,13 @@ int startupFatServer(SERVER_BLOCK* server_block)
 
     if (!fileParsed) {
         fileParsed = 1;
-	
+
         initUserDefinedTypeList(&parseduserdefinedtypelist);
         userdefinedtypelist = &parseduserdefinedtypelist; // Switch before Parsing input file
 
         char* token = nullptr;
         if ((token = getenv("UDA_SARRAY_CONFIG")) == nullptr) {
-            THROW_ERROR(999, "No Environment variable UDA_SARRAY_CONFIG");
+            UDA_THROW_ERROR(999, "No Environment variable UDA_SARRAY_CONFIG");
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);

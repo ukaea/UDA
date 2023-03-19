@@ -2,6 +2,7 @@
 # Dependencies
 
 find_package( LibXml2 REQUIRED )
+find_package( fmt REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -83,7 +84,7 @@ if( BUILD_SHARED_LIBS )
   add_library( plugins-shared SHARED $<TARGET_OBJECTS:plugins-objects> )
 endif()
 
-set( LINK_LIB ${LIBXML2_LIBRARIES} )
+set( LINK_LIB ${LIBXML2_LIBRARIES} fmt::fmt )
 if( WIN32 OR MINGW )
   if( MINGW )
     set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dl stdc++ )

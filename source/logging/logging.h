@@ -14,8 +14,8 @@
 #  include <sys/time.h>
 #  include <stdint.h>
 #  define UIX_DEFINETIME \
-        struct timeval uix_tmnow; \
-        struct tm* uix_tm;        \
+        struct timeval uix_tmnow = {}; \
+        struct tm* uix_tm = NULL;        \
         char uix_buf[30];\
         gettimeofday(&uix_tmnow, NULL); \
         uix_tm = localtime(&uix_tmnow.tv_sec); \
@@ -30,8 +30,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-extern int reopen_logs;         // Flags whether or Not Logs need to be Re-Opened
 
 typedef enum LogLevel {
     UDA_LOG_DEBUG = 1,

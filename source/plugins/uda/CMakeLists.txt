@@ -2,6 +2,7 @@
 # Dependencies
 
 find_package( LibXml2 QUIET )
+find_package( fmt REQUIRED )
 
 if( NOT LIBXML2_FOUND )
   message( WARNING "Libxml2 not found - skipping IDAM plugin" )
@@ -34,4 +35,5 @@ uda_plugin(
   EXTRA_LINK_LIBS
     ${LIBXML2_LIBRARIES}
     ${OPENSSL_LIBRARIES}
+    fmt::fmt
 )

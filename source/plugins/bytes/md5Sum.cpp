@@ -1,12 +1,12 @@
 /*---------------------------------------------------------------
 * Returns an MD5 Checksum String for a Block of Bytes in Memory
 *
-* Input Arguments:	char *bp	Pointer to a Block of Memory
-*			int size	Size of the Memory block in Bytes
+* Input Arguments:    char *bp    Pointer to a Block of Memory
+*            int size    Size of the Memory block in Bytes
 *
-* Returns:		md5check	checksum String of Minimum Length 2*MD5_SIZE+1
-*					allocated in the calling routine, e.g.,
-*					char md5check[2*MD5_SIZE+1]="";
+* Returns:        md5check    checksum String of Minimum Length 2*MD5_SIZE+1
+*                    allocated in the calling routine, e.g.,
+*                    char md5check[2*MD5_SIZE+1]="";
 *
 * Calls
 *

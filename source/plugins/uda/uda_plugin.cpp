@@ -1,6 +1,6 @@
 #include "uda_plugin.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <client/accAPI.h>
 #include <clientserver/initStructs.h>
@@ -9,6 +9,7 @@
 #include <logging/logging.h>
 #include <plugins/udaPlugin.h>
 #include <client/udaClient.h>
+#include <fmt/format.h>
 
 #if !defined(__GNUC__)
 #  define strcasecmp _stricmp
@@ -41,7 +42,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
         UDA_LOG(UDA_LOG_ERROR, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!\n");
-        THROW_ERROR(999, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
+        UDA_THROW_ERROR(999, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
     }
 
     idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
@@ -56,7 +57,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // Resetting all UDA client properties
 
-        resetIdamProperties();
+        resetIdamProperties(udaClientFlags());
 
         putIdamServerHost(oldServerHost);    // Original Host
         putIdamServerPort(oldPort);    // Original Port
@@ -71,7 +72,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     //----------------------------------------------------------------------------------------
     // Initialise
 
-    if (!init || STR_IEQUALS(request->function, "init") || STR_IEQUALS(request->function, "initialise")) {
+    if (!init || STR_IEQUALS(request->function, "create") || STR_IEQUALS(request->function, "initialise")) {
 
         // Default Server Host and Port
 
@@ -80,14 +81,14 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // Resetting all UDA client properties
 
-        resetIdamProperties();
+        resetIdamProperties(udaClientFlags());
 
         // Hand over Server IO File Handles to UDA Client library
 
         UDA_LOG(UDA_LOG_DEBUG, "Handing over Server File Handles to UDA Client\n");
 
         init = 1;
-        if (STR_IEQUALS(request->function, "init") || STR_IEQUALS(request->function, "initialise")) {
+        if (STR_IEQUALS(request->function, "create") || STR_IEQUALS(request->function, "initialise")) {
             return 0;
         }
     }
@@ -109,7 +110,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     } else if (STR_IEQUALS(request->function, "get")) {
         err = do_get(idam_plugin_interface, oldServerHost, &oldPort);
     } else {
-        THROW_ERROR(999, "Unknown function requested!");
+        UDA_THROW_ERROR(999, "Unknown function requested!");
     }
 
     //--------------------------------------------------------------------------------------
@@ -258,13 +259,13 @@ static int do_get(IDAM_PLUGIN_INTERFACE* idam_plugin_interface, char* oldServerH
 Notes: there are three pathways depending on the request pattern
 
 1> request is the result of an SQL query against the metadata catalog
-	if the primary key fields of the data_source and signal_desc structures are non zero
+    if the primary key fields of the data_source and signal_desc structures are non zero
 2> request is a device redirect or a server protocol
-	path = server:port/source, server=""
+    path = server:port/source, server=""
 3> request is a function call
-	path = "", name-value pair arguments, server=""
+    path = "", name-value pair arguments, server=""
 4> request is a server call
-	server=server:port, path=source
+    server=server:port, path=source
 */
 
 // Identify execution pathway
@@ -286,7 +287,7 @@ Notes: there are three pathways depending on the request pattern
         pathway = 4;
     } else {
         UDA_LOG(UDA_LOG_ERROR, "Execution pathway not recognised: Unable to execute the request!\n");
-        THROW_ERROR(999, "Execution pathway not recognised: Unable to execute the request!");
+        UDA_THROW_ERROR(999, "Execution pathway not recognised: Unable to execute the request!");
     }
 
     //----------------------------------------------------------------------
@@ -298,7 +299,7 @@ Notes: there are three pathways depending on the request pattern
 
     // This fails if the legacy UDA plugin is called by a server in the forward chain and it set marked a 'private'
     // For IMAS development, this has been disabled
-    //if(environment.external_user) setIdamPrivateFlag(PRIVATEFLAG_EXTERNAL);	// Maintain external user status
+    //if(environment.external_user) setIdamPrivateFlag(PRIVATEFLAG_EXTERNAL);    // Maintain external user status
 
     // Set Userid
 
@@ -307,19 +308,20 @@ Notes: there are three pathways depending on the request pattern
     // Set Properties
 
     CLIENT_BLOCK* client_block = idam_plugin_interface->client_block;
+    auto client_flags = udaClientFlags();
 
-    if (client_block->get_nodimdata) setIdamProperty("get_nodimdata");
-    if (client_block->get_timedble) setIdamProperty("get_timedble");
-    if (client_block->get_dimdble) setIdamProperty("get_dimdble");
-    if (client_block->get_datadble) setIdamProperty("get_datadble");
+    if (client_block->get_nodimdata) setIdamProperty("get_nodimdata", client_flags);
+    if (client_block->get_timedble) setIdamProperty("get_timedble", client_flags);
+    if (client_block->get_dimdble) setIdamProperty("get_dimdble", client_flags);
+    if (client_block->get_datadble) setIdamProperty("get_datadble", client_flags);
 
-    if (client_block->get_bad) setIdamProperty("get_bad");
-    if (client_block->get_meta) setIdamProperty("get_meta");
-    if (client_block->get_asis) setIdamProperty("get_asis");
-    if (client_block->get_uncal) setIdamProperty("get_uncal");
-    if (client_block->get_notoff) setIdamProperty("get_notoff");
-    if (client_block->get_scalar) setIdamProperty("get_scalar");
-    if (client_block->get_bytes) setIdamProperty("get_bytes");
+    if (client_block->get_bad) setIdamProperty("get_bad", client_flags);
+    if (client_block->get_meta) setIdamProperty("get_meta", client_flags);
+    if (client_block->get_asis) setIdamProperty("get_asis", client_flags);
+    if (client_block->get_uncal) setIdamProperty("get_uncal", client_flags);
+    if (client_block->get_notoff) setIdamProperty("get_notoff", client_flags);
+    if (client_block->get_scalar) setIdamProperty("get_scalar", client_flags);
+    if (client_block->get_bytes) setIdamProperty("get_bytes", client_flags);
 
     // Timeout ...
 
@@ -327,8 +329,8 @@ Notes: there are three pathways depending on the request pattern
 
     // Client Flags ...
 
-    resetIdamClientFlag((unsigned)CLIENTFLAG_FULLRESET);
-    setIdamClientFlag(client_block->clientFlags);
+    resetIdamClientFlag(client_flags, CLIENTFLAG_FULLRESET);
+    setIdamClientFlag(client_flags, client_block->clientFlags);
 
     // Client application provenance
 
@@ -344,11 +346,11 @@ Notes: there are three pathways depending on the request pattern
 
     if (pathway == 1) {    // Request via the Database
 
-        char signal[2 * MAXNAME + 2];
-        char source[2 * MAXNAME + 2];
+        std::string signal;
+        std::string source;
 
-        sprintf(signal, "%s::%s", data_source->archive, signal_desc->signal_name);
-        sprintf(source, "%s::%d", data_source->device_name, data_source->exp_number);
+        signal = fmt::format("{}::{}", data_source->archive, signal_desc->signal_name);
+        source = fmt::format("{}::{}", data_source->device_name, data_source->exp_number);
 
         if (data_source->server[0] != '\0') {
             char* p = nullptr, * s = nullptr;
@@ -377,8 +379,8 @@ Notes: there are three pathways depending on the request pattern
                         *oldPort = newPort;
                     }
                 } else {
-                    THROW_ERROR(999,
-                                "The Server Port must be an Integer Number passed using the formats 'server:port' or 'server port'");
+                    UDA_THROW_ERROR(999,
+                                    "The Server Port must be an Integer Number passed using the formats 'server:port' or 'server port'");
                 }
             } else {
                 if (strcasecmp(oldServerHost, data_source->server) != 0) {
@@ -387,16 +389,16 @@ Notes: there are three pathways depending on the request pattern
                 }
             }
         } else {
-            THROW_ERROR(999, "No Server has been specified!");
+            UDA_THROW_ERROR(999, "No Server has been specified!");
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Idam Server Host for Idam Plugin %s\n", data_source->server);
         UDA_LOG(UDA_LOG_DEBUG, "Idam Server Port for Idam Plugin %d\n", newPort);
         UDA_LOG(UDA_LOG_DEBUG, "Calling idamGetAPI API (Database based Request)\n");
-        UDA_LOG(UDA_LOG_DEBUG, "Signal: %s\n", signal);
-        UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", source);
+        UDA_LOG(UDA_LOG_DEBUG, "Signal: %s\n", signal.c_str());
+        UDA_LOG(UDA_LOG_DEBUG, "Source: %s\n", source.c_str());
 
-        handle = idamGetAPI(signal, source);
+        handle = idamGetAPI(signal.c_str(), source.c_str());
 
     } else if (pathway == 2) {
 
@@ -414,8 +416,8 @@ Notes: there are three pathways depending on the request pattern
                 p[0] = '\0';                            // Break the String (work)
                 strcpy(source, p + 1);                // Extract the Source URL Argument
             } else {
-                THROW_ERROR(999,
-                            "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
+                UDA_THROW_ERROR(999,
+                                "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
             }
         } else {
             if ((p = strchr(request->server, '/')) != nullptr) {
@@ -423,8 +425,8 @@ Notes: there are three pathways depending on the request pattern
                 p[0] = '\0';                            // Break the String (work)
                 strcpy(source, p + 1);                // Extract the Source URL Argument
             } else {
-                THROW_ERROR(999,
-                            "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
+                UDA_THROW_ERROR(999,
+                                "The Remote Server Data Source specified does not comply with the naming model: serverHost:port/sourceURL");
             }
         }
 
@@ -453,8 +455,8 @@ Notes: there are three pathways depending on the request pattern
                     *oldPort = newPort;
                 }
             } else {
-                THROW_ERROR(999,
-                            "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server port'");
+                UDA_THROW_ERROR(999,
+                                "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server port'");
             }
         } else {
             if (strcasecmp(oldServerHost, request->server) != 0) {
@@ -511,7 +513,7 @@ Notes: there are three pathways depending on the request pattern
             UDA_LOG(UDA_LOG_DEBUG, "idamAPIPlugin; Source: %s\n", request->source);
             handle = idamGetAPI(signal, request->source);
         } else {
-            THROW_ERROR(999, "A data object (signal) has not been specified!");
+            UDA_THROW_ERROR(999, "A data object (signal) has not been specified!");
         }
     } else if (pathway == 4) {
 
@@ -551,8 +553,8 @@ Notes: there are three pathways depending on the request pattern
                     *oldPort = newPort;
                 }
             } else {
-                THROW_ERROR(999,
-                            "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server port'");
+                UDA_THROW_ERROR(999,
+                                "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server port'");
             }
         } else {
             // No port number passed
@@ -572,7 +574,7 @@ Notes: there are three pathways depending on the request pattern
     }
 
     resetIdamPrivateFlag(PRIVATEFLAG_FULLRESET);
-    resetIdamClientFlag((unsigned)CLIENTFLAG_FULLRESET);
+    resetIdamClientFlag(client_flags, CLIENTFLAG_FULLRESET);
 
     //----------------------------------------------------------------------
     // Test for Errors: Close Socket and Free heap
@@ -581,9 +583,9 @@ Notes: there are three pathways depending on the request pattern
             getIdamErrorCode(handle));
 
     if (handle < 0) {
-        THROW_ERROR(abs(handle), getIdamServerErrorStackRecordMsg(0));
+        UDA_THROW_ERROR(abs(handle), getIdamServerErrorStackRecordMsg(0));
     } else if ((err = getIdamErrorCode(handle)) != 0) {
-        THROW_ERROR(err, getIdamErrorMsg(handle));
+        UDA_THROW_ERROR(err, getIdamErrorMsg(handle));
     }
 
     //----------------------------------------------------------------------
@@ -671,15 +673,15 @@ Notes: there are three pathways depending on the request pattern
     // If the Data are Hierarchical, then necessary to forward the xdr file
     //
     // List of structures from external server may conflict with local definitions
-    //	Don't use local definitions
+    //    Don't use local definitions
     //
     // No access to malloc log within client
     //
     // Data received is a Data Tree. This would need to be restructured - i.e., pointer extracted from
     // structure SARRAY (may be different to local SARRAY!)
-    //	Don't pass a data tree - use an XDR file instead.
-    //	Required if http is to be adopted as middleware protocol
-    // 	Relay everything from the external server back to the client without interpretation.
+    //    Don't pass a data tree - use an XDR file instead.
+    //    Required if http is to be adopted as middleware protocol
+    //     Relay everything from the external server back to the client without interpretation.
     //
     // Namespace issues: Both the Client and the Server use the same functions to Query. The PRE_LOAD requirement of MDS+
     // causes the UDA client library to be loaded ahead of the server library: Result confusion and seg fault errors.

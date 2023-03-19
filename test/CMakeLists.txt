@@ -54,6 +54,7 @@ set( TESTS
 )
 
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
+include_directories( SYSTEM ${LIBXML2_INCLUDE_DIR} )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR} )
 
 link_directories( ${CMAKE_BINARY_DIR}/source/wrappers/c++ )
@@ -70,9 +71,13 @@ if( WIN32 OR MINGW )
   endif()
   include_directories( ${XDR_INCLUDE_DIR} )
   set( LIBRARIES ${XDR_LIBRARIES} ws2_32 )
-elseif(TIRPC_FOUND)
+elseif( TIRPC_FOUND )
   include_directories( ${TIRPC_INCLUDE_DIR} )
   set( LINK_LIB ${LINK_LIB} ${TIRPC_LIBRARIES})
+endif()
+
+if( ENABLE_CAPNP )
+  set( LIBRARIES ${LIBRARIES} serialisation-static )
 endif()
 
 set( LINK_DL )
@@ -92,7 +97,6 @@ if( ( WIN32 AND MINGW ) OR NOT WIN32 )
   set( LINK_M m )
 endif()
 
-
 macro( BUILD_TEST NAME SOURCE )
   set( LINK_PROJECT ${PROJECT_NAME}_cpp-static )
   if( BUILD_SHARED_LIBS )
@@ -106,8 +110,8 @@ macro( BUILD_TEST NAME SOURCE )
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
-	${LIBRARIES}
-	${LINK_STD}
+    ${LIBRARIES}
+    ${LINK_STD}
   )
 
   set_target_properties( ${NAME}
@@ -129,10 +133,10 @@ macro( BUILD_TEST NAME SOURCE )
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${CACHE_LIBRARIES}
-	${LIBRARIES}
+    ${LIBRARIES}
     ${LINK_M}
-	${LINK_DL}
-	${LINK_STD}
+    ${LINK_DL}
+    ${LINK_STD}
   )
   if( NOT WIN32 AND NOT MINGW )
     target_link_libraries( fat_${NAME} PRIVATE c )

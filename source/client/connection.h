@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef UDA_CLIENT_CONNECTION_H
 #define UDA_CLIENT_CONNECTION_H
 
@@ -11,19 +13,15 @@
 extern "C" {
 #endif
 
-LIBRARY_API extern int clientVersion;                   // Client Library Version
-LIBRARY_API extern char clientUsername[STRING_LENGTH];  // Only obtain userid once
+int connectionOpen();
+int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output, time_t* tv_server_start,
+                          int* user_timeout);
+int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_start, int user_timeout);
+void closeAllConnections();
+void closeConnection(ClosedownType type);
 
-LIBRARY_API int connectionOpen();
-LIBRARY_API int reconnect(ENVIRONMENT* environment);
-LIBRARY_API int createConnection();
-LIBRARY_API void closeConnection(ClosedownType type);
-
-LIBRARY_API int resetClientConnection();
-LIBRARY_API void closeClientConnection();
-
-LIBRARY_API int clientWriteout(void* iohandle, char* buf, int count);
-LIBRARY_API int clientReadin(void* iohandle, char* buf, int count);
+int clientWriteout(void* iohandle, char* buf, int count);
+int clientReadin(void* iohandle, char* buf, int count);
 
 #ifdef __cplusplus
 }

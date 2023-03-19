@@ -21,7 +21,10 @@ int idamClientMDS(const char* server, const char* tree, const char* node, int tr
     //-------------------------------------------------------------------------
     // Open the Logs
 
-    if (udaStartup(0) != 0) return PROBLEM_OPENING_LOGS;
+    CLIENT_FLAGS* client_flags = udaClientFlags();
+    static bool reopen_logs = true;
+
+    if (udaStartup(0, client_flags, &reopen_logs) != 0) return PROBLEM_OPENING_LOGS;
 
     //-------------------------------------------------------------------------
     // Passed Args
@@ -42,9 +45,9 @@ int idamClientMDS(const char* server, const char* tree, const char* node, int tr
     strcpy(request->server, server);
 
     UDA_LOG(UDA_LOG_DEBUG, "Routine: ClientMDS\n");
-    UDA_LOG(UDA_LOG_DEBUG, "Server 		 %s\n", request->server);
-    UDA_LOG(UDA_LOG_DEBUG, "Tree  		 %s\n", request->file);
-    UDA_LOG(UDA_LOG_DEBUG, "Node  		 %s\n", request->signal);
+    UDA_LOG(UDA_LOG_DEBUG, "Server          %s\n", request->server);
+    UDA_LOG(UDA_LOG_DEBUG, "Tree           %s\n", request->file);
+    UDA_LOG(UDA_LOG_DEBUG, "Node           %s\n", request->signal);
     UDA_LOG(UDA_LOG_DEBUG, "Tree Number       %d\n", request->exp_number);
 
     //-------------------------------------------------------------------------

@@ -11,10 +11,12 @@ extern "C" {
 #endif
 
 LIBRARY_API void writeCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                                const DATA_BLOCK* data_block, int protocolVersion);
+                                const DATA_BLOCK* data_block, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
+                                unsigned int private_flags, int malloc_source);
 
 LIBRARY_API DATA_BLOCK*
-readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion);
+readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
+              LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source);
 
 #ifdef __cplusplus
 }

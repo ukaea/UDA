@@ -40,19 +40,21 @@ else:
 def set_property(prop_name, value):
     if prop_name.lower() not in _properties:
         raise ValueError('invalid property ' + prop_name)
+    cdef uda.CLIENT_FLAGS* client_flags = uda.udaClientFlags()
     if _properties[prop_name][1]:
         prop_string = prop_name + '=' + str(value)
-        uda.setIdamProperty(prop_string.encode())
+        uda.setIdamProperty(prop_string.encode(), client_flags)
     elif value:
-        uda.setIdamProperty(prop_name.encode())
+        uda.setIdamProperty(prop_name.encode(), client_flags)
     else:
-        uda.resetIdamProperty(prop_name.encode())
+        uda.resetIdamProperty(prop_name.encode(), client_flags)
 
 
 def get_property(prop_name):
     if prop_name.lower() not in _properties:
         raise ValueError('invalid property ' + prop_name)
-    prop = uda.getIdamProperty(prop_name.encode())
+    cdef uda.CLIENT_FLAGS* client_flags = uda.udaClientFlags()
+    prop = uda.getIdamProperty(prop_name.encode(), client_flags)
     if _properties[prop_name][1]:
         return prop
     else:
@@ -84,11 +86,7 @@ def set_server_port(port):
 
 
 def close_connection():
-    uda.closeClientConnection()
-
-
-def reset_connection():
-    uda.resetClientConnection()
+    uda.closeAllConnections()
 
 
 def get_data(signal, source):

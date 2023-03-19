@@ -11,8 +11,9 @@ extern "C" {
 #endif
 
 LIBRARY_API int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                       USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank, int* structShape,
-                       int index, NTREE** NTree, int protocolVersion);
+                                   USERDEFINEDTYPE* userdefinedtype, void** data, int datacount, int structRank,
+                                   int* structShape,
+                                   int index, NTREE** NTree, int protocolVersion, int malloc_source);
 
 #ifdef __cplusplus
 }

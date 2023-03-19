@@ -5,10 +5,13 @@ import sys
 import sysconfig
 from distutils.core import setup, Extension
 from Cython.Build import cythonize
+from Cython.Compiler.Main import default_options
 import numpy
 
+default_options['compile_time_env'] = {'CAPNP': @CAPNP_FLAG@}
+
 extra_link_args = []
-extra_compile_args = []
+extra_compile_args = ['-std=c++11']
 
 root = os.environ.get('UDA_DIR', '@CMAKE_INSTALL_PREFIX@')
 
@@ -26,25 +29,33 @@ elif sys.platform.lower() == 'darwin':
     # On Mac OS we have to force setting of rpath
     extra_link_args.append('-Wl,-rpath,%s/lib' % root)
 
+uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
 if build_fat:
-    uda_libs = ['libfat@PROJECT_NAME@_client.'+stalib_ext, 'lib@PROJECT_NAME@_plugins.'+stalib_ext]
-    extra_libs = ['pq']
+    uda_libs = [
+        'libfat@PROJECT_NAME@_client.' + stalib_ext,
+        'lib@PROJECT_NAME@_plugins.' + stalib_ext,
+    ] + ['lib@PROJECT_NAME@_' + name + '.' + stalib_ext for name in uda_lib_names]
+    extra_libs = ['xml2', 'pq']
     extra_macros = [('FATCLIENT', None)]
 else:
-    uda_libs = ['lib@PROJECT_NAME@_client.'+stalib_ext]
-    extra_libs = '@EXTRA_LIBS@'.split(',') if '@EXTRA_LIBS@' else []
+    uda_libs = [
+        'lib@PROJECT_NAME@_client.' + stalib_ext,
+    ] + ['lib@PROJECT_NAME@_' + name + '.' + stalib_ext for name in uda_lib_names]
+    extra_libs = '@EXTRA_LIBS@'.split(';') if '@EXTRA_LIBS@' else []
     extra_macros = []
 
 ext = Extension(
     'cpyuda',
     ['pyuda/cpyuda/cpyuda.pyx'],
     include_dirs=[
+        '/usr/include/tirpc',
+        '/usr/include/libxml2',
         root + '/include/uda',
         numpy.get_include(),
         '@LIBXML2_INCLUDE_DIR@'
     ],
-    libraries=['ssl', 'crypto', 'xml2'] + extra_libs,
+    libraries=['ssl', 'crypto', 'xml2', 'kj', 'capnp'] + extra_libs,
     library_dirs=[
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@'

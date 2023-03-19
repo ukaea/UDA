@@ -48,14 +48,13 @@ extern "C" {
 #define SCALARUCHAR     22
 #define ARRAYUCHAR      23
 
+typedef intptr_t VOIDTYPE;
+typedef uintptr_t UVOIDTYPE;
+
 #ifdef A64
-typedef int64_t             VOIDTYPE;       // Pointer arithmentic type for 64 bit architecture (8 byte pointer type)
-typedef uint64_t            UVOIDTYPE;
-#define ALIGNMENT           1               // Default Byte Boundary used for Structure Packing
+#  define ALIGNMENT           1               // Default Byte Boundary used for Structure Packing
 #else
-typedef int32_t             VOIDTYPE;       // Pointer arithmentic type for 32 bit architecture (4 byte pointer type)
-typedef uint32_t            UVOIDTYPE;
-#define ALIGNMENT           1               // Default Byte Boundary used for Structure Packing
+#  define ALIGNMENT           1               // Default Byte Boundary used for Structure Packing
 #endif
 
 typedef char STRING;
@@ -177,22 +176,14 @@ typedef struct GeneralBlock {                   // Generalised Data Structures: 
     unsigned int lastMallocIndex;               // Associate last search entry position found in the Malloc Log
 } GENERAL_BLOCK;
 
-extern int enable_malloc_log;
+#define UDA_MALLOC_SOURCE_NONE    0
+#define UDA_MALLOC_SOURCE_SOAP    1
+#define UDA_MALLOC_SOURCE_DOM     2
+#define UDA_MALLOC_SOURCE_NETCDF  3
 
-#define MALLOCSOURCENONE    0
-#define MALLOCSOURCESOAP    1
-#define MALLOCSOURCEDOM     2
-#define MALLOCSOURCENETCDF  3
-
-extern int malloc_source;
-
-#define PACKAGE_XDRFILE     1
-#define PACKAGE_STRUCTDATA  2
-#define PACKAGE_XDROBJECT   3
-
-extern NTREE* fullNTree;
-extern NTREELIST NTreeList;
-extern LOGSTRUCTLIST logstructlist;
+#define UDA_PACKAGE_XDRFILE     1
+#define UDA_PACKAGE_STRUCTDATA  2
+#define UDA_PACKAGE_XDROBJECT   3
 
 #ifdef __cplusplus
 }

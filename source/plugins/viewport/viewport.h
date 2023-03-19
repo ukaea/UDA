@@ -16,7 +16,7 @@ extern "C" {
 #define MAXSIGNALNAME       256
 #define FREEHANDLEBLOCK     4
 
-extern int viewport(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
+int viewport(IDAM_PLUGIN_INTERFACE * idam_plugin_interface);
 
 LIBRARY_API void getVerticalPixelValues(float * values, int count, int pixelHeight, float * startValue, float * endValue,
                             float ** verticalPixelValues, float * delta);

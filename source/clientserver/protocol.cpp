@@ -1,21 +1,21 @@
 /*---------------------------------------------------------------
 * Client - Server Conversation Protocol
 *
-* Args:	xdrs		XDR Stream
+* Args:    xdrs        XDR Stream
 *
-*	protocol_id	Client/Server Conversation item: Data Exchange context
-*	direction	Send (0) or Receive (1) or Free (2)
-*	token		current error condition or next protocol or .... exchange token
+*    protocol_id    Client/Server Conversation item: Data Exchange context
+*    direction    Send (0) or Receive (1) or Free (2)
+*    token        current error condition or next protocol or .... exchange token
 *
-*	str		Information Structure depending on the protocol id ....
+*    str        Information Structure depending on the protocol id ....
 *
-*	2	data_block	Data read from the external Source or Data to be written
-*				to an external source
-*	4	data_system	Database Data_Dystem table record
-*	5	system_config	Database System_Config table record
-*	6	data_source	Database Data_Source table record
-*	7	signal		Database Signal table record
-*	8	signal_desc	Database Signal_Desc table record
+*    2    data_block    Data read from the external Source or Data to be written
+*                to an external source
+*    4    data_system    Database Data_Dystem table record
+*    5    system_config    Database System_Config table record
+*    6    data_source    Database Data_Source table record
+*    7    signal        Database Signal table record
+*    8    signal_desc    Database Signal_Desc table record
 *
 * Returns: error code if failure, otherwise 0
 *
@@ -25,7 +25,7 @@
 
 #include <logging/logging.h>
 #include <clientserver/udaTypes.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "allocData.h"
 #include "compressDim.h"
@@ -40,7 +40,8 @@
 #endif
 
 int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-             USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion)
+             USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
+             IoData* io_data, unsigned int private_flags, int malloc_source)
 {
     int err = 0;
 
@@ -54,42 +55,42 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         //----------------------------------------------------------------------------
         // Retrieve Client Requests
 
-        if (protocol_id == PROTOCOL_REQUEST_BLOCK) {
+        if (protocol_id == UDA_PROTOCOL_REQUEST_BLOCK) {
 
             auto request_block = (REQUEST_BLOCK*) str;
 
             switch (direction) {
                 case XDR_RECEIVE:
                     if (!xdrrec_skiprecord(xdrs)) {
-                        err = PROTOCOL_ERROR_5;
+                        err = UDA_PROTOCOL_ERROR_5;
                         break;
                     }
                     if (!xdr_request(xdrs, request_block, protocolVersion)) {
-                        err = PROTOCOL_ERROR_1;
+                        err = UDA_PROTOCOL_ERROR_1;
                         break;
                     }
                     break;
 
                 case XDR_SEND:
                     if (!xdr_request(xdrs, request_block, protocolVersion)) {
-                        err = PROTOCOL_ERROR_2;
+                        err = UDA_PROTOCOL_ERROR_2;
                         break;
                     }
                     if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = PROTOCOL_ERROR_7;
+                        err = UDA_PROTOCOL_ERROR_7;
                         break;
                     }
                     break;
 
                 case XDR_FREE_HEAP:
                     if (!xdr_request(xdrs, request_block, protocolVersion)) {
-                        err = PROTOCOL_ERROR_3;
+                        err = UDA_PROTOCOL_ERROR_3;
                         break;
                     }
                     break;
 
                 default:
-                    err = PROTOCOL_ERROR_4;
+                    err = UDA_PROTOCOL_ERROR_4;
                     break;
             }
 
@@ -99,18 +100,18 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         //----------------------------------------------------------------------------
         // Data Block
 
-        if (protocol_id == PROTOCOL_DATA_BLOCK_LIST) {
+        if (protocol_id == UDA_PROTOCOL_DATA_BLOCK_LIST) {
 
             auto data_block = (DATA_BLOCK*)str;
 
             switch (direction) {
                 case XDR_RECEIVE:
                     if (!xdrrec_skiprecord(xdrs)) {
-                        err = PROTOCOL_ERROR_5;
+                        err = UDA_PROTOCOL_ERROR_5;
                         break;
                     }
                     if (!xdr_data_block1(xdrs, data_block, protocolVersion)) {
-                        err = PROTOCOL_ERROR_61;
+                        err = UDA_PROTOCOL_ERROR_61;
                         break;
                     }
 
@@ -120,7 +121,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     if (protocolVersionTypeTest(protocolVersion, data_block->data_type) ||
                         protocolVersionTypeTest(protocolVersion, data_block->error_type)) {
-                        err = PROTOCOL_ERROR_9999;
+                        err = UDA_PROTOCOL_ERROR_9999;
                         break;
                     }
 
@@ -129,19 +130,19 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     if ((err = allocData(data_block)) != 0) break;        // Allocate Heap Memory
 
                     if (!xdr_data_block2(xdrs, data_block)) {
-                        err = PROTOCOL_ERROR_62;
+                        err = UDA_PROTOCOL_ERROR_62;
                         break;
                     }
 
                     if (data_block->error_type != UDA_TYPE_UNKNOWN ||
                         data_block->error_param_n > 0) {    // Receive Only if Error Data are available
                         if (!xdr_data_block3(xdrs, data_block)) {
-                            err = PROTOCOL_ERROR_62;
+                            err = UDA_PROTOCOL_ERROR_62;
                             break;
                         }
 
                         if (!xdr_data_block4(xdrs, data_block)) {        // Asymmetric Errors
-                            err = PROTOCOL_ERROR_62;
+                            err = UDA_PROTOCOL_ERROR_62;
                             break;
                         }
                     }
@@ -152,7 +153,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         }
 
                         if (!xdr_data_dim1(xdrs, data_block)) {
-                            err = PROTOCOL_ERROR_63;
+                            err = UDA_PROTOCOL_ERROR_63;
                             break;
                         }
 
@@ -161,7 +162,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                                 auto dim = &data_block->dims[i];
                                 if (protocolVersionTypeTest(protocolVersion, dim->data_type) ||
                                     protocolVersionTypeTest(protocolVersion, dim->error_type)) {
-                                    err = PROTOCOL_ERROR_9999;
+                                    err = UDA_PROTOCOL_ERROR_9999;
                                     break;
                                 }
                             }
@@ -171,7 +172,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         if ((err = allocDim(data_block)) != 0) break;            // Allocate Heap Memory
 
                         if (!xdr_data_dim2(xdrs, data_block)) {        // Collect Only Uncompressed data
-                            err = PROTOCOL_ERROR_64;
+                            err = UDA_PROTOCOL_ERROR_64;
                             break;
                         }
 
@@ -181,12 +182,12 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         }
 
                         if (!xdr_data_dim3(xdrs, data_block)) {
-                            err = PROTOCOL_ERROR_65;
+                            err = UDA_PROTOCOL_ERROR_65;
                             break;
                         }
 
                         if (!xdr_data_dim4(xdrs, data_block)) {        // Asymmetric Errors
-                            err = PROTOCOL_ERROR_65;
+                            err = UDA_PROTOCOL_ERROR_65;
                             break;
                         }
 
@@ -202,33 +203,33 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     if (protocolVersionTypeTest(protocolVersion, data_block->data_type) ||
                         protocolVersionTypeTest(protocolVersion, data_block->error_type)) {
-                        err = PROTOCOL_ERROR_9999;
+                        err = UDA_PROTOCOL_ERROR_9999;
                         break;
                     }
 
                     if (!xdr_data_block1(xdrs, data_block, protocolVersion)) {
-                        err = PROTOCOL_ERROR_61;
+                        err = UDA_PROTOCOL_ERROR_61;
                         break;
                     }
 
                     if (data_block->data_n == 0) {                // No Data or Dimensions to Send!
-                        if (!xdrrec_endofrecord(xdrs, 1)) err = PROTOCOL_ERROR_7;
+                        if (!xdrrec_endofrecord(xdrs, 1)) err = UDA_PROTOCOL_ERROR_7;
                         break;
                     }
 
                     if (!xdr_data_block2(xdrs, data_block)) {
-                        err = PROTOCOL_ERROR_62;
+                        err = UDA_PROTOCOL_ERROR_62;
                         break;
                     }
 
                     if (data_block->error_type != UDA_TYPE_UNKNOWN ||
                         data_block->error_param_n > 0) {    // Only Send if Error Data are available
                         if (!xdr_data_block3(xdrs, data_block)) {
-                            err = PROTOCOL_ERROR_62;
+                            err = UDA_PROTOCOL_ERROR_62;
                             break;
                         }
                         if (!xdr_data_block4(xdrs, data_block)) {
-                            err = PROTOCOL_ERROR_62;
+                            err = UDA_PROTOCOL_ERROR_62;
                             break;
                         }
                     }
@@ -243,7 +244,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                                 auto dim = &data_block->dims[i];
                                 if (protocolVersionTypeTest(protocolVersion, dim->data_type) ||
                                     protocolVersionTypeTest(protocolVersion, dim->error_type)) {
-                                    err = PROTOCOL_ERROR_9999;
+                                    err = UDA_PROTOCOL_ERROR_9999;
                                     break;
                                 }
                             }
@@ -254,27 +255,27 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         }
 
                         if (!xdr_data_dim1(xdrs, data_block)) {
-                            err = PROTOCOL_ERROR_63;
+                            err = UDA_PROTOCOL_ERROR_63;
                             break;
                         }
 
                         if (!xdr_data_dim2(xdrs, data_block)) {
-                            err = PROTOCOL_ERROR_64;
+                            err = UDA_PROTOCOL_ERROR_64;
                             break;
                         }
 
                         if (!xdr_data_dim3(xdrs, data_block)) {
-                            err = PROTOCOL_ERROR_65;
+                            err = UDA_PROTOCOL_ERROR_65;
                         }
 
                         if (!xdr_data_dim4(xdrs, data_block)) {
-                            err = PROTOCOL_ERROR_65;
+                            err = UDA_PROTOCOL_ERROR_65;
                         }
 
                     }
 
                     if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = PROTOCOL_ERROR_7;
+                        err = UDA_PROTOCOL_ERROR_7;
                     }
 
                     break;
@@ -283,7 +284,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     break;
 
                 default:
-                    err = PROTOCOL_ERROR_4;
+                    err = UDA_PROTOCOL_ERROR_4;
                     break;
             }
             break;
@@ -292,7 +293,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         //----------------------------------------------------------------------------
         // Data Block
 
-        if (protocol_id == PROTOCOL_PUTDATA_BLOCK_LIST) {
+        if (protocol_id == UDA_PROTOCOL_PUTDATA_BLOCK_LIST) {
 
             auto putDataBlockList = (PUTDATA_BLOCK_LIST*) str;
             PUTDATA_BLOCK putData;
@@ -302,7 +303,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_RECEIVE: {
 
                     if (!xdrrec_skiprecord(xdrs)) {
-                        err = PROTOCOL_ERROR_5;
+                        err = UDA_PROTOCOL_ERROR_5;
                         break;
                     }
 
@@ -310,7 +311,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     int rc = xdr_u_int(xdrs, &blockCount);
 
                     if (!rc) {
-                        err = PROTOCOL_ERROR_61;
+                        err = UDA_PROTOCOL_ERROR_61;
                         break;
                     }
 
@@ -321,13 +322,13 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         initIdamPutDataBlock(&putData);
 
                         if (!xdr_putdata_block1(xdrs, &putData)) {
-                            err = PROTOCOL_ERROR_61;
+                            err = UDA_PROTOCOL_ERROR_61;
                             UDA_LOG(UDA_LOG_DEBUG, "xdr_putdata_block1 Error (61)\n");
                             break;
                         }
 
                         if (protocolVersionTypeTest(protocolVersion, putData.data_type)) {
-                            err = PROTOCOL_ERROR_9999;
+                            err = UDA_PROTOCOL_ERROR_9999;
                             break;
                         }
 
@@ -336,7 +337,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             if ((err = allocPutData(&putData)) != 0) break;    // Allocate Heap Memory
 
                             if (!xdr_putdata_block2(xdrs, &putData)) {    // Fetch data
-                                err = PROTOCOL_ERROR_62;
+                                err = UDA_PROTOCOL_ERROR_62;
                                 break;
                             }
 
@@ -355,19 +356,19 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     int rc = xdr_u_int(xdrs, &(putDataBlockList->blockCount));
 
                     if (!rc) {
-                        err = PROTOCOL_ERROR_61;
+                        err = UDA_PROTOCOL_ERROR_61;
                         break;
                     }
 
                     for (unsigned int i = 0; i < putDataBlockList->blockCount; i++) {        // Send multiple put blocks
 
                         if (!xdr_putdata_block1(xdrs, &(putDataBlockList->putDataBlock[i]))) {
-                            err = PROTOCOL_ERROR_61;
+                            err = UDA_PROTOCOL_ERROR_61;
                             break;
                         }
 
                         if (protocolVersionTypeTest(protocolVersion, putDataBlockList->putDataBlock[i].data_type)) {
-                            err = PROTOCOL_ERROR_9999;
+                            err = UDA_PROTOCOL_ERROR_9999;
                             break;
                         }
 
@@ -375,7 +376,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             putDataBlockList->putDataBlock[i].blockNameLength > 0) {                // Data to Send?
 
                             if (!xdr_putdata_block2(xdrs, &(putDataBlockList->putDataBlock[i]))) {
-                                err = PROTOCOL_ERROR_62;
+                                err = UDA_PROTOCOL_ERROR_62;
                                 break;
                             }
 
@@ -383,7 +384,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     }
 
                     if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = PROTOCOL_ERROR_7;
+                        err = UDA_PROTOCOL_ERROR_7;
                     }
 
                     break;
@@ -393,7 +394,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                     break;
 
                 default:
-                    err = PROTOCOL_ERROR_4;
+                    err = UDA_PROTOCOL_ERROR_4;
                     break;
             }
 
@@ -403,38 +404,38 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         //----------------------------------------------------------------------------
         // Error Status or Next Protocol id or exchange token ....
 
-        if (protocol_id == PROTOCOL_NEXT_PROTOCOL) {
+        if (protocol_id == UDA_PROTOCOL_NEXT_PROTOCOL) {
 
             switch (direction) {
 
                 case XDR_RECEIVE:                    // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
-                        err = PROTOCOL_ERROR_5;
+                        err = UDA_PROTOCOL_ERROR_5;
                         break;
                     }
                     if (!xdr_int(xdrs, token)) {
-                        err = PROTOCOL_ERROR_9;
+                        err = UDA_PROTOCOL_ERROR_9;
                         break;
                     }
                     break;
 
                 case XDR_SEND:
                     if (!xdr_int(xdrs, token)) {
-                        err = PROTOCOL_ERROR_9;
+                        err = UDA_PROTOCOL_ERROR_9;
                         break;
                     }
                     if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = PROTOCOL_ERROR_7;
+                        err = UDA_PROTOCOL_ERROR_7;
                         break;
                     }
                     break;
 
                 case XDR_FREE:
-                    err = PROTOCOL_ERROR_3;
+                    err = UDA_PROTOCOL_ERROR_3;
                     break;
 
                 default:
-                    err = PROTOCOL_ERROR_4;
+                    err = UDA_PROTOCOL_ERROR_4;
                     break;
             }
 
@@ -444,17 +445,17 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         //----------------------------------------------------------------------------
         // Data System record
 
-        if (protocol_id == PROTOCOL_DATA_SYSTEM) {
+        if (protocol_id == UDA_PROTOCOL_DATA_SYSTEM) {
             auto data_system = (DATA_SYSTEM*) str;
 
             switch (direction) {
                 case XDR_RECEIVE:                    // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
-                        err = PROTOCOL_ERROR_5;
+                        err = UDA_PROTOCOL_ERROR_5;
                         break;
                     }
                     if (!xdr_data_system(xdrs, data_system)) {
-                        err = PROTOCOL_ERROR_10;
+                        err = UDA_PROTOCOL_ERROR_10;
                         break;
                     }
                     break;
@@ -462,11 +463,11 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_SEND:
 
                     if (!xdr_data_system(xdrs, data_system)) {
-                        err = PROTOCOL_ERROR_10;
+                        err = UDA_PROTOCOL_ERROR_10;
                         break;
                     }
                     if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = PROTOCOL_ERROR_7;
+                        err = UDA_PROTOCOL_ERROR_7;
                         break;
                     }
                     break;
@@ -474,13 +475,13 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_FREE_HEAP:
 
                     if (!xdr_data_system(xdrs, data_system)) {
-                        err = PROTOCOL_ERROR_11;
+                        err = UDA_PROTOCOL_ERROR_11;
                         break;
                     }
                     break;
 
                 default:
-                    err = PROTOCOL_ERROR_4;
+                    err = UDA_PROTOCOL_ERROR_4;
                     break;
             }
             break;
@@ -489,7 +490,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         //----------------------------------------------------------------------------
         // System Configuration record
 
-        if (protocol_id == PROTOCOL_SYSTEM_CONFIG) {
+        if (protocol_id == UDA_PROTOCOL_SYSTEM_CONFIG) {
 
             auto system_config = (SYSTEM_CONFIG*) str;
 
@@ -497,11 +498,11 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_RECEIVE:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
-                        err = PROTOCOL_ERROR_5;
+                        err = UDA_PROTOCOL_ERROR_5;
                         break;
                     }
                     if (!xdr_system_config(xdrs, system_config)) {
-                        err = PROTOCOL_ERROR_12;
+                        err = UDA_PROTOCOL_ERROR_12;
                         break;
                     }
                     break;
@@ -510,11 +511,11 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
 
                     if (!xdr_system_config(xdrs, system_config)) {
-                        err = PROTOCOL_ERROR_12;
+                        err = UDA_PROTOCOL_ERROR_12;
                         break;
                     }
                     if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = PROTOCOL_ERROR_7;
+                        err = UDA_PROTOCOL_ERROR_7;
                         break;
                     }
                     break;
@@ -522,13 +523,13 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_FREE_HEAP:
 
                     if (!xdr_system_config(xdrs, system_config)) {
-                        err = PROTOCOL_ERROR_13;
+                        err = UDA_PROTOCOL_ERROR_13;
                         break;
                     }
                     break;
 
                 default:
-                    err = PROTOCOL_ERROR_4;
+                    err = UDA_PROTOCOL_ERROR_4;
                     break;
             }
             break;
@@ -537,7 +538,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         //----------------------------------------------------------------------------
         // Data Source record
 
-        if (protocol_id == PROTOCOL_DATA_SOURCE) {
+        if (protocol_id == UDA_PROTOCOL_DATA_SOURCE) {
 
             auto data_source = (DATA_SOURCE*) str;
 
@@ -545,11 +546,11 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_RECEIVE:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
-                        err = PROTOCOL_ERROR_5;
+                        err = UDA_PROTOCOL_ERROR_5;
                         break;
                     }
                     if (!xdr_data_source(xdrs, data_source)) {
-                        err = PROTOCOL_ERROR_14;
+                        err = UDA_PROTOCOL_ERROR_14;
                         break;
                     }
                     break;
@@ -557,11 +558,11 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_SEND:
 
                     if (!xdr_data_source(xdrs, data_source)) {
-                        err = PROTOCOL_ERROR_14;
+                        err = UDA_PROTOCOL_ERROR_14;
                         break;
                     }
                     if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = PROTOCOL_ERROR_7;
+                        err = UDA_PROTOCOL_ERROR_7;
                         break;
                     }
                     break;
@@ -569,13 +570,13 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_FREE_HEAP:
 
                     if (!xdr_data_source(xdrs, data_source)) {
-                        err = PROTOCOL_ERROR_15;
+                        err = UDA_PROTOCOL_ERROR_15;
                         break;
                     }
                     break;
 
                 default:
-                    err = PROTOCOL_ERROR_4;
+                    err = UDA_PROTOCOL_ERROR_4;
                     break;
             }
             break;
@@ -584,7 +585,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         //----------------------------------------------------------------------------
         // Signal record
 
-        if (protocol_id == PROTOCOL_SIGNAL) {
+        if (protocol_id == UDA_PROTOCOL_SIGNAL) {
 
             auto signal = (SIGNAL*) str;
 
@@ -593,11 +594,11 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_RECEIVE:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
-                        err = PROTOCOL_ERROR_5;
+                        err = UDA_PROTOCOL_ERROR_5;
                         break;
                     }
                     if (!xdr_signal(xdrs, signal)) {
-                        err = PROTOCOL_ERROR_16;
+                        err = UDA_PROTOCOL_ERROR_16;
                         break;
                     }
                     break;
@@ -605,11 +606,11 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_SEND:
 
                     if (!xdr_signal(xdrs, signal)) {
-                        err = PROTOCOL_ERROR_16;
+                        err = UDA_PROTOCOL_ERROR_16;
                         break;
                     }
                     if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = PROTOCOL_ERROR_7;
+                        err = UDA_PROTOCOL_ERROR_7;
                         break;
                     }
                     break;
@@ -617,13 +618,13 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_FREE_HEAP:
 
                     if (!xdr_signal(xdrs, signal)) {
-                        err = PROTOCOL_ERROR_17;
+                        err = UDA_PROTOCOL_ERROR_17;
                         break;
                     }
                     break;
 
                 default:
-                    err = PROTOCOL_ERROR_4;
+                    err = UDA_PROTOCOL_ERROR_4;
                     break;
             }
             break;
@@ -632,7 +633,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         //----------------------------------------------------------------------------
         // Signal Description record
 
-        if (protocol_id == PROTOCOL_SIGNAL_DESC) {
+        if (protocol_id == UDA_PROTOCOL_SIGNAL_DESC) {
 
             auto signal_desc = (SIGNAL_DESC*) str;
 
@@ -641,11 +642,11 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_RECEIVE:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
-                        err = PROTOCOL_ERROR_5;
+                        err = UDA_PROTOCOL_ERROR_5;
                         break;
                     }
                     if (!xdr_signal_desc(xdrs, signal_desc)) {
-                        err = PROTOCOL_ERROR_18;
+                        err = UDA_PROTOCOL_ERROR_18;
                         break;
                     }
 
@@ -654,11 +655,11 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_SEND:
 
                     if (!xdr_signal_desc(xdrs, signal_desc)) {
-                        err = PROTOCOL_ERROR_18;
+                        err = UDA_PROTOCOL_ERROR_18;
                         break;
                     }
                     if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = PROTOCOL_ERROR_7;
+                        err = UDA_PROTOCOL_ERROR_7;
                         break;
                     }
                     break;
@@ -666,13 +667,13 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_FREE_HEAP:
 
                     if (!xdr_signal_desc(xdrs, signal_desc)) {
-                        err = PROTOCOL_ERROR_19;
+                        err = UDA_PROTOCOL_ERROR_19;
                         break;
                     }
                     break;
 
                 default:
-                    err = PROTOCOL_ERROR_4;
+                    err = UDA_PROTOCOL_ERROR_4;
                     break;
             }
             break;
@@ -681,7 +682,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         //----------------------------------------------------------------------------
         // Client State
 
-        if (protocol_id == PROTOCOL_CLIENT_BLOCK) {
+        if (protocol_id == UDA_PROTOCOL_CLIENT_BLOCK) {
 
             auto client_block = (CLIENT_BLOCK*) str;
 
@@ -690,11 +691,11 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_RECEIVE:
                     // From Client to Server
                     if (!xdrrec_skiprecord(xdrs)) {
-                        err = PROTOCOL_ERROR_5;
+                        err = UDA_PROTOCOL_ERROR_5;
                         break;
                     }
                     if (!xdr_client(xdrs, client_block, protocolVersion)) {
-                        err = PROTOCOL_ERROR_20;
+                        err = UDA_PROTOCOL_ERROR_20;
                         break;
                     }
 
@@ -703,11 +704,11 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_SEND:
 
                     if (!xdr_client(xdrs, client_block, protocolVersion)) {
-                        err = PROTOCOL_ERROR_20;
+                        err = UDA_PROTOCOL_ERROR_20;
                         break;
                     }
                     if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = PROTOCOL_ERROR_7;
+                        err = UDA_PROTOCOL_ERROR_7;
                         break;
                     }
                     break;
@@ -715,13 +716,13 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_FREE_HEAP:
 
                     if (!xdr_client(xdrs, client_block, protocolVersion)) {
-                        err = PROTOCOL_ERROR_21;
+                        err = UDA_PROTOCOL_ERROR_21;
                         break;
                     }
                     break;
 
                 default:
-                    err = PROTOCOL_ERROR_4;
+                    err = UDA_PROTOCOL_ERROR_4;
                     break;
             }
 
@@ -731,7 +732,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         //----------------------------------------------------------------------------
         // Server State
 
-        if (protocol_id == PROTOCOL_SERVER_BLOCK) {
+        if (protocol_id == UDA_PROTOCOL_SERVER_BLOCK) {
 
             auto server_block = (SERVER_BLOCK*) str;
 
@@ -740,14 +741,14 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_RECEIVE:
 
                     if (!xdrrec_skiprecord(xdrs)) {
-                        err = PROTOCOL_ERROR_5;
+                        err = UDA_PROTOCOL_ERROR_5;
                         break;
                     }
 
                     closeUdaError();    // Free Heap associated with Previous Data Access
 
                     if (!xdr_server1(xdrs, server_block, protocolVersion)) {
-                        err = PROTOCOL_ERROR_22;
+                        err = UDA_PROTOCOL_ERROR_22;
                         break;
                     }
 
@@ -758,7 +759,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         initErrorRecords(&server_block->idamerrorstack);
 
                         if (!xdr_server2(xdrs, server_block)) {
-                            err = PROTOCOL_ERROR_22;
+                            err = UDA_PROTOCOL_ERROR_22;
                             break;
                         }
                     }
@@ -767,19 +768,19 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                 case XDR_SEND:
                     if (!xdr_server1(xdrs, server_block, protocolVersion)) {
-                        err = PROTOCOL_ERROR_22;
+                        err = UDA_PROTOCOL_ERROR_22;
                         break;
                     }
 
                     if (server_block->idamerrorstack.nerrors > 0) {        // No Data to Send?
                         if (!xdr_server2(xdrs, server_block)) {
-                            err = PROTOCOL_ERROR_22;
+                            err = UDA_PROTOCOL_ERROR_22;
                             break;
                         }
                     }
 
                     if (!xdrrec_endofrecord(xdrs, 1)) {
-                        err = PROTOCOL_ERROR_7;
+                        err = UDA_PROTOCOL_ERROR_7;
                         break;
                     }
                     break;
@@ -787,13 +788,13 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                 case XDR_FREE_HEAP:
 
                     if (!xdr_server(xdrs, server_block)) {
-                        err = PROTOCOL_ERROR_23;
+                        err = UDA_PROTOCOL_ERROR_23;
                         break;
                     }
                     break;
 
                 default:
-                    err = PROTOCOL_ERROR_4;
+                    err = UDA_PROTOCOL_ERROR_4;
                     break;
             }
 
@@ -803,8 +804,10 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
         //----------------------------------------------------------------------------
         // Hierarchical or Meta Data Structures
 
-        if (protocol_id > PROTOCOL_OPAQUE_START && protocol_id < PROTOCOL_OPAQUE_STOP) {
-            err = protocolXML(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str, protocolVersion);
+        if (protocol_id > UDA_PROTOCOL_OPAQUE_START && protocol_id < UDA_PROTOCOL_OPAQUE_STOP) {
+            err = protocolXML(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
+                              protocolVersion, log_struct_list, io_data, private_flags, malloc_source,
+                              nullptr);
         }
 
         //----------------------------------------------------------------------------

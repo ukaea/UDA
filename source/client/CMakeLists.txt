@@ -2,6 +2,7 @@
 # Dependencies
 
 find_package( OpenSSL REQUIRED )
+find_package( fmt REQUIRED )
 find_package( LibXml2 REQUIRED )
 
 
@@ -14,8 +15,7 @@ else()
   find_package( TIRPC QUIET)
   if(TIRPC_FOUND)
     add_definitions(-D__TIRPC__)
-    
-      endif()
+  endif()
 endif()
 
 add_definitions( -DNOTGENERICENABLED )
@@ -103,7 +103,7 @@ if( BUILD_SHARED_LIBS )
   add_library( client-shared SHARED ${CLIENT_OBJS} )
 endif()
 
-set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} ${LIBXML2_LIBRARIES})
+set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} ${LIBXML2_LIBRARIES} fmt::fmt )
 if( NOT CLIENT_ONLY )
   if( MINGW )
     set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} iconv lzma z )

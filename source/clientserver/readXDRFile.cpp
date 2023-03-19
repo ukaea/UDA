@@ -1,26 +1,8 @@
-/*---------------------------------------------------------------
-* IDAM XDR File Read/Writer
-*
-* Input Arguments:
-*
-*
-* Returns:		 0 if read was successful
-*			 otherwise an Error Code is returned
-*
-*
-* Calls
-*
-* Notes:
-*
-* ToDo:
-*-----------------------------------------------------------------------------*/
-
 #include "readXDRFile.h"
 
-#include <stdlib.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cerrno>
 #include <logging/logging.h>
-#include <clientserver/udaErrors.h>
 
 #include "errorLog.h"
 
@@ -30,15 +12,15 @@
 
 #define MAXDOLOOPLIMIT 500            // ~50MB file
 
-int sendXDRFile(XDR* xdrs, char* xdrfile)
+int sendXDRFile(XDR* xdrs, const char* xdrfile)
 {
 
     int err = 0, rc = 1, nchar, bufsize, count;
     FILE* fh;
     char* bp = nullptr;
 
-//----------------------------------------------------------------------
-// Open the File as a Binary Stream
+    //----------------------------------------------------------------------
+    // Open the File as a Binary Stream
 
     errno = 0;
     fh = fopen(xdrfile, "rb");
@@ -46,9 +28,9 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
     if (fh == nullptr || errno != 0 || ferror(fh)) {
         err = 999;
         if (errno != 0) {
-            addIdamError(SYSTEMERRORTYPE, "sendXDRFile", errno, "");
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "sendXDRFile", errno, "");
         }
-        addIdamError(CODEERRORTYPE, "sendXDRFile", err, "Unable to Open the XDR File for Read Access");
+        addIdamError(UDA_CODE_ERROR_TYPE, "sendXDRFile", err, "Unable to Open the XDR File for Read Access");
         if (fh != nullptr) {
             fclose(fh);
         }
@@ -72,7 +54,7 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
 
         if ((bp = (char*)malloc(bufsize * sizeof(char))) == nullptr) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "sendXDRFile", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "sendXDRFile", err,
                          "Unable to Allocate Heap Memory for the XDR File");
             bufsize = 0;
             rc = xdr_int(xdrs, &bufsize);
@@ -118,7 +100,7 @@ int sendXDRFile(XDR* xdrs, char* xdrfile)
     return err;
 }
 
-int receiveXDRFile(XDR* xdrs, char* xdrfile)
+int receiveXDRFile(XDR* xdrs, const char* xdrfile)
 {
     int err = 0, rc = 1, nchar, bufsize, count, doLoopLimit = 0;
     FILE* fh;
@@ -132,8 +114,8 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
 
     if (fh == nullptr || errno != 0 || ferror(fh)) {
         err = 999;
-        if (errno != 0) addIdamError(SYSTEMERRORTYPE, "receiveXDRFile", errno, "");
-        addIdamError(CODEERRORTYPE, "receiveXDRFile", err,
+        if (errno != 0) addIdamError(UDA_SYSTEM_ERROR_TYPE, "receiveXDRFile", errno, "");
+        addIdamError(UDA_CODE_ERROR_TYPE, "receiveXDRFile", err,
                      "Unable to Open the XDR File for Write Access");
         if (fh != nullptr) fclose(fh);
         return err;
@@ -158,13 +140,13 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
 
         if (bufsize <= 0 || bufsize > 100 * 1024) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "receiveXDRFile", err, "Zero buffer size: Server failure");
+            addIdamError(UDA_CODE_ERROR_TYPE, "receiveXDRFile", err, "Zero buffer size: Server failure");
             break;
         }
 
         if ((bp = (char*)malloc(bufsize * sizeof(char))) == nullptr) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "receiveXDRFile", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "receiveXDRFile", err,
                          "Unable to Allocate Heap Memory for the XDR File");
             break;
         }
@@ -182,7 +164,7 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
 
             if (nchar > bufsize) {
                 err = 999;
-                addIdamError(CODEERRORTYPE, "receiveXDRFile", err,
+                addIdamError(UDA_CODE_ERROR_TYPE, "receiveXDRFile", err,
                              "File block size inconsistent with buffer size");
                 break;
             }
@@ -195,7 +177,7 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
 
         if (doLoopLimit >= MAXDOLOOPLIMIT) {
             err = 999;
-            addIdamError(CODEERRORTYPE, "receiveXDRFile", err,
+            addIdamError(UDA_CODE_ERROR_TYPE, "receiveXDRFile", err,
                          "Maximum XDR file size reached: ~50MBytes");
             break;
         }
@@ -208,7 +190,7 @@ int receiveXDRFile(XDR* xdrs, char* xdrfile)
 
         if (errno != 0) {
             err = 999;
-            addIdamError(SYSTEMERRORTYPE, "receiveXDRFile", errno, "Problem receiving XDR File");
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "receiveXDRFile", errno, "Problem receiving XDR File");
             break;
         }
 
