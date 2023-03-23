@@ -71,9 +71,11 @@ include_directories(
 )
 
 add_library( client2-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
+target_link_libraries( client2-objects PRIVATE fmt::fmt )
 
 if( NOT CLIENT_ONLY )
   add_library( fatclient2-objects OBJECT ${SRC_FILES} )
+  target_link_libraries( fatclient2-objects PRIVATE fmt::fmt )
 
   target_compile_definitions( fatclient2-objects PRIVATE -DFATCLIENT )
 endif()

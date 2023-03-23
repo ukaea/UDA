@@ -57,6 +57,7 @@ then
     module load netCDF/4.7.4-gompi-2020b
     module load HDF5/1.10.7-gompi-2020b
     module load MDSplus-Java/7.96.17-GCCcore-10.2.0-Java-11
+    module load spdlog/1.9.2-GCCcore-10.2.0
 else
     echo "Linux environnement (CentOS7)"
     # Stage 0 : load modules

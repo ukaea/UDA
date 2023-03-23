@@ -1,6 +1,7 @@
 #include "memcache.hpp"
 
 #include <fmt/format.h>
+#include <algorithm>
 
 #include "cache.h"
 
