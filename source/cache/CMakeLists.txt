@@ -2,6 +2,7 @@ find_package( LibMemcached )
 find_package( Boost REQUIRED )
 find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
+find_package( fmt REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -26,6 +27,7 @@ include_directories(
   ${Boost_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/source
   ${LIBXML2_INCLUDE_DIR}
+  ${FMT_INCLUDE_DIR}
 )
 
 if( MINGW OR WIN32 )
@@ -43,6 +45,7 @@ else()
 endif()
 
 add_library( cache-objects OBJECT ${SRC_FILES} )
+target_link_libraries( cache-objects PRIVATE fmt::fmt )
 
 #if( LIBMEMCACHED_FOUND )
 #  set( CACHE_LIBRARIES ${LIBMEMCACHED_LIBRARIES} PARENT_SCOPE )

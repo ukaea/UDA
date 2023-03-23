@@ -2,6 +2,7 @@
 # Dependencies
 
 find_package( OpenSSL REQUIRED )
+find_package( fmt REQUIRED )
 if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )
 endif()
@@ -112,13 +113,16 @@ elseif(TIRPC_FOUND)
 endif()
 
 add_library( clientserver-client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
+target_link_libraries( clientserver-client-objects PRIVATE fmt::fmt )
 
 if( NOT CLIENT_ONLY )
   add_library( clientserver-server-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( clientserver-server-objects PUBLIC -DSERVERBUILD )
+  target_link_libraries( clientserver-server-objects PRIVATE fmt::fmt )
 
   add_library( fatclientserver-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( fatclientserver-objects PUBLIC -DFATCLIENT )
+  target_link_libraries( fatclientserver-objects PRIVATE fmt::fmt )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )

@@ -77,12 +77,14 @@ add_library( server-objects OBJECT
   ${SRC_FILES}
   ${HEADER_FILES}
 )
+target_link_libraries( server-objects PRIVATE fmt::fmt )
 
 add_library( fatserver-objects OBJECT
   fatServer.cpp
   ${SRC_FILES}
   ${HEADER_FILES}
 )
+target_link_libraries( fatserver-objects PRIVATE fmt::fmt )
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 set( SERVER_OBJ

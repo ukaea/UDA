@@ -51,6 +51,7 @@ add_definitions( -DSERVERBUILD )
 add_library( server2-objects OBJECT
   ${SRC_FILES}
 )
+target_link_libraries( server2-objects PRIVATE fmt::fmt )
 
 set( SERVER2_OBJ
   $<TARGET_OBJECTS:server2-objects>
