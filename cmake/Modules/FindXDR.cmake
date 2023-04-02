@@ -38,3 +38,12 @@ include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( XDR DEFAULT_MSG XDR_LIBRARIES XDR_INCLUDE_DIR )
 
 mark_as_advanced( XDR_LIBRARIES XDR_INCLUDE_DIR )
+
+if( XDR_FOUND AND NOT TARGET XDR::XDR )
+  add_library( XDR::XDR UNKNOWN IMPORTED )
+  set_target_properties( XDR::XDR PROPERTIES
+    IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
+    IMPORTED_LOCATION "${XDR_LIBRARIES}"
+    INTERFACE_INCLUDE_DIRECTORIES "${XDR_INCLUDE_DIR}"
+  )
+endif()

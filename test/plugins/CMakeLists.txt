@@ -13,19 +13,17 @@ foreach( TEST_FILE ${TEST_FILES} )
 endforeach()
 
 add_executable( cpp_testplugin ${EXE_FLAG} ${HELPER_FILES} test2_testplugin.cpp )
+target_compile_features( cpp_testplugin PRIVATE cxx_std_11 )
 target_include_directories( cpp_testplugin PRIVATE
-  ${LIBXML2_INCLUDE_DIR}
+  ${PROJECT_SOURCE_DIR}/test
+  ${PROJECT_BINARY_DIR}/test
 )
 target_link_libraries( cpp_testplugin PRIVATE
-  ${Boost_LIBRARIES}
-  client2-shared
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${CACHE_LIBRARIES}
-  ${LIBRARIES}
-  ${LINK_M}
-  ${LINK_DL}
-  ${LINK_STD}
+  uda::client2-shared
+  Boost::boost
+  OpenSSL::SSL
+  OpenSSL::Crypto
+  LibXml2::LibXml2
 )
 if( NOT WIN32 AND NOT MINGW )
   target_link_libraries( cpp_testplugin PRIVATE c )

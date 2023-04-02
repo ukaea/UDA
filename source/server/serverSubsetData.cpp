@@ -8,8 +8,8 @@
 #include "serverSubsetData.h"
 #include "getServerEnvironment.h"
 #include "clientserver/parseOperation.h"
-#include "plugins/udaPlugin.h"
 #include "clientserver/makeRequestBlock.h"
+#include "serverPlugin.h"
 
 #include <cmath>
 #include <cfloat>

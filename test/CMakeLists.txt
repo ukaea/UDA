@@ -19,9 +19,6 @@ if( WIN32 OR MINGW )
   endif()
 else()
   find_package( TIRPC QUIET)
-  if(TIRPC_FOUND)
-    add_definitions(-D__TIRPC__)
-  endif()
 endif()
 
 set( FAT_TESTS OFF CACHE BOOL "Build tests using fat-client" )
@@ -53,12 +50,6 @@ set( TESTS
   test_mast
 )
 
-include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
-include_directories( SYSTEM ${LIBXML2_INCLUDE_DIR} )
-include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR} )
-
-link_directories( ${CMAKE_BINARY_DIR}/source/wrappers/c++ )
-
 file( GLOB HELPER_FILES "test_helpers.*" )
 
 set( LIBRARIES )
@@ -74,10 +65,6 @@ if( WIN32 OR MINGW )
 elseif( TIRPC_FOUND )
   include_directories( ${TIRPC_INCLUDE_DIR} )
   set( LINK_LIB ${LINK_LIB} ${TIRPC_LIBRARIES})
-endif()
-
-if( ENABLE_CAPNP )
-  set( LIBRARIES ${LIBRARIES} serialisation-static )
 endif()
 
 set( LINK_DL )
@@ -97,22 +84,22 @@ if( ( WIN32 AND MINGW ) OR NOT WIN32 )
   set( LINK_M m )
 endif()
 
-macro( BUILD_TEST NAME SOURCE )
-  set( LINK_PROJECT ${PROJECT_NAME}_cpp-static )
-  if( BUILD_SHARED_LIBS )
-    set( LINK_PROJECT ${PROJECT_NAME}_cpp-shared )
-  endif()
-
+function( BUILD_TEST NAME SOURCE )
   add_executable( ${NAME} ${EXE_FLAG} ${HELPER_FILES} ${SOURCE} )
+
+  target_include_directories( ${NAME} PRIVATE ${PROJECT_SOURCE_DIR}/test ${PROJECT_BINARY_DIR}/test )
   target_link_libraries( ${NAME} PRIVATE
-    ${Boost_LIBRARIES}
-    ${LINK_PROJECT}
-    ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES}
-    ${CACHE_LIBRARIES}
-    ${LIBRARIES}
-    ${LINK_STD}
+    Boost::boost
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    LibXml2::LibXml2
   )
+
+  if( BUILD_SHARED_LIBS )
+    target_link_libraries( ${NAME} PRIVATE uda::uda_cpp-shared )
+  else()
+    target_link_libraries( ${NAME} PRIVATE uda::uda_cpp-static )
+  endif()
 
   set_target_properties( ${NAME}
     PROPERTIES
@@ -127,17 +114,21 @@ macro( BUILD_TEST NAME SOURCE )
   endif()
   
   add_executable( fat_${NAME} ${EXE_FLAG} ${HELPER_FILES} ${SOURCE} )
+
+  target_include_directories( fat_${NAME} PRIVATE ${PROJECT_SOURCE_DIR}/test ${PROJECT_BINARY_DIR}/test )
   target_link_libraries( fat_${NAME} PRIVATE
-    ${Boost_LIBRARIES}
-    fat${LINK_PROJECT}
-    ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES}
-    ${CACHE_LIBRARIES}
-    ${LIBRARIES}
-    ${LINK_M}
-    ${LINK_DL}
-    ${LINK_STD}
+    Boost::boost
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    LibXml2::LibXml2
   )
+
+  if( BUILD_SHARED_LIBS )
+    target_link_libraries( fat_${NAME} PRIVATE uda::fatuda_cpp-shared )
+  else()
+    target_link_libraries( fat_${NAME} PRIVATE uda::fatuda_cpp-static )
+  endif()
+
   if( NOT WIN32 AND NOT MINGW )
     target_link_libraries( fat_${NAME} PRIVATE c )
   endif()
@@ -160,7 +151,7 @@ macro( BUILD_TEST NAME SOURCE )
   else()
     add_test( ${NAME} ${NAME} -r junit -o ${NAME}_out.xml )
   endif()
-endmacro( BUILD_TEST )
+endfunction( BUILD_TEST )
 
 add_subdirectory( plugins )
 add_subdirectory( imas )

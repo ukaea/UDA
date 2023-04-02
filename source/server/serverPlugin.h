@@ -12,6 +12,12 @@
 extern "C" {
 #endif
 
+LIBRARY_API int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list);
+LIBRARY_API int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list);
+LIBRARY_API int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list);
+LIBRARY_API int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list);
+LIBRARY_API int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list);
+
 LIBRARY_API void allocPluginList(int count, PLUGINLIST* plugin_list);
 LIBRARY_API void freePluginList(PLUGINLIST* plugin_list);
 LIBRARY_API void initPluginData(PLUGIN_DATA* plugin);

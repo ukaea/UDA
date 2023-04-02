@@ -1,11 +1,12 @@
-#include <wrappers/c++/UDA.hpp>
-#include <clientserver/udaTypes.h>
-#include <serialisation/capnp_serialisation.h>
-
 #include <string>
 #include <iostream>
 #include <boost/program_options.hpp>
 #include <boost/range/combine.hpp>
+
+#include <wrappers/c++/UDA.hpp>
+#include <clientserver/udaTypes.h>
+#include <serialisation/capnp_serialisation.h>
+#include <uda/version.h>
 
 struct CLIException : public uda::UDAException
 {
@@ -354,6 +355,7 @@ int main(int argc, const char** argv)
     po::options_description desc("Allowed options");
     desc.add_options()
             ("help", "produce help message")
+            ("version", "print version")
             ("host,h", po::value<std::string>()->default_value("localhost"), "server host name")
             ("port,p", po::value<int>()->default_value(56565), "server port")
             ("request", po::value<std::string>()->required(), "request");
@@ -381,7 +383,12 @@ int main(int argc, const char** argv)
     if (vm.count("help")) {
         std::cout << "Usage: " << argv[0] << " [options] request\n";
         std::cout << desc << "\n";
-        return 1;
+        return 0;
+    }
+
+    if (vm.count("version")) {
+        std::cout << "Version: " << UDA_BUILD_VERSION << "(" << UDA_BUILD_DATE << ")";
+        return 0;
     }
 
     if (vm.count("host")) {

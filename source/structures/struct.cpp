@@ -60,10 +60,6 @@
 #include "xdrUserDefinedData.h"
 #include "accessors.h"
 
-#if defined(SERVERBUILD)
-#  include <server/udaServer.h>
-#endif
-
 static unsigned int last_malloc_index = 0;                           // Malloc Log search index last value
 static unsigned int* last_malloc_index_value = &last_malloc_index;      // Preserve Malloc Log search index last value in GENERAL_STRUCT
 static NTREE* full_ntree = nullptr;
@@ -1088,52 +1084,6 @@ void copyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew)
     }
     *anew = udt;
 }
-
-/** Copy the Master User Defined Structure Definition List.
-*
-* @param anew The copy of the type definition list.
-* @return void.
-*/
-#if defined(SERVERBUILD)
-void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, const USERDEFINEDTYPELIST* parseduserdefinedtypelist) {
-    USERDEFINEDTYPELIST* list = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-    initUserDefinedTypeList(list);
-    list->listCount = parseduserdefinedtypelist->listCount; // Copy the standard set of structure definitions
-    list->userdefinedtype = (USERDEFINEDTYPE*)malloc(parseduserdefinedtypelist->listCount * sizeof(USERDEFINEDTYPE));
-
-    for (int i = 0; i < list->listCount; i++) {
-        USERDEFINEDTYPE usertypeOld = parseduserdefinedtypelist->userdefinedtype[i];
-        USERDEFINEDTYPE usertypeNew;
-        initUserDefinedType(&usertypeNew);
-        usertypeNew = usertypeOld;
-        usertypeNew.image = (char*)malloc(usertypeOld.imagecount * sizeof(char));     // Copy pointer type (prevents double free)
-        memcpy (usertypeNew.image, usertypeOld.image, usertypeOld.imagecount);
-
-        usertypeNew.compoundfield = (COMPOUNDFIELD*)malloc(usertypeOld.fieldcount * sizeof(COMPOUNDFIELD));
-
-        for (int j = 0; j < usertypeOld.fieldcount; j++) {
-            initCompoundField(&usertypeNew.compoundfield[j]);
-            usertypeNew.compoundfield[j] = usertypeOld.compoundfield[j];
-            if (usertypeOld.compoundfield[j].rank > 0) {
-                usertypeNew.compoundfield[j].shape = (int*)malloc(usertypeOld.compoundfield[j].rank * sizeof(int));
-
-                for (int k = 0; k < usertypeOld.compoundfield[j].rank; k++) {
-                    usertypeNew.compoundfield[j].shape[k] = usertypeOld.compoundfield[j].shape[k];
-                }
-            }
-        }
-        list->userdefinedtype[i] = usertypeNew;
-    }
-    *anew = list;
-}
-#else
-
-void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, const USERDEFINEDTYPELIST* parseduserdefinedtypelist)
-{
-    UDA_LOG(UDA_LOG_DEBUG, "Not SERVERBUILD - USERDEFINEDTYPELIST is not allocated\n");
-}
-
-#endif
 
 /** Create the Initial User Defined Structure Definition List.
 * 

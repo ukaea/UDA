@@ -27,13 +27,9 @@
 #include <vector>
 
 #include <logging/logging.h>
-#include <clientserver/udaErrors.h>
 
 #include "stringUtils.h"
 #include "errorLog.h"
-#ifdef SERVERBUILD
-#  include <server/serverStartup.h>
-#endif
 // Identify the current working Host
 #ifdef NOEXPANDPATH
 //! Dummy functions used when path expansion is disabled using the NOEXPANDPATH compiler option
@@ -162,8 +158,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
         return 0;    // No replacement
     }
 
-    std::string work;
-    work.resize(strlen(path));
+    std::vector<char> work(strlen(path) + 1);
 
     UDA_LOG(UDA_LOG_DEBUG, "pathReplacement: Testing for File Path Replacement\n");
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", path);
@@ -239,7 +234,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
                             }
                         }
                     }
-                    strcat(path, work.c_str());
+                    strcat(path, work.data());
                     break;
                 }
 
@@ -253,7 +248,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
                     // Test for straight replacement
                     strcpy(work.data(), &path[lpath]);
                     strcpy(path, substitutes[i].c_str());
-                    strcat(path, work.c_str());
+                    strcat(path, work.data());
                     break;
                 }
             }
@@ -270,8 +265,6 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
 }
 
 // Client side only
-
-#ifndef SERVERBUILD
 
 int linkReplacement(char* path)
 {
@@ -329,13 +322,6 @@ int linkReplacement(char* path)
 
 #  endif // _WIN32    
 }
-
-#else
-int linkReplacement(char* path) {
-    // Links are resolved client side only
-    return 0;
-}
-#endif
 
 //------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------

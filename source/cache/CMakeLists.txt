@@ -1,53 +1,29 @@
-find_package( LibMemcached )
-find_package( Boost REQUIRED )
-find_package( OpenSSL REQUIRED )
-find_package( LibXml2 REQUIRED )
+########################################################################################################################
+# Dependencies
 
-if( WIN32 OR MINGW )
-  find_package( XDR REQUIRED )
-  if( NOT MINGW )
-    find_package( dlfcn-win32 CONFIG REQUIRED )
-  endif()
-else()
-  find_package( TIRPC QUIET )
-  if( TIRPC_FOUND )
-    add_definitions(-D__TIRPC__)
-  endif()
-endif()
+find_package( LibMemcached QUIET )
+find_package( fmt REQUIRED )
 
-set( SRC_FILES
-  memcache.cpp
-  fileCache.cpp
-  cache.cpp
-)
+########################################################################################################################
+# Targets
 
-include_directories(
-  ${OPENSSL_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIR}
-  ${CMAKE_SOURCE_DIR}/source
-  ${LIBXML2_INCLUDE_DIR}
-)
+add_library( cache-objects OBJECT )
+add_library( uda::cache-objects ALIAS cache-objects )
 
-if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-elseif(TIRPC_FOUND)
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-endif()
+target_sources( cache-objects PRIVATE memcache.cpp fileCache.cpp cache.cpp )
+target_compile_features( cache-objects PRIVATE cxx_std_11 )
+target_include_directories( cache-objects PRIVATE ${PROJECT_SOURCE_DIR}/source )
+target_link_libraries( cache-objects PUBLIC fmt::fmt )
 
 if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
-  include_directories( ${LIBMEMCACHED_INCLUDES} )
+  target_link_libraries( cache-objects PUBLIC LibMemcached::libmemcached )
   set( EXTRA_LD_LIBRARY_PATHS "${EXTRA_LD_LIBRARY_PATHS};${LIBMEMCACHED_LIB_DIR}" CACHE INTERNAL "" )
   set( CACHE_LIBRARIES ${LIBMEMCACHED_LIBRARIES} PARENT_SCOPE )
 else()
-  add_definitions( -DNOLIBMEMCACHED )
+  message( WARNING "Not compiling with memcached support" )
+  target_compile_definitions( cache-objects PRIVATE -DNOLIBMEMCACHED )
 endif()
 
-add_library( cache-objects OBJECT ${SRC_FILES} )
-
-#if( LIBMEMCACHED_FOUND )
-#  set( CACHE_LIBRARIES ${LIBMEMCACHED_LIBRARIES} PARENT_SCOPE )
-#endif()
-
 if( MINGW )
-  add_definitions( -Wno-format-truncation -Wno-format-overflow )
+  target_compile_definitions( cache-objects PRIVATE -Wno-format-truncation -Wno-format-overflow )
 endif()

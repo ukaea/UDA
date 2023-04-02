@@ -86,6 +86,44 @@ static int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blo
                            REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
                            LOGSTRUCTLIST* log_struct_list, IoData* io_data);
 
+/** Copy the Master User Defined Structure Definition List.
+*
+* @param anew The copy of the type definition list.
+* @return void.
+*/
+void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, const USERDEFINEDTYPELIST* parseduserdefinedtypelist)
+{
+    auto list = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
+    initUserDefinedTypeList(list);
+    list->listCount = parseduserdefinedtypelist->listCount; // Copy the standard set of structure definitions
+    list->userdefinedtype = (USERDEFINEDTYPE*)malloc(parseduserdefinedtypelist->listCount * sizeof(USERDEFINEDTYPE));
+
+    for (int i = 0; i < list->listCount; i++) {
+        USERDEFINEDTYPE usertypeOld = parseduserdefinedtypelist->userdefinedtype[i];
+        USERDEFINEDTYPE usertypeNew;
+        initUserDefinedType(&usertypeNew);
+        usertypeNew = usertypeOld;
+        usertypeNew.image = (char*)malloc(usertypeOld.imagecount * sizeof(char));     // Copy pointer type (prevents double free)
+        memcpy (usertypeNew.image, usertypeOld.image, usertypeOld.imagecount);
+
+        usertypeNew.compoundfield = (COMPOUNDFIELD*)malloc(usertypeOld.fieldcount * sizeof(COMPOUNDFIELD));
+
+        for (int j = 0; j < usertypeOld.fieldcount; j++) {
+            initCompoundField(&usertypeNew.compoundfield[j]);
+            usertypeNew.compoundfield[j] = usertypeOld.compoundfield[j];
+            if (usertypeOld.compoundfield[j].rank > 0) {
+                usertypeNew.compoundfield[j].shape = (int*)malloc(usertypeOld.compoundfield[j].rank * sizeof(int));
+
+                for (int k = 0; k < usertypeOld.compoundfield[j].rank; k++) {
+                    usertypeNew.compoundfield[j].shape[k] = usertypeOld.compoundfield[j].shape[k];
+                }
+            }
+        }
+        list->userdefinedtype[i] = usertypeNew;
+    }
+    *anew = list;
+}
+
 //--------------------------------------------------------------------------------------
 // Server Entry point
 

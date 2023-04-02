@@ -8,10 +8,6 @@
 #include <clientserver/udaTypes.h>
 #include <structures/genStructs.h>
 
-#ifdef SERVERBUILD
-#  include <server/udaServer.h>
-#endif
-
 NTREE* udaGetFullNTree();
 void udaSetFullNTree(NTREE* ntree);
 
@@ -355,13 +351,6 @@ void* findStructHeap(int id, char** type);
 * @return void.
 */
 void copyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* anew);
-
-/** Copy the Master User Defined Structure Definition List.
-* 
-* @param anew The copy of the type definition list.
-* @return void.
-*/
-void copyUserDefinedTypeList(USERDEFINEDTYPELIST** anew, const USERDEFINEDTYPELIST* parseduserdefinedtypelist);
 
 /** Create the Initial User Defined Structure Definition List.
 * 

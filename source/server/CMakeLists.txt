@@ -11,10 +11,7 @@ if( WIN32 OR MINGW )
     find_package( dlfcn-win32 CONFIG REQUIRED )
   endif()
 else()
-  find_package( TIRPC QUIET)
-  if(TIRPC_FOUND)
-    add_definitions(-D__TIRPC__)    
-  endif()
+  find_package( TIRPC QUIET )
 endif()
 
 ########################################################################################################################
@@ -37,162 +34,165 @@ set( SRC_FILES
   createXDRStream.cpp
 )
 
-set( HEADER_FILES
-  applyXML.h
-  closeServerSockets.h
-  createXDRStream.h
-  getPluginAddress.h
-  getServerEnvironment.h
-  initPluginList.h
-  makeServerRequestBlock.h
-  serverGetData.h
-  serverLegacyPlugin.h
-  serverPlugin.h
-  serverProcessing.h
-  serverStartup.h
-  serverSubsetData.h
-  sleepServer.h
-  udaLegacyServer.h
-  udaServer.h
-  writer.h
-)
-
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${LIBXML2_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
-)
-
-add_definitions( -DSERVERBUILD )
-
 ########################################################################################################################
 # Targets
 
-add_library( server-objects OBJECT
+########################################################################################################################
+## Libraries
+
+add_library( server-objects OBJECT )
+add_library( fat-server-objects OBJECT )
+
+add_library( uda::server-objects ALIAS server-objects )
+add_library( uda::fat-server-objects ALIAS fat-server-objects )
+
+target_sources( server-objects PRIVATE ${SRC_FILES} )
+target_sources( fat-server-objects PRIVATE ${SRC_FILES} )
+
+target_sources(
+  server-objects
+  PRIVATE
   udaServer.cpp
   udaLegacyServer.cpp
-  createXDRStream.cpp
   sleepServer.cpp
-  ${SRC_FILES}
-  ${HEADER_FILES}
+)
+target_sources( fat-server-objects PRIVATE fatServer.cpp )
+
+target_compile_features( server-objects PRIVATE cxx_std_11 )
+target_compile_features( fat-server-objects PRIVATE cxx_std_11 )
+
+target_include_directories(
+  server-objects
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  PRIVATE
+  ${PROJECT_SOURCE_DIR}/source
 )
 
-add_library( fatserver-objects OBJECT
-  fatServer.cpp
-  ${SRC_FILES}
-  ${HEADER_FILES}
+target_include_directories(
+  fat-server-objects
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  PRIVATE
+  ${PROJECT_SOURCE_DIR}/source
 )
 
-target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
-set( SERVER_OBJ
-  $<TARGET_OBJECTS:server-objects>
-  $<TARGET_OBJECTS:clientserver-server-objects>
-  $<TARGET_OBJECTS:logging-server-objects>
-  $<TARGET_OBJECTS:structures-server-objects>
-  $<TARGET_OBJECTS:authentication-server-objects>
+target_compile_definitions( fat-server-objects PRIVATE -DFATCLIENT )
+
+target_link_libraries(
+  server-objects
+  PUBLIC
+  fmt::fmt
+  PRIVATE
+  uda::server-objects
+  uda::shared-objects
+  uda::structures-objects
+  uda::cache-objects
+  uda::logging-server-objects
 )
 
-add_library( server-static STATIC ${SERVER_OBJ} )
-if( BUILD_SHARED_LIBS )
-  add_library( server-shared SHARED ${SERVER_OBJ} )
-endif()
+target_link_libraries(
+  fat-server-objects
+  PUBLIC
+  fmt::fmt
+)
 
-set( LINK_XDR )
-set( EXE_FLAG )
-set( EXE_EXT )
-if( WIN32 OR MINGW )
-  set( EXE_FLAG WIN32 )
-  if( MINGW )
-    set( EXE_EXT ".exe" )
-  endif()
-  include_directories( ${XDR_INCLUDE_DIR} )
-  set( LINK_XDR ${XDR_LIBRARIES} ws2_32 )
-elseif(TIRPC_FOUND)
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-  set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES})
-endif()
-
-target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt )
-if( BUILD_SHARED_LIBS )
-  target_link_libraries( server-shared PRIVATE ${LINK_XDR} fmt::fmt )
-endif()
-
-add_executable( server-exe ${EXE_FLAG} serverMain.cpp )
-
-########################################################################################################################
-# Add libraries
-
-set( CLIENT_STATIC )
-if( BUILD_SHARED_LIBS )
-  set( CLIENT_STATIC client-shared )
-else()
-  set( CLIENT_STATIC client-static )
-endif()
-if( WIN32 OR MINGW )
-  if( MINGW )
-    set( CLIENT_STATIC ${CLIENT_STATIC} ws2_32 stdc++ )
-  else()
-    set( CLIENT_STATIC ${CLIENT_STATIC} ws2_32 )
-  endif()
-endif()
-
-set( LINK_DL )
 if( WIN32 AND NOT MINGW )
-  set( LINK_DL dlfcn-win32::dl )
+  target_link_libraries( server-objects PUBLIC dlfcn-win32::dl )
 else()
-  set( LINK_DL dl )
+  target_link_libraries( server-objects PUBLIC dl )
 endif()
 
-set( LINK_M )
 if( ( WIN32 AND MINGW ) OR NOT WIN32 )
-  set( LINK_M m )
+  target_link_libraries( server-objects PUBLIC m )
 endif()
 
-target_link_libraries( server-static PRIVATE
-  ${CLIENT_STATIC}
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${CACHE_LIBRARIES}
-  ${LINK_DL}
+if( MINGW OR WIN32 )
+  target_link_libraries( server-objects PUBLIC XDR::XDR )
+  if( MINGW )
+    target_link_libraries( server-objects PUBLIC ws2_32 stdc++ )
+  else()
+    target_link_libraries( server-objects PUBLIC ws2_32 )
+  endif()
+elseif( TIRPC_FOUND )
+  target_link_libraries( server-objects PUBLIC TIRPC::rpc )
+  target_compile_definitions( server-objects PUBLIC -D__TIRPC__ )
+endif()
+
+add_library( server-static STATIC )
+add_library( uda::server-static ALIAS server-static )
+
+target_link_libraries(
+  server-static
+  PRIVATE
+  uda::server-objects
+  uda::shared-objects
+  uda::structures-objects
+  uda::cache-objects
+  uda::logging-server-objects
+)
+
+target_include_directories(
+  server-static
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  PRIVATE
+  ${PROJECT_SOURCE_DIR}/source
 )
 
 if( BUILD_SHARED_LIBS )
-  set( CLIENT_SHARED client-shared plugins-shared )
-  if( WIN32 OR MINGW )
-    if( MINGW )
-      set( CLIENT_SHARED ${CLIENT_SHARED} ws2_32 stdc++ )
-    else()
-      set( CLIENT_SHARED ${CLIENT_SHARED} ws2_32 )
-    endif()
-  endif()
+  add_library( server-shared SHARED )
+  add_library( uda::server-shared ALIAS server-shared )
 
-  target_link_libraries( server-shared PRIVATE
-    ${CLIENT_SHARED}
-    ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES}
-    ${CACHE_LIBRARIES}
-    ${LINK_DL}
+  target_link_libraries(
+    server-shared
+    PRIVATE
+    uda::server-objects
+    uda::structures-objects
+    uda::cache-objects
+    uda::logging-server-objects
+  )
+
+  target_include_directories(
+    server-shared
+    PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    PRIVATE
+    ${PROJECT_SOURCE_DIR}/source
   )
 endif()
 
-# Executable
-set( SERVER_LINKING )
-if( BUILD_SHARED_LIBS )
-  set( SERVER_LINKING client-shared server-shared plugins-shared )
+########################################################################################################################
+## Executable
+
+if( WIN32 OR MINGW )
+  add_executable( server-exe WIN32 serverMain.cpp )
 else()
-  set( SERVER_LINKING client-static server-static plugins-static )
+  add_executable( server-exe serverMain.cpp )
 endif()
 
-target_link_libraries( server-exe PRIVATE
-  ${SERVER_LINKING}
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${CACHE_LIBRARIES}
-  ${LINK_M}
-  ${LINK_DL}
-  ${LINK_XDR}
-)
+target_compile_features( server-exe PUBLIC cxx_std_17 )
+target_include_directories( server-exe PUBLIC ${PROJECT_SOURCE_DIR}/source )
+
+if( BUILD_SHARED_LIBS )
+  target_link_libraries(
+    server-exe
+    PRIVATE
+    uda::client-shared
+    uda::server-shared
+  )
+else()
+  target_link_libraries(
+    server-exe
+    PRIVATE
+    uda::client-static
+    uda::server-static
+  )
+endif()
 
 if( NOT WIN32 AND NOT MINGW )
   target_link_libraries( server-exe LINK_PRIVATE c )
@@ -207,11 +207,12 @@ endif()
 
 set_target_properties( server-static
   PROPERTIES
-  OUTPUT_NAME ${PROJECT_NAME}_server
+  OUTPUT_NAME ${PROJECT_NAME}_server_static
 )
 
 install(
   TARGETS server-static
+  EXPORT uda-targets
   DESTINATION lib
 )
 
@@ -232,12 +233,18 @@ if( BUILD_SHARED_LIBS )
 
   install(
     TARGETS server-shared
+    EXPORT uda-targets
     DESTINATION lib
   )
 endif()
 
 ########################################################################################################################
 # Set executable properties
+
+set( EXE_EXT )
+if( MINGW )
+  set( EXE_EXT ".exe" )
+endif()
 
 set_target_properties( server-exe
   PROPERTIES
@@ -251,7 +258,9 @@ if( WIN32 )
   )
 endif()
 
-install( TARGETS server-exe
+install(
+  TARGETS server-exe
+  EXPORT uda-targets
   DESTINATION bin
 )
 
@@ -291,6 +300,7 @@ install(
   DESTINATION etc
 )
 
+# TODO: move up a level
 install(
   DIRECTORY
     ${CMAKE_BINARY_DIR}/lib/pkgconfig
@@ -323,6 +333,7 @@ install(
   DESTINATION etc
 )
 
-install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/server
+install(
+  FILES ${HEADER_FILES}
+  DESTINATION include/uda
 )

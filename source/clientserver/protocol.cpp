@@ -35,10 +35,6 @@
 #include "udaErrors.h"
 #include "errorLog.h"
 
-#ifdef SERVERBUILD
-#  include <server/serverStartup.h>
-#endif
-
 int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
              USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
              IoData* io_data, unsigned int private_flags, int malloc_source)

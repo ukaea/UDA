@@ -49,3 +49,12 @@ include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( LibMemcached DEFAULT_MSG LIBMEMCACHED_LIBRARIES LIBMEMCACHED_INCLUDES )
 
 mark_as_advanced( LIBMEMCACHED_LIBRARIES LIBMEMCACHED_INCLUDES )
+
+if( LIBMEMCACHED_FOUND AND NOT TARGET LibMemcached::libmemcached )
+  add_library( LibMemcached::libmemcached UNKNOWN IMPORTED )
+  set_target_properties( LibMemcached::libmemcached PROPERTIES
+    IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
+    IMPORTED_LOCATION "${LIBMEMCACHED_LIBRARIES}"
+    INTERFACE_INCLUDE_DIRECTORIES "${LIBMEMCACHED_INCLUDES}"
+  )
+endif()

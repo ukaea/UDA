@@ -6,10 +6,6 @@
 
 #include "errorLog.h"
 
-#ifdef SERVERBUILD
-#  include <server/serverStartup.h>
-#endif
-
 #define MAXDOLOOPLIMIT 500            // ~50MB file
 
 int sendXDRFile(XDR* xdrs, const char* xdrfile)

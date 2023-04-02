@@ -23,13 +23,8 @@
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/udaTypes.h>
-#if defined(SERVERBUILD) || defined(FATCLIENT)
-#  include <server/serverPlugin.h>
-#  include <server/udaServer.h>
 #include <sstream>
 #include <boost/format.hpp>
-
-#endif
 
 unsigned int countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block)
 {
@@ -66,7 +61,7 @@ unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* clie
                 if (dim.error_type != UDA_TYPE_UNKNOWN) {
                     count += (unsigned int)(factor * getSizeOf((UDA_TYPE)dim.error_type) * dim.dim_n);
                 }
-            } else {;
+            } else {
                 switch (dim.method) {
                     case 0:
                         count += +2 * sizeof(double);
@@ -77,8 +72,6 @@ unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* clie
                         }
                         break;
                     case 2:
-                        count += dim.udoms * getSizeOf((UDA_TYPE)dim.data_type);
-                        break;
                     case 3:
                         count += dim.udoms * getSizeOf((UDA_TYPE)dim.data_type);
                         break;
@@ -94,8 +87,6 @@ unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* clie
 
     return count;
 }
-
-#if defined(SERVERBUILD) || defined(FATCLIENT)
 
 void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, SERVER_BLOCK server_block,
                   unsigned int total_datablock_size)
@@ -250,5 +241,3 @@ void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_blo
     }
 
 }
-
-#endif // defined(SERVERBUILD) || defined(FATCLIENT)

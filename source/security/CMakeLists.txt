@@ -1,3 +1,6 @@
+########################################################################################################################
+# Dependencies
+
 find_package( GCrypt )
 find_package( KSBA )
 
@@ -5,6 +8,9 @@ if( NOT GCRYPT_FOUND OR NOT KSBA_FOUND )
   message( WARNING "GCrypt or KSBA not found - security library being skipped" )
   return()
 endif()
+
+########################################################################################################################
+# Sources
 
 set( SRC_FILES
   serverAuthentication.cpp
@@ -14,10 +20,13 @@ set( SRC_FILES
   x509Utils.cpp
 )
 
-include_directories( ${CMAKE_SOURCE_DIR}/source ${GCRYPT_INCLUDE_DIRS} ${KSBA_INCLUDE_DIRS} )
+########################################################################################################################
+# Targets
 
-add_library( security-objects OBJECT ${SRC_FILES} )
+add_library( security-objects OBJECT )
+add_library( uda::security-objects ALIAS security-objects )
 
-# Authentication code without any passing of objects between the client and server to use in local test executables.
-add_library( security-test-objects OBJECT ${SRC_FILES} )
-target_compile_definitions( security-test-objects PRIVATE -DTESTIDAMSECURITY )
+target_sources( security-objects PRIVATE ${SRC_FILES} )
+target_compile_features( security-objects PRIVATE cxx_std_11 )
+target_link_libraries( security-objects PUBLIC GCrypt::gcrypt KSBA::KSBA )
+target_include_directories( security-objects PRIVATE ${PROJECT_SOURCE_DIR}/source )

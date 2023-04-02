@@ -18,53 +18,57 @@
 #=============================================================================
 #
 
-if( GCRYPT_LIBRARIES AND GCRYPT_INCLUDE_DIRS )
-  # in cache already
-  # set(GCRYPT_FOUND TRUE)
-else( GCRYPT_LIBRARIES AND GCRYPT_INCLUDE_DIRS )
+set( _GCRYPT_ROOT_PATHS "$ENV{PROGRAMFILES}/libgcrypt" )
 
-  set( _GCRYPT_ROOT_PATHS
-    "$ENV{PROGRAMFILES}/libgcrypt"
-    )
+find_path(
+  GCRYPT_ROOT_DIR
+  NAMES
+  include/gcrypt.h
+  PATHS
+  ${_GCRYPT_ROOT_PATHS}
+)
+mark_as_advanced( GCRYPT_ROOT_DIR )
 
-  find_path( GCRYPT_ROOT_DIR
-    NAMES
-      include/gcrypt.h
-    PATHS
-      ${_GCRYPT_ROOT_PATHS}
-    )
-  mark_as_advanced( GCRYPT_ROOT_DIR )
+find_path(
+  GCRYPT_INCLUDE_DIR
+  NAMES
+  gcrypt.h
+  PATHS
+  /usr/local/include
+  /opt/local/include
+  /sw/include
+  /usr/lib/sfw/include
+  ${GCRYPT_ROOT_DIR}/include
+)
+set( GCRYPT_INCLUDE_DIRS ${GCRYPT_INCLUDE_DIR} )
 
-  find_path( GCRYPT_INCLUDE_DIR
-    NAMES
-      gcrypt.h
-    PATHS
-      /usr/local/include
-      /opt/local/include
-      /sw/include
-      /usr/lib/sfw/include
-      ${GCRYPT_ROOT_DIR}/include
-    )
-  set( GCRYPT_INCLUDE_DIRS ${GCRYPT_INCLUDE_DIR} )
+find_library(
+  GCRYPT_LIBRARY
+  NAMES
+  gcrypt
+  gcrypt11
+  libgcrypt-11
+  PATHS
+  /opt/local/lib
+  /sw/lib
+  /usr/sfw/lib/64
+  /usr/sfw/lib
+  ${GCRYPT_ROOT_DIR}/lib
+)
+set( GCRYPT_LIBRARIES ${GCRYPT_LIBRARY} )
 
-  find_library( GCRYPT_LIBRARY
-    NAMES
-      gcrypt
-      gcrypt11
-      libgcrypt-11
-    PATHS
-      /opt/local/lib
-      /sw/lib
-      /usr/sfw/lib/64
-      /usr/sfw/lib
-      ${GCRYPT_ROOT_DIR}/lib
-    )
-  set( GCRYPT_LIBRARIES ${GCRYPT_LIBRARY} )
+include( FindPackageHandleStandardArgs )
+find_package_handle_standard_args( GCrypt DEFAULT_MSG GCRYPT_LIBRARIES GCRYPT_INCLUDE_DIRS )
 
-  include( FindPackageHandleStandardArgs )
-  find_package_handle_standard_args( GCrypt DEFAULT_MSG GCRYPT_LIBRARIES GCRYPT_INCLUDE_DIRS )
+# show the GCRYPT_INCLUDE_DIRS and GCRYPT_LIBRARIES variables only in the advanced view
+mark_as_advanced( GCRYPT_INCLUDE_DIRS GCRYPT_LIBRARIES )
 
-  # show the GCRYPT_INCLUDE_DIRS and GCRYPT_LIBRARIES variables only in the advanced view
-  mark_as_advanced( GCRYPT_INCLUDE_DIRS GCRYPT_LIBRARIES )
-
-endif( GCRYPT_LIBRARIES AND GCRYPT_INCLUDE_DIRS )
+if( XDR_FOUND AND NOT TARGET GCrypt::gcrypt )
+  add_library( GCrypt::gcrypt UNKNOWN IMPORTED )
+  set_target_properties(
+    GCrypt::gcrypt PROPERTIES
+    IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
+    IMPORTED_LOCATION "${GCRYPT_LIBRARIES}"
+    INTERFACE_INCLUDE_DIRECTORIES "${GCRYPT_INCLUDE_DIRS}"
+  )
+endif()

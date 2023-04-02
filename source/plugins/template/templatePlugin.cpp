@@ -24,7 +24,6 @@
 #  include <strings.h>
 #endif
 
-
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 

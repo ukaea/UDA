@@ -1,6 +1,8 @@
 ########################################################################################################################
 # Dependencies
 
+find_package( fmt REQUIRED )
+find_package( Boost REQUIRED )
 find_package( OpenSSL REQUIRED )
 if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )
@@ -10,16 +12,13 @@ if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
 else()
   find_package( TIRPC QUIET)
-  if(TIRPC_FOUND)
-    add_definitions(-D__TIRPC__)
-  endif()
 endif()
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-)
+########################################################################################################################
+# Library
 
-set( SRC_FILES
+set(
+  SRC_FILES
   allocData.cpp
   compressDim.cpp
   copyStructs.cpp
@@ -44,85 +43,83 @@ set( SRC_FILES
   xdrlib.cpp
   nameValueSubstitution.cpp
   udaStructs.cpp
-#  utils.c
 )
 
-set( HIERARCHICAL_SRC_FILES
-  allocXMLData.cpp
-  xdrHData.cpp
-  initXMLStructs.cpp
+add_library( shared-objects OBJECT )
+target_sources( shared-objects PUBLIC ${SRC_FILES} )
+target_compile_features( shared-objects PRIVATE cxx_std_11 )
+target_link_libraries( shared-objects PUBLIC fmt::fmt Boost::boost OpenSSL::SSL OpenSSL::Crypto LibXml2::LibXml2 )
+
+add_library( uda::shared-objects ALIAS shared-objects )
+
+target_include_directories(
+  shared-objects
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  PRIVATE
+  ${PROJECT_SOURCE_DIR}/source
 )
 
-set( HEADER_FILES
-  #parseXML.h
-  allocData.h
-  allocXMLData.h
-  compressDim.h
-  copyStructs.h
-  errorLog.h
-  expand_path.h
-  initStructs.h
-  initXMLStructs.h
-  makeRequestBlock.h
-  manageSockets.h
-  memstream.h
-  parseOperation.h
-  printStructs.h
-  protocol.h
-  protocolXML.h
-  protocolXML2.h
-  protocolXML2Put.h
-  readXDRFile.h
-  socketStructs.h
-  stringUtils.h
-  udaDefines.h
-  udaErrors.h
-  udaStructs.h
-  udaTypes.h
-  userid.h
-  xdrHData.h
-  xdrlib.h
-  xmlStructs.h
-  export.h
-  nameValueSubstitution.h
-)
+# TODO: remove need of this by removing all FATCLIENT specific code in clientserver
+if( NOT CLIENT_ONLY )
+  add_library( fat-shared-objects OBJECT )
+  target_sources( fat-shared-objects PUBLIC ${SRC_FILES} )
+  target_compile_definitions( fat-shared-objects PUBLIC -DFATCLIENT )
+  target_compile_features( fat-shared-objects PRIVATE cxx_std_11 )
+  target_link_libraries( fat-shared-objects PUBLIC fmt::fmt Boost::boost OpenSSL::SSL OpenSSL::Crypto )
+
+  target_include_directories(
+    fat-shared-objects
+    PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    PRIVATE
+    ${PROJECT_SOURCE_DIR}/source
+  )
+
+  add_library( uda::fat-shared-objects ALIAS fat-shared-objects )
+endif()
+
+#set( HEADER_FILES
+#  udaStructs.h
+#)
 
 if( APPLE )
-  list( APPEND SRC_FILES memstream.cpp )
+  target_sources( shared-objects PUBLIC memstream.cpp )
+  if( NOT CLIENT_ONLY )
+    target_sources( fat-shared-objects PUBLIC memstream.cpp )
+  endif()
 endif()
 
 if( WIN32 )
-  list( APPEND SRC_FILES memstream_win.cpp mkstemp.cpp )
+  target_sources( shared-objects PUBLIC memstream_win.cpp mkstemp.cpp )
+  if( NOT CLIENT_ONLY )
+    target_sources( fat-shared-objects PUBLIC memstream_win.cpp mkstemp.cpp )
+  endif()
 endif()
 
 if( CLIENT_ONLY )
-  add_definitions( -DNOXMLPARSER )
+  target_compile_definitions( shared-objects PUBLIC -DNOXMLPARSER )
+  if( NOT CLIENT_ONLY )
+    target_compile_definitions( fat-shared-objects PUBLIC -DNOXMLPARSER )
+  endif()
 endif()
-
-include_directories(
-  ${SRC_DIR}
-  ${OPENSSL_INCLUDE_DIR}
-  ${LIBXML2_INCLUDE_DIR}
-)
 
 if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-elseif(TIRPC_FOUND)
-  include_directories( ${TIRPC_INCLUDE_DIR} )
+  target_link_libraries( shared-objects PUBLIC XDR::XDR )
+  if( NOT CLIENT_ONLY )
+    target_link_libraries( fat-shared-objects PUBLIC XDR::XDR )
+  endif()
+elseif( TIRPC_FOUND )
+  target_link_libraries( shared-objects PUBLIC TIRPC::rpc )
+  target_compile_definitions( shared-objects PUBLIC -D__TIRPC__ )
+  if( NOT CLIENT_ONLY )
+    target_link_libraries( fat-shared-objects PUBLIC TIRPC::rpc )
+    target_compile_definitions( fat-shared-objects PUBLIC -D__TIRPC__ )
+  endif()
 endif()
 
-add_library( clientserver-client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
-
-if( NOT CLIENT_ONLY )
-  add_library( clientserver-server-objects OBJECT ${SRC_FILES} )
-  target_compile_definitions( clientserver-server-objects PUBLIC -DSERVERBUILD )
-
-  add_library( fatclientserver-objects OBJECT ${SRC_FILES} )
-  target_compile_definitions( fatclientserver-objects PUBLIC -DFATCLIENT )
-endif()
-
-file( GLOB HEADER_FILES "*.h" )
-
-install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/clientserver
-)
+#install( FILES ${HEADER_FILES}
+#  DESTINATION include/uda
+#)

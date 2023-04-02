@@ -197,7 +197,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: creating temporary/cache XDR file\n");
 
                         errno = 0;
-                        if (mkstemp(temp_file.data()) < 0 || errno != 0) {
+                        if (mkstemp((char*)temp_file.data()) < 0 || errno != 0) {
                             err = 999;
                             if (errno != 0) err = errno;
                             addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,

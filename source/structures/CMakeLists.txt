@@ -1,15 +1,6 @@
 ########################################################################################################################
 # Dependencies
 
-if( WIN32 OR MINGW )
-  find_package( XDR REQUIRED )
-else()
-  find_package( TIRPC QUIET)
-  if(TIRPC_FOUND)
-    add_definitions(-D__TIRPC__)
-  endif()
-endif()
-
 find_package( LibXml2 REQUIRED )
 
 ########################################################################################################################
@@ -22,29 +13,19 @@ set( SRC_FILES
   xdrUserDefinedData.cpp
 )
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${LIBXML2_INCLUDE_DIR}
-)
-
-if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-elseif(TIRPC_FOUND)
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-endif()
-
 ########################################################################################################################
 # Targets
 
-if( NOT CLIENT_ONLY )
-  add_library( structures-server-objects OBJECT ${SRC_FILES} )
-  target_compile_definitions( structures-server-objects PRIVATE -DSERVERBUILD )
-endif()
+add_library( structures-objects OBJECT ${SRC_FILES} )
+target_compile_features( structures-objects PRIVATE cxx_std_11 )
 
-add_library( structures-client-objects OBJECT ${SRC_FILES} )
-
-file( GLOB HEADER_FILES "*.h" )
-
-install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/structures
+target_include_directories(
+  structures-objects
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  PRIVATE
+  ${PROJECT_SOURCE_DIR}/source
 )
+
+add_library( uda::structures-objects ALIAS structures-objects )

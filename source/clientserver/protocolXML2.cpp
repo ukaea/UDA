@@ -66,12 +66,6 @@
 #include "xdrlib.h"
 #include "stringUtils.h"
 
-#ifdef SERVERBUILD
-#  include <server/udaServer.h>
-#  include <server/createXDRStream.h>
-#  include <server/serverStartup.h>
-#endif
-
 #ifndef FATCLIENT
 #  include "udaErrors.h"
 #endif
@@ -218,7 +212,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         UDA_LOG(UDA_LOG_DEBUG, "creating temporary/cache XDR file\n");
 
                         errno = 0;
-                        if (mkstemp(temp_file.data()) < 0 || errno != 0) {
+                        if (mkstemp((char*)temp_file.data()) < 0 || errno != 0) {
                             err = 999;
                             if (errno != 0) err = errno;
                             addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
@@ -513,7 +507,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         // structures, pass the file onward
 
                         errno = 0;
-                        if (mkstemp(temp_file.data()) < 0 || errno != 0) {
+                        if (mkstemp((char*)temp_file.data()) < 0 || errno != 0) {
                             err = 998;
                             if (errno != 0) err = errno;
                             addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
@@ -595,7 +589,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             UDA_LOG(UDA_LOG_DEBUG, "creating temporary/cached XDR file\n");
 
                             errno = 0;
-                            if (mkstemp(temp_file.data()) < 0 || errno != 0) {
+                            if (mkstemp((char*)temp_file.data()) < 0 || errno != 0) {
                                 err = 997;
                                 if (errno != 0) err = errno;
                                 addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
@@ -922,7 +916,7 @@ protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         // Create a temporary XDR file, receive and write data to the file
 
                         errno = 0;
-                        if (mkstemp(temp_file.data()) < 0 || errno != 0) {
+                        if (mkstemp((char*)temp_file.data()) < 0 || errno != 0) {
                             err = 996;
                             if (errno != 0) err = errno;
                             addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,

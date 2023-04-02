@@ -1,4 +1,4 @@
-macro( filter_lib_list INPUT OUTPUT GOOD BAD )
+function( filter_lib_list INPUT OUTPUT GOOD BAD )
   set( LIB_LST ${INPUT} )
   set( USE_LIB YES )
   foreach( ELEMENT IN LISTS LIB_LST )
@@ -10,9 +10,9 @@ macro( filter_lib_list INPUT OUTPUT GOOD BAD )
       list( APPEND ${OUTPUT} ${ELEMENT} )
     endif()
   endforeach()
-endmacro( filter_lib_list )
+endfunction( filter_lib_list )
 
-macro( uda_plugin )
+function( uda_plugin )
 
   find_package( OpenSSL REQUIRED )
   if( WIN32 OR MINGW )
@@ -42,33 +42,35 @@ macro( uda_plugin )
     set( PLUGIN_VERSION "0.0.0" )
   endif()
 
-  include_directories(
-    ${CMAKE_SOURCE_DIR}/source
-  )
-
   if( NOT APPLE AND NOT WIN32 AND NOT MINGW AND CMAKE_COMPILER_IS_GNUCC )
     set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,defs" )
   endif()
 
-  include_directories( SYSTEM /opt/local/include )
-  foreach( INCLUDE_DIR ${PLUGIN_EXTRA_INCLUDE_DIRS} )
-    include_directories( SYSTEM ${INCLUDE_DIR} )
-  endforeach()
-
-  foreach( LINK_DIR ${PLUGIN_EXTRA_LINK_DIRS} )
-    link_directories( ${LINK_DIR} )
-  endforeach()
-
   add_library( ${PLUGIN_LIBNAME} SHARED ${PLUGIN_SOURCES} )
-  set_target_properties( ${PLUGIN_LIBNAME}
+  set_target_properties(
+    ${PLUGIN_LIBNAME}
     PROPERTIES
     BUILD_WITH_INSTALL_RPATH TRUE
     SOVERSION ${PLUGIN_VERSION}
     VERSION ${PLUGIN_VERSION}
   )
 
+  target_compile_features( ${PLUGIN_LIBNAME} PRIVATE cxx_std_11 )
+
+  # TODO: In UDA 3.0 plugins should only have access to public headers (/include/uda/*) not private headers
+  target_include_directories( ${PLUGIN_LIBNAME} PRIVATE ${PROJECT_SOURCE_DIR}/source )
+
+  foreach( INCLUDE_DIR ${PLUGIN_EXTRA_INCLUDE_DIRS} )
+    target_include_directories( ${PLUGIN_LIBNAME} PRIVATE SYSTEM ${INCLUDE_DIR} )
+  endforeach()
+
+  foreach( LINK_DIR ${PLUGIN_EXTRA_LINK_DIRS} )
+    target_link_directories( ${PLUGIN_LIBNAME} PRIVATE ${LINK_DIR} )
+  endforeach()
+
   if( WIN32 )
-    set_target_properties( ${PLUGIN_LIBNAME}
+    set_target_properties(
+      ${PLUGIN_LIBNAME}
       PROPERTIES
         COMPILE_FLAGS -DLIBRARY_EXPORTS
         IMPORT_SUFFIX ${IMPLIB_SUFFIX}
@@ -76,18 +78,15 @@ macro( uda_plugin )
   endif()
 
   if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-    add_definitions( -DA64 )
+    target_compile_definitions( ${PLUGIN_LIBNAME} PRIVATE -DA64 )
   endif()
 
-  add_definitions( -DSERVERBUILD )
+  target_compile_definitions( ${PLUGIN_LIBNAME} PRIVATE -DSERVERBUILD )
   foreach( DEF ${PLUGIN_EXTRA_DEFINITIONS} )
-    add_definitions( ${DEF} )
+    target_compile_definitions( ${PLUGIN_LIBNAME} PRIVATE ${DEF} )
   endforeach()
   
   set( LIBRARIES client-shared plugins-shared ${OPENSSL_LIBRARIES} )
-  if( ENABLE_CAPNP )
-    set( LIBRARIES ${LIBRARIES} serialisation-static )
-  endif()
   if( WIN32 OR MINGW )
     if( MINGW )
       set( LIBRARIES ${LIBRARIES} ${XDR_LIBRARIES} dl stdc++ )
@@ -103,7 +102,7 @@ macro( uda_plugin )
   filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized ) 
   set( LIBRARIES ${LIBRARIES} ${FILTERED_LINK_LIBS} )
   
-  target_link_libraries( ${PLUGIN_LIBNAME} PRIVATE ${LIBRARIES} )
+  target_link_libraries( ${PLUGIN_LIBNAME} PRIVATE ${LIBRARIES} fmt::fmt uda::server-shared )
   
   install(
     TARGETS ${PLUGIN_LIBNAME}
@@ -166,4 +165,4 @@ macro( uda_plugin )
     )
   endif()
 
-endmacro( uda_plugin )
+endfunction( uda_plugin )

@@ -12,10 +12,6 @@
 #include "stringUtils.h"
 #include "protocol.h"
 
-#ifdef SERVERBUILD
-#  include <server/serverStartup.h>
-#endif
-
 static int recursiveDepthPut = 0;    // Keep count of recursive calls
 
 int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,

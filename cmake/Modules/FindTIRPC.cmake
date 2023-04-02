@@ -49,3 +49,12 @@ include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( TIRPC DEFAULT_MSG TIRPC_LIBRARIES TIRPC_INCLUDE_DIR )
 
 mark_as_advanced( TIRPC_LIBRARIES TIRPC_INCLUDE_DIR )
+
+if( TIRPC_FOUND AND NOT TARGET TIRPC::rpc )
+  add_library( TIRPC::rpc UNKNOWN IMPORTED )
+  set_target_properties( TIRPC::rpc PROPERTIES
+    IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
+    IMPORTED_LOCATION "${TIRPC_LIBRARIES}"
+    INTERFACE_INCLUDE_DIRECTORIES "${TIRPC_INCLUDE_DIR}"
+  )
+endif()

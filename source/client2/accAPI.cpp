@@ -24,7 +24,7 @@
 #include <clientserver/xdrlib.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
-#include <version.h>
+#include <uda/version.h>
 
 #include "generate_errors.hpp"
 #include "thread_client.hpp"

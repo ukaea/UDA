@@ -72,6 +72,82 @@ void freePluginList(PLUGINLIST* plugin_list)
     plugin_list->mcount = 0;
 }
 
+/**
+ * Find the Plugin identity: return the reference id or -1 if not found.
+ * @param request
+ * @param plugin_list
+ * @return
+ */
+int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list)
+{
+    for (int i = 0; i < plugin_list->count; i++) {
+        if (plugin_list->plugin[i].request == request) return i;
+    }
+    return -1;
+}
+
+/**
+ * Find the Plugin identity: return the reference id or -1 if not found.
+ * @param format
+ * @param plugin_list
+ * @return
+ */
+int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
+{
+    for (int i = 0; i < plugin_list->count; i++) {
+        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) return i;
+    }
+    return -1;
+}
+
+/**
+ * Find the Plugin identity: return the reference id or -1 if not found.
+ * @param device
+ * @param plugin_list
+ * @return
+ */
+int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list)
+{
+    for (int i = 0; i < plugin_list->count; i++) {
+        if (plugin_list->plugin[i].plugin_class == UDA_PLUGIN_CLASS_DEVICE && STR_IEQUALS(plugin_list->plugin[i].format, device)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/**
+ * Find the Plugin Request: return the request or REQUEST_READ_UNKNOWN if not found.
+ * @param format
+ * @param plugin_list
+ * @return
+ */
+int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list)
+{
+    for (int i = 0; i < plugin_list->count; i++) {
+        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) {
+            return plugin_list->plugin[i].request;
+        }
+    }
+    return REQUEST_READ_UNKNOWN;
+}
+
+/**
+ * Find the Plugin Request: return the request or REQUEST_READ_UNKNOWN if not found.
+ * @param extension
+ * @param plugin_list
+ * @return
+ */
+int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list)
+{
+    for (int i = 0; i < plugin_list->count; i++) {
+        if (STR_IEQUALS(plugin_list->plugin[i].extension, extension)) {
+            return plugin_list->plugin[i].request;
+        }
+    }
+    return REQUEST_READ_UNKNOWN;
+}
+
 void initPluginData(PLUGIN_DATA* plugin)
 {
     plugin->format[0] = '\0';

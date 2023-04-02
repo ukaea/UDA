@@ -6,21 +6,6 @@ find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
 
-if( WIN32 OR MINGW )
-  find_package( OpenSSL REQUIRED )
-  find_package( XDR REQUIRED )
-  if( NOT MINGW )
-    find_package( dlfcn-win32 CONFIG REQUIRED )
-  endif()
-else()
-  find_package( TIRPC QUIET)
-  if(TIRPC_FOUND)
-    add_definitions(-D__TIRPC__)
-  endif()
-endif()
-
-set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../.. )
-
 set( LIB_NAME ${PROJECT_NAME}_cpp )
 
 set( SRC_FILES
@@ -37,81 +22,110 @@ set( SRC_FILES
   signal.cpp
 )
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${Boost_INCLUDE_DIR}
-)
-
-include_directories( ${LIBXML2_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} )
-
-if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-elseif(TIRPC_FOUND)
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-endif()
-
 if( ITER_CI )
   add_definitions( -D__USE_XOPEN2K8 )
 endif()
 
-include_directories( SYSTEM "${Boost_INCLUDE_DIRS}" )
-
 add_library( cpp-objects OBJECT ${SRC_FILES} )
+add_library( uda::cpp-objects ALIAS cpp-objects )
 
-set( CLIENT_OBJS
-  $<TARGET_OBJECTS:client-objects>
-  $<TARGET_OBJECTS:clientserver-client-objects>
-  $<TARGET_OBJECTS:cache-objects>
-  $<TARGET_OBJECTS:logging-client-objects>
-  $<TARGET_OBJECTS:structures-client-objects>
-  $<TARGET_OBJECTS:authentication-client-objects>
+target_compile_features( cpp-objects  PRIVATE cxx_std_11 )
+
+target_link_libraries(
+  cpp-objects
+  PRIVATE
+  uda::client-static
+  PUBLIC
+  Boost::boost
+  LibXml2::LibXml2
+  OpenSSL::SSL
+  OpenSSL::Crypto
+  fmt::fmt
 )
 
-set( LINK_LIB ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${CACHE_LIBRARIES} fmt::fmt )
+target_include_directories(
+  cpp-objects
+  PUBLIC
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  PRIVATE
+  ${PROJECT_SOURCE_DIR}/source
+)
+
 if( WIN32 OR MINGW )
   if( MINGW )
-    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dl stdc++ )
+    target_link_libraries( cpp-objects PRIVATE XDR::XDR ws2_32 dl stdc++ )
   else()
-    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl )
+    target_link_libraries( cpp-objects PRIVATE XDR::XDR ws2_32 dlfcn-win32::dl )
   endif()
 elseif( TIRPC_FOUND )
-  set( LINK_LIB ${LINK_LIB} ${TIRPC_LIBRARIES} )
+  target_link_libraries( cpp-objects PRIVATE TIRPC::rpc )
 endif()
 
-add_library( ${LIB_NAME}-static STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-target_link_libraries( ${LIB_NAME}-static PRIVATE ${LINK_LIB} )
+add_library( ${LIB_NAME}-static STATIC )
+add_library( uda::${LIB_NAME}-static ALIAS ${LIB_NAME}-static )
 
 if( BUILD_SHARED_LIBS )
-  add_library( ${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${LINK_LIB} )
+  add_library( ${LIB_NAME}-shared SHARED )
+  add_library( uda::${LIB_NAME}-shared ALIAS ${LIB_NAME}-shared )
+endif()
+
+target_link_libraries( ${LIB_NAME}-static PUBLIC uda::cpp-objects )
+
+if( BUILD_SHARED_LIBS )
+  target_link_libraries( ${LIB_NAME}-shared PUBLIC uda::cpp-objects )
 endif()
 
 if( NOT CLIENT_ONLY )
-  add_library( fatcpp-objects OBJECT ${SRC_FILES} )
-  target_compile_definitions( fatcpp-objects PRIVATE -DFATCLIENT )
+  add_library( fat${LIB_NAME}-static STATIC )
+  add_library( uda::fat${LIB_NAME}-static ALIAS ${LIB_NAME}-static )
 
-  set( FATCLIENT_OBJS
-    $<TARGET_OBJECTS:fatclient-objects>
-    $<TARGET_OBJECTS:fatserver-objects>
-    $<TARGET_OBJECTS:fatclientserver-objects>
-    $<TARGET_OBJECTS:structures-server-objects>
-    $<TARGET_OBJECTS:cache-objects>
-    $<TARGET_OBJECTS:logging-server-objects>
-    $<TARGET_OBJECTS:plugins-objects>
+  target_compile_definitions( fat${LIB_NAME}-static PRIVATE -DFATCLIENT )
+
+  target_link_libraries(
+    fat${LIB_NAME}-static
+    PRIVATE
+    uda::cpp-objects
+    PUBLIC
+    LibXml2::LibXml2
   )
 
-  add_library( fat${LIB_NAME}-static STATIC $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-  target_link_libraries( fat${LIB_NAME}-static PRIVATE ${LINK_LIB} plugins-static )
-  
+  target_include_directories(
+    fat${LIB_NAME}-static
+    PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    PRIVATE
+    ${PROJECT_SOURCE_DIR}/source
+  )
+
   if( BUILD_SHARED_LIBS )
-    add_library( fat${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-    target_link_libraries( fat${LIB_NAME}-shared PRIVATE ${LINK_LIB} plugins-shared )
+    add_library( fat${LIB_NAME}-shared SHARED )
+    add_library( uda::fat${LIB_NAME}-shared ALIAS ${LIB_NAME}-shared )
+
+    target_compile_definitions( fat${LIB_NAME}-shared PRIVATE -DFATCLIENT )
+    target_link_libraries(
+      fat${LIB_NAME}-shared
+      PRIVATE
+      uda::cpp-objects
+      PUBLIC
+      LibXml2::LibXml2
+    )
+
+    target_include_directories(
+      fat${LIB_NAME}-shared
+      PUBLIC
+      $<INSTALL_INTERFACE:include>
+      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+      PRIVATE
+      ${PROJECT_SOURCE_DIR}/source
+    )
   endif()
 endif()
 
 set_target_properties( ${LIB_NAME}-static
   PROPERTIES
-    OUTPUT_NAME ${LIB_NAME}
+    OUTPUT_NAME ${LIB_NAME}_static
 )
 
 install( TARGETS ${LIB_NAME}-static
@@ -149,11 +163,10 @@ install( FILES ${CMAKE_BINARY_DIR}/etc/uda/uda-cpp.pc
   DESTINATION modulefiles/uda
 )
 
-
 if( NOT CLIENT_ONLY )
   set_target_properties( fat${LIB_NAME}-static
     PROPERTIES
-      OUTPUT_NAME fat${LIB_NAME}
+      OUTPUT_NAME fat${LIB_NAME}_static
   )
   
   install( TARGETS fat${LIB_NAME}-static

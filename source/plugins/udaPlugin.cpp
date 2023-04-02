@@ -4,6 +4,7 @@
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
+#include <server/serverPlugin.h>
 
 int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
@@ -257,82 +258,6 @@ int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* d
 }
 
 /**
- * Find the Plugin identity: return the reference id or -1 if not found.
- * @param request
- * @param plugin_list
- * @return
- */
-int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list)
-{
-    for (int i = 0; i < plugin_list->count; i++) {
-        if (plugin_list->plugin[i].request == request) return i;
-    }
-    return -1;
-}
-
-/**
- * Find the Plugin identity: return the reference id or -1 if not found.
- * @param format
- * @param plugin_list
- * @return
- */
-int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
-{
-    for (int i = 0; i < plugin_list->count; i++) {
-        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) return i;
-    }
-    return -1;
-}
-
-/**
- * Find the Plugin identity: return the reference id or -1 if not found.
- * @param device
- * @param plugin_list
- * @return
- */
-int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list)
-{
-    for (int i = 0; i < plugin_list->count; i++) {
-        if (plugin_list->plugin[i].plugin_class == UDA_PLUGIN_CLASS_DEVICE && STR_IEQUALS(plugin_list->plugin[i].format, device)) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-/**
- * Find the Plugin Request: return the request or REQUEST_READ_UNKNOWN if not found.
- * @param format
- * @param plugin_list
- * @return
- */
-int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list)
-{
-    for (int i = 0; i < plugin_list->count; i++) {
-        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) {
-            return plugin_list->plugin[i].request;
-        }
-    }
-    return REQUEST_READ_UNKNOWN;
-}
-
-/**
- * Find the Plugin Request: return the request or REQUEST_READ_UNKNOWN if not found.
- * @param extension
- * @param plugin_list
- * @return
- */
-int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list)
-{
-    for (int i = 0; i < plugin_list->count; i++) {
-        if (STR_IEQUALS(plugin_list->plugin[i].extension, extension)) {
-            return plugin_list->plugin[i].request;
-        }
-    }
-    return REQUEST_READ_UNKNOWN;
-}
-
-/**
  * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associated value.
  *
  * If the argument is found the value associated with the argument is provided via the value parameter and the function
@@ -347,13 +272,13 @@ bool findStringValue(const NAMEVALUELIST* namevaluelist, const char** value, con
     char** names = SplitString(name, "|");
     *value = nullptr;
 
-    bool found = 0;
+    bool found = false;
     for (int i = 0; i < namevaluelist->pairCount; i++) {
         size_t n;
         for (n = 0; names[n] != nullptr; ++n) {
             if (STR_IEQUALS(namevaluelist->nameValue[i].name, names[n])) {
                 *value = namevaluelist->nameValue[i].value;
-                found = 1;
+                found = true;
                 break;
             }
         }
@@ -515,7 +440,7 @@ bool findValue(const NAMEVALUELIST* namevaluelist, const char* name)
         size_t n = 0;
         while (names[n] != nullptr) {
             if (STR_IEQUALS(namevaluelist->nameValue[i].name, names[n])) {
-                found = 1;
+                found = true;
                 break;
             }
             ++n;
@@ -538,16 +463,16 @@ int callPlugin(const PLUGINLIST* pluginlist, const char* singal, const IDAM_PLUG
 
     request.request = findPluginRequestByFormat(request.format, pluginlist);
     if (request.request == REQUEST_READ_UNKNOWN) {
-        RAISE_PLUGIN_ERROR("Plugin not found!");
+        RAISE_PLUGIN_ERROR("Plugin not found!")
     }
 
-    int err = 0;
+    int err;
     int id = findPluginIdByRequest(request.request, pluginlist);
     PLUGIN_DATA* plugin = &(pluginlist->plugin[id]);
     if (id >= 0 && plugin->idamPlugin != nullptr) {
         err = plugin->idamPlugin(&idam_plugin_interface);    // Call the data reader
     } else {
-        RAISE_PLUGIN_ERROR("Data Access is not available for this data request!");
+        RAISE_PLUGIN_ERROR("Data Access is not available for this data request!")
     }
 
     return err;

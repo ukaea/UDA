@@ -24,8 +24,7 @@
 #include <clientserver/xdrlib.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
-#include <cache/memcache.hpp>
-#include <version.h>
+#include <uda/version.h>
 
 #include "generateErrors.h"
 #include "getEnvironment.h"

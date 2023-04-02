@@ -33,12 +33,6 @@ typedef void (* ADDIDAMERRORFUNP)(UDA_ERROR_STACK*, int, char*, int, char*);   /
 
 LIBRARY_API int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
 
-LIBRARY_API int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list);
-LIBRARY_API int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list);
-LIBRARY_API int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list);
-LIBRARY_API int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list);
-LIBRARY_API int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list);
-
 LIBRARY_API int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, const size_t* shape, const char* description);
 LIBRARY_API int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank, const size_t* shape, const char* description);
 LIBRARY_API int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const size_t* shape, const char* description);
