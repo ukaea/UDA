@@ -19,6 +19,7 @@ set( LOGGING_BACKEND "FILE" CACHE STRING "Choose logging backend [FILE;SYSLOG]" 
 
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
+add_subdirectory( bin )
 add_subdirectory( cache )
 add_subdirectory( logging )
 add_subdirectory( authentication )
