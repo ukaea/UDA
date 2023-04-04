@@ -9,5 +9,5 @@ Description: The Universal Data Access library
 URL: https://ukaea.github.io/UDA/
 Version: @PROJECT_VERSION@
 Cflags: -DFATCLIENT -std=c++11 -I${includedir} -I${includedir}/c++
-Libs: -L${libdir} -lfatuda_cpp @CACHE_LIBRARIES@
+Libs: -L${libdir} -lfatuda_cpp @PKGCONFIG_LIBRARIES@
 Requires: @PKGCONFIG_REQUIRES@

@@ -9,5 +9,5 @@ Description: The Universal Data Access library
 URL: http://www.iter.org/UDA
 Version: @PROJECT_VERSION@
 Cflags: -DFATCLIENT -I${includedir}
-Libs: -L${libdir} -lfatuda_client @CACHE_LIBRARIES@
+Libs: -L${libdir} -lfatuda_client @PKGCONFIG_LIBRARIES@
 Requires: @PKGCONFIG_REQUIRES@
