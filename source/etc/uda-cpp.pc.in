@@ -6,7 +6,8 @@ libdir=${exec_prefix}/lib
 
 Name: UDA
 Description: The Universal Data Access library
-URL: http://www.iter.org/UDA
+URL: https://ukaea.github.io/UDA/
 Version: @PROJECT_VERSION@
 Cflags: -std=c++11 -I${includedir} -I${includedir}/c++
 Libs: -L${libdir} -luda_cpp @CACHE_LIBRARIES@
+Requires: @PKGCONFIG_REQUIRES@

@@ -6,7 +6,7 @@ libdir=${exec_prefix}/lib
 
 Name: UDA
 Description: The Universal Data Access library
-URL: http://www.iter.org/UDA
+URL: https://ukaea.github.io/UDA/
 Version: @PROJECT_VERSION@
 Cflags: -I${includedir}
 Libs: -L${libdir} -luda_plugins -luda_server @CACHE_LIBRARIES@
