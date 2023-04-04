@@ -84,6 +84,10 @@ set( PKGCONFIG_FILES
   uda-plugins.pc
 )
 
+if( ENABLE_CAPNP )
+  set( PKGCONFIG_REQUIRES capnp )
+endif()
+
 foreach( PKGCONFIG_FILE ${PKGCONFIG_FILES} )
   configure_file(
     "${CMAKE_SOURCE_DIR}/source/etc/${PKGCONFIG_FILE}.in"
