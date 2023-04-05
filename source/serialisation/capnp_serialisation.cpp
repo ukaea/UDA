@@ -143,7 +143,7 @@ struct NodeReader {
 };
 
 struct TreeReader {
-    std::shared_ptr<capnp::PackedMessageReader> message_reader;
+    std::shared_ptr<capnp::FlatArrayMessageReader> message_reader;
     NodeReader* root = nullptr;
     std::vector<std::unique_ptr<NodeReader>> nodes= {};
 };
@@ -160,23 +160,21 @@ struct TreeBuilder {
 
 Buffer uda_capnp_serialise(TreeBuilder* tree)
 {
-    kj::VectorOutputStream out;
-    capnp::writePackedMessage(out, *tree->message_builder);
+    auto array = capnp::messageToFlatArray(*tree->message_builder);
+    auto bytes = array.asBytes();
 
-    auto arr = out.getArray();
-    char* buffer = (char*)malloc(arr.size());
-    std::copy(arr.begin(), arr.end(), buffer);
+    char* buffer = (char*)malloc(bytes.size() * sizeof(capnp::word));
+    std::copy(bytes.begin(), bytes.end(), buffer);
 
-    return Buffer{ buffer, arr.size() };
+    return Buffer{ buffer, bytes.size() };
 }
 
 TreeReader* uda_capnp_deserialise(const char* bytes, size_t size)
 {
     // ArrayPtr requires non const ptr, but we are only using this to read from the bytes array
-    kj::ArrayPtr<kj::byte> buffer(reinterpret_cast<kj::byte*>(const_cast<char*>(bytes)), size);
-    kj::ArrayInputStream in(buffer);
+    kj::ArrayPtr<capnp::word> buffer(reinterpret_cast<capnp::word*>(const_cast<char*>(bytes)), size / sizeof(capnp::word));
 
-    auto message_reader = std::make_shared<capnp::PackedMessageReader>(in);
+    auto message_reader = std::make_shared<capnp::FlatArrayMessageReader>(buffer);
     auto root = message_reader->getRoot<TreeNode>();
     auto tree = new TreeReader{ message_reader, nullptr };
     tree->nodes.emplace_back(std::make_unique<NodeReader>(NodeReader{ root }));
@@ -488,7 +486,6 @@ bool uda_capnp_read_shape(NodeReader* node, size_t* shape)
         shape[i] = el;
         ++i;
     }
-//    std::copy(shape_array.begin(), shape_array.end(), shape);
     return true;
 }
 

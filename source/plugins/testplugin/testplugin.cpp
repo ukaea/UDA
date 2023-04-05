@@ -3997,6 +3997,45 @@ int do_nested_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     return 0;
 }
+
+int do_long_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    auto tree = uda_capnp_new_tree();
+    auto root = uda_capnp_get_root(tree);
+    uda_capnp_set_node_name(root, "root");
+
+    constexpr int N = 100;
+    uda_capnp_add_children(root, N);
+
+    for (int i = 0; i < N; ++i) {
+        std::string name = "node/" + std::to_string(i);
+        auto child = uda_capnp_get_child(tree, root, i);
+        uda_capnp_set_node_name(child, name.c_str());
+
+        uda_capnp_add_children(child, 2);
+
+        auto shape = uda_capnp_get_child(tree, child, 0);
+        uda_capnp_set_node_name(shape, "shape");
+        std::vector<int> vals(0);
+        uda_capnp_add_array_i32(shape, vals.data(), vals.size());
+
+        auto data = uda_capnp_get_child(tree, child, 1);
+        uda_capnp_set_node_name(data, "data");
+        uda_capnp_add_i32(data, i + 1);
+    }
+
+    auto buffer = uda_capnp_serialise(tree);
+
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    initDataBlock(data_block);
+
+    data_block->data_n = static_cast<int>(buffer.size);
+    data_block->data = buffer.data;
+    data_block->dims = nullptr;
+    data_block->data_type = UDA_TYPE_CAPNP;
+
+    return 0;
+}
 #endif // CAPNP_ENABLED
 
 #ifdef TESTUDT
