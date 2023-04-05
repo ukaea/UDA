@@ -91,7 +91,7 @@ void print_tree(const uda::TreeNode& node, const std::string& indent)
         } else {
             std::string base_type = type;
             replace(base_type, " *", "");
-            size_t count = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies());
+            size_t count = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
 
             if (base_type == "char") {
                 print_atomic_data<char>(data, rank, count);
@@ -129,7 +129,7 @@ void print_tree(const uda::TreeNode& node, const std::string& indent)
 template<typename T>
 void print_capnp_data(NodeReader* node, const std::vector<size_t>& shape, const std::string& indent)
 {
-    size_t count = std::accumulate(shape.begin(), shape.end(), (size_t)1, std::multiplies());
+    size_t count = std::accumulate(shape.begin(), shape.end(), (size_t)1, std::multiplies<>());
 
     std::vector<T> data(count);
     uda_capnp_read_data(node, reinterpret_cast<char*>(data.data()));
