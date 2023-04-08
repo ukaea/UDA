@@ -12,6 +12,25 @@
 
 #include "schema.capnp.h"
 
+namespace {
+
+class PackedMessageStreamReader : public capnp::MessageReader {
+public:
+    PackedMessageStreamReader(const char *bytes, size_t size)
+            : capnp::MessageReader{capnp::ReaderOptions{}},
+              in_{kj::ArrayPtr<const kj::byte>{reinterpret_cast<const kj::byte *>(bytes), size}}, reader_{in_} {}
+
+    kj::ArrayPtr<const capnp::word> getSegment(uint id) override {
+        return reader_.getSegment(id);
+    }
+
+private:
+    kj::ArrayInputStream in_;
+    capnp::PackedMessageReader reader_;
+};
+
+} // anon namespace
+
 std::ostream& operator<<(std::ostream& out, const kj::ArrayPtr<::kj::byte> bytes)
 {
     for (auto byte : bytes) {
@@ -143,7 +162,7 @@ struct NodeReader {
 };
 
 struct TreeReader {
-    std::shared_ptr<capnp::FlatArrayMessageReader> message_reader;
+    std::shared_ptr<capnp::MessageReader> message_reader;
     NodeReader* root = nullptr;
     std::vector<std::unique_ptr<NodeReader>> nodes= {};
 };
@@ -160,21 +179,19 @@ struct TreeBuilder {
 
 Buffer uda_capnp_serialise(TreeBuilder* tree)
 {
-    auto array = capnp::messageToFlatArray(*tree->message_builder);
-    auto bytes = array.asBytes();
+    kj::VectorOutputStream out;
+    capnp::writePackedMessage(out, *tree->message_builder);
 
-    char* buffer = (char*)malloc(bytes.size() * sizeof(capnp::word));
-    std::copy(bytes.begin(), bytes.end(), buffer);
+    auto bytes = out.getArray();
+    char* buffer = (char*)malloc(bytes.size());
+    memcpy(buffer, bytes.begin(), bytes.size());
 
     return Buffer{ buffer, bytes.size() };
 }
 
 TreeReader* uda_capnp_deserialise(const char* bytes, size_t size)
 {
-    // ArrayPtr requires non const ptr, but we are only using this to read from the bytes array
-    kj::ArrayPtr<capnp::word> buffer(reinterpret_cast<capnp::word*>(const_cast<char*>(bytes)), size / sizeof(capnp::word));
-
-    auto message_reader = std::make_shared<capnp::FlatArrayMessageReader>(buffer);
+    auto message_reader = std::make_shared<PackedMessageStreamReader>(bytes, size);
     auto root = message_reader->getRoot<TreeNode>();
     auto tree = new TreeReader{ message_reader, nullptr };
     tree->nodes.emplace_back(std::make_unique<NodeReader>(NodeReader{ root }));
@@ -496,6 +513,6 @@ bool uda_capnp_read_data(NodeReader* node, char* ptr)
     }
     auto array = node->node.getArray();
     auto data = array.getData();
-    std::copy(data.begin(), data.end(), ptr);
+    memcpy(ptr, data.begin(), data.size());
     return true;
 }

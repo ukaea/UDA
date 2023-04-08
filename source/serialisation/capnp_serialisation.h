@@ -26,7 +26,7 @@ struct NodeBuilder;
 struct TreeReader;
 struct NodeReader;
 
-Buffer uda_capnp_serialise(TreeBuilder* tree);
+BUFFER uda_capnp_serialise(TreeBuilder* tree);
 TreeReader* uda_capnp_deserialise(const char* bytes, size_t size);
 
 NodeReader* uda_capnp_read_root(TreeReader* tree);
@@ -35,7 +35,7 @@ NodeReader* uda_capnp_read_child(TreeReader* tree, NodeReader* node, const char*
 NodeReader* uda_capnp_read_child_n(TreeReader* tree, NodeReader* node, size_t index);
 const char* uda_capnp_read_name(NodeReader* node);
 int uda_capnp_read_type(NodeReader* node);
-Optional_Size_t uda_capnp_read_rank(NodeReader* node);
+OPTIONAL_SIZE_T uda_capnp_read_rank(NodeReader* node);
 bool uda_capnp_read_shape(NodeReader* node, size_t* shape);
 bool uda_capnp_read_data(NodeReader* node, char* data);
 
