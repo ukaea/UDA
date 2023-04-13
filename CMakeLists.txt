@@ -39,6 +39,8 @@ set( CMAKE_MODULE_PATH
 include( ColourMessages )
 include_directories( /opt/local/include )
 
+set( Boost_USE_MULTITHREADED OFF )
+
 ########################################################################################################################
 # Version and Machine information
 

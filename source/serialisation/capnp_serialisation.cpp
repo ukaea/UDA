@@ -16,9 +16,9 @@ namespace {
 
 class PackedMessageStreamReader : public capnp::MessageReader {
 public:
-    PackedMessageStreamReader(const char *bytes, size_t size)
-            : capnp::MessageReader{capnp::ReaderOptions{}},
-              in_{kj::ArrayPtr<const kj::byte>{reinterpret_cast<const kj::byte *>(bytes), size}}, reader_{in_} {}
+    PackedMessageStreamReader(const char *bytes, size_t size, capnp::ReaderOptions options)
+            : capnp::MessageReader{options},
+              in_{kj::ArrayPtr<const kj::byte>{reinterpret_cast<const kj::byte *>(bytes), size}}, reader_{in_, options} {}
 
     kj::ArrayPtr<const capnp::word> getSegment(uint id) override {
         return reader_.getSegment(id);
@@ -191,7 +191,9 @@ Buffer uda_capnp_serialise(TreeBuilder* tree)
 
 TreeReader* uda_capnp_deserialise(const char* bytes, size_t size)
 {
-    auto message_reader = std::make_shared<PackedMessageStreamReader>(bytes, size);
+    capnp::ReaderOptions options = {};
+    options.traversalLimitInWords = 100 * 1024 * 1024;
+    auto message_reader = std::make_shared<PackedMessageStreamReader>(bytes, size, options);
     auto root = message_reader->getRoot<TreeNode>();
     auto tree = new TreeReader{ message_reader, nullptr };
     tree->nodes.emplace_back(std::make_unique<NodeReader>(NodeReader{ root }));
