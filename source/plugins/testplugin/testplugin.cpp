@@ -138,6 +138,10 @@ static int do_emptytest(IDAM_PLUGIN_INTERFACE* plugin_interface);
 static int do_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 static int do_nested_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
+
+static int do_long_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
+
+static int do_large_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
 #endif // CAPNP_ENABLED
 
 #ifdef TESTUDT
@@ -331,8 +335,12 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 #ifdef CAPNP_ENABLED
     } else if (STR_IEQUALS(request->function, "capnp")) {
         err = do_capnp_test(plugin_interface);
-    } else if (STR_IEQUALS(request->function, "nested_capnp")) {
+    } else if (STR_IEQUALS(request->function, "capnp_nested")) {
         err = do_nested_capnp_test(plugin_interface);
+    } else if (STR_IEQUALS(request->function, "capnp_long")) {
+        err = do_long_capnp_test(plugin_interface);
+    } else if (STR_IEQUALS(request->function, "capnp_large")) {
+        err = do_large_capnp_test(plugin_interface);
 #endif // CAPNP_ENABLED
     } else {
         err = 999;
@@ -4004,7 +4012,7 @@ int do_long_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
     auto root = uda_capnp_get_root(tree);
     uda_capnp_set_node_name(root, "root");
 
-    constexpr int N = 100;
+    constexpr int N = 1000;
     uda_capnp_add_children(root, N);
 
     for (int i = 0; i < N; ++i) {
@@ -4023,6 +4031,36 @@ int do_long_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
         uda_capnp_set_node_name(data, "data");
         uda_capnp_add_i32(data, i + 1);
     }
+
+    auto buffer = uda_capnp_serialise(tree);
+
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    initDataBlock(data_block);
+
+    data_block->data_n = static_cast<int>(buffer.size);
+    data_block->data = buffer.data;
+    data_block->dims = nullptr;
+    data_block->data_type = UDA_TYPE_CAPNP;
+
+    return 0;
+}
+
+int do_large_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    auto tree = uda_capnp_new_tree();
+    auto root = uda_capnp_get_root(tree);
+    uda_capnp_set_node_name(root, "root");
+    uda_capnp_add_children(root, 1);
+
+    auto child = uda_capnp_get_child(tree, root, 0);
+    uda_capnp_set_node_name(child, "double_array");
+
+    constexpr size_t N = 16'777'216; // 1GB worth of doubles
+    std::vector<double> vec(30);
+    for (int i = 0; i < 30; ++i) {
+        vec[i] = i / 10.0;
+    }
+    uda_capnp_add_array_f64(child, vec.data(), vec.size());
 
     auto buffer = uda_capnp_serialise(tree);
 

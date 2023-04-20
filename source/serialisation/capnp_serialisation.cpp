@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include <cassert>
+#include <boost/core/span.hpp>
 
 #include <clientserver/udaTypes.h>
 
@@ -75,11 +76,11 @@ std::ostream& operator<<(std::ostream& out, const typename capnp::List<uint64_t,
 }
 
 template <typename T>
-std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
+std::ostream& operator<<(std::ostream& out, boost::span<T> span)
 {
     const char* delim = "";
     int count = 0;
-    for (auto el : vec) {
+    for (auto el : span) {
         if (count == 10) {
             out << delim << "...";
             break;
@@ -92,24 +93,43 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
 }
 
 template <typename T>
+void print_slices(std::ostream& out, capnp::List<capnp::Data, capnp::Kind::BLOB>::Reader& slices)
+{
+    slices.size();
+    slices[0].size();
+}
+
+template <typename T>
 void print_data(std::ostream& out, ::TreeNode::Array::Reader& array, const std::string& indent)
 {
+    auto data = array.getData();
+    auto slices = data.getSlices();
+    if (slices.size() == 0) {
+        return;
+    }
+    auto slice = slices[0];
     auto len = array.getLen();
     if (len == 0) {
-        auto ptr = reinterpret_cast<const T*>(array.getData().begin());
+        auto ptr = reinterpret_cast<const T*>(slice.begin());
         out << indent << "  data: " << *ptr << "\n";
     } else {
-        auto ptr = reinterpret_cast<const T*>(array.getData().begin());
-        std::vector<T> vec(ptr, ptr + len);
-        out << indent << "  data: [" << vec << "]\n";
+        auto ptr = reinterpret_cast<const T*>(slice.begin());
+        boost::span span{ptr, ptr + len};
+        out << indent << "  data: [" << span << "]\n";
     }
 }
 
 template <>
 void print_data<std::string>(std::ostream& out, ::TreeNode::Array::Reader& array, const std::string& indent)
 {
+    auto data = array.getData();
+    auto slices = data.getSlices();
+    if (slices.size() == 0) {
+        return;
+    }
+    auto slice = slices[0];
     auto len = array.getLen();
-    auto ptr = reinterpret_cast<const char*>(array.getData().begin());
+    auto ptr = reinterpret_cast<const char*>(slice.begin());
     std::string str(ptr, ptr + len);
     out << indent << "  data: [" << str << "]\n";
 }
@@ -192,7 +212,7 @@ Buffer uda_capnp_serialise(TreeBuilder* tree)
 TreeReader* uda_capnp_deserialise(const char* bytes, size_t size)
 {
     capnp::ReaderOptions options = {};
-    options.traversalLimitInWords = 100 * 1024 * 1024;
+    options.traversalLimitInWords = std::numeric_limits<uint64_t>::max() / 8;
     auto message_reader = std::make_shared<PackedMessageStreamReader>(bytes, size, options);
     auto root = message_reader->getRoot<TreeNode>();
     auto tree = new TreeReader{ message_reader, nullptr };
@@ -275,8 +295,12 @@ template <> TreeNode::Type TreeNodeTypeConverter<uint64_t>::type = TreeNode::Typ
 template <> TreeNode::Type TreeNodeTypeConverter<float>::type = TreeNode::Type::FLT32;
 template <> TreeNode::Type TreeNodeTypeConverter<double>::type = TreeNode::Type::FLT64;
 
+// maximum size of data to send in each capnp "data" blob - capnp has a implicit limit of 512MB of data
+// for blobs so this size should not exceed that.
+constexpr size_t max_slice_size = 256 * 1024 * 1024;
+
 template <typename T>
-void uda_capnp_add_array(NodeBuilder* node, const T* data, size_t size)
+void uda_capnp_add_array(NodeBuilder* node, const T* data_ptr, size_t size)
 {
     assert(!node->node.isChildren());
     auto array = node->node.initArray();
@@ -284,9 +308,33 @@ void uda_capnp_add_array(NodeBuilder* node, const T* data, size_t size)
     array.setLen(size);
     auto shape = array.initShape(1);
     shape.set(0, size);
-    // ArrayPtr needs a non-const buffer, but we are only reading from it
-    kj::ArrayPtr<kj::byte> ptr(reinterpret_cast<kj::byte*>(const_cast<T*>(data)), size * sizeof(T));
-    array.setData(ptr);
+
+    auto data = array.initData();
+
+    size_t data_size = size * sizeof(T);
+
+    size_t num_slices = (data_size / max_slice_size) + 1;
+    auto slices = data.initSlices(num_slices);
+
+    size_t offset = 0;
+    size_t slice_num = 0;
+
+    while (data_size != 0) {
+        size_t data_stored = std::min(data_size, max_slice_size);
+        kj::ArrayPtr<const kj::byte> ptr = {
+                reinterpret_cast<const kj::byte*>(data_ptr) + offset,
+                data_stored
+        };
+        slices.set(slice_num, ptr);
+        data_size -= data_stored;
+        offset += data_stored;
+        ++slice_num;
+    }
+
+    // currently always returning all data so this is just set to true.
+    // if we want to allow a cursor-like data mechanism in the future we will need a way
+    // for this to be set to false until the last block is returned.
+    data.setEos(true);
 }
 
 void uda_capnp_add_array_f32(NodeBuilder* node, const float* data, size_t size)
@@ -345,15 +393,18 @@ void uda_capnp_add_array_char(NodeBuilder* node, const char* data, size_t size)
 }
 
 template <typename T>
-void uda_capnp_add_scalar(NodeBuilder* node, T data)
+void uda_capnp_add_scalar(NodeBuilder* node, T scalar)
 {
     assert(!node->node.isChildren());
     auto array = node->node.initArray();
     array.setType(TreeNodeTypeConverter<T>::type);
     array.setLen(0);
     array.initShape(0);
-    kj::ArrayPtr<kj::byte> ptr(reinterpret_cast<kj::byte*>(&data), sizeof(T));
-    array.setData(ptr);
+    kj::ArrayPtr<kj::byte> ptr(reinterpret_cast<kj::byte*>(&scalar), sizeof(T));
+    auto data = array.initData();
+    auto slices = data.initSlices(1);
+    slices.set(0, ptr);
+    data.setEos(true);
 }
 
 void uda_capnp_add_f32(NodeBuilder* node, float data)
@@ -508,13 +559,52 @@ bool uda_capnp_read_shape(NodeReader* node, size_t* shape)
     return true;
 }
 
-bool uda_capnp_read_data(NodeReader* node, char* ptr)
+size_t uda_capnp_read_num_slices(NodeReader* node)
+{
+    if (!node->node.isArray()) {
+        return 0;
+    }
+    auto array = node->node.getArray();
+    auto data = array.getData();
+    return data.getSlices().size();
+}
+
+bool uda_capnp_read_is_eos(NodeReader* node)
+{
+    if (!node->node.isArray()) {
+        return 0;
+    }
+    auto array = node->node.getArray();
+    auto data = array.getData();
+    return data.getEos();
+}
+
+size_t uda_capnp_read_slice_size(NodeReader* node, size_t slice_num)
+{
+    if (!node->node.isArray()) {
+        return 0;
+    }
+    auto array = node->node.getArray();
+    auto data = array.getData();
+    auto slices = data.getSlices();
+    if (slice_num >= slices.size()) {
+        return 0;
+    }
+    return slices[slice_num].size();
+}
+
+bool uda_capnp_read_data(NodeReader* node, size_t slice_num, char* ptr)
 {
     if (!node->node.isArray()) {
         return false;
     }
     auto array = node->node.getArray();
     auto data = array.getData();
-    memcpy(ptr, data.begin(), data.size());
+    auto slices = data.getSlices();
+    if (slice_num >= slices.size()) {
+        return false;
+    }
+    auto slice = data.getSlices()[slice_num];
+    memcpy(ptr, slice.begin(), slice.size());
     return true;
 }

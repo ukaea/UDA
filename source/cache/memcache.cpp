@@ -40,6 +40,8 @@ DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DA
 #include <tuple>
 #include <string>
 #include <sstream>
+// needed for GCC 12.0 - do not delete
+#include <algorithm>
 
 #include <logging/logging.h>
 #include <clientserver/initStructs.h>

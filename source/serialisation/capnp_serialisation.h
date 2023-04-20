@@ -37,7 +37,10 @@ const char* uda_capnp_read_name(NodeReader* node);
 int uda_capnp_read_type(NodeReader* node);
 OPTIONAL_SIZE_T uda_capnp_read_rank(NodeReader* node);
 bool uda_capnp_read_shape(NodeReader* node, size_t* shape);
-bool uda_capnp_read_data(NodeReader* node, char* data);
+size_t uda_capnp_read_num_slices(NodeReader* node);
+bool uda_capnp_read_is_eos(NodeReader* node);
+size_t uda_capnp_read_slice_size(NodeReader* node, size_t slice_num);
+bool uda_capnp_read_data(NodeReader* node, size_t slice_num, char* data);
 
 TreeBuilder* uda_capnp_new_tree();
 void uda_capnp_free_tree_builder(TreeBuilder* tree);
