@@ -314,7 +314,7 @@ void uda_capnp_add_array(NodeBuilder* node, const T* data_ptr, size_t size)
 
     size_t data_size = size * sizeof(T);
 
-    size_t num_slices = (data_size / max_slice_size) + 1;
+    size_t num_slices = data_size == 0 ? 0 : ((data_size - 1) / max_slice_size) + 1;
     auto slices = data.initSlices(num_slices);
 
     size_t offset = 0;

@@ -23,7 +23,7 @@ std::ostream& operator<<(std::ostream& out, boost::span<T> span)
     int i = 0;
     for (const auto& el : span) {
         if (i == 10) {
-            out << delim << "...";
+            out << delim << "... (" << span.size() << " elements)";
             break;
         }
         out << delim << el;
@@ -147,12 +147,18 @@ void print_capnp_data(NodeReader* node, const std::vector<size_t>& shape, const 
         T scalar;
         uda_capnp_read_data(node, 0, reinterpret_cast<char*>(&scalar));
         std::cout << indent << "data: " << scalar << "\n";
+    } else if (num_slices == 1) {
+        auto count = uda_capnp_read_slice_size(node, 0);
+        auto data = std::make_unique<T[]>(count / sizeof(T));
+        uda_capnp_read_data(node, 0, reinterpret_cast<char*>(data.get()));
+        auto span = boost::span{ data.get(), count / sizeof(T) };
+        std::cout << indent << "data: " << span << "\n";
     } else {
         for (size_t slice_num = 0; slice_num < num_slices; ++slice_num) {
             auto count = uda_capnp_read_slice_size(node, slice_num);
-            auto data = std::make_unique<T[]>(count);
+            auto data = std::make_unique<T[]>(count / sizeof(T));
             uda_capnp_read_data(node, slice_num, reinterpret_cast<char*>(data.get()));
-            auto span = boost::span{ data.get(), count };
+            auto span = boost::span{ data.get(), count / sizeof(T) };
             std::cout << indent << "data [" << slice_num << "]: " << span << "\n";
         }
     }

@@ -4055,7 +4055,7 @@ int do_large_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
     auto child = uda_capnp_get_child(tree, root, 0);
     uda_capnp_set_node_name(child, "double_array");
 
-    constexpr size_t N = 16'777'216; // 1GB worth of doubles
+    constexpr size_t N = 134'217'728; // 1GB worth of doubles
     std::vector<double> vec(N);
     for (size_t i = 0; i < N; ++i) {
         vec[i] = i / 10.0;
