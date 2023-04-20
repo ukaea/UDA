@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include <cassert>
+#include <limits>
 #include <boost/core/span.hpp>
 
 #include <clientserver/udaTypes.h>

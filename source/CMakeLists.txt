@@ -11,7 +11,7 @@ if( WIN32 AND NOT MINGW )
 else()
   add_definitions( -Wall -Werror -Wextra -Wno-unused-parameter -Wno-missing-field-initializers )
   if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER 5.0 )
-    add_definitions( -Wno-format-truncation -Wno-format-overflow )
+    add_definitions( -Wno-format-truncation -Wno-format-overflow -Wno-use-after-free )
   endif()
 endif()
 
