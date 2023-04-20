@@ -4056,8 +4056,8 @@ int do_large_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
     uda_capnp_set_node_name(child, "double_array");
 
     constexpr size_t N = 16'777'216; // 1GB worth of doubles
-    std::vector<double> vec(30);
-    for (int i = 0; i < 30; ++i) {
+    std::vector<double> vec(N);
+    for (size_t i = 0; i < N; ++i) {
         vec[i] = i / 10.0;
     }
     uda_capnp_add_array_f64(child, vec.data(), vec.size());
