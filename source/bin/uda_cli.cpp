@@ -129,15 +129,22 @@ void print_tree(const uda::TreeNode& node, const std::string& indent)
 template<typename T>
 void print_capnp_data(NodeReader* node, const std::vector<size_t>& shape, const std::string& indent)
 {
-    size_t count = std::accumulate(shape.begin(), shape.end(), (size_t)1, std::multiplies<>());
-
-    std::vector<T> data(count);
-    uda_capnp_read_data(node, reinterpret_cast<char*>(data.data()));
+    auto num_slices = uda_capnp_read_num_slices(node);
 
     if (shape.empty()) {
-        std::cout << indent << "data: " << data[0] << "\n";
+        if (num_slices > 1) {
+            throw CLIException("Invalid scalar data");
+        }
+        T scalar;
+        uda_capnp_read_data(node, 0, reinterpret_cast<char*>(&scalar));
+        std::cout << indent << "data: " << scalar << "\n";
     } else {
-        std::cout << indent << "data: " << data << "\n";
+        for (size_t slice_num = 0; slice_num < num_slices; ++slice_num) {
+            auto count = uda_capnp_read_slice_size(node, slice_num);
+            auto data = std::make_unique<T[]>(count);
+            uda_capnp_read_data(node, slice_num, reinterpret_cast<char*>(data.get()));
+            std::cout << indent << "data [" << slice_num << "]: " << data << "\n";
+        }
     }
 }
 

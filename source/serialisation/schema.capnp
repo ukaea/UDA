@@ -4,13 +4,16 @@ struct TreeNode {
   name @0 :Text;
   union {
     empty @1 :Void;
-    array: group {
-      data @2 :Data;
-      type @3 :Type;
-      len @4: UInt64;
-      shape @5 :List(UInt64) = [];
+    array :group {
+      data :group {
+        slices @2 :List(Data);
+        eos @3 :Bool;
+      }
+      type @4 :Type;
+      len @5: UInt64;
+      shape @6 :List(UInt64) = [];
     }
-    children @6 :List(TreeNode);
+    children @7 :List(TreeNode);
   }
 
   enum Type {
