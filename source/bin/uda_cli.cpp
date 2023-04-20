@@ -6,6 +6,7 @@
 #include <iostream>
 #include <boost/program_options.hpp>
 #include <boost/range/combine.hpp>
+#include <boost/core/span.hpp>
 
 struct CLIException : public uda::UDAException
 {
@@ -15,12 +16,12 @@ struct CLIException : public uda::UDAException
 };
 
 template<typename T>
-std::ostream& operator<<(std::ostream& out, std::vector<T> vec)
+std::ostream& operator<<(std::ostream& out, boost::span<T> span)
 {
     out << "[";
     const char* delim = "";
     int i = 0;
-    for (const auto& el: vec) {
+    for (const auto& el : span) {
         if (i == 10) {
             out << delim << "...";
             break;
@@ -30,6 +31,14 @@ std::ostream& operator<<(std::ostream& out, std::vector<T> vec)
         ++i;
     }
     out << "]";
+    return out;
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
+{
+    auto span = boost::span{ vec.data(), vec.size() };
+    out << span;
     return out;
 }
 
@@ -52,8 +61,8 @@ void print_atomic_data(void* data, size_t rank, size_t count)
     if (rank == 0) {
         std::cout << ptr[0] << "\n";
     } else {
-        std::vector<T> vec(ptr, ptr + count);
-        std::cout << vec << "\n";
+        auto span = boost::span{ ptr, count };
+        std::cout << span << "\n";
     }
 }
 
@@ -143,7 +152,8 @@ void print_capnp_data(NodeReader* node, const std::vector<size_t>& shape, const 
             auto count = uda_capnp_read_slice_size(node, slice_num);
             auto data = std::make_unique<T[]>(count);
             uda_capnp_read_data(node, slice_num, reinterpret_cast<char*>(data.get()));
-            std::cout << indent << "data [" << slice_num << "]: " << data << "\n";
+            auto span = boost::span{ data.get(), count };
+            std::cout << indent << "data [" << slice_num << "]: " << span << "\n";
         }
     }
 }
