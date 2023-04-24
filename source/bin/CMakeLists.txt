@@ -2,7 +2,7 @@ add_executable( uda_cli uda_cli.cpp )
 
 find_package( Boost COMPONENTS program_options REQUIRED )
 
-target_include_directories( uda_cli PRIVATE ${CMAKE_SOURCE_DIR}/source )
+target_include_directories( uda_cli PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0/include )
 
 if( BUILD_SHARED_LIBS )
   target_link_libraries( uda_cli PRIVATE client-shared uda_cpp-shared )

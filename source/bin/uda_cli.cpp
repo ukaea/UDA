@@ -6,7 +6,7 @@
 #include <iostream>
 #include <boost/program_options.hpp>
 #include <boost/range/combine.hpp>
-#include <boost/core/span.hpp>
+#include <gsl/span>
 
 struct CLIException : public uda::UDAException
 {
@@ -16,7 +16,7 @@ struct CLIException : public uda::UDAException
 };
 
 template<typename T>
-std::ostream& operator<<(std::ostream& out, boost::span<T> span)
+std::ostream& operator<<(std::ostream& out, gsl::span<T> span)
 {
     out << "[";
     const char* delim = "";
@@ -37,7 +37,7 @@ std::ostream& operator<<(std::ostream& out, boost::span<T> span)
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
 {
-    auto span = boost::span{ vec.data(), vec.size() };
+    auto span = gsl::span{ vec.data(), vec.size() };
     out << span;
     return out;
 }
@@ -61,7 +61,7 @@ void print_atomic_data(void* data, size_t rank, size_t count)
     if (rank == 0) {
         std::cout << ptr[0] << "\n";
     } else {
-        auto span = boost::span{ ptr, count };
+        auto span = gsl::span{ ptr, count };
         std::cout << span << "\n";
     }
 }
@@ -151,14 +151,14 @@ void print_capnp_data(NodeReader* node, const std::vector<size_t>& shape, const 
         auto count = uda_capnp_read_slice_size(node, 0);
         auto data = std::make_unique<T[]>(count / sizeof(T));
         uda_capnp_read_data(node, 0, reinterpret_cast<char*>(data.get()));
-        auto span = boost::span{ data.get(), count / sizeof(T) };
+        auto span = gsl::span{ data.get(), count / sizeof(T) };
         std::cout << indent << "data: " << span << "\n";
     } else {
         for (size_t slice_num = 0; slice_num < num_slices; ++slice_num) {
             auto count = uda_capnp_read_slice_size(node, slice_num);
             auto data = std::make_unique<T[]>(count / sizeof(T));
             uda_capnp_read_data(node, slice_num, reinterpret_cast<char*>(data.get()));
-            auto span = boost::span{ data.get(), count / sizeof(T) };
+            auto span = gsl::span{ data.get(), count / sizeof(T) };
             std::cout << indent << "data [" << slice_num << "]: " << span << "\n";
         }
     }

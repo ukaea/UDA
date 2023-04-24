@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <cassert>
 #include <limits>
-#include <boost/core/span.hpp>
+#include <gsl/span>
 
 #include <clientserver/udaTypes.h>
 
@@ -77,7 +77,7 @@ std::ostream& operator<<(std::ostream& out, const typename capnp::List<uint64_t,
 }
 
 template <typename T>
-std::ostream& operator<<(std::ostream& out, boost::span<T> span)
+std::ostream& operator<<(std::ostream& out, gsl::span<T> span)
 {
     const char* delim = "";
     int count = 0;
@@ -115,7 +115,7 @@ void print_data(std::ostream& out, ::TreeNode::Array::Reader& array, const std::
         out << indent << "  data: " << *ptr << "\n";
     } else {
         auto ptr = reinterpret_cast<const T*>(slice.begin());
-        boost::span span{ptr, ptr + len};
+        gsl::span span{ptr, ptr + len};
         out << indent << "  data: [" << span << "]\n";
     }
 }
