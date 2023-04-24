@@ -4,6 +4,11 @@ endif()
 find_package( Boost 1.69 REQUIRED )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 
+# Hack to build on GCC/12.2.0
+if( NOT WIN32 OR MINGW )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-use-after-free -Wno-mismatched-new-delete" )
+endif()
+
 find_package( LibXml2 REQUIRED )
 
 if( WIN32 AND NOT MINGW )
