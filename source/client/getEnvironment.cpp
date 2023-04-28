@@ -86,7 +86,7 @@ ENVIRONMENT* getIdamClientEnvironment()
     }
 
     if (udaEnviron.loglevel <= UDA_LOG_ACCESS) {
-        std::string cmd = fmt::format("mkdir -p %s 2>/dev/null", udaEnviron.logdir);
+        std::string cmd = fmt::format("mkdir -p {} 2>/dev/null", udaEnviron.logdir);
         if (system(cmd.c_str()) != 0) {
             // TODO: How to log error before log files are open?
         };
