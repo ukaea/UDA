@@ -174,7 +174,10 @@ IF CAPNP:
         int uda_capnp_read_type(NodeReader* node);
         Optional_Size_t uda_capnp_read_rank(NodeReader* node);
         cbool uda_capnp_read_shape(NodeReader* node, size_t* shape);
-        cbool uda_capnp_read_data(NodeReader* node, char* data);
+        size_t uda_capnp_read_num_slices(NodeReader* node);
+        cbool uda_capnp_read_is_eos(NodeReader* node);
+        size_t uda_capnp_read_slice_size(NodeReader* node, size_t slice_num);
+        cbool uda_capnp_read_data(NodeReader* node, size_t slice_num, char* data);
         void uda_capnp_print_tree_reader(TreeReader* tree);
 
 cdef extern from "client/connection.h":

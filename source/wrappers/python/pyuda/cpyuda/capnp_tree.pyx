@@ -78,8 +78,22 @@ cdef class CapnpTreeNode:
 
         free(np_shape)
 
-        cdef char* bytes = np.PyArray_BYTES(self._data)
-        uda.uda_capnp_read_data(self._node, bytes)
+        cdef size_t num_slices = uda.uda_capnp_read_num_slices(self._node)
+        cdef char* bytes = NULL
+        cdef size_t slice_size = 0
+        cdef size_t offset = 0
+
+        if rank == 0:
+            if num_slices > 1:
+                raise Exception('Invalid scalar data')
+            bytes = np.PyArray_BYTES(self._data)
+            uda.uda_capnp_read_data(self._node, 0, bytes)
+        else:
+            for i in range(0, num_slices):
+                bytes = np.PyArray_BYTES(self._data)
+                slice_size = uda.uda_capnp_read_slice_size(self._node, i)
+                uda.uda_capnp_read_data(self._node, i, bytes + offset)
+                offset += slice_size
 
     def data(self):
         if not self._data_init:
