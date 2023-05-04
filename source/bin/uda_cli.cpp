@@ -135,6 +135,7 @@ void print_tree(const uda::TreeNode& node, const std::string& indent)
     }
 }
 
+#ifdef CAPNP_ENABLED
 template<typename T>
 void print_capnp_data(NodeReader* node, const std::vector<size_t>& shape, const std::string& indent)
 {
@@ -233,6 +234,7 @@ void print_capnp(const char* bytes, size_t len)
     NodeReader* root = uda_capnp_read_root(tree);
     print_capnp_node(tree, root, "");
 }
+#endif // CAPNP_ENABLED
 
 void print_data(const uda::Data* data, int uda_type)
 {
@@ -434,7 +436,11 @@ int main(int argc, const char** argv)
         if (res.isTree()) {
             print_tree(res.tree(), "");
         } else if (res.uda_type() == UDA_TYPE_CAPNP) {
+#ifdef CAPNP_ENABLED
             print_capnp(res.raw_data(), res.size());
+#else
+            std::cout << "Cap'n Proto not enabled - cannot display data\n";
+#endif
         } else {
             print_data(res.data(), res.uda_type());
         }
