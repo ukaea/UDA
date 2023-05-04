@@ -55,7 +55,7 @@ ext = Extension(
         numpy.get_include(),
         '@LIBXML2_INCLUDE_DIR@'
     ],
-    libraries=['ssl', 'crypto', 'xml2', 'kj', 'capnp'] + extra_libs,
+    libraries=['ssl', 'crypto', 'xml2', 'fmt'] + extra_libs,
     library_dirs=[
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@'
@@ -80,5 +80,5 @@ setup(
     url='https://git.iter.org/projects/IMAS/repos/uda/browse',
     packages=['pyuda'],
     ext_modules=cythonize([ext]),
-    install_requires=['numpy>=1.7', 'Cython>=0.29'],
+    install_requires=['numpy>=1.7', 'Cython>=0.29', 'six'],
 )
