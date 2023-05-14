@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <numeric>
 #include <cassert>
 #include <limits>
 #include <gsl/span>
