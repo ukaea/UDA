@@ -56,16 +56,19 @@ ext = Extension(
         '@LIBXML2_INCLUDE_DIR@',
         '@fmt_SOURCE_DIR@/include'
     ],
-    libraries=['ssl', 'crypto', 'xml2', 'fmt'] + extra_libs,
+    libraries=['ssl', 'crypto', 'xml2', 'fmtd'] + extra_libs,
     library_dirs=[
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
-        '@fmt_BINARY_DIR@'
+        '@fmt_BINARY_DIR@',
+        '@CAPNP_LIB_DIR@'
+
     ],
     runtime_library_dirs=[
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
-        '@fmt_BINARY_DIR@'
+        '@fmt_BINARY_DIR@',
+        '@CAPNP_LIB_DIR@'
     ],
     extra_objects=[(root + '/lib/' + uda_lib) for uda_lib in uda_libs],
     extra_link_args=extra_link_args,
