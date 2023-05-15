@@ -7,10 +7,9 @@ module load hdf5-C/1.8.13
 module load gcc/7.3.0
 module load cmake/3.21.0
 
-
 export HDF5_USE_SHLIB=yes
 export BOOST_ROOT=/usr/local/depot/boost-1-77-0-gcc7.3.0 
-#export CapnProto_DIR=${UDA_HOME}/uda/extlib/capnproto/install/lib64/cmake/CapnProto
+#export CapnProto_DIR=${PWD}/extlib/capnproto/install/lib64/cmake/CapnProto
 
 CC=gcc CXX=g++ cmake -Bbuild_freia -H. \
     -DCMAKE_BUILD_TYPE=Debug \

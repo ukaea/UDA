@@ -27,6 +27,12 @@ find_package( fmt REQUIRED )
 set( UDA_LIBS ) 
 set( EXTRA_LIBS ${EXTRA_LIBS} )
 
+if( FETCH_FMT )
+  set( EXTRA_LIBS ${EXTRA_LIBS} fmtd)
+else()
+  set( EXTRA_LIBS ${EXTRA_LIBS} fmt)
+endif()
+
 if( LIBMEMCACHED_FOUND )
   set( EXTRA_LIBS "memcached" )
 endif()

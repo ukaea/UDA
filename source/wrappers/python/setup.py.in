@@ -56,7 +56,7 @@ ext = Extension(
         '@LIBXML2_INCLUDE_DIR@',
         '@fmt_SOURCE_DIR@/include'
     ],
-    libraries=['ssl', 'crypto', 'xml2', 'fmtd'] + extra_libs,
+    libraries=['ssl', 'crypto', 'xml2'] + extra_libs,
     library_dirs=[
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
