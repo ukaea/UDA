@@ -2,6 +2,14 @@
 # Dependencies
 
 find_package( OpenSSL REQUIRED )
+if( FETCH_FMT )
+  FetchContent_Declare(fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG master
+  )
+  FetchContent_MakeAvailable(fmt)
+  set (fmt_DIR ${fmt_BINARY_DIR} )
+endif()
 find_package( fmt REQUIRED )
 if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )
@@ -104,6 +112,7 @@ include_directories(
   ${SRC_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
+  ${fmt_SOURCE_DIR}/include
 )
 
 if( MINGW OR WIN32 )

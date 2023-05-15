@@ -13,7 +13,19 @@ find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( LibMemcached QUIET )
 
-set( UDA_LIBS )
+if( FETCH_FMT )
+  FetchContent_Declare(fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG master
+  )
+  FetchContent_MakeAvailable(fmt)
+  set (fmt_DIR ${fmt_BINARY_DIR} )
+endif()
+
+find_package( fmt REQUIRED )
+
+set( UDA_LIBS ) 
+set( EXTRA_LIBS ${EXTRA_LIBS} )
 
 if( LIBMEMCACHED_FOUND )
   set( EXTRA_LIBS "memcached" )

@@ -53,16 +53,19 @@ ext = Extension(
         '/usr/include/libxml2',
         root + '/include/uda',
         numpy.get_include(),
-        '@LIBXML2_INCLUDE_DIR@'
+        '@LIBXML2_INCLUDE_DIR@',
+        '@fmt_SOURCE_DIR@/include'
     ],
     libraries=['ssl', 'crypto', 'xml2', 'fmt'] + extra_libs,
     library_dirs=[
         '@OPENSSL_LIB_DIR@',
-        '@LIBXML_LIB_DIR@'
+        '@LIBXML_LIB_DIR@',
+        '@fmt_BINARY_DIR@'
     ],
     runtime_library_dirs=[
         '@OPENSSL_LIB_DIR@',
-        '@LIBXML_LIB_DIR@'
+        '@LIBXML_LIB_DIR@',
+        '@fmt_BINARY_DIR@'
     ],
     extra_objects=[(root + '/lib/' + uda_lib) for uda_lib in uda_libs],
     extra_link_args=extra_link_args,

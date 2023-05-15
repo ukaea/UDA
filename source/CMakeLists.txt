@@ -4,6 +4,24 @@ endif()
 find_package( Boost 1.69 REQUIRED )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 
+if( FETCH_FMT )
+  FetchContent_Declare(fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG master
+  )
+  FetchContent_MakeAvailable(fmt)
+  list( APPEND CMAKE_MODULE_PATH ${fmt_BINARY_DIR} )
+endif()
+
+if( FETCH_SPDLOG )
+  FetchContent_Declare(spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG master
+  )
+  FetchContent_MakeAvailable(spdlog)
+  list( APPEND CMAKE_MODULE_PATH ${spdlog_BINARY_DIR} )
+endif()
+
 # Hack to build on GCC/12.2.0
 if( NOT WIN32 OR MINGW )
   if ( NOT APPLE )
@@ -99,7 +117,7 @@ endif()
 find_package( LibMemcached QUIET )
 
 if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
-  set( PKGCONFIG_LIBRARIES "${PKGCONFIG_LIBRARIES} ${LIBMEMCACHED_LIBRARIES}" )
+  set( PKGCONFIG_LIBRARIES "${PKGCONFIG_LIBRARIES} ${LIBMEMCACHED_LIBRARIES} ${LIBXML2_LIBRARIES}" )
 endif()
 
 foreach( PKGCONFIG_FILE ${PKGCONFIG_FILES} )

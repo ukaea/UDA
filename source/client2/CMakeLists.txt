@@ -3,6 +3,14 @@
 
 find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
+if( FETCH_FMT )
+  FetchContent_Declare(fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG master
+  )
+  FetchContent_MakeAvailable(fmt)
+  set (fmt_DIR ${fmt_BINARY_DIR} )
+endif()
 find_package( fmt REQUIRED )
 
 if( WIN32 OR MINGW )
@@ -68,6 +76,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${OPENSSL_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
+  ${fmt_SOURCE_DIR}/include
 )
 
 add_library( client2-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )

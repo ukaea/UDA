@@ -63,11 +63,13 @@ cdef class Result:
         return type == 17
 
     def is_capnp(self):
+        cdef int type = uda.getIdamDataType(self._handle)
         IF CAPNP:
-            cdef int type = uda.getIdamDataType(self._handle)
             return type == 22
         ELSE:
-            raise NotImplementedError('UDA built without Capn Proto support.')
+            if type == 22:    
+                raise NotImplementedError('UDA built without Capn Proto support.')
+            return False
 
     def capnp_tree(self):
         IF CAPNP:

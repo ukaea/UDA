@@ -2,6 +2,14 @@
 # Dependencies
 
 find_package( LibXml2 QUIET )
+if( FETCH_FMT )
+  FetchContent_Declare(fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG master
+  )
+  FetchContent_MakeAvailable(fmt)
+  set (fmt_DIR ${fmt_BINARY_DIR} )
+endif()
 find_package( fmt REQUIRED )
 
 if( NOT LIBXML2_FOUND )

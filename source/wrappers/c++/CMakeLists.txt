@@ -4,6 +4,14 @@
 find_package( Boost REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
+if( FETCH_FMT )
+  FetchContent_Declare(fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG master
+  )
+  FetchContent_MakeAvailable(fmt)
+  set (fmt_DIR ${fmt_BINARY_DIR} )
+endif()
 find_package( fmt REQUIRED )
 
 if( WIN32 OR MINGW )
@@ -40,6 +48,7 @@ set( SRC_FILES
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${Boost_INCLUDE_DIR}
+  ${fmt_SOURCE_DIR}/include
 )
 
 include_directories( ${LIBXML2_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} )

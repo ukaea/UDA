@@ -2,6 +2,14 @@ find_package( LibMemcached QUIET )
 find_package( Boost REQUIRED )
 find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
+if( FETCH_FMT )
+  FetchContent_Declare(fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG master
+  )
+  FetchContent_MakeAvailable(fmt)
+  set (fmt_DIR ${fmt_BINARY_DIR} )
+endif()
 find_package( fmt REQUIRED )
 
 if( WIN32 OR MINGW )
