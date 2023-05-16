@@ -48,28 +48,27 @@ else:
 ext = Extension(
     'cpyuda',
     ['pyuda/cpyuda/cpyuda.pyx'],
-    include_dirs=[
+    include_dirs=list(filter(None, [
         '/usr/include/tirpc',
         '/usr/include/libxml2',
         root + '/include/uda',
         numpy.get_include(),
         '@LIBXML2_INCLUDE_DIR@',
         '@fmt_SOURCE_DIR@/include'
-    ],
-    libraries=['ssl', 'crypto', 'xml2'] + extra_libs,
-    library_dirs=[
+    ])),
+    libraries=list(filter(None, ['ssl', 'crypto', 'xml2'] + extra_libs)),
+    library_dirs=list(filter(None, [
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
         '@fmt_BINARY_DIR@',
         '@CAPNP_LIB_DIR@'
-
-    ],
-    runtime_library_dirs=[
+    ])),
+    runtime_library_dirs=list(filter(None, [
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
         '@fmt_BINARY_DIR@',
         '@CAPNP_LIB_DIR@'
-    ],
+    ])),
     extra_objects=[(root + '/lib/' + uda_lib) for uda_lib in uda_libs],
     extra_link_args=extra_link_args,
     extra_compile_args=extra_compile_args,
