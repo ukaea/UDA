@@ -3,25 +3,7 @@
 
 find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
-if( FETCH_SPDLOG )
-  FetchContent_Declare(spdlog
-    GIT_REPOSITORY https://github.com/gabime/spdlog.git
-    GIT_TAG v1.x
-  )
-  FetchContent_MakeAvailable(spdlog)
-  #set (spdlog_DIR ${spdlog_BINARY_DIR} )
-else()
-  find_package( spdlog REQUIRED )
-endif()
-
-if( FETCH_FMT )
-  FetchContent_Declare(fmt
-    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG master
-  )
-  FetchContent_MakeAvailable(fmt)
-  set (fmt_DIR ${fmt_BINARY_DIR} )
-endif()
+find_package( spdlog REQUIRED )
 find_package( fmt REQUIRED )
 
 if( WIN32 OR MINGW )

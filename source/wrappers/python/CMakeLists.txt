@@ -12,26 +12,10 @@ install( FILES ${CMAKE_CURRENT_BINARY_DIR}/pyuda/_version.py DESTINATION python_
 find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( LibMemcached QUIET )
-
-if( FETCH_FMT )
-  FetchContent_Declare(fmt
-    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG master
-  )
-  FetchContent_MakeAvailable(fmt)
-  set (fmt_DIR ${fmt_BINARY_DIR} )
-endif()
-
 find_package( fmt REQUIRED )
 
 set( UDA_LIBS ) 
 set( EXTRA_LIBS ${EXTRA_LIBS} )
-
-if( FETCH_FMT )
-  set( EXTRA_LIBS ${EXTRA_LIBS} fmtd)
-else()
-  set( EXTRA_LIBS ${EXTRA_LIBS} fmt)
-endif()
 
 if( LIBMEMCACHED_FOUND )
   set( EXTRA_LIBS "memcached" )
@@ -41,10 +25,8 @@ if( ENABLE_CAPNP )
   set( EXTRA_LIBS ${EXTRA_LIBS} capnp kj )
   set( UDA_LIBS ${UDA_LIBS} serialisation )
   set( CAPNP_FLAG "True" )
-  if( DEFINED CapnProto_DIR )
-    get_filename_component( CAPNP_LIB_CMAKE_DIR ${CapnProto_DIR} DIRECTORY )
-    get_filename_component( CAPNP_LIB_DIR ${CAPNP_LIB_CMAKE_DIR} DIRECTORY )
-  endif()
+  get_filename_component( CAPNP_LIB_CMAKE_DIR ${CapnProto_DIR} DIRECTORY )
+  get_filename_component( CAPNP_LIB_DIR ${CAPNP_LIB_CMAKE_DIR} DIRECTORY )
 else()
   set( CAPNP_FLAG "False" )
 endif()

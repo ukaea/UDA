@@ -4,24 +4,6 @@ endif()
 find_package( Boost 1.69 REQUIRED )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 
-if( FETCH_FMT )
-  FetchContent_Declare(fmt
-    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG master
-  )
-  FetchContent_MakeAvailable(fmt)
-  list( APPEND CMAKE_MODULE_PATH ${fmt_BINARY_DIR} )
-endif()
-
-if( FETCH_SPDLOG )
-  FetchContent_Declare(spdlog
-    GIT_REPOSITORY https://github.com/gabime/spdlog.git
-    GIT_TAG master
-  )
-  FetchContent_MakeAvailable(spdlog)
-  list( APPEND CMAKE_MODULE_PATH ${spdlog_BINARY_DIR} )
-endif()
-
 # Hack to build on GCC/12.2.0
 if( NOT WIN32 OR MINGW )
   if ( NOT APPLE )
@@ -109,12 +91,13 @@ set( PKGCONFIG_FILES
   uda-plugins.pc
 )
 
-if( ENABLE_CAPNP )
-  set( PKGCONFIG_REQUIRES capnp )
-  set( PKGCONFIG_LIBRARIES -luda_serialisation )
-endif()
+set( PKGCONFIG_LIBRARIES -lxml2 )
+set( PKGCONFIG_REQUIRES fmt )
 
-set( PKGCONFIG_LIBRARIES "${PKGCONFIG_LIBRARIES} ${LIBXML2_LIBRARIES}" )
+if( ENABLE_CAPNP )
+  set( PKGCONFIG_REQUIRES "$PKGCONFIG_REQUIRES capnp" )
+  set( PKGCONFIG_LIBRARIES "${PKGCONFIG_LIBRARIES} -luda_serialisation" )
+endif()
 
 find_package( LibMemcached QUIET )
 

@@ -49,14 +49,14 @@ ext = Extension(
     'cpyuda',
     ['pyuda/cpyuda/cpyuda.pyx'],
     include_dirs=list(filter(None, [
-        '/usr/include/tirpc',
+        '@TIRPC_INCLUDE_DIR@',
         '/usr/include/libxml2',
         root + '/include/uda',
         numpy.get_include(),
         '@LIBXML2_INCLUDE_DIR@',
         '@fmt_SOURCE_DIR@/include'
     ])),
-    libraries=list(filter(None, ['ssl', 'crypto', 'xml2'] + extra_libs)),
+    libraries=list(filter(None, ['ssl', 'crypto', 'xml2', 'fmt'] + extra_libs)),
     library_dirs=list(filter(None, [
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
@@ -86,5 +86,5 @@ setup(
     packages=['pyuda'],
     ext_modules=cythonize([ext]),
     setup_requires=['numpy>=1.7', 'Cython>=0.29', 'six'],
-    install_requires=['numpy>=1.7', 'six'],
+    install_requires=['numpy>=1.7'],
 )

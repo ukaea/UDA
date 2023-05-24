@@ -164,14 +164,6 @@ option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 option( NO_MEMCACHE "Do not attempt to build with libmemcached support" OFF )
 option( ENABLE_CAPNP "Enable Cap’n Proto serialisation" OFF )
 
-option( FETCH_FMT "fetch fmt library for older systems such as CentOS 7" OFF )
-option( FETCH_SPDLOG "fetch spdlog library for older systems such as CentOS 7" OFF )
-# option( FETCH_CAPNP "fetch Cap’n Proto serialisation library" OFF )
-
-if (FETCH_FMT OR FETCH_SPDLOG )
-  include(FetchContent)
-endif()
-
 # Wrapper configuration
 option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )
 option( NO_CXX_WRAPPER "Don't build C++ wrapper" OFF )
