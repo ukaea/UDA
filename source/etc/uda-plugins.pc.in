@@ -8,5 +8,5 @@ Name: UDA
 Description: The Universal Data Access library
 URL: https://ukaea.github.io/UDA/
 Version: @PROJECT_VERSION@
-Cflags: -I${includedir}
+Cflags: -I${includedir} @PKGCONFIG_INCLUDES@
 Libs: -L${libdir} -luda_plugins -luda_server @PKGCONFIG_LIBRARIES@
