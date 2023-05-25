@@ -52,7 +52,7 @@ ext = Extension(
         '/usr/include/tirpc',
         '@TIRPC_PYUDA_INCLUDE_DIR@',
         '@LIBXML2_INCLUDE_DIR@',
-        os.path.join(root, 'include' ,'uda'),
+        os.path.join(root, 'include', 'uda'),
         numpy.get_include(),
         '@FMT_INCLUDE_DIR@'
     ])),

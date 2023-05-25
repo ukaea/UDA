@@ -104,7 +104,9 @@ jobs:
           pip3 install ${{github.workspace}}/python_installer
 
       - name: Test pyuda import
-        run: python3 -c 'import pyuda; client=pyuda.Client()'
+        run: >
+          source ${{github.workspace}}/venv/bin/activate &&
+          python3 -c 'import pyuda; client=pyuda.Client()'
 
 #      - name: Test
 #        working-directory: ${{github.workspace}}/build
