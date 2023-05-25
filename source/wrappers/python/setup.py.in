@@ -27,7 +27,7 @@ elif sys.platform.lower() == 'darwin':
     stalib_ext = 'a'
     dynlib_ext = 'dylib'
     # On Mac OS we have to force setting of rpath
-    extra_link_args.append('-Wl,-rpath,%s/lib' % root)
+    extra_link_args.append('-Wl,-rpath,%s' % os.path.join(root, 'lib'))
 
 uda_lib_names = '@UDA_LIBS@'.split(';') if '@UDA_LIBS@' else []
 build_fat = os.environ.get('UDA_FAT_PYTHON', False)
@@ -50,26 +50,26 @@ ext = Extension(
     ['pyuda/cpyuda/cpyuda.pyx'],
     include_dirs=list(filter(None, [
         '@TIRPC_INCLUDE_DIR@',
-        '/usr/include/libxml2',
-        root + '/include/uda',
-        numpy.get_include(),
+        os.path.join('@TIRPC_INCLUDE_DIR@', 'tirpc'),
         '@LIBXML2_INCLUDE_DIR@',
-        '@fmt_SOURCE_DIR@/include'
+        os.path.join(root, 'include' ,'uda'),
+        numpy.get_include(),
+        '@FMT_INCLUDE_DIR@'
     ])),
-    libraries=list(filter(None, ['ssl', 'crypto', 'xml2', 'fmt'] + extra_libs)),
+    libraries=list(filter(None, ['ssl', 'crypto', 'xml2', 'fmtd'] + extra_libs)),
     library_dirs=list(filter(None, [
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
-        '@fmt_BINARY_DIR@',
-        '@CAPNP_LIB_DIR@'
+        '@CAPNP_LIB_DIR@',
+        '@FMT_LIB_DIR@'
     ])),
     runtime_library_dirs=list(filter(None, [
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
-        '@fmt_BINARY_DIR@',
-        '@CAPNP_LIB_DIR@'
+        '@CAPNP_LIB_DIR@',
+        '@FMT_LIB_DIR@'
     ])),
-    extra_objects=[(root + '/lib/' + uda_lib) for uda_lib in uda_libs],
+    extra_objects=[os.path.join(root, 'lib', uda_lib) for uda_lib in uda_libs],
     extra_link_args=extra_link_args,
     extra_compile_args=extra_compile_args,
     language='c++',
@@ -82,7 +82,7 @@ setup(
     description='Unified Data Access (UDA)',
     author='Jonathan Hollocombe',
     author_email='jonathan.hollocombe@ukaea.uk',
-    url='https://git.iter.org/projects/IMAS/repos/uda/browse',
+    url='https://github.com/ukaea/UDA',
     packages=['pyuda'],
     ext_modules=cythonize([ext]),
     setup_requires=['numpy>=1.7', 'Cython>=0.29', 'six'],
