@@ -13,6 +13,7 @@ find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( LibMemcached QUIET )
 find_package( fmt REQUIRED )
+find_package( tirpc REQUIRED)
 
 set( UDA_LIBS ) 
 set( EXTRA_LIBS ${EXTRA_LIBS} )
