@@ -13,13 +13,18 @@ find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( LibMemcached QUIET )
 find_package( fmt REQUIRED )
-find_package( TIRPC REQUIRED)
 
 set( UDA_LIBS ) 
 set( EXTRA_LIBS ${EXTRA_LIBS} )
 
+if( NOT APPLE )
+  set( EXTRA_LIBS ${EXTRA_LIBS} fmtd)
+else()
+  set( EXTRA_LIBS ${EXTRA_LIBS} fmt)
+endif()
+
 if( LIBMEMCACHED_FOUND )
-  set( EXTRA_LIBS "memcached" )
+  set( EXTRA_LIBS ${EXTRA_LIBS} memcached )
 endif()
 if( ENABLE_CAPNP )
   find_package( CapnProto REQUIRED )
@@ -38,6 +43,11 @@ set( FMT_LIB_DIR ${FMT_ROOT_DIR}/lib64 )
 
 get_filename_component( OPENSSL_LIB_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY )
 get_filename_component( LIBXML_LIB_DIR ${LIBXML2_LIBRARIES} DIRECTORY )
+
+if (DEFINED ${TIRPC_INCLUDE_DIR})
+  set(TIRPC_PYUDA_INCLUDE_DIR ${TIRPC_INCLUDE_DIR}/tirpc )
+endif()
+
 configure_file( ${CMAKE_CURRENT_LIST_DIR}/setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/setup.py @ONLY )
 
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.py DESTINATION python_installer )

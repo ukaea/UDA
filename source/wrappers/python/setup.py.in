@@ -49,14 +49,13 @@ ext = Extension(
     'cpyuda',
     ['pyuda/cpyuda/cpyuda.pyx'],
     include_dirs=list(filter(None, [
-        '@TIRPC_INCLUDE_DIR@',
-        os.path.join('@TIRPC_INCLUDE_DIR@', 'tirpc'),
+        '@TIRPC_PYUDA_INCLUDE_DIR@',
         '@LIBXML2_INCLUDE_DIR@',
         os.path.join(root, 'include' ,'uda'),
         numpy.get_include(),
         '@FMT_INCLUDE_DIR@'
     ])),
-    libraries=list(filter(None, ['ssl', 'crypto', 'xml2', 'fmtd'] + extra_libs)),
+    libraries=list(filter(None, ['ssl', 'crypto', 'xml2'] + extra_libs)),
     library_dirs=list(filter(None, [
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
