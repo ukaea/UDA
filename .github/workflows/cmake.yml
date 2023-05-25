@@ -100,7 +100,7 @@ jobs:
           cp -r /usr/local/python_installer ${{github.workspace}}/python_installer &&
           python3 -m venv ${{github.workspace}}/venv &&
           source ${{github.workspace}}/venv/bin/activate &&
-          pip3 install Cython numpy &&
+          pip3 install Cython numpy six &&
           pip3 install ${{github.workspace}}/python_installer
 
       - name: Test pyuda import
