@@ -4,7 +4,7 @@
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
 else()
-  find_package( TIRPC QUIET)
+  find_package( TIRPC QUIET )
   if( TIRPC_FOUND )
     add_definitions( -D__TIRPC__ )
   endif()

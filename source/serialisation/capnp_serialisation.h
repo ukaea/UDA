@@ -64,6 +64,18 @@ void uda_capnp_add_array_u32(NodeBuilder* node, const uint32_t* data, size_t siz
 void uda_capnp_add_array_u64(NodeBuilder* node, const uint64_t* data, size_t size);
 void uda_capnp_add_array_char(NodeBuilder* node, const char* data, size_t size);
 
+void uda_capnp_add_md_array_f32(NodeBuilder* node, const float* data, size_t* shape_array, size_t rank);
+void uda_capnp_add_md_array_f64(NodeBuilder* node, const double* data, size_t* shape_array, size_t rank);
+void uda_capnp_add_md_array_i8(NodeBuilder* node, const int8_t* data, size_t* shape_array, size_t rank);
+void uda_capnp_add_md_array_i16(NodeBuilder* node, const int16_t* data, size_t* shape_array, size_t rank);
+void uda_capnp_add_md_array_i32(NodeBuilder* node, const int32_t* data, size_t* shape_array, size_t rank);
+void uda_capnp_add_md_array_i64(NodeBuilder* node, const int64_t* data, size_t* shape_array, size_t rank);
+void uda_capnp_add_md_array_u8(NodeBuilder* node, const uint8_t* data, size_t* shape_array, size_t rank);
+void uda_capnp_add_md_array_u16(NodeBuilder* node, const uint16_t* data, size_t* shape_array, size_t rank);
+void uda_capnp_add_md_array_u32(NodeBuilder* node, const uint32_t* data, size_t* shape_array, size_t rank);
+void uda_capnp_add_md_array_u64(NodeBuilder* node, const uint64_t* data, size_t* shape_array, size_t rank);
+void uda_capnp_add_md_array_char(NodeBuilder* node, const char* data, size_t* shape_array, size_t rank);
+
 void uda_capnp_add_f32(NodeBuilder* node, float data);
 void uda_capnp_add_f64(NodeBuilder* node, double data);
 void uda_capnp_add_i8(NodeBuilder* node, int8_t data);
