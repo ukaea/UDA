@@ -1750,12 +1750,16 @@ int get_subset_indices(const std::string& operation, DIMS* dim, double value, un
             return get_subset_indices_for_type<short>(operation, dim, value, subset_indices);
         case UDA_TYPE_LONG:
             return get_subset_indices_for_type<long>(operation, dim, value, subset_indices);
+        case UDA_TYPE_LONG64:
+            return get_subset_indices_for_type<int64_t>(operation, dim, value, subset_indices);
         case UDA_TYPE_UNSIGNED_INT:
             return get_subset_indices_for_type<unsigned int>(operation, dim, value, subset_indices);
         case UDA_TYPE_UNSIGNED_SHORT:
             return get_subset_indices_for_type<unsigned short>(operation, dim, value, subset_indices);
         case UDA_TYPE_UNSIGNED_LONG:
             return get_subset_indices_for_type<unsigned long>(operation, dim, value, subset_indices);
+        case UDA_TYPE_UNSIGNED_LONG64:
+            return get_subset_indices_for_type<uint64_t>(operation, dim, value, subset_indices);
     }
 
     return count;
@@ -1929,6 +1933,9 @@ int apply_sub_setting(DIMS* dims, int rank, int dim_id,
         case UDA_TYPE_LONG:
             return apply_sub_setting_for_type<long>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
             break;
+        case UDA_TYPE_LONG64:
+            return apply_sub_setting_for_type<int64_t>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            break;
         case UDA_TYPE_UNSIGNED_INT:
             return apply_sub_setting_for_type<unsigned int>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
             break;
@@ -1937,6 +1944,9 @@ int apply_sub_setting(DIMS* dims, int rank, int dim_id,
             break;
         case UDA_TYPE_UNSIGNED_LONG:
             return apply_sub_setting_for_type<unsigned long>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            break;
+        case UDA_TYPE_UNSIGNED_LONG64:
+            return apply_sub_setting_for_type<uint64_t>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
             break;
         default:
             UDA_LOG(UDA_LOG_ERROR, "Invalid data type for sub-setting operation!\n");

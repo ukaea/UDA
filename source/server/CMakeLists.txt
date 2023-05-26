@@ -11,9 +11,9 @@ if( WIN32 OR MINGW )
     find_package( dlfcn-win32 CONFIG REQUIRED )
   endif()
 else()
-  find_package( TIRPC QUIET)
-  if(TIRPC_FOUND)
-    add_definitions(-D__TIRPC__)    
+  find_package( TIRPC QUIET )
+  if( TIRPC_FOUND )
+    add_definitions( -D__TIRPC__ )
   endif()
 endif()
 
@@ -62,6 +62,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${LIBXML2_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
+  ${fmt_SOURCE_DIR}/include
 )
 
 add_definitions( -DSERVERBUILD )
@@ -110,9 +111,9 @@ if( WIN32 OR MINGW )
   endif()
   include_directories( ${XDR_INCLUDE_DIR} )
   set( LINK_XDR ${XDR_LIBRARIES} ws2_32 )
-elseif(TIRPC_FOUND)
+elseif(TIRPC_FOUND )
   include_directories( ${TIRPC_INCLUDE_DIR} )
-  set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES})
+  set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES} )
 endif()
 
 target_link_libraries( server-static PRIVATE ${LINK_XDR} fmt::fmt )

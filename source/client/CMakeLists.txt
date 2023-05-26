@@ -5,16 +5,15 @@ find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
 find_package( LibXml2 REQUIRED )
 
-
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
   if( NOT MINGW )
     find_package( dlfcn-win32 CONFIG REQUIRED )
   endif()
 else()
-  find_package( TIRPC QUIET)
-  if(TIRPC_FOUND)
-    add_definitions(-D__TIRPC__)
+  find_package( TIRPC QUIET )
+  if( TIRPC_FOUND )
+    add_definitions( -D__TIRPC__ )
   endif()
 endif()
 
@@ -70,6 +69,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/source
   ${OPENSSL_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
+  ${fmt_SOURCE_DIR}/include
 )
 
 add_library( client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
@@ -120,9 +120,9 @@ if( MINGW OR WIN32 )
   else()
     set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} dlfcn-win32::dl )
   endif()
-elseif(TIRPC_FOUND)
+elseif( TIRPC_FOUND )
   include_directories( ${TIRPC_INCLUDE_DIR} )
-  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${TIRPC_LIBRARIES})
+  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${TIRPC_LIBRARIES} )
 endif()
 
 target_link_libraries( client-static PRIVATE ${CLIENT_LINK_LIBS} )

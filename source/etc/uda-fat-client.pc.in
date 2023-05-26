@@ -8,6 +8,6 @@ Name: UDA
 Description: The Universal Data Access library
 URL: http://www.iter.org/UDA
 Version: @PROJECT_VERSION@
-Cflags: -DFATCLIENT -I${includedir}
+Cflags: -DFATCLIENT -I${includedir} @PKGCONFIG_INCLUDES@
 Libs: -L${libdir} -lfatuda_client @PKGCONFIG_LIBRARIES@
 Requires: @PKGCONFIG_REQUIRES@

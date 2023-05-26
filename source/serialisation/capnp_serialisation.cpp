@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <numeric>
 #include <cassert>
 #include <limits>
 #include <gsl/span>
@@ -299,6 +300,102 @@ template <> TreeNode::Type TreeNodeTypeConverter<double>::type = TreeNode::Type:
 // maximum size of data to send in each capnp "data" blob - capnp has a implicit limit of 512MB of data
 // for blobs so this size should not exceed that.
 constexpr size_t max_slice_size = 256 * 1024 * 1024;
+
+template <typename T>
+void uda_capnp_add_md_array(NodeBuilder* node, const T* data_ptr, size_t* shape_array, size_t rank)
+{
+    assert(!node->node.isChildren());
+    auto array = node->node.initArray();
+    array.setType(TreeNodeTypeConverter<T>::type);
+
+    size_t size = std::accumulate(shape_array, shape_array+rank, 1, std::multiplies<size_t>());
+
+    array.setLen(size);
+    auto shape = array.initShape(rank);
+    for (unsigned int i=0; i<rank; ++i) shape.set(i, shape_array[i]);
+
+    auto data = array.initData();
+
+    size_t data_size = size * sizeof(T);
+
+    size_t num_slices = data_size == 0 ? 0 : ((data_size - 1) / max_slice_size) + 1;
+    auto slices = data.initSlices(num_slices);
+
+    size_t offset = 0;
+    size_t slice_num = 0;
+
+    while (data_size != 0) {
+        size_t data_stored = std::min(data_size, max_slice_size);
+        kj::ArrayPtr<const kj::byte> ptr = {
+                reinterpret_cast<const kj::byte*>(data_ptr) + offset,
+                data_stored
+        };
+        slices.set(slice_num, ptr);
+        data_size -= data_stored;
+        offset += data_stored;
+        ++slice_num;
+    }
+
+    // currently always returning all data so this is just set to true.
+    // if we want to allow a cursor-like data mechanism in the future we will need a way
+    // for this to be set to false until the last block is returned.
+    data.setEos(true);
+}
+
+void uda_capnp_add_md_array_f32(NodeBuilder* node, const float* data, size_t* shape_array, size_t rank)
+{
+    return uda_capnp_add_md_array(node, data, shape_array, rank);
+}
+
+void uda_capnp_add_md_array_f64(NodeBuilder* node, const double* data, size_t* shape_array, size_t rank)
+{
+    return uda_capnp_add_md_array(node, data, shape_array, rank);
+}
+
+void uda_capnp_add_md_array_i8(NodeBuilder* node, const int8_t* data, size_t* shape_array, size_t rank)
+{
+    return uda_capnp_add_md_array(node, data, shape_array, rank);
+}
+
+void uda_capnp_add_md_array_i16(NodeBuilder* node, const int16_t* data, size_t* shape_array, size_t rank)
+{
+    return uda_capnp_add_md_array(node, data, shape_array, rank);
+}
+
+void uda_capnp_add_md_array_i32(NodeBuilder* node, const int32_t* data, size_t* shape_array, size_t rank)
+{
+    return uda_capnp_add_md_array(node, data, shape_array, rank);
+}
+
+void uda_capnp_add_md_array_i64(NodeBuilder* node, const int64_t* data, size_t* shape_array, size_t rank)
+{
+    return uda_capnp_add_md_array(node, data, shape_array, rank);
+}
+
+void uda_capnp_add_md_array_u8(NodeBuilder* node, const uint8_t* data, size_t* shape_array, size_t rank)
+{
+    return uda_capnp_add_md_array(node, data, shape_array, rank);
+}
+
+void uda_capnp_add_md_array_u16(NodeBuilder* node, const uint16_t* data, size_t* shape_array, size_t rank)
+{
+    return uda_capnp_add_md_array(node, data, shape_array, rank);
+}
+
+void uda_capnp_add_md_array_u32(NodeBuilder* node, const uint32_t* data, size_t* shape_array, size_t rank)
+{
+    return uda_capnp_add_md_array(node, data, shape_array, rank);
+}
+
+void uda_capnp_add_md_array_u64(NodeBuilder* node, const uint64_t* data, size_t* shape_array, size_t rank)
+{
+    return uda_capnp_add_md_array(node, data, shape_array, rank);
+}
+
+void uda_capnp_add_md_array_char(NodeBuilder* node, const char* data, size_t* shape_array, size_t rank)
+{
+    return uda_capnp_add_md_array(node, data, shape_array, rank);
+}
 
 template <typename T>
 void uda_capnp_add_array(NodeBuilder* node, const T* data_ptr, size_t size)
