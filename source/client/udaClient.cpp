@@ -519,13 +519,13 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 #  if !defined(FATCLIENT) && !defined(SECURITYENABLED)
             startupStates = 0;
 #  endif
+			time(&tv_server_start);        // Start the Clock again: Age of Server
+            createXDRStream();
             if ((createConnection()) != 0) {
                 err = NO_SOCKET_CONNECTION;
                 addIdamError(CODEERRORTYPE, __func__, err, "No Socket Connection to Server");
                 break;
             }
-
-            time(&tv_server_start);        // Start the Clock again: Age of Server
         }
 
         //-------------------------------------------------------------------------
@@ -541,9 +541,9 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         //-------------------------------------------------------------------------
         // Create the XDR Record Streams
 
-        if (initServer) {
+        /*if (initServer) {
             createXDRStream();
-        }
+        }*/
 
         //-------------------------------------------------------------------------
 
@@ -703,6 +703,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                 // Assuming the server_block is corrupted, replace with a clean copy to avoid concatonation problems
                 server_block.idamerrorstack.nerrors = 0;
                 UDA_LOG(UDA_LOG_DEBUG, "Error receiving Server Block\n");
+               
                 break;
             }
 
@@ -904,6 +905,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             UDA_LOG(UDA_LOG_DEBUG, "Protocol 2 Error (Failure Receiving Data Block)\n");
 
             addIdamError(CODEERRORTYPE, __func__, err, "Protocol 2 Error (Failure Receiving Data Block)");
+            //no call to handl_srv_block no memory leak from protocol2
             break;
         }
 
@@ -1030,6 +1032,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
     UDA_LOG(UDA_LOG_DEBUG, "Error Code at end of Error Trap: %d\n", err);
     UDA_LOG(UDA_LOG_DEBUG, "serverside                     : %d\n", serverside);
+    free(cached_data_block_list.data); // there was a malloc for all cases, needs to release the memory
+    cached_data_block_list.data = nullptr;
 
 #ifndef FATCLIENT   // <========================== Client Server Code Only
 
@@ -1389,7 +1393,7 @@ void idamFree(int handle)
     }
 
     // closeIdamError(&server_block.idamerrorstack);
-
+    freeIdamErrorStack(&server_block.idamerrorstack); 
     initDataBlock(data_block);
     data_block->handle = -1;        // Flag this as ready for re-use
 }

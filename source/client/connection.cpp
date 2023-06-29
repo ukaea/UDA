@@ -89,24 +89,24 @@ int reconnect(ENVIRONMENT* environment)
 
     if (environment->server_reconnect) {
   //RC
-                int status;
-                int fh;
-                if (getSocket(&client_socketlist, TYPE_UDA_SERVER, &status, environment->server_host, environment->server_port, &fh) == 0) {
-                        environment->server_socket=fh;
-                        socketId = getSocketRecordId(&client_socketlist, fh);
-                }
-                else {
-        time(&tv_server_start);         // Start a New Server AGE timer
-        clientSocket = -1;              // Flags no Socket is open
-        environment->server_change_socket = 0;   // Client doesn't know the Socket ID so disable
-                }
-    
-}
+        int status;
+        int fh;
+        if (getSocket(&client_socketlist, TYPE_UDA_SERVER, &status, environment->server_host, environment->server_port, &fh) == 0) {
+            environment->server_socket=fh;
+            environment->server_change_socket = 1;
+        }
+        else {
+            time(&tv_server_start);         // Start a New Server AGE timer
+            clientSocket = -1;              // Flags no Socket is open
+            environment->server_change_socket = 0;   // Client doesn't know the Socket ID so disable
+        }
+    }
 
     // Client manages connections through the Socket id and specifies which running server to connect to
 
-    if (environment->server_change_socket) {
-        if ((socketId = getSocketRecordId(&client_socketlist, environment->server_socket)) < 0) {
+    if (environment->server_change_socket){
+        int newsocketId;
+        if ((newsocketId = getSocketRecordId(&client_socketlist, environment->server_socket)) < 0) {
             err = NO_SOCKET_CONNECTION;
             addIdamError(CODEERRORTYPE, __func__, err, "The User Specified Socket Connection does not exist");
             return err;
@@ -114,16 +114,16 @@ int reconnect(ENVIRONMENT* environment)
 
         // replace with previous timer settings and XDR handles
 
-        tv_server_start = client_socketlist.sockets[socketId].tv_server_start;
-        user_timeout = client_socketlist.sockets[socketId].user_timeout;
-        clientSocket = client_socketlist.sockets[socketId].fh;
-        clientInput = client_socketlist.sockets[socketId].Input;
-        clientOutput = client_socketlist.sockets[socketId].Output;
+        tv_server_start = client_socketlist.sockets[newsocketId].tv_server_start;
+        user_timeout = client_socketlist.sockets[newsocketId].user_timeout;
+        clientSocket = client_socketlist.sockets[newsocketId].fh;
+        clientInput = client_socketlist.sockets[newsocketId].Input;
+        clientOutput = client_socketlist.sockets[newsocketId].Output;
 
         environment->server_change_socket = 0;
-        environment->server_socket = client_socketlist.sockets[socketId].fh;
-        environment->server_port = client_socketlist.sockets[socketId].port;
-        strcpy(environment->server_host, client_socketlist.sockets[socketId].host);
+        environment->server_socket = client_socketlist.sockets[newsocketId].fh;
+        environment->server_port = client_socketlist.sockets[newsocketId].port;
+        strcpy(environment->server_host, client_socketlist.sockets[newsocketId].host);
     }
 
     // save Previous data if a previous socket existed
@@ -526,6 +526,8 @@ int createConnection()
               clientSocket);
     client_socketlist.sockets[getSocketRecordId(&client_socketlist, clientSocket)].Input = clientInput;
     client_socketlist.sockets[getSocketRecordId(&client_socketlist, clientSocket)].Output = clientOutput;
+    client_socketlist.sockets[getSocketRecordId(&client_socketlist, clientSocket)].user_timeout = user_timeout;
+    client_socketlist.sockets[getSocketRecordId(&client_socketlist, clientSocket)].tv_server_start = tv_server_start;
     environment->server_reconnect = 0;
     environment->server_change_socket = 0;
     environment->server_socket = clientSocket;

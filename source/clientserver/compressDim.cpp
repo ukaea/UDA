@@ -23,7 +23,16 @@ template <typename T>
 int compress(DIMS* ddim)
 {
     T* dim_data = (T*)ddim->dim;
+    if (dim_data == nullptr) {
+        return 0;
+    }
+    
     int ndata = ddim->dim_n;
+
+    //no need to compress if the data is already compressed or if there are less or equal to 2 elements
+    if (ndata <3 || ddim->compressed==1) {
+	    return 1;
+    }
     T prev_diff = dim_data[1] - dim_data[0];
     T mean_diff = (dim_data[ndata - 1] - dim_data[0]) / (ndata - 1);
     T precision = Precision<T>::precision;
@@ -39,7 +48,7 @@ int compress(DIMS* ddim)
         prev_diff = diff;
     }
 
-    if (constant) {
+    if (!constant) {
         ddim->compressed = 0;
         return 1;        // Data not regular
     }

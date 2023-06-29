@@ -28,6 +28,7 @@ Interprets the API arguments and assembles a Request data structure.
 #include <clientserver/expand_path.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
+#include <clientserver/makeRequestBlock.h>
 
 int makeRequestData(const char* data_object, const char* data_source, REQUEST_DATA* request)
 {
@@ -153,6 +154,18 @@ int makeClientRequestBlock(const char** signals, const char** sources, int count
     }
 
     return err;
+}
+
+void freeClientRequestBlock(REQUEST_BLOCK* request_block){
+	int i = 0;
+	if (request_block != nullptr && request_block->requests != nullptr) {
+		for(i = 0; i < request_block->num_requests; i++) {
+			freeNameValueList(&request_block->requests[i].nameValueList);
+			freeClientPutDataBlockList(&request_block->requests[i].putDataBlockList);
+		}
+		free(request_block->requests);
+		request_block->requests = nullptr;
+	}
 }
 
 int shotRequestTest(const char* source)

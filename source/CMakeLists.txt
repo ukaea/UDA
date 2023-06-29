@@ -1,5 +1,6 @@
-if (NOT CLIENT_ONLY)
-include( LibXml2StrPrintfConfig )
+add_compile_definitions( MINGW )
+if( NOT CLIENT_ONLY )
+  include( LibXml2StrPrintfConfig )
 endif()
 find_package( Boost REQUIRED )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
@@ -51,7 +52,7 @@ if( WIN32 AND NOT MINGW )
 else()
   execute_process( COMMAND which env OUTPUT_VARIABLE ENV_PATH )
 endif()
-string( STRIP ${ENV_PATH} ENV_PATH )
+string( STRIP "${ENV_PATH}" ENV_PATH )
 
 find_program( PYTHON_EXE NAMES python python3 PATHS /usr/bin/ )
 

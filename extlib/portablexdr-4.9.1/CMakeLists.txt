@@ -4,13 +4,13 @@ cmake_policy( SET CMP0048 NEW )
 
 project( xdr VERSION 4.9.1 )
 
-if( NOT WIN32 OR MINGW )
+if( NOT WIN32 )
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -fno-strict-aliasing" )
 endif()
 
 include( TestBigEndian )
 
-if( WIN32 OR MINGW )
+if( WIN32 )
   add_definitions( -DBIG_ENDIAN=1 -DLITTLE_ENDIAN=2 )
   test_big_endian( BIG_ENDIAN )
 
@@ -30,5 +30,5 @@ configure_file(
 
 include_directories( ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR} )
 
-add_library( ${PROJECT_NAME} ${SOURCES} )
+add_library( ${PROJECT_NAME} SHARED ${SOURCES} )
 
