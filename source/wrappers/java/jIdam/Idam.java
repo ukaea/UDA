@@ -20,8 +20,8 @@ public class Idam {
 // Idam API
 
      public static native int  idamGetAPI(String signal, String source);
-     public static native void idamFree(int handle); 
-     public static native void idamFreeAll();
+     public static native void udaFree(int handle);
+     public static native void udaFreeAll();
 
 // Multithread Idam API
     public static native int  idamGetAPIMT(String signal, String source);

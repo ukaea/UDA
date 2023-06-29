@@ -121,9 +121,9 @@ int main()
             }
         }
 
-        idamFree(handle);       // Free Heap for this signal
+        udaFree(handle);       // Free Heap for this signal
     }
 
-    idamFreeAll();              // Free all Heap and signal the server to close
+    udaFreeAll();              // Free all Heap and signal the server to close
     return 0;
 }

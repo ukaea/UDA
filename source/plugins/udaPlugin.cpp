@@ -1,9 +1,56 @@
 #include "udaPlugin.h"
+#include "server/initPluginList.h"
+#include "server/serverPlugin.h"
+#include "structures/struct.h"
 
+#include <server/getServerEnvironment.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
+
+IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
+{
+    auto plugin_interface = (IDAM_PLUGIN_INTERFACE*)calloc(1, sizeof(IDAM_PLUGIN_INTERFACE));
+    auto environment = getServerEnvironment();
+    auto plugin_list = (PLUGINLIST*)calloc(1, sizeof(PLUGINLIST));
+
+    initPluginList(plugin_list, environment);
+
+    auto request_data = (REQUEST_DATA*)calloc(1, sizeof(REQUEST_DATA));
+    makeRequestData(request_data, *plugin_list, environment);
+
+    auto user_defined_type_list = (USERDEFINEDTYPELIST*)calloc(1, sizeof(USERDEFINEDTYPELIST));
+    auto log_malloc_list = (LOGMALLOCLIST*)calloc(1, sizeof(LOGMALLOCLIST));
+
+    plugin_interface->request_data = request_data;
+    plugin_interface->pluginList = plugin_list;
+    plugin_interface->environment = environment;
+    plugin_interface->userdefinedtypelist = user_defined_type_list;
+    plugin_interface->logmalloclist = log_malloc_list;
+
+    plugin_interface->interfaceVersion = 1;
+    plugin_interface->pluginVersion = 0;
+    plugin_interface->housekeeping = 0;
+    plugin_interface->changePlugin = 0;
+    plugin_interface->error_stack.nerrors = 0;
+    plugin_interface->error_stack.idamerror = nullptr;
+
+    return plugin_interface;
+}
+
+void udaFreePluginInterface(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    free(plugin_interface->request_data);
+    freeUserDefinedTypeList(plugin_interface->userdefinedtypelist);
+    free(plugin_interface->userdefinedtypelist);
+    freeMallocLogList(plugin_interface->logmalloclist);
+    free(plugin_interface->logmalloclist);
+    freePluginList((PLUGINLIST*)plugin_interface->pluginList);
+    free((PLUGINLIST*)plugin_interface->pluginList);
+    free((ENVIRONMENT*)plugin_interface->environment);
+    free(plugin_interface);
+}
 
 int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
 {

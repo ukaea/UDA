@@ -754,6 +754,6 @@ JNIEXPORT jobjectArray JNICALL Java_jIdam_Idam_getVariablesRegex(JNIEnv* env, jo
     }
 
     END:
-    //RC  idamFree(handle);
+    //RC  udaFree(handle);
     return ret;
 }

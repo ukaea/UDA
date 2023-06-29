@@ -1269,7 +1269,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
             fprintf(stdout, "Freeing Heap for Handle %d\n", handle);
         }
 
-        idamFree(handle);
+        udaFree(handle);
     }
 
     //--------------------------------------------------------------------------
@@ -1695,7 +1695,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
             fprintf(stdout, "Freeing Heap for Handle %d\n", handle);
         }
 
-        idamFree(handle);
+        udaFree(handle);
     }
 
     //--------------------------------------------------------------------------
@@ -2618,7 +2618,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
             fprintf(stdout, "Freeing Heap for Handle %d\n", handle);
         }
 
-        idamFree(handle);
+        udaFree(handle);
     }
 
     //--------------------------------------------------------------------------
@@ -4448,7 +4448,7 @@ freeidam(int argc, IDL_VPTR argv[], char* argk)
     //--------------------------------------------------------------------------
     // Free IDAM Heap
 
-    idamFree(handle);
+    udaFree(handle);
 
     return (IDL_GettmpLong(0));
 }
@@ -4462,7 +4462,7 @@ freeidamall(int argc, IDL_VPTR argv[], char* argk)
 
     // Free All IDAM Heap + Close IDAM Server
 
-    idamFreeAll();
+    udaFreeAll();
 
     return (IDL_GettmpLong(0));
 }

@@ -291,7 +291,7 @@ int acc_getIdamNewDataHandle(CLIENT_FLAGS* client_flags)
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         (newHandleIndex = getIdamThreadLastHandle()) >= 0) {
         if (client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) {
-            idamFree(newHandleIndex);
+            udaFree(newHandleIndex);
         } else {
             // Application has responsibility for freeing heap in the Data Block
             initDataBlock(&data_blocks[newHandleIndex]);
