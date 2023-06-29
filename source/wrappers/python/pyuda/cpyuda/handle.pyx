@@ -15,4 +15,4 @@ cdef class Handle(int):
         return self._handle
 
     def __dealloc__(self):
-        uda.idamFree(self._handle)
+        uda.udaFree(self._handle)

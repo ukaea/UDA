@@ -159,5 +159,5 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
         }
     }
 
-    idamFree(handle);           /* Free Heap for this signal */
+    udaFree(handle);           /* Free Heap for this signal */
 }

@@ -58,6 +58,7 @@ extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         // Resetting all UDA client properties
 
         resetIdamProperties(udaClientFlags());
+        udaFreeAll();
 
         putIdamServerHost(oldServerHost);    // Original Host
         putIdamServerPort(oldPort);    // Original Port

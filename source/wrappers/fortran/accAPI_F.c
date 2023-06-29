@@ -1173,12 +1173,12 @@ extern void getidamdimdatachecksum_(int* handle, int* ndim, int* sum)
 extern void idamfree_(int* hd)
 {
     int handle = *hd;
-    idamFree(handle);
+    udaFree(handle);
 }
 
 extern void idamfreeall_()
 {
-    idamFreeAll();
+    udaFreeAll();
 }
 
 extern void getidamenv_(char* str, int* rc, char* env, int lstr, int lenv)
