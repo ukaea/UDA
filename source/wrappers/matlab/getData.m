@@ -82,8 +82,6 @@ if isfield(s, 'Order') & isfield(s, 'Rank') & isfield(s, 'Dimension')
         xlabel([s.TimeLabel ' ' s.TimeUnits], 'Interpreter', 'none')
         ylabel([s.DataLabel ' ' s.DataUnits], 'Interpreter', 'none')
         title([s.Name ' ' s.Source], 'Interpreter', 'none')
-        
-         
     end
 
 end

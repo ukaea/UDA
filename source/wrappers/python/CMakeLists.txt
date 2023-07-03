@@ -15,7 +15,7 @@ find_package( LibMemcached QUIET )
 find_package( fmt REQUIRED )
 find_package( TIRPC QUIET )
 
-set( UDA_LIBS ) 
+set( UDA_LIBS )
 set( EXTRA_LIBS ${EXTRA_LIBS} fmt )
 
 if( LIBMEMCACHED_FOUND )

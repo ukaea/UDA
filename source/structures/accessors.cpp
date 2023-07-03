@@ -132,15 +132,13 @@ findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const c
 
     if ((strchr(target, '.') != nullptr) || strchr(target, '/') != nullptr) {
         int ntargets;
-        char** targetlist = nullptr;
-        NTREE* child = ntree;
-
-        targetlist = parseTarget(target, &ntargets);    // Deconstruct the Name and search for each hierarchy group
+        char** targetlist = parseTarget(target, &ntargets);    // Deconstruct the Name and search for each hierarchy group
 
         *lastname = targetlist[ntargets - 1];        // Preserve the last element name
 
         // Search recursively for the first name
 
+        NTREE* child = ntree;
         if ((child = findNTreeStructureComponent1(child, targetlist[0])) == nullptr) {
             // Not found
             return nullptr;
@@ -164,22 +162,29 @@ findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const c
         }
 
         addMalloc(logmalloclist, (void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1, sizeof(char), "char");
-        for (int i = 0; i < ntargets - 1; i++) free(targetlist[i]);    // Free all others
+
+        const char* last_target = targetlist[ntargets - 1];
+
+        for (int i = 0; i < ntargets - 1; i++) {
+            free(targetlist[i]);    // Free all others
+        }
         free(targetlist);                    // Free the list
 
         // Search the user defined type definition for the last name - return if an atomic type
 
         for (int i = 0; i < child->userdefinedtype->fieldcount; i++) {
-            if (STR_EQUALS(child->userdefinedtype->compoundfield[i].name, targetlist[ntargets - 1]) &&
+            if (STR_EQUALS(child->userdefinedtype->compoundfield[i].name, last_target) &&
                 child->userdefinedtype->compoundfield[i].atomictype != UDA_TYPE_UNKNOWN) {
-                    return (child);
+                    return child;
             }  // Atomic type found
         }
 
         // Search child nodes for structured types
 
         for (int j = 0; j < child->branches; j++) {
-            if (STR_EQUALS(child->children[j]->name, targetlist[ntargets - 1])) return child->children[j];
+            if (STR_EQUALS(child->children[j]->name, last_target)) {
+                return child->children[j];
+            }
         }
 
         return nullptr;    // Not Found
@@ -195,7 +200,6 @@ findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const c
     }
 
     return nullptr;        // Not found
-
 }
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
@@ -566,7 +570,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
     void* newnew = nullptr;
 
     if (tree->userdefinedtype->idamclass == UDA_TYPE_VLEN && STR_EQUALS(tree->userdefinedtype->name, target)) {
-        VLENTYPE* vlen = (VLENTYPE*)tree->data;
+        auto vlen = (VLENTYPE*)tree->data;
 
         // VLEN stuctures have only two fields: len and data
         // Need the size of the data component
@@ -576,7 +580,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
 
         // VLEN Memory is contiguous so re-allocate: regularise by expanding to a consistent array size (No longer a VLEN!)
 
-        void* old = vlen->data;
+        auto old = (VOIDTYPE)vlen->data;
         USERDEFINEDTYPE* child = findUserDefinedType(userdefinedtypelist, tree->userdefinedtype->compoundfield[1].type, 0);
         vlen->data = realloc(vlen->data, count * child->size);    // Expand Heap to regularise
         newnew = vlen->data;
@@ -605,7 +609,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
 
     if (resetBranches > 0) {
         tree->branches = count;   // Only update once all True children have been regularised
-        void* old = (void*)tree->children;
+        auto old = (VOIDTYPE)tree->children;
         tree->children = (NTREE**)realloc((void*)tree->children, count * sizeof(void*));
 
         unsigned int ui;

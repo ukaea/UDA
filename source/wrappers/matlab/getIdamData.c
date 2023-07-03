@@ -1,11 +1,3 @@
-/* V3 output in a cell array
-
-Change History
-
-20May2010   dgm Changed to IDAM accessors getIdamDoubleData, getIdamDoubleDimData to cast atomic types to double.
-------------------------------------------------------------------------------------------------------------------------
-*/
-
 #include "stdio.h"
 #include "string.h"
 #include "idammatlab.h"
@@ -16,31 +8,31 @@ Change History
 
 int listIndex;
 
-void addItem(mxArray * list, const mxArray * item)
+void addItem(mxArray* list, const mxArray* item)
 {
     if (listIndex >= NFIELDS) {
         mexErrMsgTxt("Too many items");
     } else {
-        mxSetCell(list, listIndex, (mxArray *)item);
+        mxSetCell(list, listIndex, (mxArray*)item);
         listIndex++;
     }
 }
 
-void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
+void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
     /* Matlab related data
      */
-    mxArray * item;
-    double * ptr;
-    char * name, *source;
+    mxArray* item;
+    double* ptr;
+    char* name, * source;
     int ndata, erc;
 
     /* IDAM related data
      */
     int handle, rank, order;
-    int * ivec = NULL;
-    float * fvec = NULL;
-    double * dvec = NULL;
+    int* ivec = NULL;
+    float* fvec = NULL;
+    double* dvec = NULL;
 
     if ((nlhs != 1) || (nrhs != 2)) {
         mexErrMsgTxt("One output and two inputs needed");
@@ -100,14 +92,12 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
     ptr = mxGetPr(item);
 
     // Cast atomic data types to double
-
     getIdamDoubleData(handle, ptr);
-
     addItem(OUT, item);
 
     /* Error Data
     */
-    char * error = getIdamError(handle);
+    char* error = getIdamError(handle);
 
     if (error != NULL) {
         addItem(OUT, mxCreateString("Error"));
@@ -118,10 +108,8 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
         ptr = mxGetPr(item);
 
         // Cast atomic data types to double
-
         // Fudge as required accessor not in library - small loss of precision!
-
-        float * fp = (float *) malloc( ndata * sizeof(float));
+        float* fp = (float*)malloc(ndata * sizeof(float));
         getIdamFloatError(handle, fp);
 
         for (int i = 0; i < ndata; i++) {
@@ -152,9 +140,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
             ptr = mxGetPr(item);
 
             // Cast atomic data types to double
-
             getIdamDoubleDimData(handle, i, ptr);
-
             addItem(OUT, item);
         }
     }
