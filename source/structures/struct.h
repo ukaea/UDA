@@ -267,7 +267,7 @@ addMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t size, con
 * @param type The name of the type allocated.  
 * @return void.
 */
-void changeMalloc(LOGMALLOCLIST* logmalloclist, void* old, void* anew, int count, size_t size, const char* type);
+void changeMalloc(LOGMALLOCLIST* logmalloclist, VOIDTYPE old, void* anew, int count, size_t size, const char* type);
 
 /** Change the logged memory location to a new location (necessary with realloc).  
 *

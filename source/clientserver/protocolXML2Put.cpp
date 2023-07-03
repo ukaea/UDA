@@ -1361,11 +1361,11 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTY
                                         addMalloc(logmalloclist, (void*)newNTree->children, loopcount, sizeof(NTREE*),
                                                   "NTREE *");
                                     } else {                                    // Multiple branches (user types) originating in the same node
-                                        NTREE** old = newNTree->children;
+                                        auto old = (VOIDTYPE)newNTree->children;
                                         newNTree->children = (NTREE**)realloc((void*)old,
                                                                               (newNTree->branches + loopcount) *
                                                                               sizeof(NTREE*));    // Individual node addresses remain valid
-                                        changeMalloc(logmalloclist, (void*)old, (void*)newNTree->children,
+                                        changeMalloc(logmalloclist, old, (void*)newNTree->children,
                                                      newNTree->branches + loopcount, sizeof(NTREE*), "NTREE *");
                                     }
                                 }
