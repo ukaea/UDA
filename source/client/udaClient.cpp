@@ -516,7 +516,12 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             startupStates = 0;
 #  endif
 			time(&tv_server_start);        // Start the Clock again: Age of Server
-            if ((createConnection(client_input, client_output, &tv_server_start,client_flags->user_timeout)) != 0) {
+
+            //-------------------------------------------------------------------------
+            // Create the XDR Record Streams
+            std::tie(client_input, client_output) = clientCreateXDRStream();
+
+            if ((createConnection(client_input, client_output, &tv_server_start, client_flags->user_timeout)) != 0) {
                 err = NO_SOCKET_CONNECTION;
                 addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "No Socket Connection to Server");
                 break;
@@ -532,13 +537,6 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             break;
         }
 #  endif
-
-        //-------------------------------------------------------------------------
-        // Create the XDR Record Streams
-
-        if (initServer) {
-            std::tie(client_input, client_output) = clientCreateXDRStream();
-        }
 
         //-------------------------------------------------------------------------
 
@@ -1038,7 +1036,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
     UDA_LOG(UDA_LOG_DEBUG, "serverside                     : %d\n", serverside);
     free(cached_data_block_list.data);
 
-    cached_data_block_list.data = NULL;
+    cached_data_block_list.data = nullptr;
 
 #ifndef FATCLIENT   // <========================== Client Server Code Only
 

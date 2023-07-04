@@ -1459,7 +1459,9 @@ void parse_name_value(const char* pair, NAMEVALUE* nameValue, unsigned short str
     // Regardless of whether or not the Value is not enclosed in quotes, strip out a possible closing parenthesis character (seen in placeholder value substitution)
     // This would not be a valid value unless at the end of a string enclosed in quotes!
     lstr = (int)strlen(nameValue->value);
-    if (nameValue->value[lstr - 1] == ')') nameValue->value[lstr - 1] = '\0';
+    if (nameValue->value[lstr - 1] == ')' && strchr(nameValue->value, '(') == nullptr) {
+        nameValue->value[lstr - 1] = '\0';
+    }
     UDA_LOG(UDA_LOG_DEBUG, "Name: %s     Value: %s\n", nameValue->name, nameValue->value);
 
     if (strip) {            // remove enclosing single or double quotes

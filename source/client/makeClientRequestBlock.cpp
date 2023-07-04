@@ -152,19 +152,16 @@ int makeClientRequestBlock(const char** signals, const char** sources, int count
 
     return err;
 }
-void freeClientRequestBlock(REQUEST_BLOCK* request_block){
-        int i=0;
-        if(request_block!=NULL && request_block->requests!=NULL){
-                for(i=0;i<request_block->num_requests;i++){
-                        freeNameValueList(&request_block->requests[i].nameValueList);
-                        freeClientPutDataBlockList(&request_block->requests[i].putDataBlockList);
-                               
-                       
-                }
-                free(request_block->requests);
-                request_block->requests=NULL;
-        }
 
+void freeClientRequestBlock(REQUEST_BLOCK* request_block) {
+    if(request_block != nullptr && request_block->requests != nullptr) {
+        for (int i = 0; i < request_block->num_requests; i++) {
+            freeNameValueList(&request_block->requests[i].nameValueList);
+            freeClientPutDataBlockList(&request_block->requests[i].putDataBlockList);
+        }
+        free(request_block->requests);
+        request_block->requests = nullptr;
+    }
 }
 
 int shotRequestTest(const char* source)

@@ -14,6 +14,7 @@ endif()
 find_package( LibXml2 REQUIRED )
 
 if( WIN32 AND NOT MINGW )
+  add_compile_definitions( MINGW )
   add_definitions( /W2 /WX )
 else()
   add_definitions( -Wall -Werror -Wextra -Wno-unused-parameter -Wno-missing-field-initializers )
@@ -67,7 +68,7 @@ if( WIN32 AND NOT MINGW )
 else()
   execute_process( COMMAND which env OUTPUT_VARIABLE ENV_PATH )
 endif()
-string( STRIP ${ENV_PATH} ENV_PATH )
+string( STRIP "${ENV_PATH}" ENV_PATH )
 
 find_program( PYTHON_EXE NAMES python python3 PATHS /usr/bin/ )
 

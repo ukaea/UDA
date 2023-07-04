@@ -93,7 +93,7 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output,
         int status;
         int fh;
         if (getSocket(&client_socketlist, TYPE_UDA_SERVER, &status, environment->server_host, environment->server_port, &fh) == 0) {
-            environment->server_socket=fh;
+            environment->server_socket = fh;
             environment->server_change_socket = 1;
         } else {
             time(tv_server_start);                     // Start a New Server AGE timer
@@ -104,7 +104,7 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output,
 
     // Client manages connections through the Socket id and specifies which running server to connect to
 
-    if (environment->server_change_socket){
+    if (environment->server_change_socket) {
         int newsocketId;
         if ((newsocketId = getSocketRecordId(&client_socketlist, environment->server_socket)) < 0) {
             err = NO_SOCKET_CONNECTION;
