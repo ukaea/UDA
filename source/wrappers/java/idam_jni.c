@@ -68,12 +68,12 @@ JNIEXPORT void JNICALL Java_jIdam_Idam_idamCleanAllLocksMT(JNIEnv* env, jobject 
 
 JNIEXPORT void JNICALL Java_jIdam_Idam_idamFree(JNIEnv* env, jobject obj, jint handle)
 {
-    idamFree((int)handle);
+    udaFree((int)handle);
 }
 
 JNIEXPORT void JNICALL Java_jIdam_Idam_idamFreeAll(JNIEnv* env, jobject obj)
 {
-//    udaFreeAll();
+    udaFreeAll();
 }
 
 
