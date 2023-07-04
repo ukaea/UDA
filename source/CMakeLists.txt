@@ -1,7 +1,7 @@
 if( NOT CLIENT_ONLY )
   include( LibXml2StrPrintfConfig )
 endif()
-find_package( Boost 1.69 REQUIRED )
+find_package( Boost 1.60 REQUIRED )
 include_directories( SYSTEM ${Boost_INCLUDE_DIR} )
 
 # Hack to build on GCC/12.2.0
