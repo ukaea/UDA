@@ -53,7 +53,7 @@ jobs:
       - name: Install macos dependencies
         if: matrix.os == 'macos-latest'
         run: >
-          brew update && brew install
+          brew update-reset && brew install
           git
           boost
           openssl
