@@ -31,3 +31,8 @@ class Client(pyuda.Client):
 
     def get_server(self):
         return pyuda.Client.server
+
+    def get_matlab_batch(self, signals_mstring, sources_mstring):
+        signals = signals_mstring.split(",")
+        sources = sources_mstring.split(",")
+        return pyuda.Client.get_batch(signals, sources)

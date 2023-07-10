@@ -6,5 +6,7 @@ classdef Signal
     units
     label
     signal_name
+    errors
+    meta struct
   end
 end

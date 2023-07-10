@@ -15,6 +15,8 @@ function data = get_attribute_value(value)
     data = int64(value);
   elseif py.str(py.type(value)) == "<class 'int'>"
     data = int32(value);
+%  elseif class(value) == 'py.bytes':
+%    data = string(value.decode());
   else
     try 
       data = matpyuda.get_np_data(value);

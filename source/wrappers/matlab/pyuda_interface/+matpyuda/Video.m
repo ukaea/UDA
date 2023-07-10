@@ -1,0 +1,35 @@
+classdefVideo
+  properties
+    frames matpyuda.Frame
+    bottom
+    hbin
+    vbin
+    trigger
+    pre_exp
+    view
+    shot
+    exposure
+    board_temp
+    height
+    ccd_temp
+    date_time
+    n_frames
+    lens
+    frame_times
+    camera
+    gain
+    file_format
+    is_color
+    codex
+    depth
+    orientation
+    taps
+    filter
+    strobe
+    left
+    offset
+    right
+    top
+    width
+  end
+end

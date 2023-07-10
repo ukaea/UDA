@@ -1,5 +1,7 @@
 % This may be slow! maybe better to transverse the python object and only extract the matlab data required... 
 
+% better to replace two-level system with a check for pyuda type StructuredData. Then only need a single recursive function.
+
 % top-level function to filter whether the returned structured object has a top-level data field
 % before the usual "children" fields are 
 function s = get_uda_structured_data(pyuda_object)

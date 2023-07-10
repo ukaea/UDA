@@ -13,6 +13,10 @@ function data = get_np_data(np_data)
     catch IGNORE_ME
       data = int32(np_data);
     end
+  elseif np_data.dtype == py.numpy.uint16
+      data = uint16(np_data);
+  elseif np_data.dtype == py.numpy.uint32
+      data = uint32(np_data);
   elseif string(py.str(py.type(np_data.dtype))) == "<class 'numpy.dtype[str_]'>"
     data = string(py.str(np_data));
   else

@@ -1,1 +1,1 @@
-from .pymatuda import MatudaClient, Client
+from .matpyuda import Client
