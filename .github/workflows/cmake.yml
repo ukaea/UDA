@@ -113,7 +113,7 @@ jobs:
       - name: Configure CMake (macos)
         if: matrix.os == 'macos-latest'
         run: >
-          cmake -G Ninja -B ${{github.workspace}}/build
+          cmake -G "MinGW Makefiles" -B ${{github.workspace}}/build
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
           -DSSLAUTHENTICATION=${{ matrix.ssl }}
