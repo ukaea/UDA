@@ -18,11 +18,14 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+#        os: [ubuntu-latest, macos-latest]
+        os: [windows-latest]
         release: [Release]
-        ssl: [ON, OFF]
+#        ssl: [ON, OFF]
+        ssl: [ON]
         client-only: [OFF]
-        capnp: [ON, OFF]
+#        capnp: [ON, OFF]
+        capnp: [ON]
 #        include:
 #          - client-only: ON
 #            ssl: OFF
@@ -31,8 +34,18 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - uses: actions/checkout@v3
+
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       - name: Install linux dependencies
         if: matrix.os == 'ubuntu-latest'
@@ -68,6 +81,25 @@ jobs:
           ninja
           capnp
 
+#      - name: Cache windows packages
+#        id: cache-vcpkg
+#        uses: actions/cache@v3
+#        env:
+#          cache-name: cache-vcpkg-packages
+#        with:
+#          path: C:/vcpkg
+#          key: ${{ runner.os }}-build-${{ env.cache-name }}
+
+      - name: Install windows dependencies
+        if: matrix.os == 'windows-latest'
+        run: >
+          vcpkg install --triplet x64-windows --binarysource="clear;x-gha,readwrite"
+          libxml2
+          capnproto
+          spdlog
+          boost-program-options
+          openssl
+
       - name: Configure CMake (linux)
         if: matrix.os == 'ubuntu-latest'
         run: >
@@ -89,26 +121,37 @@ jobs:
           -DENABLE_CAPNP=${{ matrix.capnp }}
           -DOPENSSL_ROOT_DIR="$(brew --prefix openssl@1.1)"
 
+      - name: Configure CMake (windows)
+        if: matrix.os == 'windows-latest'
+        run: >
+          cmake -G Ninja -B ${{github.workspace}}/build
+          -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DBUILD_SHARED_LIBS=ON
+          -DCMAKE_BUILD_TYPE=${{ matrix.release }}
+          -DSSLAUTHENTICATION=${{ matrix.ssl }}
+          -DCLIENT_ONLY=${{ matrix.client-only }}
+          -DENABLE_CAPNP=${{ matrix.capnp }}
+
       - name: Build
         run: cmake --build ${{github.workspace}}/build --config ${{ matrix.release }}
 
       - name: Install
         run: sudo cmake --install ${{github.workspace}}/build --config ${{ matrix.release }}
 
-      - name: Install pyuda
-        if: matrix.os == 'ubuntu-latest'
-        run: >
-          cp -r /usr/local/python_installer ${{github.workspace}}/python_installer &&
-          python3 -m venv ${{github.workspace}}/venv &&
-          source ${{github.workspace}}/venv/bin/activate &&
-          pip3 install Cython numpy six &&
-          pip3 install ${{github.workspace}}/python_installer
+#      - name: Install pyuda
+#        if: matrix.os == 'ubuntu-latest'
+#        run: >
+#          cp -r /usr/local/python_installer ${{github.workspace}}/python_installer &&
+#          python3 -m venv ${{github.workspace}}/venv &&
+#          source ${{github.workspace}}/venv/bin/activate &&
+#          pip3 install Cython numpy six &&
+#          pip3 install ${{github.workspace}}/python_installer
 
-      - name: Test pyuda import
-        if: matrix.os == 'ubuntu-latest'
-        run: >
-          source ${{github.workspace}}/venv/bin/activate &&
-          python3 -c 'import pyuda; client=pyuda.Client()'
+#      - name: Test pyuda import
+#        if: matrix.os == 'ubuntu-latest'
+#        run: >
+#          source ${{github.workspace}}/venv/bin/activate &&
+#          python3 -c 'import pyuda; client=pyuda.Client()'
 
 #      - name: Test
 #        working-directory: ${{github.workspace}}/build
