@@ -113,7 +113,7 @@ jobs:
       - name: Configure CMake (macos)
         if: matrix.os == 'macos-latest'
         run: >
-          cmake -G "MinGW Makefiles" -B ${{github.workspace}}/build
+          cmake -G Ninja -B ${{github.workspace}}/build
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
           -DSSLAUTHENTICATION=${{ matrix.ssl }}
@@ -124,7 +124,7 @@ jobs:
       - name: Configure CMake (windows)
         if: matrix.os == 'windows-latest'
         run: >
-          cmake -G Ninja -B ${{github.workspace}}/build
+          cmake -G "MinGW Makefiles" -B ${{github.workspace}}/build
           -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
