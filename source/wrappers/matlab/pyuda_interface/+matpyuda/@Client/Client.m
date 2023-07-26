@@ -68,7 +68,7 @@ classdef Client
 
         function result = get(obj, signal, source)
             pyobj = obj.python_client.get(string(signal), string(source));
-            result = convert_pyuda_obj_to_matlab_type;
+            result = convert_pyuda_obj_to_matlab_type(pyobj);
         end
 
         function result = get_batch(obj, signals, sources)

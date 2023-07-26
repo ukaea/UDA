@@ -55,6 +55,5 @@ function data = unpack_python_list(value)
       ME = MException("unpack_python_list:TyeNotImplemented", "datatype %s not implemented", t_str); 
       addCause(exception, ME);
       throw(exception)
-    end
   end
 end

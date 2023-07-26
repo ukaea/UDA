@@ -18,7 +18,6 @@ classdef MastClient < matpyuda.Client
             options.pass_number = py.None
             options.machine string = 'mastu'
         end
-        options
         % args = py.dict(options); % cannot unpack py dict into kwargs through matlab 
         pyobj = obj.python_client.list(list_type=py.int(options.list_type), shot=options.shot, ...
                 alias=options.alias, signal_type=options.signal_type, signal_search=options.signal_search, ...
@@ -40,7 +39,6 @@ classdef MastClient < matpyuda.Client
             options.pass_number = py.None
             options.machine string = 'mastu'
         end
-        options
         % args = py.dict(options); % cannot unpack py dict into kwargs through matlab 
         pyobj = obj.python_client.list_signals(shot=options.shot, ...
                 alias=options.alias, signal_type=options.signal_type, signal_search=options.signal_search, ...
