@@ -17,6 +17,8 @@ function data = get_np_data(np_data)
       data = get_np_data_item(np_data, @uint16);
   elseif np_data.dtype == py.numpy.uint32
       data = get_np_data_item(np_data, @uint32);
+  elseif np_data.dtype == py.numpy.uint64
+      data = get_np_data_item(np_data, @uint64);
   elseif string(py.str(py.type(np_data.dtype))) == "<class 'numpy.dtype[str_]'>"
     data = string(py.str(np_data));
   else
