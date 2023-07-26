@@ -335,7 +335,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
             close(client_socket);
         }
 #else
-        closesocket(clientSocket);
+        closesocket(client_socket);
 #endif
         client_socket = -1;
         freeaddrinfo(result);
@@ -381,7 +381,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
 #ifndef _WIN32
             close(client_socket);
 #else
-            closesocket(clientSocket);
+            closesocket(client_socket);
 #endif
             client_socket = -1;
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
@@ -459,7 +459,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
                     close(client_socket);
                 }
 #else
-                closesocket(clientSocket);
+                closesocket(client_socket);
 #endif
                 client_socket = -1;
                 freeaddrinfo(result);
@@ -494,7 +494,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
                 close(client_socket);
             }
 #else
-            closesocket(clientSocket);
+            closesocket(client_socket);
 #endif
             client_socket = -1;
             if (result) freeaddrinfo(result);
@@ -623,7 +623,7 @@ int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 #ifndef _WIN32
         while (((rc = (int)write(client_socket, buf, count)) == -1) && (errno == EINTR)) {}
 #else
-        while (((rc = send(clientSocket, buf , count, 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
+        while (((rc = send(client_socket, buf , count, 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
 #endif
         BytesSent += rc;
         buf += rc;
@@ -664,7 +664,7 @@ int clientReadin(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 #ifndef _WIN32
     while (((rc = (int)read(client_socket, buf, count)) == -1) && (errno == EINTR)) {}
 #else
-    while ((( rc=recv( clientSocket, buf, count, 0)) == SOCKET_ERROR ) && (errno == EINTR)) {}
+    while (((rc = recv(client_socket, buf, count, 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
 #endif
 
     // As we have waited to be told that there is data to be read, if nothing
