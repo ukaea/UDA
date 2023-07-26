@@ -43,7 +43,11 @@ classdef Client
         end
 
         function set_property(obj, name, value)
-            obj.python_client.set_property(string(name), string(value));
+            if class(value) == "logical"
+                obj.python_client.set_property(string(name), py.bool(value));
+            else
+                obj.python_client.set_property(string(name), string(value));
+            end
         end
 
         function reset_connection(obj)

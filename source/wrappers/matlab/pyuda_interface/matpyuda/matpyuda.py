@@ -1,7 +1,4 @@
 import pyuda
-# import mast
-# from mast.geom.geometryClient import GeomClient
-# from mast import MastClient
 
 
 def void_display(*args, **kwargs):
@@ -17,8 +14,6 @@ pyuda.StructuredData._display = void_display
 class Client(pyuda.Client):
     def __init__(self):
         pyuda.Client.__init__(self)
-        # MastClient.__init__(self, pyuda.Client())
-        # GeomClient.__init__(self, pyuda.Client())
 
     def set_port(self, number):
         pyuda.Client.port = number
@@ -36,3 +31,34 @@ class Client(pyuda.Client):
         signals = signals_mstring.split(",")
         sources = sources_mstring.split(",")
         return pyuda.Client.get_batch(signals, sources)
+
+
+#  ... mast specific stuff eventually needs to move out of this main repo ... 
+# from mast.geom.geometryClient import GeomClient
+# from mast import MastClient
+
+# class MastClient(pyuda.Client, MastClient, GeomClient):
+    
+#     def __init__(self):
+#         from mast.geom.geometryClient import GeomClient
+#         from mast import MastClient
+#         pyuda.Client.__init__(self)
+#         MastClient.__init__(self, pyuda.Client())
+#         GeomClient.__init__(self, pyuda.Client())
+
+#     def set_port(self, number):
+#         pyuda.Client.port = number
+
+#     def get_port(self):
+#         return pyuda.Client.port
+
+#     def set_server(self, address):
+#         pyuda.Client.server = address
+
+#     def get_server(self):
+#         return pyuda.Client.server
+
+#     def get_matlab_batch(self, signals_mstring, sources_mstring):
+#         signals = signals_mstring.split(",")
+#         sources = sources_mstring.split(",")
+#         return pyuda.Client.get_batch(signals, sources)
