@@ -30,7 +30,7 @@ end
 
 function data = get_np_double_data(np_data)
   try
-    data = double(np_data)
+    data = double(np_data);
   catch ME
     if (strcmp(ME.identifier, 'MATLAB:invalidConversion'))
       data = double(py.array.array('d', py.numpy.nditer(np_data)));
@@ -46,7 +46,7 @@ end
 
 function data = get_np_data_item(np_data, type_func)
   try
-    data = type_func(np_data)
+    data = type_func(np_data);
   catch ME
     if (strcmp(ME.identifier, 'MATLAB:invalidConversion'))
       data = type_func(py.array.array('d', py.numpy.nditer(np_data)));
