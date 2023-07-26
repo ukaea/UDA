@@ -15,7 +15,7 @@
 #include <string>
 #include <boost/algorithm/string.hpp>
 
-#if defined(__GNUC__) && !defined(MINGW)
+#if defined(__GNUC__) && !defined(__MINGW32__)
 #  ifndef _WIN32
 #    include <sys/socket.h>
 #    include <netinet/in.h>
@@ -31,7 +31,7 @@
 #  define strcasecmp _stricmp
 #  define sleep(DELAY) Sleep((DWORD)((DELAY)*1E3))
 #  define close(SOCK) closesocket(SOCK)
-#  ifndef MINGW
+#  ifndef __MINGW32__
 #    pragma comment(lib, "Ws2_32.lib")
 #  endif
 
