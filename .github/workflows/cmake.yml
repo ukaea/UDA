@@ -121,10 +121,22 @@ jobs:
           -DENABLE_CAPNP=${{ matrix.capnp }}
           -DOPENSSL_ROOT_DIR="$(brew --prefix openssl@1.1)"
 
+      - name: Configure portable XDR
+        if: matrix.os == 'windows-latest'
+        run: cd extlib && cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -B build -G "MinGW Makefiles" .
+
+      - name: Build portable XDR
+        if: matrix.os == 'windows-latest'
+        run: cd extlib && cmake --build build
+
+      - name: Install portable XDR
+        if: matrix.os == 'windows-latest'
+        run: cd extlib && cmake --install build --prefix install
+
       - name: Configure CMake (windows)
         if: matrix.os == 'windows-latest'
         run: >
-          cmake -G "MinGW Makefiles" -B build
+          XDR_ROOT=extlib/install cmake -G "MinGW Makefiles" -B build
           -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
