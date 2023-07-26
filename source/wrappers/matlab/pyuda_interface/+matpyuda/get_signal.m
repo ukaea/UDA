@@ -5,7 +5,7 @@ function s = get_matuda_signal(pyuda_signal)
   s.label = get_optional_string(pyuda_signal.label);
   s.units = get_optional_string(pyuda_signal.units);
   s.description = get_optional_string(pyuda_signal.description); 
-  s.meta = parse_python_dictionary(pyuda_signal.meta);
+  s.meta = struct(pyuda_signal.meta);
   for i = 1:length(pyuda_signal.dims)
     s.dims(i) = matpyuda.SignalDim;
     s.dims(i).data = matpyuda.get_np_data(pyuda_signal.dims{i}.data);
@@ -22,6 +22,7 @@ function s = get_optional_string(field)
   end
 end
 
+% can replace with struct(py_dict). Matlab will natively parse python dictionaries into matlab structs.
 function s = parse_python_dictionary(pyobj)
   s = struct;
   num_fields = int32(py.len(pyobj.keys()));

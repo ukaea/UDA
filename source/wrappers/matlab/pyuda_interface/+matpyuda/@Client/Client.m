@@ -50,8 +50,7 @@ classdef Client
             obj.python_client.reset_connection();
         end
 
-        function result = get(obj, signal, source)
-            pyobj = obj.python_client.get(string(signal), string(source));
+        function result = convert_pyuda_obj_to_matlab_type(obj, pyobj)
             if py.str(py.type(pyobj)) == "<class 'pyuda._signal.Signal'>"
                 result = matpyuda.get_signal(pyobj);
             elseif py.str(py.type(pyobj)) == "<class 'pyuda._structured.StructuredData'>"
@@ -67,11 +66,16 @@ classdef Client
             end
         end
 
+        function result = get(obj, signal, source)
+            pyobj = obj.python_client.get(string(signal), string(source));
+            result = convert_pyuda_obj_to_matlab_type;
+        end
+
         function result = get_batch(obj, signals, sources)
             pyobj = obj.python_client.get_matlab_batch(signals, sources);
             n_signals = length(pyobj);
             for i = 1:n_signals
-              result(i) = matpyuda.get_signal(pyobj{i});
+              result(i) = convert_pyuda_obj_to_matlab_type(pyobj{i});
             end
         end
 

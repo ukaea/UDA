@@ -1,8 +1,10 @@
+% NOTE this is deprecated, use the matpyuda matlab module instead
+% to use anyway: the individual functions need to be broken out into separate .m files
+% the commands in lines 5-9 can then be run in the matlab interpreter
 
 client = py.pyuda.Client();
 client2 = py.mast.MastClient(client);
 signals = client2.list_signals(alias='epm', shot=47125);
-%for i=1:length(signals); s = string(signals(i)).split(",").strip(); kvp = s(3).split("="); msignal(i) = kvp(2).strip("'"); end
 for i=1:length(signals);msignals(i)=string(signals{i}.signal_name);end
 for i=1:length(msignals); a=client.get(msignals(i), '47125'); r(i) = get_matuda_signal(a); r(i).signal_name=msignals(i); end;
 
