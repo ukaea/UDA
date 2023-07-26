@@ -36,8 +36,8 @@ get_filename_component( FMT_ROOT_DIR "${fmt_CONFIG}/../../../../" ABSOLUTE )
 set( FMT_INCLUDE_DIR ${FMT_ROOT_DIR}/include )
 set( FMT_LIB_DIR ${FMT_ROOT_DIR}/lib64 )
 
-get_filename_component( OPENSSL_LIB_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY )
-get_filename_component( LIBXML_LIB_DIR ${LIBXML2_LIBRARIES} DIRECTORY )
+get_filename_component( OPENSSL_LIB_DIR "${OPENSSL_SSL_LIBRARY}" DIRECTORY )
+get_filename_component( LIBXML_LIB_DIR "${LIBXML2_LIBRARIES}" DIRECTORY )
 
 if( DEFINED TIRPC_INCLUDE_DIR )
   get_filename_component( MAYBE_TIRPC ${TIRPC_INCLUDE_DIR} NAME )
