@@ -73,9 +73,9 @@ bool_t xdr_signal(XDR* xdrs, SIGNAL* str);
 // From SIGNAL_DESC Table
 bool_t xdr_signal_desc(XDR* xdrs, SIGNAL_DESC* str);
 
-bool_t xdr_hdc_buffer_length(XDR* xdrs, uint64_t* n);
+//bool_t xdr_hdc_buffer_length(XDR* xdrs, uint64_t* n);
 
-bool_t xdr_hdc_buffer(XDR* xdrs, char* buffer, uint64_t n);
+//bool_t xdr_hdc_buffer(XDR* xdrs, char* buffer, uint64_t n);
 
 #endif // UDA_CLIENTSERVER_XDRLIB_H
 
