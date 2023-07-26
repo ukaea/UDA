@@ -97,7 +97,7 @@ jobs:
           libxml2
           capnproto
           spdlog
-          boost-program-options
+          boost
           openssl
           dlfcn-win32
 
