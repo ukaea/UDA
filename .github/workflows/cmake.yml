@@ -99,6 +99,7 @@ jobs:
           spdlog
           boost-program-options
           openssl
+          dlfcn-win32
 
       - name: Configure CMake (linux)
         if: matrix.os == 'ubuntu-latest'
