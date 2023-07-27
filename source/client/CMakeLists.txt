@@ -75,13 +75,13 @@ include_directories(
 )
 
 add_library( client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
-target_link_libraries( client-objects PRIVATE fmt::fmt )
+target_link_libraries( client-objects PUBLIC fmt::fmt )
 
 if( NOT CLIENT_ONLY )
   add_library( fatclient-objects OBJECT ${SRC_FILES} )
-  target_link_libraries( fatclient-objects PRIVATE fmt::fmt )
+  target_link_libraries( fatclient-objects PUBLIC fmt::fmt )
 
-  target_compile_definitions( fatclient-objects PRIVATE -DFATCLIENT )
+  target_compile_definitions( fatclient-objects PUBLIC -DFATCLIENT )
 endif()
 
 set( CLIENT_OBJS
@@ -127,18 +127,18 @@ elseif( TIRPC_FOUND )
   set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${TIRPC_LIBRARIES} )
 endif()
 
-target_link_libraries( client-static PRIVATE ${CLIENT_LINK_LIBS} )
+target_link_libraries( client-static PUBLIC ${CLIENT_LINK_LIBS} )
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( client-shared PRIVATE ${CLIENT_LINK_LIBS} )
+  target_link_libraries( client-shared PUBLIC ${CLIENT_LINK_LIBS} )
 endif()
 
 if( NOT CLIENT_ONLY )
   add_library( fatclient-static STATIC ${FATCLIENT_OBJS} )
-  target_link_libraries( fatclient-static PRIVATE plugins-static ${CLIENT_LINK_LIBS} )
+  target_link_libraries( fatclient-static PUBLIC plugins-static ${CLIENT_LINK_LIBS} )
   
   if( BUILD_SHARED_LIBS )
     add_library( fatclient-shared SHARED ${FATCLIENT_OBJS} )
-    target_link_libraries( fatclient-shared PRIVATE plugins-shared ${CLIENT_LINK_LIBS} )
+    target_link_libraries( fatclient-shared PUBLIC plugins-shared ${CLIENT_LINK_LIBS} )
   endif()
 endif()
 
