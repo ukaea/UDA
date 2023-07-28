@@ -102,9 +102,16 @@ end
 %    
 %end
 
-%function test_get_2d_double_signal(testCase)
-%    
-%end
+function test_get_2d_double_signal(testCase)
+    client = matpyuda.Client();
+    client.port = 56565;
+    client.server= "uda2.mast.l";
+    client.set_property('get_meta', py.True);
+
+    data = client.get('ayc_ne', '27999');
+    % unimplemented
+    verifyFail(testCase);
+end
 
 %function test_get_1d_int_signal(testCase)
 %
@@ -114,13 +121,26 @@ end
 %    
 %end
 
-%function test_get_structured(testCase)
-%    
-%end
+function test_get_structured(testCase)
+    client = matpyuda.Client();
+    client.port = 56565;
+    client.server= "uda2.mast.l";
+    client.set_property('get_meta', py.True);
 
-%function test_get_video(testCase)
-%    
-%end
+    data = client.get('ane', '30420');
+    % unimplemented
+    verifyFail(testCase);
+end
+
+function test_get_video(testCase)
+    client = matpyuda.Client();
+    client.port = 56565;
+    client.server= "uda2.mast.l";
+    client.set_property('get_meta', py.True);
+    data = client.get("NEWIPX::read(shot=47125, ipxtag=rgb, last=0)","");
+    % unimplemented
+    verifyFail(testCase);
+end
 
 % FOLLOWING TESTS REQUIRE MastClient IMPLEMENTATION TO BE UNCOMMENTED IN MATPYUDA PYTOHN PACKAGE
 % ... mast specific stuff eventually needs to move out of this main repo ... 
@@ -145,4 +165,26 @@ end
 %    verifyEqual(testCase, length(matlab_list), length(python_list));
 %    verifyEqual(testCase, matlab_list(1).signal_name, string(python_list{1}.signal_name));
 %
+%end
+
+%function test_mast_geometry_data(testCase)
+%    client = matpyuda.Client();
+%    client.port = 56565;
+%    client.server= "uda2.mast.l";
+%    client.set_property('get_meta', py.True);
+%
+%    data = client.geometry("/magnetics/fluxloops", "47699");
+%    % unimplemented
+%    verifyFail(testCase);
+%end
+%
+%function test_mast_image_data(testCase)
+%    client = matpyuda.Client();
+%    client.port = 56565;
+%    client.server= "uda2.mast.l";
+%    client.set_property('get_meta', py.True);
+%
+%    data = client.get_images("rgb", "47699", last_frame=0);
+%    % unimplemented
+%    verifyFail(testCase);
 %end

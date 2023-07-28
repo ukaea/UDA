@@ -44,11 +44,33 @@ function data = get_np_double_data(np_data)
   end
 end
 
+function result = get_python_array_type_from_matlab_type_function(type_function)
+  switch type_function(1)
+    case 'double'
+      result = 'd';
+    case 'int32'
+      result = 'i';
+    case 'uint8'
+      result = 'B';
+    case 'uint16'
+      result = 'H';
+    case 'uint32'
+      result = 'I';
+    case 'uint64'
+      result = 'L';
+    otherwise
+      tfunction_string = strip(formattedDisplayText(type_function));
+      ME = MException("get_np_data:TyeNotImplemented", "datatype %s not implemented", tfunction_string); 
+      throw(ME); 
+  end
+end
+
 function data = get_np_data_item(np_data, type_func)
   try
     data = type_func(np_data);
   catch ME
     if (strcmp(ME.identifier, 'MATLAB:invalidConversion'))
+      type_option = get_python_array_type_from_matlab_type_function(type_func);
       data = type_func(py.array.array('d', py.numpy.nditer(np_data)));
       shape = int32(np_data.shape);
       if (length(shape) > 1)

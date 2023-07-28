@@ -55,13 +55,13 @@ classdef Client
         end
 
         function result = convert_pyuda_obj_to_matlab_type(obj, pyobj)
-            if py.str(py.type(pyobj)) == "<class 'pyuda._signal.Signal'>"
+            if isa(pyobj, 'py.pyuda._signal.Signal')
                 result = matpyuda.get_signal(pyobj);
-            elseif py.str(py.type(pyobj)) == "<class 'pyuda._structured.StructuredData'>"
+            elseif isa(pyobj,'py.pyuda._structured.StructuredData')
                 result = matpyuda.get_structured_data(pyobj);
-            elseif py.str(py.type(pyobj)) == "<class 'pyuda._string.String'>"
+            elseif isa(pyobj, 'py.pyuda._string.String')
                 result = string(pyobj.str);
-            elseif py.str(py.type(pyobj)) == "<class 'pyuda._video.Video'>"
+            elseif isa(pyobj, 'py.pyuda._video.Video')
                 result = matpyuda.get_video_data(pyobj);
             else
                 t_str = string(py.str(pyobj));
@@ -72,14 +72,14 @@ classdef Client
 
         function result = get(obj, signal, source)
             pyobj = obj.python_client.get(string(signal), string(source));
-            result = convert_pyuda_obj_to_matlab_type(pyobj);
+            result = obj.convert_pyuda_obj_to_matlab_type(pyobj);
         end
 
         function result = get_batch(obj, signals, sources)
             pyobj = obj.python_client.get_matlab_batch(signals, sources);
             n_signals = length(pyobj);
             for i = 1:n_signals
-              result(i) = convert_pyuda_obj_to_matlab_type(pyobj{i});
+              result(i) = obj.convert_pyuda_obj_to_matlab_type(pyobj{i});
             end
         end
 

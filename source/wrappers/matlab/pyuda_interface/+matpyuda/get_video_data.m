@@ -11,7 +11,7 @@ function result = get_video_data(pyobj)
     result.(name) = matpyuda.get_attribute_value(pyobj.(name));
   end
   if py.hasattr(pyobj, "n_frames")
-    for i = 1:int32(pyobj.n_frames)
+    for i = 1:length(pyobj.frames)
       result.frames(i) = matpyuda.get_video_data(pyobj.frames{i});
     end
   end
