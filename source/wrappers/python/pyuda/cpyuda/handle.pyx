@@ -5,7 +5,7 @@ Handle class, a thin wrapper around a handle integer that is refcounted.
 cimport uda
 
 
-cdef class Handle(int):
+cdef class Handle:
     cdef int _handle
 
     def __init__(self, handle):
