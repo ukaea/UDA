@@ -19,16 +19,16 @@ cdef class Result:
 
     def __init__(self, Handle handle):
         self._handle = handle
-        self._is_tree = 1 if uda.setIdamDataTree(handle) != 0 else 0
+        self._is_tree = 1 if uda.setIdamDataTree(int(handle)) != 0 else 0
         cdef uda.SIGNAL_DESC* signal_desc
         cdef uda.DATA_SOURCE* source
         self._meta = {}
-        if handle >= 0 and uda.getIdamProperties(handle).get_meta:
-            signal_desc = uda.getIdamSignalDesc(handle)
+        if int(handle) >= 0 and uda.getIdamProperties(int(handle)).get_meta:
+            signal_desc = uda.getIdamSignalDesc(int(handle))
             self._meta["signal_name"] = signal_desc.signal_name
             self._meta["signal_alias"] = signal_desc.signal_alias
 
-            source = uda.getIdamDataSource(handle)
+            source = uda.getIdamDataSource(int(handle))
             self._meta["path"] = source.path
             self._meta["filename"] = source.filename
             self._meta["format"] = source.format
