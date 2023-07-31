@@ -75,6 +75,8 @@ cdef class CapnpTreeNode:
 
         cdef int np_type = uda_type_to_numpy_type(type)
         self._data = np.PyArray_SimpleNew(<int>rank, np_shape, np_type)
+        np.PyArray_SetBaseObject(self._data, self._handle)
+        Py_INCREF(self._handle)
 
         free(np_shape)
 
