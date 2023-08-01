@@ -71,7 +71,7 @@ function data = get_np_data_item(np_data, type_func)
   catch ME
     if (strcmp(ME.identifier, 'MATLAB:invalidConversion'))
       type_option = get_python_array_type_from_matlab_type_function(type_func);
-      data = type_func(py.array.array('d', py.numpy.nditer(np_data)));
+      data = type_func(py.array.array(type_option, py.numpy.nditer(np_data)));
       shape = int32(np_data.shape);
       if (length(shape) > 1)
         data = reshape(data, shape);
