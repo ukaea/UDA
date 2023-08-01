@@ -208,7 +208,8 @@ end
 %    client.server= "uda2.mast.l";
 %    client.set_property('get_meta', py.True);
 %
-%    data = client.get_images("rgb", "47699", last_frame=0);
-%    % unimplemented
-%    verifyFail(testCase);
+%    data = client.get_images("rgb", "47125", last_frame=0);
+%    verifyEqual(testCase, size(data.frames(1).k), [480, 640]);
+%    verifyEqual(testCase, length(data.frame_times), 248);
+%    verifyEqual(testCase, data.filter, "(Da/SS)/C-CXRS/He-CXRS");
 %end

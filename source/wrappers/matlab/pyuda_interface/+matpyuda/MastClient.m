@@ -55,7 +55,24 @@ classdef MastClient < matpyuda.Client
         end
     end
 
-    // function get_images(obj, signal, source, options)
+    function result = get_images(obj, signal, source, options)
+      arguments
+        obj
+        signal
+        source
+        options.first_frame = py.None
+        options.last_frame = py.None
+        options.stride = py.None
+        options.frame_number = py.None
+        options.header_only = py.None
+        options.rcc_calib_path = py.None
+      end
+
+      kwargs = py.dict(options);
+      pyobj = pyrun("r = client.get_images(signal, source, **kwargs)", "r", ...
+                    client=obj.python_client, signal=signal, source=source, kwargs=kwargs);
+      result = obj.convert_pyuda_obj_to_matlab_type(pyobj);
+    end
 
     function result = geometry(obj, signal, source, options)
       arguments
@@ -88,6 +105,8 @@ function s = build_struct(pyobj)
   atts = fieldnames(pyobj);
   for i = 1: numel(atts)
     name = atts{i};
-    s.(name) = matpyuda.get_attribute_value(pyobj.(name));
+    if py.hasattr(pyobj, name)
+      s.(name) = matpyuda.get_attribute_value(pyobj.(name));
+    end
   end
 end
