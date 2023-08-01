@@ -57,13 +57,22 @@ function s = get_structured_data(pyuda_object)
         continue
       end
     if isa(pyuda_object.(name), 'py.pyuda._structured.StructuredData')
-      s.(name) = matpyuda.get_structured_data2(pyuda_object.(name));
+      s.(name) = matpyuda.get_structured_data(pyuda_object.(name));
     elseif isa(pyuda_object.(name), 'py.list')  && isa(pyuda_object.(name){1}, 'py.pyuda._structured.StructuredData')
       n_children = length(pyuda_object.(name));
+      s.(name) = dictionary;
       for j = n_children:-1:1
-        pyuda_struct_list = pyuda_object.(name);
-        s.(name)(i) = matpyuda.get_structured_data2(pyuda_struct_list{i});
-      end
+        item = pyuda_object.(name){j}
+        if py.hasattr(item, "name")
+          key = string(item.name);
+        elseif py.hasattr(item, "label")
+          key = string(item.label);
+        elseif py.hasattr(item, "title")
+          key = string(item.title);
+        else
+          key = int2str(j);
+        end
+        s.(name)(key) = matpyuda.get_structured_data(item);
     else
       s.(name) = matpyuda.get_attribute_value(pyuda_object.(name));
     end

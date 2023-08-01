@@ -109,13 +109,32 @@ function test_get_2d_double_signal(testCase)
     client.set_property('get_meta', py.True);
 
     data = client.get('ayc_ne', '27999');
-    % unimplemented
-    verifyFail(testCase);
+    assertClass(testCase, data, ?matpyuda.Signal);
+    verifyEqual(testCase, size(data.data), [89, 130]);
+    verifyEqual(testCase, length(data.dims), 2);
+    verifyEqual(testCase, length(data.dims(1).data), 89);
+    verifyEqual(testCase, length(data.dims(2).data), 130);
+    verifyEqual(testCase, size(data.errors), [89, 130]);
+
+    verifyEqual(testCase, data.label, "electron density");
+    verifyEqual(testCase, data.units, "m^-3");
+    verifyEqual(testCase, data.description, "");
+
+    assertClass(testCase, data.meta, ?struct);
+    verifyEqual(testCase, data.meta.exp_number, int32(27999));
+
 end
 
-%function test_get_1d_int_signal(testCase)
-%
-%end
+function test_get_1d_int_signal(testCase)
+  client = matpyuda.Client();
+  client.port = 56565;
+  client.server= "uda2.mast.l";
+  client.set_property('get_meta', py.True);
+  data = client.get('EPM/OUTPUT/NUMERICALDETAILS/MAXIMUMITERATIONCOUNT', 45125);
+  verifyEqual(testCase, length(data.data), 30);
+  verifyEqual(testCase, data.data,int32([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, ...
+                                   17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]));
+end
 
 %function test_get_2d_int_signal(testCase)
 %    
@@ -127,9 +146,11 @@ function test_get_structured(testCase)
     client.server= "uda2.mast.l";
     client.set_property('get_meta', py.True);
 
-    data = client.get('ane', '30420');
-    % unimplemented
-    verifyFail(testCase);
+    data = client.get('ane', '45125');
+    verifyEqual(testCase, data.children.numEntries, 3);
+    verifyEqual(testCase, length(data.children('density').data), 80000);
+    verifyEqual(testCase, length(data.children('CO2').data), 80000);
+    verifyEqual(testCase, length(data.children('HeNe').data), 80000);
 end
 
 function test_get_video(testCase)
@@ -138,13 +159,15 @@ function test_get_video(testCase)
     client.server= "uda2.mast.l";
     client.set_property('get_meta', py.True);
     data = client.get("NEWIPX::read(shot=47125, ipxtag=rgb, last=0)","");
-    % unimplemented
-    verifyFail(testCase);
+
+    verifyEqual(testCase, size(data.frames(1).k), [480, 640]);
+    verifyEqual(testCase, length(data.frame_times), 248);
+    verifyEqual(testCase, data.filter, "(Da/SS)/C-CXRS/He-CXRS");
 end
 
-% FOLLOWING TESTS REQUIRE MastClient IMPLEMENTATION TO BE UNCOMMENTED IN MATPYUDA PYTOHN PACKAGE
-% ... mast specific stuff eventually needs to move out of this main repo ... 
-
+%% FOLLOWING TESTS REQUIRE MastClient IMPLEMENTATION TO BE UNCOMMENTED IN MATPYUDA PYTOHN PACKAGE
+%% ... mast specific stuff eventually needs to move out of this main repo ... 
+%
 %function test_mast_client_constructor(testCase)
 %    try
 %        client = matpyuda.MastClient();
@@ -153,7 +176,7 @@ end
 %        verifyFail(testCase);
 %    end
 %end
-
+%
 %function test_mast_list_signals(testCase)
 %    client = matpyuda.MastClient();
 %    client.port = 56565;
@@ -166,20 +189,21 @@ end
 %    verifyEqual(testCase, matlab_list(1).signal_name, string(python_list{1}.signal_name));
 %
 %end
-
+%
 %function test_mast_geometry_data(testCase)
-%    client = matpyuda.Client();
+%    client = matpyuda.MastClient();
 %    client.port = 56565;
 %    client.server= "uda2.mast.l";
 %    client.set_property('get_meta', py.True);
 %
 %    data = client.geometry("/magnetics/fluxloops", "47699");
-%    % unimplemented
-%    verifyFail(testCase);
+%    node = matpyuda.get_node_from_path(data.data, "centrecolumn/f_c_a01/data/coordinate");
+%    verifyEqual(testCase, node.r, 0.2738, "AbsTol", 5e-5);
+%    verifyEqual(testCase, node.z, 1.2935, "AbsTol", 5e-5);
 %end
 %
 %function test_mast_image_data(testCase)
-%    client = matpyuda.Client();
+%    client = matpyuda.MastClient();
 %    client.port = 56565;
 %    client.server= "uda2.mast.l";
 %    client.set_property('get_meta', py.True);

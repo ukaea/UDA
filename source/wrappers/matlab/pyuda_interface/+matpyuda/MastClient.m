@@ -55,7 +55,7 @@ classdef MastClient < matpyuda.Client
         end
     end
 
-    // function get_images
+    // function get_images(obj, signal, source, options)
 
     function result = geometry(obj, signal, source, options)
       arguments
