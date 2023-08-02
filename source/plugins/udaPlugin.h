@@ -8,6 +8,7 @@
 #include <clientserver/errorLog.h>
 #include <plugins/pluginStructs.h>
 #include <clientserver/export.h>
+#include "clientserver/udaTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,6 +52,8 @@ LIBRARY_API int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const 
 LIBRARY_API int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* description);
 LIBRARY_API int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* description);
 LIBRARY_API int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* description);
+
+LIBRARY_API int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE type, int rank, const int* shape, const char* description);
 
 LIBRARY_API bool findStringValue(const NAMEVALUELIST* namevaluelist, const char** value, const char* name);
 LIBRARY_API bool findValue(const NAMEVALUELIST* namevaluelist, const char* name);

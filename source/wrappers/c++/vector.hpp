@@ -30,7 +30,7 @@ public:
     {
         auto copy = new unsigned char[size * sizeof(T)];
         memcpy(copy, array, size * sizeof(T));
-        raw_data_ = std::shared_ptr<unsigned char[]>(copy);
+        raw_data_ = std::shared_ptr<unsigned char>(copy, std::default_delete<unsigned char[]>());
     }
 
     Vector(const Vector& other) = default;
@@ -78,7 +78,7 @@ protected:
 private:
     std::vector<boost::any> vec_;
     const std::type_info* type_;
-    std::shared_ptr<unsigned char[]> raw_data_;
+    std::shared_ptr<unsigned char> raw_data_;
     size_t data_size_;
 
     template <typename T>

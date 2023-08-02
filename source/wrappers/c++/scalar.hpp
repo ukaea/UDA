@@ -29,7 +29,7 @@ public:
     {
         auto copy = new unsigned char[sizeof(T)];
         memcpy(copy, &value, sizeof(T));
-        raw_data_ = std::shared_ptr<unsigned char[]>(copy);
+        raw_data_ = std::shared_ptr<unsigned char>(copy, std::default_delete<unsigned char[]>());
     }
 
     Scalar(const Scalar& other) = default;
@@ -68,7 +68,7 @@ private:
 
     boost::any value_;
     const std::type_info* type_;
-    std::shared_ptr<unsigned char[]> raw_data_;
+    std::shared_ptr<unsigned char> raw_data_;
     size_t data_size_;
 };
 

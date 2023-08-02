@@ -303,6 +303,41 @@ int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* d
     return 0;
 }
 
+int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE type, int rank, const int* shape, const char* description)
+{
+    initDataBlock(data_block);
+
+    data_block->data_type = type;
+    data_block->data = (char*)malloc(size);
+
+    memcpy(data_block->data, value, size);
+
+    data_block->rank = rank;
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+
+    for (unsigned int i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
+
+    if (description != nullptr) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
+    }
+
+    for (unsigned int i = 0; i < data_block->rank; i++) {
+        data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
+        data_block->dims[i].dim_n = shape[i];
+        data_block->dims[i].compressed = 1;
+        data_block->dims[i].dim0 = 0.0;
+        data_block->dims[i].diff = 1.0;
+        data_block->dims[i].method = 0;
+    }
+
+    data_block->data_n = data_block->dims[0].dim_n;
+
+    return 0;
+}
+
 /**
  * Find the Plugin identity: return the reference id or -1 if not found.
  * @param request
@@ -573,14 +608,14 @@ bool findValue(const NAMEVALUELIST* namevaluelist, const char* name)
     return found;
 }
 
-int callPlugin(const PLUGINLIST* pluginlist, const char* singal, const IDAM_PLUGIN_INTERFACE* old_plugin_interface)
+int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const IDAM_PLUGIN_INTERFACE* old_plugin_interface)
 {
     IDAM_PLUGIN_INTERFACE idam_plugin_interface = *old_plugin_interface;
     REQUEST_DATA request = *old_plugin_interface->request_data;
     idam_plugin_interface.request_data = &request;
 
     request.source[0] = '\0';
-    strcpy(request.signal, singal);
+    strcpy(request.signal, signal);
     makeRequestData(&request, *pluginlist, old_plugin_interface->environment);
 
     request.request = findPluginRequestByFormat(request.format, pluginlist);
@@ -596,6 +631,19 @@ int callPlugin(const PLUGINLIST* pluginlist, const char* singal, const IDAM_PLUG
     } else {
         RAISE_PLUGIN_ERROR("Data Access is not available for this data request!");
     }
+
+    // Apply subsetting
+//    if (request_data->datasubset.nbound > 0) {
+//        UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (SUBSET)   %d\n", *depth);
+//        ACTION action = {};
+//        initAction(&action);
+//        action.actionType = UDA_SUBSET_TYPE;
+//        action.subset = request_data->datasubset;
+//        if ((rc = serverSubsetData(data_block, action, logmalloclist)) != 0) {
+//            (*depth)--;
+//            return rc;
+//        }
+//    }
 
     return err;
 }
