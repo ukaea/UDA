@@ -4,6 +4,9 @@
 #include <structures/genStructs.h>
 #include <clientserver/export.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /** Find (search type A) the first Tree Node with a data structure type containing a named element/member.
 * The name of the element is also returned.  
 *
@@ -234,5 +237,7 @@ void printImage(const char* image, int imagecount);
 void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short type_id);
 
 void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int offset, int size);
-
+#ifdef __cplusplus
+}
+#endif
 #endif // UDA_STRUCTURES_ACCESSORS_H
