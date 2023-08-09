@@ -30,23 +30,26 @@ export PYTHONPATH=<matpyuda-location>:$PYTHONPATH
 
 The following functionality is not yet available. Note that all python functionality can be used directly through the matlab-python interface as described in more detail [below](#matlab-wrapper-vs-direct-python).
 
-NOTE: matlab currently does not support conversion of string arrays into python lists. this makes it harder to implement the get_batch functionality. Could maybe have a string-splitter on the python side with a specified delimiter. 
-
 Unimplemented return types:
-- [x] Video return objects when getting image or video data
-- [x] Lists of signal objects from the get_batch API
-- [x] the optional "meta" attribute for the Signal class
-- [x] errors on the signal object
+All return objects have been implemented, it's worth noting, however, that performance is poor for the current method to convert structured data and geometry data into nested matlab structs. This may be worth looking more into. 
 
-uninplemented methods:
-- [x] get_batch API
-- [x] setting client flags
+One caveat worth mentioning is that this matlab/pyuda interface has so far only been tested with matlab 2023a.
 
-The final caveat is that this has so far only been tested with matlab 2023a.
+## MASTU specific items:
+
+unimplemented mast client methods:
+- [ ] mast client metadata queries: list_shots, list_archive_directories, etc.
+
+unimplemented geom client methods:
+- [ ] geom client metadata queries: listGeomSignals, listGeomGroups, signal map
+- [ ] any system-specific geometry routines 
+
 
 # Examples
 
-```m
+## Configuring client and server options
+
+```matlab
 client = matpyuda.Client()
 
 % print connection details
@@ -66,6 +69,13 @@ client.get_property('get_meta')
 %  logical
 %   0
 
+
+```
+
+## Basic data request syntax
+
+``` matlab
+
 % the matlab client wrapper should parse all pyuda return objects
 % to matlab-native types
 signal_data = client.get("signal_name", data_source);
@@ -73,15 +83,38 @@ structured_data = client.get("group_name", data_source);
 string_data = client.get("help::help()", "");
 video_data = client.get("image_file", data_source);
 
-% other wrapped functions
 % note comma-separated string for batch-lists as matlab hasn't implemented
 % python array strings
 signal_list = client.get_batch("signal1,signal2,signal3", "source1,source2,source3");
 
-% initialise the client object with a device-specific pyuda client
-% instead of the default one
-mast_client = py.mast.matpyuda.Client();
-client = matpyuda.Client(mast_client);
+```
+
+## Running mast regression tests
+
+Note that currently mast-specific functions are commented out. These will be moved into the mastcodes repo later along with the mast-specific python-wrapper code (just stored here for convenience during intitial development).
+
+``` matlab
+results = runtests("TestMatpyudaMast.m")
+```
+
+## Mast client functions
+
+Note that currently mast-specific functions are commented out in the matpyuda python module by default; these need to be enabled for the MastClient matlab class to work. All mast-specific code will be moved into the mastcodes repo later along with the mast-specific python-wrapper code (just stored here for convenience during intitial development).
+
+Runnable examples for the following features can also be found in the `TestMatpyudaMast.m` test script. 
+
+``` matlab
+
+client = MastClient()
+signal_list = client.list_signals(alias=<file_alias>, shot=<experiment_number>);
+
+structured_geometry_data = client.geometry("/magnetics/fluxloops", "<experiment_number>");
+node = matpyuda.get_node_from_path(structured_geometry_data.data, "path/of/interest");
+
+% get a single frame of a video file, or all frames
+frame_data = client.get_images("<file_alias>", "<experiment_number>", last_frame=0);
+video_data = client.get_images("<file_alias>", "<experiment_number>");
+
 ```
 
 # matlab wrapper vs. direct python
@@ -92,7 +125,7 @@ This has additional advantages where any additional pyuda sub-clients may be ava
 
 Some of the functions available in the matpyuda matlab module will be able to convert the returned pyuda (python) objects into matlab types. These have been implemented for signal data, structured-data, and image data objects so far, as well as simple string data.  
 
-```m
+```matlab
 client = py.matpyuda.Client()
 pyuda_signal_object = client.get("signal_name", data_source)
 matlab_signal_object = matpyuda.get_signal(pyuda_signal_object)
