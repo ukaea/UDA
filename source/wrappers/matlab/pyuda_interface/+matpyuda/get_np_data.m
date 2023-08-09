@@ -45,7 +45,7 @@ function data = get_np_double_data(np_data)
 end
 
 function result = get_python_array_type_from_matlab_type_function(type_function)
-  switch type_function(1)
+  switch class(type_function(1))
     case 'double'
       result = 'd';
     case 'int32'
