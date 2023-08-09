@@ -45,9 +45,9 @@ end
 
 function test_getset_property_logical(testCase)
     client = matpyuda.Client();
-    client.set_property('get_meta', py.False);
+    client.set_property("get_meta", py.False);
     p(1) = client.get_property("get_meta");
-    client.set_property('get_meta', py.True);
+    client.set_property("get_meta", py.True);
     p(2) = client.get_property("get_meta");
     verifyEqual(testCase, p, [false, true]);
 end
@@ -60,9 +60,9 @@ end
 
 function test_getset_property_val(testCase)
     client = matpyuda.Client();
-    client.set_property('timeout', 0);
+    client.set_property("timeout", 0);
     p(1) = client.get_property("timeout");
-    client.set_property('timeout', 600);
+    client.set_property("timeout", 600);
     p(2) = client.get_property("timeout");
     verifyEqual(testCase, p, int32([0, 600]));
 end
@@ -81,9 +81,9 @@ function test_get_1d_double_signal(testCase)
     client = matpyuda.Client();
     client.port = 56565;
     client.server= "uda2.mast.l";
-    client.set_property('get_meta', py.True);
+    client.set_property("get_meta", py.True);
 
-    ip = client.get('ip', '30420');
+    ip = client.get("ip", "30420");
     assertClass(testCase, ip, ?matpyuda.Signal);
     verifyEqual(testCase, length(ip.data), 30000);
     verifyEqual(testCase, length(ip.dims), 1);
@@ -106,9 +106,9 @@ function test_get_2d_double_signal(testCase)
     client = matpyuda.Client();
     client.port = 56565;
     client.server= "uda2.mast.l";
-    client.set_property('get_meta', py.True);
+    client.set_property("get_meta", py.True);
 
-    data = client.get('ayc_ne', '27999');
+    data = client.get("ayc_ne", "27999");
     assertClass(testCase, data, ?matpyuda.Signal);
     verifyEqual(testCase, size(data.data), [89, 130]);
     verifyEqual(testCase, length(data.dims), 2);
@@ -129,8 +129,8 @@ function test_get_1d_int_signal(testCase)
   client = matpyuda.Client();
   client.port = 56565;
   client.server= "uda2.mast.l";
-  client.set_property('get_meta', py.True);
-  data = client.get('EPM/OUTPUT/NUMERICALDETAILS/MAXIMUMITERATIONCOUNT', 45125);
+  client.set_property("get_meta", py.True);
+  data = client.get("EPM/OUTPUT/NUMERICALDETAILS/MAXIMUMITERATIONCOUNT", 45125);
   verifyEqual(testCase, length(data.data), 30);
   verifyEqual(testCase, data.data,int32([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, ...
                                    17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]));
@@ -144,20 +144,20 @@ function test_get_structured(testCase)
     client = matpyuda.Client();
     client.port = 56565;
     client.server= "uda2.mast.l";
-    client.set_property('get_meta', py.True);
+    client.set_property("get_meta", py.True);
 
-    data = client.get('ane', '45125');
+    data = client.get("ane", "45125");
     verifyEqual(testCase, data.children.numEntries, 3);
-    verifyEqual(testCase, length(data.children('density').data), 80000);
-    verifyEqual(testCase, length(data.children('CO2').data), 80000);
-    verifyEqual(testCase, length(data.children('HeNe').data), 80000);
+    verifyEqual(testCase, length(data.children("density").data), 80000);
+    verifyEqual(testCase, length(data.children("CO2").data), 80000);
+    verifyEqual(testCase, length(data.children("HeNe").data), 80000);
 end
 
 function test_get_video(testCase)
     client = matpyuda.Client();
     client.port = 56565;
     client.server= "uda2.mast.l";
-    client.set_property('get_meta', py.True);
+    client.set_property("get_meta", py.True);
     data = client.get("NEWIPX::read(shot=47125, ipxtag=rgb, last=0)","");
 
     verifyEqual(testCase, size(data.frames(1).k), [480, 640]);
@@ -182,8 +182,11 @@ end
 %    client.port = 56565;
 %    client.server = "uda2.mast.l";
 %
-%    python_list = client.python_client.list_signals(alias='ane', shot='27999');
-%    matlab_list = client.list_signals(alias='ane', shot='27999');
+%    % NOTE keyword args have to be passed as lists before matlab 2021a
+%%    python_list = client.python_client.list_signals(alias="ane", shot="27999");
+%%    matlab_list = client.list_signals(alias="ane", shot="27999");
+%    python_list = client.python_client.list_signals("alias","ane", "shot","27999");
+%    matlab_list = client.list_signals(alias="ane", "shot","27999");
 %
 %    verifyEqual(testCase, length(matlab_list), length(python_list));
 %    verifyEqual(testCase, matlab_list(1).signal_name, string(python_list{1}.signal_name));
@@ -194,7 +197,7 @@ end
 %    client = matpyuda.MastClient();
 %    client.port = 56565;
 %    client.server= "uda2.mast.l";
-%    client.set_property('get_meta', py.True);
+%    client.set_property("get_meta", py.True);
 %
 %    data = client.geometry("/magnetics/fluxloops", "47699");
 %    node = matpyuda.get_node_from_path(data.data, "centrecolumn/f_c_a01/data/coordinate");
@@ -206,9 +209,12 @@ end
 %    client = matpyuda.MastClient();
 %    client.port = 56565;
 %    client.server= "uda2.mast.l";
-%    client.set_property('get_meta', py.True);
+%    client.set_property("get_meta", py.True);
 %
-%    data = client.get_images("rgb", "47125", last_frame=0);
+%    % NOTE keyword args have to be passed as lists before matlab 2021a
+%%    data = client.get_images("rgb", "47125", last_frame=0);
+%    data = client.get_images("rgb", "47125", "last_frame",0);
+%
 %    verifyEqual(testCase, size(data.frames(1).k), [480, 640]);
 %    verifyEqual(testCase, length(data.frame_times), 248);
 %    verifyEqual(testCase, data.filter, "(Da/SS)/C-CXRS/He-CXRS");

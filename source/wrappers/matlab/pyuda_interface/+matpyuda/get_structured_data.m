@@ -60,6 +60,7 @@ function s = get_structured_data(pyuda_object)
       s.(name) = matpyuda.get_structured_data(pyuda_object.(name));
     elseif isa(pyuda_object.(name), 'py.list')  && isa(pyuda_object.(name){1}, 'py.pyuda._structured.StructuredData')
       n_children = length(pyuda_object.(name));
+      % NOTE dictionaries only available from matlab 2022b
       s.(name) = dictionary;
       for j = n_children:-1:1
         item = pyuda_object.(name){j}

@@ -24,14 +24,19 @@ end
 
 % can replace with struct(py_dict). Matlab will natively parse python dictionaries into matlab structs.
 function s = parse_python_dictionary(pyobj)
-  s = struct;
-  num_fields = int32(py.len(pyobj.keys()));
+
+  % NOTE: pyrun introduced in matlab 2021b. NOT compatible with matlab 2019. 
+  % use builtin conversion to struct instead
+  %key_names = pyrun("r = [k for k in meta.keys()]", "r", meta=pyobj);
+
+  s = struct(pyobj);
+  key_names = fieldnames(s);
+
+  num_fields = length(key_names);
   if num_fields == 0
     return
   end
 
-  key_names = pyrun("r = [k for k in meta.keys()]", "r", meta=pyobj);
-  % atts = fieldnames(pyobj);
   for i = 1: num_fields
     name = key_names{i};
     value = pyobj{name};
@@ -39,7 +44,7 @@ function s = parse_python_dictionary(pyobj)
     try
     s.(string(name)) = matpyuda.get_attribute_value(value);
     catch exception
-      if class(value) == 'py.bytes' 
+      if class(value) == "py.bytes"
         s.(string(name)) = string(value.decode());
       end
     end

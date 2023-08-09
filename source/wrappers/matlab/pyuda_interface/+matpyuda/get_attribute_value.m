@@ -12,11 +12,11 @@ function data = get_attribute_value(value)
   elseif py.str(py.type(value)) == "<class 'double'>"
     data = double(value);
   elseif py.str(py.type(value)) == "<class 'int32'>"
-    data = int32(value);
+    data = get_py_int(value);
   elseif py.str(py.type(value)) == "<class 'int64'>"
-    data = int64(value);
+    data = get_py_int(value);
   elseif py.str(py.type(value)) == "<class 'int'>"
-    data = int32(value);
+    data = get_py_int(value);
 %  elseif class(value) == 'py.bytes':
 %    data = string(value.decode());
   else
@@ -43,17 +43,24 @@ function data = unpack_python_list(value)
   elseif py.str(py.type(value{1})) == "<class 'double'>"
     data = double(value);
   elseif py.str(py.type(value{1})) == "<class 'int32'>"
-    data = int32(value);
+    data = get_py_int(value);
   elseif py.str(py.type(value{1})) == "<class 'int64'>"
-    data = int64(value);
+    data = get_py_int(value);
   elseif py.str(py.type(value{1})) == "<class 'int'>"
-    data = int32(value);
+    data = get_py_int(value);
 %  elseif class(value) == 'py.bytes':
 %    data = string(value.decode());
   else
       t_str = string(py.str(py.type(value{1})));
       ME = MException("unpack_python_list:TyeNotImplemented", "datatype %s not implemented", t_str); 
-      addCause(exception, ME);
-      throw(exception)
+      throw(ME)
+  end
+end
+
+function i = get_py_int(pyval)
+  try
+    i = int32(pyval);
+  catch ME
+    i = int64(pyval);
   end
 end
