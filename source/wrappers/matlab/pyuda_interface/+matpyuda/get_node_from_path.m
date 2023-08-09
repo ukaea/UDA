@@ -24,7 +24,7 @@ function node = get_node_from_tokens(input_node, tokens)
 
     if length(tokens) > 1
         try
-            node = matpyuda.get_node_from_tokens(node, tokens(2:end));
+            node = get_node_from_tokens(node, tokens(2:end));
         catch ME
         throw(ME)
         end

@@ -2,7 +2,6 @@ classdef MastClient < matpyuda.Client
   methods
     function obj = MastClient()
         c0 = py.matpyuda.MastClient();
-        // c1 = py.mast.MastClient(c0);
         obj = obj@matpyuda.Client(c0);
     end
 

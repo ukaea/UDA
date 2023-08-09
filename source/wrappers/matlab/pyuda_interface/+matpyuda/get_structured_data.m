@@ -73,6 +73,7 @@ function s = get_structured_data(pyuda_object)
           key = int2str(j);
         end
         s.(name)(key) = matpyuda.get_structured_data(item);
+      end
     else
       s.(name) = matpyuda.get_attribute_value(pyuda_object.(name));
     end

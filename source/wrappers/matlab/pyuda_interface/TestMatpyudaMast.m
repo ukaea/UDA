@@ -6,7 +6,7 @@ function test_base_client_constructor(testCase)
     try
         client = matpyuda.Client();
         verifyInstanceOf(testCase, client, ?matpyuda.Client);
-    catch(ME)
+    catch ME
         verifyFail(testCase);
     end
 end
