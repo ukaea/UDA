@@ -1,66 +1,81 @@
 function data = get_attribute_value(value)
-  if py.str(py.type(value)) == "<class 'str'>"
-    data = string(value);
-  elseif py.str(py.type(value)) == "<class 'list'>"
-    data = unpack_python_list(value);
-  elseif py.str(py.type(value)) == "<class 'float32'>"
-    data = double(value);
-  elseif py.str(py.type(value)) == "<class 'float64'>"
-    data = double(value);
-  elseif py.str(py.type(value)) == "<class 'float'>"
-    data = double(value);
-  elseif py.str(py.type(value)) == "<class 'double'>"
-    data = double(value);
-  elseif py.str(py.type(value)) == "<class 'int32'>"
-    data = get_py_int(value);
-  elseif py.str(py.type(value)) == "<class 'int64'>"
-    data = get_py_int(value);
-  elseif py.str(py.type(value)) == "<class 'int'>"
-    data = get_py_int(value);
-%  elseif class(value) == 'py.bytes':
-%    data = string(value.decode());
-  else
-    try 
-      data = matpyuda.get_np_data(value);
-    catch exception
-      t_str = string(py.str(py.type(value)));
-      ME = MException("get_attribute_value:TyeNotImplemented", "datatype %s not implemented", t_str); 
-      addCause(exception, ME);
-      throw(exception)
-    end
+  switch class(value)
+    case 'py.str'
+      data = string(value);
+    case 'py.list'
+      data = unpack_python_list(value);
+    elseif isa(value 'py.float32')
+      data = double(value);
+    case 'py.float64'
+      data = double(value);
+    case 'py.float'
+      data = double(value);
+    case 'py.double'
+      data = double(value);
+    case 'py.int32'
+      data = get_py_int(value);
+    case 'py.int64'
+      data = get_py_int(value);
+    case 'py.int'
+      data = get_py_int(value);
+    case 'py.uint32'
+      data = get_py_uint(value);
+    case 'py.uint64'
+      data = get_py_uint(value);
+  %  case 'py.bytes':
+  %    data = string(value.decode());
+    otherwise
+      try 
+        data = matpyuda.get_np_data(value);
+      catch exception
+        t_str = class(value);
+        ME = MException("get_attribute_value:TyeNotImplemented", "datatype %s not implemented", t_str); 
+        addCause(exception, ME);
+        throw(exception)
+      end
   end
 end
 
 function data = unpack_python_list(value)
-  if py.str(py.type(value{1})) == "<class 'str'>"
-    data = string(value);
-  elseif py.str(py.type(value{1})) == "<class 'float32'>"
-    data = double(value);
-  elseif py.str(py.type(value{1})) == "<class 'float64'>"
-    data = double(value);
-  elseif py.str(py.type(value{1})) == "<class 'float'>"
-    data = double(value);
-  elseif py.str(py.type(value{1})) == "<class 'double'>"
-    data = double(value);
-  elseif py.str(py.type(value{1})) == "<class 'int32'>"
-    data = get_py_int(value);
-  elseif py.str(py.type(value{1})) == "<class 'int64'>"
-    data = get_py_int(value);
-  elseif py.str(py.type(value{1})) == "<class 'int'>"
-    data = get_py_int(value);
-%  elseif class(value) == 'py.bytes':
+  switch class(value{1})
+    case "py.str"
+      data = string(value);
+    case "py.float32"
+      data = double(value);
+    case "py.float64"
+      data = double(value);
+    case "py.float"
+      data = double(value);
+    case "py.double"
+      data = double(value);
+    case "py.int32"
+      data = get_py_int(value);
+    case "py.int64"
+      data = get_py_int(value);
+    case "py.int"
+      data = get_py_int(value);
+%  case 'py.bytes':
 %    data = string(value.decode());
-  else
-      t_str = string(py.str(py.type(value{1})));
+    otherwise
+      t_str = class(value{1});
       ME = MException("unpack_python_list:TyeNotImplemented", "datatype %s not implemented", t_str); 
       throw(ME)
   end
 end
 
+% seems that depending on whether system/ matlab is 32 bit or 64 bit only one of these will work
 function i = get_py_int(pyval)
   try
     i = int32(pyval);
   catch ME
     i = int64(pyval);
+  end
+end
+
+function i = get_py_uint(pyval)
+  try
+    i = uint32(pyval);
+  catch ME
+    i = uint64(pyval);
   end
 end

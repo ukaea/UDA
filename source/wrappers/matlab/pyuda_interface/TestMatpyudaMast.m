@@ -219,3 +219,50 @@ end
 %    verifyEqual(testCase, length(data.frame_times), 248);
 %    verifyEqual(testCase, data.filter, "(Da/SS)/C-CXRS/He-CXRS");
 %end
+%
+%function test_mast_list_shots(testCase)
+%    client = matpyuda.MastClient();
+%    client.port = 56565;
+%    client.server = "uda2.mast.l";
+%
+%    % NOTE keyword args have to be passed as lists before matlab 2021a
+%    python_list = client.python_client.list_shots(alias="epm", shot_start="48000", shot_end="48425");
+%    matlab_list = client.list_shots(alias="epm", shot_start=48000, shot_end=48425);
+%
+%    verifyEqual(testCase, length(matlab_list), length(python_list));
+%    verifyEqual(testCase, matlab_list(10).shots, matpyuda.get_attribute_value(python_list{10}.shots));
+%end
+%
+%function test_mast_latest_source_pass(testCase)
+%    client = matpyuda.MastClient();
+%    client.port = 56565;
+%    client.server = "uda2.mast.l";
+%
+%    % NOTE keyword args have to be passed as lists before matlab 2021a
+%    python_val = client.python_client.latest_source_pass("asx", 46459);
+%    matlab_val = client.latest_source_pass("asx", 46459);
+%
+%    verifyEqual(testCase, matlab_val, matpyuda.get_attribute_value(python_val));
+%end
+%
+%function test_mast_shot_date_time(testCase)
+%    client = matpyuda.MastClient();
+%    client.port = 56565;
+%    client.server = "uda2.mast.l";
+%
+%    % NOTE keyword args have to be passed as lists before matlab 2021a
+%    matlab_val = = client.get_shot_date_time(48245);
+%
+%    verifyEqual(testCase, matlab_val, ["2023-08-11","16:00:55.438997"]);
+%end
+%
+%
+%function test_mast_latest_shot(testCase)
+%    client = matpyuda.MastClient();
+%    client.port = 56565;
+%    client.server = "uda2.mast.l";
+%
+%    val = client.latest_shot("machine", "mast");
+%
+%    verifyEqual(testCase, val, uint64(43178));
+%end

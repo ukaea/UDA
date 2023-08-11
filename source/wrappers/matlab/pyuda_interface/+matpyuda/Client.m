@@ -64,7 +64,7 @@ classdef Client
             elseif isa(pyobj, 'py.pyuda._video.Video')
                 result = matpyuda.get_video_data(pyobj);
             else
-                t_str = string(py.str(pyobj));
+                t_str = class(pyobj);
                 ME = MException("matpyuda.client.get:TyeNotImplemented", "Unexpected return type from pyuda: %s", t_str); 
                 throw(ME)
             end
