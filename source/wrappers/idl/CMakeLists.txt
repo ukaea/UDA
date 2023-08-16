@@ -14,8 +14,8 @@ else()
   endif()
 endif()
 
+set( EXTRA_IDL_WRAPPER_LINK_ARGS "" CACHE STRING "exact string to add to linker arguments, e.g. for setting rpath" )
 set( LIB_NAME ${PROJECT_NAME}_idl )
-
 set( SRC_FILES idam_dlm.c idamStructs.c )
 
 include_directories(
@@ -65,6 +65,8 @@ set_target_properties( ${LIB_NAME}
     VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     SOVERSION ${PROJECT_VERSION_MAJOR}
     C_STANDARD 99
+    PROPERTY COMPILE_WARNING_AS_ERROR OFF
+    LINK_FLAGS ${EXTRA_IDL_WRAPPER_LINK_ARGS}
 )
 
 if( FAT_IDL )
