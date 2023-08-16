@@ -157,7 +157,7 @@ class Client(with_metaclass(ClientMeta, object)):
             signals.append(self._unpack(result, time_first, time_last))
         return signals
 
-    def get(self, signal, source, time_first=False, time_last=False, **kwargs):
+    def get(self, signal, source="", time_first=False, time_last=False, **kwargs):
         """
         IDAM get data method.
 
