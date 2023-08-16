@@ -58,12 +58,14 @@ ext = Extension(
     ])),
     libraries=list(filter(None, ['ssl', 'crypto', 'xml2'] + extra_libs)),
     library_dirs=list(filter(None, [
+        '@EXTRA_PYTHON_WRAPPER_LINK_DIR',
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
         '@CAPNP_LIB_DIR@',
         '@FMT_LIB_DIR@'
     ])),
     runtime_library_dirs=list(filter(None, [
+        '@EXTRA_PYTHON_WRAPPER_LINK_DIR',
         '@OPENSSL_LIB_DIR@',
         '@LIBXML_LIB_DIR@',
         '@CAPNP_LIB_DIR@',
