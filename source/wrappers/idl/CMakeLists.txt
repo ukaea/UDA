@@ -52,10 +52,10 @@ endif()
 if( FAT_IDL )
   include( modules )
 
-  target_link_libraries( ${LIB_NAME} LINK_PRIVATE ${IDL_LIBRARIES} ${LIBXML2_LIBRARIES} )
+  target_link_libraries( ${LIB_NAME} LINK_PRIVATE ${IDL_LIBRARIES} ${LIBXML2_LIBRARIES} ${EXTRA_IDL_WRAPPER_LINK_ARGS} )
   link_modules( ${LIB_NAME} )
 else()
-  target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} ${LIBXML2_LIBRARIES} )
+  target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} ${LIBXML2_LIBRARIES} ${EXTRA_IDL_WRAPPER_LINK_ARGS} )
 endif()
 
 set_target_properties( ${LIB_NAME}
@@ -65,7 +65,7 @@ set_target_properties( ${LIB_NAME}
     VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     SOVERSION ${PROJECT_VERSION_MAJOR}
     C_STANDARD 99
-    PROPERTY COMPILE_WARNING_AS_ERROR OFF
+    COMPILE_WARNING_AS_ERROR OFF
     LINK_FLAGS ${EXTRA_IDL_WRAPPER_LINK_ARGS}
 )
 
