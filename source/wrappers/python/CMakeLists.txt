@@ -15,7 +15,8 @@ find_package( LibMemcached QUIET )
 find_package( fmt REQUIRED )
 find_package( TIRPC QUIET )
 
-set( EXTRA_PYTHON_WRAPPER_LINK_DIR "" CACHE STRING "exact string to add to runtime libs e.g. for stdc++ lib on a shared system" )
+find_library( STDCXX_LIBRARY_FILE stdc++ HINTS ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES} )
+get_filename_component(STDCXX_LIB_DIR ${STDCXX_LIBRARY_FILE} DIRECTORY )
 
 set( UDA_LIBS )
 set( EXTRA_LIBS ${EXTRA_LIBS} fmt )
