@@ -14,7 +14,15 @@ else()
   endif()
 endif()
 
-set( EXTRA_IDL_WRAPPER_LINK_ARGS "" CACHE STRING "exact string to add to linker arguments, e.g. for setting rpath" )
+# stc++.so is loaded at startup of IDL interpreter. This will lead to ABI mismatch if the uda.so library 
+# is built with a different compiler version than IDL uses. link static stdc++ library explicitly to protect.   
+if (WIN32 OR MSVC)
+        set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib")
+    elseif (UNIX)
+        set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+    endif()
+find_library( STDCXX_STATIC stdc++ HINTS ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES} )
+
 set( LIB_NAME ${PROJECT_NAME}_idl )
 set( SRC_FILES idam_dlm.c idamStructs.c )
 
@@ -52,10 +60,10 @@ endif()
 if( FAT_IDL )
   include( modules )
 
-  target_link_libraries( ${LIB_NAME} LINK_PRIVATE ${IDL_LIBRARIES} ${LIBXML2_LIBRARIES} ${EXTRA_IDL_WRAPPER_LINK_ARGS} )
+  target_link_libraries( ${LIB_NAME} LINK_PRIVATE ${IDL_LIBRARIES} ${LIBXML2_LIBRARIES} ${STDCXX_STATIC} ${EXTRA_IDL_WRAPPER_LINK_ARGS} )
   link_modules( ${LIB_NAME} )
 else()
-  target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} ${LIBXML2_LIBRARIES} ${EXTRA_IDL_WRAPPER_LINK_ARGS} )
+  target_link_libraries( ${LIB_NAME} LINK_PRIVATE client-static ${IDL_LIBRARIES} ${LIBXML2_LIBRARIES} ${STDCXX_STATIC} ${EXTRA_IDL_WRAPPER_LINK_ARGS} )
 endif()
 
 set_target_properties( ${LIB_NAME}
@@ -65,8 +73,6 @@ set_target_properties( ${LIB_NAME}
     VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     SOVERSION ${PROJECT_VERSION_MAJOR}
     C_STANDARD 99
-    COMPILE_WARNING_AS_ERROR OFF
-    LINK_FLAGS ${EXTRA_IDL_WRAPPER_LINK_ARGS}
 )
 
 if( FAT_IDL )
