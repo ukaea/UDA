@@ -18,7 +18,7 @@ if( ENABLE_CAPNP )
 
   set_target_properties( uda_cli
     PROPERTIES
-    LINK_FLAGS "-Wl,-rpath,${capnp_LIBRARY_DIRS} -L${capnp_LIBRARY_DIRS} -lcapnp-0.10.4 -lkj -Wl,-rpath,${STDCXX_LIBRARY_DIR} -L${STDCXX_LIBRARY_DIR} -lstdc++" 
+    LINK_FLAGS "-Wl,-rpath,${capnp_LIBRARY_DIRS} -L${capnp_LIBRARY_DIRS} -lcapnp -lkj -Wl,-rpath,${STDCXX_LIBRARY_DIR} -L${STDCXX_LIBRARY_DIR} -lstdc++" 
   )
 endif()
 

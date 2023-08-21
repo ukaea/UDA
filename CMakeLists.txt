@@ -160,7 +160,7 @@ endif()
 option( CLIENT_ONLY "Only build UDA client" OFF )
 option( SERVER_ONLY "Only build UDA server" OFF )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
-option( NO_MEMCACHE "Do not attempt to build with libmemcached support" OFF )
+option( NO_MEMCACHE "Do not attempt to build with libmemcached support" ON )
 option( ENABLE_CAPNP "Enable Cap’n Proto serialisation" OFF )
 
 # Wrapper configuration

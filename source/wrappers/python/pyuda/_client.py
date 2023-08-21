@@ -191,4 +191,4 @@ class Client(with_metaclass(ClientMeta, object)):
         cpyuda.close_connection()
 
     def reset_connection(self):
-        cpyuda.reset_connection()
+        cpyuda.close_connection()
