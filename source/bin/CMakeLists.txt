@@ -34,7 +34,7 @@ if( ENABLE_CAPNP )
 
   set_target_properties( uda_cli
     PROPERTIES
-    LINK_FLAGS "${CAPNP_RPATH STDCXX_RPATH} " 
+    LINK_FLAGS "${CAPNP_RPATH} ${STDCXX_RPATH}" 
   )
 endif()
 
