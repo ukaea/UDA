@@ -11,31 +11,30 @@ target_link_libraries( uda_cli PRIVATE Boost::program_options )
 if( ENABLE_CAPNP )
   find_package( CapnProto REQUIRED )
 
-  get_cmake_property(_variableNames VARIABLES)
-  list (SORT _variableNames)
-  foreach (_variableName ${_variableNames})
-      message(STATUS "${_variableName}=${${_variableName}}")
-  endforeach()
-
   target_link_libraries( uda_cli PRIVATE  serialisation-static capnp kj stdc++)
   
   find_library( STDCXX_LIBRARY_FILE stdc++ HINTS ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES} )
   get_filename_component(STDCXX_LIBRARY_DIR ${STDCXX_LIBRARY_FILE} DIRECTORY )
+  
+  if ( "${STDCXX_LIBRARY_FILE}" STREQUAL "" )
+    set ( STDCXX_RPATH "" ) 
+  else()
+      set ( STDCXX_RPATH "-Wl,-rpath,${STDCXX_LIBRARY_FILE} -L${STDCXX_LIBRARY_FILE}" ) 
+      
+  endif()
+
+  # get_filename_component( CAPNP_LIB_CMAKE_DIR ${CapnProto_DIR} DIRECTORY )
+  # get_filename_component( CAPNP_LIB_DIR ${CAPNP_LIB_CMAKE_DIR} DIRECTORY )
 
   if ( "${capnp_LIBRARY_DIRS}" STREQUAL "" )
-      set( CAPNP_RPATH ${CapnProto_DIR} )
-      cmake_path( APPEND CAPNP_RPATH_LIB "${CapnProto_DIR}" "lib" )
-      if ( EXISTS "${CAPNP_RPATH_LIB}" )
-          set( CAPNP_RPATH "${CAPNP_RPATH_LIB}" )
-      else()
-          cmake_path( APPEND CAPNP_RPATH_LIB64 "${CapnProto_DIR}" "lib64" )
-          set( CAPNP_RPATH "${CAPNP_RPATH_LIB64}" )
-      endif()
+      set( CAPNP_RPATH "" )
+  else()
+      set( CAPNP_RPATH "-Wl,-rpath,${capnp_LIBRARY_DIRS} -L${capnp_LIBRARY_DIRS}" )
   endif()
 
   set_target_properties( uda_cli
     PROPERTIES
-    LINK_FLAGS "-Wl,-rpath,${CAPNP_RPATH} -L${CAPNP_RPATH}  -Wl,-rpath,${STDCXX_LIBRARY_DIR} -L${STDCXX_LIBRARY_DIR} " 
+    LINK_FLAGS "${CAPNP_RPATH STDCXX_RPATH} " 
   )
 endif()
 
