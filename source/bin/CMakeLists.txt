@@ -30,6 +30,7 @@ if( ENABLE_CAPNP )
       else()
           cmake_path( APPEND CAPNP_RPATH_LIB64 "${CapnProto_DIR}" "lib64" )
           set( CAPNP_RPATH "${CAPNP_RPATH_LIB64}" )
+      endif()
   endif()
 
   set_target_properties( uda_cli
