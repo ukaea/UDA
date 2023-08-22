@@ -22,9 +22,19 @@ if( ENABLE_CAPNP )
   find_library( STDCXX_LIBRARY_FILE stdc++ HINTS ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES} )
   get_filename_component(STDCXX_LIBRARY_DIR ${STDCXX_LIBRARY_FILE} DIRECTORY )
 
+  if ( "${capnp_LIBRARY_DIRS}" STREQUAL "" )
+      set( CAPNP_RPATH ${CapnProto_DIR} )
+      cmake_path( APPEND CAPNP_RPATH_LIB "${CapnProto_DIR}" "lib" )
+      if ( EXISTS "${CAPNP_RPATH_LIB}" )
+          set( CAPNP_RPATH "${CAPNP_RPATH_LIB}" )
+      else()
+          cmake_path( APPEND CAPNP_RPATH_LIB64 "${CapnProto_DIR}" "lib64" )
+          set( CAPNP_RPATH "${CAPNP_RPATH_LIB64}" )
+  endif()
+
   set_target_properties( uda_cli
     PROPERTIES
-    LINK_FLAGS "-Wl,-rpath,${capnp_LIBRARY_DIRS} -L${capnp_LIBRARY_DIRS}  -Wl,-rpath,${STDCXX_LIBRARY_DIR} -L${STDCXX_LIBRARY_DIR} " 
+    LINK_FLAGS "-Wl,-rpath,${CAPNP_RPATH} -L${CAPNP_RPATH}  -Wl,-rpath,${STDCXX_LIBRARY_DIR} -L${STDCXX_LIBRARY_DIR} " 
   )
 endif()
 
