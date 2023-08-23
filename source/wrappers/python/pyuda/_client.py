@@ -76,6 +76,7 @@ class Client(with_metaclass(ClientMeta, object)):
             self._registered_subclients['listGeomGroups'] = GeomClient(self)
             self._registered_subclients['list'] = MastClient(self)
             self._registered_subclients['list_archive_files'] = MastClient(self)
+            self._registered_subclients['list_archive_file_info'] = MastClient(self)
             self._registered_subclients['list_archive_directories'] = MastClient(self)
             self._registered_subclients['list_file_signals'] = MastClient(self)            
             self._registered_subclients['list_signals'] = MastClient(self)
