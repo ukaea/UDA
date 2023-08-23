@@ -1,6 +1,11 @@
 add_executable( uda_cli uda_cli.cpp )
 
-set( Boost_USE_STATIC_LIBS ON )
+option( UDA_CLI_BOOST_STATIC "compile commandline interface with static boost libraries" OFF )
+
+if ( UDA_CLI_BOOST_STATIC )
+    set( Boost_USE_STATIC_LIBS ON )
+endif()
+
 find_package( Boost COMPONENTS program_options REQUIRED )
 
 target_include_directories( uda_cli PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0/include )

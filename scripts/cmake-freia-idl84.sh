@@ -18,8 +18,7 @@ CC=gcc CXX=g++ cmake -Bbuild_freia -H. \
     -DCMAKE_INSTALL_PREFIX=/projects/UDA/uda-install-develop \
     -DBUILD_SHARED_LIBS=ON \
     -DENABLE_CAPNP=ON \
-    -DEXTRA_IDL_WRAPPER_LINK_ARGS="/usr/local/depot/gcc-7.3.0/lib64/libstdc++.a" \
-    -DEXTRA_PYTHON_WRAPPER_LINK_DIR="/usr/local/depot/gcc-7.3.0/lib64" \
+    -DUDA_CLI_BOOST_STATIC=ON \
     -DUDA_HOST=uda2.mast.l \
     -DUDA_PORT=56565 \
     $*
