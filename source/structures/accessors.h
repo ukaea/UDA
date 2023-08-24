@@ -1,6 +1,10 @@
 #ifndef UDA_STRUCTURES_ACCESSORS_H
 #define UDA_STRUCTURES_ACCESSORS_H
 
+#ifdef __cplusplus
+}
+#endif
+
 #include <structures/genStructs.h>
 #include <clientserver/export.h>
 
@@ -234,5 +238,9 @@ LIBRARY_API void printImage(const char* image, int imagecount);
 LIBRARY_API void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short type_id);
 
 LIBRARY_API void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int offset, int size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_STRUCTURES_ACCESSORS_H

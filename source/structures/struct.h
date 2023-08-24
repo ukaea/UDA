@@ -12,6 +12,10 @@
 #  include <server/udaServer.h>
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 LIBRARY_API NTREE* udaGetFullNTree();
 LIBRARY_API void udaSetFullNTree(NTREE* ntree);
 
@@ -1116,6 +1120,10 @@ castNodeStructureComponentDatatoFloat_f(LOGMALLOCLIST* logmalloclist, NTREE* nod
 LIBRARY_API void
 addStructureField(USERDEFINEDTYPE* user_type, const char* name, const char* desc, UDA_TYPE data_type, bool is_pointer,
                   int rank, int* shape, size_t offset);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // UDA_STRUCTURES_STRUCT_H
 
