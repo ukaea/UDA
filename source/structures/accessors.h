@@ -2,7 +2,7 @@
 #define UDA_STRUCTURES_ACCESSORS_H
 
 #ifdef __cplusplus
-}
+extern "C" {
 #endif
 
 #include <structures/genStructs.h>
