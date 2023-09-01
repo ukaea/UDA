@@ -2,6 +2,7 @@
 #include "server/initPluginList.h"
 #include "server/serverPlugin.h"
 #include "structures/struct.h"
+#include "server/serverSubsetData.h"
 
 #include <server/getServerEnvironment.h>
 #include <clientserver/makeRequestBlock.h>
@@ -632,18 +633,14 @@ int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const IDAM_PLUG
         RAISE_PLUGIN_ERROR("Data Access is not available for this data request!");
     }
 
-    // Apply subsetting
-//    if (request_data->datasubset.nbound > 0) {
-//        UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (SUBSET)   %d\n", *depth);
-//        ACTION action = {};
-//        initAction(&action);
-//        action.actionType = UDA_SUBSET_TYPE;
-//        action.subset = request_data->datasubset;
-//        if ((rc = serverSubsetData(data_block, action, logmalloclist)) != 0) {
-//            (*depth)--;
-//            return rc;
-//        }
-//    }
+    // Apply subsettinng
+    if (request.datasubset.nbound > 0) {
+        ACTION action = {};
+        initAction(&action);
+        action.actionType = UDA_SUBSET_TYPE;
+        action.subset = request.datasubset;
+        err = serverSubsetData(idam_plugin_interface.data_block, action, idam_plugin_interface.logmalloclist);
+    }
 
     return err;
 }

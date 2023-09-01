@@ -1,7 +1,6 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-#include <uda.h>
 #include <c++/UDA.hpp>
 #include <serialisation/capnp_serialisation.h>
 
@@ -161,14 +160,14 @@ TEST_CASE( "Run test2 - pass string list as 2D char array", "[plugins][TESTPLUGI
     std::vector<char> vec = array->as<char>();
 
     std::vector<std::string> strings;
-    strings.push_back(std::string(vec.data() + 0 * dims[0].size(), strlen(vec.data() + 0 * dims[0].size())));
-    strings.push_back(std::string(vec.data() + 1 * dims[0].size(), strlen(vec.data() + 1 * dims[0].size())));
-    strings.push_back(std::string(vec.data() + 2 * dims[0].size(), strlen(vec.data() + 2 * dims[0].size())));
+    strings.emplace_back(std::string(vec.data() + 0 * dims[0].size(), strlen(vec.data() + 0 * dims[0].size())));
+    strings.emplace_back(std::string(vec.data() + 1 * dims[0].size(), strlen(vec.data() + 1 * dims[0].size())));
+    strings.emplace_back(std::string(vec.data() + 2 * dims[0].size(), strlen(vec.data() + 2 * dims[0].size())));
 
     std::vector<std::string> expected;
-    expected.push_back("Hello World!");
-    expected.push_back("Qwerty keyboard");
-    expected.push_back("MAST Upgrade");
+    expected.emplace_back("Hello World!");
+    expected.emplace_back("Qwerty keyboard");
+    expected.emplace_back("MAST Upgrade");
 
     REQUIRE( strings == expected );
 }
@@ -203,9 +202,9 @@ TEST_CASE( "Run test3 - pass string list as array of strings", "[plugins][TESTPL
     std::vector<std::string> strings = array->as<std::string>();
 
     std::vector<std::string> expected;
-    expected.push_back("Hello World!");
-    expected.push_back("Qwerty keyboard");
-    expected.push_back("MAST Upgrade");
+    expected.emplace_back("Hello World!");
+    expected.emplace_back("Qwerty keyboard");
+    expected.emplace_back("MAST Upgrade");
 
     REQUIRE( strings == expected );
 }
@@ -427,11 +426,11 @@ TEST_CASE( "Run test9 - pass 4 structs containing multiple types of string array
         REQUIRE( child.atomicCount() == 5 );
 
         std::vector<std::string> expected_names;
-        expected_names.push_back("v1");
-        expected_names.push_back("v2");
-        expected_names.push_back("v3");
-        expected_names.push_back("v4");
-        expected_names.push_back("v5");
+        expected_names.emplace_back("v1");
+        expected_names.emplace_back("v2");
+        expected_names.emplace_back("v3");
+        expected_names.emplace_back("v4");
+        expected_names.emplace_back("v5");
         REQUIRE( child.atomicNames() == expected_names );
 
         std::vector<bool> expected_ptrs;
@@ -443,11 +442,11 @@ TEST_CASE( "Run test9 - pass 4 structs containing multiple types of string array
         REQUIRE( child.atomicPointers() == expected_ptrs );
 
         std::vector<std::string> expected_types;
-        expected_types.push_back("STRING");
-        expected_types.push_back("STRING");
-        expected_types.push_back("STRING");
-        expected_types.push_back("STRING *");
-        expected_types.push_back("STRING *");
+        expected_types.emplace_back("STRING");
+        expected_types.emplace_back("STRING");
+        expected_types.emplace_back("STRING");
+        expected_types.emplace_back("STRING *");
+        expected_types.emplace_back("STRING *");
         REQUIRE( child.atomicTypes() == expected_types );
 
         std::vector<size_t> expected_ranks;
@@ -540,7 +539,7 @@ TEST_CASE( "Run test10 - pass single int", "[plugins][TESTPLUGIN]" )
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(int).name() );
 
-    uda::Scalar* value = dynamic_cast<uda::Scalar*>(data);
+    auto* value = dynamic_cast<uda::Scalar*>(data);
 
     REQUIRE( value != nullptr );
 
@@ -916,7 +915,7 @@ TEST_CASE( "Run test20 - pass single short", "[plugins][TESTPLUGIN]" )
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(short).name() );
 
-    uda::Scalar* value = dynamic_cast<uda::Scalar*>(data);
+    auto* value = dynamic_cast<uda::Scalar*>(data);
 
     REQUIRE( value != nullptr );
 
@@ -1623,7 +1622,7 @@ TEST_CASE( "Run scalartest - return a simple scalar value", "[plugins][TESTPLUGI
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(int).name() );
 
-    uda::Scalar* value = dynamic_cast<uda::Scalar*>(data);
+    auto* value = dynamic_cast<uda::Scalar*>(data);
 
     REQUIRE( value != nullptr );
 
@@ -1647,7 +1646,7 @@ TEST_CASE( "Run array1dtest - return a simple 1d array value", "[plugins][TESTPL
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(double).name() );
 
-    uda::Array* array = dynamic_cast<uda::Array*>(data);
+    auto* array = dynamic_cast<uda::Array*>(data);
 
     REQUIRE( array != nullptr );
 
@@ -1818,6 +1817,127 @@ TEST_CASE( "Test array subsetting with argument with square brackets", "[plugins
     REQUIRE( vec[3] == Approx(3.0) );
     REQUIRE( vec[4] == Approx(4.0) );
 }
+
+TEST_CASE( "Run call_plugin_test - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("TESTPLUGIN::call_plugin_test()", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto* array = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( array != nullptr );
+
+    auto vec = array->as<double>();
+
+    REQUIRE( vec.size() == 100 );
+    REQUIRE( vec[0] == Approx(0.0) );
+    REQUIRE( vec[1] == Approx(1.0) );
+    REQUIRE( vec[2] == Approx(2.0) );
+    REQUIRE( vec[3] == Approx(3.0) );
+    REQUIRE( vec[4] == Approx(4.0) );
+}
+
+TEST_CASE( "Run call_plugin_test_index - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("TESTPLUGIN::call_plugin_test_index()", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto* array = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( array != nullptr );
+
+    auto vec = array->as<double>();
+
+    REQUIRE( vec.size() == 1 );
+    REQUIRE( vec[0] == Approx(25.0) );
+}
+
+TEST_CASE( "Run call_plugin_test_slice - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("TESTPLUGIN::call_plugin_test_slice()", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(double).name() );
+
+    auto* array = dynamic_cast<uda::Array*>(data);
+
+    REQUIRE( array != nullptr );
+
+    auto vec = array->as<double>();
+
+    REQUIRE( vec.size() == 10 );
+    REQUIRE( vec[0] == Approx(10.0) );
+    REQUIRE( vec[1] == Approx(11.0) );
+    REQUIRE( vec[2] == Approx(12.0) );
+    REQUIRE( vec[3] == Approx(13.0) );
+    REQUIRE( vec[4] == Approx(14.0) );
+}
+
+// TODO: stride seems to be broken
+//TEST_CASE( "Run call_plugin_test_stride - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )
+//{
+//#include "setup.inc"
+//
+//    uda::Client client;
+//
+//    const uda::Result& result = client.get("TESTPLUGIN::call_plugin_test_stide()", "");
+//
+//    REQUIRE( result.errorCode() == 0 );
+//    REQUIRE( result.errorMessage().empty() );
+//
+//    uda::Data* data = result.data();
+//
+//    REQUIRE( data != nullptr );
+//    REQUIRE( !data->isNull() );
+//    REQUIRE( data->type().name() == typeid(double).name() );
+//
+//    auto* array = dynamic_cast<uda::Array*>(data);
+//
+//    REQUIRE( array != nullptr );
+//
+//    auto vec = array->as<double>();
+//
+//    REQUIRE( vec.size() == 50 );
+//    REQUIRE( vec[0] == Approx(0.0) );
+//    REQUIRE( vec[1] == Approx(2.0) );
+//    REQUIRE( vec[2] == Approx(4.0) );
+//    REQUIRE( vec[3] == Approx(6.0) );
+//    REQUIRE( vec[4] == Approx(8.0) );
+//}
 
 TEST_CASE( "Run emptytest - return no data", "[plugins][TESTPLUGIN]" )
 {

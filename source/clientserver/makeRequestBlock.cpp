@@ -1268,7 +1268,7 @@ int parse_element(SUBSET& subset, const std::string& element)
             case 1:
                 // TODO: handle non-slice operations? i.e. [>=4], etc.
                 subset.lbindex[index] = parse_integer(tokens[0]);
-                subset.ubindex[index] = { .init = false, .value = 0 };
+                subset.ubindex[index] = { .init = true, .value = (subset.lbindex[index].value + 1) };
                 subset.stride[index] = { .init = false, .value = 0 };
                 break;
             case 2:
