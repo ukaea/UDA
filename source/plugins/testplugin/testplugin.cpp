@@ -132,6 +132,11 @@ static int do_scalartest(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 static int do_array1dtest(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
+static int do_call_plugin_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
+static int do_call_plugin_test_index(IDAM_PLUGIN_INTERFACE* plugin_interface);
+static int do_call_plugin_test_slice(IDAM_PLUGIN_INTERFACE* plugin_interface);
+static int do_call_plugin_test_stride(IDAM_PLUGIN_INTERFACE* plugin_interface);
+
 static int do_emptytest(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 #ifdef CAPNP_ENABLED
@@ -318,6 +323,14 @@ extern int testplugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
         err = do_scalartest(plugin_interface);
     } else if (STR_IEQUALS(request->function, "array1dtest")) {
         err = do_array1dtest(plugin_interface);
+    } else if (STR_IEQUALS(request->function, "call_plugin_test")) {
+        err = do_call_plugin_test(plugin_interface);
+    } else if (STR_IEQUALS(request->function, "call_plugin_test_index")) {
+        err = do_call_plugin_test_index(plugin_interface);
+    } else if (STR_IEQUALS(request->function, "call_plugin_test_slice")) {
+        err = do_call_plugin_test_slice(plugin_interface);
+    } else if (STR_IEQUALS(request->function, "call_plugin_test_stride")) {
+        err = do_call_plugin_test_stride(plugin_interface);
     } else if (STR_IEQUALS(request->function, "emptytest")) {
         err = do_emptytest(plugin_interface);
 #ifdef TESTUDT
@@ -3904,6 +3917,26 @@ int do_emptytest(IDAM_PLUGIN_INTERFACE* plugin_interface)
     DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
     return 0;
+}
+
+int do_call_plugin_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::array1dtest()", plugin_interface);
+}
+
+int do_call_plugin_test_index(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::array1dtest()[25]", plugin_interface);
+}
+
+int do_call_plugin_test_slice(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::array1dtest()[10:20]", plugin_interface);
+}
+
+int do_call_plugin_test_stride(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::array1dtest()[::2]", plugin_interface);
 }
 
 #ifdef CAPNP_ENABLED
