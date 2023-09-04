@@ -1,9 +1,56 @@
 #include "udaPlugin.h"
+#include "server/initPluginList.h"
+#include "server/serverPlugin.h"
+#include "structures/struct.h"
 
+#include <server/getServerEnvironment.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/initStructs.h>
 #include <clientserver/udaTypes.h>
+
+IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
+{
+    auto plugin_interface = (IDAM_PLUGIN_INTERFACE*)calloc(1, sizeof(IDAM_PLUGIN_INTERFACE));
+    auto environment = getServerEnvironment();
+    auto plugin_list = (PLUGINLIST*)calloc(1, sizeof(PLUGINLIST));
+
+    initPluginList(plugin_list, environment);
+
+    auto request_data = (REQUEST_DATA*)calloc(1, sizeof(REQUEST_DATA));
+    makeRequestData(request_data, *plugin_list, environment);
+
+    auto user_defined_type_list = (USERDEFINEDTYPELIST*)calloc(1, sizeof(USERDEFINEDTYPELIST));
+    auto log_malloc_list = (LOGMALLOCLIST*)calloc(1, sizeof(LOGMALLOCLIST));
+
+    plugin_interface->request_data = request_data;
+    plugin_interface->pluginList = plugin_list;
+    plugin_interface->environment = environment;
+    plugin_interface->userdefinedtypelist = user_defined_type_list;
+    plugin_interface->logmalloclist = log_malloc_list;
+
+    plugin_interface->interfaceVersion = 1;
+    plugin_interface->pluginVersion = 0;
+    plugin_interface->housekeeping = 0;
+    plugin_interface->changePlugin = 0;
+    plugin_interface->error_stack.nerrors = 0;
+    plugin_interface->error_stack.idamerror = nullptr;
+
+    return plugin_interface;
+}
+
+void udaFreePluginInterface(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    free(plugin_interface->request_data);
+    freeUserDefinedTypeList(plugin_interface->userdefinedtypelist);
+    free(plugin_interface->userdefinedtypelist);
+    freeMallocLogList(plugin_interface->logmalloclist);
+    free(plugin_interface->logmalloclist);
+    freePluginList((PLUGINLIST*)plugin_interface->pluginList);
+    free((PLUGINLIST*)plugin_interface->pluginList);
+    free((ENVIRONMENT*)plugin_interface->environment);
+    free(plugin_interface);
+}
 
 int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
@@ -250,6 +297,41 @@ int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* d
     data_block->dims[0].dim0 = 0.0;
     data_block->dims[0].diff = 1.0;
     data_block->dims[0].method = 0;
+
+    data_block->data_n = data_block->dims[0].dim_n;
+
+    return 0;
+}
+
+int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE type, int rank, const int* shape, const char* description)
+{
+    initDataBlock(data_block);
+
+    data_block->data_type = type;
+    data_block->data = (char*)malloc(size);
+
+    memcpy(data_block->data, value, size);
+
+    data_block->rank = rank;
+    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+
+    for (unsigned int i = 0; i < data_block->rank; i++) {
+        initDimBlock(&data_block->dims[i]);
+    }
+
+    if (description != nullptr) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
+    }
+
+    for (unsigned int i = 0; i < data_block->rank; i++) {
+        data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
+        data_block->dims[i].dim_n = shape[i];
+        data_block->dims[i].compressed = 1;
+        data_block->dims[i].dim0 = 0.0;
+        data_block->dims[i].diff = 1.0;
+        data_block->dims[i].method = 0;
+    }
 
     data_block->data_n = data_block->dims[0].dim_n;
 
@@ -526,14 +608,14 @@ bool findValue(const NAMEVALUELIST* namevaluelist, const char* name)
     return found;
 }
 
-int callPlugin(const PLUGINLIST* pluginlist, const char* singal, const IDAM_PLUGIN_INTERFACE* old_plugin_interface)
+int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const IDAM_PLUGIN_INTERFACE* old_plugin_interface)
 {
     IDAM_PLUGIN_INTERFACE idam_plugin_interface = *old_plugin_interface;
     REQUEST_DATA request = *old_plugin_interface->request_data;
     idam_plugin_interface.request_data = &request;
 
     request.source[0] = '\0';
-    strcpy(request.signal, singal);
+    strcpy(request.signal, signal);
     makeRequestData(&request, *pluginlist, old_plugin_interface->environment);
 
     request.request = findPluginRequestByFormat(request.format, pluginlist);
@@ -549,6 +631,19 @@ int callPlugin(const PLUGINLIST* pluginlist, const char* singal, const IDAM_PLUG
     } else {
         RAISE_PLUGIN_ERROR("Data Access is not available for this data request!");
     }
+
+    // Apply subsetting
+//    if (request_data->datasubset.nbound > 0) {
+//        UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (SUBSET)   %d\n", *depth);
+//        ACTION action = {};
+//        initAction(&action);
+//        action.actionType = UDA_SUBSET_TYPE;
+//        action.subset = request_data->datasubset;
+//        if ((rc = serverSubsetData(data_block, action, logmalloclist)) != 0) {
+//            (*depth)--;
+//            return rc;
+//        }
+//    }
 
     return err;
 }

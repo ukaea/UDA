@@ -14,8 +14,8 @@ endmacro()
 macro( CONVERT_LIN_PATH VarName )
   if( MINGW AND NOT "${${VarName}}" STREQUAL "" )
     execute_process( COMMAND cygpath.exe -m ${${VarName}} OUTPUT_VARIABLE ${VarName} )
-    string( STRIP ${${VarName}} ${VarName} )
-    string( REGEX REPLACE "[\r\n]+" ";" ${VarName} ${${VarName}} )
+    string( STRIP "${${VarName}}" ${VarName} )
+    string( REGEX REPLACE "[\r\n]+" ";" ${VarName} "${${VarName}}" )
   endif()
 endmacro()
 
@@ -107,12 +107,11 @@ else()
   endif()
 endif()
 
-if( NOT WIN32 OR MINGW )
+if( NOT WIN32 )
   set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -pthread -Wno-implicit-function-declaration" )
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -pthread" )
   
   if( MINGW )
-    add_definitions( -D_WIN32 )
     add_definitions( -DMINGW )
   endif()
   
@@ -161,7 +160,7 @@ endif()
 option( CLIENT_ONLY "Only build UDA client" OFF )
 option( SERVER_ONLY "Only build UDA server" OFF )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
-option( NO_MEMCACHE "Do not attempt to build with libmemcached support" OFF )
+option( NO_MEMCACHE "Do not attempt to build with libmemcached support" ON )
 option( ENABLE_CAPNP "Enable Cap’n Proto serialisation" OFF )
 
 # Wrapper configuration
@@ -224,6 +223,7 @@ if( WIN32 OR MINGW )
     DESTINATION lib
       FILES_MATCHING PATTERN "*xdr*"
   )
+  return()
 endif()
 
 ########################################################################################################################

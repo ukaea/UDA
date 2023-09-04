@@ -15,8 +15,8 @@ service @USER@uda
     server          = @CMAKE_INSTALL_PREFIX@/etc/udaserver.sh
     #env             = UDAHOSTNAME=uda-external-jet
 
-    instances       = 50
-    per_source      = 10
+    instances       = 100
+    per_source      = 30
 
     v6only          = no
     groups          = yes

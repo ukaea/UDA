@@ -8,12 +8,14 @@ conflict            uda
 conflict            idam
 
 set                 UDA_DIR             @CMAKE_INSTALL_PREFIX@
+set                 UDA_IDL_DIR         @CMAKE_INSTALL_PREFIX@
 setenv              UDA_DIR             $UDA_DIR
 setenv              UDA_HOST            @UDA_HOST@
 setenv              UDA_PORT            @UDA_PORT@
 
 prepend-path        PYTHONPATH          $UDA_DIR/python
 prepend-path        LD_LIBRARY_PATH     $UDA_DIR/lib
-prepend-path        IDL_DLM_PATH        $UDA_DIR/dlm
-prepend-path        IDL_PATH            $UDA_DIR/idl
+prepend-path        IDL_DLM_PATH        $UDA_IDL_DIR/dlm
+prepend-path        IDL_PATH            $UDA_IDL_DIR/idl
 prepend-path        PKG_CONFIG_PATH     $UDA_DIR/lib/pkgconfig
+set-alias           uda                 $UDA_DIR/bin/uda_cli

@@ -8,6 +8,7 @@
 #include <clientserver/errorLog.h>
 #include <plugins/pluginStructs.h>
 #include <clientserver/export.h>
+#include "clientserver/udaTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,6 +34,9 @@ typedef void (* ADDIDAMERRORFUNP)(UDA_ERROR_STACK*, int, char*, int, char*);   /
 
 LIBRARY_API int callPlugin(const PLUGINLIST* pluginlist, const char* request, const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
 
+IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request);
+void udaFreePluginInterface(IDAM_PLUGIN_INTERFACE* plugin_interface);
+
 LIBRARY_API int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list);
 LIBRARY_API int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list);
 LIBRARY_API int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list);
@@ -48,6 +52,8 @@ LIBRARY_API int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const 
 LIBRARY_API int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* description);
 LIBRARY_API int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* description);
 LIBRARY_API int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* description);
+
+LIBRARY_API int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE type, int rank, const int* shape, const char* description);
 
 LIBRARY_API bool findStringValue(const NAMEVALUELIST* namevaluelist, const char** value, const char* name);
 LIBRARY_API bool findValue(const NAMEVALUELIST* namevaluelist, const char* name);

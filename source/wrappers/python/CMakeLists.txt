@@ -15,7 +15,10 @@ find_package( LibMemcached QUIET )
 find_package( fmt REQUIRED )
 find_package( TIRPC QUIET )
 
-set( UDA_LIBS ) 
+find_library( STDCXX_LIBRARY_FILE stdc++ HINTS ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES} )
+get_filename_component(STDCXX_LIB_DIR ${STDCXX_LIBRARY_FILE} DIRECTORY )
+
+set( UDA_LIBS )
 set( EXTRA_LIBS ${EXTRA_LIBS} fmt )
 
 if( LIBMEMCACHED_FOUND )

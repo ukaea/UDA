@@ -174,7 +174,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         // Free Heap & reset counters
         
         for (int i = 0; i < handleCount; i++) {
-            idamFree(handles[i]);
+            udaFree(handles[i]);
             handles[i] = -1;
         }
 
@@ -189,7 +189,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
         // Free Cached data if requested or filled
         
         for (int i = 0; i < handleCount; i++) {
-            idamFree(handles[i]);
+            udaFree(handles[i]);
             handles[i] = -1;
         }
 
@@ -201,7 +201,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     if (handleCount == MAXHANDLES) {
         // Free some Cached data if cache is full
         for (int i = 0; i < FREEHANDLEBLOCK; i++) {
-            idamFree(handles[i]);
+            udaFree(handles[i]);
             handles[i] = handles[i + FREEHANDLEBLOCK];
             strcpy(signals[i], signals[i + FREEHANDLEBLOCK]);
             strcpy(sources[i], sources[i + FREEHANDLEBLOCK]);
@@ -220,7 +220,7 @@ extern int viewport(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
         // Free Heap Cache & reset counters
         for (int i = 0; i < handleCount; i++) {
-            idamFree(handles[i]);
+            udaFree(handles[i]);
             handles[i] = -1;
         }
 

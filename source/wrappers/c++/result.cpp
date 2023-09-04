@@ -91,7 +91,7 @@ uda::Result::Result(int handle)
 
 uda::Result::~Result()
 {
-    idamFree(handle_);
+    udaFree(handle_);
 }
 
 const std::vector<size_t> uda::Result::shape() const

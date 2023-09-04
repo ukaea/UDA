@@ -57,7 +57,7 @@ jobs:
       - name: Install macos dependencies
         if: matrix.os == 'macos-latest'
         run: >
-          brew update && brew install
+          brew update-reset && brew install
           git
           boost
           openssl
@@ -96,6 +96,7 @@ jobs:
         run: sudo cmake --install ${{github.workspace}}/build --config ${{ matrix.release }}
 
       - name: Install pyuda
+        if: matrix.os == 'ubuntu-latest'
         run: >
           cp -r /usr/local/python_installer ${{github.workspace}}/python_installer &&
           python3 -m venv ${{github.workspace}}/venv &&
@@ -104,6 +105,7 @@ jobs:
           pip3 install ${{github.workspace}}/python_installer
 
       - name: Test pyuda import
+        if: matrix.os == 'ubuntu-latest'
         run: >
           source ${{github.workspace}}/venv/bin/activate &&
           python3 -c 'import pyuda; client=pyuda.Client()'

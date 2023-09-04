@@ -29,8 +29,8 @@ cdef class CapnpTreeNode:
         tree_node = CapnpTreeNode()
         tree_node._handle = handle
         if tree == NULL:
-            data = uda.getIdamData(handle)
-            num = uda.getIdamDataNum(handle)
+            data = uda.getIdamData(int(handle))
+            num = uda.getIdamDataNum(int(handle))
             tree_node._tree = uda.uda_capnp_deserialise(data, num)
             tree_node._node = uda.uda_capnp_read_root(tree_node._tree)
         else:
@@ -75,6 +75,8 @@ cdef class CapnpTreeNode:
 
         cdef int np_type = uda_type_to_numpy_type(type)
         self._data = np.PyArray_SimpleNew(<int>rank, np_shape, np_type)
+        np.PyArray_SetBaseObject(self._data, self._handle)
+        Py_INCREF(self._handle)
 
         free(np_shape)
 

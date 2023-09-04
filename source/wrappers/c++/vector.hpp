@@ -28,15 +28,15 @@ public:
             , type_(&typeid(T))
             , data_size_(size * sizeof(T))
     {
-        auto copy = new T[size];
+        auto copy = new unsigned char[size * sizeof(T)];
         memcpy(copy, array, size * sizeof(T));
-        raw_data_ = std::shared_ptr<unsigned char>(reinterpret_cast<unsigned char*>(copy));
+        raw_data_ = std::shared_ptr<unsigned char>(copy, std::default_delete<unsigned char[]>());
     }
 
     Vector(const Vector& other) = default;
     Vector& operator=(const Vector& other) = default;
 
-    const std::type_info& type() const override
+    [[nodiscard]] const std::type_info& type() const override
     { return *type_; }
 
     template <typename T>
@@ -51,17 +51,17 @@ public:
     T at(size_t idx) const
     { return boost::any_cast<T>(vec_[idx]); }
 
-    size_t size() const override
+    [[nodiscard]] size_t size() const override
     { return vec_.size(); }
 
     static Vector Null;
 
-    const unsigned char* byte_data() const override
+    [[nodiscard]] const unsigned char* byte_data() const override
     {
         return raw_data_.get();
     }
 
-    size_t byte_length() const override
+    [[nodiscard]] size_t byte_length() const override
     {
         return data_size_;
     }

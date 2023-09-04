@@ -61,7 +61,7 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
 /*         logmalloclist = nullptr; */
 /*         userdefinedtypelist = nullptr; */
 /*         int h = idamGetAPI("help::ping()", ""); */
-/*         idamFree(h); */
+/*         udaFree(h); */
 /*         idamGetAPICalledOnce = 1; */
 /*         lastMallocIndex = 0; */
 /*         logmalloclist = oldlogmalloclist; */
@@ -142,7 +142,7 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 /*         logmalloclist = nullptr; */
 /*         userdefinedtypelist = nullptr; */
 /*         int h = idamGetAPI("help::ping()", ""); */
-/*         idamFree(h); */
+/*         udaFree(h); */
 /*         idamGetAPICalledOnce = 1; */
 /*         lastMallocIndex = 0; */
 /*         logmalloclist = oldlogmalloclist; */

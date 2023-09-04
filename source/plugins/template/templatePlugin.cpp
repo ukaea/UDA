@@ -182,13 +182,48 @@ int TemplatePlugin::max_interface_version(IDAM_PLUGIN_INTERFACE* idam_plugin_int
     return setReturnDataIntScalar(idam_plugin_interface->data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
 }
 
+namespace {
+
+template <typename T>
+std::string to_string(T* array, size_t size) {
+    std::string result;
+    const char* delim = "";
+    for (size_t i = 0; i < size; ++i) {
+        result += delim + std::to_string(array[i]);
+        delim = ", ";
+    }
+    return result;
+}
+
+} // anon namespace
+
 //----------------------------------------------------------------------------------------
 // Add functionality here ....
 int TemplatePlugin::function(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     DATA_BLOCK* data_block = idam_plugin_interface->data_block;
 
-    setReturnDataString(data_block, "Hello World!", "templatePlugin: 'Hello World' single string returned");
+    NameValueList& nvl = idam_plugin_interface->request_data->nameValueList;
+
+    const char* required = nullptr;
+    FIND_REQUIRED_STRING_VALUE(nvl, required);
+
+    double* array = nullptr;
+    size_t narray = -1;
+    FIND_REQUIRED_DOUBLE_ARRAY(nvl, array);
+
+    int optional = -1;
+    bool optional_found = FIND_INT_VALUE(nvl, optional);
+
+    std::string result = std::string("Passed args: required=") + required
+            + ", array=[" + to_string(array, narray) + "]";
+    if (optional_found) {
+        result += ", optional=" + std::to_string(optional) + ")";
+    } else {
+        result += ", optional=<NOT PASSED>)";
+    }
+
+    setReturnDataString(data_block, result.c_str(), "result of TemplatePlugin::function");
 
     strcpy(data_block->data_label, "");
     strcpy(data_block->data_units, "");

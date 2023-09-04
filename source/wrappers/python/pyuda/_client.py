@@ -76,6 +76,7 @@ class Client(with_metaclass(ClientMeta, object)):
             self._registered_subclients['listGeomGroups'] = GeomClient(self)
             self._registered_subclients['list'] = MastClient(self)
             self._registered_subclients['list_archive_files'] = MastClient(self)
+            self._registered_subclients['list_archive_file_info'] = MastClient(self)
             self._registered_subclients['list_archive_directories'] = MastClient(self)
             self._registered_subclients['list_file_signals'] = MastClient(self)            
             self._registered_subclients['list_signals'] = MastClient(self)
@@ -160,7 +161,7 @@ class Client(with_metaclass(ClientMeta, object)):
             signals.append(self._unpack(result, time_first, time_last))
         return signals
 
-    def get(self, signal, source, time_first=False, time_last=False, **kwargs):
+    def get(self, signal, source="", time_first=False, time_last=False, **kwargs):
         """
         UDA get data method.
 
@@ -191,4 +192,4 @@ class Client(with_metaclass(ClientMeta, object)):
         cpyuda.close_connection()
 
     def reset_connection(self):
-        cpyuda.reset_connection()
+        cpyuda.close_connection()

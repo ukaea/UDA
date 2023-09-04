@@ -22,18 +22,15 @@ template <> double Precision<double>::precision = DBL_EPSILON;
 template <typename T>
 int compress(DIMS* ddim)
 {
-    if (ddim->compressed == 1) {
-        // already compressed - nothing to do.
-        return 0;
-    }
-
     T* dim_data = (T*)ddim->dim;
     if (dim_data == nullptr) {
-        return 0;
+        return 1;
     }
 
     int ndata = ddim->dim_n;
-    if (ndata <= 1){
+
+    //no need to compress if the data is already compressed or if there are less or equal to 2 elements
+    if (ndata <= 3 || ddim->compressed == 1) {
         // prevent divide by 0 errors or accessing out-of-range memory
         return 1;
     }

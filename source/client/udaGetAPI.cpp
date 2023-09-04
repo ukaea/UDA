@@ -243,7 +243,8 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
 #ifdef MEMDEBUG
     muntrace();
 #endif
-freeClientRequestBlock(&request_block);
+
+    freeClientRequestBlock(&request_block);
     // Unlock the thread
     unlockUdaThread(client_flags);
     return handle;

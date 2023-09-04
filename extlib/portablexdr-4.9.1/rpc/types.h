@@ -71,9 +71,7 @@ typedef char *        caddr_t;
 //#include <sys/time.h>
 
 #ifndef INADDR_LOOPBACK
-#  if defined(__GNUC__)
-#    define INADDR_LOOPBACK	(u_long)0x7F000001
-#  endif
+#  define INADDR_LOOPBACK	(u_long)0x7F000001
 #endif
 #ifndef MAXHOSTNAMELEN
 #  define MAXHOSTNAMELEN	64
