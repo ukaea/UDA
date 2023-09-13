@@ -97,7 +97,6 @@ jobs:
           vcpkg install --triplet x64-windows --binarysource="clear;x-gha,readwrite"
           libxml2
           capnproto
-          spdlog
           boost
           openssl
           dlfcn-win32
@@ -123,22 +122,26 @@ jobs:
           -DENABLE_CAPNP=${{ matrix.capnp }}
           -DOPENSSL_ROOT_DIR="$(brew --prefix openssl@1.1)"
 
-      - name: Configure portable XDR
+      - name: Configure portable XDR, spdlog & libfmt
         if: matrix.os == 'windows-latest'
-        run: cd extlib && cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -B build -G "MinGW Makefiles" .
+        run: >
+          cd extlib
+          && cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DBUILD_SHARED_LIBS=ON -DSPDLOG_INSTALL=ON -B build -G "MinGW Makefiles" .
 
-      - name: Build portable XDR
+      - name: Build portable XDR, spdlog & libfmt
         if: matrix.os == 'windows-latest'
         run: cd extlib && cmake --build build
 
-      - name: Install portable XDR
+      - name: Install portable XDR, spdlog & libfmt
         if: matrix.os == 'windows-latest'
         run: cd extlib && cmake --install build --prefix install
 
       - name: Configure CMake (windows)
         if: matrix.os == 'windows-latest'
         run: >
-          XDR_ROOT=extlib/install cmake -G "MinGW Makefiles" -B build
+          XDR_ROOT=extlib/install CMAKE_PREFIX_PATH=extlib/install/lib/cmake
+          cmake -G "MinGW Makefiles" -B build
           -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
           -DBUILD_SHARED_LIBS=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.release }}
