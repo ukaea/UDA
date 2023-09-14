@@ -21,7 +21,7 @@ if( ENABLE_CAPNP )
   find_library( STDCXX_LIBRARY_FILE stdc++ HINTS ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES} )
   get_filename_component(STDCXX_LIBRARY_DIR ${STDCXX_LIBRARY_FILE} DIRECTORY )
   
-  if ( "${STDCXX_LIBRARY_FILE}" STREQUAL "" )
+  if ( "${STDCXX_LIBRARY_DIR}" STREQUAL "" )
     set ( STDCXX_RPATH "" ) 
   else()
       set ( STDCXX_RPATH "-Wl,-rpath,${STDCXX_LIBRARY_DIR} -L${STDCXX_LIBRARY_DIR} -lstdc++" ) 
