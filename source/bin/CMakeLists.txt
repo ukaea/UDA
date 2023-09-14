@@ -24,12 +24,9 @@ if( ENABLE_CAPNP )
   if ( "${STDCXX_LIBRARY_FILE}" STREQUAL "" )
     set ( STDCXX_RPATH "" ) 
   else()
-      set ( STDCXX_RPATH "-Wl,-rpath,${STDCXX_LIBRARY_FILE} -L${STDCXX_LIBRARY_FILE} -lstdc++" ) 
+      set ( STDCXX_RPATH "-Wl,-rpath,${STDCXX_LIBRARY_DIR} -L${STDCXX_LIBRARY_DIR} -lstdc++" ) 
       
   endif()
-
-  # get_filename_component( CAPNP_LIB_CMAKE_DIR ${CapnProto_DIR} DIRECTORY )
-  # get_filename_component( CAPNP_LIB_DIR ${CAPNP_LIB_CMAKE_DIR} DIRECTORY )
 
   if ( "${capnp_LIBRARY_DIRS}" STREQUAL "" )
       set( CAPNP_RPATH "" )
