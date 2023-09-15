@@ -94,7 +94,7 @@ jobs:
       - name: Install windows dependencies
         if: matrix.os == 'windows-latest'
         run: >
-          vcpkg install --triplet x64-mingw-static --binarysource="clear;x-gha,readwrite"
+          vcpkg install --triplet x64-mingw-static --binarysource="clear;x-gha,readwrite" --allow-unsupported
           libxml2
           capnproto
           boost
