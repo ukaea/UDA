@@ -97,7 +97,7 @@ jobs:
           vcpkg install --triplet x64-mingw-static --binarysource="clear;x-gha,readwrite"
           libxml2
           capnproto
-          boost-program-options
+          boost
           openssl
           dlfcn-win32
           spdlog

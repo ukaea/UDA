@@ -37,7 +37,7 @@ set( CMAKE_MODULE_PATH
 )
 set( CMAKE_PREFIX_PATH ${_VCPKG_INSTALLED_DIR}/x64-mingw-static )
 
-include( ColourMessages )
+#include( ColourMessages )
 include_directories( /opt/local/include )
 
 set( Boost_USE_MULTITHREADED OFF )
