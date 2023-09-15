@@ -35,6 +35,7 @@ set( CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake/Modules
   ${CMAKE_SOURCE_DIR}/cmake/Config
 )
+set( CMAKE_PREFIX_PATH ${_VCPKG_INSTALLED_DIR}/x64-mingw-static )
 
 include( ColourMessages )
 include_directories( /opt/local/include )
