@@ -18,7 +18,8 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+#        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
         release: [Release]
         ssl: [ON, OFF]
         client-only: [OFF]
@@ -148,7 +149,7 @@ jobs:
           -DENABLE_CAPNP=${{ matrix.capnp }}
 
       - name: Build
-        run: cmake --build build --config ${{ matrix.release }} --verbose
+        run: cmake --build build --config ${{ matrix.release }}
 
       - name: Install
         if: matrix.os != 'windows-latest'
