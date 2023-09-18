@@ -136,9 +136,7 @@ if( WIN32 OR MINGW )
 endif()
 
 set( LINK_DL )
-if( WIN32 AND NOT MINGW )
-  set( LINK_DL dlfcn-win32::dl )
-else()
+if( WIN32 OR MINGW )
   set( LINK_DL dlfcn-win32::dl )
 endif()
 
