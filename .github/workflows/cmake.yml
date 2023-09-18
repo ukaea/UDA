@@ -155,7 +155,12 @@ jobs:
         run: cmake --build build --config ${{ matrix.release }} --verbose
 
       - name: Install
+        if: matrix.os != 'windows-latest'
         run: sudo cmake --install build --config ${{ matrix.release }}
+
+      - name: Install
+        if: matrix.os == 'windows-latest'
+        run: cmake --install build --config ${{ matrix.release }}
 
 #      - name: Install pyuda
 #        if: matrix.os == 'ubuntu-latest'
