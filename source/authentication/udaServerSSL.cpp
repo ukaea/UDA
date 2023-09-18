@@ -346,7 +346,11 @@ int startUdaServerSSL()
     }
 
     // Get the Client's certificate and verify
+#if OPENSSL_VERSION_MAJOR < 3
     X509* peer = SSL_get_peer_certificate(g_ssl);
+#else
+    X509* peer = SSL_get1_peer_certificate(g_ssl);
+#endif
 
     if (peer != nullptr) {
         if ((rc = SSL_get_verify_result(g_ssl)) != X509_V_OK) {
