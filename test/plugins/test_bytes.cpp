@@ -16,13 +16,13 @@ TEST_CASE( "Test BYTES::help() function", "[BYTES][plugins]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char*).name() );
 
     auto str = dynamic_cast<uda::String*>(data);
 
-    REQUIRE( str != NULL );
+    REQUIRE( str != nullptr );
 
     std::string expected = "\nbytes: data reader to access files as a block of bytes without interpretation\n\n";
 
@@ -44,13 +44,13 @@ TEST_CASE( "Test BYTES::read() function", "[BYTES][plugins]" )
 
     uda::Data* data = result.data();
 
-    REQUIRE( data != NULL );
+    REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
     REQUIRE( data->type().name() == typeid(char).name() );
 
     auto arr = dynamic_cast<uda::Array*>(data);
 
-    REQUIRE( arr != NULL );
+    REQUIRE( arr != nullptr );
 
     std::string expected = "\nbytes: data reader to access files as a block of bytes without interpretation\n\n";
 

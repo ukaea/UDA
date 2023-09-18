@@ -110,7 +110,7 @@ endif()
 set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} ${LIBXML2_LIBRARIES} fmt::fmt )
 if( NOT CLIENT_ONLY )
   if( MINGW )
-    set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} )
+    set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} iconv lzma z crypt32 )
   endif()
 endif()
 

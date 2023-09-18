@@ -7,9 +7,7 @@ find_package( fmt REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
-  if( NOT MINGW )
-    find_package( dlfcn-win32 CONFIG REQUIRED )
-  endif()
+  find_package( dlfcn-win32 CONFIG REQUIRED )
 else()
   find_package( TIRPC QUIET )
   if( TIRPC_FOUND )
@@ -94,6 +92,7 @@ set( SERVER_OBJ
   $<TARGET_OBJECTS:logging-server-objects>
   $<TARGET_OBJECTS:structures-server-objects>
   $<TARGET_OBJECTS:authentication-server-objects>
+  $<TARGET_OBJECTS:cache-objects>
 )
 
 add_library( server-static STATIC ${SERVER_OBJ} )
@@ -103,12 +102,8 @@ endif()
 
 set( LINK_XDR )
 set( EXE_FLAG )
-set( EXE_EXT )
 if( WIN32 OR MINGW )
   set( EXE_FLAG WIN32 )
-  if( MINGW )
-    set( EXE_EXT ".exe" )
-  endif()
   include_directories( ${XDR_INCLUDE_DIR} )
   set( LINK_XDR ${XDR_LIBRARIES} ws2_32 )
 elseif(TIRPC_FOUND )
@@ -144,7 +139,7 @@ set( LINK_DL )
 if( WIN32 AND NOT MINGW )
   set( LINK_DL dlfcn-win32::dl )
 else()
-  set( LINK_DL dl )
+  set( LINK_DL dlfcn-win32::dl )
 endif()
 
 set( LINK_M )
@@ -244,7 +239,7 @@ endif()
 
 set_target_properties( server-exe
   PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}_server${EXE_EXT}
+    OUTPUT_NAME ${PROJECT_NAME}_server
 )
 
 if( WIN32 )
