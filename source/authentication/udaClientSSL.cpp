@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <fcntl.h>
 #include <time.h>
+#include <ssl.h>
 
 #include <client/updateSelectParms.h>
 #include <clientserver/errorLog.h>
