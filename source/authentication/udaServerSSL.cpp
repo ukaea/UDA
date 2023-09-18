@@ -347,7 +347,7 @@ int startUdaServerSSL()
     }
 
     // Get the Client's certificate and verify
-    X509* peer = SSL_get1_peer_certificate(g_ssl);
+    X509* peer = SSL_get_peer_certificate(g_ssl);
 
     if (peer != nullptr) {
         if ((rc = SSL_get_verify_result(g_ssl)) != X509_V_OK) {
