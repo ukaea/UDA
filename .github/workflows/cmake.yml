@@ -22,11 +22,9 @@ jobs:
         os: [windows-latest]
 #        os: [ubuntu-latest]
         release: [Release]
-#        ssl: [ON, OFF]
-        ssl: [ON]
+        ssl: [ON, OFF]
         client-only: [OFF]
-#        capnp: [ON, OFF]
-        capnp: [ON]
+        capnp: [ON, OFF]
 #        include:
 #          - client-only: ON
 #            ssl: OFF
