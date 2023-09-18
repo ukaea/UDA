@@ -152,7 +152,7 @@ jobs:
           -DENABLE_CAPNP=${{ matrix.capnp }}
 
       - name: Build
-        run: cmake --build build --config ${{ matrix.release }}
+        run: cmake --build build --config ${{ matrix.release }} --verbose
 
       - name: Install
         run: sudo cmake --install build --config ${{ matrix.release }}
