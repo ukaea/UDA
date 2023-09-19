@@ -7,6 +7,8 @@ The UDA API provides plugin driven data abstraction.
 The UDA can be either run as a client-server API, running as thin client with all functionality being handled on a
 remote server, or as fat-client API where both the client access and plugin functionality is run on the local machine.
 
+Note this is a compatibility branch which only uses c++11 features and will only receive essential bug fixes. Current and future development on the main branch will require a c++17 compiler. 
+
 ## Licence
 
 See LICENCE.txt for details.
