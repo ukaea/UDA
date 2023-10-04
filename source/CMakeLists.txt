@@ -103,7 +103,7 @@ set( PKGCONFIG_REQUIRES fmt )
 
 find_package( TIRPC QUIET )
 if( TIRPC_FOUND )
-    set( PKGCONFIG_REQUIRES libtirpc )
+    set( PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES} libtirpc" )
 endif()
 
 if( ENABLE_CAPNP )
