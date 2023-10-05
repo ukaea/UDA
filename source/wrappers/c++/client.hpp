@@ -181,6 +181,8 @@ public:
 
     void put(const std::string& instruction, const uda::Array& data);
 
+    void close();
+
 private:
     friend class ResultList;
 

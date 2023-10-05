@@ -30,6 +30,7 @@ SSL *getUdaClientSSL();
 void putUdaClientSSLSocket(int s);
 void closeUdaClientSSL();
 void putUdaClientSSLProtocol(int specified);
+int initUdaClientSSL();
 int startUdaClientSSL();
 int readUdaClientSSL(void* iohandle, char* buf, int count);
 int writeUdaClientSSL(void* iohandle, char* buf, int count);

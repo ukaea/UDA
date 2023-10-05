@@ -40,7 +40,7 @@ void putUdaClientSSLSocket(int s)
     g_sslSocket = s;
 }
 
-void initUdaClientSSL()
+static void init_ssl_library()
 {
     if (g_sslInit) {
         return;    // Already initialised
@@ -323,7 +323,7 @@ int configureUdaClientSSLContext(const HostData* host)
     return 0;
 }
 
-int startUdaClientSSL()
+int initUdaClientSSL()
 {
     // Has SSL/TLS authentication already been passed?
     if (g_sslOK) {
@@ -356,16 +356,21 @@ int startUdaClientSSL()
 
     // Initialise
 
-    initUdaClientSSL();
+    init_ssl_library();
 
     if (!(g_ctx = createUdaClientSSLContext())) {
         UDA_THROW_ERROR(999, "Unable to create the SSL context!");
     }
 
-    if (g_host == nullptr || configureUdaClientSSLContext(g_host) != 0) {
+    if (configureUdaClientSSLContext(g_host) != 0) {
         UDA_THROW_ERROR(999, "Unable to configure the SSL context!");
     }
 
+    return 0;
+}
+
+int startUdaClientSSL()
+{
     // Bind an SSL object with the socket
 
     g_ssl = SSL_new(g_ctx);

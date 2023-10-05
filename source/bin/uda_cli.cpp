@@ -374,24 +374,40 @@ void print_data(const uda::Data* data, int uda_type)
     }
 }
 
+void conflicting_options(const boost::program_options::variables_map & vm,
+                         const std::string & opt1, const std::string & opt2)
+{
+    if (vm.count(opt1) && !vm[opt1].defaulted() && vm.count(opt2) && !vm[opt2].defaulted())
+    {
+        throw po::error(std::string("conflicting options '") +  opt1 + "' and '" + opt2 + "'");
+    }
+}
+
 int main(int argc, const char** argv)
 {
     po::options_description desc("Allowed options");
     desc.add_options()
-            ("help", "produce help message")
+            ("help", po::bool_switch(), "produce help message")
             ("host,h", po::value<std::string>()->default_value("localhost"), "server host name")
             ("port,p", po::value<int>()->default_value(56565), "server port")
-            ("request", po::value<std::string>()->required(), "request");
+            ("request", po::value<std::string>(), "request")
+            ("source", po::value<std::string>()->default_value(""), "source")
+            ("ping", po::bool_switch(), "ping the server");
 
     po::positional_options_description p;
     p.add("request", 1);
 
     po::variables_map vm;
-    po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
     try {
+        po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
         po::notify(vm);
+
+        conflicting_options(vm, "ping", "request");
+        if (!vm["ping"].as<bool>() && vm.count("request") == 0) {
+            throw po::error("either 'ping' or 'request' must be provided");
+        }
     } catch (po::error& err) {
-        if (vm.count("help")) {
+        if (vm["help"].as<bool>()) {
             std::cout << "Usage: " << argv[0] << " [options] request\n";
             std::cout << desc << "\n";
             return 1;
@@ -403,7 +419,7 @@ int main(int argc, const char** argv)
         }
     };
 
-    if (vm.count("help")) {
+    if (vm["help"].as<bool>()) {
         std::cout << "Usage: " << argv[0] << " [options] request\n";
         std::cout << desc << "\n";
         return 1;
@@ -417,7 +433,12 @@ int main(int argc, const char** argv)
         uda::Client::setServerPort(static_cast<int>(vm["port"].as<int>()));
     }
 
-    std::string request = vm["request"].as<std::string>();
+    std::string request;
+    if (vm["ping"].as<bool>()) {
+        request = "HELP::ping()";
+    } else {
+        request = vm["request"].as<std::string>();
+    }
 
     if (request == "-") {
         std::stringstream ss;
@@ -429,9 +450,11 @@ int main(int argc, const char** argv)
     }
     std::cout << "request: " << request << "\n";
 
+    std::string source = vm["source"].as<std::string>();
+
     uda::Client client;
     try {
-        auto& res = client.get(request, "");
+        auto& res = client.get(request, source);
 
         if (res.isTree()) {
             print_tree(res.tree(), "");
@@ -444,6 +467,8 @@ int main(int argc, const char** argv)
         } else {
             print_data(res.data(), res.uda_type());
         }
+
+        client.close();
 
     } catch (uda::UDAException& err) {
         std::cerr << "UDA error: " << err.what() << "\n";
