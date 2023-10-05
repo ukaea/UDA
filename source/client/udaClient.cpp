@@ -51,8 +51,8 @@ USERDEFINEDTYPELIST* g_user_defined_type_list = nullptr;            // List of a
 LOGMALLOCLIST* g_log_malloc_list = nullptr;                         // List of all Heap Allocations for Data
 unsigned int g_last_malloc_index = 0;                               // Malloc Log search index last value
 unsigned int* g_last_malloc_index_value = &g_last_malloc_index;;    // Preserve Malloc Log search index last value in GENERAL_STRUCT
-XDR* g_client_input = nullptr;
-XDR* g_client_output = nullptr;
+XDR** g_client_input = nullptr;
+XDR** g_client_output = nullptr;
 LOGSTRUCTLIST* g_log_struct_list = nullptr;
 #endif // FATCLIENT
 
@@ -366,8 +366,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
     static int malloc_source = UDA_MALLOC_SOURCE_NONE;
 
 #ifndef FATCLIENT
-    g_client_input = client_input; // needed for udaFreeAll
-    g_client_output = client_output; // needed for udaFreeAll
+    g_client_input = &client_input; // needed for udaFreeAll
+    g_client_output = &client_output; // needed for udaFreeAll
 #endif
 
     LOGSTRUCTLIST log_struct_list;
@@ -516,6 +516,16 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             startupStates = 0;
 #  endif
 			time(&tv_server_start);        // Start the Clock again: Age of Server
+
+            //-------------------------------------------------------------------------
+            // Connect to the server with SSL (X509) authentication
+
+#  if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
+            // Create the SSL binding and context, and verify the server certificate
+            if ((err = initUdaClientSSL()) != 0) {
+                break;
+            }
+#  endif
 
             //-------------------------------------------------------------------------
             // Create the XDR Record Streams
@@ -1444,9 +1454,9 @@ void udaFreeAll()
         client_block.timeout = 0;                             // Surrogate CLOSEDOWN instruction
         client_block.clientFlags = client_block.clientFlags | CLIENTFLAG_CLOSEDOWN;   // Direct CLOSEDOWN instruction
         protocol_id = UDA_PROTOCOL_CLIENT_BLOCK;
-        protocol2(g_client_output, protocol_id, XDR_SEND, nullptr, g_log_malloc_list, g_user_defined_type_list, &client_block,
+        protocol2(*g_client_output, protocol_id, XDR_SEND, nullptr, g_log_malloc_list, g_user_defined_type_list, &client_block,
                   protocol_version, g_log_struct_list, *udaPrivateFlags(), UDA_MALLOC_SOURCE_NONE);
-        xdrrec_endofrecord(g_client_output, 1);
+        xdrrec_endofrecord(*g_client_output, 1);
     }
 
 #endif // <========================== End of Client Server Code Only
@@ -1455,7 +1465,7 @@ void udaFreeAll()
 
 #ifndef FATCLIENT
     // Close the Socket, XDR Streams and All Files
-    closedown(ClosedownType::CLOSE_ALL, nullptr, g_client_input, g_client_output, &reopen_logs);
+    closedown(ClosedownType::CLOSE_ALL, nullptr, *g_client_input, *g_client_output, &reopen_logs);
 #else
     closedown(ClosedownType::CLOSE_ALL, nullptr, nullptr, nullptr, &reopen_logs);
 #endif

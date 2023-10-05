@@ -86,6 +86,11 @@ void uda::Client::setProperty(Property prop, int value)
     }
 }
 
+void uda::Client::close()
+{
+    udaFreeAll();
+}
+
 int uda::Client::property(Property prop)
 {
     auto client_flags = udaClientFlags();
