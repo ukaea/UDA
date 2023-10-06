@@ -23,6 +23,10 @@ else()
   endif()
 endif()
 
+if( NOT WIN32 AND NOT MINGW )
+  find_package( TIRPC QUIET )
+endif()
+
 set( LOGGING_BACKEND "FILE" CACHE STRING "Choose logging backend [FILE;SYSLOG]" )
 
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
@@ -106,6 +110,10 @@ find_package( LibMemcached QUIET )
 
 if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
   set( PKGCONFIG_LIBRARIES "${PKGCONFIG_LIBRARIES} ${LIBMEMCACHED_LIBRARIES}" )
+endif()
+
+if( TIRPC_FOUND )
+  set( PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES} tirpc" )
 endif()
 
 foreach( PKGCONFIG_FILE ${PKGCONFIG_FILES} )
