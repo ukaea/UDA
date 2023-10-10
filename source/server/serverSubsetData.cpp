@@ -82,6 +82,14 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 {
     int n_bound = subset.nbound;                        // the Number of operations in the set
 
+    // treat x[0] as a no-op when x is a scalar
+    if (n_bound == 1
+        && (subset.lbindex[0].init && subset.lbindex[0].value == 0)
+        && (subset.ubindex[0].init && subset.ubindex[0].value == 1)
+        && data_block->rank == 0) {
+        return 0;
+    }
+
     for (int j = 0; j < n_bound; j++) {                        // Process each operation separately
 
         double value = subset.bound[j];

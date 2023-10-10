@@ -187,7 +187,7 @@ TEST_CASE( "Run test3 - pass string list as array of strings", "[plugins][TESTPL
 
     REQUIRE( data != nullptr );
     REQUIRE( !data->isNull() );
-    REQUIRE( data->type().name() == typeid(std::string).name() );
+    REQUIRE( std::string(data->type().name()) == typeid(std::string).name() );
 
     auto array = dynamic_cast<uda::Array*>(data);
 
@@ -1816,6 +1816,30 @@ TEST_CASE( "Test array subsetting with argument with square brackets", "[plugins
     REQUIRE( vec[2] == Approx(2.0) );
     REQUIRE( vec[3] == Approx(3.0) );
     REQUIRE( vec[4] == Approx(4.0) );
+}
+
+TEST_CASE( "Test array subsetting - index scalar with [0]", "[plugins][TESTPLUGIN]" )
+{
+#include "setup.inc"
+
+    uda::Client client;
+
+    const uda::Result& result = client.get("TESTPLUGIN::test10()[0]", "");
+
+    REQUIRE( result.errorCode() == 0 );
+    REQUIRE( result.errorMessage().empty() );
+
+    uda::Data* data = result.data();
+
+    REQUIRE( data != nullptr );
+    REQUIRE( !data->isNull() );
+    REQUIRE( data->type().name() == typeid(int).name() );
+
+    auto* value = dynamic_cast<uda::Scalar*>(data);
+
+    REQUIRE( value != nullptr );
+
+    REQUIRE( value->as<int>() == 7 );
 }
 
 TEST_CASE( "Run call_plugin_test - return the result of calling a plugin", "[plugins][TESTPLUGIN]" )

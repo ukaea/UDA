@@ -24,8 +24,6 @@ int parseOperation(SUBSET* sub)
 
         std::string operation = sub->operation[i];
 
-        boost::starts_with(operation, "[");
-
         boost::trim_left_if(operation, [](char c){ return c == '['; });
         boost::trim_right_if(operation, [](char c){ return c == ']'; });
 
