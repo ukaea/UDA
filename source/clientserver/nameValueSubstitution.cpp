@@ -62,7 +62,6 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
     int* placeholderIndex = nullptr;
     int* tpassIndex = nullptr;
     int tpassPosition = 0;
-    unsigned short usedCount = 0;
 
     if (nameValueList->pairCount > 0) {    // Identify and Count Placeholders
         do {
@@ -135,7 +134,6 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
                     free(nameValueList->nameValue[placeholderIndex[i]].value);
                 nameValueList->nameValue[placeholderIndex[i]].value = newNameValueList.nameValue[tpassIndex[i]].value;
                 newNameValueList.nameValue[tpassIndex[i]].value = nullptr;
-                usedCount++;
 
                 UDA_LOG(UDA_LOG_DEBUG, "Placeholder: [%d][%d] %s, Substitution Value [%d] %s\n", i, placeholderIndex[i],
                         nameValueList->nameValue[placeholderIndex[i]].name,
