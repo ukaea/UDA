@@ -405,6 +405,9 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         new_dim.dim_n = 0;
         new_dim.dim = nullptr;
 
+        new_dim.errhi = nullptr;
+        new_dim.errlo = nullptr;
+
         //----------------------------------------------------------------------------------------------------------------------------
         // Subset Operations: Identify subset indices
 
@@ -1058,6 +1061,12 @@ int apply_count(SUBSET subset, DATA_BLOCK* data_block)
             if (ddim.sams != nullptr) free(ddim.sams);
             if (ddim.offs != nullptr) free(ddim.offs);
             if (ddim.ints != nullptr) free(ddim.ints);
+            ddim.dim = nullptr;
+            ddim.errhi = nullptr;
+            ddim.errlo = nullptr;
+            ddim.sams = nullptr;
+            ddim.offs = nullptr;
+            ddim.ints = nullptr;
         } else {
             // ERROR
         }
