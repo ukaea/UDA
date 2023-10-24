@@ -29,7 +29,9 @@
 #include <clientserver/initStructs.h>
 #include <clientserver/printStructs.h>
 
-#define NDEBUG  0
+#ifndef NDEBUG
+    #define NDEBUG  0
+#endif
 
 // Function Prototypes
 
@@ -4287,7 +4289,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
     ndata = getIdamDimNum(sin->handle, dimid);
     ilDims[0] = (IDL_MEMINT)ndata;
 
-    if (NDEBUG) {
+    if (!NDEBUG) {
         fprintf(stdout, "No of Elements = %d\n", (int)ilDims[0]);
     }
 
@@ -4425,12 +4427,12 @@ freeidam(int argc, IDL_VPTR argv[], char* argk)
 
     handle = IDL_LongScalar(argv[0]);
 
-    if (NDEBUG) {
+    if (!NDEBUG) {
         fprintf(stdout, "Freeing IDAM data Handle %d\n", handle);
     }
 
     if (handle < 0) {
-        if (NDEBUG) {
+        if (!NDEBUG) {
             fprintf(stdout, "Not a Valid IDAM data Handle!\n");
         }
 

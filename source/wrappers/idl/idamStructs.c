@@ -3048,7 +3048,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char
 
     count = getNodeStructureDataCount(logmalloclist, ntree);
     rank = getNodeStructureDataRank(logmalloclist, ntree);
-    int* shape;
+    int* shape = NULL;
 
     if (rank <= 1) {
         idl_shape[0] = 1;
