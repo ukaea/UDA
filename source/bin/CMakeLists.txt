@@ -16,7 +16,8 @@ target_link_libraries( uda_cli PRIVATE Boost::program_options )
 if( ENABLE_CAPNP )
   find_package( CapnProto REQUIRED )
 
-  target_link_libraries( uda_cli PRIVATE  serialisation-static )
+  target_link_libraries( uda_cli PRIVATE serialisation-static )
+  target_compile_definitions( uda_cli PRIVATE CAPNP_ENABLED=1 )
   
   find_library( STDCXX_LIBRARY_FILE stdc++ HINTS ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES} )
   get_filename_component(STDCXX_LIBRARY_DIR ${STDCXX_LIBRARY_FILE} DIRECTORY )
@@ -24,8 +25,7 @@ if( ENABLE_CAPNP )
   if ( "${STDCXX_LIBRARY_DIR}" STREQUAL "" )
     set ( STDCXX_RPATH "" ) 
   else()
-      set ( STDCXX_RPATH "-Wl,-rpath,${STDCXX_LIBRARY_DIR} -L${STDCXX_LIBRARY_DIR} -lstdc++" ) 
-      
+      set ( STDCXX_RPATH "-Wl,-rpath,${STDCXX_LIBRARY_DIR} -L${STDCXX_LIBRARY_DIR} -lstdc++" )
   endif()
 
   if ( "${capnp_LIBRARY_DIRS}" STREQUAL "" )
