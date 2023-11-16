@@ -371,6 +371,10 @@ int initUdaClientSSL()
 
 int startUdaClientSSL()
 {
+    if (g_sslDisabled) {
+        return 0;
+    }
+
     // Bind an SSL object with the socket
 
     g_ssl = SSL_new(g_ctx);
