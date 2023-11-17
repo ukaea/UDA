@@ -174,7 +174,7 @@ int configureUdaServerSSLContext()
     const char* ca = getenv("UDA_SERVER_CA_SSL_CERT");
     const char* crlist = getenv("UDA_SERVER_CA_SSL_CRL");
 
-    if (!cert || !key || !ca || !crlist) {
+    if (!cert || !key || !ca) {
         if (!cert) {
             UDA_ADD_ERROR(999, "No server SSL certificate!");
         }
@@ -184,9 +184,9 @@ int configureUdaServerSSLContext()
         if (!ca) {
             UDA_ADD_ERROR(999, "No Certificate Authority certificate!");
         }
-        if (!crlist) {
-            UDA_ADD_ERROR(999, "No Certificate Revocation List!");
-        }
+//        if (!crlist) {
+//            UDA_ADD_ERROR(999, "No Certificate Revocation List!");
+//        }
         UDA_LOG(UDA_LOG_DEBUG, "Certificate/Key/CRL environment variable problem!\n");
         return 999;
     }
@@ -218,20 +218,22 @@ int configureUdaServerSSLContext()
     X509_VERIFY_PARAM_set_flags(params, X509_V_FLAG_CRL_CHECK);
     SSL_CTX_set1_param(g_ctx, params);
 
-    X509_CRL* crl = loadUdaServerSSLCrl(crlist);
-    if (!crl) {
-        return 999; // CRL not loaded
-    }
+    if (crlist != nullptr) {
+        X509_CRL* crl = loadUdaServerSSLCrl(crlist);
+        if (!crl) {
+            return 999; // CRL not loaded
+        }
 
-    STACK_OF(X509_CRL)* crls = sk_X509_CRL_new_null();
-    if (!crls || !sk_X509_CRL_push(crls, crl)) {
-        X509_CRL_free(crl);
-        UDA_THROW_ERROR(999, "Error loading the CRL for client certificate verification!");
-    }
+        STACK_OF(X509_CRL)* crls = sk_X509_CRL_new_null();
+        if (!crls || !sk_X509_CRL_push(crls, crl)) {
+            X509_CRL_free(crl);
+            UDA_THROW_ERROR(999, "Error loading the CRL for client certificate verification!");
+        }
 
-    X509_STORE* st = SSL_CTX_get_cert_store(g_ctx);
-    addUdaServerSSLCrlsStore(st, crls);
-    SSL_CTX_set1_verify_cert_store(g_ctx, st);
+        X509_STORE* st = SSL_CTX_get_cert_store(g_ctx);
+        addUdaServerSSLCrlsStore(st, crls);
+        SSL_CTX_set1_verify_cert_store(g_ctx, st);
+    }
 
     // Set CA list used for client authentication
 
