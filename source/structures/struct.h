@@ -42,7 +42,7 @@ LIBRARY_API void printSarray(SARRAY str);
 * @param node A NTREE node to add.
 * @return void.
 */
-LIBRARY_API void addNTreeList(LOGMALLOCLIST* logmalloclist, NTREE* node);
+LIBRARY_API void addNTreeList(LOGMALLOCLIST* logmalloclist, NTREE* node, NTREELIST* ntree_list);
 
 /** Add an NTREE node to an array of child nodes. 
 *
@@ -329,7 +329,7 @@ findMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size, con
 * @param type The name of the type allocated.  
 * @return void.
 */
-LIBRARY_API void addStruct(void* heap, const char* type);
+LIBRARY_API void addStruct(void* heap, const char* type, LOGSTRUCTLIST* log_struct_list);
 
 /** Free allocated heap memory and reinitialise a new LOGSTRUCTLIST. There are no arguments.
 * 
@@ -343,7 +343,7 @@ LIBRARY_API void freeLogStructList(LOGSTRUCTLIST* log_struct_list);
 * @param type The returned structure type.
 * @return The structure id.
 */
-LIBRARY_API int findStructId(void* heap, char** type);
+LIBRARY_API int findStructId(void* heap, char** type, LOGSTRUCTLIST* log_struct_list);
 
 /** Find the Heap address and Data Type of a specific Structure.  
 * 
@@ -351,7 +351,7 @@ LIBRARY_API int findStructId(void* heap, char** type);
 * @param type The returned structure type.
 * @return The heap memory location
 */
-LIBRARY_API void* findStructHeap(int id, char** type);
+LIBRARY_API void* findStructHeap(int id, char** type, LOGSTRUCTLIST* log_struct_list);
 
 /** Copy a User Defined Structure Definition.  
 * 
@@ -988,7 +988,7 @@ LIBRARY_API void initNTree(NTREE* str);
 * @return void.
 */
 
-LIBRARY_API void initNTreeList();
+LIBRARY_API void initNTreeList(NTREELIST* ntree_list);
 
 /** Print the Contents of a tree node to a specified File Descriptor.
 *
