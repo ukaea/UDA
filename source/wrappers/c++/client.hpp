@@ -5,6 +5,7 @@
 #include <vector>
 #include <exception>
 #include <unordered_map>
+#include <cstdint>
 
 #include <clientserver/export.h>
 

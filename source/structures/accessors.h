@@ -8,6 +8,10 @@ extern "C" {
 #include <structures/genStructs.h>
 #include <clientserver/export.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Find (search type A) the first Tree Node with a data structure type containing a named element/member.
 * The name of the element is also returned.  
 *

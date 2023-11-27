@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 2.8.11 )
+cmake_minimum_required( VERSION 3.14 )
 
 cmake_policy( SET CMP0048 NEW )
 
@@ -24,11 +24,20 @@ endif()
 set( SOURCES xdr_array.c xdr_float.c xdr_mem.c xdr_reference.c xdr.c xdr_intXX_t.c xdr_rec.c xdr_stdio.c )
 
 configure_file(
-  config.h.in
-  ${CMAKE_BINARY_DIR}/config.h
+    config.h.in
+    ${CMAKE_BINARY_DIR}/config.h
 )
 
 include_directories( ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR} )
 
 add_library( ${PROJECT_NAME} SHARED ${SOURCES} )
 
+install(
+    FILES rpc/rpc.h rpc/types.h rpc/xdr.h ${CMAKE_BINARY_DIR}/config.h
+    DESTINATION include/rpc
+)
+
+install(
+    TARGETS ${PROJECT_NAME}
+    DESTINATION lib
+)

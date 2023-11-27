@@ -109,22 +109,22 @@ include_directories(
 
 if( MINGW OR WIN32 )
   include_directories( ${XDR_INCLUDE_DIR} )
-  add_compile_options( -Wno-error=use-after-free )
+#  add_compile_options( -Wno-error=use-after-free )
 elseif( TIRPC_FOUND )
   include_directories( ${TIRPC_INCLUDE_DIR} )
 endif()
 
 add_library( clientserver-client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
-target_link_libraries( clientserver-client-objects PRIVATE fmt::fmt )
+target_link_libraries( clientserver-client-objects PUBLIC fmt::fmt )
 
 if( NOT CLIENT_ONLY )
   add_library( clientserver-server-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( clientserver-server-objects PUBLIC -DSERVERBUILD )
-  target_link_libraries( clientserver-server-objects PRIVATE fmt::fmt )
+  target_link_libraries( clientserver-server-objects PUBLIC fmt::fmt )
 
   add_library( fatclientserver-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( fatclientserver-objects PUBLIC -DFATCLIENT )
-  target_link_libraries( fatclientserver-objects PRIVATE fmt::fmt )
+  target_link_libraries( fatclientserver-objects PUBLIC fmt::fmt )
 endif()
 
 file( GLOB HEADER_FILES "*.h" )

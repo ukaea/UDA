@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <fcntl.h>
 #include <time.h>
+#include <openssl/ssl.h>
 
 #include <client/updateSelectParms.h>
 #include <clientserver/errorLog.h>
@@ -392,7 +393,6 @@ int startUdaClientSSL()
     }
 
     // Get the Server certificate and verify
-
     X509* peer = SSL_get_peer_certificate(g_ssl);
 
     if (peer != nullptr) {
