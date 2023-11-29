@@ -15,7 +15,6 @@
 
 #include <logging/logging.h>
 #include <clientserver/udaDefines.h>
-#include <err.h>
 
 #include "server.hpp"
 
@@ -23,6 +22,12 @@
 #  include <io.h>
 #  define read _read
 #  define write _write
+#endif
+
+#ifndef _WIN32
+#  include <sys/select.h>
+#else
+#  include <winsock.h>
 #endif
 
 constexpr int MinBlockTime = 1000;

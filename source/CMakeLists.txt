@@ -54,7 +54,7 @@ endif()
 
 if( NOT CLIENT_ONLY )
   add_subdirectory( server )
-#  add_subdirectory( server2 )
+  add_subdirectory( server2 )
   add_subdirectory( plugins )
 endif()
 
