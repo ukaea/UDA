@@ -15,7 +15,7 @@
 #include <string>
 #include <boost/algorithm/string.hpp>
 
-#if defined(__GNUC__) && !defined(MINGW)
+#if defined(__GNUC__) && !defined(__MINGW32__)
 #  ifndef _WIN32
 #    include <sys/socket.h>
 #    include <netinet/in.h>
@@ -315,7 +315,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 #ifndef _WIN32
             ::close(client_socket);
 #else
-            ::closesocket(clientSocket);
+            ::closesocket(client_socket);
 #endif
         }
         client_socket = -1;
@@ -362,7 +362,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 #ifndef _WIN32
             ::close(client_socket);
 #else
-            ::closesocket(clientSocket);
+            ::closesocket(client_socket);
 #endif
             client_socket = -1;
             hostname = environment.server_host2;
@@ -426,7 +426,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
 #ifndef _WIN32
                     ::close(client_socket);
 #else
-                    ::closesocket(clientSocket);
+                    ::closesocket(client_socket);
 #endif
                 }
                 client_socket = -1;
@@ -462,7 +462,7 @@ int uda::client::Connection::create(XDR* client_input, XDR* client_output, const
                 ::close(client_socket);
             }
 #else
-            closesocket(clientSocket);
+            closesocket(client_socket);
 #endif
             client_socket = -1;
             if (result) freeaddrinfo(result);
@@ -542,7 +542,7 @@ void uda::client::Connection::close_socket(int fh)
     }
 }
 
-void uda::client::Connection::close(ClosedownType type)
+void uda::client::Connection::close_down(ClosedownType type)
 {
     if (client_socket >= 0 && type != ClosedownType::CLOSE_ALL) {
         close_socket(client_socket);

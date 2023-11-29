@@ -41,7 +41,7 @@ int uda::client::closedown(ClosedownType type, Connection* connection, XDR* clie
 
 
     if (connection != nullptr) {
-        connection->close(type);
+        connection->close_down(type);
     }
 
     *env_host = true;            // Initialise at Startup
