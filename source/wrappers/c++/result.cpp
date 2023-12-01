@@ -7,9 +7,9 @@
 #include <sstream>
 #include <complex>
 
-#include <client/accAPI.h>
-#include <client/udaClient.h>
-#include <clientserver/udaTypes.h>
+#include "accAPI.h"
+#include "client.h"
+#include "udaTypes.h"
 
 #include "string.hpp"
 #include "array.hpp"

@@ -4,18 +4,18 @@
 #include <unistd.h>
 #include <fmt/format.h>
 
-#include "clientserver/initStructs.h"
+#include "initStructs.h"
 #include "server_environment.hpp"
 #include "logging/logging.h"
 #include "clientserver/errorLog.h"
-#include "clientserver/udaErrors.h"
+#include "udaErrors.h"
 #include "clientserver/protocol.h"
 #include "clientserver/xdrlib.h"
 #include "clientserver/printStructs.h"
 #include "logging/accessLog.h"
 #include "server_plugin.h"
 #include "server_processing.h"
-#include "structures/struct.h"
+#include "struct.h"
 #include "server_exceptions.h"
 #ifdef SSLAUTHENTICATION
 #  include "authentication/udaServerSSL.h"

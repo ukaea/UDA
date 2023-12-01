@@ -5,9 +5,9 @@
 #include <stdio.h>
 #include <rpc/rpc.h>
 
-#include <clientserver/udaTypes.h>
-#include <structures/genStructs.h>
-#include <clientserver/export.h>
+#include "udaTypes.h"
+#include "genStructs.h"
+#include "export.h"
 
 #ifdef SERVERBUILD
 #  include <server/udaServer.h>

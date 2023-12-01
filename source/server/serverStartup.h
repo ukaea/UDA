@@ -3,7 +3,7 @@
 #ifndef UDA_SERVER_SERVERSTARTUP_H
 #define UDA_SERVER_SERVERSTARTUP_H
 
-#include <clientserver/export.h>
+#include "export.h"
 
 int startup();
 

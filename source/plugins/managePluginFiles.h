@@ -2,7 +2,7 @@
 #define UDA_PLUGINS_MANAGEPLUGINFILES_H
 
 #include <plugins/udaPluginFiles.h>
-#include <clientserver/export.h>
+#include "export.h"
 
 #ifdef __cplusplus
 extern "C" {

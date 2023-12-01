@@ -6,7 +6,7 @@
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 
-#include <structures/genStructs.h>
+#include "genStructs.h"
 
 #include "export.h"
 

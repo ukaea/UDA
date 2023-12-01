@@ -2,6 +2,8 @@
 
 #include <clientserver/stringUtils.h>
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/errorLog.h>
+#include "logging/logging.h"
 
 #include "readBytesNonOptimally.h"
 

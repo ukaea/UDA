@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <clientserver/export.h>
+#include "export.h"
 
 #ifdef _WIN32
 #  define FILENAME (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)

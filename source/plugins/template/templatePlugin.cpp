@@ -24,9 +24,9 @@
 #  include <strings.h>
 #endif
 
-
 #include <clientserver/stringUtils.h>
-#include <clientserver/initStructs.h>
+#include <clientserver/errorLog.h>
+#include "logging/logging.h"
 
 class TemplatePlugin
 {

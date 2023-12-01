@@ -1,11 +1,11 @@
 #include "clientMDS.h"
 
-#include <logging/logging.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/protocol.h>
+#include "logging/logging.h"
+#include "initStructs.h"
+#include "clientserver/protocol.h"
 
-#include "startup.h"
-#include "udaClient.h"
+#include "client/startup.h"
+#include "client.h"
 
 /**
  * Reads the Requested Data

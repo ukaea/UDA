@@ -3,9 +3,9 @@
 #include "clientserver/xdrlib.h"
 #include "clientserver/protocol.h"
 #include "clientserver/errorLog.h"
-#include "clientserver/udaErrors.h"
-#include "clientserver/udaTypes.h"
-#include "structures/struct.h"
+#include "udaErrors.h"
+#include "udaTypes.h"
+#include "struct.h"
 #ifdef SSLAUTHENTICATION
 #  include "authentication/udaServerSSL.h"
 #endif
@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 #include <logging/logging.h>
-#include <clientserver/udaDefines.h>
+#include "udaDefines.h"
 
 #include "server.hpp"
 

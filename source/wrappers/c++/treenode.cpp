@@ -1,8 +1,8 @@
 #include "treenode.hpp"
 
-#include <structures/struct.h>
-#include <structures/accessors.h>
-#include <client/accAPI.h>
+#include "struct.h"
+#include "accessors.h"
+#include "accAPI.h"
 
 uda::TreeNode uda::TreeNode::parent()
 {

@@ -28,8 +28,8 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <plugins/bytes/md5Sum.h>
-#include <clientserver/udaTypes.h>
-#include <clientserver/initStructs.h>
+#include "udaTypes.h"
+#include "initStructs.h"
 
 int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block, const ENVIRONMENT* environment)
 {

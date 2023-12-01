@@ -4,9 +4,9 @@
 #define UDA_SERVER_SERVERSUBSETDATA_H
 
 #include <clientserver/parseXML.h>
-#include <clientserver/udaStructs.h>
-#include <structures/genStructs.h>
-#include <clientserver/export.h>
+#include "udaStructs.h"
+#include "genStructs.h"
+#include "export.h"
 
 namespace uda {
 

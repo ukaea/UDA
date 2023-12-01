@@ -3,22 +3,23 @@
 
 find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
+
+set( LIBS OpenSSL::SSL fmt::fmt )
+
 if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )
+  list( APPEND LIBS LibXml2::LibXml2 )
 endif()
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
+  list( APPEND LIBS XDR::XDR )
 else()
   find_package( TIRPC QUIET )
   if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
+    list( APPEND LIBS TIRPC::TIRPC )
   endif()
 endif()
-
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-)
 
 set( SRC_FILES
   allocData.cpp
@@ -54,40 +55,6 @@ set( HIERARCHICAL_SRC_FILES
   initXMLStructs.cpp
 )
 
-set( HEADER_FILES
-  #parseXML.h
-  allocData.h
-  allocXMLData.h
-  compressDim.h
-  copyStructs.h
-  errorLog.h
-  expand_path.h
-  initStructs.h
-  initXMLStructs.h
-  makeRequestBlock.h
-  manageSockets.h
-  memstream.h
-  parseOperation.h
-  printStructs.h
-  protocol.h
-  protocolXML.h
-  protocolXML2.h
-  protocolXML2Put.h
-  readXDRFile.h
-  socketStructs.h
-  stringUtils.h
-  udaDefines.h
-  udaErrors.h
-  udaStructs.h
-  udaTypes.h
-  userid.h
-  xdrHData.h
-  xdrlib.h
-  xmlStructs.h
-  export.h
-  nameValueSubstitution.h
-)
-
 if( APPLE )
   list( APPEND SRC_FILES memstream.cpp )
 endif()
@@ -100,35 +67,28 @@ if( CLIENT_ONLY )
   add_definitions( -DNOXMLPARSER )
 endif()
 
-include_directories(
-  ${SRC_DIR}
-  ${OPENSSL_INCLUDE_DIR}
-  ${LIBXML2_INCLUDE_DIR}
-  ${fmt_SOURCE_DIR}/include
+add_library( clientserver-client-objects OBJECT ${SRC_FILES} )
+target_link_libraries( clientserver-client-objects PUBLIC ${LIBS} )
+target_include_directories( clientserver-client-objects PRIVATE
+  ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_SOURCE_DIR}/source/include
 )
-
-if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-#  add_compile_options( -Wno-error=use-after-free )
-elseif( TIRPC_FOUND )
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-endif()
-
-add_library( clientserver-client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
-target_link_libraries( clientserver-client-objects PUBLIC fmt::fmt )
 
 if( NOT CLIENT_ONLY )
   add_library( clientserver-server-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( clientserver-server-objects PUBLIC -DSERVERBUILD )
-  target_link_libraries( clientserver-server-objects PUBLIC fmt::fmt )
+  target_link_libraries( clientserver-server-objects PUBLIC ${LIBS} )
+  target_include_directories( clientserver-server-objects PRIVATE
+    ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_SOURCE_DIR}/source/include
+  )
+
 
   add_library( fatclientserver-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( fatclientserver-objects PUBLIC -DFATCLIENT )
-  target_link_libraries( fatclientserver-objects PUBLIC fmt::fmt )
+  target_link_libraries( fatclientserver-objects PUBLIC ${LIBS} )
+  target_include_directories( fatclientserver-objects PRIVATE
+    ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_SOURCE_DIR}/source/include
+  )
 endif()
-
-file( GLOB HEADER_FILES "*.h" )
-
-install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/clientserver
-)

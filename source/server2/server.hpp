@@ -13,7 +13,7 @@
 #include "clientserver/parseXML.h"
 #include "clientserver/socketStructs.h"
 #include "cache/memcache.hpp"
-#include "clientserver/export.h"
+#include "export.h"
 
 namespace uda {
 

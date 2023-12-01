@@ -2,13 +2,15 @@
 
 #include <cstdlib>
 
-#include <client/accAPI.h>
-#include <clientserver/initStructs.h>
+#include "accAPI.h"
+#include "initStructs.h"
 #include <clientserver/stringUtils.h>
-#include <client/udaGetAPI.h>
+#include "udaGetAPI.h"
 #include <logging/logging.h>
-#include <plugins/udaPlugin.h>
-#include <client/udaClient.h>
+#include "udaPlugin.h"
+#include "client.h"
+#include <clientserver/errorLog.h>
+
 #include <fmt/format.h>
 
 #if !defined(__GNUC__)

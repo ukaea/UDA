@@ -1,18 +1,24 @@
+#pragma once
+
 #ifndef UDA_H
 #define UDA_H
 
-#include <clientserver/udaTypes.h>
-#include <clientserver/initStructs.h>
+#include "accAPI.h"
+#include "accessors.h"
+#include "clientAPI.h"
+#include "clientMDS.h"
+#include "genStructs.h"
+#include "initStructs.h"
+#include "struct.h"
+#include "udaGetAPI.h"
+#include "udaPlugin.h"
+#include "udaPutAPI.h"
+#include "udaStructs.h"
+#include "udaTypes.h"
+#include "version.h"
 
-#ifdef UDA_CLIENT2
-#  include <client2/udaGetAPI.h>
-#  include <client2/udaPutAPI.h>
-#  include <client2/accAPI.h>
-#else
-#  include <client/udaGetAPI.h>
-#  include <client/udaPutAPI.h>
-#  include <client/accAPI.h>
-#  include <client/udaClient.h>
-#endif
+#ifdef UDA_LEGACY
+#  include "legacy.h"
+#endif // UDA_LEGACY
 
 #endif // UDA_H

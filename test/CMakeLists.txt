@@ -35,11 +35,6 @@ if( LIBMEMCACHED_FOUND )
   set( CACHE_LIBRARIES ${LIBMEMCACHED_LIBRARIES} )
 endif()
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_SOURCE_DIR}/source/wrappers
-)
-
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/setup.inc.in"
   "${CMAKE_CURRENT_BINARY_DIR}/setup.inc"
@@ -107,6 +102,11 @@ macro( BUILD_TEST NAME SOURCE )
     ${LIBRARIES}
     ${LINK_STD}
   )
+  target_include_directories( ${NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_SOURCE_DIR}/source/wrappers
+    ${CMAKE_SOURCE_DIR}/source/include
+  )
 
   set_target_properties( ${NAME}
     PROPERTIES
@@ -132,6 +132,12 @@ macro( BUILD_TEST NAME SOURCE )
     ${LINK_DL}
     ${LINK_STD}
   )
+  target_include_directories( fat_${NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_SOURCE_DIR}/source/wrappers
+    ${CMAKE_SOURCE_DIR}/source/include
+  )
+
   if( NOT WIN32 AND NOT MINGW )
     target_link_libraries( fat_${NAME} PRIVATE c )
   endif()

@@ -1,7 +1,7 @@
 #ifndef UDA_CLIENSERVER_MAKEREQUESTBLOCK_H
 #define UDA_CLIENSERVER_MAKEREQUESTBLOCK_H
 
-#include <plugins/pluginStructs.h>
+#include "pluginStructs.h"
 
 #include "udaStructs.h"
 #include "export.h"

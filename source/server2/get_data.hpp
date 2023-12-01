@@ -3,7 +3,7 @@
 #ifndef UDA_SERVER_GET_DATA_HPP
 #define UDA_SERVER_GET_DATA_HPP
 
-#include "clientserver/udaStructs.h"
+#include "udaStructs.h"
 #include "clientserver/parseXML.h"
 
 #include "plugins.hpp"

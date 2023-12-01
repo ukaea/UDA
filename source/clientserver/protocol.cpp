@@ -24,7 +24,7 @@
 #include "protocol.h"
 
 #include <logging/logging.h>
-#include <clientserver/udaTypes.h>
+#include "udaTypes.h"
 #include <cstdlib>
 
 #include "allocData.h"

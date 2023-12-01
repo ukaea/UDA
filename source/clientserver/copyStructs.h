@@ -1,7 +1,7 @@
 #ifndef UDA_CLIENTSERVER_COPYSTRUCTS_H
 #define UDA_CLIENTSERVER_COPYSTRUCTS_H
 
-#include <plugins/udaPlugin.h>
+#include "udaPlugin.h"
 #include "udaStructs.h"
 #include "export.h"
 

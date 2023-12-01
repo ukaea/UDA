@@ -5,7 +5,7 @@
 #  define idamStartup idamStartupFat
 #endif
 
-#include <clientserver/export.h>
+#include "export.h"
 #include "udaClient.h"
 
 #ifdef __cplusplus

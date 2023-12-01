@@ -3,8 +3,8 @@
 #ifndef UDA_GETPLUGIN_ADDRESS_HPP
 #define UDA_GETPLUGIN_ADDRESS_HPP
 
-#include <plugins/udaPlugin.h>
-#include <clientserver/export.h>
+#include "udaPlugin.h"
+#include "export.h"
 
 namespace uda {
 

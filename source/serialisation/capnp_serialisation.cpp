@@ -11,7 +11,7 @@
 #include <limits>
 #include <gsl/span>
 
-#include <clientserver/udaTypes.h>
+#include "udaTypes.h"
 
 #include "schema.capnp.h"
 

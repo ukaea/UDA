@@ -1,8 +1,8 @@
 #ifndef UDA_CLIENT_GETENVIRONMENT_H
 #define UDA_CLIENT_GETENVIRONMENT_H
 
-#include <clientserver/udaStructs.h>
-#include <clientserver/export.h>
+#include "udaStructs.h"
+#include "export.h"
 
 #ifdef FATCLIENT
 #  define printIdamClientEnvironment printIdamClientEnvironmentFat

@@ -1,8 +1,8 @@
 #ifndef UDA_STRUCTURES_ACCESSORS_H
 #define UDA_STRUCTURES_ACCESSORS_H
 
-#include <structures/genStructs.h>
-#include <clientserver/export.h>
+#include "genStructs.h"
+#include "export.h"
 
 #ifdef __cplusplus
 extern "C" {

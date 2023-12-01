@@ -3,8 +3,8 @@
 #ifndef UDA_CLIENT_MAKECLIENTREQUESTBLOCK_H
 #define UDA_CLIENT_MAKECLIENTREQUESTBLOCK_H
 
-#include <clientserver/udaStructs.h>
-#include <clientserver/export.h>
+#include "udaStructs.h"
+#include "export.h"
 
 namespace uda {
 namespace client {

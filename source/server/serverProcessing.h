@@ -3,8 +3,8 @@
 #ifndef UDA_SERVER_SERVERPROCESSING_H
 #define UDA_SERVER_SERVERPROCESSING_H
 
-#include <clientserver/udaStructs.h>
-#include <clientserver/export.h>
+#include "udaStructs.h"
+#include "export.h"
 
 int serverProcessing(CLIENT_BLOCK client_block, DATA_BLOCK *data_block);
 

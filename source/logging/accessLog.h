@@ -1,8 +1,8 @@
 #ifndef UDA_LOGGING_ACCESSLOG_H
 #define UDA_LOGGING_ACCESSLOG_H
 
-#include <plugins/udaPlugin.h>
-#include <clientserver/export.h>
+#include "udaPlugin.h"
+#include "export.h"
 
 #define HOSTNAMELENGTH    20
 #define DATELENGTH        27

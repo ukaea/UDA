@@ -5,7 +5,7 @@
 #include <typeinfo>
 #include <boost/any.hpp>
 
-#include <clientserver/export.h>
+#include "export.h"
 #include "data.hpp"
 
 #if defined(_WIN32)

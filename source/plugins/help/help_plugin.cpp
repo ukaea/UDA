@@ -10,12 +10,12 @@
 #  include <winsock2.h>
 #endif
 
-#include <clientserver/initStructs.h>
-#include <structures/struct.h>
-#include <structures/accessors.h>
+#include "initStructs.h"
+#include "struct.h"
+#include "accessors.h"
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>
-#include <plugins/udaPlugin.h>
+#include "udaPlugin.h"
 #include <clientserver/stringUtils.h>
 #include <fmt/format.h>
 

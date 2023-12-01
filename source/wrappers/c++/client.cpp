@@ -4,12 +4,12 @@
 #include <iterator>
 #include <boost/format.hpp>
 
-#include <client/accAPI.h>
-#include <client/udaGetAPI.h>
-#include <client/udaClient.h>
-#include <client/udaPutAPI.h>
-#include <clientserver/udaTypes.h>
-#include <clientserver/initStructs.h>
+#include "accAPI.h"
+#include "udaGetAPI.h"
+#include "client.h"
+#include "udaPutAPI.h"
+#include "udaTypes.h"
+#include "initStructs.h"
 
 #include "data.hpp"
 #include "result.hpp"

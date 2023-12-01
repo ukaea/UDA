@@ -2,7 +2,7 @@
 #define UDA_CLIENT_CLOSEDOWN_H
 
 #include <clientserver/socketStructs.h>
-#include <clientserver/export.h>
+#include "export.h"
 
 #ifdef FATCLIENT
 #  define closedown closedownFat

@@ -8,18 +8,19 @@
 
 #include <tuple>
 
-#include <clientserver/initStructs.h>
-#include <clientserver/makeRequestBlock.h>
+#include "initStructs.h"
 #include <clientserver/manageSockets.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
-#include <clientserver/udaErrors.h>
+#include "udaErrors.h"
 #include <clientserver/xdrlib.h>
+#include <clientserver/errorLog.h>
 #include <logging/accessLog.h>
 #include <server/serverPlugin.h>
 #include <structures/parseIncludeFile.h>
-#include <structures/struct.h>
+#include "struct.h"
 #include <cache/memcache.hpp>
+#include <logging/logging.h>
 
 #include "closeServerSockets.h"
 #include "createXDRStream.h"

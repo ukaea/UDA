@@ -1,14 +1,16 @@
 #include "udaPlugin.h"
 #include "server/initPluginList.h"
 #include "server/serverPlugin.h"
-#include "structures/struct.h"
+#include "struct.h"
 #include "server/serverSubsetData.h"
 
 #include <server/getServerEnvironment.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/udaTypes.h>
+#include <clientserver/errorLog.h>
+#include "logging/logging.h"
+#include "initStructs.h"
+#include "udaTypes.h"
 
 IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {

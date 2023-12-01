@@ -42,6 +42,7 @@ macro( uda_plugin )
 
   include_directories(
     ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_SOURCE_DIR}/source/include
   )
 
   if( NOT APPLE AND NOT WIN32 AND NOT MINGW AND CMAKE_COMPILER_IS_GNUCC )

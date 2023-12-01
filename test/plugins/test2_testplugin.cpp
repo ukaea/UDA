@@ -1,16 +1,16 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-#include <clientserver/udaTypes.h>
-#include <clientserver/initStructs.h>
+#include "udaTypes.h"
+#include "initStructs.h"
 #include <client2/udaGetAPI.h>
 #include <client2/accAPI.h>
-#include <structures/struct.h>
+#include "struct.h"
 #include <c++/scalar.hpp>
 #include <c++/vector.hpp>
 #include <c++/array.hpp>
 #include <c++/result.hpp>
-#include <structures/accessors.h>
+#include "accessors.h"
 
 uda::Scalar uda::Scalar::Null = uda::Scalar();
 uda::Vector uda::Vector::Null = uda::Vector();

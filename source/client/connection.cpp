@@ -42,7 +42,7 @@
 
 #include <clientserver/errorLog.h>
 #include <clientserver/manageSockets.h>
-#include <client/udaClient.h>
+#include "client.h"
 #include <client/udaClientHostList.h>
 #include <logging/logging.h>
 

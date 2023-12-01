@@ -4,7 +4,7 @@
 #define UDA_CLIENT_UPDATESELECTPARMS_H
 
 #include <ctime>
-#include <clientserver/export.h>
+#include "export.h"
 
 #ifndef _WIN32
 #  include <sys/select.h>

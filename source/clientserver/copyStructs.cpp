@@ -1,5 +1,7 @@
 #include "copyStructs.h"
 
+#include <cstring>
+
 void copyRequestData(REQUEST_DATA *out, REQUEST_DATA in) {
     *out = in;
     strcpy(out->tpass,      in.tpass);

@@ -11,7 +11,7 @@
 #include "allocData.h"
 
 #include <logging/logging.h>
-#include <clientserver/udaTypes.h>
+#include "udaTypes.h"
 
 #include "initStructs.h"
 #include "udaErrors.h"

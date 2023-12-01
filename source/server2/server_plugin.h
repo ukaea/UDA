@@ -1,8 +1,8 @@
 #ifndef UDA_SERVER_SERVERPLUGIN_H
 #define UDA_SERVER_SERVERPLUGIN_H
 
-#include <plugins/udaPlugin.h>
-#include <clientserver/export.h>
+#include "udaPlugin.h"
+#include "export.h"
 #include "plugins.hpp"
 #include "server.hpp"
 

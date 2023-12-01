@@ -26,7 +26,7 @@
 #include <cstdlib>
 
 #include <logging/logging.h>
-#include <clientserver/udaTypes.h>
+#include "udaTypes.h"
 
 #include "allocData.h"
 #include "compressDim.h"

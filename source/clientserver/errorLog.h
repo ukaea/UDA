@@ -1,7 +1,7 @@
 #ifndef UDA_CLIENTSERVER_ERRORLOG_H
 #define UDA_CLIENTSERVER_ERRORLOG_H
 
-#include <clientserver/udaStructs.h>
+#include "udaStructs.h"
 #include "export.h"
 #include <time.h>
 

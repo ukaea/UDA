@@ -33,6 +33,26 @@ extern "C" {
 
 #define MAXRANK2        10    // Number of subsetting dimensions
 
+#define UDA_SXML_MAX_STRING           1024
+#define UDA_MAX_DATA_RANK             8
+#define UDA_XML_MAX_DESC              1024
+#define UDA_XML_MAX_RECURSIVE         10
+#define UDA_XML_MAX_LOOP              1024
+
+#define UDA_DIM_CALIBRATION_TYPE      1    // Identifies DIMENSION Union Structures
+#define UDA_DIM_COMPOSITE_TYPE        2
+#define UDA_DIM_DOCUMENTATION_TYPE    3
+#define UDA_DIM_ERROR_MODEL_TYPE      4
+
+#define UDA_TIME_OFFSET_TYPE    1    // Identifies ACTION Union Structures
+#define UDA_DOCUMENTATION_TYPE  2
+#define UDA_CALIBRATION_TYPE    3
+#define UDA_COMPOSITE_TYPE      4
+#define UDA_ERROR_MODEL_TYPE    5
+#define UDA_SERVER_SIDE_TYPE    6
+#define UDA_SUBSET_TYPE         7
+#define UDA_MAP_TYPE            8
+
 #define NUMSIGNALS      2048
 #define NUMPULSES       2048
 
@@ -92,7 +112,8 @@ extern "C" {
 //--------------------------------------------------------
 // Error Models
 
-#define ERROR_MODEL_UNKNOWN            0    // Defined in idamclientserver.h
+#define ERROR_MODEL_SEED               12345
+#define ERROR_MODEL_UNKNOWN            0
 #define ERROR_MODEL_DEFAULT            1
 #define ERROR_MODEL_DEFAULT_ASYMMETRIC 2
 #define ERROR_MODEL_GAUSSIAN           3

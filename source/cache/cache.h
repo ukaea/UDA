@@ -2,9 +2,9 @@
 #define UDA_CACHE_CACHE_H
 
 #include <cstdio>
-#include <clientserver/udaStructs.h>
-#include <structures/genStructs.h>
-#include <clientserver/export.h>
+#include "udaStructs.h"
+#include "genStructs.h"
+#include "export.h"
 
 #ifdef __cplusplus
 extern "C" {

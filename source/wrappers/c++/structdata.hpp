@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include <clientserver/export.h>
+#include "export.h"
 
 #ifdef __GNUC__
 #  include <cxxabi.h>

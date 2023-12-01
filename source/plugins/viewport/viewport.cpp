@@ -18,12 +18,13 @@
 #  include <strings.h>
 #endif
 
-#include <client/udaGetAPI.h>
-#include <client/udaClient.h>
-#include <clientserver/initStructs.h>
-#include <client/accAPI.h>
-#include <clientserver/udaTypes.h>
+#include "udaGetAPI.h"
+#include "client.h"
+#include "initStructs.h"
+#include "accAPI.h"
 #include <clientserver/stringUtils.h>
+#include <clientserver/errorLog.h>
+#include "logging/logging.h"
 
 static int handleCount = 0;
 static int handles[MAXHANDLES];

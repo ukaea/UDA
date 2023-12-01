@@ -3,12 +3,10 @@
 
 #include <stdbool.h>
 
-#include <clientserver/udaStructs.h>
-#include <logging/logging.h>
-#include <clientserver/errorLog.h>
-#include <plugins/pluginStructs.h>
-#include <clientserver/export.h>
-#include "clientserver/udaTypes.h"
+#include "udaStructs.h"
+#include "export.h"
+#include "udaTypes.h"
+#include "pluginStructs.h"
 
 #ifdef __cplusplus
 extern "C" {

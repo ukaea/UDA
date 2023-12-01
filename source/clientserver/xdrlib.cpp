@@ -11,7 +11,7 @@
 #include <cstdlib>
 
 #include <logging/logging.h>
-#include <structures/struct.h>
+#include "struct.h"
 #include <clientserver/protocol.h>
 
 #include "printStructs.h"

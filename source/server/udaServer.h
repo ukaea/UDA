@@ -3,10 +3,10 @@
 #ifndef UDA_SERVER_UDASERVER_H
 #define UDA_SERVER_UDASERVER_H
 
-#include <plugins/pluginStructs.h>
+#include "pluginStructs.h"
 #include <clientserver/socketStructs.h>
-#include <structures/genStructs.h>
-#include <clientserver/export.h>
+#include "genStructs.h"
+#include "export.h"
 
 LIBRARY_API int udaServer(CLIENT_BLOCK client_block);
 

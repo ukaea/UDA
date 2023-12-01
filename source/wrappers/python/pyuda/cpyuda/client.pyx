@@ -70,11 +70,11 @@ def get_server_port():
 
 
 def get_build_version():
-    return uda.getUdaBuildVersion()
+    return uda.udaGetBuildVersion()
 
 
 def get_build_date():
-    return uda.getUdaBuildDate()
+    return uda.udaGetBuildDate()
 
 
 def set_server_host_name(host_name):

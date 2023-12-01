@@ -88,7 +88,7 @@
 
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
-#include <clientserver/udaTypes.h>
+#include "udaTypes.h"
 #include <stdbool.h>
 
 static void logToken(const char* msg, const gcry_mpi_t mpi_token)

@@ -1,20 +1,21 @@
 from libcpp cimport bool as cbool
 
-cdef extern from "client/udaClient.h":
+cdef extern from "client.h":
     const char* getIdamServerHost();
     int getIdamServerPort();
-    const char* getUdaBuildVersion();
-    const char* getUdaBuildDate();
+    const char* udaGetBuildVersion();
+    const char* udaGetBuildDate();
     void udaFree(int handle);
     CLIENT_FLAGS* udaClientFlags();
+    void closeAllConnections();
 
     ctypedef struct CLIENT_FLAGS
 
-cdef extern from "client/udaGetAPI.h":
+cdef extern from "udaGetAPI.h":
     int idamGetAPI(const char* data_object, const char* data_source);
     int idamGetBatchAPI(const char** signals, const char** sources, int count, int* handles);
 
-cdef extern from "structures/genStructs.h":
+cdef extern from "genStructs.h":
     ctypedef struct NTREE:                  # N-ary Tree linking all related user defined data structures: definitions and data
         int branches;                       # Children (Branch) Count from this node
         char name[1024];                    # The Structure's and also the tree node's name
@@ -24,7 +25,7 @@ cdef extern from "structures/genStructs.h":
 
     ctypedef struct LOGMALLOCLIST
 
-cdef extern from "clientserver/udaStructs.h":
+cdef extern from "udaStructs.h":
     ctypedef struct CLIENT_BLOCK:
         int altRank;                    # Specify the rank of the alternative signal/source to be used
         int get_nodimdata;              # Don't send Dimensional Data: Send an index only.
@@ -104,7 +105,7 @@ cdef extern from "clientserver/udaStructs.h":
         unsigned int blockListSize;     # Number of data blocks allocated
         PUTDATA_BLOCK* putDataBlock;    # Array of data blocks
 
-cdef extern from "client/accAPI.h":
+cdef extern from "accAPI.h":
     char* getIdamData(int handle);
     char* getIdamError(int handle);
     int getIdamDataNum(int handle);
@@ -136,14 +137,14 @@ cdef extern from "client/accAPI.h":
     NTREE* getIdamDataTree(int handle);
     LOGMALLOCLIST* getIdamLogMallocList(int handle);
 
-cdef extern from "clientserver/initStructs.h":
+cdef extern from "initStructs.h":
     void initIdamPutDataBlock(PUTDATA_BLOCK* str);
     void initPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
-cdef extern from "client/udaPutAPI.h":
+cdef extern from "udaPutAPI.h":
     int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);
 
-cdef extern from "structures/struct.h":
+cdef extern from "struct.h":
     int getNodeChildrenCount(NTREE* ntree);
     NTREE* getNodeChild(NTREE* ntree, int child);
     char* getNodeStructureName(NTREE* ntree);
@@ -179,6 +180,3 @@ IF CAPNP:
         size_t uda_capnp_read_slice_size(NodeReader* node, size_t slice_num);
         cbool uda_capnp_read_data(NodeReader* node, size_t slice_num, char* data);
         void uda_capnp_print_tree_reader(TreeReader* tree);
-
-cdef extern from "client/connection.h":
-    void closeAllConnections();

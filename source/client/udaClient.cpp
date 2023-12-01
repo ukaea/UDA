@@ -6,14 +6,14 @@
 #include <tuple>
 
 #include <logging/logging.h>
-#include <clientserver/udaErrors.h>
+#include "udaErrors.h"
 #include <clientserver/errorLog.h>
-#include <clientserver/initStructs.h>
+#include "initStructs.h"
 #include <clientserver/userid.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
-#include <clientserver/udaTypes.h>
-#include <structures/struct.h>
+#include "udaTypes.h"
+#include "struct.h"
 #include <client/connection.h>
 #include <client/getEnvironment.h>
 #include <cache/fileCache.h>
@@ -81,6 +81,9 @@ void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
 }
 
 #else
+void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist_in) {}
+void setLogMallocList(LOGMALLOCLIST* logmalloclist_in){}
+
 extern SOCKETLIST socket_list;
 #endif
 

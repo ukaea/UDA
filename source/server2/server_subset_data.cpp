@@ -20,9 +20,9 @@
 #include <logging/logging.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/errorLog.h>
-#include <clientserver/udaTypes.h>
-#include <structures/struct.h>
-#include <clientserver/initStructs.h>
+#include "udaTypes.h"
+#include "struct.h"
+#include "initStructs.h"
 #include <clientserver/compressDim.h>
 #include <clientserver/stringUtils.h>
 

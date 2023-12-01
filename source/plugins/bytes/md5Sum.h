@@ -1,7 +1,7 @@
 #ifndef UDA_CLIENTSERVER_MD5SUM_H
 #define UDA_CLIENTSERVER_MD5SUM_H
 
-#include "clientserver/export.h"
+#include "export.h"
 
 #ifdef __cplusplus
 extern "C" {

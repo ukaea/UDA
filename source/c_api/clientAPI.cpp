@@ -7,13 +7,13 @@
 #  define strcasecmp _stricmp
 #endif
 
-#include <logging/logging.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/errorLog.h>
+#include "logging/logging.h"
+#include "initStructs.h"
+#include "clientserver/errorLog.h"
 
-#include "makeClientRequestBlock.h"
-#include "startup.h"
-#include "udaClient.h"
+#include "client/makeClientRequestBlock.h"
+#include "client/startup.h"
+#include "client.h"
 
 int idamClientAPI(const char* file, const char* signal, int pass, int exp_number)
 {

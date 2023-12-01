@@ -4,7 +4,7 @@
 #include <utility>
 #include <rpc/rpc.h>
 
-#include <clientserver/export.h>
+#include "export.h"
 
 std::pair<XDR*, XDR*> clientCreateXDRStream();
 

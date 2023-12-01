@@ -10,51 +10,11 @@
 
 #include "udaDefines.h"
 #include "export.h"
-
-#define UDA_SXML_MAX_STRING           1024
-#define UDA_MAX_DATA_RANK             8
-#define UDA_XML_MAX_DESC              1024
-#define UDA_XML_MAX_RECURSIVE         10
-#define UDA_XML_MAX_LOOP              1024
-
-#define UDA_DIM_CALIBRATION_TYPE      1    // Identifies DIMENSION Union Structures
-#define UDA_DIM_COMPOSITE_TYPE        2
-#define UDA_DIM_DOCUMENTATION_TYPE    3
-#define UDA_DIM_ERROR_MODEL_TYPE      4
-
-#define UDA_TIME_OFFSET_TYPE    1    // Identifies ACTION Union Structures
-#define UDA_DOCUMENTATION_TYPE  2
-#define UDA_CALIBRATION_TYPE    3
-#define UDA_COMPOSITE_TYPE      4
-#define UDA_ERROR_MODEL_TYPE    5
-#define UDA_SERVER_SIDE_TYPE    6
-#define UDA_SUBSET_TYPE         7
-#define UDA_MAP_TYPE            8
+#include "udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef struct OptionalLong {
-    bool init;
-    long value;
-} OPTIONAL_LONG;
-
-typedef struct Subset {
-    int nbound;                                 // the Number of Subsetting Operations
-    int reform;                                 // reduce Rank if any dimension has length 1
-    int order;                                  // Time Dimension order
-    double bound[UDA_MAX_DATA_RANK];                  // Array of Floating point Bounding values
-    OPTIONAL_LONG stride[UDA_MAX_DATA_RANK];                   // Array of Integer values: Striding values
-    OPTIONAL_LONG ubindex[UDA_MAX_DATA_RANK];                  // Array of Integer values: Bounding or Upper Index
-    OPTIONAL_LONG lbindex[UDA_MAX_DATA_RANK];                  // Array of Integer values: Lower Index
-    char operation[UDA_MAX_DATA_RANK][UDA_SXML_MAX_STRING];           // Array of Subsetting Operations
-    int dimid[UDA_MAX_DATA_RANK];                     // Array of Dimension IDs to subset
-    bool isindex[UDA_MAX_DATA_RANK];                   // Flag the Operation Bound is an Integer Type
-    char data_signal[UDA_SXML_MAX_STRING];            // Name of Signal to subset
-    char member[UDA_SXML_MAX_STRING];                 // Name of Structure Member to extract and to subset
-    char function[UDA_SXML_MAX_STRING];               // Apply this named function to the subsetted data
-} SUBSET;
 
 typedef struct Map {
     int nmap;                                   // the Number of Mapping Operations

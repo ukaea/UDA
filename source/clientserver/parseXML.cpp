@@ -22,7 +22,7 @@
 #include <logging/logging.h>
 #ifndef NOXMLPARSER
 
-#include <clientserver/udaTypes.h>
+#include "udaTypes.h"
 #include <clientserver/stringUtils.h>
 #include <clientserver/parseOperation.h>
 #include <clientserver/errorLog.h>

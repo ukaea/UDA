@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <rpc/rpc.h>
-#include <structures/genStructs.h>
+#include "genStructs.h"
 #include "export.h"
 
 #ifdef __cplusplus
