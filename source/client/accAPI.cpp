@@ -685,7 +685,7 @@ void putIdamServer(const char* host, int port)
 void putIdamServerHost(const char* host)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
-    std::string old_host = host;
+    std::string old_host = environment->server_host;
     strcpy(environment->server_host, host);                      // UDA server's host name or IP address
     if (old_host != host) {
         environment->server_reconnect = 1;                           // Create a new Server instance
@@ -702,7 +702,7 @@ void putIdamServerPort(int port)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     int old_port = port;
-    environment->server_port = port;                             // UDA server service port number
+    environment->server_port = environment->server_port;                             // UDA server service port number
     if (old_port != port) {
         environment->server_reconnect = 1;                           // Create a new Server instance
     }
