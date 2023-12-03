@@ -71,6 +71,7 @@ target_include_directories( plugins-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
 )
+target_link_libraries( plugins-objects PRIVATE ${LIBS} )
 
 add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
 if( BUILD_SHARED_LIBS )

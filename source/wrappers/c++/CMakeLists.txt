@@ -57,6 +57,7 @@ target_include_directories( cpp-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
 )
+target_link_libraries( cpp-objects PRIVATE ${LIBS} )
 
 set( CLIENT_OBJS
   $<TARGET_OBJECTS:client-objects>
@@ -83,6 +84,7 @@ if( NOT CLIENT_ONLY )
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include
   )
+  target_link_libraries( fatcpp-objects PRIVATE ${LIBS} )
 
   set( FATCLIENT_OBJS
     $<TARGET_OBJECTS:fatclient-objects>

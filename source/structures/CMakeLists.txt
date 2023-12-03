@@ -10,7 +10,7 @@ if( WIN32 OR MINGW )
   list( APPEND LIBS XDR::XDR )
 else()
   find_package( TIRPC QUIET )
-  list( APPEND TIRPC::TIRPC )
+  list( APPEND LIBS TIRPC::TIRPC )
 endif()
 
 ########################################################################################################################
@@ -31,6 +31,7 @@ target_include_directories( structures-client-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
 )
+target_link_libraries( structures-client-objects PRIVATE ${LIBS} )
 
 if( NOT CLIENT_ONLY )
   add_library( structures-server-objects OBJECT ${SRC_FILES} )
@@ -39,4 +40,5 @@ if( NOT CLIENT_ONLY )
     ${CMAKE_SOURCE_DIR}/source
     ${CMAKE_SOURCE_DIR}/source/include
   )
+  target_link_libraries( structures-server-objects PRIVATE ${LIBS} )
 endif()

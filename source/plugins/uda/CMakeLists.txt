@@ -9,14 +9,15 @@ if( NOT LIBXML2_FOUND )
   return()
 endif()
 
+set( LIBS LibXml2::LibXml2 fmt::fmt )
+
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
-  include_directories( ${XDR_INCLUDE_DIR} )
+  list( APPEND LIBS XDR::XDR )
 else()
   find_package( TIRPC QUIET )
   if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
-    include_directories( ${TIRPC_INCLUDE_DIR} )
+    list( APPEND LIBS TIRPC::TIRPC )
   endif()
 endif()
 
@@ -29,11 +30,6 @@ uda_plugin(
   EXAMPLE "UDA::get(host=idam0, port=56565, signal=ip, source=12345)"
   LIBNAME uda_plugin
   SOURCES uda_plugin.cpp
-  EXTRA_INCLUDE_DIRS
-    ${LIBXML2_INCLUDE_DIR}
-    ${CMAKE_SOURCE_DIR}/client
   EXTRA_LINK_LIBS
-    ${LIBXML2_LIBRARIES}
-    ${OPENSSL_LIBRARIES}
-    fmt::fmt
+    ${LIBS}
 )

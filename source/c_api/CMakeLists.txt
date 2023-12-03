@@ -5,6 +5,17 @@
 find_package( fmt REQUIRED )
 #find_package( LibXml2 REQUIRED )
 
+set( LIBS fmt::fmt )
+
+if( WIN32 OR MINGW )
+
+else()
+  find_package( TIRPC QUIET )
+  if( TIRPC_FOUND )
+    list( APPEND LIBS TIRPC::TIRPC )
+  endif()
+endif()
+
 ########################################################################################################################
 # Sources
 
@@ -19,8 +30,8 @@ set( SRC_FILES
 add_library( c_api-objects OBJECT ${SRC_FILES} )
 add_library( fatc_api-objects OBJECT ${SRC_FILES} )
 
-target_link_libraries( c_api-objects PUBLIC fmt::fmt )
-target_link_libraries( fatc_api-objects PUBLIC fmt::fmt )
+target_link_libraries( c_api-objects PUBLIC ${LIBS} )
+target_link_libraries( fatc_api-objects PUBLIC ${LIBS} )
 
 target_compile_definitions( fatc_api-objects PUBLIC -DFATCLIENT )
 
