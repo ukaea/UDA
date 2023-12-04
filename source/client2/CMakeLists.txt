@@ -71,6 +71,7 @@ endif()
 
 set( CLIENT_OBJS
   $<TARGET_OBJECTS:client2-objects>
+  $<TARGET_OBJECTS:c_api-objects>
   $<TARGET_OBJECTS:clientserver-client-objects>
   $<TARGET_OBJECTS:cache-objects>
   $<TARGET_OBJECTS:logging-client-objects>
@@ -80,6 +81,7 @@ set( CLIENT_OBJS
 
 set( FATCLIENT_OBJS
   $<TARGET_OBJECTS:fatclient2-objects>
+  $<TARGET_OBJECTS:fatc_api-objects>
   $<TARGET_OBJECTS:fatserver-objects>
   $<TARGET_OBJECTS:fatclientserver-objects>
   $<TARGET_OBJECTS:structures-server-objects>
