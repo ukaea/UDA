@@ -5,6 +5,8 @@
 #  include <sys/time.h>
 #endif
 
+#include <stdbool.h>
+
 #include "udaDefines.h"
 #include "export.h"
 //#include "clientserver/parseXML.h"

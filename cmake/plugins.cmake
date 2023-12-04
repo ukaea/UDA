@@ -102,7 +102,6 @@ macro( uda_plugin )
   filter_lib_list( "${PLUGIN_EXTRA_LINK_LIBS}" FILTERED_LINK_LIBS debug optimized ) 
   set( LIBRARIES ${LIBRARIES} ${FILTERED_LINK_LIBS} )
  
-  message( WARNING ">>>> ${PLUGIN_LIBNAME} ${LIBRARIES}" ) 
   target_link_libraries( ${PLUGIN_LIBNAME} PRIVATE ${LIBRARIES} )
   
   install(
