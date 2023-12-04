@@ -4,7 +4,7 @@
 find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
 
-set( LIBS OpenSSL::SSL fmt::fmt )
+set( LIBS OpenSSL::SSL OpenSSL::Crypto fmt::fmt )
 
 if( NOT CLIENT_ONLY )
   find_package( LibXml2 REQUIRED )

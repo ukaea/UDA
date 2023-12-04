@@ -4,7 +4,7 @@ find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( fmt REQUIRED )
 
-set( LIBS Boost::boost OpenSSL::SSL LibXml2::LibXml2 fmt::fmt )
+set( LIBS Boost::boost OpenSSL::SSL OpenSSL::Crypto LibXml2::LibXml2 fmt::fmt )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -42,5 +42,5 @@ target_include_directories( cache-objects PRIVATE
 )
 
 if( MINGW )
-  target_compile_definitions( cache-objects PRIVATE -Wno-format-truncation -Wno-format-overflow )
+  target_compile_options( cache-objects PRIVATE -Wno-format-truncation -Wno-format-overflow )
 endif()

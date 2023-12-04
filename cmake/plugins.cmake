@@ -82,7 +82,7 @@ macro( uda_plugin )
   foreach( DEF ${PLUGIN_EXTRA_DEFINITIONS} )
     add_definitions( ${DEF} )
   endforeach()
-  
+
   set( LIBRARIES client-shared plugins-shared ${OPENSSL_LIBRARIES} )
   if( ENABLE_CAPNP )
     set( LIBRARIES ${LIBRARIES} serialisation-static )

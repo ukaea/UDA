@@ -50,6 +50,6 @@ target_include_directories( logging-server-objects PRIVATE
 )
 
 if( MINGW )
-  target_compile_definitions( logging-client-objects PRIVATE -Wno-error=pointer-sign )
-  target_compile_definitions( logging-server-objects PRIVATE -Wno-error=pointer-sign )
+  target_compile_options( logging-client-objects PRIVATE -Wno-error=pointer-sign )
+  target_compile_options( logging-server-objects PRIVATE -Wno-error=pointer-sign )
 endif()

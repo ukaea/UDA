@@ -1,14 +1,13 @@
 ########################################################################################################################
 # Dependencies
 
-#find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
-#find_package( LibXml2 REQUIRED )
 
 set( LIBS fmt::fmt )
 
 if( WIN32 OR MINGW )
-
+  find_package( XDR REQUIRED )
+  list( APPEND LIBS XDR::XDR )
 else()
   find_package( TIRPC QUIET )
   if( TIRPC_FOUND )

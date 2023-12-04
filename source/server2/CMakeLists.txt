@@ -6,7 +6,7 @@ find_package( OpenSSL REQUIRED )
 find_package( spdlog REQUIRED )
 find_package( fmt REQUIRED )
 
-set( LIBS LibXml2::LibXml2 OpenSSL::SSL spdlog::spdlog fmt::fmt )
+set( LIBS LibXml2::LibXml2 OpenSSL::SSL OpenSSL::Crypto spdlog::spdlog fmt::fmt )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
