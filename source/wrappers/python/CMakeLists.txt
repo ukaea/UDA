@@ -35,6 +35,11 @@ else()
   set( CAPNP_FLAG "False" )
 endif()
 
+find_package( GSL )
+if( GSL_FOUND )
+  list( APPEND EXTRA_LIBS gsl )
+endif()
+
 get_filename_component( FMT_ROOT_DIR "${fmt_CONFIG}/../../../../" ABSOLUTE )
 set( FMT_INCLUDE_DIR ${FMT_ROOT_DIR}/include )
 set( FMT_LIB_DIR ${FMT_ROOT_DIR}/lib64 )
