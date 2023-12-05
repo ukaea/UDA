@@ -6,6 +6,7 @@
 #include <string>
 
 #include <plugins/pluginStructs.h>
+#include <clientserver/export.h>
 
 #include <unordered_map>
 #include <boost/format.hpp>
@@ -24,7 +25,7 @@ typedef int (*plugin_function_type)(IDAM_PLUGIN_INTERFACE*);
 class UDAPluginBase {
 public:
     typedef int (UDAPluginBase::*plugin_member_type)(IDAM_PLUGIN_INTERFACE*);
-    int call(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    LIBRARY_API int call(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 protected:
     UDAPluginBase(std::string name, int version, std::string default_method, std::string help_file)
@@ -47,12 +48,12 @@ protected:
     virtual int init(IDAM_PLUGIN_INTERFACE* plugin_interface) = 0;
     virtual int reset() = 0;
 
-    void register_method(const std::string& name, plugin_member_type plugin_method);
-    void register_function(const std::string& name, plugin_function_type plugin_function);
+    LIBRARY_API void register_method(const std::string& name, plugin_member_type plugin_method);
+    LIBRARY_API void register_function(const std::string& name, plugin_function_type plugin_function);
 
     // Helper methods
-    void debug(const std::string& message);
-    void error(const std::string& message);
+    LIBRARY_API void debug(const std::string& message);
+    LIBRARY_API void error(const std::string& message);
 
     template <typename T>
     boost::optional<T> find_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name, bool required=false)
@@ -108,11 +109,11 @@ protected:
     }
 
     // Default method implementations
-    int help(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int version(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int build_date(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int default_method(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int max_interface_version(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    LIBRARY_API int help(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    LIBRARY_API int version(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    LIBRARY_API int build_date(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    LIBRARY_API int default_method(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    LIBRARY_API int max_interface_version(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 private:
     int do_init(IDAM_PLUGIN_INTERFACE* plugin_interface);
