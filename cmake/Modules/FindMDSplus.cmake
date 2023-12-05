@@ -69,3 +69,13 @@ include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( MDSplus DEFAULT_MSG MDSPLUS_LIBRARIES MDSPLUS_INCLUDES )
 
 mark_as_advanced( MDSPLUS_LIBRARIES MDSPLUS_INCLUDES )
+
+# Create imported targets MDSPLUS::MDSPLUS
+if( NOT TARGET MDSPLUS::MDSPLUS )
+  add_library( MDSPLUS::MDSPLUS SHARED IMPORTED )
+
+  set_target_properties( MDSPLUS::MDSPLUS PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${MDSPLUS_INCLUDES}"
+    INTERFACE_LINK_LIBRARIES "${MDSPLUS_LIBRARIES}"
+  )
+endif()
