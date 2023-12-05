@@ -20,8 +20,11 @@ uda_plugin(
   DESCRIPTION "MDSplus reader"
   EXAMPLE "MDSPLUS::read()"
   LIBNAME mdsplus_plugin
-  SOURCES mdsplusPlugin.cpp
+  SOURCES mdsplusPlugin.cpp mdsplusPlugin.h
+  EXTRA_INCLUDE_DIRS
+    ${LIBXML2_INCLUDE_DIR}
+    ${MDSPLUS_INCLUDES}
   EXTRA_LINK_LIBS
-    LibXml2::LibXml2
-    MDSPLUS::MDSPLUS
+    ${LIBXML2_LIBRARIES}
+    ${MDSPLUS_LIBRARIES}
 )
