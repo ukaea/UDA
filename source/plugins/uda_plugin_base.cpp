@@ -24,17 +24,22 @@ int UDAPluginBase::call(IDAM_PLUGIN_INTERFACE* plugin_interface) {
 
         std::string function = get_function(plugin_interface);
 
+        int rc;
+
         if (function_map_.find(function) != function_map_.end()) {
-            return function_map_.at(function)(plugin_interface);
+            rc = function_map_.at(function)(plugin_interface);
         } else if (method_map_.find(function) != method_map_.end()) {
             auto fn = method_map_.at(function);
-            return (this->*fn)(plugin_interface);
+            rc = (this->*fn)(plugin_interface);
         } else {
             UDA_LOG(UDA_LOG_ERROR, "Unknown function requested %s\n", function.c_str());
             addIdamError(UDA_CODE_ERROR_TYPE, "UDAPluginBase::call", 999, "Unknown function requested");
             concatUdaError(&plugin_interface->error_stack);
             return 999;
         }
+
+        concatUdaError(&plugin_interface->error_stack);
+        return rc;
     } catch (std::exception& ex) {
         UDA_LOG(UDA_LOG_ERROR, "Exception: %s\n", ex.what());
         addIdamError(UDA_CODE_ERROR_TYPE, "UDAPluginBase::call", 999, ex.what());

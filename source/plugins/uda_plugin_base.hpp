@@ -52,17 +52,6 @@ protected:
     template <typename T>
     T required_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name);
 
-    template <>
-    std::string required_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name)
-    {
-        const char* value;
-        if (!findStringValue(&plugin_interface->request_data->nameValueList, &value, name.c_str())) {
-            auto message = (boost::format("Required argument '%1%' not given") % name).str();
-            error(message);
-        }
-        return value;
-    }
-
     // Default method implementations
     int help(IDAM_PLUGIN_INTERFACE* plugin_interface);
     int version(IDAM_PLUGIN_INTERFACE* plugin_interface);
@@ -84,5 +73,16 @@ private:
     std::unordered_map<std::string, plugin_member_type> method_map_;
     std::unordered_map<std::string, plugin_function_type> function_map_;
 };
+
+template <>
+std::string UDAPluginBase::required_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name)
+{
+    const char* value;
+    if (!findStringValue(&plugin_interface->request_data->nameValueList, &value, name.c_str())) {
+        auto message = (boost::format("Required argument '%1%' not given") % name).str();
+        error(message);
+    }
+    return value;
+}
 
 #endif //UDA_UDA_PLUGIN_H
