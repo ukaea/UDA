@@ -45,17 +45,13 @@ int HDF5Plugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_SOURCE* data_source = plugin_interface->data_source;
     SIGNAL_DESC* signal_desc = plugin_interface->signal_desc;
-    REQUEST_DATA* request = plugin_interface->request_data;
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
-    const char* file_path = nullptr;
-    FIND_REQUIRED_STRING_VALUE(request->nameValueList, file_path);
+    auto file_path = find_required_arg<std::string>(plugin_interface, "file_path");
+    auto cdf_path = find_required_arg<std::string>(plugin_interface, "cdf_path");
 
-    const char* cdf_path = nullptr;
-    FIND_REQUIRED_STRING_VALUE(request->nameValueList, cdf_path);
-
-    strcpy(data_source->path, file_path);
-    strcpy(signal_desc->signal_name, cdf_path);
+    strcpy(data_source->path, file_path.c_str());
+    strcpy(signal_desc->signal_name, cdf_path.c_str());
 
     // Legacy data reader!
     int err = readHDF5(*data_source, *signal_desc, data_block);

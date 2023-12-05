@@ -56,6 +56,7 @@ add_definitions( -DSERVERBUILD )
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_SOURCE_DIR}/source/include
   ${LIBXML2_INCLUDE_DIR}
 )
 
@@ -147,4 +148,7 @@ install( FILES ${HEADER_FILES}
   DESTINATION include/uda/plugins
 )
 
-
+file( GLOB GSL_HEADERS "${CMAKE_SOURCE_DIR}/source/include/gsl/*" )
+install( FILES ${GSL_HEADERS}
+  DESTINATION include/uda/gsl
+)

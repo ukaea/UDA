@@ -1,103 +1,41 @@
 #include "help_plugin.h"
 
-#include <cstdlib>
-
-#ifdef __GNUC__
-
-#  include <strings.h>
-
-#else
-#  include <winsock2.h>
-#endif
+#include <plugins/uda_plugin_base.hpp>
+#include <boost/filesystem.hpp>
 
 #include <clientserver/initStructs.h>
 #include <structures/struct.h>
 #include <structures/accessors.h>
-#include <clientserver/errorLog.h>
-#include <logging/logging.h>
-#include <plugins/udaPlugin.h>
-#include <clientserver/stringUtils.h>
 #include <fmt/format.h>
 
-static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+class HelpPlugin : public UDAPluginBase {
+public:
+    HelpPlugin();
+    int ping(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int services(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int init(IDAM_PLUGIN_INTERFACE* plugin_interface) override { return 0; }
+    int reset() override { return 0; }
+};
 
-static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
-
-int helpPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+HelpPlugin::HelpPlugin()
+        : UDAPluginBase(
+        "HELP",
+        1,
+        "read",
+        boost::filesystem::path(__FILE__).parent_path().append("help.txt").string()
+)
 {
-    int err;
-    static short init = 0;
-
-    //----------------------------------------------------------------------------------------
-    // Standard v1 Plugin Interface
-
-    DATA_BLOCK* data_block;
-    REQUEST_DATA* request;
-
-    if (idam_plugin_interface->interfaceVersion > THISPLUGIN_MAX_INTERFACE_VERSION) {
-        RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
-    }
-
-    idam_plugin_interface->pluginVersion = THISPLUGIN_VERSION;
-
-    data_block = idam_plugin_interface->data_block;
-    request = idam_plugin_interface->request_data;
-
-    unsigned short housekeeping = idam_plugin_interface->housekeeping;
-
-    //----------------------------------------------------------------------------------------
-    // Heap Housekeeping
-
-    // Plugin must maintain a list of open file handles and sockets: loop over and close all files and sockets
-    // Plugin must maintain a list of plugin functions called: loop over and reset state and free heap.
-    // Plugin must maintain a list of calls to other plugins: loop over and call each plugin with the housekeeping request
-    // Plugin must destroy lists at end of housekeeping
-
-    if (housekeeping || STR_IEQUALS(request->function, "reset")) {
-
-        if (!init) { return 0; }        // Not previously initialised: Nothing to do!
-        init = 0;
-        return 0;
-    }
-
-    //----------------------------------------------------------------------------------------
-    // Initialise
-
-    if (!init || STR_IEQUALS(request->function, "init")
-        || STR_IEQUALS(request->function, "initialise")) {
-
-        init = 1;
-        if (STR_IEQUALS(request->function, "init") || STR_IEQUALS(request->function, "initialise")) {
-            return 0;
-        }
-    }
-
-    if (STR_IEQUALS(request->function, "help") || request->function[0] == '\0') {
-        const char* help = "\nHelp\tList of HELP plugin functions:\n\n"
-                           "services()\tReturns a list of available services with descriptions\n"
-                           "ping()\t\tReturn the Local Server Time in seconds and microseonds\n"
-                           "servertime()\tReturn the Local Server Time in seconds and microseonds\n\n";
-        return setReturnDataString(data_block, help, "Help help = description of this plugin");
-    } else if (STR_IEQUALS(request->function, "version")) {
-        return setReturnDataIntScalar(data_block, THISPLUGIN_VERSION, "Plugin version number");
-    } else if (STR_IEQUALS(request->function, "builddate")) {
-        return setReturnDataString(data_block, __DATE__, "Plugin build date");
-    } else if (STR_IEQUALS(request->function, "defaultmethod")) {
-        return setReturnDataString(data_block, THISPLUGIN_DEFAULT_METHOD, "Plugin default method");
-    } else if (STR_IEQUALS(request->function, "maxinterfaceversion")) {
-        return setReturnDataIntScalar(data_block, THISPLUGIN_MAX_INTERFACE_VERSION, "Maximum Interface Version");
-    } else if (STR_IEQUALS(request->function, "ping") || STR_IEQUALS(request->function, "servertime")) {
-        return do_ping(idam_plugin_interface);
-    } else if (STR_IEQUALS(request->function, "services")) {
-        return do_services(idam_plugin_interface);
-    } else {
-        RAISE_PLUGIN_ERROR("Unknown function requested!");
-    }
-
-    return err;
+    register_method("ping", static_cast<UDAPluginBase::plugin_member_type>(&HelpPlugin::ping));
+    register_method("services", static_cast<UDAPluginBase::plugin_member_type>(&HelpPlugin::services));
 }
 
-static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int helpPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
+{
+    static HelpPlugin plugin = {};
+    return plugin.call(plugin_interface);
+}
+
+int HelpPlugin::ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     //----------------------------------------------------------------------------------------
 
@@ -166,7 +104,7 @@ static int do_ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     return 0;
 }
 
-static int do_services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int HelpPlugin::services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     //======================================================================================
     // Plugin functionality

@@ -1,0 +1,7 @@
+HELP: Plugin to provide server help and available services
+
+Functions:
+
+services()      Returns a list of available services with descriptions
+ping()          Return the Local Server Time in seconds and microseonds
+servertime()    Return the Local Server Time in seconds and microseonds

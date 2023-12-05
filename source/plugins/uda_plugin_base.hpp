@@ -6,7 +6,12 @@
 #include <string>
 
 #include <plugins/pluginStructs.h>
+
+#include <unordered_map>
 #include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
+#include <sstream>
+
 #include "udaPlugin.h"
 
 class UDAPluginBase;
@@ -50,7 +55,57 @@ protected:
     void error(const std::string& message);
 
     template <typename T>
-    T required_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name);
+    boost::optional<T> find_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name, bool required=false)
+    {
+        const char* str;
+        bool found = findStringValue(&plugin_interface->request_data->nameValueList, &str, name.c_str());
+        if (found) {
+            std::stringstream ss(str);
+            T value;
+            ss >> value;
+            return value;
+        } else if (required) {
+            auto message = (boost::format("Required argument '%1%' not given") % name).str();
+            error(message);
+        }
+        return {};
+    }
+
+    template <typename T>
+    T find_required_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name)
+    {
+        auto arg = find_arg<T>(plugin_interface, name, true);
+        return *arg;
+    }
+
+    template <typename T>
+    boost::optional<std::vector<T>> find_array_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name, bool required=false)
+    {
+        const char* str;
+        bool found = findStringValue(&plugin_interface->request_data->nameValueList, &str, name.c_str());
+        if (found) {
+            std::vector<std::string> tokens;
+            boost::split(tokens, str, boost::is_any_of(";"));
+            std::vector<T> values;
+            for (const auto& token : tokens) {
+                std::stringstream ss{token};
+                T n;
+                ss >> n;
+                values.push_back(n);
+            }
+        } else if (required) {
+            auto message = (boost::format("Required argument '%1%' not given") % name).str();
+            error(message);
+        }
+        return {};
+    }
+
+    template <typename T>
+    std::vector<T> find_required_array_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name)
+    {
+        auto arg = find_array_arg<T>(plugin_interface, name, true);
+        return *arg;
+    }
 
     // Default method implementations
     int help(IDAM_PLUGIN_INTERFACE* plugin_interface);
@@ -73,16 +128,5 @@ private:
     std::unordered_map<std::string, plugin_member_type> method_map_;
     std::unordered_map<std::string, plugin_function_type> function_map_;
 };
-
-template <>
-std::string UDAPluginBase::required_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name)
-{
-    const char* value;
-    if (!findStringValue(&plugin_interface->request_data->nameValueList, &value, name.c_str())) {
-        auto message = (boost::format("Required argument '%1%' not given") % name).str();
-        error(message);
-    }
-    return value;
-}
 
 #endif //UDA_UDA_PLUGIN_H

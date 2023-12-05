@@ -18,11 +18,11 @@ public:
 
 BytesPlugin::BytesPlugin()
         : UDAPluginBase(
-                "HDF5",
-                1,
-                "read",
-                boost::filesystem::path(__FILE__).parent_path().append("help.txt").string()
-                )
+        "BYTES",
+        1,
+        "read",
+        boost::filesystem::path(__FILE__).parent_path().append("help.txt").string()
+)
 {
     register_method("read", static_cast<UDAPluginBase::plugin_member_type>(&BytesPlugin::read));
 }
@@ -37,7 +37,7 @@ int bytesPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 // Add functionality here ....
 int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
-    std::string path = required_arg<std::string>(plugin_interface, "path");
+    auto path = find_required_arg<std::string>(plugin_interface, "path");
 
     char c_path[MAXPATH];
     StringCopy(c_path, path.c_str(), MAXPATH);
