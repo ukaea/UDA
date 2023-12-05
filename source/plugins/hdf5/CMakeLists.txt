@@ -15,10 +15,10 @@ endif()
 include( plugins )
 
 uda_plugin(
-  NAME NEWHDF5
-  ENTRY_FUNC udaHDF5
+  NAME HDF5
+  ENTRY_FUNC hdf5Plugin
   DESCRIPTION "HDF5 Data Reader"
-  EXAMPLE "NEWHDF5::read()"
+  EXAMPLE "HDF5::read()"
   LIBNAME hdf5_plugin
   SOURCES hdf5plugin.cpp hdf5plugin.h readHDF58.cpp readHDF58.h
   EXTRA_INCLUDE_DIRS

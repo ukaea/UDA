@@ -3,6 +3,7 @@
 
 find_package( LibXml2 REQUIRED )
 find_package( fmt REQUIRED )
+find_package( Boost COMPONENTS filesystem REQUIRED )
 
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
@@ -67,6 +68,7 @@ endif()
 set( SOURCE_FILES
   managePluginFiles.cpp
   udaPlugin.cpp
+  uda_plugin_base.cpp
 )
 
 set( HEADER_FILES
@@ -74,12 +76,17 @@ set( HEADER_FILES
   pluginStructs.h
   udaPlugin.h
   udaPluginFiles.h
-        testplugin/teststructs.h testplugin/teststructs.cpp)
+  uda_plugin_base.hpp
+)
 
 add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
+target_link_libraries( plugins-objects PUBLIC Boost::filesystem )
+
 add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
+target_link_libraries( plugins-static PUBLIC Boost::filesystem )
 if( BUILD_SHARED_LIBS )
   add_library( plugins-shared SHARED $<TARGET_OBJECTS:plugins-objects> )
+  target_link_libraries( plugins-shared PUBLIC Boost::filesystem )
 endif()
 
 set( LINK_LIB ${LIBXML2_LIBRARIES} fmt::fmt )

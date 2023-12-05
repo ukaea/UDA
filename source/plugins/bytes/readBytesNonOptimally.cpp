@@ -1,24 +1,3 @@
-/*---------------------------------------------------------------
-* IDAM Plugin data Reader to Access Files as a Block of Bytes without Interpretation
-*
-* Input Arguments:    DATA_SOURCE data_source
-*            SIGNAL_DESC signal_desc
-*
-* Returns:        readBytes    0 if read was successful
-*                    otherwise an Error Code is returned
-*            DATA_BLOCK    Structure with Data from the target File
-*
-* Calls        freeDataBlock    to free Heap memory if an Error Occurs
-*
-* Notes:     All memory required to hold data is allocated dynamically
-*        in heap storage. Pointers to these areas of memory are held
-*        by the passed DATA_BLOCK structure. Local memory allocations
-*        are freed on exit. However, the blocks reserved for data are
-*        not and MUST BE FREED by the calling routine.
-**
-* ToDo:
-*
-*-----------------------------------------------------------------------------*/
 #include "readBytesNonOptimally.h"
 
 #include <cerrno>
@@ -31,12 +10,23 @@
 #include <clientserver/udaTypes.h>
 #include <clientserver/initStructs.h>
 
-int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block, const ENVIRONMENT* environment)
+#define BYTEFILEDOESNOTEXIST     100001
+#define BYTEFILEATTRIBUTEERROR   100002
+#define BYTEFILEISNOTREGULAR     100003
+#define BYTEFILEOPENERROR        100004
+#define BYTEFILEHEAPERROR        100005
+#define BYTEFILEMD5ERROR         100006
+#define BYTEFILEMD5DIFF          100007
+
+int readBytes(const std::string& path, IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     int err = 0;
 
     char md5file[2 * MD5_SIZE + 1] = "";
     char md5check[2 * MD5_SIZE + 1] = "";
+
+    const ENVIRONMENT* environment = plugin_interface->environment;
+    DATA_BLOCK* data_block = plugin_interface->data_block;
 
     //----------------------------------------------------------------------
     // Block Access to External Users
@@ -44,17 +34,17 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data
     if (environment->external_user) {
         err = 999;
         addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "This Service is Disabled");
-        UDA_LOG(UDA_LOG_DEBUG, "Disabled Service - Requested File: %s \n", data_source.path);
+        UDA_LOG(UDA_LOG_DEBUG, "Disabled Service - Requested File: %s \n", path.c_str());
         return err;
     }
 
     //----------------------------------------------------------------------
     // Test the filepath
 
-    if (!IsLegalFilePath(data_source.path)) {
+    if (!IsLegalFilePath(path.c_str())) {
         err = 999;
         addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "The directory path has incorrect syntax");
-        UDA_LOG(UDA_LOG_DEBUG, "The directory path has incorrect syntax [%s] \n", data_source.path);
+        UDA_LOG(UDA_LOG_DEBUG, "The directory path has incorrect syntax [%s] \n", path.c_str());
         return err;
     }
 
@@ -63,7 +53,7 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data
 
     err = 0;
 
-    UDA_LOG(UDA_LOG_DEBUG, "File Name  : %s \n", data_source.path);
+    UDA_LOG(UDA_LOG_DEBUG, "File Name  : %s \n", path.c_str());
 
     //----------------------------------------------------------------------
     // File Attributes
@@ -74,7 +64,7 @@ int readBytes(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data
     // Open the File as a Binary Stream
 
     errno = 0;
-    FILE* fh = fopen(data_source.path, "rb");
+    FILE* fh = fopen(path.c_str(), "rb");
 
     int serrno = errno;
 
