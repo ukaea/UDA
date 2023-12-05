@@ -23,14 +23,14 @@ public:
 
 protected:
     UDAPluginBase(std::string name, int version, std::string default_method, std::string help_file)
-        : m_init{ false }
-        , m_name{ std::move(name) }
-        , m_version{ version }
-        , m_interface_version{ 1 }
-        , m_default_method{ std::move(default_method) }
-        , m_help_file{ std::move(help_file) }
-        , m_method_map{}
-        , m_function_map{}
+        : init_{false }
+        , name_{std::move(name) }
+        , version_{version }
+        , interface_version_{1 }
+        , default_method_{std::move(default_method) }
+        , help_file_{std::move(help_file) }
+        , method_map_{}
+        , function_map_{}
     {
         register_method("help", &UDAPluginBase::help);
         register_method("version", &UDAPluginBase::version);
@@ -75,14 +75,14 @@ private:
     int do_reset();
     static std::string get_function(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
-    bool m_init;
-    std::string m_name;
-    int m_version;
-    int m_interface_version;
-    std::string m_default_method;
-    std::string m_help_file;
-    std::unordered_map<std::string, plugin_member_type> m_method_map;
-    std::unordered_map<std::string, plugin_function_type> m_function_map;
+    bool init_;
+    std::string name_;
+    int version_;
+    int interface_version_;
+    std::string default_method_;
+    std::string help_file_;
+    std::unordered_map<std::string, plugin_member_type> method_map_;
+    std::unordered_map<std::string, plugin_function_type> function_map_;
 };
 
 #endif //UDA_UDA_PLUGIN_H
