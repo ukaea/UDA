@@ -98,6 +98,7 @@ jobs:
           boost-format
           boost-algorithm
           boost-multi-array
+          boost-filesystem
           openssl
           dlfcn-win32
           spdlog
