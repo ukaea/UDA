@@ -8,11 +8,12 @@
 #include <plugins/pluginStructs.h>
 #include <clientserver/export.h>
 
-#include <unordered_map>
-#include <fmt/format.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/optional.hpp>
 #include <sstream>
+#include <vector>
+#include <unordered_map>
+#include <fmt/format.h>
 
 #include "udaPlugin.h"
 
