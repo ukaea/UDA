@@ -30,15 +30,15 @@ class TemplatePlugin : public UDAPluginBase {
 public:
     TemplatePlugin();
     int function(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int init(IDAM_PLUGIN_INTERFACE* plugin_interface) override { return 0; }
-    int reset() override { return 0; }
+    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
+    void reset() override {}
 };
 
 TemplatePlugin::TemplatePlugin()
         : UDAPluginBase(
         "TEMPLATE",
         1,
-        "read",
+        "function",
         boost::filesystem::path(__FILE__).parent_path().append("help.txt").string()
 )
 {
@@ -76,13 +76,9 @@ int TemplatePlugin::function(IDAM_PLUGIN_INTERFACE* plugin_interface)
     auto array = find_required_array_arg<double>(plugin_interface, "array");
     auto optional = find_arg<int>(plugin_interface, "optional");
 
-    std::string result = std::string("Passed args: required=") + required
-            + ", array=[" + to_string(array) + "]";
-    if (optional) {
-        result += ", optional=" + std::to_string(*optional) + ")";
-    } else {
-        result += ", optional=<NOT PASSED>)";
-    }
+    std::string optional_str = optional ? std::to_string(*optional) : "<NOT PASSED>";
+    std::string result = fmt::format("Passed args: required={}, array=[{}], optional={}",
+                                     required, to_string(array), optional_str);
 
     setReturnDataString(data_block, result.c_str(), "result of TemplatePlugin::function");
 

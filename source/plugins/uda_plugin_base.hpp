@@ -9,8 +9,9 @@
 #include <clientserver/export.h>
 
 #include <unordered_map>
-#include <boost/format.hpp>
+#include <fmt/format.h>
 #include <boost/algorithm/string.hpp>
+#include <boost/optional.hpp>
 #include <sstream>
 
 #include "udaPlugin.h"
@@ -45,15 +46,29 @@ protected:
         register_method("maxinterfaceversion", &UDAPluginBase::max_interface_version);
     }
 
-    virtual int init(IDAM_PLUGIN_INTERFACE* plugin_interface) = 0;
-    virtual int reset() = 0;
+    virtual void init(IDAM_PLUGIN_INTERFACE* plugin_interface) = 0;
+    virtual void reset() = 0;
 
     LIBRARY_API void register_method(const std::string& name, plugin_member_type plugin_method);
     LIBRARY_API void register_function(const std::string& name, plugin_function_type plugin_function);
 
     // Helper methods
-    LIBRARY_API void debug(const std::string& message);
-    LIBRARY_API void error(const std::string& message);
+    template <typename... Args>
+    void debug(const std::string& message, Args... args)
+    {
+        auto msg = fmt::format(message, args...);
+        UDA_LOG(UDA_LOG_DEBUG, "%s", msg.c_str());
+    }
+
+    template <typename... Args>
+    void error(const std::string& message, Args... args)
+    {
+        auto msg = fmt::format(message, args...);
+        UDA_LOG(UDA_LOG_ERROR, "%s", msg.c_str());
+        throw std::runtime_error{ msg.c_str() };
+    }
+
+    LIBRARY_API bool has_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name);
 
     template <typename T>
     boost::optional<T> find_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name, bool required=false)
@@ -66,8 +81,7 @@ protected:
             ss >> value;
             return value;
         } else if (required) {
-            auto message = (boost::format("Required argument '%1%' not given") % name).str();
-            error(message);
+            error("Required argument '{}' not given", name);
         }
         return {};
     }
@@ -95,8 +109,7 @@ protected:
                 values.push_back(n);
             }
         } else if (required) {
-            auto message = (boost::format("Required argument '%1%' not given") % name).str();
-            error(message);
+            error("Required argument '{}' not given", name);
         }
         return {};
     }
@@ -116,8 +129,8 @@ protected:
     LIBRARY_API int max_interface_version(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
 private:
-    int do_init(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int do_reset();
+    void do_init(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    void do_reset();
     static std::string get_function(IDAM_PLUGIN_INTERFACE* plugin_interface);
 
     bool init_;

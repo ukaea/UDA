@@ -53,28 +53,22 @@ std::string UDAPluginBase::get_function(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return boost::to_lower_copy<std::string>(request->function);
 }
 
-int UDAPluginBase::do_init(IDAM_PLUGIN_INTERFACE* plugin_interface) {
+void UDAPluginBase::do_init(IDAM_PLUGIN_INTERFACE* plugin_interface) {
     std::string function = get_function(plugin_interface);
     if (!init_ || (function == "init" || function == "initialise")) {
-        int rc = init(plugin_interface);
-        if (rc == 0) {
-            init_ = true;
-        }
-        return rc;
+        init(plugin_interface);
+        init_ = true;
     }
-    return 0;
 }
 
-int UDAPluginBase::do_reset() {
+void UDAPluginBase::do_reset() {
     if (!init_) {
         // Not previously initialised: Nothing to do!
-        return 0;
+        return;
     }
 
     reset();
     init_ = false;
-
-    return 0;
 }
 
 int UDAPluginBase::help(IDAM_PLUGIN_INTERFACE *plugin_interface) {
@@ -87,7 +81,7 @@ int UDAPluginBase::help(IDAM_PLUGIN_INTERFACE *plugin_interface) {
 
     auto path = boost::filesystem::path(help_file_);
     if (!boost::filesystem::exists(path)) {
-        auto help = (boost::format("help file %1% does not exist") % path).str();
+        auto help = fmt::format("help file {} does not exist", path.string());
         return setReturnDataString(plugin_interface->data_block, help.c_str(), desc.c_str());
     }
 
@@ -123,11 +117,8 @@ void UDAPluginBase::register_function(const std::string &name, plugin_function_t
     function_map_[name] = plugin_function;
 }
 
-void UDAPluginBase::debug(const std::string& message) {
-    UDA_LOG(UDA_LOG_DEBUG, "%s", message.c_str());
-}
-
-void UDAPluginBase::error(const std::string &message) {
-    UDA_LOG(UDA_LOG_ERROR, "%s", message.c_str());
-    throw std::runtime_error{ message.c_str() };
+bool UDAPluginBase::has_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name)
+{
+    const char* str;
+    return findStringValue(&plugin_interface->request_data->nameValueList, &str, name.c_str());
 }

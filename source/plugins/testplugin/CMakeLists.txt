@@ -24,7 +24,7 @@ include( plugins )
 
 uda_plugin(
   NAME TESTPLUGIN
-  ENTRY_FUNC testplugin
+  ENTRY_FUNC testPlugin
   DESCRIPTION "Generate Test Data"
   EXAMPLE "TESTPLUGIN::test1()"
   LIBNAME testplugin_plugin

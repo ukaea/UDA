@@ -1,0 +1,5 @@
+TEMPLATE: Plugin that can be used as the template for new plugins
+
+Functions:
+
+function()      Example of custom plugin function

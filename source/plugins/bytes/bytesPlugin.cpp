@@ -12,8 +12,8 @@ class BytesPlugin : public UDAPluginBase {
 public:
     BytesPlugin();
     int read(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int init(IDAM_PLUGIN_INTERFACE* plugin_interface) override { return 0; }
-    int reset() override { return 0; }
+    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
+    void reset() override {}
 };
 
 BytesPlugin::BytesPlugin()

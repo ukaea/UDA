@@ -1,0 +1,47 @@
+TESTPLUGIN: Plugin which generates test data that is used in UDA tests
+
+test0-test9: String passing tests
+    test0: single string as a char array
+    test1: single string
+    test2: multiple strings as a 2D array of chars
+    test3: array of strings
+    test4: data structure with a fixed length single string
+    test5: data structure with a fixed length multiple string
+    test6: data structure with an arbitrary length single string
+    test7: data structure with a fixed number of arbitrary length strings
+    test8: data structure with an arbitrary number of arbitrary length strings\n
+    test9: array of data structures with a variety of string types\n
+    test9A: array of data structures with a variety of string types and single sub structure\n
+
+test10-test18: Integer passing tests
+    test10: single integer
+    test11: fixed number (rank 1 array) of integers
+    test12: arbitrary number (rank 1 array) of integers
+    test13: fixed length rank 2 array of integers
+    test14: arbitrary length rank 2 array of integers
+    test15: data structure with a single integer
+    test16: data structure with a fixed number of integers
+    test17: data structure with a arbitrary number of integers
+    test18: array of data structures with a variety of integer types\n
+
+test20-test28: Short Integer passing tests
+    test20: single integer
+    test21: fixed number (rank 1 array) of integers
+    test22: arbitrary number (rank 1 array) of integers
+    test23: fixed length rank 2 array of integers
+    test24: arbitrary length rank 2 array of integers
+    test25: data structure with a single integer
+    test26: data structure with a fixed number of integers
+    test27: data structure with a arbitrary number of integers
+    test28: array of data structures with a variety of integer types\n
+
+test30-test32: double passing tests
+    test30: pair of doubles (Coordinate)
+
+test40-test40: put data block receiving tests
+test50: Passing parameters into plugins via the source argument
+test60-62: ENUMLIST structures
+
+plugin: test calling other plugins
+
+error: Error reporting and server termination tests;

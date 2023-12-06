@@ -16,8 +16,8 @@ public:
     {
         return setReturnDataString(plugin_interface->data_block, "foo!", nullptr);
     }
-    int init(IDAM_PLUGIN_INTERFACE* plugin_interface) override { return 0; }
-    int reset() override { return 0; }
+    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
+    void reset() override {}
 };
 
 HDF5Plugin::HDF5Plugin()

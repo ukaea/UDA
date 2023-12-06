@@ -13,8 +13,8 @@ public:
     HelpPlugin();
     int ping(IDAM_PLUGIN_INTERFACE* plugin_interface);
     int services(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int init(IDAM_PLUGIN_INTERFACE* plugin_interface) override { return 0; }
-    int reset() override { return 0; }
+    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
+    void reset() override {}
 };
 
 HelpPlugin::HelpPlugin()
@@ -35,7 +35,7 @@ int helpPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return plugin.call(plugin_interface);
 }
 
-int HelpPlugin::ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int HelpPlugin::ping(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     //----------------------------------------------------------------------------------------
 
@@ -72,20 +72,20 @@ int HelpPlugin::ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     defineField(&field, "microseconds", "Server inter-second time in microseconds", &offset, SCALARUINT);
     addCompoundField(&usertype, field);
 
-    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
+    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
     // assign the returned data structure
 
     auto data = (HELP_PING*)malloc(sizeof(HELP_PING));
-    addMalloc(idam_plugin_interface->logmalloclist, (void*)data, 1, sizeof(HELP_PING), "HELP_PING");        // Register
+    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(HELP_PING), "HELP_PING");        // Register
 
     data->seconds = (unsigned int)serverTime.tv_sec;
     data->microseconds = (unsigned int)serverTime.tv_usec;
 
     // return to the client
 
-    DATA_BLOCK* data_block = idam_plugin_interface->data_block;
+    DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
     data_block->data_type = UDA_TYPE_COMPOUND;
@@ -104,7 +104,7 @@ int HelpPlugin::ping(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     return 0;
 }
 
-int HelpPlugin::services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+int HelpPlugin::services(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     //======================================================================================
     // Plugin functionality
@@ -119,9 +119,9 @@ int HelpPlugin::services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     // Total Number of registered plugins available
 
-    const ENVIRONMENT* environment = idam_plugin_interface->environment;
+    const ENVIRONMENT* environment = plugin_interface->environment;
 
-    const PLUGINLIST* pluginList = idam_plugin_interface->pluginList;
+    const PLUGINLIST* pluginList = plugin_interface->pluginList;
 
     count = 0;
     for (int i = 0; i < pluginList->count; i++) {
@@ -264,5 +264,5 @@ int HelpPlugin::services(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     doc += "\n\n";
 
-    return setReturnDataString(idam_plugin_interface->data_block, doc.c_str(), "Description of UDA data access services");
+    return setReturnDataString(plugin_interface->data_block, doc.c_str(), "Description of UDA data access services");
 }
