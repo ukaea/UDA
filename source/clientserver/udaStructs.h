@@ -422,6 +422,8 @@ typedef struct Environment {
     char private_path_substitute[STRING_LENGTH];    // and substitute with this path (so the server can locate them!)
     char initialised;                               // Environment already initialised.
     char _padding[1];
+	int protocol_version;
+	int server_version;
 } ENVIRONMENT;
 
 void freeClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);

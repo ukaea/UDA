@@ -45,6 +45,8 @@ int addSocket(SOCKETLIST* socks, int type, int status, char* host, int port, int
     strcpy(socks->sockets[socks->nsocks].host, host);
     socks->sockets[socks->nsocks].tv_server_start = 0;
     socks->sockets[socks->nsocks].user_timeout = 0;
+	socks->sockets[socks->nsocks].protocol_version=-1;
+	socks->sockets[socks->nsocks].server_version=0;
 
     (socks->nsocks)++;
     return 0;

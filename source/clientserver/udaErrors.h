@@ -66,6 +66,7 @@
 #define UDA_PROTOCOL_ERROR_1082 1082
 #define UDA_PROTOCOL_ERROR_1091 1091
 #define UDA_PROTOCOL_ERROR_1092 1092
+#define UDA_PROTOCOL_ERROR_1093 1093
 #define UDA_PROTOCOL_ERROR_9999 9999
 
 //-------------------------------------------------------

@@ -701,8 +701,8 @@ void putIdamServerHost(const char* host)
 void putIdamServerPort(int port)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
-    int old_port = port;
-    environment->server_port = environment->server_port;                             // UDA server service port number
+    int old_port = environment->server_port;
+    environment->server_port = port;                             // UDA server service port number
     if (old_port != port) {
         environment->server_reconnect = 1;                           // Create a new Server instance
     }

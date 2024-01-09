@@ -244,6 +244,8 @@ ENVIRONMENT* getIdamClientEnvironment()
 
     //-------------------------------------------------------------------------------------------
 
+	udaEnviron.protocol_version=-1;
+	udaEnviron.server_version=0;
     udaEnviron.initialised = 1;        // Initialisation Complete
 
     return &udaEnviron;

@@ -34,7 +34,7 @@ bool_t xdr_securityBlock1(XDR* xdrs, SECURITY_BLOCK* str);
 bool_t xdr_securityBlock2(XDR* xdrs, SECURITY_BLOCK* str);
 bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion);
 bool_t xdr_server(XDR* xdrs, SERVER_BLOCK* str);
-bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str, int protocolVersion);
+bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str, int protocolVersion, int *serverVersion);
 bool_t xdr_server2(XDR* xdrs, SERVER_BLOCK* str);
 bool_t xdr_request(XDR* xdrs, REQUEST_BLOCK* str, int protocolVersion);
 bool_t xdr_request_data(XDR* xdrs, REQUEST_DATA* str, int protocolVersion);
