@@ -56,13 +56,32 @@ static int handle_data_source(XDR* xdrs, int direction, const void* str);
 static int handle_signal(XDR* xdrs, int direction, const void* str);
 static int handle_signal_desc(XDR* xdrs, int direction, const void* str);
 static int handle_client_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
-static int handle_server_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
+static int handle_server_block(XDR* xdrs, int direction, const void* str, int protocolVersion, int *serverVersion);
 static int handle_dataobject(XDR* xdrs, int direction, const void* str);
 static int handle_dataobject_file(int direction, const void* str);
 
 #ifdef SECURITYENABLED
 static int handle_security_block(XDR* xdrs, int direction, const void* str);
 #endif
+
+int protocol2_serv(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+              USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
+              unsigned int private_flags, int malloc_source, int *serverVersion)
+{
+	int err = 0;
+
+    switch (protocol_id) {
+		case UDA_PROTOCOL_SERVER_BLOCK:
+            err = handle_server_block(xdrs, direction, str, protocolVersion,serverVersion);
+            break;
+        default:
+			UDA_LOG(UDA_LOG_DEBUG, "Call to protocol2_serv is only for protocol_id == UDA_PROTOCOL_SERVER_BLOCK\n");
+			err=UDA_PROTOCOL_ERROR_1093;
+    }
+
+    return err;
+
+}
 
 int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
               USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
@@ -108,7 +127,13 @@ int protocol2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLI
             err = handle_client_block(xdrs, direction, str, protocolVersion);
             break;
         case UDA_PROTOCOL_SERVER_BLOCK:
-            err = handle_server_block(xdrs, direction, str, protocolVersion);
+			if (direction == XDR_RECEIVE) {
+				UDA_LOG(UDA_LOG_DEBUG, "Call to protocol2 with protocol_id == UDA_PROTOCOL_SERVER_BLOCK and direction == XDR_RECEIVE is forbidden. Use protocol2_serv instead\n");
+            	err=UDA_PROTOCOL_ERROR_1093;
+			}
+			else {
+            	err = handle_server_block(xdrs, direction, str, protocolVersion,NULL);
+			}
             break;
         case UDA_PROTOCOL_DATAOBJECT:
             err = handle_dataobject(xdrs, direction, str);
@@ -267,7 +292,7 @@ static int handle_dataobject(XDR* xdrs, int direction, const void* str)
     return err;
 }
 
-static int handle_server_block(XDR* xdrs, int direction, const void* str, int protocolVersion)
+static int handle_server_block(XDR* xdrs, int direction, const void* str, int protocolVersion, int *serverVersion)
 {
     int err = 0;
     auto server_block = (SERVER_BLOCK*)str;
@@ -276,7 +301,7 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str, int pr
         case XDR_RECEIVE:
             closeUdaError();    // Free Heap associated with Previous Data Access
 
-            if (!xdr_server1(xdrs, server_block, protocolVersion)) {
+            if (!xdr_server1(xdrs, server_block, protocolVersion, serverVersion)) {
                 err = UDA_PROTOCOL_ERROR_22;
                 break;
             }
@@ -296,7 +321,7 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str, int pr
             break;
 
         case XDR_SEND:
-            if (!xdr_server1(xdrs, server_block, protocolVersion)) {
+            if (!xdr_server1(xdrs, server_block, protocolVersion,serverVersion)) {
                 err = UDA_PROTOCOL_ERROR_22;
                 break;
             }
