@@ -4,10 +4,10 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include <clientserver/udaStructs.h>
-#include <structures/genStructs.h>
-#include <clientserver/export.h>
-#include "udaClient.h"
+#include "udaStructs.h"
+#include "genStructs.h"
+#include "export.h"
+#include "client.h"
 
 #ifdef __cplusplus
 extern "C" {

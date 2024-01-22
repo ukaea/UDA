@@ -16,13 +16,13 @@ find_package( LibXml2 REQUIRED )
 
 if( WIN32 AND NOT MINGW )
   add_compile_definitions( MINGW )
-  add_definitions( /W2 /WX )
+  add_compile_options( /W2 /WX )
 else()
-  add_definitions( -Wall -Werror -Wextra -Wno-unused-parameter -Wno-missing-field-initializers )
+  add_compile_options( -Wall -Werror -Wextra -Wno-unused-parameter -Wno-missing-field-initializers )
   if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER 5.0 )
-    add_definitions( -Wno-format-truncation -Wno-format-overflow )
+    add_compile_options( -Wno-format-truncation -Wno-format-overflow )
     if( NOT MINGW )
-      add_definitions( -Wno-use-after-free )
+      add_compile_options( -Wno-use-after-free )
     endif()
   endif()
 endif()
@@ -33,7 +33,7 @@ endif()
 
 set( LOGGING_BACKEND "FILE" CACHE STRING "Choose logging backend [FILE;SYSLOG]" )
 
-include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
+include_directories( ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/include )
 
 add_subdirectory( bin )
 add_subdirectory( cache )
@@ -41,6 +41,7 @@ add_subdirectory( logging )
 add_subdirectory( authentication )
 add_subdirectory( structures )
 add_subdirectory( clientserver )
+add_subdirectory( c_api )
 add_subdirectory( client )
 add_subdirectory( client2 )
 if( ENABLE_CAPNP )
@@ -68,7 +69,28 @@ configure_file(
   @ONLY
 )
 
+set( HEADERS
+  include/accAPI.h
+  include/accessors.h
+  include/client.h
+  include/clientAPI.h
+  include/clientMDS.h
+  include/export.h
+  include/genStructs.h
+  include/initStructs.h
+  include/legacy.h
+  include/pluginStructs.h
+  include/struct.h
+  include/udaDefines.h
+  include/udaErrors.h
+  include/udaGetAPI.h
+  include/udaPlugin.h
+  include/udaPutAPI.h
+  include/udaStructs.h
+  include/udaTypes.h
+)
 install( FILES uda.h ${CMAKE_BINARY_DIR}/source/version.h DESTINATION include/uda )
+install( FILES ${HEADERS} DESTINATION include/uda )
 
 set( ENV_PATH )
 if( WIN32 AND NOT MINGW )

@@ -8,9 +8,9 @@
 #  include <strings.h>
 #endif
 
-#include <clientserver/udaErrors.h>
+#include "udaErrors.h"
 #include <clientserver/stringUtils.h>
-#include <clientserver/initStructs.h>
+#include "initStructs.h"
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/errorLog.h>
 #include <logging/logging.h>

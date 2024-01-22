@@ -7,8 +7,10 @@
 #include "plugins.hpp"
 #include "get_plugin_address.hpp"
 
-#include "plugins/udaPlugin.h"
+#include "udaPlugin.h"
 #include "clientserver/stringUtils.h"
+#include <clientserver/errorLog.h>
+#include "logging/logging.h"
 
 #define REQUEST_READ_START      1000
 

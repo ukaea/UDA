@@ -18,10 +18,11 @@ endif()
 
 include( UseJava )
 
-set( CMAKE_JAVA_COMPILE_FLAGS "-source" "1.6" "-target" "1.6" )
+set( CMAKE_JAVA_COMPILE_FLAGS "-source" "8" "-target" "8" )
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_SOURCE_DIR}/source/include
   ${JNI_INCLUDE_DIRS}
   ${LIBXML2_INCLUDE_DIR}
 )

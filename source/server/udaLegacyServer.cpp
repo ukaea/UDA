@@ -6,16 +6,16 @@
 #include "udaLegacyServer.h"
 
 #include <clientserver/errorLog.h>
-#include <clientserver/initStructs.h>
+#include "initStructs.h"
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
-#include <clientserver/udaTypes.h>
+#include "udaTypes.h"
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
 #include <logging/logging.h>
 #include <server/serverPlugin.h>
-#include <structures/struct.h>
+#include "struct.h"
 
 #include "closeServerSockets.h"
 #include "getServerEnvironment.h"

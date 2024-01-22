@@ -1,34 +1,32 @@
 find_package( OpenSSL REQUIRED )
 find_package( LibXml2 REQUIRED )
 
+set( LIBS OpenSSL::SSL OpenSSL::Crypto LibXml2::LibXml2 )
+
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
+  list( APPEND LIBS XDR::XDR )
 else()
   find_package( TIRPC QUIET)
-  if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
-  endif()
+  list( APPEND LIBS TIRPC::TIRPC )
 endif()
 
 # Sources
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${OPENSSL_INCLUDE_DIR}
-  ${LIBXML2_INCLUDE_DIR}
-)
-
-if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-elseif( TIRPC_FOUND )
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-endif()
-
 add_library( authentication-client-objects OBJECT udaClientSSL.cpp udaClientSSL.h udaServerSSL.h )
-target_link_libraries( authentication-client-objects OpenSSL::SSL LibXml2::LibXml2 )
+target_link_libraries( authentication-client-objects ${LIBS} )
+
+target_include_directories( authentication-client-objects PRIVATE
+  ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_SOURCE_DIR}/source/include
+)
 
 if( NOT CLIENT_ONLY )
   add_library( authentication-server-objects OBJECT udaServerSSL.cpp udaClientSSL.h )
   target_compile_definitions( authentication-server-objects PRIVATE -DSERVERBUILD )
-  target_link_libraries( authentication-server-objects OpenSSL::SSL LibXml2::LibXml2 )
+  target_link_libraries( authentication-server-objects ${LIBS} )
+  target_include_directories( authentication-server-objects PRIVATE
+    ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_SOURCE_DIR}/source/include
+  )
 endif()

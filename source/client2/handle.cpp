@@ -1,13 +1,13 @@
 #include "handle.hpp"
 
-#include <clientserver/udaStructs.h>
-#include <clientserver/udaTypes.h>
-#include <structures/struct.h>
-#include <clientserver/initStructs.h>
+#include "udaStructs.h"
+#include "udaTypes.h"
+#include "struct.h"
+#include "initStructs.h"
 
-#include "accAPI.h"
+#include "thread_client.hpp"
 
-void free_handle(int handle)
+void uda::client::free_handle(int handle)
 {
     // Free Heap Memory (Not the Data Blocks themselves: These will be re-used.)
 
@@ -15,7 +15,7 @@ void free_handle(int handle)
     DIMS* ddims;
     int rank;
 
-    DATA_BLOCK* data_block = udaGetDataBlock(handle);
+    DATA_BLOCK* data_block = get_data_block(handle);
 
     if (data_block == nullptr) return;
 

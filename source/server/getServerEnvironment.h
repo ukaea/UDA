@@ -3,8 +3,8 @@
 #ifndef UDA_SERVER_GETSERVERENVIRONMENT_H
 #define UDA_SERVER_GETSERVERENVIRONMENT_H
 
-#include <clientserver/udaStructs.h>
-#include <clientserver/export.h>
+#include "udaStructs.h"
+#include "export.h"
 
 void printServerEnvironment(const ENVIRONMENT* environment);
 ENVIRONMENT* getServerEnvironment();

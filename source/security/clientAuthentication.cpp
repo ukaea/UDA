@@ -6,8 +6,8 @@
 #include <logging/logging.h>
 #ifndef TESTIDAMSECURITY
 #  include <clientserver/xdrlib.h>
-#  include <clientserver/udaErrors.h>
-#  include <client/udaClient.h>
+#  include "include/udaErrors.h"
+#  include "include/client.h"
 #endif
 
 #include "authenticationUtils.h"

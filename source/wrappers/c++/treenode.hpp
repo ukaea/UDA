@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include <structures/genStructs.h>
-#include <clientserver/export.h>
+#include "genStructs.h"
+#include "export.h"
 
 #include "scalar.hpp"
 #include "vector.hpp"

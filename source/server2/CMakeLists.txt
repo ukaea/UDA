@@ -6,13 +6,21 @@ find_package( OpenSSL REQUIRED )
 find_package( spdlog REQUIRED )
 find_package( fmt REQUIRED )
 
+set( LIBS LibXml2::LibXml2 OpenSSL::SSL OpenSSL::Crypto spdlog::spdlog fmt::fmt )
+
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
   find_package( dlfcn-win32 CONFIG REQUIRED )
+  list( APPEND LIBS XDR::XDR )
+  list( APPEND LIBS dlfcn-win32::dl )
+  list( APPEND LIBS ws2_32 )
+  if( MINGW )
+    list( APPEND LIBS stdc++ )
+  endif()
 else()
   find_package( TIRPC QUIET )
   if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
+    list( APPEND LIBS TIRPC::TIRPC )
   endif()
 endif()
 
@@ -34,15 +42,6 @@ set( SRC_FILES
   xdr_protocol.cpp
 )
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${LIBXML2_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
-  ${spdlog_SOURCE_DIR}/include
-  ${fmt_SOURCE_DIR}/include
-)
-
 add_definitions( -DSERVERBUILD )
 
 ########################################################################################################################
@@ -51,7 +50,11 @@ add_definitions( -DSERVERBUILD )
 add_library( server2-objects OBJECT
   ${SRC_FILES}
 )
-target_link_libraries( server2-objects PRIVATE spdlog::spdlog fmt::fmt )
+target_link_libraries( server2-objects PRIVATE ${LIBS} )
+target_include_directories( server2-objects PRIVATE
+  ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_SOURCE_DIR}/source/include
+)
 
 set( SERVER2_OBJ
   $<TARGET_OBJECTS:server2-objects>
@@ -67,20 +70,14 @@ if( BUILD_SHARED_LIBS )
   add_library( server2-shared SHARED ${SERVER2_OBJ} )
 endif()
 
-set( LINK_XDR )
+target_link_libraries( server2-static PRIVATE ${LIBS} )
+if( BUILD_SHARED_LIBS )
+  target_link_libraries( server2-shared PRIVATE ${LIBS} )
+endif()
+
 set( EXE_FLAG )
 if( WIN32 OR MINGW )
   set( EXE_FLAG WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-  set( LINK_XDR ${XDR_LIBRARIES} ws2_32 )
-elseif(TIRPC_FOUND )
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-  set( LINK_XDR ${LINK_XDR} ${TIRPC_LIBRARIES} )
-endif()
-
-target_link_libraries( server2-static PRIVATE ${LINK_XDR} fmt::fmt )
-if( BUILD_SHARED_LIBS )
-  target_link_libraries( server2-shared PRIVATE ${LINK_XDR} fmt::fmt )
 endif()
 
 add_executable( server2-exe ${EXE_FLAG} server_main.cpp)
@@ -94,50 +91,17 @@ if( BUILD_SHARED_LIBS )
 else()
   set( CLIENT_STATIC client-static )
 endif()
-if( WIN32 OR MINGW )
-  if( MINGW )
-    set( CLIENT_STATIC ${CLIENT_STATIC} ws2_32 stdc++ )
-  else()
-    set( CLIENT_STATIC ${CLIENT_STATIC} ws2_32 )
-  endif()
-endif()
-
-set( LINK_DL )
-if( WIN32 OR MINGW )
-  set( LINK_DL dlfcn-win32::dl )
-endif()
-
-set( LINK_M )
-if( ( WIN32 AND MINGW ) OR NOT WIN32 )
-  set( LINK_M m )
-endif()
 
 target_link_libraries( server2-static PRIVATE
   ${CLIENT_STATIC}
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
   ${CACHE_LIBRARIES}
-  ${LINK_DL}
-  fmt::fmt
 )
 
 if( BUILD_SHARED_LIBS )
-  set( CLIENT_SHARED client-shared plugins-shared )
-  if( WIN32 OR MINGW )
-    if( MINGW )
-      set( CLIENT_SHARED ${CLIENT_SHARED} ws2_32 stdc++ )
-    else()
-      set( CLIENT_SHARED ${CLIENT_SHARED} ws2_32 )
-    endif()
-  endif()
-
   target_link_libraries( server2-shared PRIVATE
-    ${CLIENT_SHARED}
-    ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES}
+    client-shared
+    plugins-shared
     ${CACHE_LIBRARIES}
-    ${LINK_DL}
-    fmt::fmt
   )
 endif()
 
@@ -151,12 +115,11 @@ endif()
 
 target_link_libraries( server2-exe PRIVATE
   ${SERVER_LINKING}
-  ${OPENSSL_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${CACHE_LIBRARIES}
-  ${LINK_M}
-  ${LINK_DL}
-  ${LINK_XDR}
+  ${LIBS}
+)
+target_include_directories( server2-exe PRIVATE
+  ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_SOURCE_DIR}/source/include
 )
 
 if( NOT WIN32 AND NOT MINGW )

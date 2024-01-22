@@ -3,7 +3,7 @@
 #ifndef UDA_CLIENT_HOSTLIST_H
 #define UDA_CLIENT_HOSTLIST_H
 
-#include <clientserver/export.h>
+#include "export.h"
 #include <clientserver/socketStructs.h>
 #include <string>
 

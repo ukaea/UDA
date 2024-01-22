@@ -1,26 +1,22 @@
 #include <cstdio>
-#include <rpc/rpc.h>
 #include <cassert>
 #include <cerrno>
 
 #include <clientserver/copyStructs.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/makeRequestBlock.h>
-#include <clientserver/makeRequestBlock.h>
+#include "initStructs.h"
 #include <clientserver/manageSockets.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/protocolXML.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/xdrlib.h>
-#include <clientserver/mkstemp.h>
 #include <logging/accessLog.h>
 #include <server/serverPlugin.h>
 #include <structures/parseIncludeFile.h>
-#include <structures/struct.h>
+#include "logging/logging.h"
+#include "struct.h"
 
 #include "getServerEnvironment.h"
-#include "getServerEnvironment.h"
-#include "makeServerRequestBlock.h"
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"

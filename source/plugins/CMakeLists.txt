@@ -5,13 +5,21 @@ find_package( LibXml2 REQUIRED )
 find_package( fmt REQUIRED )
 find_package( Boost COMPONENTS filesystem REQUIRED )
 
+set( LIBS LibXml2::LibXml2 fmt::fmt )
+
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
   find_package( dlfcn-win32 CONFIG REQUIRED )
+  list( APPEND LIBS XDR::XDR )
+  list( APPEND LIBS dlfcn-win32::dl )
+  list( APPEND LIBS ws2_32 )
+  if( MINGW )
+    list( APPEND LIBS stdc++ )
+  endif()
 else()
   find_package( TIRPC QUIET )
-  if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
+  if(TIRPC_FOUND)
+    list( APPEND LIBS TIRPC::TIRPC )
   endif()
 endif()
 
@@ -52,36 +60,20 @@ else()
   add_subdirectory( viewport )
 endif( DEFINED BUILD_PLUGINS )
 
-add_definitions( -DSERVERBUILD )
-
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_SOURCE_DIR}/source/include
-  ${LIBXML2_INCLUDE_DIR}
-)
-
-if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-elseif(TIRPC_FOUND)
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-endif()
-
 set( SOURCE_FILES
   managePluginFiles.cpp
   udaPlugin.cpp
   uda_plugin_base.cpp
 )
 
-set( HEADER_FILES
-  managePluginFiles.h
-  pluginStructs.h
-  udaPlugin.h
-  udaPluginFiles.h
-  uda_plugin_base.hpp
-)
+add_library( plugins-objects OBJECT ${SOURCE_FILES} )
 
-add_library( plugins-objects OBJECT ${SOURCE_FILES} ${HEADER_FILES} )
-target_link_libraries( plugins-objects PUBLIC Boost::filesystem )
+target_compile_definitions( plugins-objects PRIVATE -DSERVERBUILD )
+target_include_directories( plugins-objects PRIVATE
+  ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_SOURCE_DIR}/source/include
+)
+target_link_libraries( plugins-objects PRIVATE ${LIBS} )
 
 add_library( plugins-static STATIC $<TARGET_OBJECTS:plugins-objects> )
 target_link_libraries( plugins-static PUBLIC Boost::filesystem )
@@ -90,27 +82,10 @@ if( BUILD_SHARED_LIBS )
   target_link_libraries( plugins-shared PUBLIC Boost::filesystem )
 endif()
 
-set( LINK_LIB ${LIBXML2_LIBRARIES} fmt::fmt )
-if( WIN32 OR MINGW )
-  if( MINGW )
-    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl stdc++ )
-  else()
-    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl )
-  endif()
-elseif(TIRPC_FOUND)
-  set( LINK_LIB ${LINK_LIB} ${TIRPC_LIBRARIES} )
-endif()
-
-target_link_libraries( plugins-static PRIVATE
-  #server-static
-  ${LINK_LIB}
-)
+target_link_libraries( plugins-static PRIVATE ${LIBS} )
 
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( plugins-shared PRIVATE
-    server-static
-    ${LINK_LIB}
-  )
+  target_link_libraries( plugins-shared PRIVATE server-static ${LINK_LIB} )
 endif()
 
 set_target_properties( plugins-static
@@ -143,12 +118,3 @@ if( BUILD_SHARED_LIBS )
     DESTINATION lib
   )
 endif()
-
-install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/plugins
-)
-
-file( GLOB GSL_HEADERS "${CMAKE_SOURCE_DIR}/source/include/gsl/*" )
-install( FILES ${GSL_HEADERS}
-  DESTINATION include/uda/gsl
-)

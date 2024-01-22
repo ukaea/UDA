@@ -5,10 +5,10 @@
 #include <vector>
 
 #include <plugins/uda_plugin_base.hpp>
-#include <clientserver/initStructs.h>
-#include <structures/struct.h>
+#include "initStructs.h"
+#include "struct.h"
 #include <clientserver/stringUtils.h>
-#include <structures/accessors.h>
+#include "accessors.h"
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
 #include <serialisation/capnp_serialisation.h>

@@ -5,23 +5,31 @@ find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
 find_package( LibXml2 REQUIRED )
 
+set( LIBS OpenSSL::SSL OpenSSL::Crypto fmt::fmt LibXml2::LibXml2 )
+
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
   find_package( dlfcn-win32 CONFIG REQUIRED )
+  list( APPEND LIBS XDR::XDR dlfcn-win32::dl ws2_32 )
   if( MINGW )
     find_package( ZLIB REQUIRED )
     find_package( Iconv REQUIRED )
     find_package( liblzma CONFIG REQUIRED )
+    list( APPEND LIBS Iconv::Iconv liblzma::liblzma ZLIB::ZLIB crypt32 stdc++ pthread )
   endif()
 else()
   find_package( TIRPC QUIET )
   if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
+    list( APPEND LIBS TIRPC::TIRPC )
   endif()
 endif()
 
-add_definitions( -DNOTGENERICENABLED )
-add_definitions( -DNO_GSL_LIB )
+find_package( GSL )
+if( GSL_FOUND )
+  list( APPEND LIBS GSL::gsl )
+else()
+  add_definitions( -DNO_GSL_LIB )
+endif()
 
 if( LIBMEMCACHED_FOUND AND NOT NO_MEMCACHE )
   set( EXTRA_LD_LIBRARY_PATHS "${EXTRA_LD_LIBRARY_PATHS};${LIBMEMCACHED_LIB_DIR}" CACHE INTERNAL "" )
@@ -33,10 +41,6 @@ endif()
 # Sources
 
 set( SRC_FILES
-  udaGetAPI.cpp
-  clientAPI.cpp
-  clientMDS.cpp
-  accAPI.cpp
   startup.cpp
   closedown.cpp
   connection.cpp
@@ -45,48 +49,31 @@ set( SRC_FILES
   getEnvironment.cpp
   generateErrors.cpp
   makeClientRequestBlock.cpp
-  udaPutAPI.cpp
   udaClient.cpp
   udaClientHostList.cpp
 )
 
-set( HEADER_FILES
-  accAPI.h
-  clientAPI.h
-  clientMDS.h
-  clientXDRStream.h
-  closedown.h
-  connection.h
-  generateErrors.h
-  getEnvironment.h
-  makeClientRequestBlock.h
-  startup.h
-  udaClient.h
-  udaGetAPI.h
-  udaPutAPI.h
-  updateSelectParms.h
-  udaClientHostList.h
-)
-
-include_directories(
+add_library( client-objects OBJECT ${SRC_FILES} )
+target_link_libraries( client-objects PUBLIC ${LIBS} )
+target_include_directories( client-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
-  ${OPENSSL_INCLUDE_DIR}
-  ${LIBXML2_INCLUDE_DIR}
-  ${fmt_SOURCE_DIR}/include
+  ${CMAKE_SOURCE_DIR}/source/include
 )
-
-add_library( client-objects OBJECT ${SRC_FILES} ${HEADER_FILES} )
-target_link_libraries( client-objects PUBLIC fmt::fmt )
 
 if( NOT CLIENT_ONLY )
   add_library( fatclient-objects OBJECT ${SRC_FILES} )
-  target_link_libraries( fatclient-objects PUBLIC fmt::fmt )
+  target_link_libraries( fatclient-objects PUBLIC ${LIBS} )
+  target_include_directories( fatclient-objects PRIVATE
+    ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_SOURCE_DIR}/source/include
+  )
 
   target_compile_definitions( fatclient-objects PUBLIC -DFATCLIENT )
 endif()
 
 set( CLIENT_OBJS
   $<TARGET_OBJECTS:client-objects>
+  $<TARGET_OBJECTS:c_api-objects>
   $<TARGET_OBJECTS:clientserver-client-objects>
   $<TARGET_OBJECTS:cache-objects>
   $<TARGET_OBJECTS:logging-client-objects>
@@ -96,6 +83,7 @@ set( CLIENT_OBJS
 
 set( FATCLIENT_OBJS
   $<TARGET_OBJECTS:fatclient-objects>
+  $<TARGET_OBJECTS:fatc_api-objects>
   $<TARGET_OBJECTS:fatserver-objects>
   $<TARGET_OBJECTS:fatclientserver-objects>
   $<TARGET_OBJECTS:structures-server-objects>
@@ -108,38 +96,18 @@ if( BUILD_SHARED_LIBS )
   add_library( client-shared SHARED ${CLIENT_OBJS} )
 endif()
 
-set( CLIENT_LINK_LIBS ${OPENSSL_LIBRARIES} ${CACHE_LIBRARIES} ${LIBXML2_LIBRARIES} fmt::fmt )
-if( NOT CLIENT_ONLY )
-  if( MINGW )
-    set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} Iconv::Iconv liblzma::liblzma ZLIB::ZLIB crypt32 )
-  endif()
-endif()
-
-if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ws2_32 ${XDR_LIBRARIES} )
-  if ( MINGW )
-    set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} dlfcn-win32::dl stdc++ pthread )
-  else()
-    set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} dlfcn-win32::dl )
-  endif()
-elseif( TIRPC_FOUND )
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-  set( CLIENT_LINK_LIBS ${CLIENT_LINK_LIBS} ${TIRPC_LIBRARIES} )
-endif()
-
-target_link_libraries( client-static PUBLIC ${CLIENT_LINK_LIBS} )
+target_link_libraries( client-static PUBLIC ${LIBS} )
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( client-shared PUBLIC ${CLIENT_LINK_LIBS} )
+  target_link_libraries( client-shared PUBLIC ${LIBS} )
 endif()
 
 if( NOT CLIENT_ONLY )
   add_library( fatclient-static STATIC ${FATCLIENT_OBJS} )
-  target_link_libraries( fatclient-static PUBLIC plugins-static ${CLIENT_LINK_LIBS} )
+  target_link_libraries( fatclient-static PUBLIC plugins-static ${LIBS} )
   
   if( BUILD_SHARED_LIBS )
     add_library( fatclient-shared SHARED ${FATCLIENT_OBJS} )
-    target_link_libraries( fatclient-shared PUBLIC plugins-shared ${CLIENT_LINK_LIBS} )
+    target_link_libraries( fatclient-shared PUBLIC plugins-shared ${LIBS} )
   endif()
 endif()
 
@@ -171,12 +139,6 @@ if( BUILD_SHARED_LIBS )
     DESTINATION lib
   )
 endif()
-
-file( GLOB HEADER_FILES "*.h" )
-
-install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/client
-)
 
 if( NOT CLIENT_ONLY )
   set_target_properties( fatclient-static

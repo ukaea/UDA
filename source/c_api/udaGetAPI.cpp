@@ -14,16 +14,16 @@
 #  include <strings.h>
 #endif
 
-#include <logging/logging.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/errorLog.h>
-#include <clientserver/printStructs.h>
+#include "logging/logging.h"
+#include "initStructs.h"
+#include "clientserver/errorLog.h"
+#include "clientserver/printStructs.h"
 
-#include "makeClientRequestBlock.h"
-#include "startup.h"
-#include "udaClient.h"
+#include "client/makeClientRequestBlock.h"
+#include "client/startup.h"
+#include "client.h"
 #include "accAPI.h"
-#include "getEnvironment.h"
+#include "client/getEnvironment.h"
 
 #ifdef MEMDEBUG
 #include <mcheck.h>

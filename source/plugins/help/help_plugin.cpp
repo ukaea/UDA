@@ -3,9 +3,9 @@
 #include <plugins/uda_plugin_base.hpp>
 #include <boost/filesystem.hpp>
 
-#include <clientserver/initStructs.h>
-#include <structures/struct.h>
-#include <structures/accessors.h>
+#include "initStructs.h"
+#include "struct.h"
+#include "accessors.h"
 #include <fmt/format.h>
 
 class HelpPlugin : public UDAPluginBase {

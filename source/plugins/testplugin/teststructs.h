@@ -1,7 +1,7 @@
 #ifndef UDA_PLUGIN_TESTPLUGIN_TESTSTRUCTS_H
 #define UDA_PLUGIN_TESTPLUGIN_TESTSTRUCTS_H
 
-#include <plugins/pluginStructs.h>
+#include "pluginStructs.h"
 
 typedef struct Test9
 {

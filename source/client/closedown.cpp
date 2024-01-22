@@ -10,7 +10,7 @@
 #include "closedown.h"
 
 #include <logging/logging.h>
-#include <client/udaClient.h>
+#include "client.h"
 #include <client/udaClientHostList.h>
 
 #ifdef FATCLIENT

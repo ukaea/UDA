@@ -4,10 +4,10 @@
 #define UDA_SERVER_SERVERSUBSETDATA_H
 
 #include <clientserver/parseXML.h>
-#include <clientserver/udaStructs.h>
-#include <structures/genStructs.h>
-#include <clientserver/export.h>
-#include "plugins/pluginStructs.h"
+#include "udaStructs.h"
+#include "genStructs.h"
+#include "export.h"
+#include "pluginStructs.h"
 
 #ifdef __cplusplus
 extern "C" {

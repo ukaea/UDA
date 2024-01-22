@@ -56,7 +56,7 @@
 #include <cstdlib>
 #include <cerrno>
 
-#include <structures/struct.h>
+#include "struct.h"
 #include <logging/logging.h>
 #include <clientserver/memstream.h>
 

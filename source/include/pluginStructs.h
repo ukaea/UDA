@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 
-#include <clientserver/udaStructs.h>
-#include <structures/genStructs.h>
-#include <clientserver/export.h>
+#include "udaStructs.h"
+#include "genStructs.h"
+#include "export.h"
 
 #ifdef __cplusplus
 extern "C" {

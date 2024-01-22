@@ -11,7 +11,7 @@
 // Server host addressed beginng with SSL:// are assumed to be using SSL authentication. The SSL:// prefix is removed to
 // make the connection.
 
-#include <clientserver/export.h>
+#include <export.h>
 
 #ifdef __cplusplus
 extern "C" {

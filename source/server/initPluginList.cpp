@@ -4,6 +4,7 @@
 
 #include <cache/memcache.hpp>
 #include <clientserver/stringUtils.h>
+#include <clientserver/errorLog.h>
 #include <server/serverPlugin.h>
 #include <fmt/format.h>
 

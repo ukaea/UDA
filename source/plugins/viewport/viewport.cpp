@@ -19,10 +19,9 @@
 #endif
 
 #include <plugins/uda_plugin_base.hpp>
-#include <client/udaGetAPI.h>
-#include <client/udaClient.h>
-#include <clientserver/initStructs.h>
-#include <client/accAPI.h>
+#include "udaGetAPI.h"
+#include "initStructs.h"
+#include "accAPI.h"
 #include <clientserver/stringUtils.h>
 
 #include <boost/filesystem.hpp>
@@ -531,7 +530,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                         horizontal_pixel_values[i]);
             }
             // Free allocated heap
-            
+
             free(freq);
             free(verticalPixelValues);
             free(verticalPixelBoundaries);

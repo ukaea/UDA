@@ -5,9 +5,11 @@
 #  include <sys/time.h>
 #endif
 
+#include <stdbool.h>
+
 #include "udaDefines.h"
 #include "export.h"
-#include "parseXML.h"
+//#include "clientserver/parseXML.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -205,7 +207,7 @@ typedef struct ClientBlock {
     int get_datadble;               // Return Data in Double Precision
 
     int get_bad;                    // Return Only Data with Bad Status value
-    int get_meta;                   // Return Meta Data associated with Signal
+    int get_meta;                   // Return Metadata associated with Signal
     int get_asis;                   // Return data as Stored in data Archive
     int get_uncal;                  // Disable Calibration Correction
     int get_notoff;                 // Disable Timing Offset Correction
@@ -233,7 +235,7 @@ typedef struct DataBlock {
 
     int error_type;
     int error_model;                // Identify the Error Model
-    int errasymmetry;               // Flags whether or not error data are asymmetrical
+    int errasymmetry;               // Flags whether error data are asymmetrical
     int error_param_n;              // the Number of Model Parameters
 
     int data_n;
@@ -336,10 +338,10 @@ typedef struct NameValueList {
 
 enum REQUEST {
     REQUEST_SHUTDOWN = 1,
-    REQUEST_READ_GENERIC,       // Generic Signal via the IDAM Database
+    REQUEST_READ_GENERIC,       // Generic Signal via the UDA Database
     REQUEST_READ_IDA,           // an IDA File
     REQUEST_READ_MDS,           // an MDSPlus Server
-    REQUEST_READ_IDAM,          // a Remote IDAM server
+    REQUEST_READ_IDAM,          // a Remote UDA server
     REQUEST_READ_FORMAT,        // Server to Choose Plugin for Requested Format
     REQUEST_READ_CDF,           // netCDF File
     REQUEST_READ_HDF5,          // HDF5 FIle
@@ -362,6 +364,27 @@ enum REQUEST {
     REQUEST_CACHED,
 };
 
+typedef struct OptionalLong {
+    bool init;
+    long value;
+} OPTIONAL_LONG;
+
+typedef struct Subset {
+    int nbound;                                 // the Number of Subsetting Operations
+    int reform;                                 // reduce Rank if any dimension has length 1
+    int order;                                  // Time Dimension order
+    double bound[UDA_MAX_DATA_RANK];                  // Array of Floating point Bounding values
+    OPTIONAL_LONG stride[UDA_MAX_DATA_RANK];                   // Array of Integer values: Striding values
+    OPTIONAL_LONG ubindex[UDA_MAX_DATA_RANK];                  // Array of Integer values: Bounding or Upper Index
+    OPTIONAL_LONG lbindex[UDA_MAX_DATA_RANK];                  // Array of Integer values: Lower Index
+    char operation[UDA_MAX_DATA_RANK][UDA_SXML_MAX_STRING];           // Array of Subsetting Operations
+    int dimid[UDA_MAX_DATA_RANK];                     // Array of Dimension IDs to subset
+    bool isindex[UDA_MAX_DATA_RANK];                   // Flag the Operation Bound is an Integer Type
+    char data_signal[UDA_SXML_MAX_STRING];            // Name of Signal to subset
+    char member[UDA_SXML_MAX_STRING];                 // Name of Structure Member to extract and to subset
+    char function[UDA_SXML_MAX_STRING];               // Apply this named function to the subsetted data
+} SUBSET;
+
 typedef struct RequestData {
     int request;                       // Plugin or Shutdown Server
     int exp_number;                    // Pulse No.,Tree No., etc
@@ -373,7 +396,7 @@ typedef struct RequestData {
     char signal[MAXMETA];               // Signal, Node etc
     char archive[STRING_LENGTH];        // Archive: pr98, transp, etc
     char device_name[STRING_LENGTH];    // Device name: Mast, Jet, etc
-    char server[STRING_LENGTH];         // IDAM, MDS+ Server
+    char server[STRING_LENGTH];         // UDA, MDS+ Server
     char source[STRING_LENGTH];         // Data Source, Server Host, URL etc
     char function[STRING_LENGTH];       // Server-Side function or attached plugin function
     char api_delim[MAXNAME];            // Delimiter string to use decoding the signal and source arguments

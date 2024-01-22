@@ -1,17 +1,20 @@
 ########################################################################################################################
 # Dependencies
 
+find_package( LibXml2 REQUIRED )
+find_package( Boost REQUIRED )
+
+set( LIBS LibXml2::LibXml2 Boost::boost )
+
 if( WIN32 OR MINGW )
   find_package( XDR REQUIRED )
+  list( APPEND LIBS XDR::XDR )
 else()
   find_package( TIRPC QUIET )
   if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
+    list( APPEND LIBS TIRPC::TIRPC )
   endif()
 endif()
-
-find_package( LibXml2 REQUIRED )
-find_package( Boost REQUIRED )
 
 ########################################################################################################################
 # Sources
@@ -24,17 +27,6 @@ else()
   message( FATAL_ERROR "Unknown logging backend ${LOGGING_BACKEND}" )
 endif()
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${LIBXML2_INCLUDE_DIR}
-)
-
-if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-elseif( TIRPC_FOUND )
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-endif()
-
 ########################################################################################################################
 # Targets
 
@@ -45,15 +37,19 @@ if( NOT CLIENT_ONLY )
   target_compile_definitions( logging-server-objects PRIVATE -DSERVERBUILD )
 endif()
 
-target_link_libraries( logging-client-objects PUBLIC Boost::boost )
-target_link_libraries( logging-server-objects PUBLIC Boost::boost )
+target_link_libraries( logging-client-objects PUBLIC ${LIBS} )
+target_link_libraries( logging-server-objects PUBLIC ${LIBS} )
 
-file( GLOB HEADER_FILES "*.h" )
-
-install( FILES ${HEADER_FILES}
-  DESTINATION include/uda/logging
+target_include_directories( logging-client-objects PRIVATE
+  ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_SOURCE_DIR}/source/include
+)
+target_include_directories( logging-server-objects PRIVATE
+  ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_SOURCE_DIR}/source/include
 )
 
 if( MINGW )
-  add_definitions( -Wno-error=pointer-sign )
+  target_compile_options( logging-client-objects PRIVATE -Wno-error=pointer-sign )
+  target_compile_options( logging-server-objects PRIVATE -Wno-error=pointer-sign )
 endif()

@@ -12,7 +12,7 @@
 #include <blitz/array.h>
 #include "singleValue.h"
 #include <sstream>
-#include <clientserver/export.h>
+#include "export.h"
 
 //!  Utility routines
 namespace UtilitiesNs

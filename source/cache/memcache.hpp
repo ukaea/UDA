@@ -1,9 +1,9 @@
 #ifndef UDA_CACHE_MEMCACHE_H
 #define UDA_CACHE_MEMCACHE_H
 
-#include <clientserver/udaStructs.h>
-#include <structures/genStructs.h>
-#include <clientserver/export.h>
+#include "udaStructs.h"
+#include "genStructs.h"
+#include "export.h"
 
 namespace uda {
 namespace cache {

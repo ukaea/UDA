@@ -38,3 +38,20 @@ include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( XDR DEFAULT_MSG XDR_LIBRARIES XDR_INCLUDE_DIR )
 
 mark_as_advanced( XDR_LIBRARIES XDR_INCLUDE_DIR )
+
+# Create imported target XDR::XDR
+if( NOT TARGET XDR::XDR )
+add_library( XDR::XDR SHARED IMPORTED )
+
+set_target_properties( XDR::XDR PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES "${XDR_INCLUDE_DIR}"
+  INTERFACE_LINK_LIBRARIES "${XDR_LIBRARIES}"
+)
+
+if( WIN32 )
+  set_target_properties( XDR::XDR PROPERTIES
+    IMPORTED_LOCATION "${XDR_LIBRARIES}"
+    IMPORTED_IMPLIB "${XDR_LIBRARIES}"
+  )
+endif()
+endif()

@@ -1,7 +1,7 @@
 #include "make_server_request_block.hpp"
 
 #include <clientserver/makeRequestBlock.h>
-#include <clientserver/initStructs.h>
+#include "initStructs.h"
 
 #include "server_environment.hpp"
 #include "plugins.hpp"

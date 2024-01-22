@@ -23,11 +23,11 @@ Interprets the API arguments and assembles a Request data structure.
 #include <string>
 
 #include <logging/logging.h>
-#include <clientserver/udaErrors.h>
+#include "udaErrors.h"
 #include <clientserver/errorLog.h>
 #include <clientserver/expand_path.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/initStructs.h>
+#include "initStructs.h"
 #include <clientserver/makeRequestBlock.h>
 #include <fmt/format.h>
 

@@ -2,24 +2,32 @@
 # Dependencies
 
 find_package( Boost REQUIRED )
-find_package( LibXml2 REQUIRED )
 find_package( OpenSSL REQUIRED )
 find_package( fmt REQUIRED )
+find_package( LibXml2 REQUIRED )
+
+set( LIBS Boost::boost OpenSSL::SSL OpenSSL::Crypto fmt::fmt LibXml2::LibXml2 )
 
 if( WIN32 OR MINGW )
-  find_package( OpenSSL REQUIRED )
   find_package( XDR REQUIRED )
   find_package( dlfcn-win32 CONFIG REQUIRED )
+  list( APPEND LIBS XDR::XDR dlfcn-win32::dl ws2_32 )
   if( MINGW )
     find_package( ZLIB REQUIRED )
     find_package( Iconv REQUIRED )
     find_package( liblzma CONFIG REQUIRED )
+    list( APPEND LIBS Iconv::Iconv liblzma::liblzma ZLIB::ZLIB crypt32 stdc++ pthread )
   endif()
 else()
   find_package( TIRPC QUIET )
   if( TIRPC_FOUND )
-    add_definitions( -D__TIRPC__ )
+    list( APPEND LIBS TIRPC::TIRPC )
   endif()
+endif()
+
+find_package( GSL )
+if( GSL_FOUND )
+  list( APPEND LIBS GSL::gsl )
 endif()
 
 set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../.. )
@@ -40,30 +48,20 @@ set( SRC_FILES
   signal.cpp
 )
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/source
-  ${Boost_INCLUDE_DIR}
-  ${fmt_SOURCE_DIR}/include
-)
-
-include_directories( ${LIBXML2_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} )
-
-if( MINGW OR WIN32 )
-  include_directories( ${XDR_INCLUDE_DIR} )
-elseif( TIRPC_FOUND )
-  include_directories( ${TIRPC_INCLUDE_DIR} )
-endif()
-
-if( ITER_CI )
-  add_definitions( -D__USE_XOPEN2K8 )
-endif()
-
-include_directories( SYSTEM "${Boost_INCLUDE_DIRS}" )
 
 add_library( cpp-objects OBJECT ${SRC_FILES} )
+if( ITER_CI )
+  target_compile_definitions( cpp-objects PRIVATE -D__USE_XOPEN2K8 )
+endif()
+target_include_directories( cpp-objects PRIVATE
+  ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_SOURCE_DIR}/source/include
+)
+target_link_libraries( cpp-objects PRIVATE ${LIBS} )
 
 set( CLIENT_OBJS
   $<TARGET_OBJECTS:client-objects>
+  $<TARGET_OBJECTS:c_api-objects>
   $<TARGET_OBJECTS:clientserver-client-objects>
   $<TARGET_OBJECTS:cache-objects>
   $<TARGET_OBJECTS:logging-client-objects>
@@ -71,31 +69,26 @@ set( CLIENT_OBJS
   $<TARGET_OBJECTS:authentication-client-objects>
 )
 
-set( LINK_LIB ${Boost_LIBRARIES} ${LIBXML2_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${CACHE_LIBRARIES} fmt::fmt )
-if( WIN32 OR MINGW )
-  if( MINGW )
-    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl Iconv::Iconv liblzma::liblzma ZLIB::ZLIB crypt32 stdc++ )
-  else()
-    set( LINK_LIB ${LINK_LIB} ${XDR_LIBRARIES} ws2_32 dlfcn-win32::dl )
-  endif()
-elseif( TIRPC_FOUND )
-  set( LINK_LIB ${LINK_LIB} ${TIRPC_LIBRARIES} )
-endif()
-
 add_library( ${LIB_NAME}-static STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-target_link_libraries( ${LIB_NAME}-static PRIVATE ${LINK_LIB} )
+target_link_libraries( ${LIB_NAME}-static PRIVATE ${LIBS} )
 
 if( BUILD_SHARED_LIBS )
   add_library( ${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${LINK_LIB} )
+  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${LIBS} )
 endif()
 
 if( NOT CLIENT_ONLY )
   add_library( fatcpp-objects OBJECT ${SRC_FILES} )
   target_compile_definitions( fatcpp-objects PRIVATE -DFATCLIENT )
+  target_include_directories( fatcpp-objects PRIVATE
+    ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_SOURCE_DIR}/source/include
+  )
+  target_link_libraries( fatcpp-objects PRIVATE ${LIBS} )
 
   set( FATCLIENT_OBJS
     $<TARGET_OBJECTS:fatclient-objects>
+    $<TARGET_OBJECTS:fatc_api-objects>
     $<TARGET_OBJECTS:fatserver-objects>
     $<TARGET_OBJECTS:fatclientserver-objects>
     $<TARGET_OBJECTS:structures-server-objects>
@@ -105,11 +98,11 @@ if( NOT CLIENT_ONLY )
   )
 
   add_library( fat${LIB_NAME}-static STATIC $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-  target_link_libraries( fat${LIB_NAME}-static PRIVATE ${LINK_LIB} plugins-static )
+  target_link_libraries( fat${LIB_NAME}-static PRIVATE ${LIBS} plugins-static )
   
   if( BUILD_SHARED_LIBS )
     add_library( fat${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-    target_link_libraries( fat${LIB_NAME}-shared PRIVATE ${LINK_LIB} plugins-shared )
+    target_link_libraries( fat${LIB_NAME}-shared PRIVATE ${LIBS} plugins-shared )
   endif()
 endif()
 

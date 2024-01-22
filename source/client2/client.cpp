@@ -7,17 +7,17 @@
 #include "accAPI.h"
 #include "exceptions.hpp"
 
-#include <clientserver/udaDefines.h>
+#include "udaDefines.h"
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
-#include <clientserver/initStructs.h>
+#include "initStructs.h"
 #include <clientserver/printStructs.h>
 #include <clientserver/userid.h>
 #include <clientserver/protocol.h>
-#include <clientserver/udaErrors.h>
+#include "udaErrors.h"
 #include <clientserver/xdrlib.h>
 #include <cache/fileCache.h>
-#include <clientserver/udaTypes.h>
+#include "udaTypes.h"
 #include <clientserver/stringUtils.h>
 #include <clientserver/allocData.h>
 
@@ -304,6 +304,29 @@ int uda::client::Client::get_server_error_stack_record_code(int record)
     return server_block_.idamerrorstack.idamerror[record].code;  // Server Error Stack Record Code
 }
 
+namespace {
+int get_signal_status(DATA_BLOCK *data_block) {
+    // Signal Status
+    if (data_block == nullptr) {
+        return 0;
+    }
+    return data_block->signal_status;
+}
+
+int get_data_status(DATA_BLOCK *data_block) {
+    // Data Status based on Standard Rule
+    if (data_block == nullptr) {
+        return 0;
+    }
+    if (get_signal_status(data_block) == DEFAULT_STATUS) {
+        // Signal Status Not Changed from Default - use Data Source Value
+        return data_block->source_status;
+    } else {
+        return data_block->signal_status;
+    }
+}
+} // anon namespace
+
 int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
 {
     initServerBlock(&server_block_, 0);
@@ -490,7 +513,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         for (auto data_block_idx : data_block_indices) {
             DATA_BLOCK* data_block = &data_blocks_[data_block_idx];
 
-            if (err == 0 && (udaGetDataStatus(data_block_idx)) == MIN_STATUS && !client_flags_.get_bad) {
+            if (err == 0 && (get_data_status(data_block) == MIN_STATUS) && !client_flags_.get_bad) {
                 // If Data are not usable, flag the client
                 addIdamError(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD, "Data Status is BAD ... Data are Not Usable!");
 

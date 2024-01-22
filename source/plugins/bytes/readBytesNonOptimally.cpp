@@ -7,8 +7,8 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <plugins/bytes/md5Sum.h>
-#include <clientserver/udaTypes.h>
-#include <clientserver/initStructs.h>
+#include "udaTypes.h"
+#include "initStructs.h"
 
 #define BYTEFILEDOESNOTEXIST     100001
 #define BYTEFILEATTRIBUTEERROR   100002

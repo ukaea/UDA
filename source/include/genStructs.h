@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include <clientserver/export.h>
+#include "export.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -9,14 +9,14 @@
 
 #include "udaPutAPI.h"
 
-#include <logging/logging.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/errorLog.h>
-#include <clientserver/printStructs.h>
-#include <clientserver/allocData.h>
+#include "logging/logging.h"
+#include "initStructs.h"
+#include "clientserver/errorLog.h"
+#include "clientserver/printStructs.h"
+#include "clientserver/allocData.h"
 
-#include "makeClientRequestBlock.h"
-#include "udaClient.h"
+#include "client/makeClientRequestBlock.h"
+#include "client/udaClient.h"
 
 // Create a list of data blocks to be sent to the server
 // Each block has a private name

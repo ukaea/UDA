@@ -22,7 +22,7 @@
 
 #include <plugins/uda_plugin_base.hpp>
 #include <clientserver/stringUtils.h>
-#include <clientserver/initStructs.h>
+#include "initStructs.h"
 
 #include <boost/filesystem.hpp>
 

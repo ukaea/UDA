@@ -26,7 +26,7 @@
 #endif
 
 #include <clientserver/errorLog.h>
-#include <clientserver/udaErrors.h>
+#include "udaErrors.h"
 
 #ifdef NOHDF5PLUGIN
 
@@ -45,10 +45,10 @@ void H5Fclose(int fh) {
 #else
 
 #include <H5LTpublic.h>
-#include <clientserver/udaTypes.h>
+#include "udaTypes.h"
 #include <cstdlib>
 #include <memory.h>
-#include <clientserver/initStructs.h>
+#include "initStructs.h"
 #include <cerrno>
 #include <clientserver/stringUtils.h>
 

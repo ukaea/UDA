@@ -1,8 +1,8 @@
 #ifndef UDA_SECURITY_AUTHENTICATIONUTILS_H
 #define UDA_SECURITY_AUTHENTICATIONUTILS_H
 
-#include <clientserver/udaStructs.h>
-#include <clientserver/export.h>
+#include "udaStructs.h"
+#include "export.h"
 
 #ifdef __cplusplus
 extern "C" {

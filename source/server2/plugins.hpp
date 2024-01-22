@@ -6,7 +6,7 @@
 #include <vector>
 #include <boost/optional.hpp>
 
-#include "plugins/pluginStructs.h"
+#include "pluginStructs.h"
 
 namespace uda {
 

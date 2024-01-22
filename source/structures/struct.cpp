@@ -55,7 +55,7 @@
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/xdrlib.h>
-#include <clientserver/udaErrors.h>
+#include "udaErrors.h"
 
 #include "xdrUserDefinedData.h"
 #include "accessors.h"

@@ -3,11 +3,11 @@
 #ifndef UDA_SERVER_UDALEGACYSERVER_H
 #define UDA_SERVER_UDALEGACYSERVER_H
 
-#include <clientserver/udaStructs.h>
-#include <structures/genStructs.h>
+#include "udaStructs.h"
+#include "genStructs.h"
 #include <clientserver/socketStructs.h>
-#include <plugins/pluginStructs.h>
-#include <clientserver/export.h>
+#include "pluginStructs.h"
+#include "export.h"
 
 /**
  * UDA Legacy Data Server (protocol versions <= 6)

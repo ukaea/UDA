@@ -6,9 +6,9 @@
 #include <rpc/rpc.h>
 #include <vector>
 
-#include "clientserver/udaDefines.h"
-#include "clientserver/udaStructs.h"
-#include "structures/genStructs.h"
+#include "udaDefines.h"
+#include "udaStructs.h"
+#include "genStructs.h"
 #include "cache/memcache.hpp"
 #include "server_environment.hpp"
 

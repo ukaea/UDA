@@ -6,9 +6,9 @@
 #include <boost/filesystem.hpp>
 
 #include <clientserver/stringUtils.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/udaTypes.h>
-#include <plugins/udaPlugin.h>
+#include "initStructs.h"
+#include "udaTypes.h"
+#include "udaPlugin.h"
 
 namespace uda {
 namespace keyvalue {

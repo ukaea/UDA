@@ -2,12 +2,12 @@
 
 #include <cstdlib>
 
-#include <client/accAPI.h>
-#include <clientserver/initStructs.h>
+#include "accAPI.h"
+#include "initStructs.h"
 #include <clientserver/stringUtils.h>
-#include <client/udaGetAPI.h>
+#include "udaGetAPI.h"
 #include <logging/logging.h>
-#include <plugins/udaPlugin.h>
+#include "udaPlugin.h"
 #include <plugins/uda_plugin_base.hpp>
 #include <client/udaClient.h>
 

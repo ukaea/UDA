@@ -2,7 +2,7 @@
 #define UDA_SECURITY_SECURITY_H
 
 #include <gcrypt.h>
-#include <clientserver/export.h>
+#include "export.h"
 
 #ifdef __cplusplus
 extern "C" {

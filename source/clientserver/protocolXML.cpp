@@ -59,7 +59,7 @@
 #include <tuple>
 
 #include <logging/logging.h>
-#include <structures/struct.h>
+#include "struct.h"
 #include <fmt/format.h>
 
 #include "readXDRFile.h"

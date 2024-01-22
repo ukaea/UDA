@@ -13,13 +13,14 @@
 #endif
 
 #include <logging/logging.h>
-#include <plugins/pluginStructs.h>
 #include <fmt/format.h>
 
+#include "pluginStructs.h"
 #include "errorLog.h"
 #include "stringUtils.h"
 #include "udaErrors.h"
 #include "udaStructs.h"
+#include "parseXML.h"
 
 #if !defined(__GNUC__) && defined(_WIN32)
 #  include <direct.h>

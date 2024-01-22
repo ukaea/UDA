@@ -22,13 +22,13 @@
 #endif
 
 #include <clientserver/stringUtils.h>
-#include <clientserver/udaTypes.h>
-#if defined(SERVERBUILD) || defined(FATCLIENT)
-#  include <server/serverPlugin.h>
-#  include <server/udaServer.h>
-#include <sstream>
-#include <boost/format.hpp>
+#include "udaTypes.h"
+#include "clientserver/errorLog.h"
+#include "logging.h"
 
+#if defined(SERVERBUILD) || defined(FATCLIENT)
+#  include <sstream>
+#  include <boost/format.hpp>
 #endif
 
 unsigned int countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block)

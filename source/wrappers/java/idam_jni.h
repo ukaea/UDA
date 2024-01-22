@@ -5,7 +5,7 @@
 #ifndef _Included_Idam
 #define _Included_Idam
 
-#include <clientserver/export.h>
+#include "export.h"
 
 #ifdef __cplusplus
 extern "C" {

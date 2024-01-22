@@ -5,10 +5,10 @@
 #include <boost/format.hpp>
 
 #include <logging/logging.h>
-#include <clientserver/udaErrors.h>
+#include "udaErrors.h"
 #include <clientserver/errorLog.h>
 #include <clientserver/expand_path.h>
-#include <clientserver/initStructs.h>
+#include "initStructs.h"
 
 namespace {
 int make_request_data(const Environment* environment, const char* data_object, const char* data_source,

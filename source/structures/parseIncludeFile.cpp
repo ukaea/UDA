@@ -25,10 +25,10 @@
 #include <string.h>
 #include <cstdlib>
 
-#include <clientserver/udaDefines.h>
+#include "udaDefines.h"
 #include <clientserver/stringUtils.h>
 #include <clientserver/errorLog.h>
-#include <clientserver/udaErrors.h>
+#include "udaErrors.h"
 
 #include "struct.h"
 

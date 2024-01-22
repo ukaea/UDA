@@ -8,7 +8,7 @@
 #include "serverSubsetData.h"
 #include "getServerEnvironment.h"
 #include "clientserver/parseOperation.h"
-#include "plugins/udaPlugin.h"
+#include "udaPlugin.h"
 #include "clientserver/makeRequestBlock.h"
 
 #include <cmath>
@@ -25,9 +25,9 @@
 #include <logging/logging.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/errorLog.h>
-#include <clientserver/udaTypes.h>
-#include <structures/struct.h>
-#include <clientserver/initStructs.h>
+#include "udaTypes.h"
+#include "struct.h"
+#include "initStructs.h"
 #include <clientserver/compressDim.h>
 #include <clientserver/stringUtils.h>
 #include <boost/algorithm/string.hpp>

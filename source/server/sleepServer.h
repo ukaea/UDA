@@ -5,8 +5,8 @@
 
 #include <rpc/rpc.h>
 
-#include <structures/genStructs.h>
-#include <clientserver/export.h>
+#include "genStructs.h"
+#include "export.h"
 
 struct IoData;
 

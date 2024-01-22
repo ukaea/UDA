@@ -4,13 +4,13 @@
 #include "logging/logging.h"
 #include "server_subset_data.h"
 #include "apply_XML.hpp"
-#include "clientserver/initStructs.h"
+#include "initStructs.h"
 #include "clientserver/printStructs.h"
-#include "plugins/udaPlugin.h"
+#include "udaPlugin.h"
 #include "server_plugin.h"
 #include "make_server_request_block.hpp"
 #include "clientserver/nameValueSubstitution.h"
-#include "clientserver/udaTypes.h"
+#include "udaTypes.h"
 
 namespace {
 

@@ -1,8 +1,8 @@
 #ifndef UDA_PLUGIN_READHDF58_H
 #define UDA_PLUGIN_READHDF58_H
 
-#include <clientserver/udaStructs.h>
-#include <clientserver/export.h>
+#include "udaStructs.h"
+#include "export.h"
 
 #ifdef __cplusplus
 extern "C" {

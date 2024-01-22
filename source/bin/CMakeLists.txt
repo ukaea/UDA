@@ -8,7 +8,11 @@ endif()
 
 find_package( Boost COMPONENTS program_options REQUIRED )
 
-target_include_directories( uda_cli PRIVATE ${CMAKE_SOURCE_DIR}/source ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0/include )
+target_include_directories( uda_cli PRIVATE
+  ${CMAKE_SOURCE_DIR}/source
+  ${CMAKE_SOURCE_DIR}/source/include
+  ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0/include
+)
 
 target_link_libraries( uda_cli PRIVATE client-static uda_cpp-static )
 target_link_libraries( uda_cli PRIVATE Boost::program_options )

@@ -10,7 +10,11 @@ add_library( serialisation-static STATIC capnp_serialisation.cpp ${CAPNP_SRCS} )
 target_link_libraries( serialisation-static PRIVATE CapnProto::capnp )
 target_include_directories(
   serialisation-static
-  PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/source ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0/include
+  PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_SOURCE_DIR}/source/include
+    ${CMAKE_SOURCE_DIR}/extlib/GSL-4.0.0/include
 )
 
 set_target_properties( serialisation-static
@@ -22,8 +26,6 @@ install( TARGETS serialisation-static
   DESTINATION lib
 )
 
-file( GLOB HEADER_FILES "*.h" )
-
-install( FILES ${HEADER_FILES}
+install( FILES "capnp_serialisation.h"
   DESTINATION include/uda/serialisation
 )

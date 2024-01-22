@@ -7,7 +7,7 @@
 #include <rpc/rpc.h>
 #include <tuple>
 
-#include <structures/genStructs.h>
+#include "genStructs.h"
 #include "export.h"
 
 #ifdef FATCLIENT

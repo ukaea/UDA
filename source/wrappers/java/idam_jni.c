@@ -7,10 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <client/udaGetAPI.h>
-#include <client/udaClient.h>
-#include <client/accAPI.h>
-#include <clientserver/udaTypes.h>
+#include <udaGetAPI.h>
+#include <client.h>
+#include <accAPI.h>
+#include <udaTypes.h>
 
 // Java native methods
 

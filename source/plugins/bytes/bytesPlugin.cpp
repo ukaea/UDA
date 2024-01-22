@@ -3,6 +3,8 @@
 #include <plugins/uda_plugin_base.hpp>
 #include <clientserver/stringUtils.h>
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/errorLog.h>
+#include "logging/logging.h"
 
 #include <boost/filesystem.hpp>
 

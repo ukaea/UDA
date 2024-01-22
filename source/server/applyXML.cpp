@@ -18,7 +18,7 @@
 #include <memory.h>
 
 #include <logging/logging.h>
-#include <clientserver/udaTypes.h>
+#include "udaTypes.h"
 #include <clientserver/stringUtils.h>
 
 int serverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC signal_desc,

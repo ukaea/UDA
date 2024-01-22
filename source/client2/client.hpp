@@ -9,7 +9,7 @@
 #include <vector>
 #include <rpc/rpc.h>
 
-#include <clientserver/udaStructs.h>
+#include "udaStructs.h"
 #include <cache/memcache.hpp>
 
 #include "connection.hpp"

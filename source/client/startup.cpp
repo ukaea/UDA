@@ -19,7 +19,7 @@
 
 #include <logging/logging.h>
 #include <clientserver/errorLog.h>
-#include <clientserver/udaErrors.h>
+#include "udaErrors.h"
 
 #include "udaClient.h"
 #include "getEnvironment.h"

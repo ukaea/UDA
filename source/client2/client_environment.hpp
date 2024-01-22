@@ -3,7 +3,7 @@
 #ifndef UDA_SOURCE_CLIENT2_CLIENT_ENVIRONMENT_H
 #define UDA_SOURCE_CLIENT2_CLIENT_ENVIRONMENT_H
 
-#include <clientserver/udaStructs.h>
+#include "udaStructs.h"
 
 namespace uda {
 namespace client {
