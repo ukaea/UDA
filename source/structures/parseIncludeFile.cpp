@@ -22,19 +22,20 @@
 #include "parseIncludeFile.h"
 
 #include <cerrno>
-#include <string.h>
 #include <cstdlib>
+#include <string.h>
 
 #include "udaDefines.h"
-#include <clientserver/stringUtils.h>
-#include <clientserver/errorLog.h>
 #include "udaErrors.h"
+#include <clientserver/errorLog.h>
+#include <clientserver/stringUtils.h>
 
 #include "struct.h"
 
 int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* header)
 {
-    int lstr, rnk = 0, status = 0, err, model = 0, space, isStruct, isConst, isUnsigned, isLong64, isEnum = 0, maxAlign = 0;
+    int lstr, rnk = 0, status = 0, err, model = 0, space, isStruct, isConst, isUnsigned, isLong64, isEnum = 0,
+              maxAlign = 0;
     FILE* fh = nullptr;
 
     char buffer[STRING_LENGTH];
@@ -49,20 +50,20 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
     char item[MAXELEMENTS][MAXELEMENTNAME];
     char desc[MAXELEMENTS][MAXELEMENTNAME];
     char typeStrName[MAXELEMENTS][MAXELEMENTNAME];
-    char typeStruct[MAXELEMENTS][MAXELEMENTNAME];    // structure types
+    char typeStruct[MAXELEMENTS][MAXELEMENTNAME]; // structure types
     char typeDefName[MAXELEMENTS][MAXELEMENTNAME];
-    char typeDef[MAXELEMENTS][MAXELEMENTNAME];        // Type Definitions
-    int typeStrPtr[MAXELEMENTS];            // Flag pointer type def
+    char typeDef[MAXELEMENTS][MAXELEMENTNAME]; // Type Definitions
+    int typeStrPtr[MAXELEMENTS];               // Flag pointer type def
     int typeDefPtr[MAXELEMENTS];
 
-    char typeEnum[MAXELEMENTS][MAXELEMENTNAME];        // enumerated Types
+    char typeEnum[MAXELEMENTS][MAXELEMENTNAME]; // enumerated Types
     int pointer[MAXELEMENTS];
     int offset[MAXELEMENTS];
-    int offpad[MAXELEMENTS];        // Position before the structure element
+    int offpad[MAXELEMENTS]; // Position before the structure element
     int size[MAXELEMENTS];
     int count[MAXELEMENTS];
     int rank[MAXELEMENTS];
-    int shape[MAXELEMENTS][MAXRANK] = { {0} };
+    int shape[MAXELEMENTS][MAXRANK] = {{0}};
 
     char defnames[MAXELEMENTS][MAXELEMENTNAME];
     int defvalues[MAXELEMENTS];
@@ -95,74 +96,91 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
             addIdamError(UDA_SYSTEM_ERROR_TYPE, "parseIncludeFile", errno,
                          "Unable to Open Structure Definition Header file for Read Access!");
         }
-        if (fh != nullptr) fclose(fh);
+        if (fh != nullptr) {
+            fclose(fh);
+        }
         return err;
     }
 
-//------------------------------------------------------------------------------------------
-// Parse the Test File
-//
-// 3 type of structure type defintion:
-//
-// struct AAA {        or
-// struct AAA
-// {
-//    int     a;        // Descriptions are captured if the begin with //
-//    float     b;
-// };
-// typedef struct AAA AAA ;    assumed not split over lines
-//
-// typedef struct
-// {            or
-// typedef struct{
-//    int     a;
-//    float     b;
-// } AAA;
-//
-// struct AAA {        or
-// struct AAA            This does not use a typedef: instead the type defintion
-// {                struct AAA aaa; is used
-//    int     a;
-//    float     b;
-// };                This is identical to the first definition. However, it is not
-//                followed by a typedef statement.
-//
-//
-// Assumed rules:
-//
-// 1>     retain all #define using integer values for resolving array lengths.
-//    Arithmetic products like 123*234 cannot be resolved. Why recreate the preprocessor if not necessary.
-//    Compiler options cannot be resolved: Prune as necessary
-//    There are defCount defined values. Names do Not Match.
-//      Don't add constants to #defined values within array definitions.
-// 2>    The start of a Structure definition begins with 'struct' then the structure name.
-//    The structure contents are immediately followed by 'typedef struct' then the structure and type name (must be the same)
-// 3>    The start of a Structure definition begins with 'typedef struct'.
-//    The structure contents are immediately followed by the type name.
-// 4>    Don't use /* */ comment block syntax
-// 5>    Structure UNIONS are not used, not anything complex: simple structures are required.
-// 6>    multiple pointer types, e.g., char **, are not yet impemented
-// 7>    Structure elements should be aligned to avoid packing bytes: these may cause problems client side
-// 8>   If a typedef is not used, prefix the structure name with 'struct'
-//
-//
-//
+    //------------------------------------------------------------------------------------------
+    // Parse the Test File
+    //
+    // 3 type of structure type defintion:
+    //
+    // struct AAA {        or
+    // struct AAA
+    // {
+    //    int     a;        // Descriptions are captured if the begin with //
+    //    float     b;
+    // };
+    // typedef struct AAA AAA ;    assumed not split over lines
+    //
+    // typedef struct
+    // {            or
+    // typedef struct{
+    //    int     a;
+    //    float     b;
+    // } AAA;
+    //
+    // struct AAA {        or
+    // struct AAA            This does not use a typedef: instead the type defintion
+    // {                struct AAA aaa; is used
+    //    int     a;
+    //    float     b;
+    // };                This is identical to the first definition. However, it is not
+    //                followed by a typedef statement.
+    //
+    //
+    // Assumed rules:
+    //
+    // 1>     retain all #define using integer values for resolving array lengths.
+    //    Arithmetic products like 123*234 cannot be resolved. Why recreate the preprocessor if not necessary.
+    //    Compiler options cannot be resolved: Prune as necessary
+    //    There are defCount defined values. Names do Not Match.
+    //      Don't add constants to #defined values within array definitions.
+    // 2>    The start of a Structure definition begins with 'struct' then the structure name.
+    //    The structure contents are immediately followed by 'typedef struct' then the structure and type name (must be
+    //    the same)
+    // 3>    The start of a Structure definition begins with 'typedef struct'.
+    //    The structure contents are immediately followed by the type name.
+    // 4>    Don't use /* */ comment block syntax
+    // 5>    Structure UNIONS are not used, not anything complex: simple structures are required.
+    // 6>    multiple pointer types, e.g., char **, are not yet impemented
+    // 7>    Structure elements should be aligned to avoid packing bytes: these may cause problems client side
+    // 8>   If a typedef is not used, prefix the structure name with 'struct'
+    //
+    //
+    //
     while (fgets(buffer, STRING_LENGTH, fh) != nullptr) {
 
         LeftTrimString(TrimString(buffer));
 
         do {
 
-            if (STR_STARTSWITH(buffer, "# ")) break;
-            if (STR_STARTSWITH(buffer, "//")) break;
-            if (STR_STARTSWITH(buffer, "/*")) break;
-            if (STR_STARTSWITH(buffer, "*/")) break;
-            if (buffer[0] == '\n') break;
-            if (buffer[0] == '\0') break;
+            if (STR_STARTSWITH(buffer, "# ")) {
+                break;
+            }
+            if (STR_STARTSWITH(buffer, "//")) {
+                break;
+            }
+            if (STR_STARTSWITH(buffer, "/*")) {
+                break;
+            }
+            if (STR_STARTSWITH(buffer, "*/")) {
+                break;
+            }
+            if (buffer[0] == '\n') {
+                break;
+            }
+            if (buffer[0] == '\0') {
+                break;
+            }
 
             if (STR_STARTSWITH(buffer, "#define ")) {
                 strcpy(defnames[defCount], &buffer[8]);
-                if ((p = strstr(defnames[defCount], "//")) != nullptr) p[0] = '\0';        // drop Comments
+                if ((p = strstr(defnames[defCount], "//")) != nullptr) {
+                    p[0] = '\0'; // drop Comments
+                }
                 convertNonPrintable2(defnames[defCount]);
                 LeftTrimString(defnames[defCount]);
                 TrimString(defnames[defCount]);
@@ -176,7 +194,6 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                         defCount++;
 
                         // TO DO: Check MAXELEMENTS not exceeded!
-
                     }
                 }
                 break;
@@ -185,7 +202,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
             // *** Scan for free standing typedef statements
 
             if (!isEnum && STR_STARTSWITH(buffer, "typedef enum")) {
-                isEnum = 1;    // Enumerated Type Definition
+                isEnum = 1; // Enumerated Type Definition
                 break;
             }
 
@@ -193,12 +210,16 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                 if (buffer[0] == '}') {
                     isEnum = 0;
                     strcpy(name1, &buffer[2]);
-                    if ((p = strchr(name1, ';')) != nullptr) p[0] = '\0';
+                    if ((p = strchr(name1, ';')) != nullptr) {
+                        p[0] = '\0';
+                    }
                     LeftTrimString(name1);
                     TrimString(name1);
-                    strcpy(typeEnum[typeEnumCount++], name1);        // type name
+                    strcpy(typeEnum[typeEnumCount++], name1); // type name
                     name1[0] = '\0';
-                } else { break; }
+                } else {
+                    break;
+                }
             }
 
             if (!isEnum && STR_STARTSWITH(buffer, "typedef") &&
@@ -209,15 +230,19 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                 if ((p = strchr(name1, ' ')) != nullptr) {
                     p[0] = '\0';
                     strcpy(name2, &p[1]);
-                    if ((p = strchr(name2, ';')) != nullptr) p[0] = '\0';
+                    if ((p = strchr(name2, ';')) != nullptr) {
+                        p[0] = '\0';
+                    }
                     if ((p = strchr(name2, '*')) != nullptr) {
                         p[0] = ' ';
                         typeDefPtr[typeDefCount] = 1;
-                    } else { typeDefPtr[typeDefCount] = 0; }
+                    } else {
+                        typeDefPtr[typeDefCount] = 0;
+                    }
                     LeftTrimString(name2);
                     TrimString(name2);
-                    strcpy(typeDefName[typeDefCount], name2);        // type synonym
-                    strcpy(typeDef[typeDefCount++], name1);        // actual type
+                    strcpy(typeDefName[typeDefCount], name2); // type synonym
+                    strcpy(typeDef[typeDefCount++], name1);   // actual type
                     name1[0] = '\0';
                     name2[0] = '\0';
                 } else {
@@ -236,15 +261,19 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                 if ((p = strchr(name1, ' ')) != nullptr) {
                     p[0] = '\0';
                     strcpy(name2, &p[1]);
-                    if ((p = strchr(name2, ';')) != nullptr) p[0] = '\0';
+                    if ((p = strchr(name2, ';')) != nullptr) {
+                        p[0] = '\0';
+                    }
                     if ((p = strchr(name2, '*')) != nullptr) {
                         p[0] = ' ';
                         typeStrPtr[typeDefCount] = 1;
-                    } else { typeStrPtr[typeDefCount] = 0; }
+                    } else {
+                        typeStrPtr[typeDefCount] = 0;
+                    }
                     LeftTrimString(name2);
                     TrimString(name2);
-                    strcpy(typeStrName[typeStrCount], name2);        // type synonym
-                    strcpy(typeStruct[typeStrCount++], name1);        // actual type
+                    strcpy(typeStrName[typeStrCount], name2);  // type synonym
+                    strcpy(typeStruct[typeStrCount++], name1); // actual type
                     name1[0] = '\0';
                     name2[0] = '\0';
                 } else {
@@ -265,14 +294,15 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
 
             do {
 
-                if (status && model == 1 && (STR_STARTSWITH(buffer, "{\n") || STR_STARTSWITH(buffer, "#endif") ||
-                                             STR_STARTSWITH(buffer, "#define") || STR_STARTSWITH(buffer, "#ifdef") ||
-                                             STR_STARTSWITH(buffer, "#ifndef"))) {
+                if (status && model == 1 &&
+                    (STR_STARTSWITH(buffer, "{\n") || STR_STARTSWITH(buffer, "#endif") ||
+                     STR_STARTSWITH(buffer, "#define") || STR_STARTSWITH(buffer, "#ifdef") ||
+                     STR_STARTSWITH(buffer, "#ifndef"))) {
                     break;
                 }
 
-                if (status || model != 0) {                    // Start of structure definition
-                    if (!status) {                        // Structure Name (also Type) follows (model 1 only)
+                if (status || model != 0) { // Start of structure definition
+                    if (!status) {          // Structure Name (also Type) follows (model 1 only)
 
                         image = nullptr;
                         imagecount = 0;
@@ -280,8 +310,12 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
 
                         if (model == 1) {
                             strcpy(name, &buffer[7]);
-                            if ((p = strchr(name, ' ')) != nullptr) p[0] = '\0';
-                            if ((p = strchr(name, '{')) != nullptr) p[0] = '\0';
+                            if ((p = strchr(name, ' ')) != nullptr) {
+                                p[0] = '\0';
+                            }
+                            if ((p = strchr(name, '{')) != nullptr) {
+                                p[0] = '\0';
+                            }
                             convertNonPrintable2(name);
                             LeftTrimString(name);
                             TrimString(name);
@@ -289,23 +323,25 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                             name[0] = '\0';
                         }
 
-                        itemCount = 0;    // New Structure Contents
+                        itemCount = 0; // New Structure Contents
                         status = 1;    // Flag start of definition
 
                     } else {
                         // End of the Structure definition?
                         if (model != 0 && STR_STARTSWITH(buffer, "}")) {
 
-                            if (model == 1) addImage(&image, &imagecount, "};\n");
+                            if (model == 1) {
+                                addImage(&image, &imagecount, "};\n");
+                            }
                             addImage(&image, &imagecount, buffer);
                             addImage(&image, &imagecount, "\n");
 
                             if (model == 1) {
-                                if (buffer[0] == '}') {        // No typedef statement
+                                if (buffer[0] == '}') { // No typedef statement
                                     strcpy(name1, name);
                                     strcpy(name2, name1);
                                     strcpy(name3, name1);
-                                } else {                            // typedef statement
+                                } else { // typedef statement
                                     if ((p = strchr(&buffer[14], ' ')) != nullptr) {
                                         strcpy(name2, &p[1]);
                                         if ((p = strchr(name2, ' ')) != nullptr) {
@@ -315,9 +351,11 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                             strcpy(name2, name3);
                                             MidTrimString(name1);
                                             MidTrimString(name2);
-                                            if ((p = strchr(name2, ';')) != nullptr) p[0] = '\0';
-                                            strcpy(typeStrName[typeStrCount], name1);        // type synonym
-                                            strcpy(typeStruct[typeStrCount++], name2);        // actual type
+                                            if ((p = strchr(name2, ';')) != nullptr) {
+                                                p[0] = '\0';
+                                            }
+                                            strcpy(typeStrName[typeStrCount], name1);  // type synonym
+                                            strcpy(typeStruct[typeStrCount++], name2); // actual type
                                         }
                                     }
                                 }
@@ -325,33 +363,35 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                 if ((p = strchr(buffer, ' ')) != nullptr) {
                                     strcpy(name, &p[1]);
                                     MidTrimString(name);
-                                    if ((p = strchr(name, ';')) != nullptr) p[0] = '\0';
+                                    if ((p = strchr(name, ';')) != nullptr) {
+                                        p[0] = '\0';
+                                    }
                                     strcpy(name1, name);
                                     strcpy(name2, name);
 
-                                    strcpy(typeStrName[typeStrCount], name);        // type synonym
-                                    strcpy(typeStruct[typeStrCount++], name);        // actual type
-
+                                    strcpy(typeStrName[typeStrCount], name);  // type synonym
+                                    strcpy(typeStruct[typeStrCount++], name); // actual type
                                 }
                             }
 
                             if (STR_STARTSWITH(name, name1) &&
-                                STR_STARTSWITH(name, name2)) {    // Create Meta data on structure
+                                STR_STARTSWITH(name, name2)) { // Create Meta data on structure
                                 if (itemCount > 0) {
                                     userdefinedtypelist->userdefinedtype = (USERDEFINEDTYPE*)realloc(
-                                            (void*)userdefinedtypelist->userdefinedtype,
-                                            (userdefinedtypelist->listCount + 1) * sizeof(USERDEFINEDTYPE));
-                                    userdefinedtype = &userdefinedtypelist->userdefinedtype[userdefinedtypelist->listCount];
+                                        (void*)userdefinedtypelist->userdefinedtype,
+                                        (userdefinedtypelist->listCount + 1) * sizeof(USERDEFINEDTYPE));
+                                    userdefinedtype =
+                                        &userdefinedtypelist->userdefinedtype[userdefinedtypelist->listCount];
                                     initUserDefinedType(userdefinedtype);
 
                                     userdefinedtypelist->listCount = userdefinedtypelist->listCount + 1;
 
                                     strcpy(userdefinedtype->name, name);            // Object Name
-                                    strcpy(userdefinedtype->source, header);            // Source of the Definition
-                                    userdefinedtype->idamclass = UDA_TYPE_COMPOUND;        // Class of object
+                                    strcpy(userdefinedtype->source, header);        // Source of the Definition
+                                    userdefinedtype->idamclass = UDA_TYPE_COMPOUND; // Class of object
 
-                                    userdefinedtype->compoundfield = (COMPOUNDFIELD*)malloc(
-                                            itemCount * sizeof(COMPOUNDFIELD));
+                                    userdefinedtype->compoundfield =
+                                        (COMPOUNDFIELD*)malloc(itemCount * sizeof(COMPOUNDFIELD));
                                     byteCount = 0;
                                     maxAlign = 0;
                                     for (int i = 0; i < itemCount; i++) {
@@ -375,13 +415,14 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                         userdefinedtype->compoundfield[i].rank = rank[i];
                                         userdefinedtype->compoundfield[i].count = count[i];
                                         if (rank[i] > 0) {
-                                            userdefinedtype->compoundfield[i].shape = (int*)malloc(
-                                                    rank[i] * sizeof(int));
+                                            userdefinedtype->compoundfield[i].shape =
+                                                (int*)malloc(rank[i] * sizeof(int));
                                         } else {
                                             userdefinedtype->compoundfield[i].shape = nullptr;
                                         }
-                                        for (int j = 0; j < rank[i]; j++)
+                                        for (int j = 0; j < rank[i]; j++) {
                                             userdefinedtype->compoundfield[i].shape[j] = shape[i][j];
+                                        }
 
                                         byteCount = byteCount + size[i] * count[i] + offpad[i];
                                     }
@@ -389,28 +430,28 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     // Add a final Packing to align the structure if necessary
 
                                     byteCount = byteCount + ((maxAlign - (byteCount % maxAlign)) %
-                                                             maxAlign);        // padding(byteCount, "STRUCTURE");
+                                                             maxAlign); // padding(byteCount, "STRUCTURE");
 
-                                    userdefinedtype->fieldcount = itemCount;    // Count of child elements
-                                    userdefinedtype->size = byteCount;    // Size of the Object (on the run time system)
+                                    userdefinedtype->fieldcount = itemCount; // Count of child elements
+                                    userdefinedtype->size = byteCount; // Size of the Object (on the run time system)
 
                                     userdefinedtype->imagecount = imagecount;
                                     userdefinedtype->image = image;
                                 }
                             } else {
-                                //fprintf(stdout,"Names do Not Match: %s, %s, %s\n", name, name1, name2);
+                                // fprintf(stdout,"Names do Not Match: %s, %s, %s\n", name, name1, name2);
                                 err = 999;
                                 addIdamError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
                                              "typedef statement does not conform to syntax model!");
                                 return err;
                             }
 
-                            status = 0;        // Structure Definition Completed
+                            status = 0; // Structure Definition Completed
                             model = 0;
 
                         } else {
 
-                            if (buffer[0] != '}' && strlen(buffer) > 0) {    // Structure Contents
+                            if (buffer[0] != '}' && strlen(buffer) > 0) { // Structure Contents
 
                                 expandImage(buffer, defnames, defvalues, defCount, work);
                                 addImage(&image, &imagecount, work);
@@ -446,7 +487,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
 
                                     if (!isConst && !isUnsigned && !isLong64) {
                                         strcpy(type[itemCount],
-                                               buffer);            // Atomic or User Defined Type of element
+                                               buffer); // Atomic or User Defined Type of element
                                     } else {
                                         type[itemCount][0] = '\0';
                                         if (isConst) {
@@ -461,7 +502,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                         strcat(type[itemCount], buffer);
                                     }
 
-                                    strcpy(item[itemCount], &p[1]);            // Element Name
+                                    strcpy(item[itemCount], &p[1]); // Element Name
 
                                     // Is this a Description or comment on the item?
 
@@ -473,7 +514,9 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     if ((p = strstr(item[itemCount], "/*")) != nullptr) {
                                         p[0] = '\0';
                                         strcpy(desc[itemCount], &p[2]);
-                                        if ((p = strstr(desc[itemCount], "*/")) != nullptr) p[0] = '\0';
+                                        if ((p = strstr(desc[itemCount], "*/")) != nullptr) {
+                                            p[0] = '\0';
+                                        }
                                     }
 
                                     // Compact strings and remove unprintable characters and terminating ;
@@ -482,14 +525,18 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     TrimString(desc[itemCount]);
 
                                     LeftTrimString(type[itemCount]);
-                                    if (!isConst && !isUnsigned && !isLong64) MidTrimString(type[itemCount]);
+                                    if (!isConst && !isUnsigned && !isLong64) {
+                                        MidTrimString(type[itemCount]);
+                                    }
                                     TrimString(type[itemCount]);
 
                                     convertNonPrintable2(item[itemCount]);
                                     LeftTrimString(item[itemCount]);
                                     MidTrimString(item[itemCount]);
                                     TrimString(item[itemCount]);
-                                    if ((p = strstr(item[itemCount], ";")) != nullptr) p[0] = '\0';
+                                    if ((p = strstr(item[itemCount], ";")) != nullptr) {
+                                        p[0] = '\0';
+                                    }
 
                                     // Is this a pointer ?    (pointer size is NOT passed: 32/64 bit dependent)
 
@@ -518,14 +565,18 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                         if (STR_STARTSWITH(typeDefName[j], type[itemCount]) &&
                                             strcmp(type[itemCount], "STRING") != 0) {
                                             strcpy(type[itemCount], typeDef[j]);
-                                            if (typeDefPtr[j]) pointer[itemCount] = 1;
+                                            if (typeDefPtr[j]) {
+                                                pointer[itemCount] = 1;
+                                            }
                                             break;
                                         }
                                     }
                                     for (int j = 0; j < typeStrCount; j++) {
                                         if (STR_STARTSWITH(typeStrName[j], type[itemCount])) {
                                             strcpy(type[itemCount], typeStruct[j]);
-                                            if (typeStrPtr[j]) pointer[itemCount] = 1;
+                                            if (typeStrPtr[j]) {
+                                                pointer[itemCount] = 1;
+                                            }
                                             break;
                                         }
                                     }
@@ -542,14 +593,18 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                         if (STR_STARTSWITH(typeDefName[j], type[itemCount]) &&
                                             strcmp(type[itemCount], "STRING") != 0) {
                                             strcpy(type[itemCount], typeDef[j]);
-                                            if (typeDefPtr[j]) pointer[itemCount] = 1;
+                                            if (typeDefPtr[j]) {
+                                                pointer[itemCount] = 1;
+                                            }
                                             break;
                                         }
                                     }
                                     for (int j = 0; j < typeStrCount; j++) {
                                         if (STR_STARTSWITH(typeStrName[j], type[itemCount])) {
                                             strcpy(type[itemCount], typeStruct[j]);
-                                            if (typeStrPtr[j]) pointer[itemCount] = 1;
+                                            if (typeStrPtr[j]) {
+                                                pointer[itemCount] = 1;
+                                            }
                                             break;
                                         }
                                     }
@@ -569,7 +624,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     rnk = 0;
                                     count[itemCount] = 0;
                                     if (!pointer[itemCount] &&
-                                        ((p = strchr(item[itemCount], '[')) != nullptr)) {        // Array
+                                        ((p = strchr(item[itemCount], '[')) != nullptr)) { // Array
                                         char* p1 = p;
                                         char* p2 = nullptr;
                                         do {
@@ -579,20 +634,20 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                                 buffer[lstr] = '\0';
                                                 shape[itemCount][rnk] = 0;
 
-                                                if (IsNumber(buffer)) {                        // hard coded size
+                                                if (IsNumber(buffer)) { // hard coded size
                                                     shape[itemCount][rnk] = atoi(buffer);
                                                     count[itemCount] = count[itemCount] + shape[itemCount][rnk++];
                                                 } else {
 
                                                     for (int j = 0; j < defCount; j++) {
                                                         if (STR_STARTSWITH(defnames[j], buffer)) {
-                                                            shape[itemCount][rnk++] = defvalues[j];             // Array Shape
-                                                            count[itemCount] = count[itemCount] +
-                                                                               defvalues[j];    // Total Count of Array elements
+                                                            shape[itemCount][rnk++] = defvalues[j]; // Array Shape
+                                                            count[itemCount] =
+                                                                count[itemCount] +
+                                                                defvalues[j]; // Total Count of Array elements
                                                             break;
                                                         }
                                                     }
-
                                                 }
                                             }
                                         } while (p2 != nullptr && (p = strchr(p2, '[')) != nullptr);
@@ -602,12 +657,15 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
 
                                     // Scalar values and Pointers must have a count of at least 1
 
-                                    if (count[itemCount] == 0) count[itemCount] = 1;
+                                    if (count[itemCount] == 0) {
+                                        count[itemCount] = 1;
+                                    }
 
                                     // Offset: Adjusted for structure packing because of alignment boundaries
 
                                     if (pointer[itemCount]) {
-                                        size[itemCount] = sizeof(void*);    // Offsets and Pointer sizes are architecture dependent
+                                        size[itemCount] =
+                                            sizeof(void*); // Offsets and Pointer sizes are architecture dependent
                                         if (itemCount > 0) {
                                             space = size[itemCount - 1] * count[itemCount - 1];
                                             offpad[itemCount] = padding(offset[itemCount - 1] + space, "*");
@@ -620,8 +678,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                         if (itemCount > 0) {
                                             space = size[itemCount - 1] * count[itemCount - 1];
                                             offpad[itemCount] = padding(offset[itemCount - 1] + space, type[itemCount]);
-                                            offset[itemCount] = newoffset(offset[itemCount - 1] + space,
-                                                                          type[itemCount]);
+                                            offset[itemCount] =
+                                                newoffset(offset[itemCount - 1] + space, type[itemCount]);
                                         } else {
                                             offpad[itemCount] = 0;
                                             offset[itemCount] = 0;
@@ -631,7 +689,6 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     itemCount++;
 
                                     // TO DO: Check MAXELEMENTS not exceeded!
-
                                 }
                             }
                         }
@@ -648,11 +705,3 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
 
     return 0;
 }
-
-
-
-
-
-
-
-

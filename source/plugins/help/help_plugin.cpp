@@ -1,15 +1,16 @@
 #include "help_plugin.h"
 
-#include <plugins/uda_plugin_base.hpp>
 #include <boost/filesystem.hpp>
+#include <plugins/uda_plugin_base.hpp>
 
+#include "accessors.h"
 #include "initStructs.h"
 #include "struct.h"
-#include "accessors.h"
 #include <fmt/format.h>
 
-class HelpPlugin : public UDAPluginBase {
-public:
+class HelpPlugin : public UDAPluginBase
+{
+  public:
     HelpPlugin();
     int ping(IDAM_PLUGIN_INTERFACE* plugin_interface);
     int services(IDAM_PLUGIN_INTERFACE* plugin_interface);
@@ -18,12 +19,7 @@ public:
 };
 
 HelpPlugin::HelpPlugin()
-        : UDAPluginBase(
-        "HELP",
-        1,
-        "read",
-        boost::filesystem::path(__FILE__).parent_path().append("help.txt").string()
-)
+    : UDAPluginBase("HELP", 1, "read", boost::filesystem::path(__FILE__).parent_path().append("help.txt").string())
 {
     register_method("ping", static_cast<UDAPluginBase::plugin_member_type>(&HelpPlugin::ping));
     register_method("services", static_cast<UDAPluginBase::plugin_member_type>(&HelpPlugin::services));
@@ -40,30 +36,29 @@ int HelpPlugin::ping(IDAM_PLUGIN_INTERFACE* plugin_interface)
     //----------------------------------------------------------------------------------------
 
     // Ping: Timing
-    struct timeval serverTime;        // Local time in microseconds
+    struct timeval serverTime; // Local time in microseconds
     gettimeofday(&serverTime, nullptr);
 
     // define the returned data structure
 
-    struct HELP_PING
-    {
-        unsigned int seconds;    // Server time in seconds
-        unsigned int microseconds;    // Server time in microseconds
+    struct HELP_PING {
+        unsigned int seconds;      // Server time in seconds
+        unsigned int microseconds; // Server time in microseconds
     };
     typedef struct HELP_PING HELP_PING;
 
     USERDEFINEDTYPE usertype;
     COMPOUNDFIELD field;
 
-    initUserDefinedType(&usertype);            // New structure definition
+    initUserDefinedType(&usertype); // New structure definition
     initCompoundField(&field);
 
     strcpy(usertype.name, "HELP_PING");
     strcpy(usertype.source, "idamServerHelp");
     usertype.ref_id = 0;
-    usertype.imagecount = 0;                // No Structure Image data
+    usertype.imagecount = 0; // No Structure Image data
     usertype.image = nullptr;
-    usertype.size = sizeof(HELP_PING);        // Structure size
+    usertype.size = sizeof(HELP_PING); // Structure size
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
@@ -78,7 +73,7 @@ int HelpPlugin::ping(IDAM_PLUGIN_INTERFACE* plugin_interface)
     // assign the returned data structure
 
     auto data = (HELP_PING*)malloc(sizeof(HELP_PING));
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(HELP_PING), "HELP_PING");        // Register
+    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(HELP_PING), "HELP_PING"); // Register
 
     data->seconds = (unsigned int)serverTime.tv_sec;
     data->microseconds = (unsigned int)serverTime.tv_usec;

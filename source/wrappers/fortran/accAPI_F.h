@@ -7,20 +7,17 @@ void idamapi_(char* signal, int* pulno, int* handle, int lsignal);
 
 void idampassapi_(char* signal, int* pulno, int* pass, int* handle, int lsignal);
 
-void idamgenapi_(char* archive, char* device, char* signal, int* pulno, int* pass,
-                 int* handle, int larchive, int ldevice, int lsignal);
+void idamgenapi_(char* archive, char* device, char* signal, int* pulno, int* pass, int* handle, int larchive,
+                 int ldevice, int lsignal);
 
-void idamfileapi_(char* file, char* signal, char* format, int* handle,
-                  int lfile, int lsignal, int lformat);
+void idamfileapi_(char* file, char* signal, char* format, int* handle, int lfile, int lsignal, int lformat);
 
 void idamida_(char* file, char* signal, int* pulno, int* pass, int* handle, int lfile, int lsignal);
 
-void idammds_(char* server, char* tree, char* node, int* treenum, int* handle,
-              int lserver, int ltree, int lnode);
+void idammds_(char* server, char* tree, char* node, int* treenum, int* handle, int lserver, int ltree, int lnode);
 
 void idamlocalapi_(char* archive, char* owner, char* file, char* format, char* signal, int* pulno, int* pass,
-                   int* handle,
-                   int larchive, int lowner, int lfile, int lformat, int lsignal);
+                   int* handle, int larchive, int lowner, int lfile, int lformat, int lsignal);
 
 void setidamproperty_(char* property, int lproperty);
 

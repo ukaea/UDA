@@ -13,7 +13,7 @@ int main()
 {
     // Optional sleep at startup
 
-    char * env = getenv("UDA_SLEEP");
+    char* env = getenv("UDA_SLEEP");
     if (env != nullptr) {
         sleep((unsigned int)atoi(env));
     }
@@ -22,7 +22,7 @@ int main()
 
     try {
         uda::Server server;
-//        server.run();
+        //        server.run();
     } catch (uda::server::Exception& ex) {
         return ex.code();
     }

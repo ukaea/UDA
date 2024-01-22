@@ -1,12 +1,12 @@
 #pragma once
 
 #ifndef UDA_SERVER_CREATEXDRSTREAM_H
-#define UDA_SERVER_CREATEXDRSTREAM_H
+#  define UDA_SERVER_CREATEXDRSTREAM_H
 
-#include <utility>
-#include <rpc/rpc.h>
+#  include <rpc/rpc.h>
+#  include <utility>
 
-#include "export.h"
+#  include "export.h"
 
 struct IoData {
     int* server_tot_block_time;

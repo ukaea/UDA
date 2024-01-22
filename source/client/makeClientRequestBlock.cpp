@@ -22,14 +22,14 @@ Interprets the API arguments and assembles a Request data structure.
 
 #include <string>
 
-#include <logging/logging.h>
+#include "initStructs.h"
 #include "udaErrors.h"
 #include <clientserver/errorLog.h>
 #include <clientserver/expand_path.h>
-#include <clientserver/stringUtils.h>
-#include "initStructs.h"
 #include <clientserver/makeRequestBlock.h>
+#include <clientserver/stringUtils.h>
 #include <fmt/format.h>
+#include <logging/logging.h>
 
 int makeRequestData(const char* data_object, const char* data_source, REQUEST_DATA* request)
 {
@@ -39,13 +39,13 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
     if (strlen(data_object) >= MAXMETA) {
         UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument string is too long!");
     } else {
-        strcpy(request->signal, data_object);    // Passed to the server without modification
+        strcpy(request->signal, data_object); // Passed to the server without modification
     }
 
     if (strlen(data_source) >= STRING_LENGTH) {
         UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument string is too long!");
     } else {
-        strcpy(request->source, data_source);    // Passed to the server without modification
+        strcpy(request->source, data_source); // Passed to the server without modification
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -54,34 +54,36 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
      * This delimiting string can be defined by the user via an environment variable "UDA_API_DELIM".
      * This must be passed to the server as it needs to separate the prefix from the main component in order to
      * interpret the data access request.
-    */
+     */
 
     ENVIRONMENT* environment = getIdamClientEnvironment();
 
-    strcpy(request->api_delim, environment->api_delim);        // Server needs to know how to parse the arguments
+    strcpy(request->api_delim, environment->api_delim); // Server needs to know how to parse the arguments
 
     //------------------------------------------------------------------------------------------------------------------
-    /* If the default ARCHIVE and/or DEVICE is overridden by local environment variables and the arguments do not contain
-     * either an archive or device then prefix
+    /* If the default ARCHIVE and/or DEVICE is overridden by local environment variables and the arguments do not
+     * contain either an archive or device then prefix
      *
      * These environment variables are legacy and not used by the server
-    */
+     */
 
     if (environment->api_device[0] != '\0' && strstr(request->source, request->api_delim) == nullptr) {
-        int lstr = (int)strlen(request->source) + (int)strlen(environment->api_device) +
-               (int)strlen(request->api_delim);
+        int lstr =
+            (int)strlen(request->source) + (int)strlen(environment->api_device) + (int)strlen(request->api_delim);
         if (lstr >= STRING_LENGTH) {
-            UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG, "The Data Source Argument, prefixed with the Device Name, is too long!");
+            UDA_THROW_ERROR(SOURCE_ARG_TOO_LONG,
+                            "The Data Source Argument, prefixed with the Device Name, is too long!");
         }
         std::string test = fmt::format("{}{}{}", environment->api_device, request->api_delim, request->source);
         strcpy(request->source, test.c_str());
     }
 
     if (environment->api_archive[0] != '\0' && strstr(request->signal, request->api_delim) == nullptr) {
-        int lstr = (int)strlen(request->signal) + (int)strlen(environment->api_archive) +
-               (int)strlen(request->api_delim);
+        int lstr =
+            (int)strlen(request->signal) + (int)strlen(environment->api_archive) + (int)strlen(request->api_delim);
         if (lstr >= STRING_LENGTH) {
-            UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG, "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
+            UDA_THROW_ERROR(SIGNAL_ARG_TOO_LONG,
+                            "The Signal/Data Object Argument, prefixed with the Archive Name, is too long!");
         }
         std::string test = fmt::format("{}{}{}", environment->api_archive, request->api_delim, request->signal);
         strcpy(request->signal, test.c_str());
@@ -104,7 +106,7 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
      *
      * Any attempted expansion of a server URL will result in a meaningless path. These are ignored by the server.
      * *** the original source is always retained !
-    */
+     */
 
     // Path expansion disabled - applications must provide the full path to data resources.
     // XXXX::12345        shot number
@@ -118,8 +120,7 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
 
     char* test = nullptr;
     if ((test = strstr(request->source, request->api_delim)) == nullptr) {
-        if (strchr(request->source, '(') == nullptr &&
-            strchr(request->source, ')') == nullptr) {
+        if (strchr(request->source, '(') == nullptr && strchr(request->source, ')') == nullptr) {
             // source is not a function call
             strcpy(request->path, request->source);
             expandFilePath(request->path, getIdamClientEnvironment());
@@ -153,8 +154,9 @@ int makeClientRequestBlock(const char** signals, const char** sources, int count
     return err;
 }
 
-void freeClientRequestBlock(REQUEST_BLOCK* request_block) {
-    if(request_block != nullptr && request_block->requests != nullptr) {
+void freeClientRequestBlock(REQUEST_BLOCK* request_block)
+{
+    if (request_block != nullptr && request_block->requests != nullptr) {
         for (int i = 0; i < request_block->num_requests; i++) {
             freeNameValueList(&request_block->requests[i].nameValueList);
             freeClientPutDataBlockList(&request_block->requests[i].putDataBlockList);
@@ -171,8 +173,12 @@ int shotRequestTest(const char* source)
     char* token = nullptr;
     char work[STRING_LENGTH];
 
-    if (source[0] == '\0') return 0;
-    if (source[0] == '/') return 0;        // Directory based data
+    if (source[0] == '\0') {
+        return 0;
+    }
+    if (source[0] == '/') {
+        return 0; // Directory based data
+    }
 
     //------------------------------------------------------------------------------
     // Check if the source has one of these forms:
@@ -180,14 +186,17 @@ int shotRequestTest(const char* source)
     // pulse        plasma shot number - an integer
     // pulse/pass        include a pass or sequence number - this may be a text based component, e.g. LATEST
 
-    if (IsNumber((char*) source)) return 1;        // The source an integer number
-        
+    if (IsNumber((char*)source)) {
+        return 1; // The source an integer number
+    }
+
     strcpy(work, source);
-    
-    if ((token = strtok(work, "/")) != nullptr) {        // Tokenise the remaining string
-       if (IsNumber(token)) return 1;            // Is the First token an integer number?
+
+    if ((token = strtok(work, "/")) != nullptr) { // Tokenise the remaining string
+        if (IsNumber(token)) {
+            return 1; // Is the First token an integer number?
+        }
     }
 
     return 0;
 }
-

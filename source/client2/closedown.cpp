@@ -8,8 +8,8 @@
 #  include <authentication/udaClientSSL.h>
 #endif
 
-int uda::client::closedown(ClosedownType type, Connection* connection, XDR* client_input, XDR* client_output, bool* reopen_logs,
-                           bool* env_host, bool* env_port)
+int uda::client::closedown(ClosedownType type, Connection* connection, XDR* client_input, XDR* client_output,
+                           bool* reopen_logs, bool* env_host, bool* env_port)
 {
     int rc = 0;
 
@@ -22,7 +22,7 @@ int uda::client::closedown(ClosedownType type, Connection* connection, XDR* clie
 
     if (type == ClosedownType::CLOSE_ALL) {
         udaCloseLogging();
-        *reopen_logs = true;        // In case the User calls the IDAM API again!
+        *reopen_logs = true; // In case the User calls the IDAM API again!
     }
 
     if (client_input != nullptr) {
@@ -39,12 +39,11 @@ int uda::client::closedown(ClosedownType type, Connection* connection, XDR* clie
         client_output->x_ops = nullptr;
     }
 
-
     if (connection != nullptr) {
         connection->close_down(type);
     }
 
-    *env_host = true;            // Initialise at Startup
+    *env_host = true; // Initialise at Startup
     *env_port = true;
 
     // Close the SSL binding and context

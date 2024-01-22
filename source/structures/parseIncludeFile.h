@@ -16,4 +16,3 @@ LIBRARY_API int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const
 #endif
 
 #endif // UDA_STRUCTURES_PARSEINCLUDEFILE_H
-

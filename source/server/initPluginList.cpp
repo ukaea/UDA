@@ -3,10 +3,10 @@
 #include <cerrno>
 
 #include <cache/memcache.hpp>
-#include <clientserver/stringUtils.h>
 #include <clientserver/errorLog.h>
-#include <server/serverPlugin.h>
+#include <clientserver/stringUtils.h>
 #include <fmt/format.h>
+#include <server/serverPlugin.h>
 
 #include "getPluginAddress.h"
 
@@ -40,15 +40,15 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
     // Complete Common Registration
 
     for (int i = 0; i < plugin_list->count; i++) {
-        plugin_list->plugin[i].external = UDA_PLUGIN_INTERNAL;        // These are all linked as internal functions
-        plugin_list->plugin[i].status = UDA_PLUGIN_OPERATIONAL;        // By default all these are available
-        plugin_list->plugin[i].cachePermission = UDA_PLUGIN_CACHE_DEFAULT;    // OK or not for Client and Server to Cache
+        plugin_list->plugin[i].external = UDA_PLUGIN_INTERNAL;             // These are all linked as internal functions
+        plugin_list->plugin[i].status = UDA_PLUGIN_OPERATIONAL;            // By default all these are available
+        plugin_list->plugin[i].cachePermission = UDA_PLUGIN_CACHE_DEFAULT; // OK or not for Client and Server to Cache
     }
 
     //----------------------------------------------------------------------------------------------------------------------
     // Server-Side Functions
 
-    int pluginCount = plugin_list->count;        // Number of internal plugins before adding server-side
+    int pluginCount = plugin_list->count; // Number of internal plugins before adding server-side
 
     strcpy(plugin_list->plugin[plugin_list->count].format, "SERVERSIDE");
     allocPluginList(plugin_list->count++, plugin_list);
@@ -67,9 +67,9 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
         plugin_list->plugin[i].is_private = UDA_PLUGIN_PUBLIC;
         plugin_list->plugin[i].library[0] = '\0';
         plugin_list->plugin[i].pluginHandle = nullptr;
-        plugin_list->plugin[i].external = UDA_PLUGIN_INTERNAL;        // These are all linked as internal functions
-        plugin_list->plugin[i].status = UDA_PLUGIN_OPERATIONAL;        // By default all these are available
-        plugin_list->plugin[i].cachePermission = UDA_PLUGIN_CACHE_DEFAULT;    // OK or not for Client and Server to Cache
+        plugin_list->plugin[i].external = UDA_PLUGIN_INTERNAL;             // These are all linked as internal functions
+        plugin_list->plugin[i].status = UDA_PLUGIN_OPERATIONAL;            // By default all these are available
+        plugin_list->plugin[i].cachePermission = UDA_PLUGIN_CACHE_DEFAULT; // OK or not for Client and Server to Cache
     }
 
     //----------------------------------------------------------------------------------------------------------------------
@@ -81,15 +81,15 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
         char csvChar = ',';
         char buffer[STRING_LENGTH];
         char* root;
-        char* config = getenv("UDA_PLUGIN_CONFIG");            // Server plugin configuration file
+        char* config = getenv("UDA_PLUGIN_CONFIG"); // Server plugin configuration file
         FILE* conf = nullptr;
-        const char* filename = "udaPlugins.conf";                // Default name
+        const char* filename = "udaPlugins.conf"; // Default name
         std::string work;
 
         // Locate the plugin registration file
 
         if (config == nullptr) {
-            root = getenv("UDA_SERVERROOT");                // Where udaPlugins.conf is located by default
+            root = getenv("UDA_SERVERROOT"); // Where udaPlugins.conf is located by default
             if (root == nullptr) {
                 work = fmt::format("./{}", filename); // Default ROOT is the server's Working Directory
             } else {
@@ -136,14 +136,18 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
             convertNonPrintable2(buffer);
             LeftTrimString(TrimString(buffer));
             do {
-                if (buffer[0] == '#') break;
-                if (strlen(buffer) == 0) break;
+                if (buffer[0] == '#') {
+                    break;
+                }
+                if (strlen(buffer) == 0) {
+                    break;
+                }
                 char* next = buffer;
                 initPluginData(&plugin_list->plugin[plugin_list->count]);
                 for (int i = 0; i < 10; i++) {
-                    char* csv = strchr(next, csvChar);                // Split the string
+                    char* csv = strchr(next, csvChar); // Split the string
                     if (csv != nullptr && i <= 8) {
-                        csv[0] = '\0';            // Extract the sub-string ignoring the example - has a comma within text
+                        csv[0] = '\0'; // Extract the sub-string ignoring the example - has a comma within text
                     }
                     LeftTrimString(TrimString(next));
                     switch (i) {
@@ -151,10 +155,11 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                         case 0:
                             // File Format or Server Protocol or Library name or Device name etc.
                             strcpy(plugin_list->plugin[plugin_list->count].format, LeftTrimString(next));
-                            // If the Format or Protocol is Not unique, the plugin that is selected will be the first one registered: others will be ignored.
+                            // If the Format or Protocol is Not unique, the plugin that is selected will be the first
+                            // one registered: others will be ignored.
                             break;
 
-                        case 1:    // Plugin class: File, Server, Function or Device
+                        case 1: // Plugin class: File, Server, Function or Device
                             plugin_list->plugin[plugin_list->count].plugin_class = UDA_PLUGIN_CLASS_FILE;
                             if (STR_IEQUALS(LeftTrimString(next), "server")) {
                                 plugin_list->plugin[plugin_list->count].plugin_class = UDA_PLUGIN_CLASS_SERVER;
@@ -168,17 +173,20 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                             break;
 
                         case 2:
-                            // Allow the same symbol (name of data access reader function or plugin entrypoint symbol) but from different libraries!
+                            // Allow the same symbol (name of data access reader function or plugin entrypoint symbol)
+                            // but from different libraries!
                             if (plugin_list->plugin[plugin_list->count].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
                                 strcpy(plugin_list->plugin[plugin_list->count].symbol, LeftTrimString(next));
-                                plugin_list->plugin[plugin_list->count].external = UDA_PLUGIN_EXTERNAL;        // External (not linked) shared library
+                                plugin_list->plugin[plugin_list->count].external =
+                                    UDA_PLUGIN_EXTERNAL; // External (not linked) shared library
 
                                 if (plugin_list->plugin[plugin_list->count].plugin_class == UDA_PLUGIN_CLASS_FILE) {
                                     // Plugin method name using a dot syntax
                                     char* p;
                                     if ((p = strchr(plugin_list->plugin[plugin_list->count].symbol, '.')) != nullptr) {
-                                        p[0] = '\0';                                // Remove the method name from the symbol text
-                                        strcpy(plugin_list->plugin[plugin_list->count].method, &p[1]);        // Save the method name
+                                        p[0] = '\0'; // Remove the method name from the symbol text
+                                        strcpy(plugin_list->plugin[plugin_list->count].method,
+                                               &p[1]); // Save the method name
                                     }
                                 }
 
@@ -188,7 +196,8 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                             }
                             break;
 
-                        case 3:    // Server Host or Name of the shared library - can contain multiple plugin symbols so may not be unique
+                        case 3: // Server Host or Name of the shared library - can contain multiple plugin symbols so
+                                // may not be unique
                             if (plugin_list->plugin[plugin_list->count].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
                                 strcpy(plugin_list->plugin[plugin_list->count].library, LeftTrimString(next));
                             } else {
@@ -196,7 +205,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                             }
                             break;
 
-                        case 4:    // File extension or Method Name or Port number
+                        case 4: // File extension or Method Name or Port number
                             // TODO: make extensions a list of valid extensions to minimise plugin duplication
                             if (plugin_list->plugin[plugin_list->count].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
                                 if (plugin_list->plugin[plugin_list->count].plugin_class == UDA_PLUGIN_CLASS_FILE) {
@@ -210,44 +219,47 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                             }
                             break;
 
-                        case 5:    // Minimum Plugin Interface Version
+                        case 5: // Minimum Plugin Interface Version
                             if (strlen(next) > 0) {
                                 plugin_list->plugin[plugin_list->count].interfaceVersion = (unsigned short)atoi(next);
                             }
                             break;
 
-                        case 6:    // Permission to Cache returned values
+                        case 6: // Permission to Cache returned values
 
                             strcpy(plugin_list->plugin[plugin_list->count].desc, LeftTrimString(next));
-                            if (plugin_list->plugin[plugin_list->count].desc[0] != '\0' && (
-                                    plugin_list->plugin[plugin_list->count].desc[0] == 'Y' ||
-                                    plugin_list->plugin[plugin_list->count].desc[0] == 'y' ||
-                                    plugin_list->plugin[plugin_list->count].desc[0] == 'T' ||
-                                    plugin_list->plugin[plugin_list->count].desc[0] == 't' ||
-                                    plugin_list->plugin[plugin_list->count].desc[0] == '1')) {
-                                plugin_list->plugin[plugin_list->count].cachePermission = UDA_PLUGIN_OK_TO_CACHE;      // True
+                            if (plugin_list->plugin[plugin_list->count].desc[0] != '\0' &&
+                                (plugin_list->plugin[plugin_list->count].desc[0] == 'Y' ||
+                                 plugin_list->plugin[plugin_list->count].desc[0] == 'y' ||
+                                 plugin_list->plugin[plugin_list->count].desc[0] == 'T' ||
+                                 plugin_list->plugin[plugin_list->count].desc[0] == 't' ||
+                                 plugin_list->plugin[plugin_list->count].desc[0] == '1')) {
+                                plugin_list->plugin[plugin_list->count].cachePermission =
+                                    UDA_PLUGIN_OK_TO_CACHE; // True
                                 plugin_list->plugin[plugin_list->count].desc[0] = '\0';
-                            } else
-                                plugin_list->plugin[plugin_list->count].cachePermission = UDA_PLUGIN_NOT_OK_TO_CACHE;   // False
+                            } else {
+                                plugin_list->plugin[plugin_list->count].cachePermission =
+                                    UDA_PLUGIN_NOT_OK_TO_CACHE; // False
+                            }
 
                             break;
 
-                        case 7:    // Private or Public plugin - i.e. available to external users
+                        case 7: // Private or Public plugin - i.e. available to external users
 
                             strcpy(plugin_list->plugin[plugin_list->count].desc, LeftTrimString(next));
-                            if (plugin_list->plugin[plugin_list->count].desc[0] != '\0' && (
-                                    plugin_list->plugin[plugin_list->count].desc[0] == 'Y' ||
-                                    plugin_list->plugin[plugin_list->count].desc[0] == 'y' ||
-                                    plugin_list->plugin[plugin_list->count].desc[0] == 'T' ||
-                                    plugin_list->plugin[plugin_list->count].desc[0] == 't' ||
-                                    plugin_list->plugin[plugin_list->count].desc[0] == '1')) {
+                            if (plugin_list->plugin[plugin_list->count].desc[0] != '\0' &&
+                                (plugin_list->plugin[plugin_list->count].desc[0] == 'Y' ||
+                                 plugin_list->plugin[plugin_list->count].desc[0] == 'y' ||
+                                 plugin_list->plugin[plugin_list->count].desc[0] == 'T' ||
+                                 plugin_list->plugin[plugin_list->count].desc[0] == 't' ||
+                                 plugin_list->plugin[plugin_list->count].desc[0] == '1')) {
                                 plugin_list->plugin[plugin_list->count].is_private = UDA_PLUGIN_PUBLIC;
                                 plugin_list->plugin[plugin_list->count].desc[0] = '\0';
                             }
 
                             break;
 
-                        case 8:    // Description
+                        case 8: // Description
 
                             strcpy(plugin_list->plugin[plugin_list->count].desc, LeftTrimString(next));
                             break;
@@ -266,15 +278,16 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
 
                         default:
                             break;
-
                     }
-                    if (csv != nullptr) next = &csv[1];    // Next element starting point
+                    if (csv != nullptr) {
+                        next = &csv[1]; // Next element starting point
+                    }
                 }
 
                 // Issue Unique request ID
                 plugin_list->plugin[plugin_list->count].request = REQUEST_READ_START + offset++;
-                plugin_list->plugin[plugin_list->count].pluginHandle = nullptr;            // Library handle: Not opened
-                plugin_list->plugin[plugin_list->count].status = UDA_PLUGIN_NOT_OPERATIONAL;  // Not yet available
+                plugin_list->plugin[plugin_list->count].pluginHandle = nullptr; // Library handle: Not opened
+                plugin_list->plugin[plugin_list->count].status = UDA_PLUGIN_NOT_OPERATIONAL; // Not yet available
 
                 // Internal Serverside function ?
 
@@ -287,16 +300,18 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                     plugin_list->plugin[plugin_list->count].status = UDA_PLUGIN_OPERATIONAL;
                 }
 
-                // Check this library has not already been opened: Preserve the library handle for use if already opened.
+                // Check this library has not already been opened: Preserve the library handle for use if already
+                // opened.
 
                 int pluginID = -1;
 
                 // States:
-                // 1. library not opened: open library and locate symbol (Only if the Class is SERVER or FUNCTION or File)
+                // 1. library not opened: open library and locate symbol (Only if the Class is SERVER or FUNCTION or
+                // File)
                 // 2. library opened, symbol not located: locate symbol
                 // 3. library opened, symbol located: re-use
 
-                for (int j = pluginCount; j < plugin_list->count - 1; j++) {            // External sources only
+                for (int j = pluginCount; j < plugin_list->count - 1; j++) { // External sources only
                     if (plugin_list->plugin[j].external == UDA_PLUGIN_EXTERNAL &&
                         plugin_list->plugin[j].status == UDA_PLUGIN_OPERATIONAL &&
                         plugin_list->plugin[j].pluginHandle != nullptr &&
@@ -308,17 +323,17 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                                         plugin_list->plugin[plugin_list->count].symbol) &&
                             plugin_list->plugin[j].idamPlugin != nullptr) {
                             rc = 0;
-                            plugin_list->plugin[plugin_list->count].idamPlugin = plugin_list->plugin[j].idamPlugin;    // re-use
+                            plugin_list->plugin[plugin_list->count].idamPlugin =
+                                plugin_list->plugin[j].idamPlugin; // re-use
                         } else {
 
                             // New symbol in opened library
 
                             if (plugin_list->plugin[plugin_list->count].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
-                                rc = getPluginAddress(
-                                        &plugin_list->plugin[j].pluginHandle,                // locate symbol
-                                        plugin_list->plugin[j].library,
-                                        plugin_list->plugin[plugin_list->count].symbol,
-                                        &plugin_list->plugin[plugin_list->count].idamPlugin);
+                                rc = getPluginAddress(&plugin_list->plugin[j].pluginHandle, // locate symbol
+                                                      plugin_list->plugin[j].library,
+                                                      plugin_list->plugin[plugin_list->count].symbol,
+                                                      &plugin_list->plugin[plugin_list->count].idamPlugin);
                             }
                         }
 
@@ -328,7 +343,7 @@ void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
                     }
                 }
 
-                if (pluginID == -1) {                                    // open library and locate symbol
+                if (pluginID == -1) { // open library and locate symbol
                     if (plugin_list->plugin[plugin_list->count].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
                         rc = getPluginAddress(&plugin_list->plugin[plugin_list->count].pluginHandle,
                                               plugin_list->plugin[plugin_list->count].library,

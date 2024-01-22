@@ -1,7 +1,7 @@
-#include <logging/logging.h>
-#include <cstdlib>
 #include "client_environment.hpp"
+#include <cstdlib>
 #include <fmt/format.h>
+#include <logging/logging.h>
 
 Environment uda::client::load_environment(bool* env_host, bool* env_port)
 {
@@ -37,25 +37,31 @@ Environment uda::client::load_environment(bool* env_host, bool* env_port)
 
     // Log Output Write Mode
 
-    strcpy(environment.logmode, "w");                    // Write & Replace Mode
+    strcpy(environment.logmode, "w"); // Write & Replace Mode
     if ((env = getenv("UDA_LOG_MODE")) != nullptr) {
         if (env[0] == 'a' && strlen(env) == 1) {
             environment.logmode[0] = 'a';
         }
-    }    // Append Mode
+    } // Append Mode
 
     environment.loglevel = UDA_LOG_NONE;
     if ((env = getenv("UDA_LOG_LEVEL")) != nullptr) {
-        if (strncmp(env, "ACCESS", 6) == 0)      environment.loglevel = UDA_LOG_ACCESS;
-        else if (strncmp(env, "ERROR", 5) == 0)  environment.loglevel = UDA_LOG_ERROR;
-        else if (strncmp(env, "WARN", 4) == 0)   environment.loglevel = UDA_LOG_WARN;
-        else if (strncmp(env, "DEBUG", 5) == 0)  environment.loglevel = UDA_LOG_DEBUG;
-        else if (strncmp(env, "INFO", 4) == 0)   environment.loglevel = UDA_LOG_INFO;
+        if (strncmp(env, "ACCESS", 6) == 0) {
+            environment.loglevel = UDA_LOG_ACCESS;
+        } else if (strncmp(env, "ERROR", 5) == 0) {
+            environment.loglevel = UDA_LOG_ERROR;
+        } else if (strncmp(env, "WARN", 4) == 0) {
+            environment.loglevel = UDA_LOG_WARN;
+        } else if (strncmp(env, "DEBUG", 5) == 0) {
+            environment.loglevel = UDA_LOG_DEBUG;
+        } else if (strncmp(env, "INFO", 4) == 0) {
+            environment.loglevel = UDA_LOG_INFO;
+        }
     }
 
     // UDA Server Host Name
 
-    if (*env_host) {                            // Check Not already set by User
+    if (*env_host) { // Check Not already set by User
         if ((env = getenv("UDA_HOST")) != nullptr) {
             strcpy(environment.server_host, env);
         } else {
@@ -90,8 +96,8 @@ Environment uda::client::load_environment(bool* env_host, bool* env_port)
 
     // UDA Reconnect Status
 
-    environment.server_reconnect = 0;    // No reconnection needed at startup!
-    environment.server_socket = -1;    // No Socket open at startup
+    environment.server_reconnect = 0; // No reconnection needed at startup!
+    environment.server_socket = -1;   // No Socket open at startup
 
     //-------------------------------------------------------------------------------------------
     // API Defaults
@@ -135,29 +141,35 @@ Environment uda::client::load_environment(bool* env_host, bool* env_port)
     // External User?
 
 #ifdef FATCLIENT
-    #  ifdef EXTERNAL_USER
+#  ifdef EXTERNAL_USER
     environment.external_user = 1;
 #  else
     environment.external_user = 0;
 #  endif
-    if ((env = getenv("EXTERNAL_USER")) != nullptr) environment.external_user = 1;
-    if ((env = getenv("UDA_EXTERNAL_USER")) != nullptr) environment.external_user = 1;
+    if ((env = getenv("EXTERNAL_USER")) != nullptr) {
+        environment.external_user = 1;
+    }
+    if ((env = getenv("UDA_EXTERNAL_USER")) != nullptr) {
+        environment.external_user = 1;
+    }
 #endif
 
     //-------------------------------------------------------------------------------------------
     // UDA Proxy Host: redirect ALL requests
 
 #ifdef FATCLIENT
-    #  ifdef PROXYSERVER
-    if((env = getenv("UDA_PROXY_TARGETHOST")) != nullptr)
-         strcpy(environment.server_proxy, env);
-     else
-         environment.server_proxy[0] = '\0';
+#  ifdef PROXYSERVER
+    if ((env = getenv("UDA_PROXY_TARGETHOST")) != nullptr) {
+        strcpy(environment.server_proxy, env);
+    } else {
+        environment.server_proxy[0] = '\0';
+    }
 
-    if((env = getenv("UDA_PROXY_THISHOST")) != nullptr)
-         strcpy(environment.server_this, env);
-     else
-         environment.server_this[0] = '\0';
+    if ((env = getenv("UDA_PROXY_THISHOST")) != nullptr) {
+        strcpy(environment.server_this, env);
+    } else {
+        environment.server_this[0] = '\0';
+    }
 #  endif
 #endif
 
@@ -180,14 +192,18 @@ Environment uda::client::load_environment(bool* env_host, bool* env_port)
     // Client defined Property Flags
 
     environment.clientFlags = 0;
-    if ((env = getenv("UDA_FLAGS")) != nullptr) environment.clientFlags = atoi(env);
+    if ((env = getenv("UDA_FLAGS")) != nullptr) {
+        environment.clientFlags = atoi(env);
+    }
 
     environment.altRank = 0;
-    if ((env = getenv("UDA_ALTRANK")) != nullptr) environment.altRank = atoi(env);
+    if ((env = getenv("UDA_ALTRANK")) != nullptr) {
+        environment.altRank = atoi(env);
+    }
 
     //-------------------------------------------------------------------------------------------
 
-    environment.initialised = 1;        // Initialisation Complete
+    environment.initialised = 1; // Initialisation Complete
 
     return environment;
 }

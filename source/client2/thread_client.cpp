@@ -91,17 +91,8 @@ char* get_data(int handle)
     }
 }
 
-DATA_BLOCK *get_data_block(int handle) {
-    auto &instance = uda::client::ThreadClient::instance();
-    auto data_block = instance.data_block(handle);
-
-    if (data_block == nullptr) {
-        return nullptr;
-    }
-    return data_block;
-}
-
-DATA_BLOCK *uda::client::get_data_block(int handle) {
+DATA_BLOCK* get_data_block(int handle)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -111,7 +102,19 @@ DATA_BLOCK *uda::client::get_data_block(int handle) {
     return data_block;
 }
 
-char *uda::client::get_data(int handle) {
+DATA_BLOCK* uda::client::get_data_block(int handle)
+{
+    auto& instance = uda::client::ThreadClient::instance();
+    auto data_block = instance.data_block(handle);
+
+    if (data_block == nullptr) {
+        return nullptr;
+    }
+    return data_block;
+}
+
+char* uda::client::get_data(int handle)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
     auto client_flags = instance.client_flags();
@@ -133,7 +136,8 @@ char *uda::client::get_data(int handle) {
     }
 }
 
-char *uda::client::get_synthetic_data(int handle) {
+char* uda::client::get_synthetic_data(int handle)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
     auto client_flags = instance.client_flags();
@@ -155,7 +159,8 @@ char *uda::client::get_synthetic_data(int handle) {
     return data_block->synthetic;
 }
 
-void uda::client::set_synthetic_data(int handle, char *data) {
+void uda::client::set_synthetic_data(int handle, char* data)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -165,7 +170,8 @@ void uda::client::set_synthetic_data(int handle, char *data) {
     data_block->synthetic = data;
 }
 
-int uda::client::get_data_status(int handle) {
+int uda::client::get_data_status(int handle)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -181,7 +187,8 @@ int uda::client::get_data_status(int handle) {
     }
 }
 
-int uda::client::get_signal_status(int handle) {
+int uda::client::get_signal_status(int handle)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -192,7 +199,8 @@ int uda::client::get_signal_status(int handle) {
     return data_block->signal_status;
 }
 
-int uda::client::get_data_num(int handle) {
+int uda::client::get_data_num(int handle)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -203,7 +211,8 @@ int uda::client::get_data_num(int handle) {
     return data_block->data_n;
 }
 
-int uda::client::get_data_type(int handle) {
+int uda::client::get_data_type(int handle)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -213,7 +222,8 @@ int uda::client::get_data_type(int handle) {
     return data_block->data_type;
 }
 
-void uda::client::get_error_model(int handle, int *model, int *param_n, float *params) {
+void uda::client::get_error_model(int handle, int* model, int* param_n, float* params)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -223,24 +233,25 @@ void uda::client::get_error_model(int handle, int *model, int *param_n, float *p
         return;
     }
     *model = data_block->error_model;     // Model ID
-    *param_n = data_block->error_param_n;      // Number of parameters
+    *param_n = data_block->error_param_n; // Number of parameters
     for (int i = 0; i < data_block->error_param_n; i++) {
         params[i] = data_block->errparams[i];
     }
 }
 
-int uda::client::get_dim_num(int handle, int n_dim) {
+int uda::client::get_dim_num(int handle, int n_dim)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || n_dim < 0 ||
-        (unsigned int)n_dim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || (unsigned int)n_dim >= data_block->rank) {
         return 0;
     }
     return data_block->dims[n_dim].dim_n;
 }
 
-char *uda::client::get_dim_data(int handle, int n_dim) {
+char* uda::client::get_dim_data(int handle, int n_dim)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -255,18 +266,19 @@ char *uda::client::get_dim_data(int handle, int n_dim) {
     return get_synthetic_dim_data(handle, n_dim);
 }
 
-int uda::client::get_dim_type(int handle, int n_dim) {
+int uda::client::get_dim_type(int handle, int n_dim)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || n_dim < 0 ||
-        (unsigned int)n_dim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || (unsigned int)n_dim >= data_block->rank) {
         return UDA_TYPE_UNKNOWN;
     }
     return data_block->dims[n_dim].data_type;
 }
 
-char *uda::client::get_synthetic_dim_data(int handle, int n_dim) {
+char* uda::client::get_synthetic_dim_data(int handle, int n_dim)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -276,7 +288,8 @@ char *uda::client::get_synthetic_dim_data(int handle, int n_dim) {
     return data_block->dims[n_dim].synthetic;
 }
 
-void uda::client::set_synthetic_dim_data(int handle, int n_dim, char *data) {
+void uda::client::set_synthetic_dim_data(int handle, int n_dim, char* data)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -286,7 +299,8 @@ void uda::client::set_synthetic_dim_data(int handle, int n_dim, char *data) {
     data_block->dims[n_dim].synthetic = data;
 }
 
-char *uda::client::get_data_err_hi(int handle) {
+char* uda::client::get_data_err_hi(int handle)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -296,7 +310,8 @@ char *uda::client::get_data_err_hi(int handle) {
     return data_block->errhi;
 }
 
-char *uda::client::get_data_err_lo(int handle) {
+char* uda::client::get_data_err_lo(int handle)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -306,7 +321,8 @@ char *uda::client::get_data_err_lo(int handle) {
     return data_block->errlo;
 }
 
-int uda::client::get_data_err_asymmetry(int handle) {
+int uda::client::get_data_err_asymmetry(int handle)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -316,7 +332,8 @@ int uda::client::get_data_err_asymmetry(int handle) {
     return data_block->errasymmetry;
 }
 
-char *uda::client::get_dim_err_hi(int handle, int n_dim) {
+char* uda::client::get_dim_err_hi(int handle, int n_dim)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -326,7 +343,8 @@ char *uda::client::get_dim_err_hi(int handle, int n_dim) {
     return data_block->dims[n_dim].errhi;
 }
 
-char *uda::client::get_dim_err_lo(int handle, int n_dim) {
+char* uda::client::get_dim_err_lo(int handle, int n_dim)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -336,18 +354,19 @@ char *uda::client::get_dim_err_lo(int handle, int n_dim) {
     return data_block->dims[n_dim].errlo;
 }
 
-int uda::client::get_dim_err_asymmetry(int handle, int n_dim) {
+int uda::client::get_dim_err_asymmetry(int handle, int n_dim)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
-    if (data_block == nullptr || n_dim < 0 ||
-        (unsigned int)n_dim >= data_block->rank) {
+    if (data_block == nullptr || n_dim < 0 || (unsigned int)n_dim >= data_block->rank) {
         return 0;
     }
     return data_block->dims[n_dim].errasymmetry;
 }
 
-void uda::client::set_dim_err_lo(int handle, int n_dim, char *err_lo) {
+void uda::client::set_dim_err_lo(int handle, int n_dim, char* err_lo)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -357,7 +376,8 @@ void uda::client::set_dim_err_lo(int handle, int n_dim, char *err_lo) {
     data_block->dims[n_dim].errlo = err_lo;
 }
 
-void uda::client::set_dim_err_type(int handle, int n_dim, int type) {
+void uda::client::set_dim_err_type(int handle, int n_dim, int type)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -367,7 +387,8 @@ void uda::client::set_dim_err_type(int handle, int n_dim, int type) {
     data_block->dims[n_dim].error_type = type;
 }
 
-void uda::client::set_dim_err_asymmetry(int handle, int n_dim, int asymmetry) {
+void uda::client::set_dim_err_asymmetry(int handle, int n_dim, int asymmetry)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -377,7 +398,8 @@ void uda::client::set_dim_err_asymmetry(int handle, int n_dim, int asymmetry) {
     data_block->dims[n_dim].errasymmetry = asymmetry;
 }
 
-int uda::client::get_rank(int handle) {
+int uda::client::get_rank(int handle)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -388,7 +410,8 @@ int uda::client::get_rank(int handle) {
     return (int)data_block->rank;
 }
 
-void uda::client::set_data_err_lo(int handle, char *err_lo) {
+void uda::client::set_data_err_lo(int handle, char* err_lo)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -398,7 +421,8 @@ void uda::client::set_data_err_lo(int handle, char *err_lo) {
     data_block->errlo = err_lo;
 }
 
-void uda::client::set_data_err_type(int handle, int type) {
+void uda::client::set_data_err_type(int handle, int type)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 
@@ -408,7 +432,8 @@ void uda::client::set_data_err_type(int handle, int type) {
     data_block->error_type = type;
 }
 
-void uda::client::set_data_err_asymmetry(int handle, int asymmetry) {
+void uda::client::set_data_err_asymmetry(int handle, int asymmetry)
+{
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
 

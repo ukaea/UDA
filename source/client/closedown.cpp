@@ -1,24 +1,24 @@
 /*---------------------------------------------------------------
-* Close the Socket, XDR Streams, Open File Handles
-*
-* Argument:     If 1 then full closedown otherwise only the
-*        Socket and XDR Streams.
-*
-* Returns:
-*
-*--------------------------------------------------------------*/
+ * Close the Socket, XDR Streams, Open File Handles
+ *
+ * Argument:     If 1 then full closedown otherwise only the
+ *        Socket and XDR Streams.
+ *
+ * Returns:
+ *
+ *--------------------------------------------------------------*/
 #include "closedown.h"
 
-#include <logging/logging.h>
 #include "client.h"
 #include <client/udaClientHostList.h>
+#include <logging/logging.h>
 
 #ifdef FATCLIENT
-#  include <server/udaServer.h>
 #  include <server/closeServerSockets.h>
+#  include <server/udaServer.h>
 #else
-#  include "getEnvironment.h"
 #  include "connection.h"
+#  include "getEnvironment.h"
 #endif
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
@@ -38,10 +38,10 @@ int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XD
 
     if (type == ClosedownType::CLOSE_ALL) {
         udaCloseLogging();
-        *reopen_logs = true;        // In case the User calls the IDAM API again!
+        *reopen_logs = true; // In case the User calls the IDAM API again!
     }
 
-#ifndef FATCLIENT    // <========================== Client Server Code Only
+#ifndef FATCLIENT // <========================== Client Server Code Only
     if (client_input != nullptr) {
         if (client_input->x_ops != nullptr) {
             xdr_destroy(client_input);
@@ -62,14 +62,14 @@ int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XD
     udaSetEnvHost(true);
     udaSetEnvPort(true);
 
-#else            // <========================== Fat Client Code Only
+#else // <========================== Fat Client Code Only
     if (type == ClosedownType::CLOSE_ALL) {
-        closeServerSockets(socket_list);    // Close the Socket Connections to Other Data Servers
+        closeServerSockets(socket_list); // Close the Socket Connections to Other Data Servers
     }
 #endif
 
     // Close the host list
-    
+
     udaClientFreeHostList();
 
     // Close the SSL binding and context

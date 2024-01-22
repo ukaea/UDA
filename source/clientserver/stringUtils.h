@@ -1,24 +1,24 @@
 #pragma once
 
 #ifndef UDA_CLIENTSERVER_STRINGUTILS_H
-#define UDA_CLIENTSERVER_STRINGUTILS_H
+#  define UDA_CLIENTSERVER_STRINGUTILS_H
 
-#include <string.h>
-#include <ctype.h>
-#include <stdbool.h>
-#include "export.h"
+#  include "export.h"
+#  include <ctype.h>
+#  include <stdbool.h>
+#  include <string.h>
 
-#ifndef _WIN32
-#  include <strings.h>
-#endif
+#  ifndef _WIN32
+#    include <strings.h>
+#  endif
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 extern "C" {
-#endif
+#  endif
 
-#if !defined(_GNU_SOURCE) && !defined(strcasestr)
+#  if !defined(_GNU_SOURCE) && !defined(strcasestr)
 LIBRARY_API char* strcasestr(const char* haystack, const char* needle);
-#endif
+#  endif
 
 // Reverse a String
 LIBRARY_API void reverseString(const char* in, char* out);
@@ -42,13 +42,13 @@ LIBRARY_API char* LeftTrimString(char* str);
 
 LIBRARY_API void StringCopy(char* dest, const char* src, size_t len);
 
-#ifdef __GNUC__
+#  ifdef __GNUC__
 // Convert all LowerCase Characters to Upper Case
 LIBRARY_API char* strupr(char* a);
 
 // Convert all UpperCase Characters to Lower Case
 LIBRARY_API char* strlwr(char* a);
-#endif
+#  endif
 
 // Trim Internal Space Characters from a String
 LIBRARY_API char* MidTrimString(char* str);
@@ -74,13 +74,13 @@ LIBRARY_API char* convertNonPrintable2(char* str);
 
 LIBRARY_API int IsLegalFilePath(const char* str);
 
-#if !defined(asprintf)
-#  if defined(__cplusplus) && !defined(__APPLE__)
+#  if !defined(asprintf)
+#    if defined(__cplusplus) && !defined(__APPLE__)
 LIBRARY_API int asprintf(char** strp, const char* fmt, ...) noexcept;
-#  else
+#    else
 LIBRARY_API int asprintf(char** strp, const char* fmt, ...);
+#    endif
 #  endif
-#endif
 
 LIBRARY_API char** SplitString(const char* string, const char* delim);
 
@@ -92,42 +92,39 @@ LIBRARY_API bool StringIEquals(const char* a, const char* b);
 
 LIBRARY_API bool StringEndsWith(const char* str, const char* find);
 
-#define STR_STARTSWITH(X, Y) !strncmp(X, Y, strlen(Y))
-#define STR_ISTARTSWITH(X, Y) !strncasecmp(X, Y, strlen(Y))
+#  define STR_STARTSWITH(X, Y) !strncmp(X, Y, strlen(Y))
+#  define STR_ISTARTSWITH(X, Y) !strncasecmp(X, Y, strlen(Y))
 
-#define STR_EQUALS(X, Y) StringEquals(X, Y)
-#define STR_IEQUALS(X, Y) StringIEquals(X, Y)
+#  define STR_EQUALS(X, Y) StringEquals(X, Y)
+#  define STR_IEQUALS(X, Y) StringIEquals(X, Y)
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 }
 
-#include <string>
-#include <algorithm>
+#    include <algorithm>
+#    include <string>
 
-namespace uda {
+namespace uda
+{
 // remove non printable characters
 static inline void convert_non_printable(std::string& str)
 {
-    std::replace_if(str.begin(), str.end(), [](char c){
-        return c < ' ' || c > '~';
-    }, ' ');
+    std::replace_if(
+        str.begin(), str.end(), [](char c) { return c < ' ' || c > '~'; }, ' ');
 }
 
 // trim from start (in place)
-static inline void ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }));
+static inline void ltrim(std::string& s)
+{
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) { return !std::isspace(ch); }));
 }
 
 // trim from end (in place)
-static inline void rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }).base(), s.end());
+static inline void rtrim(std::string& s)
+{
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), s.end());
 }
-}
-#endif // defined(__cplusplus)
+} // namespace uda
+#  endif // defined(__cplusplus)
 
 #endif // UDA_CLIENTSERVER_STRINGUTILS_H
-

@@ -3,8 +3,8 @@
 #include <cstdlib>
 #include <vector>
 
-#include <logging/logging.h>
 #include <clientserver/stringUtils.h>
+#include <logging/logging.h>
 
 static std::vector<UDA_ERROR> udaerrorstack;
 
@@ -35,8 +35,8 @@ void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERR
 
     struct tm* broken = gmtime(&calendar);
 
-    static char accessdate[UDA_DATE_LENGTH];     // The Calendar Time as a formatted String
-    
+    static char accessdate[UDA_DATE_LENGTH]; // The Calendar Time as a formatted String
+
 #ifndef _WIN32
     asctime_r(broken, accessdate);
 #else
@@ -48,15 +48,14 @@ void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERR
 
     for (int i = 0; i < request_block.num_requests; ++i) {
         auto request = &request_block.requests[i];
-        udaLog(UDA_LOG_ERROR, "0 %s [%s] [%d %s %d %d %s %s %s %s %s %s %s]\n",
-               client_block.uid, accessdate, request->request, request->signal, request->exp_number,
-               request->pass, request->tpass, request->path, request->file, request->format, request->archive,
-               request->device_name, request->server);
+        udaLog(UDA_LOG_ERROR, "0 %s [%s] [%d %s %d %d %s %s %s %s %s %s %s]\n", client_block.uid, accessdate,
+               request->request, request->signal, request->exp_number, request->pass, request->tpass, request->path,
+               request->file, request->format, request->archive, request->device_name, request->server);
     }
 
     for (unsigned int i = 0; i < nerrors; i++) {
-        udaLog(UDA_LOG_ERROR, "1 %s [%s] %d %d [%s] [%s]\n", client_block.uid, accessdate,
-                errors[i].type, errors[i].code, errors[i].location, errors[i].msg);
+        udaLog(UDA_LOG_ERROR, "1 %s [%s] %d %d [%s] [%s]\n", client_block.uid, accessdate, errors[i].type,
+               errors[i].code, errors[i].location, errors[i].msg);
     }
 }
 
@@ -152,10 +151,10 @@ void concatUdaError(UDA_ERROR_STACK* errorstackout)
 
 void freeIdamErrorStack(UDA_ERROR_STACK* errorstack)
 {
-    // "FIX" : this is causing segfaults when using multiple clients (eg. get and put) 
+    // "FIX" : this is causing segfaults when using multiple clients (eg. get and put)
     //         apparently due to both trying to free the same memory. Needs fixing properly.
     //    free(errorstack->idamerror);
-      
+
     errorstack->nerrors = 0;
     errorstack->idamerror = nullptr;
 }

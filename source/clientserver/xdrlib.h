@@ -1,24 +1,24 @@
 #pragma once
 
 #ifndef UDA_CLIENTSERVER_XDRLIB_H
-#define UDA_CLIENTSERVER_XDRLIB_H
+#  define UDA_CLIENTSERVER_XDRLIB_H
 
-#include "udaStructs.h"
-#include "export.h"
+#  include "export.h"
+#  include "udaStructs.h"
 
-#include <rpc/types.h>
-#include <rpc/xdr.h>
+#  include <rpc/types.h>
+#  include <rpc/xdr.h>
 
 //-------------------------------------------------------
 // XDR Stream Directions
 
-#define XDR_SEND        0
-#define XDR_RECEIVE     1
-#define XDR_FREE_HEAP   2
+#  define XDR_SEND 0
+#  define XDR_RECEIVE 1
+#  define XDR_FREE_HEAP 2
 
-#ifdef __APPLE__
-#  define xdr_uint64_t xdr_u_int64_t
-#endif
+#  ifdef __APPLE__
+#    define xdr_uint64_t xdr_u_int64_t
+#  endif
 
 //-----------------------------------------------------------------------
 // Test version's type passing capability
@@ -74,4 +74,3 @@ bool_t xdr_signal(XDR* xdrs, SIGNAL* str);
 bool_t xdr_signal_desc(XDR* xdrs, SIGNAL_DESC* str);
 
 #endif // UDA_CLIENTSERVER_XDRLIB_H
-

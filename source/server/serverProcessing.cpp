@@ -2,11 +2,10 @@
 
 #include <cstdlib>
 
-#include <logging/logging.h>
 #include "udaTypes.h"
+#include <logging/logging.h>
 
-template <typename T>
-bool reduce_dim(DIMS* ddim)
+template <typename T> bool reduce_dim(DIMS* ddim)
 {
     T sf = (T)0.0;
     switch (ddim->method) {
@@ -111,8 +110,7 @@ int reduce_data(DATA_BLOCK* data_block)
     return 0;
 }
 
-template <typename T>
-int cast_dim(DIMS* ddim)
+template <typename T> int cast_dim(DIMS* ddim)
 {
     switch (ddim->method) {
         case 1: {
@@ -136,8 +134,9 @@ int cast_dim(DIMS* ddim)
         }
         case 2: {
             auto newoffs = (double*)malloc(ddim->udoms * sizeof(double));
-            for (unsigned int i = 0; i < ddim->udoms; i++)
+            for (unsigned int i = 0; i < ddim->udoms; i++) {
                 *(newoffs + i) = (double)*((T*)ddim->offs + i);
+            }
             free(ddim->offs);
             ddim->offs = (char*)newoffs;
             ddim->data_type = UDA_TYPE_DOUBLE;
@@ -171,7 +170,7 @@ int cast_data(DATA_BLOCK* data_block, const CLIENT_BLOCK* client_block)
     int rc = 0;
     for (unsigned int k = 0; k < data_block->rank; k++) {
         if (client_block->get_timedble && k != (unsigned int)data_block->order) {
-            continue;    // Only Process the Time Dimension
+            continue; // Only Process the Time Dimension
         }
         UDA_LOG(UDA_LOG_DEBUG, "Processing Dimension %d\n", k);
         DIMS* ddim = &data_block->dims[k];

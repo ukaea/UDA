@@ -1,8 +1,8 @@
 #include "stringUtils.h"
 
-#include <cstdlib>
 #include <cstdarg>
 #include <cstdio>
+#include <cstdlib>
 #include <string>
 
 #ifdef __GNUC__
@@ -42,7 +42,9 @@ void reverseString(const char* in, char* out)
 {
     int lstr = (int)strlen(in);
     out[lstr] = '\0';
-    for (int i = 0; i < lstr; i++) out[i] = in[lstr - 1 - i];
+    for (int i = 0; i < lstr; i++) {
+        out[i] = in[lstr - 1 - i];
+    }
 }
 
 // Copy a String subject to a Maximum length constraint
@@ -87,8 +89,9 @@ char* TrimString(char* szSource)
      */
     pszEOS = szSource + strlen(szSource) - 1;
 
-    while (pszEOS >= szSource && *pszEOS == ' ')
+    while (pszEOS >= szSource && *pszEOS == ' ') {
         *pszEOS-- = '\0';
+    }
 
     return szSource;
 }
@@ -140,7 +143,6 @@ char* strupr(char* a)
     return ret;
 }
 
-
 // Convert all UpperCase Characters to Lower Case
 
 char* strlwr(char* a)
@@ -166,7 +168,9 @@ char* MidTrimString(char* str)
     int j = 0, lstr;
     lstr = (int)strlen(str);
     for (int i = 0; i < lstr; i++) {
-        if (str[i] != ' ') str[j++] = str[i];
+        if (str[i] != ' ') {
+            str[j++] = str[i];
+        }
     }
     str[j] = '\0';
     return str;
@@ -178,7 +182,9 @@ int IsNumber(const char* a)
 {
     const char* wrk = a;
     while (*wrk != '\0') {
-        if (!isdigit(*wrk) && *wrk != '-' && *wrk != '+') return 0;
+        if (!isdigit(*wrk) && *wrk != '-' && *wrk != '+') {
+            return 0;
+        }
         ++wrk;
     }
     return 1;
@@ -190,12 +196,13 @@ int IsFloat(char* a)
 {
     char* wrk = a;
     while (*wrk != '\0') {
-        if (!isdigit(*wrk) && *wrk != '-' && *wrk != '+' && *wrk != '.') return 0;
+        if (!isdigit(*wrk) && *wrk != '-' && *wrk != '+' && *wrk != '.') {
+            return 0;
+        }
         ++wrk;
     }
     return 1;
 }
-
 
 // Is the String a Number List (#,#,#,#;#;#;#)?
 
@@ -203,12 +210,13 @@ int IsNumberList(char* a)
 {
     char* wrk = a;
     while (*wrk != '\0') {
-        if (!isdigit(*wrk) || *wrk != ',' || *wrk != ';') return 0;
+        if (!isdigit(*wrk) || *wrk != ',' || *wrk != ';') {
+            return 0;
+        }
         ++wrk;
     }
-    if (a[0] == ',' || a[strlen(a)] == ',' ||
-        a[0] == ';' || a[strlen(a)] == ';') {
-            return 0;
+    if (a[0] == ',' || a[strlen(a)] == ',' || a[0] == ';' || a[strlen(a)] == ';') {
+        return 0;
     }
 
     return 1;
@@ -220,9 +228,8 @@ char* convertNonPrintable(char* str)
 
     char* ret = str;
     while (*str != '\0') {
-        if (!isalpha(*str) && !isdigit(*str)
-            && *str != ' ' && *str != '.' && *str != '+' && *str != '-') {
-                *str = ' ';
+        if (!isalpha(*str) && !isdigit(*str) && *str != ' ' && *str != '.' && *str != '+' && *str != '-') {
+            *str = ' ';
         }
         ++str;
     }
@@ -235,7 +242,9 @@ char* convertNonPrintable2(char* str)
 
     char* ret = str;
     while (*str != '\0') {
-        if (*str < ' ' || *str > '~') *str = ' ';
+        if (*str < ' ' || *str > '~') {
+            *str = ' ';
+        }
         ++str;
     }
     return ret;
@@ -245,10 +254,12 @@ int IsLegalFilePath(const char* str)
 {
     // Basic check that the filename complies with good naming practice - some protection against malign embedded code!
     // Test against the Portable Filename Character Set A-Z, a-z, 0-9, <period>, <underscore> and <hyphen> and <plus>
-    // Include <space> and back-slash for windows filenames only, forward-slash for the path seperator and $ for environment variables
+    // Include <space> and back-slash for windows filenames only, forward-slash for the path seperator and $ for
+    // environment variables
 
     // The API source argument can also be a server based source containing a ':' character
-    // The delimiter characters separating the device or format name from the source should have been split off of the path
+    // The delimiter characters separating the device or format name from the source should have been split off of the
+    // path
     //
 
     const char* tst = str;
@@ -265,11 +276,11 @@ int IsLegalFilePath(const char* str)
 
 #ifdef _WIN32
         if (*tst == ' ' || *tst == '\\') {
-                tst++;
-                continue;
-            }
+            tst++;
+            continue;
+        }
 #endif
-        return 0;    // Error - not compliant!
+        return 0; // Error - not compliant!
     }
     return 1;
 }
@@ -279,11 +290,11 @@ int IsLegalFilePath(const char* str)
 /*
  * Allocating sprintf
  */
-#ifdef __APPLE__
+#  ifdef __APPLE__
 int asprintf(char** strp, const char* fmt, ...)
-#else
+#  else
 int asprintf(char** strp, const char* fmt, ...) noexcept
-#endif
+#  endif
 {
     va_list vargs;
     va_start(vargs, fmt);
@@ -394,7 +405,9 @@ void FreeSplitStringTokens(char*** tokens)
 
 bool StringEquals(const char* a, const char* b)
 {
-    if (a == nullptr || b == nullptr) return false;
+    if (a == nullptr || b == nullptr) {
+        return false;
+    }
 
     while (*a != '\0') {
         if (*b == '\0' || *a != *b) {
@@ -409,7 +422,9 @@ bool StringEquals(const char* a, const char* b)
 
 bool StringIEquals(const char* a, const char* b)
 {
-    if (a == nullptr || b == nullptr) return false;
+    if (a == nullptr || b == nullptr) {
+        return false;
+    }
 
     while (*a != '\0') {
         if (*b == '\0' || toupper(*a) != toupper(*b)) {
@@ -424,7 +439,9 @@ bool StringIEquals(const char* a, const char* b)
 
 bool StringEndsWith(const char* str, const char* find)
 {
-    if (str == nullptr || find == nullptr) return false;
+    if (str == nullptr || find == nullptr) {
+        return false;
+    }
 
     size_t len = strlen(str);
     size_t find_len = strlen(find);
@@ -432,11 +449,15 @@ bool StringEndsWith(const char* str, const char* find)
     const char* a = str + len;
     const char* b = find + find_len;
 
-    if (find_len > len) return false;
+    if (find_len > len) {
+        return false;
+    }
 
     size_t count = 0;
     while (count <= find_len) {
-        if (*a != *b) return false;
+        if (*a != *b) {
+            return false;
+        }
         --a;
         --b;
         ++count;

@@ -4,8 +4,9 @@
 
 #include "readHDF58.h"
 
-class HDF5Plugin : public UDAPluginBase {
-public:
+class HDF5Plugin : public UDAPluginBase
+{
+  public:
     HDF5Plugin();
     int read(IDAM_PLUGIN_INTERFACE* plugin_interface);
     int hello(IDAM_PLUGIN_INTERFACE* plugin_interface)
@@ -20,8 +21,7 @@ public:
     void reset() override {}
 };
 
-HDF5Plugin::HDF5Plugin()
-    : UDAPluginBase("HDF5", 1, "read", "")
+HDF5Plugin::HDF5Plugin() : UDAPluginBase("HDF5", 1, "read", "")
 {
     register_method("read", static_cast<UDAPluginBase::plugin_member_type>(&HDF5Plugin::read));
     register_method("hello", static_cast<UDAPluginBase::plugin_member_type>(&HDF5Plugin::hello));
@@ -39,7 +39,6 @@ extern int hdf5Plugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
 //----------------------------------------------------------------------------------------
 // Read data from a HDF5 File
-
 
 int HDF5Plugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {

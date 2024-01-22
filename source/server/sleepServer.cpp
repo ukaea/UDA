@@ -1,17 +1,17 @@
 /*---------------------------------------------------------------
-* Server Sleeps and Waits for a Wake-up Instruction from the Client
-*
-* Returns:     1 (True)  if Next Client Request to be Served
-*        0 (False) if No Request within the Time Limit
-*
-*--------------------------------------------------------------*/
+ * Server Sleeps and Waits for a Wake-up Instruction from the Client
+ *
+ * Returns:     1 (True)  if Next Client Request to be Served
+ *        0 (False) if No Request within the Time Limit
+ *
+ *--------------------------------------------------------------*/
 #include "sleepServer.h"
 
-#include <logging/logging.h>
 #include <clientserver/errorLog.h>
 #include <clientserver/protocol.h>
-#include <server/udaServer.h>
 #include <clientserver/xdrlib.h>
+#include <logging/logging.h>
+#include <server/udaServer.h>
 
 int sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmalloclist,
                 USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
@@ -27,8 +27,7 @@ int sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmallocl
     UDA_LOG(UDA_LOG_DEBUG, "Protocol 3 Listening for Next Client Request\n");
 
     if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist,
-                        nullptr, protocolVersion, log_struct_list, io_data, private_flags,
-                        malloc_source)) != 0) {
+                        nullptr, protocolVersion, log_struct_list, io_data, private_flags, malloc_source)) != 0) {
 
         UDA_LOG(UDA_LOG_DEBUG, "Protocol 3 Error Listening for Wake-up %d\n", err);
 
@@ -47,8 +46,7 @@ int sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmallocl
 #ifndef NOCHAT
     // Echo Next Protocol straight back to Client
     if ((err = protocol(server_output, protocol_id, XDR_SEND, &next_protocol, logmalloclist, userdefinedtypelist,
-                        nullptr, protocolVersion, log_struct_list, io_data, private_flags,
-                        malloc_source)) != 0) {
+                        nullptr, protocolVersion, log_struct_list, io_data, private_flags, malloc_source)) != 0) {
         addIdamError(UDA_CODE_ERROR_TYPE, "sleepServer", err, "Protocol 3 Error Echoing Next Protocol ID");
         return 0;
     }
@@ -61,12 +59,11 @@ int sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmallocl
 
     if (next_protocol != UDA_PROTOCOL_WAKE_UP) {
         UDA_LOG(UDA_LOG_DEBUG, "Unknown Wakeup Request -> Server Shutting down\n");
-        addIdamError(UDA_CODE_ERROR_TYPE, "sleepServer", next_protocol,
-                     "Unknown Wakeup Request -> Server Shutdown");
+        addIdamError(UDA_CODE_ERROR_TYPE, "sleepServer", next_protocol, "Unknown Wakeup Request -> Server Shutdown");
         return 0;
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "Client Requests Server Wake-Up\n");
 
-    return 1;    // No Time out and Non-Zero Next Protocol id => Next Client Request
+    return 1; // No Time out and Non-Zero Next Protocol id => Next Client Request
 }

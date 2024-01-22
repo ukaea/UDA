@@ -1,22 +1,22 @@
 #include "server.hpp"
 
+#include <fmt/format.h>
 #include <string>
 #include <unistd.h>
-#include <fmt/format.h>
 
-#include "initStructs.h"
-#include "server_environment.hpp"
-#include "logging/logging.h"
 #include "clientserver/errorLog.h"
-#include "udaErrors.h"
+#include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
 #include "clientserver/xdrlib.h"
-#include "clientserver/printStructs.h"
+#include "initStructs.h"
 #include "logging/accessLog.h"
+#include "logging/logging.h"
+#include "server_environment.hpp"
+#include "server_exceptions.h"
 #include "server_plugin.h"
 #include "server_processing.h"
 #include "struct.h"
-#include "server_exceptions.h"
+#include "udaErrors.h"
 #ifdef SSLAUTHENTICATION
 #  include "authentication/udaServerSSL.h"
 #endif
@@ -51,13 +51,10 @@ void print_data_block_list(const std::vector<DATA_BLOCK>& data_blocks)
     }
 }
 
-uda::Server::Server()
-    : error_stack_{}
-    , environment_{}
-    , sockets_{}
+uda::Server::Server() : error_stack_{}, environment_{}, sockets_{}
 {
     initServerBlock(&server_block_, ServerVersion);
-    initActions(&actions_desc_);        // There may be a Sequence of Actions to Apply
+    initActions(&actions_desc_); // There may be a Sequence of Actions to Apply
     initActions(&actions_sig_);
     initRequestBlock(&request_block_);
     cache_ = cache::open_cache();
@@ -73,11 +70,11 @@ void uda::Server::start_logs()
         }
 
         errno = 0;
-        std::string log_file = std::string{ environment_->logdir } + "Access.log";
+        std::string log_file = std::string{environment_->logdir} + "Access.log";
         FILE* accout = fopen(log_file.c_str(), environment_->logmode);
 
         if (errno != 0) {
-            addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__ , errno, "Access Log: ");
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Access Log: ");
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open access log");
             if (accout != nullptr) {
                 fclose(accout);
@@ -89,7 +86,7 @@ void uda::Server::start_logs()
 
     if (environment_->loglevel <= UDA_LOG_ERROR) {
         errno = 0;
-        std::string log_file = std::string{ environment_->logdir } + "Error.log";
+        std::string log_file = std::string{environment_->logdir} + "Error.log";
         FILE* errout = fopen(log_file.c_str(), environment_->logmode);
 
         if (errno != 0) {
@@ -105,7 +102,7 @@ void uda::Server::start_logs()
 
     if (environment_->loglevel <= UDA_LOG_WARN) {
         errno = 0;
-        std::string log_file = std::string{ environment_->logdir } + "DebugServer.log";
+        std::string log_file = std::string{environment_->logdir} + "DebugServer.log";
         FILE* dbgout = fopen(log_file.c_str(), environment_->logmode);
 
         if (errno != 0) {
@@ -228,11 +225,11 @@ void uda::Server::loop()
         UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop\n");
 
         // Create a new userdefinedtypelist for the request by copying the parseduserdefinedtypelist structure
-        //copyUserDefinedTypeList(&userdefinedtypelist);
+        // copyUserDefinedTypeList(&userdefinedtypelist);
 
         getInitialUserDefinedTypeList(&user_defined_type_list_);
         parsed_user_defined_type_list_ = *user_defined_type_list_;
-//        printUserDefinedTypeList(*user_defined_type_list_);
+        //        printUserDefinedTypeList(*user_defined_type_list_);
 
         log_malloc_list_ = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
         initLogMallocList(log_malloc_list_);
@@ -284,7 +281,7 @@ void uda::Server::loop()
         // Write the Error Log Record & Free Error Stack Heap
 
         UDA_LOG(UDA_LOG_DEBUG, "concatUdaError\n");
-        concatUdaError(&server_block_.idamerrorstack);        // Update Server State with Error Stack
+        concatUdaError(&server_block_.idamerrorstack); // Update Server State with Error Stack
 
         UDA_LOG(UDA_LOG_DEBUG, "closeUdaError\n");
         closeUdaError();
@@ -318,16 +315,16 @@ int uda::Server::handle_request()
 
     initClientBlock(&client_block_, 0, "");
 
-    err = protocol_.recv_client_block(server_block_, &client_block_, &fatal_error_, server_tot_block_time_, &server_timeout_,
-                                log_malloc_list_, user_defined_type_list_);
+    err = protocol_.recv_client_block(server_block_, &client_block_, &fatal_error_, server_tot_block_time_,
+                                      &server_timeout_, log_malloc_list_, user_defined_type_list_);
     if (err != 0) {
         return err;
     }
 
-    server_timeout_ = client_block_.timeout;                    // User specified Server Lifetime
-    unsigned int private_flags = client_block_.privateFlags;    // Server to Server flags
-    unsigned int clientFlags = client_block_.clientFlags;       // Client set flags
-    int altRank = client_block_.altRank;                        // Rank of Alternative source
+    server_timeout_ = client_block_.timeout;                 // User specified Server Lifetime
+    unsigned int private_flags = client_block_.privateFlags; // Server to Server flags
+    unsigned int clientFlags = client_block_.clientFlags;    // Client set flags
+    int altRank = client_block_.altRank;                     // Rank of Alternative source
 
     // Protocol Version: Lower of the client and server version numbers
     // This defines the set of elements within data structures passed between client and server
@@ -340,7 +337,8 @@ int uda::Server::handle_request()
     protocol_.set_version(protocol_version);
 
     // The client request may originate from a server.
-    // Is the Originating server an externally facing server? If so then switch to this mode: preserve local access policy
+    // Is the Originating server an externally facing server? If so then switch to this mode: preserve local access
+    // policy
 
     if (!environment_->external_user && (private_flags & PRIVATEFLAG_EXTERNAL)) {
         environment_->external_user = 1;
@@ -369,7 +367,7 @@ int uda::Server::handle_request()
         } else {
             err = 1;
         }
-        return err;                // Manage the Fatal Server State
+        return err; // Manage the Fatal Server State
     }
 
     // Test for an immediate CLOSEDOWN instruction
@@ -410,9 +408,9 @@ int uda::Server::handle_request()
      *
      * The name of the proxy reirection plugin is UDA by default but may be changed using the environment variable
      * UDA_PROXYPLUGINNAME
-    */
+     */
 
-# ifdef PROXYSERVER
+#ifdef PROXYSERVER
 
     // Name of the Proxy plugin
 
@@ -421,12 +419,14 @@ int uda::Server::handle_request()
 
     char work[STRING_LENGTH];
 
-    if ((proxyName = getenv("UDA_PROXYPLUGINNAME")) == nullptr) proxyName = proxyNameDefault;
+    if ((proxyName = getenv("UDA_PROXYPLUGINNAME")) == nullptr) {
+        proxyName = proxyNameDefault;
+    }
 
     // Check string length compatibility
 
-    if (strlen(request_block_.source) >=
-        (STRING_LENGTH - 1 - strlen(proxyName) - strlen(environment_->server_proxy) - strlen(request_block_.api_delim))) {
+    if (strlen(request_block_.source) >= (STRING_LENGTH - 1 - strlen(proxyName) - strlen(environment_->server_proxy) -
+                                          strlen(request_block_.api_delim))) {
         UDA_THROW_ERROR(999, "PROXY redirection: The source argument string is too long!");
     }
 
@@ -441,7 +441,8 @@ int uda::Server::handle_request()
     if (strncasecmp(request_block_.source, work, strlen(work)) != 0) {
         // Not a recognised redirection so prepending is necessary
 
-        // Has a proxy host been specified in the server startup script? If not assume the plugin has a default host and port
+        // Has a proxy host been specified in the server startup script? If not assume the plugin has a default host and
+        // port
 
         if (environment_->server_proxy[0] == '\0') {
             if (request_block_.api_delim[0] != '\0') {
@@ -452,18 +453,20 @@ int uda::Server::handle_request()
 
             strcpy(request_block_.source, work);
 
-        } else {                                                // UDA::host.port/source
+        } else { // UDA::host.port/source
 
             // Check the Server Version is Compatible with the Originating client version ?
 
             if (client_block->version < 6) {
-                UDA_THROW_ERROR(999, "PROXY redirection: Originating Client Version not compatible with the PROXY server interface.");
+                UDA_THROW_ERROR(
+                    999,
+                    "PROXY redirection: Originating Client Version not compatible with the PROXY server interface.");
             }
 
             // Test for Proxy calling itself indirectly => potential infinite loop
-            // The UDA Plugin strips out the host and port data from the source so the originating server details are never passed.
-            // Primitive test as the same IP address can be mapped to different names!
-            // Should pass on the number of redirections and cap the limit!
+            // The UDA Plugin strips out the host and port data from the source so the originating server details are
+            // never passed. Primitive test as the same IP address can be mapped to different names! Should pass on the
+            // number of redirections and cap the limit!
 
             if (environment_->server_this[0] != '\0') {
                 if (request_block_.api_delim[0] != '\0') {
@@ -473,32 +476,41 @@ int uda::Server::handle_request()
                 }
 
                 if (strstr(request_block_.source, work) != nullptr) {
-                    UDA_THROW_ERROR(999, "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
+                    UDA_THROW_ERROR(
+                        999,
+                        "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
                 }
             }
 
             // Prepend the redirection UDA server details and replace the original
 
             if (request_block_.source[0] == '/') {
-                if (request_block_.api_delim[0] != '\0')
-                    sprintf(work, "%s%s%s%s", proxyName, request_block_.api_delim, environment_->server_proxy, request_block_.source);
-                else
-                    sprintf(work, "%s%s%s%s", proxyName, environment_->api_delim, environment_->server_proxy, request_block_.source);
+                if (request_block_.api_delim[0] != '\0') {
+                    sprintf(work, "%s%s%s%s", proxyName, request_block_.api_delim, environment_->server_proxy,
+                            request_block_.source);
+                } else {
+                    sprintf(work, "%s%s%s%s", proxyName, environment_->api_delim, environment_->server_proxy,
+                            request_block_.source);
+                }
             } else {
-                if (request_block_.api_delim[0] != '\0')
-                    sprintf(work, "%s%s%s/%s", proxyName, request_block_.api_delim, environment_->server_proxy, request_block_.source);
-                else
-                    sprintf(work, "%s%s%s/%s", proxyName, environment_->api_delim, environment_->server_proxy, request_block_.source);
+                if (request_block_.api_delim[0] != '\0') {
+                    sprintf(work, "%s%s%s/%s", proxyName, request_block_.api_delim, environment_->server_proxy,
+                            request_block_.source);
+                } else {
+                    sprintf(work, "%s%s%s/%s", proxyName, environment_->api_delim, environment_->server_proxy,
+                            request_block_.source);
+                }
             }
             strcpy(request_block_.source, work);
         }
 
-        UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to %s avoiding %s\n", environment_->server_proxy, environment_->server_this);
+        UDA_LOG(UDA_LOG_DEBUG, "PROXY Redirection to %s avoiding %s\n", environment_->server_proxy,
+                environment_->server_this);
         UDA_LOG(UDA_LOG_DEBUG, "plugin: %s\n", proxyName);
         UDA_LOG(UDA_LOG_DEBUG, "source: %s\n", request_block_.source);
     }
 
-# else
+#else
 
     for (int i = 0; i < request_block_.num_requests; ++i) {
         REQUEST_DATA* request = &request_block_.requests[0];
@@ -515,12 +527,14 @@ int uda::Server::handle_request()
             // Check the Server Version is Compatible with the Originating client version ?
 
             if (client_block_.version < 6) {
-                UDA_THROW_ERROR(999,
-                                "PROXY redirection: Originating Client Version not compatible with the PROXY server interface.");
+                UDA_THROW_ERROR(
+                    999,
+                    "PROXY redirection: Originating Client Version not compatible with the PROXY server interface.");
             }
 
             // Test for Proxy calling itself indirectly => potential infinite loop
-            // The UDA Plugin strips out the host and port data from the source so the originating server details are never passed.
+            // The UDA Plugin strips out the host and port data from the source so the originating server details are
+            // never passed.
 
             if (request->api_delim[0] != '\0') {
                 snprintf(work, STRING_LENGTH, "UDA%s%s", request->api_delim, environment_->server_this);
@@ -529,8 +543,8 @@ int uda::Server::handle_request()
             }
 
             if (strstr(request->source, work) != nullptr) {
-                UDA_THROW_ERROR(999,
-                                "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
+                UDA_THROW_ERROR(
+                    999, "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
             }
 
             // Check string length compatibility
@@ -543,9 +557,11 @@ int uda::Server::handle_request()
             // Prepend the redirection UDA server details
 
             if (request->api_delim[0] != '\0') {
-                snprintf(work, STRING_LENGTH, "UDA%s%s/%s", request->api_delim, environment_->server_proxy, request->source);
+                snprintf(work, STRING_LENGTH, "UDA%s%s/%s", request->api_delim, environment_->server_proxy,
+                         request->source);
             } else {
-                snprintf(work, STRING_LENGTH, "UDA%s%s/%s", environment_->api_delim, environment_->server_proxy, request->source);
+                snprintf(work, STRING_LENGTH, "UDA%s%s/%s", environment_->api_delim, environment_->server_proxy,
+                         request->source);
             }
 
             strcpy(request->source, work);
@@ -554,7 +570,7 @@ int uda::Server::handle_request()
             UDA_LOG(UDA_LOG_DEBUG, "source: %s\n", request->source);
         }
     }
-# endif
+#endif
 
     //----------------------------------------------------------------------
     // Write to the Access Log
@@ -577,7 +593,8 @@ int uda::Server::handle_request()
         initPutDataBlockList(&request->putDataBlockList);
 
         if (request->put) {
-            err = protocol_.recv_putdata_block_list(&request->putDataBlockList, log_malloc_list_, user_defined_type_list_);
+            err = protocol_.recv_putdata_block_list(&request->putDataBlockList, log_malloc_list_,
+                                                    user_defined_type_list_);
             if (err != 0) {
                 return err;
             }
@@ -593,8 +610,8 @@ int uda::Server::handle_request()
     for (int i = 0; i < request_block_.num_requests; ++i) {
         auto request = &request_block_.requests[i];
         if (protocol_version >= 6) {
-            if ((err = uda::serverPlugin(request, &metadata_block_.data_source, &metadata_block_.signal_desc,
-                                         plugins_, environment_.p_env())) != 0) {
+            if ((err = uda::serverPlugin(request, &metadata_block_.data_source, &metadata_block_.signal_desc, plugins_,
+                                         environment_.p_env())) != 0) {
                 return err;
             }
         } else {
@@ -612,7 +629,8 @@ int uda::Server::handle_request()
     for (int i = 0; i < request_block_.num_requests; ++i) {
         auto request = &request_block_.requests[i];
 
-        auto cache_block = protocol_.read_from_cache(cache_, request, environment_, log_malloc_list_, user_defined_type_list_);
+        auto cache_block =
+            protocol_.read_from_cache(cache_, request, environment_, log_malloc_list_, user_defined_type_list_);
         if (cache_block != nullptr) {
             data_blocks_.push_back(*cache_block);
             continue;
@@ -651,7 +669,9 @@ int uda::Server::handle_request()
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
 
-    if (err != 0) return err;
+    if (err != 0) {
+        return err;
+    }
 
     //------------------------------------------------------------------------------------------------
     // Server-Side Data Processing
@@ -674,11 +694,11 @@ int uda::Server::handle_request()
             data_block.data_type = UDA_TYPE_CHAR;
         }
 
-        if (data_block.data_n > 0 &&
-            (protocolVersionTypeTest(protocol_version, data_block.data_type) ||
-             protocolVersionTypeTest(protocol_version, data_block.error_type))) {
-            UDA_THROW_ERROR(999,
-                            "The Data has a type that cannot be passed to the Client: A newer client library version is required.");
+        if (data_block.data_n > 0 && (protocolVersionTypeTest(protocol_version, data_block.data_type) ||
+                                      protocolVersionTypeTest(protocol_version, data_block.error_type))) {
+            UDA_THROW_ERROR(
+                999,
+                "The Data has a type that cannot be passed to the Client: A newer client library version is required.");
         }
 
         if (data_block.rank > 0) {
@@ -687,8 +707,8 @@ int uda::Server::handle_request()
                 dim = data_block.dims[j];
                 if (protocolVersionTypeTest(protocol_version, dim.data_type) ||
                     protocolVersionTypeTest(protocol_version, dim.error_type)) {
-                    UDA_THROW_ERROR(999,
-                                    "A Coordinate Data has a numerical type that cannot be passed to the Client: A newer client library version is required.");
+                    UDA_THROW_ERROR(999, "A Coordinate Data has a numerical type that cannot be passed to the Client: "
+                                         "A newer client library version is required.");
                 }
             }
         }
@@ -769,8 +789,7 @@ int uda::Server::report_to_client()
 
     if (client_block_.get_meta) {
         total_datablock_size_ +=
-                sizeof(DATA_SYSTEM) + sizeof(SYSTEM_CONFIG) + sizeof(DATA_SOURCE) + sizeof(SIGNAL) +
-                sizeof(SIGNAL_DESC);
+            sizeof(DATA_SYSTEM) + sizeof(SYSTEM_CONFIG) + sizeof(DATA_SOURCE) + sizeof(SIGNAL) + sizeof(SIGNAL_DESC);
 
         err = protocol_.send_meta_data(metadata_block_, log_malloc_list_, user_defined_type_list_);
         if (err != 0) {
@@ -835,9 +854,9 @@ void uda::Server::handshake_client()
     // Must be the same on both sides of the socket
     // set in xdr_client
 
-    //protocolVersion = serverVersion;
-    //if(client_block.version < serverVersion) protocolVersion = client_block.version;
-    //if(client_block.version < server_block.version) protocolVersion = client_block.version;
+    // protocolVersion = serverVersion;
+    // if(client_block.version < serverVersion) protocolVersion = client_block.version;
+    // if(client_block.version < server_block.version) protocolVersion = client_block.version;
 
     // Send the server block
 

@@ -8,8 +8,8 @@
 #  include <winsock2.h>
 #endif
 
-#include "udaDefines.h"
 #include "export.h"
+#include "udaDefines.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,23 +18,23 @@ extern "C" {
 //------------------------------------------------------------------------------------------------------------------------
 // Plugins opening files can maintain state by recording file handles in a list.
 // Two usage patterns are assumed: the file opening function returns an integer or a pointer
-// Also assumed is the function used to close the file has a single argument - the returned value from the opening function.
-// A function pointer to the Close function needs to be registerd the first time the plugin is called.
+// Also assumed is the function used to close the file has a single argument - the returned value from the opening
+// function. A function pointer to the Close function needs to be registerd the first time the plugin is called.
 //------------------------------------------------------------------------------------------------------------------------
 
 typedef struct UdaPluginFile {
-    int status;                     // Open (1) or Closed (0)
-    char filename[STRING_LENGTH];   // Full Data Source Filename
-    long handleInt;                 // Integer File Handle
-    void* handlePtr;                // Pointer file handle
-    struct timeval file_open;       // File Open Clock Time
+    int status;                   // Open (1) or Closed (0)
+    char filename[STRING_LENGTH]; // Full Data Source Filename
+    long handleInt;               // Integer File Handle
+    void* handlePtr;              // Pointer file handle
+    struct timeval file_open;     // File Open Clock Time
 } UDA_PLUGIN_FILE;
 
 typedef struct UdaPluginFileList {
-    int count;                      // Number of Files
-    int mcount;                     // malloc count allocated
-    UDA_PLUGIN_FILE* files;          // Array of File Handles
-    void* close;                    // Function pointer to the File Close API function
+    int count;              // Number of Files
+    int mcount;             // malloc count allocated
+    UDA_PLUGIN_FILE* files; // Array of File Handles
+    void* close;            // Function pointer to the File Close API function
 } UDA_PLUGIN_FILE_LIST;
 
 #ifdef __cplusplus

@@ -14,15 +14,15 @@
 #  define strlwr _strlwr
 #endif
 
-#include "logging/logging.h"
-#include "initStructs.h"
-#include "clientserver/stringUtils.h"
-#include "clientserver/allocData.h"
-#include "clientserver/protocol.h"
-#include "clientserver/memstream.h"
-#include "clientserver/xdrlib.h"
-#include "struct.h"
 #include "accessors.h"
+#include "clientserver/allocData.h"
+#include "clientserver/memstream.h"
+#include "clientserver/protocol.h"
+#include "clientserver/stringUtils.h"
+#include "clientserver/xdrlib.h"
+#include "initStructs.h"
+#include "logging/logging.h"
+#include "struct.h"
 #include "version.h"
 
 #include "client/generateErrors.h"
@@ -45,29 +45,29 @@ static int idamThreadLastHandle = -1;
 #ifndef NOPTHREADS
 
 typedef struct {
-    int id;                         // Thread identifier assigned by the application
-    int socket;                     // Either a shared or private server socket connection
+    int id;     // Thread identifier assigned by the application
+    int socket; // Either a shared or private server socket connection
     int lastHandle;
-    ENVIRONMENT environment;        // State
+    ENVIRONMENT environment; // State
     CLIENT_BLOCK client_block;
     SERVER_BLOCK server_block;
 } IDAMSTATE;
 
-#ifdef __GNUC__
+#  ifdef __GNUC__
 typedef pthread_t thread_t;
 typedef pthread_mutex_t lock_t;
 
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-#else
+#  else
 typedef HANDLE lock_t;
 typedef HANDLE thread_t;
 
 static HANDLE lock;
-#endif
+#  endif
 
 // STATE management
 
-static IDAMSTATE idamState[UDA_NUM_CLIENT_THREADS];    // Threads are managed by the application, not IDAM
+static IDAMSTATE idamState[UDA_NUM_CLIENT_THREADS]; // Threads are managed by the application, not IDAM
 static thread_t threadList[UDA_NUM_CLIENT_THREADS];
 static int threadCount = 0;
 
@@ -84,53 +84,57 @@ int getIdamMaxThreadCount()
 int getThreadId(thread_t id)
 {
     for (int i = 0; i < threadCount; i++) {
-#ifdef __GNUC__
-        if (pthread_equal(id, threadList[i])) return i;
-#else
-        if (GetThreadId(id) == GetThreadId(threadList[i])) return i;
-#endif
+#  ifdef __GNUC__
+        if (pthread_equal(id, threadList[i])) {
+            return i;
+        }
+#  else
+        if (GetThreadId(id) == GetThreadId(threadList[i])) {
+            return i;
+        }
+#  endif
     }
     return -1;
 }
 
-// Lock the thread and set the previous STATE  
+// Lock the thread and set the previous STATE
 void lockIdamThread(CLIENT_FLAGS* client_flags)
 {
     static unsigned int mutex_initialised = 0;
 
     if (!mutex_initialised) {
-#ifndef __GNUC__
+#  ifndef __GNUC__
         lock = CreateMutex(nullptr, FALSE, nullptr);
-#endif
+#  endif
     }
 
     // Apply the lock first
-#ifdef __GNUC__
+#  ifdef __GNUC__
     pthread_mutex_lock(&lock);
-#else
+#  else
     WaitForSingleObject(lock, INFINITE);
-#endif
+#  endif
 
     // Identify the Current Thread
 
-#ifdef __GNUC__
+#  ifdef __GNUC__
     thread_t threadId = pthread_self();
-#else
+#  else
     thread_t threadId = GetCurrentThread();
-#endif
+#  endif
 
     // Initialise the thread's state
 
     if (!mutex_initialised) {
         mutex_initialised = 1;
-        for (int i = 0; i < UDA_NUM_CLIENT_THREADS; i++) {        // Initialise the STATE array
+        for (int i = 0; i < UDA_NUM_CLIENT_THREADS; i++) { // Initialise the STATE array
             idamState[i].id = i;
             idamState[i].socket = -1;
             idamState[i].lastHandle = -1;
-            //initEnvironment(&(idamState[i].environment));
+            // initEnvironment(&(idamState[i].environment));
             initClientBlock(&(idamState[i].client_block), 0, "");
             initServerBlock(&(idamState[i].server_block), 0);
-            threadList[i] = 0;            // and the thread identifiers
+            threadList[i] = 0; // and the thread identifiers
         }
     }
 
@@ -147,7 +151,7 @@ void lockIdamThread(CLIENT_FLAGS* client_flags)
 
     if (id >= 0) {
         putIdamServerSocket(idamState[id].socket);
-        //putIdamClientEnvironment(&idamState[id].environment);
+        // putIdamClientEnvironment(&idamState[id].environment);
         putIdamThreadClientBlock(&idamState[id].client_block);
         putIdamThreadServerBlock(&idamState[id].server_block);
         client_flags->flags = idamState[id].client_block.clientFlags;
@@ -162,25 +166,25 @@ void lockIdamThread(CLIENT_FLAGS* client_flags)
  */
 void unlockUdaThread(CLIENT_FLAGS* client_flags)
 {
-#ifdef __GNUC__
+#  ifdef __GNUC__
     thread_t threadId = pthread_self();
-#else
+#  else
     thread_t threadId = GetCurrentThread();
-#endif
-    int id = getThreadId(threadId);        // Must be registered
+#  endif
+    int id = getThreadId(threadId); // Must be registered
     if (id >= 0) {
         idamState[id].socket = getIdamServerSocket();
-        //idamState[id].environment = *getIdamClientEnvironment();
+        // idamState[id].environment = *getIdamClientEnvironment();
         idamState[id].client_block = getIdamThreadClientBlock();
         idamState[id].server_block = getIdamThreadServerBlock();
         idamState[id].client_block.clientFlags = client_flags->flags;
         idamState[id].lastHandle = getIdamThreadLastHandle();
     }
-#ifdef __GNUC__
+#  ifdef __GNUC__
     pthread_mutex_unlock(&lock);
-#else
+#  else
     ReleaseMutex(lock);
-#endif
+#  endif
 }
 
 /**
@@ -189,23 +193,23 @@ void unlockUdaThread(CLIENT_FLAGS* client_flags)
 void freeIdamThread(CLIENT_FLAGS* client_flags)
 {
     lockIdamThread(client_flags);
-#ifdef __GNUC__
+#  ifdef __GNUC__
     thread_t threadId = pthread_self();
-#else
+#  else
     thread_t threadId = GetCurrentThread();
-#endif
+#  endif
     int id = getThreadId(threadId);
     threadCount--;
     if (id >= 0) {
         for (int i = id; i < threadCount; i++) {
-            threadList[i] = threadList[i + 1];        // Shuffle state
+            threadList[i] = threadList[i + 1]; // Shuffle state
             idamState[i] = idamState[i + 1];
             idamState[i].id = i;
         }
         idamState[threadCount].id = threadCount;
         idamState[threadCount].socket = -1;
         idamState[threadCount].lastHandle = -1;
-        //initEnvironment(&(idamState[threadCount].environment));
+        // initEnvironment(&(idamState[threadCount].environment));
         initClientBlock(&(idamState[threadCount].client_block), 0, "");
         initServerBlock(&(idamState[threadCount].server_block), 0);
         threadList[threadCount] = 0;
@@ -337,10 +341,10 @@ Rank Ordering is as follows:
 
 //! Set a private_flags property
 /** Set a/multiple specific bit/s in the private_flags property sent between UDA servers.
-*
-* @param flag The bit/s to be set to 1.
-* @return Void.
-*/
+ *
+ * @param flag The bit/s to be set to 1.
+ * @return Void.
+ */
 void setIdamPrivateFlag(unsigned int flag)
 {
     unsigned int* private_flags = udaPrivateFlags();
@@ -349,10 +353,10 @@ void setIdamPrivateFlag(unsigned int flag)
 
 //! Reset a private_flags property
 /** Reset a/multiple specific bit/s in the private_flags property sent between UDA servers.
-*
-* @param flag The bit/s to be set to 0.
-* @return Void.
-*/
+ *
+ * @param flag The bit/s to be set to 0.
+ * @return Void.
+ */
 
 void resetIdamPrivateFlag(unsigned int flag)
 {
@@ -365,10 +369,10 @@ void resetIdamPrivateFlag(unsigned int flag)
 
 //! Set a client_flags->flags property
 /** Set a/multiple specific bit/s in the client_flags->flags property sent to the UDA server.
-*
-* @param flag The bit/s to be set to 1.
-* @return Void.
-*/
+ *
+ * @param flag The bit/s to be set to 1.
+ * @return Void.
+ */
 
 void setIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
 {
@@ -377,10 +381,10 @@ void setIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
 
 //! Reset a client_flags->flags property
 /** Reset a/multiple specific bit/s in the client_flags->flags property sent to the UDA server.
-*
-* @param flag The bit/s to be set to 0.
-* @return Void.
-*/
+ *
+ * @param flag The bit/s to be set to 0.
+ * @return Void.
+ */
 
 void resetIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
 {
@@ -391,30 +395,30 @@ void resetIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
 // Set Server Properties
 
 //! Set a named server property
-/** Set a variety of data server properties using their name. These affect the data type returned and any server side processing of data.
-* Not all data access plugins respond to these properties.\n
-*
-* \eget_datadble  data are returned in double precision.\n
-* \eget_dimdble   all coordinate (dimension) data are returned in double precision.\n
-* \eget_timedble  the Time coordinate (dimension) data are returned in double precision.\n
-* \eget_bytes\n
-* \eget_bad\n
-* \eget_meta   return all SQL database records used to locate and correct the requested data\n
-* \eget_asis   do not apply server side correction to data\n
-* \eget_uncal\n
-* \eget_notoff do not apply any timing offset corrections\n
-* \eget_synthetic\n
-* \eget_scalar\n
-* \eget_nodimdata do not return coordinate (dimension) data\n
-* \etimeout=value name value pair to set the number of wait seconds before timing out the server connection\n
-* \everbose \n
-* \edebug      create debug output from the client\n
-* \ealtData use efit++ with legacy efm data signal names \n
-* \ealtRank select different efit++ output file as the data source \n
-*
-* @param property the name of the property to set true or a name value pair.
-* @return Void.
-*/
+/** Set a variety of data server properties using their name. These affect the data type returned and any server side
+ * processing of data. Not all data access plugins respond to these properties.\n
+ *
+ * \eget_datadble  data are returned in double precision.\n
+ * \eget_dimdble   all coordinate (dimension) data are returned in double precision.\n
+ * \eget_timedble  the Time coordinate (dimension) data are returned in double precision.\n
+ * \eget_bytes\n
+ * \eget_bad\n
+ * \eget_meta   return all SQL database records used to locate and correct the requested data\n
+ * \eget_asis   do not apply server side correction to data\n
+ * \eget_uncal\n
+ * \eget_notoff do not apply any timing offset corrections\n
+ * \eget_synthetic\n
+ * \eget_scalar\n
+ * \eget_nodimdata do not return coordinate (dimension) data\n
+ * \etimeout=value name value pair to set the number of wait seconds before timing out the server connection\n
+ * \everbose \n
+ * \edebug      create debug output from the client\n
+ * \ealtData use efit++ with legacy efm data signal names \n
+ * \ealtRank select different efit++ output file as the data source \n
+ *
+ * @param property the name of the property to set true or a name value pair.
+ * @return Void.
+ */
 void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
 {
     // User settings for Client and Server behaviour
@@ -423,18 +427,42 @@ void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
     char* value;
 
     if (property[0] == 'g') {
-        if (STR_IEQUALS(property, "get_datadble")) client_flags->get_datadble = 1;
-        if (STR_IEQUALS(property, "get_dimdble")) client_flags->get_dimdble = 1;
-        if (STR_IEQUALS(property, "get_timedble")) client_flags->get_timedble = 1;
-        if (STR_IEQUALS(property, "get_bytes")) client_flags->get_bytes = 1;
-        if (STR_IEQUALS(property, "get_bad")) client_flags->get_bad = 1;
-        if (STR_IEQUALS(property, "get_meta")) client_flags->get_meta = 1;
-        if (STR_IEQUALS(property, "get_asis")) client_flags->get_asis = 1;
-        if (STR_IEQUALS(property, "get_uncal")) client_flags->get_uncal = 1;
-        if (STR_IEQUALS(property, "get_notoff")) client_flags->get_notoff = 1;
-        if (STR_IEQUALS(property, "get_synthetic")) client_flags->get_synthetic = 1;
-        if (STR_IEQUALS(property, "get_scalar")) client_flags->get_scalar = 1;
-        if (STR_IEQUALS(property, "get_nodimdata")) client_flags->get_nodimdata = 1;
+        if (STR_IEQUALS(property, "get_datadble")) {
+            client_flags->get_datadble = 1;
+        }
+        if (STR_IEQUALS(property, "get_dimdble")) {
+            client_flags->get_dimdble = 1;
+        }
+        if (STR_IEQUALS(property, "get_timedble")) {
+            client_flags->get_timedble = 1;
+        }
+        if (STR_IEQUALS(property, "get_bytes")) {
+            client_flags->get_bytes = 1;
+        }
+        if (STR_IEQUALS(property, "get_bad")) {
+            client_flags->get_bad = 1;
+        }
+        if (STR_IEQUALS(property, "get_meta")) {
+            client_flags->get_meta = 1;
+        }
+        if (STR_IEQUALS(property, "get_asis")) {
+            client_flags->get_asis = 1;
+        }
+        if (STR_IEQUALS(property, "get_uncal")) {
+            client_flags->get_uncal = 1;
+        }
+        if (STR_IEQUALS(property, "get_notoff")) {
+            client_flags->get_notoff = 1;
+        }
+        if (STR_IEQUALS(property, "get_synthetic")) {
+            client_flags->get_synthetic = 1;
+        }
+        if (STR_IEQUALS(property, "get_scalar")) {
+            client_flags->get_scalar = 1;
+        }
+        if (STR_IEQUALS(property, "get_nodimdata")) {
+            client_flags->get_nodimdata = 1;
+        }
     } else {
         if (property[0] == 't') {
             strncpy(name, property, 55);
@@ -445,12 +473,20 @@ void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
             strlwr(name);
             if ((value = strstr(name, "timeout=")) != nullptr) {
                 value = name + 8;
-                if (IsNumber(value)) client_flags->user_timeout = atoi(value);
+                if (IsNumber(value)) {
+                    client_flags->user_timeout = atoi(value);
+                }
             }
         } else {
-            if (STR_IEQUALS(property, "verbose")) udaSetLogLevel(UDA_LOG_INFO);
-            if (STR_IEQUALS(property, "debug")) udaSetLogLevel(UDA_LOG_DEBUG);
-            if (STR_IEQUALS(property, "altData")) client_flags->flags = client_flags->flags | CLIENTFLAG_ALTDATA;
+            if (STR_IEQUALS(property, "verbose")) {
+                udaSetLogLevel(UDA_LOG_INFO);
+            }
+            if (STR_IEQUALS(property, "debug")) {
+                udaSetLogLevel(UDA_LOG_DEBUG);
+            }
+            if (STR_IEQUALS(property, "altData")) {
+                client_flags->flags = client_flags->flags | CLIENTFLAG_ALTDATA;
+            }
             if (!strncasecmp(property, "altRank", 7)) {
                 strncpy(name, property, 55);
                 name[55] = '\0';
@@ -460,91 +496,175 @@ void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
                 strlwr(name);
                 if ((value = strcasestr(name, "altRank=")) != nullptr) {
                     value = name + 8;
-                    if (IsNumber(value)) client_flags->alt_rank = atoi(value);
+                    if (IsNumber(value)) {
+                        client_flags->alt_rank = atoi(value);
+                    }
                 }
             }
         }
-        if (STR_IEQUALS(property, "reuseLastHandle")) client_flags->flags = client_flags->flags | CLIENTFLAG_REUSELASTHANDLE;
-        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) client_flags->flags = client_flags->flags | CLIENTFLAG_FREEREUSELASTHANDLE;
-        if (STR_IEQUALS(property, "fileCache")) client_flags->flags = client_flags->flags | CLIENTFLAG_FILECACHE;
+        if (STR_IEQUALS(property, "reuseLastHandle")) {
+            client_flags->flags = client_flags->flags | CLIENTFLAG_REUSELASTHANDLE;
+        }
+        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) {
+            client_flags->flags = client_flags->flags | CLIENTFLAG_FREEREUSELASTHANDLE;
+        }
+        if (STR_IEQUALS(property, "fileCache")) {
+            client_flags->flags = client_flags->flags | CLIENTFLAG_FILECACHE;
+        }
     }
 }
 
 //! Return the value of a named server property
 /**
-* @param property the name of the property.
-* @return Void.
-*/
+ * @param property the name of the property.
+ * @return Void.
+ */
 int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags)
 {
     // User settings for Client and Server behaviour
 
     if (property[0] == 'g') {
-        if (STR_IEQUALS(property, "get_datadble")) return client_flags->get_datadble;
-        if (STR_IEQUALS(property, "get_dimdble")) return client_flags->get_dimdble;
-        if (STR_IEQUALS(property, "get_timedble")) return client_flags->get_timedble;
-        if (STR_IEQUALS(property, "get_bytes")) return client_flags->get_bytes;
-        if (STR_IEQUALS(property, "get_bad")) return client_flags->get_bad;
-        if (STR_IEQUALS(property, "get_meta")) return client_flags->get_meta;
-        if (STR_IEQUALS(property, "get_asis")) return client_flags->get_asis;
-        if (STR_IEQUALS(property, "get_uncal")) return client_flags->get_uncal;
-        if (STR_IEQUALS(property, "get_notoff")) return client_flags->get_notoff;
-        if (STR_IEQUALS(property, "get_synthetic")) return client_flags->get_synthetic;
-        if (STR_IEQUALS(property, "get_scalar")) return client_flags->get_scalar;
-        if (STR_IEQUALS(property, "get_nodimdata")) return client_flags->get_nodimdata;
+        if (STR_IEQUALS(property, "get_datadble")) {
+            return client_flags->get_datadble;
+        }
+        if (STR_IEQUALS(property, "get_dimdble")) {
+            return client_flags->get_dimdble;
+        }
+        if (STR_IEQUALS(property, "get_timedble")) {
+            return client_flags->get_timedble;
+        }
+        if (STR_IEQUALS(property, "get_bytes")) {
+            return client_flags->get_bytes;
+        }
+        if (STR_IEQUALS(property, "get_bad")) {
+            return client_flags->get_bad;
+        }
+        if (STR_IEQUALS(property, "get_meta")) {
+            return client_flags->get_meta;
+        }
+        if (STR_IEQUALS(property, "get_asis")) {
+            return client_flags->get_asis;
+        }
+        if (STR_IEQUALS(property, "get_uncal")) {
+            return client_flags->get_uncal;
+        }
+        if (STR_IEQUALS(property, "get_notoff")) {
+            return client_flags->get_notoff;
+        }
+        if (STR_IEQUALS(property, "get_synthetic")) {
+            return client_flags->get_synthetic;
+        }
+        if (STR_IEQUALS(property, "get_scalar")) {
+            return client_flags->get_scalar;
+        }
+        if (STR_IEQUALS(property, "get_nodimdata")) {
+            return client_flags->get_nodimdata;
+        }
     } else {
-        if (STR_IEQUALS(property, "timeout")) return client_flags->user_timeout;
-        if (STR_IEQUALS(property, "altRank")) return client_flags->alt_rank;
-        if (STR_IEQUALS(property, "reuseLastHandle")) return (int)(client_flags->flags & CLIENTFLAG_REUSELASTHANDLE);
-        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) return (int)(client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE);
-        if (STR_IEQUALS(property, "verbose")) return udaGetLogLevel() == UDA_LOG_INFO;
-        if (STR_IEQUALS(property, "debug")) return udaGetLogLevel() == UDA_LOG_DEBUG;
-        if (STR_IEQUALS(property, "altData")) return (int)(client_flags->flags & CLIENTFLAG_ALTDATA);
-        if (STR_IEQUALS(property, "fileCache")) return (int)(client_flags->flags & CLIENTFLAG_FILECACHE);
+        if (STR_IEQUALS(property, "timeout")) {
+            return client_flags->user_timeout;
+        }
+        if (STR_IEQUALS(property, "altRank")) {
+            return client_flags->alt_rank;
+        }
+        if (STR_IEQUALS(property, "reuseLastHandle")) {
+            return (int)(client_flags->flags & CLIENTFLAG_REUSELASTHANDLE);
+        }
+        if (STR_IEQUALS(property, "freeAndReuseLastHandle")) {
+            return (int)(client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE);
+        }
+        if (STR_IEQUALS(property, "verbose")) {
+            return udaGetLogLevel() == UDA_LOG_INFO;
+        }
+        if (STR_IEQUALS(property, "debug")) {
+            return udaGetLogLevel() == UDA_LOG_DEBUG;
+        }
+        if (STR_IEQUALS(property, "altData")) {
+            return (int)(client_flags->flags & CLIENTFLAG_ALTDATA);
+        }
+        if (STR_IEQUALS(property, "fileCache")) {
+            return (int)(client_flags->flags & CLIENTFLAG_FILECACHE);
+        }
     }
     return 0;
 }
 
 //! Reset a specific named data server property to its default value
 /**
-* @param property the name of the property.
-* @return Void.
-*/
+ * @param property the name of the property.
+ * @return Void.
+ */
 
 void resetIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
 {
     // User settings for Client and Server behaviour
 
     if (property[0] == 'g') {
-        if (STR_IEQUALS(property, "get_datadble")) client_flags->get_datadble = 0;
-        if (STR_IEQUALS(property, "get_dimdble")) client_flags->get_dimdble = 0;
-        if (STR_IEQUALS(property, "get_timedble")) client_flags->get_timedble = 0;
-        if (STR_IEQUALS(property, "get_bytes")) client_flags->get_bytes = 0;
-        if (STR_IEQUALS(property, "get_bad")) client_flags->get_bad = 0;
-        if (STR_IEQUALS(property, "get_meta")) client_flags->get_meta = 0;
-        if (STR_IEQUALS(property, "get_asis")) client_flags->get_asis = 0;
-        if (STR_IEQUALS(property, "get_uncal")) client_flags->get_uncal = 0;
-        if (STR_IEQUALS(property, "get_notoff")) client_flags->get_notoff = 0;
-        if (STR_IEQUALS(property, "get_synthetic")) client_flags->get_synthetic = 0;
-        if (STR_IEQUALS(property, "get_scalar")) client_flags->get_scalar = 0;
-        if (STR_IEQUALS(property, "get_nodimdata")) client_flags->get_nodimdata = 0;
+        if (STR_IEQUALS(property, "get_datadble")) {
+            client_flags->get_datadble = 0;
+        }
+        if (STR_IEQUALS(property, "get_dimdble")) {
+            client_flags->get_dimdble = 0;
+        }
+        if (STR_IEQUALS(property, "get_timedble")) {
+            client_flags->get_timedble = 0;
+        }
+        if (STR_IEQUALS(property, "get_bytes")) {
+            client_flags->get_bytes = 0;
+        }
+        if (STR_IEQUALS(property, "get_bad")) {
+            client_flags->get_bad = 0;
+        }
+        if (STR_IEQUALS(property, "get_meta")) {
+            client_flags->get_meta = 0;
+        }
+        if (STR_IEQUALS(property, "get_asis")) {
+            client_flags->get_asis = 0;
+        }
+        if (STR_IEQUALS(property, "get_uncal")) {
+            client_flags->get_uncal = 0;
+        }
+        if (STR_IEQUALS(property, "get_notoff")) {
+            client_flags->get_notoff = 0;
+        }
+        if (STR_IEQUALS(property, "get_synthetic")) {
+            client_flags->get_synthetic = 0;
+        }
+        if (STR_IEQUALS(property, "get_scalar")) {
+            client_flags->get_scalar = 0;
+        }
+        if (STR_IEQUALS(property, "get_nodimdata")) {
+            client_flags->get_nodimdata = 0;
+        }
     } else {
-        if (STR_IEQUALS(property, "verbose")) udaSetLogLevel(UDA_LOG_NONE);
-        if (STR_IEQUALS(property, "debug")) udaSetLogLevel(UDA_LOG_NONE);
-        if (STR_IEQUALS(property, "altData")) client_flags->flags &= !CLIENTFLAG_ALTDATA;
-        if (STR_IEQUALS(property, "altRank")) client_flags->alt_rank = 0;
-        if (STR_IEQUALS(property, "reuseLastHandle")) client_flags->flags &= !CLIENTFLAG_REUSELASTHANDLE;
+        if (STR_IEQUALS(property, "verbose")) {
+            udaSetLogLevel(UDA_LOG_NONE);
+        }
+        if (STR_IEQUALS(property, "debug")) {
+            udaSetLogLevel(UDA_LOG_NONE);
+        }
+        if (STR_IEQUALS(property, "altData")) {
+            client_flags->flags &= !CLIENTFLAG_ALTDATA;
+        }
+        if (STR_IEQUALS(property, "altRank")) {
+            client_flags->alt_rank = 0;
+        }
+        if (STR_IEQUALS(property, "reuseLastHandle")) {
+            client_flags->flags &= !CLIENTFLAG_REUSELASTHANDLE;
+        }
         if (STR_IEQUALS(property, "freeAndReuseLastHandle")) {
             client_flags->flags &= !CLIENTFLAG_FREEREUSELASTHANDLE;
         }
-        if (STR_IEQUALS(property, "fileCache")) client_flags->flags &= !CLIENTFLAG_FILECACHE;
+        if (STR_IEQUALS(property, "fileCache")) {
+            client_flags->flags &= !CLIENTFLAG_FILECACHE;
+        }
     }
 }
 
 //! Reset all data server properties to their default values
 /**
-* @return Void.
-*/
+ * @return Void.
+ */
 void resetIdamProperties(CLIENT_FLAGS* client_flags)
 {
     // Reset on Both Client and Server
@@ -572,8 +692,8 @@ void resetIdamProperties(CLIENT_FLAGS* client_flags)
 
 //! Return the client state associated with a specific data item
 /** The client state information is at the time the data was accessed.
-* @return CLIENT_BLOCK pointer to the data structure.
-*/
+ * @return CLIENT_BLOCK pointer to the data structure.
+ */
 CLIENT_BLOCK* getIdamProperties(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
@@ -584,8 +704,8 @@ CLIENT_BLOCK* getIdamProperties(int handle)
 
 //! Return the client state associated with a specific data item
 /** The client state information is at the time the data was accessed.
-* @return CLIENT_BLOCK pointer to the data structure.
-*/
+ * @return CLIENT_BLOCK pointer to the data structure.
+ */
 CLIENT_BLOCK* getIdamDataProperties(int handle)
 {
     return getIdamProperties(handle);
@@ -594,28 +714,28 @@ CLIENT_BLOCK* getIdamDataProperties(int handle)
 //--------------------------------------------------------------
 //! Test for amount of Free heap memory and current usage
 /** When the UDA client is a server plugin, set the Client's Debug File handle to that of the Server.
-* @return void
-*/
+ * @return void
+ */
 #if !defined(__APPLE__) && !defined(_WIN32)
 
 int getIdamMemoryFree()
 {
-#ifdef A64
+#  ifdef A64
     return 0;
-#else
+#  else
     struct mallinfo stats = mallinfo();
-    return (int) stats.fordblks;
-#endif
+    return (int)stats.fordblks;
+#  endif
 }
 
 int getIdamMemoryUsed()
 {
-#ifdef A64
+#  ifdef A64
     return 0;
-#else
+#  else
     struct mallinfo stats = mallinfo();
-    return (int) stats.uordblks;
-#endif
+    return (int)stats.uordblks;
+#  endif
 }
 
 #endif
@@ -628,12 +748,16 @@ void putIdamErrorModel(int handle, int model, int param_n, const float* params)
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
     }
-    if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) return;   // No valid Model
+    if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) {
+        return; // No valid Model
+    }
 
-    data_blocks[handle].error_model = model;               // Model ID
-    data_blocks[handle].error_param_n = param_n;             // Number of parameters
+    data_blocks[handle].error_model = model;     // Model ID
+    data_blocks[handle].error_param_n = param_n; // Number of parameters
 
-    if (param_n > MAXERRPARAMS) data_blocks[handle].error_param_n = MAXERRPARAMS;
+    if (param_n > MAXERRPARAMS) {
+        data_blocks[handle].error_param_n = MAXERRPARAMS;
+    }
 
     for (int i = 0; i < data_blocks[handle].error_param_n; i++) {
         data_blocks[handle].errparams[i] = params[i];
@@ -646,14 +770,18 @@ void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, const fl
         return;
     }
     if (ndim < 0 || (unsigned int)ndim >= data_blocks[handle].rank) {
-        return;                     // No Dim
+        return; // No Dim
     }
-    if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) return;  // No valid Model
+    if (model <= ERROR_MODEL_UNKNOWN || model >= ERROR_MODEL_UNDEFINED) {
+        return; // No valid Model
+    }
 
-    data_blocks[handle].dims[ndim].error_model = model;                        // Model ID
-    data_blocks[handle].dims[ndim].error_param_n = param_n;                      // Number of parameters
+    data_blocks[handle].dims[ndim].error_model = model;     // Model ID
+    data_blocks[handle].dims[ndim].error_param_n = param_n; // Number of parameters
 
-    if (param_n > MAXERRPARAMS) data_blocks[handle].dims[ndim].error_param_n = MAXERRPARAMS;
+    if (param_n > MAXERRPARAMS) {
+        data_blocks[handle].dims[ndim].error_param_n = MAXERRPARAMS;
+    }
     for (int i = 0; i < data_blocks[handle].dims[ndim].error_param_n; i++) {
         data_blocks[handle].dims[ndim].errparams[i] = params[i];
     }
@@ -661,48 +789,48 @@ void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, const fl
 
 //! Set the UDA data server host name and port number
 /** This takes precedence over the environment variables UDA_HOST and UDA_PORT.
-* @param host The name of the server host computer.
-* @param port The port number the server is connected to.
-* @return void
-*/
+ * @param host The name of the server host computer.
+ * @param port The port number the server is connected to.
+ * @return void
+ */
 void putIdamServer(const char* host, int port)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
-    environment->server_port = port;                            // UDA server service port number
-    strcpy(environment->server_host, host);            // UDA server's host name or IP address
-    environment->server_reconnect = 1;                          // Create a new Server instance
-    udaSetEnvHost(false);                               // Skip initialisation at Startup if these are called first
+    environment->server_port = port;        // UDA server service port number
+    strcpy(environment->server_host, host); // UDA server's host name or IP address
+    environment->server_reconnect = 1;      // Create a new Server instance
+    udaSetEnvHost(false);                   // Skip initialisation at Startup if these are called first
     udaSetEnvPort(false);
 }
 
 //! Set the UDA data server host name
 /** This takes precedence over the environment variables UDA_HOST.
-* @param host The name of the server host computer.
-* @return void
-*/
+ * @param host The name of the server host computer.
+ * @return void
+ */
 void putIdamServerHost(const char* host)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     std::string old_host = host;
-    strcpy(environment->server_host, host);                      // UDA server's host name or IP address
+    strcpy(environment->server_host, host); // UDA server's host name or IP address
     if (old_host != host) {
-        environment->server_reconnect = 1;                           // Create a new Server instance
+        environment->server_reconnect = 1; // Create a new Server instance
     }
     udaSetEnvHost(false);
 }
 
 //! Set the UDA data server port number
 /** This takes precedence over the environment variables UDA_PORT.
-* @param port The port number the server is connected to.
-* @return void
-*/
+ * @param port The port number the server is connected to.
+ * @return void
+ */
 void putIdamServerPort(int port)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     int old_port = port;
-    environment->server_port = port;                             // UDA server service port number
+    environment->server_port = port; // UDA server service port number
     if (old_port != port) {
-        environment->server_reconnect = 1;                           // Create a new Server instance
+        environment->server_reconnect = 1; // Create a new Server instance
     }
     udaSetEnvPort(false);
 }
@@ -716,9 +844,9 @@ Select the server connection required.
 void putIdamServerSocket(int socket)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
-    if (environment->server_socket != socket) {      // Change to a different socket
-        environment->server_socket = socket;         // UDA server service socket number (Must be Open)
-        environment->server_change_socket = 1;       // Connect to an Existing Server
+    if (environment->server_socket != socket) { // Change to a different socket
+        environment->server_socket = socket;    // UDA server service socket number (Must be Open)
+        environment->server_change_socket = 1;  // Connect to an Existing Server
     }
 }
 
@@ -727,37 +855,37 @@ void putIdamServerSocket(int socket)
 
 //! Return the UDA data server host name, port number and socket connection id
 /**
-* @param host A preallocated string that will contain the name of the server host computer.
-* @param port Returned port number.
-* @param socket Returned socket id number.
-* @return void
-*/
+ * @param host A preallocated string that will contain the name of the server host computer.
+ * @param port Returned port number.
+ * @param socket Returned socket id number.
+ * @return void
+ */
 void getIdamServer(const char** host, int* port, int* socket)
-{      // Active ...
+{ // Active ...
     ENVIRONMENT* environment = getIdamClientEnvironment();
-    *socket = environment->server_socket;                        // UDA server service socket number
-    *port = environment->server_port;                          // UDA server service port number
-    *host = environment->server_host;                          // UDA server's host name or IP address
+    *socket = environment->server_socket; // UDA server service socket number
+    *port = environment->server_port;     // UDA server service port number
+    *host = environment->server_host;     // UDA server's host name or IP address
 }
 
 //! the UDA server connection host name
 /**
-* @return the Name of the Host
-*/
+ * @return the Name of the Host
+ */
 const char* getIdamServerHost()
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
-    return environment->server_host;                             // Active UDA server's host name or IP address
+    return environment->server_host; // Active UDA server's host name or IP address
 }
 
 //! the UDA server connection port number
 /**
-* @return the Name of the Host
-*/
+ * @return the Name of the Host
+ */
 int getIdamServerPort()
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
-    return environment->server_port;                             // Active UDA server service port number
+    return environment->server_port; // Active UDA server service port number
 }
 
 const char* udaGetBuildVersion()
@@ -772,12 +900,12 @@ const char* udaGetBuildDate()
 
 //! the UDA server connection socket ID
 /**
-* @return the connection socket ID
-*/
+ * @return the connection socket ID
+ */
 int getIdamServerSocket()
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
-    return environment->server_socket;           // Active UDA server service socket number
+    return environment->server_socket; // Active UDA server service socket number
 }
 
 //!  returns the data access error code
@@ -816,8 +944,10 @@ const char* getIdamErrorMsg(int handle)
 \return   Quality status.
 */
 int getIdamSourceStatus(int handle)
-{           // Source Status
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return 0;
+{ // Source Status
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return 0;
+    }
     return data_blocks[handle].source_status;
 }
 
@@ -829,14 +959,18 @@ int getIdamSourceStatus(int handle)
 int getIdamSignalStatus(int handle)
 {
     // Signal Status
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return 0;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return 0;
+    }
     return data_blocks[handle].signal_status;
 }
 
 int getIdamDataStatus(int handle)
 {
     // Data Status based on Standard Rule
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return 0;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return 0;
+    }
     if (getIdamSignalStatus(handle) == DEFAULT_STATUS) {
         // Signal Status Not Changed from Default - use Data Source Value
         return data_blocks[handle].source_status;
@@ -862,7 +996,9 @@ int getIdamLastHandle(CLIENT_FLAGS* client_flags)
 int getIdamDataNum(int handle)
 {
     // Data Array Size
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return 0;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return 0;
+    }
     return data_blocks[handle].data_n;
 }
 
@@ -874,20 +1010,23 @@ int getIdamDataNum(int handle)
 int getIdamRank(int handle)
 {
     // Array Rank
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return 0;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return 0;
+    }
     return (int)data_blocks[handle].rank;
 }
 
 //!  Returns the position of the time coordinate dimension in the data object
-/** For example, a rank 3 array data[time][x][y] (in Fortran and IDL this is data(y,x,time)) has time order = 0 so order is
-counted from left to right in c and from right to left in Fortran and IDL.
-\param   handle   The data object handle
+/** For example, a rank 3 array data[time][x][y] (in Fortran and IDL this is data(y,x,time)) has time order = 0 so order
+is counted from left to right in c and from right to left in Fortran and IDL. \param   handle   The data object handle
 \return  the time coordinate dimension position
 */
 int getIdamOrder(int handle)
 {
     // Time Dimension Order in Array
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return -1;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return -1;
+    }
     return data_blocks[handle].order;
 }
 
@@ -899,7 +1038,9 @@ int getIdamOrder(int handle)
 unsigned int getIdamCachePermission(int handle)
 {
     // Permission to cache?
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return UDA_PLUGIN_NOT_OK_TO_CACHE;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return UDA_PLUGIN_NOT_OK_TO_CACHE;
+    }
     return data_blocks[handle].cachePermission;
 }
 
@@ -911,7 +1052,9 @@ unsigned int getIdamCachePermission(int handle)
  */
 unsigned int getIdamTotalDataBlockSize(int handle)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return 0;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return 0;
+    }
     return data_blocks[handle].totalDataBlockSize;
 }
 
@@ -973,37 +1116,95 @@ int getIdamErrorType(int handle)
 int getIdamDataTypeId(const char* type)
 {
     // Return the Internal Code for Data Types
-    if (STR_IEQUALS(type, "dcomplex")) return UDA_TYPE_DCOMPLEX;
-    if (STR_IEQUALS(type, "complex")) return UDA_TYPE_COMPLEX;
-    if (STR_IEQUALS(type, "double")) return UDA_TYPE_DOUBLE;
-    if (STR_IEQUALS(type, "float")) return UDA_TYPE_FLOAT;
-    if (STR_IEQUALS(type, "long64")) return UDA_TYPE_LONG64;
-    if (STR_IEQUALS(type, "long long")) return UDA_TYPE_LONG64;
-    if (STR_IEQUALS(type, "ulong64")) return UDA_TYPE_UNSIGNED_LONG64;
-    if (STR_IEQUALS(type, "unsigned long64")) return UDA_TYPE_UNSIGNED_LONG64;
-    if (STR_IEQUALS(type, "unsigned long long")) return UDA_TYPE_UNSIGNED_LONG64;
-    if (STR_IEQUALS(type, "long")) return UDA_TYPE_LONG;
-    if (STR_IEQUALS(type, "unsigned long")) return UDA_TYPE_UNSIGNED_LONG;
-    if (STR_IEQUALS(type, "int")) return UDA_TYPE_INT;
-    if (STR_IEQUALS(type, "integer")) return UDA_TYPE_INT;
-    if (STR_IEQUALS(type, "unsigned")) return UDA_TYPE_UNSIGNED_INT;
-    if (STR_IEQUALS(type, "unsigned int")) return UDA_TYPE_UNSIGNED_INT;
-    if (STR_IEQUALS(type, "unsigned integer")) return UDA_TYPE_UNSIGNED_INT;
-    if (STR_IEQUALS(type, "short")) return UDA_TYPE_SHORT;
-    if (STR_IEQUALS(type, "unsigned short")) return UDA_TYPE_UNSIGNED_SHORT;
-    if (STR_IEQUALS(type, "char")) return UDA_TYPE_CHAR;
-    if (STR_IEQUALS(type, "unsigned char")) return UDA_TYPE_UNSIGNED_CHAR;
-    if (STR_IEQUALS(type, "unknown")) return UDA_TYPE_UNKNOWN;
-    if (STR_IEQUALS(type, "undefined")) return UDA_TYPE_UNDEFINED;
+    if (STR_IEQUALS(type, "dcomplex")) {
+        return UDA_TYPE_DCOMPLEX;
+    }
+    if (STR_IEQUALS(type, "complex")) {
+        return UDA_TYPE_COMPLEX;
+    }
+    if (STR_IEQUALS(type, "double")) {
+        return UDA_TYPE_DOUBLE;
+    }
+    if (STR_IEQUALS(type, "float")) {
+        return UDA_TYPE_FLOAT;
+    }
+    if (STR_IEQUALS(type, "long64")) {
+        return UDA_TYPE_LONG64;
+    }
+    if (STR_IEQUALS(type, "long long")) {
+        return UDA_TYPE_LONG64;
+    }
+    if (STR_IEQUALS(type, "ulong64")) {
+        return UDA_TYPE_UNSIGNED_LONG64;
+    }
+    if (STR_IEQUALS(type, "unsigned long64")) {
+        return UDA_TYPE_UNSIGNED_LONG64;
+    }
+    if (STR_IEQUALS(type, "unsigned long long")) {
+        return UDA_TYPE_UNSIGNED_LONG64;
+    }
+    if (STR_IEQUALS(type, "long")) {
+        return UDA_TYPE_LONG;
+    }
+    if (STR_IEQUALS(type, "unsigned long")) {
+        return UDA_TYPE_UNSIGNED_LONG;
+    }
+    if (STR_IEQUALS(type, "int")) {
+        return UDA_TYPE_INT;
+    }
+    if (STR_IEQUALS(type, "integer")) {
+        return UDA_TYPE_INT;
+    }
+    if (STR_IEQUALS(type, "unsigned")) {
+        return UDA_TYPE_UNSIGNED_INT;
+    }
+    if (STR_IEQUALS(type, "unsigned int")) {
+        return UDA_TYPE_UNSIGNED_INT;
+    }
+    if (STR_IEQUALS(type, "unsigned integer")) {
+        return UDA_TYPE_UNSIGNED_INT;
+    }
+    if (STR_IEQUALS(type, "short")) {
+        return UDA_TYPE_SHORT;
+    }
+    if (STR_IEQUALS(type, "unsigned short")) {
+        return UDA_TYPE_UNSIGNED_SHORT;
+    }
+    if (STR_IEQUALS(type, "char")) {
+        return UDA_TYPE_CHAR;
+    }
+    if (STR_IEQUALS(type, "unsigned char")) {
+        return UDA_TYPE_UNSIGNED_CHAR;
+    }
+    if (STR_IEQUALS(type, "unknown")) {
+        return UDA_TYPE_UNKNOWN;
+    }
+    if (STR_IEQUALS(type, "undefined")) {
+        return UDA_TYPE_UNDEFINED;
+    }
 
-    if (STR_IEQUALS(type, "vlen")) return UDA_TYPE_VLEN;
-    if (STR_IEQUALS(type, "compound")) return UDA_TYPE_COMPOUND;
-    if (STR_IEQUALS(type, "opaque")) return UDA_TYPE_OPAQUE;
-    if (STR_IEQUALS(type, "enum")) return UDA_TYPE_ENUM;
-    if (STR_IEQUALS(type, "string")) return UDA_TYPE_STRING;
-    if (STR_IEQUALS(type, "void")) return UDA_TYPE_VOID;
+    if (STR_IEQUALS(type, "vlen")) {
+        return UDA_TYPE_VLEN;
+    }
+    if (STR_IEQUALS(type, "compound")) {
+        return UDA_TYPE_COMPOUND;
+    }
+    if (STR_IEQUALS(type, "opaque")) {
+        return UDA_TYPE_OPAQUE;
+    }
+    if (STR_IEQUALS(type, "enum")) {
+        return UDA_TYPE_ENUM;
+    }
+    if (STR_IEQUALS(type, "string")) {
+        return UDA_TYPE_STRING;
+    }
+    if (STR_IEQUALS(type, "void")) {
+        return UDA_TYPE_VOID;
+    }
 
-    if (STR_IEQUALS(type, "string *")) return UDA_TYPE_STRING;
+    if (STR_IEQUALS(type, "string *")) {
+        return UDA_TYPE_STRING;
+    }
 
     return UDA_TYPE_UNKNOWN;
 }
@@ -1069,7 +1270,7 @@ void getIdamErrorModel(int handle, int* model, int* param_n, float* params)
         return;
     }
     *model = data_blocks[handle].error_model;     // Model ID
-    *param_n = data_blocks[handle].error_param_n;      // Number of parameters
+    *param_n = data_blocks[handle].error_param_n; // Number of parameters
     for (int i = 0; i < data_blocks[handle].error_param_n; i++) {
         params[i] = data_blocks[handle].errparams[i];
     }
@@ -1077,7 +1278,9 @@ void getIdamErrorModel(int handle, int* model, int* param_n, float* params)
 
 int getIdamErrorAsymmetry(int handle)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return 0;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return 0;
+    }
     return (int)data_blocks[handle].errasymmetry;
 }
 
@@ -1088,23 +1291,35 @@ int getIdamErrorModelId(const char* model)
     for (int i = 1; i < ERROR_MODEL_UNDEFINED; i++) {
         switch (i) {
             case 1:
-                if (STR_IEQUALS(model, "default")) return ERROR_MODEL_DEFAULT;
+                if (STR_IEQUALS(model, "default")) {
+                    return ERROR_MODEL_DEFAULT;
+                }
                 break;
             case 2:
-                if (STR_IEQUALS(model, "default_asymmetric")) return ERROR_MODEL_DEFAULT_ASYMMETRIC;
+                if (STR_IEQUALS(model, "default_asymmetric")) {
+                    return ERROR_MODEL_DEFAULT_ASYMMETRIC;
+                }
                 break;
 #ifdef NO_GSL_LIB
             case 3:
-                if (STR_IEQUALS(model, "gaussian")) return ERROR_MODEL_GAUSSIAN;
+                if (STR_IEQUALS(model, "gaussian")) {
+                    return ERROR_MODEL_GAUSSIAN;
+                }
                 break;
             case 4:
-                if (STR_IEQUALS(model, "reseed")) return ERROR_MODEL_RESEED;
+                if (STR_IEQUALS(model, "reseed")) {
+                    return ERROR_MODEL_RESEED;
+                }
                 break;
             case 5:
-                if (STR_IEQUALS(model, "gaussian_shift")) return ERROR_MODEL_GAUSSIAN_SHIFT;
+                if (STR_IEQUALS(model, "gaussian_shift")) {
+                    return ERROR_MODEL_GAUSSIAN_SHIFT;
+                }
                 break;
             case 6:
-                if (STR_IEQUALS(model, "poisson")) return ERROR_MODEL_POISSON;
+                if (STR_IEQUALS(model, "poisson")) {
+                    return ERROR_MODEL_POISSON;
+                }
                 break;
 #endif
             default:
@@ -1116,25 +1331,33 @@ int getIdamErrorModelId(const char* model)
 
 char* acc_getSyntheticData(int handle)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return nullptr;
+    }
     return data_blocks[handle].synthetic;
 }
 
 char* acc_getSyntheticDimData(int handle, int ndim)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return nullptr;
+    }
     return data_blocks[handle].dims[ndim].synthetic;
 }
 
 void acc_setSyntheticData(int handle, char* data)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return;
+    }
     data_blocks[handle].synthetic = data;
 }
 
 void acc_setSyntheticDimData(int handle, int ndim, char* data)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return;
+    }
     data_blocks[handle].dims[ndim].synthetic = data;
 }
 
@@ -1143,9 +1366,15 @@ char* getIdamSyntheticData(int handle)
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     int status = getIdamDataStatus(handle);
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
-    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return nullptr;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return nullptr;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return nullptr;
+    }
+    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) {
+        return nullptr;
+    }
+    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) {
+        return nullptr;
+    }
     if (!client_flags->get_synthetic || data_blocks[handle].error_model == ERROR_MODEL_UNKNOWN) {
         return data_blocks[handle].data;
     }
@@ -1156,16 +1385,23 @@ char* getIdamSyntheticData(int handle)
 //!  Returns a pointer to the requested data
 /** The data may be synthetically generated.
 \param   handle   The data object handle
-\return  a pointer to the data - if the status is poor, a nullptr pointer is returned unless the \e get_bad property is set.
+\return  a pointer to the data - if the status is poor, a nullptr pointer is returned unless the \e get_bad property is
+set.
 */
 char* getIdamData(int handle)
 {
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     int status = getIdamDataStatus(handle);
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
-    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return nullptr;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return nullptr;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return nullptr;
+    }
+    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) {
+        return nullptr;
+    }
+    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) {
+        return nullptr;
+    }
     if (!client_flags->get_synthetic) {
         return data_blocks[handle].data;
     } else {
@@ -1181,98 +1417,126 @@ char* getIdamData(int handle)
 */
 void getIdamDataTdi(int handle, char* data)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return;
+    }
     memcpy(data, (void*)data_blocks[handle].data, (int)data_blocks[handle].data_n);
 }
 
 char* getIdamDataErrLo(int handle)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return nullptr;
+    }
     return data_blocks[handle].errlo;
 }
 
 char* getIdamDataErrHi(int handle)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return nullptr;
+    }
     return data_blocks[handle].errhi;
 }
 
 int getIdamDataErrAsymmetry(int handle)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return 0;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return 0;
+    }
     return data_blocks[handle].errasymmetry;
 }
 
 void acc_setIdamDataErrAsymmetry(int handle, int asymmetry)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return;
+    }
     data_blocks[handle].errasymmetry = asymmetry;
 };
 
 void acc_setIdamDataErrType(int handle, int type)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return;
+    }
     data_blocks[handle].error_type = type;
 };
 
 void acc_setIdamDataErrLo(int handle, char* errlo)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return;
+    }
     data_blocks[handle].errlo = errlo;
 };
 
 char* getIdamDimErrLo(int handle, int ndim)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return nullptr;
+    }
     return data_blocks[handle].dims[ndim].errlo;
 }
 
 char* getIdamDimErrHi(int handle, int ndim)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return nullptr;
+    }
     return data_blocks[handle].dims[ndim].errhi;
 }
 
 int getIdamDimErrAsymmetry(int handle, int ndim)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return 0;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return 0;
+    }
     return data_blocks[handle].dims[ndim].errasymmetry;
 }
 
 void acc_setIdamDimErrAsymmetry(int handle, int ndim, int asymmetry)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return;
+    }
     data_blocks[handle].dims[ndim].errasymmetry = asymmetry;
 };
 
 void acc_setIdamDimErrType(int handle, int ndim, int type)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return;
+    }
     data_blocks[handle].dims[ndim].error_type = type;
 };
 
 void acc_setIdamDimErrLo(int handle, int ndim, char* errlo)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return;
+    }
     data_blocks[handle].dims[ndim].errlo = errlo;
 };
 
 char* getIdamAsymmetricError(int handle, int above)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return nullptr;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return nullptr;
+    }
     if (data_blocks[handle].error_type != UDA_TYPE_UNKNOWN) {
         if (above) {
-            return data_blocks[handle].errhi;      // return the default error array
+            return data_blocks[handle].errhi; // return the default error array
         } else {
             if (!data_blocks[handle].errasymmetry) {
-                return data_blocks[handle].errhi;     // return the default error array if symmetric errors
+                return data_blocks[handle].errhi; // return the default error array if symmetric errors
             } else {
                 return data_blocks[handle].errlo;
-            }     // otherwise the data array must have been returned by the server or generated
+            } // otherwise the data array must have been returned by the server or generated
         }
     } else {
         if (data_blocks[handle].error_model != ERROR_MODEL_UNKNOWN) {
-            generateIdamDataError(handle);            // Create the errors from a model if the model exits
+            generateIdamDataError(handle); // Create the errors from a model if the model exits
             if (above) {
                 return data_blocks[handle].errhi;
             } else if (!data_blocks[handle].errasymmetry) {
@@ -1282,12 +1546,13 @@ char* getIdamAsymmetricError(int handle, int above)
             }
         } else {
 
-            char* errhi = nullptr;    // Regular Error Component
-            char* errlo = nullptr;    // Asymmetric Error Component
+            char* errhi = nullptr; // Regular Error Component
+            char* errlo = nullptr; // Asymmetric Error Component
             int ndata;
 
             ndata = data_blocks[handle].data_n;
-            data_blocks[handle].error_type = data_blocks[handle].data_type;  // Error Type is Unknown so Assume Data's Data Type
+            data_blocks[handle].error_type =
+                data_blocks[handle].data_type; // Error Type is Unknown so Assume Data's Data Type
 
             if (allocArray(data_blocks[handle].error_type, ndata, &errhi) != 0) {
                 // Allocate Heap for Regular Error Data
@@ -1297,7 +1562,7 @@ char* getIdamAsymmetricError(int handle, int above)
                 data_blocks[handle].errhi = errhi;
             }
 
-            if (data_blocks[handle].errasymmetry) {           // Allocate Heap for the Asymmetric Error Data
+            if (data_blocks[handle].errasymmetry) { // Allocate Heap for the Asymmetric Error Data
                 if (allocArray(data_blocks[handle].error_type, ndata, &errlo) != 0) {
                     UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Asymmetric Errors\n");
                     UDA_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
@@ -1312,129 +1577,179 @@ char* getIdamAsymmetricError(int handle, int above)
 
             switch (data_blocks[handle].data_type) {
                 case UDA_TYPE_FLOAT: {
-                    float* fh, * fl = nullptr;
+                    float *fh, *fl = nullptr;
                     fh = (float*)data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) fl = (float*)data_blocks[handle].errlo;
+                    if (data_blocks[handle].errasymmetry) {
+                        fl = (float*)data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         *(fh + i) = (float)0.0;
-                        if (data_blocks[handle].errasymmetry) *(fl + i) = (float)0.0;
+                        if (data_blocks[handle].errasymmetry) {
+                            *(fl + i) = (float)0.0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_DOUBLE: {
-                    double* dh, * dl = nullptr;
+                    double *dh, *dl = nullptr;
                     dh = (double*)data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) dl = (double*)data_blocks[handle].errlo;
+                    if (data_blocks[handle].errasymmetry) {
+                        dl = (double*)data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         *(dh + i) = (double)0.0;
-                        if (data_blocks[handle].errasymmetry) *(dl + i) = (double)0.0;
+                        if (data_blocks[handle].errasymmetry) {
+                            *(dl + i) = (double)0.0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_SHORT: {
-                    short* sh, * sl = nullptr;
+                    short *sh, *sl = nullptr;
                     sh = (short*)data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) sl = (short*)data_blocks[handle].errlo;
+                    if (data_blocks[handle].errasymmetry) {
+                        sl = (short*)data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         *(sh + i) = (short)0;
-                        if (data_blocks[handle].errasymmetry) *(sl + i) = (short)0;
+                        if (data_blocks[handle].errasymmetry) {
+                            *(sl + i) = (short)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_SHORT: {
-                    unsigned short* sh, * sl = nullptr;
+                    unsigned short *sh, *sl = nullptr;
                     sh = (unsigned short*)data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) sl = (unsigned short*)data_blocks[handle].errlo;
+                    if (data_blocks[handle].errasymmetry) {
+                        sl = (unsigned short*)data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         sh[i] = (unsigned short)0;
-                        if (data_blocks[handle].errasymmetry) sl[i] = (unsigned short)0;
+                        if (data_blocks[handle].errasymmetry) {
+                            sl[i] = (unsigned short)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_INT: {
-                    int* ih, * il = nullptr;
+                    int *ih, *il = nullptr;
                     ih = (int*)data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) il = (int*)data_blocks[handle].errlo;
+                    if (data_blocks[handle].errasymmetry) {
+                        il = (int*)data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         *(ih + i) = (int)0;
-                        if (data_blocks[handle].errasymmetry) *(il + i) = (int)0;
+                        if (data_blocks[handle].errasymmetry) {
+                            *(il + i) = (int)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_INT: {
-                    unsigned int* uh, * ul = nullptr;
+                    unsigned int *uh, *ul = nullptr;
                     uh = (unsigned int*)data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) ul = (unsigned int*)data_blocks[handle].errlo;
+                    if (data_blocks[handle].errasymmetry) {
+                        ul = (unsigned int*)data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         *(uh + i) = (unsigned int)0;
-                        if (data_blocks[handle].errasymmetry) *(ul + i) = (unsigned int)0;
+                        if (data_blocks[handle].errasymmetry) {
+                            *(ul + i) = (unsigned int)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_LONG: {
-                    long* lh, * ll = nullptr;
+                    long *lh, *ll = nullptr;
                     lh = (long*)data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) ll = (long*)data_blocks[handle].errlo;
+                    if (data_blocks[handle].errasymmetry) {
+                        ll = (long*)data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         *(lh + i) = (long)0;
-                        if (data_blocks[handle].errasymmetry) *(ll + i) = (long)0;
+                        if (data_blocks[handle].errasymmetry) {
+                            *(ll + i) = (long)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_LONG: {
-                    unsigned long* lh, * ll = nullptr;
+                    unsigned long *lh, *ll = nullptr;
                     lh = (unsigned long*)data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) ll = (unsigned long*)data_blocks[handle].errlo;
+                    if (data_blocks[handle].errasymmetry) {
+                        ll = (unsigned long*)data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         lh[i] = (unsigned long)0;
-                        if (data_blocks[handle].errasymmetry) ll[i] = (unsigned long)0;
+                        if (data_blocks[handle].errasymmetry) {
+                            ll[i] = (unsigned long)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_LONG64: {
-                    long long int* lh, * ll = nullptr;
+                    long long int *lh, *ll = nullptr;
                     lh = (long long int*)data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) ll = (long long int*)data_blocks[handle].errlo;
+                    if (data_blocks[handle].errasymmetry) {
+                        ll = (long long int*)data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         *(lh + i) = (long long int)0;
-                        if (data_blocks[handle].errasymmetry) *(ll + i) = (long long int)0;
+                        if (data_blocks[handle].errasymmetry) {
+                            *(ll + i) = (long long int)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_LONG64: {
-                    unsigned long long int* lh, * ll = nullptr;
-                    lh = (unsigned long long int*) data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) ll = (unsigned long long int*) data_blocks[handle].errlo;
+                    unsigned long long int *lh, *ll = nullptr;
+                    lh = (unsigned long long int*)data_blocks[handle].errhi;
+                    if (data_blocks[handle].errasymmetry) {
+                        ll = (unsigned long long int*)data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
-                        lh[i] = (unsigned long long int) 0;
-                        if (data_blocks[handle].errasymmetry) ll[i] = (unsigned long long int) 0;
+                        lh[i] = (unsigned long long int)0;
+                        if (data_blocks[handle].errasymmetry) {
+                            ll[i] = (unsigned long long int)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_CHAR: {
-                    char* ch, * cl = nullptr;
+                    char *ch, *cl = nullptr;
                     ch = data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) cl = data_blocks[handle].errlo;
+                    if (data_blocks[handle].errasymmetry) {
+                        cl = data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         ch[i] = (char)0;
-                        if (data_blocks[handle].errasymmetry) cl[i] = (char)0;
+                        if (data_blocks[handle].errasymmetry) {
+                            cl[i] = (char)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_CHAR: {
-                    unsigned char* ch, * cl = nullptr;
+                    unsigned char *ch, *cl = nullptr;
                     ch = (unsigned char*)data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) cl = (unsigned char*)data_blocks[handle].errlo;
+                    if (data_blocks[handle].errasymmetry) {
+                        cl = (unsigned char*)data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         ch[i] = (unsigned char)0;
-                        if (data_blocks[handle].errasymmetry) cl[i] = (unsigned char)0;
+                        if (data_blocks[handle].errasymmetry) {
+                            cl[i] = (unsigned char)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_DCOMPLEX: {
-                    DCOMPLEX* ch, * cl = nullptr;
+                    DCOMPLEX *ch, *cl = nullptr;
                     ch = (DCOMPLEX*)data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) cl = (DCOMPLEX*)data_blocks[handle].errlo;
+                    if (data_blocks[handle].errasymmetry) {
+                        cl = (DCOMPLEX*)data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         ch[i].real = (double)0.0;
                         ch[i].imaginary = (double)0.0;
@@ -1446,9 +1761,11 @@ char* getIdamAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_COMPLEX: {
-                    COMPLEX* ch, * cl = nullptr;
+                    COMPLEX *ch, *cl = nullptr;
                     ch = (COMPLEX*)data_blocks[handle].errhi;
-                    if (data_blocks[handle].errasymmetry) cl = (COMPLEX*)data_blocks[handle].errlo;
+                    if (data_blocks[handle].errasymmetry) {
+                        cl = (COMPLEX*)data_blocks[handle].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         ch[i].real = (float)0.0;
                         ch[i].imaginary = (float)0.0;
@@ -1487,11 +1804,9 @@ char* getIdamError(int handle)
 }
 
 //!  Returns data cast to double precision
-/** The copy buffer must be preallocated and sized for the data type. The data may be synthetically generated. If the status of the data is poor, no copy to the buffer occurs unless
-the property \b get_bad is set.
-\param   handle   The data object handle
-\param   fp A \b double pointer to a preallocated data buffer
-\return  void
+/** The copy buffer must be preallocated and sized for the data type. The data may be synthetically generated. If the
+status of the data is poor, no copy to the buffer occurs unless the property \b get_bad is set. \param   handle   The
+data object handle \param   fp A \b double pointer to a preallocated data buffer \return  void
 */
 void getIdamDoubleData(int handle, double* fp)
 {
@@ -1502,21 +1817,27 @@ void getIdamDoubleData(int handle, double* fp)
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     int status = getIdamDataStatus(handle);
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) return;
-    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return;
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return;
+    }
+    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) {
+        return;
+    }
+    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) {
+        return;
+    }
 
     if (data_blocks[handle].data_type == UDA_TYPE_DOUBLE) {
-        if (!client_flags->get_synthetic)
+        if (!client_flags->get_synthetic) {
             memcpy((void*)fp, (void*)data_blocks[handle].data, (size_t)data_blocks[handle].data_n * sizeof(double));
-        else {
+        } else {
             generateIdamSyntheticData(handle);
-            if (data_blocks[handle].synthetic != nullptr)
+            if (data_blocks[handle].synthetic != nullptr) {
                 memcpy((void*)fp, (void*)data_blocks[handle].synthetic,
                        (size_t)data_blocks[handle].data_n * sizeof(double));
-            else
-                memcpy((void*)fp, (void*)data_blocks[handle].data,
-                       (size_t)data_blocks[handle].data_n * sizeof(double));
+            } else {
+                memcpy((void*)fp, (void*)data_blocks[handle].data, (size_t)data_blocks[handle].data_n * sizeof(double));
+            }
             return;
         }
     } else {
@@ -1540,61 +1861,85 @@ void getIdamDoubleData(int handle, double* fp)
         switch (data_blocks[handle].data_type) {
             case UDA_TYPE_FLOAT: {
                 auto dp = (float*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)dp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)dp[i];
+                }
                 break;
             }
             case UDA_TYPE_SHORT: {
                 auto sp = (short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)sp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)sp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_SHORT: {
                 auto sp = (unsigned short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)sp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)sp[i];
+                }
                 break;
             }
             case UDA_TYPE_INT: {
                 int* ip = (int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)ip[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)ip[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_INT: {
                 auto up = (unsigned int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)up[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)up[i];
+                }
                 break;
             }
             case UDA_TYPE_LONG: {
                 auto lp = (long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)lp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG: {
                 auto lp = (unsigned long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)lp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_LONG64: {
                 auto lp = (long long int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)lp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG64: {
-                auto lp = (unsigned long long int*) array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double) lp[i];
+                auto lp = (unsigned long long int*)array;
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_CHAR: {
                 auto cp = (char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)cp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)cp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_CHAR: {
                 auto cp = (unsigned char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)cp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)cp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNKNOWN: {
-                for (int i = 0; i < ndata; i++) fp[i] = (double)0.0;  // No Data !
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)0.0; // No Data !
+                }
                 break;
             }
             case UDA_TYPE_DCOMPLEX: {
@@ -1616,21 +1961,19 @@ void getIdamDoubleData(int handle, double* fp)
                 break;
             }
             default:
-                for (int i = 0; i < ndata; i++) fp[i] = (double)0.0;
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)0.0;
+                }
                 break;
-
         }
         return;
     }
 }
 
-
 //!  Returns data cast to single precision
-/** The copy buffer must be preallocated and sized for the data type. The data may be synthetically generated. If the status of the data is poor, no copy to the buffer occurs unless
-the property \b get_bad is set.
-\param   handle   The data object handle
-\param   fp A \b float pointer to a preallocated data buffer
-\return  void
+/** The copy buffer must be preallocated and sized for the data type. The data may be synthetically generated. If the
+status of the data is poor, no copy to the buffer occurs unless the property \b get_bad is set. \param   handle   The
+data object handle \param   fp A \b float pointer to a preallocated data buffer \return  void
 */
 void getIdamFloatData(int handle, float* fp)
 {
@@ -1644,20 +1987,24 @@ void getIdamFloatData(int handle, float* fp)
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
     }
-    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) return;
-    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) return;
+    if (status == MIN_STATUS && !data_blocks[handle].client_block.get_bad && !client_flags->get_bad) {
+        return;
+    }
+    if (status != MIN_STATUS && (data_blocks[handle].client_block.get_bad || client_flags->get_bad)) {
+        return;
+    }
 
     if (data_blocks[handle].data_type == UDA_TYPE_FLOAT) {
-        if (!client_flags->get_synthetic)
+        if (!client_flags->get_synthetic) {
             memcpy((void*)fp, (void*)data_blocks[handle].data, (size_t)data_blocks[handle].data_n * sizeof(float));
-        else {
+        } else {
             generateIdamSyntheticData(handle);
-            if (data_blocks[handle].synthetic != nullptr)
+            if (data_blocks[handle].synthetic != nullptr) {
                 memcpy((void*)fp, (void*)data_blocks[handle].synthetic,
                        (size_t)data_blocks[handle].data_n * sizeof(float));
-            else
-                memcpy((void*)fp, (void*)data_blocks[handle].data,
-                       (size_t)data_blocks[handle].data_n * sizeof(float));
+            } else {
+                memcpy((void*)fp, (void*)data_blocks[handle].data, (size_t)data_blocks[handle].data_n * sizeof(float));
+            }
             return;
         }
     } else {
@@ -1681,61 +2028,85 @@ void getIdamFloatData(int handle, float* fp)
         switch (data_blocks[handle].data_type) {
             case UDA_TYPE_DOUBLE: {
                 double* dp = (double*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)dp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)dp[i];
+                }
                 break;
             }
             case UDA_TYPE_SHORT: {
                 auto sp = (short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)sp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_SHORT: {
                 auto sp = (unsigned short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)sp[i];
+                }
                 break;
             }
             case UDA_TYPE_INT: {
                 int* ip = (int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)ip[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)ip[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_INT: {
                 auto up = (unsigned int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)up[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)up[i];
+                }
                 break;
             }
             case UDA_TYPE_LONG: {
                 auto lp = (long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG: {
                 auto lp = (unsigned long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_LONG64: {
                 auto lp = (long long int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG64: {
-                auto lp = (unsigned long long int*) array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+                auto lp = (unsigned long long int*)array;
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_CHAR: {
                 auto cp = (char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)cp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_CHAR: {
                 auto cp = (unsigned char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)cp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNKNOWN: {
-                for (int i = 0; i < ndata; i++) fp[i] = (float)0.0;   // No Data !
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)0.0; // No Data !
+                }
                 break;
             }
             case UDA_TYPE_DCOMPLEX: {
@@ -1757,9 +2128,10 @@ void getIdamFloatData(int handle, float* fp)
                 break;
             }
             default:
-                for (int i = 0; i < ndata; i++) fp[i] = (float)0.0;
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)0.0;
+                }
                 break;
-
         }
         return;
     }
@@ -1819,7 +2191,6 @@ void getIdamGenericData(int handle, void* data)
     }
 }
 
-
 void getIdamFloatAsymmetricError(int handle, int above, float* fp)
 {
     // Copy Error Data cast as float to User Provided Array
@@ -1838,18 +2209,18 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
 
     switch (data_blocks[handle].error_type) {
         case UDA_TYPE_UNKNOWN:
-            for (int i = 0; i < ndata; i++) fp[i] = (float)0.0; // No Error Data
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)0.0; // No Error Data
+            }
             break;
         case UDA_TYPE_FLOAT:
-            if (above)
-                memcpy((void*)fp, (void*)data_blocks[handle].errhi,
-                       (size_t)data_blocks[handle].data_n * sizeof(float));
-            else if (!data_blocks[handle].errasymmetry)
-                memcpy((void*)fp, (void*)data_blocks[handle].errhi,
-                       (size_t)data_blocks[handle].data_n * sizeof(float));
-            else
-                memcpy((void*)fp, (void*)data_blocks[handle].errlo,
-                       (size_t)data_blocks[handle].data_n * sizeof(float));
+            if (above) {
+                memcpy((void*)fp, (void*)data_blocks[handle].errhi, (size_t)data_blocks[handle].data_n * sizeof(float));
+            } else if (!data_blocks[handle].errasymmetry) {
+                memcpy((void*)fp, (void*)data_blocks[handle].errhi, (size_t)data_blocks[handle].data_n * sizeof(float));
+            } else {
+                memcpy((void*)fp, (void*)data_blocks[handle].errlo, (size_t)data_blocks[handle].data_n * sizeof(float));
+            }
             break;
         case UDA_TYPE_DOUBLE: {
             double* dp;
@@ -1860,7 +2231,9 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             } else {
                 dp = (double*)data_blocks[handle].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)dp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)dp[i];
+            }
             break;
         }
         case UDA_TYPE_SHORT: {
@@ -1872,7 +2245,9 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             } else {
                 sp = (short*)data_blocks[handle].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)sp[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_SHORT: {
@@ -1884,7 +2259,9 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             } else {
                 sp = (unsigned short*)data_blocks[handle].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)sp[i];
+            }
             break;
         }
         case UDA_TYPE_INT: {
@@ -1896,7 +2273,9 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             } else {
                 ip = (int*)data_blocks[handle].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)ip[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)ip[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_INT: {
@@ -1908,7 +2287,9 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             } else {
                 up = (unsigned int*)data_blocks[handle].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)up[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)up[i];
+            }
             break;
         }
         case UDA_TYPE_LONG: {
@@ -1920,7 +2301,9 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             } else {
                 lp = (long*)data_blocks[handle].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)lp[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_LONG: {
@@ -1932,7 +2315,9 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             } else {
                 lp = (unsigned long*)data_blocks[handle].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)lp[i];
+            }
             break;
         }
         case UDA_TYPE_LONG64: {
@@ -1944,18 +2329,23 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             } else {
                 lp = (long long int*)data_blocks[handle].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)lp[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_LONG64: {
             unsigned long long int* lp;
-            if (above)
-                lp = (unsigned long long int*) data_blocks[handle].errhi;
-            else if (!data_blocks[handle].errasymmetry)
-                lp = (unsigned long long int*) data_blocks[handle].errhi;
-            else
-                lp = (unsigned long long int*) data_blocks[handle].errlo;
-            for (int i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+            if (above) {
+                lp = (unsigned long long int*)data_blocks[handle].errhi;
+            } else if (!data_blocks[handle].errasymmetry) {
+                lp = (unsigned long long int*)data_blocks[handle].errhi;
+            } else {
+                lp = (unsigned long long int*)data_blocks[handle].errlo;
+            }
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)lp[i];
+            }
             break;
         }
         case UDA_TYPE_CHAR: {
@@ -1967,7 +2357,9 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             } else {
                 cp = data_blocks[handle].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)cp[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_CHAR: {
@@ -1979,7 +2371,9 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             } else {
                 cp = (unsigned char*)data_blocks[handle].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)cp[i];
+            }
             break;
         }
         case UDA_TYPE_DCOMPLEX: {
@@ -2015,9 +2409,10 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
             break;
         }
         default:
-            for (int i = 0; i < ndata; i++) fp[i] = (float)0.0;
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)0.0;
+            }
             break;
-
     }
 }
 
@@ -2212,8 +2607,8 @@ void getIdamDimErrorModel(int handle, int ndim, int* model, int* param_n, float*
         *param_n = 0;
         return;
     }
-    *model = data_blocks[handle].dims[ndim].error_model;      // Model ID
-    *param_n = data_blocks[handle].dims[ndim].error_param_n;    // Number of parameters
+    *model = data_blocks[handle].dims[ndim].error_model;     // Model ID
+    *param_n = data_blocks[handle].dims[ndim].error_param_n; // Number of parameters
     for (int i = 0; i < data_blocks[handle].dims[ndim].error_param_n; i++) {
         params[i] = data_blocks[handle].dims[ndim].errparams[i];
     }
@@ -2247,7 +2642,9 @@ char* getIdamDimData(int handle, int ndim)
         return nullptr;
     }
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    if (!client_flags->get_synthetic) return data_blocks[handle].dims[ndim].dim;
+    if (!client_flags->get_synthetic) {
+        return data_blocks[handle].dims[ndim].dim;
+    }
     return getIdamSyntheticDimData(handle, ndim);
 }
 
@@ -2329,17 +2726,18 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
     }
     CLIENT_FLAGS* client_flags = udaClientFlags();
     if (data_blocks[handle].dims[ndim].data_type == UDA_TYPE_DOUBLE) {
-        if (!client_flags->get_synthetic)
+        if (!client_flags->get_synthetic) {
             memcpy((void*)fp, (void*)data_blocks[handle].dims[ndim].dim,
                    (size_t)data_blocks[handle].dims[ndim].dim_n * sizeof(double));
-        else {
+        } else {
             generateIdamSyntheticDimData(handle, ndim);
-            if (data_blocks[handle].dims[ndim].synthetic != nullptr)
+            if (data_blocks[handle].dims[ndim].synthetic != nullptr) {
                 memcpy((void*)fp, (void*)data_blocks[handle].dims[ndim].synthetic,
                        (size_t)data_blocks[handle].dims[ndim].dim_n * sizeof(double));
-            else
+            } else {
                 memcpy((void*)fp, (void*)data_blocks[handle].dims[ndim].dim,
                        (size_t)data_blocks[handle].dims[ndim].dim_n * sizeof(double));
+            }
             return;
         }
     } else {
@@ -2360,57 +2758,79 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
         switch (data_blocks[handle].dims[ndim].data_type) {
             case UDA_TYPE_FLOAT: {
                 auto dp = (float*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)dp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)dp[i];
+                }
                 break;
             }
             case UDA_TYPE_SHORT: {
                 auto sp = (short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)sp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)sp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_SHORT: {
                 auto sp = (unsigned short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)sp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)sp[i];
+                }
                 break;
             }
             case UDA_TYPE_INT: {
                 int* ip = (int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)ip[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)ip[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_INT: {
                 auto up = (unsigned int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)up[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)up[i];
+                }
                 break;
             }
             case UDA_TYPE_LONG: {
                 auto lp = (long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)lp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG: {
                 auto lp = (unsigned long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)lp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_LONG64: {
                 auto lp = (long long int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)lp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG64: {
-                auto lp = (unsigned long long int*) array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double) lp[i];
+                auto lp = (unsigned long long int*)array;
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_CHAR: {
                 auto cp = (char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)cp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)cp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_CHAR: {
                 auto cp = (unsigned char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (double)cp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)cp[i];
+                }
                 break;
             }
             case UDA_TYPE_DCOMPLEX: {
@@ -2432,12 +2852,15 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
                 break;
             }
             case UDA_TYPE_UNKNOWN:
-                for (int i = 0; i < ndata; i++) fp[i] = (double)0.0;
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)0.0;
+                }
                 break;
             default:
-                for (int i = 0; i < ndata; i++) fp[i] = (double)0.0;
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (double)0.0;
+                }
                 break;
-
         }
         return;
     }
@@ -2456,21 +2879,22 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
 
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
-            return;
+        return;
     }
     CLIENT_FLAGS* client_flags = udaClientFlags();
     if (data_blocks[handle].dims[ndim].data_type == UDA_TYPE_FLOAT) {
-        if (!client_flags->get_synthetic)
+        if (!client_flags->get_synthetic) {
             memcpy((void*)fp, (void*)data_blocks[handle].dims[ndim].dim,
                    (size_t)data_blocks[handle].dims[ndim].dim_n * sizeof(float));
-        else {
+        } else {
             generateIdamSyntheticDimData(handle, ndim);
-            if (data_blocks[handle].dims[ndim].synthetic != nullptr)
+            if (data_blocks[handle].dims[ndim].synthetic != nullptr) {
                 memcpy((void*)fp, (void*)data_blocks[handle].dims[ndim].synthetic,
                        (size_t)data_blocks[handle].dims[ndim].dim_n * sizeof(float));
-            else
+            } else {
                 memcpy((void*)fp, (void*)data_blocks[handle].dims[ndim].dim,
                        (size_t)data_blocks[handle].dims[ndim].dim_n * sizeof(float));
+            }
             return;
         }
     } else {
@@ -2491,57 +2915,79 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
         switch (data_blocks[handle].dims[ndim].data_type) {
             case UDA_TYPE_DOUBLE: {
                 auto dp = (double*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)dp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)dp[i];
+                }
                 break;
             }
             case UDA_TYPE_SHORT: {
                 auto sp = (short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)sp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_SHORT: {
                 auto sp = (unsigned short*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)sp[i];
+                }
                 break;
             }
             case UDA_TYPE_INT: {
                 auto ip = (int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)ip[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)ip[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_INT: {
                 auto up = (unsigned int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)up[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)up[i];
+                }
                 break;
             }
             case UDA_TYPE_LONG: {
                 auto lp = (long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG: {
                 auto lp = (unsigned long*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_LONG64: {
                 auto lp = (long long int*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_LONG64: {
-                auto lp = (unsigned long long int*) array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float) lp[i];
+                auto lp = (unsigned long long int*)array;
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)lp[i];
+                }
                 break;
             }
             case UDA_TYPE_CHAR: {
                 auto cp = (char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)cp[i];
+                }
                 break;
             }
             case UDA_TYPE_UNSIGNED_CHAR: {
                 auto cp = (unsigned char*)array;
-                for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)cp[i];
+                }
                 break;
             }
             case UDA_TYPE_DCOMPLEX: {
@@ -2563,10 +3009,14 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
                 break;
             }
             case UDA_TYPE_UNKNOWN:
-                for (int i = 0; i < ndata; i++) fp[i] = (float)0.0;
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)0.0;
+                }
                 break;
             default:
-                for (int i = 0; i < ndata; i++) fp[i] = (float)0.0;
+                for (int i = 0; i < ndata; i++) {
+                    fp[i] = (float)0.0;
+                }
                 break;
         }
         return;
@@ -2644,28 +3094,27 @@ DIMS* getIdamDimBlock(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
-            return nullptr;
+        return nullptr;
     }
     return data_blocks[handle].dims + ndim;
 }
-
 
 char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
-            return nullptr;
+        return nullptr;
     }
     if (data_blocks[handle].dims[ndim].error_type != UDA_TYPE_UNKNOWN) {
         if (above) {
-            return data_blocks[handle].dims[ndim].errhi;    // return the default error array
+            return data_blocks[handle].dims[ndim].errhi; // return the default error array
         } else {
             if (!data_blocks[handle].dims[ndim].errasymmetry) {
-                return data_blocks[handle].dims[ndim].errhi;   // return the default error array if symmetric errors
+                return data_blocks[handle].dims[ndim].errhi; // return the default error array if symmetric errors
             } else {
                 return data_blocks[handle].dims[ndim].errlo;
-            }   // otherwise the data array must have been returned by the server
-        }                           // or generated in a previous call
+            } // otherwise the data array must have been returned by the server
+        }     // or generated in a previous call
     } else {
         if (data_blocks[handle].dims[ndim].error_model != ERROR_MODEL_UNKNOWN) {
             generateIdamDimDataError(handle, ndim);
@@ -2679,7 +3128,8 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
             char* errlo = nullptr;
 
             int ndata = data_blocks[handle].dims[ndim].dim_n;
-            data_blocks[handle].dims[ndim].error_type = data_blocks[handle].dims[ndim].data_type; // Error Type is Unknown so Assume Data's Data Type
+            data_blocks[handle].dims[ndim].error_type =
+                data_blocks[handle].dims[ndim].data_type; // Error Type is Unknown so Assume Data's Data Type
 
             if (allocArray(data_blocks[handle].dims[ndim].error_type, ndata, &errhi) != 0) {
                 UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Data Errors\n");
@@ -2688,7 +3138,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                 data_blocks[handle].dims[ndim].errhi = errhi;
             }
 
-            if (data_blocks[handle].dims[ndim].errasymmetry) {               // Allocate Heap for the Asymmetric Error Data
+            if (data_blocks[handle].dims[ndim].errasymmetry) { // Allocate Heap for the Asymmetric Error Data
                 if (allocArray(data_blocks[handle].dims[ndim].error_type, ndata, &errlo) != 0) {
                     UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Asymmetric Errors\n");
                     UDA_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
@@ -2703,127 +3153,177 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                 case UDA_TYPE_FLOAT: {
                     float* fl = nullptr;
                     auto fh = (float*)data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) fl = (float*)data_blocks[handle].dims[ndim].errlo;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        fl = (float*)data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         fh[i] = (float)0.0;
-                        if (data_blocks[handle].dims[ndim].errasymmetry) fl[i] = (float)0.0;
+                        if (data_blocks[handle].dims[ndim].errasymmetry) {
+                            fl[i] = (float)0.0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_DOUBLE: {
                     double* dl = nullptr;
                     auto dh = (double*)data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) dl = (double*)data_blocks[handle].dims[ndim].errlo;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        dl = (double*)data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         dh[i] = (double)0.0;
-                        if (data_blocks[handle].dims[ndim].errasymmetry) dl[i] = (double)0.0;
+                        if (data_blocks[handle].dims[ndim].errasymmetry) {
+                            dl[i] = (double)0.0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_SHORT: {
                     short* sl = nullptr;
                     auto sh = (short*)data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) sl = (short*)data_blocks[handle].dims[ndim].errlo;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        sl = (short*)data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         sh[i] = (short)0;
-                        if (data_blocks[handle].dims[ndim].errasymmetry) sl[i] = (short)0;
+                        if (data_blocks[handle].dims[ndim].errasymmetry) {
+                            sl[i] = (short)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_SHORT: {
                     unsigned short* sl = nullptr;
                     auto sh = (unsigned short*)data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) sl = (unsigned short*)data_blocks[handle].dims[ndim].errlo;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        sl = (unsigned short*)data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         sh[i] = (unsigned short)0;
-                        if (data_blocks[handle].dims[ndim].errasymmetry) sl[i] = (unsigned short)0;
+                        if (data_blocks[handle].dims[ndim].errasymmetry) {
+                            sl[i] = (unsigned short)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_INT: {
                     int* il = nullptr;
                     auto ih = (int*)data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) il = (int*)data_blocks[handle].dims[ndim].errlo;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        il = (int*)data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         ih[i] = (int)0;
-                        if (data_blocks[handle].dims[ndim].errasymmetry) il[i] = (int)0;
+                        if (data_blocks[handle].dims[ndim].errasymmetry) {
+                            il[i] = (int)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_INT: {
                     unsigned int* ul = nullptr;
                     auto uh = (unsigned int*)data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) ul = (unsigned int*)data_blocks[handle].dims[ndim].errlo;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        ul = (unsigned int*)data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         uh[i] = (unsigned int)0;
-                        if (data_blocks[handle].dims[ndim].errasymmetry) ul[i] = (unsigned int)0;
+                        if (data_blocks[handle].dims[ndim].errasymmetry) {
+                            ul[i] = (unsigned int)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_LONG: {
                     long* ll = nullptr;
                     auto lh = (long*)data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) ll = (long*)data_blocks[handle].dims[ndim].errlo;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        ll = (long*)data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         lh[i] = (long)0;
-                        if (data_blocks[handle].dims[ndim].errasymmetry) ll[i] = (long)0;
+                        if (data_blocks[handle].dims[ndim].errasymmetry) {
+                            ll[i] = (long)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_LONG: {
                     unsigned long* ll = nullptr;
                     auto lh = (unsigned long*)data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) ll = (unsigned long*)data_blocks[handle].dims[ndim].errlo;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        ll = (unsigned long*)data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         lh[i] = (unsigned long)0;
-                        if (data_blocks[handle].dims[ndim].errasymmetry) ll[i] = (unsigned long)0;
+                        if (data_blocks[handle].dims[ndim].errasymmetry) {
+                            ll[i] = (unsigned long)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_LONG64: {
                     long long int* ll = nullptr;
                     auto lh = (long long int*)data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) ll = (long long int*)data_blocks[handle].dims[ndim].errlo;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        ll = (long long int*)data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         lh[i] = (long long int)0;
-                        if (data_blocks[handle].dims[ndim].errasymmetry) ll[i] = (long long int)0;
+                        if (data_blocks[handle].dims[ndim].errasymmetry) {
+                            ll[i] = (long long int)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_LONG64: {
                     unsigned long long int* ll = nullptr;
-                    auto lh = (unsigned long long int*) data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) ll = (unsigned long long int*) data_blocks[handle].dims[ndim].errlo;
+                    auto lh = (unsigned long long int*)data_blocks[handle].dims[ndim].errhi;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        ll = (unsigned long long int*)data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
-                        lh[i] = (unsigned long long int) 0;
-                        if (data_blocks[handle].dims[ndim].errasymmetry) ll[i] = (unsigned long long int) 0;
+                        lh[i] = (unsigned long long int)0;
+                        if (data_blocks[handle].dims[ndim].errasymmetry) {
+                            ll[i] = (unsigned long long int)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_CHAR: {
                     char* cl = nullptr;
                     auto ch = data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) cl = data_blocks[handle].dims[ndim].errlo;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        cl = data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         *(ch + i) = ' ';
-                        if (data_blocks[handle].dims[ndim].errasymmetry) *(cl + i) = ' ';
+                        if (data_blocks[handle].dims[ndim].errasymmetry) {
+                            *(cl + i) = ' ';
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_UNSIGNED_CHAR: {
                     unsigned char* cl = nullptr;
                     auto ch = (unsigned char*)data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) cl = (unsigned char*)data_blocks[handle].dims[ndim].errlo;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        cl = (unsigned char*)data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         ch[i] = (unsigned char)0;
-                        if (data_blocks[handle].dims[ndim].errasymmetry) cl[i] = (unsigned char)0;
+                        if (data_blocks[handle].dims[ndim].errasymmetry) {
+                            cl[i] = (unsigned char)0;
+                        }
                     }
                     break;
                 }
                 case UDA_TYPE_DCOMPLEX: {
                     DCOMPLEX* cl = nullptr;
                     auto ch = (DCOMPLEX*)data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) cl = (DCOMPLEX*)data_blocks[handle].dims[ndim].errlo;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        cl = (DCOMPLEX*)data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         ch[i].real = (double)0.0;
                         ch[i].imaginary = (double)0.0;
@@ -2837,7 +3337,9 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                 case UDA_TYPE_COMPLEX: {
                     COMPLEX* cl = nullptr;
                     auto ch = (COMPLEX*)data_blocks[handle].dims[ndim].errhi;
-                    if (data_blocks[handle].dims[ndim].errasymmetry) cl = (COMPLEX*)data_blocks[handle].dims[ndim].errlo;
+                    if (data_blocks[handle].dims[ndim].errasymmetry) {
+                        cl = (COMPLEX*)data_blocks[handle].dims[ndim].errlo;
+                    }
                     for (int i = 0; i < ndata; i++) {
                         ch[i].real = (float)0.0;
                         ch[i].imaginary = (float)0.0;
@@ -2849,7 +3351,7 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
             }
-            return data_blocks[handle].dims[ndim].errhi;    // Errors are Symmetric at this point
+            return data_blocks[handle].dims[ndim].errhi; // Errors are Symmetric at this point
         }
     }
 }
@@ -2865,7 +3367,7 @@ char* getIdamDimError(int handle, int ndim)
     int above = 1;
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
-            return nullptr;
+        return nullptr;
     }
     return getIdamDimAsymmetricError(handle, ndim, above);
 }
@@ -2876,18 +3378,20 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
 
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
-            return;
+        return;
     }
 
     int ndata = data_blocks[handle].dims[ndim].dim_n;
 
     if (data_blocks[handle].dims[ndim].error_type == UDA_TYPE_UNKNOWN) {
         getIdamDimAsymmetricError(handle, ndim, above);
-    }     // Create the Error Data prior to Casting
+    } // Create the Error Data prior to Casting
 
     switch (data_blocks[handle].dims[ndim].error_type) {
         case UDA_TYPE_UNKNOWN:
-            for (int i = 0; i < ndata; i++) fp[i] = (float)0.0; // No Error Data
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)0.0; // No Error Data
+            }
             break;
         case UDA_TYPE_FLOAT:
             if (above || !data_blocks[handle].dims[ndim].errasymmetry) {
@@ -2899,13 +3403,15 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             }
             break;
         case UDA_TYPE_DOUBLE: {
-            double* dp;                          // Return Zeros if this data is requested unless Error is Modelled
+            double* dp; // Return Zeros if this data is requested unless Error is Modelled
             if (above || !data_blocks[handle].dims[ndim].errasymmetry) {
                 dp = (double*)data_blocks[handle].dims[ndim].errhi;
             } else {
                 dp = (double*)data_blocks[handle].dims[ndim].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)dp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)dp[i];
+            }
             break;
         }
         case UDA_TYPE_SHORT: {
@@ -2915,7 +3421,9 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             } else {
                 sp = (short*)data_blocks[handle].dims[ndim].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)sp[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_SHORT: {
@@ -2925,7 +3433,9 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             } else {
                 sp = (unsigned short*)data_blocks[handle].dims[ndim].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)sp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)sp[i];
+            }
             break;
         }
         case UDA_TYPE_INT: {
@@ -2935,7 +3445,9 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             } else {
                 ip = (int*)data_blocks[handle].dims[ndim].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)ip[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)ip[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_INT: {
@@ -2945,7 +3457,9 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             } else {
                 up = (unsigned int*)data_blocks[handle].dims[ndim].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)up[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)up[i];
+            }
             break;
         }
         case UDA_TYPE_LONG: {
@@ -2955,7 +3469,9 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             } else {
                 lp = (long*)data_blocks[handle].dims[ndim].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)lp[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_LONG: {
@@ -2965,7 +3481,9 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             } else {
                 lp = (unsigned long*)data_blocks[handle].dims[ndim].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)lp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)lp[i];
+            }
             break;
         }
         case UDA_TYPE_CHAR: {
@@ -2975,7 +3493,9 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             } else {
                 cp = data_blocks[handle].dims[ndim].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)cp[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_CHAR: {
@@ -2985,7 +3505,9 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
             } else {
                 cp = (unsigned char*)data_blocks[handle].dims[ndim].errlo;
             }
-            for (int i = 0; i < ndata; i++) fp[i] = (float)cp[i];
+            for (int i = 0; i < ndata; i++) {
+                fp[i] = (float)cp[i];
+            }
             break;
         }
         case UDA_TYPE_DCOMPLEX: {
@@ -3052,9 +3574,7 @@ DATA_SYSTEM* getIdamDataSystem(int handle)
 */
 SYSTEM_CONFIG* getIdamSystemConfig(int handle)
 {
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
-
-    }
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {}
     return nullptr;
     return data_blocks[handle].system_config;
 }
@@ -3109,7 +3629,9 @@ const char* getIdamFileFormat(int handle)
         return nullptr;
     }
     DATA_SOURCE* data_source = getIdamDataSource(handle);
-    if (data_source == nullptr) return nullptr;
+    if (data_source == nullptr) {
+        return nullptr;
+    }
     return data_source->format;
 }
 
@@ -3133,90 +3655,128 @@ int idamDataCheckSum(void* data, int data_n, int type)
         case UDA_TYPE_FLOAT: {
             float fsum = 0.0;
             auto dp = (float*)data;
-            for (int i = 0; i < data_n; i++) if (std::isfinite(dp[i])) fsum = fsum + dp[i];
+            for (int i = 0; i < data_n; i++) {
+                if (std::isfinite(dp[i])) {
+                    fsum = fsum + dp[i];
+                }
+            }
             sum = (int)fsum;
-            if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
+            if (sum == 0) {
+                sum = (int)(1000000.0 * fsum); // Rescale
+            }
             break;
         }
         case UDA_TYPE_DOUBLE: {
             double fsum = 0.0;
             auto dp = (double*)data;
-            for (int i = 0; i < data_n; i++) if (std::isfinite(dp[i])) fsum = fsum + dp[i];
+            for (int i = 0; i < data_n; i++) {
+                if (std::isfinite(dp[i])) {
+                    fsum = fsum + dp[i];
+                }
+            }
             sum = (int)fsum;
-            if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
+            if (sum == 0) {
+                sum = (int)(1000000.0 * fsum); // Rescale
+            }
             break;
         }
         case UDA_TYPE_COMPLEX: {
             float fsum = 0.0;
             auto dp = (COMPLEX*)data;
-            for (int i = 0; i < data_n; i++)
+            for (int i = 0; i < data_n; i++) {
                 if (std::isfinite(dp[i].real) && std::isfinite(dp[i].imaginary)) {
                     fsum = fsum + dp[i].real + dp[i].imaginary;
                 }
+            }
             sum = (int)fsum;
-            if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
+            if (sum == 0) {
+                sum = (int)(1000000.0 * fsum); // Rescale
+            }
             break;
         }
         case UDA_TYPE_DCOMPLEX: {
             double fsum = 0.0;
             auto dp = (DCOMPLEX*)data;
-            for (int i = 0; i < data_n; i++)
+            for (int i = 0; i < data_n; i++) {
                 if (std::isfinite(dp[i].real) && std::isfinite(dp[i].imaginary)) {
                     fsum = fsum + dp[i].real + dp[i].imaginary;
                 }
+            }
             sum = (int)fsum;
-            if (sum == 0) sum = (int)(1000000.0 * fsum);      // Rescale
+            if (sum == 0) {
+                sum = (int)(1000000.0 * fsum); // Rescale
+            }
             break;
         }
 
         case UDA_TYPE_CHAR: {
             char* dp = (char*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
+            for (int i = 0; i < data_n; i++) {
+                sum = sum + (int)dp[i];
+            }
             break;
         }
         case UDA_TYPE_SHORT: {
             auto dp = (short int*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
+            for (int i = 0; i < data_n; i++) {
+                sum = sum + (int)dp[i];
+            }
             break;
         }
         case UDA_TYPE_INT: {
             int* dp = (int*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
+            for (int i = 0; i < data_n; i++) {
+                sum = sum + (int)dp[i];
+            }
             break;
         }
         case UDA_TYPE_LONG: {
             auto dp = (long*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
+            for (int i = 0; i < data_n; i++) {
+                sum = sum + (int)dp[i];
+            }
             break;
         }
         case UDA_TYPE_LONG64: {
             auto dp = (long long int*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
+            for (int i = 0; i < data_n; i++) {
+                sum = sum + (int)dp[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_CHAR: {
             auto dp = (unsigned char*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
+            for (int i = 0; i < data_n; i++) {
+                sum = sum + (int)dp[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_SHORT: {
             auto dp = (unsigned short int*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
+            for (int i = 0; i < data_n; i++) {
+                sum = sum + (int)dp[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_INT: {
             auto dp = (unsigned int*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
+            for (int i = 0; i < data_n; i++) {
+                sum = sum + (int)dp[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_LONG: {
             auto dp = (unsigned long*)data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int)dp[i];
+            for (int i = 0; i < data_n; i++) {
+                sum = sum + (int)dp[i];
+            }
             break;
         }
         case UDA_TYPE_UNSIGNED_LONG64: {
-            auto dp = (unsigned long long int*) data;
-            for (int i = 0; i < data_n; i++) sum = sum + (int) dp[i];
+            auto dp = (unsigned long long int*)data;
+            for (int i = 0; i < data_n; i++) {
+                sum = sum + (int)dp[i];
+            }
             break;
         }
         default:
@@ -3230,10 +3790,12 @@ int getIdamDataCheckSum(int handle)
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return 0;
     }
-    if (data_blocks[handle].errcode != 0) return 0;
+    if (data_blocks[handle].errcode != 0) {
+        return 0;
+    }
 
-    return (idamDataCheckSum((void*)data_blocks[handle].data, data_blocks[handle].data_n,
-                             data_blocks[handle].data_type));
+    return (
+        idamDataCheckSum((void*)data_blocks[handle].data, data_blocks[handle].data_n, data_blocks[handle].data_type));
 }
 
 int getIdamDimDataCheckSum(int handle, int ndim)
@@ -3241,7 +3803,9 @@ int getIdamDimDataCheckSum(int handle, int ndim)
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return 0;
     }
-    if (data_blocks[handle].errcode != 0) return 0;
+    if (data_blocks[handle].errcode != 0) {
+        return 0;
+    }
     if (ndim < 0 || (unsigned int)ndim >= data_blocks[handle].rank) {
         return 0;
     }
@@ -3257,8 +3821,8 @@ void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectS
                                       int protocolVersion, LOGSTRUCTLIST* log_struct_list, int private_flags,
                                       int malloc_source)
 {
-    // Extract the serialised Data Block from Cache or serialise it if not cached (hash key in Data Block, empty if not cached)
-    // Use Case: extract data in object form for storage in external data object store, e.g. CEPH, HDF5
+    // Extract the serialised Data Block from Cache or serialise it if not cached (hash key in Data Block, empty if not
+    // cached) Use Case: extract data in object form for storage in external data object store, e.g. CEPH, HDF5
     /*
      * TODO
      *
@@ -3299,7 +3863,7 @@ void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectS
     fread(buffer, bufsize, 1, memfile);
 #endif
 
-    xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
+    xdr_destroy(&xdrs); // Destroy before the  file otherwise a segmentation error occurs
     fclose(memfile);
 
     // return the serialised data object and key
@@ -3316,8 +3880,12 @@ void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectS
 
 int setIdamDataTree(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return 0;    // Return FALSE
-    if (getIdamData(handle) == nullptr) return 0;
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
+        return 0; // Return FALSE
+    }
+    if (getIdamData(handle) == nullptr) {
+        return 0;
+    }
 
     udaSetFullNTree((NTREE*)getIdamData(handle));
     void* opaque_block = getIdamDataOpaqueBlock(handle);
@@ -3331,7 +3899,9 @@ int setIdamDataTree(int handle)
 
 NTREE* getIdamDataTree(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return nullptr;
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
+        return nullptr;
+    }
     return (NTREE*)getIdamData(handle);
 }
 
@@ -3339,21 +3909,27 @@ NTREE* getIdamDataTree(int handle)
 
 USERDEFINEDTYPE* getIdamUserDefinedType(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return nullptr;
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
+        return nullptr;
+    }
     void* opaque_block = getIdamDataOpaqueBlock(handle);
     return ((GENERAL_BLOCK*)opaque_block)->userdefinedtype;
 }
 
 USERDEFINEDTYPELIST* getIdamUserDefinedTypeList(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return nullptr;
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
+        return nullptr;
+    }
     void* opaque_block = getIdamDataOpaqueBlock(handle);
     return ((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist;
 }
 
 LOGMALLOCLIST* getIdamLogMallocList(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return nullptr;
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
+        return nullptr;
+    }
     void* opaque_block = getIdamDataOpaqueBlock(handle);
     return ((GENERAL_BLOCK*)opaque_block)->logmalloclist;
 }

@@ -2,8 +2,8 @@
 
 #include <cerrno>
 
-#include <logging/logging.h>
 #include "udaDefines.h"
+#include <logging/logging.h>
 
 #include "createXDRStream.h"
 
@@ -18,9 +18,9 @@ int serverSocket = 0;
 void setSelectParms(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time)
 {
     FD_ZERO(rfds);    // Initialise the File Descriptor set
-    FD_SET(fd, rfds);    // Identify the Socket in the FD set
+    FD_SET(fd, rfds); // Identify the Socket in the FD set
     tv->tv_sec = 0;
-    tv->tv_usec = MIN_BLOCK_TIME;    // minimum wait microsecs (1ms)
+    tv->tv_usec = MIN_BLOCK_TIME; // minimum wait microsecs (1ms)
     *server_tot_block_time = 0;
 }
 
@@ -31,10 +31,10 @@ void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_
     if (server_tot_block_time < MAXBLOCK) {
         // (ms) For the First blocking period have rapid response (clientserver/udaDefines.h == 1000)
         tv->tv_sec = 0;
-        tv->tv_usec = MIN_BLOCK_TIME;    // minimum wait (1ms)
+        tv->tv_usec = MIN_BLOCK_TIME; // minimum wait (1ms)
     } else {
         tv->tv_sec = 0;
-        tv->tv_usec = MAX_BLOCK_TIME;    // maximum wait (10ms)
+        tv->tv_usec = MAX_BLOCK_TIME; // maximum wait (10ms)
     }
 }
 
@@ -65,7 +65,7 @@ void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_
 int server_read(void* iohandle, char* buf, int count)
 {
     int rc = 0;
-    fd_set rfds;        // File Descriptor Set for Reading from the Socket
+    fd_set rfds; // File Descriptor Set for Reading from the Socket
     timeval tv = {};
     timeval tvc = {};
 
@@ -79,11 +79,12 @@ int server_read(void* iohandle, char* buf, int count)
     while (select(serverSocket + 1, &rfds, nullptr, nullptr, &tvc) <= 0) {
         *io_data->server_tot_block_time += (int)tv.tv_usec / 1000;
         if (*io_data->server_tot_block_time > 1000 * *io_data->server_timeout) {
-            UDA_LOG(UDA_LOG_DEBUG, "Total Wait Time Exceeds Lifetime Limit = %d (ms)\n", *io_data->server_timeout * 1000);
+            UDA_LOG(UDA_LOG_DEBUG, "Total Wait Time Exceeds Lifetime Limit = %d (ms)\n",
+                    *io_data->server_timeout * 1000);
             return -1;
         }
 
-        updateSelectParms(serverSocket, &rfds, &tv, *io_data->server_tot_block_time);        // Keep trying ...
+        updateSelectParms(serverSocket, &rfds, &tv, *io_data->server_tot_block_time); // Keep trying ...
         tvc = tv;
     }
 
@@ -109,7 +110,7 @@ int server_write(void* iohandle, char* buf, int count)
     int rc = 0;
     int BytesSent = 0;
 
-    fd_set wfds;        // File Descriptor Set for Writing to the Socket
+    fd_set wfds; // File Descriptor Set for Writing to the Socket
     timeval tv = {};
 
     auto io_data = reinterpret_cast<IoData*>(iohandle);

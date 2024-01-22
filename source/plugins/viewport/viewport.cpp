@@ -1,28 +1,28 @@
 /*---------------------------------------------------------------
-* v1 IDAM Plugin viewPort: re-bin data to visualise with a rectangular viewport defined by horizonal 
-* and vertical pixel ranges 
-*
-* Input Arguments:    IDAM_PLUGIN_INTERFACE *plugin_interface
-*
-* Returns:        0 if the plugin functionality was successful
-*            otherwise a Error Code is returned
-*
-* Standard functionality:
-*
-*---------------------------------------------------------------------------------------------------------------*/
+ * v1 IDAM Plugin viewPort: re-bin data to visualise with a rectangular viewport defined by horizonal
+ * and vertical pixel ranges
+ *
+ * Input Arguments:    IDAM_PLUGIN_INTERFACE *plugin_interface
+ *
+ * Returns:        0 if the plugin functionality was successful
+ *            otherwise a Error Code is returned
+ *
+ * Standard functionality:
+ *
+ *---------------------------------------------------------------------------------------------------------------*/
 #include "viewport.h"
 
-#include <cstdlib>
 #include <cfloat>
+#include <cstdlib>
 #ifdef __GNUC__
 #  include <strings.h>
 #endif
 
-#include <plugins/uda_plugin_base.hpp>
-#include "udaGetAPI.h"
-#include "initStructs.h"
 #include "accAPI.h"
+#include "initStructs.h"
+#include "udaGetAPI.h"
 #include <clientserver/stringUtils.h>
+#include <plugins/uda_plugin_base.hpp>
 
 #include <boost/filesystem.hpp>
 #include <vector>
@@ -33,25 +33,22 @@ struct CacheEntry {
     std::string source;
 };
 
-class ViewportPlugin : public UDAPluginBase {
-public:
+class ViewportPlugin : public UDAPluginBase
+{
+  public:
     ViewportPlugin();
     int get(IDAM_PLUGIN_INTERFACE* plugin_interface);
     void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
     void reset() override {}
 
-private:
+  private:
     std::vector<CacheEntry> cache_;
     int find_handle(const std::string& signal, const std::string& source);
 };
 
 ViewportPlugin::ViewportPlugin()
-        : UDAPluginBase(
-        "VIEWPORT",
-        1,
-        "function",
-        boost::filesystem::path(__FILE__).parent_path().append("help.txt").string()
-)
+    : UDAPluginBase("VIEWPORT", 1, "function",
+                    boost::filesystem::path(__FILE__).parent_path().append("help.txt").string())
 {
     register_method("get", static_cast<UDAPluginBase::plugin_member_type>(&ViewportPlugin::get));
 }
@@ -62,10 +59,11 @@ void reduceOrderedData(float* values, int* count, float* startValue, float* endV
 void getVerticalPixelValues(float* values, int count, int pixel_height, float* startValue, float* endValue,
                             float** verticalPixelValues, float* delta);
 
-char* memdup(const void* mem, size_t size) {
+char* memdup(const void* mem, size_t size)
+{
     char* out = (char*)malloc(size);
 
-    if(out != nullptr) {
+    if (out != nullptr) {
         memcpy(out, mem, size);
     }
 
@@ -134,27 +132,27 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
         getIdamFloatDimData(handle, 0, coords.data());
 
         if (test) {
-            debug( "Running Viewport Test {}\n", *test);
+            debug("Running Viewport Test {}\n", *test);
 
             switch (*test) {
-                case 1: {                // Do nothing
+                case 1: { // Do nothing
                     break;
                 }
-                case 2: {                // 100 values mapped to 100 pixels: each pixel column has a single data value
+                case 2: { // 100 values mapped to 100 pixels: each pixel column has a single data value
                     pixel_width = 100;
                     break;
                 }
-                case 3: {                // 100 values mapped to 100 pixels: each pixel column has a single data value
+                case 3: { // 100 values mapped to 100 pixels: each pixel column has a single data value
                     pixel_height = 100;
                     break;
                 }
-                case 4: {                // 100 values mapped to 100 pixels: each pixel column has a single data value
+                case 4: { // 100 values mapped to 100 pixels: each pixel column has a single data value
                     pixel_height = 100;
                     pixel_width = 100;
                     break;
                 }
 
-                case 5: {                // 100 values mapped to 100 pixels: each pixel column has a single data value
+                case 5: { // 100 values mapped to 100 pixels: each pixel column has a single data value
                     count = 101;
                     for (int i = 0; i < count; i++) {
                         values[i] = (float)i + 1;
@@ -165,7 +163,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                     break;
                 }
 
-                case 6: {                // 50 values mapped to 100 pixels: alternate pixels have no data!
+                case 6: { // 50 values mapped to 100 pixels: alternate pixels have no data!
                     count = 201;
                     for (int i = 0; i < count; i++) {
                         values[i] = (float)i + 1;
@@ -176,7 +174,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                     pixel_width = 100;
                     break;
                 }
-                case 7: {                // 50 values mapped to 100 pixels: alternate pixels have no data!
+                case 7: { // 50 values mapped to 100 pixels: alternate pixels have no data!
                     count = 201;
                     for (int i = 0; i < count; i++) {
                         values[i] = (float)i + 1;
@@ -201,7 +199,6 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
         // Issues
         // 1> Insufficient data to fill some pixels
         // 2> requested range lies outside the data's range
-
 
         // Reduce data to fit the value ranges specified
         // Assume X data (coordinates) are ordered in increasing value
@@ -231,7 +228,9 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
         if (!start_y) {
             min_y = FLT_MAX;
             for (int j = 0; j < count; j++) {
-                if (values[j] < min_y) min_y = values[j];
+                if (values[j] < min_y) {
+                    min_y = values[j];
+                }
             }
         } else {
             min_y = *start_y;
@@ -240,7 +239,9 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
         if (!end_y) {
             max_y = -FLT_MAX;
             for (int j = 0; j < count; j++) {
-                if (values[j] > max_y) max_y = values[j];
+                if (values[j] > max_y) {
+                    max_y = values[j];
+                }
             }
         } else {
             max_y = *end_y;
@@ -297,14 +298,15 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
         if (pixel_width && pixel_height) {
             // Map to pixels if the device coordinate viewport is defined
 
-            debug("Viewport: Mapping data to device pixel coordinate range (width, height) = {}, {}\n",
-                    *pixel_width, *pixel_height);
+            debug("Viewport: Mapping data to device pixel coordinate range (width, height) = {}, {}\n", *pixel_width,
+                  *pixel_height);
 
             int* column = nullptr;
 
             // Assign coordinates to pixel columns
 
-            horizontal_pixel_values = getBins(coords.data(), count, *pixel_width, (double)min_x, (double)max_x, &column);
+            horizontal_pixel_values =
+                getBins(coords.data(), count, *pixel_width, (double)min_x, (double)max_x, &column);
 
             // Frequency distribution of pixel hits along each vertical pixel column
 
@@ -314,11 +316,10 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
             int* good = (int*)malloc(*pixel_width * sizeof(int));
 
-            float* verticalPixelValues = nullptr;            // Value at the pixel center
+            float* verticalPixelValues = nullptr; // Value at the pixel center
             float delta;
 
-            getVerticalPixelValues(values.data(), count, *pixel_height, &min_y, &max_y, &verticalPixelValues,
-                                   &delta);
+            getVerticalPixelValues(values.data(), count, *pixel_height, &min_y, &max_y, &verticalPixelValues, &delta);
 
             auto verticalPixelBoundaries = (float*)malloc((*pixel_height + 2) * sizeof(float));
             verticalPixelBoundaries[0] = min_y;
@@ -344,7 +345,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
             }
 
             for (int i = 0; i < count; i++) {
-                fctot[column[i]]++;        // total counts
+                fctot[column[i]]++; // total counts
             }
 
             int colCount = 0;
@@ -352,16 +353,16 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                 colCount = colCount + fctot[i];
             }
 
-            debug( "Column Totals: {}\n", colCount);
+            debug("Column Totals: {}\n", colCount);
             for (int i = 0; i < *pixel_width; i++) {
-                debug( "[{}] {}\n", i, fctot[i]);
+                debug("[{}] {}\n", i, fctot[i]);
             }
 
             // Which pixel row bin do each un-ordered data point fall into?
 
             for (int j = 0; j < count; j++) {
                 row[j] = -1;
-                for (int i = 0; i < *pixel_height + 1; i++) {        // Search within pixel boundaries
+                for (int i = 0; i < *pixel_height + 1; i++) { // Search within pixel boundaries
                     if (values[j] >= verticalPixelBoundaries[i] && values[j] < verticalPixelBoundaries[i + 1]) {
                         row[j] = i;
                         break;
@@ -372,7 +373,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                 }
 
                 if (column[j] >= 0 && row[j] >= 0) {
-                    freq[column[j]][row[j]]++;    // build frequency distribution
+                    freq[column[j]][row[j]]++; // build frequency distribution
                 }
             }
 
@@ -381,7 +382,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
             }
 
             for (int i = 0; i < count; i++) {
-                frtot[row[i]]++;        // total counts
+                frtot[row[i]]++; // total counts
             }
 
             int rowCount = 0;
@@ -389,9 +390,9 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                 rowCount = rowCount + frtot[i];
             }
 
-            debug( "Row Totals: {}\n", rowCount);
+            debug("Row Totals: {}\n", rowCount);
             for (int i = 0; i < *pixel_height; i++) {
-                debug( "[{}] {}\n", i, frtot[i]);
+                debug("[{}] {}\n", i, frtot[i]);
             }
 
             free(column);
@@ -420,7 +421,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
                 if (range && mean) {
                     if (i == 0) {
-                        debug( "Mean returned\n");
+                        debug("Mean returned\n");
                     }
                     for (int j = 0; j < pixel_height; j++) {
                         if (freq[i][j] > 0) {
@@ -435,11 +436,11 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                     }
 
                 } else if (!range && mode) {
-                    debug( "Mode returned\n");
+                    debug("Mode returned\n");
                     int fmax = 0;
                     int fmaxID = -1;
                     for (int j = 0; j < pixel_height; j++) {
-                        if (freq[i][j] > fmax) {        // First mode found if multi-modal
+                        if (freq[i][j] > fmax) { // First mode found if multi-modal
                             fmaxID = j;
                             fmax = freq[i][j];
                         }
@@ -451,7 +452,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                     }
                 } else if (!range && median) {
                     if (i == 0) {
-                        debug( "Median returned\n");
+                        debug("Median returned\n");
                     }
                     integral[0] = freq[i][0];
 
@@ -467,8 +468,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                                 float dx = (float)(integral[j] - integral[j - 1]);
                                 if (dx != 0.0) {
                                     float m = (verticalPixelValues[j] - verticalPixelValues[j - 1]) / dx;
-                                    data[i] = m * (target - integral[j]) +
-                                              verticalPixelValues[j];            // Linear Interpolate
+                                    data[i] = m * (target - integral[j]) + verticalPixelValues[j]; // Linear Interpolate
                                 } else {
                                     data[i] = verticalPixelValues[j];
                                 }
@@ -496,21 +496,21 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
                 for (int j = 0; j < *pixel_height; j++) {
                     if (freq[i][j] > 0) {
-                        err_lo[i] = verticalPixelValues[j];    // lowest value
+                        err_lo[i] = verticalPixelValues[j]; // lowest value
                         break;
                     }
                 }
 
                 for (int j = *pixel_height - 1; j >= 0; j--) {
                     if (freq[i][j] > 0) {
-                        err_hi[i] = verticalPixelValues[j];    // highest value
+                        err_hi[i] = verticalPixelValues[j]; // highest value
                         break;
                     }
                 }
 
                 if (range) {
                     if (i == 0) {
-                        debug( "Range returned\n");
+                        debug("Range returned\n");
                     }
                     data[i] = 0.5 * (err_lo[i] + err_hi[i]);
                     good_count++;
@@ -518,16 +518,14 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
                 free(freq[i]);
 
-                debug( "[{}]   {}   {}   {}   {}\n", i, data[i], err_lo[i], err_hi[i],
-                        horizontal_pixel_values[i]);
+                debug("[{}]   {}   {}   {}   {}\n", i, data[i], err_lo[i], err_hi[i], horizontal_pixel_values[i]);
 
-            }   // end of loop over pixel_width
+            } // end of loop over pixel_width
 
-            debug( "good_count  = {}\n", good_count);
-            debug( "pixel_width = {}\n", *pixel_width);
+            debug("good_count  = {}\n", good_count);
+            debug("pixel_width = {}\n", *pixel_width);
             for (int i = 0; i < pixelWidth2; i++) {
-                debug( "[{}]   {}   {}   {}   {}\n", i, data[i], err_lo[i], err_hi[i],
-                        horizontal_pixel_values[i]);
+                debug("[{}]   {}   {}   {}   {}\n", i, data[i], err_lo[i], err_hi[i], horizontal_pixel_values[i]);
             }
             // Free allocated heap
 
@@ -542,7 +540,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
             // Remove pixel columns without data
 
             if (good_count < pixel_width) {
-                debug( "Removing pixel columns without data [{}, {}]\n", good_count, *pixel_width);
+                debug("Removing pixel columns without data [{}, {}]\n", good_count, *pixel_width);
 
                 std::vector<float> new_data(static_cast<size_t>(good_count));
                 std::vector<float> new_err_hi(static_cast<size_t>(good_count));
@@ -567,7 +565,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                 horizontal_pixel_values = pixel_values;
                 pixelWidth2 = good_count;
             }
-        } else {                    // Device pixel coordinate range not set
+        } else { // Device pixel coordinate range not set
             data = values;
             horizontal_pixel_values = coords;
             pixelWidth2 = count;
@@ -638,20 +636,24 @@ std::vector<float> getBins(float* coords, int count, int pixel_width, float minV
     start = 0;
     for (int j = 0; j < count; j++) {
         bin[j] = -1;
-        for (int i = start; i < pixel_width + 1; i++) {        // Search within pixel boundaries
+        for (int i = start; i < pixel_width + 1; i++) { // Search within pixel boundaries
             if (coords[j] >= pix_values[i] && coords[j] < pix_values[i + 1]) {
                 bin[j] = i;
                 start = i;
                 break;
             }
         }
-        if (bin[j] > pixel_width - 1) bin[j] = pixel_width - 1;
+        if (bin[j] > pixel_width - 1) {
+            bin[j] = pixel_width - 1;
+        }
     }
 
     // mid pixel value: the range of data is mapped to these pixels
 
     pix_values[0] = minValue + 0.5 * delta;
-    for (int i = 1; i < pixel_width; i++) pix_values[i] = pix_values[i - 1] + delta;
+    for (int i = 1; i < pixel_width; i++) {
+        pix_values[i] = pix_values[i - 1] + delta;
+    }
 
     *column = bin;
     return pix_values;
@@ -667,7 +669,9 @@ void getVerticalPixelValues(float* values, int count, int pixel_height, float* s
 
     if (startValue == nullptr) {
         for (int i = 0; i < count; i++) {
-            if (values[i] < minValue) minValue = values[i];
+            if (values[i] < minValue) {
+                minValue = values[i];
+            }
         }
     } else {
         minValue = *startValue;
@@ -675,7 +679,9 @@ void getVerticalPixelValues(float* values, int count, int pixel_height, float* s
 
     if (endValue == nullptr) {
         for (int i = 0; i < count; i++) {
-            if (values[i] > maxValue) maxValue = values[i];
+            if (values[i] > maxValue) {
+                maxValue = values[i];
+            }
         }
     } else {
         maxValue = *endValue;
@@ -699,7 +705,9 @@ void getBinIds(float* values, int count, int pixel_height, float* pixel_values, 
     }
     for (int i = 0; i < count; i++) {
         for (int j = 0; j < pixel_height; j++) {
-            if (values[i] >= pixel_values[j] && values[i] <= pixel_values[j]) f[j]++;
+            if (values[i] >= pixel_values[j] && values[i] <= pixel_values[j]) {
+                f[j]++;
+            }
         }
     }
     *freq = f;
@@ -758,5 +766,3 @@ void reduceOrderedData(float* values, int* count, float* startValue, float* endV
     *min = minValue;
     *max = maxValue;
 }
-
-

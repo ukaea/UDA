@@ -2,14 +2,14 @@
 #define UDA_CLIENTSERVER_PARSEXML_H
 
 #ifndef NOXMLPARSER
-#include <libxml/xmlmemory.h>
-#include <libxml/parser.h>
+#  include <libxml/parser.h>
+#  include <libxml/xmlmemory.h>
 #endif
 
 #include <stdbool.h>
 
-#include "udaDefines.h"
 #include "export.h"
+#include "udaDefines.h"
 #include "udaStructs.h"
 
 #ifdef __cplusplus
@@ -17,11 +17,11 @@ extern "C" {
 #endif
 
 typedef struct Map {
-    int nmap;                                   // the Number of Mapping Operations
-    double value[UDA_MAX_DATA_RANK];                  // Array of values to Map to
-    char mapping[UDA_MAX_DATA_RANK][UDA_SXML_MAX_STRING];   // Array of Mapping Operations
-    int dimid[UDA_MAX_DATA_RANK];                     // Array of Dimension IDs to Map to
-    char data_signal[UDA_SXML_MAX_STRING];            // Name of Signal
+    int nmap;                                             // the Number of Mapping Operations
+    double value[UDA_MAX_DATA_RANK];                      // Array of values to Map to
+    char mapping[UDA_MAX_DATA_RANK][UDA_SXML_MAX_STRING]; // Array of Mapping Operations
+    int dimid[UDA_MAX_DATA_RANK];                         // Array of Dimension IDs to Map to
+    char data_signal[UDA_SXML_MAX_STRING];                // Name of Signal
 } MAP;
 
 typedef struct DimCalibration {
@@ -32,13 +32,13 @@ typedef struct DimCalibration {
 } DIMCALIBRATION;
 
 typedef struct DimComposite {
-    int to_dim;                                 // duplicated as dimid     // Swap to Dimension ID
-    int from_dim;                               // Swap from Dimension ID
+    int to_dim;   // duplicated as dimid     // Swap to Dimension ID
+    int from_dim; // Swap from Dimension ID
     char file[UDA_SXML_MAX_STRING];
     char format[UDA_SXML_MAX_STRING];
-    char dim_signal[UDA_SXML_MAX_STRING];             // Dimension Source Signal Name
-    char dim_error[UDA_SXML_MAX_STRING];              // Dimension Error Source Signal Name
-    char dim_aserror[UDA_SXML_MAX_STRING];            // Dimension Asymmetric Error Source Signal Name
+    char dim_signal[UDA_SXML_MAX_STRING];  // Dimension Source Signal Name
+    char dim_error[UDA_SXML_MAX_STRING];   // Dimension Error Source Signal Name
+    char dim_aserror[UDA_SXML_MAX_STRING]; // Dimension Asymmetric Error Source Signal Name
 } DIMCOMPOSITE;
 
 typedef struct DimDocumentation {
@@ -47,9 +47,9 @@ typedef struct DimDocumentation {
 } DIMDOCUMENTATION;
 
 typedef struct DimErrorModel {
-    int model;                                  // Error Model Id
-    int param_n;                                // The number of parameters
-    //float *params;                            // Parameter Array
+    int model;   // Error Model Id
+    int param_n; // The number of parameters
+    // float *params;                            // Parameter Array
     float params[MAXERRPARAMS];
 } DIMERRORMODEL;
 
@@ -89,13 +89,13 @@ typedef struct Documentation {
 } DOCUMENTATION;
 
 typedef struct Composite {
-    char file[UDA_SXML_MAX_STRING];                   // Complete file name
-    char format[UDA_SXML_MAX_STRING];                 // File Format
+    char file[UDA_SXML_MAX_STRING];   // Complete file name
+    char format[UDA_SXML_MAX_STRING]; // File Format
     char data_signal[UDA_SXML_MAX_STRING];
     char error_signal[UDA_SXML_MAX_STRING];
-    char aserror_signal[UDA_SXML_MAX_STRING];         // Asymmetric Error Source Signal Name
-    char map_to_signal[UDA_SXML_MAX_STRING];          // straight replacement of signals (useful only if pass range is necessary)
-    int order;                                  // Identify the Time Dimension
+    char aserror_signal[UDA_SXML_MAX_STRING]; // Asymmetric Error Source Signal Name
+    char map_to_signal[UDA_SXML_MAX_STRING]; // straight replacement of signals (useful only if pass range is necessary)
+    int order;                               // Identify the Time Dimension
     int ndimensions;
     int nsubsets;
     int nmaps;
@@ -105,9 +105,9 @@ typedef struct Composite {
 } COMPOSITE;
 
 typedef struct ErrorModel {
-    int model;                                  // Error Model Id
-    int param_n;                                // The number of parameters
-    //float *params;                            // Parameter Array
+    int model;   // Error Model Id
+    int param_n; // The number of parameters
+    // float *params;                            // Parameter Array
     float params[MAXERRPARAMS];
     int ndimensions;
     DIMENSION* dimensions;
@@ -141,8 +141,8 @@ typedef struct Action {
 } ACTION;
 
 typedef struct Actions {
-    int nactions;                           // Number of Actions
-    ACTION* action;                         // Array of Actions
+    int nactions;   // Number of Actions
+    ACTION* action; // Array of Actions
 } ACTIONS;
 
 #ifndef NOXMLPARSER

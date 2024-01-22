@@ -5,7 +5,7 @@
 
 #include <logging/logging.h>
 
-bool env_host = true;    // User can change these before startup so flag to the getEnvironment function
+bool env_host = true; // User can change these before startup so flag to the getEnvironment function
 bool env_port = true;
 
 static ENVIRONMENT udaEnviron;
@@ -45,19 +45,23 @@ void printIdamClientEnvironment(const ENVIRONMENT* environment)
     UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environment->private_path_substitute);
 }
 
-bool udaGetEnvHost() {
+bool udaGetEnvHost()
+{
     return env_host;
 }
 
-bool udaGetEnvPort() {
+bool udaGetEnvPort()
+{
     return env_port;
 }
 
-LIBRARY_API void udaSetEnvHost(bool value) {
+LIBRARY_API void udaSetEnvHost(bool value)
+{
     env_host = value;
 }
 
-LIBRARY_API void udaSetEnvPort(bool value) {
+LIBRARY_API void udaSetEnvPort(bool value)
+{
     env_port = value;
 }
 
@@ -84,13 +88,19 @@ ENVIRONMENT* getIdamClientEnvironment()
         strcpy(udaEnviron.logdir, "");
 #endif
     }
-udaEnviron.loglevel = UDA_LOG_NONE;
+    udaEnviron.loglevel = UDA_LOG_NONE;
     if ((env = getenv("UDA_LOG_LEVEL")) != nullptr) {
-        if (strncmp(env, "ACCESS", 6) == 0)      udaEnviron.loglevel = UDA_LOG_ACCESS;
-        else if (strncmp(env, "ERROR", 5) == 0)  udaEnviron.loglevel = UDA_LOG_ERROR;
-        else if (strncmp(env, "WARN", 4) == 0)   udaEnviron.loglevel = UDA_LOG_WARN;
-        else if (strncmp(env, "DEBUG", 5) == 0)  udaEnviron.loglevel = UDA_LOG_DEBUG;
-        else if (strncmp(env, "INFO", 4) == 0)   udaEnviron.loglevel = UDA_LOG_INFO;
+        if (strncmp(env, "ACCESS", 6) == 0) {
+            udaEnviron.loglevel = UDA_LOG_ACCESS;
+        } else if (strncmp(env, "ERROR", 5) == 0) {
+            udaEnviron.loglevel = UDA_LOG_ERROR;
+        } else if (strncmp(env, "WARN", 4) == 0) {
+            udaEnviron.loglevel = UDA_LOG_WARN;
+        } else if (strncmp(env, "DEBUG", 5) == 0) {
+            udaEnviron.loglevel = UDA_LOG_DEBUG;
+        } else if (strncmp(env, "INFO", 4) == 0) {
+            udaEnviron.loglevel = UDA_LOG_INFO;
+        }
     }
 
     if (udaEnviron.loglevel <= UDA_LOG_ACCESS) {
@@ -99,20 +109,19 @@ udaEnviron.loglevel = UDA_LOG_NONE;
             // TODO: How to log error before log files are open?
         };
     }
-    
+
     // Log Output Write Mode
 
-    strcpy(udaEnviron.logmode, "w");                    // Write & Replace Mode
+    strcpy(udaEnviron.logmode, "w"); // Write & Replace Mode
     if ((env = getenv("UDA_LOG_MODE")) != nullptr) {
         if (env[0] == 'a' && strlen(env) == 1) {
             udaEnviron.logmode[0] = 'a';
         }
-    }    // Append Mode
-
+    } // Append Mode
 
     // UDA Server Host Name
 
-    if (env_host) {                            // Check Not already set by User
+    if (env_host) { // Check Not already set by User
         if ((env = getenv("UDA_HOST")) != nullptr) {
             strcpy(udaEnviron.server_host, env);
         } else {
@@ -147,8 +156,8 @@ udaEnviron.loglevel = UDA_LOG_NONE;
 
     // UDA Reconnect Status
 
-    udaEnviron.server_reconnect = 0;    // No reconnection needed at startup!
-    udaEnviron.server_socket = -1;    // No Socket open at startup
+    udaEnviron.server_reconnect = 0; // No reconnection needed at startup!
+    udaEnviron.server_socket = -1;   // No Socket open at startup
 
     //-------------------------------------------------------------------------------------------
     // API Defaults
@@ -197,8 +206,12 @@ udaEnviron.loglevel = UDA_LOG_NONE;
 #  else
     udaEnviron.external_user = 0;
 #  endif
-    if ((env = getenv("EXTERNAL_USER")) != nullptr) udaEnviron.external_user = 1;
-    if ((env = getenv("UDA_EXTERNAL_USER")) != nullptr) udaEnviron.external_user = 1;
+    if ((env = getenv("EXTERNAL_USER")) != nullptr) {
+        udaEnviron.external_user = 1;
+    }
+    if ((env = getenv("UDA_EXTERNAL_USER")) != nullptr) {
+        udaEnviron.external_user = 1;
+    }
 #endif
 
     //-------------------------------------------------------------------------------------------
@@ -206,15 +219,17 @@ udaEnviron.loglevel = UDA_LOG_NONE;
 
 #ifdef FATCLIENT
 #  ifdef PROXYSERVER
-    if((env = getenv("UDA_PROXY_TARGETHOST")) != nullptr)
-         strcpy(udaEnviron.server_proxy, env);
-     else
-         udaEnviron.server_proxy[0] = '\0';
+    if ((env = getenv("UDA_PROXY_TARGETHOST")) != nullptr) {
+        strcpy(udaEnviron.server_proxy, env);
+    } else {
+        udaEnviron.server_proxy[0] = '\0';
+    }
 
-    if((env = getenv("UDA_PROXY_THISHOST")) != nullptr)
-         strcpy(udaEnviron.server_this, env);
-     else
-         udaEnviron.server_this[0] = '\0';
+    if ((env = getenv("UDA_PROXY_THISHOST")) != nullptr) {
+        strcpy(udaEnviron.server_this, env);
+    } else {
+        udaEnviron.server_this[0] = '\0';
+    }
 #  endif
 #endif
 
@@ -237,14 +252,18 @@ udaEnviron.loglevel = UDA_LOG_NONE;
     // Client defined Property Flags
 
     udaEnviron.clientFlags = 0;
-    if ((env = getenv("UDA_FLAGS")) != nullptr) udaEnviron.clientFlags = atoi(env);
+    if ((env = getenv("UDA_FLAGS")) != nullptr) {
+        udaEnviron.clientFlags = atoi(env);
+    }
 
     udaEnviron.altRank = 0;
-    if ((env = getenv("UDA_ALTRANK")) != nullptr) udaEnviron.altRank = atoi(env);
+    if ((env = getenv("UDA_ALTRANK")) != nullptr) {
+        udaEnviron.altRank = atoi(env);
+    }
 
     //-------------------------------------------------------------------------------------------
 
-    udaEnviron.initialised = 1;        // Initialisation Complete
+    udaEnviron.initialised = 1; // Initialisation Complete
 
     return &udaEnviron;
 }

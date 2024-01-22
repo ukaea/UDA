@@ -1,22 +1,22 @@
 #if defined(SSLAUTHENTICATION)
 
-#include "udaServerSSL.h"
-#include "server/createXDRStream.h"
+#  include "udaServerSSL.h"
+#  include "server/createXDRStream.h"
 
-#include <fcntl.h>
-#include <openssl/asn1.h>
-#include <openssl/crypto.h>
-#include <openssl/err.h>
-#include <openssl/pem.h>
-#include <openssl/ssl.h>
-#include <openssl/x509.h>
+#  include <fcntl.h>
+#  include <openssl/asn1.h>
+#  include <openssl/crypto.h>
+#  include <openssl/err.h>
+#  include <openssl/pem.h>
+#  include <openssl/ssl.h>
+#  include <openssl/x509.h>
 
-#include <clientserver/errorLog.h>
-#include <logging/logging.h>
-#include <server/writer.h>
+#  include <clientserver/errorLog.h>
+#  include <logging/logging.h>
+#  include <server/writer.h>
 
-#define VERIFY_DEPTH 4
-#define X509STRINGSIZE 256
+#  define VERIFY_DEPTH 4
+#  define X509STRINGSIZE 256
 
 /*
 Note on initialisation:
@@ -41,9 +41,15 @@ static int configureUdaServerSSLContext();
 static X509_CRL* loadUdaServerSSLCrl(const char* crlist);
 static int addUdaServerSSLCrlsStore(X509_STORE* st, STACK_OF(X509_CRL) * crls);
 
-void putUdaServerSSLSocket(int socket) { g_sslSocket = socket; }
+void putUdaServerSSLSocket(int socket)
+{
+    g_sslSocket = socket;
+}
 
-bool getUdaServerSSLDisabled() { return g_sslDisabled; }
+bool getUdaServerSSLDisabled()
+{
+    return g_sslDisabled;
+}
 
 void reportServerSSLErrorCode(int rc)
 {
@@ -87,8 +93,9 @@ void reportServerSSLErrorCode(int rc)
 
 void initUdaServerSSL()
 {
-    if (g_sslInit)
+    if (g_sslInit) {
         return; // Already initialised
+    }
     if (getenv("UDA_SSL_INITIALISED")) {
         g_sslInit = true;
         UDA_LOG(UDA_LOG_DEBUG, "Prior SSL initialisation\n");
@@ -97,12 +104,12 @@ void initUdaServerSSL()
     SSL_library_init();
     SSL_load_error_strings();
     OpenSSL_add_ssl_algorithms();
-#ifdef _WIN32
+#  ifdef _WIN32
     _putenv_s("UDA_SSL_INITIALISED", "1");
-#else
+#  else
     // Ensure the library is not re-initialised by the UDA client library
     setenv("UDA_SSL_INITIALISED", "1", 0);
-#endif
+#  endif
     g_sslInit = true;
     UDA_LOG(UDA_LOG_DEBUG, "SSL initialised\n");
 }
@@ -120,16 +127,17 @@ void closeUdaServerSSL()
         SSL_shutdown(g_ssl);
         SSL_free(g_ssl);
     }
-    if (g_ctx != nullptr)
+    if (g_ctx != nullptr) {
         SSL_CTX_free(g_ctx);
+    }
     EVP_cleanup();
     g_ssl = nullptr;
     g_ctx = nullptr;
-#ifdef _WIN32
+#  ifdef _WIN32
     _putenv_s("UDA_SSL_INITIALISED", NULL);
-#else
+#  else
     unsetenv("UDA_SSL_INITIALISED");
-#endif
+#  endif
     g_sslInit = false;
     UDA_LOG(UDA_LOG_DEBUG, "SSL closed\n");
 }
@@ -385,14 +393,14 @@ int startUdaServerSSL()
     return 0;
 }
 
-#ifdef UNUSED
-#elif defined(__GNUC__)
-#define UNUSED __attribute__((unused))
-#elif defined(__LCLINT__)
-#define UNUSED /*@unused@*/
-#else
-#define UNUSED
-#endif
+#  ifdef UNUSED
+#  elif defined(__GNUC__)
+#    define UNUSED __attribute__((unused))
+#  elif defined(__LCLINT__)
+#    define UNUSED /*@unused@*/
+#  else
+#    define UNUSED
+#  endif
 
 int writeUdaServerSSL(void* iohandle, const char* buf, int count)
 {
@@ -423,14 +431,14 @@ int writeUdaServerSSL(void* iohandle, const char* buf, int count)
             return -1;
         }
 
-#ifndef _WIN32
+#  ifndef _WIN32
         int fopts = 0;
         if (fcntl(g_sslSocket, F_GETFL, &fopts) < 0 || errno == EBADF) {
             // Is the socket closed? Check status flags
             UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.\n");
             return -1;
         }
-#endif
+#  endif
 
         *io_data->server_tot_block_time += tv.tv_usec / 1000;
 
@@ -461,13 +469,13 @@ int writeUdaServerSSL(void* iohandle, const char* buf, int count)
             reportServerSSLErrorCode(rc);
             UDA_LOG(UDA_LOG_DEBUG, "Write to socket failed!\n");
             UDA_ADD_ERROR(999, "Write to socket failed!");
-#ifndef _WIN32
+#  ifndef _WIN32
             int fopts = 0;
             if (fcntl(g_sslSocket, F_GETFL, &fopts) < 0 || errno == EBADF) {
                 // Is the socket closed? Check status flags
                 UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.\n");
             }
-#endif
+#  endif
             return -1;
     }
 
@@ -509,14 +517,14 @@ int readUdaServerSSL(void* iohandle, char* buf, int count)
             return -1;
         }
 
-#ifndef _WIN32
+#  ifndef _WIN32
         int fopts = 0;
         if (fcntl(g_sslSocket, F_GETFL, &fopts) < 0 || errno == EBADF) {
             // Is the socket closed? Check status flags
             UDA_LOG(UDA_LOG_DEBUG, "Client Socket is closed! Closing server down.\n");
             return -1;
         }
-#endif
+#  endif
 
         updateSelectParms(g_sslSocket, &rfds, &tv, *io_data->server_tot_block_time); // Keep blocking and wait for data
         tvc = tv;
@@ -559,13 +567,13 @@ int readUdaServerSSL(void* iohandle, char* buf, int count)
                 reportServerSSLErrorCode(rc);
                 UDA_LOG(UDA_LOG_DEBUG, "Read from socket failed!\n");
                 UDA_ADD_ERROR(999, "Read from socket failed!");
-#ifndef _WIN32
+#  ifndef _WIN32
                 int fopts = 0;
                 if ((rc = fcntl(g_sslSocket, F_GETFL, &fopts)) < 0 ||
                     errno == EBADF) { // Is the socket closed? Check status flags
                     UDA_LOG(UDA_LOG_DEBUG, "writeUdaServerSSL: Client Socket is closed! Closing server down.\n");
                 }
-#endif
+#  endif
                 return -1;
         }
 

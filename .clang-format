@@ -6,3 +6,9 @@ DerivePointerAlignment: false
 PointerAlignment: Left
 ColumnLimit: 120
 IndentCaseLabels: true
+AllowShortBlocksOnASingleLine: Empty
+Cpp11BracedListStyle: true
+InsertBraces: true
+AllowShortFunctionsOnASingleLine: Inline
+IndentPPDirectives: AfterHash
+PPIndentWidth: 2

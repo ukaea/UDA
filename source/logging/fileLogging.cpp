@@ -2,12 +2,12 @@
 
 #include <cstdarg>
 
-int reopen_logs = 0;        // No need to Re-Open Logs
+int reopen_logs = 0; // No need to Re-Open Logs
 
-static FILE* error_log  = nullptr;
-static FILE* warn_log   = nullptr;
-static FILE* debug_log  = nullptr;
-static FILE* info_log   = nullptr;
+static FILE* error_log = nullptr;
+static FILE* warn_log = nullptr;
+static FILE* debug_log = nullptr;
+static FILE* info_log = nullptr;
 static FILE* access_log = nullptr;
 
 static LOG_LEVEL log_level = UDA_LOG_NONE;
@@ -25,24 +25,41 @@ LOG_LEVEL udaGetLogLevel()
 static FILE* idamGetLogFile(LOG_LEVEL mode)
 {
     switch (mode) {
-        case UDA_LOG_ACCESS: return access_log;
-        case UDA_LOG_ERROR:  return error_log;
-        case UDA_LOG_WARN:   return warn_log;
-        case UDA_LOG_INFO:   return info_log;
-        case UDA_LOG_DEBUG:  return debug_log;
-        default:             return nullptr;
+        case UDA_LOG_ACCESS:
+            return access_log;
+        case UDA_LOG_ERROR:
+            return error_log;
+        case UDA_LOG_WARN:
+            return warn_log;
+        case UDA_LOG_INFO:
+            return info_log;
+        case UDA_LOG_DEBUG:
+            return debug_log;
+        default:
+            return nullptr;
     }
 }
 
 void udaSetLogFile(LOG_LEVEL mode, FILE* file)
 {
     switch (mode) {
-        case UDA_LOG_ACCESS: access_log = file; break;
-        case UDA_LOG_ERROR:  error_log  = file; break;
-        case UDA_LOG_WARN:   warn_log   = file; break;
-        case UDA_LOG_INFO:   info_log   = file; break;
-        case UDA_LOG_DEBUG:  debug_log  = file; break;
-        default: return; // do nothing
+        case UDA_LOG_ACCESS:
+            access_log = file;
+            break;
+        case UDA_LOG_ERROR:
+            error_log = file;
+            break;
+        case UDA_LOG_WARN:
+            warn_log = file;
+            break;
+        case UDA_LOG_INFO:
+            info_log = file;
+            break;
+        case UDA_LOG_DEBUG:
+            debug_log = file;
+            break;
+        default:
+            return; // do nothing
     }
 }
 
@@ -56,7 +73,7 @@ void udaLogWithFunc(LOG_LEVEL mode, logFunc func)
     }
 }
 
-void udaLog(LOG_LEVEL mode, const char * fmt, ...)
+void udaLog(LOG_LEVEL mode, const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -85,7 +102,8 @@ void udaCloseLogging()
     if (debug_log != nullptr && debug_log != warn_log && debug_log != error_log && debug_log != access_log) {
         fclose(debug_log);
     }
-    if (info_log != nullptr && info_log != debug_log && info_log != warn_log && info_log != error_log && info_log != access_log) {
+    if (info_log != nullptr && info_log != debug_log && info_log != warn_log && info_log != error_log &&
+        info_log != access_log) {
         fclose(info_log);
     }
 

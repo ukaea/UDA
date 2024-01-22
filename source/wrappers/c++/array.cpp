@@ -1,5 +1,6 @@
 #ifdef _WIN32
-// this needs to be included until we can remove the need to include <rpc> in udaClient.h, i.e after removal of XDR globals.
+// this needs to be included until we can remove the need to include <rpc> in udaClient.h, i.e after removal of XDR
+// globals.
 #  include <winsock.h>
 #endif
 #include <uda.h>

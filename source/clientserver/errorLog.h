@@ -1,18 +1,18 @@
 #ifndef UDA_CLIENTSERVER_ERRORLOG_H
 #define UDA_CLIENTSERVER_ERRORLOG_H
 
-#include "udaStructs.h"
 #include "export.h"
+#include "udaStructs.h"
 #include <time.h>
 
-#define UDA_DATE_LENGTH    27
+#define UDA_DATE_LENGTH 27
 
 //--------------------------------------------------------
 // Error Management
 
-#define UDA_SYSTEM_ERROR_TYPE     1
-#define UDA_CODE_ERROR_TYPE       2
-#define UDA_PLUGIN_ERROR_TYPE     3
+#define UDA_SYSTEM_ERROR_TYPE 1
+#define UDA_CODE_ERROR_TYPE 2
+#define UDA_PLUGIN_ERROR_TYPE 3
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +34,8 @@ LIBRARY_API void closeUdaError(void);
 
 #define UDA_ADD_ERROR(ERR, MSG) addIdamError(UDA_CODE_ERROR_TYPE, __func__, ERR, MSG)
 #define UDA_ADD_SYS_ERROR(MSG) addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, MSG)
-#define UDA_THROW_ERROR(ERR, MSG) addIdamError(UDA_CODE_ERROR_TYPE, __func__, ERR, MSG); return ERR;
+#define UDA_THROW_ERROR(ERR, MSG)                                                                                      \
+    addIdamError(UDA_CODE_ERROR_TYPE, __func__, ERR, MSG);                                                             \
+    return ERR;
 
 #endif // UDA_CLIENTSERVER_ERRORLOG_H

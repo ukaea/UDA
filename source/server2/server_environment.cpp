@@ -1,8 +1,8 @@
 #include "server_environment.hpp"
 
+#include <boost/algorithm/string.hpp>
 #include <cstdlib>
 #include <string>
-#include <boost/algorithm/string.hpp>
 
 #include <logging/logging.h>
 
@@ -31,28 +31,34 @@ uda::server::Environment::Environment()
         strcpy(environment_.logdir, env);
         strcat(environment_.logdir, "/");
     } else {
-        strcpy(environment_.logdir, "/scratch/udalog/");        // Log is on Scratch
+        strcpy(environment_.logdir, "/scratch/udalog/"); // Log is on Scratch
     }
 
     environment_.loglevel = UDA_LOG_NONE;
     if ((env = getenv("UDA_LOG_LEVEL")) != nullptr) {
         std::string level = env;
         boost::to_upper(level);
-        if (level == "ACCESS") { environment_.loglevel = UDA_LOG_ACCESS; }
-        else if (level == "ERROR") { environment_.loglevel = UDA_LOG_ERROR; }
-        else if (level == "WARN") { environment_.loglevel = UDA_LOG_WARN; }
-        else if (level == "DEBUG") { environment_.loglevel = UDA_LOG_DEBUG; }
-        else if (level == "INFO") { environment_.loglevel = UDA_LOG_INFO; }
+        if (level == "ACCESS") {
+            environment_.loglevel = UDA_LOG_ACCESS;
+        } else if (level == "ERROR") {
+            environment_.loglevel = UDA_LOG_ERROR;
+        } else if (level == "WARN") {
+            environment_.loglevel = UDA_LOG_WARN;
+        } else if (level == "DEBUG") {
+            environment_.loglevel = UDA_LOG_DEBUG;
+        } else if (level == "INFO") {
+            environment_.loglevel = UDA_LOG_INFO;
+        }
     }
 
     // Log Output Write Mode
 
-    strcpy(environment_.logmode, "w");                    // Write & Replace Mode
+    strcpy(environment_.logmode, "w"); // Write & Replace Mode
     if ((env = getenv("UDA_LOG_MODE")) != nullptr) {
         if (env[0] == 'a' && strlen(env) == 1) {
             environment_.logmode[0] = 'a';
         }
-    }    // Append Mode
+    } // Append Mode
 
     //-------------------------------------------------------------------------------------------
     // API Defaults
@@ -98,8 +104,12 @@ uda::server::Environment::Environment()
     environment_.external_user = 0;
 #endif
 
-    if ((env = getenv("EXTERNAL_USER")) != nullptr) { environment_.external_user = 1; }
-    if ((env = getenv("UDA_EXTERNAL_USER")) != nullptr) { environment_.external_user = 1; }
+    if ((env = getenv("EXTERNAL_USER")) != nullptr) {
+        environment_.external_user = 1;
+    }
+    if ((env = getenv("UDA_EXTERNAL_USER")) != nullptr) {
+        environment_.external_user = 1;
+    }
 
     //-------------------------------------------------------------------------------------------
     // UDA Proxy Host: redirect ALL requests

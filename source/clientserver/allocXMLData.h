@@ -3,24 +3,24 @@
 
 #ifdef HIERARCHICAL_DATA
 
-#include "idamclientserver.h"
-#include "idamclientserverxml.h"
-#include "export.h"
+#  include "export.h"
+#  include "idamclientserver.h"
+#  include "idamclientserverxml.h"
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 extern "C" {
-#endif
+#  endif
 
-LIBRARY_API int alloc_efit(EFIT *efit);
-LIBRARY_API int alloc_pfcircuit(PFCIRCUIT *str);
-LIBRARY_API int alloc_pfcoils(PFCOILS *str);
-LIBRARY_API int alloc_pfpassive(PFPASSIVE *str);
-LIBRARY_API int alloc_fluxloop(FLUXLOOP *str);
-LIBRARY_API int alloc_limiter(LIMITER *str);
+LIBRARY_API int alloc_efit(EFIT* efit);
+LIBRARY_API int alloc_pfcircuit(PFCIRCUIT* str);
+LIBRARY_API int alloc_pfcoils(PFCOILS* str);
+LIBRARY_API int alloc_pfpassive(PFPASSIVE* str);
+LIBRARY_API int alloc_fluxloop(FLUXLOOP* str);
+LIBRARY_API int alloc_limiter(LIMITER* str);
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 }
-#endif
+#  endif
 
 #endif
 

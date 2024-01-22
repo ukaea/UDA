@@ -1,18 +1,18 @@
 #pragma once
 
 #ifndef UDA_CLIENTSERVER_PROTOCOLXML_H
-#define UDA_CLIENTSERVER_PROTOCOLXML_H
+#  define UDA_CLIENTSERVER_PROTOCOLXML_H
 
-#include <cstdio> // this must be included before rpc.h
-#include <rpc/rpc.h>
-#include <tuple>
+#  include <cstdio> // this must be included before rpc.h
+#  include <rpc/rpc.h>
+#  include <tuple>
 
-#include "genStructs.h"
-#include "export.h"
+#  include "export.h"
+#  include "genStructs.h"
 
-#ifdef FATCLIENT
-#  define protocolXML protocolXMLFat
-#endif
+#  ifdef FATCLIENT
+#    define protocolXML protocolXMLFat
+#  endif
 
 struct IoData;
 

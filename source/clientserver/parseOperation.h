@@ -1,8 +1,8 @@
 #ifndef UDA_CLIENTSERVER_PARSEOPERATION_H
 #define UDA_CLIENTSERVER_PARSEOPERATION_H
 
-#include "parseXML.h"
 #include "export.h"
+#include "parseXML.h"
 
 #ifdef __cplusplus
 extern "C" {

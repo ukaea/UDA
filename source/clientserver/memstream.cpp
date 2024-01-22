@@ -4,11 +4,11 @@
 
 #if defined(__APPLE__) && __DARWIN_C_LEVEL < 200809L
 
-#include "memstream.h"
+#  include "memstream.h"
 
-#include <cstdlib>
-#include <string.h>
-#include <cerrno>
+#  include <cerrno>
+#  include <cstdlib>
+#  include <string.h>
 
 struct memstream {
     char** cp;
@@ -16,18 +16,16 @@ struct memstream {
     size_t offset;
 };
 
-static void
-memstream_grow(struct memstream* ms, size_t newsize)
+static void memstream_grow(struct memstream* ms, size_t newsize)
 {
     char* buf;
 
     if (newsize > *ms->lenp) {
         buf = (char*)realloc(*ms->cp, newsize + 1);
         if (buf != nullptr) {
-#ifdef DEBUG
-            fprintf(stderr, "MS: %p growing from %zd to %zd\n",
-                    ms, *ms->lenp, newsize);
-#endif
+#  ifdef DEBUG
+            fprintf(stderr, "MS: %p growing from %zd to %zd\n", ms, *ms->lenp, newsize);
+#  endif
             memset(buf + *ms->lenp + 1, 0, newsize - *ms->lenp);
             *ms->cp = buf;
             *ms->lenp = newsize;
@@ -35,8 +33,7 @@ memstream_grow(struct memstream* ms, size_t newsize)
     }
 }
 
-static int
-memstream_read(void* cookie, char* buf, int len)
+static int memstream_read(void* cookie, char* buf, int len)
 {
     struct memstream* ms;
     int tocopy;
@@ -49,14 +46,13 @@ memstream_read(void* cookie, char* buf, int len)
     }
     memcpy(buf, *ms->cp + ms->offset, tocopy);
     ms->offset += tocopy;
-#ifdef DEBUG
+#  ifdef DEBUG
     fprintf(stderr, "MS: read(%p, %d) = %d\n", ms, len, tocopy);
-#endif
+#  endif
     return tocopy;
 }
 
-static int
-memstream_write(void* cookie, const char* buf, int len)
+static int memstream_write(void* cookie, const char* buf, int len)
 {
     struct memstream* ms;
     int tocopy;
@@ -69,24 +65,23 @@ memstream_write(void* cookie, const char* buf, int len)
     }
     memcpy(*ms->cp + ms->offset, buf, tocopy);
     ms->offset += tocopy;
-#ifdef DEBUG
+#  ifdef DEBUG
     fprintf(stderr, "MS: write(%p, %d) = %d\n", ms, len, tocopy);
-#endif
+#  endif
     return tocopy;
 }
 
-static fpos_t
-memstream_seek(void* cookie, fpos_t pos, int whence)
+static fpos_t memstream_seek(void* cookie, fpos_t pos, int whence)
 {
     struct memstream* ms;
-#ifdef DEBUG
+#  ifdef DEBUG
     size_t old;
-#endif
+#  endif
 
     ms = (memstream*)cookie;
-#ifdef DEBUG
+#  ifdef DEBUG
     old = ms->offset;
-#endif
+#  endif
     switch (whence) {
         case SEEK_SET:
             ms->offset = (size_t)pos;
@@ -98,22 +93,19 @@ memstream_seek(void* cookie, fpos_t pos, int whence)
             ms->offset = *ms->lenp + pos;
             break;
     }
-#ifdef DEBUG
-    fprintf(stderr, "MS: seek(%p, %zd, %d) %zd -> %zd\n", ms, pos, whence,
-            old, ms->offset);
-#endif
+#  ifdef DEBUG
+    fprintf(stderr, "MS: seek(%p, %zd, %d) %zd -> %zd\n", ms, pos, whence, old, ms->offset);
+#  endif
     return (fpos_t)ms->offset;
 }
 
-static int
-memstream_close(void* cookie)
+static int memstream_close(void* cookie)
 {
     free(cookie);
     return 0;
 }
 
-FILE*
-open_memstream(char** cp, size_t* lenp)
+FILE* open_memstream(char** cp, size_t* lenp)
 {
     struct memstream* ms;
     int save_errno;

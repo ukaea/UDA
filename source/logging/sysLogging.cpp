@@ -1,12 +1,12 @@
 #include "logging.h"
 
-#include <syslog.h>
-#include <stdarg.h>
 #include <cstdlib>
+#include <stdarg.h>
+#include <syslog.h>
 
 static LOG_LEVEL log_level = UDA_LOG_NONE;
 
-int reopen_logs = 0;        // No need to Re-Open Logs
+int reopen_logs = 0; // No need to Re-Open Logs
 
 void udaSetLogLevel(LOG_LEVEL level)
 {
@@ -31,12 +31,18 @@ void udaSetLogFile(LOG_LEVEL mode, FILE* file)
 static int syslogPriority(LOG_LEVEL log_mode)
 {
     switch (log_mode) {
-        case UDA_LOG_ACCESS: return LOG_ALERT;
-        case UDA_LOG_ERROR:  return LOG_ERR;
-        case UDA_LOG_WARN:   return LOG_WARNING;
-        case UDA_LOG_INFO:   return LOG_INFO;
-        case UDA_LOG_DEBUG:  return LOG_DEBUG;
-        default:             return LOG_EMERG;
+        case UDA_LOG_ACCESS:
+            return LOG_ALERT;
+        case UDA_LOG_ERROR:
+            return LOG_ERR;
+        case UDA_LOG_WARN:
+            return LOG_WARNING;
+        case UDA_LOG_INFO:
+            return LOG_INFO;
+        case UDA_LOG_DEBUG:
+            return LOG_DEBUG;
+        default:
+            return LOG_EMERG;
     }
 }
 

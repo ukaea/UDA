@@ -1,14 +1,14 @@
 #pragma once
 
 #ifndef UDA_CLIENTSERVER_CAPNP_SERIALISATION_H
-#define UDA_CLIENTSERVER_CAPNP_SERIALISATION_H
+#  define UDA_CLIENTSERVER_CAPNP_SERIALISATION_H
 
-#include <cstdlib>
-#include <cstdint>
+#  include <cstdint>
+#  include <cstdlib>
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 extern "C" {
-#endif
+#  endif
 
 typedef struct Buffer {
     char* data;
@@ -91,8 +91,8 @@ void uda_capnp_add_char(NodeBuilder* node, char data);
 void uda_capnp_print_tree_builder(TreeBuilder* tree);
 void uda_capnp_print_tree_reader(TreeReader* tree);
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 }
-#endif
+#  endif
 
 #endif // UDA_CLIENTSERVER_CAPNP_SERIALISATION_H

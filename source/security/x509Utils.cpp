@@ -7,19 +7,16 @@
 
 #include "security.h"
 
-#define digitp(p)   (*(p) >= '0' && *(p) <= '9')
-#define xfree(a)  ksba_free(a)
+#define digitp(p) (*(p) >= '0' && *(p) <= '9')
+#define xfree(a) ksba_free(a)
 #define xtrymalloc(a) gcry_malloc((a))
 
-#define HASH_FNC ((void(*)(void *, const void *, size_t))gcry_md_write)
-#define DIM(v) (sizeof(v)/sizeof((v)[0]))
+#define HASH_FNC ((void (*)(void*, const void*, size_t))gcry_md_write)
+#define DIM(v) (sizeof(v) / sizeof((v)[0]))
 
-#define hexdigitp(a) (digitp (a)                     \
-                      || (*(a) >= 'A' && *(a) <= 'F')  \
-                      || (*(a) >= 'a' && *(a) <= 'f'))
-#define xtoi_1(p)   (*(p) <= '9'? (*(p)- '0'): \
-                     *(p) <= 'F'? (*(p)-'A'+10):(*(p)-'a'+10))
-#define xtoi_2(p)   ((xtoi_1(p) * 16) + xtoi_1((p)+1))
+#define hexdigitp(a) (digitp(a) || (*(a) >= 'A' && *(a) <= 'F') || (*(a) >= 'a' && *(a) <= 'f'))
+#define xtoi_1(p) (*(p) <= '9' ? (*(p) - '0') : *(p) <= 'F' ? (*(p) - 'A' + 10) : (*(p) - 'a' + 10))
+#define xtoi_2(p) ((xtoi_1(p) * 16) + xtoi_1((p) + 1))
 
 //========================================================================================================
 // Components taken from
@@ -44,12 +41,7 @@
 */
 
 /* ASN.1 classes.  */
-enum {
-    UNIVERSAL = 0,
-    APPLICATION = 1,
-    ASNCONTEXT = 2,
-    PRIVATE = 3
-};
+enum { UNIVERSAL = 0, APPLICATION = 1, ASNCONTEXT = 2, PRIVATE = 3 };
 
 /* ASN.1 tags.  */
 enum {
@@ -90,8 +82,8 @@ struct tag_info {
     unsigned long tag;     /* The tag of the object.  */
     unsigned long length;  /* Length of the values.  */
     int nhdr;              /* Length of the header (TL).  */
-    unsigned int ndef:1;   /* The object has an indefinite length.  */
-    unsigned int cons:1;   /* This is a constructed object.  */
+    unsigned int ndef : 1; /* The object has an indefinite length.  */
+    unsigned int cons : 1; /* This is a constructed object.  */
 };
 
 /* Return the number of bits of the Q parameter from the DSA key
@@ -318,13 +310,13 @@ static void* read_file(FILE* fp, int decode, size_t* r_length)
         for (s = buffer, p = buffer, nread = 0; nread + 1 < buflen; s += 2, nread += 2) {
             if (!hexdigitp(s) || !hexdigitp(s + 1)) {
                 gcry_free(buffer);
-                return nullptr;  /* Invalid hex digits. */
+                return nullptr; /* Invalid hex digits. */
             }
             *(unsigned char*)p++ = xtoi_2(s);
         }
         if (nread != buflen) {
             gcry_free(buffer);
-            return nullptr;  /* Odd number of hex digits. */
+            return nullptr; /* Odd number of hex digits. */
         }
         buflen = p - buffer;
     }
@@ -342,26 +334,21 @@ static void* read_file(FILE* fp, int decode, size_t* r_length)
  */
 static int base64_decode(char* buffer, size_t length, size_t* newLength)
 {
-    static unsigned char const asctobin[128] =
-            {
-                    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x3e, 0xff, 0xff, 0xff, 0x3f,
-                    0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0xff, 0xff,
-                    0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
-                    0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12,
-                    0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0xff, 0xff, 0xff, 0xff, 0xff,
-                    0xff, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24,
-                    0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30,
-                    0x31, 0x32, 0x33, 0xff, 0xff, 0xff, 0xff, 0xff
-            };
+    static unsigned char const asctobin[128] = {
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x3e, 0xff, 0xff, 0xff, 0x3f,
+        0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
+        0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,
+        0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0xff, 0xff, 0xff, 0xff, 0xff};
 
     int err = 0;
     int idx = 0;
     unsigned char val = 0;
     int c = 0;
-    char* d, * s;
+    char *d, *s;
     int lfseen = 1;
 
     *newLength = 0;
@@ -369,7 +356,8 @@ static int base64_decode(char* buffer, size_t length, size_t* newLength)
     /* Find BEGIN line.  */
     for (s = buffer; length; length--, s++) {
         if (lfseen && *s == '-' && length > 11 && !memcmp(s, "-----BEGIN ", 11)) {
-            for (; length && *s != '\n'; length--, s++);
+            for (; length && *s != '\n'; length--, s++)
+                ;
             break;
         }
         lfseen = (*s == '\n');
@@ -393,7 +381,7 @@ static int base64_decode(char* buffer, size_t length, size_t* newLength)
 
         if ((*s & 0x80) || (c = asctobin[*(unsigned char*)s]) == 0xff) {
             err = 999;
-            //die ("invalid base64 character %02X at pos %d detected\n", *(unsigned char*)s, (int)(s-buffer));
+            // die ("invalid base64 character %02X at pos %d detected\n", *(unsigned char*)s, (int)(s-buffer));
             return err;
         }
 
@@ -478,20 +466,21 @@ static int parse_tag(unsigned char const** buffer, size_t* buflen, struct tag_in
     length--;
     ti->nhdr++;
 
-    if (!(c & 0x80))
+    if (!(c & 0x80)) {
         ti->length = c;
-    else if (c == 0x80)
+    } else if (c == 0x80) {
         ti->ndef = 1;
-    else if (c == 0xff)
+    } else if (c == 0xff) {
         return -1; /* Forbidden length value.  */
-    else {
+    } else {
         unsigned long len = 0;
         int count = c & 0x7f;
 
         for (; count; count--) {
             len <<= 8;
-            if (!length)
+            if (!length) {
                 return -1; /* Premature EOF.  */
+            }
             c = *buf++;
             length--;
             ti->nhdr++;
@@ -500,11 +489,13 @@ static int parse_tag(unsigned char const** buffer, size_t* buflen, struct tag_in
         ti->length = len;
     }
 
-    if (ti->class == UNIVERSAL && !ti->tag)
+    if (ti->class == UNIVERSAL && !ti->tag) {
         ti->length = 0;
+    }
 
-    if (ti->length > length)
+    if (ti->length > length) {
         return -1; /* Data larger than buffer.  */
+    }
 
     *buffer = buf;
     *buflen = length;
@@ -585,14 +576,14 @@ int extractX509SExpKey(ksba_cert_t cert, gcry_sexp_t* key_sexp)
         UDA_THROW_ERROR(999, "Failure to get the Public key!");
     }
 
-// Get the length of the canonical S-Expression (public key)
+    // Get the length of the canonical S-Expression (public key)
 
     if ((n = gcry_sexp_canon_len(p, 0, nullptr, nullptr)) == 0) {
         ksba_free(p);
         UDA_THROW_ERROR(999, "did not return a proper S-Exp!");
     }
 
-// Create an internal S-Expression from the external representation
+    // Create an internal S-Expression from the external representation
 
     if (gcry_sexp_sscan(key_sexp, nullptr, (char*)p, n) != 0) {
         ksba_free(p);
@@ -652,18 +643,18 @@ int testX509Dates(ksba_cert_t certificate)
 {
     int err = 0;
     ksba_isotime_t startDateTime = {};
-    ksba_isotime_t endDateTime = {};        // ISO format referenced from UTC
+    ksba_isotime_t endDateTime = {}; // ISO format referenced from UTC
 
     ksba_cert_get_validity(certificate, 0, startDateTime);
     ksba_cert_get_validity(certificate, 1, endDateTime);
 
-// Current Date and Time
+    // Current Date and Time
 
-    time_t calendar;                    // Simple Calendar Date & Time
-    struct tm* broken;                  // Broken Down calendar Time
-    static char datetime[DATELENGTH];   // The Calendar Time as a formatted String
+    time_t calendar;                  // Simple Calendar Date & Time
+    struct tm* broken;                // Broken Down calendar Time
+    static char datetime[DATELENGTH]; // The Calendar Time as a formatted String
 
-// Calendar Time
+    // Calendar Time
 
     time(&calendar);
     broken = gmtime(&calendar);
@@ -676,13 +667,13 @@ int testX509Dates(ksba_cert_t certificate)
     convertNonPrintable2(datetime);
     TrimString(datetime);
 
-// Year
+    // Year
 
     char work[56];
     sprintf(work, "%.4d%.2d%.2dT%.2d%.2d%.2d", broken->tm_year + 1900, broken->tm_mon + 1, broken->tm_mday,
             broken->tm_hour, broken->tm_min, broken->tm_sec);
 
-    if ((strcmp(work, startDateTime) <= 0) || (strcmp(endDateTime, work) <= 0)) {        // dates are in ascending order
+    if ((strcmp(work, startDateTime) <= 0) || (strcmp(endDateTime, work) <= 0)) { // dates are in ascending order
         UDA_THROW_ERROR(999, "X509 Certificate is Invalid: Time Expired!");
     }
 
@@ -702,38 +693,38 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
 
     const char* algoid = nullptr;
 
-// Extract the digest algorithm OID used for the signature
+    // Extract the digest algorithm OID used for the signature
 
     if ((algoid = ksba_cert_get_digest_algo(cert)) == nullptr) {
         UDA_THROW_ERROR(999, "unknown digest algorithm OID");
     }
 
-// Map the algorithm OID to an algorithm identifier
+    // Map the algorithm OID to an algorithm identifier
 
     int algo;
     if ((algo = gcry_md_map_name(algoid)) == 0) {
         UDA_THROW_ERROR(999, "unknown digest algorithm identifier");
     }
 
-// Create a new digest object with the same algorithm as the certificate signature
+    // Create a new digest object with the same algorithm as the certificate signature
 
     gcry_md_hd_t md;
     if (gcry_md_open(&md, algo, 0) != 0) {
         UDA_THROW_ERROR(999, "md_open failed!");
     }
 
-// Hash the certificate
+    // Hash the certificate
 
     if (ksba_cert_hash(cert, 1, HASH_FNC, md) != 0) {
         gcry_md_close(md);
         UDA_THROW_ERROR(999, "cert hash failed!");
     }
 
-// Finalise the digest calculation
+    // Finalise the digest calculation
 
     gcry_md_final(md);
 
-// Get the certificate signature
+    // Get the certificate signature
 
     ksba_sexp_t p;
     if ((p = ksba_cert_get_sig_val(cert)) == nullptr) {
@@ -741,7 +732,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
         UDA_THROW_ERROR(999, "Failure to get the certificate signature!");
     }
 
-// Get the length of the canonical S-Expression (certificate signature)
+    // Get the length of the canonical S-Expression (certificate signature)
 
     size_t n;
     if ((n = gcry_sexp_canon_len(p, 0, nullptr, nullptr)) == 0) {
@@ -750,7 +741,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
         UDA_THROW_ERROR(999, "libksba did not return a proper S-Exp!");
     }
 
-// Create an internal S-Expression from the external representation
+    // Create an internal S-Expression from the external representation
 
     gcry_sexp_t s_sig;
     if (gcry_sexp_sscan(&s_sig, nullptr, (char*)p, n) != 0) {
@@ -760,14 +751,14 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
 
     ksba_free(p);
 
-// Get the CA Public key
+    // Get the CA Public key
 
     if ((p = ksba_cert_get_public_key(issuer_cert)) == nullptr) {
         gcry_md_close(md);
         UDA_THROW_ERROR(999, "Failure to get the Public key!");
     }
 
-// Get the length of the canonical S-Expression (public key)
+    // Get the length of the canonical S-Expression (public key)
 
     if ((n = gcry_sexp_canon_len(p, 0, nullptr, nullptr)) == 0) {
         gcry_md_close(md);
@@ -776,7 +767,7 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
         UDA_THROW_ERROR(999, "libksba did not return a proper S-Exp!");
     }
 
-// Create an internal S-Expression from the external representation
+    // Create an internal S-Expression from the external representation
 
     gcry_sexp_t s_pkey;
     if (gcry_sexp_sscan(&s_pkey, nullptr, (char*)p, n) != 0) {
@@ -797,14 +788,14 @@ int checkX509Signature(ksba_cert_t issuer_cert, ksba_cert_t cert)
         UDA_THROW_ERROR(999, "do_encode_md failed!");
     }
 
-// put hash into the S-Exp s_hash
+    // put hash into the S-Exp s_hash
 
     gcry_sexp_t s_hash;
     gcry_sexp_build(&s_hash, nullptr, "%m", frame);
 
     gcry_mpi_release(frame);
 
-// Verify the signature, data, public key
+    // Verify the signature, data, public key
 
     if (gcry_pk_verify(s_sig, s_hash, s_pkey) != 0) {
         UDA_THROW_ERROR(999, "Signature verification failed!");
@@ -852,7 +843,7 @@ int importPEMPrivateKey(const char* keyFile, gcry_sexp_t* key_sexp)
         UDA_THROW_ERROR(err, "Failed to decode private key buffer");
     }
 
-// Parse the ASN.1 structure.
+    // Parse the ASN.1 structure.
 
     const unsigned char* der = (const unsigned char*)buffer;
     size_t derlen = buflen;
@@ -903,15 +894,15 @@ int importPEMPrivateKey(const char* keyFile, gcry_sexp_t* key_sexp)
 
     gcry_free(buffer);
 
-// Convert from OpenSSL parameter ordering to the OpenPGP order.
-// First check that p < q; if not swap p and q and recompute u.
+    // Convert from OpenSSL parameter ordering to the OpenPGP order.
+    // First check that p < q; if not swap p and q and recompute u.
 
     if (gcry_mpi_cmp(keyparms[3], keyparms[4]) > 0) {
         gcry_mpi_swap(keyparms[3], keyparms[4]);
         gcry_mpi_invm(keyparms[7], keyparms[3], keyparms[4]);
     }
 
-// Build the S-expression.
+    // Build the S-expression.
 
     gcry_error_t gerr = gcry_sexp_build(&s_key, nullptr, "(private-key(rsa(n%m)(e%m)(d%m)(p%m)(q%m)(u%m)))",
                                         keyparms[0], keyparms[1], keyparms[2], keyparms[3], keyparms[4], keyparms[7]);
@@ -976,7 +967,7 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
         UDA_THROW_ERROR(err, "Failed to parse tag from public key buffer");
     }
 
-// We skip the description of the key parameters and assume it is RSA.
+    // We skip the description of the key parameters and assume it is RSA.
 
     der += ti.length;
     derlen -= ti.length;
@@ -994,7 +985,7 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
     der += 1;
     derlen -= 1;
 
-// Parse the BIT string.
+    // Parse the BIT string.
 
     if (parse_tag(&der, &derlen, &ti) || ti.tag != TAG_SEQUENCE || ti.class || !ti.cons || ti.ndef) {
         gcry_free(buffer);
@@ -1039,7 +1030,9 @@ int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp)
         UDA_THROW_ERROR(err, gcry_strerror(gerr));
     }
 
-    for (idx = 0; idx < n_keyparms; idx++) gcry_mpi_release(keyparms[idx]);
+    for (idx = 0; idx < n_keyparms; idx++) {
+        gcry_mpi_release(keyparms[idx]);
+    }
 
     *key_sexp = s_key;
 

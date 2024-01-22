@@ -1,19 +1,19 @@
 /*---------------------------------------------------------------
-* Puts the passed Data to the serverside plugin
-*
-* Input Arguments:  1) plugin library call
-*                   2) the data passed to the plugin
-*
-* Returns:
-*--------------------------------------------------------------*/
+ * Puts the passed Data to the serverside plugin
+ *
+ * Input Arguments:  1) plugin library call
+ *                   2) the data passed to the plugin
+ *
+ * Returns:
+ *--------------------------------------------------------------*/
 
 #include "udaPutAPI.h"
 
-#include "logging/logging.h"
-#include "initStructs.h"
+#include "clientserver/allocData.h"
 #include "clientserver/errorLog.h"
 #include "clientserver/printStructs.h"
-#include "clientserver/allocData.h"
+#include "initStructs.h"
+#include "logging/logging.h"
 
 #include "client/makeClientRequestBlock.h"
 #include "client/udaClient.h"
@@ -41,33 +41,33 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
     //-------------------------------------------------------------------------
     // Pass an empty structure rather than nullptr (Caller is responsible for freeing)
 
-    if (inPutDataBlockList != nullptr)
+    if (inPutDataBlockList != nullptr) {
         putDataBlockList = inPutDataBlockList;
-    else {
+    } else {
         putDataBlockList = &emptyPutDataBlockList;
         initPutDataBlockList(putDataBlockList);
     }
 
-//-------------------------------------------------------------------------
-// All client/server initialisation is controlled by the main API: idamGetAPI
-// This needs to have been called at least once before a put! - *** temporary fix!!!
-// This problem also causes the application malloclog and the userdefinedtypelist heaps to be overwritten.
-// Copy and replace to preserve the application heap
+    //-------------------------------------------------------------------------
+    // All client/server initialisation is controlled by the main API: idamGetAPI
+    // This needs to have been called at least once before a put! - *** temporary fix!!!
+    // This problem also causes the application malloclog and the userdefinedtypelist heaps to be overwritten.
+    // Copy and replace to preserve the application heap
 
-/* #ifndef FATCLIENT */
-/*         if (!idamGetAPICalledOnce) { */
-/*       LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
-/*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
-/*         logmalloclist = nullptr; */
-/*         userdefinedtypelist = nullptr; */
-/*         int h = idamGetAPI("help::ping()", ""); */
-/*         udaFree(h); */
-/*         idamGetAPICalledOnce = 1; */
-/*         lastMallocIndex = 0; */
-/*         logmalloclist = oldlogmalloclist; */
-/*         userdefinedtypelist = olduserdefinedtypelist; */
-/*     } */
-/* #endif */
+    /* #ifndef FATCLIENT */
+    /*         if (!idamGetAPICalledOnce) { */
+    /*       LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
+    /*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
+    /*         logmalloclist = nullptr; */
+    /*         userdefinedtypelist = nullptr; */
+    /*         int h = idamGetAPI("help::ping()", ""); */
+    /*         udaFree(h); */
+    /*         idamGetAPICalledOnce = 1; */
+    /*         lastMallocIndex = 0; */
+    /*         logmalloclist = oldlogmalloclist; */
+    /*         userdefinedtypelist = olduserdefinedtypelist; */
+    /*     } */
+    /* #endif */
 
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
@@ -105,9 +105,7 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
     }
 
     return handle;
-
 }
-
 
 // Send a single data block to the server
 
@@ -121,34 +119,34 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     //-------------------------------------------------------------------------
     // Pass an empty structure rather than nullptr (Caller is responsible for freeing)
 
-    if (inPutData != nullptr)
+    if (inPutData != nullptr) {
         putData = inPutData;
-    else {
+    } else {
         putData = &emptyPutDataBlock;
         initIdamPutDataBlock(putData);
     }
 
-//-------------------------------------------------------------------------
-// All client/server initialisation is controlled by the main API: idamGetAPI
-// This needs to have been called at least once before a put! - *** temporary fix!!!
-// This problem also causes the application malloclog and the userdefinedtypelist heaps to be overwritten.
-// Copy and replace to preserve the application heap
+    //-------------------------------------------------------------------------
+    // All client/server initialisation is controlled by the main API: idamGetAPI
+    // This needs to have been called at least once before a put! - *** temporary fix!!!
+    // This problem also causes the application malloclog and the userdefinedtypelist heaps to be overwritten.
+    // Copy and replace to preserve the application heap
 
-/* #ifndef FATCLIENT */
-/*     if (!idamGetAPICalledOnce) { */
-/*         UDA_LOG(LOG_DEBUG, "!idamGetAPICalledOnce\n"); */
-/*         LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
-/*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
-/*         logmalloclist = nullptr; */
-/*         userdefinedtypelist = nullptr; */
-/*         int h = idamGetAPI("help::ping()", ""); */
-/*         udaFree(h); */
-/*         idamGetAPICalledOnce = 1; */
-/*         lastMallocIndex = 0; */
-/*         logmalloclist = oldlogmalloclist; */
-/*         userdefinedtypelist = olduserdefinedtypelist; */
-/*     } */
-/* #endif */
+    /* #ifndef FATCLIENT */
+    /*     if (!idamGetAPICalledOnce) { */
+    /*         UDA_LOG(LOG_DEBUG, "!idamGetAPICalledOnce\n"); */
+    /*         LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
+    /*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
+    /*         logmalloclist = nullptr; */
+    /*         userdefinedtypelist = nullptr; */
+    /*         int h = idamGetAPI("help::ping()", ""); */
+    /*         udaFree(h); */
+    /*         idamGetAPICalledOnce = 1; */
+    /*         lastMallocIndex = 0; */
+    /*         logmalloclist = oldlogmalloclist; */
+    /*         userdefinedtypelist = olduserdefinedtypelist; */
+    /*     } */
+    /* #endif */
 
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
@@ -189,7 +187,4 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     freeClientPutDataBlockList(&request_block.requests[0].putDataBlockList);
 
     return handle;
-
 }
-
-

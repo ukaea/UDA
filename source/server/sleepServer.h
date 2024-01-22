@@ -1,12 +1,12 @@
 #pragma once
 
 #ifndef UDA_SERVER_SLEEPSERVER_H
-#define UDA_SERVER_SLEEPSERVER_H
+#  define UDA_SERVER_SLEEPSERVER_H
 
-#include <rpc/rpc.h>
+#  include <rpc/rpc.h>
 
-#include "genStructs.h"
-#include "export.h"
+#  include "export.h"
+#  include "genStructs.h"
 
 struct IoData;
 

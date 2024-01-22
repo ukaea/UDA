@@ -1,12 +1,11 @@
 #ifndef UDA_CLIENTSERVER_MAC_MEMSTREAM_H
 #define UDA_CLIENTSERVER_MAC_MEMSTREAM_H
 
-#include <stdio.h>
 #include "export.h"
+#include <stdio.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 LIBRARY_API FILE* open_memstream(char** cp, size_t* lenp);

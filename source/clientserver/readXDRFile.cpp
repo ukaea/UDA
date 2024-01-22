@@ -1,7 +1,7 @@
 #include "readXDRFile.h"
 
-#include <cstdlib>
 #include <cerrno>
+#include <cstdlib>
 #include <logging/logging.h>
 
 #include "errorLog.h"
@@ -10,7 +10,7 @@
 #  include <server/serverStartup.h>
 #endif
 
-#define MAXDOLOOPLIMIT 500            // ~50MB file
+#define MAXDOLOOPLIMIT 500 // ~50MB file
 
 int sendXDRFile(XDR* xdrs, const char* xdrfile)
 {
@@ -54,24 +54,23 @@ int sendXDRFile(XDR* xdrs, const char* xdrfile)
 
         if ((bp = (char*)malloc(bufsize * sizeof(char))) == nullptr) {
             err = 999;
-            addIdamError(UDA_CODE_ERROR_TYPE, "sendXDRFile", err,
-                         "Unable to Allocate Heap Memory for the XDR File");
+            addIdamError(UDA_CODE_ERROR_TYPE, "sendXDRFile", err, "Unable to Allocate Heap Memory for the XDR File");
             bufsize = 0;
             rc = xdr_int(xdrs, &bufsize);
             break;
         }
 
-        rc = xdr_int(xdrs, &bufsize);    // Send Server buffer size, e.g., 100k bytes
+        rc = xdr_int(xdrs, &bufsize); // Send Server buffer size, e.g., 100k bytes
 
         UDA_LOG(UDA_LOG_DEBUG, "Buffer size %d\n", bufsize);
 
         while (!feof(fh)) {
             nchar = (int)fread(bp, sizeof(char), bufsize, fh);
-            rc = rc && xdr_int(xdrs, &nchar);                // Number of Bytes to send
+            rc = rc && xdr_int(xdrs, &nchar); // Number of Bytes to send
 
             UDA_LOG(UDA_LOG_DEBUG, "File block size %d\n", nchar);
 
-            if (nchar > 0) {        // Send the bytes
+            if (nchar > 0) { // Send the bytes
                 rc = rc && xdr_vector(xdrs, (char*)bp, nchar, sizeof(char), (xdrproc_t)xdr_char);
             }
 
@@ -84,17 +83,18 @@ int sendXDRFile(XDR* xdrs, const char* xdrfile)
 
     } while (0);
 
-    nchar = 0;                    // No more bytes to send
+    nchar = 0; // No more bytes to send
     rc = rc && xdr_int(xdrs, &nchar);
     rc = rc && xdrrec_endofrecord(xdrs, 1);
 
     // *** Send count to client as a check all data received
-    // *** Send hash sum to client as a test data is accurate - another reason to use files and cache rather than a data stream
+    // *** Send hash sum to client as a test data is accurate - another reason to use files and cache rather than a data
+    // stream
 
     //----------------------------------------------------------------------
     // Housekeeping
 
-    fclose(fh);        // Close the File
+    fclose(fh); // Close the File
     free(bp);
 
     return err;
@@ -114,10 +114,13 @@ int receiveXDRFile(XDR* xdrs, const char* xdrfile)
 
     if (fh == nullptr || errno != 0 || ferror(fh)) {
         err = 999;
-        if (errno != 0) addIdamError(UDA_SYSTEM_ERROR_TYPE, "receiveXDRFile", errno, "");
-        addIdamError(UDA_CODE_ERROR_TYPE, "receiveXDRFile", err,
-                     "Unable to Open the XDR File for Write Access");
-        if (fh != nullptr) fclose(fh);
+        if (errno != 0) {
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "receiveXDRFile", errno, "");
+        }
+        addIdamError(UDA_CODE_ERROR_TYPE, "receiveXDRFile", err, "Unable to Open the XDR File for Write Access");
+        if (fh != nullptr) {
+            fclose(fh);
+        }
         return err;
     }
 
@@ -134,7 +137,7 @@ int receiveXDRFile(XDR* xdrs, const char* xdrfile)
         nchar = 0;
 
         rc = xdrrec_skiprecord(xdrs);
-        rc = xdr_int(xdrs, &bufsize);    // Server buffer size, e.g., 100k bytes
+        rc = xdr_int(xdrs, &bufsize); // Server buffer size, e.g., 100k bytes
 
         UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: Buffer size %d\n", bufsize);
 
@@ -146,8 +149,7 @@ int receiveXDRFile(XDR* xdrs, const char* xdrfile)
 
         if ((bp = (char*)malloc(bufsize * sizeof(char))) == nullptr) {
             err = 999;
-            addIdamError(UDA_CODE_ERROR_TYPE, "receiveXDRFile", err,
-                         "Unable to Allocate Heap Memory for the XDR File");
+            addIdamError(UDA_CODE_ERROR_TYPE, "receiveXDRFile", err, "Unable to Allocate Heap Memory for the XDR File");
             break;
         }
 
@@ -156,9 +158,11 @@ int receiveXDRFile(XDR* xdrs, const char* xdrfile)
         do {
             errno = 0;
 
-            if (doLoopLimit > 0) rc = rc && xdrrec_skiprecord(xdrs);
+            if (doLoopLimit > 0) {
+                rc = rc && xdrrec_skiprecord(xdrs);
+            }
 
-            rc = rc && xdr_int(xdrs, &nchar);                // How many bytes to receive?
+            rc = rc && xdr_int(xdrs, &nchar); // How many bytes to receive?
 
             UDA_LOG(UDA_LOG_DEBUG, "receiveXDRFile: [%d] File block size %d\n", doLoopLimit, nchar);
 
@@ -170,15 +174,14 @@ int receiveXDRFile(XDR* xdrs, const char* xdrfile)
             }
 
             if (nchar > 0) {
-                rc = rc && xdr_vector(xdrs, (char*)bp, nchar, sizeof(char), (xdrproc_t)xdr_char); //Bytes
+                rc = rc && xdr_vector(xdrs, (char*)bp, nchar, sizeof(char), (xdrproc_t)xdr_char); // Bytes
                 count = count + (int)fwrite(bp, sizeof(char), nchar, fh);
             }
         } while (nchar > 0 && errno == 0 && doLoopLimit++ < MAXDOLOOPLIMIT);
 
         if (doLoopLimit >= MAXDOLOOPLIMIT) {
             err = 999;
-            addIdamError(UDA_CODE_ERROR_TYPE, "receiveXDRFile", err,
-                         "Maximum XDR file size reached: ~50MBytes");
+            addIdamError(UDA_CODE_ERROR_TYPE, "receiveXDRFile", err, "Maximum XDR file size reached: ~50MBytes");
             break;
         }
 
@@ -199,9 +202,8 @@ int receiveXDRFile(XDR* xdrs, const char* xdrfile)
     //----------------------------------------------------------------------
     // Housekeeping
 
-    fclose(fh);        // Close the File
+    fclose(fh); // Close the File
     free(bp);
 
     return err;
 }
-

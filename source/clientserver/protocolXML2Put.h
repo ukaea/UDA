@@ -1,11 +1,11 @@
 #ifndef UDA_CLIENTSERVER_PROTOCOLXML2PUT_H
 #define UDA_CLIENTSERVER_PROTOCOLXML2PUT_H
 
-#include <stdio.h>
 #include <rpc/rpc.h>
+#include <stdio.h>
 
-#include "genStructs.h"
 #include "export.h"
+#include "genStructs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,15 +13,15 @@ extern "C" {
 
 LIBRARY_API int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* log_struct_list,
                                       USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* userdefinedtype,
-                                      void** data, int datacount, int structRank, int* structShape,
-                                      int index, NTREE** NTree, int protocolVersion, int malloc_source);
+                                      void** data, int datacount, int structRank, int* structShape, int index,
+                                      NTREE** NTree, int protocolVersion, int malloc_source);
 
 // Send/Receive Array of Structures
 
-LIBRARY_API int
-xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                          USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion,
-                          LOGSTRUCTLIST* log_struct_list, int malloc_source);
+LIBRARY_API int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist,
+                                          USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* userdefinedtype,
+                                          void** data, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
+                                          int malloc_source);
 
 LIBRARY_API bool_t xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str);
 

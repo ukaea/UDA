@@ -5,4 +5,3 @@
 #include "scalar.hpp"
 
 uda::Scalar uda::Scalar::Null = uda::Scalar();
-

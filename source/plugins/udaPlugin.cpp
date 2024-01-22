@@ -1,16 +1,16 @@
 #include "udaPlugin.h"
 #include "server/initPluginList.h"
 #include "server/serverPlugin.h"
-#include "struct.h"
 #include "server/serverSubsetData.h"
+#include "struct.h"
 
-#include <server/getServerEnvironment.h>
+#include "initStructs.h"
+#include "logging/logging.h"
+#include "udaTypes.h"
+#include <clientserver/errorLog.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/errorLog.h>
-#include "logging/logging.h"
-#include "initStructs.h"
-#include "udaTypes.h"
+#include <server/getServerEnvironment.h>
 
 IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {
@@ -137,8 +137,8 @@ int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank
     return 0;
 }
 
-int
-setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const size_t* shape, const char* description)
+int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const size_t* shape,
+                          const char* description)
 {
     initDataBlock(data_block);
 
@@ -306,7 +306,8 @@ int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* d
     return 0;
 }
 
-int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE type, int rank, const int* shape, const char* description)
+int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE type, int rank, const int* shape,
+                  const char* description)
 {
     initDataBlock(data_block);
 
@@ -350,7 +351,9 @@ int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE typ
 int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
-        if (plugin_list->plugin[i].request == request) return i;
+        if (plugin_list->plugin[i].request == request) {
+            return i;
+        }
     }
     return -1;
 }
@@ -364,7 +367,9 @@ int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list)
 int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
-        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) return i;
+        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) {
+            return i;
+        }
     }
     return -1;
 }
@@ -378,7 +383,8 @@ int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
 int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
-        if (plugin_list->plugin[i].plugin_class == UDA_PLUGIN_CLASS_DEVICE && STR_IEQUALS(plugin_list->plugin[i].format, device)) {
+        if (plugin_list->plugin[i].plugin_class == UDA_PLUGIN_CLASS_DEVICE &&
+            STR_IEQUALS(plugin_list->plugin[i].format, device)) {
             return i;
         }
     }
@@ -630,7 +636,7 @@ int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const IDAM_PLUG
     int id = findPluginIdByRequest(request.request, pluginlist);
     PLUGIN_DATA* plugin = &(pluginlist->plugin[id]);
     if (id >= 0 && plugin->idamPlugin != nullptr) {
-        err = plugin->idamPlugin(&idam_plugin_interface);    // Call the data reader
+        err = plugin->idamPlugin(&idam_plugin_interface); // Call the data reader
     } else {
         RAISE_PLUGIN_ERROR("Data Access is not available for this data request!");
     }

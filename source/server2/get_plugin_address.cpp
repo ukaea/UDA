@@ -1,11 +1,11 @@
 #include "get_plugin_address.hpp"
 
-#include <dlfcn.h>
 #include <cstdlib>
+#include <dlfcn.h>
 #include <fmt/format.h>
 
-#include <clientserver/errorLog.h>
 #include "logging/logging.h"
+#include <clientserver/errorLog.h>
 
 /**
  * Return the function address for plugin data readers located in external shared libraries
@@ -18,7 +18,7 @@
  */
 int uda::get_plugin_address(void** pluginHandle, const char* library, const char* symbol, PLUGINFUNP* pluginfunp)
 {
-    *pluginfunp = (PLUGINFUNP)nullptr;
+    *pluginfunp = (PLUGINFUNP) nullptr;
 
     if (library[0] == '\0' || symbol[0] == '\0') {
         // Nothing to 'point' to! Is this an Error?
@@ -53,7 +53,7 @@ int uda::get_plugin_address(void** pluginHandle, const char* library, const char
 
     // Find the address of the required plugin function
 
-    int (* fptr)(IDAM_PLUGIN_INTERFACE*);
+    int (*fptr)(IDAM_PLUGIN_INTERFACE*);
     *(void**)(&fptr) = dlsym(*pluginHandle, symbol);
 
     char* errstr = dlerror();

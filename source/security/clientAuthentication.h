@@ -2,8 +2,8 @@
 #define UDA_SECURITY_CLIENTAUTHENTICATION_H
 
 #include "export.h"
-#include "udaStructs.h"
 #include "genStructs.h"
+#include "udaStructs.h"
 
 #include "security.h"
 
@@ -11,8 +11,9 @@
 extern "C" {
 #endif
 
-LIBRARY_API int clientAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, LOGMALLOCLIST* logmalloclist,
-                         USERDEFINEDTYPELIST* userdefinedtypelist, AUTHENTICATION_STEP authenticationStep);
+LIBRARY_API int clientAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
+                                     LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                                     AUTHENTICATION_STEP authenticationStep);
 
 #ifdef __cplusplus
 }

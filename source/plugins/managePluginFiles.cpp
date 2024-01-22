@@ -9,11 +9,11 @@
 #  include <strings.h>
 #endif
 
-#include <logging/logging.h>
 #include <clientserver/stringUtils.h>
+#include <logging/logging.h>
 
-#define UDA_PLUGIN_FILE_ALLOC       10
-#define MAX_OPEN_PLUGIN_FILE_DESC   50
+#define UDA_PLUGIN_FILE_ALLOC 10
+#define MAX_OPEN_PLUGIN_FILE_DESC 50
 
 // Initialise the File List and allocate heap for the list
 
@@ -42,11 +42,13 @@ int addIdamPluginFilePtr(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename, 
 
     if ((old_handle = getOpenIdamPluginFilePtr(uda_files, filename)) != nullptr) {
         // Is an Open File Handle already listed?
-        if (old_handle == handle) return 1;
+        if (old_handle == handle) {
+            return 1;
+        }
     }
 
-    if ((closed = getClosedIdamPluginFile(uda_files, filename)) >= 0) {        // Does a Closed File Handle entry exist?
-        uda_files->files[closed].status = 1;                    // If so then reopen and update the record
+    if ((closed = getClosedIdamPluginFile(uda_files, filename)) >= 0) { // Does a Closed File Handle entry exist?
+        uda_files->files[closed].status = 1;                            // If so then reopen and update the record
         uda_files->files[closed].handlePtr = handle;
         uda_files->files[closed].handleInt = -1;
         gettimeofday(&uda_files->files[closed].file_open, nullptr);
@@ -55,11 +57,13 @@ int addIdamPluginFilePtr(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename, 
 
     // New File (Close Stalest File if at maximum open handle limit)
 
-    if (uda_files->count >= MAX_OPEN_PLUGIN_FILE_DESC) purgeStalestIdamPluginFile(uda_files);
+    if (uda_files->count >= MAX_OPEN_PLUGIN_FILE_DESC) {
+        purgeStalestIdamPluginFile(uda_files);
+    }
 
     if (uda_files->count == uda_files->mcount || uda_files->mcount == 0) {
-        uda_files->files = (UDA_PLUGIN_FILE*)realloc((void*)uda_files->files,
-                (uda_files->count + UDA_PLUGIN_FILE_ALLOC) * sizeof(UDA_PLUGIN_FILE));
+        uda_files->files = (UDA_PLUGIN_FILE*)realloc(
+            (void*)uda_files->files, (uda_files->count + UDA_PLUGIN_FILE_ALLOC) * sizeof(UDA_PLUGIN_FILE));
         uda_files->mcount += UDA_PLUGIN_FILE_ALLOC;
     }
     uda_files->files[uda_files->count].status = 1;
@@ -69,7 +73,7 @@ int addIdamPluginFilePtr(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename, 
     strcpy(uda_files->files[uda_files->count].filename, filename);
     gettimeofday(&uda_files->files[uda_files->count].file_open, nullptr);
 
-    (uda_files->count)++;    // Count of Open File handles
+    (uda_files->count)++; // Count of Open File handles
     return 0;
 }
 
@@ -80,11 +84,13 @@ int addIdamPluginFileLong(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename,
 
     if ((old_handle = getOpenIdamPluginFileLong(uda_files, filename)) >= 0) {
         // Is an Open File Handle already listed?
-        if (old_handle == handle) return 1;
+        if (old_handle == handle) {
+            return 1;
+        }
     }
 
-    if ((closed = getClosedIdamPluginFile(uda_files, filename)) >= 0) {        // Does a Closed File Handle entry exist?
-        uda_files->files[closed].status = 1;                    // If so then reopen and update the record
+    if ((closed = getClosedIdamPluginFile(uda_files, filename)) >= 0) { // Does a Closed File Handle entry exist?
+        uda_files->files[closed].status = 1;                            // If so then reopen and update the record
         uda_files->files[closed].handleInt = handle;
         uda_files->files[closed].handlePtr = nullptr;
         gettimeofday(&uda_files->files[closed].file_open, nullptr);
@@ -93,11 +99,13 @@ int addIdamPluginFileLong(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename,
 
     // New File (Close Stalest File if at maximum open handle limit)
 
-    if (uda_files->count >= MAX_OPEN_PLUGIN_FILE_DESC) purgeStalestIdamPluginFile(uda_files);
+    if (uda_files->count >= MAX_OPEN_PLUGIN_FILE_DESC) {
+        purgeStalestIdamPluginFile(uda_files);
+    }
 
     if (uda_files->count == uda_files->mcount || uda_files->mcount == 0) {
-        uda_files->files = (UDA_PLUGIN_FILE*)realloc((void*)uda_files->files,
-                (uda_files->count + UDA_PLUGIN_FILE_ALLOC) * sizeof(UDA_PLUGIN_FILE));
+        uda_files->files = (UDA_PLUGIN_FILE*)realloc(
+            (void*)uda_files->files, (uda_files->count + UDA_PLUGIN_FILE_ALLOC) * sizeof(UDA_PLUGIN_FILE));
         uda_files->mcount += UDA_PLUGIN_FILE_ALLOC;
     }
     uda_files->files[uda_files->count].status = 1;
@@ -107,7 +115,7 @@ int addIdamPluginFileLong(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename,
     strcpy(uda_files->files[uda_files->count].filename, filename);
     gettimeofday(&uda_files->files[uda_files->count].file_open, nullptr);
 
-    (uda_files->count)++;    // Count of Open File handles
+    (uda_files->count)++; // Count of Open File handles
     return 0;
 }
 
@@ -118,34 +126,34 @@ void* getOpenIdamPluginFilePtr(UDA_PLUGIN_FILE_LIST* uda_files, const char* file
 {
     UDA_LOG(UDA_LOG_DEBUG, "Open File Count %d\n", uda_files->count);
     for (int i = 0; i < uda_files->count; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "Status %d, Name %s [%s]\n",
-                uda_files->files[i].status, uda_files->files[i].filename, filename);
+        UDA_LOG(UDA_LOG_DEBUG, "Status %d, Name %s [%s]\n", uda_files->files[i].status, uda_files->files[i].filename,
+                filename);
 
         if (uda_files->files[i].status == 1) {
             if (STR_IEQUALS(filename, uda_files->files[i].filename)) {
-                gettimeofday(&uda_files->files[i].file_open, nullptr);        // Refresh Time of Last use
+                gettimeofday(&uda_files->files[i].file_open, nullptr); // Refresh Time of Last use
                 return uda_files->files[i].handlePtr;
             }
         }
     }
-    return nullptr;    // Not Found => Not open
+    return nullptr; // Not Found => Not open
 }
 
 long getOpenIdamPluginFileLong(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Open File Count %d\n", uda_files->count);
     for (int i = 0; i < uda_files->count; i++) {
-        UDA_LOG(UDA_LOG_DEBUG, "Status %d, Name %s [%s]\n",
-                uda_files->files[i].status, uda_files->files[i].filename, filename);
+        UDA_LOG(UDA_LOG_DEBUG, "Status %d, Name %s [%s]\n", uda_files->files[i].status, uda_files->files[i].filename,
+                filename);
 
         if (uda_files->files[i].status == 1) {
             if (STR_IEQUALS(filename, uda_files->files[i].filename)) {
-                gettimeofday(&uda_files->files[i].file_open, nullptr);        // Refresh Time of Last use
+                gettimeofday(&uda_files->files[i].file_open, nullptr); // Refresh Time of Last use
                 return uda_files->files[i].handleInt;
             }
         }
     }
-    return -1;    // Not Found => Not open
+    return -1; // Not Found => Not open
 }
 
 // Search for a Closed File in the List
@@ -153,29 +161,30 @@ long getOpenIdamPluginFileLong(UDA_PLUGIN_FILE_LIST* uda_files, const char* file
 int getClosedIdamPluginFile(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename)
 {
     for (int i = 0; i < uda_files->count; i++) {
-        if (uda_files->files[i].status == 0) {    // Only check Close handle records
-            if (STR_IEQUALS(filename, uda_files->files[i].filename)) return i;
+        if (uda_files->files[i].status == 0) { // Only check Close handle records
+            if (STR_IEQUALS(filename, uda_files->files[i].filename)) {
+                return i;
+            }
         }
     }
-    return -1;    // No Closed File Found
+    return -1; // No Closed File Found
 }
-
 
 // Close a specific file (Ignoring returned values)
 
 void closeIdamPluginFile(UDA_PLUGIN_FILE_LIST* uda_files, const char* filename)
 {
     for (int i = 0; i < uda_files->count; i++) {
-        if (uda_files->files[i].status == 1) {    // Only check Open handle records
+        if (uda_files->files[i].status == 1) { // Only check Open handle records
             if (STR_IEQUALS(filename, uda_files->files[i].filename)) {
                 if (uda_files->files[i].handlePtr != nullptr) {
-                    typedef void (* close_t)(void*);
+                    typedef void (*close_t)(void*);
                     auto close = (close_t)uda_files->close;
                     if (close != nullptr) {
                         close(uda_files->files[i].handlePtr);
                     }
                 } else {
-                    typedef void (* close_t)(long);
+                    typedef void (*close_t)(long);
                     auto close = (close_t)uda_files->close;
                     if (close != nullptr) {
                         close(uda_files->files[i].handleInt);
@@ -203,10 +212,10 @@ void purgeStalestIdamPluginFile(UDA_PLUGIN_FILE_LIST* uda_files)
 {
     int stalest = -1;
     struct timeval oldest = {};
-    gettimeofday(&oldest, nullptr);                // Start comparison with Present time
+    gettimeofday(&oldest, nullptr); // Start comparison with Present time
 
     for (int i = 0; i < uda_files->count; i++) {
-        if (uda_files->files[i].status == 0) {        // Drop Closed Files First
+        if (uda_files->files[i].status == 0) { // Drop Closed Files First
             if (uda_files->files[i].file_open.tv_sec < oldest.tv_sec ||
                 (uda_files->files[i].file_open.tv_sec == oldest.tv_sec &&
                  uda_files->files[i].file_open.tv_usec <= oldest.tv_usec)) {
@@ -216,7 +225,7 @@ void purgeStalestIdamPluginFile(UDA_PLUGIN_FILE_LIST* uda_files)
         }
     }
 
-    if (stalest < 0) {                    // No Closed files so choose an Open File
+    if (stalest < 0) { // No Closed files so choose an Open File
         stalest = 0;
         for (int i = 0; i < uda_files->count; i++) {
             if (uda_files->files[i].file_open.tv_sec < oldest.tv_sec ||
@@ -229,19 +238,19 @@ void purgeStalestIdamPluginFile(UDA_PLUGIN_FILE_LIST* uda_files)
     }
 
     if (stalest >= 0) {
-        if (uda_files->files[stalest].status == 1) {    // Close the Stale File
+        if (uda_files->files[stalest].status == 1) { // Close the Stale File
             if (uda_files->files[stalest].handlePtr != nullptr) {
-                typedef void (* close_t)(void*);
+                typedef void (*close_t)(void*);
                 auto close = (close_t)uda_files->close;
                 close(uda_files->files[stalest].handlePtr);
             } else {
-                typedef void (* close_t)(long);
+                typedef void (*close_t)(long);
                 auto close = (close_t)uda_files->close;
                 close(uda_files->files[stalest].handleInt);
             }
         }
         for (int i = stalest; i < uda_files->count - 1; i++) {
-            uda_files->files[i] = uda_files->files[i + 1];    // Overwrite Stale Position
+            uda_files->files[i] = uda_files->files[i + 1]; // Overwrite Stale Position
         }
         uda_files->files[uda_files->count - 1].status = 0;
         uda_files->files[uda_files->count - 1].filename[0] = '\0';

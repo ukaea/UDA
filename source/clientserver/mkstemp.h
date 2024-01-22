@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 #ifndef __GNUC__
-LIBRARY_API int mkstemp (char *tmpl);
+LIBRARY_API int mkstemp(char* tmpl);
 #endif
 
 #ifdef __cplusplus

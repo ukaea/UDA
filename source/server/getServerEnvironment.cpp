@@ -36,26 +36,32 @@ ENVIRONMENT* getServerEnvironment()
         strcpy(g_environ.logdir, env);
         strcat(g_environ.logdir, "/");
     } else {
-        strcpy(g_environ.logdir, "/scratch/udalog/");        // Log is on Scratch
+        strcpy(g_environ.logdir, "/scratch/udalog/"); // Log is on Scratch
     }
 
     g_environ.loglevel = UDA_LOG_NONE;
     if ((env = getenv("UDA_LOG_LEVEL")) != nullptr) {
-        if (strncmp(env, "ACCESS", 6) == 0) { g_environ.loglevel = UDA_LOG_ACCESS; }
-        else if (strncmp(env, "ERROR", 5) == 0) { g_environ.loglevel = UDA_LOG_ERROR; }
-        else if (strncmp(env, "WARN", 4) == 0) { g_environ.loglevel = UDA_LOG_WARN; }
-        else if (strncmp(env, "DEBUG", 5) == 0) { g_environ.loglevel = UDA_LOG_DEBUG; }
-        else if (strncmp(env, "INFO", 4) == 0) { g_environ.loglevel = UDA_LOG_INFO; }
+        if (strncmp(env, "ACCESS", 6) == 0) {
+            g_environ.loglevel = UDA_LOG_ACCESS;
+        } else if (strncmp(env, "ERROR", 5) == 0) {
+            g_environ.loglevel = UDA_LOG_ERROR;
+        } else if (strncmp(env, "WARN", 4) == 0) {
+            g_environ.loglevel = UDA_LOG_WARN;
+        } else if (strncmp(env, "DEBUG", 5) == 0) {
+            g_environ.loglevel = UDA_LOG_DEBUG;
+        } else if (strncmp(env, "INFO", 4) == 0) {
+            g_environ.loglevel = UDA_LOG_INFO;
+        }
     }
 
     // Log Output Write Mode
 
-    strcpy(g_environ.logmode, "w");                    // Write & Replace Mode
+    strcpy(g_environ.logmode, "w"); // Write & Replace Mode
     if ((env = getenv("UDA_LOG_MODE")) != nullptr) {
         if (env[0] == 'a' && strlen(env) == 1) {
             g_environ.logmode[0] = 'a';
         }
-    }    // Append Mode
+    } // Append Mode
 
     //-------------------------------------------------------------------------------------------
     // API Defaults
@@ -101,8 +107,12 @@ ENVIRONMENT* getServerEnvironment()
     g_environ.external_user = 0;
 #endif
 
-    if ((env = getenv("EXTERNAL_USER")) != nullptr) { g_environ.external_user = 1; }
-    if ((env = getenv("UDA_EXTERNAL_USER")) != nullptr) { g_environ.external_user = 1; }
+    if ((env = getenv("EXTERNAL_USER")) != nullptr) {
+        g_environ.external_user = 1;
+    }
+    if ((env = getenv("UDA_EXTERNAL_USER")) != nullptr) {
+        g_environ.external_user = 1;
+    }
 
     //-------------------------------------------------------------------------------------------
     // UDA Proxy Host: redirect ALL requests

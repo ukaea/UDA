@@ -158,6 +158,8 @@ endif()
 ########################################################################################################################
 # Build options
 
+include( StaticAnalyzers )
+
 option( CLIENT_ONLY "Only build UDA client" OFF )
 option( SERVER_ONLY "Only build UDA server" OFF )
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )

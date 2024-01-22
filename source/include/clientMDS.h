@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-LIBRARY_API int idamClientMDS(const char *server, const char *tree, const char *node, int treenum);
+LIBRARY_API int idamClientMDS(const char* server, const char* tree, const char* node, int treenum);
 
 #ifdef __cplusplus
 }

@@ -1,11 +1,11 @@
 #include "serverStartup.h"
 
-#include <cstdlib>
 #include <cerrno>
+#include <cstdlib>
 #include <string>
 
-#include <logging/logging.h>
 #include <clientserver/errorLog.h>
+#include <logging/logging.h>
 
 #include "getServerEnvironment.h"
 
@@ -29,7 +29,7 @@ int startup()
         }
 
         errno = 0;
-        std::string log_file = std::string{ environment->logdir } + "Access.log";
+        std::string log_file = std::string{environment->logdir} + "Access.log";
         FILE* accout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
@@ -44,7 +44,7 @@ int startup()
 
     if (environment->loglevel <= UDA_LOG_ERROR) {
         errno = 0;
-        std::string log_file = std::string{ environment->logdir } + "Error.log";
+        std::string log_file = std::string{environment->logdir} + "Error.log";
         FILE* errout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
@@ -59,7 +59,7 @@ int startup()
 
     if (environment->loglevel <= UDA_LOG_WARN) {
         errno = 0;
-        std::string log_file = std::string{ environment->logdir } + "DebugServer.log";
+        std::string log_file = std::string{environment->logdir} + "DebugServer.log";
         FILE* dbgout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {

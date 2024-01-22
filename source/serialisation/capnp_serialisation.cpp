@@ -1,38 +1,40 @@
 #include "capnp_serialisation.h"
 
-#include <iostream>
+#include <algorithm>
 #include <capnp/message.h>
 #include <capnp/serialize-packed.h>
-#include <memory>
-#include <vector>
-#include <algorithm>
-#include <numeric>
 #include <cassert>
-#include <limits>
 #include <gsl/span>
+#include <iostream>
+#include <limits>
+#include <memory>
+#include <numeric>
+#include <vector>
 
 #include "udaTypes.h"
 
 #include "schema.capnp.h"
 
-namespace {
+namespace
+{
 
-class PackedMessageStreamReader : public capnp::MessageReader {
-public:
-    PackedMessageStreamReader(const char *bytes, size_t size, capnp::ReaderOptions options)
-            : capnp::MessageReader{options},
-              in_{kj::ArrayPtr<const kj::byte>{reinterpret_cast<const kj::byte *>(bytes), size}}, reader_{in_, options} {}
-
-    kj::ArrayPtr<const capnp::word> getSegment(capnp::uint id) override {
-        return reader_.getSegment(id);
+class PackedMessageStreamReader : public capnp::MessageReader
+{
+  public:
+    PackedMessageStreamReader(const char* bytes, size_t size, capnp::ReaderOptions options)
+        : capnp::MessageReader{options},
+          in_{kj::ArrayPtr<const kj::byte>{reinterpret_cast<const kj::byte*>(bytes), size}}, reader_{in_, options}
+    {
     }
 
-private:
+    kj::ArrayPtr<const capnp::word> getSegment(capnp::uint id) override { return reader_.getSegment(id); }
+
+  private:
     kj::ArrayInputStream in_;
     capnp::PackedMessageReader reader_;
 };
 
-} // anon namespace
+} // namespace
 
 std::ostream& operator<<(std::ostream& out, const kj::ArrayPtr<::kj::byte> bytes)
 {
@@ -45,18 +47,30 @@ std::ostream& operator<<(std::ostream& out, const kj::ArrayPtr<::kj::byte> bytes
 const char* to_string(::TreeNode::Type type)
 {
     switch (type) {
-        case ::TreeNode::Type::INT8: return "int8";
-        case ::TreeNode::Type::INT16: return "int16";
-        case ::TreeNode::Type::INT32: return "int32";
-        case ::TreeNode::Type::INT64: return "int64";
-        case ::TreeNode::Type::UINT8: return "uint8";
-        case ::TreeNode::Type::UINT16: return "uint16";
-        case ::TreeNode::Type::UINT32: return "uint32";
-        case ::TreeNode::Type::UINT64: return "uint64";
-        case ::TreeNode::Type::FLT32: return "flt32";
-        case ::TreeNode::Type::FLT64: return "flt64";
-        case ::TreeNode::Type::STRING: return "string";
-        case ::TreeNode::Type::VOID: return "void";
+        case ::TreeNode::Type::INT8:
+            return "int8";
+        case ::TreeNode::Type::INT16:
+            return "int16";
+        case ::TreeNode::Type::INT32:
+            return "int32";
+        case ::TreeNode::Type::INT64:
+            return "int64";
+        case ::TreeNode::Type::UINT8:
+            return "uint8";
+        case ::TreeNode::Type::UINT16:
+            return "uint16";
+        case ::TreeNode::Type::UINT32:
+            return "uint32";
+        case ::TreeNode::Type::UINT64:
+            return "uint64";
+        case ::TreeNode::Type::FLT32:
+            return "flt32";
+        case ::TreeNode::Type::FLT64:
+            return "flt64";
+        case ::TreeNode::Type::STRING:
+            return "string";
+        case ::TreeNode::Type::VOID:
+            return "void";
     }
     return "";
 }
@@ -77,8 +91,7 @@ std::ostream& operator<<(std::ostream& out, const typename capnp::List<uint64_t,
     return out;
 }
 
-template <typename T>
-std::ostream& operator<<(std::ostream& out, gsl::span<T> span)
+template <typename T> std::ostream& operator<<(std::ostream& out, gsl::span<T> span)
 {
     const char* delim = "";
     int count = 0;
@@ -94,15 +107,13 @@ std::ostream& operator<<(std::ostream& out, gsl::span<T> span)
     return out;
 }
 
-template <typename T>
-void print_slices(std::ostream& out, capnp::List<capnp::Data, capnp::Kind::BLOB>::Reader& slices)
+template <typename T> void print_slices(std::ostream& out, capnp::List<capnp::Data, capnp::Kind::BLOB>::Reader& slices)
 {
     slices.size();
     slices[0].size();
 }
 
-template <typename T>
-void print_data(std::ostream& out, ::TreeNode::Array::Reader& array, const std::string& indent)
+template <typename T> void print_data(std::ostream& out, ::TreeNode::Array::Reader& array, const std::string& indent)
 {
     auto data = array.getData();
     auto slices = data.getSlices();
@@ -121,8 +132,7 @@ void print_data(std::ostream& out, ::TreeNode::Array::Reader& array, const std::
     }
 }
 
-template <>
-void print_data<std::string>(std::ostream& out, ::TreeNode::Array::Reader& array, const std::string& indent)
+template <> void print_data<std::string>(std::ostream& out, ::TreeNode::Array::Reader& array, const std::string& indent)
 {
     auto data = array.getData();
     auto slices = data.getSlices();
@@ -138,8 +148,7 @@ void print_data<std::string>(std::ostream& out, ::TreeNode::Array::Reader& array
 
 void print_node(std::ostream& out, const ::TreeNode::Reader& tree, const std::string& indent = "")
 {
-    out << indent << "{\n  "
-        << indent << "name: " << tree.getName().cStr() << "\n";
+    out << indent << "{\n  " << indent << "name: " << tree.getName().cStr() << "\n";
 
     if (tree.hasChildren()) {
         for (auto child : tree.getChildren()) {
@@ -150,18 +159,42 @@ void print_node(std::ostream& out, const ::TreeNode::Reader& tree, const std::st
         auto array = tree.getArray();
 
         switch (array.getType()) {
-            case ::TreeNode::Type::FLT32: print_data<float>(out, array, indent); break;
-            case ::TreeNode::Type::FLT64: print_data<double>(out, array, indent); break;
-            case ::TreeNode::Type::INT8: print_data<int8_t>(out, array, indent); break;
-            case ::TreeNode::Type::INT16: print_data<int16_t>(out, array, indent); break;
-            case ::TreeNode::Type::INT32: print_data<int32_t>(out, array, indent); break;
-            case ::TreeNode::Type::INT64: print_data<int64_t>(out, array, indent); break;
-            case ::TreeNode::Type::UINT8: print_data<uint8_t>(out, array, indent); break;
-            case ::TreeNode::Type::UINT16: print_data<uint16_t>(out, array, indent); break;
-            case ::TreeNode::Type::UINT32: print_data<uint32_t>(out, array, indent); break;
-            case ::TreeNode::Type::UINT64: print_data<uint64_t>(out, array, indent); break;
-            case ::TreeNode::Type::STRING: print_data<std::string>(out, array, indent); break;
-            case ::TreeNode::Type::VOID: out << indent << "  data: <void>\n"; break;
+            case ::TreeNode::Type::FLT32:
+                print_data<float>(out, array, indent);
+                break;
+            case ::TreeNode::Type::FLT64:
+                print_data<double>(out, array, indent);
+                break;
+            case ::TreeNode::Type::INT8:
+                print_data<int8_t>(out, array, indent);
+                break;
+            case ::TreeNode::Type::INT16:
+                print_data<int16_t>(out, array, indent);
+                break;
+            case ::TreeNode::Type::INT32:
+                print_data<int32_t>(out, array, indent);
+                break;
+            case ::TreeNode::Type::INT64:
+                print_data<int64_t>(out, array, indent);
+                break;
+            case ::TreeNode::Type::UINT8:
+                print_data<uint8_t>(out, array, indent);
+                break;
+            case ::TreeNode::Type::UINT16:
+                print_data<uint16_t>(out, array, indent);
+                break;
+            case ::TreeNode::Type::UINT32:
+                print_data<uint32_t>(out, array, indent);
+                break;
+            case ::TreeNode::Type::UINT64:
+                print_data<uint64_t>(out, array, indent);
+                break;
+            case ::TreeNode::Type::STRING:
+                print_data<std::string>(out, array, indent);
+                break;
+            case ::TreeNode::Type::VOID:
+                out << indent << "  data: <void>\n";
+                break;
         }
 
         out << indent << "  type: " << to_string(array.getType()) << "\n";
@@ -171,7 +204,6 @@ void print_node(std::ostream& out, const ::TreeNode::Reader& tree, const std::st
 
     out << indent << "}";
 }
-
 
 std::ostream& operator<<(std::ostream& out, const ::TreeNode::Reader& tree)
 {
@@ -186,7 +218,7 @@ struct NodeReader {
 struct TreeReader {
     std::shared_ptr<capnp::MessageReader> message_reader;
     NodeReader* root = nullptr;
-    std::vector<std::unique_ptr<NodeReader>> nodes= {};
+    std::vector<std::unique_ptr<NodeReader>> nodes = {};
 };
 
 struct NodeBuilder {
@@ -196,7 +228,7 @@ struct NodeBuilder {
 struct TreeBuilder {
     std::shared_ptr<capnp::MallocMessageBuilder> message_builder = {};
     NodeBuilder* root = nullptr;
-    std::vector<std::unique_ptr<NodeBuilder>> nodes= {};
+    std::vector<std::unique_ptr<NodeBuilder>> nodes = {};
 };
 
 Buffer uda_capnp_serialise(TreeBuilder* tree)
@@ -208,7 +240,7 @@ Buffer uda_capnp_serialise(TreeBuilder* tree)
     char* buffer = (char*)malloc(bytes.size());
     memcpy(buffer, bytes.begin(), bytes.size());
 
-    return Buffer{ buffer, bytes.size() };
+    return Buffer{buffer, bytes.size()};
 }
 
 TreeReader* uda_capnp_deserialise(const char* bytes, size_t size)
@@ -217,8 +249,8 @@ TreeReader* uda_capnp_deserialise(const char* bytes, size_t size)
     options.traversalLimitInWords = std::numeric_limits<uint64_t>::max() / 8;
     auto message_reader = std::make_shared<PackedMessageStreamReader>(bytes, size, options);
     auto root = message_reader->getRoot<TreeNode>();
-    auto tree = new TreeReader{ message_reader, nullptr };
-    tree->nodes.emplace_back(std::make_unique<NodeReader>(NodeReader{ root }));
+    auto tree = new TreeReader{message_reader, nullptr};
+    tree->nodes.emplace_back(std::make_unique<NodeReader>(NodeReader{root}));
     tree->root = tree->nodes.back().get();
 
     return tree;
@@ -227,7 +259,7 @@ TreeReader* uda_capnp_deserialise(const char* bytes, size_t size)
 TreeBuilder* uda_capnp_new_tree()
 {
     auto message_builder = std::make_shared<capnp::MallocMessageBuilder>();
-    return new TreeBuilder{message_builder, {} };
+    return new TreeBuilder{message_builder, {}};
 }
 
 void uda_capnp_free_tree_builder(TreeBuilder* tree)
@@ -245,7 +277,7 @@ NodeBuilder* uda_capnp_get_root(TreeBuilder* tree)
     if (tree->root == nullptr) {
         assert(tree->nodes.empty());
         auto node = tree->message_builder->initRoot<TreeNode>();
-        tree->nodes.emplace_back(std::make_unique<NodeBuilder>(NodeBuilder{node }));
+        tree->nodes.emplace_back(std::make_unique<NodeBuilder>(NodeBuilder{node}));
         tree->root = tree->nodes.back().get();
     }
 
@@ -275,12 +307,11 @@ NodeBuilder* uda_capnp_get_child(TreeBuilder* tree, NodeBuilder* node, size_t in
         return nullptr;
     }
     auto child = children[index];
-    tree->nodes.emplace_back(std::make_unique<NodeBuilder>(NodeBuilder{child }));
+    tree->nodes.emplace_back(std::make_unique<NodeBuilder>(NodeBuilder{child}));
     return tree->nodes.back().get();
 }
 
-template <typename T>
-struct TreeNodeTypeConverter {
+template <typename T> struct TreeNodeTypeConverter {
     static TreeNode::Type type;
 };
 
@@ -308,11 +339,13 @@ void uda_capnp_add_md_array(NodeBuilder* node, const T* data_ptr, size_t* shape_
     auto array = node->node.initArray();
     array.setType(TreeNodeTypeConverter<T>::type);
 
-    size_t size = std::accumulate(shape_array, shape_array+rank, 1, std::multiplies<size_t>());
+    size_t size = std::accumulate(shape_array, shape_array + rank, 1, std::multiplies<size_t>());
 
     array.setLen(size);
     auto shape = array.initShape(rank);
-    for (unsigned int i=0; i<rank; ++i) shape.set(i, shape_array[i]);
+    for (unsigned int i = 0; i < rank; ++i) {
+        shape.set(i, shape_array[i]);
+    }
 
     auto data = array.initData();
 
@@ -326,10 +359,7 @@ void uda_capnp_add_md_array(NodeBuilder* node, const T* data_ptr, size_t* shape_
 
     while (data_size != 0) {
         size_t data_stored = std::min(data_size, max_slice_size);
-        kj::ArrayPtr<const kj::byte> ptr = {
-                reinterpret_cast<const kj::byte*>(data_ptr) + offset,
-                data_stored
-        };
+        kj::ArrayPtr<const kj::byte> ptr = {reinterpret_cast<const kj::byte*>(data_ptr) + offset, data_stored};
         slices.set(slice_num, ptr);
         data_size -= data_stored;
         offset += data_stored;
@@ -397,8 +427,7 @@ void uda_capnp_add_md_array_char(NodeBuilder* node, const char* data, size_t* sh
     return uda_capnp_add_md_array(node, data, shape_array, rank);
 }
 
-template <typename T>
-void uda_capnp_add_array(NodeBuilder* node, const T* data_ptr, size_t size)
+template <typename T> void uda_capnp_add_array(NodeBuilder* node, const T* data_ptr, size_t size)
 {
     assert(!node->node.isChildren());
     auto array = node->node.initArray();
@@ -419,10 +448,7 @@ void uda_capnp_add_array(NodeBuilder* node, const T* data_ptr, size_t size)
 
     while (data_size != 0) {
         size_t data_stored = std::min(data_size, max_slice_size);
-        kj::ArrayPtr<const kj::byte> ptr = {
-                reinterpret_cast<const kj::byte*>(data_ptr) + offset,
-                data_stored
-        };
+        kj::ArrayPtr<const kj::byte> ptr = {reinterpret_cast<const kj::byte*>(data_ptr) + offset, data_stored};
         slices.set(slice_num, ptr);
         data_size -= data_stored;
         offset += data_stored;
@@ -490,8 +516,7 @@ void uda_capnp_add_array_char(NodeBuilder* node, const char* data, size_t size)
     return uda_capnp_add_array(node, data, size);
 }
 
-template <typename T>
-void uda_capnp_add_scalar(NodeBuilder* node, T scalar)
+template <typename T> void uda_capnp_add_scalar(NodeBuilder* node, T scalar)
 {
     assert(!node->node.isChildren());
     auto array = node->node.initArray();
@@ -588,7 +613,7 @@ NodeReader* uda_capnp_read_child(TreeReader* tree, NodeReader* node, const char*
     for (auto child : node->node.getChildren()) {
         std::string s_name = child.getName().cStr();
         if (s_name == name) {
-            tree->nodes.emplace_back(std::make_unique<NodeReader>(NodeReader{ child }));
+            tree->nodes.emplace_back(std::make_unique<NodeReader>(NodeReader{child}));
             return tree->nodes.back().get();
         }
     }
@@ -602,7 +627,7 @@ NodeReader* uda_capnp_read_child_n(TreeReader* tree, NodeReader* node, size_t in
         return nullptr;
     }
     auto child = children[index];
-    tree->nodes.emplace_back(std::make_unique<NodeReader>(NodeReader{ child }));
+    tree->nodes.emplace_back(std::make_unique<NodeReader>(NodeReader{child}));
     return tree->nodes.back().get();
 }
 
@@ -618,28 +643,40 @@ int uda_capnp_read_type(NodeReader* node)
     }
     auto type = node->node.getArray().getType();
     switch (type) {
-        case TreeNode::Type::INT8: return UDA_TYPE_CHAR;
-        case TreeNode::Type::INT16: return UDA_TYPE_SHORT;
-        case TreeNode::Type::INT32: return UDA_TYPE_INT;
-        case TreeNode::Type::INT64: return UDA_TYPE_LONG64;
-        case TreeNode::Type::UINT8: return UDA_TYPE_UNSIGNED_CHAR;
-        case TreeNode::Type::UINT16: return UDA_TYPE_UNSIGNED_SHORT;
-        case TreeNode::Type::UINT32: return UDA_TYPE_UNSIGNED_INT;
-        case TreeNode::Type::UINT64: return UDA_TYPE_UNSIGNED_LONG64;
-        case TreeNode::Type::FLT32: return UDA_TYPE_FLOAT;
-        case TreeNode::Type::FLT64: return UDA_TYPE_DOUBLE;
-        case TreeNode::Type::STRING: return UDA_TYPE_STRING;
-        default: return UDA_TYPE_UNKNOWN;
+        case TreeNode::Type::INT8:
+            return UDA_TYPE_CHAR;
+        case TreeNode::Type::INT16:
+            return UDA_TYPE_SHORT;
+        case TreeNode::Type::INT32:
+            return UDA_TYPE_INT;
+        case TreeNode::Type::INT64:
+            return UDA_TYPE_LONG64;
+        case TreeNode::Type::UINT8:
+            return UDA_TYPE_UNSIGNED_CHAR;
+        case TreeNode::Type::UINT16:
+            return UDA_TYPE_UNSIGNED_SHORT;
+        case TreeNode::Type::UINT32:
+            return UDA_TYPE_UNSIGNED_INT;
+        case TreeNode::Type::UINT64:
+            return UDA_TYPE_UNSIGNED_LONG64;
+        case TreeNode::Type::FLT32:
+            return UDA_TYPE_FLOAT;
+        case TreeNode::Type::FLT64:
+            return UDA_TYPE_DOUBLE;
+        case TreeNode::Type::STRING:
+            return UDA_TYPE_STRING;
+        default:
+            return UDA_TYPE_UNKNOWN;
     }
 }
 
 Optional_Size_t uda_capnp_read_rank(NodeReader* node)
 {
     if (!node->node.isArray()) {
-        return { false, 0 };
+        return {false, 0};
     }
     auto array = node->node.getArray();
-    return { true, array.getShape().size() };
+    return {true, array.getShape().size()};
 }
 
 bool uda_capnp_read_shape(NodeReader* node, size_t* shape)

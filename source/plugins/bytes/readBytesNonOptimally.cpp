@@ -3,20 +3,20 @@
 #include <cerrno>
 #include <cstdlib>
 
-#include <logging/logging.h>
+#include "initStructs.h"
+#include "udaTypes.h"
 #include <clientserver/errorLog.h>
 #include <clientserver/stringUtils.h>
+#include <logging/logging.h>
 #include <plugins/bytes/md5Sum.h>
-#include "udaTypes.h"
-#include "initStructs.h"
 
-#define BYTEFILEDOESNOTEXIST     100001
-#define BYTEFILEATTRIBUTEERROR   100002
-#define BYTEFILEISNOTREGULAR     100003
-#define BYTEFILEOPENERROR        100004
-#define BYTEFILEHEAPERROR        100005
-#define BYTEFILEMD5ERROR         100006
-#define BYTEFILEMD5DIFF          100007
+#define BYTEFILEDOESNOTEXIST 100001
+#define BYTEFILEATTRIBUTEERROR 100002
+#define BYTEFILEISNOTREGULAR 100003
+#define BYTEFILEOPENERROR 100004
+#define BYTEFILEHEAPERROR 100005
+#define BYTEFILEMD5ERROR 100006
+#define BYTEFILEMD5DIFF 100007
 
 int readBytes(const std::string& path, IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
@@ -90,7 +90,7 @@ int readBytes(const std::string& path, IDAM_PLUGIN_INTERFACE* plugin_interface)
         int nchar = 0;
         int offset = 0;
         int bufsize = 100 * 1024;
-        data_block->data_n = bufsize;    // 1 less than no. bytes read: Last Byte is an EOF
+        data_block->data_n = bufsize; // 1 less than no. bytes read: Last Byte is an EOF
 
         char* bp = nullptr;
         while (!feof(fh)) {
@@ -109,7 +109,7 @@ int readBytes(const std::string& path, IDAM_PLUGIN_INTERFACE* plugin_interface)
             break;
         }
 
-        //nchar--;                     // Remove EOF Character from end of Byte Block
+        // nchar--;                     // Remove EOF Character from end of Byte Block
         data_block->data_n = nchar;
         data_block->data = bp;
 
@@ -118,7 +118,7 @@ int readBytes(const std::string& path, IDAM_PLUGIN_INTERFACE* plugin_interface)
 
         md5Sum(bp, data_block->data_n, md5check);
 
-        strcpy(data_block->data_desc, md5check);    // Pass back the Checksum to the Client
+        strcpy(data_block->data_desc, md5check); // Pass back the Checksum to the Client
 
         UDA_LOG(UDA_LOG_DEBUG, "File Size          : %d \n", nchar);
         UDA_LOG(UDA_LOG_DEBUG, "File Checksum      : %s \n", md5file);
@@ -140,7 +140,7 @@ int readBytes(const std::string& path, IDAM_PLUGIN_INTERFACE* plugin_interface)
         data_block->dims[0].diff = 1.0;
         data_block->dims[0].method = 0;
 
-        data_block->order = -1;        // No Dimensions
+        data_block->order = -1; // No Dimensions
         data_block->data_type = UDA_TYPE_CHAR;
 
     } while (0);
@@ -148,9 +148,9 @@ int readBytes(const std::string& path, IDAM_PLUGIN_INTERFACE* plugin_interface)
     //----------------------------------------------------------------------
     // Housekeeping
 
-//    if (err != 0) {
-//        freeDataBlock(data_block);
-//    }
+    //    if (err != 0) {
+    //        freeDataBlock(data_block);
+    //    }
 
     fclose(fh); // Close the File
 

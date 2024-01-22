@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 
-#include "udaStructs.h"
-#include "genStructs.h"
 #include "export.h"
+#include "genStructs.h"
+#include "udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,23 +13,23 @@ extern "C" {
 
 enum pluginClass {
     UDA_PLUGIN_CLASS_UNKNOWN,
-    UDA_PLUGIN_CLASS_FILE,         // File format access
-    UDA_PLUGIN_CLASS_SERVER,       // Server protocol access
-    UDA_PLUGIN_CLASS_FUNCTION,     // Server-side function transformation
-    UDA_PLUGIN_CLASS_DEVICE,       // Server to Server chaining, i.e. Pass the request to an external server
+    UDA_PLUGIN_CLASS_FILE,     // File format access
+    UDA_PLUGIN_CLASS_SERVER,   // Server protocol access
+    UDA_PLUGIN_CLASS_FUNCTION, // Server-side function transformation
+    UDA_PLUGIN_CLASS_DEVICE,   // Server to Server chaining, i.e. Pass the request to an external server
     UDA_PLUGIN_CLASS_OTHER
 };
 
-struct PluginList;              // Forward declaration
+struct PluginList; // Forward declaration
 typedef struct PluginList PLUGINLIST;
 
-typedef struct IdamPluginInterface {    // Standard Plugin interface
-    unsigned short interfaceVersion;    // Interface Version
-    unsigned short pluginVersion;       // Plugin Version
-    unsigned short sqlConnectionType;   // Which SQL is the server connected to
-    unsigned short verbose;             // Spare! Use (errout!=NULL) instead  *** Deprecated
-    unsigned short housekeeping;        // Housekeeping Directive
-    unsigned short changePlugin;        // Use a different Plugin to access the data
+typedef struct IdamPluginInterface {  // Standard Plugin interface
+    unsigned short interfaceVersion;  // Interface Version
+    unsigned short pluginVersion;     // Plugin Version
+    unsigned short sqlConnectionType; // Which SQL is the server connected to
+    unsigned short verbose;           // Spare! Use (errout!=NULL) instead  *** Deprecated
+    unsigned short housekeeping;      // Housekeeping Directive
+    unsigned short changePlugin;      // Use a different Plugin to access the data
     FILE* dbgout;
     FILE* errout;
     DATA_BLOCK* data_block;
@@ -37,15 +37,15 @@ typedef struct IdamPluginInterface {    // Standard Plugin interface
     CLIENT_BLOCK* client_block;
     DATA_SOURCE* data_source;
     SIGNAL_DESC* signal_desc;
-    const ENVIRONMENT* environment;           // Server environment
+    const ENVIRONMENT* environment; // Server environment
     LOGMALLOCLIST* logmalloclist;
     USERDEFINEDTYPELIST* userdefinedtypelist;
-    void* sqlConnection;                // Opaque structure
-    const PLUGINLIST* pluginList;       // List of data readers, filters, models, and servers
+    void* sqlConnection;          // Opaque structure
+    const PLUGINLIST* pluginList; // List of data readers, filters, models, and servers
     UDA_ERROR_STACK error_stack;
 } IDAM_PLUGIN_INTERFACE;
 
-typedef int (* PLUGINFUNP)(IDAM_PLUGIN_INTERFACE*);             // Plugin function type
+typedef int (*PLUGINFUNP)(IDAM_PLUGIN_INTERFACE*); // Plugin function type
 
 typedef struct PluginData {
     char format[STRING_LENGTH];         // File format, or Function library or Server protocol or External Device name
@@ -66,14 +66,14 @@ typedef struct PluginData {
     unsigned short cachePermission;     // The server's internal state may be dependent on previous calls
     // so the returned data are not suitable for caching on the client.
     // This is used to inform the client how to manage the returned data
-    unsigned short interfaceVersion;    // Maximum interface version the plugin is compliant with (Minimum is 1)
-    void* pluginHandle;                 // Plugin Library handle
-    PLUGINFUNP idamPlugin;              // Plugin function address
+    unsigned short interfaceVersion; // Maximum interface version the plugin is compliant with (Minimum is 1)
+    void* pluginHandle;              // Plugin Library handle
+    PLUGINFUNP idamPlugin;           // Plugin function address
 } PLUGIN_DATA;
 
 struct PluginList {
-    int count;              // the number of plugins
-    int mcount;             // malloc count allocated
+    int count;  // the number of plugins
+    int mcount; // malloc count allocated
     PLUGIN_DATA* plugin;
 };
 

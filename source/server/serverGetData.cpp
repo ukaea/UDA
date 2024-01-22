@@ -8,13 +8,13 @@
 #endif
 
 #include "initStructs.h"
-#include <clientserver/printStructs.h>
-#include <clientserver/stringUtils.h>
-#include <clientserver/makeRequestBlock.h>
-#include <clientserver/nameValueSubstitution.h>
-#include <clientserver/errorLog.h>
 #include "logging/logging.h"
 #include "struct.h"
+#include <clientserver/errorLog.h>
+#include <clientserver/makeRequestBlock.h>
+#include <clientserver/nameValueSubstitution.h>
+#include <clientserver/printStructs.h>
+#include <clientserver/stringUtils.h>
 
 #include "applyXML.h"
 #include "getServerEnvironment.h"
@@ -26,16 +26,14 @@ static int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, in
 static int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2);
 static int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
                                  int asymmetry);
-static int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data_block,
-                     DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
-                     const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-                     USERDEFINEDTYPELIST* userdefinedtypelist);
+static int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data_block, DATA_SOURCE* data_source,
+                     SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, const PLUGINLIST* pluginlist,
+                     LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist);
 
-int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block,
-               DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
-               ACTIONS* actions_desc, ACTIONS* actions_sig, const PLUGINLIST* pluginlist,
-               LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list,
-               int protocolVersion)
+int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block, DATA_BLOCK* data_block,
+               DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, ACTIONS* actions_desc,
+               ACTIONS* actions_sig, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
+               USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list, int protocolVersion)
 {
     int isDerived = 0, compId = -1, serverside = 0;
 
@@ -48,8 +46,8 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
     ACTIONS actions_comp_desc, actions_comp_sig;
     ACTIONS actions_comp_desc2, actions_comp_sig2;
 
-    static int original_request = 0;        // First entry value of the Plugin Request
-    static int original_xml = 0;        // First entry flag that XML was passed in
+    static int original_request = 0; // First entry value of the Plugin Request
+    static int original_xml = 0;     // First entry flag that XML was passed in
 
     //--------------------------------------------------------------------------------------------------------------------------
     // Retain the original request (Needed to flag that signal/file details are in the Request or Action structures)
@@ -58,13 +56,15 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
     if (original_request == 0 || *depth == 0) {
         original_request = request_data->request;
         if (request_data->request != REQUEST_READ_XML) {
-            if (STR_STARTSWITH(request_data->signal, "<?xml")) original_xml = 1;
+            if (STR_STARTSWITH(request_data->signal, "<?xml")) {
+                original_xml = 1;
+            }
         }
     }
 
     if (original_xml == 1 && *depth == 1) {
         signal_desc->xml[0] = '\0';
-    }    // remove redirected XML after first recursive pass
+    } // remove redirected XML after first recursive pass
 #endif
 
     //--------------------------------------------------------------------------------------------------------------------------
@@ -78,7 +78,8 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
     UDA_LOG(UDA_LOG_DEBUG, "udaGetData Recursive Depth = %d\n", *depth);
 
-    // Can't use REQUEST_READ_SERVERSIDE because data must be read first using a 'real' data reader or REQUEST_READ_GENERIC
+    // Can't use REQUEST_READ_SERVERSIDE because data must be read first using a 'real' data reader or
+    // REQUEST_READ_GENERIC
 
     if (protocolVersion < 6) {
         if (STR_IEQUALS(request_data->archive, "SS") || STR_IEQUALS(request_data->archive, "SERVERSIDE")) {
@@ -112,15 +113,15 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
     //--------------------------------------------------------------------------------------------------------------------------
     // Read the Data (Returns rc < 0 if the signal is a derived type or is defined in an XML document)
 
-    int rc = read_data(request_data, client_block, data_block, data_source, signal_rec, signal_desc,
-                       pluginlist, logmalloclist, userdefinedtypelist);
+    int rc = read_data(request_data, client_block, data_block, data_source, signal_rec, signal_desc, pluginlist,
+                       logmalloclist, userdefinedtypelist);
 
     UDA_LOG(UDA_LOG_DEBUG, "After read_data rc = %d\n", rc);
     UDA_LOG(UDA_LOG_DEBUG, "Is the Signal a Composite? %d\n", signal_desc->type == 'C');
 
     if (rc > 0) {
         (*depth)--;
-        return rc;        // An Error Occurred
+        return rc; // An Error Occurred
     }
 
     // Perform data subsetting if requested
@@ -154,14 +155,15 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
         UDA_LOG(UDA_LOG_DEBUG, "Derived/Composite Signal %s\n", request_data->signal);
 
-        isDerived = 1;                        // is True
+        isDerived = 1; // is True
 
-        //derived_signal_desc     = *signal_desc;                // Preserve details of Derived Signal Description Record
-        data_source->exp_number = request_data->exp_number;     // Needed for Pulse Number Range Check in XML Parser
-        data_source->pass = request_data->pass;                 // Needed for a Pass/Sequence Range Check in XML Parser
+        // derived_signal_desc     = *signal_desc;                // Preserve details of Derived Signal Description
+        // Record
+        data_source->exp_number = request_data->exp_number; // Needed for Pulse Number Range Check in XML Parser
+        data_source->pass = request_data->pass;             // Needed for a Pass/Sequence Range Check in XML Parser
 
-        // Allways Parse Signal XML to Identify the True Data Source for this Pulse Number - not subject to client request: get_asis
-        // (First Valid Action Record found only - others ignored)
+        // Allways Parse Signal XML to Identify the True Data Source for this Pulse Number - not subject to client
+        // request: get_asis (First Valid Action Record found only - others ignored)
 
         initActions(&actions_comp_desc);
         initActions(&actions_comp_sig);
@@ -179,14 +181,16 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
             UDA_THROW_ERROR(8881, "Unable to Parse XML");
         }
 
-        // Identify which XML statements are in Range (Only signal_desc xml need be checked as signal xml is specific to a single pulse/pass)
+        // Identify which XML statements are in Range (Only signal_desc xml need be checked as signal xml is specific to
+        // a single pulse/pass)
 
         compId = -1;
         if (rc == 0) {
             for (int i = 0; i < actions_comp_desc.nactions; i++) {
-                if (actions_comp_desc.action[i].actionType == UDA_COMPOSITE_TYPE && actions_comp_desc.action[i].inRange) {
+                if (actions_comp_desc.action[i].actionType == UDA_COMPOSITE_TYPE &&
+                    actions_comp_desc.action[i].inRange) {
                     compId = i;
-                    break;            // First Record found only!
+                    break; // First Record found only!
                 }
             }
 
@@ -196,12 +200,14 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                 if (strlen(actions_comp_desc.action[compId].composite.data_signal) > 0) {
                     // If we haven't a True Signal then can't identify the data required!
 
-                    request_block2 = *request_data; // Preserve details of the Original User Request (Do Not FREE Elements)
+                    request_block2 =
+                        *request_data; // Preserve details of the Original User Request (Do Not FREE Elements)
 
                     strcpy(request_block2.signal,
-                           actions_comp_desc.action[compId].composite.data_signal);  // True Signal Identity
+                           actions_comp_desc.action[compId].composite.data_signal); // True Signal Identity
 
-                    // Does this Composite originate from a subsetting operation? If so then fill out any missing items in the composite record
+                    // Does this Composite originate from a subsetting operation? If so then fill out any missing items
+                    // in the composite record
 
                     if (actions_comp_desc.action[compId].composite.nsubsets > 0 ||
                         actions_comp_desc.action[compId].composite.nmaps > 0 ||
@@ -210,24 +216,25 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
                         // ******** If there is No subset then composite.file is missing!!!
 
-                        if (strlen(actions_comp_desc.action[compId].composite.file) == 0
-                            && strlen(data_source->path) > 0) {
+                        if (strlen(actions_comp_desc.action[compId].composite.file) == 0 &&
+                            strlen(data_source->path) > 0) {
                             strcpy(actions_comp_desc.action[compId].composite.file, data_source->path);
                         }
 
-                        if (strlen(actions_comp_desc.action[compId].composite.format) == 0
-                            && strlen(data_source->format) > 0) {
+                        if (strlen(actions_comp_desc.action[compId].composite.format) == 0 &&
+                            strlen(data_source->format) > 0) {
                             strcpy(actions_comp_desc.action[compId].composite.format, data_source->format);
                         }
 
-                        if (strlen(actions_comp_desc.action[compId].composite.data_signal) > 0
-                            && strlen(signal_desc->signal_name) == 0) {
+                        if (strlen(actions_comp_desc.action[compId].composite.data_signal) > 0 &&
+                            strlen(signal_desc->signal_name) == 0) {
                             strcpy(signal_desc->signal_name, actions_comp_desc.action[compId].composite.data_signal);
                         }
                     }
 
                     //=======>>> Experimental ============================================
-                    // Need to change formats from GENERIC if Composite and Signal Description record only exists and format Not Generic!
+                    // Need to change formats from GENERIC if Composite and Signal Description record only exists and
+                    // format Not Generic!
 
                     if (request_data->request == REQUEST_READ_GENERIC && request_data->exp_number <= 0) {
                         request_data->request = REQUEST_READ_XML;
@@ -242,12 +249,13 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                             freeActions(&actions_comp_desc);
                             freeActions(&actions_comp_sig);
                             (*depth)--;
-                            UDA_THROW_ERROR(8888, "User Specified Composite Data Signal Not Fully Defined: Format?, File?");
+                            UDA_THROW_ERROR(8888,
+                                            "User Specified Composite Data Signal Not Fully Defined: Format?, File?");
                         }
                         strcpy(request_block2.path, actions_comp_desc.action[compId].composite.file);
 
-                        request_block2.request = findPluginRequestByFormat(
-                                actions_comp_desc.action[compId].composite.format, pluginlist);
+                        request_block2.request =
+                            findPluginRequestByFormat(actions_comp_desc.action[compId].composite.format, pluginlist);
 
                         if (request_block2.request == REQUEST_READ_UNKNOWN) {
                             if (actions_comp_desc.action[compId].composite.format[0] == '\0' &&
@@ -257,7 +265,8 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                                 freeActions(&actions_comp_desc);
                                 freeActions(&actions_comp_sig);
                                 (*depth)--;
-                                UDA_THROW_ERROR(8889, "User Specified Composite Data Signal's File Format NOT Recognised");
+                                UDA_THROW_ERROR(8889,
+                                                "User Specified Composite Data Signal's File Format NOT Recognised");
                             }
                         }
 
@@ -287,14 +296,14 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
                     UDA_LOG(UDA_LOG_DEBUG, "Reading Composite Signal DATA\n");
 
-                    rc = udaGetData(depth, &request_block2, client_block, data_block, data_source, signal_rec, signal_desc,
-                                    actions_desc, actions_sig, pluginlist, logmalloclist, userdefinedtypelist, socket_list,
-                                    protocolVersion);
+                    rc = udaGetData(depth, &request_block2, client_block, data_block, data_source, signal_rec,
+                                    signal_desc, actions_desc, actions_sig, pluginlist, logmalloclist,
+                                    userdefinedtypelist, socket_list, protocolVersion);
 
-                    freeActions(actions_desc);        // Added 06Nov2008
+                    freeActions(actions_desc); // Added 06Nov2008
                     freeActions(actions_sig);
 
-                    if (rc != 0) {        // Error
+                    if (rc != 0) { // Error
                         freeActions(&actions_comp_desc);
                         freeActions(&actions_comp_sig);
                         (*depth)--;
@@ -317,7 +326,9 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
             }
         }
 
-    } else { isDerived = 0; }
+    } else {
+        isDerived = 0;
+    }
 
     //--------------------------------------------------------------------------------------------------------------------------
     // Parse Qualifying Actionable XML
@@ -337,7 +348,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
             if (rc == -1) {
                 if (!serverside) {
                     (*depth)--;
-                    return 0;    // No XML to Apply so No More to be Done!
+                    return 0; // No XML to Apply so No More to be Done!
                 }
             } else {
                 if (rc == 1) {
@@ -347,7 +358,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
             }
         } else {
             (*depth)--;
-            return 0;    // Ignore All XML so nothing to be done! Done!
+            return 0; // Ignore All XML so nothing to be done! Done!
         }
     }
 
@@ -384,9 +395,9 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                 strcpy(data_source2.filename, request_data->file);
             }
 
-            rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
-                            &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist,
-                            logmalloclist, userdefinedtypelist, socket_list, protocolVersion);
+            rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
+                            &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                            userdefinedtypelist, socket_list, protocolVersion);
 
             freeActions(&actions_comp_desc2);
             freeActions(&actions_comp_sig2);
@@ -430,9 +441,9 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                 strcpy(data_source2.filename, request_data->file);
             }
 
-            rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
-                            &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist,
-                            logmalloclist, userdefinedtypelist, socket_list, protocolVersion);
+            rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
+                            &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                            userdefinedtypelist, socket_list, protocolVersion);
 
             freeActions(&actions_comp_desc2);
             freeActions(&actions_comp_sig2);
@@ -453,7 +464,6 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                 return rc;
             }
         }
-
     }
 
     //--------------------------------------------------------------------------------------------------------------------------
@@ -467,7 +477,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                     UDA_LOG(UDA_LOG_DEBUG, "Substituting Dimension Data\n");
 
                     strcpy(request_block2.format,
-                           "GENERIC");        // Database Lookup if not specified in XML or by Client
+                           "GENERIC"); // Database Lookup if not specified in XML or by Client
 
                     // Replace signal name re-using the Local Working REQUEST Block
 
@@ -476,8 +486,12 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
                     // Replace other properties if defined by the original client request or the XML DIMCOMPOSITE record
 
-                    if (strlen(request_data->path) > 0) strcpy(request_block2.path, request_data->file);
-                    if (strlen(request_data->format) > 0) strcpy(request_block2.format, request_data->format);
+                    if (strlen(request_data->path) > 0) {
+                        strcpy(request_block2.path, request_data->file);
+                    }
+                    if (strlen(request_data->format) > 0) {
+                        strcpy(request_block2.format, request_data->format);
+                    }
 
                     if (strlen(actions_desc->action[compId].composite.file) > 0) {
                         strcpy(request_block2.path, actions_desc->action[compId].composite.file);
@@ -502,7 +516,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                     initActions(&actions_comp_desc2);
                     initActions(&actions_comp_sig2);
                     initDataBlock(&data_block2);
-                    initSignalDesc(&signal_desc2);        // Added 06Nov2008
+                    initSignalDesc(&signal_desc2); // Added 06Nov2008
 
                     // Check if the source file was originally defined in the client API?
 
@@ -531,9 +545,9 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
                     // Recursive call
 
-                    rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
-                                    &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2,
-                                    pluginlist, logmalloclist, userdefinedtypelist, socket_list, protocolVersion);
+                    rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
+                                    &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                                    userdefinedtypelist, socket_list, protocolVersion);
 
                     freeActions(&actions_comp_desc2);
                     freeActions(&actions_comp_sig2);
@@ -546,8 +560,8 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
                     // Replace Dimension Data
 
-                    rc = swap_signal_dim(actions_desc->action[compId].composite.dimensions[i].dimcomposite,
-                                         data_block, &data_block2);
+                    rc = swap_signal_dim(actions_desc->action[compId].composite.dimensions[i].dimcomposite, data_block,
+                                         &data_block2);
 
                     freeDataBlock(&data_block2);
 
@@ -579,9 +593,9 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                         strcpy(data_source2.filename, request_data->file);
                     }
 
-                    rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
-                                    &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2,
-                                    pluginlist, logmalloclist, userdefinedtypelist, socket_list, protocolVersion);
+                    rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
+                                    &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                                    userdefinedtypelist, socket_list, protocolVersion);
 
                     freeActions(&actions_comp_desc2);
                     freeActions(&actions_comp_sig2);
@@ -627,9 +641,9 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                         strcpy(data_source2.filename, request_data->file);
                     }
 
-                    rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2,
-                                    &signal_rec2, &signal_desc2, &actions_comp_desc2, &actions_comp_sig2,
-                                    pluginlist, logmalloclist, userdefinedtypelist, socket_list, protocolVersion);
+                    rc = udaGetData(depth, &request_block2, client_block, &data_block2, &data_source2, &signal_rec2,
+                                    &signal_desc2, &actions_comp_desc2, &actions_comp_sig2, pluginlist, logmalloclist,
+                                    userdefinedtypelist, socket_list, protocolVersion);
 
                     freeActions(&actions_comp_desc2);
                     freeActions(&actions_comp_sig2);
@@ -651,13 +665,13 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
                         return rc;
                     }
                 }
-
             }
         }
     }
 
     //--------------------------------------------------------------------------------------------------------------------------
-    // Apply Any Labeling, Timing Offsets and Calibration Actions to Data and Dimension (no Data or Dimension substituting)
+    // Apply Any Labeling, Timing Offsets and Calibration Actions to Data and Dimension (no Data or Dimension
+    // substituting)
 
     UDA_LOG(UDA_LOG_DEBUG, "#Timing Before XML\n");
     printDataBlock(*data_block);
@@ -725,7 +739,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
         freeActions(&actions_serverside);
     }
 
-//--------------------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------
 
     (*depth)--;
     return 0;
@@ -738,12 +752,16 @@ int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymm
     if (data_block->rank == data_block2->rank && data_block->data_n == data_block2->data_n) {
 
         if (!asymmetry) {
-            if (data_block->errhi != nullptr) free(data_block->errhi);    // Free unwanted Error Data Heap
-            data_block->errhi = data_block2->data;                // straight swap!
-            data_block2->data = nullptr;                        // Prevent Double Heap Free
+            if (data_block->errhi != nullptr) {
+                free(data_block->errhi); // Free unwanted Error Data Heap
+            }
+            data_block->errhi = data_block2->data; // straight swap!
+            data_block2->data = nullptr;           // Prevent Double Heap Free
             data_block->errasymmetry = 0;
         } else {
-            if (data_block->errlo != nullptr) free(data_block->errlo);
+            if (data_block->errlo != nullptr) {
+                free(data_block->errlo);
+            }
             data_block->errlo = data_block2->data;
             data_block2->data = nullptr;
             data_block->errasymmetry = 1;
@@ -773,26 +791,36 @@ int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOC
             if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].dim) != nullptr) {
                 free(cptr);
             } // Free unwanted dimension Heap
-            if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].sams) != nullptr) free(cptr);
-            if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].offs) != nullptr) free(cptr);
-            if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].ints) != nullptr) free(cptr);
-            if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].errhi) != nullptr) free(cptr);
-            if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].errlo) != nullptr) free(cptr);
+            if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].sams) != nullptr) {
+                free(cptr);
+            }
+            if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].offs) != nullptr) {
+                free(cptr);
+            }
+            if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].ints) != nullptr) {
+                free(cptr);
+            }
+            if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].errhi) != nullptr) {
+                free(cptr);
+            }
+            if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].errlo) != nullptr) {
+                free(cptr);
+            }
 
-            data_block->dims[dimcomposite.to_dim].dim = nullptr;                        // Prevent Double Heap Free
+            data_block->dims[dimcomposite.to_dim].dim = nullptr; // Prevent Double Heap Free
             data_block->dims[dimcomposite.to_dim].sams = nullptr;
             data_block->dims[dimcomposite.to_dim].offs = nullptr;
             data_block->dims[dimcomposite.to_dim].ints = nullptr;
             data_block->dims[dimcomposite.to_dim].errhi = nullptr;
             data_block->dims[dimcomposite.to_dim].errlo = nullptr;
 
-            data_block->dims[dimcomposite.to_dim].dim = data_block2->data;        // straight swap!
+            data_block->dims[dimcomposite.to_dim].dim = data_block2->data; // straight swap!
             data_block->dims[dimcomposite.to_dim].errhi = data_block2->errhi;
             data_block->dims[dimcomposite.to_dim].errlo = data_block2->errlo;
             for (int i = 0; i < data_block2->error_param_n; i++) {
                 data_block->dims[dimcomposite.to_dim].errparams[i] = data_block2->errparams[i];
             }
-            data_block2->data = nullptr;                            // Prevent Double Heap Free
+            data_block2->data = nullptr; // Prevent Double Heap Free
             data_block2->errhi = nullptr;
             data_block2->errlo = nullptr;
 
@@ -800,7 +828,7 @@ int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOC
             data_block->dims[dimcomposite.to_dim].data_type = data_block2->data_type;
             data_block->dims[dimcomposite.to_dim].error_type = data_block2->error_type;
             data_block->dims[dimcomposite.to_dim].errasymmetry = data_block2->errasymmetry;
-            data_block->dims[dimcomposite.to_dim].compressed = 0;                // Not Applicable to Signal Data
+            data_block->dims[dimcomposite.to_dim].compressed = 0; // Not Applicable to Signal Data
             data_block->dims[dimcomposite.to_dim].dim0 = 0.0E0;
             data_block->dims[dimcomposite.to_dim].diff = 0.0E0;
             data_block->dims[dimcomposite.to_dim].method = 0;
@@ -824,23 +852,35 @@ int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOC
 
                 if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].dim) != nullptr) {
                     free(cptr);
-                }  // Free unwanted dimension Heap
-                if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].errhi) != nullptr) free(cptr);
-                if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].errlo) != nullptr) free(cptr);
-                if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].sams) != nullptr) free(cptr);
-                if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].offs) != nullptr) free(cptr);
-                if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].ints) != nullptr) free(cptr);
+                } // Free unwanted dimension Heap
+                if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].errhi) != nullptr) {
+                    free(cptr);
+                }
+                if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].errlo) != nullptr) {
+                    free(cptr);
+                }
+                if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].sams) != nullptr) {
+                    free(cptr);
+                }
+                if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].offs) != nullptr) {
+                    free(cptr);
+                }
+                if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].ints) != nullptr) {
+                    free(cptr);
+                }
 
-                data_block->dims[dimcomposite.to_dim].dim = data_block2->dims[dimcomposite.from_dim].dim;    // straight swap!
+                data_block->dims[dimcomposite.to_dim].dim =
+                    data_block2->dims[dimcomposite.from_dim].dim; // straight swap!
                 data_block->dims[dimcomposite.to_dim].errhi = data_block2->dims[dimcomposite.from_dim].errhi;
                 data_block->dims[dimcomposite.to_dim].errlo = data_block2->dims[dimcomposite.from_dim].errlo;
                 data_block->dims[dimcomposite.to_dim].sams = data_block2->dims[dimcomposite.from_dim].sams;
                 data_block->dims[dimcomposite.to_dim].offs = data_block2->dims[dimcomposite.from_dim].offs;
                 data_block->dims[dimcomposite.to_dim].ints = data_block2->dims[dimcomposite.from_dim].ints;
                 for (int i = 0; i < data_block2->dims[dimcomposite.from_dim].error_param_n; i++) {
-                    data_block->dims[dimcomposite.to_dim].errparams[i] = data_block2->dims[dimcomposite.from_dim].errparams[i];
+                    data_block->dims[dimcomposite.to_dim].errparams[i] =
+                        data_block2->dims[dimcomposite.from_dim].errparams[i];
                 }
-                data_block2->dims[dimcomposite.from_dim].dim = nullptr;                        // Prevent Double Heap Free
+                data_block2->dims[dimcomposite.from_dim].dim = nullptr; // Prevent Double Heap Free
                 data_block2->dims[dimcomposite.from_dim].errhi = nullptr;
                 data_block2->dims[dimcomposite.from_dim].errlo = nullptr;
                 data_block2->dims[dimcomposite.from_dim].sams = nullptr;
@@ -856,9 +896,12 @@ int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOC
                 data_block->dims[dimcomposite.to_dim].udoms = data_block2->dims[dimcomposite.from_dim].udoms;
 
                 data_block->dims[dimcomposite.to_dim].error_model = data_block2->dims[dimcomposite.from_dim].error_type;
-                data_block->dims[dimcomposite.to_dim].error_model = data_block2->dims[dimcomposite.from_dim].errasymmetry;
-                data_block->dims[dimcomposite.to_dim].error_model = data_block2->dims[dimcomposite.from_dim].error_model;
-                data_block->dims[dimcomposite.to_dim].error_param_n = data_block2->dims[dimcomposite.from_dim].error_param_n;
+                data_block->dims[dimcomposite.to_dim].error_model =
+                    data_block2->dims[dimcomposite.from_dim].errasymmetry;
+                data_block->dims[dimcomposite.to_dim].error_model =
+                    data_block2->dims[dimcomposite.from_dim].error_model;
+                data_block->dims[dimcomposite.to_dim].error_param_n =
+                    data_block2->dims[dimcomposite.from_dim].error_param_n;
 
                 strcpy(data_block->dims[dimcomposite.to_dim].dim_units,
                        data_block2->dims[dimcomposite.from_dim].dim_units);
@@ -873,13 +916,11 @@ int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOC
     return 0;
 }
 
-
-int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
-                          int asymmetry)
+int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry)
 {
     void* cptr = nullptr;
 
-// Replace Dimension Error Data with Signal Data
+    // Replace Dimension Error Data with Signal Data
 
     if (dimcomposite.from_dim < 0 && dimcomposite.to_dim >= 0) {
 
@@ -888,12 +929,14 @@ int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DAT
             if (!asymmetry) {
                 if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].errhi) != nullptr) {
                     free(cptr);
-                }    // Unwanted
-                data_block->dims[dimcomposite.to_dim].errhi = data_block2->data;                // straight swap!
-                data_block2->data = nullptr;                                    // Prevent Double Heap Free
+                }                                                                // Unwanted
+                data_block->dims[dimcomposite.to_dim].errhi = data_block2->data; // straight swap!
+                data_block2->data = nullptr;                                     // Prevent Double Heap Free
                 data_block->dims[dimcomposite.to_dim].errasymmetry = 0;
             } else {
-                if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].errlo) != nullptr) free(cptr);
+                if ((cptr = (void*)data_block->dims[dimcomposite.to_dim].errlo) != nullptr) {
+                    free(cptr);
+                }
                 data_block->dims[dimcomposite.to_dim].errlo = data_block2->data;
                 data_block2->data = nullptr;
                 data_block->dims[dimcomposite.to_dim].errasymmetry = 1;
@@ -907,9 +950,8 @@ int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DAT
     return 0;
 }
 
-int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
-              DATA_BLOCK* data_block, DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
-              const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
+int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data_block, DATA_SOURCE* data_source,
+              SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
               USERDEFINEDTYPELIST* userdefinedtypelist)
 {
     // If err = 0 then standard signal data read
@@ -927,9 +969,9 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
 #ifndef PROXYSERVER
     if (request->request != REQUEST_READ_XML) {
         if (STR_STARTSWITH(request->signal, "<?xml")) {
-            signal_desc->type = 'C';                             // Composite/Derived Type
-            signal_desc->signal_name[0] = '\0';                  // The true signal is contained in the XML
-            strcpy(signal_desc->xml, request->signal);     // XML is passed via the signal string
+            signal_desc->type = 'C';                   // Composite/Derived Type
+            signal_desc->signal_name[0] = '\0';        // The true signal is contained in the XML
+            strcpy(signal_desc->xml, request->signal); // XML is passed via the signal string
             strcpy(data_source->format, request->format);
             strcpy(data_source->path, request->path);
             strcpy(data_source->filename, request->file);
@@ -950,8 +992,8 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
     //
     // If the source is a private file and the Legacy Name has No Alternative record, then fail access
     // If the source is Not a private file (Generic Access method) and the Legacy Name has No Alternative record and
-    // the Source Alias associated with the Legacy Name (Signal_Desc table) is Not used by ANY Alternative mapping with the same
-    // Rank, then allow normal Generic lookup.
+    // the Source Alias associated with the Legacy Name (Signal_Desc table) is Not used by ANY Alternative mapping with
+    // the same Rank, then allow normal Generic lookup.
     //------------------------------------------------------------------------------
 #ifndef PROXYSERVER
     if (client_block.clientFlags & CLIENTFLAG_ALTDATA && request->request != REQUEST_READ_XML &&
@@ -959,15 +1001,16 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
 
         if (request->request != REQUEST_READ_GENERIC) {
             // Must be a Private File so switch signal names
-            strcpy(request->signal, signal_desc->signal_name);        // Alias or Generic have no context wrt private files
-            signal_desc->xml[0] = '\0';                                     // No corrections to private data files
-            strcpy(signal_desc->xml, mapping);                              // Only mapping XML is applicable
+            strcpy(request->signal, signal_desc->signal_name); // Alias or Generic have no context wrt private files
+            signal_desc->xml[0] = '\0';                        // No corrections to private data files
+            strcpy(signal_desc->xml, mapping);                 // Only mapping XML is applicable
             if (mapping[0] != '\0') {
                 signal_desc->type = 'S';
-            }                // Switched data with mapping Transform in XML
+            } // Switched data with mapping Transform in XML
         } else {
             if (signal_desc->signal_alias[0] != '\0') {
-                strcpy(request->signal, signal_desc->signal_alias);   // Alias or Generic name is what is passed into sqlGeneric
+                strcpy(request->signal,
+                       signal_desc->signal_alias); // Alias or Generic name is what is passed into sqlGeneric
             }
         }
     }
@@ -989,7 +1032,8 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
 
         UDA_LOG(UDA_LOG_DEBUG, "Metadata Plugin ID = %d\nExecuting the plugin\n", plugin_id);
 
-        // If the plugin is registered as a FILE or LIBRARY type then call the default method as no method will have been specified
+        // If the plugin is registered as a FILE or LIBRARY type then call the default method as no method will have
+        // been specified
 
         strcpy(request->function, pluginlist->plugin[plugin_id].method);
 
@@ -1018,7 +1062,9 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
 
     {
         int err = name_value_substitution(&request->nameValueList, request->tpass);
-        if (err != 0) return err;
+        if (err != 0) {
+            return err;
+        }
     }
 
     //------------------------------------------------------------------------------
@@ -1027,8 +1073,8 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
 
     if (request->request == REQUEST_READ_XML) {
         if (strlen(request->signal) > 0) {
-            strcpy(signal_desc->xml, request->signal);     // XML is passed via the signal string
-        } else if (strlen(request->path) > 0) {            // XML is passed via a file
+            strcpy(signal_desc->xml, request->signal); // XML is passed via the signal string
+        } else if (strlen(request->path) > 0) {        // XML is passed via a file
             FILE* xmlfile = nullptr;
             int nchar;
             errno = 0;
@@ -1047,7 +1093,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
             while (!feof(xmlfile) && nchar < MAXMETA) {
                 request->signal[nchar++] = (char)getc(xmlfile);
             }
-            request->signal[nchar - 2] = '\0';    // Remove EOF Character and replace with String Terminator
+            request->signal[nchar - 2] = '\0'; // Remove EOF Character and replace with String Terminator
             strcpy(signal_desc->xml, request->signal);
             fclose(xmlfile);
         } else {
@@ -1096,10 +1142,10 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
         int plugin_id;
 
         if (request->request != REQUEST_READ_GENERIC && request->request != REQUEST_READ_UNKNOWN) {
-            plugin_id = request->request;            // User has Specified a Plugin
+            plugin_id = request->request; // User has Specified a Plugin
             UDA_LOG(UDA_LOG_DEBUG, "Plugin Request ID %d\n", plugin_id);
         } else {
-            plugin_id = findPluginRequestByFormat(data_source->format, pluginlist);    // via Generic database query
+            plugin_id = findPluginRequestByFormat(data_source->format, pluginlist); // via Generic database query
             UDA_LOG(UDA_LOG_DEBUG, "findPluginRequestByFormat Plugin Request ID %d\n", plugin_id);
         }
 
@@ -1120,8 +1166,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
 #endif
             if (pluginlist->plugin[id].external == UDA_PLUGIN_EXTERNAL &&
                 pluginlist->plugin[id].status == UDA_PLUGIN_OPERATIONAL &&
-                pluginlist->plugin[id].pluginHandle != nullptr &&
-                pluginlist->plugin[id].idamPlugin != nullptr) {
+                pluginlist->plugin[id].pluginHandle != nullptr && pluginlist->plugin[id].idamPlugin != nullptr) {
 
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] %s Plugin Selected\n", plugin_id, data_source->format);
 
@@ -1180,7 +1225,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
                     return 0;
                 }
 
-                request->request = REQUEST_READ_GENERIC;            // Use a different Plugin
+                request->request = REQUEST_READ_GENERIC; // Use a different Plugin
             }
         }
     }
@@ -1188,7 +1233,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
     int plugin_id = REQUEST_READ_UNKNOWN;
 
     if (request->request != REQUEST_READ_GENERIC) {
-        plugin_id = request->request;            // User API has Specified a Plugin
+        plugin_id = request->request; // User API has Specified a Plugin
     } else {
 
         // Test for known File formats and Server protocols
@@ -1196,7 +1241,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
         int id = -1;
         for (int i = 0; i < pluginlist->count; i++) {
             if (STR_IEQUALS(data_source->format, pluginlist->plugin[i].format)) {
-                plugin_id = pluginlist->plugin[i].request;                // Found
+                plugin_id = pluginlist->plugin[i].request; // Found
                 id = i;
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] %s Plugin Selected\n", plugin_id, data_source->format);
                 break;
@@ -1248,8 +1293,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block,
     // Save Provenance with socket stream protection
 
     udaServerRedirectStdStreams(0);
-    udaProvenancePlugin(&client_block, request, data_source, signal_desc, pluginlist, nullptr,
-                        getServerEnvironment());
+    udaProvenancePlugin(&client_block, request, data_source, signal_desc, pluginlist, nullptr, getServerEnvironment());
     udaServerRedirectStdStreams(1);
 
     return 0;

@@ -5,4 +5,3 @@
 #include "dim.hpp"
 
 uda::Dim uda::Dim::Null = uda::Dim();
-

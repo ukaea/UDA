@@ -6,31 +6,31 @@
 //--------------------------------------------------------------------------------------------------------------------
 
 #include "serverSubsetData.h"
-#include "getServerEnvironment.h"
-#include "clientserver/parseOperation.h"
-#include "udaPlugin.h"
 #include "clientserver/makeRequestBlock.h"
+#include "clientserver/parseOperation.h"
+#include "getServerEnvironment.h"
+#include "udaPlugin.h"
 
-#include <cmath>
-#include <cfloat>
 #include <cerrno>
-#include <vector>
+#include <cfloat>
+#include <cmath>
 #include <string>
+#include <vector>
 #if defined(__GNUC__)
 #  include <strings.h>
 #else
 #  define strncasecmp _strnicmp
 #endif
 
-#include <logging/logging.h>
-#include <clientserver/printStructs.h>
-#include <clientserver/errorLog.h>
-#include "udaTypes.h"
-#include "struct.h"
 #include "initStructs.h"
-#include <clientserver/compressDim.h>
-#include <clientserver/stringUtils.h>
+#include "struct.h"
+#include "udaTypes.h"
 #include <boost/algorithm/string.hpp>
+#include <clientserver/compressDim.h>
+#include <clientserver/errorLog.h>
+#include <clientserver/printStructs.h>
+#include <clientserver/stringUtils.h>
+#include <logging/logging.h>
 
 //----------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------
@@ -46,28 +46,27 @@
 //
 //    reform - reduce the rank by 1 if the dimension length is 1 and the rank > 1
 
-
 // todo:
 //
 
 static int get_subset_indices(const std::string& operation, DIMS* dim, double value, unsigned int* subset_indices);
 
-int apply_sub_setting(DIMS* dims, int rank, int dim_id,
-                      char* data, int ndata, int data_type, int not_operation,
+int apply_sub_setting(DIMS* dims, int rank, int dim_id, char* data, int ndata, int data_type, int not_operation,
                       int start, int end, int start1, int end1, int stride, int* n, void** new_data);
 
-int number_of_subsetting_operations(const ACTION* action) {
+int number_of_subsetting_operations(const ACTION* action)
+{
     switch (action->actionType) {
         case UDA_COMPOSITE_TYPE:
             // XML Based sub-setting
             if (action->composite.nsubsets == 0) {
-                return 0;        // Nothing to Subset
+                return 0; // Nothing to Subset
             }
             return action->composite.nsubsets;
         case UDA_SERVER_SIDE_TYPE:
             // Client Requested sub-setting
             if (action->serverside.nsubsets == 0) {
-                return 0;    // Nothing to Subset
+                return 0; // Nothing to Subset
             }
             return action->serverside.nsubsets;
         case UDA_SUBSET_TYPE:
@@ -80,45 +79,44 @@ int number_of_subsetting_operations(const ACTION* action) {
 
 int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist)
 {
-    int n_bound = subset.nbound;                        // the Number of operations in the set
+    int n_bound = subset.nbound; // the Number of operations in the set
 
     // treat x[0] as a no-op when x is a scalar
-    if (n_bound == 1
-        && (subset.lbindex[0].init && subset.lbindex[0].value == 0)
-        && (subset.ubindex[0].init && subset.ubindex[0].value == 1)
-        && data_block->rank == 0) {
+    if (n_bound == 1 && (subset.lbindex[0].init && subset.lbindex[0].value == 0) &&
+        (subset.ubindex[0].init && subset.ubindex[0].value == 1) && data_block->rank == 0) {
         return 0;
     }
 
-    for (int j = 0; j < n_bound; j++) {                        // Process each operation separately
+    for (int j = 0; j < n_bound; j++) { // Process each operation separately
 
         double value = subset.bound[j];
-        std::string operation = subset.operation[j];                // a single operation
-        int dim_id = subset.dimid[j];                    // applied to this dimension (if -1 then to data only!)
+        std::string operation = subset.operation[j]; // a single operation
+        int dim_id = subset.dimid[j];                // applied to this dimension (if -1 then to data only!)
 
-        UDA_LOG(UDA_LOG_DEBUG, "[%d][%d]Value = %e, Operation = %s, DIM id = %d, Reform = %d\n", ii, j, value, operation.c_str(), dim_id, subset.reform);
+        UDA_LOG(UDA_LOG_DEBUG, "[%d][%d]Value = %e, Operation = %s, DIM id = %d, Reform = %d\n", ii, j, value,
+                operation.c_str(), dim_id, subset.reform);
 
         if (dim_id < 0 || dim_id >= (int)data_block->rank) {
-            UDA_LOG(UDA_LOG_ERROR, "DIM id = %d,  Rank = %d, Test = %d \n",
-                    dim_id, data_block->rank, dim_id >= (int)data_block->rank);
+            UDA_LOG(UDA_LOG_ERROR, "DIM id = %d,  Rank = %d, Test = %d \n", dim_id, data_block->rank,
+                    dim_id >= (int)data_block->rank);
             printDataBlock(*data_block);
-            UDA_THROW_ERROR(9999, "Data Subsetting is Impossible as the subset Dimension is not Compatible with the Rank of the Signal");
+            UDA_THROW_ERROR(
+                9999,
+                "Data Subsetting is Impossible as the subset Dimension is not Compatible with the Rank of the Signal");
             return 9999;
         }
 
         //----------------------------------------------------------------------------------------------------------------------------
         // Operations on Simple Data Structures: target must be an Atomic Type, Scalar, Name is Case Sensitive
         //
-        // (mapType=1) Array of Structures - member = single scalar value: rank and shape = rank and shape of structure array
-        // (mapType=2) Single Structure - member = array of values: rank and shape = increase rank and shape of structure member by 1
-        // Array of Structures - member = array of values: Not allowed.
+        // (mapType=1) Array of Structures - member = single scalar value: rank and shape = rank and shape of structure
+        // array (mapType=2) Single Structure - member = array of values: rank and shape = increase rank and shape of
+        // structure member by 1 Array of Structures - member = array of values: Not allowed.
         //
         // (mapType=3) structure[14].array[100] -> newarray[14][100]:
 
-        if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES
-                && subset.member[0] != '\0'
-                && data_block->opaque_block != nullptr) {
-
+        if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES && subset.member[0] != '\0' &&
+            data_block->opaque_block != nullptr) {
 
             auto udt = (USERDEFINEDTYPE*)data_block->opaque_block;
 
@@ -126,7 +124,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
             for (int i = 0; i < udt->fieldcount; i++) {
                 char* extract = nullptr;
-                if (STR_EQUALS(udt->compoundfield[i].name, subset.member)) {        // Locate target member by name
+                if (STR_EQUALS(udt->compoundfield[i].name, subset.member)) { // Locate target member by name
 
                     int data_n = data_block->data_n;
 
@@ -143,17 +141,18 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
                     int* shape = nullptr;
 
-                    if (!udt->compoundfield[i].pointer) {            // Regular Array of data
+                    if (!udt->compoundfield[i].pointer) { // Regular Array of data
 
                         switch (udt->compoundfield[i].atomictype) {
                             case UDA_TYPE_DOUBLE: {
-                                double* data = nullptr, * dp;
+                                double *data = nullptr, *dp;
 
                                 if (mapType == 1) {
                                     data = (double*)malloc(data_n * sizeof(double));
-                                    for (int k = 0; k < data_n; k++)
-                                        data[k] = *(double*)&data_block->data[k * udt->size +
-                                                                              udt->compoundfield[i].offset];
+                                    for (int k = 0; k < data_n; k++) {
+                                        data[k] =
+                                            *(double*)&data_block->data[k * udt->size + udt->compoundfield[i].offset];
+                                    }
                                 } else {
                                     if (mapType == 2) {
                                         data_n = udt_count;
@@ -168,17 +167,18 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
                                         if ((shape = udt->compoundfield[i].shape) == nullptr &&
                                             udt->compoundfield[i].rank > 1) {
-                                            UDA_THROW_ERROR(999, "The Data Structure member's shape data is missing (rank > 1)");
+                                            UDA_THROW_ERROR(
+                                                999, "The Data Structure member's shape data is missing (rank > 1)");
                                         }
 
-                                    } else {        // mapType == 3
+                                    } else { // mapType == 3
                                         int total_n;
                                         total_n = udt_count * data_n;
                                         data = (double*)malloc(total_n * sizeof(double));
                                         int jjj = 0;
-                                        for (int jj = 0; jj < data_n; jj++) {    // Loop over structures
-                                            dp = (double*)&data_block->data[jj * udt->size +
-                                                                            udt->compoundfield[i].offset];
+                                        for (int jj = 0; jj < data_n; jj++) { // Loop over structures
+                                            dp = (double*)&data_block
+                                                     ->data[jj * udt->size + udt->compoundfield[i].offset];
                                             for (int k = 0; k < udt_count; k++) {
                                                 data[jjj++] = dp[k];
                                             }
@@ -192,7 +192,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                             }
                         }
 
-                    } else {        // Locate the pointer data's properties:
+                    } else { // Locate the pointer data's properties:
 
                         int count = 0;
                         int size = 0;
@@ -210,8 +210,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                                 // Properties Must be identical for all structure array elements
                                 extract = *(char**)&data_block->data[jj * udt->size + udt->compoundfield[i].offset];
 
-                                findMalloc2(logmalloclist, (void*)extract, &count, &size, &type_name, &rank,
-                                            &shape);
+                                findMalloc2(logmalloclist, (void*)extract, &count, &size, &type_name, &rank, &shape);
                                 if (jj > 0) {
                                     if (count != count_p || size != size_p || rank != rank_p ||
                                         strcmp(type_name, type_name_p) != 0) {
@@ -220,12 +219,13 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                                     if (shape != nullptr) {
                                         for (int k = 0; k < rank; k++) {
                                             if (shape[k] != shape_p[k]) {
-                                                //ERROR
+                                                // ERROR
                                             }
                                         }
                                     } else {
                                         if (rank > 1) {
-                                            UDA_THROW_ERROR(999, "The Data Structure member's shape data is missing (rank > 1)");
+                                            UDA_THROW_ERROR(
+                                                999, "The Data Structure member's shape data is missing (rank > 1)");
                                         }
                                     }
                                 }
@@ -243,19 +243,18 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
                         if (mapType == 3) {
                             UDA_THROW_ERROR(999, "Unable to subset an array of Data Structures when the target "
-                                             "member is also an array. (Functionality has not been implemented!)");
+                                                 "member is also an array. (Functionality has not been implemented!)");
                         }
 
                         int type = gettypeof(type_name);
 
                         switch (type) {
                             case UDA_TYPE_DOUBLE: {
-                                double* data = nullptr, * dp;
+                                double *data = nullptr, *dp;
                                 if (mapType == 1) {
                                     data = (double*)malloc(data_n * sizeof(double));
                                     for (int k = 0; k < data_n; k++) {
-                                        dp = *(double**)&data_block->data[k * udt->size +
-                                                                          udt->compoundfield[i].offset];
+                                        dp = *(double**)&data_block->data[k * udt->size + udt->compoundfield[i].offset];
                                         data[k] = dp[0];
                                     }
                                 } else {
@@ -273,7 +272,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                                 break;
                             }
 
-                                //default:
+                                // default:
                         }
                     }
 
@@ -326,8 +325,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                             unsigned int k0 = data_block->rank;
                             data_block->rank = data_block->rank + udt->compoundfield[i].rank;
 
-                            data_block->dims = (DIMS*)realloc((void*)data_block->dims,
-                                                              data_block->rank * sizeof(DIMS));
+                            data_block->dims = (DIMS*)realloc((void*)data_block->dims, data_block->rank * sizeof(DIMS));
 
                             for (unsigned int k = k0; k < data_block->rank; k++) {
                                 initDimBlock(&data_block->dims[k]);
@@ -356,7 +354,6 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                     data_block->opaque_count = 0;
                     data_block->opaque_block = nullptr;
                     break;
-
                 }
             }
         }
@@ -366,26 +363,26 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
         if (operation == "*") {
             continue;
-        }                // This means No subset - Part of an array Reshape Operation
+        } // This means No subset - Part of an array Reshape Operation
 
-        if (operation[0] == ':'
-                && (subset.lbindex[j].init ? subset.lbindex[j].value : 0) == 0
-                && (subset.ubindex[j].init ? subset.lbindex[j].value : data_block->dims[dim_id].dim_n) == data_block->dims[dim_id].dim_n
-                && (subset.stride[j].init ? subset.stride[j].value : 1) == 1) {
-            continue;    // subset spans the complete dimension
+        if (operation[0] == ':' && (subset.lbindex[j].init ? subset.lbindex[j].value : 0) == 0 &&
+            (subset.ubindex[j].init ? subset.lbindex[j].value : data_block->dims[dim_id].dim_n) ==
+                data_block->dims[dim_id].dim_n &&
+            (subset.stride[j].init ? subset.stride[j].value : 1) == 1) {
+            continue; // subset spans the complete dimension
         }
 
         //----------------------------------------------------------------------------------------------------------------------------
         // Decompress the dimensional data if necessary & free Heap Associated with Compression
 
         DIMS new_dim;
-        initDimBlock(&new_dim);                    // Holder for the Sub-setted Dimension (part copy of the original)
+        initDimBlock(&new_dim); // Holder for the Sub-setted Dimension (part copy of the original)
 
-        auto dim = &(data_block->dims[dim_id]);                // the original dimension to be subset
+        auto dim = &(data_block->dims[dim_id]); // the original dimension to be subset
 
         if (dim->compressed) {
             uncompressDim(dim);
-            dim->compressed = 0;                    // Can't preserve this status after the subset has been applied
+            dim->compressed = 0; // Can't preserve this status after the subset has been applied
             dim->method = 0;
 
             free(dim->sams);
@@ -393,7 +390,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
             free(dim->ints);
 
             dim->udoms = 0;
-            dim->sams = nullptr;        // Avoid double freeing of Heap
+            dim->sams = nullptr; // Avoid double freeing of Heap
             dim->offs = nullptr;
             dim->ints = nullptr;
         }
@@ -413,19 +410,19 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
         // Sub-setting Indices
 
-//        int start = -1;                 // Starting Index satisfying the operation
-//        int end = -1;                   // Ending Index
+        //        int start = -1;                 // Starting Index satisfying the operation
+        //        int end = -1;                   // Ending Index
         int start1 = -1;
         int end1 = -1;
 
         // Test for Array Reshaping Operations
 
-        int reshape = 0;                // Sub-setting has been defined using array indexing notation
+        int reshape = 0; // Sub-setting has been defined using array indexing notation
 
-        auto not_operation = (operation[0] == '!');        // a NOT operator => One or Two subsets
+        auto not_operation = (operation[0] == '!'); // a NOT operator => One or Two subsets
 
         if (operation[0] == '*') {
-            continue;        // This means No dimensional subset - Part of an array Reshape Operation
+            continue; // This means No dimensional subset - Part of an array Reshape Operation
         }
 
         int dim_n = 0;
@@ -434,10 +431,10 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         int end = dim->dim_n;
         int stride = 1;
 
-        if (operation[0] == ':') {                  // Reshape Operation - Index Range Specified
-            auto maybe_start = subset.lbindex[j];         // Number before the first :
-            auto maybe_end = subset.ubindex[j];           // Number after the first :
-            auto maybe_stride = subset.stride[j];     // Number after the second :
+        if (operation[0] == ':') {                // Reshape Operation - Index Range Specified
+            auto maybe_start = subset.lbindex[j]; // Number before the first :
+            auto maybe_end = subset.ubindex[j];   // Number after the first :
+            auto maybe_stride = subset.stride[j]; // Number after the second :
 
             start = (int)(maybe_start.init ? maybe_start.value : 0);
             if (start < 0) {
@@ -458,7 +455,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
             dim_n = abs((end - start) / stride);
         }
 
-        if (operation[0] == '#') {            // Reshape Operation - Highest array position (last value)
+        if (operation[0] == '#') { // Reshape Operation - Highest array position (last value)
             start = dim->dim_n - 1;
             end = dim->dim_n;
             reshape = 1;
@@ -494,10 +491,10 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
             start = (int)subset_indices[0];
             end = (int)subset_indices[dim_n - 1];
 
-            if (not_operation && dim_n > 1) {        // Double Range	?
+            if (not_operation && dim_n > 1) { // Double Range	?
                 int range2 = 0;
                 if (dim_n == dim->dim_n) {
-                    not_operation = false;            // No Second Range found so switch OFF NOT Operation
+                    not_operation = false; // No Second Range found so switch OFF NOT Operation
                 } else {
                     end1 = (int)subset_indices[dim_n - 1];
                     for (int k = 0; k < dim_n; k++) {
@@ -509,12 +506,12 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                     }
                     range2 = end1 - start1 + 1;
                 }
-                if (dim_n != end - start + 1 + range2) {        // Dimension array is Not well ordered!
+                if (dim_n != end - start + 1 + range2) { // Dimension array is Not well ordered!
                     free(subset_indices);
                     UDA_THROW_ERROR(9999, "The Dimensional Array is Not Ordered: Unable to Subset");
                 }
             } else {
-                if (dim_n != end - start + 1) {        // Dimension array is Not well ordered!
+                if (dim_n != end - start + 1) { // Dimension array is Not well ordered!
                     free(subset_indices);
                     UDA_THROW_ERROR(9999, "The Dimensional Array is Not Ordered: Unable to Subset");
                 }
@@ -535,21 +532,23 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         int n;
         int ierr = 0;
 
-        if ((ierr = apply_sub_setting(dim, 1, dim_id, dim->dim, dim_n, dim->data_type, not_operation,
-                                        start, end, start1, end1, stride, &n, (void**)&new_dim.dim)) != 0) {
+        if ((ierr = apply_sub_setting(dim, 1, dim_id, dim->dim, dim_n, dim->data_type, not_operation, start, end,
+                                      start1, end1, stride, &n, (void**)&new_dim.dim)) != 0) {
             return ierr;
         }
 
         if (dim->errhi != nullptr && dim->error_type != UDA_TYPE_UNKNOWN) {
-            if ((ierr = apply_sub_setting(dim, 1, dim_id, dim->errhi, dim_n, dim->error_type, not_operation,
-                                            start, end, start1, end1, stride, &n, (void**)&new_dim.errhi)) != 0)
+            if ((ierr = apply_sub_setting(dim, 1, dim_id, dim->errhi, dim_n, dim->error_type, not_operation, start, end,
+                                          start1, end1, stride, &n, (void**)&new_dim.errhi)) != 0) {
                 return ierr;
+            }
         }
 
         if (dim->errlo != nullptr && dim->error_type != UDA_TYPE_UNKNOWN) {
-            if ((ierr = apply_sub_setting(dim, 1, dim_id, dim->errlo, dim_n, dim->error_type, not_operation,
-                                            start, end, start1, end1, stride, &n, (void**)&new_dim.errlo)) != 0)
+            if ((ierr = apply_sub_setting(dim, 1, dim_id, dim->errlo, dim_n, dim->error_type, not_operation, start, end,
+                                          start1, end1, stride, &n, (void**)&new_dim.errlo)) != 0) {
                 return ierr;
+            }
         }
 
         //-----------------------------------------------------------------------------------------------------------------------
@@ -560,9 +559,9 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         int n_data;
         char* new_data;
 
-        if ((ierr = apply_sub_setting(data_block->dims, data_block->rank, dim_id, data_block->data,
-                                        data_block->data_n, data_block->data_type, not_operation,
-                                        start, end, start1, end1, stride, &n_data, (void**)&new_data)) != 0) {
+        if ((ierr = apply_sub_setting(data_block->dims, data_block->rank, dim_id, data_block->data, data_block->data_n,
+                                      data_block->data_type, not_operation, start, end, start1, end1, stride, &n_data,
+                                      (void**)&new_data)) != 0) {
             return ierr;
         }
 
@@ -570,33 +569,34 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
         if (data_block->error_type != UDA_TYPE_UNKNOWN && data_block->errhi != nullptr) {
             if ((ierr = apply_sub_setting(data_block->dims, data_block->rank, dim_id, data_block->errhi,
-                                            data_block->data_n, data_block->error_type, not_operation,
-                                            start, end, start1, end1, stride, &n, (void**)&new_errhi)) != 0) {
+                                          data_block->data_n, data_block->error_type, not_operation, start, end, start1,
+                                          end1, stride, &n, (void**)&new_errhi)) != 0) {
                 return ierr;
             }
-            free(data_block->errhi);                // Free Original Heap
-            data_block->errhi = new_errhi;                // Replace with the Reshaped Array
+            free(data_block->errhi);       // Free Original Heap
+            data_block->errhi = new_errhi; // Replace with the Reshaped Array
         }
 
         char* new_errlo;
 
         if (data_block->error_type != UDA_TYPE_UNKNOWN && dim->errlo != nullptr) {
             if ((ierr = apply_sub_setting(data_block->dims, data_block->rank, dim_id, data_block->errlo,
-                                            data_block->data_n, data_block->error_type, not_operation,
-                                            start, end, start1, end1, stride, &n, (void**)&new_errlo)) != 0) {
+                                          data_block->data_n, data_block->error_type, not_operation, start, end, start1,
+                                          end1, stride, &n, (void**)&new_errlo)) != 0) {
                 return ierr;
             }
-            free(data_block->errlo);                // Free Original Heap
-            data_block->errlo = new_errlo;                // Replace with the Reshaped Array
+            free(data_block->errlo);       // Free Original Heap
+            data_block->errlo = new_errlo; // Replace with the Reshaped Array
         }
 
         data_block->data_n = n_data;
 
-        free(data_block->data);                // Free Original Heap
-        data_block->data = new_data;                    // Replace with the Reshaped Array
+        free(data_block->data);      // Free Original Heap
+        data_block->data = new_data; // Replace with the Reshaped Array
 
         // replace the Original Dimensional Structure with the New Subsetted Structure unless a
-        // REFORM [Rank Reduction] has been requested and the dimension length is 1 (this has no effect on the Data Array items)
+        // REFORM [Rank Reduction] has been requested and the dimension length is 1 (this has no effect on the Data
+        // Array items)
 
         // Free Heap associated with the original Dimensional Structure Array
 
@@ -610,7 +610,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
         // Save the reshaped Dimension or Reform the whole
 
-        data_block->dims[dim_id] = new_dim;                            // Replace with the subsetted dimension
+        data_block->dims[dim_id] = new_dim; // Replace with the subsetted dimension
     }
 
     return 0;
@@ -626,26 +626,38 @@ int reform_data(DATA_BLOCK* data_block)
             data_block->dims[j].compressed = 0;
             data_block->dims[j].method = 0;
 
-            if (data_block->dims[j].dim != nullptr) free(data_block->dims[j].dim);
-            if (data_block->dims[j].errlo != nullptr) free(data_block->dims[j].errlo);
-            if (data_block->dims[j].errhi != nullptr) free(data_block->dims[j].errhi);
-            if (data_block->dims[j].sams != nullptr) free(data_block->dims[j].sams);
-            if (data_block->dims[j].offs != nullptr) free(data_block->dims[j].offs);
-            if (data_block->dims[j].ints != nullptr) free(data_block->dims[j].ints);
+            if (data_block->dims[j].dim != nullptr) {
+                free(data_block->dims[j].dim);
+            }
+            if (data_block->dims[j].errlo != nullptr) {
+                free(data_block->dims[j].errlo);
+            }
+            if (data_block->dims[j].errhi != nullptr) {
+                free(data_block->dims[j].errhi);
+            }
+            if (data_block->dims[j].sams != nullptr) {
+                free(data_block->dims[j].sams);
+            }
+            if (data_block->dims[j].offs != nullptr) {
+                free(data_block->dims[j].offs);
+            }
+            if (data_block->dims[j].ints != nullptr) {
+                free(data_block->dims[j].ints);
+            }
 
             for (int k = j + 1; k < rank; k++) {
-                data_block->dims[k - 1] = data_block->dims[k];            // Shift array contents
+                data_block->dims[k - 1] = data_block->dims[k]; // Shift array contents
             }
 
             if (data_block->order == j) {
-                data_block->order = -1;                                // No Time Dimension if Reformed
+                data_block->order = -1; // No Time Dimension if Reformed
             } else {
                 if (data_block->order > j) {
                     data_block->order = data_block->order - 1;
-                }        // Time Dimension ID reduced by 1
+                } // Time Dimension ID reduced by 1
             }
 
-            data_block->rank = data_block->rank - 1;                        // Reduce the Rank
+            data_block->rank = data_block->rank - 1; // Reduce the Rank
         }
     }
     return 0;
@@ -658,7 +670,7 @@ int apply_minimum(SUBSET subset, DATA_BLOCK* data_block)
     if (data_block->rank >= 1) {
         char* p1 = strstr(subset.function, "dim_id");
         if (p1 != nullptr) {
-            char* p3, * p2 = strchr(p1, '=');
+            char *p3, *p2 = strchr(p1, '=');
             p2[0] = ' ';
             p3 = strchr(p2, ')');
             p3[0] = '\0';
@@ -673,9 +685,9 @@ int apply_minimum(SUBSET subset, DATA_BLOCK* data_block)
     }
 
     if (dim_id < 0 || dim_id >= (int)data_block->rank) {
-        UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dim_id = %d,  Rank = %d\n", dim_id,
-                data_block->rank);
-        UDA_THROW_ERROR(999, "The dimension ID identified via the subset function is outside the rank bounds of the array!");
+        UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dim_id = %d,  Rank = %d\n", dim_id, data_block->rank);
+        UDA_THROW_ERROR(999,
+                        "The dimension ID identified via the subset function is outside the rank bounds of the array!");
     }
 
     switch (data_block->data_type) {
@@ -683,13 +695,14 @@ int apply_minimum(SUBSET subset, DATA_BLOCK* data_block)
             auto dp = (float*)data_block->data;
             float min = dp[0];
             switch (data_block->rank) {
-                case 0: {            // Ignore function dim_id argument
-                    for (int j = 1; j < data_block->data_n; j++)
+                case 0: { // Ignore function dim_id argument
+                    for (int j = 1; j < data_block->data_n; j++) {
                         if (dp[j] < min) {
                             min = dp[j];
                         }
+                    }
                     dp[0] = min;
-                    dp = (float*)realloc((void*)dp, sizeof(float));        // Reduce array size
+                    dp = (float*)realloc((void*)dp, sizeof(float)); // Reduce array size
                     data_block->data_n = 1;
                     break;
                 }
@@ -700,7 +713,7 @@ int apply_minimum(SUBSET subset, DATA_BLOCK* data_block)
                         }
                     }
                     dp[0] = min;
-                    dp = (float*)realloc((void*)dp, sizeof(float));        // Reduce array size
+                    dp = (float*)realloc((void*)dp, sizeof(float)); // Reduce array size
                     data_block->rank = 0;
                     data_block->data_n = 1;
                     free(data_block->dims[0].dim);
@@ -760,13 +773,14 @@ int apply_minimum(SUBSET subset, DATA_BLOCK* data_block)
             auto dp = (double*)data_block->data;
             double min = dp[0];
             switch (data_block->rank) {
-                case 0: {            // Ignore function dim_id argument
-                    for (int j = 1; j < data_block->data_n; j++)
+                case 0: { // Ignore function dim_id argument
+                    for (int j = 1; j < data_block->data_n; j++) {
                         if (dp[j] < min) {
                             min = dp[j];
                         }
+                    }
                     dp[0] = min;
-                    dp = (double*)realloc((void*)dp, sizeof(double));        // Reduce array size
+                    dp = (double*)realloc((void*)dp, sizeof(double)); // Reduce array size
                     data_block->data_n = 1;
                     break;
                 }
@@ -777,7 +791,7 @@ int apply_minimum(SUBSET subset, DATA_BLOCK* data_block)
                         }
                     }
                     dp[0] = min;
-                    dp = (double*)realloc((void*)dp, sizeof(double));        // Reduce array size
+                    dp = (double*)realloc((void*)dp, sizeof(double)); // Reduce array size
                     data_block->rank = 0;
                     data_block->data_n = 1;
                     free(data_block->dims[0].dim);
@@ -846,7 +860,7 @@ int apply_maximum(SUBSET subset, DATA_BLOCK* data_block)
     if (data_block->rank >= 1) {
         char* p1 = strstr(subset.function, "dim_id");
         if (p1 != nullptr) {
-            char* p3, * p2 = strchr(p1, '=');
+            char *p3, *p2 = strchr(p1, '=');
             p2[0] = ' ';
             p3 = strchr(p2, ')');
             p3[0] = '\0';
@@ -861,9 +875,9 @@ int apply_maximum(SUBSET subset, DATA_BLOCK* data_block)
     }
 
     if (dim_id < 0 || dim_id >= (int)data_block->rank) {
-        UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dim_id = %d,  Rank = %d\n", dim_id,
-                data_block->rank);
-        UDA_THROW_ERROR(999, "The dimension ID identified via the subset function is outside the rank bounds of the array!");
+        UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dim_id = %d,  Rank = %d\n", dim_id, data_block->rank);
+        UDA_THROW_ERROR(999,
+                        "The dimension ID identified via the subset function is outside the rank bounds of the array!");
     }
 
     switch (data_block->data_type) {
@@ -871,14 +885,14 @@ int apply_maximum(SUBSET subset, DATA_BLOCK* data_block)
             auto dp = (float*)data_block->data;
             float max = dp[0];
             switch (data_block->rank) {
-                case 0: {            // Ignore function dim_id argument
+                case 0: { // Ignore function dim_id argument
                     for (int j = 1; j < data_block->data_n; j++) {
                         if (dp[j] > max) {
                             max = dp[j];
                         }
                     }
                     dp[0] = max;
-                    dp = (float*)realloc((void*)dp, sizeof(float));        // Reduce array size
+                    dp = (float*)realloc((void*)dp, sizeof(float)); // Reduce array size
                     data_block->data_n = 1;
                     break;
                 }
@@ -889,7 +903,7 @@ int apply_maximum(SUBSET subset, DATA_BLOCK* data_block)
                         }
                     }
                     dp[0] = max;
-                    dp = (float*)realloc((void*)dp, sizeof(float));        // Reduce array size
+                    dp = (float*)realloc((void*)dp, sizeof(float)); // Reduce array size
                     data_block->rank = 0;
                     data_block->data_n = 1;
                     free(data_block->dims[0].dim);
@@ -949,13 +963,14 @@ int apply_maximum(SUBSET subset, DATA_BLOCK* data_block)
             auto dp = (double*)data_block->data;
             double max = dp[0];
             switch (data_block->rank) {
-                case 0: {            // Ignore function dim_id argument
-                    for (int j = 1; j < data_block->data_n; j++)
+                case 0: { // Ignore function dim_id argument
+                    for (int j = 1; j < data_block->data_n; j++) {
                         if (dp[j] > max) {
                             max = dp[j];
                         }
+                    }
                     dp[0] = max;
-                    dp = (double*)realloc((void*)dp, sizeof(double));        // Reduce array size
+                    dp = (double*)realloc((void*)dp, sizeof(double)); // Reduce array size
                     data_block->data_n = 1;
                     break;
                 }
@@ -966,7 +981,7 @@ int apply_maximum(SUBSET subset, DATA_BLOCK* data_block)
                         }
                     }
                     dp[0] = max;
-                    dp = (double*)realloc((void*)dp, sizeof(double));        // Reduce array size
+                    dp = (double*)realloc((void*)dp, sizeof(double)); // Reduce array size
                     data_block->rank = 0;
                     data_block->data_n = 1;
                     free(data_block->dims[0].dim);
@@ -1042,7 +1057,7 @@ int apply_count(SUBSET subset, DATA_BLOCK* data_block)
     } else {
         int dim_id = 0;
         if (data_block->rank >= 1) {
-            char* p3, * p2 = strchr(p1, '=');
+            char *p3, *p2 = strchr(p1, '=');
             p2[0] = ' ';
             p3 = strchr(p2, ')');
             p3[0] = '\0';
@@ -1053,14 +1068,26 @@ int apply_count(SUBSET subset, DATA_BLOCK* data_block)
             }
         }
         if (dim_id < (int)data_block->rank) {
-            count[0] = (unsigned int)data_block->dims[dim_id].dim_n;        // Preserve this value
+            count[0] = (unsigned int)data_block->dims[dim_id].dim_n; // Preserve this value
             DIMS ddim = data_block->dims[dim_id];
-            if (ddim.dim != nullptr) free(ddim.dim);
-            if (ddim.errhi != nullptr) free(ddim.errhi);
-            if (ddim.errlo != nullptr) free(ddim.errlo);
-            if (ddim.sams != nullptr) free(ddim.sams);
-            if (ddim.offs != nullptr) free(ddim.offs);
-            if (ddim.ints != nullptr) free(ddim.ints);
+            if (ddim.dim != nullptr) {
+                free(ddim.dim);
+            }
+            if (ddim.errhi != nullptr) {
+                free(ddim.errhi);
+            }
+            if (ddim.errlo != nullptr) {
+                free(ddim.errlo);
+            }
+            if (ddim.sams != nullptr) {
+                free(ddim.sams);
+            }
+            if (ddim.offs != nullptr) {
+                free(ddim.offs);
+            }
+            if (ddim.ints != nullptr) {
+                free(ddim.ints);
+            }
             ddim.dim = nullptr;
             ddim.errhi = nullptr;
             ddim.errlo = nullptr;
@@ -1070,9 +1097,15 @@ int apply_count(SUBSET subset, DATA_BLOCK* data_block)
         } else {
             // ERROR
         }
-        if (data_block->data != nullptr) free(data_block->data);
-        if (data_block->errhi != nullptr) free(data_block->errhi);
-        if (data_block->errlo != nullptr) free(data_block->errlo);
+        if (data_block->data != nullptr) {
+            free(data_block->data);
+        }
+        if (data_block->errhi != nullptr) {
+            free(data_block->errhi);
+        }
+        if (data_block->errlo != nullptr) {
+            free(data_block->errlo);
+        }
         data_block->data = nullptr;
         data_block->errhi = nullptr;
         data_block->errlo = nullptr;
@@ -1082,7 +1115,7 @@ int apply_count(SUBSET subset, DATA_BLOCK* data_block)
         data_block->data_n = 1;
         for (unsigned int j = 0; j < data_block->rank - 1; j++) {
             if (j >= (unsigned int)dim_id) {
-                data_block->dims[j] = data_block->dims[j + 1];        // skip over the target
+                data_block->dims[j] = data_block->dims[j + 1]; // skip over the target
             }
             data_block->data_n = data_block->data_n * data_block->dims[j].dim_n;
         }
@@ -1126,14 +1159,14 @@ int apply_abs(SUBSET subset, DATA_BLOCK* data_block)
 
 int apply_const(SUBSET subset, DATA_BLOCK* data_block)
 {
-    double value = 0.0;                    // Zero data default
+    double value = 0.0; // Zero data default
     char* p1 = strstr(subset.function, "value");
     strcpy(data_block->data_label, subset.function);
 
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
 
     if (p1 != nullptr) {
-        char* p3, * p2 = strchr(&p1[5], '=');
+        char *p3, *p2 = strchr(&p1[5], '=');
         p2[0] = ' ';
         p3 = strchr(p2, ')');
         p3[0] = '\0';
@@ -1150,8 +1183,12 @@ int apply_const(SUBSET subset, DATA_BLOCK* data_block)
 
     UDA_LOG(UDA_LOG_DEBUG, "value = %f\n", value);
 
-    if (data_block->errhi != nullptr) free(data_block->errhi);
-    if (data_block->errlo != nullptr) free(data_block->errlo);
+    if (data_block->errhi != nullptr) {
+        free(data_block->errhi);
+    }
+    if (data_block->errlo != nullptr) {
+        free(data_block->errlo);
+    }
     data_block->errhi = nullptr;
     data_block->errlo = nullptr;
     data_block->error_type = UDA_TYPE_UNKNOWN;
@@ -1185,7 +1222,7 @@ int apply_order(SUBSET subset, DATA_BLOCK* data_block)
     char* p1 = strstr(subset.function, "dim_id");
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
     if (p1 != nullptr) {
-        char* p3, * p2 = strchr(&p1[5], '=');
+        char *p3, *p2 = strchr(&p1[5], '=');
         p2[0] = ' ';
         p3 = strchr(p2, ')');
         p3[0] = '\0';
@@ -1221,7 +1258,7 @@ int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
     auto newData = (double*)malloc(count * sizeof(double));
     unsigned int offset = 0;
     auto old = (double*)data_block->data;
-    if (order == 0) {        // array[nz][nr][nt] -> [nr][nz][nt]
+    if (order == 0) { // array[nz][nr][nt] -> [nr][nz][nt]
         nt = data_block->dims[0].dim_n;
         nr = data_block->dims[1].dim_n;
         nz = data_block->dims[2].dim_n;
@@ -1231,16 +1268,23 @@ int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
             data[j] = (double**)malloc(nr * sizeof(double*));
             for (int i = 0; i < nr; i++) {
                 data[j][i] = (double*)malloc(nt * sizeof(double));
-                for (int k = 0; k < nt; k++)data[j][i][k] = old[offset++];
+                for (int k = 0; k < nt; k++) {
+                    data[j][i][k] = old[offset++];
+                }
             }
         }
         offset = 0;
-        for (int i = 0; i < nr; i++)
-            for (int j = 0; j < nz; j++)
-                for (int k = 0; k < nt; k++)
+        for (int i = 0; i < nr; i++) {
+            for (int j = 0; j < nz; j++) {
+                for (int k = 0; k < nt; k++) {
                     newData[offset++] = data[j][i][k];
+                }
+            }
+        }
         for (int j = 0; j < nz; j++) {
-            for (int i = 0; i < nr; i++) free(data[j][i]);
+            for (int i = 0; i < nr; i++) {
+                free(data[j][i]);
+            }
             free(data[j]);
         }
         free(data);
@@ -1249,9 +1293,9 @@ int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
         DIMS d2 = data_block->dims[2];
         data_block->dims[1] = d2;
         data_block->dims[2] = d1;
-    } else if (order == 1) {        // array[nz][nt][nr]
+    } else if (order == 1) { // array[nz][nt][nr]
         UDA_THROW_ERROR(999, "The function rotateRZ only operates on arrays with shape [nz][nr][nt] or [nt][nz][nr]");
-    } else if (order == 2) {        // array[nt][nz][nr] -> [nt][nr][nz]
+    } else if (order == 2) { // array[nt][nz][nr] -> [nt][nr][nz]
         nr = data_block->dims[0].dim_n;
         nz = data_block->dims[1].dim_n;
         nt = data_block->dims[2].dim_n;
@@ -1261,16 +1305,23 @@ int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
             data[k] = (double**)malloc(nz * sizeof(double*));
             for (int j = 0; j < nz; j++) {
                 data[k][j] = (double*)malloc(nr * sizeof(double));
-                for (int i = 0; i < nr; i++)data[k][j][i] = old[offset++];
+                for (int i = 0; i < nr; i++) {
+                    data[k][j][i] = old[offset++];
+                }
             }
         }
         offset = 0;
-        for (int k = 0; k < nt; k++)
-            for (int i = 0; i < nr; i++)
-                for (int j = 0; j < nz; j++)
-                    newData[offset++] = data[k][j][i];
         for (int k = 0; k < nt; k++) {
-            for (int j = 0; j < nz; j++)free(data[k][j]);
+            for (int i = 0; i < nr; i++) {
+                for (int j = 0; j < nz; j++) {
+                    newData[offset++] = data[k][j][i];
+                }
+            }
+        }
+        for (int k = 0; k < nt; k++) {
+            for (int j = 0; j < nz; j++) {
+                free(data[k][j]);
+            }
             free(data[k]);
         }
         free(data);
@@ -1288,31 +1339,31 @@ int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
 
 int apply_functions(SUBSET subset, DATA_BLOCK* data_block)
 {
-    if (STR_ISTARTSWITH(subset.function, "minimum")) {        // Single scalar result
+    if (STR_ISTARTSWITH(subset.function, "minimum")) { // Single scalar result
         return apply_minimum(subset, data_block);
     }
 
-    if (STR_ISTARTSWITH(subset.function, "maximum")) {        // Single scalar result
+    if (STR_ISTARTSWITH(subset.function, "maximum")) { // Single scalar result
         return apply_maximum(subset, data_block);
     }
 
-    if (STR_ISTARTSWITH(subset.function, "count")) {        // Single scalar result
+    if (STR_ISTARTSWITH(subset.function, "count")) { // Single scalar result
         return apply_count(subset, data_block);
     }
 
-    if (STR_ISTARTSWITH(subset.function, "abs")) {            // Absolute value
+    if (STR_ISTARTSWITH(subset.function, "abs")) { // Absolute value
         return apply_abs(subset, data_block);
     }
 
-    if (STR_ISTARTSWITH(subset.function, "const")) {        // Constant value substitution
+    if (STR_ISTARTSWITH(subset.function, "const")) { // Constant value substitution
         return apply_const(subset, data_block);
     }
 
-    if (STR_ISTARTSWITH(subset.function, "order")) {        // Identify the Time dimension order
+    if (STR_ISTARTSWITH(subset.function, "order")) { // Identify the Time dimension order
         return apply_order(subset, data_block);
     }
 
-    if (STR_ISTARTSWITH(subset.function, "rotateRZ")) {        // Rotate R,Z coordinates in rank 3 array
+    if (STR_ISTARTSWITH(subset.function, "rotateRZ")) { // Rotate R,Z coordinates in rank 3 array
         return apply_rotate_rz(subset, data_block);
     }
 
@@ -1340,10 +1391,10 @@ int serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST
     //-----------------------------------------------------------------------------------------------------------------------
     // Process all sets of sub-setting operations
 
-    for (int i = 0; i < n_subsets; i++) {                        // the number of sets of Subset Operations
+    for (int i = 0; i < n_subsets; i++) { // the number of sets of Subset Operations
         SUBSET subset;
         if (action.actionType == UDA_COMPOSITE_TYPE) {
-            subset = action.composite.subsets[i];                // the set of Subset Operations
+            subset = action.composite.subsets[i]; // the set of Subset Operations
         } else {
             if (action.actionType == UDA_SERVER_SIDE_TYPE) {
                 subset = action.serverside.subsets[i];
@@ -1380,9 +1431,6 @@ int serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST
 
     return 0;
 }
-
-
-
 
 //-------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------
@@ -1610,25 +1658,18 @@ int serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serversi
     return ierr;
 }
 
-
 //----------------------------------------------------------------------------------------------------------------------
 // Identify the Index Range satisfying a small set of conditional operators
 
-template <typename T>
-struct EpsilonSelector
-{
+template <typename T> struct EpsilonSelector {
     static T Epsilon;
 };
 
-template <typename T>
-T EpsilonSelector<T>::Epsilon = (T)0;
+template <typename T> T EpsilonSelector<T>::Epsilon = (T)0;
 
-template <>
-double EpsilonSelector<double>::Epsilon = DBL_EPSILON;
+template <> double EpsilonSelector<double>::Epsilon = DBL_EPSILON;
 
-template <>
-float EpsilonSelector<float>::Epsilon = FLT_EPSILON;
-
+template <> float EpsilonSelector<float>::Epsilon = FLT_EPSILON;
 
 template <typename T>
 int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double value, unsigned int* subset_indices)
@@ -1656,7 +1697,7 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
                 double minvalue = fabs((T)value - p[0]);
                 for (int k = 0; k < dim->dim_n; k++) {
                     delta = fabs((T)value - p[k]);
-                    if (delta < minvalue) {                        // Look for the Single Nearest Value
+                    if (delta < minvalue) { // Look for the Single Nearest Value
                         minvalue = delta;
                         index = k;
                     }
@@ -1665,15 +1706,16 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
                     count = 1;
                     subset_indices[0] = index;
 
-                    if (index == 0 ||
-                        index == dim->dim_n - 1) {                // Check not an end point by default
+                    if (index == 0 || index == dim->dim_n - 1) { // Check not an end point by default
                         if (dim->dim_n > 1) {
                             if (index == 0) {
                                 delta = fabs(p[1] - p[0]);
                             } else {
                                 delta = fabs(p[dim->dim_n - 1] - p[dim->dim_n - 2]);
                             }
-                            if (fabs((T)value - p[index]) > delta) count = 0;    // Suspect match!
+                            if (fabs((T)value - p[index]) > delta) {
+                                count = 0; // Suspect match!
+                            }
                         }
                     }
                 }
@@ -1716,8 +1758,7 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
                 double delta, minvalue = fabs((T)value - p[0]);
                 for (int k = 0; k < dim->dim_n; k++) {
                     delta = fabs((T)value - p[k]);
-                    if (delta <
-                        minvalue) {                        // Look for the Single Nearest Value
+                    if (delta < minvalue) { // Look for the Single Nearest Value
                         minvalue = delta;
                         index = k;
                     }
@@ -1726,7 +1767,7 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
                     for (int k = 0; k < dim->dim_n; k++) {
                         if (k != index) {
                             subset_indices[count++] = k;
-                        }            // Drop the single nearest value
+                        } // Drop the single nearest value
                     }
                     if (index == 0 || index == dim->dim_n - 1) {
                         // Check not an end point by default
@@ -1738,7 +1779,7 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
                             }
                             if (fabs((T)value - p[index]) > delta) {
                                 count = 0;
-                            }    // Suspect match!
+                            } // Suspect match!
                         }
                     }
                 }
@@ -1748,7 +1789,6 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
 
     return 0;
 }
-
 
 int get_subset_indices(const std::string& operation, DIMS* dim, double value, unsigned int* subset_indices)
 {
@@ -1782,11 +1822,10 @@ int get_subset_indices(const std::string& operation, DIMS* dim, double value, un
     return count;
 }
 
-
 template <typename T>
-int apply_sub_setting_for_type(DIMS* dims, int rank, int dim_id,
-                      const char* data, int ndata, int data_type, int not_operation,
-                      int start, int end, int start1, int end1, int stride, int* n, void** new_data)
+int apply_sub_setting_for_type(DIMS* dims, int rank, int dim_id, const char* data, int ndata, int data_type,
+                               int not_operation, int start, int end, int start1, int end1, int stride, int* n,
+                               void** new_data)
 {
     // Allocate heap for the reshaped array
 
@@ -1795,7 +1834,7 @@ int apply_sub_setting_for_type(DIMS* dims, int rank, int dim_id,
         UDA_THROW_ERROR(9999, "Unable to Allocate Heap memory");
     }
 
-    auto dp = (T*)data;        // the Originating Data Array
+    auto dp = (T*)data; // the Originating Data Array
 
     // Reshape
 
@@ -1835,11 +1874,15 @@ int apply_sub_setting_for_type(DIMS* dims, int rank, int dim_id,
             if (dim_id == 0) {
                 new_rows = dims[1].dim_n;
                 new_cols = end - start + 1;
-                if (not_operation) new_cols = new_cols + end1 - start1 + 1;
+                if (not_operation) {
+                    new_cols = new_cols + end1 - start1 + 1;
+                }
             } else {
                 new_cols = dims[0].dim_n;
                 new_rows = end - start + 1;
-                if (not_operation) new_rows = new_rows + end1 - start1 + 1;
+                if (not_operation) {
+                    new_rows = new_rows + end1 - start1 + 1;
+                }
             }
 
             auto pa = (T**)malloc(new_rows * sizeof(T*));
@@ -1926,9 +1969,8 @@ int apply_sub_setting_for_type(DIMS* dims, int rank, int dim_id,
     return 0;
 }
 
-int apply_sub_setting(DIMS* dims, int rank, int dim_id,
-                        char* data, int ndata, int data_type, int not_operation,
-                        int start, int end, int start1, int end1, int stride, int* n, void** new_data)
+int apply_sub_setting(DIMS* dims, int rank, int dim_id, char* data, int ndata, int data_type, int not_operation,
+                      int start, int end, int start1, int end1, int stride, int* n, void** new_data)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Data Type: %d    Rank: %d\n", data_type, rank);
 
@@ -1936,34 +1978,44 @@ int apply_sub_setting(DIMS* dims, int rank, int dim_id,
 
     switch (data_type) {
         case UDA_TYPE_FLOAT:
-            return apply_sub_setting_for_type<float>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<float>(dims, rank, dim_id, data, ndata, data_type, not_operation, start,
+                                                     end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_DOUBLE:
-            return apply_sub_setting_for_type<double>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<double>(dims, rank, dim_id, data, ndata, data_type, not_operation, start,
+                                                      end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_INT:
-            return apply_sub_setting_for_type<int>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<int>(dims, rank, dim_id, data, ndata, data_type, not_operation, start,
+                                                   end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_SHORT:
-            return apply_sub_setting_for_type<short>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<short>(dims, rank, dim_id, data, ndata, data_type, not_operation, start,
+                                                     end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_LONG:
-            return apply_sub_setting_for_type<long>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<long>(dims, rank, dim_id, data, ndata, data_type, not_operation, start,
+                                                    end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_LONG64:
-            return apply_sub_setting_for_type<int64_t>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<int64_t>(dims, rank, dim_id, data, ndata, data_type, not_operation, start,
+                                                       end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_UNSIGNED_INT:
-            return apply_sub_setting_for_type<unsigned int>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<unsigned int>(dims, rank, dim_id, data, ndata, data_type, not_operation,
+                                                            start, end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_UNSIGNED_SHORT:
-            return apply_sub_setting_for_type<unsigned short>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<unsigned short>(dims, rank, dim_id, data, ndata, data_type, not_operation,
+                                                              start, end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_UNSIGNED_LONG:
-            return apply_sub_setting_for_type<unsigned long>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<unsigned long>(dims, rank, dim_id, data, ndata, data_type, not_operation,
+                                                             start, end, start1, end1, stride, n, new_data);
             break;
         case UDA_TYPE_UNSIGNED_LONG64:
-            return apply_sub_setting_for_type<uint64_t>(dims, rank, dim_id, data, ndata, data_type, not_operation, start, end, start1, end1, stride, n, new_data);
+            return apply_sub_setting_for_type<uint64_t>(dims, rank, dim_id, data, ndata, data_type, not_operation,
+                                                        start, end, start1, end1, stride, n, new_data);
             break;
         default:
             UDA_LOG(UDA_LOG_ERROR, "Invalid data type for sub-setting operation!\n");
@@ -1973,6 +2025,3 @@ int apply_sub_setting(DIMS* dims, int rank, int dim_id,
 
     return 0;
 }
-
-
-

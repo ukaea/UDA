@@ -1,17 +1,17 @@
 /*---------------------------------------------------------------
-* Allocate Memory for the Data and Dim Blocks and Data Error Block
-*
-* Arguments:    DATA_BLOCK *        Data Block Structure
-*
-* Returns:    allocData        0 if heap allocation was successful
-*        DATA_BLOCK->data    Pointer to Memory Block
-*
-*--------------------------------------------------------------*/
+ * Allocate Memory for the Data and Dim Blocks and Data Error Block
+ *
+ * Arguments:    DATA_BLOCK *        Data Block Structure
+ *
+ * Returns:    allocData        0 if heap allocation was successful
+ *        DATA_BLOCK->data    Pointer to Memory Block
+ *
+ *--------------------------------------------------------------*/
 
 #include "allocData.h"
 
-#include <logging/logging.h>
 #include "udaTypes.h"
+#include <logging/logging.h>
 
 #include "initStructs.h"
 #include "udaErrors.h"
@@ -25,7 +25,9 @@
  */
 int allocArray(int data_type, size_t n_data, char** ap)
 {
-    if (n_data == 0) return 0; // Insufficient Data to Allocate!
+    if (n_data == 0) {
+        return 0; // Insufficient Data to Allocate!
+    }
 
     *ap = nullptr;
 
@@ -140,7 +142,9 @@ int allocDim(DATA_BLOCK* data_block)
 
         ndata = (unsigned int)data_block->dims[i].dim_n;
 
-        if (ndata == 0) return 1;   // Insufficient Data to Allocate!
+        if (ndata == 0) {
+            return 1; // Insufficient Data to Allocate!
+        }
 
         size_t data_size = getSizeOf((UDA_TYPE)data_block->dims[i].data_type);
 
@@ -160,8 +164,12 @@ int allocDim(DATA_BLOCK* data_block)
             }
         }
 
-        if (db == nullptr) return ERROR_ALLOCATING_HEAP;
-        if (ebh == nullptr || (ebl == nullptr && data_block->dims[i].errasymmetry)) return ERROR_ALLOCATING_HEAP;
+        if (db == nullptr) {
+            return ERROR_ALLOCATING_HEAP;
+        }
+        if (ebh == nullptr || (ebl == nullptr && data_block->dims[i].errasymmetry)) {
+            return ERROR_ALLOCATING_HEAP;
+        }
 
         data_block->dims[i].dim = db;
         data_block->dims[i].errhi = ebh;
@@ -208,7 +216,9 @@ int allocPutData(PUTDATA_BLOCK* putData)
     //------------------------------------------------------------------------
     // Allocate Memory for data
 
-    if ((count = putData->count) == 0) return 1;   // Insufficient Data to Allocate!
+    if ((count = putData->count) == 0) {
+        return 1; // Insufficient Data to Allocate!
+    }
 
     size_t data_size = getSizeOf((UDA_TYPE)putData->data_type);
     if (data_size > 0) {
@@ -230,11 +240,13 @@ int allocPutData(PUTDATA_BLOCK* putData)
 
     putData->data = db;
 
-// Shape of data
+    // Shape of data
 
-    if (putData->rank > 0) putData->shape = (int*)malloc(putData->rank * sizeof(int));
+    if (putData->rank > 0) {
+        putData->shape = (int*)malloc(putData->rank * sizeof(int));
+    }
 
-// Name of data
+    // Name of data
 
     if (putData->blockNameLength > 0) {
         putData->blockName = (char*)malloc((putData->blockNameLength + 1) * sizeof(char));
@@ -249,9 +261,9 @@ void addIdamPutDataBlockList(PUTDATA_BLOCK* putDataBlock, PUTDATA_BLOCK_LIST* pu
 {
     if (putDataBlockList->putDataBlock == nullptr ||
         putDataBlockList->blockCount + 1 >= putDataBlockList->blockListSize) {
-        putDataBlockList->putDataBlock = (PUTDATA_BLOCK*)realloc((void*)putDataBlockList->putDataBlock,
-                                                                 (putDataBlockList->blockListSize +
-                                                                  GROWPUTDATABLOCKLIST) * sizeof(PUTDATA_BLOCK));
+        putDataBlockList->putDataBlock =
+            (PUTDATA_BLOCK*)realloc((void*)putDataBlockList->putDataBlock,
+                                    (putDataBlockList->blockListSize + GROWPUTDATABLOCKLIST) * sizeof(PUTDATA_BLOCK));
         putDataBlockList->blockListSize = putDataBlockList->blockListSize + GROWPUTDATABLOCKLIST;
     }
     putDataBlockList->putDataBlock[putDataBlockList->blockCount++] = *putDataBlock;

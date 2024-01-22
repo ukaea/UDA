@@ -1,6 +1,6 @@
 #ifdef HIERARCHICAL_DATA
 
-#include "initXMLStructs.h"
+#  include "initXMLStructs.h"
 
 void initEfit(EFIT* str)
 {
@@ -38,7 +38,7 @@ void initInstance(INSTANCE* str)
     str->format[0] = '\0';
     str->status = 0;
     str->seq = 0;
-    str->factor = 1.0;    // Factor Always applied to Data!
+    str->factor = 1.0; // Factor Always applied to Data!
 }
 
 void initFluxLoop(FLUXLOOP* str)
@@ -96,7 +96,6 @@ void initMagProbe(MAGPROBE* str)
     str->rerr = 0.0;
 }
 
-
 void initPfSupplies(PFSUPPLIES* str)
 {
     str->id[0] = '\0';
@@ -141,7 +140,7 @@ void initToroidalField(TOROIDALFIELD* str)
 void initLimiter(LIMITER* str)
 {
     str->nco = 0;
-    str->factor = 1.0;        // Unique as No Instance Child Structure
+    str->factor = 1.0; // Unique as No Instance Child Structure
     str->r = NULL;
     str->z = NULL;
 }
@@ -254,8 +253,8 @@ void printPfPassive(FILE* fh, PFPASSIVE str)
     fprintf(fh, "rerr       : %f\n", str.rerr);
     fprintf(fh, "model nr nr: %d  %d\n", str.modelnrnz[0], str.modelnrnz[1]);
     for (int i = 0; i < str.nco; i++) {
-        fprintf(fh, "r,z,dr,dz,a1,a2,res   # %d     : %f  %f  %f  %f  %f  %f  %f\n", i, str.r[i], str.z[i],
-                str.dr[i], str.dz[i], str.ang1[i], str.ang2[i], str.res[i]);
+        fprintf(fh, "r,z,dr,dz,a1,a2,res   # %d     : %f  %f  %f  %f  %f  %f  %f\n", i, str.r[i], str.z[i], str.dr[i],
+                str.dz[i], str.ang1[i], str.ang2[i], str.res[i]);
     }
 }
 

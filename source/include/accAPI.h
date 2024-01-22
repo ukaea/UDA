@@ -1,13 +1,13 @@
 #ifndef UDA_CLIENT_ACCAPI_H
 #define UDA_CLIENT_ACCAPI_H
 
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 
-#include "udaStructs.h"
-#include "genStructs.h"
-#include "export.h"
 #include "client.h"
+#include "export.h"
+#include "genStructs.h"
+#include "udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -261,9 +261,9 @@ LIBRARY_API SERVER_BLOCK getIdamThreadServerBlock();
 
 LIBRARY_API CLIENT_BLOCK getIdamThreadClientBlock();
 
-LIBRARY_API void putIdamThreadServerBlock(SERVER_BLOCK *str);
+LIBRARY_API void putIdamThreadServerBlock(SERVER_BLOCK* str);
 
-LIBRARY_API void putIdamThreadClientBlock(CLIENT_BLOCK *str);
+LIBRARY_API void putIdamThreadClientBlock(CLIENT_BLOCK* str);
 
 LIBRARY_API int setIdamDataTree(int handle);
 
@@ -286,4 +286,3 @@ LIBRARY_API NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* tar
 #endif
 
 #endif // UDA_CLIENT_ACCAPI_H
-

@@ -2,8 +2,8 @@
 
 #include <cstdlib>
 
-#include <logging/logging.h>
 #include "udaTypes.h"
+#include <logging/logging.h>
 
 /**
  * UDA Server Side Data Processing
@@ -15,7 +15,7 @@
 int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
 {
     DIMS* ddim = nullptr;
-    double* newoffs = nullptr, * newints = nullptr;
+    double *newoffs = nullptr, *newints = nullptr;
 
     int reduce = 0;
     short ss;
@@ -34,7 +34,9 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
         if (ddim->compressed) {
             reduce = 1;
             if (ddim->method == 0) {
-                if (ddim->dim0 != (double)0.0 || ddim->diff == (double)0.0) reduce = 0;
+                if (ddim->dim0 != (double)0.0 || ddim->diff == (double)0.0) {
+                    reduce = 0;
+                }
             } else {
                 switch (ddim->data_type) {
 
@@ -79,8 +81,7 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                             case 1:
                                 for (unsigned int i = 0; i < ddim->udoms; i++) {
                                     for (int j = 0; j < *((long*)ddim->sams + i); j++) {
-                                        sd = sd + *((double*)ddim->offs + i) +
-                                             (double)j * *((double*)ddim->ints + i);
+                                        sd = sd + *((double*)ddim->offs + i) + (double)j * *((double*)ddim->ints + i);
                                         if (sd != (double)0.0) {
                                             reduce = 0;
                                             break;
@@ -406,15 +407,27 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                         break;
                 }
             }
-            if (reduce) {                // Reduce the Rank to Scalar and free Dimensional Heap Memory
+            if (reduce) { // Reduce the Rank to Scalar and free Dimensional Heap Memory
                 data_block->order = -1;
                 data_block->rank = 0;
-                if (ddim->dim != nullptr) free(ddim->dim);
-                if (ddim->errhi != nullptr) free(ddim->errhi);
-                if (ddim->errlo != nullptr) free(ddim->errlo);
-                if (ddim->sams != nullptr) free(ddim->sams);
-                if (ddim->offs != nullptr) free(ddim->offs);
-                if (ddim->ints != nullptr) free(ddim->ints);
+                if (ddim->dim != nullptr) {
+                    free(ddim->dim);
+                }
+                if (ddim->errhi != nullptr) {
+                    free(ddim->errhi);
+                }
+                if (ddim->errlo != nullptr) {
+                    free(ddim->errlo);
+                }
+                if (ddim->sams != nullptr) {
+                    free(ddim->sams);
+                }
+                if (ddim->offs != nullptr) {
+                    free(ddim->offs);
+                }
+                if (ddim->ints != nullptr) {
+                    free(ddim->ints);
+                }
                 free(ddim);
                 data_block->dims = nullptr;
             }
@@ -430,7 +443,7 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
     if (client_block.get_timedble || client_block.get_dimdble) {
         for (unsigned int k = 0; k < data_block->rank; k++) {
             if (client_block.get_timedble && k != (unsigned int)data_block->order) {
-                continue;    // Only Process the Time Dimension
+                continue; // Only Process the Time Dimension
             }
             UDA_LOG(UDA_LOG_DEBUG, "Processing Dimension %d\n", k);
             ddim = data_block->dims + k;
@@ -445,25 +458,36 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == nullptr || newints == nullptr) {
-                                        if (newoffs != nullptr) free(newoffs);
-                                        if (newints != nullptr) free(newints);
+                                        if (newoffs != nullptr) {
+                                            free(newoffs);
+                                        }
+                                        if (newints != nullptr) {
+                                            free(newints);
+                                        }
                                         return 1;
                                     }
                                     for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((char*)ddim->offs + i);
                                         *(newints + i) = (double)*((char*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
-                                    for (unsigned int i = 0; i < ddim->udoms; i++)
+                                    for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((char*)ddim->offs + i);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
+                                    }
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
@@ -472,8 +496,12 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newints = (double*)malloc(sizeof(double));
                                     *newoffs = (double)*((char*)ddim->offs);
                                     *newints = (double)*((char*)ddim->ints);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
@@ -487,25 +515,36 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == nullptr || newints == nullptr) {
-                                        if (newoffs != nullptr) free(newoffs);
-                                        if (newints != nullptr) free(newints);
+                                        if (newoffs != nullptr) {
+                                            free(newoffs);
+                                        }
+                                        if (newints != nullptr) {
+                                            free(newints);
+                                        }
                                         return 1;
                                     }
                                     for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((short*)ddim->offs + i);
                                         *(newints + i) = (double)*((short*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
-                                    for (unsigned int i = 0; i < ddim->udoms; i++)
+                                    for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((short*)ddim->offs + i);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
+                                    }
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
@@ -514,8 +553,12 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newints = (double*)malloc(sizeof(double));
                                     *newoffs = (double)*((short*)ddim->offs);
                                     *newints = (double)*((short*)ddim->ints);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
@@ -529,25 +572,36 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == nullptr || newints == nullptr) {
-                                        if (newoffs != nullptr) free(newoffs);
-                                        if (newints != nullptr) free(newints);
+                                        if (newoffs != nullptr) {
+                                            free(newoffs);
+                                        }
+                                        if (newints != nullptr) {
+                                            free(newints);
+                                        }
                                         return 1;
                                     }
                                     for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((int*)ddim->offs + i);
                                         *(newints + i) = (double)*((int*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
-                                    for (unsigned int i = 0; i < ddim->udoms; i++)
+                                    for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((int*)ddim->offs + i);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
+                                    }
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
@@ -556,8 +610,12 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newints = (double*)malloc(sizeof(double));
                                     *newoffs = (double)*((int*)ddim->offs);
                                     *newints = (double)*((int*)ddim->ints);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
@@ -571,25 +629,36 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == nullptr || newints == nullptr) {
-                                        if (newoffs != nullptr) free(newoffs);
-                                        if (newints != nullptr) free(newints);
+                                        if (newoffs != nullptr) {
+                                            free(newoffs);
+                                        }
+                                        if (newints != nullptr) {
+                                            free(newints);
+                                        }
                                         return 1;
                                     }
                                     for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((long*)ddim->offs + i);
                                         *(newints + i) = (double)*((long*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
-                                    for (unsigned int i = 0; i < ddim->udoms; i++)
+                                    for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((long*)ddim->offs + i);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
+                                    }
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
@@ -598,8 +667,12 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newints = (double*)malloc(sizeof(double));
                                     *newoffs = (double)*((long*)ddim->offs);
                                     *newints = (double)*((long*)ddim->ints);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
@@ -613,25 +686,36 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == nullptr || newints == nullptr) {
-                                        if (newoffs != nullptr) free(newoffs);
-                                        if (newints != nullptr) free(newints);
+                                        if (newoffs != nullptr) {
+                                            free(newoffs);
+                                        }
+                                        if (newints != nullptr) {
+                                            free(newints);
+                                        }
                                         return 1;
                                     }
                                     for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((unsigned char*)ddim->offs + i);
                                         *(newints + i) = (double)*((unsigned char*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
-                                    for (unsigned int i = 0; i < ddim->udoms; i++)
+                                    for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((unsigned char*)ddim->offs + i);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
+                                    }
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
@@ -640,8 +724,12 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newints = (double*)malloc(sizeof(double));
                                     *newoffs = (double)*((unsigned char*)ddim->offs);
                                     *newints = (double)*((unsigned char*)ddim->ints);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
@@ -655,25 +743,36 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == nullptr || newints == nullptr) {
-                                        if (newoffs != nullptr) free(newoffs);
-                                        if (newints != nullptr) free(newints);
+                                        if (newoffs != nullptr) {
+                                            free(newoffs);
+                                        }
+                                        if (newints != nullptr) {
+                                            free(newints);
+                                        }
                                         return 1;
                                     }
                                     for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((unsigned short*)ddim->offs + i);
                                         *(newints + i) = (double)*((unsigned short*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
-                                    for (unsigned int i = 0; i < ddim->udoms; i++)
+                                    for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((unsigned short*)ddim->offs + i);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
+                                    }
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
@@ -682,8 +781,12 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newints = (double*)malloc(sizeof(double));
                                     *newoffs = (double)*((unsigned short*)ddim->offs);
                                     *newints = (double)*((unsigned short*)ddim->ints);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
@@ -697,25 +800,36 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == nullptr || newints == nullptr) {
-                                        if (newoffs != nullptr) free(newoffs);
-                                        if (newints != nullptr) free(newints);
+                                        if (newoffs != nullptr) {
+                                            free(newoffs);
+                                        }
+                                        if (newints != nullptr) {
+                                            free(newints);
+                                        }
                                         return 1;
                                     }
                                     for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((unsigned int*)ddim->offs + i);
                                         *(newints + i) = (double)*((unsigned int*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
-                                    for (unsigned int i = 0; i < ddim->udoms; i++)
+                                    for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((unsigned int*)ddim->offs + i);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
+                                    }
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
@@ -724,8 +838,12 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newints = (double*)malloc(sizeof(double));
                                     *newoffs = (double)*((unsigned int*)ddim->offs);
                                     *newints = (double)*((unsigned int*)ddim->ints);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
@@ -739,25 +857,36 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == nullptr || newints == nullptr) {
-                                        if (newoffs != nullptr) free(newoffs);
-                                        if (newints != nullptr) free(newints);
+                                        if (newoffs != nullptr) {
+                                            free(newoffs);
+                                        }
+                                        if (newints != nullptr) {
+                                            free(newints);
+                                        }
                                         return 1;
                                     }
                                     for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((unsigned long*)ddim->offs + i);
                                         *(newints + i) = (double)*((unsigned long*)ddim->ints + i);
                                     }
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
-                                    for (unsigned int i = 0; i < ddim->udoms; i++)
+                                    for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((unsigned long*)ddim->offs + i);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
+                                    }
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
@@ -766,8 +895,12 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newints = (double*)malloc(sizeof(double));
                                     *newoffs = (double)*((unsigned long*)ddim->offs);
                                     *newints = (double)*((unsigned long*)ddim->ints);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
@@ -781,36 +914,48 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
                                     newints = (double*)malloc(ddim->udoms * sizeof(double));
                                     if (newoffs == nullptr || newints == nullptr) {
-                                        if (newoffs != nullptr) free(newoffs);
-                                        if (newints != nullptr) free(newints);
+                                        if (newoffs != nullptr) {
+                                            free(newoffs);
+                                        }
+                                        if (newints != nullptr) {
+                                            free(newints);
+                                        }
                                         return 1;
                                     }
 
                                     for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         UDA_LOG(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((float*)ddim->offs + i),
-                                                  *((float*)ddim->ints + i));
+                                                *((float*)ddim->ints + i));
 
                                         *(newoffs + i) = (double)*((float*)ddim->offs + i);
                                         *(newints + i) = (double)*((float*)ddim->ints + i);
 
                                         UDA_LOG(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *(newoffs + i), *(newints + i));
                                     }
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    for (unsigned int i = 0; i < ddim->udoms; i++)
+                                    for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         UDA_LOG(UDA_LOG_DEBUG, "%i  %f  %f\n", i, *((double*)ddim->offs + i),
-                                                  *((double*)ddim->ints + i));
+                                                *((double*)ddim->ints + i));
+                                    }
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                                 case 2:
                                     UDA_LOG(UDA_LOG_DEBUG, "Processing Float Method 2\n");
                                     UDA_LOG(UDA_LOG_DEBUG, "udoms: %d\n", ddim->udoms);
                                     newoffs = (double*)malloc(ddim->udoms * sizeof(double));
-                                    for (unsigned int i = 0; i < ddim->udoms; i++)
+                                    for (unsigned int i = 0; i < ddim->udoms; i++) {
                                         *(newoffs + i) = (double)*((float*)ddim->offs + i);
-                                    if (ddim->offs != nullptr) free(ddim->offs);
+                                    }
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
@@ -820,14 +965,16 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                     newints = (double*)malloc(sizeof(double));
                                     *newoffs = (double)*((float*)ddim->offs);
                                     *newints = (double)*((float*)ddim->ints);
-                                    UDA_LOG(UDA_LOG_DEBUG, "%f  %f\n", *((double*)ddim->offs),
-                                              *((double*)ddim->ints));
-                                    if (ddim->offs != nullptr) free(ddim->offs);
-                                    if (ddim->ints != nullptr) free(ddim->ints);
+                                    UDA_LOG(UDA_LOG_DEBUG, "%f  %f\n", *((double*)ddim->offs), *((double*)ddim->ints));
+                                    if (ddim->offs != nullptr) {
+                                        free(ddim->offs);
+                                    }
+                                    if (ddim->ints != nullptr) {
+                                        free(ddim->ints);
+                                    }
                                     ddim->offs = (char*)newoffs;
                                     ddim->ints = (char*)newints;
-                                    UDA_LOG(UDA_LOG_DEBUG, "%f  %f\n", *((double*)ddim->offs),
-                                              *((double*)ddim->ints));
+                                    UDA_LOG(UDA_LOG_DEBUG, "%f  %f\n", *((double*)ddim->offs), *((double*)ddim->ints));
                                     ddim->data_type = UDA_TYPE_DOUBLE;
                                     break;
                             }
@@ -835,7 +982,6 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
 
                         default:
                             break;
-
                     }
                 }
             }

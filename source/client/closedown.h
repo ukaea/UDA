@@ -1,8 +1,8 @@
 #ifndef UDA_CLIENT_CLOSEDOWN_H
 #define UDA_CLIENT_CLOSEDOWN_H
 
-#include <clientserver/socketStructs.h>
 #include "export.h"
+#include <clientserver/socketStructs.h>
 
 #ifdef FATCLIENT
 #  define closedown closedownFat
@@ -17,8 +17,8 @@ enum class ClosedownType {
     CLOSE_ALL = 1,
 };
 
-LIBRARY_API int
-closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XDR* client_output, bool* reopen_logs);
+LIBRARY_API int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XDR* client_output,
+                          bool* reopen_logs);
 
 #ifdef __cplusplus
 }

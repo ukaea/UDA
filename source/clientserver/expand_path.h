@@ -1,8 +1,8 @@
 #ifndef UDA_CLIENTSERVER_EXPAND_PATH_H
 #define UDA_CLIENTSERVER_EXPAND_PATH_H
 
-#include "udaStructs.h"
 #include "export.h"
+#include "udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,8 +46,8 @@ LIBRARY_API int expandFilePath(char* path, const ENVIRONMENT* environment);
 
 #ifndef NOEXPANDPATH
 
-#define MAXPATHSUBS 10
-#define MAXPATHSUBSLENGTH 256
+#  define MAXPATHSUBS 10
+#  define MAXPATHSUBSLENGTH 256
 
 /*! Free heap memory allocated to generate lists of target path elements and substitute path elements.
 
@@ -73,8 +73,8 @@ easily done by substitution.
 
 Examples:    /.automount/funsrv1/root/home/xyz -> /net/funsrv1/home/xyz
         /.automount/funsrv1/root/home/xyz -> /home/xyz
-        /.automount/fuslsd/root/data/MAST_Data/013/13500/Pass0/amc0135.00 -> /net/fuslsd/data/MAST_Data/013/13500/Pass0/amc0135.00
-        /scratch/mydata -> /net/hostname/scratch/mydata
+        /.automount/fuslsd/root/data/MAST_Data/013/13500/Pass0/amc0135.00 ->
+/net/fuslsd/data/MAST_Data/013/13500/Pass0/amc0135.00 /scratch/mydata -> /net/hostname/scratch/mydata
 
 A list of Target path components is read from the environment variable IDAM_PRIVATE_PATH_TARGET. The delimiter between
 components is , or : or ;.

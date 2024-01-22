@@ -1,11 +1,11 @@
 #pragma once
 
 #ifndef UDA_CLIENT_UDACLIENT_H
-#define UDA_CLIENT_UDACLIENT_H
+#  define UDA_CLIENT_UDACLIENT_H
 
-#include "genStructs.h"
-#include "udaStructs.h"
-#include "client.h"
+#  include "client.h"
+#  include "genStructs.h"
+#  include "udaStructs.h"
 
 int idamClient(REQUEST_BLOCK* request_block, int* indices);
 

@@ -1,18 +1,18 @@
 #ifndef UtilsClass
 #define UtilsClass
 
-#include <qfile.h>
-#include <qstring.h>
-#include <qregexp.h>
-#include <qdom.h>
-#include <vector>
-#include <string>
-#include <iostream>
-#include <gsl/gsl_sort.h>
-#include <blitz/array.h>
-#include "singleValue.h"
-#include <sstream>
 #include "export.h"
+#include "singleValue.h"
+#include <blitz/array.h>
+#include <gsl/gsl_sort.h>
+#include <iostream>
+#include <qdom.h>
+#include <qfile.h>
+#include <qregexp.h>
+#include <qstring.h>
+#include <sstream>
+#include <string>
+#include <vector>
 
 //!  Utility routines
 namespace UtilitiesNs
@@ -24,12 +24,15 @@ namespace UtilitiesNs
   array is suppled in a parameter "index".
   \param timeWindow      Size of time-window (secs).
   \param timePoint      Central time about which to perform time-average.
-  \param index           Approximate index of timePoint in the times array. If this is not known, suggest put a value close to values.size()/2.
-  \param times           Array of times.
-  \param values          Array of times-series values.
+  \param index           Approximate index of timePoint in the times array. If this is not known, suggest put a value
+  close to values.size()/2. \param times           Array of times. \param values          Array of times-series values.
   \return                Time-window average.
 */
-LIBRARY_API SingleValueNs::SingleValue<double> timeAverage(const SingleValueNs::SingleValue<double> timeWindow, const SingleValueNs::SingleValue<double> timePoint, const SingleValueNs::SingleValue<int> index, const blitz::Array<double,1>& times, const blitz::Array<double,1>& values);
+LIBRARY_API SingleValueNs::SingleValue<double> timeAverage(const SingleValueNs::SingleValue<double> timeWindow,
+                                                           const SingleValueNs::SingleValue<double> timePoint,
+                                                           const SingleValueNs::SingleValue<int> index,
+                                                           const blitz::Array<double, 1>& times,
+                                                           const blitz::Array<double, 1>& values);
 
 //! Assigns the value of an  XML attribute to a SingleValueNs::SingleValue<double> object.
 /*!
@@ -38,7 +41,8 @@ LIBRARY_API SingleValueNs::SingleValue<double> timeAverage(const SingleValueNs::
   \param AttributeValue The variable into which to place the contents of the XML attribute.
   \return If successful returns true, otherwise false
 */
-LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, SingleValueNs::SingleValue<double>& attributeValue);
+LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName,
+                                   SingleValueNs::SingleValue<double>& attributeValue);
 
 //! Assigns the value of an  XML attribute to a SingleValueNs::SingleValue<int> object.
 /*!
@@ -47,7 +51,8 @@ LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::str
   \param AttributeValue The variable into which to place the contents of the XML attribute.
   \return If successful returns true, otherwise false
 */
-LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, SingleValueNs::SingleValue<int>& attributeValue);
+LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName,
+                                   SingleValueNs::SingleValue<int>& attributeValue);
 
 //! Assigns the value of an  XML attribute to a blitz::Array<double,1> object.
 /*!
@@ -60,7 +65,8 @@ LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::str
   \param AttributeValue The variable into which to place the contents of the XML attribute.
   \return If successful returns true, otherwise false
 */
-LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, blitz::Array<double,1>& attributeValue);
+LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName,
+                                   blitz::Array<double, 1>& attributeValue);
 
 //! Assigns the value of an  XML attribute to a blitz::Array<int,1> object.
 /*!
@@ -73,7 +79,8 @@ LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::str
   \param AttributeValue The variable into which to place the contents of the XML attribute.
   \return If successful returns true, otherwise false
 */
-LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, blitz::Array<int,1>& attributeValue);
+LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName,
+                                   blitz::Array<int, 1>& attributeValue);
 
 //! Assigns the value of an  XML attribute to a blitz::Array<double,2> object.
 /*!
@@ -86,16 +93,18 @@ LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::str
   \param AttributeValue The variable into which to place the contents of the XML attribute.
   \return If successful returns true, otherwise false
 */
-LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, blitz::Array<double,2>& attributeValue);
+LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName,
+                                   blitz::Array<double, 2>& attributeValue);
 
 //! Assigns the value of an  XML attribute to a std::string object.
 /*!
   \param DomElement    The Dom element containing the given attribute.
   \param AttributeName The singular name of the attribute.
-  \param AttributeValue The variable into which to place the contents of the XML attribute (if it  hadn't been specified, then returns "notSet").
-  \return  If the variable has been set returns true, otherwise false.
+  \param AttributeValue The variable into which to place the contents of the XML attribute (if it  hadn't been
+  specified, then returns "notSet"). \return  If the variable has been set returns true, otherwise false.
 */
-LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, std::string& attributeValue);
+LIBRARY_API bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName,
+                                   std::string& attributeValue);
 
 /*!
   \file utilities.h
@@ -119,7 +128,7 @@ LIBRARY_API std::string getEfitVersion();
   infinity.  Nw we divid the number by itself, and the result is a "quiet" NaN.
   \return value NaN.
 */
-LIBRARY_API double getNaN() ;
+LIBRARY_API double getNaN();
 
 //! Function opens an XML file, parses it and returns a reference to the DOM document.
 LIBRARY_API bool openAndParseXmlFile(const std::string& xmlFileName, QDomDocument& domDocument);
@@ -132,7 +141,7 @@ LIBRARY_API bool openAndParseXmlFile(const std::string& xmlFileName, QDomDocumen
   \param value     The scalar value to be converted to a std::string.
   \return          Std::String value.
 */
-template <class T> std::string valueToString( T value )
+template <class T> std::string valueToString(T value)
 {
     std::ostringstream oss;
 
@@ -147,47 +156,56 @@ template <class T> std::string valueToString( T value )
 //  are a set of three overloaded functions.
 //
 
-//! Overloaded template function converts a scalar of type Typ (permissible types are std::string or QString) to an integer scalar.
+//! Overloaded template function converts a scalar of type Typ (permissible types are std::string or QString) to an
+//! integer scalar.
 /*!
-  \param stringValue   The scalar value to be converted.  If entered as type \e std::string it is converted to type \e QString
-  \param datavalue If conversion is successful then on exit contains the result.
-  \return          If not successful contains the value "integer", otherwise it is empty.
+  \param stringValue   The scalar value to be converted.  If entered as type \e std::string it is converted to type \e
+  QString \param datavalue If conversion is successful then on exit contains the result. \return          If not
+  successful contains the value "integer", otherwise it is empty.
 */
-template <class Typ> std::string convertStringToValue(const Typ& stringValue, int& intValue) {
+template <class Typ> std::string convertStringToValue(const Typ& stringValue, int& intValue)
+{
     bool ok;
-    std::string expectedType="";
-    QString qStringValue=stringValue;
-    intValue= qStringValue.toInt(&ok)   ;
-    if (ok  == false) expectedType="integer";
+    std::string expectedType = "";
+    QString qStringValue = stringValue;
+    intValue = qStringValue.toInt(&ok);
+    if (ok == false) {
+        expectedType = "integer";
+    }
     return expectedType;
 }
 
-//! Overloaded template function converts a scalar of type Typ (permissible types are std::string QString) to a double float scalar.
+//! Overloaded template function converts a scalar of type Typ (permissible types are std::string QString) to a double
+//! float scalar.
 /*!
-  \param stringValue   The scalar value to be converted.  If entered as type \e std::string it is converted to type \e QString
-  \param datavalue If conversion is successful then on exit contains the result.
-  \return          If not successful contains the value "double", otherwise it is empty.
+  \param stringValue   The scalar value to be converted.  If entered as type \e std::string it is converted to type \e
+  QString \param datavalue If conversion is successful then on exit contains the result. \return          If not
+  successful contains the value "double", otherwise it is empty.
 */
-template <class Typ> std::string convertStringToValue(const Typ& stringValue, double& doubleValue) {
+template <class Typ> std::string convertStringToValue(const Typ& stringValue, double& doubleValue)
+{
     bool ok;
-    std::string expectedType="";
-    QString qStringValue=stringValue;
-    doubleValue= qStringValue.toDouble(&ok);
-    if (ok  == false) expectedType="double";
+    std::string expectedType = "";
+    QString qStringValue = stringValue;
+    doubleValue = qStringValue.toDouble(&ok);
+    if (ok == false) {
+        expectedType = "double";
+    }
     return expectedType;
 }
 
-//! Overloaded template function "converts" a scalar of type (permissible types are std::string or QString) to a QString scalar (included for completeness).
+//! Overloaded template function "converts" a scalar of type (permissible types are std::string or QString) to a QString
+//! scalar (included for completeness).
 /*!
-  \param stringValue   The scalar value to be "converted".   If entered as type \e std::string it is converted to type \e QString
-  \param std::stringOutvalue On exit contains the result.
-  \return          On exit is empty (i.e. contains the value "").
+  \param stringValue   The scalar value to be "converted".   If entered as type \e std::string it is converted to type
+  \e QString \param std::stringOutvalue On exit contains the result. \return          On exit is empty (i.e. contains
+  the value "").
 */
 template <class Typ> std::string convertStringToValue(const Typ& stringValue, QString& stringOutValue)
 {
-    std::string expectedType="";
-    QString qStringValue=stringValue;
-    stringOutValue= qStringValue;
+    std::string expectedType = "";
+    QString qStringValue = stringValue;
+    stringOutValue = qStringValue;
     return expectedType;
 }
 
@@ -209,32 +227,33 @@ template <class Typ> std::string convertStringToValue(const Typ& stringValue, QS
   allocated prior to entry or within the routine; in any case the array will be
   enlarged if it is too small.
 */
-template <class Typ> void convertStringToVector( const QString& dataIn, blitz::Array<Typ,1>& dataOut)
+template <class Typ> void convertStringToVector(const QString& dataIn, blitz::Array<Typ, 1>& dataOut)
 {
     Typ dataValue;
-    int index=-1;
-    int pos=0 ;
+    int index = -1;
+    int pos = 0;
 
     // This reg expression captures anything between one or more commas and/or spaces
-    QRegExp parseVar("\\s*\\[?\\s*,?\\s*"         // "\\s*"=0 or more spaces;  "\\[?"= 0 or 1 [ ; ",?" =0 or 1 comma.
-                     "("                          // start capture group
-                     "[^\\[\\],\\s]"              // the capture group matches anything other than "[],"and whitespace
-                     "+"                          // can have one or more characters in the capture group.
-                     ")"                          // end of capture cgroup
-                     ",?\\]?");                   // if possible match: ",?"=0 or 1 comma; "]?"=0 or 1 ].
+    QRegExp parseVar("\\s*\\[?\\s*,?\\s*" // "\\s*"=0 or more spaces;  "\\[?"= 0 or 1 [ ; ",?" =0 or 1 comma.
+                     "("                  // start capture group
+                     "[^\\[\\],\\s]"      // the capture group matches anything other than "[],"and whitespace
+                     "+"                  // can have one or more characters in the capture group.
+                     ")"                  // end of capture cgroup
+                     ",?\\]?");           // if possible match: ",?"=0 or 1 comma; "]?"=0 or 1 ].
     dataOut.resize(0);
-    while(pos >=0 ) {
-        pos=parseVar.search( dataIn, pos );   // search for next item of a comma or space-separated list
+    while (pos >= 0) {
+        pos = parseVar.search(dataIn, pos); // search for next item of a comma or space-separated list
         if (pos > -1) {
             // found a values, so convert it to a real number and store it.
-            QString dataString=parseVar.cap(1);
-            std::string expectedType = convertStringToValue(dataString, dataValue) ;
+            QString dataString = parseVar.cap(1);
+            std::string expectedType = convertStringToValue(dataString, dataValue);
             // if array needs to be increased in size, then do so, preserving existing contents.
-            if(++index >dataOut.size()-1) dataOut.resizeAndPreserve(index+1);
+            if (++index > dataOut.size() - 1) {
+                dataOut.resizeAndPreserve(index + 1);
+            }
             // and store value
             dataOut(index) = dataValue;
-            pos  += parseVar.matchedLength();
-
+            pos += parseVar.matchedLength();
         }
     }
 }
@@ -261,83 +280,76 @@ template <class Typ> void convertStringToVector( const QString& dataIn, blitz::A
   allocated prior to entry or within the routine; in any case the array will be
   enlarged if it is too small.
 */
-template <class Typ> void convertStringToArray( const QString& dataIn, blitz::Array<Typ,2>& dataOut)
+template <class Typ> void convertStringToArray(const QString& dataIn, blitz::Array<Typ, 2>& dataOut)
 {
-    int row=-1;
-    int pos=0 ;
-    blitz::Array<Typ,1> dataRow;
-    blitz::Array<int,1> dataShape;
+    int row = -1;
+    int pos = 0;
+    blitz::Array<Typ, 1> dataRow;
+    blitz::Array<int, 1> dataShape;
 
-    // define a regular expression to identify the data "preamble". This may be " [" or " 1 4[". The numbers are optional and define
-    // the size of the array
-    QRegExp preamble("\\s*"                       // "\\s*"=0 or more spaces.
-                     "("                          // start capture group
-                     "[^\\[\\]]*"                  // the capture group matches anything other than "[],"and whitespace
-                     ")"                          // end of capture group
-                     "\\[");                      // match to a [.
+    // define a regular expression to identify the data "preamble". This may be " [" or " 1 4[". The numbers are
+    // optional and define the size of the array
+    QRegExp preamble("\\s*"       // "\\s*"=0 or more spaces.
+                     "("          // start capture group
+                     "[^\\[\\]]*" // the capture group matches anything other than "[],"and whitespace
+                     ")"          // end of capture group
+                     "\\[");      // match to a [.
 
     // define a regular expression to identify a single row, eg [[ 1.,2.3.4,6]]
-    QRegExp singleRow("\\s*\\[\\s*\\[?"            // "\\s*"=0 or more spaces;  "\\["= [.
-                      "("                          // start capture group
-                      "[^\\[\\]]"                  // the capture group matches anything other than "[]"
-                      "+"                          // can have one or more characters in the capture group.
-                      ")"                          // end of capture group
-                      "\\]\\s*");                   // if possible match: ",?"=0 or 1 comma; "]?"=0 or 1 ].
-
-
+    QRegExp singleRow("\\s*\\[\\s*\\[?" // "\\s*"=0 or more spaces;  "\\["= [.
+                      "("               // start capture group
+                      "[^\\[\\]]"       // the capture group matches anything other than "[]"
+                      "+"               // can have one or more characters in the capture group.
+                      ")"               // end of capture group
+                      "\\]\\s*");       // if possible match: ",?"=0 or 1 comma; "]?"=0 or 1 ].
 
     //
     // in the first part of the routine we process the data preamble
     //
-    bool outputArraySizeIsSet =false;
-    pos=preamble.search( dataIn, pos );   // search for integer list followied by a [; If present, set the intial array dimensions to these values.
+    bool outputArraySizeIsSet = false;
+    pos = preamble.search(
+        dataIn,
+        pos); // search for integer list followied by a [; If present, set the intial array dimensions to these values.
     if (pos > -1) {
         // extract the captured std::string, and convert it to numbers.
         QString dataString = preamble.cap(1);
-        convertStringToVector(dataString,dataShape);
-        if(dataShape.size() > 0) {
-            dataOut.resize(dataShape(0),dataShape(1));
-            outputArraySizeIsSet =true;
+        convertStringToVector(dataString, dataShape);
+        if (dataShape.size() > 0) {
+            dataOut.resize(dataShape(0), dataShape(1));
+            outputArraySizeIsSet = true;
         }
-        pos  += preamble.matchedLength();
+        pos += preamble.matchedLength();
     }
     //
     // Now process the data itself.
     //
-    while(pos >=0 ) {
-        pos=singleRow.search( dataIn, pos );   // search for the next row
+    while (pos >= 0) {
+        pos = singleRow.search(dataIn, pos); // search for the next row
         if (pos > -1) {
             // found data for a new row so increment row counter.
             row++;
             // extract the captured std::string, and convert it to numbers.
-            QString dataString=singleRow.cap(1);
-            convertStringToVector(dataString,dataRow);
+            QString dataString = singleRow.cap(1);
+            convertStringToVector(dataString, dataRow);
             // resize the array if required, preserving existing contents.
-            if(outputArraySizeIsSet) {
-                int columnCount = max(dataRow.size(),dataOut.ubound(blitz::secondDim)+1);
-                int rowCount = max(row+1,dataOut.ubound(blitz::firstDim)+1);
-                dataOut.resizeAndPreserve(rowCount,columnCount);
-            }
-            else {
+            if (outputArraySizeIsSet) {
+                int columnCount = max(dataRow.size(), dataOut.ubound(blitz::secondDim) + 1);
+                int rowCount = max(row + 1, dataOut.ubound(blitz::firstDim) + 1);
+                dataOut.resizeAndPreserve(rowCount, columnCount);
+            } else {
                 int columnCount = dataRow.size();
-                int rowCount = row+1;
-                dataOut.resize(rowCount,columnCount);
-                outputArraySizeIsSet =true;
+                int rowCount = row + 1;
+                dataOut.resize(rowCount, columnCount);
+                outputArraySizeIsSet = true;
             }
 
             // assign values in this row to dataOut.
-            dataOut(row,blitz::Range(0,dataRow.ubound(blitz::firstDim))) = dataRow;
+            dataOut(row, blitz::Range(0, dataRow.ubound(blitz::firstDim))) = dataRow;
             // move position marker along the orginal string in preparation for the next parse
-            pos  += singleRow.matchedLength();
+            pos += singleRow.matchedLength();
         }
     }
 }
-
-
-
-
-
-
 
 //
 //  convertStringToArray converts a QString variable to a 1-D array of values
@@ -358,114 +370,125 @@ template <class Typ> void convertStringToArray( const QString& dataIn, blitz::Ar
   allocated prior to entry or within the routine; in any case the array will be
   enlarged if it is too small.
 */
-template <class Typ> void convertStringToArray( const QString& dataIn, blitz::Array<Typ,1>& dataOut)
+template <class Typ> void convertStringToArray(const QString& dataIn, blitz::Array<Typ, 1>& dataOut)
 {
-    int pos=0 ;
-    blitz::Array<Typ,1> dataRow;
-    blitz::Array<int,1> dataShape;
+    int pos = 0;
+    blitz::Array<Typ, 1> dataRow;
+    blitz::Array<int, 1> dataShape;
 
-    // define a regular expression to identify the data "preamble". This may be " [" or " 1 4[". The numbers are optional and define
-    // the size of the array
-    QRegExp preamble("\\s*"                       // "\\s*"=0 or more spaces.
-                     "("                          // start capture group
-                     "[^\\[\\]]"                  // the capture group matches anything other than "[],"and whitespace
-                     ")"                          // end of capture group
-                     "\\[");                      // match to a [.
+    // define a regular expression to identify the data "preamble". This may be " [" or " 1 4[". The numbers are
+    // optional and define the size of the array
+    QRegExp preamble("\\s*"      // "\\s*"=0 or more spaces.
+                     "("         // start capture group
+                     "[^\\[\\]]" // the capture group matches anything other than "[],"and whitespace
+                     ")"         // end of capture group
+                     "\\[");     // match to a [.
 
     // define a regular expression to identify a single row, eg [[ 1.,2.3.4,6]]
-    QRegExp singleRow("\\s*\\[?"                  // "\\s*"=0 or more spaces;  "\\["= [.
-                      "("                          // start capture group
-                      "[^\\[\\]]"                  // the capture group matches anything other than "[]"
-                      "+"                          // can have one or more characters in the capture group.
-                      ")");                        // end of capture group
+    QRegExp singleRow("\\s*\\[?"  // "\\s*"=0 or more spaces;  "\\["= [.
+                      "("         // start capture group
+                      "[^\\[\\]]" // the capture group matches anything other than "[]"
+                      "+"         // can have one or more characters in the capture group.
+                      ")");       // end of capture group
 
     //
     // in the first part of the routine we process the data preamble
     //
-    pos=preamble.search( dataIn, pos );   // search for integer list followied by a [; If present, set the intial array dimensions to these values.
+    pos = preamble.search(
+        dataIn,
+        pos); // search for integer list followied by a [; If present, set the intial array dimensions to these values.
     if (pos > -1) {
         // extract the captured std::string, and convert it to numbers.
         QString dataString = preamble.cap(1);
-        convertStringToVector(dataString,dataShape);
-        if(dataShape.size() > 0) dataOut.resize(dataShape(0));
-        pos  += preamble.matchedLength();
-    }
-    else {
+        convertStringToVector(dataString, dataShape);
+        if (dataShape.size() > 0) {
+            dataOut.resize(dataShape(0));
+        }
+        pos += preamble.matchedLength();
+    } else {
         // didn't find any preamble, so reset position index.
-        pos=0;
+        pos = 0;
         dataOut.resize(0);
     }
 
     //
     // Now process the data itself.
     //
-    pos=singleRow.search( dataIn, pos );   // search for the next row
+    pos = singleRow.search(dataIn, pos); // search for the next row
     if (pos > -1) {
         // found data so extract the captured std::string, and convert it to numbers.
-        QString dataString=singleRow.cap(1);
-        convertStringToVector(dataString,dataOut);
+        QString dataString = singleRow.cap(1);
+        convertStringToVector(dataString, dataOut);
     }
 }
 
-
-
 //
-//  XmlVerifyAndAllocate performs some basic checks on the XML and the storage array, and allocates space if everything is fine
+//  XmlVerifyAndAllocate performs some basic checks on the XML and the storage array, and allocates space if everything
+//  is fine
 //
 /*!
-  Performs some basic checks when reading a collection of identical structures (for example magnetic probes or flux loops)
-  into a 1-D storage array from an XML file.
+  Performs some basic checks when reading a collection of identical structures (for example magnetic probes or flux
+  loops) into a 1-D storage array from an XML file.
   -# If the detectorArray has already been allocated, it checks that the \e id's of
   detectors in the  detectorArrayList are within the range of the detectorArray.
   -# If the detectorArray has not yet been defined, it checks that the \e id's of
   detectors in the  detectorArrayList form a continuous set  1,2,3....
   If everyting is fine and the detectorArray has not yet been allocated it is allocated in this routine.
 
-  \param detectorArrayList  A reference to an array of XML nodes. The data in each node must contain  at least an attribute called \e id.
-  \param detectorName       A reference to the detector name, used if there is an error.
-  \param detectorArray      A reference to a 1-D array to hold the data. The operation of the routine depends on whether on entry to
-  the routine detectorArray is already allocated (see above).
-  \return Return bool=\e true if there were no errors otherwise false.
+  \param detectorArrayList  A reference to an array of XML nodes. The data in each node must contain  at least an
+  attribute called \e id. \param detectorName       A reference to the detector name, used if there is an error. \param
+  detectorArray      A reference to a 1-D array to hold the data. The operation of the routine depends on whether on
+  entry to the routine detectorArray is already allocated (see above). \return Return bool=\e true if there were no
+  errors otherwise false.
 */
-template <class Typ> bool XmlVerifyAndAllocate(const QDomNodeList& detectorArrayList, const std::string& detectorName, blitz::Array<Typ,1>& detectorArray)
+template <class Typ>
+bool XmlVerifyAndAllocate(const QDomNodeList& detectorArrayList, const std::string& detectorName,
+                          blitz::Array<Typ, 1>& detectorArray)
 {
     // obtain the set of id's
     bool success;
-    blitz::Array<int,1> detectorArrayId(detectorArrayList.count());
+    blitz::Array<int, 1> detectorArrayId(detectorArrayList.count());
     for (uint i = 0; i < detectorArrayList.count(); i++) {
         QDomElement detectorArrayElement = detectorArrayList.item(i).toElement();
         detectorArrayId(i) = atoi(detectorArrayElement.attribute("id"));
     }
-    int maxIdValue  = blitz::max(detectorArrayId);
-    int minIdValue  = blitz::min(detectorArrayId);
+    int maxIdValue = blitz::max(detectorArrayId);
+    int minIdValue = blitz::min(detectorArrayId);
 
-    if (detectorArray.size() !=0) {
+    if (detectorArray.size() != 0) {
         // the detectorArray array has already been defined, so check that the id values are in range.
-        if(maxIdValue - minIdValue +1 > detectorArray.size() | minIdValue <= 0) {
+        if (maxIdValue - minIdValue + 1 > detectorArray.size() | minIdValue <= 0) {
             std::cout << "Error: An 'id' value of a " << detectorName << " node is out of range." << std::endl;
             std::cout << "       Valid 'id' values must be positive and contiguous." << std::endl;
-            std::cout << "      ===    The full list of id's for the " << detectorName << " nodes is:     ===" << std::endl;
+            std::cout << "      ===    The full list of id's for the " << detectorName
+                      << " nodes is:     ===" << std::endl;
             std::cout << detectorArrayId << std::endl;
             return success = false;
+        } else {
+            success = true;
         }
-        else
-            success=true;
-    }
-    else {
+    } else {
         // the detectorArray array has not yet been defined, so check that the id values form a continuous set.
         // if they do then allocate an array to hold the data.
         int arraySize = detectorArrayId.size();
-        if (minIdValue != 1) success=false;
-        else {
-            gsl_sort_int (detectorArrayId.data(),1, arraySize);
-            blitz::Array<int,1> detectorSequence(detectorArrayId(blitz::Range(1,arraySize-1)) - detectorArrayId(blitz::Range(0,arraySize-2)));
-            if(any(abs(detectorSequence) != 1)) success=false;
-            else success=true;
+        if (minIdValue != 1) {
+            success = false;
+        } else {
+            gsl_sort_int(detectorArrayId.data(), 1, arraySize);
+            blitz::Array<int, 1> detectorSequence(detectorArrayId(blitz::Range(1, arraySize - 1)) -
+                                                  detectorArrayId(blitz::Range(0, arraySize - 2)));
+            if (any(abs(detectorSequence) != 1)) {
+                success = false;
+            } else {
+                success = true;
+            }
         }
         if (!success) {
             // the set of id's of the detectorArray do not form a  continuous set.
-            std::cout << "Error: The set of 'id's of the " << detectorName << " nodes do not form  continous set between 1 and =" << maxIdValue << std::endl;
-            std::cout << "      ===    The full list of id's for the " << detectorName << " nodes is:     ===" << std::endl;
+            std::cout << "Error: The set of 'id's of the " << detectorName
+                      << " nodes do not form  continous set between 1 and =" << maxIdValue << std::endl;
+            std::cout << "      ===    The full list of id's for the " << detectorName
+                      << " nodes is:     ===" << std::endl;
             std::cout << detectorArrayId << std::endl;
             return success = false;
         }
@@ -473,7 +496,6 @@ template <class Typ> bool XmlVerifyAndAllocate(const QDomNodeList& detectorArray
     }
     return success;
 }
-
 
 ////////////////////////////////////////////////////////////////
 
@@ -486,17 +508,19 @@ template <class Typ> bool XmlVerifyAndAllocate(const QDomNodeList& detectorArray
   \param  arrayExtents  Shape of array for which multidimensional scripts are required.
   \return               Array of indices.
 */
-template <int rank> blitz::TinyVector<int,rank> convertToMultiDIndicesColumn(const int index, const blitz::TinyVector<int,rank>& arrayExtents)
+template <int rank>
+blitz::TinyVector<int, rank> convertToMultiDIndicesColumn(const int index,
+                                                          const blitz::TinyVector<int, rank>& arrayExtents)
 // converts from a 1-D index to multi-dimensional indices
 {
-    blitz::TinyVector<int,rank> multiDimensionIndices;
-    multiDimensionIndices(0)=index % arrayExtents(0);
-    for (int k=1; k < rank; k++) {
-        int baseProduct=1;
-        for(int j=0; j < k; j++) {
-            baseProduct=baseProduct*arrayExtents(j);
+    blitz::TinyVector<int, rank> multiDimensionIndices;
+    multiDimensionIndices(0) = index % arrayExtents(0);
+    for (int k = 1; k < rank; k++) {
+        int baseProduct = 1;
+        for (int j = 0; j < k; j++) {
+            baseProduct = baseProduct * arrayExtents(j);
         }
-        multiDimensionIndices(k)=index/baseProduct % arrayExtents(k);
+        multiDimensionIndices(k) = index / baseProduct % arrayExtents(k);
     }
     return multiDimensionIndices;
 }
@@ -510,22 +534,42 @@ template <int rank> blitz::TinyVector<int,rank> convertToMultiDIndicesColumn(con
   \param  arrayExtents  Shape of array for which multidimensional scripts are required.
   \return               Array of indices.
 */
-template <int rank> blitz::TinyVector<int,rank> convertToMultiDIndicesRow(const int index, const blitz::TinyVector<int,rank>& arrayExtents)
+template <int rank>
+blitz::TinyVector<int, rank> convertToMultiDIndicesRow(const int index,
+                                                       const blitz::TinyVector<int, rank>& arrayExtents)
 // converts from a 1-D index to multi-dimensional indices
 {
-    blitz::TinyVector<int,rank> multiDimensionIndices;
-    multiDimensionIndices(rank-1)=index % arrayExtents(rank-1);
-    for (int k=rank-2; k >= 0; k--) {
-        int baseProduct=1;
-        for(int j=rank-1; j > k; j--) {
-            baseProduct=baseProduct*arrayExtents(j);
+    blitz::TinyVector<int, rank> multiDimensionIndices;
+    multiDimensionIndices(rank - 1) = index % arrayExtents(rank - 1);
+    for (int k = rank - 2; k >= 0; k--) {
+        int baseProduct = 1;
+        for (int j = rank - 1; j > k; j--) {
+            baseProduct = baseProduct * arrayExtents(j);
         }
-        multiDimensionIndices(k)=index/baseProduct % arrayExtents(k);
+        multiDimensionIndices(k) = index / baseProduct % arrayExtents(k);
     }
     return multiDimensionIndices;
 }
 
+//! overloaded template function outputs a single variable
+/*!
+  The routine can be called successively for dumping the data contained in an object.
 
+  \param  isSet          if true then the variable provided has been filled with data.
+  \param  parameterName  Text std::string contains the name of the parameter.
+  \param  value          The variable containing the data.
+*/
+template <class Typ>
+void dumpStructure(const bool isSet, const std::string parameterName, const SingleValueNs::SingleValue<Typ> value)
+{
+    std::cout.width(25);
+    std::cout << std::left << parameterName + " : ";
+    if (isSet) {
+        std::cout << std::left << value.getVal() << std::endl;
+    } else {
+        std::cout << std::left << "not set" << std::endl;
+    }
+}
 
 //! overloaded template function outputs a single variable
 /*!
@@ -535,35 +579,15 @@ template <int rank> blitz::TinyVector<int,rank> convertToMultiDIndicesRow(const 
   \param  parameterName  Text std::string contains the name of the parameter.
   \param  value          The variable containing the data.
 */
-template <class Typ> void dumpStructure(const bool isSet, const std::string parameterName, const SingleValueNs::SingleValue<Typ> value)
+template <class Typ, int rank>
+void dumpStructure(const bool isSet, const std::string parameterName, const blitz::Array<Typ, rank> value)
 {
     std::cout.width(25);
     std::cout << std::left << parameterName + " : ";
-    if(isSet) {
-        std::cout << std::left << value.getVal() <<std::endl;
-    }
-    else {
-        std::cout << std::left << "not set" <<std::endl;
-    }
-}
-
-//! overloaded template function outputs a single variable
-/*!
-  The routine can be called successively for dumping the data contained in an object.
-
-  \param  isSet          if true then the variable provided has been filled with data.
-  \param  parameterName  Text std::string contains the name of the parameter.
-  \param  value          The variable containing the data.
-*/
-template <class Typ, int rank> void dumpStructure(const bool isSet, const std::string parameterName, const blitz::Array<Typ,rank> value)
-{
-    std::cout.width(25);
-    std::cout << std::left << parameterName + " : ";
-    if(isSet) {
-        std::cout << value <<std::endl;
-    }
-    else {
-        std::cout << std::left << "not set" <<std::endl;
+    if (isSet) {
+        std::cout << value << std::endl;
+    } else {
+        std::cout << std::left << "not set" << std::endl;
     }
 }
 
@@ -574,20 +598,19 @@ template <class Typ, int rank> void dumpStructure(const bool isSet, const std::s
   \param  parameterName  Text std::string contains the name of the parameter.
   \param  value          The variable containing the data.
 */
-template <class Typ> void dumpStructure(const std::string parameterName, const blitz::Array<SingleValueNs::SingleValue<Typ>,1> value)
+template <class Typ>
+void dumpStructure(const std::string parameterName, const blitz::Array<SingleValueNs::SingleValue<Typ>, 1> value)
 {
     std::cout.width(25);
     std::cout << std::left << parameterName + " : ";
-    for (int i=0; i < value.size(); i++ ) {
-        if(value(i).isSet()) {
-            std::cout << i << "  " << value(i).getVal() <<std::endl;
-        }
-        else {
-            std::cout << i << "  " << std::left << "not set" <<std::endl;
+    for (int i = 0; i < value.size(); i++) {
+        if (value(i).isSet()) {
+            std::cout << i << "  " << value(i).getVal() << std::endl;
+        } else {
+            std::cout << i << "  " << std::left << "not set" << std::endl;
         }
     }
 }
-
 
 //! overloaded template function outputs a single variable
 /*!
@@ -600,17 +623,14 @@ template <class Typ> void dumpStructure(const std::string parameterName, const b
 template <class Typ> void dumpStructure(const bool isSet, const std::string parameterName, const Typ value)
 {
     std::cout.width(25);
-    std::cout <<  std::left << parameterName + " : ";
-    if(isSet) {
-        std::cout << std::left << value <<std::endl;
-    }
-    else {
-        std::cout << std::left << "not set" <<std::endl;
+    std::cout << std::left << parameterName + " : ";
+    if (isSet) {
+        std::cout << std::left << value << std::endl;
+    } else {
+        std::cout << std::left << "not set" << std::endl;
     }
 }
 
-}
+} // namespace UtilitiesNs
 
 #endif
-
-

@@ -7,13 +7,13 @@
 #  define strcasecmp _stricmp
 #endif
 
-#include "logging/logging.h"
-#include "initStructs.h"
 #include "clientserver/errorLog.h"
+#include "initStructs.h"
+#include "logging/logging.h"
 
+#include "client.h"
 #include "client/makeClientRequestBlock.h"
 #include "client/startup.h"
-#include "client.h"
 
 int idamClientAPI(const char* file, const char* signal, int pass, int exp_number)
 {
@@ -26,7 +26,9 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
 
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
-    if (udaStartup(0, client_flags, &reopen_logs) != 0) return PROBLEM_OPENING_LOGS;
+    if (udaStartup(0, client_flags, &reopen_logs) != 0) {
+        return PROBLEM_OPENING_LOGS;
+    }
 
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
@@ -46,10 +48,11 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
     int err;
     char data_source[STRING_LENGTH + 1];
     if (strlen(file) == 0) {
-        if (pass < 0)
+        if (pass < 0) {
             snprintf(data_source, STRING_LENGTH + 1, "%d", exp_number);
-        else
+        } else {
             snprintf(data_source, STRING_LENGTH + 1, "%d/%d", exp_number, pass);
+        }
     } else {
         strcpy(data_source, file);
     }
@@ -75,16 +78,16 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
 }
 
 /*---------------------------------------------------------------
-* Reads the Requested Data
-*
-* Input Arguments:    1) File Name
-*            2) Signal Name
-*            3) File Format
-*            4) Plasma Pulse/Experiment Number
-*
-* Returns:
-*
-*--------------------------------------------------------------*/
+ * Reads the Requested Data
+ *
+ * Input Arguments:    1) File Name
+ *            2) Signal Name
+ *            3) File Format
+ *            4) Plasma Pulse/Experiment Number
+ *
+ * Returns:
+ *
+ *--------------------------------------------------------------*/
 
 int idamClientFileAPI(const char* file, const char* signal, const char* format)
 {
@@ -97,7 +100,9 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
 
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
-    if (udaStartup(0, client_flags, &reopen_logs) != 0) return PROBLEM_OPENING_LOGS;
+    if (udaStartup(0, client_flags, &reopen_logs) != 0) {
+        return PROBLEM_OPENING_LOGS;
+    }
 
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure

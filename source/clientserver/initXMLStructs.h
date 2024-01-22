@@ -1,8 +1,8 @@
 #ifndef UDA_CLIENTSERVER_INITXMLSTRUCTS_H
 #define UDA_CLIENTSERVER_INITXMLSTRUCTS_H
 
-#include "xmlStructs.h"
 #include "export.h"
+#include "xmlStructs.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,9 +1,9 @@
 #include "handle.hpp"
 
+#include "initStructs.h"
+#include "struct.h"
 #include "udaStructs.h"
 #include "udaTypes.h"
-#include "struct.h"
-#include "initStructs.h"
 
 #include "thread_client.hpp"
 
@@ -17,7 +17,9 @@ void uda::client::free_handle(int handle)
 
     DATA_BLOCK* data_block = get_data_block(handle);
 
-    if (data_block == nullptr) return;
+    if (data_block == nullptr) {
+        return;
+    }
 
     // Free Hierarchical structured data first
 
@@ -46,7 +48,6 @@ void uda::client::free_handle(int handle)
                     freeMallocLogList(general_block->logmalloclist);
                     free(general_block->logmalloclist);
                 }
-
             }
 
             data_block->opaque_block = nullptr;
@@ -82,7 +83,7 @@ void uda::client::free_handle(int handle)
 
     if ((cptr = data_block->data) != nullptr) {
         free(cptr);
-        data_block->data = nullptr;    // Prevent another Free
+        data_block->data = nullptr; // Prevent another Free
     }
 
     if ((cptr = data_block->errhi) != nullptr) {
@@ -143,7 +144,7 @@ void uda::client::free_handle(int handle)
                 free(cptr);
             }
 
-            data_block->dims[i].dim = nullptr;    // Prevent another Free
+            data_block->dims[i].dim = nullptr; // Prevent another Free
             data_block->dims[i].synthetic = nullptr;
             data_block->dims[i].errhi = nullptr;
             data_block->dims[i].errlo = nullptr;
@@ -166,12 +167,11 @@ void uda::client::free_handle(int handle)
         }
 
         free(ddims);
-        data_block->dims = nullptr;    // Prevent another Free
+        data_block->dims = nullptr; // Prevent another Free
     }
 
     // closeIdamError(&server_block.idamerrorstack);
 
     initDataBlock(data_block);
-    data_block->handle = -1;        // Flag this as ready for re-use
+    data_block->handle = -1; // Flag this as ready for re-use
 }
-

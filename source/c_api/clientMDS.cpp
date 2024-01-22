@@ -1,11 +1,11 @@
 #include "clientMDS.h"
 
-#include "logging/logging.h"
-#include "initStructs.h"
 #include "clientserver/protocol.h"
+#include "initStructs.h"
+#include "logging/logging.h"
 
-#include "client/startup.h"
 #include "client.h"
+#include "client/startup.h"
 
 /**
  * Reads the Requested Data
@@ -24,7 +24,9 @@ int idamClientMDS(const char* server, const char* tree, const char* node, int tr
     CLIENT_FLAGS* client_flags = udaClientFlags();
     static bool reopen_logs = true;
 
-    if (udaStartup(0, client_flags, &reopen_logs) != 0) return PROBLEM_OPENING_LOGS;
+    if (udaStartup(0, client_flags, &reopen_logs) != 0) {
+        return PROBLEM_OPENING_LOGS;
+    }
 
     //-------------------------------------------------------------------------
     // Passed Args

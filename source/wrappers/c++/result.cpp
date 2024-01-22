@@ -4,15 +4,15 @@
 
 #include "result.hpp"
 
-#include <sstream>
 #include <complex>
+#include <sstream>
 
 #include "accAPI.h"
 #include "client.h"
 #include "udaTypes.h"
 
-#include "string.hpp"
 #include "array.hpp"
+#include "string.hpp"
 
 static const std::type_info* idamTypeToTypeID(int type)
 {
@@ -64,14 +64,12 @@ int uda::Result::errorCode() const
 }
 
 uda::Result::Result(int handle)
-        : handle_(handle)
-        , label_(handle >= 0 ? getIdamDataLabel(handle) : "")
-        , units_(handle >= 0 ? getIdamDataUnits(handle) : "")
-        , desc_(handle >= 0 ? getIdamDataDesc(handle) : "")
-        , type_(handle >= 0 ? idamTypeToTypeID(getIdamDataType(handle)) : &typeid(void))
-        , uda_type_(handle >= 0 ? getIdamDataType(handle) : UDA_TYPE_UNKNOWN)
-        , rank_(handle >= 0 ? static_cast<dim_type>(getIdamRank(handle)) : 0)
-        , size_(handle >= 0 ? static_cast<std::size_t>(getIdamDataNum(handle)) : 0)
+    : handle_(handle), label_(handle >= 0 ? getIdamDataLabel(handle) : ""),
+      units_(handle >= 0 ? getIdamDataUnits(handle) : ""), desc_(handle >= 0 ? getIdamDataDesc(handle) : ""),
+      type_(handle >= 0 ? idamTypeToTypeID(getIdamDataType(handle)) : &typeid(void)),
+      uda_type_(handle >= 0 ? getIdamDataType(handle) : UDA_TYPE_UNKNOWN),
+      rank_(handle >= 0 ? static_cast<dim_type>(getIdamRank(handle)) : 0),
+      size_(handle >= 0 ? static_cast<std::size_t>(getIdamDataNum(handle)) : 0)
 {
     if (handle >= 0 && (bool)getIdamProperties(handle)->get_meta) {
         SIGNAL_DESC* signal_desc = getIdamSignalDesc(handle);
@@ -107,8 +105,7 @@ const std::vector<size_t> uda::Result::shape() const
     return shape;
 }
 
-template<typename T>
-static uda::Dim getDim(int handle, uda::dim_type num, uda::Result::DataType data_type)
+template <typename T> static uda::Dim getDim(int handle, uda::dim_type num, uda::Result::DataType data_type)
 {
     if (data_type == uda::Result::DataType::DATA) {
         std::string label = getIdamDimLabel(handle, num);
@@ -180,8 +177,7 @@ uda::Dim uda::Result::dim(uda::dim_type num, DataType data_type) const
     return Dim::Null;
 }
 
-template<typename T>
-uda::Data* getDataAs(int handle, uda::Result::DataType data_type, const uda::Result* result)
+template <typename T> uda::Data* getDataAs(int handle, uda::Result::DataType data_type, const uda::Result* result)
 {
     T* data = nullptr;
     if (data_type == uda::Result::DataType::DATA) {
@@ -223,9 +219,8 @@ uda::Data* getDataAsStringArray(int handle)
         auto dim_size = static_cast<size_t>(getIdamDimNum(handle, dim_n));
         auto label = getIdamDimLabel(handle, dim_n);
         auto units = getIdamDimUnits(handle, dim_n);
-        dims.emplace_back(uda::Dim(dim_n, dim_data, dim_size,
-                                   label != nullptr ? label : "",
-                                   units != nullptr ? units : ""));
+        dims.emplace_back(
+            uda::Dim(dim_n, dim_data, dim_size, label != nullptr ? label : "", units != nullptr ? units : ""));
     }
 
     for (size_t i = 0; i < arr_len; ++i) {
@@ -277,7 +272,6 @@ uda::Data* uda::Result::data() const
             return &Array::Null;
     }
 }
-
 
 bool uda::Result::hasErrors() const
 {
@@ -342,5 +336,5 @@ const char* uda::Result::raw_data() const
 
 uda::TreeNode uda::Result::tree() const
 {
-    return { handle_, getIdamDataTree(handle_) };
+    return {handle_, getIdamDataTree(handle_)};
 }

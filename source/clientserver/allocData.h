@@ -1,8 +1,8 @@
 #ifndef UDA_CLIENTSERVER_ALLOCDATA_H
 #define UDA_CLIENTSERVER_ALLOCDATA_H
 
-#include "udaStructs.h"
 #include "export.h"
+#include "udaStructs.h"
 
 #include <stdlib.h>
 

@@ -1,7 +1,7 @@
 #include "makeServerRequestBlock.h"
 
-#include <clientserver/makeRequestBlock.h>
 #include "initStructs.h"
+#include <clientserver/makeRequestBlock.h>
 
 #include "getServerEnvironment.h"
 

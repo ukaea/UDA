@@ -1,8 +1,8 @@
 #ifndef UDA_PLUGINS_MANAGEPLUGINFILES_H
 #define UDA_PLUGINS_MANAGEPLUGINFILES_H
 
-#include <plugins/udaPluginFiles.h>
 #include "export.h"
+#include <plugins/udaPluginFiles.h>
 
 #ifdef __cplusplus
 extern "C" {

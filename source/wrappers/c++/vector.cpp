@@ -5,4 +5,3 @@
 #include "vector.hpp"
 
 uda::Vector uda::Vector::Null = uda::Vector();
-

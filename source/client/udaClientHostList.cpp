@@ -1,15 +1,15 @@
 /*---------------------------------------------------------------
-* Identify the Server Host Attributes
-* Is user authentication over SSL?
-*---------------------------------------------------------------------------------------------------------------------*/
+ * Identify the Server Host Attributes
+ * Is user authentication over SSL?
+ *---------------------------------------------------------------------------------------------------------------------*/
 
-#include <cstdlib>
-#include <vector>
-#include <string>
-#include <fstream>
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <cstdlib>
+#include <fstream>
+#include <string>
+#include <vector>
 
 #ifndef _WIN32
 #  include <strings.h>
@@ -44,7 +44,7 @@ const HostData* udaClientFindHostByName(const char* name)
 
     const char* target = name;
     if (strcasestr(name, "SSL://")) {
-        target = &name[6];    // Host name must be stripped of SSL:// prefix
+        target = &name[6]; // Host name must be stripped of SSL:// prefix
     }
 
     for (const auto& data : g_host_list) {
@@ -69,7 +69,7 @@ void udaClientInitHostList()
 
     // Locate the hosts registration file
 
-    constexpr const char* filename = "hosts.cfg"; // Default name
+    constexpr const char* filename = "hosts.cfg";           // Default name
     const char* config = getenv("UDA_CLIENT_HOSTS_CONFIG"); // Host configuration file
     std::string config_file;
 
@@ -101,10 +101,12 @@ void udaClientInitHostList()
     // hostAlias and other attributes are not required
     // ordering is not important
 
-    // The host_name may be either a resolvable name or a numeric IP address. The latter may be in either IPv4 or IPv6 format.
+    // The host_name may be either a resolvable name or a numeric IP address. The latter may be in either IPv4 or IPv6
+    // format.
 
     // The port number must be given separately from the IP address if the format is IPv6
-    // The port number may be appended to the host name or IPv4 numeric address using the standard convention host:port pattern
+    // The port number may be appended to the host name or IPv4 numeric address using the standard convention host:port
+    // pattern
 
     // if the host IP address or name is prefixed with SSL:// this is stripped off and the isSSL bool set true
     // if the certificates and private key are defined, the isSSL bool set true
@@ -121,7 +123,7 @@ void udaClientInitHostList()
 
         std::vector<std::string> tokens;
         boost::split(tokens, line, boost::is_any_of(" "));
-        std::for_each(tokens.begin(), tokens.end(), [](std::string& s){ boost::trim(s); });
+        std::for_each(tokens.begin(), tokens.end(), [](std::string& s) { boost::trim(s); });
 
         std::string name = tokens[0];
 
@@ -178,9 +180,8 @@ void udaClientInitHostList()
     // Extract and Strip the port number from the host name (a.b.c:9999, localhost:9999)
     for (auto& data : g_host_list) {
         size_t p;
-        if ((boost::iequals(data.host_name, "localhost") || data.host_name.find('.') != std::string::npos)
-            && (p = data.host_name.find(':')) != std::string::npos
-            && data.host_name.size() + 1 < p) {
+        if ((boost::iequals(data.host_name, "localhost") || data.host_name.find('.') != std::string::npos) &&
+            (p = data.host_name.find(':')) != std::string::npos && data.host_name.size() + 1 < p) {
             data.port = atoi(&data.host_name[p]);
             data.host_name.resize(p);
         }

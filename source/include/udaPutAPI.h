@@ -1,8 +1,8 @@
 #ifndef UDA_CLIENT_UDAPUTAPI_H
 #define UDA_CLIENT_UDAPUTAPI_H
 
-#include "udaStructs.h"
 #include "export.h"
+#include "udaStructs.h"
 
 #ifdef FATCLIENT
 #  define idamPutListAPI idamPutListAPIFat

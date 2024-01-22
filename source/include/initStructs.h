@@ -1,8 +1,8 @@
 #ifndef UDA_CLIENTSERVER_INITSTRUCTS_H
 #define UDA_CLIENTSERVER_INITSTRUCTS_H
 
-#include "udaStructs.h"
 #include "export.h"
+#include "udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {

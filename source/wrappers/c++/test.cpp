@@ -1,6 +1,7 @@
 #include "UDA.hpp"
 
-int main() {
+int main()
+{
 
     uda::Client::setServerHostName("idam0");
     uda::Client::setServerPort(56561);
@@ -15,10 +16,9 @@ int main() {
     std::cout << dim.type().name() << std::endl;
     std::cout << dim_data[0] << std::endl;
 
-    uda::Array * data = dynamic_cast<uda::Array *>(result.data());
+    uda::Array* data = dynamic_cast<uda::Array*>(result.data());
 
     std::cout << data->isNull() << std::endl;
 
     return 0;
 }
-

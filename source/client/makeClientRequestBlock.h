@@ -1,8 +1,8 @@
 #ifndef UDA_CLIENT_MAKECLIENTREQUESTBLOCK_H
 #define UDA_CLIENT_MAKECLIENTREQUESTBLOCK_H
 
-#include "udaStructs.h"
 #include "export.h"
+#include "udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {

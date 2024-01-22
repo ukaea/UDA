@@ -1,8 +1,8 @@
 #ifndef UDA_CLIENT_CLIENTXDRSTREAM_H
 #define UDA_CLIENT_CLIENTXDRSTREAM_H
 
-#include <utility>
 #include <rpc/rpc.h>
+#include <utility>
 
 #include "export.h"
 

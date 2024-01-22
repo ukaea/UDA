@@ -1,7 +1,7 @@
 #include "authenticationUtils.h"
 
-#include <sys/stat.h>
 #include <cerrno>
+#include <sys/stat.h>
 
 #include <clientserver/errorLog.h>
 
@@ -20,12 +20,8 @@ int testFilePermissions(const char* object)
                      "Could not verify the user's private key directory's access permissions!");
         return err;
     }
-    if (buffer.st_mode & S_IRGRP ||
-        buffer.st_mode & S_IWGRP ||
-        buffer.st_mode & S_IXGRP ||
-        buffer.st_mode & S_IROTH ||
-        buffer.st_mode & S_IWOTH ||
-        buffer.st_mode & S_IXOTH) {
+    if (buffer.st_mode & S_IRGRP || buffer.st_mode & S_IWGRP || buffer.st_mode & S_IXGRP || buffer.st_mode & S_IROTH ||
+        buffer.st_mode & S_IWOTH || buffer.st_mode & S_IXOTH) {
         err = 999;
         addIdamError(UDA_CODE_ERROR_TYPE, "testSecurityFilePermissions", err,
                      "The user's private key directory is public: Your keys and certificate may be compromised!!!");
@@ -50,4 +46,3 @@ void initSecurityBlock(SECURITY_BLOCK* str)
     str->client_X509 = nullptr;
     str->client2_X509 = nullptr;
 }
-

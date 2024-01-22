@@ -1,20 +1,21 @@
+#include <boost/algorithm/string.hpp>
+#include <dlfcn.h>
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <boost/algorithm/string.hpp>
-#include <dlfcn.h>
 
-#include "plugins.hpp"
 #include "get_plugin_address.hpp"
+#include "plugins.hpp"
 
-#include "udaPlugin.h"
 #include "clientserver/stringUtils.h"
-#include <clientserver/errorLog.h>
 #include "logging/logging.h"
+#include "udaPlugin.h"
+#include <clientserver/errorLog.h>
 
-#define REQUEST_READ_START      1000
+#define REQUEST_READ_START 1000
 
-namespace {
+namespace
+{
 
 void init_plugin_data(PLUGIN_DATA* plugin)
 {
@@ -65,10 +66,11 @@ int process_line(const std::string& line, PluginData& plugin)
             case 0:
                 // File Format or Server Protocol or Library name or Device name etc.
                 strcpy(plugin.format, token.c_str());
-                // If the Format or Protocol is Not unique, the plugin that is selected will be the first one registered: others will be ignored.
+                // If the Format or Protocol is Not unique, the plugin that is selected will be the first one
+                // registered: others will be ignored.
                 break;
 
-            case 1:    // Plugin class: File, Server, Function or Device
+            case 1: // Plugin class: File, Server, Function or Device
                 plugin.plugin_class = UDA_PLUGIN_CLASS_FILE;
                 if (ltoken == "server") {
                     plugin.plugin_class = UDA_PLUGIN_CLASS_SERVER;
@@ -82,17 +84,18 @@ int process_line(const std::string& line, PluginData& plugin)
                 break;
 
             case 2:
-                // Allow the same symbol (name of data access reader function or plugin entrypoint symbol) but from different libraries!
+                // Allow the same symbol (name of data access reader function or plugin entrypoint symbol) but from
+                // different libraries!
                 if (plugin.plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
                     strcpy(plugin.symbol, token.c_str());
-                    plugin.external = UDA_PLUGIN_EXTERNAL;        // External (not linked) shared library
+                    plugin.external = UDA_PLUGIN_EXTERNAL; // External (not linked) shared library
 
                     if (plugin.plugin_class == UDA_PLUGIN_CLASS_FILE) {
                         // Plugin method name using a dot syntax
                         char* p;
                         if ((p = strchr(plugin.symbol, '.')) != nullptr) {
-                            p[0] = '\0';                                // Remove the method name from the symbol text
-                            strcpy(plugin.method, &p[1]);        // Save the method name
+                            p[0] = '\0';                  // Remove the method name from the symbol text
+                            strcpy(plugin.method, &p[1]); // Save the method name
                         }
                     }
 
@@ -136,28 +139,23 @@ int process_line(const std::string& line, PluginData& plugin)
             case 6:
                 // Permission to Cache returned values
                 strcpy(plugin.desc, token.c_str());
-                if (plugin.desc[0] != '\0' && (
-                        plugin.desc[0] == 'Y' ||
-                        plugin.desc[0] == 'y' ||
-                        plugin.desc[0] == 'T' ||
-                        plugin.desc[0] == 't' ||
-                        plugin.desc[0] == '1')) {
-                    plugin.cachePermission = UDA_PLUGIN_OK_TO_CACHE;      // True
+                if (plugin.desc[0] != '\0' &&
+                    (plugin.desc[0] == 'Y' || plugin.desc[0] == 'y' || plugin.desc[0] == 'T' || plugin.desc[0] == 't' ||
+                     plugin.desc[0] == '1')) {
+                    plugin.cachePermission = UDA_PLUGIN_OK_TO_CACHE; // True
                     plugin.desc[0] = '\0';
-                } else
-                    plugin.cachePermission = UDA_PLUGIN_NOT_OK_TO_CACHE;   // False
+                } else {
+                    plugin.cachePermission = UDA_PLUGIN_NOT_OK_TO_CACHE; // False
+                }
 
                 break;
 
             case 7:
                 // Private or Public plugin - i.e. available to external users
                 strcpy(plugin.desc, token.c_str());
-                if (plugin.desc[0] != '\0' && (
-                        plugin.desc[0] == 'Y' ||
-                        plugin.desc[0] == 'y' ||
-                        plugin.desc[0] == 'T' ||
-                        plugin.desc[0] == 't' ||
-                        plugin.desc[0] == '1')) {
+                if (plugin.desc[0] != '\0' &&
+                    (plugin.desc[0] == 'Y' || plugin.desc[0] == 'y' || plugin.desc[0] == 'T' || plugin.desc[0] == 't' ||
+                     plugin.desc[0] == '1')) {
                     plugin.is_private = UDA_PLUGIN_PUBLIC;
                     plugin.desc[0] = '\0';
                 }
@@ -187,14 +185,14 @@ int process_line(const std::string& line, PluginData& plugin)
 std::ifstream open_config_file()
 {
     char* root;
-    char* config = getenv("UDA_PLUGIN_CONFIG");            // Server plugin configuration file
-    const char* default_file = "udaPlugins.conf";                // Default name
+    char* config = getenv("UDA_PLUGIN_CONFIG");   // Server plugin configuration file
+    const char* default_file = "udaPlugins.conf"; // Default name
     std::string file_path;
 
     // Locate the plugin registration file
 
     if (config == nullptr) {
-        root = getenv("UDA_SERVERROOT");                // Where udaPlugins.conf is located by default
+        root = getenv("UDA_SERVERROOT"); // Where udaPlugins.conf is located by default
         if (root == nullptr) {
             file_path = std::string{"./"} + default_file;
         } else {
@@ -210,7 +208,7 @@ std::ifstream open_config_file()
     return conf_file;
 }
 
-} // anon namespace
+} // namespace
 
 void uda::Plugins::init()
 {
@@ -289,13 +287,12 @@ void uda::Plugins::process_config_file(std::ifstream& conf_file)
 
         // Issue Unique request ID
         plugin.request = REQUEST_READ_START + offset++;
-        plugin.pluginHandle = nullptr;            // Library handle: Not opened
-        plugin.status = UDA_PLUGIN_NOT_OPERATIONAL;  // Not yet available
+        plugin.pluginHandle = nullptr;              // Library handle: Not opened
+        plugin.status = UDA_PLUGIN_NOT_OPERATIONAL; // Not yet available
 
         // Internal Serverside function ?
-        if (plugin.plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
-                STR_IEQUALS(plugin.symbol, "serverside") &&
-                plugin.library[0] == '\0') {
+        if (plugin.plugin_class == UDA_PLUGIN_CLASS_FUNCTION && STR_IEQUALS(plugin.symbol, "serverside") &&
+            plugin.library[0] == '\0') {
             strcpy(plugin.symbol, "SERVERSIDE");
             plugin.request = REQUEST_READ_GENERIC;
             plugin.external = UDA_PLUGIN_INTERNAL;
@@ -314,24 +311,19 @@ void uda::Plugins::process_config_file(std::ifstream& conf_file)
         int j = 0;
         for (auto& test : plugins_) {
             // External sources only
-            if (test.external == UDA_PLUGIN_EXTERNAL &&
-                    test.status == UDA_PLUGIN_OPERATIONAL &&
-                    test.pluginHandle != nullptr &&
-                    STR_IEQUALS(test.library, plugin.library)) {
+            if (test.external == UDA_PLUGIN_EXTERNAL && test.status == UDA_PLUGIN_OPERATIONAL &&
+                test.pluginHandle != nullptr && STR_IEQUALS(test.library, plugin.library)) {
 
                 // Library may contain different symbols
 
                 if (STR_IEQUALS(test.symbol, plugin.symbol) && test.idamPlugin != nullptr) {
                     rc = 0;
-                    plugin.idamPlugin = test.idamPlugin;    // re-use
+                    plugin.idamPlugin = test.idamPlugin; // re-use
                 } else {
                     // New symbol in opened library
                     if (plugin.plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
-                        rc = get_plugin_address(
-                                &test.pluginHandle,                // locate symbol
-                                test.library,
-                                plugin.symbol,
-                                &plugin.idamPlugin);
+                        rc = get_plugin_address(&test.pluginHandle, // locate symbol
+                                                test.library, plugin.symbol, &plugin.idamPlugin);
                     }
                 }
 
@@ -342,12 +334,9 @@ void uda::Plugins::process_config_file(std::ifstream& conf_file)
             ++j;
         }
 
-        if (pluginID == -1) {                                    // open library and locate symbol
+        if (pluginID == -1) { // open library and locate symbol
             if (plugin.plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
-                rc = get_plugin_address(&plugin.pluginHandle,
-                                             plugin.library,
-                                             plugin.symbol,
-                                             &plugin.idamPlugin);
+                rc = get_plugin_address(&plugin.pluginHandle, plugin.library, plugin.symbol, &plugin.idamPlugin);
             }
         }
 
@@ -372,23 +361,22 @@ void uda::Plugins::init_generic_plugin()
     plugin.request = REQUEST_READ_GENERIC;
     plugin.plugin_class = UDA_PLUGIN_CLASS_OTHER;
     plugin.is_private = UDA_PLUGIN_PUBLIC;
-    strcpy(plugin.desc,
-           "Generic Data Access request - no file format or server name specified, only the shot number");
+    strcpy(plugin.desc, "Generic Data Access request - no file format or server name specified, only the shot number");
     strcpy(plugin.example, R"(udaGetAPI("signal name", "12345"))");
-    plugin.external = UDA_PLUGIN_INTERNAL;        // These are all linked as internal functions
-    plugin.status = UDA_PLUGIN_OPERATIONAL;        // By default all these are available
-    plugin.cachePermission = UDA_PLUGIN_CACHE_DEFAULT;    // OK or not for Client and Server to Cache
+    plugin.external = UDA_PLUGIN_INTERNAL;             // These are all linked as internal functions
+    plugin.status = UDA_PLUGIN_OPERATIONAL;            // By default all these are available
+    plugin.cachePermission = UDA_PLUGIN_CACHE_DEFAULT; // OK or not for Client and Server to Cache
 
     plugins_.push_back(plugin);
 }
 
 void uda::Plugins::init_serverside_functions()
-{//----------------------------------------------------------------------------------------------------------------------
-// Server-Side Functions
+{ //----------------------------------------------------------------------------------------------------------------------
+    // Server-Side Functions
 
     auto names = {"SERVERSIDE", "SSIDE", "SS"};
 
-    for (auto& name: names) {
+    for (auto& name : names) {
         PluginData plugin = {};
 
         strcpy(plugin.format, name);
@@ -399,9 +387,9 @@ void uda::Plugins::init_serverside_functions()
         plugin.is_private = UDA_PLUGIN_PUBLIC;
         plugin.library[0] = '\0';
         plugin.pluginHandle = nullptr;
-        plugin.external = UDA_PLUGIN_INTERNAL;        // These are all linked as internal functions
-        plugin.status = UDA_PLUGIN_OPERATIONAL;        // By default all these are available
-        plugin.cachePermission = UDA_PLUGIN_CACHE_DEFAULT;    // OK or not for Client and Server to Cache
+        plugin.external = UDA_PLUGIN_INTERNAL;             // These are all linked as internal functions
+        plugin.status = UDA_PLUGIN_OPERATIONAL;            // By default all these are available
+        plugin.cachePermission = UDA_PLUGIN_CACHE_DEFAULT; // OK or not for Client and Server to Cache
 
         plugins_.push_back(plugin);
     }

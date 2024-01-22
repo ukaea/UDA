@@ -8,28 +8,28 @@
 
 #include "connection.h"
 
-#include <cstdlib>
+#include <boost/algorithm/string.hpp>
 #include <cerrno>
 #include <csignal>
-#include <vector>
+#include <cstdlib>
 #include <string>
-#include <boost/algorithm/string.hpp>
+#include <vector>
 
 #if defined(__GNUC__) && !defined(__MINGW32__)
 #  ifndef _WIN32
-#    include <sys/socket.h>
-#    include <netinet/in.h>
 #    include <arpa/inet.h>
 #    include <netdb.h>
+#    include <netinet/in.h>
 #    include <netinet/tcp.h>
+#    include <sys/socket.h>
 #  endif
-#  include <unistd.h>
 #  include <strings.h>
+#  include <unistd.h>
 #else
 #  include <process.h>
 #  include <ws2tcpip.h>
 #  define strcasecmp _stricmp
-#  define sleep(DELAY) Sleep((DWORD)((DELAY)*1E3))
+#  define sleep(DELAY) Sleep((DWORD)((DELAY) * 1E3))
 #  define close(SOCK) closesocket(SOCK)
 #  ifndef __MINGW32__
 #    pragma comment(lib, "Ws2_32.lib")
@@ -40,14 +40,14 @@
 #  endif
 #endif
 
-#include <clientserver/errorLog.h>
-#include <clientserver/manageSockets.h>
 #include "client.h"
 #include <client/udaClientHostList.h>
+#include <clientserver/errorLog.h>
+#include <clientserver/manageSockets.h>
 #include <logging/logging.h>
 
-#include "updateSelectParms.h"
 #include "getEnvironment.h"
+#include "updateSelectParms.h"
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include <authentication/udaClientSSL.h>
@@ -59,10 +59,10 @@
 #  define ALLOW_UNUSED_TYPE
 #endif
 
-#define PORT_STRING    64
+#define PORT_STRING 64
 
 static int client_socket = -1;
-static SOCKETLIST client_socketlist;   // List of open sockets
+static SOCKETLIST client_socketlist; // List of open sockets
 
 int connectionOpen()
 {
@@ -89,16 +89,17 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output,
     // Instance a new server if the Client has changed the host and/or port number
 
     if (environment->server_reconnect) {
-        //RC
+        // RC
         int status;
         int fh;
-        if (getSocket(&client_socketlist, TYPE_UDA_SERVER, &status, environment->server_host, environment->server_port, &fh) == 0) {
+        if (getSocket(&client_socketlist, TYPE_UDA_SERVER, &status, environment->server_host, environment->server_port,
+                      &fh) == 0) {
             environment->server_socket = fh;
             environment->server_change_socket = 1;
         } else {
-            time(tv_server_start);                     // Start a New Server AGE timer
-            client_socket = -1;                          // Flags no Socket is open
-            environment->server_change_socket = 0;      // Client doesn't know the Socket ID so disable
+            time(tv_server_start);                 // Start a New Server AGE timer
+            client_socket = -1;                    // Flags no Socket is open
+            environment->server_change_socket = 0; // Client doesn't know the Socket ID so disable
         }
     }
 
@@ -142,9 +143,9 @@ int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output,
 void localhostInfo(int* ai_family)
 {
     char addr_buf[64];
-    struct addrinfo* info = nullptr, * result = nullptr;
+    struct addrinfo *info = nullptr, *result = nullptr;
     getaddrinfo("localhost", nullptr, nullptr, &info);
-    result = info;    // Take the first linked list member
+    result = info; // Take the first linked list member
     if (result->ai_family == AF_INET) {
         *ai_family = AF_INET;
         inet_ntop(AF_INET, &((struct sockaddr_in*)result->ai_addr)->sin_addr, addr_buf, sizeof(addr_buf));
@@ -154,14 +155,16 @@ void localhostInfo(int* ai_family)
         inet_ntop(AF_INET6, &((struct sockaddr_in6*)result->ai_addr)->sin6_addr, addr_buf, sizeof(addr_buf));
         UDA_LOG(UDA_LOG_DEBUG, "localhost Information: IPv6 - %s\n", addr_buf);
     }
-    if (info) freeaddrinfo(info);
+    if (info) {
+        freeaddrinfo(info);
+    }
 }
 
 void setHints(struct addrinfo* hints, const char* hostname)
 {
     hints->ai_family = AF_UNSPEC;
     hints->ai_socktype = SOCK_STREAM;
-    hints->ai_flags = 0; //AI_CANONNAME | AI_V4MAPPED | AI_ALL | AI_ADDRCONFIG ;
+    hints->ai_flags = 0; // AI_CANONNAME | AI_V4MAPPED | AI_ALL | AI_ADDRCONFIG ;
     hints->ai_protocol = 0;
     hints->ai_canonname = nullptr;
     hints->ai_addr = nullptr;
@@ -173,11 +176,13 @@ void setHints(struct addrinfo* hints, const char* hostname)
 
     // Localhost? Which IP family? (AF_UNSPEC gives an 'Unknown Error'!)
 
-    if (!strcmp(hostname, "localhost")) localhostInfo(&hints->ai_family);
+    if (!strcmp(hostname, "localhost")) {
+        localhostInfo(&hints->ai_family);
+    }
 
     // Is the address Numeric? Is it IPv6?
 
-    if (strchr(hostname, ':')) {        // Appended port number should have been stripped off
+    if (strchr(hostname, ':')) { // Appended port number should have been stripped off
         hints->ai_family = AF_INET6;
         hints->ai_flags = hints->ai_flags | AI_NUMERICHOST;
     } else {
@@ -200,9 +205,9 @@ void setHints(struct addrinfo* hints, const char* hostname)
     }
 }
 
-int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_start, int user_timeout)
+int createConnection(XDR* client_input, XDR* client_output, time_t* tv_server_start, int user_timeout)
 {
-    int window_size = DB_READ_BLOCK_SIZE;        // 128K
+    int window_size = DB_READ_BLOCK_SIZE; // 128K
     int rc;
 
     static int max_socket_delay = -1;
@@ -237,12 +242,12 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
     putUdaClientSSLSocket(client_socket);
 #endif
 
-#ifdef _WIN32                            // Initialise WINSOCK Once only
-    static unsigned int    initWinsock = 0;
+#ifdef _WIN32 // Initialise WINSOCK Once only
+    static unsigned int initWinsock = 0;
     WORD sockVersion;
     WSADATA wsaData;
     if (!initWinsock) {
-        sockVersion = MAKEWORD(2, 2);                // Select Winsock version 2.2
+        sockVersion = MAKEWORD(2, 2); // Select Winsock version 2.2
         WSAStartup(sockVersion, &wsaData);
         initWinsock = 1;
     }
@@ -253,7 +258,8 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
     const char* hostname = environment->server_host;
     char serviceport[PORT_STRING];
 
-    // Check if the host_name is an alias for an IP address or domain name in the client configuration - replace if found
+    // Check if the host_name is an alias for an IP address or domain name in the client configuration - replace if
+    // found
 
     auto host = udaClientFindHostByAlias(hostname);
     if (host != nullptr) {
@@ -264,7 +270,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
         }
         hostname = host->host_name.c_str();
         if (strcasecmp(environment->server_host, hostname) != 0) {
-            strcpy(environment->server_host, hostname);    // Replace
+            strcpy(environment->server_host, hostname); // Replace
         }
         int port = host->port;
         if (port > 0 && environment->server_port != port) {
@@ -288,7 +294,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
     if (!strncasecmp(hostname, "SSL://", 6)) {
         // Should be stripped already if via the HOST client configuration file
-        strcpy(environment->server_host, &hostname[6]);  // Replace
+        strcpy(environment->server_host, &hostname[6]); // Replace
         putUdaClientSSLProtocol(1);
     } else {
         if (host != nullptr && host->isSSL) {
@@ -302,15 +308,19 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
     // Resolve the Host and the IP protocol to be used (Hints not used)
 
     struct addrinfo* result = nullptr;
-    struct addrinfo hints = { 0 };
+    struct addrinfo hints = {0};
     setHints(&hints, hostname);
 
     errno = 0;
     // RC if ((rc = getaddrinfo(hostname, serviceport, &hints, &result)) != 0 || (errno != 0 && errno != ESRCH)) {
     if ((rc = getaddrinfo(hostname, serviceport, &hints, &result)) != 0) {
         addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, rc, (char*)gai_strerror(rc));
-        if (rc == EAI_SYSTEM || errno != 0) addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
-        if (result) freeaddrinfo(result);
+        if (rc == EAI_SYSTEM || errno != 0) {
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+        }
+        if (result) {
+            freeaddrinfo(result);
+        }
         return -1;
     }
 
@@ -335,7 +345,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
             close(client_socket);
         }
 #else
-        closesocket(client_socket);
+            closesocket(client_socket);
 #endif
         client_socket = -1;
         freeaddrinfo(result);
@@ -353,17 +363,19 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
 
         int ps;
         ps = getpid();
-        srand((unsigned int)ps);                                                // Seed the random number generator with the process id
+        srand((unsigned int)ps); // Seed the random number generator with the process id
         unsigned int delay = max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0; // random delay
         sleep(delay);
-        errno = 0;                                                           // wait period
-        for (int i = 0; i < max_socket_attempts; i++) {                             // try again
+        errno = 0;                                      // wait period
+        for (int i = 0; i < max_socket_attempts; i++) { // try again
             while ((rc = connect(client_socket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
 
-            if (rc == 0 && errno == 0) break;
+            if (rc == 0 && errno == 0) {
+                break;
+            }
 
             delay = max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0;
-            sleep(delay);                            // wait period
+            sleep(delay); // wait period
         }
 
         if (rc != 0 || errno != 0) {
@@ -389,7 +401,8 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
 #endif
             hostname = environment->server_host2;
 
-            // Check if the host_name is an alias for an IP address or name in the client configuration - replace if found
+            // Check if the host_name is an alias for an IP address or name in the client configuration - replace if
+            // found
 
             host = udaClientFindHostByAlias(hostname);
             if (host != nullptr) {
@@ -406,7 +419,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
                 if (port > 0 && environment->server_port2 != port) {
                     environment->server_port2 = port;
                 }
-            } else if ((host = udaClientFindHostByName(hostname)) != nullptr) {    // No alias found
+            } else if ((host = udaClientFindHostByName(hostname)) != nullptr) { // No alias found
                 int port = host->port;
                 if (port > 0 && environment->server_port2 != port) {
                     environment->server_port2 = port;
@@ -420,9 +433,9 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
             // Does the host name contain the SSL protocol prefix? If so strip this off
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
-            if (!strncasecmp(hostname, "SSL://", 6)){
+            if (!strncasecmp(hostname, "SSL://", 6)) {
                 // Should be stripped already if via the HOST client configuration file
-                strcpy(environment->server_host2, &hostname[6]);    // Replace
+                strcpy(environment->server_host2, &hostname[6]); // Replace
                 putUdaClientSSLProtocol(1);
             } else {
                 if (host != nullptr && host->isSSL) {
@@ -440,8 +453,12 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
             errno = 0;
             if ((rc = getaddrinfo(hostname, serviceport, &hints, &result)) != 0 || errno != 0) {
                 addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, rc, (char*)gai_strerror(rc));
-                if (rc == EAI_SYSTEM || errno != 0) addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
-                if (result) freeaddrinfo(result);
+                if (rc == EAI_SYSTEM || errno != 0) {
+                    addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+                }
+                if (result) {
+                    freeaddrinfo(result);
+                }
                 return -1;
             }
             errno = 0;
@@ -459,7 +476,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
                     close(client_socket);
                 }
 #else
-                closesocket(client_socket);
+                    closesocket(client_socket);
 #endif
                 client_socket = -1;
                 freeaddrinfo(result);
@@ -469,7 +486,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
             for (int i = 0; i < max_socket_attempts; i++) {
                 while ((rc = connect(client_socket, result->ai_addr, result->ai_addrlen)) && errno == EINTR) {}
                 if (rc == 0) {
-                    int port = environment->server_port2;                // Swap data so that accessor function reports correctly
+                    int port = environment->server_port2; // Swap data so that accessor function reports correctly
                     environment->server_port2 = environment->server_port;
                     environment->server_port = port;
                     std::string name = environment->server_host2;
@@ -478,7 +495,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
                     break;
                 }
                 delay = max_socket_delay > 0 ? (unsigned int)(rand() % max_socket_delay) : 0;
-                sleep(delay);                            // wait period
+                sleep(delay); // wait period
             }
         }
 
@@ -494,15 +511,19 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
                 close(client_socket);
             }
 #else
-            closesocket(client_socket);
+                closesocket(client_socket);
 #endif
             client_socket = -1;
-            if (result) freeaddrinfo(result);
+            if (result) {
+                freeaddrinfo(result);
+            }
             return -1;
         }
     }
 
-    if (result) freeaddrinfo(result);
+    if (result) {
+        freeaddrinfo(result);
+    }
 
     // Set the receive and send buffer sizes
 
@@ -532,7 +553,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t *tv_server_st
               client_socket);
     client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].Input = client_input;
     client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].Output = client_output;
-	client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].user_timeout = user_timeout;
+    client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].user_timeout = user_timeout;
     client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].tv_server_start = *tv_server_start;
     environment->server_reconnect = 0;
     environment->server_change_socket = 0;
@@ -566,7 +587,7 @@ void closeConnection(ClosedownType type)
 int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 {
 #ifndef _WIN32
-    void (* OldSIGPIPEHandler)(int);
+    void (*OldSIGPIPEHandler)(int);
 #endif
     int rc = 0;
     size_t BytesSent = 0;
@@ -623,13 +644,13 @@ int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 #ifndef _WIN32
         while (((rc = (int)write(client_socket, buf, count)) == -1) && (errno == EINTR)) {}
 #else
-        while (((rc = send(client_socket, buf , count, 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
+        while (((rc = send(client_socket, buf, count, 0)) == SOCKET_ERROR) && (errno == EINTR)) {}
 #endif
         BytesSent += rc;
         buf += rc;
     }
 
-// Restore the original SIGPIPE handler set by the application
+    // Restore the original SIGPIPE handler set by the application
 
 #ifndef _WIN32
     if (signal(SIGPIPE, OldSIGPIPEHandler) == SIG_ERR) {
@@ -656,7 +677,7 @@ int clientReadin(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
     udaUpdateSelectParms(client_socket, &rfds, &tv);
 
     while ((select(client_socket + 1, &rfds, nullptr, nullptr, &tv) <= 0) && maxloop++ < MAXLOOP) {
-        udaUpdateSelectParms(client_socket, &rfds, &tv);        // Keep trying ...
+        udaUpdateSelectParms(client_socket, &rfds, &tv); // Keep trying ...
     }
 
     // Read from it, checking for EINTR, as happens if called from IDL

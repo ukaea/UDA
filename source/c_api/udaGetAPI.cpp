@@ -1,12 +1,12 @@
 /*---------------------------------------------------------------
-* Reads the Requested Data
-*
-* Input Arguments:    1) Signal Name (Alias or Generic)
-*            2) Data Source or Experiment Number
-*
-* Returns:
-*
-*--------------------------------------------------------------*/
+ * Reads the Requested Data
+ *
+ * Input Arguments:    1) Signal Name (Alias or Generic)
+ *            2) Data Source or Experiment Number
+ *
+ * Returns:
+ *
+ *--------------------------------------------------------------*/
 
 #include "udaGetAPI.h"
 
@@ -14,19 +14,19 @@
 #  include <strings.h>
 #endif
 
-#include "logging/logging.h"
-#include "initStructs.h"
 #include "clientserver/errorLog.h"
 #include "clientserver/printStructs.h"
+#include "initStructs.h"
+#include "logging/logging.h"
 
+#include "accAPI.h"
+#include "client.h"
+#include "client/getEnvironment.h"
 #include "client/makeClientRequestBlock.h"
 #include "client/startup.h"
-#include "client.h"
-#include "accAPI.h"
-#include "client/getEnvironment.h"
 
 #ifdef MEMDEBUG
-#include <mcheck.h>
+#  include <mcheck.h>
 #endif
 
 //! the principal IDAM API
@@ -56,22 +56,23 @@ Data source patterns:\n\n
 </tr>
 <tr>
 <td>row 2, cell 1</td>
-<td><b>FORMAT::/path/to/my/file</b> - a private file with a specified format. The server must have read access permission.</td>
+<td><b>FORMAT::/path/to/my/file</b> - a private file with a specified format. The server must have read access
+permission.</td>
 </tr>
 <tr>
 <td>row 2, cell 1</td>
-<td><b>FORMAT::./path/to/my/file</b> - relative paths are resolved by the client and must be accessible on the network by the server.
-FORMAT::../path/to/my/file</b></td>
+<td><b>FORMAT::./path/to/my/file</b> - relative paths are resolved by the client and must be accessible on the network
+by the server. FORMAT::../path/to/my/file</b></td>
 </tr>
 <tr>
 <td>row 2, cell 1</td>
-<td><b>FORMAT::/scratch/path/to/my/file</b> user file directories local to the client's workstation may have to be changed. This is
-done automatically using the environment variables: .... </td>
+<td><b>FORMAT::/scratch/path/to/my/file</b> user file directories local to the client's workstation may have to be
+changed. This is done automatically using the environment variables: .... </td>
 </tr>
 <tr>
 <td>row 2, cell 1</td>
-<td><b>FORMAT::pulse</b> FORMAT must be the default FORMAT, e.g. IDA3. The IDAM server treats this file as a private file and has
-built-in rules to locate the source file within the data archive.</td>
+<td><b>FORMAT::pulse</b> FORMAT must be the default FORMAT, e.g. IDA3. The IDAM server treats this file as a private
+file and has built-in rules to locate the source file within the data archive.</td>
 </tr>
 <tr>
 <td>row 2, cell 1</td>
@@ -86,9 +87,8 @@ built-in rules to locate the source file within the data archive.</td>
 
 <tr>
 <td>row 2, cell 1</td>
-<td><b>DEVICE::FORMAT::/path/to/my/file</b> The request is passed to a different data server identified by the DEVICE. There it is
-treated as a private file with the default file FORMAT.
-<b>/pulse/pass</b></td>
+<td><b>DEVICE::FORMAT::/path/to/my/file</b> The request is passed to a different data server identified by the DEVICE.
+There it is treated as a private file with the default file FORMAT. <b>/pulse/pass</b></td>
 </tr>
 <tr>
 <td>row 2, cell 1</td>
@@ -121,14 +121,11 @@ treated as a private file within the data archive if FORMAT is the default file 
 
 </table>
 
-\b    PROTOCOL::server.host.name:port/U/R/L    server access requests - always requires the delimiter string element in string\n
-\n
-\b    function(arguments or name value pair list)        server side processing of data\n
-\b    LIBRARY::function(arguments or name value pair list)    function plugin library \n
-\b    DEVICE::function(arguments or name value pair list)    Not allowed - use DEVICE::SERVERSIDE::function()\n
-\n
-\b    DEVICE::FORMAT:: ...            If the DEVICE is not the default device, then a server protocol is invoked to pass
-                                                the request forward (FORMAT:: ...)\n\n
+\b    PROTOCOL::server.host.name:port/U/R/L    server access requests - always requires the delimiter string element in
+string\n \n \b    function(arguments or name value pair list)        server side processing of data\n \b
+LIBRARY::function(arguments or name value pair list)    function plugin library \n \b    DEVICE::function(arguments or
+name value pair list)    Not allowed - use DEVICE::SERVERSIDE::function()\n \n \b    DEVICE::FORMAT:: ...            If
+the DEVICE is not the default device, then a server protocol is invoked to pass the request forward (FORMAT:: ...)\n\n
 Legacy exception: treat PPF and JPF formats as server protocols => no file path expansion required and ignored\n
 \n
 \b      PPF::/ddaname/pulse/pass/userid or PPF::ddaname/pulse/pass/userid\n
@@ -139,7 +136,8 @@ Legacy exception: treat PPF and JPF formats as server protocols => no file path 
 * @param data_source identifies the location of data.
 * @return a reference ID handle used to identify the accessed data in subsequent API accessor function calls.
 */
-int idamGetAPI(const char* data_object, const char* data_source) {
+int idamGetAPI(const char* data_object, const char* data_source)
+{
     return idamGetAPIWithHost(data_object, data_source, nullptr, 0);
 }
 
@@ -186,14 +184,16 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     // Log all Arguments passed from Application
 
 #ifdef ARGSTACK
-    if(argstack == nullptr) {
+    if (argstack == nullptr) {
         char tempFile[] = "/tmp/idamStackXXXXXX";
         mkstemp(tempFile);
         argstack = fopen(tempFile, environment.logmode);
-        if(argstack != nullptr) fprintf(argstack, "idamGetAPI\n");
+        if (argstack != nullptr) {
+            fprintf(argstack, "idamGetAPI\n");
+        }
     }
-    if(argstack != nullptr) {
-        fprintf(argstack,"[%s][%s]\n", data_object, data_source);
+    if (argstack != nullptr) {
+        fprintf(argstack, "[%s][%s]\n", data_object, data_source);
         fflush(argstack);
     }
 #endif
@@ -227,7 +227,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     // Fetch Data
 
 #ifdef TESTSERVERCLIENT
-    unlockIdamThread();    
+    unlockIdamThread();
     return -1;
 #endif
 
@@ -255,7 +255,8 @@ int idamGetBatchAPI(const char** signals, const char** sources, int count, int* 
     return idamGetBatchAPIWithHost(signals, sources, count, handles, nullptr, 0);
 }
 
-int idamGetBatchAPIWithHost(const char** signals, const char** sources, int count, int* handles, const char* host, int port)
+int idamGetBatchAPIWithHost(const char** signals, const char** sources, int count, int* handles, const char* host,
+                            int port)
 {
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
@@ -297,14 +298,16 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
     // Log all Arguments passed from Application
 
 #ifdef ARGSTACK
-    if(argstack == nullptr) {
+    if (argstack == nullptr) {
         char tempFile[] = "/tmp/idamStackXXXXXX";
         mkstemp(tempFile);
         argstack = fopen(tempFile, environment.logmode);
-        if(argstack != nullptr) fprintf(argstack, "idamGetAPI\n");
+        if (argstack != nullptr) {
+            fprintf(argstack, "idamGetAPI\n");
+        }
     }
-    if(argstack != nullptr) {
-        fprintf(argstack,"[%s][%s]\n", data_object, data_source);
+    if (argstack != nullptr) {
+        fprintf(argstack, "[%s][%s]\n", data_object, data_source);
         fflush(argstack);
     }
 #endif

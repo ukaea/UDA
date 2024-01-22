@@ -1,22 +1,18 @@
-#include <wrappers/c++/UDA.hpp>
 #include "udaTypes.h"
 #include <serialisation/capnp_serialisation.h>
+#include <wrappers/c++/UDA.hpp>
 
-#include <string>
-#include <iostream>
 #include <boost/program_options.hpp>
 #include <boost/range/combine.hpp>
 #include <gsl/span>
+#include <iostream>
+#include <string>
 
-struct CLIException : public uda::UDAException
-{
-    explicit CLIException(std::string what) noexcept
-            : uda::UDAException(std::move(what))
-    {}
+struct CLIException : public uda::UDAException {
+    explicit CLIException(std::string what) noexcept : uda::UDAException(std::move(what)) {}
 };
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, gsl::span<T> span)
+template <typename T> std::ostream& operator<<(std::ostream& out, gsl::span<T> span)
 {
     out << "[";
     const char* delim = "";
@@ -34,10 +30,9 @@ std::ostream& operator<<(std::ostream& out, gsl::span<T> span)
     return out;
 }
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
+template <typename T> std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
 {
-    auto span = gsl::span{ vec.data(), vec.size() };
+    auto span = gsl::span{vec.data(), vec.size()};
     out << span;
     return out;
 }
@@ -54,14 +49,13 @@ bool replace(std::string& str, const std::string& from, const std::string& to)
     return true;
 }
 
-template<typename T>
-void print_atomic_data(void* data, size_t rank, size_t count)
+template <typename T> void print_atomic_data(void* data, size_t rank, size_t count)
 {
     T* ptr = reinterpret_cast<T*>(data);
     if (rank == 0) {
         std::cout << ptr[0] << "\n";
     } else {
-        auto span = gsl::span{ ptr, count };
+        auto span = gsl::span{ptr, count};
         std::cout << span << "\n";
     }
 }
@@ -82,7 +76,7 @@ void print_tree(const uda::TreeNode& node, const std::string& indent)
     std::vector<size_t> shape;
     std::string type;
 
-    for (const auto& el: boost::combine(names, pointers, ranks, shapes, types)) {
+    for (const auto& el : boost::combine(names, pointers, ranks, shapes, types)) {
         boost::tie(name, pointer, rank, shape, type) = el;
 
         auto data = node.structureComponentData(name);
@@ -130,13 +124,13 @@ void print_tree(const uda::TreeNode& node, const std::string& indent)
         }
     }
 
-    for (const auto& child: node.children()) {
+    for (const auto& child : node.children()) {
         print_tree(child, indent + "  ");
     }
 }
 
 #ifdef CAPNP_ENABLED
-template<typename T>
+template <typename T>
 void print_capnp_data(NodeReader* node, const std::vector<size_t>& shape, const std::string& indent)
 {
     auto num_slices = uda_capnp_read_num_slices(node);
@@ -152,14 +146,14 @@ void print_capnp_data(NodeReader* node, const std::vector<size_t>& shape, const 
         auto count = uda_capnp_read_slice_size(node, 0);
         auto data = std::make_unique<T[]>(count / sizeof(T));
         uda_capnp_read_data(node, 0, reinterpret_cast<char*>(data.get()));
-        auto span = gsl::span{ data.get(), count / sizeof(T) };
+        auto span = gsl::span{data.get(), count / sizeof(T)};
         std::cout << indent << "data: " << span << "\n";
     } else {
         for (size_t slice_num = 0; slice_num < num_slices; ++slice_num) {
             auto count = uda_capnp_read_slice_size(node, slice_num);
             auto data = std::make_unique<T[]>(count / sizeof(T));
             uda_capnp_read_data(node, slice_num, reinterpret_cast<char*>(data.get()));
-            auto span = gsl::span{ data.get(), count / sizeof(T) };
+            auto span = gsl::span{data.get(), count / sizeof(T)};
             std::cout << indent << "data [" << slice_num << "]: " << span << "\n";
         }
     }
@@ -374,25 +368,22 @@ void print_data(const uda::Data* data, int uda_type)
     }
 }
 
-void conflicting_options(const boost::program_options::variables_map & vm,
-                         const std::string & opt1, const std::string & opt2)
+void conflicting_options(const boost::program_options::variables_map& vm, const std::string& opt1,
+                         const std::string& opt2)
 {
-    if (vm.count(opt1) && !vm[opt1].defaulted() && vm.count(opt2) && !vm[opt2].defaulted())
-    {
-        throw po::error(std::string("conflicting options '") +  opt1 + "' and '" + opt2 + "'");
+    if (vm.count(opt1) && !vm[opt1].defaulted() && vm.count(opt2) && !vm[opt2].defaulted()) {
+        throw po::error(std::string("conflicting options '") + opt1 + "' and '" + opt2 + "'");
     }
 }
 
 int main(int argc, const char** argv)
 {
     po::options_description desc("Allowed options");
-    desc.add_options()
-            ("help", po::bool_switch(), "produce help message")
-            ("host,h", po::value<std::string>()->default_value("localhost"), "server host name")
-            ("port,p", po::value<int>()->default_value(56565), "server port")
-            ("request", po::value<std::string>(), "request")
-            ("source", po::value<std::string>()->default_value(""), "source")
-            ("ping", po::bool_switch(), "ping the server");
+    desc.add_options()("help", po::bool_switch(), "produce help message")(
+        "host,h", po::value<std::string>()->default_value("localhost"),
+        "server host name")("port,p", po::value<int>()->default_value(56565), "server port")(
+        "request", po::value<std::string>(), "request")("source", po::value<std::string>()->default_value(""),
+                                                        "source")("ping", po::bool_switch(), "ping the server");
 
     po::positional_options_description p;
     p.add("request", 1);

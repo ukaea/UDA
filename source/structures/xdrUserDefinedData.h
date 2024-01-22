@@ -3,8 +3,8 @@
 
 #include <rpc/rpc.h>
 
-#include "genStructs.h"
 #include "export.h"
+#include "genStructs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,8 +12,8 @@ extern "C" {
 
 LIBRARY_API int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* log_struct_list,
                                    USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* userdefinedtype,
-                                   void** data, int datacount, int structRank, int* structShape,
-                                   int index, NTREE** NTree, int protocolVersion, int malloc_source);
+                                   void** data, int datacount, int structRank, int* structShape, int index,
+                                   NTREE** NTree, int protocolVersion, int malloc_source);
 
 #ifdef __cplusplus
 }

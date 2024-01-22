@@ -1,8 +1,8 @@
 #include "cache.h"
 
-#include <clientserver/xdrlib.h>
-#include <clientserver/protocol.h>
 #include "initStructs.h"
+#include <clientserver/protocol.h>
+#include <clientserver/xdrlib.h>
 
 void writeCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                     const DATA_BLOCK* data_block, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
@@ -18,12 +18,12 @@ void writeCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST*
     protocol2(&xdrs, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
               &data_block_list, protocolVersion, log_struct_list, private_flags, malloc_source);
 
-    xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
+    xdr_destroy(&xdrs); // Destroy before the  file otherwise a segmentation error occurs
 }
 
-DATA_BLOCK*
-readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
-              LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+DATA_BLOCK* readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                          int protocolVersion, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
+                          int malloc_source)
 {
     XDR xdrs;
     xdrstdio_create(&xdrs, fp, XDR_DECODE);
@@ -35,7 +35,7 @@ readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userd
     protocol2(&xdrs, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_RECEIVE, &token, logmalloclist, userdefinedtypelist,
               &data_block_list, protocolVersion, log_struct_list, private_flags, malloc_source);
 
-    xdr_destroy(&xdrs);     // Destroy before the  file otherwise a segmentation error occurs
+    xdr_destroy(&xdrs); // Destroy before the  file otherwise a segmentation error occurs
 
     return data_block_list.data;
 }

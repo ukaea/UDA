@@ -1,8 +1,8 @@
 #ifndef UDA_X509UTILS_H
 #define UDA_X509UTILS_H
 
-#include <ksba.h>
 #include <gcrypt.h>
+#include <ksba.h>
 
 #include "export.h"
 
@@ -23,4 +23,4 @@ LIBRARY_API int importPEMPublicKey(char* keyFile, gcry_sexp_t* key_sexp);
 }
 #endif
 
-#endif //UDA_X509UTILS_H
+#endif // UDA_X509UTILS_H

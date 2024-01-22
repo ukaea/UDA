@@ -1,8 +1,8 @@
 #ifndef UDA_CLIENTSERVER_PRINTSTRUCTS_H
 #define UDA_CLIENTSERVER_PRINTSTRUCTS_H
 
-#include "udaStructs.h"
 #include "export.h"
+#include "udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,4 +25,3 @@ LIBRARY_API void printSignalDesc(SIGNAL_DESC str);
 #endif
 
 #endif // UDA_CLIENTSERVER_PRINTSTRUCTS_H
-

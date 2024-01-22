@@ -3,8 +3,8 @@
 
 #include "pluginStructs.h"
 
-#include "udaStructs.h"
 #include "export.h"
+#include "udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,47 +1,47 @@
 /*---------------------------------------------------------------
-* Client - Server Conversation Protocol
-*
-* Args:    xdrs        XDR Stream
-*
-*    protocol_id    Client/Server Conversation item: Data Exchange context
-*    direction    Send (0) or Receive (1) or Free (2)
-*    token        current error condition or next protocol or .... exchange token
-*
-*    str        Information Structure depending on the protocol id ....
-*
-*    2    data_block    Data read from the external Source or Data to be written
-*                to an external source
-*    4    data_system    Database Data_Dystem table record
-*    5    system_config    Database System_Config table record
-*    6    data_source    Database Data_Source table record
-*    7    signal        Database Signal table record
-*    8    signal_desc    Database Signal_Desc table record
-*
-* Returns: error code if failure, otherwise 0
-*
-*--------------------------------------------------------------*/
+ * Client - Server Conversation Protocol
+ *
+ * Args:    xdrs        XDR Stream
+ *
+ *    protocol_id    Client/Server Conversation item: Data Exchange context
+ *    direction    Send (0) or Receive (1) or Free (2)
+ *    token        current error condition or next protocol or .... exchange token
+ *
+ *    str        Information Structure depending on the protocol id ....
+ *
+ *    2    data_block    Data read from the external Source or Data to be written
+ *                to an external source
+ *    4    data_system    Database Data_Dystem table record
+ *    5    system_config    Database System_Config table record
+ *    6    data_source    Database Data_Source table record
+ *    7    signal        Database Signal table record
+ *    8    signal_desc    Database Signal_Desc table record
+ *
+ * Returns: error code if failure, otherwise 0
+ *
+ *--------------------------------------------------------------*/
 
 #include "protocol.h"
 
 #include <cstdlib>
 
-#include <logging/logging.h>
 #include "udaTypes.h"
+#include <logging/logging.h>
 
 #include "allocData.h"
 #include "compressDim.h"
-#include "printStructs.h"
-#include "xdrlib.h"
 #include "initStructs.h"
+#include "printStructs.h"
 #include "protocolXML2.h"
+#include "xdrlib.h"
 
 #ifdef HIERARCHICAL_DATA
-#  include "idamclientserverxml.h"    // legacy
+#  include "idamclientserverxml.h" // legacy
 #endif
 
+#include "errorLog.h"
 #include "protocolXML2Put.h"
 #include "udaErrors.h"
-#include "errorLog.h"
 
 static int handle_request_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
 static int handle_data_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
@@ -160,24 +160,23 @@ static int handle_security_block(XDR* xdrs, int direction, const void* str)
     // Allocate heap
 
     if (security_block->client_ciphertextLength > 0) {
-        security_block->client_ciphertext = (unsigned char*)malloc(
-                security_block->client_ciphertextLength * sizeof(unsigned char));
+        security_block->client_ciphertext =
+            (unsigned char*)malloc(security_block->client_ciphertextLength * sizeof(unsigned char));
     }
     if (security_block->client2_ciphertextLength > 0) {
-        security_block->client2_ciphertext = (unsigned char*)malloc(
-                security_block->client2_ciphertextLength * sizeof(unsigned char));
+        security_block->client2_ciphertext =
+            (unsigned char*)malloc(security_block->client2_ciphertextLength * sizeof(unsigned char));
     }
     if (security_block->server_ciphertextLength > 0) {
-        security_block->server_ciphertext = (unsigned char*)malloc(
-                security_block->server_ciphertextLength * sizeof(unsigned char));
+        security_block->server_ciphertext =
+            (unsigned char*)malloc(security_block->server_ciphertextLength * sizeof(unsigned char));
     }
     if (security_block->client_X509Length > 0) {
-        security_block->client_X509 = (unsigned char*)malloc(
-                security_block->client_X509Length * sizeof(unsigned char));
+        security_block->client_X509 = (unsigned char*)malloc(security_block->client_X509Length * sizeof(unsigned char));
     }
     if (security_block->client2_X509Length > 0) {
-        security_block->client2_X509 = (unsigned char*)malloc(
-                security_block->client2_X509Length * sizeof(unsigned char));
+        security_block->client2_X509 =
+            (unsigned char*)malloc(security_block->client2_X509Length * sizeof(unsigned char));
     }
 
     switch (direction) {
@@ -232,7 +231,7 @@ static int handle_dataobject(XDR* xdrs, int direction, const void* str)
 
     switch (direction) {
         case XDR_RECEIVE:
-            if (!xdr_data_object1(xdrs, data_object)) {    // Storage requirements
+            if (!xdr_data_object1(xdrs, data_object)) { // Storage requirements
                 err = UDA_PROTOCOL_ERROR_22;
                 break;
             }
@@ -274,17 +273,17 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str, int pr
 
     switch (direction) {
         case XDR_RECEIVE:
-            closeUdaError();    // Free Heap associated with Previous Data Access
+            closeUdaError(); // Free Heap associated with Previous Data Access
 
             if (!xdr_server1(xdrs, server_block, protocolVersion)) {
                 err = UDA_PROTOCOL_ERROR_22;
                 break;
             }
 
-            if (server_block->idamerrorstack.nerrors > 0) {    // No Data to Receive?
+            if (server_block->idamerrorstack.nerrors > 0) { // No Data to Receive?
 
-                server_block->idamerrorstack.idamerror = (UDA_ERROR*)malloc(
-                        server_block->idamerrorstack.nerrors * sizeof(UDA_ERROR));
+                server_block->idamerrorstack.idamerror =
+                    (UDA_ERROR*)malloc(server_block->idamerrorstack.nerrors * sizeof(UDA_ERROR));
                 initErrorRecords(&server_block->idamerrorstack);
 
                 if (!xdr_server2(xdrs, server_block)) {
@@ -301,7 +300,7 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str, int pr
                 break;
             }
 
-            if (server_block->idamerrorstack.nerrors > 0) {        // No Data to Send?
+            if (server_block->idamerrorstack.nerrors > 0) { // No Data to Send?
                 if (!xdr_server2(xdrs, server_block)) {
                     err = UDA_PROTOCOL_ERROR_22;
                     break;
@@ -505,7 +504,7 @@ static int handle_next_protocol(XDR* xdrs, int direction, int* token)
 {
     int err = 0;
     switch (direction) {
-        case XDR_RECEIVE:                    // From Client to Server
+        case XDR_RECEIVE: // From Client to Server
             if (!xdrrec_skiprecord(xdrs)) {
                 err = UDA_PROTOCOL_ERROR_5;
                 break;
@@ -574,11 +573,13 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                     break;
                 }
 
-                if (putData.count > 0 || putData.blockNameLength > 0) {    // Some data to receive?
+                if (putData.count > 0 || putData.blockNameLength > 0) { // Some data to receive?
 
-                    if ((err = allocPutData(&putData)) != 0) break;    // Allocate Heap Memory
+                    if ((err = allocPutData(&putData)) != 0) {
+                        break; // Allocate Heap Memory
+                    }
 
-                    if (!xdr_putdata_block2(xdrs, &putData)) {    // Fetch data
+                    if (!xdr_putdata_block2(xdrs, &putData)) { // Fetch data
                         err = UDA_PROTOCOL_ERROR_62;
                         break;
                     }
@@ -599,24 +600,23 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
 
                     initDataBlock(data_block);
                     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-                    data_block->data_n = (int)putData.count;            // This number (also rank and shape)
-                    data_block->opaque_block = putData.opaque_block;    // User Defined Type
+                    data_block->data_n = (int)putData.count;         // This number (also rank and shape)
+                    data_block->opaque_block = putData.opaque_block; // User Defined Type
 
                     int protocol_id = UDA_PROTOCOL_STRUCTURES;
                     if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist,
-                                               data_block, protocolVersion, log_struct_list,
-                                               private_flags, malloc_source)) != 0) {
+                                               data_block, protocolVersion, log_struct_list, private_flags,
+                                               malloc_source)) != 0) {
                         // Fetch Structured data
                         break;
                     }
 
-                    putData.data = reinterpret_cast<char*>(data_block);        // Compact memory block with structures
+                    putData.data = reinterpret_cast<char*>(data_block); // Compact memory block with structures
                     auto general_block = (GENERAL_BLOCK*)data_block->opaque_block;
                     putData.opaque_block = general_block->userdefinedtype;
                 }
 
-                addIdamPutDataBlockList(&putData, putDataBlockList);        // Add to the growing list
-
+                addIdamPutDataBlockList(&putData, putDataBlockList); // Add to the growing list
             }
             break;
         }
@@ -630,7 +630,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                 break;
             }
 
-            for (unsigned int i = 0; i < putDataBlockList->blockCount; i++) {        // Send multiple put blocks
+            for (unsigned int i = 0; i < putDataBlockList->blockCount; i++) { // Send multiple put blocks
 
                 if (!xdr_putdata_block1(xdrs, &(putDataBlockList->putDataBlock[i]))) {
                     err = UDA_PROTOCOL_ERROR_61;
@@ -643,7 +643,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                 }
 
                 if (putDataBlockList->putDataBlock[i].count > 0 ||
-                    putDataBlockList->putDataBlock[i].blockNameLength > 0) {    // Data to Send?
+                    putDataBlockList->putDataBlock[i].blockNameLength > 0) { // Data to Send?
 
                     if (!xdr_putdata_block2(xdrs, &(putDataBlockList->putDataBlock[i]))) {
                         err = UDA_PROTOCOL_ERROR_62;
@@ -662,14 +662,16 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                     DATA_BLOCK data_block;
                     initDataBlock(&data_block);
                     data_block.opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-                    data_block.data_n = (int)putDataBlockList->putDataBlock[i].count;           // This number (also rank and shape)
-                    data_block.opaque_block = putDataBlockList->putDataBlock[i].opaque_block;   // User Defined Type
-                    data_block.data = (char*)putDataBlockList->putDataBlock[i].data;            // Compact memory block with structures
+                    data_block.data_n =
+                        (int)putDataBlockList->putDataBlock[i].count; // This number (also rank and shape)
+                    data_block.opaque_block = putDataBlockList->putDataBlock[i].opaque_block; // User Defined Type
+                    data_block.data =
+                        (char*)putDataBlockList->putDataBlock[i].data; // Compact memory block with structures
 
                     int protocol_id = UDA_PROTOCOL_STRUCTURES;
                     if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist,
-                                               &data_block, protocolVersion, log_struct_list,
-                                               private_flags, malloc_source)) != 0) {
+                                               &data_block, protocolVersion, log_struct_list, private_flags,
+                                               malloc_source)) != 0) {
                         // Send Structured data
                         break;
                     }
@@ -709,9 +711,13 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                 break;
             }
 
-            if (data_block->data_n == 0) break;            // No Data to Receive!
+            if (data_block->data_n == 0) {
+                break; // No Data to Receive!
+            }
 
-            if ((err = allocData(data_block)) != 0) break;        // Allocate Heap Memory
+            if ((err = allocData(data_block)) != 0) {
+                break; // Allocate Heap Memory
+            }
 
             if (!xdr_data_block2(xdrs, data_block)) {
                 err = UDA_PROTOCOL_ERROR_62;
@@ -719,20 +725,19 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
             }
 
             if (data_block->error_type != UDA_TYPE_UNKNOWN ||
-                data_block->error_param_n > 0) {    // Receive Only if Error Data are available
+                data_block->error_param_n > 0) { // Receive Only if Error Data are available
                 if (!xdr_data_block3(xdrs, data_block)) {
                     err = UDA_PROTOCOL_ERROR_62;
                     break;
                 }
 
-                if (!xdr_data_block4(xdrs, data_block)) {        // Asymmetric Errors
+                if (!xdr_data_block4(xdrs, data_block)) { // Asymmetric Errors
                     err = UDA_PROTOCOL_ERROR_62;
                     break;
                 }
-
             }
 
-            if (data_block->rank > 0) {    // Check if there are Dimensional Data to Receive
+            if (data_block->rank > 0) { // Check if there are Dimensional Data to Receive
 
                 for (unsigned int i = 0; i < data_block->rank; i++) {
                     initDimBlock(&data_block->dims[i]);
@@ -757,16 +762,18 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                     }
                 }
 
-                if ((err = allocDim(data_block)) != 0) break;            // Allocate Heap Memory
+                if ((err = allocDim(data_block)) != 0) {
+                    break; // Allocate Heap Memory
+                }
 
-                if (!xdr_data_dim2(xdrs, data_block)) {        // Collect Only Uncompressed data
+                if (!xdr_data_dim2(xdrs, data_block)) { // Collect Only Uncompressed data
                     err = UDA_PROTOCOL_ERROR_64;
                     break;
                 }
 
-                for (unsigned int i = 0; i < data_block->rank; i++) {            // Expand Compressed Regular Vector
-                    err = uncompressDim(&(data_block->dims[i]));    // Allocate Heap as required
-                    err = 0; // Need to Test for Error Condition!
+                for (unsigned int i = 0; i < data_block->rank; i++) { // Expand Compressed Regular Vector
+                    err = uncompressDim(&(data_block->dims[i]));      // Allocate Heap as required
+                    err = 0;                                          // Need to Test for Error Condition!
                 }
 
                 if (!xdr_data_dim3(xdrs, data_block)) {
@@ -774,11 +781,10 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                     break;
                 }
 
-                if (!xdr_data_dim4(xdrs, data_block)) {        // Asymmetric Errors
+                if (!xdr_data_dim4(xdrs, data_block)) { // Asymmetric Errors
                     err = UDA_PROTOCOL_ERROR_65;
                     break;
                 }
-
             }
             break;
         }
@@ -787,7 +793,8 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
 
             // Check client/server understands new data types
 
-            // direction == XDR_SEND && protocolVersion == 3 Means Server sending data to a Version 3 Client (Type is known)
+            // direction == XDR_SEND && protocolVersion == 3 Means Server sending data to a Version 3 Client (Type is
+            // known)
 
             UDA_LOG(UDA_LOG_DEBUG, "#1 PROTOCOL: Send/Receive Data Block\n");
             printDataBlock(*data_block);
@@ -805,7 +812,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                 break;
             }
 
-            if (data_block->data_n == 0) {                // No Data or Dimensions to Send!
+            if (data_block->data_n == 0) { // No Data or Dimensions to Send!
                 break;
             }
 
@@ -846,7 +853,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                 }
 
                 for (unsigned int i = 0; i < data_block->rank; i++) {
-                    compressDim(&(data_block->dims[i]));        // Minimise Data Transfer if Regular
+                    compressDim(&(data_block->dims[i])); // Minimise Data Transfer if Regular
                 }
 
                 if (!xdr_data_dim1(xdrs, data_block)) {
@@ -902,7 +909,9 @@ static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int
                     break;
                 }
             }
-            if (err) break;
+            if (err) {
+                break;
+            }
             break;
 
         case XDR_SEND: {
@@ -918,7 +927,9 @@ static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int
                     break;
                 }
             }
-            if (err) break;
+            if (err) {
+                break;
+            }
             break;
         }
 
@@ -951,7 +962,9 @@ static int handle_request_block(XDR* xdrs, int direction, const void* str, int p
                     break;
                 }
             }
-            if (err) break;
+            if (err) {
+                break;
+            }
             break;
 
         case XDR_SEND:
@@ -965,7 +978,9 @@ static int handle_request_block(XDR* xdrs, int direction, const void* str, int p
                     break;
                 }
             }
-            if (err) break;
+            if (err) {
+                break;
+            }
             break;
 
         case XDR_FREE_HEAP:

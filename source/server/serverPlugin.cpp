@@ -1,41 +1,41 @@
 /*---------------------------------------------------------------
-* Identify the correct UDA Data Server Plugin
-*---------------------------------------------------------------------------------------------------------------------*/
+ * Identify the correct UDA Data Server Plugin
+ *---------------------------------------------------------------------------------------------------------------------*/
 #include "serverPlugin.h"
 
-#include <cstdlib>
 #include <cerrno>
-#include <dlfcn.h>
+#include <cstdlib>
 #include <cstring>
+#include <dlfcn.h>
 #if defined(__GNUC__)
 #  include <unistd.h>
 #else
-#  include <winsock2.h>
 #  include <io.h>
+#  include <winsock2.h>
 #  define dup _dup
 #  define dup2 _dup2
 #endif
 
-#include <cache/memcache.hpp>
-#include <clientserver/expand_path.h>
 #include "initStructs.h"
+#include "struct.h"
+#include <cache/memcache.hpp>
+#include <clientserver/errorLog.h>
+#include <clientserver/expand_path.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/stringUtils.h>
-#include <clientserver/errorLog.h>
 #include <logging/logging.h>
-#include "struct.h"
 
-#define REQUEST_READ_START      1000
-#define REQUEST_PLUGIN_MCOUNT   100    // Maximum initial number of plugins that can be registered
-#define REQUEST_PLUGIN_MSTEP    10    // Increase heap by 10 records once the maximum is exceeded
+#define REQUEST_READ_START 1000
+#define REQUEST_PLUGIN_MCOUNT 100 // Maximum initial number of plugins that can be registered
+#define REQUEST_PLUGIN_MSTEP 10   // Increase heap by 10 records once the maximum is exceeded
 
 void allocPluginList(int count, PLUGINLIST* plugin_list)
 {
     if (count >= plugin_list->mcount) {
         plugin_list->mcount = plugin_list->mcount + REQUEST_PLUGIN_MSTEP;
-        plugin_list->plugin = (PLUGIN_DATA*)realloc((void*)plugin_list->plugin,
-                                                    plugin_list->mcount * sizeof(PLUGIN_DATA));
+        plugin_list->plugin =
+            (PLUGIN_DATA*)realloc((void*)plugin_list->plugin, plugin_list->mcount * sizeof(PLUGIN_DATA));
     }
 }
 
@@ -47,11 +47,11 @@ void resetPlugins(const PLUGINLIST* plugin_list)
     strcpy(request_block.function, "reset");
 
     idam_plugin_interface.interfaceVersion = 1;
-    idam_plugin_interface.housekeeping = 1;            // Force a full reset
+    idam_plugin_interface.housekeeping = 1; // Force a full reset
     idam_plugin_interface.request_data = &request_block;
     for (int i = 0; i < plugin_list->count; i++) {
         if (plugin_list->plugin[i].pluginHandle != nullptr) {
-            plugin_list->plugin[i].idamPlugin(&idam_plugin_interface);        // Call the housekeeping method
+            plugin_list->plugin[i].idamPlugin(&idam_plugin_interface); // Call the housekeeping method
         }
     }
 }
@@ -120,37 +120,37 @@ int udaServerRedirectStdStreams(int reset)
     // Any OS messages will corrupt xdr streams so re-divert IO from plugin libraries to a temporary file
 
     // Multi platform compliance
-    //static FILE* originalStdFH = nullptr;
-    //static FILE* originalErrFH = nullptr;
+    // static FILE* originalStdFH = nullptr;
+    // static FILE* originalErrFH = nullptr;
     static int originalStdFH = 0;
     static int originalErrFH = 0;
     static FILE* mdsmsgFH = nullptr;
 
-    static char mksdir_template[MAXPATH] = { 0 };
-    static char tempFile[MAXPATH] = { 0 };
+    static char mksdir_template[MAXPATH] = {0};
+    static char tempFile[MAXPATH] = {0};
 
     static bool singleFile = false;
 
     if (!reset) {
         if (!singleFile) {
-            const char* env = getenv("UDA_PLUGIN_DEBUG_SINGLEFILE");        // Use a single file for all plugin data requests
+            const char* env = getenv("UDA_PLUGIN_DEBUG_SINGLEFILE"); // Use a single file for all plugin data requests
             if (env != nullptr) {
-                singleFile = true;                    // Define UDA_PLUGIN_DEBUG to retain the file
+                singleFile = true; // Define UDA_PLUGIN_DEBUG to retain the file
             }
         }
 
         if (mdsmsgFH != nullptr && singleFile) {
             // Multi platform compliance
-            //stdout = mdsmsgFH;                                  // Redirect all IO to a temporary file
-            //stderr = mdsmsgFH;
+            // stdout = mdsmsgFH;                                  // Redirect all IO to a temporary file
+            // stderr = mdsmsgFH;
             dup2(fileno(mdsmsgFH), fileno(stdout));
             dup2(fileno(mdsmsgFH), fileno(stderr));
             return 0;
         }
 
         // Multi platform compliance
-        //originalStdFH = stdout;                                 // Retain current values
-        //originalErrFH = stderr;
+        // originalStdFH = stdout;                                 // Retain current values
+        // originalErrFH = stderr;
         originalStdFH = dup(fileno(stdout));
         originalErrFH = dup(fileno(stderr));
         mdsmsgFH = nullptr;
@@ -190,8 +190,8 @@ int udaServerRedirectStdStreams(int reset)
         }
 
         // Multi platform compliance
-        //stdout = mdsmsgFH; // Redirect to a temporary file
-        //stderr = mdsmsgFH;
+        // stdout = mdsmsgFH; // Redirect to a temporary file
+        // stderr = mdsmsgFH;
         dup2(fileno(mdsmsgFH), fileno(stdout));
         dup2(fileno(mdsmsgFH), fileno(stderr));
     } else {
@@ -210,7 +210,7 @@ int udaServerRedirectStdStreams(int reset)
                 mdsmsgFH = nullptr;
                 if (getenv("UDA_PLUGIN_DEBUG") == nullptr) {
                     errno = 0;
-                    int rc = remove(tempFile);    // Delete the temporary file
+                    int rc = remove(tempFile); // Delete the temporary file
                     if (rc) {
                         int err = errno;
                         UDA_THROW_ERROR(err, strerror(err));
@@ -220,8 +220,8 @@ int udaServerRedirectStdStreams(int reset)
             }
 
             // Multi platform compliance
-            //stdout = originalStdFH;
-            //stderr = originalErrFH;
+            // stdout = originalStdFH;
+            // stderr = originalErrFH;
             dup2(originalStdFH, fileno(stdout));
             dup2(originalErrFH, fileno(stderr));
 
@@ -230,8 +230,8 @@ int udaServerRedirectStdStreams(int reset)
             UDA_LOG(UDA_LOG_DEBUG, "Resetting original file handles\n");
 
             // Multi platform compliance
-            //stdout = originalStdFH;
-            //stderr = originalErrFH;
+            // stdout = originalStdFH;
+            // stderr = originalErrFH;
             dup2(originalStdFH, fileno(stdout));
             dup2(originalErrFH, fileno(stderr));
         }
@@ -319,9 +319,9 @@ int udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC
 // changePlugin option disabled in this context
 // private malloc log and userdefinedtypelist
 
-int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_request,
-                        DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list,
-                        const char* logRecord, const ENVIRONMENT* environment)
+int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_request, DATA_SOURCE* data_source,
+                        SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list, const char* logRecord,
+                        const ENVIRONMENT* environment)
 {
 
     if (STR_EQUALS(client_block->DOI, "")) {
@@ -332,7 +332,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     // Identify the Provenance Gathering plugin (must be a function library type plugin)
 
     static int plugin_id = -2;
-    static int execMethod = 1;        // The default method used to write efficiently to the backend SQL server
+    static int execMethod = 1; // The default method used to write efficiently to the backend SQL server
     char* env = nullptr;
 
     struct timeval tv_start = {};
@@ -340,7 +340,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
 
     gettimeofday(&tv_start, nullptr);
 
-    if (plugin_id == -2) {        // On initialisation
+    if (plugin_id == -2) { // On initialisation
         plugin_id = -1;
         if ((env = getenv("UDA_PROVENANCE_PLUGIN")) != nullptr) {
             // Must be set in the server startup script
@@ -358,12 +358,9 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
                 UDA_LOG(UDA_LOG_DEBUG, "plugin_list->plugin[id].idamPlugin   != nullptr = %d\n",
                         plugin_list->plugin[id].idamPlugin != nullptr);
             }
-            if (id >= 0 &&
-                plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
-                !environment->external_user &&
-                plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL &&
-                plugin_list->plugin[id].pluginHandle != nullptr &&
-                plugin_list->plugin[id].idamPlugin != nullptr) {
+            if (id >= 0 && plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
+                !environment->external_user && plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL &&
+                plugin_list->plugin[id].pluginHandle != nullptr && plugin_list->plugin[id].idamPlugin != nullptr) {
                 plugin_id = id;
             }
         }
@@ -389,17 +386,17 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     // mimic a client request
 
     if (logRecord == nullptr || strlen(logRecord) == 0) {
-        snprintf(request.signal, MAXMETA, "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
-                                      "trueSignal='%s', trueSource='%s', trueSourceDOI='%s', execMethod=%d, status=new)",
-                plugin_list->plugin[plugin_id].format, client_block->DOI,
-                original_request->signal, original_request->source,
-                signal_desc->signal_name, data_source->path, "", execMethod);
+        snprintf(request.signal, MAXMETA,
+                 "%s::putSignal(uuid='%s',requestedSignal='%s',requestedSource='%s', "
+                 "trueSignal='%s', trueSource='%s', trueSourceDOI='%s', execMethod=%d, status=new)",
+                 plugin_list->plugin[plugin_id].format, client_block->DOI, original_request->signal,
+                 original_request->source, signal_desc->signal_name, data_source->path, "", execMethod);
     } else {
 
         // need 2> record the server log record
 
         snprintf(request.signal, MAXMETA, "%s::putSignal(uuid='%s',logRecord='%s', execMethod=%d, status=update)",
-                plugin_list->plugin[plugin_id].format, client_block->DOI, logRecord, execMethod);
+                 plugin_list->plugin[plugin_id].format, client_block->DOI, logRecord, execMethod);
     }
 
     // Activate the plugin
@@ -468,8 +465,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     freeNameValueList(&request.nameValueList);
 
     UDA_LOG(UDA_LOG_DEBUG, "testing for bug!!!\n");
-    if (data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN ||
-        data_block.opaque_count != 0 ||
+    if (data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN || data_block.opaque_count != 0 ||
         data_block.opaque_block != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG, "bug detected: mitigation!!!\n");
         data_block.opaque_block = nullptr;
@@ -510,19 +506,21 @@ int udaServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* 
     UDA_LOG(UDA_LOG_DEBUG, "Entered: noPluginRegistered state = %d\n", noPluginRegistered);
     UDA_LOG(UDA_LOG_DEBUG, "Entered: plugin_id state = %d\n", plugin_id);
 
-    if (plugin_id >= 0) return plugin_id;     // Plugin previously identified
-    if (noPluginRegistered) return -1;        // No Plugin for the MetaData Catalog to resolve Generic Name mappings
+    if (plugin_id >= 0) {
+        return plugin_id; // Plugin previously identified
+    }
+    if (noPluginRegistered) {
+        return -1; // No Plugin for the MetaData Catalog to resolve Generic Name mappings
+    }
 
     // Identify the MetaData Catalog plugin (must be a function library type plugin)
 
     char* env = nullptr;
-    if ((env = getenv("UDA_METADATA_PLUGIN")) != nullptr) {        // Must be set in the server startup script
-        int id = findPluginIdByFormat(env, plugin_list);        // Must be defined in the server plugin configuration file
-        if (id >= 0 &&
-            plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
+    if ((env = getenv("UDA_METADATA_PLUGIN")) != nullptr) { // Must be set in the server startup script
+        int id = findPluginIdByFormat(env, plugin_list);    // Must be defined in the server plugin configuration file
+        if (id >= 0 && plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
             plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL &&
-            plugin_list->plugin[id].pluginHandle != nullptr &&
-            plugin_list->plugin[id].idamPlugin != nullptr) {
+            plugin_list->plugin[id].pluginHandle != nullptr && plugin_list->plugin[id].idamPlugin != nullptr) {
             plugin_id = (short)id;
         }
 
@@ -532,12 +530,14 @@ int udaServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* 
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Generic Name Mapping Plugin Name: %s\n", env);
-        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_CLASS_FUNCTION?: %d\n", plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION);
+        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_CLASS_FUNCTION?: %d\n",
+                plugin_list->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION);
         UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_PRIVATE?: %d\n", plugin_list->plugin[id].is_private == UDA_PLUGIN_PRIVATE);
         UDA_LOG(UDA_LOG_DEBUG, "External User?: %d\n", environment->external_user);
         UDA_LOG(UDA_LOG_DEBUG, "Private?: %d\n",
                 plugin_list->plugin[id].is_private == UDA_PLUGIN_PRIVATE && environment->external_user);
-        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_OPERATIONAL?: %d\n", plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL);
+        UDA_LOG(UDA_LOG_DEBUG, "UDA_PLUGIN_OPERATIONAL?: %d\n",
+                plugin_list->plugin[id].status == UDA_PLUGIN_OPERATIONAL);
         UDA_LOG(UDA_LOG_DEBUG, "Plugin OK?: %d\n",
                 plugin_list->plugin[id].pluginHandle != nullptr && plugin_list->plugin[id].idamPlugin != nullptr);
         UDA_LOG(UDA_LOG_DEBUG, "id: %d\n", id);
@@ -546,7 +546,9 @@ int udaServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* 
         UDA_LOG(UDA_LOG_DEBUG, "NO Generic Name Mapping Plugin identified\n");
     }
 
-    if (plugin_id < 0) noPluginRegistered = 1;        // No Plugin found (registered)
+    if (plugin_id < 0) {
+        noPluginRegistered = 1; // No Plugin found (registered)
+    }
 
     return plugin_id;
 }
@@ -611,7 +613,9 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
         if (rc != 0) {
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
-        if (err != 0) return err;
+        if (err != 0) {
+            return err;
+        }
         return rc;
     }
 

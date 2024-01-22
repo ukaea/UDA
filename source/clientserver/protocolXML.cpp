@@ -1,78 +1,78 @@
 /*----------------------------------------------------------------------------------------------
-* Client - Server Conversation Protocol for XML based Hierarchical Data Structures
-*
-* Args:    xdrs        XDR Stream
-*
-*    protocol_id    Client/Server Conversation item: Data Exchange context
-*    direction    Send (0) or Receive (1) or Free (2)
-*    token        current error condition or next protocol or .... exchange token
-*
-*    str        Information Structure depending on the protocol id ....
-*
-*    100    efit
-*    101    pfcoils
-*    102    pfpassive
-*    103    pfsupplies
-*    104    fluxloop
-*    105    magprobe
-*    106    pfcircuit
-*    107    plasmacurrent
-*    108    diamagnetic
-*    109    toroidalfield
-*    110    limiter
-*
-* Returns: error code if failure, otherwise 0
-*
-*-----------------------------------------------------return;---------------------------------------------
-* Notes on Generalised Data Structures:
-*
-* The DATA_BLOCK structure has the following fields used to pass and receive generalised data structures
-*
-* data_block->data_type        set to UDA_TYPE_COMPOUND (external to this routine)
-* data_block->data_n        set to the count of structure array elements (external to this routine)
-*
-* data_block->data        sending (server side): set to the data array (external to this routine)
-*                receiving (client side): set to the root data tree node within this routine
-*
-* data_block->opaque_type    set to UDA_OPAQUE_TYPE_STRUCTURES (external to this routine)
-* data_block->count        set to 1 (external to this routine). Not Used!
-*
-* data_block->opaque_block    sending (server side): set to the User Defined Data Structure Definition of
-*                the Data (external to this routine).
-*                receiving (client side): set to the SARRAY Data Structure Definition
-*
-* The SARRAY structure has the following:
-*
-* sarray.count            set to the count of structure array elements. Identical to data_block->data_n.
-* sarray.rank            set to 1 (Higher ranked arrays possible ?)
-* sarray.shape            set to [sarray.count] for consistency.
-* sarray.data            set to data_block->data
-* sarray.type            set to the name of the User Defined Structure type of data
-*                (data_block->opaque_block->name). This is registered within the Structure
-*                Type List.
-**--------------------------------------------------------------------------------------------------*/
+ * Client - Server Conversation Protocol for XML based Hierarchical Data Structures
+ *
+ * Args:    xdrs        XDR Stream
+ *
+ *    protocol_id    Client/Server Conversation item: Data Exchange context
+ *    direction    Send (0) or Receive (1) or Free (2)
+ *    token        current error condition or next protocol or .... exchange token
+ *
+ *    str        Information Structure depending on the protocol id ....
+ *
+ *    100    efit
+ *    101    pfcoils
+ *    102    pfpassive
+ *    103    pfsupplies
+ *    104    fluxloop
+ *    105    magprobe
+ *    106    pfcircuit
+ *    107    plasmacurrent
+ *    108    diamagnetic
+ *    109    toroidalfield
+ *    110    limiter
+ *
+ * Returns: error code if failure, otherwise 0
+ *
+ *-----------------------------------------------------return;---------------------------------------------
+ * Notes on Generalised Data Structures:
+ *
+ * The DATA_BLOCK structure has the following fields used to pass and receive generalised data structures
+ *
+ * data_block->data_type        set to UDA_TYPE_COMPOUND (external to this routine)
+ * data_block->data_n        set to the count of structure array elements (external to this routine)
+ *
+ * data_block->data        sending (server side): set to the data array (external to this routine)
+ *                receiving (client side): set to the root data tree node within this routine
+ *
+ * data_block->opaque_type    set to UDA_OPAQUE_TYPE_STRUCTURES (external to this routine)
+ * data_block->count        set to 1 (external to this routine). Not Used!
+ *
+ * data_block->opaque_block    sending (server side): set to the User Defined Data Structure Definition of
+ *                the Data (external to this routine).
+ *                receiving (client side): set to the SARRAY Data Structure Definition
+ *
+ * The SARRAY structure has the following:
+ *
+ * sarray.count            set to the count of structure array elements. Identical to data_block->data_n.
+ * sarray.rank            set to 1 (Higher ranked arrays possible ?)
+ * sarray.shape            set to [sarray.count] for consistency.
+ * sarray.data            set to data_block->data
+ * sarray.type            set to the name of the User Defined Structure type of data
+ *                (data_block->opaque_block->name). This is registered within the Structure
+ *                Type List.
+ **--------------------------------------------------------------------------------------------------*/
 #include "protocolXML.h"
 
-#include <cstdlib>
 #include <cerrno>
+#include <cstdlib>
 #include <memory.h>
 #include <tuple>
 
-#include <logging/logging.h>
 #include "struct.h"
 #include <fmt/format.h>
+#include <logging/logging.h>
 
-#include "readXDRFile.h"
 #include "errorLog.h"
-#include "xdrlib.h"
-#include "udaErrors.h"
 #include "protocol.h"
+#include "readXDRFile.h"
 #include "stringUtils.h"
+#include "udaErrors.h"
+#include "xdrlib.h"
 
 #ifdef HIERARCHICAL_DATA
-#  include "xmlStructs.h"
 #  include "allocXMLData.h"
 #  include "xdrHData.h"
+#  include "xmlStructs.h"
 #endif
 
 int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
@@ -137,14 +137,14 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                 UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Compound Data Structure\n");
                 UDA_LOG(UDA_LOG_DEBUG, "direction  : %d [%d][%d]\n", (int)xdrs->x_op, XDR_ENCODE, XDR_DECODE);
 
-                if (xdrs->x_op == XDR_ENCODE) {        // Send Data
+                if (xdrs->x_op == XDR_ENCODE) { // Send Data
 
-                    SARRAY sarray;                                // Structure array carrier structure
+                    SARRAY sarray; // Structure array carrier structure
                     SARRAY* psarray = &sarray;
-                    int shape = data_block->data_n;                                                 // rank 1 array of dimension lengths
-                    auto udt = (USERDEFINEDTYPE*)data_block->opaque_block;              // The data's structure definition
+                    int shape = data_block->data_n;                        // rank 1 array of dimension lengths
+                    auto udt = (USERDEFINEDTYPE*)data_block->opaque_block; // The data's structure definition
                     USERDEFINEDTYPE* u = findUserDefinedType(userdefinedtypelist, "SARRAY",
-                                                             0);     // Locate the carrier structure definition
+                                                             0); // Locate the carrier structure definition
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Sending to Client\n");
 
@@ -160,12 +160,12 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Creating SARRAY carrier structure\n");
 
                     initSArray(&sarray);
-                    sarray.count = data_block->data_n;              // Number of this structure
-                    sarray.rank = 1;                                // Array Data Rank?
-                    sarray.shape = &shape;                          // Only if rank > 1?
-                    sarray.data = (void*)data_block->data;          // Pointer to the data to be passed
-                    strcpy(sarray.type, udt->name);                 // The name of the type
-                    data = (void*)&psarray;                         // Pointer to the SARRAY array pointer
+                    sarray.count = data_block->data_n;     // Number of this structure
+                    sarray.rank = 1;                       // Array Data Rank?
+                    sarray.shape = &shape;                 // Only if rank > 1?
+                    sarray.data = (void*)data_block->data; // Pointer to the data to be passed
+                    strcpy(sarray.type, udt->name);        // The name of the type
+                    data = (void*)&psarray;                // Pointer to the SARRAY array pointer
                     addNonMalloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: sending Structure Definitions\n");
@@ -199,7 +199,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         errno = 0;
                         if (mkstemp(temp_file.data()) < 0 || errno != 0) {
                             err = 999;
-                            if (errno != 0) err = errno;
+                            if (errno != 0) {
+                                err = errno;
+                            }
                             addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
                                          "Unable to Obtain a Temporary/Cache File Name");
                             break;
@@ -211,8 +213,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             break;
                         }
 
-                        int packageType = UDA_PACKAGE_XDRFILE;          // The package is a file
-                        rc = xdr_int(xdrs, &packageType);       // Send data package type
+                        int packageType = UDA_PACKAGE_XDRFILE; // The package is a file
+                        rc = xdr_int(xdrs, &packageType);      // Send data package type
                         rc = rc && xdrrec_endofrecord(xdrs, 1);
 
                         // Close current output xdr stream and create stdio file stream
@@ -220,17 +222,16 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         xdr_destroy(xdrs);
                         xdr_stdio_flag = true;
                         xdrstdio_create(&XDROutput, xdrfile, XDR_ENCODE);
-                        xdrs = &XDROutput;                        // Switch from stream to file
+                        xdrs = &XDROutput; // Switch from stream to file
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: stdio XDR file: %s\n", temp_file.c_str());
 
                     } else {
-                        int packageType = UDA_PACKAGE_STRUCTDATA;        // The package is regular XDR
+                        int packageType = UDA_PACKAGE_STRUCTDATA; // The package is regular XDR
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Sending Package Type: %d\n", packageType);
 
-                        rc = xdr_int(xdrs, &packageType);        // Send data package type
+                        rc = xdr_int(xdrs, &packageType); // Send data package type
                         rc = rc && xdrrec_endofrecord(xdrs, 1);
-
                     }
 #endif
                     // send the full set of known named structures
@@ -239,9 +240,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Structure Definitions sent: rc = %d\n", rc);
 
                     // send the Data
-                    rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u,
-                                                      (void**)data, protocolVersion, xdr_stdio_flag,
-                                                      log_struct_list, malloc_source);
+                    rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
+                                                      protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Data sent: rc = %d\n", rc);
 
@@ -255,7 +255,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 #ifndef FATCLIENT
 
                     if ((private_flags & PRIVATEFLAG_XDRFILE) &&
-                        protocolVersion >= 5) {        // Server calling another server
+                        protocolVersion >= 5) { // Server calling another server
 
                         // Close the stream and file
 
@@ -274,10 +274,12 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: sending temporary XDR file\n");
 
-                        err = sendXDRFile(xdrs, temp_file.c_str());        // Read and send
+                        err = sendXDRFile(xdrs, temp_file.c_str()); // Read and send
                         remove(temp_file.c_str());
 
-                        if (err != 0) break;
+                        if (err != 0) {
+                            break;
+                        }
                     }
 #endif // !FATCLIENT
 
@@ -288,10 +290,12 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Receiving from Server\n");
 
                     // 3 valid options:
-                    //    1> unpack structures, no xdr file involved    => private_flags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_STRUCTDATA
-                    //    2> unpack structures, from an xdr file        => private_flags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_XDRFILE
-                    //    3> xdr file only, no unpacking, passforward    => private_flags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_XDRFILE
-                    //    4> Error                    => private_flags & PRIVATEFLAG_XDRFILE == 1 && packageType == PACKAGE_STRUCTDATA
+                    //    1> unpack structures, no xdr file involved    => private_flags & PRIVATEFLAG_XDRFILE == 0 &&
+                    //    packageType == PACKAGE_STRUCTDATA 2> unpack structures, from an xdr file        =>
+                    //    private_flags & PRIVATEFLAG_XDRFILE == 0 && packageType == PACKAGE_XDRFILE 3> xdr file only,
+                    //    no unpacking, passforward    => private_flags & PRIVATEFLAG_XDRFILE == 1 && packageType ==
+                    //    PACKAGE_XDRFILE 4> Error                    => private_flags & PRIVATEFLAG_XDRFILE == 1 &&
+                    //    packageType == PACKAGE_STRUCTDATA
                     //
                     // Option 3 does not include intermediate file caching - option 2 only
 
@@ -302,7 +306,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Receiving Package Type\n");
 
                     rc = xdrrec_skiprecord(xdrs);
-                    rc = rc && xdr_int(xdrs, &packageType);        // Receive data package type
+                    rc = rc && xdr_int(xdrs, &packageType); // Receive data package type
 #else
                     rc = 1;
 
@@ -341,12 +345,15 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                     if (option == 3) {
 
-                        // Create a temporary XDR file, receive and write data to the file - do not unpack data structures, pass the file onward
+                        // Create a temporary XDR file, receive and write data to the file - do not unpack data
+                        // structures, pass the file onward
 
                         errno = 0;
                         if (mkstemp(tempFile) < 0 || errno != 0) {
                             err = 998;
-                            if (errno != 0) err = errno;
+                            if (errno != 0) {
+                                err = errno;
+                            }
                             addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
                                          "Unable to Obtain a Temporary File Name [3]");
                             err = 998;
@@ -356,14 +363,14 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             break;
                         }
 
-                        err = receiveXDRFile(xdrs, tempFile);        // Receive and write the file
+                        err = receiveXDRFile(xdrs, tempFile); // Receive and write the file
 
                         char* fname = (char*)malloc(sizeof(char) * (strlen(tempFile) + 1));
                         strcpy(fname, tempFile);
-                        data_block->data = nullptr;                // No Data - not unpacked
-                        data_block->opaque_block = (void*)fname;            // File name
-                        data_block->opaque_type = UDA_OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
-
+                        data_block->data = nullptr;              // No Data - not unpacked
+                        data_block->opaque_block = (void*)fname; // File name
+                        data_block->opaque_type =
+                            UDA_OPAQUE_TYPE_XDRFILE; // The data block is carrying the filename only
                     }
 
                     // Unpack data structures
@@ -392,7 +399,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             errno = 0;
                             if (mkstemp(tempFile) < 0 || errno != 0) {
                                 err = 997;
-                                if (errno != 0) err = errno;
+                                if (errno != 0) {
+                                    err = errno;
+                                }
                                 addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
                                              " Unable to Obtain a Temporary File Name [2]");
                                 err = 997;
@@ -402,11 +411,11 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                 break;
                             }
 
-                            err = receiveXDRFile(xdrs, tempFile);        // Receive and write
+                            err = receiveXDRFile(xdrs, tempFile); // Receive and write
 
                             // Create input xdr file stream
 
-                            if ((xdrfile = fopen(tempFile, "rb")) == nullptr) {    // Read temporary file
+                            if ((xdrfile = fopen(tempFile, "rb")) == nullptr) { // Read temporary file
                                 err = 999;
                                 addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
                                              " Unable to Open a Temporary XDR File for Writing");
@@ -416,11 +425,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             xdr_destroy(xdrs);
                             xdr_stdio_flag = true;
                             xdrstdio_create(&XDRInput, xdrfile, XDR_DECODE);
-                            xdrs = &XDRInput;                        // Switch from stream to file
-
+                            xdrs = &XDRInput; // Switch from stream to file
                         }
 #endif // !FATCLIENT
-                        // receive the full set of known named structures
+       // receive the full set of known named structures
                         rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: xdr_userdefinedtypelist #B\n");
@@ -434,9 +442,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: xdrUserDefinedTypeData #A\n");
                         initUserDefinedType(udt_received);
 
-                        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                          &data, protocolVersion, xdr_stdio_flag,
-                                                          log_struct_list, malloc_source); // receive the Data
+                        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
+                                                          protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                          malloc_source); // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: xdrUserDefinedTypeData #B\n");
                         if (!rc) {
@@ -457,7 +465,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             // Switch back to the normal xdr record stream
 
-                            //xdrs = priorxdrs;
+                            // xdrs = priorxdrs;
 
                             XDR* xdr_input;
                             XDR* xdr_output;
@@ -468,18 +476,18 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         }
 #endif // !FATCLIENT
 
-                        if (STR_EQUALS(udt_received->name, "SARRAY")) {            // expecting this carrier structure
+                        if (STR_EQUALS(udt_received->name, "SARRAY")) { // expecting this carrier structure
 
                             auto general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
 
                             auto s = (SARRAY*)data;
-                            if (s->count != data_block->data_n) {                // check for consistency
+                            if (s->count != data_block->data_n) { // check for consistency
                                 err = 999;
-                                addIdamError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                             "Inconsistent S Array Counts");
+                                addIdamError(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Inconsistent S Array Counts");
                                 break;
                             }
-                            data_block->data = (char*)udaGetFullNTree();        // Global Root Node with the Carrier Structure containing data
+                            data_block->data =
+                                (char*)udaGetFullNTree(); // Global Root Node with the Carrier Structure containing data
                             data_block->opaque_block = (void*)general_block;
                             general_block->userdefinedtype = udt_received;
                             general_block->userdefinedtypelist = userdefinedtypelist;
@@ -497,17 +505,18 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
 #ifdef FATCLIENT
 
-                } else {
-                    err = 999;
-                    addIdamError(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Unknown Opaque type");
-                    break;
-                }
+            } else {
+                err = 999;
+                addIdamError(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Unknown Opaque type");
+                break;
             }
+        }
 
 #else
 
                 //====================================================================================================================
-                // Passing temporary XDR files: server to server (protocolVersion >= 5 is TRUE && packageType == PACKAGE_XDRFILE)
+                // Passing temporary XDR files: server to server (protocolVersion >= 5 is TRUE && packageType ==
+                // PACKAGE_XDRFILE)
 
             } else {
 
@@ -516,7 +525,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     if (xdrs->x_op == XDR_ENCODE) {
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Forwarding XDR File %s\n",
                                 (char*)data_block->opaque_block);
-                        err = sendXDRFile(xdrs, (char*)data_block->opaque_block);    // Forward the xdr file
+                        err = sendXDRFile(xdrs, (char*)data_block->opaque_block); // Forward the xdr file
                     } else {
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Receiving forwarded XDR File\n");
 
@@ -527,7 +536,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         errno = 0;
                         if (mkstemp(tempFile) < 0 || errno != 0) {
                             err = 996;
-                            if (errno != 0) err = errno;
+                            if (errno != 0) {
+                                err = errno;
+                            }
                             addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
                                          " Unable to Obtain a Temporary File Name");
                             err = 996;
@@ -536,17 +547,18 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             break;
                         }
 
-                        err = receiveXDRFile(xdrs, tempFile);        // Receive and write the file
+                        err = receiveXDRFile(xdrs, tempFile); // Receive and write the file
 
-                        if (private_flags & PRIVATEFLAG_XDRFILE) {    // Forward the file (option 3) again
+                        if (private_flags & PRIVATEFLAG_XDRFILE) { // Forward the file (option 3) again
 
                             // If this is an intermediate client then read the file without unpacking the structures
 
                             char* fname = (char*)malloc(sizeof(char) * (strlen(tempFile) + 1));
                             strcpy(fname, tempFile);
-                            data_block->data = nullptr;                // No Data - not unpacked
-                            data_block->opaque_block = (void*)fname;            // File name
-                            data_block->opaque_type = UDA_OPAQUE_TYPE_XDRFILE;        // The data block is carrying the filename only
+                            data_block->data = nullptr;              // No Data - not unpacked
+                            data_block->opaque_block = (void*)fname; // File name
+                            data_block->opaque_type =
+                                UDA_OPAQUE_TYPE_XDRFILE; // The data block is carrying the filename only
 
                             UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Forwarding Received forwarded XDR File\n");
                         } else {
@@ -564,7 +576,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             // Create input xdr file stream
 
-                            if ((xdrfile = fopen(tempFile, "rb")) == nullptr) {    // Read temporary file
+                            if ((xdrfile = fopen(tempFile, "rb")) == nullptr) { // Read temporary file
                                 err = 999;
                                 addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
                                              " Unable to Open a Temporary XDR File for Writing");
@@ -589,8 +601,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             initUserDefinedType(udt_received);
 
                             rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                              &data, protocolVersion, xdr_stdio_flag,
-                                                              log_struct_list, malloc_source); // receive the Data
+                                                              &data, protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                              malloc_source); // receive the Data
 
                             if (!rc) {
                                 err = 999;
@@ -615,18 +627,19 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             // Regular client or server
 
                             if (STR_EQUALS(udt_received->name,
-                                           "SARRAY")) {            // expecting this carrier structure
+                                           "SARRAY")) { // expecting this carrier structure
 
                                 auto general_block = (GENERAL_BLOCK*)malloc(sizeof(GENERAL_BLOCK));
 
                                 auto s = (SARRAY*)data;
-                                if (s->count != data_block->data_n) {                // check for consistency
+                                if (s->count != data_block->data_n) { // check for consistency
                                     err = 999;
                                     addIdamError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
                                                  "Inconsistent S Array Counts");
                                     break;
                                 }
-                                data_block->data = (char*)udaGetFullNTree();        // Global Root Node with the Carrier Structure containing data
+                                data_block->data = (char*)
+                                    udaGetFullNTree(); // Global Root Node with the Carrier Structure containing data
                                 data_block->opaque_block = (void*)general_block;
                                 data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                                 general_block->userdefinedtype = udt_received;
@@ -651,8 +664,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         }
 #endif // !FATCLIENT
 
-//----------------------------------------------------------------------------
-// Meta Data XML
+        //----------------------------------------------------------------------------
+        // Meta Data XML
 
 #ifndef FATCLIENT
 
@@ -665,8 +678,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             err = UDA_PROTOCOL_ERROR_5;
                             break;
                         }
-                        if ((data_block->opaque_block = (char*)malloc(
-                                (data_block->opaque_count + 1) * sizeof(char))) == nullptr) {
+                        if ((data_block->opaque_block = (char*)malloc((data_block->opaque_count + 1) * sizeof(char))) ==
+                            nullptr) {
                             err = 991;
                             break;
                         }
@@ -726,28 +739,28 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if ((err = alloc_efit(efit)) != 0) break;        // Allocate Heap Memory
+                    if ((err = alloc_efit(efit)) != 0) {
+                        break; // Allocate Heap Memory
+                    }
 
                     for (int i = 0; i < efit->npfcoils; i++) {
                         pfcoils = efit->pfcoils + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFCOILS, direction, token, logmalloclist,
                                                userdefinedtypelist, (void*)pfcoils)) != 0) {
-                                                   break;
+                            break;
                         }
                     }
                     for (int i = 0; i < efit->npfpassive; i++) {
                         pfpassive = efit->pfpassive + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFPASSIVE, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfpassive)) !=
-                            0) {
+                                               userdefinedtypelist, (void*)pfpassive)) != 0) {
                             break;
                         }
                     }
                     for (int i = 0; i < efit->npfsupplies; i++) {
                         pfsupplies = efit->pfsupplies + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFSUPPLIES, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfsupplies)) !=
-                            0) {
+                                               userdefinedtypelist, (void*)pfsupplies)) != 0) {
                             break;
                         }
                     }
@@ -755,45 +768,41 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         fluxloop = efit->fluxloop + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_FLUXLOOP, direction, token, logmalloclist,
                                                userdefinedtypelist, (void*)fluxloop)) != 0) {
-                                                   break;
+                            break;
                         }
                     }
                     for (int i = 0; i < efit->nmagprobes; i++) {
                         magprobe = efit->magprobe + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_MAGPROBE, direction, token, logmalloclist,
                                                userdefinedtypelist, (void*)magprobe)) != 0) {
-                                                   break;
+                            break;
                         }
                     }
                     for (int i = 0; i < efit->npfcircuits; i++) {
                         pfcircuit = efit->pfcircuit + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFCIRCUIT, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfcircuit)) !=
-                            0) {
+                                               userdefinedtypelist, (void*)pfcircuit)) != 0) {
                             break;
                         }
                     }
                     for (int i = 0; i < efit->nplasmacurrent; i++) {
                         plasmacurrent = efit->plasmacurrent + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_PLASMACURRENT, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)plasmacurrent)) !=
-                            0) {
+                                               userdefinedtypelist, (void*)plasmacurrent)) != 0) {
                             break;
                         }
                     }
                     for (int i = 0; i < efit->ndiamagnetic; i++) {
                         diamagnetic = efit->diamagnetic + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_DIAMAGNETIC, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)diamagnetic)) !=
-                            0) {
+                                               userdefinedtypelist, (void*)diamagnetic)) != 0) {
                             break;
                         }
                     }
                     for (int i = 0; i < efit->ntoroidalfield; i++) {
                         toroidalfield = efit->toroidalfield + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_TOROIDALFIELD, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)toroidalfield)) !=
-                            0) {
+                                               userdefinedtypelist, (void*)toroidalfield)) != 0) {
                             break;
                         }
                     }
@@ -801,7 +810,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         limiter = efit->limiter + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_LIMITER, direction, token, logmalloclist,
                                                userdefinedtypelist, (void*)limiter)) != 0) {
-                                                   break;
+                            break;
                         }
                     }
 
@@ -818,28 +827,28 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = UDA_PROTOCOL_ERROR_7;
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
+                        err = UDA_PROTOCOL_ERROR_7;
+                    }
 
                     for (int i = 0; i < efit->npfcoils; i++) {
                         pfcoils = efit->pfcoils + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFCOILS, direction, token, logmalloclist,
                                                userdefinedtypelist, (void*)pfcoils)) != 0) {
-                                                   break;
+                            break;
                         }
                     }
                     for (int i = 0; i < efit->npfpassive; i++) {
                         pfpassive = efit->pfpassive + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFPASSIVE, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfpassive)) !=
-                            0) {
+                                               userdefinedtypelist, (void*)pfpassive)) != 0) {
                             break;
                         }
                     }
                     for (int i = 0; i < efit->npfsupplies; i++) {
                         pfsupplies = efit->pfsupplies + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFSUPPLIES, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfsupplies)) !=
-                            0) {
+                                               userdefinedtypelist, (void*)pfsupplies)) != 0) {
                             break;
                         }
                     }
@@ -847,45 +856,41 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         fluxloop = efit->fluxloop + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_FLUXLOOP, direction, token, logmalloclist,
                                                userdefinedtypelist, (void*)fluxloop)) != 0) {
-                                                   break;
+                            break;
                         }
                     }
                     for (int i = 0; i < efit->nmagprobes; i++) {
                         magprobe = efit->magprobe + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_MAGPROBE, direction, token, logmalloclist,
                                                userdefinedtypelist, (void*)magprobe)) != 0) {
-                                                   break;
+                            break;
                         }
                     }
                     for (int i = 0; i < efit->npfcircuits; i++) {
                         pfcircuit = efit->pfcircuit + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFCIRCUIT, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfcircuit)) !=
-                            0) {
+                                               userdefinedtypelist, (void*)pfcircuit)) != 0) {
                             break;
                         }
                     }
                     for (int i = 0; i < efit->nplasmacurrent; i++) {
                         plasmacurrent = efit->plasmacurrent + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_PLASMACURRENT, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)plasmacurrent)) !=
-                            0) {
+                                               userdefinedtypelist, (void*)plasmacurrent)) != 0) {
                             break;
                         }
                     }
                     for (int i = 0; i < efit->ndiamagnetic; i++) {
                         diamagnetic = efit->diamagnetic + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_DIAMAGNETIC, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)diamagnetic)) !=
-                            0) {
+                                               userdefinedtypelist, (void*)diamagnetic)) != 0) {
                             break;
                         }
                     }
                     for (int i = 0; i < efit->ntoroidalfield; i++) {
                         toroidalfield = efit->toroidalfield + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_TOROIDALFIELD, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)toroidalfield)) !=
-                            0) {
+                                               userdefinedtypelist, (void*)toroidalfield)) != 0) {
                             break;
                         }
                     }
@@ -893,7 +898,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         limiter = efit->limiter + i;
                         if ((err = protocolXML(xdrs, UDA_PROTOCOL_LIMITER, direction, token, logmalloclist,
                                                userdefinedtypelist, (void*)limiter)) != 0) {
-                                                   break;
+                            break;
                         }
                     }
 
@@ -930,9 +935,13 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (pfcoils->nco == 0) break;                // No Data to Receive!
+                    if (pfcoils->nco == 0) {
+                        break; // No Data to Receive!
+                    }
 
-                    if ((err = alloc_pfcoils(pfcoils)) != 0) break;        // Allocate Heap Memory
+                    if ((err = alloc_pfcoils(pfcoils)) != 0) {
+                        break; // Allocate Heap Memory
+                    }
 
                     if (!(rc = xdr_pfcoils2(xdrs, pfcoils))) {
                         err = UDA_PROTOCOL_ERROR_1012;
@@ -948,14 +957,18 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (pfcoils->nco == 0) break;                // No Data to Send!
+                    if (pfcoils->nco == 0) {
+                        break; // No Data to Send!
+                    }
 
                     if (!(rc = xdr_pfcoils2(xdrs, pfcoils))) {
                         err = UDA_PROTOCOL_ERROR_1012;
                         break;
                     }
 
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = UDA_PROTOCOL_ERROR_7;
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
+                        err = UDA_PROTOCOL_ERROR_7;
+                    }
 
                     break;
 
@@ -990,9 +1003,13 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (pfpassive->nco == 0) break;                // No Data to Receive!
+                    if (pfpassive->nco == 0) {
+                        break; // No Data to Receive!
+                    }
 
-                    if ((err = alloc_pfpassive(pfpassive)) != 0) break;    // Allocate Heap Memory
+                    if ((err = alloc_pfpassive(pfpassive)) != 0) {
+                        break; // Allocate Heap Memory
+                    }
 
                     if (!(rc = xdr_pfpassive2(xdrs, pfpassive))) {
                         err = UDA_PROTOCOL_ERROR_1022;
@@ -1008,14 +1025,18 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (pfpassive->nco == 0) break;                // No Data to Send!
+                    if (pfpassive->nco == 0) {
+                        break; // No Data to Send!
+                    }
 
                     if (!(rc = xdr_pfpassive2(xdrs, pfpassive))) {
                         err = UDA_PROTOCOL_ERROR_1022;
                         break;
                     }
 
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = UDA_PROTOCOL_ERROR_7;
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
+                        err = UDA_PROTOCOL_ERROR_7;
+                    }
 
                     break;
 
@@ -1059,7 +1080,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = UDA_PROTOCOL_ERROR_7;
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
+                        err = UDA_PROTOCOL_ERROR_7;
+                    }
 
                     break;
 
@@ -1094,9 +1117,13 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (fluxloop->nco == 0) break;                // No Data to Receive!
+                    if (fluxloop->nco == 0) {
+                        break; // No Data to Receive!
+                    }
 
-                    if ((err = alloc_fluxloop(fluxloop)) != 0) break;    // Allocate Heap Memory
+                    if ((err = alloc_fluxloop(fluxloop)) != 0) {
+                        break; // Allocate Heap Memory
+                    }
 
                     if (!(rc = xdr_fluxloop2(xdrs, fluxloop))) {
                         err = UDA_PROTOCOL_ERROR_1042;
@@ -1112,14 +1139,18 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (fluxloop->nco == 0) break;
+                    if (fluxloop->nco == 0) {
+                        break;
+                    }
 
                     if (!(rc = xdr_fluxloop2(xdrs, fluxloop))) {
                         err = UDA_PROTOCOL_ERROR_1042;
                         break;
                     }
 
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = UDA_PROTOCOL_ERROR_7;
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
+                        err = UDA_PROTOCOL_ERROR_7;
+                    }
 
                     break;
 
@@ -1163,7 +1194,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = UDA_PROTOCOL_ERROR_7;
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
+                        err = UDA_PROTOCOL_ERROR_7;
+                    }
 
                     break;
 
@@ -1198,9 +1231,13 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (pfcircuit->nco == 0) break;                // No Data to Receive!
+                    if (pfcircuit->nco == 0) {
+                        break; // No Data to Receive!
+                    }
 
-                    if ((err = alloc_pfcircuit(pfcircuit)) != 0) break;    // Allocate Heap Memory
+                    if ((err = alloc_pfcircuit(pfcircuit)) != 0) {
+                        break; // Allocate Heap Memory
+                    }
 
                     if (!(rc = xdr_pfcircuit2(xdrs, pfcircuit))) {
                         err = UDA_PROTOCOL_ERROR_1062;
@@ -1216,14 +1253,18 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (pfcircuit->nco == 0) break;                // No Data to Send!
+                    if (pfcircuit->nco == 0) {
+                        break; // No Data to Send!
+                    }
 
                     if (!(rc = xdr_pfcircuit2(xdrs, pfcircuit))) {
                         err = UDA_PROTOCOL_ERROR_1062;
                         break;
                     }
 
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = UDA_PROTOCOL_ERROR_7;
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
+                        err = UDA_PROTOCOL_ERROR_7;
+                    }
 
                     break;
 
@@ -1267,7 +1308,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = UDA_PROTOCOL_ERROR_7;
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
+                        err = UDA_PROTOCOL_ERROR_7;
+                    }
 
                     break;
 
@@ -1311,7 +1354,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = UDA_PROTOCOL_ERROR_7;
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
+                        err = UDA_PROTOCOL_ERROR_7;
+                    }
 
                     break;
 
@@ -1355,7 +1400,9 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = UDA_PROTOCOL_ERROR_7;
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
+                        err = UDA_PROTOCOL_ERROR_7;
+                    }
 
                     break;
 
@@ -1390,9 +1437,13 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (limiter->nco == 0) break;                // No Data to Receive!
+                    if (limiter->nco == 0) {
+                        break; // No Data to Receive!
+                    }
 
-                    if ((err = alloc_limiter(limiter)) != 0) break;        // Allocate Heap Memory
+                    if ((err = alloc_limiter(limiter)) != 0) {
+                        break; // Allocate Heap Memory
+                    }
 
                     if (!(rc = xdr_limiter2(xdrs, limiter))) {
                         err = UDA_PROTOCOL_ERROR_1092;
@@ -1408,14 +1459,18 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         break;
                     }
 
-                    if (limiter->nco == 0) break;                // No Data to Send!
+                    if (limiter->nco == 0) {
+                        break; // No Data to Send!
+                    }
 
                     if (!(rc = xdr_limiter2(xdrs, limiter))) {
                         err = UDA_PROTOCOL_ERROR_1092;
                         break;
                     }
 
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) err = UDA_PROTOCOL_ERROR_7;
+                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
+                        err = UDA_PROTOCOL_ERROR_7;
+                    }
 
                     break;
 
@@ -1431,8 +1486,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
         }
 #  endif
 #endif // !FATCLIENT
-        //----------------------------------------------------------------------------
-        // End of Error Trap Loop
+       //----------------------------------------------------------------------------
+       // End of Error Trap Loop
 
     } while (0);
 

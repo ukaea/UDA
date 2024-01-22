@@ -1,10 +1,10 @@
 #ifndef UDA_CLIENTSERVER_PROTOCOLXML2_H
 #define UDA_CLIENTSERVER_PROTOCOLXML2_H
 
-#include <stdio.h>
-#include <rpc/rpc.h>
-#include "genStructs.h"
 #include "export.h"
+#include "genStructs.h"
+#include <rpc/rpc.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,4 +23,3 @@ LIBRARY_API int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* tok
 #endif
 
 #endif // UDA_CLIENTSERVER_PROTOCOLXML2_H
-

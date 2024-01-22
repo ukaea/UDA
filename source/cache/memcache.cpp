@@ -1,73 +1,85 @@
 #include "memcache.hpp"
 
-#include <fmt/format.h>
 #include <algorithm>
+#include <fmt/format.h>
 
 #include "cache.h"
 
 #ifdef NOLIBMEMCACHED
 
-namespace uda {
-namespace cache {
+namespace uda
+{
+namespace cache
+{
 
 struct UdaCache {
     int dummy_;
 };
 
-} } // namespace uda::cache
+} // namespace cache
+} // namespace uda
 
 uda::cache::UdaCache* uda::cache::open_cache()
-{ return nullptr; }
+{
+    return nullptr;
+}
 
-void uda::cache::free_cache()
-{}
+void uda::cache::free_cache() {}
 
 int uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
-                LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                ENVIRONMENT environment, int protocolVersion, uint32_t flags,
-                LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
-{ return 0; }
+                            LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                            ENVIRONMENT environment, int protocolVersion, uint32_t flags,
+                            LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+{
+    return 0;
+}
 
-DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, LOGMALLOCLIST* logmalloclist,
-                       USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment, int protocolVersion,
-                       uint32_t flags, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
-{ return nullptr; }
+DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data,
+                                   LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                                   ENVIRONMENT environment, int protocolVersion, uint32_t flags,
+                                   LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+{
+    return nullptr;
+}
 
 #else
 
-#include <libmemcached/memcached.h>
-#include <openssl/ssl.h>
-#include <tuple>
-#include <string>
-#include <sstream>
+#  include <libmemcached/memcached.h>
+#  include <openssl/ssl.h>
+#  include <sstream>
+#  include <string>
+#  include <tuple>
 // needed for GCC 12.0 - do not delete
-#include <algorithm>
+#  include <algorithm>
 
-#include <logging/logging.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/memstream.h>
-#include <clientserver/xdrlib.h>
-#include <clientserver/errorLog.h>
+#  include <clientserver/errorLog.h>
+#  include <clientserver/initStructs.h>
+#  include <clientserver/memstream.h>
+#  include <clientserver/xdrlib.h>
+#  include <logging/logging.h>
 
-#define UDA_CACHE_HOST     "localhost"     // Override these with environment variables with the same name
-#define UDA_CACHE_PORT     11211
-#define UDA_CACHE_EXPIRY   86400           //24*3600       // Lifetime of the object in Secs
+#  define UDA_CACHE_HOST "localhost" // Override these with environment variables with the same name
+#  define UDA_CACHE_PORT 11211
+#  define UDA_CACHE_EXPIRY 86400 // 24*3600       // Lifetime of the object in Secs
 
-#define MAX_ELEMENT_SHA1 20
+#  define MAX_ELEMENT_SHA1 20
 
-namespace uda {
-namespace cache {
+namespace uda
+{
+namespace cache
+{
 
 struct UdaCache {
     memcached_st memcache;
 };
 
-}
-}
+} // namespace cache
+} // namespace uda
 
-namespace {
+namespace
+{
 
-static uda::cache::UdaCache* global_cache = nullptr;    // scope limited to this code module
+static uda::cache::UdaCache* global_cache = nullptr; // scope limited to this code module
 
 /**
  * Use the requested signal and source with client specified properties to create a unique key.
@@ -77,8 +89,8 @@ static uda::cache::UdaCache* global_cache = nullptr;    // scope limited to this
  * There is a 250 character limit - use SHA1 hash if it exceeds 250. The local cache should only be used to record data
  * returned from a server after a GET method - Note: Put methods may be disguised in a GET call!
  */
-std::string
-generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment, uint32_t flags, unsigned int private_flags)
+std::string generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment, uint32_t flags,
+                               unsigned int private_flags)
 {
     // Check Properties for permission and requested method
     if (!(flags & CLIENTFLAG_CACHE)) {
@@ -87,12 +99,8 @@ generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment, uint32_
 
     const char* delimiter = "&&";
     std::stringstream ss;
-    ss << request->signal << delimiter
-       << request->source << delimiter
-       << environment.server_host << delimiter
-       << environment.server_port << delimiter
-       << flags << delimiter
-       << private_flags;
+    ss << request->signal << delimiter << request->source << delimiter << environment.server_host << delimiter
+       << environment.server_port << delimiter << flags << delimiter << private_flags;
 
     auto key = ss.str();
     std::transform(key.begin(), key.end(), key.begin(), [](const decltype(key)::value_type c) {
@@ -140,7 +148,7 @@ int memcache_put(uda::cache::UdaCache* cache, const char* key, const char* buffe
 
     time_t life = time(nullptr);
 
-#ifdef CACHEDEV
+#  ifdef CACHEDEV
     if (data_block->cacheExpiryTime > 0) {
         // Object expiration time is set by the server
         life += data_block->cacheExpiryTime;
@@ -148,10 +156,10 @@ int memcache_put(uda::cache::UdaCache* cache, const char* key, const char* buffe
         // Add the default or client overridden lifetime for the object to the current time
         life += age_max;
     }
-#else
+#  else
     // Add the default or client overridden lifetime for the object to the current time
     life += age_max;
-#endif
+#  endif
 
     memcached_return_t rc = memcached_set(&cache->memcache, key, strlen(key), buffer, bufsize, life, (uint32_t)0);
 
@@ -184,7 +192,7 @@ std::pair<char*, size_t> get_cache_value(uda::cache::UdaCache* cache, const char
     return {value, len};
 }
 
-} // anon namespace
+} // namespace
 
 uda::cache::UdaCache* uda::cache::open_cache()
 {
@@ -197,7 +205,7 @@ uda::cache::UdaCache* uda::cache::open_cache()
     memcached_return_t rc;
     memcached_server_st* servers;
 
-    const char* host = getenv("UDA_CACHE_HOST");   // Overrule the default settings
+    const char* host = getenv("UDA_CACHE_HOST"); // Overrule the default settings
     const char* port = getenv("UDA_CACHE_PORT");
 
     if (host == nullptr && port == nullptr) {
@@ -210,7 +218,7 @@ uda::cache::UdaCache* uda::cache::open_cache()
         servers = memcached_server_list_append(nullptr, UDA_CACHE_HOST, (in_port_t)atoi(port), &rc);
     }
 
-    //memcached_create(&cache->memcache);       // Causes a segmentation Violation!
+    // memcached_create(&cache->memcache);       // Causes a segmentation Violation!
     cache->memcache = *memcached_create(nullptr);
     rc = memcached_server_push(&cache->memcache, servers);
 
@@ -223,7 +231,7 @@ uda::cache::UdaCache* uda::cache::open_cache()
         return nullptr;
     }
 
-    global_cache = cache;   // Copy the pointer
+    global_cache = cache; // Copy the pointer
     init = true;
     return cache;
 }
@@ -235,18 +243,17 @@ void uda::cache::free_cache() // Will be called by the idamFreeAll function
     global_cache = nullptr;
 }
 
-int
-uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
-                        LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                        ENVIRONMENT environment, int protocolVersion, uint32_t flags,
-                        LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+int uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
+                            LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                            ENVIRONMENT environment, int protocolVersion, uint32_t flags,
+                            LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
-#ifdef CACHEDEV
+#  ifdef CACHEDEV
     if (!data_block->cachePermission) {
         // Test permission for the Client to cache this structure.
         return -1;
     }
-#endif
+#  endif
     int rc = 0;
 
     auto key = generate_cache_key(request_data, environment, flags, private_flags);
@@ -261,8 +268,8 @@ uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* request
 
     FILE* memfile = open_memstream(&buffer, &bufsize);
 
-    writeCacheData(memfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion,
-                   log_struct_list, private_flags, malloc_source);
+    writeCacheData(memfile, logmalloclist, userdefinedtypelist, data_block, protocolVersion, log_struct_list,
+                   private_flags, malloc_source);
 
     rc = memcache_put(cache, key.c_str(), buffer, bufsize);
 
@@ -273,11 +280,9 @@ uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* request
 }
 
 DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data,
-                                   LOGMALLOCLIST* logmalloclist,
-                                   USERDEFINEDTYPELIST* userdefinedtypelist, ENVIRONMENT environment,
-                                   int protocolVersion,
-                                   uint32_t flags, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
-                                   int malloc_source)
+                                   LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                                   ENVIRONMENT environment, int protocolVersion, uint32_t flags,
+                                   LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     auto key = generate_cache_key(request_data, environment, flags, private_flags);
     if (key.empty()) {
@@ -299,8 +304,8 @@ DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DA
     fwrite(value, sizeof(char), len, memfile);
     fseek(memfile, 0L, SEEK_SET);
 
-    auto data = readCacheData(memfile, logmalloclist, userdefinedtypelist, protocolVersion,
-                              log_struct_list, private_flags, malloc_source);
+    auto data = readCacheData(memfile, logmalloclist, userdefinedtypelist, protocolVersion, log_struct_list,
+                              private_flags, malloc_source);
     fclose(memfile);
     free(buffer);
 

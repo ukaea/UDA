@@ -63,7 +63,7 @@ void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname)
         str->timeout = (int)strtol(getenv("UDA_TIMEOUT"), nullptr, 10);
     }
     str->pid = (int)getpid();
-    strcpy(str->uid, clientname);        // Global userid
+    strcpy(str->uid, clientname); // Global userid
     str->compressDim = COMPRESS_DIM;
 
     str->clientFlags = 0;
@@ -81,7 +81,7 @@ void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname)
     str->get_bytes = 0;
     str->privateFlags = 0;
 
-    str->OSName[0] = '\0';    // Operating System Name
+    str->OSName[0] = '\0'; // Operating System Name
     str->DOI[0] = '\0';    // Digital Object Identifier (client study reference)
 
 #ifdef SECURITYENABLED
@@ -97,7 +97,7 @@ void initServerBlock(SERVER_BLOCK* str, int version)
     str->pid = (int)getpid();
     str->idamerrorstack.nerrors = 0;
     str->idamerrorstack.idamerror = nullptr;
-    str->OSName[0] = '\0';    // Operating System Name
+    str->OSName[0] = '\0'; // Operating System Name
     str->DOI[0] = '\0';    // Digital Object Identifier (server configuration)
 
 #ifdef SECURITYENABLED

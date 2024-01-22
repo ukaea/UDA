@@ -8,23 +8,23 @@
 #include "server_subset_data.h"
 #include "server_environment.hpp"
 
-#include <math.h>
-#include <float.h>
 #include <cerrno>
+#include <float.h>
+#include <math.h>
 #if defined(__GNUC__)
 #  include <strings.h>
 #else
 #  define strncasecmp _strnicmp
 #endif
 
-#include <logging/logging.h>
-#include <clientserver/printStructs.h>
-#include <clientserver/errorLog.h>
-#include "udaTypes.h"
-#include "struct.h"
 #include "initStructs.h"
+#include "struct.h"
+#include "udaTypes.h"
 #include <clientserver/compressDim.h>
+#include <clientserver/errorLog.h>
+#include <clientserver/printStructs.h>
 #include <clientserver/stringUtils.h>
+#include <logging/logging.h>
 
 //----------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------
@@ -40,19 +40,18 @@
 //
 //    reform - reduce the rank by 1 if the dimension length is 1 and the rank > 1
 
-
 // todo:
 //
 
-namespace {
+namespace
+{
 
 int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* subsetindices);
 
-int serverNewDataArray2(DIMS* dims, int rank, int dimid,
-                               char* data, int ndata, int data_type, int notoperation, int reverse,
-                               int start, int end, int start1, int end1, int* n, void** newdata);
+int serverNewDataArray2(DIMS* dims, int rank, int dimid, char* data, int ndata, int data_type, int notoperation,
+                        int reverse, int start, int end, int start1, int end1, int* n, void** newdata);
 
-} // anon namespace
+} // namespace
 
 int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* logmalloclist)
 {
@@ -61,7 +60,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
     SUBSET subset;
     char* operation;
 
-    char* newdata, * newerrhi, * newerrlo;
+    char *newdata, *newerrhi, *newerrlo;
     int nsubsets, nbound, dimid, start, end, start1, end1, dim_n, ndata, n, reshape, reverse, notoperation, ierr = 0;
 
     printAction(action);
@@ -70,15 +69,19 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
     //-----------------------------------------------------------------------------------------------------------------------
     // How many sets of subsetting operations?
 
-    if (action.actionType == UDA_COMPOSITE_TYPE) {            // XML Based subsetting
-        if (action.composite.nsubsets == 0) return 0;        // Nothing to Subset
+    if (action.actionType == UDA_COMPOSITE_TYPE) { // XML Based subsetting
+        if (action.composite.nsubsets == 0) {
+            return 0; // Nothing to Subset
+        }
         nsubsets = action.composite.nsubsets;
     } else {
-        if (action.actionType == UDA_SERVER_SIDE_TYPE) {        // Client Requested subsetting
-            if (action.serverside.nsubsets == 0) return 0;    // Nothing to Subset
+        if (action.actionType == UDA_SERVER_SIDE_TYPE) { // Client Requested subsetting
+            if (action.serverside.nsubsets == 0) {
+                return 0; // Nothing to Subset
+            }
             nsubsets = action.serverside.nsubsets;
         } else {
-            if (action.actionType == UDA_SUBSET_TYPE) {            // Client Requested subsetting
+            if (action.actionType == UDA_SUBSET_TYPE) { // Client Requested subsetting
                 nsubsets = 1;
             } else {
                 return 0;
@@ -97,10 +100,10 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
     //-----------------------------------------------------------------------------------------------------------------------
     // Process all sets of subsetting operations
 
-    for (int i = 0; i < nsubsets; i++) {                        // the number of sets of Subset Operations
+    for (int i = 0; i < nsubsets; i++) { // the number of sets of Subset Operations
 
         if (action.actionType == UDA_COMPOSITE_TYPE) {
-            subset = action.composite.subsets[i];                // the set of Subset Operations
+            subset = action.composite.subsets[i]; // the set of Subset Operations
         } else {
             if (action.actionType == UDA_SERVER_SIDE_TYPE) {
                 subset = action.serverside.subsets[i];
@@ -111,31 +114,32 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             }
         }
 
-        nbound = subset.nbound;                        // the Number of operations in the set
+        nbound = subset.nbound; // the Number of operations in the set
 
-        for (int j = 0; j < nbound; j++) {                        // Process each operation separately
+        for (int j = 0; j < nbound; j++) { // Process each operation separately
 
             double value = subset.bound[j];
-            operation = subset.operation[j];                // a single operation
-            dimid = subset.dimid[j];                    // applied to this dimension (if -1 then to data only!)
+            operation = subset.operation[j]; // a single operation
+            dimid = subset.dimid[j];         // applied to this dimension (if -1 then to data only!)
 
-            UDA_LOG(UDA_LOG_DEBUG, "[%d][%d]Value = %e, Operation = %s, DIM id = %d, Reform = %d\n",
-                    i, j, value, operation, dimid, subset.reform);
+            UDA_LOG(UDA_LOG_DEBUG, "[%d][%d]Value = %e, Operation = %s, DIM id = %d, Reform = %d\n", i, j, value,
+                    operation, dimid, subset.reform);
 
             if (dimid < 0 || dimid >= (int)data_block->rank) {
-                UDA_LOG(UDA_LOG_ERROR, "DIM id = %d,  Rank = %d, Test = %d \n",
-                        dimid, data_block->rank, dimid >= (int)data_block->rank);
+                UDA_LOG(UDA_LOG_ERROR, "DIM id = %d,  Rank = %d, Test = %d \n", dimid, data_block->rank,
+                        dimid >= (int)data_block->rank);
                 printDataBlock(*data_block);
-                UDA_THROW_ERROR(9999, "Data Subsetting is Impossible as the subset Dimension is not Compatible with the Rank of the Signal");
+                UDA_THROW_ERROR(9999, "Data Subsetting is Impossible as the subset Dimension is not Compatible with "
+                                      "the Rank of the Signal");
                 return ierr;
             }
 
             //----------------------------------------------------------------------------------------------------------------------------
             // Operations on Simple Data Structures: target must be an Atomic Type, Scalar, Name is Case Sensitive
             //
-            // (mapType=1) Array of Structures - member = single scalar value: rank and shape = rank and shape of structure array
-            // (mapType=2) Single Structure - member = array of values: rank and shape = increase rank and shape of structure member by 1
-            // Array of Structures - member = array of values: Not allowed.
+            // (mapType=1) Array of Structures - member = single scalar value: rank and shape = rank and shape of
+            // structure array (mapType=2) Single Structure - member = array of values: rank and shape = increase rank
+            // and shape of structure member by 1 Array of Structures - member = array of values: Not allowed.
             //
             // (mapType=3) structure[14].array[100] -> newarray[14][100]:
 
@@ -156,11 +160,11 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                 // Extract an atomic type data element from the data structure
 
                 for (i = 0; i < udt->fieldcount; i++) {
-                    if (STR_EQUALS(udt->compoundfield[i].name, subset.member)) {        // Locate target member by name
+                    if (STR_EQUALS(udt->compoundfield[i].name, subset.member)) { // Locate target member by name
 
                         data_n = data_block->data_n;
 
-                        if (!udt->compoundfield[i].pointer) {            // Regular Array of data
+                        if (!udt->compoundfield[i].pointer) { // Regular Array of data
 
                             count = udt->compoundfield[i].count;
 
@@ -176,13 +180,14 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
 
                             switch (udt->compoundfield[i].atomictype) {
                                 case UDA_TYPE_DOUBLE: {
-                                    double* data = nullptr, * dp;
+                                    double *data = nullptr, *dp;
 
                                     if (mapType == 1) {
                                         data = (double*)malloc(data_n * sizeof(double));
-                                        for (int k = 0; k < data_n; k++)
-                                            data[k] = *(double*)&data_block->data[k * udt->size +
-                                                                                  udt->compoundfield[i].offset];
+                                        for (int k = 0; k < data_n; k++) {
+                                            data[k] = *(double*)&data_block
+                                                           ->data[k * udt->size + udt->compoundfield[i].offset];
+                                        }
                                     } else {
                                         if (mapType == 2) {
                                             data_n = count;
@@ -197,17 +202,19 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
 
                                             if ((shape = udt->compoundfield[i].shape) == nullptr &&
                                                 udt->compoundfield[i].rank > 1) {
-                                                UDA_THROW_ERROR(999, "The Data Structure member's shape data is missing (rank > 1)");
+                                                UDA_THROW_ERROR(
+                                                    999,
+                                                    "The Data Structure member's shape data is missing (rank > 1)");
                                             }
 
-                                        } else {        // mapType == 3
+                                        } else { // mapType == 3
                                             int total_n;
                                             total_n = count * data_n;
                                             data = (double*)malloc(total_n * sizeof(double));
                                             int jjj = 0;
-                                            for (int jj = 0; jj < data_n; jj++) {    // Loop over structures
-                                                dp = (double*)&data_block->data[jj * udt->size +
-                                                                                udt->compoundfield[i].offset];
+                                            for (int jj = 0; jj < data_n; jj++) { // Loop over structures
+                                                dp = (double*)&data_block
+                                                         ->data[jj * udt->size + udt->compoundfield[i].offset];
                                                 for (int k = 0; k < count; k++) {
                                                     data[jjj++] = dp[k];
                                                 }
@@ -221,7 +228,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                                 }
                             }
 
-                        } else {        // Locate the pointer data's properties:
+                        } else { // Locate the pointer data's properties:
 
                             if (data_n > 1) {
                                 int count_p = 0;
@@ -243,12 +250,14 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                                         if (shape != nullptr) {
                                             for (int k = 0; k < rank; k++) {
                                                 if (shape[k] != shape_p[k]) {
-                                                    //ERROR
+                                                    // ERROR
                                                 }
                                             }
                                         } else {
                                             if (rank > 1) {
-                                                UDA_THROW_ERROR(999, "The Data Structure member's shape data is missing (rank > 1)");
+                                                UDA_THROW_ERROR(
+                                                    999,
+                                                    "The Data Structure member's shape data is missing (rank > 1)");
                                             }
                                         }
                                     }
@@ -270,8 +279,9 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                                 if (count >= 1 && data_n == 1) {
                                     mapType = 2;
                                 } else {
-                                    UDA_THROW_ERROR(999, "Unable to subset an array of Data Structures when the target "
-                                                     "member is also an array. Functionality has not been implemented!)")
+                                    UDA_THROW_ERROR(999,
+                                                    "Unable to subset an array of Data Structures when the target "
+                                                    "member is also an array. Functionality has not been implemented!)")
                                 }
                             }
 
@@ -279,12 +289,12 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
 
                             switch (type) {
                                 case UDA_TYPE_DOUBLE: {
-                                    double* data = nullptr, * dp;
+                                    double *data = nullptr, *dp;
                                     if (mapType == 1) {
                                         data = (double*)malloc(data_n * sizeof(double));
                                         for (int k = 0; k < data_n; k++) {
-                                            dp = *(double**)&data_block->data[k * udt->size +
-                                                                              udt->compoundfield[i].offset];
+                                            dp = *(double**)&data_block
+                                                      ->data[k * udt->size + udt->compoundfield[i].offset];
                                             data[k] = dp[0];
                                         }
                                     } else {
@@ -302,7 +312,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                                     break;
                                 }
 
-                                    //default:
+                                    // default:
                             }
                         }
 
@@ -353,8 +363,8 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                                 unsigned int k0 = data_block->rank;
                                 data_block->rank = data_block->rank + udt->compoundfield[i].rank;
 
-                                data_block->dims = (DIMS*)realloc((void*)data_block->dims,
-                                                                  data_block->rank * sizeof(DIMS));
+                                data_block->dims =
+                                    (DIMS*)realloc((void*)data_block->dims, data_block->rank * sizeof(DIMS));
 
                                 for (unsigned int k = k0; k < data_block->rank; k++) {
                                     initDimBlock(&data_block->dims[k]);
@@ -383,7 +393,6 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                         data_block->opaque_count = 0;
                         data_block->opaque_block = nullptr;
                         break;
-
                     }
                 }
             }
@@ -393,33 +402,39 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
 
             if (STR_EQUALS(operation, "*")) {
                 continue;
-            }                // This means No subset - Part of an array Reshape Operation
+            } // This means No subset - Part of an array Reshape Operation
 
-            if (operation[0] == ':'
-                && (subset.lbindex[j].init ? subset.lbindex[j].value : 0) == 0
-                && (subset.ubindex[j].init ? subset.lbindex[j].value : data_block->dims[dimid].dim_n) == data_block->dims[dimid].dim_n
-                && (subset.stride[j].init ? subset.stride[j].value : 1) == 1) {
-                continue;    // subset spans the complete dimension
+            if (operation[0] == ':' && (subset.lbindex[j].init ? subset.lbindex[j].value : 0) == 0 &&
+                (subset.ubindex[j].init ? subset.lbindex[j].value : data_block->dims[dimid].dim_n) ==
+                    data_block->dims[dimid].dim_n &&
+                (subset.stride[j].init ? subset.stride[j].value : 1) == 1) {
+                continue; // subset spans the complete dimension
             }
 
             //----------------------------------------------------------------------------------------------------------------------------
             // Decompress the dimensional data if necessary & free Heap Associated with Compression
 
-            initDimBlock(&newdim);                    // Holder for the Subsetted Dimension (part copy of the original)
+            initDimBlock(&newdim); // Holder for the Subsetted Dimension (part copy of the original)
 
-            dim = &(data_block->dims[dimid]);                // the original dimension to be subset
+            dim = &(data_block->dims[dimid]); // the original dimension to be subset
 
             if (dim->compressed) {
                 uncompressDim(dim);
-                dim->compressed = 0;                    // Can't preserve this status after the subset has been applied
+                dim->compressed = 0; // Can't preserve this status after the subset has been applied
                 dim->method = 0;
 
-                if (dim->sams != nullptr) free(dim->sams);
-                if (dim->offs != nullptr) free(dim->offs);
-                if (dim->ints != nullptr) free(dim->ints);
+                if (dim->sams != nullptr) {
+                    free(dim->sams);
+                }
+                if (dim->offs != nullptr) {
+                    free(dim->offs);
+                }
+                if (dim->ints != nullptr) {
+                    free(dim->ints);
+                }
 
                 dim->udoms = 0;
-                dim->sams = nullptr;        // Avoid double freeing of Heap
+                dim->sams = nullptr; // Avoid double freeing of Heap
                 dim->offs = nullptr;
                 dim->ints = nullptr;
             }
@@ -436,39 +451,46 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
 
             // Subsetting Indices
 
-            start = -1;                    // Starting Index satisfying the operation
-            end = -1;                    // Ending Index
+            start = -1; // Starting Index satisfying the operation
+            end = -1;   // Ending Index
             start1 = -1;
             end1 = -1;
 
             // Test for Array Reshaping Operations
 
-            reshape = 0;                    // Subsetting has been defined using array indexing notation
-            reverse = 0;                    // Reverse the ordering of elements (also uses array indexing notation)
+            reshape = 0; // Subsetting has been defined using array indexing notation
+            reverse = 0; // Reverse the ordering of elements (also uses array indexing notation)
 
-            notoperation = (operation[0] == '!');        // a NOT operator => One or Two subsets
+            notoperation = (operation[0] == '!'); // a NOT operator => One or Two subsets
 
-            if (operation[0] == '*')
-                continue;        // This means No dimensional subset - Part of an array Reshape Operation
+            if (operation[0] == '*') {
+                continue; // This means No dimensional subset - Part of an array Reshape Operation
+            }
 
-            if (operation[0] == ':') {            // Reshape Operation - Index Range Specified
-                start = (int)subset.lbindex[j].value;        // Number before the :
-                end = (int)subset.ubindex[j].value;        // Number after the :
-                if (start == -1) start = 0;
-                if (start == -2) start = dim->dim_n - 1;    // Final array element requested
-                if (end == -1) end = dim->dim_n - 1;
+            if (operation[0] == ':') {                // Reshape Operation - Index Range Specified
+                start = (int)subset.lbindex[j].value; // Number before the :
+                end = (int)subset.ubindex[j].value;   // Number after the :
+                if (start == -1) {
+                    start = 0;
+                }
+                if (start == -2) {
+                    start = dim->dim_n - 1; // Final array element requested
+                }
+                if (end == -1) {
+                    end = dim->dim_n - 1;
+                }
 
-                if (start > end) {                // Check Ordering (Allow for Reversing?)
+                if (start > end) { // Check Ordering (Allow for Reversing?)
                     int startcpy = start;
                     reverse = 1;
-                    start = end;        // Swap indices
+                    start = end; // Swap indices
                     end = startcpy;
                 }
                 reshape = 1;
                 dim_n = end - start + 1;
             }
 
-            if (operation[0] == '#') {            // Reshape Operation - Highest array position (last value)
+            if (operation[0] == '#') { // Reshape Operation - Highest array position (last value)
                 start = dim->dim_n - 1;
                 end = dim->dim_n - 1;
                 reshape = 1;
@@ -481,10 +503,18 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
 
                 auto subsetindices = (unsigned int*)malloc(dim->dim_n * sizeof(unsigned int));
 
-                if (STR_EQUALS(operation, "!<")) strcpy(operation, ">=");
-                if (STR_EQUALS(operation, "!>")) strcpy(operation, "<=");
-                if (STR_EQUALS(operation, "!<=")) strcpy(operation, ">");
-                if (STR_EQUALS(operation, "!>=")) strcpy(operation, "<");
+                if (STR_EQUALS(operation, "!<")) {
+                    strcpy(operation, ">=");
+                }
+                if (STR_EQUALS(operation, "!>")) {
+                    strcpy(operation, "<=");
+                }
+                if (STR_EQUALS(operation, "!<=")) {
+                    strcpy(operation, ">");
+                }
+                if (STR_EQUALS(operation, "!>=")) {
+                    strcpy(operation, "<");
+                }
 
                 if ((dim_n = serverSubsetIndices(operation, dim, value, subsetindices)) == 0) {
                     free(subsetindices);
@@ -496,10 +526,10 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                 start = subsetindices[0];
                 end = subsetindices[dim_n - 1];
 
-                if (notoperation && dim_n > 1) {        // Double Range    ?
+                if (notoperation && dim_n > 1) { // Double Range    ?
                     int range2 = 0;
                     if (dim_n == dim->dim_n) {
-                        notoperation = 0;            // No Second Range found so switch OFF NOT Operation
+                        notoperation = 0; // No Second Range found so switch OFF NOT Operation
                     } else {
                         end1 = subsetindices[dim_n - 1];
                         for (int k = 0; k < dim_n; k++) {
@@ -511,12 +541,12 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                         }
                         range2 = end1 - start1 + 1;
                     }
-                    if (dim_n != end - start + 1 + range2) {        // Dimension array is Not well ordered!
+                    if (dim_n != end - start + 1 + range2) { // Dimension array is Not well ordered!
                         free(subsetindices);
                         UDA_THROW_ERROR(9999, "The Dimensional Array is Not Ordered: Unable to Subset");
                     }
                 } else {
-                    if (dim_n != end - start + 1) {        // Dimension array is Not well ordered!
+                    if (dim_n != end - start + 1) { // Dimension array is Not well ordered!
                         free(subsetindices);
                         UDA_THROW_ERROR(9999, "The Dimensional Array is Not Ordered: Unable to Subset");
                     }
@@ -541,16 +571,16 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
 
             if (dim->errhi != nullptr && dim->error_type != UDA_TYPE_UNKNOWN) {
                 if ((ierr = serverNewDataArray2(dim, 1, dimid, dim->errhi, dim_n, dim->error_type, notoperation,
-                                                reverse,
-                                                start, end, start1, end1, &n, (void**)&newdim.errhi)) != 0)
+                                                reverse, start, end, start1, end1, &n, (void**)&newdim.errhi)) != 0) {
                     return ierr;
+                }
             }
 
             if (dim->errlo != nullptr && dim->error_type != UDA_TYPE_UNKNOWN) {
                 if ((ierr = serverNewDataArray2(dim, 1, dimid, dim->errlo, dim_n, dim->error_type, notoperation,
-                                                reverse,
-                                                start, end, start1, end1, &n, (void**)&newdim.errlo)) != 0)
+                                                reverse, start, end, start1, end1, &n, (void**)&newdim.errlo)) != 0) {
                     return ierr;
+                }
             }
 
             //-----------------------------------------------------------------------------------------------------------------------
@@ -559,8 +589,8 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             printDataBlock(*data_block);
 
             if ((ierr = serverNewDataArray2(data_block->dims, data_block->rank, dimid, data_block->data,
-                                            data_block->data_n, data_block->data_type, notoperation, reverse,
-                                            start, end, start1, end1, &ndata, (void**)&newdata)) != 0) {
+                                            data_block->data_n, data_block->data_type, notoperation, reverse, start,
+                                            end, start1, end1, &ndata, (void**)&newdata)) != 0) {
                 return ierr;
             }
 
@@ -570,8 +600,8 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                                                 start, end, start1, end1, &n, (void**)&newerrhi)) != 0) {
                     return ierr;
                 }
-                free(data_block->errhi);                // Free Original Heap
-                data_block->errhi = newerrhi;                // Replace with the Reshaped Array
+                free(data_block->errhi);      // Free Original Heap
+                data_block->errhi = newerrhi; // Replace with the Reshaped Array
             }
 
             if (data_block->error_type != UDA_TYPE_UNKNOWN && dim->errlo != nullptr) {
@@ -580,17 +610,18 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                                                 start, end, start1, end1, &n, (void**)&newerrlo)) != 0) {
                     return ierr;
                 }
-                free(data_block->errlo);                // Free Original Heap
-                data_block->errlo = newerrlo;                // Replace with the Reshaped Array
+                free(data_block->errlo);      // Free Original Heap
+                data_block->errlo = newerrlo; // Replace with the Reshaped Array
             }
 
             data_block->data_n = ndata;
 
-            free(data_block->data);                // Free Original Heap
-            data_block->data = newdata;                    // Replace with the Reshaped Array
+            free(data_block->data);     // Free Original Heap
+            data_block->data = newdata; // Replace with the Reshaped Array
 
             // replace the Original Dimensional Structure with the New Subsetted Structure unless a
-            // REFORM [Rank Reduction] has been requested and the dimension length is 1 (this has no effect on the Data Array items)
+            // REFORM [Rank Reduction] has been requested and the dimension length is 1 (this has no effect on the Data
+            // Array items)
 
             // Free Heap associated with the original Dimensional Structure Array
 
@@ -604,7 +635,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
 
             // Save the reshaped Dimension or Reform the whole
 
-            data_block->dims[dimid] = newdim;                            // Replace with the subsetted dimension
+            data_block->dims[dimid] = newdim; // Replace with the subsetted dimension
         }
     }
 
@@ -620,26 +651,38 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                 data_block->dims[j].compressed = 0;
                 data_block->dims[j].method = 0;
 
-                if (data_block->dims[j].dim != nullptr) free(data_block->dims[j].dim);
-                if (data_block->dims[j].errlo != nullptr) free(data_block->dims[j].errlo);
-                if (data_block->dims[j].errhi != nullptr) free(data_block->dims[j].errhi);
-                if (data_block->dims[j].sams != nullptr) free(data_block->dims[j].sams);
-                if (data_block->dims[j].offs != nullptr) free(data_block->dims[j].offs);
-                if (data_block->dims[j].ints != nullptr) free(data_block->dims[j].ints);
+                if (data_block->dims[j].dim != nullptr) {
+                    free(data_block->dims[j].dim);
+                }
+                if (data_block->dims[j].errlo != nullptr) {
+                    free(data_block->dims[j].errlo);
+                }
+                if (data_block->dims[j].errhi != nullptr) {
+                    free(data_block->dims[j].errhi);
+                }
+                if (data_block->dims[j].sams != nullptr) {
+                    free(data_block->dims[j].sams);
+                }
+                if (data_block->dims[j].offs != nullptr) {
+                    free(data_block->dims[j].offs);
+                }
+                if (data_block->dims[j].ints != nullptr) {
+                    free(data_block->dims[j].ints);
+                }
 
                 for (int k = j + 1; k < rank; k++) {
-                    data_block->dims[k - 1] = data_block->dims[k];            // Shift array contents
+                    data_block->dims[k - 1] = data_block->dims[k]; // Shift array contents
                 }
 
                 if (data_block->order == j) {
-                    data_block->order = -1;                                // No Time Dimension if Reformed
+                    data_block->order = -1; // No Time Dimension if Reformed
                 } else {
                     if (data_block->order > j) {
                         data_block->order = data_block->order - 1;
-                    }        // Time Dimension ID reduced by 1
+                    } // Time Dimension ID reduced by 1
                 }
 
-                data_block->rank = data_block->rank - 1;                        // Reduce the Rank
+                data_block->rank = data_block->rank - 1; // Reduce the Rank
             }
         }
     }
@@ -649,12 +692,12 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
 
     if (ierr == 0 && subset.function[0] != '\0') {
 
-        if (!strncasecmp(subset.function, "minimum(", 8)) {        // Single scalar result
+        if (!strncasecmp(subset.function, "minimum(", 8)) { // Single scalar result
             dimid = 0;
             if (data_block->rank >= 1) {
                 char* p1 = strstr(subset.function, "dimid");
                 if (p1 != nullptr) {
-                    char* p3, * p2 = strchr(p1, '=');
+                    char *p3, *p2 = strchr(p1, '=');
                     p2[0] = ' ';
                     p3 = strchr(p2, ')');
                     p3[0] = '\0';
@@ -669,9 +712,10 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             }
 
             if (dimid < 0 || dimid >= (int)data_block->rank) {
-                UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dimid = %d,  Rank = %d\n", dimid,
-                        data_block->rank);
-                UDA_THROW_ERROR(999, "The dimension ID identified via the subset function is outside the rank bounds of the array!");
+                UDA_LOG(UDA_LOG_ERROR, "Function Syntax Error -  dimid = %d,  Rank = %d\n", dimid, data_block->rank);
+                UDA_THROW_ERROR(
+                    999,
+                    "The dimension ID identified via the subset function is outside the rank bounds of the array!");
             }
 
             switch (data_block->data_type) {
@@ -679,13 +723,14 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                     auto dp = (float*)data_block->data;
                     float min = dp[0];
                     switch (data_block->rank) {
-                        case 0: {            // Ignore function dimid argument
-                            for (int j = 1; j < data_block->data_n; j++)
+                        case 0: { // Ignore function dimid argument
+                            for (int j = 1; j < data_block->data_n; j++) {
                                 if (dp[j] < min) {
                                     min = dp[j];
                                 }
+                            }
                             dp[0] = min;
-                            dp = (float*)realloc((void*)dp, sizeof(float));        // Reduce array size
+                            dp = (float*)realloc((void*)dp, sizeof(float)); // Reduce array size
                             data_block->data_n = 1;
                             break;
                         }
@@ -697,7 +742,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                                 }
                             }
                             dp[0] = min;
-                            dp = (float*)realloc((void*)dp, sizeof(float));        // Reduce array size
+                            dp = (float*)realloc((void*)dp, sizeof(float)); // Reduce array size
                             data_block->rank = 0;
                             data_block->data_n = 1;
                             free(data_block->dims[0].dim);
@@ -757,13 +802,14 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                     auto dp = (double*)data_block->data;
                     double min = dp[0];
                     switch (data_block->rank) {
-                        case 0: {            // Ignore function dimid argument
-                            for (int j = 1; j < data_block->data_n; j++)
+                        case 0: { // Ignore function dimid argument
+                            for (int j = 1; j < data_block->data_n; j++) {
                                 if (dp[j] < min) {
                                     min = dp[j];
                                 }
+                            }
                             dp[0] = min;
-                            dp = (double*)realloc((void*)dp, sizeof(double));        // Reduce array size
+                            dp = (double*)realloc((void*)dp, sizeof(double)); // Reduce array size
                             data_block->data_n = 1;
                             break;
                         }
@@ -775,7 +821,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                                 }
                             }
                             dp[0] = min;
-                            dp = (double*)realloc((void*)dp, sizeof(double));        // Reduce array size
+                            dp = (double*)realloc((void*)dp, sizeof(double)); // Reduce array size
                             data_block->rank = 0;
                             data_block->data_n = 1;
                             free(data_block->dims[0].dim);
@@ -836,10 +882,10 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             }
         }
 
-        if (STR_IEQUALS(subset.function, "maximum")) {        // Single scalar result
+        if (STR_IEQUALS(subset.function, "maximum")) { // Single scalar result
         }
 
-        if (!strncasecmp(subset.function, "count", 5)) {        // Single scalar result
+        if (!strncasecmp(subset.function, "count", 5)) { // Single scalar result
             char* p1 = strstr(subset.function, "dimid");
             auto count = (unsigned int*)malloc(sizeof(unsigned int));
             if (p1 == nullptr) {
@@ -852,7 +898,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             } else {
                 dimid = 0;
                 if (data_block->rank >= 1) {
-                    char* p3, * p2 = strchr(p1, '=');
+                    char *p3, *p2 = strchr(p1, '=');
                     p2[0] = ' ';
                     p3 = strchr(p2, ')');
                     p3[0] = '\0';
@@ -863,20 +909,38 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                     }
                 }
                 if (dimid < (int)data_block->rank) {
-                    count[0] = (unsigned int)data_block->dims[dimid].dim_n;        // Preserve this value
+                    count[0] = (unsigned int)data_block->dims[dimid].dim_n; // Preserve this value
                     DIMS ddim = data_block->dims[dimid];
-                    if (ddim.dim != nullptr) free(ddim.dim);
-                    if (ddim.errhi != nullptr) free(ddim.errhi);
-                    if (ddim.errlo != nullptr) free(ddim.errlo);
-                    if (ddim.sams != nullptr) free(ddim.sams);
-                    if (ddim.offs != nullptr) free(ddim.offs);
-                    if (ddim.ints != nullptr) free(ddim.ints);
+                    if (ddim.dim != nullptr) {
+                        free(ddim.dim);
+                    }
+                    if (ddim.errhi != nullptr) {
+                        free(ddim.errhi);
+                    }
+                    if (ddim.errlo != nullptr) {
+                        free(ddim.errlo);
+                    }
+                    if (ddim.sams != nullptr) {
+                        free(ddim.sams);
+                    }
+                    if (ddim.offs != nullptr) {
+                        free(ddim.offs);
+                    }
+                    if (ddim.ints != nullptr) {
+                        free(ddim.ints);
+                    }
                 } else {
                     // ERROR
                 }
-                if (data_block->data != nullptr) free(data_block->data);
-                if (data_block->errhi != nullptr) free(data_block->errhi);
-                if (data_block->errlo != nullptr) free(data_block->errlo);
+                if (data_block->data != nullptr) {
+                    free(data_block->data);
+                }
+                if (data_block->errhi != nullptr) {
+                    free(data_block->errhi);
+                }
+                if (data_block->errlo != nullptr) {
+                    free(data_block->errlo);
+                }
                 data_block->data = nullptr;
                 data_block->errhi = nullptr;
                 data_block->errlo = nullptr;
@@ -886,7 +950,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                 data_block->data_n = 1;
                 for (unsigned int j = 0; j < data_block->rank - 1; j++) {
                     if (j >= (unsigned int)dimid) {
-                        data_block->dims[j] = data_block->dims[j + 1];        // skip over the target
+                        data_block->dims[j] = data_block->dims[j + 1]; // skip over the target
                     }
                     data_block->data_n = data_block->data_n * data_block->dims[j].dim_n;
                 }
@@ -903,7 +967,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             }
         }
 
-        if (!strncasecmp(subset.function, "abs()", 5)) {            // Absolute value
+        if (!strncasecmp(subset.function, "abs()", 5)) { // Absolute value
             switch (data_block->data_type) {
                 case UDA_TYPE_FLOAT: {
                     auto dp = (float*)data_block->data;
@@ -924,15 +988,15 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             }
         }
 
-        if (!strncasecmp(subset.function, "const", 5)) {        // Constant value substitution
-            double value = 0.0;                    // Zero data default
+        if (!strncasecmp(subset.function, "const", 5)) { // Constant value substitution
+            double value = 0.0;                          // Zero data default
             char* p1 = strstr(subset.function, "value");
             strcpy(data_block->data_label, subset.function);
 
             UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
 
             if (p1 != nullptr) {
-                char* p3, * p2 = strchr(&p1[5], '=');
+                char *p3, *p2 = strchr(&p1[5], '=');
                 p2[0] = ' ';
                 p3 = strchr(p2, ')');
                 p3[0] = '\0';
@@ -949,8 +1013,12 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
 
             UDA_LOG(UDA_LOG_DEBUG, "value = %f\n", value);
 
-            if (data_block->errhi != nullptr) free(data_block->errhi);
-            if (data_block->errlo != nullptr) free(data_block->errlo);
+            if (data_block->errhi != nullptr) {
+                free(data_block->errhi);
+            }
+            if (data_block->errlo != nullptr) {
+                free(data_block->errlo);
+            }
             data_block->errhi = nullptr;
             data_block->errlo = nullptr;
             data_block->error_type = UDA_TYPE_UNKNOWN;
@@ -978,11 +1046,11 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             }
         }
 
-        if (!strncasecmp(subset.function, "order", 5)) {        // Identify the Time dimension order
+        if (!strncasecmp(subset.function, "order", 5)) { // Identify the Time dimension order
             char* p1 = strstr(subset.function, "dimid");
             UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
             if (p1 != nullptr) {
-                char* p3, * p2 = strchr(&p1[5], '=');
+                char *p3, *p2 = strchr(&p1[5], '=');
                 p2[0] = ' ';
                 p3 = strchr(p2, ')');
                 p3[0] = '\0';
@@ -998,7 +1066,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             UDA_LOG(UDA_LOG_DEBUG, "order = %d\n", data_block->order);
         }
 
-        if (!strncasecmp(subset.function, "rotateRZ", 8)) {        // Rotate R,Z coordinates in rank 3 array
+        if (!strncasecmp(subset.function, "rotateRZ", 8)) { // Rotate R,Z coordinates in rank 3 array
             UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
             if (data_block->rank != 3) {
                 UDA_THROW_ERROR(999, "The function rotateRZ only operates on rank 3 arrays");
@@ -1016,7 +1084,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             auto newData = (double*)malloc(count * sizeof(double));
             unsigned int offset = 0;
             auto old = (double*)data_block->data;
-            if (order == 0) {        // array[nz][nr][nt] -> [nr][nz][nt]
+            if (order == 0) { // array[nz][nr][nt] -> [nr][nz][nt]
                 nt = data_block->dims[0].dim_n;
                 nr = data_block->dims[1].dim_n;
                 nz = data_block->dims[2].dim_n;
@@ -1026,16 +1094,23 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                     data[j] = (double**)malloc(nr * sizeof(double*));
                     for (int i = 0; i < nr; i++) {
                         data[j][i] = (double*)malloc(nt * sizeof(double));
-                        for (int k = 0; k < nt; k++)data[j][i][k] = old[offset++];
+                        for (int k = 0; k < nt; k++) {
+                            data[j][i][k] = old[offset++];
+                        }
                     }
                 }
                 offset = 0;
-                for (int i = 0; i < nr; i++)
-                    for (int j = 0; j < nz; j++)
-                        for (int k = 0; k < nt; k++)
+                for (int i = 0; i < nr; i++) {
+                    for (int j = 0; j < nz; j++) {
+                        for (int k = 0; k < nt; k++) {
                             newData[offset++] = data[j][i][k];
+                        }
+                    }
+                }
                 for (int j = 0; j < nz; j++) {
-                    for (int i = 0; i < nr; i++) free(data[j][i]);
+                    for (int i = 0; i < nr; i++) {
+                        free(data[j][i]);
+                    }
                     free(data[j]);
                 }
                 free(data);
@@ -1044,9 +1119,10 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                 DIMS d2 = data_block->dims[2];
                 data_block->dims[1] = d2;
                 data_block->dims[2] = d1;
-            } else if (order == 1) {        // array[nz][nt][nr]
-                UDA_THROW_ERROR(999, "The function rotateRZ only operates on arrays with shape [nz][nr][nt] or [nt][nz][nr]");
-            } else if (order == 2) {        // array[nt][nz][nr] -> [nt][nr][nz]
+            } else if (order == 1) { // array[nz][nt][nr]
+                UDA_THROW_ERROR(
+                    999, "The function rotateRZ only operates on arrays with shape [nz][nr][nt] or [nt][nz][nr]");
+            } else if (order == 2) { // array[nt][nz][nr] -> [nt][nr][nz]
                 nr = data_block->dims[0].dim_n;
                 nz = data_block->dims[1].dim_n;
                 nt = data_block->dims[2].dim_n;
@@ -1056,16 +1132,23 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                     data[k] = (double**)malloc(nz * sizeof(double*));
                     for (int j = 0; j < nz; j++) {
                         data[k][j] = (double*)malloc(nr * sizeof(double));
-                        for (int i = 0; i < nr; i++)data[k][j][i] = old[offset++];
+                        for (int i = 0; i < nr; i++) {
+                            data[k][j][i] = old[offset++];
+                        }
                     }
                 }
                 offset = 0;
-                for (int k = 0; k < nt; k++)
-                    for (int i = 0; i < nr; i++)
-                        for (int j = 0; j < nz; j++)
-                            newData[offset++] = data[k][j][i];
                 for (int k = 0; k < nt; k++) {
-                    for (int j = 0; j < nz; j++)free(data[k][j]);
+                    for (int i = 0; i < nr; i++) {
+                        for (int j = 0; j < nz; j++) {
+                            newData[offset++] = data[k][j][i];
+                        }
+                    }
+                }
+                for (int k = 0; k < nt; k++) {
+                    for (int j = 0; j < nz; j++) {
+                        free(data[k][j]);
+                    }
                     free(data[k]);
                 }
                 free(data);
@@ -1079,19 +1162,17 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             free(data_block->data);
             data_block->data = (char*)newData;
         }
-
     }
 
     //-------------------------------------------------------------------------------------------------------------
     // Explicitly set the order of the time dimension if not possible via the other options
 
-    if (subset.order >= 0) data_block->order = subset.order;
+    if (subset.order >= 0) {
+        data_block->order = subset.order;
+    }
 
     return ierr;
 }
-
-
-
 
 //-------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------
@@ -1107,13 +1188,13 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
 // SS::SUBSET(\"xx\", [*, 3], member=\"name\", reform)
 // SS::SUBSET(\"xx\", [*, 3], member=\"name\", reform, function=\"minimum(dimid=0)\" )
 
-
 int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serverside, Environment* environment)
 {
 
     char qchar[2];
-    char* p = nullptr, * t1 = nullptr, * t2 = nullptr;
-    char api_delim[3] = "::";            // ********** TO DO: This should be an Environment Variable compatible with the Client delimiter
+    char *p = nullptr, *t1 = nullptr, *t2 = nullptr;
+    char api_delim[3] =
+        "::"; // ********** TO DO: This should be an Environment Variable compatible with the Client delimiter
     char archive[STRING_LENGTH] = "";
     char signal[STRING_LENGTH] = "";
     char options[STRING_LENGTH] = "";
@@ -1140,8 +1221,10 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
         UDA_THROW_ERROR(9999, "Syntax Error: The Signal Name has no Terminating Quotation character!");
     }
 
-    lsignal = (int)(p - request_block->signal) - 8;            // Signal name Length
-    if (lsignal >= STRING_LENGTH) lsignal = STRING_LENGTH - 1;
+    lsignal = (int)(p - request_block->signal) - 8; // Signal name Length
+    if (lsignal >= STRING_LENGTH) {
+        lsignal = STRING_LENGTH - 1;
+    }
     strncpy(signal, request_block->signal + 8, lsignal);
     signal[lsignal] = '\0';
 
@@ -1170,7 +1253,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
         UDA_THROW_ERROR(9999, "Syntax Error: No ] enclosing the Operation ");
     }
 
-    strncpy(operation, t1 + 1, t2 - t1 - 1);    // The Requested Operation including Values
+    strncpy(operation, t1 + 1, t2 - t1 - 1); // The Requested Operation including Values
     operation[t2 - t1 - 1] = '\0';
 
     //-------------------------------------------------------------------------------------------------------------
@@ -1220,47 +1303,55 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
 
     // Seek specific options
 
-    if ((p = strstr(options, "reform")) != nullptr) {            // Reduce rank
+    if ((p = strstr(options, "reform")) != nullptr) { // Reduce rank
         subsets[nsubsets - 1].reform = 1;
     }
 
-    if ((p = strstr(options, "member=")) != nullptr) {        // Extract a Structure member
+    if ((p = strstr(options, "member=")) != nullptr) { // Extract a Structure member
         strcpy(subsets[nsubsets - 1].member, &p[7]);
         LeftTrimString(subsets[nsubsets - 1].member);
         if (subsets[nsubsets - 1].member[0] == '"') {
             subsets[nsubsets - 1].member[0] = ' ';
             LeftTrimString(subsets[nsubsets - 1].member);
         }
-        if ((p = strchr(subsets[nsubsets - 1].member, '"')) != nullptr) p[0] = '\0';
-        if ((p = strchr(subsets[nsubsets - 1].member, ',')) != nullptr) p[0] = '\0';
+        if ((p = strchr(subsets[nsubsets - 1].member, '"')) != nullptr) {
+            p[0] = '\0';
+        }
+        if ((p = strchr(subsets[nsubsets - 1].member, ',')) != nullptr) {
+            p[0] = '\0';
+        }
     }
 
     // Simple functions
 
-    if ((p = strstr(options, "function=")) != nullptr) {        // Identify a function
+    if ((p = strstr(options, "function=")) != nullptr) { // Identify a function
         strcpy(subsets[nsubsets - 1].function, &p[9]);
         LeftTrimString(subsets[nsubsets - 1].function);
         if (subsets[nsubsets - 1].function[0] == '"') {
             subsets[nsubsets - 1].function[0] = ' ';
             LeftTrimString(subsets[nsubsets - 1].function);
         }
-        if ((p = strchr(subsets[nsubsets - 1].function, '"')) != nullptr) p[0] = '\0';
-        if ((p = strchr(subsets[nsubsets - 1].function, ',')) != nullptr) p[0] = '\0';
+        if ((p = strchr(subsets[nsubsets - 1].function, '"')) != nullptr) {
+            p[0] = '\0';
+        }
+        if ((p = strchr(subsets[nsubsets - 1].function, ',')) != nullptr) {
+            p[0] = '\0';
+        }
     }
 
     //-------------------------------------------------------------------------------------------------------------
     // Parse the Operation String for Value and Operation
 
-    LeftTrimString(TrimString(operation));    // Remove Leading white space
+    LeftTrimString(TrimString(operation)); // Remove Leading white space
     strcpy(opcopy, operation);
     nbound = 0;
 
-    if ((p = strtok(opcopy, ",")) != nullptr) {        // Tokenise into Individual Operations on each Dimension
-        subsets[nsubsets - 1].dimid[nbound] = nbound;    // Identify the Dimension to apply the operation on
+    if ((p = strtok(opcopy, ",")) != nullptr) {       // Tokenise into Individual Operations on each Dimension
+        subsets[nsubsets - 1].dimid[nbound] = nbound; // Identify the Dimension to apply the operation on
         nbound++;
         if (strlen(p) < UDA_SXML_MAX_STRING) {
             strcpy(subsets[nsubsets - 1].operation[nbound - 1], p);
-            MidTrimString(subsets[nsubsets - 1].operation[nbound - 1]);    // Remove internal white space
+            MidTrimString(subsets[nsubsets - 1].operation[nbound - 1]); // Remove internal white space
         } else {
             free(subsets);
             UDA_THROW_ERROR(9999, "Syntax Error: The Signal Operation String is too long");
@@ -1275,7 +1366,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
             }
             if (strlen(p) < UDA_SXML_MAX_STRING) {
                 strcpy(subsets[nsubsets - 1].operation[nbound - 1], p);
-                MidTrimString(subsets[nsubsets - 1].operation[nbound - 1]);    // Remove white space
+                MidTrimString(subsets[nsubsets - 1].operation[nbound - 1]); // Remove white space
             } else {
                 free(subsets);
                 UDA_THROW_ERROR(9999, "Syntax Error: The Signal Operation String is too long");
@@ -1299,23 +1390,23 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
 
         strcpy(opcopy, subsets[nsubsets - 1].operation[i]);
 
-        if ((p = strstr(opcopy, ":")) != nullptr) {        // Integer Type Array Index Bounds
+        if ((p = strstr(opcopy, ":")) != nullptr) { // Integer Type Array Index Bounds
             t2 = p + 1;
-            opcopy[p - opcopy] = '\0';            // Split the Operation String into two components
+            opcopy[p - opcopy] = '\0'; // Split the Operation String into two components
             t1 = opcopy;
 
             subsets[nsubsets - 1].isindex[i] = true;
-            subsets[nsubsets - 1].ubindex[i] = { .init=true, .value=-1 };
-            subsets[nsubsets - 1].lbindex[i] = { .init=true, .value=-1 };
+            subsets[nsubsets - 1].ubindex[i] = {.init = true, .value = -1};
+            subsets[nsubsets - 1].lbindex[i] = {.init = true, .value = -1};
 
             if (t1[0] == '#') {
-                subsets[nsubsets - 1].lbindex[i] = { .init=true, .value=-1 };
-            }        // Reverse the data as # => Final array value
+                subsets[nsubsets - 1].lbindex[i] = {.init = true, .value = -1};
+            } // Reverse the data as # => Final array value
 
             if (strlen(t1) > 0 && t1[0] != '*' && t1[0] != '#') {
                 if (IsNumber(t1)) {
                     // the Lower Index Value of the Bound
-                    subsets[nsubsets - 1].lbindex[i] = { .init=true, .value=strtol(t1, &endp, 0) };
+                    subsets[nsubsets - 1].lbindex[i] = {.init = true, .value = strtol(t1, &endp, 0)};
                     if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
                         free(subsets);
                         UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Lower Index Bound");
@@ -1328,7 +1419,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
             if (strlen(t2) > 0 && t2[0] != '*' && t2[0] != '#') {
                 if (IsNumber(t2)) {
                     // the Upper Index Value of the Bound
-                    subsets[nsubsets - 1].ubindex[i] = { .init=true, .value=strtol(t2, &endp, 0) };
+                    subsets[nsubsets - 1].ubindex[i] = {.init = true, .value = strtol(t2, &endp, 0)};
                     if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
                         free(subsets);
                         UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Upper Index Bound");
@@ -1338,47 +1429,47 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
                     UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Upper Index Bound");
                 }
             }
-            strcpy(subsets[nsubsets - 1].operation[i], ":");        // Define Simple Operation
+            strcpy(subsets[nsubsets - 1].operation[i], ":"); // Define Simple Operation
             continue;
         }
 
-        if ((p = strstr(opcopy, "*")) != nullptr) {            // Ignore this Dimension
+        if ((p = strstr(opcopy, "*")) != nullptr) { // Ignore this Dimension
             subsets[nsubsets - 1].isindex[i] = true;
-            subsets[nsubsets - 1].ubindex[i] = { .init=true, .value=-1 };
-            subsets[nsubsets - 1].lbindex[i] = { .init=true, .value=-1 };
-            strcpy(subsets[nsubsets - 1].operation[i], "*");        // Define Simple Operation
+            subsets[nsubsets - 1].ubindex[i] = {.init = true, .value = -1};
+            subsets[nsubsets - 1].lbindex[i] = {.init = true, .value = -1};
+            strcpy(subsets[nsubsets - 1].operation[i], "*"); // Define Simple Operation
             continue;
         }
 
-        if ((p = strstr(opcopy, "#")) != nullptr) {            // Last Value in Dimension
+        if ((p = strstr(opcopy, "#")) != nullptr) { // Last Value in Dimension
             subsets[nsubsets - 1].isindex[i] = true;
-            subsets[nsubsets - 1].ubindex[i] = { .init=true, .value=-1 };
-            subsets[nsubsets - 1].lbindex[i] = { .init=true, .value=-1 };
-            strcpy(subsets[nsubsets - 1].operation[i], "#");        // Define Simple Operation
+            subsets[nsubsets - 1].ubindex[i] = {.init = true, .value = -1};
+            subsets[nsubsets - 1].lbindex[i] = {.init = true, .value = -1};
+            strcpy(subsets[nsubsets - 1].operation[i], "#"); // Define Simple Operation
             continue;
         }
 
-        if (IsNumber(opcopy)) {            // Single Index value
+        if (IsNumber(opcopy)) { // Single Index value
             subsets[nsubsets - 1].isindex[i] = true;
             // the Index Value of the Bound
-            subsets[nsubsets - 1].ubindex[i] = { .init=true, .value=strtol(opcopy, &endp, 0) };
+            subsets[nsubsets - 1].ubindex[i] = {.init = true, .value = strtol(opcopy, &endp, 0)};
             if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
                 free(subsets);
                 UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: Single Index Bound");
             }
             subsets[nsubsets - 1].lbindex[i] = subsets[nsubsets - 1].ubindex[i];
-            strcpy(subsets[nsubsets - 1].operation[i], ":");        // Define Simple Operation
+            strcpy(subsets[nsubsets - 1].operation[i], ":"); // Define Simple Operation
             continue;
         }
 
         // Single value Operation
 
-        p = nullptr;                    // Locate the Start of the Numerical Substring
+        p = nullptr; // Locate the Start of the Numerical Substring
         lop = (int)strlen(subsets[nsubsets - 1].operation[i]);
         for (int j = 0; j < lop; j++) {
             if (subsets[nsubsets - 1].operation[i][j] >= '0' && subsets[nsubsets - 1].operation[i][j] <= '9') {
                 p = &subsets[nsubsets - 1].operation[i][j];
-                if (j > 0) {                    // Capture sign
+                if (j > 0) { // Capture sign
                     if (subsets[nsubsets - 1].operation[i][j - 1] == '+' ||
                         subsets[nsubsets - 1].operation[i][j - 1] == '-') {
                         p = &subsets[nsubsets - 1].operation[i][j - 1];
@@ -1396,7 +1487,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
             UDA_THROW_ERROR(9999, "Server Side Operation Syntax Error: No Numerical Bound");
         }
 
-        subsets[nsubsets - 1].bound[i] = strtod(p, &endp);            // the Value of the Bound
+        subsets[nsubsets - 1].bound[i] = strtod(p, &endp); // the Value of the Bound
 
         if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
             free(subsets);
@@ -1416,11 +1507,11 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
     return ierr;
 }
 
-
 //----------------------------------------------------------------------------------------------------------------------
 // Identify the Index Range satisfying a small set of conditional operators
 
-namespace {
+namespace
+{
 
 int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* subsetindices)
 {
@@ -1433,18 +1524,23 @@ int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* 
         case UDA_TYPE_DOUBLE: {
             auto p = (double*)dim->dim;
             if (STR_IEQUALS(operation, "eq") || operation[0] == '=' || STR_EQUALS(operation, "~=")) {
-                for (int k = 0; k < dim->dim_n; k++) if (p[k] == (double)value) subsetindices[count++] = k;
+                for (int k = 0; k < dim->dim_n; k++) {
+                    if (p[k] == (double)value) {
+                        subsetindices[count++] = k;
+                    }
+                }
                 if (count == 0 && STR_EQUALS(operation, "~=")) {
-                    for (int k = 0; k < dim->dim_n; k++)
+                    for (int k = 0; k < dim->dim_n; k++) {
                         if (fabs(p[k] - (double)value) <= DBL_EPSILON) {
                             subsetindices[count++] = k;
                         }
+                    }
                     if (count == 0) {
                         int index = -1;
                         double delta, minvalue = fabs((double)value - p[0]);
                         for (int k = 0; k < dim->dim_n; k++) {
                             delta = fabs((double)value - p[k]);
-                            if (delta < minvalue) {                        // Look for the Single Nearest Value
+                            if (delta < minvalue) { // Look for the Single Nearest Value
                                 minvalue = delta;
                                 index = k;
                             }
@@ -1453,15 +1549,16 @@ int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* 
                             count = 1;
                             subsetindices[0] = index;
 
-                            if (index == 0 ||
-                                index == dim->dim_n - 1) {                // Check not an end point by default
+                            if (index == 0 || index == dim->dim_n - 1) { // Check not an end point by default
                                 if (dim->dim_n > 1) {
                                     if (index == 0) {
                                         delta = fabs(p[1] - p[0]);
                                     } else {
                                         delta = fabs(p[dim->dim_n - 1] - p[dim->dim_n - 2]);
                                     }
-                                    if (fabs((double)value - p[index]) > delta) count = 0;    // Suspect match!
+                                    if (fabs((double)value - p[index]) > delta) {
+                                        count = 0; // Suspect match!
+                                    }
                                 }
                             }
                         }
@@ -1469,31 +1566,47 @@ int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* 
                 }
             } else {
                 if (STR_IEQUALS(operation, "lt") || STR_EQUALS(operation, "<")) {
-                    for (int k = 0; k < dim->dim_n; k++) if (p[k] < (double)value) subsetindices[count++] = k;
+                    for (int k = 0; k < dim->dim_n; k++) {
+                        if (p[k] < (double)value) {
+                            subsetindices[count++] = k;
+                        }
+                    }
                 } else {
                     if (STR_IEQUALS(operation, "gt") || STR_EQUALS(operation, ">")) {
-                        for (int k = 0; k < dim->dim_n; k++) if (p[k] > (double)value) subsetindices[count++] = k;
+                        for (int k = 0; k < dim->dim_n; k++) {
+                            if (p[k] > (double)value) {
+                                subsetindices[count++] = k;
+                            }
+                        }
                     } else {
                         if (STR_IEQUALS(operation, "le") || STR_EQUALS(operation, "<=")) {
-                            for (int k = 0; k < dim->dim_n; k++) if (p[k] <= (double)value) subsetindices[count++] = k;
+                            for (int k = 0; k < dim->dim_n; k++) {
+                                if (p[k] <= (double)value) {
+                                    subsetindices[count++] = k;
+                                }
+                            }
                         } else {
                             if (STR_IEQUALS(operation, "ge") || STR_EQUALS(operation, ">=")) {
-                                for (int k = 0; k < dim->dim_n; k++) if (p[k] >= (double)value) subsetindices[count++] = k;
+                                for (int k = 0; k < dim->dim_n; k++) {
+                                    if (p[k] >= (double)value) {
+                                        subsetindices[count++] = k;
+                                    }
+                                }
                             } else {
                                 if (STR_IEQUALS(operation, "ne") || STR_EQUALS(operation, "!=") ||
                                     STR_EQUALS(operation, "!~=")) {
                                     if (strncmp(operation, "!~=", 3) != 0) {
-                                        for (int k = 0; k < dim->dim_n; k++)
+                                        for (int k = 0; k < dim->dim_n; k++) {
                                             if (p[k] != (double)value) {
                                                 subsetindices[count++] = k;
                                             }
+                                        }
                                     } else {
                                         int index = -1;
                                         double delta, minvalue = fabs((double)value - p[0]);
                                         for (int k = 0; k < dim->dim_n; k++) {
                                             delta = fabs((double)value - p[k]);
-                                            if (delta <
-                                                minvalue) {                        // Look for the Single Nearest Value
+                                            if (delta < minvalue) { // Look for the Single Nearest Value
                                                 minvalue = delta;
                                                 index = k;
                                             }
@@ -1502,10 +1615,10 @@ int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* 
                                             for (int k = 0; k < dim->dim_n; k++) {
                                                 if (k != index) {
                                                     subsetindices[count++] = k;
-                                                }            // Drop the single nearest value
+                                                } // Drop the single nearest value
                                             }
-                                            if (index == 0 || index == dim->dim_n -
-                                                                       1) {            // Check not an end point by default
+                                            if (index == 0 ||
+                                                index == dim->dim_n - 1) { // Check not an end point by default
                                                 if (dim->dim_n > 1) {
                                                     if (index == 0) {
                                                         delta = fabs(p[1] - p[0]);
@@ -1514,7 +1627,7 @@ int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* 
                                                     }
                                                     if (fabs((double)value - p[index]) > delta) {
                                                         count = 0;
-                                                    }    // Suspect match!
+                                                    } // Suspect match!
                                                 }
                                             }
                                         }
@@ -1531,18 +1644,23 @@ int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* 
         case UDA_TYPE_FLOAT: {
             auto p = (float*)dim->dim;
             if (STR_IEQUALS(operation, "eq") || operation[0] == '=' || STR_EQUALS(operation, "~=")) {
-                for (int k = 0; k < dim->dim_n; k++) if (p[k] == (float)value) subsetindices[count++] = k;
+                for (int k = 0; k < dim->dim_n; k++) {
+                    if (p[k] == (float)value) {
+                        subsetindices[count++] = k;
+                    }
+                }
                 if (count == 0 && STR_EQUALS(operation, "~=")) {
-                    for (int k = 0; k < dim->dim_n; k++)
+                    for (int k = 0; k < dim->dim_n; k++) {
                         if (fabsf(p[k] - (float)value) <= FLT_EPSILON) {
                             subsetindices[count++] = k;
                         }
+                    }
                     if (count == 0) {
                         int index = -1;
                         double delta, minvalue = fabsf((float)value - p[0]);
                         for (int k = 0; k < dim->dim_n; k++) {
                             delta = fabsf((float)value - p[k]);
-                            if (delta < minvalue) {                        // Look for the Single Nearest Value
+                            if (delta < minvalue) { // Look for the Single Nearest Value
                                 minvalue = delta;
                                 index = k;
                             }
@@ -1551,15 +1669,16 @@ int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* 
                             count = 1;
                             subsetindices[0] = index;
 
-                            if (index == 0 ||
-                                index == dim->dim_n - 1) {                // Check not an end point by default
+                            if (index == 0 || index == dim->dim_n - 1) { // Check not an end point by default
                                 if (dim->dim_n > 1) {
                                     if (index == 0) {
                                         delta = fabsf(p[1] - p[0]);
                                     } else {
                                         delta = fabsf(p[dim->dim_n - 1] - p[dim->dim_n - 2]);
                                     }
-                                    if (fabsf((float)value - p[index]) > delta) count = 0;    // Suspect match!
+                                    if (fabsf((float)value - p[index]) > delta) {
+                                        count = 0; // Suspect match!
+                                    }
                                 }
                             }
                         }
@@ -1567,31 +1686,47 @@ int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* 
                 }
             } else {
                 if (STR_IEQUALS(operation, "lt") || STR_EQUALS(operation, "<")) {
-                    for (int k = 0; k < dim->dim_n; k++) if (p[k] < (float)value) subsetindices[count++] = k;
+                    for (int k = 0; k < dim->dim_n; k++) {
+                        if (p[k] < (float)value) {
+                            subsetindices[count++] = k;
+                        }
+                    }
                 } else {
                     if (STR_IEQUALS(operation, "gt") || STR_EQUALS(operation, ">")) {
-                        for (int k = 0; k < dim->dim_n; k++) if (p[k] > (float)value) subsetindices[count++] = k;
+                        for (int k = 0; k < dim->dim_n; k++) {
+                            if (p[k] > (float)value) {
+                                subsetindices[count++] = k;
+                            }
+                        }
                     } else {
                         if (STR_IEQUALS(operation, "le") || STR_EQUALS(operation, "<=")) {
-                            for (int k = 0; k < dim->dim_n; k++) if (p[k] <= (float)value) subsetindices[count++] = k;
+                            for (int k = 0; k < dim->dim_n; k++) {
+                                if (p[k] <= (float)value) {
+                                    subsetindices[count++] = k;
+                                }
+                            }
                         } else {
                             if (STR_IEQUALS(operation, "ge") || STR_EQUALS(operation, ">=")) {
-                                for (int k = 0; k < dim->dim_n; k++) if (p[k] >= (float)value) subsetindices[count++] = k;
+                                for (int k = 0; k < dim->dim_n; k++) {
+                                    if (p[k] >= (float)value) {
+                                        subsetindices[count++] = k;
+                                    }
+                                }
                             } else {
                                 if (STR_IEQUALS(operation, "ne") || STR_EQUALS(operation, "!=") ||
                                     STR_EQUALS(operation, "!~=")) {
                                     if (strncmp(operation, "!~=", 3) != 0) {
-                                        for (int k = 0; k < dim->dim_n; k++)
+                                        for (int k = 0; k < dim->dim_n; k++) {
                                             if (p[k] != (float)value) {
                                                 subsetindices[count++] = k;
                                             }
+                                        }
                                     } else {
                                         int index = -1;
                                         double delta, minvalue = fabsf((float)value - p[0]);
                                         for (int k = 0; k < dim->dim_n; k++) {
                                             delta = fabsf((float)value - p[k]);
-                                            if (delta <
-                                                minvalue) {                        // Look for the Single Nearest Value
+                                            if (delta < minvalue) { // Look for the Single Nearest Value
                                                 minvalue = delta;
                                                 index = k;
                                             }
@@ -1600,10 +1735,10 @@ int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* 
                                             for (int k = 0; k < dim->dim_n; k++) {
                                                 if (k != index) {
                                                     subsetindices[count++] = k;
-                                                }            // Drop the single nearest value
+                                                } // Drop the single nearest value
                                             }
-                                            if (index == 0 || index == dim->dim_n -
-                                                                       1) {            // Check not an end point by default
+                                            if (index == 0 ||
+                                                index == dim->dim_n - 1) { // Check not an end point by default
                                                 if (dim->dim_n > 1) {
                                                     if (index == 0) {
                                                         delta = fabsf(p[1] - p[0]);
@@ -1612,7 +1747,7 @@ int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* 
                                                     }
                                                     if (fabsf((float)value - p[index]) > delta) {
                                                         count = 0;
-                                                    }    // Suspect match!
+                                                    } // Suspect match!
                                                 }
                                             }
                                         }
@@ -1629,26 +1764,47 @@ int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* 
         case UDA_TYPE_INT: {
             int* p = (int*)dim->dim;
             if (STR_IEQUALS(operation, "eq") || operation[0] == '=' || STR_EQUALS(operation, "~=")) {
-                for (int k = 0; k < dim->dim_n; k++) if (p[k] == (int)value) subsetindices[count++] = k;
+                for (int k = 0; k < dim->dim_n; k++) {
+                    if (p[k] == (int)value) {
+                        subsetindices[count++] = k;
+                    }
+                }
             } else {
                 if (STR_IEQUALS(operation, "lt") || STR_EQUALS(operation, "<")) {
-                    for (int k = 0; k < dim->dim_n; k++) if (p[k] < (int)value) subsetindices[count++] = k;
+                    for (int k = 0; k < dim->dim_n; k++) {
+                        if (p[k] < (int)value) {
+                            subsetindices[count++] = k;
+                        }
+                    }
                 } else {
                     if (STR_IEQUALS(operation, "gt") || STR_EQUALS(operation, ">")) {
-                        for (int k = 0; k < dim->dim_n; k++) if (p[k] > (int)value) subsetindices[count++] = k;
+                        for (int k = 0; k < dim->dim_n; k++) {
+                            if (p[k] > (int)value) {
+                                subsetindices[count++] = k;
+                            }
+                        }
                     } else {
                         if (STR_IEQUALS(operation, "le") || STR_EQUALS(operation, "<=")) {
-                            for (int k = 0; k < dim->dim_n; k++) if (p[k] <= (int)value) subsetindices[count++] = k;
+                            for (int k = 0; k < dim->dim_n; k++) {
+                                if (p[k] <= (int)value) {
+                                    subsetindices[count++] = k;
+                                }
+                            }
                         } else {
                             if (STR_IEQUALS(operation, "ge") || STR_EQUALS(operation, ">=")) {
-                                for (int k = 0; k < dim->dim_n; k++) if (p[k] >= (int)value) subsetindices[count++] = k;
+                                for (int k = 0; k < dim->dim_n; k++) {
+                                    if (p[k] >= (int)value) {
+                                        subsetindices[count++] = k;
+                                    }
+                                }
                             } else {
                                 if (STR_IEQUALS(operation, "ne") || STR_EQUALS(operation, "!=") ||
                                     STR_EQUALS(operation, "!~=")) {
-                                    for (int k = 0; k < dim->dim_n; k++)
+                                    for (int k = 0; k < dim->dim_n; k++) {
                                         if (p[k] != (int)value) {
                                             subsetindices[count++] = k;
                                         }
+                                    }
                                 }
                             }
                         }
@@ -1657,17 +1813,13 @@ int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* 
             }
             break;
         }
-
-
     }
 
     return count;
 }
 
-
-int serverNewDataArray2(DIMS* dims, int rank, int dimid,
-                        char* data, int ndata, int data_type, int notoperation, int reverse,
-                        int start, int end, int start1, int end1, int* n, void** newdata)
+int serverNewDataArray2(DIMS* dims, int rank, int dimid, char* data, int ndata, int data_type, int notoperation,
+                        int reverse, int start, int end, int start1, int end1, int* n, void** newdata)
 {
 
     int ierr = 0, rows, columns, newrows, newcols, count = 0;
@@ -1680,8 +1832,8 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid,
 
         case UDA_TYPE_FLOAT: {
 
-            float* p, * dp;
-            float** pa, ** dpa;
+            float *p, *dp;
+            float **pa, **dpa;
 
             // Allocate heap for the reshaped array
 
@@ -1689,7 +1841,7 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid,
                 UDA_THROW_ERROR(9999, "Unable to Allocate Heap memory");
             }
 
-            dp = (float*)data;        // the Originating Data Array
+            dp = (float*)data; // the Originating Data Array
 
             // Reshape
 
@@ -1697,11 +1849,23 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid,
                 case 1: {
                     int k = 0;
                     if (!reverse) {
-                        for (int i = start; i <= end; i++) p[k++] = dp[i];
-                        if (notoperation) for (int i = start1; i <= end1; i++) p[k++] = dp[i];
+                        for (int i = start; i <= end; i++) {
+                            p[k++] = dp[i];
+                        }
+                        if (notoperation) {
+                            for (int i = start1; i <= end1; i++) {
+                                p[k++] = dp[i];
+                            }
+                        }
                     } else {
-                        if (notoperation) for (int i = end1; i >= start1; i--) p[k++] = dp[i];
-                        for (int i = end; i >= start; i--) p[k++] = dp[i];
+                        if (notoperation) {
+                            for (int i = end1; i >= start1; i--) {
+                                p[k++] = dp[i];
+                            }
+                        }
+                        for (int i = end; i >= start; i--) {
+                            p[k++] = dp[i];
+                        }
                     }
                     *n = k;
                     *newdata = (void*)p;
@@ -1715,21 +1879,29 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid,
                     rows = dims[1].dim_n;
                     columns = dims[0].dim_n;
                     dpa = (float**)malloc(rows * sizeof(float*));
-                    for (int j = 0; j < rows; j++) dpa[j] = &dp[j * columns];
+                    for (int j = 0; j < rows; j++) {
+                        dpa[j] = &dp[j * columns];
+                    }
 
                     // Array for Reshaped Data
 
                     if (dimid == 0) {
                         newrows = dims[1].dim_n;
                         newcols = end - start + 1;
-                        if (notoperation) newcols = newcols + end1 - start1 + 1;
+                        if (notoperation) {
+                            newcols = newcols + end1 - start1 + 1;
+                        }
                     } else {
                         newcols = dims[0].dim_n;
                         newrows = end - start + 1;
-                        if (notoperation) newrows = newrows + end1 - start1 + 1;
+                        if (notoperation) {
+                            newrows = newrows + end1 - start1 + 1;
+                        }
                     }
                     pa = (float**)malloc(newrows * sizeof(float*));
-                    for (int j = 0; j < newrows; j++) pa[j] = &p[j * newcols];
+                    for (int j = 0; j < newrows; j++) {
+                        pa[j] = &p[j * newcols];
+                    }
 
                     // Reshape the Data
 
@@ -1808,8 +1980,8 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid,
 
         case UDA_TYPE_DOUBLE: {
 
-            double* p, * dp;
-            double** pa, ** dpa;
+            double *p, *dp;
+            double **pa, **dpa;
 
             // Allocate heap for the reshaped array
 
@@ -1817,7 +1989,7 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid,
                 UDA_THROW_ERROR(9999, "Unable to Allocate Heap memory");
             }
 
-            dp = (double*)data;        // the Originating Data Array
+            dp = (double*)data; // the Originating Data Array
 
             // Reshape
 
@@ -1825,11 +1997,23 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid,
                 case 1: {
                     int k = 0;
                     if (!reverse) {
-                        for (int i = start; i <= end; i++) p[k++] = dp[i];
-                        if (notoperation) for (int i = start1; i <= end1; i++) p[k++] = dp[i];
+                        for (int i = start; i <= end; i++) {
+                            p[k++] = dp[i];
+                        }
+                        if (notoperation) {
+                            for (int i = start1; i <= end1; i++) {
+                                p[k++] = dp[i];
+                            }
+                        }
                     } else {
-                        if (notoperation) for (int i = end1; i >= start1; i--) p[k++] = dp[i];
-                        for (int i = end; i >= start; i--) p[k++] = dp[i];
+                        if (notoperation) {
+                            for (int i = end1; i >= start1; i--) {
+                                p[k++] = dp[i];
+                            }
+                        }
+                        for (int i = end; i >= start; i--) {
+                            p[k++] = dp[i];
+                        }
                     }
                     *n = k;
                     *newdata = (void*)p;
@@ -1843,21 +2027,29 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid,
                     rows = dims[1].dim_n;
                     columns = dims[0].dim_n;
                     dpa = (double**)malloc(rows * sizeof(double*));
-                    for (int j = 0; j < rows; j++) dpa[j] = &dp[j * columns];
+                    for (int j = 0; j < rows; j++) {
+                        dpa[j] = &dp[j * columns];
+                    }
 
                     // Array for Reshaped Data
 
                     if (dimid == 0) {
                         newrows = dims[1].dim_n;
                         newcols = end - start + 1;
-                        if (notoperation) newcols = newcols + end1 - start1 + 1;
+                        if (notoperation) {
+                            newcols = newcols + end1 - start1 + 1;
+                        }
                     } else {
                         newcols = dims[0].dim_n;
                         newrows = end - start + 1;
-                        if (notoperation) newrows = newrows + end1 - start1 + 1;
+                        if (notoperation) {
+                            newrows = newrows + end1 - start1 + 1;
+                        }
                     }
                     pa = (double**)malloc(newrows * sizeof(double*));
-                    for (int j = 0; j < newrows; j++) pa[j] = &p[j * newcols];
+                    for (int j = 0; j < newrows; j++) {
+                        pa[j] = &p[j * newcols];
+                    }
 
                     // Reshape the Data
 
@@ -1936,8 +2128,8 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid,
 
         case UDA_TYPE_INT: {
 
-            int* p, * dp;
-            int** pa, ** dpa;
+            int *p, *dp;
+            int **pa, **dpa;
 
             // Allocate heap for the reshaped array
 
@@ -1945,7 +2137,7 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid,
                 UDA_THROW_ERROR(9999, "Unable to Allocate Heap memory");
             }
 
-            dp = (int*)data;        // the Originating Data Array
+            dp = (int*)data; // the Originating Data Array
 
             // Reshape
 
@@ -1953,11 +2145,23 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid,
                 case 1: {
                     int k = 0;
                     if (!reverse) {
-                        for (int i = start; i <= end; i++) p[k++] = dp[i];
-                        if (notoperation) for (int i = start1; i <= end1; i++) p[k++] = dp[i];
+                        for (int i = start; i <= end; i++) {
+                            p[k++] = dp[i];
+                        }
+                        if (notoperation) {
+                            for (int i = start1; i <= end1; i++) {
+                                p[k++] = dp[i];
+                            }
+                        }
                     } else {
-                        if (notoperation) for (int i = end1; i >= start1; i--) p[k++] = dp[i];
-                        for (int i = end; i >= start; i--) p[k++] = dp[i];
+                        if (notoperation) {
+                            for (int i = end1; i >= start1; i--) {
+                                p[k++] = dp[i];
+                            }
+                        }
+                        for (int i = end; i >= start; i--) {
+                            p[k++] = dp[i];
+                        }
                     }
                     *n = k;
                     *newdata = (void*)p;
@@ -1971,21 +2175,29 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid,
                     rows = dims[1].dim_n;
                     columns = dims[0].dim_n;
                     dpa = (int**)malloc(rows * sizeof(int*));
-                    for (int j = 0; j < rows; j++) dpa[j] = &dp[j * columns];
+                    for (int j = 0; j < rows; j++) {
+                        dpa[j] = &dp[j * columns];
+                    }
 
                     // Array for Reshaped Data
 
                     if (dimid == 0) {
                         newrows = dims[1].dim_n;
                         newcols = end - start + 1;
-                        if (notoperation) newcols = newcols + end1 - start1 + 1;
+                        if (notoperation) {
+                            newcols = newcols + end1 - start1 + 1;
+                        }
                     } else {
                         newcols = dims[0].dim_n;
                         newrows = end - start + 1;
-                        if (notoperation) newrows = newrows + end1 - start1 + 1;
+                        if (notoperation) {
+                            newrows = newrows + end1 - start1 + 1;
+                        }
                     }
                     pa = (int**)malloc(newrows * sizeof(int*));
-                    for (int j = 0; j < newrows; j++) pa[j] = &p[j * newcols];
+                    for (int j = 0; j < newrows; j++) {
+                        pa[j] = &p[j * newcols];
+                    }
 
                     // Reshape the Data
 
@@ -2063,12 +2275,14 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid,
         }
 
         default:
-            UDA_LOG(UDA_LOG_ERROR, "Only Float, Double and 32 bit Signed Integer Numerical Types can be Subset at this time!\n");
+            UDA_LOG(UDA_LOG_ERROR,
+                    "Only Float, Double and 32 bit Signed Integer Numerical Types can be Subset at this time!\n");
             UDA_LOG(UDA_LOG_ERROR, "Data Type: %d    Rank: %d\n", data_type, rank);
-            UDA_THROW_ERROR(9999, "Only Float, Double and 32 bit Signed Integer Numerical Types can be Subset at this time!");
+            UDA_THROW_ERROR(9999,
+                            "Only Float, Double and 32 bit Signed Integer Numerical Types can be Subset at this time!");
     }
 
     return ierr;
 }
 
-} // anon namespace
+} // namespace

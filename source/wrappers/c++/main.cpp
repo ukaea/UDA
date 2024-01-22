@@ -1,27 +1,27 @@
-#include <iostream>
 #include <cstdio>
 #include <idamclientserverpublic.h>
+#include <iostream>
 
 #include "UDA.hpp"
 
 struct coilGeometryType {
-    int id ;
-    int count ;
-    double turnCount[63] ;
-    double rCentre[63] ;
-    double zCentre[63] ;
-    double dR[63] ;
-    double dZ[63] ;
-    double angle1[63] ;
-    double angle2[63] ;
+    int id;
+    int count;
+    double turnCount[63];
+    double rCentre[63];
+    double zCentre[63];
+    double dR[63];
+    double dZ[63];
+    double angle1[63];
+    double angle2[63];
 };
 
 int main()
 {
     int test = 1;
 
-    //uda::Client::setServerHostName("localhost");
-    //uda::Client::setServerPort(56564);
+    // uda::Client::setServerHostName("localhost");
+    // uda::Client::setServerPort(56564);
 
     uda::Client::setServerHostName("idam0");
     uda::Client::setServerPort(56561);
@@ -59,7 +59,9 @@ int main()
         std::cout << dim.label() << std::endl;
         std::cout << dim.units() << std::endl;
 
-        if (test != 0) return 0;
+        if (test != 0) {
+            return 0;
+        }
     }
 
     //-----------------------------------------------------------------------------------
@@ -106,10 +108,10 @@ int main()
         };
         typedef struct DATALASTSHOT DATALASTSHOT;
 
-        DATALASTSHOT *datalastshot = (DATALASTSHOT *)node.data();
+        DATALASTSHOT* datalastshot = (DATALASTSHOT*)node.data();
 
         printf("\nstructure array count = %d\n\n", count);
-        printf("\nlast shot = %d\n\n", (int) datalastshot->lastshot);
+        printf("\nlast shot = %d\n\n", (int)datalastshot->lastshot);
 
         // Alternatively, assuming the structure definition is volatile, extract the atomic
         // scalar component directly
@@ -130,17 +132,14 @@ int main()
         std::vector<std::string> anames = node.atomicNames();
         std::vector<std::string> atypes = node.atomicTypes();
         std::vector<bool> apoint = node.atomicPointers(); // is this component a Pointer
-        std::vector<std::size_t> arank  = node.atomicRank();
-        std::vector<std::vector<std::size_t> > ashape = node.atomicShape();
+        std::vector<std::size_t> arank = node.atomicRank();
+        std::vector<std::vector<std::size_t>> ashape = node.atomicShape();
 
-        for (int i=0; i < acount; i++) {
-            fprintf(stdout, "%s [%s] %d %zu\n",
-                    anames[i].c_str(), atypes[i].c_str(), bool(apoint[i]), arank[i]);
+        for (int i = 0; i < acount; i++) {
+            fprintf(stdout, "%s [%s] %d %zu\n", anames[i].c_str(), atypes[i].c_str(), bool(apoint[i]), arank[i]);
 
-            if (anames[i] == "lastshot"
-                    && atypes[i] == "unsigned int"
-                    && !apoint[i]
-                    && (arank[i] == 0 || (arank[i] == 1 && ashape[i][0] == 1))) {
+            if (anames[i] == "lastshot" && atypes[i] == "unsigned int" && !apoint[i] &&
+                (arank[i] == 0 || (arank[i] == 1 && ashape[i][0] == 1))) {
                 unsigned int lastshot = *reinterpret_cast<unsigned int*>(node.structureComponentData(anames[i]));
                 printf("\nlast shot = %u\n\n", lastshot);
                 break;
@@ -161,7 +160,9 @@ int main()
         printf("\ntype = %s\n", lastshot.type().name());
         printf("\nlast shot = %u\n\n", lastshot.as<unsigned int>());
 
-        if (test != 0) return 0;
+        if (test != 0) {
+            return 0;
+        }
     }
 
     //-----------------------------------------------------------------------------------
@@ -212,11 +213,13 @@ int main()
         // the returned data is an array of structures - loop over each array member and print the signal name
 
         for (std::vector<uda::TreeNode>::iterator iter = children.begin(); iter != children.end(); ++iter) {
-            char * signal_name = reinterpret_cast<char *>(iter->structureComponentData("signal_name"));
+            char* signal_name = reinterpret_cast<char*>(iter->structureComponentData("signal_name"));
             printf("%s\n", signal_name);
         }
 
-        if (test != 0) return 0;
+        if (test != 0) {
+            return 0;
+        }
     }
 
     //=======================================================================================================
@@ -224,7 +227,8 @@ int main()
 
     if (test == 4 || test == 0) {
 
-        const uda::Result& data = client.get("meta::listdata(context=data,cast=COLUMN,device=MAST,shot=22812)", "MAST::");
+        const uda::Result& data =
+            client.get("meta::listdata(context=data,cast=COLUMN,device=MAST,shot=22812)", "MAST::");
 
         // Check for errors
         if (data.errorCode() != uda::OK) {
@@ -269,14 +273,14 @@ int main()
             unsigned int count;
             unsigned int shot;
             int pass;
-            char **signal_name;
-            char **generic_name;
-            char **source_alias;
-            char **type;
-            char **description;
+            char** signal_name;
+            char** generic_name;
+            char** source_alias;
+            char** type;
+            char** description;
         };
 
-        DATALISTSIGNALS_C * sdata = reinterpret_cast<DATALISTSIGNALS_C *>(node.data());
+        DATALISTSIGNALS_C* sdata = reinterpret_cast<DATALISTSIGNALS_C*>(node.data());
 
         printf("\nstructure array count = %d\n\n", sdata->count);
 
@@ -300,9 +304,9 @@ int main()
             fprintf(stdout, "%s [%s] %d %zu\n", anames[i].c_str(), atypes[i].c_str(), bool(apoint[i]), arank[i]);
         }
 
-        int signalListCount = *reinterpret_cast<int *>(node.structureComponentData("count"));
+        int signalListCount = *reinterpret_cast<int*>(node.structureComponentData("count"));
 
-        char ** signalList = reinterpret_cast<char **>(node.structureComponentData("signal_name"));
+        char** signalList = reinterpret_cast<char**>(node.structureComponentData("signal_name"));
 
         for (int i = 0; i < signalListCount; ++i) {
             printf("%s\n", signalList[i]);
@@ -310,19 +314,21 @@ int main()
 
         // Use the High level method
 
-        std::vector<char *> signalVec = node.atomicVector("signal_name").as<char *>();
+        std::vector<char*> signalVec = node.atomicVector("signal_name").as<char*>();
 
-        for (std::vector<char *>::iterator iter = signalVec.begin(); iter != signalVec.end(); ++iter) {
+        for (std::vector<char*>::iterator iter = signalVec.begin(); iter != signalVec.end(); ++iter) {
             printf("%s\n", *iter);
         }
 
-        if (test != 0) return 0;
+        if (test != 0) {
+            return 0;
+        }
     }
 
     //=============================================================================================================
     // Code configuration signal set names
 
-    if(test == 5 || test == 0) {
+    if (test == 5 || test == 0) {
 
         struct SIGNALSET {
             int type;
@@ -333,7 +339,9 @@ int main()
             char configuration[20];
         };
 
-        const uda::Result& data = client.get("meta::getdata(context=meta,device=MAST,cast=column,class=code,system=specview,configuration=default,/latest)", "MAST::22812");
+        const uda::Result& data = client.get("meta::getdata(context=meta,device=MAST,cast=column,class=code,system="
+                                             "specview,configuration=default,/latest)",
+                                             "MAST::22812");
 
         // Check for errors
         if (data.errorCode() != uda::OK) {
@@ -380,56 +388,59 @@ int main()
 
         // Loop over all child nodes (structure array elements) and print the atomic data from each
 
-        char * name;
-        char * className;
-        char * system;
-        char * subSystem;
-        char * configuration;
+        char* name;
+        char* className;
+        char* system;
+        char* subSystem;
+        char* configuration;
 
         int i = 0;
         for (std::vector<uda::TreeNode>::iterator iter = signals.begin(); iter != signals.end(); ++iter) {
-            name = iter->atomicScalar("name").as<char *>();
-            className = iter->atomicScalar("class").as<char *>();
-            system = iter->atomicScalar("system").as<char *>();
-            subSystem = iter->atomicScalar("subSystem").as<char *>();
-            configuration = iter->atomicScalar("configuration").as<char *>();
-            fprintf(stdout, "[%d] name=%s, class=%s, system=%s, subsystem=%s, configuration=%s\n",
-                    i++, name, className, system, subSystem, configuration);
+            name = iter->atomicScalar("name").as<char*>();
+            className = iter->atomicScalar("class").as<char*>();
+            system = iter->atomicScalar("system").as<char*>();
+            subSystem = iter->atomicScalar("subSystem").as<char*>();
+            configuration = iter->atomicScalar("configuration").as<char*>();
+            fprintf(stdout, "[%d] name=%s, class=%s, system=%s, subsystem=%s, configuration=%s\n", i++, name, className,
+                    system, subSystem, configuration);
         }
 
         // Cast to known type and print
 
-        SIGNALSET *signalSet = static_cast<SIGNALSET *>(signals[0].data());
+        SIGNALSET* signalSet = static_cast<SIGNALSET*>(signals[0].data());
         std::cout << std::endl;
 
         for (int i = 0; i < signalSetCount; i++) {
-            printf("[%d] name=%s, classname=%s, system=%s\n",
-                   i, signalSet[i].name, signalSet[i].classname, signalSet[i].system);
+            printf("[%d] name=%s, classname=%s, system=%s\n", i, signalSet[i].name, signalSet[i].classname,
+                   signalSet[i].system);
         }
 
         // Use the High level method
 
-        std::vector<char *> names = node.atomicVector("name").as<char *>();
-        std::vector<char *> classNames = node.atomicVector("class").as<char *>();
-        std::vector<char *> systems = node.atomicVector("system").as<char *>();
-        std::vector<char *> subSystems = node.atomicVector("subSystem").as<char *>();
-        std::vector<char *> configurations = node.atomicVector("configuration").as<char *>();
+        std::vector<char*> names = node.atomicVector("name").as<char*>();
+        std::vector<char*> classNames = node.atomicVector("class").as<char*>();
+        std::vector<char*> systems = node.atomicVector("system").as<char*>();
+        std::vector<char*> subSystems = node.atomicVector("subSystem").as<char*>();
+        std::vector<char*> configurations = node.atomicVector("configuration").as<char*>();
 
         std::cout << std::endl;
         for (int i = 0; i < signalSetCount; i++) {
             printf("[%d] name=%s, classname=%s, system=%s\n", i, names[i], classNames[i], systems[i]);
         }
 
-        if(test != 0) return 0;
-
+        if (test != 0) {
+            return 0;
+        }
     }
 
-//=============================================================================================================
-// Code configuration signal set names
+    //=============================================================================================================
+    // Code configuration signal set names
 
-    if(test == 6 || test == 0) {
+    if (test == 6 || test == 0) {
 
-        const uda::Result& data = client.get("meta::getdata(context=meta,device=MAST,cast=column,class=code,system=specview,configuration=default,/latest)", "MAST::22812");
+        const uda::Result& data = client.get("meta::getdata(context=meta,device=MAST,cast=column,class=code,system="
+                                             "specview,configuration=default,/latest)",
+                                             "MAST::22812");
 
         uda::TreeNode root = data.tree();
 
@@ -449,7 +460,7 @@ int main()
         };
 
         // Cast to Array of structures
-        SIGNALSET * signalSet = static_cast<SIGNALSET *>(signals[0].data());
+        SIGNALSET* signalSet = static_cast<SIGNALSET*>(signals[0].data());
 
         struct COORDINATE {
             float r;
@@ -467,10 +478,10 @@ int main()
             COORDINATE coordinate;
         };
 
-        COIL * coilSet;
-        COORDINATE * coord;
+        COIL* coilSet;
+        COORDINATE* coord;
 
-        VLEN * specviewCoilSet = (VLEN *)calloc(signalSetCount, sizeof(VLEN));
+        VLEN* specviewCoilSet = (VLEN*)calloc(signalSetCount, sizeof(VLEN));
 
         printf("\nCOIL size = %zu\n", sizeof(COIL));
         printf("COORDINATE size = %zu\n\n", sizeof(COORDINATE));
@@ -511,14 +522,14 @@ int main()
             int count = coils.size();
             printf("\nCOIL structure array count = %d\n\n", count);
 
-            COIL * coilSet = (COIL *)malloc(count * sizeof(COIL));
+            COIL* coilSet = (COIL*)malloc(count * sizeof(COIL));
 
-            specviewCoilSet[i].data = (void *)coilSet;
-            specviewCoilSet[i].len  = count;
+            specviewCoilSet[i].data = (void*)coilSet;
+            specviewCoilSet[i].len = count;
 
             for (int j = 0; j < count; j++) {
-                char * signal = coils[j].atomicScalar("signal").as<char *>();
-                char * orientation = coils[j].atomicScalar("orientation").as<char *>();
+                char* signal = coils[j].atomicScalar("signal").as<char*>();
+                char* orientation = coils[j].atomicScalar("orientation").as<char*>();
                 short polarity = coils[j].atomicScalar("polarity").as<short>();
                 float calibration = coils[j].atomicScalar("calibration").as<float>();
                 int number = coils[j].atomicScalar("number").as<int>();
@@ -526,47 +537,47 @@ int main()
 
                 strcpy(coilSet[j].signal, signal);
                 strcpy(coilSet[j].orientation, orientation);
-                coilSet[j].polarity    = polarity;
+                coilSet[j].polarity = polarity;
                 coilSet[j].calibration = calibration;
-                coilSet[j].number      = number;
-                coilSet[j].dataStatus  = dataStatus;
+                coilSet[j].number = number;
+                coilSet[j].dataStatus = dataStatus;
 
-                COORDINATE * coord = static_cast<COORDINATE *>(coils[j].child(0).data());
-                coilSet[j].coordinate = * coord;
+                COORDINATE* coord = static_cast<COORDINATE*>(coils[j].child(0).data());
+                coilSet[j].coordinate = *coord;
 
                 printf("\n[%d] \n", j);
                 printf("A   R=%f, Z=%f, Phi=%f\n", coord->r, coord->z, coord->phi);
-                printf("B   R=%f, Z=%f, Phi=%f\n",
-                       coilSet[j].coordinate.r, coilSet[j].coordinate.z, coilSet[j].coordinate.phi);
+                printf("B   R=%f, Z=%f, Phi=%f\n", coilSet[j].coordinate.r, coilSet[j].coordinate.z,
+                       coilSet[j].coordinate.phi);
             }
 
             //  Using a cast to a known type ....
-            coilSet = static_cast<COIL *>(coils[0].data());
+            coilSet = static_cast<COIL*>(coils[0].data());
 
             for (int j = 0; j < count; j++) {
-                coord = static_cast<COORDINATE *>(coils[j].child(0).data());
+                coord = static_cast<COORDINATE*>(coils[j].child(0).data());
 
                 printf("\n[%d] \n", j);
                 printf("A   R=%f, Z=%f, Phi=%f\n", coord->r, coord->z, coord->phi);
 
-                coilSet[j].coordinate = * coord;
-                printf("B   R=%f, Z=%f, Phi=%f\n",
-                       coilSet[j].coordinate.r, coilSet[j].coordinate.z, coilSet[j].coordinate.phi);
+                coilSet[j].coordinate = *coord;
+                printf("B   R=%f, Z=%f, Phi=%f\n", coilSet[j].coordinate.r, coilSet[j].coordinate.z,
+                       coilSet[j].coordinate.phi);
             }
         }
 
         for (int i = 0; i < signalSetCount; i++) {
             for (int j = 0; j < specviewCoilSet[i].len; j++) {
-                coilSet = static_cast<COIL *>(specviewCoilSet[i].data);
-                printf("[%2d] [%2d] signal = %s, (R,Z,Phi) = (%f,%f,%f)\n",
-                       i, j, coilSet[j].signal,
+                coilSet = static_cast<COIL*>(specviewCoilSet[i].data);
+                printf("[%2d] [%2d] signal = %s, (R,Z,Phi) = (%f,%f,%f)\n", i, j, coilSet[j].signal,
                        coilSet[j].coordinate.r, coilSet[j].coordinate.z, coilSet[j].coordinate.phi);
             }
         }
 
-        if(test != 0) return 0;
+        if (test != 0) {
+            return 0;
+        }
     }
-
 
     //=============================================================================================================
     // Integer array tests
@@ -616,26 +627,26 @@ int main()
         std::vector<std::string> atypes = node.atomicTypes();
         std::vector<bool> apoint = node.atomicPointers(); // is this component a Pointer
         std::vector<std::size_t> arank = node.atomicRank();
-        std::vector<std::vector<std::size_t> > ashape = node.atomicShape();
+        std::vector<std::vector<std::size_t>> ashape = node.atomicShape();
 
         for (int i = 0; i < acount; i++) {
-            fprintf(stdout,"%s [%s] %d %zu\n",
-                    anames[i].c_str(), atypes[i].c_str(), bool(apoint[i]), arank[i]);
+            fprintf(stdout, "%s [%s] %d %zu\n", anames[i].c_str(), atypes[i].c_str(), bool(apoint[i]), arank[i]);
         }
 
         // Call a high level method for the data
 
         uda::Vector vec = node.atomicVector("value");
 
-        std::vector<int> idata  = vec.as<int>();
+        std::vector<int> idata = vec.as<int>();
 
         for (std::size_t i = 0; i < idata.size(); i++) {
             printf("value[%zu] = %d\n", i, idata[i]);
         }
 
-        if (test != 0) return 0;
+        if (test != 0) {
+            return 0;
+        }
     }
-
 
     if (test == 8 || test == 0) {
 
@@ -681,30 +692,32 @@ int main()
         std::vector<std::string> atypes = node.atomicTypes();
         std::vector<bool> apoint = node.atomicPointers(); // is this component a Pointer
         std::vector<std::size_t> arank = node.atomicRank();
-        std::vector<std::vector<std::size_t> > ashape = root.atomicShape();
+        std::vector<std::vector<std::size_t>> ashape = root.atomicShape();
 
         for (int i = 0; i < acount; i++) {
-            fprintf(stdout, "%s [%s] %d %zu %zu\n",
-                    anames[i].c_str(), atypes[i].c_str(), bool(apoint[i]), arank[i], ashape[i][0]);
+            fprintf(stdout, "%s [%s] %d %zu %zu\n", anames[i].c_str(), atypes[i].c_str(), bool(apoint[i]), arank[i],
+                    ashape[i][0]);
         }
 
         // Call a high level method for the data
 
         uda::Vector vec = node.atomicVector("value");
 
-        std::vector<int> idata  = vec.as<int>();
+        std::vector<int> idata = vec.as<int>();
 
         for (std::size_t i = 0; i < vec.size(); i++) {
             printf("value[%zu] = %d\n", i, idata[i]);
         }
 
-        if (test != 0) return 0;
+        if (test != 0) {
+            return 0;
+        }
     }
 
     //========================================================================================================
     // Test 9: IMAS IDS data access from a private file
 
-    if(test == 9 || test == 0) {
+    if (test == 9 || test == 0) {
 
         // Read the whole IDS file
         const uda::Result& data = client.get("/", "NETCDF::/home/dgm/IDAM/test/source/plugins/imas/ids_123_1.hd5");
@@ -749,26 +762,29 @@ int main()
         node.printUserDefinedTypeTable();
 
         // *** Searching by Type may fail as types are auto-generated to be unique.
-        // *** Searching without hierarchical structure will return the first data node satisfying the passed name - which may not be what is needed!
+        // *** Searching without hierarchical structure will return the first data node satisfying the passed name -
+        // which may not be what is needed!
         // *** Searching by structure component name should be a more robust method
 
         // node containing data with a specific component name
         node = root.findStructureComponent("magnetics.flux_loop.13.flux");
         node.printUserDefinedTypeTable();
 
-        if(test != 0) return 0;
+        if (test != 0) {
+            return 0;
+        }
     }
 
     //========================================================================================================
-    if(test == 10 || test == 0) {
+    if (test == 10 || test == 0) {
 
         struct FLUX {
-            float *data;
-            float *time;
+            float* data;
+            float* time;
         };
 
-        const uda::Result& data = client.get("/magnetics/flux_loop/13/flux",
-                "NETCDF::/home/dgm/IDAM/test/source/plugins/imas/ids_123_1.hd5");
+        const uda::Result& data =
+            client.get("/magnetics/flux_loop/13/flux", "NETCDF::/home/dgm/IDAM/test/source/plugins/imas/ids_123_1.hd5");
 
         // Check for errors
         if (data.errorCode() != uda::OK) {
@@ -805,35 +821,37 @@ int main()
         std::vector<std::string> atypes = node.atomicTypes();
         std::vector<bool> apoint = node.atomicPointers(); // is this component a Pointer
         std::vector<std::size_t> arank = node.atomicRank();
-        std::vector<std::vector<std::size_t> > ashape = root.atomicShape();
+        std::vector<std::vector<std::size_t>> ashape = root.atomicShape();
 
-        for (int i=0; i<acount; i++) {
-            fprintf(stdout,"%s [%s] %d %zu %zu\n",
-                anames[i].c_str(), atypes[i].c_str(), bool(apoint[i]), arank[i], ashape[i][0]);
+        for (int i = 0; i < acount; i++) {
+            fprintf(stdout, "%s [%s] %d %zu %zu\n", anames[i].c_str(), atypes[i].c_str(), bool(apoint[i]), arank[i],
+                    ashape[i][0]);
         }
 
         // Call a high level method for the data
 
         std::vector<float> time = node.atomicVector("data.time").as<float>();
 
-        for (size_t i=0; i<time.size(); i++) {
+        for (size_t i = 0; i < time.size(); i++) {
             printf("value[%zu] = %f\n", i, time[i]);
         }
 
-        if (test != 0) return 0;
+        if (test != 0) {
+            return 0;
+        }
     }
 
     //========================================================================================================
-    if(test == 11 || test == 0) {
+    if (test == 11 || test == 0) {
 
         struct POSITION {
-            float *phi;
-            float *rValues;
-            float *zValues;
+            float* phi;
+            float* rValues;
+            float* zValues;
         };
 
         const uda::Result& data = client.get("/magnetics/flux_loop/13/position",
-                "NETCDF::/home/dgm/IDAM/test/source/plugins/imas/ids_123_1.hd5");
+                                             "NETCDF::/home/dgm/IDAM/test/source/plugins/imas/ids_123_1.hd5");
 
         // Check for errors
         if (data.errorCode() != uda::OK) {
@@ -869,28 +887,30 @@ int main()
         std::vector<std::string> atypes = node.atomicTypes();
         std::vector<bool> apoint = node.atomicPointers(); // is this component a Pointer
         std::vector<std::size_t> arank = node.atomicRank();
-        std::vector<std::vector<std::size_t> > ashape = root.atomicShape();
+        std::vector<std::vector<std::size_t>> ashape = root.atomicShape();
 
-        for (int i=0; i<acount; i++) {
-            fprintf(stdout,"%s [%s] %d %zu %zu\n",
-                anames[i].c_str(), atypes[i].c_str(), bool(apoint[i]), arank[i], ashape[i][0]);
+        for (int i = 0; i < acount; i++) {
+            fprintf(stdout, "%s [%s] %d %zu %zu\n", anames[i].c_str(), atypes[i].c_str(), bool(apoint[i]), arank[i],
+                    ashape[i][0]);
         }
 
         // Call a high level method for the data
 
         std::vector<float> vals = node.atomicVector("rValues").as<float>();
 
-        for (std::size_t i=0; i<vals.size(); i++) {
+        for (std::size_t i = 0; i < vals.size(); i++) {
             printf("value[%zu] = %f\n", i, vals[i]);
         }
 
-        if (test != 0) return 0;
+        if (test != 0) {
+            return 0;
+        }
     }
 
     //========================================================================================================
-    if (test == 12 || test == 0) {  // return structures of known type
-        const uda::Result& data = client.get("/input/pfSystem/pfCoilsGeometry",
-                "NETCDF::/home/dgm/IDAM/test/source/plugins/imas/efitOut.nc");
+    if (test == 12 || test == 0) { // return structures of known type
+        const uda::Result& data =
+            client.get("/input/pfSystem/pfCoilsGeometry", "NETCDF::/home/dgm/IDAM/test/source/plugins/imas/efitOut.nc");
 
         // Check for errors
         if (data.errorCode() != uda::OK) {
@@ -908,7 +928,7 @@ int main()
 
         // Call a high level method for the data
 
-        std::vector<coilGeometryType *> pfCoils = root.structData("data").as<coilGeometryType>();
+        std::vector<coilGeometryType*> pfCoils = root.structData("data").as<coilGeometryType>();
 
         // or just extract what's needed
 
@@ -917,7 +937,9 @@ int main()
 
         printf("turnCount[%d][%d] = %f   %f\n", 0, 0, turnCount[0], pfCoils[0]->turnCount[0]);
 
-        if(test != 0) return 0;
+        if (test != 0) {
+            return 0;
+        }
     }
 
     return 0;

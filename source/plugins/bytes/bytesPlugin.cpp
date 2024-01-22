@@ -1,17 +1,18 @@
 #include "bytesPlugin.h"
 
-#include <plugins/uda_plugin_base.hpp>
-#include <clientserver/stringUtils.h>
-#include <clientserver/makeRequestBlock.h>
-#include <clientserver/errorLog.h>
 #include "logging/logging.h"
+#include <clientserver/errorLog.h>
+#include <clientserver/makeRequestBlock.h>
+#include <clientserver/stringUtils.h>
+#include <plugins/uda_plugin_base.hpp>
 
 #include <boost/filesystem.hpp>
 
 #include "readBytesNonOptimally.h"
 
-class BytesPlugin : public UDAPluginBase {
-public:
+class BytesPlugin : public UDAPluginBase
+{
+  public:
     BytesPlugin();
     int read(IDAM_PLUGIN_INTERFACE* plugin_interface);
     void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
@@ -19,12 +20,7 @@ public:
 };
 
 BytesPlugin::BytesPlugin()
-        : UDAPluginBase(
-        "BYTES",
-        1,
-        "read",
-        boost::filesystem::path(__FILE__).parent_path().append("help.txt").string()
-)
+    : UDAPluginBase("BYTES", 1, "read", boost::filesystem::path(__FILE__).parent_path().append("help.txt").string())
 {
     register_method("read", static_cast<UDAPluginBase::plugin_member_type>(&BytesPlugin::read));
 }

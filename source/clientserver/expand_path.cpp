@@ -26,11 +26,11 @@
 #include <cstdlib>
 #include <vector>
 
-#include <logging/logging.h>
 #include "udaErrors.h"
+#include <logging/logging.h>
 
-#include "stringUtils.h"
 #include "errorLog.h"
+#include "stringUtils.h"
 #ifdef SERVERBUILD
 #  include <server/serverStartup.h>
 #endif
@@ -38,22 +38,25 @@
 #ifdef NOEXPANDPATH
 //! Dummy functions used when path expansion is disabled using the NOEXPANDPATH compiler option
 
-char *hostid(char *host) {
+char* hostid(char* host)
+{
     return host;
 }
-char *pathid(char *path) {
+char* pathid(char* path)
+{
     return path;
 }
-void expandFilePath(char *path) {
+void expandFilePath(char* path)
+{
     return;
 }
 #else
 
-#include <boost/algorithm/string.hpp>
-#include <fmt/format.h>
+#  include <boost/algorithm/string.hpp>
+#  include <fmt/format.h>
 
-#define MAXPATHSUBS         10
-#define MAXPATHSUBSLENGTH   256
+#  define MAXPATHSUBS 10
+#  define MAXPATHSUBSLENGTH 256
 
 /**
  * The workstation (client host) name is obtained using the operating system command 'hostname'.
@@ -64,43 +67,46 @@ void expandFilePath(char *path) {
 char* hostid(char* host)
 {
 
-#ifdef _WIN32
+#  ifdef _WIN32
     DWORD size = STRING_LENGTH - 1;
     GetComputerName(host, &size);
     return host;
-#else
+#  else
 
     host[0] = '\0';
 
-#ifndef USEHOSTDOMAINNAME
+#    ifndef USEHOSTDOMAINNAME
     if ((gethostname(host, STRING_LENGTH - 1)) != 0) {
         char* env = getenv("HOSTNAME");
-        if (env != nullptr) copyString(env, host, STRING_LENGTH);
+        if (env != nullptr) {
+            copyString(env, host, STRING_LENGTH);
+        }
     }
-#else
-    if((gethostname(host, STRING_LENGTH-1)) == 0) {
+#    else
+    if ((gethostname(host, STRING_LENGTH - 1)) == 0) {
         char domain[STRING_LENGTH];
-        if((getdomainname(domain, STRING_LENGTH-1)) == 0) {
+        if ((getdomainname(domain, STRING_LENGTH - 1)) == 0) {
             int l1 = (int)strlen(host);
             int l2 = (int)strlen(domain);
-            if(l1+l2+1 < STRING_LENGTH-1) {
+            if (l1 + l2 + 1 < STRING_LENGTH - 1) {
                 strcat(host, ".");
                 strcat(host, domain);
             }
         }
     } else {
-        char *env = getenv("HOSTNAME");
-        if(env != nullptr) copyString(env, host, STRING_LENGTH);
+        char* env = getenv("HOSTNAME");
+        if (env != nullptr) {
+            copyString(env, host, STRING_LENGTH);
+        }
     }
-#endif
+#    endif
 
     if (host[0] == '\0') {
         addIdamError(UDA_CODE_ERROR_TYPE, "hostid", 999, "Unable to Identify the Host Name");
     }
     return host;
 
-#endif // _WIN32    
-
+#  endif // _WIN32
 }
 
 //----------------------------------------------------------------------------------------------
@@ -113,8 +119,8 @@ easily done by substitution.
 Examples:
     /.automount/funsrv1/root/home/xyz -> /net/funsrv1/home/xyz
     /.automount/funsrv1/root/home/xyz -> /home/xyz
-    /.automount/fuslsd/root/data/MAST_Data/013/13500/Pass0/amc0135.00 -> /net/fuslsd/data/MAST_Data/013/13500/Pass0/amc0135.00
-    /scratch/mydata -> /net/hostname/scratch/mydata
+    /.automount/fuslsd/root/data/MAST_Data/013/13500/Pass0/amc0135.00 ->
+/net/fuslsd/data/MAST_Data/013/13500/Pass0/amc0135.00 /scratch/mydata -> /net/hostname/scratch/mydata
 
 A list of Target path components is read from the environment variable UDA_PRIVATE_PATH_TARGET. The delimiter between
 components is , or : or ;.
@@ -156,10 +162,10 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
     std::vector<std::string> substitutes;
 
     if (path[0] == '\0') {
-        return 0;                // No replacement
+        return 0; // No replacement
     }
     if (environment->private_path_target[0] == '\0') {
-        return 0;    // No replacement
+        return 0; // No replacement
     }
 
     std::string work;
@@ -172,7 +178,8 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
     boost::split(targets, environment->private_path_target, boost::is_any_of(delimiters), boost::token_compress_on);
 
     // Parse substitutes
-    boost::split(substitutes, environment->private_path_substitute, boost::is_any_of(delimiters), boost::token_compress_on);
+    boost::split(substitutes, environment->private_path_substitute, boost::is_any_of(delimiters),
+                 boost::token_compress_on);
 
     if (targets.size() == substitutes.size()) {
         for (size_t i = 0; i < targets.size(); i++) {
@@ -195,9 +202,10 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
 
                 if (substitutes[i] == "*") {
                     // Wildcard found
-                    boost::split(sub_tokens, substitutes[i], boost::is_any_of(PATH_SEPARATOR), boost::token_compress_on);
+                    boost::split(sub_tokens, substitutes[i], boost::is_any_of(PATH_SEPARATOR),
+                                 boost::token_compress_on);
 
-                    auto is_wild = [](const std::string& token){ return token[0] == '0'; };
+                    auto is_wild = [](const std::string& token) { return token[0] == '0'; };
                     size_t sub_wild_count = std::count_if(sub_tokens.begin(), sub_tokens.end(), is_wild);
                     size_t target_wild_count = std::count_if(target_tokens.begin(), target_tokens.end(), is_wild);
 
@@ -208,11 +216,13 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
                 }
 
                 size_t lpath = 0;
-                bool match = true;                    // Test path tokens against target tokens
+                bool match = true; // Test path tokens against target tokens
                 for (size_t j = 0; j < target_tokens.size(); j++) {
                     match = match && (target_tokens[j] == path_tokens[j] || target_tokens[j][0] == '*');
-                    lpath = lpath + path_tokens[j].size() + 1;    // Find the split point
-                    if (!match) break;
+                    lpath = lpath + path_tokens[j].size() + 1; // Find the split point
+                    if (!match) {
+                        break;
+                    }
                 }
 
                 if (match) {
@@ -244,8 +254,10 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
                 }
 
             } else {
-                if (substitutes[i] == "*") {        // Wildcard found in substitute string!
-                    UDA_THROW_ERROR(999, "No wildcards are permitted in the substitute path unless matched by one in the target path.");
+                if (substitutes[i] == "*") { // Wildcard found in substitute string!
+                    UDA_THROW_ERROR(
+                        999,
+                        "No wildcards are permitted in the substitute path unless matched by one in the target path.");
                 }
 
                 size_t lpath = targets[i].size();
@@ -260,7 +272,8 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
         }
 
     } else {
-        UDA_THROW_ERROR(999, "Number of Path Targets and Substitutes is inconsistent. Correct the Environment Variables.");
+        UDA_THROW_ERROR(999,
+                        "Number of Path Targets and Substitutes is inconsistent. Correct the Environment Variables.");
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", path);
@@ -271,7 +284,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
 
 // Client side only
 
-#ifndef SERVERBUILD
+#  ifndef SERVERBUILD
 
 int linkReplacement(char* path)
 {
@@ -280,9 +293,9 @@ int linkReplacement(char* path)
     // Is the path a symbolic link not seen by the server? If so make a substitution.
     //----------------------------------------------------------------------------------------------
 
-#  ifdef _WIN32
+#    ifdef _WIN32
     return path != nullptr; // No check for windows
-#  else
+#    else
 
     int err;
     FILE* ph = nullptr;
@@ -298,7 +311,9 @@ int linkReplacement(char* path)
 
     errno = 0;
     if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
-        if (errno != 0) addIdamError(UDA_SYSTEM_ERROR_TYPE, "linkReplacement", errno, "");
+        if (errno != 0) {
+            addIdamError(UDA_SYSTEM_ERROR_TYPE, "linkReplacement", errno, "");
+        }
         err = 1;
         addIdamError(UDA_CODE_ERROR_TYPE, "linkReplacement", err, "Unable to Dereference Symbolic links");
         path[0] = '\0';
@@ -321,21 +336,22 @@ int linkReplacement(char* path)
             strcpy(path, p + 4);
             convertNonPrintable2(path);
             TrimString(path);
-            //expandFilePath(path);
+            // expandFilePath(path);
         }
     }
 
     return 0;
 
-#  endif // _WIN32    
+#    endif // _WIN32
 }
 
-#else
-int linkReplacement(char* path) {
+#  else
+int linkReplacement(char* path)
+{
     // Links are resolved client side only
     return 0;
 }
-#endif
+#  endif
 
 //------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
@@ -363,21 +379,21 @@ int linkReplacement(char* path) {
 int expandFilePath(char* path, const ENVIRONMENT* environment)
 {
 
-#ifdef _WIN32
+#  ifdef _WIN32
     return 0; // No expansion for windows
-#else
+#  else
 
     //
     //----------------------------------------------------------------------------------------------
 
-    char* fp = nullptr, * fp1 = nullptr, * env = nullptr;
+    char *fp = nullptr, *fp1 = nullptr, *env = nullptr;
     char file[STRING_LENGTH];
-#ifndef NOHOSTPREFIX
+#    ifndef NOHOSTPREFIX
     char host[STRING_LENGTH];
-#endif
+#    endif
     char cwd[STRING_LENGTH];
-    char ocwd[STRING_LENGTH];        // Current Working Directory
-    char opath[STRING_LENGTH];        // Original Path string
+    char ocwd[STRING_LENGTH];  // Current Working Directory
+    char opath[STRING_LENGTH]; // Original Path string
     char work[STRING_LENGTH];
     char work1[STRING_LENGTH];
     char scratch[STRING_LENGTH];
@@ -400,40 +416,42 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    /*! Workstations have local hard drives that may also be mounted on the user's network. If this local disk is accessible
-    by the UDA server it's name needs to be expanded using additional information. As all similar workstations on the network might use
-    the same name for the local disk area, the host name is used to uniquely identify where the disk is on the network.
+    /*! Workstations have local hard drives that may also be mounted on the user's network. If this local disk is
+    accessible by the UDA server it's name needs to be expanded using additional information. As all similar
+    workstations on the network might use the same name for the local disk area, the host name is used to uniquely
+    identify where the disk is on the network.
 
     The name model adopted to expand directory paths to local disk drives is: /local -> /NETNAME/HOSTNAME/local
 
     NETNAME is defined by the environment variable UDA_NETWORKNAME
 
-    The hostname of the local workstation is obtained directly from the operating system. If this fails, it can be included
-    directly in the UDA_NETWORKNAME environment variable.
+    The hostname of the local workstation is obtained directly from the operating system. If this fails, it can be
+    included directly in the UDA_NETWORKNAME environment variable.
 
-    The local disk directory, e.g. /scratch or /tmp, is targeted using the name defined by the environment variable UDA_SCRATCHNAME
+    The local disk directory, e.g. /scratch or /tmp, is targeted using the name defined by the environment variable
+    UDA_SCRATCHNAME
 
-    Only ONE local drive can be targeted using the environment variable (current set up could be expanded to use a list). The path
-    replacement function could be used to target other local directories.
+    Only ONE local drive can be targeted using the environment variable (current set up could be expanded to use a
+    list). The path replacement function could be used to target other local directories.
     */
 
-#ifdef SCRATCHDIR
+#    ifdef SCRATCHDIR
     sprintf(scratch, "/%s/", SCRATCHDIR);
     lscratch = (int)strlen(scratch);
-#else
+#    else
     strcpy(scratch, "/scratch/");
     lscratch = 9;
-#endif
+#    endif
 
-#ifdef NETPREFIX
+#    ifdef NETPREFIX
     strcpy(netname, NETPREFIX);
-#else
+#    else
     netname[0] = '\0';
-#endif
+#    endif
 
     // Override compiler options
 
-    if ((env = getenv("UDA_SCRATCHNAME")) != nullptr) {    // Check for Environment Variable
+    if ((env = getenv("UDA_SCRATCHNAME")) != nullptr) { // Check for Environment Variable
         snprintf(scratch, STRING_LENGTH, "/%s/", env);
         lscratch = (int)strlen(scratch);
     }
@@ -454,12 +472,12 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
     // Test for necessary expansion
 
-    t1 = strstr(path, "./") == nullptr;            // relative path?
-    t2 = strstr(path, "../") == nullptr;            // relative path?
-    t3 = strchr(path, '~') == nullptr;            // home path?
-    t4 = strchr(path, '$') == nullptr;            // No imbedded Environment variable
-    t5 = path[0] == '/';                    // No Relative Directory path
-    t6 = strncmp(path, scratch, lscratch) != 0;        // Not the Scratch directory
+    t1 = strstr(path, "./") == nullptr;         // relative path?
+    t2 = strstr(path, "../") == nullptr;        // relative path?
+    t3 = strchr(path, '~') == nullptr;          // home path?
+    t4 = strchr(path, '$') == nullptr;          // No imbedded Environment variable
+    t5 = path[0] == '/';                        // No Relative Directory path
+    t6 = strncmp(path, scratch, lscratch) != 0; // Not the Scratch directory
 
     if (t1 && t2 && t3 && t4 && t5 && t6) {
         // No Relative path name elements found
@@ -470,33 +488,39 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
     /*! The path argument has been stripped of any format or protocol prefix. If another prefix is within the path, this
     indicates the source is server to server. Therefore, the main source element is a URL and is not expanded.
 
-    If the ':' character is detected in the source prefix, it is assumed the request is is via a server (the : indicates a port
-    number) and the main source component is a URL. URLs are not path expanded.
+    If the ':' character is detected in the source prefix, it is assumed the request is is via a server (the : indicates
+    a port number) and the main source component is a URL. URLs are not path expanded.
 
     Server side functions are identified via the pair of parnethesis enclosing arguments. These are not expanded.
     */
 
-#ifdef SERVERELEMENTCHECK
-    int t7,t8,t9;
-    t7 = strstr(path,environment->api_delim) != nullptr;        // Pass request forward to another server
-    t8 = strchr(path,':') != nullptr;                // Port number => Server
-    t9 = strchr(path,'(') != nullptr && strchr(path,')') != nullptr;    // Server Side Function
+#    ifdef SERVERELEMENTCHECK
+    int t7, t8, t9;
+    t7 = strstr(path, environment->api_delim) != nullptr;              // Pass request forward to another server
+    t8 = strchr(path, ':') != nullptr;                                 // Port number => Server
+    t9 = strchr(path, '(') != nullptr && strchr(path, ')') != nullptr; // Server Side Function
 
-    if(t7 || t8 || t9) return 0;                    // Server host, protocol, and server side functions
-#endif
+    if (t7 || t8 || t9) {
+        return 0; // Server host, protocol, and server side functions
+    }
+#    endif
 
     //------------------------------------------------------------------------------------------------------------------
     // Test if the Path begins with an Integer or /Integer => Resolved by the Server Data Plugin
 
     if (path[0] == '/') {
-        strcpy(work, path + 1);                // the leading character is a / so ignore
+        strcpy(work, path + 1); // the leading character is a / so ignore
     } else {
         strcpy(work, path);
     }
 
     token = strtok(work, "/");
 
-    if (token != nullptr) if (IsNumber(token)) return 0;    // Is the First token an integer number?
+    if (token != nullptr) {
+        if (IsNumber(token)) {
+            return 0; // Is the First token an integer number?
+        }
+    }
 
     //------------------------------------------------------------------------------------------------------------------
     //! Identify the Current Working Directory
@@ -522,11 +546,12 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         strcpy(ocwd, cwd);
 
-        //! Does the path NOT contain a path directory separator character => filename only so prepend the CWD and return
+        //! Does the path NOT contain a path directory separator character => filename only so prepend the CWD and
+        //! return
 
-        if ((fp = strrchr(path, '/')) == nullptr) {        // Search backwards - extract filename
+        if ((fp = strrchr(path, '/')) == nullptr) { // Search backwards - extract filename
             strcpy(work1, path);
-            snprintf(path, STRING_LENGTH, "%s/%s", cwd, work1);        // prepend the CWD and return
+            snprintf(path, STRING_LENGTH, "%s/%s", cwd, work1); // prepend the CWD and return
             if ((err = linkReplacement(path)) != 0) {
                 return err;
             }
@@ -538,19 +563,21 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
                 // Not the Scratch directory ?
                 return 0;
             }
-            fp = strrchr(path, '/');                    // extract filename
+            fp = strrchr(path, '/'); // extract filename
         }
 
-        strcpy(file, &fp[1]);                // Filename
-        fp[1] = '\0';                    // Split the path string: path now contains directory only
+        strcpy(file, &fp[1]); // Filename
+        fp[1] = '\0';         // Split the path string: path now contains directory only
 
         //! Does the Path contain with an Environment variable (Not resolved by the function chdir!)
 
         fp = nullptr;
         lpath = (int)strlen(path);
-        if (lpath > 0) fp = strchr(path + 1, '$');
+        if (lpath > 0) {
+            fp = strchr(path + 1, '$');
+        }
 
-        if (path[0] == '$' || fp != nullptr) {            // Search for a $ character
+        if (path[0] == '$' || fp != nullptr) { // Search for a $ character
 
             if (fp != nullptr) {
                 strncpy(work, path, fp - path);
@@ -559,10 +586,12 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
                 if ((fp1 = strchr(fp, '/')) != nullptr) {
                     strncpy(work1, fp + 1, fp1 - fp - 1);
                     work1[fp1 - fp - 1] = '\0';
-                } else { strcpy(work1, fp + 1); }
+                } else {
+                    strcpy(work1, fp + 1);
+                }
 
                 if ((env = getenv(work1)) !=
-                    nullptr) {    // Check for Environment Variable: If not found then assume it's server side
+                    nullptr) { // Check for Environment Variable: If not found then assume it's server side
                     if (env[0] == '/') {
                         strcpy(work1, env + 1);
                     } else {
@@ -579,7 +608,9 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
                     strncpy(work, path + 1, fp - path - 1);
                     work[fp - path - 1] = '\0';
                     strcpy(work1, fp);
-                } else { strcpy(work, path + 1); }
+                } else {
+                    strcpy(work, path + 1);
+                }
 
                 if ((env = getenv(work)) != nullptr) {
                     // Check for Environment Variable: If not found then assume it's server side
@@ -606,9 +637,11 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
             if (chdir(ocwd) != 0) {
                 UDA_THROW_ERROR(999, "Failed to chdir back to original working directory");
             };
-            strcpy(path, opath);        // Return to the Original path name
-            UDA_LOG(UDA_LOG_DEBUG, "Unable to identify the Directory of the file: %s\n"
-                                   "The server will know if a true error exists: Plugin & Environment dependent", path);
+            strcpy(path, opath); // Return to the Original path name
+            UDA_LOG(UDA_LOG_DEBUG,
+                    "Unable to identify the Directory of the file: %s\n"
+                    "The server will know if a true error exists: Plugin & Environment dependent",
+                    path);
             return 0;
         }
 
@@ -642,16 +675,17 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         //! Prepend the expanded/resolved directory name to the File Name
 
-        snprintf(path, STRING_LENGTH, "%s/%s", work1, file);        // Prepend the path to the filename
+        snprintf(path, STRING_LENGTH, "%s/%s", work1, file); // Prepend the path to the filename
 
-    }    // End of t1 - t5 tests
-
+    } // End of t1 - t5 tests
 
     //----------------------------------------------------------------------------------------------
     /*! Symbolic Links might not be visible by the server: Pass the true location
-    */
+     */
 
-    if ((err = linkReplacement(path)) != 0) return err;
+    if ((err = linkReplacement(path)) != 0) {
+        return err;
+    }
 
     //----------------------------------------------------------------------------------------------
     /*! Does the path contain the client workstation's local Scratch directory (Must be visible by the server)
@@ -661,23 +695,24 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
     */
 
-#ifndef NOHOSTPREFIX
+#    ifndef NOHOSTPREFIX
 
-    t6 = strncmp(path, scratch, lscratch) != 0;        // Retest for the Scratch directory
+    t6 = strncmp(path, scratch, lscratch) != 0; // Retest for the Scratch directory
 
-    if (!t6) {                        // Scratch directory used without hostname prefix
+    if (!t6) { // Scratch directory used without hostname prefix
         strcpy(work, path);
-        if (!strncmp(work, scratch, lscratch)) {        // case sensistive
+        if (!strncmp(work, scratch, lscratch)) { // case sensistive
 
-            if ((env = getenv("HOSTNAME")) != nullptr) {    // Check for a system Environment Variable
+            if ((env = getenv("HOSTNAME")) != nullptr) { // Check for a system Environment Variable
                 strcpy(host, env);
             } else {
-                hostid(host);                // Identify the Name of the Current Workstation or Host
+                hostid(host); // Identify the Name of the Current Workstation or Host
             }
 
             // TODO: refactor this function so that we do not have to guess the path size
             if (strlen(netname) > 0 && strlen(host) > 0) {
-                snprintf(path, STRING_LENGTH, "/%s/%s%s", netname, host, work);    // prepend /netname/hostname to /scratch/...
+                snprintf(path, STRING_LENGTH, "/%s/%s%s", netname, host,
+                         work); // prepend /netname/hostname to /scratch/...
             } else {
                 if (strlen(netname) > 0) {
                     snprintf(path, STRING_LENGTH, "/%s%s", netname, work);
@@ -690,7 +725,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
         }
     }
 
-#endif
+#    endif
 
     //----------------------------------------------------------------------------------------------
     /*! Does the Path to a user's Private Files contain network components not seen by the server?
@@ -700,7 +735,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
     return err;
 
-#endif // _WIN32 
+#  endif // _WIN32
 }
 
 //----------------------------------------------------------------------------------------------
@@ -713,12 +748,12 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 char* pathid(char* path)
 {
 
-#ifdef _WIN32
-    return path;        // No check for windows
-#else
+#  ifdef _WIN32
+    return path; // No check for windows
+#  else
 
     char* p;
-    char work[STRING_LENGTH];        // Are these consistent with the system MAX_PATH?
+    char work[STRING_LENGTH]; // Are these consistent with the system MAX_PATH?
     char pwd[STRING_LENGTH];
     strcpy(work, path);
 
@@ -756,7 +791,7 @@ char* pathid(char* path)
     }
     path[0] = '\0';
     return path;
-#endif // _WIN32    
+#  endif // _WIN32
 }
 
 #endif

@@ -2,19 +2,22 @@
 
 #include <leveldb/c.h>
 
-#include <plugins/uda_plugin_base.hpp>
 #include <boost/filesystem.hpp>
+#include <plugins/uda_plugin_base.hpp>
 
-#include <clientserver/stringUtils.h>
 #include "initStructs.h"
-#include "udaTypes.h"
 #include "udaPlugin.h"
+#include "udaTypes.h"
+#include <clientserver/stringUtils.h>
 
-namespace uda {
-namespace keyvalue {
+namespace uda
+{
+namespace keyvalue
+{
 
-class Plugin : public UDAPluginBase {
-public:
+class Plugin : public UDAPluginBase
+{
+  public:
     Plugin();
     int write(IDAM_PLUGIN_INTERFACE* plugin_interface);
     int read(IDAM_PLUGIN_INTERFACE* plugin_interface);
@@ -22,7 +25,7 @@ public:
     void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override;
     void reset() override;
 
-private:
+  private:
     leveldb_readoptions_t* roptions_ = nullptr;
     leveldb_writeoptions_t* woptions_ = nullptr;
     leveldb_options_t* options_ = nullptr;
@@ -30,20 +33,15 @@ private:
 };
 
 Plugin::Plugin()
-        : UDAPluginBase(
-        "KEYVALUE",
-        1,
-        "read",
-        boost::filesystem::path(__FILE__).parent_path().append("help.txt").string()
-)
+    : UDAPluginBase("KEYVALUE", 1, "read", boost::filesystem::path(__FILE__).parent_path().append("help.txt").string())
 {
     register_method("write", static_cast<UDAPluginBase::plugin_member_type>(&Plugin::write));
     register_method("read", static_cast<UDAPluginBase::plugin_member_type>(&Plugin::read));
     register_method("delete", static_cast<UDAPluginBase::plugin_member_type>(&Plugin::del));
 }
 
-}
-}
+} // namespace keyvalue
+} // namespace uda
 
 int keyValue(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {

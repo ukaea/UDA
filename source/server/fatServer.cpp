@@ -1,35 +1,34 @@
-#include <cstdio>
 #include <cassert>
 #include <cerrno>
+#include <cstdio>
 
-#include <clientserver/copyStructs.h>
 #include "initStructs.h"
+#include "logging/logging.h"
+#include "struct.h"
+#include <clientserver/copyStructs.h>
+#include <clientserver/errorLog.h>
 #include <clientserver/manageSockets.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/protocolXML.h>
-#include <clientserver/errorLog.h>
 #include <clientserver/xdrlib.h>
 #include <logging/accessLog.h>
 #include <server/serverPlugin.h>
 #include <structures/parseIncludeFile.h>
-#include "logging/logging.h"
-#include "struct.h"
 
+#include "createXDRStream.h"
 #include "getServerEnvironment.h"
+#include "initPluginList.h"
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
-#include "initPluginList.h"
-#include "createXDRStream.h"
 
 #ifdef NONETCDFPLUGIN
-void ncclose(int fh) {
-}
+void ncclose(int fh) {}
 #endif
 
-static PLUGINLIST pluginList;      // List of all data reader plugins (internal and external shared libraries)
-ENVIRONMENT environment;    // Holds local environment variable values
+static PLUGINLIST pluginList; // List of all data reader plugins (internal and external shared libraries)
+ENVIRONMENT environment;      // Holds local environment variable values
 
 static USERDEFINEDTYPELIST* user_defined_type_list = nullptr;
 static LOGMALLOCLIST* log_malloc_list = nullptr;
@@ -65,7 +64,6 @@ void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
 {
     log_malloc_list = logmalloclist_in;
 }
-
 }
 #endif
 
@@ -85,9 +83,8 @@ static int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blo
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
-int
-fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0,
-          DATA_BLOCK_LIST* data_blocks0)
+int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0,
+              DATA_BLOCK_LIST* data_blocks0)
 {
     assert(data_blocks0 != nullptr);
 
@@ -104,7 +101,7 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
     initLogStructList(&log_struct_list);
 
     int server_tot_block_time = 0;
-    int server_timeout = TIMEOUT;        // user specified Server Lifetime
+    int server_timeout = TIMEOUT; // user specified Server Lifetime
 
     IoData io_data = {};
     io_data.server_tot_block_time = &server_tot_block_time;
@@ -118,14 +115,14 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
 
     initServerBlock(server_block, server_version);
     initDataBlockList(&data_blocks);
-    initActions(&actions_desc);        // There may be a Sequence of Actions to Apply
+    initActions(&actions_desc); // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
 
     USERDEFINEDTYPELIST parseduserdefinedtypelist;
 
     getInitialUserDefinedTypeList(&user_defined_type_list);
     parseduserdefinedtypelist = *user_defined_type_list;
-    //printUserDefinedTypeList(*userdefinedtypelist);
+    // printUserDefinedTypeList(*userdefinedtypelist);
 
     log_malloc_list = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
     initLogMallocList(log_malloc_list);
@@ -149,8 +146,7 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
         return err;
     }
 
-    udaAccessLog(FALSE, client_block, request_block, *server_block,
-                 total_datablock_size);
+    udaAccessLog(FALSE, client_block, request_block, *server_block, total_datablock_size);
 
     err = doFatServerClosedown(server_block, &data_blocks, &actions_desc, &actions_sig, data_blocks0);
 
@@ -158,8 +154,8 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
     free(user_defined_type_list);
     user_defined_type_list = nullptr;
 
-    //freeMallocLogList(logmalloclist);
-    //free(logmalloclist);
+    // freeMallocLogList(logmalloclist);
+    // free(logmalloclist);
 
     return err;
 }
@@ -178,8 +174,7 @@ fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* 
  * Client deletes stale files automatically on startup.
  * @return
  */
-static int
-processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list, IoData* io_data)
+static int processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list, IoData* io_data)
 {
     int err = 0;
 
@@ -310,8 +305,8 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[i];
         if (protocol_version >= 6) {
-            if ((err = udaServerPlugin(request, &metadata_block->data_source, &metadata_block->signal_desc,
-                                       &pluginList, getServerEnvironment())) != 0) {
+            if ((err = udaServerPlugin(request, &metadata_block->data_source, &metadata_block->signal_desc, &pluginList,
+                                       getServerEnvironment())) != 0) {
                 return err;
             }
         } else {
@@ -416,7 +411,7 @@ int startupFatServer(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduser
 {
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;
-    //static int fileParsed = 0;
+    // static int fileParsed = 0;
 
     //-------------------------------------------------------------------------
     // Open and Initialise the Socket List (Once Only)
@@ -432,7 +427,7 @@ int startupFatServer(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduser
     getInitialUserDefinedTypeList(&user_defined_type_list);
     parseduserdefinedtypelist = *user_defined_type_list;
     printUserDefinedTypeList(*user_defined_type_list);
-    user_defined_type_list = nullptr;                                     // Startup State
+    user_defined_type_list = nullptr; // Startup State
 
     /*
     // this step needs doing once only - the first time a generalised user defined structure is encountered.
