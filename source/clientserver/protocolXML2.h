@@ -3,8 +3,9 @@
 
 #include "export.h"
 #include "genStructs.h"
+
+#include <cstdio>
 #include <rpc/rpc.h>
-#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
