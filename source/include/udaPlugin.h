@@ -7,6 +7,7 @@
 #include "export.h"
 #include "udaTypes.h"
 #include "pluginStructs.h"
+#include <clientserver/errorLog.h>
 
 #ifdef __cplusplus
 extern "C" {

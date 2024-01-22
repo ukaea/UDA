@@ -5,8 +5,8 @@
 
 #include <string>
 
-#include <plugins/pluginStructs.h>
-#include <clientserver/export.h>
+#include "pluginStructs.h"
+#include "export.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/optional.hpp>
@@ -16,6 +16,7 @@
 #include <fmt/format.h>
 
 #include "udaPlugin.h"
+#include "logging/logging.h"
 
 class UDAPluginBase;
 

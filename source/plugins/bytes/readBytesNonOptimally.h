@@ -5,7 +5,7 @@
 #include "export.h"
 
 #include <string>
-#include <plugins/pluginStructs.h>
+#include "pluginStructs.h"
 
 int readBytes(const std::string& path, IDAM_PLUGIN_INTERFACE* plugin_interface);
 
