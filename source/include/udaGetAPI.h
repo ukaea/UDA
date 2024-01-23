@@ -8,16 +8,16 @@ extern "C" {
 #endif
 
 #ifdef FATCLIENT
-#  define idamGetAPI idamGetAPIFat
-#  define idamGetBatchAPI idamGetBatchAPIFat
-#  define idamGetAPIWithHost idamGetAPIWithHostFat
-#  define idamGetBatchAPIWithHost idamGetBatchAPIWithHostFat
+#  define udaGetAPI udaGetAPIFat
+#  define udaGetBatchAPI udaGetBatchAPIFat
+#  define udaGetAPIWithHost udaGetAPIWithHostFat
+#  define udaGetBatchAPIWithHost udaGetBatchAPIWithHostFat
 #endif
 
-LIBRARY_API int idamGetAPI(const char* data_object, const char* data_source);
-LIBRARY_API int idamGetBatchAPI(const char** uda_signals, const char** sources, int count, int* handles);
-LIBRARY_API int idamGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port);
-LIBRARY_API int idamGetBatchAPIWithHost(const char** uda_signals, const char** sources, int count, int* handles,
+LIBRARY_API int udaGetAPI(const char* data_object, const char* data_source);
+LIBRARY_API int udaGetBatchAPI(const char** uda_signals, const char** sources, int count, int* handles);
+LIBRARY_API int udaGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port);
+LIBRARY_API int udaGetBatchAPIWithHost(const char** uda_signals, const char** sources, int count, int* handles,
                                         const char* host, int port);
 
 #ifdef __cplusplus

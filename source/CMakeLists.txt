@@ -90,6 +90,8 @@ set( HEADERS
   include/udaPutAPI.h
   include/udaStructs.h
   include/udaTypes.h
+  include/logging.h
+  include/errorLog.h
 )
 install( FILES uda.h ${CMAKE_BINARY_DIR}/source/version.h DESTINATION include/uda )
 install( FILES ${HEADERS} DESTINATION include/uda )

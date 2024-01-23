@@ -5,16 +5,16 @@
 #include "udaStructs.h"
 
 #ifdef FATCLIENT
-#  define idamPutListAPI idamPutListAPIFat
-#  define idamPutAPI idamPutAPIFat
+#  define udaPutListAPI udaPutListAPIFat
+#  define udaPutAPI udaPutAPIFat
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-LIBRARY_API int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlockList);
-LIBRARY_API int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);
+LIBRARY_API int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlockList);
+LIBRARY_API int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);
 
 #ifdef __cplusplus
 }

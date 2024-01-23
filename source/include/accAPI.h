@@ -19,103 +19,103 @@ LIBRARY_API DATA_BLOCK* acc_getCurrentDataBlock(CLIENT_FLAGS* client_flags);
 
 LIBRARY_API int acc_getCurrentDataBlockIndex(CLIENT_FLAGS* client_flags);
 
-LIBRARY_API int acc_growIdamDataBlocks(CLIENT_FLAGS* client_flags);
+LIBRARY_API int acc_growUdaDataBlocks(CLIENT_FLAGS* client_flags);
 
-LIBRARY_API int acc_getIdamNewDataHandle(CLIENT_FLAGS* client_flags);
+LIBRARY_API int acc_getUdaNewDataHandle(CLIENT_FLAGS* client_flags);
 
 LIBRARY_API void acc_freeDataBlocks();
 
-LIBRARY_API void setIdamPrivateFlag(unsigned int flag);
+LIBRARY_API void setUdaPrivateFlag(unsigned int flag);
 
-LIBRARY_API void resetIdamPrivateFlag(unsigned int flag);
+LIBRARY_API void resetUdaPrivateFlag(unsigned int flag);
 
-LIBRARY_API void setIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag);
+LIBRARY_API void setUdaClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag);
 
-LIBRARY_API void resetIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag);
+LIBRARY_API void resetUdaClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag);
 
-LIBRARY_API void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags);
+LIBRARY_API void setUdaProperty(const char* property, CLIENT_FLAGS* client_flags);
 
-LIBRARY_API int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags);
+LIBRARY_API int getUdaProperty(const char* property, const CLIENT_FLAGS* client_flags);
 
-LIBRARY_API void resetIdamProperty(const char* property, CLIENT_FLAGS* client_flags);
+LIBRARY_API void resetUdaProperty(const char* property, CLIENT_FLAGS* client_flags);
 
-LIBRARY_API void resetIdamProperties(CLIENT_FLAGS* client_flags);
+LIBRARY_API void resetUdaProperties(CLIENT_FLAGS* client_flags);
 
-LIBRARY_API CLIENT_BLOCK saveIdamProperties(const CLIENT_FLAGS* client_flags);
+LIBRARY_API CLIENT_BLOCK saveUdaProperties(const CLIENT_FLAGS* client_flags);
 
-LIBRARY_API void restoreIdamProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags);
+LIBRARY_API void restoreUdaProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags);
 
-LIBRARY_API CLIENT_BLOCK* getIdamProperties(int handle);
+LIBRARY_API CLIENT_BLOCK* getUdaProperties(int handle);
 
-LIBRARY_API CLIENT_BLOCK* getIdamDataProperties(int handle);
+LIBRARY_API CLIENT_BLOCK* getUdaDataProperties(int handle);
 
 #ifndef __APPLE__
 
-LIBRARY_API int getIdamMemoryFree();
+LIBRARY_API int getUdaMemoryFree();
 
-LIBRARY_API int getIdamMemoryUsed();
+LIBRARY_API int getUdaMemoryUsed();
 
 #endif
 
-LIBRARY_API void putIdamErrorModel(int handle, int model, int param_n, const float* params);
+LIBRARY_API void putUdaErrorModel(int handle, int model, int param_n, const float* params);
 
-LIBRARY_API void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, const float* params);
+LIBRARY_API void putUdaDimErrorModel(int handle, int ndim, int model, int param_n, const float* params);
 
-LIBRARY_API void putIdamServer(const char* host, int port);
+LIBRARY_API void putUdaServer(const char* host, int port);
 
-LIBRARY_API void putIdamServerHost(const char* host);
+LIBRARY_API void putUdaServerHost(const char* host);
 
-LIBRARY_API void putIdamServerPort(int port);
+LIBRARY_API void putUdaServerPort(int port);
 
-LIBRARY_API void putIdamServerSocket(int socket);
+LIBRARY_API void putUdaServerSocket(int socket);
 
-LIBRARY_API void getIdamServer(const char** host, int* port, int* socket);
+LIBRARY_API void getUdaServer(const char** host, int* port, int* socket);
 
 LIBRARY_API UDA_ERROR_STACK* getUdaServerErrorStack();
 
-LIBRARY_API int getIdamErrorCode(int handle);
+LIBRARY_API int getUdaErrorCode(int handle);
 
-LIBRARY_API const char* getIdamErrorMsg(int handle);
+LIBRARY_API const char* getUdaErrorMsg(int handle);
 
-LIBRARY_API int getIdamSourceStatus(int handle);
+LIBRARY_API int getUdaSourceStatus(int handle);
 
-LIBRARY_API int getIdamSignalStatus(int handle);
+LIBRARY_API int getUdaSignalStatus(int handle);
 
-LIBRARY_API int getIdamDataStatus(int handle);
+LIBRARY_API int getUdaDataStatus(int handle);
 
-LIBRARY_API int getIdamLastHandle(CLIENT_FLAGS* client_flags);
+LIBRARY_API int getUdaLastHandle(CLIENT_FLAGS* client_flags);
 
-LIBRARY_API int getIdamDataNum(int handle);
+LIBRARY_API int getUdaDataNum(int handle);
 
-LIBRARY_API int getIdamRank(int handle);
+LIBRARY_API int getUdaRank(int handle);
 
-LIBRARY_API int getIdamOrder(int handle);
+LIBRARY_API int getUdaOrder(int handle);
 
-LIBRARY_API unsigned int getIdamCachePermission(int handle);
+LIBRARY_API unsigned int getUdaCachePermission(int handle);
 
-LIBRARY_API unsigned int getIdamTotalDataBlockSize(int handle);
+LIBRARY_API unsigned int getUdaTotalDataBlockSize(int handle);
 
-LIBRARY_API int getIdamDataType(int handle);
+LIBRARY_API int getUdaDataType(int handle);
 
-LIBRARY_API int getIdamDataOpaqueType(int handle);
+LIBRARY_API int getUdaDataOpaqueType(int handle);
 
-LIBRARY_API void* getIdamDataOpaqueBlock(int handle);
+LIBRARY_API void* getUdaDataOpaqueBlock(int handle);
 
-LIBRARY_API int getIdamDataOpaqueCount(int handle);
+LIBRARY_API int getUdaDataOpaqueCount(int handle);
 
-LIBRARY_API void getIdamErrorModel(int handle, int* model, int* param_n, float* params);
+LIBRARY_API void getUdaErrorModel(int handle, int* model, int* param_n, float* params);
 
-LIBRARY_API int getIdamErrorType(int handle);
+LIBRARY_API int getUdaErrorType(int handle);
 
-LIBRARY_API int getIdamDataTypeId(const char* type);
+LIBRARY_API int getUdaDataTypeId(const char* type);
 
-LIBRARY_API int getIdamDataTypeSize(int type);
+LIBRARY_API int getUdaDataTypeSize(int type);
 
-LIBRARY_API void getIdamErrorModel(int handle, int* model, int* param_n, float* params);
+LIBRARY_API void getUdaErrorModel(int handle, int* model, int* param_n, float* params);
 
-LIBRARY_API int getIdamErrorAsymmetry(int handle);
+LIBRARY_API int getUdaErrorAsymmetry(int handle);
 
-LIBRARY_API int getIdamErrorModelId(const char* model);
+LIBRARY_API int getUdaErrorModelId(const char* model);
 
 LIBRARY_API char* acc_getSyntheticData(int handle);
 
@@ -125,161 +125,161 @@ LIBRARY_API void acc_setSyntheticData(int handle, char* data);
 
 LIBRARY_API void acc_setSyntheticDimData(int handle, int ndim, char* data);
 
-LIBRARY_API char* getIdamSyntheticData(int handle);
+LIBRARY_API char* getUdaSyntheticData(int handle);
 
-LIBRARY_API char* getIdamData(int handle);
+LIBRARY_API char* getUdaData(int handle);
 
-LIBRARY_API void getIdamDataTdi(int handle, char* data);
+LIBRARY_API void getUdaDataTdi(int handle, char* data);
 
-LIBRARY_API char* getIdamAsymmetricError(int handle, int above);
+LIBRARY_API char* getUdaAsymmetricError(int handle, int above);
 
-LIBRARY_API char* getIdamDataErrLo(int handle);
+LIBRARY_API char* getUdaDataErrLo(int handle);
 
-LIBRARY_API char* getIdamDataErrHi(int handle);
+LIBRARY_API char* getUdaDataErrHi(int handle);
 
-LIBRARY_API int getIdamDataErrAsymmetry(int handle);
+LIBRARY_API int getUdaDataErrAsymmetry(int handle);
 
-LIBRARY_API void acc_setIdamDataErrAsymmetry(int handle, int asymmetry);
+LIBRARY_API void acc_setUdaDataErrAsymmetry(int handle, int asymmetry);
 
-LIBRARY_API void acc_setIdamDataErrType(int handle, int type);
+LIBRARY_API void acc_setUdaDataErrType(int handle, int type);
 
-LIBRARY_API void acc_setIdamDataErrLo(int handle, char* errlo);
+LIBRARY_API void acc_setUdaDataErrLo(int handle, char* errlo);
 
-LIBRARY_API char* getIdamDimErrLo(int handle, int ndim);
+LIBRARY_API char* getUdaDimErrLo(int handle, int ndim);
 
-LIBRARY_API char* getIdamDimErrHi(int handle, int ndim);
+LIBRARY_API char* getUdaDimErrHi(int handle, int ndim);
 
-LIBRARY_API int getIdamDimErrAsymmetry(int handle, int ndim);
+LIBRARY_API int getUdaDimErrAsymmetry(int handle, int ndim);
 
-LIBRARY_API void acc_setIdamDimErrAsymmetry(int handle, int ndim, int asymmetry);
+LIBRARY_API void acc_setUdaDimErrAsymmetry(int handle, int ndim, int asymmetry);
 
-LIBRARY_API void acc_setIdamDimErrType(int handle, int ndim, int type);
+LIBRARY_API void acc_setUdaDimErrType(int handle, int ndim, int type);
 
-LIBRARY_API void acc_setIdamDimErrLo(int handle, int ndim, char* errlo);
+LIBRARY_API void acc_setUdaDimErrLo(int handle, int ndim, char* errlo);
 
-LIBRARY_API char* getIdamError(int handle);
+LIBRARY_API char* getUdaError(int handle);
 
-LIBRARY_API void getIdamDoubleData(int handle, double* fp);
+LIBRARY_API void getUdaDoubleData(int handle, double* fp);
 
-LIBRARY_API void getIdamFloatData(int handle, float* fp);
+LIBRARY_API void getUdaFloatData(int handle, float* fp);
 
-LIBRARY_API void getIdamGenericData(int handle, void* data);
+LIBRARY_API void getUdaGenericData(int handle, void* data);
 
-LIBRARY_API void getIdamFloatAsymmetricError(int handle, int above, float* fp);
+LIBRARY_API void getUdaFloatAsymmetricError(int handle, int above, float* fp);
 
-LIBRARY_API void getIdamFloatError(int handle, float* fp);
+LIBRARY_API void getUdaFloatError(int handle, float* fp);
 
-LIBRARY_API void getIdamDBlock(int handle, DATA_BLOCK* db);
+LIBRARY_API void getUdaDBlock(int handle, DATA_BLOCK* db);
 
-LIBRARY_API DATA_BLOCK* getIdamDataBlock(int handle);
+LIBRARY_API DATA_BLOCK* getUdaDataBlock(int handle);
 
-LIBRARY_API const char* getIdamDataLabel(int handle);
+LIBRARY_API const char* getUdaDataLabel(int handle);
 
-LIBRARY_API void getIdamDataLabelTdi(int handle, char* label);
+LIBRARY_API void getUdaDataLabelTdi(int handle, char* label);
 
-LIBRARY_API const char* getIdamDataUnits(int handle);
+LIBRARY_API const char* getUdaDataUnits(int handle);
 
-LIBRARY_API void getIdamDataUnitsTdi(int handle, char* units);
+LIBRARY_API void getUdaDataUnitsTdi(int handle, char* units);
 
-LIBRARY_API const char* getIdamDataDesc(int handle);
+LIBRARY_API const char* getUdaDataDesc(int handle);
 
-LIBRARY_API void getIdamDataDescTdi(int handle, char* desc);
+LIBRARY_API void getUdaDataDescTdi(int handle, char* desc);
 
-LIBRARY_API int getIdamDimNum(int handle, int ndim);
+LIBRARY_API int getUdaDimNum(int handle, int ndim);
 
-LIBRARY_API int getIdamDimType(int handle, int ndim);
+LIBRARY_API int getUdaDimType(int handle, int ndim);
 
-LIBRARY_API int getIdamDimErrorType(int handle, int ndim);
+LIBRARY_API int getUdaDimErrorType(int handle, int ndim);
 
-LIBRARY_API int getIdamDimErrorAsymmetry(int handle, int ndim);
+LIBRARY_API int getUdaDimErrorAsymmetry(int handle, int ndim);
 
-LIBRARY_API void getIdamDimErrorModel(int handle, int ndim, int* model, int* param_n, float* params);
+LIBRARY_API void getUdaDimErrorModel(int handle, int ndim, int* model, int* param_n, float* params);
 
-LIBRARY_API char* getIdamSyntheticDimData(int handle, int ndim);
+LIBRARY_API char* getUdaSyntheticDimData(int handle, int ndim);
 
-LIBRARY_API char* getIdamDimData(int handle, int ndim);
+LIBRARY_API char* getUdaDimData(int handle, int ndim);
 
-LIBRARY_API const char* getIdamDimLabel(int handle, int ndim);
+LIBRARY_API const char* getUdaDimLabel(int handle, int ndim);
 
-LIBRARY_API const char* getIdamDimUnits(int handle, int ndim);
+LIBRARY_API const char* getUdaDimUnits(int handle, int ndim);
 
-LIBRARY_API void getIdamDimLabelTdi(int handle, int ndim, char* label);
+LIBRARY_API void getUdaDimLabelTdi(int handle, int ndim, char* label);
 
-LIBRARY_API void getIdamDimUnitsTdi(int handle, int ndim, char* units);
+LIBRARY_API void getUdaDimUnitsTdi(int handle, int ndim, char* units);
 
-LIBRARY_API void getIdamDoubleDimData(int handle, int ndim, double* fp);
+LIBRARY_API void getUdaDoubleDimData(int handle, int ndim, double* fp);
 
-LIBRARY_API void getIdamFloatDimData(int handle, int ndim, float* fp);
+LIBRARY_API void getUdaFloatDimData(int handle, int ndim, float* fp);
 
-LIBRARY_API void getIdamGenericDimData(int handle, int ndim, void* data);
+LIBRARY_API void getUdaGenericDimData(int handle, int ndim, void* data);
 
-LIBRARY_API DIMS* getIdamDimBlock(int handle, int ndim);
+LIBRARY_API DIMS* getUdaDimBlock(int handle, int ndim);
 
-LIBRARY_API char* getIdamDimAsymmetricError(int handle, int ndim, int above);
+LIBRARY_API char* getUdaDimAsymmetricError(int handle, int ndim, int above);
 
-LIBRARY_API char* getIdamDimError(int handle, int ndim);
+LIBRARY_API char* getUdaDimError(int handle, int ndim);
 
-LIBRARY_API void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp);
+LIBRARY_API void getUdaFloatDimAsymmetricError(int handle, int ndim, int above, float* fp);
 
-LIBRARY_API void getIdamFloatDimError(int handle, int ndim, float* fp);
+LIBRARY_API void getUdaFloatDimError(int handle, int ndim, float* fp);
 
-LIBRARY_API DATA_SYSTEM* getIdamDataSystem(int handle);
+LIBRARY_API DATA_SYSTEM* getUdaDataSystem(int handle);
 
-LIBRARY_API SYSTEM_CONFIG* getIdamSystemConfig(int handle);
+LIBRARY_API SYSTEM_CONFIG* getUdaSystemConfig(int handle);
 
-LIBRARY_API DATA_SOURCE* getIdamDataSource(int handle);
+LIBRARY_API DATA_SOURCE* getUdaDataSource(int handle);
 
-LIBRARY_API SIGNAL* getIdamSignal(int handle);
+LIBRARY_API SIGNAL* getUdaSignal(int handle);
 
-LIBRARY_API SIGNAL_DESC* getIdamSignalDesc(int handle);
+LIBRARY_API SIGNAL_DESC* getUdaSignalDesc(int handle);
 
-LIBRARY_API const char* getIdamFileFormat(int handle);
+LIBRARY_API const char* getUdaFileFormat(int handle);
 
-LIBRARY_API void initIdamDataBlock(DATA_BLOCK* str);
+LIBRARY_API void initUdaDataBlock(DATA_BLOCK* str);
 
-LIBRARY_API void initIdamRequestBlock(REQUEST_BLOCK* str);
+LIBRARY_API void initUdaRequestBlock(REQUEST_BLOCK* str);
 
 LIBRARY_API int idamDataCheckSum(void* data, int data_n, int type);
 
-LIBRARY_API int getIdamDataCheckSum(int handle);
+LIBRARY_API int getUdaDataCheckSum(int handle);
 
-LIBRARY_API int getIdamDimDataCheckSum(int handle, int ndim);
+LIBRARY_API int getUdaDimDataCheckSum(int handle, int ndim);
 
-LIBRARY_API void lockIdamThread(CLIENT_FLAGS* client_flags);
+LIBRARY_API void lockUdaThread(CLIENT_FLAGS* client_flags);
 
 LIBRARY_API void unlockUdaThread(CLIENT_FLAGS* client_flags);
 
-LIBRARY_API void freeIdamThread(CLIENT_FLAGS* client_flags);
+LIBRARY_API void freeUdaThread(CLIENT_FLAGS* client_flags);
 
-LIBRARY_API int getIdamThreadLastHandle();
+LIBRARY_API int getUdaThreadLastHandle();
 
-LIBRARY_API void putIdamThreadLastHandle(int handle);
+LIBRARY_API void putUdaThreadLastHandle(int handle);
 
-LIBRARY_API int getIdamMaxThreadCount();
+LIBRARY_API int getUdaMaxThreadCount();
 
-LIBRARY_API SERVER_BLOCK getIdamThreadServerBlock();
+LIBRARY_API SERVER_BLOCK getUdaThreadServerBlock();
 
-LIBRARY_API CLIENT_BLOCK getIdamThreadClientBlock();
+LIBRARY_API CLIENT_BLOCK getUdaThreadClientBlock();
 
-LIBRARY_API void putIdamThreadServerBlock(SERVER_BLOCK* str);
+LIBRARY_API void putUdaThreadServerBlock(SERVER_BLOCK* str);
 
-LIBRARY_API void putIdamThreadClientBlock(CLIENT_BLOCK* str);
+LIBRARY_API void putUdaThreadClientBlock(CLIENT_BLOCK* str);
 
-LIBRARY_API int setIdamDataTree(int handle);
+LIBRARY_API int setUdaDataTree(int handle);
 
 // Return a specific data tree
 
-LIBRARY_API NTREE* getIdamDataTree(int handle);
+LIBRARY_API NTREE* getUdaDataTree(int handle);
 
 // Return a user defined data structure definition
 
-LIBRARY_API USERDEFINEDTYPE* getIdamUserDefinedType(int handle);
+LIBRARY_API USERDEFINEDTYPE* getUdaUserDefinedType(int handle);
 
-LIBRARY_API USERDEFINEDTYPELIST* getIdamUserDefinedTypeList(int handle);
+LIBRARY_API USERDEFINEDTYPELIST* getUdaUserDefinedTypeList(int handle);
 
-LIBRARY_API LOGMALLOCLIST* getIdamLogMallocList(int handle);
+LIBRARY_API LOGMALLOCLIST* getUdaLogMallocList(int handle);
 
-LIBRARY_API NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target);
+LIBRARY_API NTREE* findUdaNTreeStructureDefinition(NTREE* node, const char* target);
 
 #ifdef __cplusplus
 }

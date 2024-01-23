@@ -13,8 +13,8 @@ extern "C" {
 #endif
 
 #ifdef FATCLIENT
-#  define idamClient idamClientFat
-#  define idamFreeAll idamFreeAllFat
+#  define udaClient udaClientFat
+#  define udaFreeAll udaFreeAllFat
 #  define udaClientFlags udaClientFlagsFat
 #endif
 
@@ -74,37 +74,37 @@ LIBRARY_API const char* udaGetBuildVersion();
  */
 LIBRARY_API const char* udaGetBuildDate();
 
-LIBRARY_API const char* getIdamServerHost();
+LIBRARY_API const char* getUdaServerHost();
 
-LIBRARY_API int getIdamServerPort();
+LIBRARY_API int getUdaServerPort();
 
-LIBRARY_API int getIdamServerSocket();
+LIBRARY_API int getUdaServerSocket();
 
-LIBRARY_API const char* getIdamClientDOI();
+LIBRARY_API const char* getUdaClientDOI();
 
-LIBRARY_API const char* getIdamServerDOI();
+LIBRARY_API const char* getUdaServerDOI();
 
-LIBRARY_API const char* getIdamClientOSName();
+LIBRARY_API const char* getUdaClientOSName();
 
-LIBRARY_API const char* getIdamServerOSName();
+LIBRARY_API const char* getUdaServerOSName();
 
-LIBRARY_API int getIdamClientVersion();
+LIBRARY_API int getUdaClientVersion();
 
-LIBRARY_API int getIdamServerVersion();
+LIBRARY_API int getUdaServerVersion();
 
-LIBRARY_API int getIdamServerErrorCode();
+LIBRARY_API int getUdaServerErrorCode();
 
-LIBRARY_API const char* getIdamServerErrorMsg();
+LIBRARY_API const char* getUdaServerErrorMsg();
 
-LIBRARY_API int getIdamServerErrorStackSize();
+LIBRARY_API int getUdaServerErrorStackSize();
 
-LIBRARY_API int getIdamServerErrorStackRecordType(int record);
+LIBRARY_API int getUdaServerErrorStackRecordType(int record);
 
-LIBRARY_API int getIdamServerErrorStackRecordCode(int record);
+LIBRARY_API int getUdaServerErrorStackRecordCode(int record);
 
-LIBRARY_API const char* getIdamServerErrorStackRecordLocation(int record);
+LIBRARY_API const char* getUdaServerErrorStackRecordLocation(int record);
 
-LIBRARY_API const char* getIdamServerErrorStackRecordMsg(int record);
+LIBRARY_API const char* getUdaServerErrorStackRecordMsg(int record);
 
 LIBRARY_API void closeAllConnections();
 
