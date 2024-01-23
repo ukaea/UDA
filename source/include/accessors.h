@@ -22,7 +22,7 @@ extern "C" {
  * @param lastname Returns the name of the element, i.e., the name of the last item in the name hierarchy.
  * @return the Tree Node containing the named element.
  */
-LIBRARY_API NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
+LIBRARY_API NTREE* udaFindNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
                                                 const char** lastname);
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
@@ -35,7 +35,7 @@ LIBRARY_API NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NT
  * @param lastname Returns the name of the Structure, i.e., the name of the last node in the name hierarchy.
  * @return the Data Tree Node with the structure name.
  */
-LIBRARY_API NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
+LIBRARY_API NTREE* udaFindNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
                                        const char** lastname);
 
 /** Find (search type A) and return a Pointer to the Data Tree Node with a data structure that contains a named element.
@@ -47,7 +47,7 @@ LIBRARY_API NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntre
  * a/b/c. This element may be either a structure itself or an atomic typed element.
  * @return the Data Tree Node.
  */
-LIBRARY_API NTREE* findNTreeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
+LIBRARY_API NTREE* udaFindNTreeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
 
 /** Find (search type A) and return a Pointer to the Child Data Tree Node with a data structure that contains a named
  * element.
@@ -59,7 +59,7 @@ LIBRARY_API NTREE* findNTreeStructureComponent(LOGMALLOCLIST* logmalloclist, NTR
  * a/b/c. This element may be either a structure itself or an atomic typed element.
  * @return the Data Tree Node.
  */
-LIBRARY_API NTREE* findNTreeChildStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
+LIBRARY_API NTREE* udaFindNTreeChildStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
  *
@@ -69,7 +69,7 @@ LIBRARY_API NTREE* findNTreeChildStructureComponent(LOGMALLOCLIST* logmalloclist
  * @param target The name of the Structure (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
  * @return the Data Tree Node.
  */
-LIBRARY_API NTREE* findNTreeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
+LIBRARY_API NTREE* udaFindNTreeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
  *
@@ -79,7 +79,7 @@ LIBRARY_API NTREE* findNTreeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree
  * @param target The name of the Structure (case sensitive) using a hierachical naming syntax a.b.c or a/b/c.
  * @return the child Data Tree Node.
  */
-LIBRARY_API NTREE* findNTreeChildStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
+LIBRARY_API NTREE* udaFindNTreeChildStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
 
 /** Find and return a Pointer to a Data Tree Node with a data structure located at a specific memory location.
  *
@@ -89,7 +89,7 @@ LIBRARY_API NTREE* findNTreeChildStructure(LOGMALLOCLIST* logmalloclist, NTREE* 
  * @param data The heap address of the data.
  * @return the Data Tree Node.
  */
-LIBRARY_API NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data);
+LIBRARY_API NTREE* udaFindNTreeStructureMalloc(NTREE* ntree, void* data);
 
 /** Locate a tree node with structured data having the specified Structure Definition name.
  *
@@ -99,7 +99,7 @@ LIBRARY_API NTREE* findNTreeStructureMalloc(NTREE* ntree, void* data);
  * @param target The name of the Structure Definition.
  * @return A pointer to the First tree node found with the targeted structure definition.
  */
-LIBRARY_API NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target);
+LIBRARY_API NTREE* udaFindNTreeStructureDefinition(NTREE* ntree, const char* target);
 
 /** Locate a tree node with structured data having the specified Structure Definition name.
  *
@@ -109,7 +109,7 @@ LIBRARY_API NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target
  * @param target The name of the Structure Definition.
  * @return A pointer to the First tree node found with the targeted structure definition.
  */
-LIBRARY_API NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target);
+LIBRARY_API NTREE* udaFindNTreeStructureComponentDefinition(NTREE* tree, const char* target);
 
 /** Locate a tree node with structured data having a Specific Structure Class.
  *
@@ -167,7 +167,7 @@ LIBRARY_API int udaRegulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree,
  * @param ntree A pointer to a tree node. If NULL the root node is assumed.
  * @return the Count of structured data array elements.
  */
-LIBRARY_API int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
+LIBRARY_API int udaGetNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
 
 /** Return the Size (bytes) of the structured data array attached to this tree node.
  *
@@ -176,7 +176,7 @@ LIBRARY_API int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* n
  * @param ntree A pointer to a tree node. If NULL the root node is assumed.
  * @return the Size (bytes) of the structured data array.
  */
-LIBRARY_API int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
+LIBRARY_API int udaGetNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
 
 /** Return the rank of the structured data array attached to this tree node.
  *
@@ -185,7 +185,7 @@ LIBRARY_API int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE* nt
  * @param ntree A pointer to a tree node. If NULL the root node is assumed.
  * @return The rank of the structured data array.
  */
-LIBRARY_API int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
+LIBRARY_API int udaGetNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
 
 /** Return the shape of the structured data array attached to this tree node.
  *
@@ -194,7 +194,7 @@ LIBRARY_API int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* nt
  * @param ntree A pointer to a tree node. If NULL the root node is assumed.
  * @return A pointer to the integer shape array of the structured data array.
  */
-LIBRARY_API int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
+LIBRARY_API int* udaGetNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
 
 /** Return a pointer to the structured data type name of the data array attached to this tree node.
  *
@@ -203,7 +203,7 @@ LIBRARY_API int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* 
  * @param ntree A pointer to a tree node. If NULL the root node is assumed.
  * @return the data type name of the structured data array.
  */
-LIBRARY_API const char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
+LIBRARY_API const char* udaGetNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
 
 /** Return a pointer to the data attached to this tree node.
  *
@@ -212,7 +212,7 @@ LIBRARY_API const char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclis
  * @param ntree A pointer to a tree node. If NULL the root node is assumed.
  * @return A void pointer to the data .
  */
-LIBRARY_API void* getNodeStructureData(NTREE* ntree);
+LIBRARY_API void* udaGetNodeStructureData(NTREE* ntree);
 
 //----------------------------------------------------------------------------------------------------------
 // Sundry utility functions
@@ -227,7 +227,7 @@ LIBRARY_API void* getNodeStructureData(NTREE* ntree);
  * @param imagecount The number of bytes in the image text block.
  * @return Void
  */
-LIBRARY_API void printImage(const char* image, int imagecount);
+LIBRARY_API void udaPrintImage(const char* image, int imagecount);
 
 //----------------------------------------------------------------------------------------------------------
 /**User defined structure field definition for common types
@@ -241,10 +241,10 @@ LIBRARY_API void printImage(const char* image, int imagecount);
  * @param type_id Enumerated key indicating the type of data field, e.g. float array
  * @return Void
  */
-LIBRARY_API void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset,
+LIBRARY_API void udaDefineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset,
                              unsigned short type_id);
 
-LIBRARY_API void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int offset,
+LIBRARY_API void udaDefineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int offset,
                                      int size);
 
 #ifdef __cplusplus
