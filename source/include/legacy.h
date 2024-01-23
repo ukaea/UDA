@@ -21,17 +21,17 @@ inline int idamGetAPI(const char* data_object, const char* data_source)
     return udaGetAPI(data_object, data_source);
 }
 
-int idamGetBatchAPI(const char** uda_signals, const char** sources, int count, int* handles)
+inline int idamGetBatchAPI(const char** uda_signals, const char** sources, int count, int* handles)
 {
     return udaGetBatchAPI(uda_signals, sources, count, handles);
 }
 
-int idamGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port)
+inline int idamGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port)
 {
     return udaGetAPIWithHost(data_object, data_source, host, port);
 }
 
-int idamGetBatchAPIWithHost(const char** uda_signals, const char** sources, int count, int* handles, const char* host,
+inline int idamGetBatchAPIWithHost(const char** uda_signals, const char** sources, int count, int* handles, const char* host,
                             int port)
 {
     return udGaetBatchAPIWithHost(uda_signals, sources, count, handles, host, port);
@@ -219,316 +219,316 @@ inline int acc_growIdamDataBlocks()
 
 inline int acc_getIdamNewDataHandle()
 {
-    return acc_getUdaNewDataHandle();
+    return udaGetNewDataHandle();    
 }
 
 inline void setIdamPrivateFlag(unsigned int flag)
 {
-    return setUdaPrivateFlag(flag);
+    return udaSetPrivateFlag(flag);    
 }
 
 inline void resetIdamPrivateFlag(unsigned int flag)
 {
-    return resetUdaPrivateFlag(flag);
+    return udaResetPrivateFlag(flag);    
 }
 
 inline void setIdamClientFlag(unsigned int flag)
 {
-    return setUdaClientFlag(unsigned int flag)
+    return udaSetClientFlag(unsigned int flag)    
 }
 
 inline void resetIdamClientFlag(unsigned int flag)
 {
-    return resetUdaClientFlag(unsigned int flag)
+    return udaResetClientFlag(unsigned int flag)    
 }
 
 inline void setIdamProperty(const char* property)
 {
-    return setUdaProperty(const char* property)
+    return udaSetProperty(const char* property)    
 }
 
 inline int getIdamProperty(const char* property)
 {
-    return getUdaProperty(const char* property)
+    return udaGetProperty(const char* property)    
 }
 
 inline void resetIdamProperty(const char* property)
 {
-    return resetUdaProperty(const char* property)
+    return udaResetProperty(const char* property)    
 }
 
 inline void resetIdamProperties()
 {
-    return resetUdaProperties();
+    return udaResetProperties();    
 }
 
 inline CLIENT_BLOCK saveIdamProperties()
 {
-    return saveUdaProperties();
+    return udaSaveProperties();    
 }
 
 inline void restoreIdamProperties(CLIENT_BLOCK cb)
 {
-    return restoreUdaProperties(CLIENT_BLOCK cb)
+    return udaRestoreProperties(CLIENT_BLOCK cb)    
 }
 
 inline CLIENT_BLOCK* getIdamProperties(int handle)
 {
-    return getUdaProperties(handle);
+    return udaGetProperties(handle);    
 }
 
 inline CLIENT_BLOCK* getIdamDataProperties(int handle)
 {
-    return getUdaDataProperties(handle);
+    return udaGetDataProperties(handle);    
 }
 
 #  ifndef __APPLE__
 
 inline int getIdamMemoryFree()
 {
-    return getUdaMemoryFree()
+    return udaGetMemoryFree()    
 }
 
 inline int getIdamMemoryUsed()
 {
-    return getUdaMemoryUsed()
+    return udaGetMemoryUsed()    
 }
 
 #  endif
 
 inline void putIdamErrorModel(int handle, int model, int param_n, const float* params)
 {
-    return putUdaErrorModel(handle, model, param_n, params)
+    return udaPutErrorModel(handle, model, param_n, params)    
 }
 
 inline void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, const float* params)
 {
-    return putUdaDimErrorModel(handle, ndim, model, param_n, params)
+    return udaPutDimErrorModel(handle, ndim, model, param_n, params)    
 }
 
 inline void putIdamServer(const char* host, int port)
 {
-    return putUdaServer(host, port)
+    return udaPutServer(host, port)    
 }
 
 inline void putIdamServerHost(const char* host)
 {
-    return putUdaServerHost(host);
+    return udaPutServerHost(host);    
 }
 
 inline void putIdamServerPort(int port)
 {
-    return putUdaServerPort(port);
+    return udaPutServerPort(port);    
 }
 
 inline void putIdamServerSocket(int socket)
 {
-    return putUdaServerSocket(socket);
+    return udaPutServerSocket(socket);    
 }
 
 inline void getIdamServer(const char** host, int* port, int* socket)
 {
-    return getUdaServer(host, port, socket)
+    return udaGetServer(host, port, socket)    
 }
 
 inline int getIdamErrorCode(int handle)
 {
-    return getUdaErrorCode(handle);
+    return udaGetErrorCode(handle);    
 }
 
 inline const char* getIdamErrorMsg(int handle)
 {
-    return getUdaErrorMsg(handle);
+    return udaGetErrorMsg(handle);    
 }
 
 inline int getIdamSourceStatus(int handle)
 {
-    return getUdaSourceStatus(handle);
+    return udaGetSourceStatus(handle);    
 }
 
 inline int getIdamSignalStatus(int handle)
 {
-    return getUdaSignalStatus(handle);
+    return udaGetSignalStatus(handle);    
 }
 
 inline int getIdamDataStatus(int handle)
 {
-    return getUdaDataStatus(handle);
+    return udaGetDataStatus(handle);    
 }
 
 inline int getIdamLastHandle()
 {
-    return getUdaLastHandle();
+    return udaGetLastHandle();    
 }
 
 inline int getIdamDataNum(int handle)
 {
-    return getUdaDataNum(handle);
+    return udaGetDataNum(handle);    
 }
 
 inline int getIdamRank(int handle)
 {
-    return getUdaRank(handle);
+    return udaGetRank(handle);    
 }
 
 inline int getIdamOrder(int handle)
 {
-    return getUdaOrder(handle);
+    return udaGetOrder(handle);    
 }
 
 inline unsigned int getIdamCachePermission(int handle)
 {
-    return getUdaCachePermission(handle);
+    return udaGetCachePermission(handle);    
 }
 
 inline unsigned int getIdamTotalDataBlockSize(int handle)
 {
-    return getUdaTotalDataBlockSize(handle);
+    return udaGetTotalDataBlockSize(handle);    
 }
 
 inline int getIdamDataType(int handle)
 {
-    return getUdaDataType(handle);
+    return udaGetDataType(handle);    
 }
 
 inline int getIdamDataOpaqueType(int handle)
 {
-    return getUdaDataOpaqueType(handle);
+    return udaGetDataOpaqueType(handle);    
 }
 
 inline void* getIdamDataOpaqueBlock(int handle)
 {
-    return getUdaDataOpaqueBlock(handle);
+    return udaGetDataOpaqueBlock(handle);    
 }
 
 inline int getIdamDataOpaqueCount(int handle)
 {
-    return getUdaDataOpaqueCount(handle);
+    return udaGetDataOpaqueCount(handle);    
 }
 
 inline void getIdamErrorModel(int handle, int* model, int* param_n, float* params)
 {
-    return getUdaErrorModel(handle, model, param_n, params)
+    return udaGetErrorModel(handle, model, param_n, params)    
 }
 
 inline int getIdamErrorType(int handle)
 {
-    return getUdaErrorType(handle);
+    return udaGetErrorType(handle);    
 }
 
 inline int getIdamDataTypeId(const char* type)
 {
-    return getUdaDataTypeId(type);
+    return udaGetDataTypeId(type);    
 }
 
 inline int getIdamDataTypeSize(int type)
 {
-    return getUdaDataTypeSize(type);
+    return udaGetDataTypeSize(type);    
 }
 
 inline void getIdamErrorModel(int handle, int* model, int* param_n, float* params)
 {
-    return getUdaErrorModel(handle, model, param_n, params)
+    return udaGetErrorModel(handle, model, param_n, params)    
 }
 
 inline int getIdamErrorAsymmetry(int handle)
 {
-    return getUdaErrorAsymmetry(handle);
+    return udaGetErrorAsymmetry(handle);    
 }
 
 inline int getIdamErrorModelId(const char* model)
 {
-    return getUdaErrorModelId(model);
+    return udaGetErrorModelId(model);    
 }
 
 inline char* getIdamSyntheticData(int handle)
 {
-    return getUdaSyntheticData(handle);
+    return udaGetSyntheticData(handle);    
 }
 
 inline char* getIdamData(int handle)
 {
-    return getUdaData(handle);
+    return udaGetData(handle);    
 }
 
 inline void getIdamDataTdi(int handle, char* data)
 {
-    return getUdaDataTdi(handle, data)
+    return udaGetDataTdi(handle, data)    
 }
 
 inline char* getIdamAsymmetricError(int handle, int above)
 {
-    return getUdaAsymmetricError(handle, above)
+    return udaGetAsymmetricError(handle, above)    
 }
 
 inline char* getIdamDataErrLo(int handle)
 {
-    return getUdaDataErrLo(handle);
+    return udaGetDataErrLo(handle);    
 }
 
 inline char* getIdamDataErrHi(int handle)
 {
-    return getUdaDataErrHi(handle);
+    return udaGetDataErrHi(handle);    
 }
 
 inline int getIdamDataErrAsymmetry(int handle)
 {
-    return getUdaDataErrAsymmetry(handle);
+    return udaGetDataErrAsymmetry(handle);    
 }
 
 inline void acc_setIdamDataErrAsymmetry(int handle, int asymmetry)
 {
-    return acc_setUdaDataErrAsymmetry(handle, asymmetry)
+    return udaSetDataErrAsymmetry(handle, asymmetry)    
 }
 
 inline void acc_setIdamDataErrType(int handle, int type)
 {
-    return acc_setUdaDataErrType(handle, type)
+    return udaSetDataErrType(handle, type)    
 }
 
 inline void acc_setIdamDataErrLo(int handle, char* errlo)
 {
-    return acc_setUdaDataErrLo(handle, errlo)
+    return udaSetDataErrLo(handle, errlo)    
 }
 
 inline char* getIdamDimErrLo(int handle, int ndim)
 {
-    return getUdaDimErrLo(handle, ndim)
+    return udaGetDimErrLo(handle, ndim)    
 }
 
 inline char* getIdamDimErrHi(int handle, int ndim)
 {
-    return getUdaDimErrHi(handle, ndim)
+    return udaGetDimErrHi(handle, ndim)    
 }
 
 inline int getIdamDimErrAsymmetry(int handle, int ndim)
 {
-    return getUdaDimErrAsymmetry(int handle, int ndim)
+    return udaGetDimErrAsymmetry(int handle, int ndim)    
 }
 
 inline void acc_setIdamDimErrAsymmetry(int handle, int ndim, int asymmetry)
 {
-    return acc_setUdaDimErrAsymmetry(int handle, int ndim, int asymmetry)
+    return udaSetDimErrAsymmetry(int handle, int ndim, int asymmetry)    
 }
 
 inline void acc_setIdamDimErrType(int handle, int ndim, int type)
 {
-    return acc_setUdaDimErrType(int handle, int ndim, int type)
+    return udaSetDimErrType(int handle, int ndim, int type)    
 }
 
 inline void acc_setIdamDimErrLo(int handle, int ndim, char* errlo)
 {
-    return acc_setUdaDimErrLo(int handle, int ndim, char* errlo)
+    return udaSetDimErrLo(int handle, int ndim, char* errlo)    
 }
 
 inline char* getIdamError(int handle)
 {
-    return getUdaError(handle);
+    return udaGetError(handle);    
 }
 
 inline void getIdamDoubleData(int handle, double* fp)
 {
-    return getUdaDoubleData(handle, fp)
+    return udaGetDoubleData(handle, fp)    
 }
 
 inline void getIdamFloatData(int handle, float* fp)
@@ -538,172 +538,172 @@ inline void getIdamFloatData(int handle, float* fp)
 
 inline void getIdamGenericData(int handle, void* data)
 {
-    return getUdaGenericData(handle, data)
+    return udaGetGenericData(handle, data)    
 }
 
 inline void getIdamFloatAsymmetricError(int handle, int above, float* fp)
 {
-    return getUdaFloatAsymmetricError(int handle, int above, float* fp)
+    return udaGetFloatAsymmetricError(int handle, int above, float* fp)    
 }
 
 inline void getIdamFloatError(int handle, float* fp)
 {
-    return getUdaFloatError(handle, fp)
+    return udaGetFloatError(handle, fp)    
 }
 
 inline void getIdamDBlock(int handle, DATA_BLOCK* db)
 {
-    return getUdaDBlock(handle, db)
+    return udaGetDBlock(handle, db)    
 }
 
 inline DATA_BLOCK* getIdamDataBlock(int handle)
 {
-    return getUdaDataBlock(handle);
+    return udaGetDataBlock(handle);    
 }
 
 inline const char* getIdamDataLabel(int handle)
 {
-    return getUdaDataLabel(handle);
+    return udaGetDataLabel(handle);    
 }
 
 inline void getIdamDataLabelTdi(int handle, char* label)
 {
-    return getUdaDataLabelTdi(handle, label)
+    return udaGetDataLabelTdi(handle, label)    
 }
 
 inline const char* getIdamDataUnits(int handle)
 {
-    return getUdaDataUnits(handle);
+    return udaGetDataUnits(handle);    
 }
 
 inline void getIdamDataUnitsTdi(int handle, char* units)
 {
-    return getUdaDataUnitsTdi(handle, units)
+    return udaGetDataUnitsTdi(handle, units)    
 }
 
 inline const char* getIdamDataDesc(int handle)
 {
-    return getUdaDataDesc(handle);
+    return udaGetDataDesc(handle);    
 }
 
 inline void getIdamDataDescTdi(int handle, char* desc)
 {
-    return getUdaDataDescTdi(handle, desc)
+    return udaGetDataDescTdi(handle, desc)    
 }
 
 inline int getIdamDimNum(int handle, int ndim)
 {
-    return getUdaDimNum(handle, ndim)
+    return udaGetDimNum(handle, ndim)    
 }
 
 inline int getIdamDimType(int handle, int ndim)
 {
-    return getUdaDimType(handle, ndim)
+    return udaGetDimType(handle, ndim)    
 }
 
 inline int getIdamDimErrorType(int handle, int ndim)
 {
-    return getUdaDimErrorType(handle, ndim)
+    return udaGetDimErrorType(handle, ndim)    
 }
 
 inline int getIdamDimErrorAsymmetry(int handle, int ndim)
 {
-    return getUdaDimErrorAsymmetry(handle, ndim)
+    return udaGetDimErrorAsymmetry(handle, ndim)    
 }
 
 inline void getIdamDimErrorModel(int handle, int ndim, int* model, int* param_n, float* params)
 {
-    return getUdaDimErrorModel(handle, ndim, model, param_n, params)
+    return udaGetDimErrorModel(handle, ndim, model, param_n, params)    
 }
 
 inline char* getIdamSyntheticDimData(int handle, int ndim)
 {
-    return getUdaSyntheticDimData(handle, ndim)
+    return udaGetSyntheticDimData(handle, ndim)    
 }
 
 inline char* getIdamDimData(int handle, int ndim)
 {
-    return getUdaDimData(handle, ndim)
+    return udaGetDimData(handle, ndim)    
 }
 
 inline const char* getIdamDimLabel(int handle, int ndim)
 {
-    return getUdaDimLabel(handle, ndim)
+    return udaGetDimLabel(handle, ndim)    
 }
 
 inline const char* getIdamDimUnits(int handle, int ndim)
 {
-    return getUdaDimUnits(handle, ndim)
+    return udaGetDimUnits(handle, ndim)    
 }
 
 inline void getIdamDimLabelTdi(int handle, int ndim, char* label)
 {
-    return getUdaDimLabelTdi(handle, ndim, label)
+    return udaGetDimLabelTdi(handle, ndim, label)    
 }
 
 inline void getIdamDimUnitsTdi(int handle, int ndim, char* units)
 {
-    return getUdaDimUnitsTdi(handle, ndim, units)
+    return udaGetDimUnitsTdi(handle, ndim, units)    
 }
 
 inline void getIdamDoubleDimData(int handle, int ndim, double* fp)
 {
-    return getUdaDoubleDimData(handle, ndim, fp)
+    return udaGetDoubleDimData(handle, ndim, fp)    
 }
 
 inline void getIdamFloatDimData(int handle, int ndim, float* fp)
 {
-    return getUdaFloatDimData(handle, ndim, fp)
+    return udaGetFloatDimData(handle, ndim, fp)    
 }
 
 inline void getIdamGenericDimData(int handle, int ndim, void* data)
 {
-    return getUdaGenericDimData(handle, ndim, data)
+    return udaGetGenericDimData(handle, ndim, data)    
 }
 
 inline DIMS* getIdamDimBlock(int handle, int ndim)
 {
-    return getUdaDimBlock(handle, ndim)
+    return udaGetDimBlock(handle, ndim)    
 }
 
 inline char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 {
-    return getUdaDimAsymmetricError(handle, ndim, above)
+    return udaGetDimAsymmetricError(handle, ndim, above)    
 }
 
 inline char* getIdamDimError(int handle, int ndim)
 {
-    return getUdaDimError(handle, ndim)
+    return udaGetDimError(handle, ndim)    
 }
 
 inline void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
 {
-    return getUdaFloatDimAsymmetricError(handle, ndim, above, fp)
+    return udaGetFloatDimAsymmetricError(handle, ndim, above, fp)    
 }
 
 inline void getIdamFloatDimError(int handle, int ndim, float* fp)
 {
-    return getUdaFloatDimError(handle, ndim, fp)
+    return udaGetFloatDimError(handle, ndim, fp)    
 }
 
 inline DATA_SYSTEM* getIdamDataSystem(int handle)
 {
-    return getUdaDataSystem(handle);
+    return udaGetDataSystem(handle);    
 }
 
 inline SYSTEM_CONFIG* getIdamSystemConfig(int handle)
 {
-    return getUdaSystemConfig(handle);
+    return udaGetSystemConfig(handle);    
 }
 
 inline DATA_SOURCE* getIdamDataSource(int handle)
 {
-    return getUdaDataSource(handle);
+    return udaGetDataSource(handle);    
 }
 
 inline SIGNAL* getIdamSignal(int handle)
 {
-    return getUdaSignal(handle);
+    return udaGetSignal(handle);    
 }
 
 inline SIGNAL_DESC* getIdamSignalDesc(int handle)
@@ -713,17 +713,17 @@ inline SIGNAL_DESC* getIdamSignalDesc(int handle)
 
 inline const char* getIdamFileFormat(int handle)
 {
-    return getUdaFileFormat(handle);
+    return udaGetFileFormat(handle);    
 }
 
 inline void initIdamDataBlock(DATA_BLOCK* str)
 {
-    return initUdaDataBlock(str);
+    return udaInitDataBlock(str);    
 }
 
 inline void initIdamRequestBlock(REQUEST_BLOCK* str)
 {
-    return initUdaRequestBlock(str);
+    return udaInitRequestBlock(str);    
 }
 
 /*
@@ -736,92 +736,92 @@ inline int idamDataCheckSum(void* data, int data_n, int type)
 
 inline int getIdamDataCheckSum(int handle)
 {
-    return getUdaDataCheckSum(handle);
+    return udaGetDataCheckSum(handle);    
 }
 
 inline int getIdamDimDataCheckSum(int handle, int ndim)
 {
-    return getUdaDimDataCheckSum(handle, ndim)
+    return udaGetDimDataCheckSum(handle, ndim)    
 }
 
 inline void lockIdamThread()
 {
-    return lockUdaThread();
+    return udaLockThread();    
 }
 
 inline void unlockIdamThread()
 {
-    return unlockUdaThread();
+    return udaUnlockThread();    
 ]
 
 inline void freeIdamThread()
 {
-    return freeUdaThread();
+    return udaFreeThread();    
 }
 
 inline int getIdamThreadLastHandle()
 {
-    return getUdaThreadLastHandle()
+    return udaGetThreadLastHandle()    
 }
 
 inline void putIdamThreadLastHandle(int handle)
 {
-    return putUdaThreadLastHandle(handle);
+    return udaPutThreadLastHandle(handle);    
 }
 
 inline int getIdamMaxThreadCount()
 {
-    return getUdaMaxThreadCount()
+    return udaGetMaxThreadCount()    
 }
 
 inline SERVER_BLOCK getIdamThreadServerBlock()
 {
-    return getUdaThreadServerBlock()
+    return udaGetThreadServerBlock()    
 }
 
 inline CLIENT_BLOCK getIdamThreadClientBlock()
 {
-    return getUdaThreadClientBlock()
+    return udaGetThreadClientBlock()    
 }
 
 inline void putIdamThreadServerBlock(SERVER_BLOCK * str)
 {
-    return putUdaThreadServerBlock(str);
+    return udaPutThreadServerBlock(str);    
 }
 
 inline void putIdamThreadClientBlock(CLIENT_BLOCK * str)
 {
-    return putUdaThreadClientBlock(str);
+    return udaPutThreadClientBlock(str);    
 }
 
 inline int setIdamDataTree(int handle)
 {
-    return setUdaDataTree(handle);
+    return udaSetDataTree(handle);    
 }
 
 inline NTREE* getIdamDataTree(int handle)
 {
-    return getUdaDataTree(handle);
+    return udaGetDataTree(handle);    
 }
 
 inline USERDEFINEDTYPE* getIdamUserDefinedType(int handle)
 {
-    return getUdaUserDefinedType(handle);
+    return udaGetUserDefinedType(handle);    
 }
 
 inline USERDEFINEDTYPELIST* getIdamUserDefinedTypeList(int handle)
 {
-    return getUdaUserDefinedTypeList(handle);
+    return udaGetUserDefinedTypeList(handle);    
 }
 
 inline LOGMALLOCLIST* getIdamLogMallocList(int handle)
 {
-    return getUdaLogMallocList(handle);
+    return udaGetLogMallocList(handle);    
 }
 
 inline NTREE* findIdamNTreeStructureDefinition(NTREE * node, const char* target)
 {
-    return findUdaNTreeStructureDefinition(node, target)
+    return udaFindNTreeStructureDefinition(node, target)    
 }
 
 /*
