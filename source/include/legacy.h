@@ -5,6 +5,8 @@
 
 #  warning "using UDA legacy name mappings"
 
+// TODO: address embedded todos...
+
 /*
  * definitions from pluginStructs.h
  */
@@ -173,18 +175,46 @@ inline int idamClientMDS(const char* server, const char* tree, const char* node,
 /*
  * NO IDAM KEYWORD
  */
-// LIBRARY_API DATA_BLOCK* acc_getCurrentDataBlock(CLIENT_FLAGS* client_flags);
-// LIBRARY_API int acc_getCurrentDataBlockIndex(CLIENT_FLAGS* client_flags);
-// LIBRARY_API void acc_freeDataBlocks();
 // LIBRARY_API UDA_ERROR_STACK* getUdaServerErrorStack();
-// LIBRARY_API char* acc_getSyntheticData(int handle);
-// LIBRARY_API char* acc_getSyntheticDimData(int handle, int ndim);
-// LIBRARY_API void acc_setSyntheticData(int handle, char* data);
-// LIBRARY_API void acc_setSyntheticDimData(int handle, int ndim, char* data);
+
+inline DATA_BLOCK* acc_getCurrentDataBlock()
+{
+    return udaGetCurrentDataBlock();
+}
+
+inline int acc_getCurrentDataBlockIndex()
+{
+    return udaGetCurrentDataBlockIndex();
+}
+
+inline void acc_freeDataBlocks()
+{
+    return udaFreeDataBlocks();
+}
+
+inline char* acc_getSyntheticData(int handle)
+{
+    return udaGetSyntheticData(handle); ;
+}
+
+inline char* acc_getSyntheticDimData(int handle, int ndim)
+{
+    return udaGetSyntheticDimData(handle, ndim);
+}
+
+inline void acc_setSyntheticData(int handle, char* data)
+{
+    return udaSetSyntheticData(handle, data);
+}
+
+inline void acc_setSyntheticDimData(int handle, int ndim, char* data)
+{
+    return udaSetSyntheticDimData(int handle, int ndim, char* data);
+}
 
 inline int acc_growIdamDataBlocks()
 {
-    return acc_growUdaDataBlocks();
+    return udaGrowDataBlocks();
 }
 
 inline int acc_getIdamNewDataHandle()
@@ -769,14 +799,10 @@ inline int setIdamDataTree(int handle)
     return setUdaDataTree(handle);
 }
 
-// Return a specific data tree
-
 inline NTREE* getIdamDataTree(int handle)
 {
     return getUdaDataTree(handle);
 }
-
-// Return a user defined data structure definition
 
 inline USERDEFINEDTYPE* getIdamUserDefinedType(int handle)
 {
@@ -827,6 +853,8 @@ inline int idamClientTestAPI(const char* file, const char* signal, int pass, int
  * definitions from accessors.h
  */
 
+// TODO: these are used by plugins and wrappers only so don't need to be shadowed? 
+
 // LIBRARY_API NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
 //                                                 const char** lastname);
 // LIBRARY_API NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
@@ -841,19 +869,19 @@ inline int idamClientTestAPI(const char* file, const char* signal, int pass, int
 
 inline NTREE* idam_findNTreeStructureClass(NTREE * tree, int cls)
 {
-    return uda_findNTreeStructureClass(tree, cls);
+    return udaFindNTreeStructureClass(tree, cls);
 }
 
 inline int idam_maxCountVlenStructureArray(NTREE * tree, const char* target, int reset)
 {
-    return uda_maxCountVlenStructureArray(tree, target, reset);
+    return udaMaxCountVlenStructureArray(tree, target, reset);
 }
 
 inline int idam_regulariseVlenStructures(LOGMALLOCLIST * logmalloclist, NTREE * tree,
                                          USERDEFINEDTYPELIST * userdefinedtypelist, const char* target,
                                          unsigned int count)
 {
-    return uda_regulariseVlenStructures(LOGMALLOCLIST * logmalloclist, NTREE * tree,
+    return udaRegulariseVlenStructures(LOGMALLOCLIST * logmalloclist, NTREE * tree,
                                         USERDEFINEDTYPELIST * userdefinedtypelist, const char* target,
                                         unsigned int count);
 }
@@ -861,7 +889,7 @@ inline int idam_regulariseVlenStructures(LOGMALLOCLIST * logmalloclist, NTREE * 
 inline int idam_regulariseVlenData(LOGMALLOCLIST * logmalloclist, NTREE * tree,
                                    USERDEFINEDTYPELIST * userdefinedtypelist)
 {
-    return uda_regulariseVlenData(LOGMALLOCLIST * logmalloclist, NTREE * tree,
+    return udaRegulariseVlenData(LOGMALLOCLIST * logmalloclist, NTREE * tree,
                                   USERDEFINEDTYPELIST * userdefinedtypelist);
 }
 //

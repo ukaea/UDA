@@ -23,7 +23,7 @@ enum pluginClass {
 struct PluginList; // Forward declaration
 typedef struct PluginList PLUGINLIST;
 
-typedef struct IdamPluginInterface {  // Standard Plugin interface
+typedef struct UdaluginInterface {  // Standard Plugin interface
     unsigned short interfaceVersion;  // Interface Version
     unsigned short pluginVersion;     // Plugin Version
     unsigned short sqlConnectionType; // Which SQL is the server connected to
@@ -43,9 +43,9 @@ typedef struct IdamPluginInterface {  // Standard Plugin interface
     void* sqlConnection;          // Opaque structure
     const PLUGINLIST* pluginList; // List of data readers, filters, models, and servers
     UDA_ERROR_STACK error_stack;
-} IDAM_PLUGIN_INTERFACE;
+} UDA_PLUGIN_INTERFACE;
 
-typedef int (*PLUGINFUNP)(IDAM_PLUGIN_INTERFACE*); // Plugin function type
+typedef int (*PLUGINFUNP)(UDA_PLUGIN_INTERFACE*); // Plugin function type
 
 typedef struct PluginData {
     char format[STRING_LENGTH];         // File format, or Function library or Server protocol or External Device name

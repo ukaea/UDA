@@ -119,7 +119,7 @@ LIBRARY_API NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char
  * @param class The Structure Class, e.g., UDA_TYPE_VLEN.
  * @return A pointer to the First tree node found with the targeted structure class.
  */
-LIBRARY_API NTREE* idam_findNTreeStructureClass(NTREE* tree, int cls);
+LIBRARY_API NTREE* udaFindNTreeStructureClass(NTREE* tree, int cls);
 
 /** Identify the largest count of a Variable Length Array with a given structure type.
  *
@@ -130,7 +130,7 @@ LIBRARY_API NTREE* idam_findNTreeStructureClass(NTREE* tree, int cls);
  * @param reset Reset the counbter to zero.
  * @return An integer returning the maximum count value.
  */
-LIBRARY_API int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset);
+LIBRARY_API int udaMaxCountVlenStructureArray(NTREE* tree, const char* target, int reset);
 
 /** Regularise a specific VLEN structure.
  *
@@ -141,7 +141,7 @@ LIBRARY_API int idam_maxCountVlenStructureArray(NTREE* tree, const char* target,
  * @param count The maximum count size for the VLEN data arrays.
  * @return An integer returning an error code: 0 => OK.
  */
-LIBRARY_API int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree,
+LIBRARY_API int udaRegulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree,
                                               USERDEFINEDTYPELIST* userdefinedtypelist, const char* target,
                                               unsigned int count);
 
@@ -153,7 +153,7 @@ LIBRARY_API int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTRE
  * @param tree A pointer to a parent tree node. If NULL the root node is assumed.
  * @return An integer returning an error code: 0 => OK.
  */
-LIBRARY_API int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree,
+LIBRARY_API int udaRegulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree,
                                         USERDEFINEDTYPELIST* userdefinedtypelist);
 
 //---------------------------------------------------------------------------------------------
