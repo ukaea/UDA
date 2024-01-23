@@ -110,8 +110,8 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     if (handle < 0) {
 
-        if ((handle = idamGetAPI(signal.c_str(), source.c_str())) < 0 || getIdamErrorCode(handle) != 0) {
-            error(getIdamErrorMsg(handle));
+        if ((handle = udaGetAPI(signal.c_str(), source.c_str())) < 0 || udaGetErrorCode(handle) != 0) {
+            error(udaGetErrorMsg(handle));
         }
 
         cache_.emplace_back(CacheEntry{handle, signal, source});
@@ -119,17 +119,17 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     // Get the data rank and data shape, the data and the coordinates
 
-    int rank = getIdamRank(handle);
-    int order = getIdamOrder(handle);
+    int rank = udaGetRank(handle);
+    int order = udaGetOrder(handle);
 
     if (rank == 1) {
-        int count = getIdamDataNum(handle);
+        int count = udaGetDataNum(handle);
 
         std::vector<float> values(static_cast<size_t>(count));
         std::vector<float> coords(static_cast<size_t>(count));
 
-        getIdamFloatData(handle, values.data());
-        getIdamFloatDimData(handle, 0, coords.data());
+        udaGetFloatData(handle, values.data());
+        udaGetFloatDimData(handle, 0, coords.data());
 
         if (test) {
             debug("Running Viewport Test {}\n", *test);
@@ -584,17 +584,17 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
         data_block->data_n = pixelWidth2;
         data_block->data_type = UDA_TYPE_FLOAT;
-        strcpy(data_block->data_desc, getIdamDataDesc(handle));
-        strcpy(data_block->data_label, getIdamDataLabel(handle));
-        strcpy(data_block->data_units, getIdamDataUnits(handle));
+        strcpy(data_block->data_desc, udaGetDataDesc(handle));
+        strcpy(data_block->data_label, udaGetDataLabel(handle));
+        strcpy(data_block->data_units, udaGetDataUnits(handle));
 
         data_block->dims[0].dim = memdup(horizontal_pixel_values.data(), horizontal_pixel_values.size());
 
         data_block->dims[0].data_type = UDA_TYPE_FLOAT;
         data_block->dims[0].dim_n = pixelWidth2;
         data_block->dims[0].compressed = 0;
-        strcpy(data_block->dims[0].dim_label, getIdamDimLabel(handle, 0));
-        strcpy(data_block->dims[0].dim_units, getIdamDimUnits(handle, 0));
+        strcpy(data_block->dims[0].dim_label, udaGetDimLabel(handle, 0));
+        strcpy(data_block->dims[0].dim_units, udaGetDimUnits(handle, 0));
 
         data_block->data = memdup(data.data(), data.size());
 

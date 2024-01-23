@@ -75,7 +75,7 @@ void uda::Client::setProperty(Property prop, bool value)
     }
 
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    value ? setIdamProperty(name.c_str(), client_flags) : resetIdamProperty(name.c_str(), client_flags);
+    value ? udaSetProperty(name.c_str(), client_flags) : reudaSetProperty(name.c_str(), client_flags);
 }
 
 void uda::Client::setProperty(Property prop, int value)
@@ -102,11 +102,11 @@ void uda::Client::setProperty(Property prop, int value)
 
         case PROP_TIMEOUT:
             name = (boost::format("timeout=%1%") % value).str();
-            setIdamProperty(name.c_str(), udaClientFlags());
+            udaSetProperty(name.c_str(), udaClientFlags());
             break;
         case PROP_ALTRANK:
             name = (boost::format("altrank=%1%") % value).str();
-            setIdamProperty(name.c_str(), udaClientFlags());
+            udaSetProperty(name.c_str(), udaClientFlags());
             break;
 
         default:
@@ -124,39 +124,39 @@ int uda::Client::property(Property prop)
     auto client_flags = udaClientFlags();
     switch (prop) {
         case PROP_DATADBLE:
-            return getIdamProperty("get_datadble", client_flags);
+            return udaGetProperty("get_datadble", client_flags);
         case PROP_DIMDBLE:
-            return getIdamProperty("get_dimdble", client_flags);
+            return udaGetProperty("get_dimdble", client_flags);
         case PROP_TIMEDBLE:
-            return getIdamProperty("get_timedble", client_flags);
+            return udaGetProperty("get_timedble", client_flags);
         case PROP_BYTES:
-            return getIdamProperty("get_bytes", client_flags);
+            return udaGetProperty("get_bytes", client_flags);
         case PROP_BAD:
-            return getIdamProperty("get_bad", client_flags);
+            return udaGetProperty("get_bad", client_flags);
         case PROP_META:
-            return getIdamProperty("get_meta", client_flags);
+            return udaGetProperty("get_meta", client_flags);
         case PROP_ASIS:
-            return getIdamProperty("get_asis", client_flags);
+            return udaGetProperty("get_asis", client_flags);
         case PROP_UNCAL:
-            return getIdamProperty("get_uncal", client_flags);
+            return udaGetProperty("get_uncal", client_flags);
         case PROP_NOTOFF:
-            return getIdamProperty("get_notoff", client_flags);
+            return udaGetProperty("get_notoff", client_flags);
         case PROP_SYNTHETIC:
-            return getIdamProperty("get_synthetic", client_flags);
+            return udaGetProperty("get_synthetic", client_flags);
         case PROP_SCALAR:
-            return getIdamProperty("get_scalar", client_flags);
+            return udaGetProperty("get_scalar", client_flags);
         case PROP_NODIMDATA:
-            return getIdamProperty("get_nodimdata", client_flags);
+            return udaGetProperty("get_nodimdata", client_flags);
         case PROP_VERBOSE:
-            return getIdamProperty("verbose", client_flags);
+            return udaGetProperty("verbose", client_flags);
         case PROP_DEBUG:
-            return getIdamProperty("debug", client_flags);
+            return udaGetProperty("debug", client_flags);
         case PROP_ALTDATA:
-            return getIdamProperty("altdata", client_flags);
+            return udaGetProperty("altdata", client_flags);
         case PROP_TIMEOUT:
-            return getIdamProperty("timeout", client_flags);
+            return udaGetProperty("timeout", client_flags);
         case PROP_ALTRANK:
-            return getIdamProperty("altrank", client_flags);
+            return udaGetProperty("altrank", client_flags);
 
         default:
             throw UDAException("Unknown property");
@@ -165,22 +165,22 @@ int uda::Client::property(Property prop)
 
 void uda::Client::setServerHostName(const std::string& hostName)
 {
-    putIdamServerHost(hostName.c_str());
+    udaPutServerHost(hostName.c_str());
 }
 
 void uda::Client::setServerPort(int portNumber)
 {
-    putIdamServerPort(portNumber);
+    udaPutServerPort(portNumber);
 }
 
 std::string uda::Client::serverHostName()
 {
-    return getIdamServerHost();
+    return udaGetServerHost();
 }
 
 int uda::Client::serverPort()
 {
-    return getIdamServerPort();
+    return udaGetServerPort();
 }
 
 [[noreturn]] void generate_exception()
@@ -205,7 +205,7 @@ int uda::Client::serverPort()
 
 const uda::Result& uda::Client::get(const std::string& signalName, const std::string& dataSource)
 {
-    auto result = new Result(idamGetAPI(signalName.c_str(), dataSource.c_str()));
+    auto result = new Result(udaGetAPI(signalName.c_str(), dataSource.c_str()));
 
     if (result->errorCode() != OK) {
         delete result;
@@ -236,7 +236,7 @@ uda::ResultList uda::Client::get_batch(const std::vector<std::pair<std::string, 
 
     std::vector<int> handles(requests.size());
     std::fill(handles.begin(), handles.end(), -1);
-    int rc = idamGetBatchAPI(c_signals.data(), c_sources.data(), (int)requests.size(), handles.data());
+    int rc = udaGetBatchAPI(c_signals.data(), c_sources.data(), (int)requests.size(), handles.data());
 
     if (rc != 0) {
         generate_exception();
@@ -376,7 +376,7 @@ void uda::Client::put(const uda::Signal& signal)
          filename % signal_class % signal.title() % signal.shot() % signal.pass() % signal.comment() % signal.code())
             .str();
 
-    idamPutAPI(request.c_str(), nullptr);
+    udaPutAPI(request.c_str(), nullptr);
 
     PUTDATA_BLOCK pdblock{};
     initIdamPutDataBlock(&pdblock);
@@ -392,7 +392,7 @@ void uda::Client::put(const uda::Signal& signal)
 
     pdblock.data = (char*)array.byte_data();
 
-    idamPutAPI("", &pdblock);
+    udaPutAPI("", &pdblock);
 }
 
 template <typename T> void put_scalar(const std::string& instruction, T data)
@@ -410,7 +410,7 @@ template <typename T> void put_scalar(const std::string& instruction, T data)
 
     putdata_block.data = reinterpret_cast<char*>(dp);
 
-    idamPutAPI(instruction.c_str(), &putdata_block);
+    udaPutAPI(instruction.c_str(), &putdata_block);
 
     delete dp;
 }
@@ -476,7 +476,7 @@ template <typename T> void put_vector(const std::string& instruction, const std:
 
     putdata_block.data = reinterpret_cast<char*>(const_cast<T*>(data.data()));
 
-    idamPutAPI(instruction.c_str(), &putdata_block);
+    udaPutAPI(instruction.c_str(), &putdata_block);
 
     delete[] shape;
 }
@@ -559,5 +559,5 @@ void uda::Client::put(const std::string& instruction, const uda::Array& data)
 
     putdata_block.data = reinterpret_cast<const char*>(data.byte_data());
 
-    idamPutAPI(instruction.c_str(), &putdata_block);
+    udaPutAPI(instruction.c_str(), &putdata_block);
 }

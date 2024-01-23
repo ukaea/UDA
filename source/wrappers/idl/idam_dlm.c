@@ -594,7 +594,7 @@ IDL_VPTR IDL_CDECL idamgetapi(int argc, IDL_VPTR argv[], char* argk)
 {
     //
     // 2 Args: IDAM signal, source strings
-    // calls:   int idamGetAPI(signal, source)
+    // calls:   int udaGetAPI(signal, source)
     int handle;
     char* signal, * source;
 
@@ -627,7 +627,7 @@ IDL_VPTR IDL_CDECL idamgetapi(int argc, IDL_VPTR argv[], char* argk)
     IDL_KWProcessByOffset(argc, argv, argk, kw_pars, (IDL_VPTR*)0, 1, &kw);
 
     if (kw.help) {
-        fprintf(stdout, "\n\nidamGetAPI Help\n\n"
+        fprintf(stdout, "\n\nudaGetAPI Help\n\n"
                         "Returns the data handle from the API.\n\n"
                         "Arguments:\n"
                         "\t(string) signal \n"
@@ -653,10 +653,10 @@ IDL_VPTR IDL_CDECL idamgetapi(int argc, IDL_VPTR argv[], char* argk)
     //---------------------------------------------------------------------------------------------
     // Call API
 
-    handle = idamGetAPI(signal, source);
+    handle = udaGetAPI(signal, source);
 
     if (kw.debug) {
-        fprintf(stdout, "+++ idamGetAPI +++\n");
+        fprintf(stdout, "+++ udaGetAPI +++\n");
         fprintf(stdout, "signal: %s\n", signal);
         fprintf(stdout, "Source: %s\n", source);
         fprintf(stdout, "Handle: %d\n", handle);
@@ -678,7 +678,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
 {
     //
     // 2 Args: IDAM plugin directive (signal), data (scalar or array of structures)
-    // calls:   idamPutAPI or idamPutListAPI
+    // calls:   udaPutAPI or udaPutListAPI
 
     typedef struct {
         IDL_KW_RESULT_FIRST_FIELD;
@@ -708,7 +708,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
     IDL_KWProcessByOffset(argc, argv, argk, kw_pars, (IDL_VPTR*)0, 1, &kw);
 
     if (kw.help) {
-        fprintf(stdout, "\n\nidamPutAPI Help\n\n"
+        fprintf(stdout, "\n\nudaPutAPI Help\n\n"
                         "Returns the data handle from the API.\n\n"
                         "Arguments:\n"
                         "\t(string) plugin directive \n"
@@ -727,7 +727,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
     IDL_ENSURE_SCALAR(argv[0]);
 
     if (kw.debug) {
-        fprintf(stdout, "+++ idamPutAPI +++\n");
+        fprintf(stdout, "+++ udaPutAPI +++\n");
         fprintf(stdout, "arg count: %d\n", argc);
         fprintf(stdout, "directive: %s\n", (char*)IDL_STRING_STR(&(argv[0]->value.str)));
         fprintf(stdout, "array?   : %d\n", argv[1]->flags & IDL_V_ARR);
@@ -774,7 +774,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
         }
 
         if (kw.debug) {
-            fprintf(stdout, "+++ idamPutAPI before shape +++\n");
+            fprintf(stdout, "+++ udaPutAPI before shape +++\n");
             fprintf(stdout, "rank : %d\n", putData.rank);
             fflush(stdout);
         }
@@ -809,7 +809,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
             for (int i = 0; i < (int)putData.rank; i++) {
                 putData.shape[i] = (int)argv[1]->value.arr->dim[i];
                 if (kw.debug) {
-                    fprintf(stdout, "+++ idamPutAPI +++\n");
+                    fprintf(stdout, "+++ udaPutAPI +++\n");
                     fprintf(stdout, "shape %d : %d\n", i, putData.shape[i]);
                 }
             }
@@ -820,7 +820,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
         }
 
         if (kw.debug) {
-            fprintf(stdout, "+++ idamPutAPI +++\n");
+            fprintf(stdout, "+++ udaPutAPI +++\n");
             fprintf(stdout, "rank : %d\n", putData.rank);
             fprintf(stdout, "count: %d\n", putData.count);
 
@@ -936,7 +936,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
             }
         }
 
-        handle = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
+        handle = udaPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
 
         //      if (putData.rank >= 1 && putData.shape != NULL) {
         free(putData.shape);
@@ -1019,7 +1019,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
                      addIdamPutDataBlockList(&putData, &putDataBlockList);
                   }
 
-                  int h = idamPutListAPI((char *)IDL_STRING_STR(&(argv[0]->value.str)), &putDataBlockList);
+                  int h = udaPutListAPI((char *)IDL_STRING_STR(&(argv[0]->value.str)), &putDataBlockList);
 
 
                   for(i=0;i<putDataBlockList.  ;i++)
@@ -1136,9 +1136,9 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
             fflush(stdout);
         }
 
-      handle = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
+      handle = udaPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
     } else if (argc == 1) {
-      handle = idamPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
+      handle = udaPutAPI(IDL_STRING_STR(&(argv[0]->value.str)), &putData);
     }
 
     // Despite this being a put, may return data (eg. putdata plugin returns file id)
@@ -1146,8 +1146,8 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
     int error_code;
     char* error_msg;
 
-    error_code = getIdamErrorCode(handle);
-    error_msg = (char*)getIdamErrorMsg(handle);
+    error_code = udaGetErrorCode(handle);
+    error_msg = (char*)udaGetErrorMsg(handle);
 
     if (handle < 0) {
       if (kw.verbose) {
@@ -1163,7 +1163,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
     }
 
     int status;
-    status = getIdamDataStatus(handle);
+    status = udaGetDataStatus(handle);
 
     //--------------------------------------------------------------------------
     // Return Handle and High Level Information: Not Data - Separate Calls
@@ -1181,23 +1181,23 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
     sout->pass = (IDL_LONG) - 1;
     sout->mdstreenum = (IDL_LONG) 0;
     sout->handle = (IDL_LONG)handle;
-    sout->rank = (IDL_LONG)getIdamRank(handle);
-    sout->order = (IDL_LONG)getIdamOrder(handle);
+    sout->rank = (IDL_LONG)udaGetRank(handle);
+    sout->order = (IDL_LONG)udaGetOrder(handle);
     sout->status = (IDL_LONG)status;
     sout->error_code = (IDL_LONG)error_code;
 
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    sout->get_datadble = (IDL_LONG)getIdamProperty("get_datadble", client_flags);  // (IDL_LONG) kw.get_datadble;
-    sout->get_dimdble = (IDL_LONG)getIdamProperty("get_dimdble", client_flags);   // (IDL_LONG) kw.get_dimdble;
-    sout->get_timedble = (IDL_LONG)getIdamProperty("get_timedble", client_flags);  // (IDL_LONG) kw.get_timedble;
-    sout->get_scalar = (IDL_LONG)getIdamProperty("get_scalar", client_flags);    // (IDL_LONG) kw.get_scalar;
-    sout->get_bytes = (IDL_LONG)getIdamProperty("get_bytes", client_flags);     // (IDL_LONG) kw.get_bytes;
-    sout->get_asis = (IDL_LONG)getIdamProperty("get_asis", client_flags);      // (IDL_LONG) kw.get_asis;
-    sout->get_bad = (IDL_LONG)getIdamProperty("get_bad", client_flags);       // (IDL_LONG) kw.get_bad;
-    sout->get_meta = (IDL_LONG)getIdamProperty("get_meta", client_flags);      // (IDL_LONG) kw.get_meta;
-    sout->get_uncal = (IDL_LONG)getIdamProperty("get_uncal", client_flags);     // (IDL_LONG) kw.get_uncal;
-    sout->get_notoff = (IDL_LONG)getIdamProperty("get_notoff", client_flags);    // (IDL_LONG) kw.get_notoff;
-    sout->get_nodimdata = (IDL_LONG)getIdamProperty("get_nodimdata", client_flags); // (IDL_LONG) kw.get_nodimdata;
+    sout->get_datadble = (IDL_LONG)udaGetProperty("get_datadble", client_flags);  // (IDL_LONG) kw.get_datadble;
+    sout->get_dimdble = (IDL_LONG)udaGetProperty("get_dimdble", client_flags);   // (IDL_LONG) kw.get_dimdble;
+    sout->get_timedble = (IDL_LONG)udaGetProperty("get_timedble", client_flags);  // (IDL_LONG) kw.get_timedble;
+    sout->get_scalar = (IDL_LONG)udaGetProperty("get_scalar", client_flags);    // (IDL_LONG) kw.get_scalar;
+    sout->get_bytes = (IDL_LONG)udaGetProperty("get_bytes", client_flags);     // (IDL_LONG) kw.get_bytes;
+    sout->get_asis = (IDL_LONG)udaGetProperty("get_asis", client_flags);      // (IDL_LONG) kw.get_asis;
+    sout->get_bad = (IDL_LONG)udaGetProperty("get_bad", client_flags);       // (IDL_LONG) kw.get_bad;
+    sout->get_meta = (IDL_LONG)udaGetProperty("get_meta", client_flags);      // (IDL_LONG) kw.get_meta;
+    sout->get_uncal = (IDL_LONG)udaGetProperty("get_uncal", client_flags);     // (IDL_LONG) kw.get_uncal;
+    sout->get_notoff = (IDL_LONG)udaGetProperty("get_notoff", client_flags);    // (IDL_LONG) kw.get_notoff;
+    sout->get_nodimdata = (IDL_LONG)udaGetProperty("get_nodimdata", client_flags); // (IDL_LONG) kw.get_nodimdata;
 
     IDL_StrStore(&(sout->signal), "");
     IDL_StrStore(&(sout->source), "");
@@ -1277,7 +1277,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
     //--------------------------------------------------------------------------
     // Cleanup Keywords
     IDL_KW_FREE;
-    //    restoreIdamProperties(cblock);
+    //    udaRestoreProperties(cblock);
     return (ivReturn);
 
 }
@@ -1289,7 +1289,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
     //-------------------------------------------------------------------------
     // Change History:
     //
-    // 04Nov2010 dgmuir Simplified version of callidam that uses standard idamGetAPI
+    // 04Nov2010 dgmuir Simplified version of callidam that uses standard udaGetAPI
     //-------------------------------------------------------------------------
 
     char* signal;
@@ -1297,7 +1297,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
     int exp_number = 0;
 
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  // preserve the current set of client properties
+    CLIENT_BLOCK cblock = udaSaveProperties(client_flags);  // preserve the current set of client properties
 
     int handle, status, error_code;
     char* error_msg;
@@ -1544,74 +1544,74 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
     // Process Keywords (take Priority over Passed Arguments)
 
     if (kw.debug) {
-        setIdamProperty("debug", client_flags);    // Cannot be reset (currently!)
+        udaSetProperty("debug", client_flags);    // Cannot be reset (currently!)
     }
 
     if (kw.verbose) {
-        setIdamProperty("verbose", client_flags);
+        udaSetProperty("verbose", client_flags);
     }
 
     if (kw.get_datadble) {
-        setIdamProperty("get_datadble", client_flags);    // Properties passed by Keyword must be reset to the prior state
+        udaSetProperty("get_datadble", client_flags);    // Properties passed by Keyword must be reset to the prior state
     }
 
     if (kw.get_dimdble) {
-        setIdamProperty("get_dimdble", client_flags);
+        udaSetProperty("get_dimdble", client_flags);
     }
 
     if (kw.get_timedble) {
-        setIdamProperty("get_timedble", client_flags);
+        udaSetProperty("get_timedble", client_flags);
     }
 
     if (kw.get_scalar) {
-        setIdamProperty("get_scalar", client_flags);
+        udaSetProperty("get_scalar", client_flags);
     }
 
     if (kw.get_bytes) {
-        setIdamProperty("get_bytes", client_flags);
+        udaSetProperty("get_bytes", client_flags);
     }
 
     if (kw.get_asis) {
-        setIdamProperty("get_asis", client_flags);
+        udaSetProperty("get_asis", client_flags);
     }
 
     if (kw.get_bad) {
-        setIdamProperty("get_bad", client_flags);
+        udaSetProperty("get_bad", client_flags);
     }
 
     if (kw.get_meta) {
-        setIdamProperty("get_meta", client_flags);
+        udaSetProperty("get_meta", client_flags);
     }
 
     if (kw.get_uncal) {
-        setIdamProperty("get_uncal", client_flags);
+        udaSetProperty("get_uncal", client_flags);
     }
 
     if (kw.get_notoff) {
-        setIdamProperty("get_notoff", client_flags);
+        udaSetProperty("get_notoff", client_flags);
     }
 
     if (kw.get_nodimdata) {
-        setIdamProperty("get_nodimdata", client_flags);
+        udaSetProperty("get_nodimdata", client_flags);
     }
 
     //--------------------------------------------------------------------------
     // Select the Appropriate API
 
     if (kw.debug) {
-        fprintf(stdout, "idamGetAPI args: ('%s','%s')\n", signal, source);
+        fprintf(stdout, "udaGetAPI args: ('%s','%s')\n", signal, source);
         fflush(stdout);
     }
 
-    handle = idamGetAPI(signal, source);
+    handle = udaGetAPI(signal, source);
 
     if (kw.debug) {
         fprintf(stdout, "IDAM API Handle = %d\n", handle);
         fflush(stdout);
     }
 
-    error_code = getIdamErrorCode(handle);
-    error_msg = (char*)getIdamErrorMsg(handle);
+    error_code = udaGetErrorCode(handle);
+    error_msg = (char*)udaGetErrorMsg(handle);
 
     if (handle < 0) {
         if (kw.verbose) {
@@ -1623,11 +1623,11 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_BAD_HANDLE));
     }
 
-    status = getIdamDataStatus(handle);
+    status = udaGetDataStatus(handle);
 
     //--------------------------------------------------------------------------
     // Return Handle and High Level Information: Not Data - Separate Calls
@@ -1637,7 +1637,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_HEAP_ALLOC_ERROR));
     }
 
@@ -1646,22 +1646,22 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
     sout->mdstreenum = (IDL_LONG)0;
 
     sout->handle = (IDL_LONG)handle;
-    sout->rank = (IDL_LONG)getIdamRank(handle);
-    sout->order = (IDL_LONG)getIdamOrder(handle);
+    sout->rank = (IDL_LONG)udaGetRank(handle);
+    sout->order = (IDL_LONG)udaGetOrder(handle);
     sout->status = (IDL_LONG)status;
     sout->error_code = (IDL_LONG)error_code;
 
-    sout->get_datadble = (IDL_LONG)getIdamProperty("get_datadble", client_flags);  // (IDL_LONG) kw.get_datadble;
-    sout->get_dimdble = (IDL_LONG)getIdamProperty("get_dimdble", client_flags);   // (IDL_LONG) kw.get_dimdble;
-    sout->get_timedble = (IDL_LONG)getIdamProperty("get_timedble", client_flags);  // (IDL_LONG) kw.get_timedble;
-    sout->get_scalar = (IDL_LONG)getIdamProperty("get_scalar", client_flags);    // (IDL_LONG) kw.get_scalar;
-    sout->get_bytes = (IDL_LONG)getIdamProperty("get_bytes", client_flags);     // (IDL_LONG) kw.get_bytes;
-    sout->get_asis = (IDL_LONG)getIdamProperty("get_asis", client_flags);      // (IDL_LONG) kw.get_asis;
-    sout->get_bad = (IDL_LONG)getIdamProperty("get_bad", client_flags);       // (IDL_LONG) kw.get_bad;
-    sout->get_meta = (IDL_LONG)getIdamProperty("get_meta", client_flags);      // (IDL_LONG) kw.get_meta;
-    sout->get_uncal = (IDL_LONG)getIdamProperty("get_uncal", client_flags);     // (IDL_LONG) kw.get_uncal;
-    sout->get_notoff = (IDL_LONG)getIdamProperty("get_notoff", client_flags);    // (IDL_LONG) kw.get_notoff;
-    sout->get_nodimdata = (IDL_LONG)getIdamProperty("get_nodimdata", client_flags); // (IDL_LONG) kw.get_nodimdata;
+    sout->get_datadble = (IDL_LONG)udaGetProperty("get_datadble", client_flags);  // (IDL_LONG) kw.get_datadble;
+    sout->get_dimdble = (IDL_LONG)udaGetProperty("get_dimdble", client_flags);   // (IDL_LONG) kw.get_dimdble;
+    sout->get_timedble = (IDL_LONG)udaGetProperty("get_timedble", client_flags);  // (IDL_LONG) kw.get_timedble;
+    sout->get_scalar = (IDL_LONG)udaGetProperty("get_scalar", client_flags);    // (IDL_LONG) kw.get_scalar;
+    sout->get_bytes = (IDL_LONG)udaGetProperty("get_bytes", client_flags);     // (IDL_LONG) kw.get_bytes;
+    sout->get_asis = (IDL_LONG)udaGetProperty("get_asis", client_flags);      // (IDL_LONG) kw.get_asis;
+    sout->get_bad = (IDL_LONG)udaGetProperty("get_bad", client_flags);       // (IDL_LONG) kw.get_bad;
+    sout->get_meta = (IDL_LONG)udaGetProperty("get_meta", client_flags);      // (IDL_LONG) kw.get_meta;
+    sout->get_uncal = (IDL_LONG)udaGetProperty("get_uncal", client_flags);     // (IDL_LONG) kw.get_uncal;
+    sout->get_notoff = (IDL_LONG)udaGetProperty("get_notoff", client_flags);    // (IDL_LONG) kw.get_notoff;
+    sout->get_nodimdata = (IDL_LONG)udaGetProperty("get_nodimdata", client_flags); // (IDL_LONG) kw.get_nodimdata;
 
     IDL_StrStore(&(sout->signal), signal);
     IDL_StrStore(&(sout->source), source);
@@ -1691,7 +1691,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
     // The exception is bad data ... users may want to look at this data by changing the get_bad property
 
     if (sout->error_code != 0 &&
-        !(getIdamDataStatus(sout->handle) == MIN_STATUS && sout->error_code == DATA_STATUS_BAD)) {
+        !(udaGetDataStatus(sout->handle) == MIN_STATUS && sout->error_code == DATA_STATUS_BAD)) {
 
         if (kw.debug) {
             fprintf(stdout, "Freeing Heap for Handle %d\n", handle);
@@ -1704,7 +1704,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    udaRestoreProperties(cblock, client_flags);
     return (ivReturn);
 }
 
@@ -1727,7 +1727,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
     static IDL_LONG exp_number, pass = -1, mdstreenum;
 
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  // preserve the current set of client properties
+    CLIENT_BLOCK cblock = udaSaveProperties(client_flags);  // preserve the current set of client properties
 
     int handle, rank, order, status, error_code;
     char* error_msg;
@@ -1952,7 +1952,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NO_ARGUMENTS));
     }
 
@@ -1968,7 +1968,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NOT_IMPLEMENTED));
     }
 
@@ -2001,48 +2001,48 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
         mdsnode = IDL_STRING_STR(&(asin->mdsnode));
 
         if ((int)asin->get_datadble) {
-            setIdamProperty(
+            udaSetProperty(
                     "get_datadble", client_flags);    // Properties passed by Structure must be reset to the prior state
         }
 
         if ((int)asin->get_dimdble) {
-            setIdamProperty("get_dimdble", client_flags);
+            udaSetProperty("get_dimdble", client_flags);
         }
 
         if ((int)asin->get_timedble) {
-            setIdamProperty("get_timedble", client_flags);
+            udaSetProperty("get_timedble", client_flags);
         }
 
         if ((int)asin->get_scalar) {
-            setIdamProperty("get_scalar", client_flags);
+            udaSetProperty("get_scalar", client_flags);
         }
 
         if ((int)asin->get_bytes) {
-            setIdamProperty("get_bytes", client_flags);
+            udaSetProperty("get_bytes", client_flags);
         }
 
         if ((int)asin->get_asis) {
-            setIdamProperty("get_asis", client_flags);
+            udaSetProperty("get_asis", client_flags);
         }
 
         if ((int)asin->get_bad) {
-            setIdamProperty("get_bad", client_flags);
+            udaSetProperty("get_bad", client_flags);
         }
 
         if ((int)asin->get_meta) {
-            setIdamProperty("get_meta", client_flags);
+            udaSetProperty("get_meta", client_flags);
         }
 
         if ((int)asin->get_uncal) {
-            setIdamProperty("get_uncal", client_flags);
+            udaSetProperty("get_uncal", client_flags);
         }
 
         if ((int)asin->get_notoff) {
-            setIdamProperty("get_notoff", client_flags);
+            udaSetProperty("get_notoff", client_flags);
         }
 
         if ((int)asin->get_nodimdata) {
-            setIdamProperty("get_nodimdata", client_flags);
+            udaSetProperty("get_nodimdata", client_flags);
         }
 
         if (strlen(signal) > 0 && strlen(source) > 0) {
@@ -2062,7 +2062,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                 }
 
                 IDL_KW_FREE;
-                restoreIdamProperties(cblock, client_flags);
+                udaRestoreProperties(cblock, client_flags);
                 return (IDL_GettmpLong(GDE_NO_EXP_NUMBER));
             }
 
@@ -2081,7 +2081,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                     }
 
                     IDL_KW_FREE;
-                    restoreIdamProperties(cblock, client_flags);
+                    udaRestoreProperties(cblock, client_flags);
                     return (IDL_GettmpLong(GDE_NOT_IMPLEMENTED));
                 }
 
@@ -2110,7 +2110,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                         }
 
                         IDL_KW_FREE;
-                        restoreIdamProperties(cblock, client_flags);
+                        udaRestoreProperties(cblock, client_flags);
                         return (IDL_GettmpLong(GDE_NO_EXP_NUMBER));
                     }
                 }
@@ -2133,7 +2133,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                     }
 
                     IDL_KW_FREE;
-                    restoreIdamProperties(cblock, client_flags);
+                    udaRestoreProperties(cblock, client_flags);
                     return (IDL_GettmpLong(GDE_NO_SIGNAL_ARGUMENT));
                 }
 
@@ -2152,7 +2152,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                         }
 
                         IDL_KW_FREE;
-                        restoreIdamProperties(cblock, client_flags);
+                        udaRestoreProperties(cblock, client_flags);
                         return (IDL_GettmpLong(GDE_NOT_IMPLEMENTED));
                     }
 
@@ -2172,7 +2172,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                         }
 
                         IDL_KW_FREE;
-                        restoreIdamProperties(cblock, client_flags);
+                        udaRestoreProperties(cblock, client_flags);
                         return (IDL_GettmpLong(GDE_NO_SIGNAL_ARGUMENT));
                     }
 
@@ -2365,55 +2365,55 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
     }
 
     if (kw.debug) {
-        setIdamProperty("debug", client_flags);    // Cannot be reset (currently!)
+        udaSetProperty("debug", client_flags);    // Cannot be reset (currently!)
     }
 
     if (kw.verbose) {
-        setIdamProperty("verbose", client_flags);
+        udaSetProperty("verbose", client_flags);
     }
 
     if (kw.get_datadble) {
-        setIdamProperty("get_datadble", client_flags);    // Properties passed by Keyword must be reset to the prior state
+        udaSetProperty("get_datadble", client_flags);    // Properties passed by Keyword must be reset to the prior state
     }
 
     if (kw.get_dimdble) {
-        setIdamProperty("get_dimdble", client_flags);
+        udaSetProperty("get_dimdble", client_flags);
     }
 
     if (kw.get_timedble) {
-        setIdamProperty("get_timedble", client_flags);
+        udaSetProperty("get_timedble", client_flags);
     }
 
     if (kw.get_scalar) {
-        setIdamProperty("get_scalar", client_flags);
+        udaSetProperty("get_scalar", client_flags);
     }
 
     if (kw.get_bytes) {
-        setIdamProperty("get_bytes", client_flags);
+        udaSetProperty("get_bytes", client_flags);
     }
 
     if (kw.get_asis) {
-        setIdamProperty("get_asis", client_flags);
+        udaSetProperty("get_asis", client_flags);
     }
 
     if (kw.get_bad) {
-        setIdamProperty("get_bad", client_flags);
+        udaSetProperty("get_bad", client_flags);
     }
 
     if (kw.get_meta) {
-        setIdamProperty("get_meta", client_flags);
+        udaSetProperty("get_meta", client_flags);
     }
 
     if (kw.get_uncal) {
-        setIdamProperty("get_uncal", client_flags);
+        udaSetProperty("get_uncal", client_flags);
     }
 
     if (kw.get_notoff) {
-        setIdamProperty("get_notoff", client_flags);
+        udaSetProperty("get_notoff", client_flags);
     }
 
     if (kw.get_nodimdata) {
-        setIdamProperty("get_nodimdata", client_flags);
+        udaSetProperty("get_nodimdata", client_flags);
     }
 
     //--------------------------------------------------------------------------
@@ -2422,7 +2422,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
     if (kw.help) {
         userhelp(stdout, "getidam");
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(0));
     }
 
@@ -2431,10 +2431,10 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
 
     if (useIdamGetAPI) {
         if (kw.debug) {
-            fprintf(stdout, "idamGetAPI args: ('%s','%s')\n", signal, source);
+            fprintf(stdout, "udaGetAPI args: ('%s','%s')\n", signal, source);
         }
 
-        handle = idamGetAPI(signal, source);
+        handle = udaGetAPI(signal, source);
     } else {
         if (pass == -1 && !kw.isarchive && !kw.isdevice && !kw.isserver && !kw.ismdstree && !kw.isfile) {
             if (kw.debug) {
@@ -2444,11 +2444,11 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
             if (!kw.istest) {
                 char exp_str[1000];
                 sprintf(exp_str, "%d", (int)exp_number);
-                handle = idamGetAPI(signal, exp_str);
+                handle = udaGetAPI(signal, exp_str);
             } else {
                 strncpy(testfile, signal, 3);
                 testfile[3] = '\0';
-                handle = idamClientTestAPI(testfile, signal, -1, (int)exp_number);
+                handle = udaClientTestAPI(testfile, signal, -1, (int)exp_number);
             }
 
         } else {
@@ -2476,7 +2476,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                     sprintf(data_source, "%s::%d/%d", device, (int)exp_number, (int)pass);
                 }
 
-                handle = idamGetAPI(signal, data_source);
+                handle = udaGetAPI(signal, data_source);
             } else {
                 if (kw.isfile && kw.isformat) {
                     if (exp_number > 0 && STR_IEQUALS(format, "ida") && strlen(file) == 3) {
@@ -2486,16 +2486,16 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                         }
 
                         if (!kw.istest) {
-                            handle = idamClientAPI(file, signal, (int)pass, (int)exp_number);
+                            handle = udaClientAPI(file, signal, (int)pass, (int)exp_number);
                         } else {
-                            handle = idamClientTestAPI(file, signal, (int)pass, (int)exp_number);
+                            handle = udaClientTestAPI(file, signal, (int)pass, (int)exp_number);
                         }
                     } else {
                         if (kw.debug) {
                             fprintf(stdout, "IDAM File API args: ('%s','%s','%s')\n", file, signal, format);
                         }
 
-                        handle = idamClientFileAPI(file, signal, format);
+                        handle = udaClientFileAPI(file, signal, format);
                     }
                 } else {
                     if (kw.isserver && kw.ismdstree && kw.ismdsnode) {
@@ -2507,7 +2507,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                                             "('%s','%s','%s',%ld)\n", server, mdstree, mdsnode, (long)mdstreenum);
                         }
 
-                        handle = idamClientMDS(server, mdstree, mdsnode, mdstreenum);
+                        handle = udaClientMDS(server, mdstree, mdsnode, mdstreenum);
                     } else {
                         if (kw.verbose) {
                             fprintf(stdout, "No Appropriate IDAM API Identified\n");
@@ -2515,7 +2515,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
                         }
 
                         IDL_KW_FREE;
-                        restoreIdamProperties(cblock, client_flags);
+                        udaRestoreProperties(cblock, client_flags);
                         return (IDL_GettmpLong(GDE_NO_API_IDENTIFIED));
                     }
                 }
@@ -2527,8 +2527,8 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
         fprintf(stdout, "IDAM API Handle = %d\n", handle);
     }
 
-    error_code = getIdamErrorCode(handle);
-    error_msg = (char*)getIdamErrorMsg(handle);
+    error_code = udaGetErrorCode(handle);
+    error_msg = (char*)udaGetErrorMsg(handle);
 
     if (handle < 0) {
         if (kw.verbose) {
@@ -2540,13 +2540,13 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_BAD_HANDLE));
     }
 
-    rank = getIdamRank(handle);
-    order = getIdamOrder(handle);
-    status = getIdamDataStatus(handle);
+    rank = udaGetRank(handle);
+    order = udaGetOrder(handle);
+    status = udaGetDataStatus(handle);
 
     //--------------------------------------------------------------------------
     // Return Handle and High Level Information: Not Data - Separate Calls
@@ -2557,7 +2557,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_HEAP_ALLOC_ERROR));
     }
 
@@ -2573,17 +2573,17 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
     sout->status = (IDL_LONG)status;
     sout->error_code = (IDL_LONG)error_code;
 
-    sout->get_datadble = (IDL_LONG)getIdamProperty("get_datadble", client_flags);  // (IDL_LONG) kw.get_datadble;
-    sout->get_dimdble = (IDL_LONG)getIdamProperty("get_dimdble", client_flags);   // (IDL_LONG) kw.get_dimdble;
-    sout->get_timedble = (IDL_LONG)getIdamProperty("get_timedble", client_flags);  // (IDL_LONG) kw.get_timedble;
-    sout->get_scalar = (IDL_LONG)getIdamProperty("get_scalar", client_flags);    // (IDL_LONG) kw.get_scalar;
-    sout->get_bytes = (IDL_LONG)getIdamProperty("get_bytes", client_flags);     // (IDL_LONG) kw.get_bytes;
-    sout->get_asis = (IDL_LONG)getIdamProperty("get_asis", client_flags);      // (IDL_LONG) kw.get_asis;
-    sout->get_bad = (IDL_LONG)getIdamProperty("get_bad", client_flags);       // (IDL_LONG) kw.get_bad;
-    sout->get_meta = (IDL_LONG)getIdamProperty("get_meta", client_flags);      // (IDL_LONG) kw.get_meta;
-    sout->get_uncal = (IDL_LONG)getIdamProperty("get_uncal", client_flags);     // (IDL_LONG) kw.get_uncal;
-    sout->get_notoff = (IDL_LONG)getIdamProperty("get_notoff", client_flags);    // (IDL_LONG) kw.get_notoff;
-    sout->get_nodimdata = (IDL_LONG)getIdamProperty("get_nodimdata", client_flags); // (IDL_LONG) kw.get_nodimdata;
+    sout->get_datadble = (IDL_LONG)udaGetProperty("get_datadble", client_flags);  // (IDL_LONG) kw.get_datadble;
+    sout->get_dimdble = (IDL_LONG)udaGetProperty("get_dimdble", client_flags);   // (IDL_LONG) kw.get_dimdble;
+    sout->get_timedble = (IDL_LONG)udaGetProperty("get_timedble", client_flags);  // (IDL_LONG) kw.get_timedble;
+    sout->get_scalar = (IDL_LONG)udaGetProperty("get_scalar", client_flags);    // (IDL_LONG) kw.get_scalar;
+    sout->get_bytes = (IDL_LONG)udaGetProperty("get_bytes", client_flags);     // (IDL_LONG) kw.get_bytes;
+    sout->get_asis = (IDL_LONG)udaGetProperty("get_asis", client_flags);      // (IDL_LONG) kw.get_asis;
+    sout->get_bad = (IDL_LONG)udaGetProperty("get_bad", client_flags);       // (IDL_LONG) kw.get_bad;
+    sout->get_meta = (IDL_LONG)udaGetProperty("get_meta", client_flags);      // (IDL_LONG) kw.get_meta;
+    sout->get_uncal = (IDL_LONG)udaGetProperty("get_uncal", client_flags);     // (IDL_LONG) kw.get_uncal;
+    sout->get_notoff = (IDL_LONG)udaGetProperty("get_notoff", client_flags);    // (IDL_LONG) kw.get_notoff;
+    sout->get_nodimdata = (IDL_LONG)udaGetProperty("get_nodimdata", client_flags); // (IDL_LONG) kw.get_nodimdata;
 
     IDL_StrStore(&(sout->signal), signal);
     IDL_StrStore(&(sout->source), source);
@@ -2612,9 +2612,9 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
     //
     // The exception is bad data ... users may want to look at this data by changing the get_bad property
 
-    //if(sout->error_code != 0 && !(get_bad && getIdamDataStatus(sout->handle) == MIN_STATUS && sout->error_code == DATA_STATUS_BAD)){
+    //if(sout->error_code != 0 && !(get_bad && udaGetDataStatus(sout->handle) == MIN_STATUS && sout->error_code == DATA_STATUS_BAD)){
     if (sout->error_code != 0 &&
-        !(getIdamDataStatus(sout->handle) == MIN_STATUS && sout->error_code == DATA_STATUS_BAD)) {
+        !(udaGetDataStatus(sout->handle) == MIN_STATUS && sout->error_code == DATA_STATUS_BAD)) {
 
         if (kw.debug) {
             fprintf(stdout, "Freeing Heap for Handle %d\n", handle);
@@ -2627,7 +2627,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    udaRestoreProperties(cblock, client_flags);
     return (ivReturn);
 }
 
@@ -2641,10 +2641,10 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
     int data_n, rank, ndata, errtype;
 
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  // preserve the current set of client properties
+    CLIENT_BLOCK cblock = udaSaveProperties(client_flags);  // preserve the current set of client properties
     CLIENT_BLOCK* idamcblock = NULL;
     int data_get_bad = 0;
-    int client_get_bad = getIdamProperty("get_bad", client_flags);         // Current client get_bad property
+    int client_get_bad = udaGetProperty("get_bad", client_flags);         // Current client get_bad property
 
     IDAM_SIN* sin = NULL;      // Input Structure
     IDAM_DOUT* sout = NULL;    // Returned Structure
@@ -2845,7 +2845,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
     }
 
     if ((int)sin->get_bad) {                 // Reset on exit
-        setIdamProperty("get_bad", client_flags);
+        udaSetProperty("get_bad", client_flags);
         client_get_bad = 1;
     }
 
@@ -2853,17 +2853,17 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
     //---------------------------------------------------------------------------
     // Data Acquisition Properties, Keyword Properties and Client Property Settings
 
-    if ((idamcblock = getIdamDataProperties((int)sin->handle)) != NULL) {
+    if ((idamcblock = udaGetDataProperties((int)sin->handle)) != NULL) {
         data_get_bad = idamcblock->get_bad;
     } else {
         data_get_bad = (int)sin->get_bad;    // Client could change this value so don't trust!
     }
 
     if (sin->error_code != 0 &&
-        !((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) == MIN_STATUS &&
+        !((client_get_bad || data_get_bad) && udaGetDataStatus(sin->handle) == MIN_STATUS &&
           sin->error_code == DATA_STATUS_BAD)) {
         //fprintf(stdout,"error_code     = %d\n", sin->error_code);
-        //fprintf(stdout,"status         = %d\n", getIdamDataStatus(sin->handle));
+        //fprintf(stdout,"status         = %d\n", udaGetDataStatus(sin->handle));
         //fprintf(stdout,"client_get_bad = %d\n", client_get_bad);
         //fprintf(stdout,"data_get_bad   = %d\n", data_get_bad);
         if (kw.verbose) {
@@ -2871,7 +2871,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_DATA_HAS_ERROR));
     }
 
@@ -2882,14 +2882,14 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
     //fprintf(stdout,"data's get_bad          : %d\n", data_get_bad);
     //fprintf(stdout,"get_bad Client value    : %d\n", client_get_bad);
 
-    if ((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) > MIN_STATUS) {
+    if ((client_get_bad || data_get_bad) && udaGetDataStatus(sin->handle) > MIN_STATUS) {
         if (kw.verbose) {
             fprintf(stdout,
                     "Data don't have a BAD Status but GET_BAD property set - Access to data blocked!\n");
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
@@ -2897,17 +2897,17 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
     // Prepare return Structure: Size is Base Structure + Data Array Length
     // Specifiy the Data Array Organisation
 
-    rank = getIdamRank(sin->handle);
-    data_n = getIdamDataNum(sin->handle);
+    rank = udaGetRank(sin->handle);
+    data_n = udaGetDataNum(sin->handle);
     ndata = data_n;
 
-    if (getIdamData(sin->handle) == NULL) {
+    if (udaGetData(sin->handle) == NULL) {
         if (kw.verbose) {
             fprintf(stdout, "Data Block Pointer is NULL!!!\n");
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
@@ -2917,7 +2917,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
@@ -2927,7 +2927,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_RANK_TOO_HIGH));
     }
 
@@ -2935,7 +2935,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
         dlen[0] = rank;
 
         for (int i = 1; i <= rank; i++) {
-            dlen[i] = getIdamDimNum(sin->handle, i - 1); // How the Data Array is Packed (Shape)
+            dlen[i] = udaGetDimNum(sin->handle, i - 1); // How the Data Array is Packed (Shape)
         }
 
         if (kw.debug) {
@@ -2959,7 +2959,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
         }
     }
 
-    switch (getIdamDataType(sin->handle)) {
+    switch (udaGetDataType(sin->handle)) {
 
         case UDA_TYPE_FLOAT:
 
@@ -2975,7 +2975,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
 
             // This contiguous block of memory is used so that a single free releases the heap - simpler!
 
-            memcpy((void*)&sout->data, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(float));
+            memcpy((void*)&sout->data, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(float));
             psDef = IDL_MakeStruct(NULL, pTagsFloat);
             break;
 
@@ -2990,7 +2990,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->data, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(double));
+            memcpy((void*)&sout->data, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(double));
             psDef = IDL_MakeStruct(NULL, pTagsDouble);
             break;
 
@@ -3001,7 +3001,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->data, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(short));
+            memcpy((void*)&sout->data, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(short));
             psDef = IDL_MakeStruct(NULL, pTagsShort);
             break;
 
@@ -3012,7 +3012,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->data, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(int));
+            memcpy((void*)&sout->data, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(int));
             psDef = IDL_MakeStruct(NULL, pTagsInt);
             break;
 
@@ -3023,7 +3023,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->data, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(long));
+            memcpy((void*)&sout->data, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(long));
             psDef = IDL_MakeStruct(NULL, pTagsLong);
             break;
 
@@ -3034,7 +3034,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->data, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(long));
+            memcpy((void*)&sout->data, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(long));
             psDef = IDL_MakeStruct(NULL, pTagsLong);
             break;
 
@@ -3045,7 +3045,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->data, (void*)getIdamData(sin->handle),
+            memcpy((void*)&sout->data, (void*)udaGetData(sin->handle),
                    (size_t)ndata * sizeof(unsigned short));
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedShort);
             break;
@@ -3057,7 +3057,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->data, (void*)getIdamData(sin->handle),
+            memcpy((void*)&sout->data, (void*)udaGetData(sin->handle),
                    (size_t)ndata * sizeof(unsigned int));
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedInt);
             break;
@@ -3069,7 +3069,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->data, (void*)getIdamData(sin->handle),
+            memcpy((void*)&sout->data, (void*)udaGetData(sin->handle),
                    (size_t)ndata * sizeof(unsigned long));
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedLong);
             break;
@@ -3081,7 +3081,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->data, (void*)getIdamData(sin->handle),
+            memcpy((void*)&sout->data, (void*)udaGetData(sin->handle),
                    (size_t)ndata * sizeof(unsigned long));
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedLong);
             break;
@@ -3093,7 +3093,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->data, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(char));
+            memcpy((void*)&sout->data, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(char));
             psDef = IDL_MakeStruct(NULL, pTagsChar);
             break;
 
@@ -3104,7 +3104,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->data, (void*)getIdamData(sin->handle),
+            memcpy((void*)&sout->data, (void*)udaGetData(sin->handle),
                    (size_t)ndata * sizeof(unsigned char));
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedChar);
             break;
@@ -3116,7 +3116,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->data, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(char));
+            memcpy((void*)&sout->data, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(char));
             psDef = IDL_MakeStruct(NULL, pTagsChar);
 
             //printf("ndata = %d\n", ndata);
@@ -3134,7 +3134,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
             }
 
             IDL_KW_FREE;
-            restoreIdamProperties(cblock, client_flags);
+            udaRestoreProperties(cblock, client_flags);
             return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
     }
 
@@ -3144,17 +3144,17 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_HEAP_ALLOC_ERROR));
     }
 
     sout->handle = (IDL_LONG)sin->handle;
-    sout->data_type = (IDL_LONG)getIdamDataType(sin->handle);
+    sout->data_type = (IDL_LONG)udaGetDataType(sin->handle);
     sout->data_n = (IDL_LONG)data_n;
 
-    IDL_StrStore(&(sout->data_label), (char*)getIdamDataLabel(sin->handle));
-    IDL_StrStore(&(sout->data_units), (char*)getIdamDataUnits(sin->handle));
-    IDL_StrStore(&(sout->data_desc), (char*)getIdamDataDesc(sin->handle));
+    IDL_StrStore(&(sout->data_label), (char*)udaGetDataLabel(sin->handle));
+    IDL_StrStore(&(sout->data_units), (char*)udaGetDataUnits(sin->handle));
+    IDL_StrStore(&(sout->data_desc), (char*)udaGetDataDesc(sin->handle));
 
     if (kw.debug) {
         fprintf(stdout, "Labels copied to IDL Strings\n");
@@ -3174,7 +3174,7 @@ getidamdata(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords and IDAM Heap
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    udaRestoreProperties(cblock, client_flags);
     return (ivReturn);
 
 }
@@ -3200,10 +3200,10 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
     IDAM_SIN* sin;              // Returned Structure
 
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  // preserve the current set of client properties
+    CLIENT_BLOCK cblock = udaSaveProperties(client_flags);  // preserve the current set of client properties
     CLIENT_BLOCK* idamcblock = NULL;
     int data_get_bad = 0;
-    int client_get_bad = getIdamProperty("get_bad", client_flags);         // Current client get_bad property
+    int client_get_bad = udaGetProperty("get_bad", client_flags);         // Current client get_bad property
 
     char* dvec;
     IDL_VPTR idlArray = NULL;
@@ -3259,7 +3259,7 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
     sin = (IDAM_SIN*)argv[0]->value.s.arr->data;        // Input Structure
 
     if ((int)sin->get_bad) {                 // Reset on exit
-        setIdamProperty("get_bad", client_flags);
+        udaSetProperty("get_bad", client_flags);
         client_get_bad = 1;
     }
 
@@ -3275,35 +3275,35 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
     //---------------------------------------------------------------------------
     // Data Acquisition Properties, Keyword Properties and Client Property Settings
 
-    if ((idamcblock = getIdamDataProperties((int)sin->handle)) != NULL) {
+    if ((idamcblock = udaGetDataProperties((int)sin->handle)) != NULL) {
         data_get_bad = idamcblock->get_bad;
     } else {
         data_get_bad = (int)sin->get_bad;    // Client could change this value so don't trust!
     }
 
     if (sin->error_code != 0 &&
-        !((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) == MIN_STATUS &&
+        !((client_get_bad || data_get_bad) && udaGetDataStatus(sin->handle) == MIN_STATUS &&
           sin->error_code == DATA_STATUS_BAD)) {
         if (kw.verbose) {
             fprintf(stdout, "Data has a Raised Error Status!\n");
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_DATA_HAS_ERROR));
     }
 
     //---------------------------------------------------------------------------
     // Check Status and BAD Property
 
-    if ((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) > MIN_STATUS) {
+    if ((client_get_bad || data_get_bad) && udaGetDataStatus(sin->handle) > MIN_STATUS) {
         if (kw.verbose) {
             fprintf(stdout,
                     "Data don't have a BAD Status but GET_BAD property set - Access to data blocked!\n");
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
@@ -3311,7 +3311,7 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
     // Return Data
 
     ndims = 1;
-    ndata = getIdamDataNum(sin->handle);
+    ndata = udaGetDataNum(sin->handle);
     ilDims[0] = (IDL_MEMINT)ndata;
 
     if (kw.debug) {
@@ -3320,89 +3320,89 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (getIdamDataType(sin->handle)) {
+    switch (udaGetDataType(sin->handle)) {
 
         case UDA_TYPE_FLOAT:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(float));
+            memcpy((void*)dvec, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(float));
             break;
 
         case UDA_TYPE_DOUBLE:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(double));
+            memcpy((void*)dvec, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(double));
             break;
 
         case UDA_TYPE_SHORT:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_INT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(short));
+            memcpy((void*)dvec, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(short));
             break;
 
         case UDA_TYPE_INT:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(int));
+            memcpy((void*)dvec, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(int));
             break;
 
         case UDA_TYPE_LONG:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(long));
+            memcpy((void*)dvec, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(long));
             break;
 
         case UDA_TYPE_LONG64:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(long));
+            memcpy((void*)dvec, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(long));
             break;
 
         case UDA_TYPE_UNSIGNED_SHORT:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_UINT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(unsigned short));
+            memcpy((void*)dvec, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(unsigned short));
             break;
 
         case UDA_TYPE_UNSIGNED_INT:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(unsigned int));
+            memcpy((void*)dvec, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(unsigned int));
             break;
 
         case UDA_TYPE_UNSIGNED_LONG:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(unsigned long));
+            memcpy((void*)dvec, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(unsigned long));
             break;
 
         case UDA_TYPE_UNSIGNED_LONG64:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(unsigned long));
+            memcpy((void*)dvec, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(unsigned long));
             break;
 
         case UDA_TYPE_CHAR:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_BYTE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(char));
+            memcpy((void*)dvec, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(char));
             break;
 
         case UDA_TYPE_UNSIGNED_CHAR:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_BYTE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(sin->handle), (size_t)ndata * sizeof(unsigned char));
+            memcpy((void*)dvec, (void*)udaGetData(sin->handle), (size_t)ndata * sizeof(unsigned char));
             break;
 
         default:
             break;
 
             if (kw.verbose) {
-                fprintf(stdout, "The Data Type is Not Recognised [%d]\n", getIdamDataType(sin->handle));
+                fprintf(stdout, "The Data Type is Not Recognised [%d]\n", udaGetDataType(sin->handle));
             }
 
             IDL_KW_FREE;
-            restoreIdamProperties(cblock, client_flags);
+            udaRestoreProperties(cblock, client_flags);
             return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
 
     }
@@ -3411,7 +3411,7 @@ getdataarray(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    udaRestoreProperties(cblock, client_flags);
     return (idlArray);
 }
 
@@ -3438,10 +3438,10 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
     IDAM_SIN* sin;      // Returned Structure
 
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  //preserve the current set of client properties
+    CLIENT_BLOCK cblock = udaSaveProperties(client_flags);  //preserve the current set of client properties
     CLIENT_BLOCK* idamcblock = NULL;
     int data_get_bad = 0;
-    int client_get_bad = getIdamProperty("get_bad", client_flags);         // Current client get_bad property
+    int client_get_bad = udaGetProperty("get_bad", client_flags);         // Current client get_bad property
 
     char* dvec;
     IDL_VPTR idlArray = NULL;
@@ -3497,7 +3497,7 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
     sin = (IDAM_SIN*)argv[0]->value.s.arr->data;        // Input Structure
 
     if ((int)sin->get_bad) {                 // Reset on exit
-        setIdamProperty("get_bad", client_flags);
+        udaSetProperty("get_bad", client_flags);
         client_get_bad = 1;
     }
 
@@ -3507,50 +3507,50 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NO_VALID_HANDLE));
     }
 
     //---------------------------------------------------------------------------
     // Data Acquisition Properties, Keyword Properties and Client Property Settings
 
-    if ((idamcblock = getIdamDataProperties((int)sin->handle)) != NULL) {
+    if ((idamcblock = udaGetDataProperties((int)sin->handle)) != NULL) {
         data_get_bad = idamcblock->get_bad;
     } else {
         data_get_bad = (int)sin->get_bad;    // Client could change this value so don't trust!
     }
 
     if (sin->error_code != 0 &&
-        !((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) == MIN_STATUS &&
+        !((client_get_bad || data_get_bad) && udaGetDataStatus(sin->handle) == MIN_STATUS &&
           sin->error_code == DATA_STATUS_BAD)) {
         if (kw.verbose) {
             fprintf(stdout, "Data has a Raised Error Status!\n");
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_DATA_HAS_ERROR));
     }
 
     //---------------------------------------------------------------------------
     // Check Status and BAD Property
 
-    if ((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) > MIN_STATUS) {
+    if ((client_get_bad || data_get_bad) && udaGetDataStatus(sin->handle) > MIN_STATUS) {
         if (kw.verbose) {
             fprintf(stdout,
                     "Data don't have a BAD Status but GET_BAD property set - Access to data blocked!\n");
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
     //--------------------------------------------------------------------------
     // Return Data
 
-    ep = (char*)getIdamError(sin->handle);
-    ndata = getIdamDataNum(sin->handle);
+    ep = (char*)udaGetError(sin->handle);
+    ndata = udaGetDataNum(sin->handle);
 
     ndims = 1;
     ilDims[0] = (IDL_MEMINT)ndata;
@@ -3561,7 +3561,7 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (getIdamErrorType(sin->handle)) {
+    switch (udaGetErrorType(sin->handle)) {
 
         case UDA_TYPE_FLOAT:
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
@@ -3639,11 +3639,11 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
             break;
 
             if (kw.verbose) {
-                fprintf(stdout, "The Data Error Type is Not Recognised [%d]\n", getIdamErrorType(sin->handle));
+                fprintf(stdout, "The Data Error Type is Not Recognised [%d]\n", udaGetErrorType(sin->handle));
             }
 
             IDL_KW_FREE;
-            restoreIdamProperties(cblock, client_flags);
+            udaRestoreProperties(cblock, client_flags);
             return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
 
     }
@@ -3652,7 +3652,7 @@ geterrorarray(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    udaRestoreProperties(cblock, client_flags);
     return (idlArray);
 }
 
@@ -3682,10 +3682,10 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
     IDAM_DIMOUT* sout = NULL;      // Returned Structure
 
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  // preserve the current set of client properties
+    CLIENT_BLOCK cblock = udaSaveProperties(client_flags);  // preserve the current set of client properties
     CLIENT_BLOCK* idamcblock = NULL;
     int data_get_bad = 0;
-    int client_get_bad = getIdamProperty("get_bad", client_flags);         // Current client get_bad property
+    int client_get_bad = udaGetProperty("get_bad", client_flags);         // Current client get_bad property
 
     IDL_VPTR ivReturn = NULL;
 
@@ -3888,7 +3888,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
     dimid = IDL_LongScalar(argv[1]);
 
     if ((int)sin->get_bad) {                 // Reset on exit
-        setIdamProperty("get_bad", client_flags);
+        udaSetProperty("get_bad", client_flags);
         client_get_bad = 1;
     }
 
@@ -3898,65 +3898,65 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NO_VALID_HANDLE));
     }
 
     //---------------------------------------------------------------------------
     // Data Acquisition Properties, Keyword Properties and Client Property Settings
 
-    if ((idamcblock = getIdamDataProperties((int)sin->handle)) != NULL) {
+    if ((idamcblock = udaGetDataProperties((int)sin->handle)) != NULL) {
         data_get_bad = idamcblock->get_bad;
     } else {
         data_get_bad = (int)sin->get_bad;    // Client could change this value so don't trust!
     }
 
     if (sin->error_code != 0 &&
-        !((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) == MIN_STATUS &&
+        !((client_get_bad || data_get_bad) && udaGetDataStatus(sin->handle) == MIN_STATUS &&
           sin->error_code == DATA_STATUS_BAD)) {
         if (kw.verbose) {
             fprintf(stdout, "Data has a Raised Error Status!\n");
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_DATA_HAS_ERROR));
     }
 
     //---------------------------------------------------------------------------
     // Check Status and BAD Property
 
-    if ((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) > MIN_STATUS) {
+    if ((client_get_bad || data_get_bad) && udaGetDataStatus(sin->handle) > MIN_STATUS) {
         if (kw.verbose) {
             fprintf(stdout,
                     "Data don't have a BAD Status but GET_BAD property set - Access to data blocked!\n");
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
     //---------------------------------------------------------------------------
     // Check Rank
 
-    if (dimid < 0 || dimid >= getIdamRank(sin->handle)) {
+    if (dimid < 0 || dimid >= udaGetRank(sin->handle)) {
         if (kw.verbose) {
             fprintf(stdout, "Dimension is Inconsistent with the Data's Rank!\n");
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NO_SUCH_DIMENSION));
     }
 
     //--------------------------------------------------------------------------
     // Prepare return Structure: Size is Base Structure + Data Array Length
 
-    ndata = getIdamDimNum(sin->handle, dimid);
+    ndata = udaGetDimNum(sin->handle, dimid);
     dlen[1] = ndata; // Modify the Structure Definition prior to Allocation
 
-    switch (getIdamDimType(sin->handle, dimid)) {
+    switch (udaGetDimType(sin->handle, dimid)) {
 
         case UDA_TYPE_FLOAT:
             sout = (IDAM_DIMOUT*)malloc(sizeof(IDAM_DIMOUT) + sizeof(float) * ndata);
@@ -3965,7 +3965,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->dim, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)&sout->dim, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(float));
             psDef = IDL_MakeStruct(NULL, pTagsFloat);
             break;
@@ -3977,7 +3977,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->dim, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)&sout->dim, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(double));
             psDef = IDL_MakeStruct(NULL, pTagsDouble);
             break;
@@ -3989,7 +3989,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->dim, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)&sout->dim, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(short));
             psDef = IDL_MakeStruct(NULL, pTagsShort);
             break;
@@ -4001,7 +4001,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->dim, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)&sout->dim, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(int));
             psDef = IDL_MakeStruct(NULL, pTagsInt);
             break;
@@ -4013,7 +4013,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->dim, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)&sout->dim, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(long));
             psDef = IDL_MakeStruct(NULL, pTagsLong);
             break;
@@ -4025,7 +4025,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->dim, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)&sout->dim, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(long));
             psDef = IDL_MakeStruct(NULL, pTagsLong);
             break;
@@ -4037,7 +4037,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->dim, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)&sout->dim, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(unsigned short));
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedShort);
             break;
@@ -4049,7 +4049,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->dim, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)&sout->dim, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(unsigned int));
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedInt);
             break;
@@ -4061,7 +4061,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->dim, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)&sout->dim, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(unsigned long));
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedLong);
             break;
@@ -4073,7 +4073,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->dim, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)&sout->dim, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(unsigned long));
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedLong);
             break;
@@ -4085,7 +4085,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->dim, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)&sout->dim, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(char));
             psDef = IDL_MakeStruct(NULL, pTagsChar);
             break;
@@ -4097,7 +4097,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
                 break;
             }
 
-            memcpy((void*)&sout->dim, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)&sout->dim, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(unsigned char));
             psDef = IDL_MakeStruct(NULL, pTagsUnsignedChar);
             break;
@@ -4106,7 +4106,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
             break;
 
             if (kw.verbose) {
-                fprintf(stdout, "The Data Type is Not Recognised [%d]\n", getIdamDimType(sin->handle, dimid));
+                fprintf(stdout, "The Data Type is Not Recognised [%d]\n", udaGetDimType(sin->handle, dimid));
             }
 
             IDL_KW_FREE;
@@ -4119,17 +4119,17 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_HEAP_ALLOC_ERROR));
     }
 
     sout->handle = (IDL_LONG)sin->handle;
     sout->dim_id = (IDL_LONG)dimid;
-    sout->dim_type = (IDL_LONG)getIdamDimType(sin->handle, dimid);
+    sout->dim_type = (IDL_LONG)udaGetDimType(sin->handle, dimid);
     sout->dim_n = (IDL_LONG)ndata;
 
-    IDL_StrStore(&(sout->dim_units), getIdamDimUnits(sin->handle, dimid));
-    IDL_StrStore(&(sout->dim_label), getIdamDimLabel(sin->handle, dimid));
+    IDL_StrStore(&(sout->dim_units), udaGetDimUnits(sin->handle, dimid));
+    IDL_StrStore(&(sout->dim_label), udaGetDimLabel(sin->handle, dimid));
 
     // Create an Anonymous IDL Structure and Import into IDL
 
@@ -4141,7 +4141,7 @@ getidamdimdata(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    udaRestoreProperties(cblock, client_flags);
     return (ivReturn);
 }
 
@@ -4166,10 +4166,10 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
     IDAM_SIN* sin;      // Returned Structure
 
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    CLIENT_BLOCK cblock = saveIdamProperties(client_flags);  // preserve the current set of client properties
+    CLIENT_BLOCK cblock = udaSaveProperties(client_flags);  // preserve the current set of client properties
     CLIENT_BLOCK* idamcblock = NULL;
     int data_get_bad = 0;
-    int client_get_bad = getIdamProperty("get_bad", client_flags);         // Current client get_bad property
+    int client_get_bad = udaGetProperty("get_bad", client_flags);         // Current client get_bad property
 
     char* dvec;
     IDL_VPTR idlArray = NULL;
@@ -4228,7 +4228,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
     dimid = IDL_LongScalar(argv[1]);
 
     if ((int)sin->get_bad) {                 // Reset on exit
-        setIdamProperty("get_bad", client_flags);
+        udaSetProperty("get_bad", client_flags);
         client_get_bad = 1;
     }
 
@@ -4238,55 +4238,55 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NO_VALID_HANDLE));
     }
 
     //---------------------------------------------------------------------------
     // Data Acquisition Properties, Keyword Properties and Client Property Settings
 
-    if ((idamcblock = getIdamDataProperties((int)sin->handle)) != NULL) {
+    if ((idamcblock = udaGetDataProperties((int)sin->handle)) != NULL) {
         data_get_bad = idamcblock->get_bad;
     } else {
         data_get_bad = (int)sin->get_bad;    // Client could change this value so don't trust!
     }
 
     if (sin->error_code != 0 &&
-        !((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) == MIN_STATUS &&
+        !((client_get_bad || data_get_bad) && udaGetDataStatus(sin->handle) == MIN_STATUS &&
           sin->error_code == DATA_STATUS_BAD)) {
         if (kw.verbose) {
             fprintf(stdout, "Data has a Raised Error Status!\n");
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_DATA_HAS_ERROR));
     }
 
     //---------------------------------------------------------------------------
     // Check Status and BAD Property
 
-    if ((client_get_bad || data_get_bad) && getIdamDataStatus(sin->handle) > MIN_STATUS) {
+    if ((client_get_bad || data_get_bad) && udaGetDataStatus(sin->handle) > MIN_STATUS) {
         if (kw.verbose) {
             fprintf(stdout,
                     "Data don't have a BAD Status but GET_BAD property set - Access to data blocked!\n");
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
     //--------------------------------------------------------------------------
     // Check Rank
 
-    if (dimid < 0 || dimid >= getIdamRank(sin->handle)) {
+    if (dimid < 0 || dimid >= udaGetRank(sin->handle)) {
         if (kw.verbose) {
             fprintf(stdout, "Dimension is Inconsistent with the Data's Rank!\n");
         }
 
         IDL_KW_FREE;
-        restoreIdamProperties(cblock, client_flags);
+        udaRestoreProperties(cblock, client_flags);
         return (IDL_GettmpLong(GDE_NO_SUCH_DIMENSION));
     }
 
@@ -4294,7 +4294,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
     // Return Data
 
     ndims = 1;
-    ndata = getIdamDimNum(sin->handle, dimid);
+    ndata = udaGetDimNum(sin->handle, dimid);
     ilDims[0] = (IDL_MEMINT)ndata;
 
     if (!NDEBUG) {
@@ -4303,55 +4303,55 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (getIdamDimType(sin->handle, dimid)) {
+    switch (udaGetDimType(sin->handle, dimid)) {
 
         case UDA_TYPE_FLOAT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(sin->handle, dimid), (size_t)ndata * sizeof(float));
+            memcpy((void*)dvec, (void*)udaGetDimData(sin->handle, dimid), (size_t)ndata * sizeof(float));
             break;
 
         case UDA_TYPE_DOUBLE:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(sin->handle, dimid), (size_t)ndata * sizeof(double));
+            memcpy((void*)dvec, (void*)udaGetDimData(sin->handle, dimid), (size_t)ndata * sizeof(double));
             break;
 
         case UDA_TYPE_SHORT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_INT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(sin->handle, dimid), (size_t)ndata * sizeof(short));
+            memcpy((void*)dvec, (void*)udaGetDimData(sin->handle, dimid), (size_t)ndata * sizeof(short));
             break;
 
         case UDA_TYPE_INT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(sin->handle, dimid), (size_t)ndata * sizeof(int));
+            memcpy((void*)dvec, (void*)udaGetDimData(sin->handle, dimid), (size_t)ndata * sizeof(int));
             break;
 
         case UDA_TYPE_LONG:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(sin->handle, dimid), (size_t)ndata * sizeof(long));
+            memcpy((void*)dvec, (void*)udaGetDimData(sin->handle, dimid), (size_t)ndata * sizeof(long));
             break;
 
         case UDA_TYPE_LONG64:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(sin->handle, dimid), (size_t)ndata * sizeof(long));
+            memcpy((void*)dvec, (void*)udaGetDimData(sin->handle, dimid), (size_t)ndata * sizeof(long));
             break;
 
         case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_UINT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(unsigned short));
             break;
 
@@ -4359,7 +4359,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(unsigned int));
             break;
 
@@ -4367,7 +4367,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(unsigned long));
             break;
 
@@ -4375,7 +4375,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(unsigned long));
             break;
 
@@ -4383,14 +4383,14 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_BYTE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(sin->handle, dimid), (size_t)ndata * sizeof(char));
+            memcpy((void*)dvec, (void*)udaGetDimData(sin->handle, dimid), (size_t)ndata * sizeof(char));
             break;
 
         case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_BYTE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(sin->handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetDimData(sin->handle, dimid),
                    (size_t)ndata * sizeof(unsigned char));
             break;
 
@@ -4399,11 +4399,11 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
 
             if (kw.verbose) {
                 fprintf(stdout, "The Dim Data Type is Not Recognised [%d]\n",
-                        getIdamDimType(sin->handle, dimid));
+                        udaGetDimType(sin->handle, dimid));
             }
 
             IDL_KW_FREE;
-            restoreIdamProperties(cblock, client_flags);
+            udaRestoreProperties(cblock, client_flags);
             return (IDL_GettmpLong(GDE_UNKNOWN_DATA_TYPE));
 
     }
@@ -4412,7 +4412,7 @@ getdimdataarray(int argc, IDL_VPTR argv[], char* argk)
     // Cleanup Keywords
 
     IDL_KW_FREE;
-    restoreIdamProperties(cblock, client_flags);
+    udaRestoreProperties(cblock, client_flags);
     return (idlArray);
 }
 
@@ -4610,7 +4610,7 @@ geterrorcode(int argc, IDL_VPTR argv[], char* argk)
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
-    return (IDL_GettmpLong(getIdamErrorCode(handle)));
+    return (IDL_GettmpLong(udaGetErrorCode(handle)));
 }
 
 IDL_VPTR IDL_CDECL
@@ -4623,8 +4623,8 @@ geterrormsg(int argc, IDL_VPTR argv[], char* argk)
     IDL_EXCLUDE_EXPR(argv[1]);
     handle = IDL_LongScalar(argv[0]);
     IDL_StoreScalarZero(argv[1], IDL_TYP_STRING);
-    IDL_StrStore(&argv[1]->value.str, (char*)getIdamErrorMsg(handle));
-    return (IDL_GettmpLong(getIdamErrorCode(handle)));
+    IDL_StrStore(&argv[1]->value.str, (char*)udaGetErrorMsg(handle));
+    return (IDL_GettmpLong(udaGetErrorCode(handle)));
 }
 
 IDL_VPTR IDL_CDECL
@@ -4633,14 +4633,14 @@ printerrormsgstack(int argc, IDL_VPTR argv[], char* argk)
 {
     int stackSize;
     IDL_ENSURE_SCALAR(argv[0]);
-    stackSize = getIdamServerErrorStackSize();
+    stackSize = udaGetServerErrorStackSize();
     fprintf(stdout, "Error Message Stack: Count %d\n", stackSize);
 
     for (int i = 0; i < stackSize; i++) {
         fprintf(stdout, "[%d] code: %d type: %d location: %s msg: %s\n", i,
-                getIdamServerErrorStackRecordCode(i),
-                getIdamServerErrorStackRecordType(i), getIdamServerErrorStackRecordLocation(i),
-                getIdamServerErrorStackRecordMsg(i));
+                udaGetServerErrorStackRecordCode(i),
+                udaGetServerErrorStackRecordType(i), udaGetServerErrorStackRecordLocation(i),
+                udaGetServerErrorStackRecordMsg(i));
     }
 
     fflush(stdout);
@@ -4654,7 +4654,7 @@ getsourcestatus(int argc, IDL_VPTR argv[], char* argk)
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
-    return (IDL_GettmpLong(getIdamSourceStatus(handle)));
+    return (IDL_GettmpLong(udaGetSourceStatus(handle)));
 }
 
 IDL_VPTR IDL_CDECL
@@ -4664,7 +4664,7 @@ getsignalstatus(int argc, IDL_VPTR argv[], char* argk)
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
-    return (IDL_GettmpLong(getIdamSignalStatus(handle)));
+    return (IDL_GettmpLong(udaGetSignalStatus(handle)));
 }
 
 
@@ -4675,7 +4675,7 @@ getdatastatus(int argc, IDL_VPTR argv[], char* argk)
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
-    return (IDL_GettmpLong(getIdamDataStatus(handle)));
+    return (IDL_GettmpLong(udaGetDataStatus(handle)));
 }
 
 
@@ -4686,7 +4686,7 @@ getdatanum(int argc, IDL_VPTR argv[], char* argk)
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
-    return (IDL_GettmpLong(getIdamDataNum(handle)));
+    return (IDL_GettmpLong(udaGetDataNum(handle)));
 }
 
 IDL_VPTR IDL_CDECL
@@ -4696,7 +4696,7 @@ getrank(int argc, IDL_VPTR argv[], char* argk)
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
-    return (IDL_GettmpLong(getIdamRank(handle)));
+    return (IDL_GettmpLong(udaGetRank(handle)));
 }
 
 IDL_VPTR IDL_CDECL
@@ -4706,7 +4706,7 @@ getorder(int argc, IDL_VPTR argv[], char* argk)
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
-    return (IDL_GettmpLong(getIdamOrder(handle)));
+    return (IDL_GettmpLong(udaGetOrder(handle)));
 }
 
 IDL_VPTR IDL_CDECL
@@ -4716,7 +4716,7 @@ getdatatype(int argc, IDL_VPTR argv[], char* argk)
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
-    return (IDL_GettmpLong(getIdamDataType(handle)));
+    return (IDL_GettmpLong(udaGetDataType(handle)));
 }
 
 IDL_VPTR IDL_CDECL
@@ -4726,7 +4726,7 @@ geterrortype(int argc, IDL_VPTR argv[], char* argk)
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = IDL_LongScalar(argv[0]);
-    return (IDL_GettmpLong(getIdamErrorType(handle)));
+    return (IDL_GettmpLong(udaGetErrorType(handle)));
 }
 
 
@@ -4744,100 +4744,100 @@ getdatadata(int argc, IDL_VPTR argv[], char* argk)
 
     // Check Status and BAD Property done within Accessor
 
-    if (getIdamData(handle) == NULL) {
+    if (udaGetData(handle) == NULL) {
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
     ndims = 1;
-    ndata = getIdamDataNum(handle);
+    ndata = udaGetDataNum(handle);
     ilDims[0] = (IDL_MEMINT)ndata;
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (getIdamDataType(handle)) {
+    switch (udaGetDataType(handle)) {
 
         case UDA_TYPE_FLOAT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(handle), (size_t)ndata * sizeof(float));
+            memcpy((void*)dvec, (void*)udaGetData(handle), (size_t)ndata * sizeof(float));
             break;
 
         case UDA_TYPE_DOUBLE:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(handle), (size_t)ndata * sizeof(double));
+            memcpy((void*)dvec, (void*)udaGetData(handle), (size_t)ndata * sizeof(double));
             break;
 
         case UDA_TYPE_SHORT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_INT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(handle), (size_t)ndata * sizeof(short));
+            memcpy((void*)dvec, (void*)udaGetData(handle), (size_t)ndata * sizeof(short));
             break;
 
         case UDA_TYPE_INT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(handle), (size_t)ndata * sizeof(int));
+            memcpy((void*)dvec, (void*)udaGetData(handle), (size_t)ndata * sizeof(int));
             break;
 
         case UDA_TYPE_LONG:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(handle), (size_t)ndata * sizeof(long));
+            memcpy((void*)dvec, (void*)udaGetData(handle), (size_t)ndata * sizeof(long));
             break;
 
         case UDA_TYPE_LONG64:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(handle), (size_t)ndata * sizeof(long));
+            memcpy((void*)dvec, (void*)udaGetData(handle), (size_t)ndata * sizeof(long));
             break;
 
         case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_UINT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(handle), (size_t)ndata * sizeof(unsigned short));
+            memcpy((void*)dvec, (void*)udaGetData(handle), (size_t)ndata * sizeof(unsigned short));
             break;
 
         case UDA_TYPE_UNSIGNED_INT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(handle), (size_t)ndata * sizeof(unsigned int));
+            memcpy((void*)dvec, (void*)udaGetData(handle), (size_t)ndata * sizeof(unsigned int));
             break;
 
         case UDA_TYPE_UNSIGNED_LONG:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(handle), (size_t)ndata * sizeof(unsigned long));
+            memcpy((void*)dvec, (void*)udaGetData(handle), (size_t)ndata * sizeof(unsigned long));
             break;
 
         case UDA_TYPE_UNSIGNED_LONG64:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(handle), (size_t)ndata * sizeof(unsigned long));
+            memcpy((void*)dvec, (void*)udaGetData(handle), (size_t)ndata * sizeof(unsigned long));
             break;
 
         case UDA_TYPE_CHAR:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_BYTE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(handle), (size_t)ndata * sizeof(char));
+            memcpy((void*)dvec, (void*)udaGetData(handle), (size_t)ndata * sizeof(char));
             break;
 
         case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_BYTE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamData(handle), (size_t)ndata * sizeof(unsigned char));
+            memcpy((void*)dvec, (void*)udaGetData(handle), (size_t)ndata * sizeof(unsigned char));
             break;
 
         default:
@@ -4862,100 +4862,100 @@ getsyntheticdata(int argc, IDL_VPTR argv[], char* argk)
 
     // Check Status and BAD Property done with Accessor function
 
-    if (getIdamData(handle) == NULL) {
+    if (udaGetData(handle) == NULL) {
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
     ndims = 1;
-    ndata = getIdamDataNum(handle);
+    ndata = udaGetDataNum(handle);
     ilDims[0] = (IDL_MEMINT)ndata;
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (getIdamDataType(handle)) {
+    switch (udaGetDataType(handle)) {
 
         case UDA_TYPE_FLOAT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticData(handle), (size_t)ndata * sizeof(float));
+            memcpy((void*)dvec, (void*)udaGetSyntheticData(handle), (size_t)ndata * sizeof(float));
             break;
 
         case UDA_TYPE_DOUBLE:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticData(handle), (size_t)ndata * sizeof(double));
+            memcpy((void*)dvec, (void*)udaGetSyntheticData(handle), (size_t)ndata * sizeof(double));
             break;
 
         case UDA_TYPE_SHORT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_INT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticData(handle), (size_t)ndata * sizeof(short));
+            memcpy((void*)dvec, (void*)udaGetSyntheticData(handle), (size_t)ndata * sizeof(short));
             break;
 
         case UDA_TYPE_INT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticData(handle), (size_t)ndata * sizeof(int));
+            memcpy((void*)dvec, (void*)udaGetSyntheticData(handle), (size_t)ndata * sizeof(int));
             break;
 
         case UDA_TYPE_LONG:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticData(handle), (size_t)ndata * sizeof(long));
+            memcpy((void*)dvec, (void*)udaGetSyntheticData(handle), (size_t)ndata * sizeof(long));
             break;
 
         case UDA_TYPE_LONG64:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticData(handle), (size_t)ndata * sizeof(long));
+            memcpy((void*)dvec, (void*)udaGetSyntheticData(handle), (size_t)ndata * sizeof(long));
             break;
 
         case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_UINT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticData(handle), (size_t)ndata * sizeof(unsigned short));
+            memcpy((void*)dvec, (void*)udaGetSyntheticData(handle), (size_t)ndata * sizeof(unsigned short));
             break;
 
         case UDA_TYPE_UNSIGNED_INT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticData(handle), (size_t)ndata * sizeof(unsigned int));
+            memcpy((void*)dvec, (void*)udaGetSyntheticData(handle), (size_t)ndata * sizeof(unsigned int));
             break;
 
         case UDA_TYPE_UNSIGNED_LONG:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticData(handle), (size_t)ndata * sizeof(unsigned long));
+            memcpy((void*)dvec, (void*)udaGetSyntheticData(handle), (size_t)ndata * sizeof(unsigned long));
             break;
 
         case UDA_TYPE_UNSIGNED_LONG64:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticData(handle), (size_t)ndata * sizeof(unsigned long));
+            memcpy((void*)dvec, (void*)udaGetSyntheticData(handle), (size_t)ndata * sizeof(unsigned long));
             break;
 
         case UDA_TYPE_CHAR:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_BYTE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticData(handle), (size_t)ndata * sizeof(char));
+            memcpy((void*)dvec, (void*)udaGetSyntheticData(handle), (size_t)ndata * sizeof(char));
             break;
 
         case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_BYTE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticData(handle), (size_t)ndata * sizeof(unsigned char));
+            memcpy((void*)dvec, (void*)udaGetSyntheticData(handle), (size_t)ndata * sizeof(unsigned char));
             break;
 
         default:
@@ -4980,19 +4980,19 @@ getdataerror(int argc, IDL_VPTR argv[], char* argk)
 
     // Check Status and BAD Property done within Accessor function
 
-    if (getIdamData(handle) == NULL) {
+    if (udaGetData(handle) == NULL) {
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
     ndims = 1;
-    data_n = getIdamDataNum(handle);
-    ep = (char*)getIdamError(handle);
+    data_n = udaGetDataNum(handle);
+    ep = (char*)udaGetError(handle);
 
     ilDims[0] = (IDL_MEMINT)data_n;
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (getIdamErrorType(handle)) {
+    switch (udaGetErrorType(handle)) {
 
         case UDA_TYPE_FLOAT:
 
@@ -5101,20 +5101,20 @@ getasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk)
 
     // Check Status and BAD Property done within Accessor function
 
-    if (getIdamData(handle) == NULL) {
+    if (udaGetData(handle) == NULL) {
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
     above = IDL_LongScalar(argv[1]);
     ndims = 1;
-    data_n = getIdamDataNum(handle);
-    ep = (char*)getIdamAsymmetricError(handle, above);
+    data_n = udaGetDataNum(handle);
+    ep = (char*)udaGetAsymmetricError(handle, above);
 
     ilDims[0] = (IDL_MEMINT)data_n;
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (getIdamErrorType(handle)) {
+    switch (udaGetErrorType(handle)) {
 
         case UDA_TYPE_FLOAT:
 
@@ -5222,15 +5222,15 @@ getfloatdata(int argc, IDL_VPTR argv[], char* argk)
 
     // Check Status and BAD Property done within Accessor function
 
-    if (getIdamData(handle) == NULL) {
+    if (udaGetData(handle) == NULL) {
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
     ndims = 1;
-    ilDims[0] = (IDL_MEMINT)getIdamDataNum(handle);
+    ilDims[0] = (IDL_MEMINT)udaGetDataNum(handle);
     dvec = (float*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
                                      IDL_ARR_INI_ZERO, &idlArray);
-    getIdamFloatData(handle, dvec);
+    udaGetFloatData(handle, dvec);
 
     return (idlArray);
 }
@@ -5250,15 +5250,15 @@ getfloatdataerror(int argc, IDL_VPTR argv[], char* argk)
 
     // Check Status and BAD Property done within Accessor function
 
-    if (getIdamData(handle) == NULL) {
+    if (udaGetData(handle) == NULL) {
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
     ndims = 1;
-    ilDims[0] = (IDL_MEMINT)getIdamDataNum(handle);
+    ilDims[0] = (IDL_MEMINT)udaGetDataNum(handle);
     dvec = (float*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
                                      IDL_ARR_INI_ZERO, &idlArray);
-    getIdamFloatError(handle, dvec);
+    udaGetFloatError(handle, dvec);
 
     return (idlArray);
 }
@@ -5279,15 +5279,15 @@ getfloatasymmetricdataerror(int argc, IDL_VPTR argv[], char* argk)
 
     // Check Status and BAD Property done within Accessor function
 
-    if (getIdamData(handle) == NULL) {
+    if (udaGetData(handle) == NULL) {
         return (IDL_GettmpLong(GDE_NO_DATA_TO_RETURN));
     }
 
     ndims = 1;
-    ilDims[0] = (IDL_MEMINT)getIdamDataNum(handle);
+    ilDims[0] = (IDL_MEMINT)udaGetDataNum(handle);
     dvec = (float*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
                                      IDL_ARR_INI_ZERO, &idlArray);
-    getIdamFloatAsymmetricError(handle, above, dvec);
+    udaGetFloatAsymmetricError(handle, above, dvec);
 
     return (idlArray);
 }
@@ -5303,7 +5303,7 @@ getdatalabel(int argc, IDL_VPTR argv[], char* argk)
     IDL_EXCLUDE_EXPR(argv[1]);
     handle = IDL_LongScalar(argv[0]);
     IDL_StoreScalarZero(argv[1], IDL_TYP_STRING);
-    IDL_StrStore(&argv[1]->value.str, (char*)getIdamDataLabel(handle));
+    IDL_StrStore(&argv[1]->value.str, (char*)udaGetDataLabel(handle));
     return (IDL_GettmpLong(0));
 }
 
@@ -5317,7 +5317,7 @@ getdataunits(int argc, IDL_VPTR argv[], char* argk)
     IDL_EXCLUDE_EXPR(argv[1]);
     handle = IDL_LongScalar(argv[0]);
     IDL_StoreScalarZero(argv[1], IDL_TYP_STRING);
-    IDL_StrStore(&argv[1]->value.str, (char*)getIdamDataUnits(handle));
+    IDL_StrStore(&argv[1]->value.str, (char*)udaGetDataUnits(handle));
     return (IDL_GettmpLong(0));
 }
 
@@ -5331,7 +5331,7 @@ getdatadesc(int argc, IDL_VPTR argv[], char* argk)
     IDL_EXCLUDE_EXPR(argv[1]);
     handle = IDL_LongScalar(argv[0]);
     IDL_StoreScalarZero(argv[1], IDL_TYP_STRING);
-    IDL_StrStore(&argv[1]->value.str, (char*)getIdamDataDesc(handle));
+    IDL_StrStore(&argv[1]->value.str, (char*)udaGetDataDesc(handle));
     return (IDL_GettmpLong(0));
 }
 
@@ -5346,7 +5346,7 @@ getdimnum(int argc, IDL_VPTR argv[], char* argk)
     IDL_ENSURE_SCALAR(argv[1]);
     handle = IDL_LongScalar(argv[0]);
     dimid = IDL_LongScalar(argv[1]);
-    return (IDL_GettmpLong(getIdamDimNum(handle, dimid)));
+    return (IDL_GettmpLong(udaGetDimNum(handle, dimid)));
 }
 
 IDL_VPTR IDL_CDECL
@@ -5358,7 +5358,7 @@ getdimtype(int argc, IDL_VPTR argv[], char* argk)
     IDL_ENSURE_SCALAR(argv[1]);
     handle = IDL_LongScalar(argv[0]);
     dimid = IDL_LongScalar(argv[1]);
-    return (IDL_GettmpLong(getIdamDimType(handle, dimid)));
+    return (IDL_GettmpLong(udaGetDimType(handle, dimid)));
 }
 
 IDL_VPTR IDL_CDECL
@@ -5370,7 +5370,7 @@ getdimerrortype(int argc, IDL_VPTR argv[], char* argk)
     IDL_ENSURE_SCALAR(argv[1]);
     handle = IDL_LongScalar(argv[0]);
     dimid = IDL_LongScalar(argv[1]);
-    return (IDL_GettmpLong(getIdamDimErrorType(handle, dimid)));
+    return (IDL_GettmpLong(udaGetDimErrorType(handle, dimid)));
 }
 
 IDL_VPTR IDL_CDECL
@@ -5388,60 +5388,60 @@ getdimdata(int argc, IDL_VPTR argv[], char* argk)
     dimid = IDL_LongScalar(argv[1]);
 
     ndims = 1;
-    ndata = getIdamDimNum(handle, dimid);
+    ndata = udaGetDimNum(handle, dimid);
     ilDims[0] = (IDL_MEMINT)ndata;
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (getIdamDimType(handle, dimid)) {
+    switch (udaGetDimType(handle, dimid)) {
 
         case UDA_TYPE_FLOAT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(handle, dimid), (size_t)ndata * sizeof(float));
+            memcpy((void*)dvec, (void*)udaGetDimData(handle, dimid), (size_t)ndata * sizeof(float));
             break;
 
         case UDA_TYPE_DOUBLE:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(handle, dimid), (size_t)ndata * sizeof(double));
+            memcpy((void*)dvec, (void*)udaGetDimData(handle, dimid), (size_t)ndata * sizeof(double));
             break;
 
         case UDA_TYPE_SHORT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_INT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(handle, dimid), (size_t)ndata * sizeof(short));
+            memcpy((void*)dvec, (void*)udaGetDimData(handle, dimid), (size_t)ndata * sizeof(short));
             break;
 
         case UDA_TYPE_INT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(handle, dimid), (size_t)ndata * sizeof(int));
+            memcpy((void*)dvec, (void*)udaGetDimData(handle, dimid), (size_t)ndata * sizeof(int));
             break;
 
         case UDA_TYPE_LONG:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(handle, dimid), (size_t)ndata * sizeof(long));
+            memcpy((void*)dvec, (void*)udaGetDimData(handle, dimid), (size_t)ndata * sizeof(long));
             break;
 
         case UDA_TYPE_LONG64:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(handle, dimid), (size_t)ndata * sizeof(long));
+            memcpy((void*)dvec, (void*)udaGetDimData(handle, dimid), (size_t)ndata * sizeof(long));
             break;
 
         case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_UINT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetDimData(handle, dimid),
                    (size_t)ndata * sizeof(unsigned short));
             break;
 
@@ -5449,35 +5449,35 @@ getdimdata(int argc, IDL_VPTR argv[], char* argk)
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(handle, dimid), (size_t)ndata * sizeof(unsigned int));
+            memcpy((void*)dvec, (void*)udaGetDimData(handle, dimid), (size_t)ndata * sizeof(unsigned int));
             break;
 
         case UDA_TYPE_UNSIGNED_LONG:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(handle, dimid), (size_t)ndata * sizeof(unsigned long));
+            memcpy((void*)dvec, (void*)udaGetDimData(handle, dimid), (size_t)ndata * sizeof(unsigned long));
             break;
 
         case UDA_TYPE_UNSIGNED_LONG64:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(handle, dimid), (size_t)ndata * sizeof(unsigned long));
+            memcpy((void*)dvec, (void*)udaGetDimData(handle, dimid), (size_t)ndata * sizeof(unsigned long));
             break;
 
         case UDA_TYPE_CHAR:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_BYTE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(handle, dimid), (size_t)ndata * sizeof(char));
+            memcpy((void*)dvec, (void*)udaGetDimData(handle, dimid), (size_t)ndata * sizeof(char));
             break;
 
         case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_BYTE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamDimData(handle, dimid), (size_t)ndata * sizeof(unsigned char));
+            memcpy((void*)dvec, (void*)udaGetDimData(handle, dimid), (size_t)ndata * sizeof(unsigned char));
             break;
 
         default:
@@ -5503,18 +5503,18 @@ getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk)
     dimid = IDL_LongScalar(argv[1]);
 
     ndims = 1;
-    ndata = getIdamDimNum(handle, dimid);
+    ndata = udaGetDimNum(handle, dimid);
     ilDims[0] = (IDL_MEMINT)ndata;
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (getIdamDimType(handle, dimid)) {
+    switch (udaGetDimType(handle, dimid)) {
 
         case UDA_TYPE_FLOAT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticDimData(handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetSyntheticDimData(handle, dimid),
                    (size_t)ndata * sizeof(float));
             break;
 
@@ -5522,7 +5522,7 @@ getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk)
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_DOUBLE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticDimData(handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetSyntheticDimData(handle, dimid),
                    (size_t)ndata * sizeof(double));
             break;
 
@@ -5530,7 +5530,7 @@ getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk)
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_INT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticDimData(handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetSyntheticDimData(handle, dimid),
                    (size_t)ndata * sizeof(short));
             break;
 
@@ -5538,28 +5538,28 @@ getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk)
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticDimData(handle, dimid), (size_t)ndata * sizeof(int));
+            memcpy((void*)dvec, (void*)udaGetSyntheticDimData(handle, dimid), (size_t)ndata * sizeof(int));
             break;
 
         case UDA_TYPE_LONG:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticDimData(handle, dimid), (size_t)ndata * sizeof(long));
+            memcpy((void*)dvec, (void*)udaGetSyntheticDimData(handle, dimid), (size_t)ndata * sizeof(long));
             break;
 
         case UDA_TYPE_LONG64:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_LONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticDimData(handle, dimid), (size_t)ndata * sizeof(long));
+            memcpy((void*)dvec, (void*)udaGetSyntheticDimData(handle, dimid), (size_t)ndata * sizeof(long));
             break;
 
         case UDA_TYPE_UNSIGNED_SHORT:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_UINT, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticDimData(handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetSyntheticDimData(handle, dimid),
                    (size_t)ndata * sizeof(unsigned short));
             break;
 
@@ -5567,7 +5567,7 @@ getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk)
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticDimData(handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetSyntheticDimData(handle, dimid),
                    (size_t)ndata * sizeof(unsigned int));
             break;
 
@@ -5575,7 +5575,7 @@ getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk)
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticDimData(handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetSyntheticDimData(handle, dimid),
                    (size_t)ndata * sizeof(unsigned long));
             break;
 
@@ -5583,7 +5583,7 @@ getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk)
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_ULONG64, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticDimData(handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetSyntheticDimData(handle, dimid),
                    (size_t)ndata * sizeof(unsigned long));
             break;
 
@@ -5591,14 +5591,14 @@ getsyntheticdimdata(int argc, IDL_VPTR argv[], char* argk)
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_BYTE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticDimData(handle, dimid), (size_t)ndata * sizeof(char));
+            memcpy((void*)dvec, (void*)udaGetSyntheticDimData(handle, dimid), (size_t)ndata * sizeof(char));
             break;
 
         case UDA_TYPE_UNSIGNED_CHAR:
 
             dvec = (char*)IDL_MakeTempArray((int)IDL_TYP_BYTE, ndims, (IDL_MEMINT*)ilDims,
                                             IDL_ARR_INI_ZERO, &idlArray);
-            memcpy((void*)dvec, (void*)getIdamSyntheticDimData(handle, dimid),
+            memcpy((void*)dvec, (void*)udaGetSyntheticDimData(handle, dimid),
                    (size_t)ndata * sizeof(unsigned char));
             break;
 
@@ -5627,13 +5627,13 @@ getdimerror(int argc, IDL_VPTR argv[], char* argk)
     dimid = IDL_LongScalar(argv[1]);
 
     ndims = 1;
-    ndata = getIdamDimNum(handle, dimid);
-    ep = (char*)getIdamDimError(handle, dimid);
+    ndata = udaGetDimNum(handle, dimid);
+    ep = (char*)udaGetDimError(handle, dimid);
     ilDims[0] = (IDL_MEMINT)ndata;
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (getIdamDimErrorType(handle, dimid)) {
+    switch (udaGetDimErrorType(handle, dimid)) {
 
         case UDA_TYPE_FLOAT:
 
@@ -5745,13 +5745,13 @@ getasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk)
     above = IDL_LongScalar(argv[2]);
 
     ndims = 1;
-    ndata = getIdamDimNum(handle, dimid);
-    ep = (char*)getIdamDimAsymmetricError(handle, dimid, above);
+    ndata = udaGetDimNum(handle, dimid);
+    ep = (char*)udaGetDimAsymmetricError(handle, dimid, above);
     ilDims[0] = (IDL_MEMINT)ndata;
 
     // Allocate Heap Memory for the IDL Array and Copy the Data to it.
 
-    switch (getIdamDimErrorType(handle, dimid)) {
+    switch (udaGetDimErrorType(handle, dimid)) {
 
         case UDA_TYPE_FLOAT:
 
@@ -5861,11 +5861,11 @@ getfloatdimdata(int argc, IDL_VPTR argv[], char* argk)
     dimid = IDL_LongScalar(argv[1]);
 
     ndims = 1;
-    ilDims[0] = (IDL_MEMINT)getIdamDimNum(handle, dimid);
+    ilDims[0] = (IDL_MEMINT)udaGetDimNum(handle, dimid);
     dvec = (float*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
                                      IDL_ARR_INI_ZERO, &idlArray);
 
-    getIdamFloatDimData(handle, dimid, dvec);
+    udaGetFloatDimData(handle, dimid, dvec);
 
     return (idlArray);
 }
@@ -5885,11 +5885,11 @@ getfloatdimerror(int argc, IDL_VPTR argv[], char* argk)
     dimid = IDL_LongScalar(argv[1]);
 
     ndims = 1;
-    ilDims[0] = (IDL_MEMINT)getIdamDimNum(handle, dimid);
+    ilDims[0] = (IDL_MEMINT)udaGetDimNum(handle, dimid);
     dvec = (float*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
                                      IDL_ARR_INI_ZERO, &idlArray);
 
-    getIdamFloatDimError(handle, dimid, dvec);
+    udaGetFloatDimError(handle, dimid, dvec);
 
     return (idlArray);
 }
@@ -5911,11 +5911,11 @@ getfloatasymmetricdimerror(int argc, IDL_VPTR argv[], char* argk)
     above = IDL_LongScalar(argv[2]);
 
     ndims = 1;
-    ilDims[0] = (IDL_MEMINT)getIdamDimNum(handle, dimid);
+    ilDims[0] = (IDL_MEMINT)udaGetDimNum(handle, dimid);
     dvec = (float*)IDL_MakeTempArray((int)IDL_TYP_FLOAT, ndims, (IDL_MEMINT*)ilDims,
                                      IDL_ARR_INI_ZERO, &idlArray);
 
-    getIdamFloatDimAsymmetricError(handle, dimid, above, dvec);
+    udaGetFloatDimAsymmetricError(handle, dimid, above, dvec);
 
     return (idlArray);
 }
@@ -5934,9 +5934,9 @@ getdimlabel(int argc, IDL_VPTR argv[], char* argk)
     dimid = IDL_LongScalar(argv[1]);
     //fprintf(stdout,"getdimlabel: Handle = %d\n", handle);
     //fprintf(stdout,"getdimlabel: Dim id = %d\n", dimid);
-    //fprintf(stdout,"getdimlabel: Label  = %s\n", (char *)getIdamDimLabel(handle, dimid));
+    //fprintf(stdout,"getdimlabel: Label  = %s\n", (char *)udaGetDimLabel(handle, dimid));
     IDL_StoreScalarZero(argv[2], IDL_TYP_STRING);
-    IDL_StrStore(&argv[2]->value.str, (char*)getIdamDimLabel(handle, dimid));
+    IDL_StrStore(&argv[2]->value.str, (char*)udaGetDimLabel(handle, dimid));
     return (IDL_GettmpLong(0));
 }
 
@@ -5953,9 +5953,9 @@ getdimunits(int argc, IDL_VPTR argv[], char* argk)
     dimid = IDL_LongScalar(argv[1]);
     //fprintf(stdout,"getdimunits: Handle = %d\n", handle);
     //fprintf(stdout,"getdimunits: Dim id = %d\n", dimid);
-    //fprintf(stdout,"getdimunits: Units  = %s\n", (char *)getIdamDimUnits(handle, dimid));
+    //fprintf(stdout,"getdimunits: Units  = %s\n", (char *)udaGetDimUnits(handle, dimid));
     IDL_StoreScalarZero(argv[2], IDL_TYP_STRING);
-    IDL_StrStore(&argv[2]->value.str, (char*)getIdamDimUnits(handle, dimid));
+    IDL_StrStore(&argv[2]->value.str, (char*)udaGetDimUnits(handle, dimid));
     return (IDL_GettmpLong(0));
 }
 
@@ -6067,7 +6067,7 @@ getdatasystemmeta(int argc, IDL_VPTR argv[], char* argk)
     //--------------------------------------------------------------------------
     // Access Structure to be Returned
 
-    data_system = getIdamDataSystem(handle);
+    data_system = udaGetDataSystem(handle);
 
     if (data_system == NULL) {   // Nothing to Return
         IDL_KW_FREE;
@@ -6224,7 +6224,7 @@ getsystemconfigmeta(int argc, IDL_VPTR argv[], char* argk)
     //--------------------------------------------------------------------------
     // Access Structure to be Returned
 
-    system_config = getIdamSystemConfig(handle);
+    system_config = udaGetSystemConfig(handle);
 
     if (system_config == NULL) {     // Nothing to Return
         IDL_KW_FREE;
@@ -6399,7 +6399,7 @@ getdatasourcemeta(int argc, IDL_VPTR argv[], char* argk)
     //--------------------------------------------------------------------------
     // Access Structure to be Returned
 
-    data_source = getIdamDataSource(handle);
+    data_source = udaGetDataSource(handle);
 
     if (data_source == NULL) {   // Nothing to Return
         IDL_KW_FREE;
@@ -6587,7 +6587,7 @@ getsignalmeta(int argc, IDL_VPTR argv[], char* argk)
     //--------------------------------------------------------------------------
     // Access Structure to be Returned
 
-    signal_rec = getIdamSignal(handle);
+    signal_rec = udaGetSignal(handle);
 
     if (signal_rec == NULL) {    // Nothing to Return
         IDL_KW_FREE;
@@ -6757,7 +6757,7 @@ getsignaldescmeta(int argc, IDL_VPTR argv[], char* argk)
     //--------------------------------------------------------------------------
     // Access Structure to be Returned
 
-    signal_desc = getIdamSignalDesc(handle);
+    signal_desc = udaGetSignalDesc(handle);
 
     if (signal_desc == NULL) {   // Nothing to Return
         IDL_KW_FREE;
@@ -6836,7 +6836,7 @@ getxmldoc(int argc, IDL_VPTR argv[], char* argk)
 
     IDL_StoreScalarZero(argv[1], IDL_TYP_STRING);
 
-    DATA_BLOCK* data_block = getIdamDataBlock(handle);
+    DATA_BLOCK* data_block = udaGetDataBlock(handle);
 
     /*
        printIdamDataBlock(stdout, *data_block);
@@ -6866,7 +6866,7 @@ setproperty(int argc, IDL_VPTR argv[], char* argk)
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    setIdamProperty((char*)IDL_STRING_STR(&argv[0]->value.str), client_flags);
+    udaSetProperty((char*)IDL_STRING_STR(&argv[0]->value.str), client_flags);
     return (IDL_GettmpLong(0));
 }
 
@@ -6877,7 +6877,7 @@ resetproperty(int argc, IDL_VPTR argv[], char* argk)
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    resetIdamProperty((char*)IDL_STRING_STR(&argv[0]->value.str), client_flags);
+    reudaSetProperty((char*)IDL_STRING_STR(&argv[0]->value.str), client_flags);
     return (IDL_GettmpLong(0));
 }
 
@@ -6886,7 +6886,7 @@ IDL_VPTR IDL_CDECL
 resetproperties(int argc, IDL_VPTR argv[], char* argk)
 {
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    resetIdamProperties(client_flags);
+    udaResetProperties(client_flags);
     return (IDL_GettmpLong(0));
 }
 
@@ -6896,7 +6896,7 @@ setidamclientflag(int argc, IDL_VPTR argv[], char* argk)
 {
     IDL_ENSURE_SCALAR(argv[0]);
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    setIdamClientFlag(client_flags, (unsigned int)IDL_ULongScalar(argv[0]));
+    udaSetClientFlag(client_flags, (unsigned int)IDL_ULongScalar(argv[0]));
     return (IDL_GettmpLong(0));
 }
 
@@ -6906,7 +6906,7 @@ resetidamclientflag(int argc, IDL_VPTR argv[], char* argk)
 {
     IDL_ENSURE_SCALAR(argv[0]);
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    resetIdamClientFlag(client_flags, (unsigned int)IDL_ULongScalar(argv[0]));
+    reudaSetClientFlag(client_flags, (unsigned int)IDL_ULongScalar(argv[0]));
     return (IDL_GettmpLong(0));
 }
 
@@ -6916,7 +6916,7 @@ getdatatypeid(int argc, IDL_VPTR argv[], char* argk)
 {
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
-    return (IDL_GettmpLong(getIdamDataTypeId((char*)IDL_STRING_STR(&argv[0]->value.str))));
+    return (IDL_GettmpLong(udaGetDataTypeId((char*)IDL_STRING_STR(&argv[0]->value.str))));
 }
 
 IDL_VPTR IDL_CDECL
@@ -6925,7 +6925,7 @@ geterrormodelid(int argc, IDL_VPTR argv[], char* argk)
 {
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
-    return (IDL_GettmpLong(getIdamErrorModelId((char*)IDL_STRING_STR(&argv[0]->value.str))));
+    return (IDL_GettmpLong(udaGetErrorModelId((char*)IDL_STRING_STR(&argv[0]->value.str))));
 }
 
 IDL_VPTR IDL_CDECL
@@ -6934,7 +6934,7 @@ putidamserverhost(int argc, IDL_VPTR argv[], char* argk)
 {
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
-    putIdamServerHost((char*)IDL_STRING_STR(&argv[0]->value.str));
+    udaPutServerHost((char*)IDL_STRING_STR(&argv[0]->value.str));
     return (IDL_GettmpLong(0));
 }
 
@@ -6943,7 +6943,7 @@ IDL_VPTR IDL_CDECL
 putidamserverport(int argc, IDL_VPTR argv[], char* argk)
 {
     IDL_ENSURE_SCALAR(argv[0]);
-    putIdamServerPort((int)IDL_LongScalar(argv[0]));
+    udaPutServerPort((int)IDL_LongScalar(argv[0]));
     return (IDL_GettmpLong(0));
 }
 
@@ -6953,7 +6953,7 @@ getidamserverhost(int argc, IDL_VPTR argv[], char* argk)
 {
     IDL_ENSURE_SCALAR(argv[0]);
     IDL_StoreScalarZero(argv[0], IDL_TYP_STRING);
-    IDL_StrStore(&argv[0]->value.str, (char*)getIdamServerHost());
+    IDL_StrStore(&argv[0]->value.str, (char*)udaGetServerHost());
     return (IDL_GettmpLong(0));
 }
 
@@ -6961,28 +6961,28 @@ IDL_VPTR IDL_CDECL
 
 getidamserverport(int argc, IDL_VPTR argv[], char* argk)
 {
-    return (IDL_GettmpLong(getIdamServerPort()));
+    return (IDL_GettmpLong(udaGetServerPort()));
 }
 
 IDL_VPTR IDL_CDECL
 
 getidamclientversion(int argc, IDL_VPTR argv[], char* argk)
 {
-    return (IDL_GettmpLong(getIdamClientVersion()));
+    return (IDL_GettmpLong(udaGetClientVersion()));
 }
 
 IDL_VPTR IDL_CDECL
 
 getidamserverversion(int argc, IDL_VPTR argv[], char* argk)
 {
-    return (IDL_GettmpLong(getIdamServerVersion()));
+    return (IDL_GettmpLong(udaGetServerVersion()));
 }
 
 IDL_VPTR IDL_CDECL
 
 getidamserversocket(int argc, IDL_VPTR argv[], char* argk)
 {
-    return (IDL_GettmpLong(getIdamServerSocket()));
+    return (IDL_GettmpLong(udaGetServerSocket()));
 }
 
 IDL_VPTR IDL_CDECL
@@ -6990,7 +6990,7 @@ IDL_VPTR IDL_CDECL
 putidamserversocket(int argc, IDL_VPTR argv[], char* argk)
 {
     IDL_ENSURE_SCALAR(argv[0]);
-    putIdamServerSocket((int)IDL_LongScalar(argv[0]));
+    udaPutServerSocket((int)IDL_LongScalar(argv[0]));
     return (IDL_GettmpLong(0));
 }
 
@@ -7001,7 +7001,7 @@ geterrorasymmetry(int argc, IDL_VPTR argv[], char* argk)
     int handle;
     IDL_ENSURE_SCALAR(argv[0]);
     handle = (int)IDL_LongScalar(argv[0]);
-    return (IDL_GettmpLong(getIdamErrorAsymmetry(handle)));
+    return (IDL_GettmpLong(udaGetErrorAsymmetry(handle)));
 }
 
 IDL_VPTR IDL_CDECL
@@ -7019,7 +7019,7 @@ puterrormodel(int argc, IDL_VPTR argv[], char* argk)
     params = (float*)argv[2]->value.arr->data;     // Need to apply a type test
     //fprintf(stdout,"Param[0] = %f\n", params[0]);
     //fprintf(stdout,"Param[1] = %f\n", params[1]);
-    putIdamErrorModel(handle, model, param_n, params);
+    udaPutErrorModel(handle, model, param_n, params);
     return (IDL_GettmpLong(0));
 }
 
@@ -7124,7 +7124,7 @@ geterrormodel(int argc, IDL_VPTR argv[], char* argk)
     //--------------------------------------------------------------------------
     // Extract the appropriate Data Block structure
 
-    data_block = getIdamDataBlock(handle);
+    data_block = udaGetDataBlock(handle);
 
     if (data_block == NULL) {
         if (kw.verbose) {
@@ -7198,7 +7198,7 @@ getdimerrorasymmetry(int argc, IDL_VPTR argv[], char* argk)
     IDL_ENSURE_SCALAR(argv[1]);
     handle = (int)IDL_LongScalar(argv[0]);
     dimid = (int)IDL_LongScalar(argv[1]);
-    return (IDL_GettmpLong(getIdamDimErrorAsymmetry(handle, dimid)));
+    return (IDL_GettmpLong(udaGetDimErrorAsymmetry(handle, dimid)));
 }
 
 IDL_VPTR IDL_CDECL
@@ -7216,7 +7216,7 @@ putdimerrormodel(int argc, IDL_VPTR argv[], char* argk)
     model = (int)IDL_LongScalar(argv[2]);
     param_n = (int)argv[3]->value.arr->n_elts;
     params = (float*)argv[3]->value.arr->data;         // Need a type check!
-    putIdamDimErrorModel(handle, dimid, model, param_n, params);
+    udaPutDimErrorModel(handle, dimid, model, param_n, params);
     return (IDL_GettmpLong(0));
 }
 
@@ -7325,7 +7325,7 @@ getdimerrormodel(int argc, IDL_VPTR argv[], char* argk)
     //--------------------------------------------------------------------------
     // Extract the appropriate Data Block structure
 
-    dims = getIdamDimBlock(handle, dimid);
+    dims = udaGetDimBlock(handle, dimid);
 
     if (dims == NULL) {
         if (kw.verbose) {
@@ -7393,7 +7393,7 @@ IDL_VPTR IDL_CDECL
 getlasthandle(int argc, IDL_VPTR argv[], char* argk)
 {
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    return (IDL_GettmpLong(getIdamLastHandle(client_flags)));
+    return (IDL_GettmpLong(udaGetLastHandle(client_flags)));
 }
 
 //====================================================================================
@@ -7621,7 +7621,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
     //--------------------------------------------------------------------------
     // Pointer to the Data Block containing Domain
 
-    if ((dim = getIdamDimBlock(handle, dimid)) == NULL) {
+    if ((dim = udaGetDimBlock(handle, dimid)) == NULL) {
         if (kw.verbose) {
             fprintf(stdout, "getDomains: Domain Data pointer is NULL!!!\n");
         }
@@ -7629,7 +7629,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
         if (kw.debug) {
             fprintf(stdout, "Handle: %d\n", handle);
             fprintf(stdout, "Dim id: %d\n", dimid);
-            printDataBlock(*getIdamDataBlock(handle));
+            printDataBlock(*udaGetDataBlock(handle));
         }
 
         IDL_KW_FREE;
@@ -7637,7 +7637,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
     }
 
     if (kw.debug) {
-        printDataBlock(*getIdamDataBlock(handle));
+        printDataBlock(*udaGetDataBlock(handle));
     }
 
     //--------------------------------------------------------------------------

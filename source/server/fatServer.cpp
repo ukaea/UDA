@@ -254,8 +254,8 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DA
     // Gather Server Error State
 
     // Update Server State with Error Stack
-    concatUdaError(&server_block->idamerrorstack);
-    closeUdaError();
+    udaConcatError(&server_block->idamerrorstack);
+    udaCloseError();
 
     int err = 0;
 
@@ -357,7 +357,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     printSignal(metadata_block->signal_rec);
     printSignalDesc(*signal_desc);
     printDataBlockList(*data_blocks);
-    printIdamErrorStack();
+    udaPrintErrorStack();
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
 
@@ -397,8 +397,8 @@ int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block
 
     //----------------------------------------------------------------------------
 
-    concatUdaError(&server_block->idamerrorstack); // Update Server State with Global Error Stack
-    closeUdaError();
+    udaConcatError(&server_block->idamerrorstack); // Update Server State with Global Error Stack
+    udaCloseError();
 
     *data_blocks0 = *data_blocks;
 

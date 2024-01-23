@@ -33,7 +33,7 @@ Php::Value idamgetapi(Php::Parameters& params)
         return "The API requires 2 string arguments!";
     }
 
-    return idamGetAPI(params[0], params[1]);
+    return udaGetAPI(params[0], params[1]);
 }
 
 /**
@@ -47,7 +47,7 @@ Php::Value getidamerrorcode(Php::Parameters& params)
         return "The getidamerrorcode function requires 1 integer argument!";
     }
 
-    return getIdamErrorCode(params[0]);
+    return udaGetErrorCode(params[0]);
 }
 /**
  *  getidamerrormsg()
@@ -60,7 +60,7 @@ Php::Value getidamerrormsg(Php::Parameters& params)
         return "The getidamerrormsg function requires 1 integer argument!";
     }
 
-    return getIdamErrorMsg(params[0]);
+    return udaGetErrorMsg(params[0]);
 }
 
 /**
@@ -74,7 +74,7 @@ Php::Value getidamrank(Php::Parameters& params)
         return "The getidamrank function requires 1 integer argument!";
     }
 
-    return getIdamRank(params[0]);
+    return udaGetRank(params[0]);
 }
 /**
  *  getidamdatanum()
@@ -87,7 +87,7 @@ Php::Value getidamdatanum(Php::Parameters& params)
         return "The getidamdatanum function requires 1 integer argument!";
     }
 
-    return getIdamDataNum(params[0]);
+    return udaGetDataNum(params[0]);
 }
 /**
  *  getidamdatanum()
@@ -100,7 +100,7 @@ Php::Value getidamdatatype(Php::Parameters& params)
         return "The getidamdatatype function requires 1 integer argument!";
     }
 
-    return getIdamDataType(params[0]);
+    return udaGetDataType(params[0]);
 }
 
 //===============================================================================================
@@ -126,19 +126,19 @@ Php::Value getidamuuid(Php::Parameters& params)
     strcat(work, params[0]);
     strcat(work, ", /returnUUID)");
 
-    int h = idamGetAPI(work, "");
+    int h = udaGetAPI(work, "");
 
     if (work != NULL) {
         free((void*)work);
     }
 
-    if (h >= 0 && getIdamErrorCode(h) == 0) {
-        if (getIdamDataType(h) == UDA_TYPE_CHAR || getIdamDataType(h) == UDA_TYPE_STRING) {
-            return (char*)getIdamData(h);
+    if (h >= 0 && udaGetErrorCode(h) == 0) {
+        if (udaGetDataType(h) == UDA_TYPE_CHAR || udaGetDataType(h) == UDA_TYPE_STRING) {
+            return (char*)udaGetData(h);
         }
     } else {
         if (h >= 0) {
-            return getIdamErrorMsg(h);
+            return udaGetErrorMsg(h);
         } else {
             return "Error in getidamuuid";
         }
@@ -163,15 +163,15 @@ Php::Value getidamuuidstatus(Php::Parameters& params)
     strcat(work, "', /returnStatus)");
     // sprintf(work, "provenance::status(uuid='%s', /returnStatus)", (char *)params[0]);
 
-    int h = idamGetAPI(work, "");
+    int h = udaGetAPI(work, "");
 
-    if (h >= 0 && getIdamErrorCode(h) == 0) {
-        if (getIdamDataType(h) == UDA_TYPE_CHAR || getIdamDataType(h) == UDA_TYPE_STRING) {
-            return (char*)getIdamData(h);
+    if (h >= 0 && udaGetErrorCode(h) == 0) {
+        if (udaGetDataType(h) == UDA_TYPE_CHAR || udaGetDataType(h) == UDA_TYPE_STRING) {
+            return (char*)udaGetData(h);
         }
     } else {
         if (h >= 0) {
-            return getIdamErrorMsg(h);
+            return udaGetErrorMsg(h);
         } else {
             return "Error in getidamuuidstatus";
         }
@@ -200,15 +200,15 @@ Php::Value putidamuuidstatus(Php::Parameters& params)
 
     //    sprintf(work, "provenance::status(uuid='%s', status='%s')", params[0], params[1]);
 
-    int h = idamGetAPI(work, "");
+    int h = udaGetAPI(work, "");
 
-    if (h >= 0 && getIdamErrorCode(h) == 0) {
-        if (getIdamDataType(h) == UDA_TYPE_CHAR || getIdamDataType(h) == UDA_TYPE_STRING) {
-            return (char*)getIdamData(h);
+    if (h >= 0 && udaGetErrorCode(h) == 0) {
+        if (udaGetDataType(h) == UDA_TYPE_CHAR || udaGetDataType(h) == UDA_TYPE_STRING) {
+            return (char*)udaGetData(h);
         }
     } else {
         if (h >= 0) {
-            return getIdamErrorMsg(h);
+            return udaGetErrorMsg(h);
         } else {
             return "Error in putidamuuidstatus";
         }
@@ -232,19 +232,19 @@ Php::Value putidamprovenance(Php::Parameters& params)
     strcat(work, params[0]);
     strcat(work, ", /returnPath)");
 
-    int h = idamGetAPI(work, "");
+    int h = udaGetAPI(work, "");
 
     if (work != NULL) {
         free((void*)work);
     }
 
-    if (h >= 0 && getIdamErrorCode(h) == 0) {
-        if (getIdamDataType(h) == UDA_TYPE_CHAR || getIdamDataType(h) == UDA_TYPE_STRING) {
-            return (char*)getIdamData(h);
+    if (h >= 0 && udaGetErrorCode(h) == 0) {
+        if (udaGetDataType(h) == UDA_TYPE_CHAR || udaGetDataType(h) == UDA_TYPE_STRING) {
+            return (char*)udaGetData(h);
         }
     } else {
         if (h >= 0) {
-            return getIdamErrorMsg(h);
+            return udaGetErrorMsg(h);
         } else {
             return "Error A in putidamprovenance";
         }

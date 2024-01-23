@@ -54,29 +54,29 @@ static const std::type_info* idamTypeToTypeID(int type)
 
 const std::string uda::Result::errorMessage() const
 {
-    const char* error = getIdamErrorMsg(handle_);
+    const char* error = udaGetErrorMsg(handle_);
     return error == nullptr ? "" : error;
 }
 
 int uda::Result::errorCode() const
 {
-    return getIdamErrorCode(handle_);
+    return udaGetErrorCode(handle_);
 }
 
 uda::Result::Result(int handle)
-    : handle_(handle), label_(handle >= 0 ? getIdamDataLabel(handle) : ""),
-      units_(handle >= 0 ? getIdamDataUnits(handle) : ""), desc_(handle >= 0 ? getIdamDataDesc(handle) : ""),
-      type_(handle >= 0 ? idamTypeToTypeID(getIdamDataType(handle)) : &typeid(void)),
-      uda_type_(handle >= 0 ? getIdamDataType(handle) : UDA_TYPE_UNKNOWN),
-      rank_(handle >= 0 ? static_cast<dim_type>(getIdamRank(handle)) : 0),
-      size_(handle >= 0 ? static_cast<std::size_t>(getIdamDataNum(handle)) : 0)
+    : handle_(handle), label_(handle >= 0 ? udaGetDataLabel(handle) : ""),
+      units_(handle >= 0 ? udaGetDataUnits(handle) : ""), desc_(handle >= 0 ? udaGetDataDesc(handle) : ""),
+      type_(handle >= 0 ? idamTypeToTypeID(udaGetDataType(handle)) : &typeid(void)),
+      uda_type_(handle >= 0 ? udaGetDataType(handle) : UDA_TYPE_UNKNOWN),
+      rank_(handle >= 0 ? static_cast<dim_type>(udaGetRank(handle)) : 0),
+      size_(handle >= 0 ? static_cast<std::size_t>(udaGetDataNum(handle)) : 0)
 {
-    if (handle >= 0 && (bool)getIdamProperties(handle)->get_meta) {
-        SIGNAL_DESC* signal_desc = getIdamSignalDesc(handle);
+    if (handle >= 0 && (bool)udaGetProperties(handle)->get_meta) {
+        SIGNAL_DESC* signal_desc = udaGetSignalDesc(handle);
         meta_["signal_name"] = signal_desc->signal_name;
         meta_["signal_alias"] = signal_desc->signal_alias;
 
-        DATA_SOURCE* source = getIdamDataSource(handle);
+        DATA_SOURCE* source = udaGetDataSource(handle);
         meta_["path"] = source->path;
         meta_["filename"] = source->filename;
         meta_["format"] = source->format;
@@ -84,7 +84,7 @@ uda::Result::Result(int handle)
         meta_["pass"] = std::to_string(source->pass);
         meta_["pass_date"] = source->pass_date;
     }
-    istree_ = (setIdamDataTree(handle) != 0);
+    istree_ = (udaSetDataTree(handle) != 0);
 }
 
 uda::Result::~Result()
@@ -94,12 +94,12 @@ uda::Result::~Result()
 
 const std::vector<size_t> uda::Result::shape() const
 {
-    size_t rank = static_cast<size_t>(getIdamRank(handle_));
+    size_t rank = static_cast<size_t>(udaGetRank(handle_));
 
     std::vector<size_t> shape(rank);
 
     for (size_t i = 0; i < rank; ++i) {
-        shape[i] = static_cast<size_t>(getIdamDimNum(handle_, static_cast<int>(i)));
+        shape[i] = static_cast<size_t>(udaGetDimNum(handle_, static_cast<int>(i)));
     }
 
     return shape;
@@ -108,28 +108,28 @@ const std::vector<size_t> uda::Result::shape() const
 template <typename T> static uda::Dim getDim(int handle, uda::dim_type num, uda::Result::DataType data_type)
 {
     if (data_type == uda::Result::DataType::DATA) {
-        std::string label = getIdamDimLabel(handle, num);
-        std::string units = getIdamDimUnits(handle, num);
-        auto size = static_cast<size_t>(getIdamDimNum(handle, num));
-        auto data = reinterpret_cast<T*>(getIdamDimData(handle, num));
+        std::string label = udaGetDimLabel(handle, num);
+        std::string units = udaGetDimUnits(handle, num);
+        auto size = static_cast<size_t>(udaGetDimNum(handle, num));
+        auto data = reinterpret_cast<T*>(udaGetDimData(handle, num));
         return uda::Dim(num, data, size, label, units);
     }
 
-    std::string label = getIdamDimLabel(handle, num);
-    std::string units = getIdamDimUnits(handle, num);
-    auto size = static_cast<size_t>(getIdamDimNum(handle, num));
-    auto data = reinterpret_cast<T*>(getIdamDimError(handle, num));
+    std::string label = udaGetDimLabel(handle, num);
+    std::string units = udaGetDimUnits(handle, num);
+    auto size = static_cast<size_t>(udaGetDimNum(handle, num));
+    auto data = reinterpret_cast<T*>(udaGetDimError(handle, num));
     return uda::Dim(num, data, size, label + " error", units);
 }
 
 bool uda::Result::hasTimeDim() const
 {
-    return getIdamOrder(handle_) >= 0;
+    return udaGetOrder(handle_) >= 0;
 }
 
 uda::Dim uda::Result::timeDim(DataType data_type) const
 {
-    auto order = getIdamOrder(handle_);
+    auto order = udaGetOrder(handle_);
     if (order >= 0) {
         return dim(static_cast<dim_type>(order), data_type);
     }
@@ -140,9 +140,9 @@ uda::Dim uda::Result::dim(uda::dim_type num, DataType data_type) const
 {
     int type = 0;
     if (data_type == DATA) {
-        type = getIdamDimType(handle_, num);
+        type = udaGetDimType(handle_, num);
     } else {
-        type = getIdamDimErrorType(handle_, num);
+        type = udaGetDimErrorType(handle_, num);
     }
 
     switch (type) {
@@ -181,14 +181,14 @@ template <typename T> uda::Data* getDataAs(int handle, uda::Result::DataType dat
 {
     T* data = nullptr;
     if (data_type == uda::Result::DataType::DATA) {
-        data = reinterpret_cast<T*>(getIdamData(handle));
+        data = reinterpret_cast<T*>(udaGetData(handle));
     } else {
-        data = reinterpret_cast<T*>(getIdamError(handle));
+        data = reinterpret_cast<T*>(udaGetError(handle));
     }
 
-    if (getIdamRank(handle) == 0) {
-        if (getIdamDataNum(handle) > 1) {
-            return new uda::Vector(data, (size_t)getIdamDataNum(handle));
+    if (udaGetRank(handle) == 0) {
+        if (udaGetDataNum(handle) > 1) {
+            return new uda::Vector(data, (size_t)udaGetDataNum(handle));
         }
         return new uda::Scalar(data[0]);
     } else {
@@ -198,27 +198,27 @@ template <typename T> uda::Data* getDataAs(int handle, uda::Result::DataType dat
 
 uda::Data* getDataAsString(int handle)
 {
-    char* data = getIdamData(handle);
+    char* data = udaGetData(handle);
 
     return new uda::String(data);
 }
 
 uda::Data* getDataAsStringArray(int handle)
 {
-    char* data = getIdamData(handle);
+    char* data = udaGetData(handle);
 
-    auto str_len = static_cast<size_t>(getIdamDimNum(handle, 0));
-    size_t arr_len = getIdamDataNum(handle) / str_len;
+    auto str_len = static_cast<size_t>(udaGetDimNum(handle, 0));
+    size_t arr_len = udaGetDataNum(handle) / str_len;
 
     auto strings = new std::vector<std::string>;
     std::vector<uda::Dim> dims;
 
-    auto rank = static_cast<uda::dim_type>(getIdamRank(handle));
+    auto rank = static_cast<uda::dim_type>(udaGetRank(handle));
     for (uda::dim_type dim_n = 1; dim_n < rank; ++dim_n) {
-        auto dim_data = getIdamDimData(handle, dim_n);
-        auto dim_size = static_cast<size_t>(getIdamDimNum(handle, dim_n));
-        auto label = getIdamDimLabel(handle, dim_n);
-        auto units = getIdamDimUnits(handle, dim_n);
+        auto dim_data = udaGetDimData(handle, dim_n);
+        auto dim_size = static_cast<size_t>(udaGetDimNum(handle, dim_n));
+        auto label = udaGetDimLabel(handle, dim_n);
+        auto units = udaGetDimUnits(handle, dim_n);
         dims.emplace_back(
             uda::Dim(dim_n, dim_data, dim_size, label != nullptr ? label : "", units != nullptr ? units : ""));
     }
@@ -233,9 +233,9 @@ uda::Data* getDataAsStringArray(int handle)
 
 uda::Data* uda::Result::data() const
 {
-    auto rank = static_cast<dim_type>(getIdamRank(handle_));
+    auto rank = static_cast<dim_type>(udaGetRank(handle_));
 
-    int type = getIdamDataType(handle_);
+    int type = udaGetDataType(handle_);
 
     switch (type) {
         case UDA_TYPE_CHAR:
@@ -275,7 +275,7 @@ uda::Data* uda::Result::data() const
 
 bool uda::Result::hasErrors() const
 {
-    return getIdamErrorType(handle_) != UDA_TYPE_UNKNOWN;
+    return udaGetErrorType(handle_) != UDA_TYPE_UNKNOWN;
 }
 
 uda::Data* uda::Result::errors() const
@@ -285,13 +285,13 @@ uda::Data* uda::Result::errors() const
     }
 
     std::vector<Dim> dims;
-    auto rank = static_cast<dim_type>(getIdamRank(handle_));
+    auto rank = static_cast<dim_type>(udaGetRank(handle_));
     for (dim_type i = 0; i < rank; ++i) {
         // XXX: error dimension data doesn't seem to actually be returned, so stick with standard dims for now
         dims.push_back(dim(i, DATA));
     }
 
-    int type = getIdamErrorType(handle_);
+    int type = udaGetErrorType(handle_);
 
     switch (type) {
         case UDA_TYPE_CHAR:
@@ -331,10 +331,10 @@ uda::Data* uda::Result::errors() const
 
 const char* uda::Result::raw_data() const
 {
-    return getIdamData(handle_);
+    return udaGetData(handle_);
 }
 
 uda::TreeNode uda::Result::tree() const
 {
-    return {handle_, getIdamDataTree(handle_)};
+    return {handle_, udaGetDataTree(handle_)};
 }

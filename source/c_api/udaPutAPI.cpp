@@ -27,10 +27,10 @@
 // Send multiple data blocks to the server
 
 /* #ifndef FATCLIENT */
-/* static unsigned short idamGetAPICalledOnce = 0; */
+/* static unsigned short udaGetAPICalledOnce = 0; */
 /* #endif */
 
-int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlockList)
+int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlockList)
 {
 
     int err = 0;
@@ -49,20 +49,20 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
     }
 
     //-------------------------------------------------------------------------
-    // All client/server initialisation is controlled by the main API: idamGetAPI
+    // All client/server initialisation is controlled by the main API: udaGetAPI
     // This needs to have been called at least once before a put! - *** temporary fix!!!
     // This problem also causes the application malloclog and the userdefinedtypelist heaps to be overwritten.
     // Copy and replace to preserve the application heap
 
     /* #ifndef FATCLIENT */
-    /*         if (!idamGetAPICalledOnce) { */
+    /*         if (!udaGetAPICalledOnce) { */
     /*       LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
     /*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
     /*         logmalloclist = nullptr; */
     /*         userdefinedtypelist = nullptr; */
-    /*         int h = idamGetAPI("help::ping()", ""); */
+    /*         int h = udaGetAPI("help::ping()", ""); */
     /*         udaFree(h); */
-    /*         idamGetAPICalledOnce = 1; */
+    /*         udaGetAPICalledOnce = 1; */
     /*         lastMallocIndex = 0; */
     /*         logmalloclist = oldlogmalloclist; */
     /*         userdefinedtypelist = olduserdefinedtypelist; */
@@ -79,10 +79,10 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
 
     const char* source = "";
     if ((err = makeClientRequestBlock(&putInstruction, &source, 1, &request_block)) != 0) {
-        closeUdaError();
+        udaCloseError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;
     }
@@ -109,7 +109,7 @@ int idamPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBloc
 
 // Send a single data block to the server
 
-int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
+int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 {
     int err = 0;
     REQUEST_BLOCK request_block;
@@ -127,21 +127,21 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     }
 
     //-------------------------------------------------------------------------
-    // All client/server initialisation is controlled by the main API: idamGetAPI
+    // All client/server initialisation is controlled by the main API: udaGetAPI
     // This needs to have been called at least once before a put! - *** temporary fix!!!
     // This problem also causes the application malloclog and the userdefinedtypelist heaps to be overwritten.
     // Copy and replace to preserve the application heap
 
     /* #ifndef FATCLIENT */
-    /*     if (!idamGetAPICalledOnce) { */
-    /*         UDA_LOG(LOG_DEBUG, "!idamGetAPICalledOnce\n"); */
+    /*     if (!udaGetAPICalledOnce) { */
+    /*         UDA_LOG(LOG_DEBUG, "!udaGetAPICalledOnce\n"); */
     /*         LOGMALLOCLIST* oldlogmalloclist = logmalloclist; */
     /*         USERDEFINEDTYPELIST* olduserdefinedtypelist = userdefinedtypelist; */
     /*         logmalloclist = nullptr; */
     /*         userdefinedtypelist = nullptr; */
-    /*         int h = idamGetAPI("help::ping()", ""); */
+    /*         int h = udaGetAPI("help::ping()", ""); */
     /*         udaFree(h); */
-    /*         idamGetAPICalledOnce = 1; */
+    /*         udaGetAPICalledOnce = 1; */
     /*         lastMallocIndex = 0; */
     /*         logmalloclist = oldlogmalloclist; */
     /*         userdefinedtypelist = olduserdefinedtypelist; */
@@ -158,10 +158,10 @@ int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 
     const char* source = "";
     if ((err = makeClientRequestBlock(&putInstruction, &source, 1, &request_block)) != 0) {
-        closeUdaError();
+        udaCloseError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;
     }

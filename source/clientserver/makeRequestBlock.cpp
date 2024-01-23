@@ -230,7 +230,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
 
                 if ((p0 != nullptr || p1 != nullptr) && (p != nullptr || p2 != nullptr)) {
                     err = 999;
-                    addIdamError(UDA_CODE_ERROR_TYPE, "makeServerRequestBlock", err,
+                    udaAddError(UDA_CODE_ERROR_TYPE, "makeServerRequestBlock", err,
                                  "Source syntax: path with parenthesis () is incorrect!");
                     return err;
                 }
@@ -822,9 +822,9 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
         errno = 0;
         if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
             if (errno != 0) {
-                addIdamError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
+                udaAddError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
             }
-            addIdamError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999, "Unable to Identify the File's Format");
+            udaAddError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999, "Unable to Identify the File's Format");
             return -999;
         }
 
@@ -851,9 +851,9 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
                     errno = 0;
                     if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
                         if (errno != 0) {
-                            addIdamError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
+                            udaAddError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
                         }
-                        addIdamError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999,
+                        udaAddError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999,
                                      "Unable to Identify the File's Format");
                         return -999;
                     }

@@ -71,7 +71,7 @@ static IDAMSTATE idamState[UDA_NUM_CLIENT_THREADS]; // Threads are managed by th
 static thread_t threadList[UDA_NUM_CLIENT_THREADS];
 static int threadCount = 0;
 
-int getIdamMaxThreadCount()
+int udaGetMaxThreadCount()
 {
     return UDA_NUM_CLIENT_THREADS;
 }
@@ -98,7 +98,7 @@ int getThreadId(thread_t id)
 }
 
 // Lock the thread and set the previous STATE
-void lockIdamThread(CLIENT_FLAGS* client_flags)
+void udaLockThread(CLIENT_FLAGS* client_flags)
 {
     static unsigned int mutex_initialised = 0;
 
@@ -150,14 +150,14 @@ void lockIdamThread(CLIENT_FLAGS* client_flags)
     // Assign State for the current thread if previously registered
 
     if (id >= 0) {
-        putIdamServerSocket(idamState[id].socket);
+        udaPutServerSocket(idamState[id].socket);
         // putIdamClientEnvironment(&idamState[id].environment);
-        putIdamThreadClientBlock(&idamState[id].client_block);
-        putIdamThreadServerBlock(&idamState[id].server_block);
+        udaPutThreadClientBlock(&idamState[id].client_block);
+        udaPutThreadServerBlock(&idamState[id].server_block);
         client_flags->flags = idamState[id].client_block.clientFlags;
-        putIdamThreadLastHandle(idamState[id].lastHandle);
+        udaPutThreadLastHandle(idamState[id].lastHandle);
     } else {
-        putIdamThreadLastHandle(-1);
+        udaPutThreadLastHandle(-1);
     }
 }
 
@@ -173,12 +173,12 @@ void unlockUdaThread(CLIENT_FLAGS* client_flags)
 #  endif
     int id = getThreadId(threadId); // Must be registered
     if (id >= 0) {
-        idamState[id].socket = getIdamServerSocket();
+        idamState[id].socket = udaGetServerSocket();
         // idamState[id].environment = *getIdamClientEnvironment();
-        idamState[id].client_block = getIdamThreadClientBlock();
-        idamState[id].server_block = getIdamThreadServerBlock();
+        idamState[id].client_block = udaGetThreadClientBlock();
+        idamState[id].server_block = udaGetThreadServerBlock();
         idamState[id].client_block.clientFlags = client_flags->flags;
-        idamState[id].lastHandle = getIdamThreadLastHandle();
+        idamState[id].lastHandle = udaGetThreadLastHandle();
     }
 #  ifdef __GNUC__
     pthread_mutex_unlock(&lock);
@@ -190,9 +190,9 @@ void unlockUdaThread(CLIENT_FLAGS* client_flags)
 /**
  * Free thread resources
  */
-void freeIdamThread(CLIENT_FLAGS* client_flags)
+void udaFreeThread(CLIENT_FLAGS* client_flags)
 {
-    lockIdamThread(client_flags);
+    udaLockThread(client_flags);
 #  ifdef __GNUC__
     thread_t threadId = pthread_self();
 #  else
@@ -218,17 +218,17 @@ void freeIdamThread(CLIENT_FLAGS* client_flags)
 }
 
 #else
-void lockIdamThread() {}
-void unlockIdamThread() {}
-void freeIdamThread() {}
+void udaLockThread() {}
+void unudaLockThread() {}
+void udaFreeThread() {}
 #endif // NOPTHREADS
 
-int getIdamThreadLastHandle()
+int udaGetThreadLastHandle()
 {
     return idamThreadLastHandle;
 }
 
-void putIdamThreadLastHandle(int handle)
+void udaPutThreadLastHandle(int handle)
 {
     idamThreadLastHandle = handle;
 }
@@ -236,34 +236,34 @@ void putIdamThreadLastHandle(int handle)
 //--------------------------------------------------------------------------------------
 // C Accessor Routines
 
-void acc_freeDataBlocks()
+void udaFreeDataBlocks()
 {
     data_blocks.clear();
-    putIdamThreadLastHandle(-1);
+    udaPutThreadLastHandle(-1);
 }
 
-DATA_BLOCK* acc_getCurrentDataBlock(CLIENT_FLAGS* client_flags)
+DATA_BLOCK* udaGetCurrentDataBlock(CLIENT_FLAGS* client_flags)
 {
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
-        getIdamThreadLastHandle() >= 0) {
-        return &data_blocks[getIdamThreadLastHandle()];
+        udaGetThreadLastHandle() >= 0) {
+        return &data_blocks[udaGetThreadLastHandle()];
     }
     return &data_blocks.back();
 }
 
-int acc_getCurrentDataBlockIndex(CLIENT_FLAGS* client_flags)
+int udaGetCurrentDataBlockIndex(CLIENT_FLAGS* client_flags)
 {
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
-        getIdamThreadLastHandle() >= 0) {
-        return getIdamThreadLastHandle();
+        udaGetThreadLastHandle() >= 0) {
+        return udaGetThreadLastHandle();
     }
     return data_blocks.size() - 1;
 }
 
-int acc_growIdamDataBlocks(CLIENT_FLAGS* client_flags)
+int udaGrowDataBlocks(CLIENT_FLAGS* client_flags)
 {
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
-        getIdamThreadLastHandle() >= 0) {
+        udaGetThreadLastHandle() >= 0) {
         return 0;
     }
 
@@ -271,7 +271,7 @@ int acc_growIdamDataBlocks(CLIENT_FLAGS* client_flags)
     initDataBlock(&data_blocks.back());
     data_blocks.back().handle = data_blocks.size() - 1;
 
-    putIdamThreadLastHandle(data_blocks.size() - 1);
+    udaPutThreadLastHandle(data_blocks.size() - 1);
 
     return 0;
 }
@@ -286,12 +286,12 @@ static int findNewHandleIndex()
     return -1;
 }
 
-int acc_getIdamNewDataHandle(CLIENT_FLAGS* client_flags)
+int udaGetNewDataHandle(CLIENT_FLAGS* client_flags)
 {
     int newHandleIndex = -1;
 
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
-        (newHandleIndex = getIdamThreadLastHandle()) >= 0) {
+        (newHandleIndex = udaGetThreadLastHandle()) >= 0) {
         if (client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) {
             udaFree(newHandleIndex);
         } else {
@@ -312,7 +312,7 @@ int acc_getIdamNewDataHandle(CLIENT_FLAGS* client_flags)
         data_blocks[newHandleIndex].handle = newHandleIndex;
     }
 
-    putIdamThreadLastHandle(newHandleIndex);
+    udaPutThreadLastHandle(newHandleIndex);
     return newHandleIndex;
 }
 
@@ -345,7 +345,7 @@ Rank Ordering is as follows:
  * @param flag The bit/s to be set to 1.
  * @return Void.
  */
-void setIdamPrivateFlag(unsigned int flag)
+void udaSetPrivateFlag(unsigned int flag)
 {
     unsigned int* private_flags = udaPrivateFlags();
     *private_flags |= flag;
@@ -358,7 +358,7 @@ void setIdamPrivateFlag(unsigned int flag)
  * @return Void.
  */
 
-void resetIdamPrivateFlag(unsigned int flag)
+void reudaSetPrivateFlag(unsigned int flag)
 {
     unsigned int* private_flags = udaPrivateFlags();
     *private_flags &= !flag;
@@ -374,7 +374,7 @@ void resetIdamPrivateFlag(unsigned int flag)
  * @return Void.
  */
 
-void setIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
+void udaSetClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
 {
     client_flags->flags = client_flags->flags | flag;
 }
@@ -386,7 +386,7 @@ void setIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
  * @return Void.
  */
 
-void resetIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
+void reudaSetClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
 {
     client_flags->flags &= !flag;
 }
@@ -419,7 +419,7 @@ void resetIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
  * @param property the name of the property to set true or a name value pair.
  * @return Void.
  */
-void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
+void udaSetProperty(const char* property, CLIENT_FLAGS* client_flags)
 {
     // User settings for Client and Server behaviour
 
@@ -519,7 +519,7 @@ void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
  * @param property the name of the property.
  * @return Void.
  */
-int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags)
+int udaGetProperty(const char* property, const CLIENT_FLAGS* client_flags)
 {
     // User settings for Client and Server behaviour
 
@@ -595,7 +595,7 @@ int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags)
  * @return Void.
  */
 
-void resetIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
+void reudaSetProperty(const char* property, CLIENT_FLAGS* client_flags)
 {
     // User settings for Client and Server behaviour
 
@@ -665,7 +665,7 @@ void resetIdamProperty(const char* property, CLIENT_FLAGS* client_flags)
 /**
  * @return Void.
  */
-void resetIdamProperties(CLIENT_FLAGS* client_flags)
+void udaResetProperties(CLIENT_FLAGS* client_flags)
 {
     // Reset on Both Client and Server
 
@@ -694,7 +694,7 @@ void resetIdamProperties(CLIENT_FLAGS* client_flags)
 /** The client state information is at the time the data was accessed.
  * @return CLIENT_BLOCK pointer to the data structure.
  */
-CLIENT_BLOCK* getIdamProperties(int handle)
+CLIENT_BLOCK* udaGetProperties(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -706,9 +706,9 @@ CLIENT_BLOCK* getIdamProperties(int handle)
 /** The client state information is at the time the data was accessed.
  * @return CLIENT_BLOCK pointer to the data structure.
  */
-CLIENT_BLOCK* getIdamDataProperties(int handle)
+CLIENT_BLOCK* udaGetDataProperties(int handle)
 {
-    return getIdamProperties(handle);
+    return udaGetProperties(handle);
 }
 
 //--------------------------------------------------------------
@@ -718,7 +718,7 @@ CLIENT_BLOCK* getIdamDataProperties(int handle)
  */
 #if !defined(__APPLE__) && !defined(_WIN32)
 
-int getIdamMemoryFree()
+int udaGetMemoryFree()
 {
 #  ifdef A64
     return 0;
@@ -728,7 +728,7 @@ int getIdamMemoryFree()
 #  endif
 }
 
-int getIdamMemoryUsed()
+int udaGetMemoryUsed()
 {
 #  ifdef A64
     return 0;
@@ -743,7 +743,7 @@ int getIdamMemoryUsed()
 //--------------------------------------------------------------
 // Standard C PUT Accessor Routines
 
-void putIdamErrorModel(int handle, int model, int param_n, const float* params)
+void udaPutErrorModel(int handle, int model, int param_n, const float* params)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -764,7 +764,7 @@ void putIdamErrorModel(int handle, int model, int param_n, const float* params)
     }
 }
 
-void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, const float* params)
+void udaPutDimErrorModel(int handle, int ndim, int model, int param_n, const float* params)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -793,7 +793,7 @@ void putIdamDimErrorModel(int handle, int ndim, int model, int param_n, const fl
  * @param port The port number the server is connected to.
  * @return void
  */
-void putIdamServer(const char* host, int port)
+void udaPutServer(const char* host, int port)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     environment->server_port = port;        // UDA server service port number
@@ -808,7 +808,7 @@ void putIdamServer(const char* host, int port)
  * @param host The name of the server host computer.
  * @return void
  */
-void putIdamServerHost(const char* host)
+void udaPutServerHost(const char* host)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     std::string old_host = host;
@@ -824,7 +824,7 @@ void putIdamServerHost(const char* host)
  * @param port The port number the server is connected to.
  * @return void
  */
-void putIdamServerPort(int port)
+void udaPutServerPort(int port)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     int old_port = port;
@@ -841,7 +841,7 @@ Select the server connection required.
 * @param socket The socket ID of the server connection required.
 * @return void
 */
-void putIdamServerSocket(int socket)
+void udaPutServerSocket(int socket)
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     if (environment->server_socket != socket) { // Change to a different socket
@@ -860,7 +860,7 @@ void putIdamServerSocket(int socket)
  * @param socket Returned socket id number.
  * @return void
  */
-void getIdamServer(const char** host, int* port, int* socket)
+void udaGetServer(const char** host, int* port, int* socket)
 { // Active ...
     ENVIRONMENT* environment = getIdamClientEnvironment();
     *socket = environment->server_socket; // UDA server service socket number
@@ -872,7 +872,7 @@ void getIdamServer(const char** host, int* port, int* socket)
 /**
  * @return the Name of the Host
  */
-const char* getIdamServerHost()
+const char* udaGetServerHost()
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     return environment->server_host; // Active UDA server's host name or IP address
@@ -882,7 +882,7 @@ const char* getIdamServerHost()
 /**
  * @return the Name of the Host
  */
-int getIdamServerPort()
+int udaGetServerPort()
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     return environment->server_port; // Active UDA server service port number
@@ -902,7 +902,7 @@ const char* udaGetBuildDate()
 /**
  * @return the connection socket ID
  */
-int getIdamServerSocket()
+int udaGetServerSocket()
 {
     ENVIRONMENT* environment = getIdamClientEnvironment();
     return environment->server_socket; // Active UDA server service socket number
@@ -913,11 +913,11 @@ int getIdamServerSocket()
 \param   handle   The data object handle.
 \return   Return error code, if non-zero there was a problem: < 0 is client side, > 0 is server side.
 */
-int getIdamErrorCode(int handle)
+int udaGetErrorCode(int handle)
 {
     // Error Code Returned from Server
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
-        return getIdamServerErrorStackRecordCode(0);
+        return udaGetServerErrorStackRecordCode(0);
     } else {
         return data_blocks[handle].errcode;
     }
@@ -928,11 +928,11 @@ int getIdamErrorCode(int handle)
 \param   handle   The data object handle.
 \return   the error message.
 */
-const char* getIdamErrorMsg(int handle)
+const char* udaGetErrorMsg(int handle)
 {
     // Error Message returned from server
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
-        return getIdamServerErrorStackRecordMsg(0);
+        return udaGetServerErrorStackRecordMsg(0);
     } else {
         return data_blocks[handle].error_msg;
     }
@@ -943,7 +943,7 @@ const char* getIdamErrorMsg(int handle)
 \param   handle   The data object handle.
 \return   Quality status.
 */
-int getIdamSourceStatus(int handle)
+int udaGetSourceStatus(int handle)
 { // Source Status
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return 0;
@@ -956,7 +956,7 @@ int getIdamSourceStatus(int handle)
 \param   handle   The data object handle.
 \return   Quality status.
 */
-int getIdamSignalStatus(int handle)
+int udaGetSignalStatus(int handle)
 {
     // Signal Status
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
@@ -965,13 +965,13 @@ int getIdamSignalStatus(int handle)
     return data_blocks[handle].signal_status;
 }
 
-int getIdamDataStatus(int handle)
+int udaGetDataStatus(int handle)
 {
     // Data Status based on Standard Rule
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return 0;
     }
-    if (getIdamSignalStatus(handle) == DEFAULT_STATUS) {
+    if (udaGetSignalStatus(handle) == DEFAULT_STATUS) {
         // Signal Status Not Changed from Default - use Data Source Value
         return data_blocks[handle].source_status;
     } else {
@@ -983,9 +983,9 @@ int getIdamDataStatus(int handle)
 /**
 \return   handle.
 */
-int getIdamLastHandle(CLIENT_FLAGS* client_flags)
+int udaGetLastHandle(CLIENT_FLAGS* client_flags)
 {
-    return acc_getCurrentDataBlockIndex(client_flags);
+    return udaGetCurrentDataBlockIndex(client_flags);
 }
 
 //!  returns the number of data items in the data object
@@ -993,7 +993,7 @@ int getIdamLastHandle(CLIENT_FLAGS* client_flags)
 \param   handle   The data object handle
 \return  the number of data items
 */
-int getIdamDataNum(int handle)
+int udaGetDataNum(int handle)
 {
     // Data Array Size
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
@@ -1007,7 +1007,7 @@ int getIdamDataNum(int handle)
 \param   handle   The data object handle
 \return  the rank
 */
-int getIdamRank(int handle)
+int udaGetRank(int handle)
 {
     // Array Rank
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
@@ -1021,7 +1021,7 @@ int getIdamRank(int handle)
 is counted from left to right in c and from right to left in Fortran and IDL. \param   handle   The data object handle
 \return  the time coordinate dimension position
 */
-int getIdamOrder(int handle)
+int udaGetOrder(int handle)
 {
     // Time Dimension Order in Array
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
@@ -1035,7 +1035,7 @@ int getIdamOrder(int handle)
  * @param handle The data object handle
  * @return the permission
  */
-unsigned int getIdamCachePermission(int handle)
+unsigned int udaGetCachePermission(int handle)
 {
     // Permission to cache?
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
@@ -1050,7 +1050,7 @@ unsigned int getIdamCachePermission(int handle)
  * @param handle The data object handle
  * @return byte count
  */
-unsigned int getIdamTotalDataBlockSize(int handle)
+unsigned int udaGetTotalDataBlockSize(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return 0;
@@ -1063,7 +1063,7 @@ unsigned int getIdamTotalDataBlockSize(int handle)
 \param   handle   The data object handle
 \return  the type id
 */
-int getIdamDataType(int handle)
+int udaGetDataType(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return UDA_TYPE_UNKNOWN;
@@ -1071,7 +1071,7 @@ int getIdamDataType(int handle)
     return data_blocks[handle].data_type;
 }
 
-int getIdamDataOpaqueType(int handle)
+int udaGetDataOpaqueType(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return UDA_TYPE_UNKNOWN;
@@ -1079,7 +1079,7 @@ int getIdamDataOpaqueType(int handle)
     return data_blocks[handle].opaque_type;
 }
 
-void* getIdamDataOpaqueBlock(int handle)
+void* udaGetDataOpaqueBlock(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -1087,7 +1087,7 @@ void* getIdamDataOpaqueBlock(int handle)
     return data_blocks[handle].opaque_block;
 }
 
-int getIdamDataOpaqueCount(int handle)
+int udaGetDataOpaqueCount(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return 0;
@@ -1100,7 +1100,7 @@ int getIdamDataOpaqueCount(int handle)
 \param   handle   The data object handle
 \return  the type id
 */
-int getIdamErrorType(int handle)
+int udaGetErrorType(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return UDA_TYPE_UNKNOWN;
@@ -1113,7 +1113,7 @@ int getIdamErrorType(int handle)
 \param   type   The name of the type
 \return  the type id
 */
-int getIdamDataTypeId(const char* type)
+int udaGetDataTypeId(const char* type)
 {
     // Return the Internal Code for Data Types
     if (STR_IEQUALS(type, "dcomplex")) {
@@ -1209,7 +1209,7 @@ int getIdamDataTypeId(const char* type)
     return UDA_TYPE_UNKNOWN;
 }
 
-int getIdamDataTypeSize(int type)
+int udaGetDataTypeSize(int type)
 {
     // Return the size of the Data Type
     switch (type) {
@@ -1262,7 +1262,7 @@ int getIdamDataTypeSize(int type)
     }
 }
 
-void getIdamErrorModel(int handle, int* model, int* param_n, float* params)
+void udaGetErrorModel(int handle, int* model, int* param_n, float* params)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         *model = ERROR_MODEL_UNKNOWN;
@@ -1276,7 +1276,7 @@ void getIdamErrorModel(int handle, int* model, int* param_n, float* params)
     }
 }
 
-int getIdamErrorAsymmetry(int handle)
+int udaGetErrorAsymmetry(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return 0;
@@ -1286,7 +1286,7 @@ int getIdamErrorAsymmetry(int handle)
 
 // Return the Internal Code for a named Error Model
 
-int getIdamErrorModelId(const char* model)
+int udaGetErrorModelId(const char* model)
 {
     for (int i = 1; i < ERROR_MODEL_UNDEFINED; i++) {
         switch (i) {
@@ -1329,7 +1329,7 @@ int getIdamErrorModelId(const char* model)
     return 0;
 }
 
-char* acc_getSyntheticData(int handle)
+char* udaGetSyntheticData(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -1337,7 +1337,7 @@ char* acc_getSyntheticData(int handle)
     return data_blocks[handle].synthetic;
 }
 
-char* acc_getSyntheticDimData(int handle, int ndim)
+char* udaGetSyntheticDimData(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -1345,7 +1345,7 @@ char* acc_getSyntheticDimData(int handle, int ndim)
     return data_blocks[handle].dims[ndim].synthetic;
 }
 
-void acc_setSyntheticData(int handle, char* data)
+void udaSetSyntheticData(int handle, char* data)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -1353,7 +1353,7 @@ void acc_setSyntheticData(int handle, char* data)
     data_blocks[handle].synthetic = data;
 }
 
-void acc_setSyntheticDimData(int handle, int ndim, char* data)
+void udaSetSyntheticDimData(int handle, int ndim, char* data)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -1361,11 +1361,11 @@ void acc_setSyntheticDimData(int handle, int ndim, char* data)
     data_blocks[handle].dims[ndim].synthetic = data;
 }
 
-char* getIdamSyntheticData(int handle)
+char* udaGetSyntheticData(int handle)
 {
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
-    int status = getIdamDataStatus(handle);
+    int status = udaGetDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
     }
@@ -1388,11 +1388,11 @@ char* getIdamSyntheticData(int handle)
 \return  a pointer to the data - if the status is poor, a nullptr pointer is returned unless the \e get_bad property is
 set.
 */
-char* getIdamData(int handle)
+char* udaGetData(int handle)
 {
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
-    int status = getIdamDataStatus(handle);
+    int status = udaGetDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
     }
@@ -1405,7 +1405,7 @@ char* getIdamData(int handle)
     if (!client_flags->get_synthetic) {
         return data_blocks[handle].data;
     } else {
-        return getIdamSyntheticData(handle);
+        return udaGetSyntheticData(handle);
     }
 }
 
@@ -1415,7 +1415,7 @@ char* getIdamData(int handle)
 \param   char  A preallocated memory block to receive a copy of the data
 \return  void
 */
-void getIdamDataTdi(int handle, char* data)
+void udaGetDataTdi(int handle, char* data)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -1423,7 +1423,7 @@ void getIdamDataTdi(int handle, char* data)
     memcpy(data, (void*)data_blocks[handle].data, (int)data_blocks[handle].data_n);
 }
 
-char* getIdamDataErrLo(int handle)
+char* udaGetDataErrLo(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -1431,7 +1431,7 @@ char* getIdamDataErrLo(int handle)
     return data_blocks[handle].errlo;
 }
 
-char* getIdamDataErrHi(int handle)
+char* udaGetDataErrHi(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -1439,7 +1439,7 @@ char* getIdamDataErrHi(int handle)
     return data_blocks[handle].errhi;
 }
 
-int getIdamDataErrAsymmetry(int handle)
+int udaGetDataErrAsymmetry(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return 0;
@@ -1447,7 +1447,7 @@ int getIdamDataErrAsymmetry(int handle)
     return data_blocks[handle].errasymmetry;
 }
 
-void acc_setIdamDataErrAsymmetry(int handle, int asymmetry)
+void udaSetDataErrAsymmetry(int handle, int asymmetry)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -1455,7 +1455,7 @@ void acc_setIdamDataErrAsymmetry(int handle, int asymmetry)
     data_blocks[handle].errasymmetry = asymmetry;
 };
 
-void acc_setIdamDataErrType(int handle, int type)
+void udaSetDataErrType(int handle, int type)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -1463,7 +1463,7 @@ void acc_setIdamDataErrType(int handle, int type)
     data_blocks[handle].error_type = type;
 };
 
-void acc_setIdamDataErrLo(int handle, char* errlo)
+void udaSetDataErrLo(int handle, char* errlo)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -1471,7 +1471,7 @@ void acc_setIdamDataErrLo(int handle, char* errlo)
     data_blocks[handle].errlo = errlo;
 };
 
-char* getIdamDimErrLo(int handle, int ndim)
+char* udaGetDimErrLo(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -1479,7 +1479,7 @@ char* getIdamDimErrLo(int handle, int ndim)
     return data_blocks[handle].dims[ndim].errlo;
 }
 
-char* getIdamDimErrHi(int handle, int ndim)
+char* udaGetDimErrHi(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -1487,7 +1487,7 @@ char* getIdamDimErrHi(int handle, int ndim)
     return data_blocks[handle].dims[ndim].errhi;
 }
 
-int getIdamDimErrAsymmetry(int handle, int ndim)
+int udaGetDimErrAsymmetry(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return 0;
@@ -1495,7 +1495,7 @@ int getIdamDimErrAsymmetry(int handle, int ndim)
     return data_blocks[handle].dims[ndim].errasymmetry;
 }
 
-void acc_setIdamDimErrAsymmetry(int handle, int ndim, int asymmetry)
+void udaSetDimErrAsymmetry(int handle, int ndim, int asymmetry)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -1503,7 +1503,7 @@ void acc_setIdamDimErrAsymmetry(int handle, int ndim, int asymmetry)
     data_blocks[handle].dims[ndim].errasymmetry = asymmetry;
 };
 
-void acc_setIdamDimErrType(int handle, int ndim, int type)
+void udaSetDimErrType(int handle, int ndim, int type)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -1511,7 +1511,7 @@ void acc_setIdamDimErrType(int handle, int ndim, int type)
     data_blocks[handle].dims[ndim].error_type = type;
 };
 
-void acc_setIdamDimErrLo(int handle, int ndim, char* errlo)
+void udaSetDimErrLo(int handle, int ndim, char* errlo)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -1519,7 +1519,7 @@ void acc_setIdamDimErrLo(int handle, int ndim, char* errlo)
     data_blocks[handle].dims[ndim].errlo = errlo;
 };
 
-char* getIdamAsymmetricError(int handle, int above)
+char* udaGetAsymmetricError(int handle, int above)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -1794,13 +1794,13 @@ char* getIdamAsymmetricError(int handle, int above)
 \param   handle   The data object handle
 \return  a pointer to the data
 */
-char* getIdamError(int handle)
+char* udaGetError(int handle)
 {
     int above = 1;
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
     }
-    return getIdamAsymmetricError(handle, above);
+    return udaGetAsymmetricError(handle, above);
 }
 
 //!  Returns data cast to double precision
@@ -1808,7 +1808,7 @@ char* getIdamError(int handle)
 status of the data is poor, no copy to the buffer occurs unless the property \b get_bad is set. \param   handle   The
 data object handle \param   fp A \b double pointer to a preallocated data buffer \return  void
 */
-void getIdamDoubleData(int handle, double* fp)
+void udaGetDoubleData(int handle, double* fp)
 {
     // Copy Data cast as double to User Provided Array
 
@@ -1816,7 +1816,7 @@ void getIdamDoubleData(int handle, double* fp)
 
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
-    int status = getIdamDataStatus(handle);
+    int status = udaGetDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
     }
@@ -1845,7 +1845,7 @@ void getIdamDoubleData(int handle, double* fp)
         char* array;
         int ndata;
 
-        ndata = getIdamDataNum(handle);
+        ndata = udaGetDataNum(handle);
 
         if (!client_flags->get_synthetic) {
             array = data_blocks[handle].data;
@@ -1975,7 +1975,7 @@ void getIdamDoubleData(int handle, double* fp)
 status of the data is poor, no copy to the buffer occurs unless the property \b get_bad is set. \param   handle   The
 data object handle \param   fp A \b float pointer to a preallocated data buffer \return  void
 */
-void getIdamFloatData(int handle, float* fp)
+void udaGetFloatData(int handle, float* fp)
 {
     // Copy Data cast as float to User Provided Array
 
@@ -1983,7 +1983,7 @@ void getIdamFloatData(int handle, float* fp)
 
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
-    int status = getIdamDataStatus(handle);
+    int status = udaGetDataStatus(handle);
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
     }
@@ -2012,7 +2012,7 @@ void getIdamFloatData(int handle, float* fp)
         char* array;
         int ndata;
 
-        ndata = getIdamDataNum(handle);
+        ndata = udaGetDataNum(handle);
 
         if (!client_flags->get_synthetic) {
             array = data_blocks[handle].data;
@@ -2143,55 +2143,55 @@ void getIdamFloatData(int handle, float* fp)
 \param   data  A \b void pointer to a preallocated data buffer
 \return  void
 */
-void getIdamGenericData(int handle, void* data)
+void udaGetGenericData(int handle, void* data)
 {
-    switch (getIdamDataType(handle)) {
+    switch (udaGetDataType(handle)) {
         case UDA_TYPE_FLOAT:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(float));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(float));
             break;
         case UDA_TYPE_DOUBLE:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(double));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(double));
             break;
         case UDA_TYPE_INT:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(int));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(int));
             break;
         case UDA_TYPE_UNSIGNED_INT:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned int));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(unsigned int));
             break;
         case UDA_TYPE_LONG:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(long));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(long));
             break;
         case UDA_TYPE_UNSIGNED_LONG:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned long));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(unsigned long));
             break;
         case UDA_TYPE_LONG64:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(long long int));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(long long int));
             break;
         case UDA_TYPE_UNSIGNED_LONG64:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned long long int));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(unsigned long long int));
             break;
         case UDA_TYPE_SHORT:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(short));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(short));
             break;
         case UDA_TYPE_UNSIGNED_SHORT:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned short));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(unsigned short));
             break;
         case UDA_TYPE_CHAR:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(char));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(char));
             break;
         case UDA_TYPE_UNSIGNED_CHAR:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(unsigned char));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(unsigned char));
             break;
         case UDA_TYPE_DCOMPLEX:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(DCOMPLEX));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(DCOMPLEX));
             break;
         case UDA_TYPE_COMPLEX:
-            memcpy(data, (void*)getIdamData(handle), (size_t)getIdamDataNum(handle) * sizeof(COMPLEX));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(COMPLEX));
             break;
     }
 }
 
-void getIdamFloatAsymmetricError(int handle, int above, float* fp)
+void udaGetFloatAsymmetricError(int handle, int above, float* fp)
 {
     // Copy Error Data cast as float to User Provided Array
 
@@ -2204,7 +2204,7 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
     int ndata = data_blocks[handle].data_n;
 
     if (data_blocks[handle].error_type == UDA_TYPE_UNKNOWN) {
-        getIdamAsymmetricError(handle, above);
+        udaGetAsymmetricError(handle, above);
     } // Create the Error Data prior to Casting
 
     switch (data_blocks[handle].error_type) {
@@ -2422,10 +2422,10 @@ void getIdamFloatAsymmetricError(int handle, int above, float* fp)
 \param   fp A \b float pointer to a preallocated data buffer
 \return  void
 */
-void getIdamFloatError(int handle, float* fp)
+void udaGetFloatError(int handle, float* fp)
 {
     int above = 1;
-    getIdamFloatAsymmetricError(handle, above, fp);
+    udaGetFloatAsymmetricError(handle, above, fp);
 }
 
 //!  Returns the DATA_BLOCK data structure - the data, dimension coordinates and associated meta data.
@@ -2434,7 +2434,7 @@ void getIdamFloatError(int handle, float* fp)
 \param   db Returned \b DATA_BLOCK pointer
 \return  void
 */
-void getIdamDBlock(int handle, DATA_BLOCK* db)
+void udaGetDBlock(int handle, DATA_BLOCK* db)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -2447,7 +2447,7 @@ void getIdamDBlock(int handle, DATA_BLOCK* db)
 \param   handle   The data object handle
 \return  DATA_BLOCK pointer
 */
-DATA_BLOCK* getIdamDataBlock(int handle)
+DATA_BLOCK* udaGetDataBlock(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -2460,7 +2460,7 @@ DATA_BLOCK* getIdamDataBlock(int handle)
 \param   handle   The data object handle
 \return  pointer to the data label
 */
-const char* getIdamDataLabel(int handle)
+const char* udaGetDataLabel(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -2474,7 +2474,7 @@ const char* getIdamDataLabel(int handle)
 \param   label   preallocated string buffer to receive the copy of the data label
 \return  void
 */
-void getIdamDataLabelTdi(int handle, char* label)
+void udaGetDataLabelTdi(int handle, char* label)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -2487,7 +2487,7 @@ void getIdamDataLabelTdi(int handle, char* label)
 \param   handle   The data object handle
 \return  pointer to the data units
 */
-const char* getIdamDataUnits(int handle)
+const char* udaGetDataUnits(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -2501,7 +2501,7 @@ const char* getIdamDataUnits(int handle)
 \param   units   preallocated string buffer to receive the copy of the data units
 \return  void
 */
-void getIdamDataUnitsTdi(int handle, char* units)
+void udaGetDataUnitsTdi(int handle, char* units)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -2514,7 +2514,7 @@ void getIdamDataUnitsTdi(int handle, char* units)
 \param   handle   The data object handle
 \return  pointer to the data description
 */
-const char* getIdamDataDesc(int handle)
+const char* udaGetDataDesc(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -2528,7 +2528,7 @@ const char* getIdamDataDesc(int handle)
 \param   units   preallocated string buffer to receive the copy of the data description
 \return  void
 */
-void getIdamDataDescTdi(int handle, char* desc)
+void udaGetDataDescTdi(int handle, char* desc)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return;
@@ -2544,7 +2544,7 @@ void getIdamDataDescTdi(int handle, char* desc)
 \param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  the dimension size
 */
-int getIdamDimNum(int handle, int ndim)
+int udaGetDimNum(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
@@ -2559,7 +2559,7 @@ int getIdamDimNum(int handle, int ndim)
 \param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  the data type id
 */
-int getIdamDimType(int handle, int ndim)
+int udaGetDimType(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
@@ -2574,7 +2574,7 @@ int getIdamDimType(int handle, int ndim)
 \param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  the data type id
 */
-int getIdamDimErrorType(int handle, int ndim)
+int udaGetDimErrorType(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
@@ -2589,7 +2589,7 @@ int getIdamDimErrorType(int handle, int ndim)
 \param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  boolean true or false i.e. 1 or 0
 */
-int getIdamDimErrorAsymmetry(int handle, int ndim)
+int udaGetDimErrorAsymmetry(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
@@ -2598,7 +2598,7 @@ int getIdamDimErrorAsymmetry(int handle, int ndim)
     return data_blocks[handle].dims[ndim].errasymmetry;
 }
 
-void getIdamDimErrorModel(int handle, int ndim, int* model, int* param_n, float* params)
+void udaGetDimErrorModel(int handle, int ndim, int* model, int* param_n, float* params)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
@@ -2615,7 +2615,7 @@ void getIdamDimErrorModel(int handle, int ndim, int* model, int* param_n, float*
     // *params  = data_blocks[handle].dims[ndim].errparams;        // Array of Model Parameters
 }
 
-char* getIdamSyntheticDimData(int handle, int ndim)
+char* udaGetSyntheticDimData(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
@@ -2635,7 +2635,7 @@ char* getIdamSyntheticDimData(int handle, int ndim)
 \param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  pointer to the data
 */
-char* getIdamDimData(int handle, int ndim)
+char* udaGetDimData(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
@@ -2645,7 +2645,7 @@ char* getIdamDimData(int handle, int ndim)
     if (!client_flags->get_synthetic) {
         return data_blocks[handle].dims[ndim].dim;
     }
-    return getIdamSyntheticDimData(handle, ndim);
+    return udaGetSyntheticDimData(handle, ndim);
 }
 
 //! Returns the data label of a coordinate dimension
@@ -2654,7 +2654,7 @@ char* getIdamDimData(int handle, int ndim)
 \param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  pointer to the data label
 */
-const char* getIdamDimLabel(int handle, int ndim)
+const char* udaGetDimLabel(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
@@ -2668,7 +2668,7 @@ const char* getIdamDimLabel(int handle, int ndim)
 \param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  pointer to the data units
 */
-const char* getIdamDimUnits(int handle, int ndim)
+const char* udaGetDimUnits(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
@@ -2684,7 +2684,7 @@ const char* getIdamDimUnits(int handle, int ndim)
 \param   label   preallocated string buffer to receive the copy of the data label
 \return  void
 */
-void getIdamDimLabelTdi(int handle, int ndim, char* label)
+void udaGetDimLabelTdi(int handle, int ndim, char* label)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
@@ -2700,7 +2700,7 @@ void getIdamDimLabelTdi(int handle, int ndim, char* label)
 \param   units   preallocated string buffer to receive the copy of the data units
 \return  void
 */
-void getIdamDimUnitsTdi(int handle, int ndim, char* units)
+void udaGetDimUnitsTdi(int handle, int ndim, char* units)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
@@ -2716,7 +2716,7 @@ void getIdamDimUnitsTdi(int handle, int ndim, char* units)
 \param   fp A \b double pointer to a preallocated data buffer
 \return  void
 */
-void getIdamDoubleDimData(int handle, int ndim, double* fp)
+void udaGetDoubleDimData(int handle, int ndim, double* fp)
 {
     // **** The double array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
 
@@ -2873,7 +2873,7 @@ void getIdamDoubleDimData(int handle, int ndim, double* fp)
 \param   fp A \b float pointer to a preallocated data buffer
 \return  void
 */
-void getIdamFloatDimData(int handle, int ndim, float* fp)
+void udaGetFloatDimData(int handle, int ndim, float* fp)
 {
     // **** The float array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
 
@@ -3030,56 +3030,56 @@ void getIdamFloatDimData(int handle, int ndim, float* fp)
 \param   data  A \b void pointer to a preallocated data buffer
 \return  void
 */
-void getIdamGenericDimData(int handle, int ndim, void* data)
+void udaGetGenericDimData(int handle, int ndim, void* data)
 {
-    switch (getIdamDimType(handle, ndim)) {
+    switch (udaGetDimType(handle, ndim)) {
         case UDA_TYPE_FLOAT:
-            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(float));
+            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(float));
             break;
         case UDA_TYPE_DOUBLE:
-            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(double));
+            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(double));
             break;
         case UDA_TYPE_INT:
-            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(int));
+            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(int));
             break;
         case UDA_TYPE_LONG:
-            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(long));
+            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(long));
             break;
         case UDA_TYPE_LONG64:
-            memcpy(data, (void*)getIdamDimData(handle, ndim),
-                   (size_t)getIdamDimNum(handle, ndim) * sizeof(long long int));
+            memcpy(data, (void*)udaGetDimData(handle, ndim),
+                   (size_t)udaGetDimNum(handle, ndim) * sizeof(long long int));
             break;
         case UDA_TYPE_SHORT:
-            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(short));
+            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(short));
             break;
         case UDA_TYPE_CHAR:
-            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(char));
+            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(char));
             break;
         case UDA_TYPE_UNSIGNED_INT:
-            memcpy(data, (void*)getIdamDimData(handle, ndim),
-                   (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned int));
+            memcpy(data, (void*)udaGetDimData(handle, ndim),
+                   (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned int));
             break;
         case UDA_TYPE_UNSIGNED_LONG:
-            memcpy(data, (void*)getIdamDimData(handle, ndim),
-                   (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned long));
+            memcpy(data, (void*)udaGetDimData(handle, ndim),
+                   (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned long));
             break;
         case UDA_TYPE_UNSIGNED_LONG64:
-            memcpy(data, (void*)getIdamDimData(handle, ndim),
-                   (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned long long int));
+            memcpy(data, (void*)udaGetDimData(handle, ndim),
+                   (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned long long int));
             break;
         case UDA_TYPE_UNSIGNED_SHORT:
-            memcpy(data, (void*)getIdamDimData(handle, ndim),
-                   (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned short));
+            memcpy(data, (void*)udaGetDimData(handle, ndim),
+                   (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned short));
             break;
         case UDA_TYPE_UNSIGNED_CHAR:
-            memcpy(data, (void*)getIdamDimData(handle, ndim),
-                   (size_t)getIdamDimNum(handle, ndim) * sizeof(unsigned char));
+            memcpy(data, (void*)udaGetDimData(handle, ndim),
+                   (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned char));
             break;
         case UDA_TYPE_DCOMPLEX:
-            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(DCOMPLEX));
+            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(DCOMPLEX));
             break;
         case UDA_TYPE_COMPLEX:
-            memcpy(data, (void*)getIdamDimData(handle, ndim), (size_t)getIdamDimNum(handle, ndim) * sizeof(COMPLEX));
+            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(COMPLEX));
             break;
     }
 }
@@ -3090,7 +3090,7 @@ void getIdamGenericDimData(int handle, int ndim, void* data)
 \param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  DIMS pointer
 */
-DIMS* getIdamDimBlock(int handle, int ndim)
+DIMS* udaGetDimBlock(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
@@ -3099,7 +3099,7 @@ DIMS* getIdamDimBlock(int handle, int ndim)
     return data_blocks[handle].dims + ndim;
 }
 
-char* getIdamDimAsymmetricError(int handle, int ndim, int above)
+char* udaGetDimAsymmetricError(int handle, int ndim, int above)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
@@ -3362,17 +3362,17 @@ char* getIdamDimAsymmetricError(int handle, int ndim, int above)
 \param   ndim  the position of the dimension in the data array - numbering is as data[0][1][2]
 \return  a pointer to the data
 */
-char* getIdamDimError(int handle, int ndim)
+char* udaGetDimError(int handle, int ndim)
 {
     int above = 1;
     if (handle < 0 || (unsigned int)handle >= data_blocks.size() || ndim < 0 ||
         (unsigned int)ndim >= data_blocks[handle].rank) {
         return nullptr;
     }
-    return getIdamDimAsymmetricError(handle, ndim, above);
+    return udaGetDimAsymmetricError(handle, ndim, above);
 }
 
-void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
+void udaGetFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
 {
     // Copy Error Data cast as float to User Provided Array
 
@@ -3384,7 +3384,7 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
     int ndata = data_blocks[handle].dims[ndim].dim_n;
 
     if (data_blocks[handle].dims[ndim].error_type == UDA_TYPE_UNKNOWN) {
-        getIdamDimAsymmetricError(handle, ndim, above);
+        udaGetDimAsymmetricError(handle, ndim, above);
     } // Create the Error Data prior to Casting
 
     switch (data_blocks[handle].dims[ndim].error_type) {
@@ -3548,10 +3548,10 @@ void getIdamFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
 \param   fp A \b float pointer to a preallocated data buffer
 \return  void
 */
-void getIdamFloatDimError(int handle, int ndim, float* fp)
+void udaGetFloatDimError(int handle, int ndim, float* fp)
 {
     int above = 1;
-    getIdamFloatDimAsymmetricError(handle, ndim, above, fp);
+    udaGetFloatDimAsymmetricError(handle, ndim, above, fp);
 }
 
 //!  Returns a pointer to the DATA_SYSTEM Meta Data structure
@@ -3559,7 +3559,7 @@ void getIdamFloatDimError(int handle, int ndim, float* fp)
 \param   handle   The data object handle
 \return  DATA_SYSTEM pointer
 */
-DATA_SYSTEM* getIdamDataSystem(int handle)
+DATA_SYSTEM* udaGetDataSystem(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -3572,7 +3572,7 @@ DATA_SYSTEM* getIdamDataSystem(int handle)
 \param   handle   The data object handle
 \return  SYSTEM_CONFIG pointer
 */
-SYSTEM_CONFIG* getIdamSystemConfig(int handle)
+SYSTEM_CONFIG* udaGetSystemConfig(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {}
     return nullptr;
@@ -3584,7 +3584,7 @@ SYSTEM_CONFIG* getIdamSystemConfig(int handle)
 \param   handle   The data object handle
 \return  DATA_SOURCE pointer
 */
-DATA_SOURCE* getIdamDataSource(int handle)
+DATA_SOURCE* udaGetDataSource(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -3597,7 +3597,7 @@ DATA_SOURCE* getIdamDataSource(int handle)
 \param   handle   The data object handle
 \return  SIGNAL pointer
 */
-SIGNAL* getIdamSignal(int handle)
+SIGNAL* udaGetSignal(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -3610,7 +3610,7 @@ SIGNAL* getIdamSignal(int handle)
 \param   handle   The data object handle
 \return  SIGNAL_DESC pointer
 */
-SIGNAL_DESC* getIdamSignalDesc(int handle)
+SIGNAL_DESC* udaGetSignalDesc(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -3623,12 +3623,12 @@ SIGNAL_DESC* getIdamSignalDesc(int handle)
 \param   handle   The data object handle
 \return  pointer to the data file format
 */
-const char* getIdamFileFormat(int handle)
+const char* udaGetFileFormat(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
     }
-    DATA_SOURCE* data_source = getIdamDataSource(handle);
+    DATA_SOURCE* data_source = udaGetDataSource(handle);
     if (data_source == nullptr) {
         return nullptr;
     }
@@ -3638,17 +3638,17 @@ const char* getIdamFileFormat(int handle)
 //-----------------------------------------------------------------------------------------------------------
 // Various Utilities
 
-void initIdamDataBlock(DATA_BLOCK* str)
+void udaInitDataBlock(DATA_BLOCK* str)
 {
     initDataBlock(str);
 }
 
-void initIdamRequestBlock(REQUEST_BLOCK* str)
+void udaInitRequestBlock(REQUEST_BLOCK* str)
 {
     initRequestBlock(str);
 }
 
-int idamDataCheckSum(void* data, int data_n, int type)
+int udaDataCheckSum(void* data, int data_n, int type)
 {
     int sum = 0;
     switch (type) {
@@ -3785,7 +3785,7 @@ int idamDataCheckSum(void* data, int data_n, int type)
     return sum;
 }
 
-int getIdamDataCheckSum(int handle)
+int udaGetDataCheckSum(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return 0;
@@ -3795,10 +3795,10 @@ int getIdamDataCheckSum(int handle)
     }
 
     return (
-        idamDataCheckSum((void*)data_blocks[handle].data, data_blocks[handle].data_n, data_blocks[handle].data_type));
+        udaDataCheckSum((void*)data_blocks[handle].data, data_blocks[handle].data_n, data_blocks[handle].data_type));
 }
 
-int getIdamDimDataCheckSum(int handle, int ndim)
+int udaGetDimDataCheckSum(int handle, int ndim)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return 0;
@@ -3810,7 +3810,7 @@ int getIdamDimDataCheckSum(int handle, int ndim)
         return 0;
     }
 
-    return (idamDataCheckSum((void*)data_blocks[handle].dims[ndim].dim, data_blocks[handle].dims[ndim].dim_n,
+    return (udaDataCheckSum((void*)data_blocks[handle].dims[ndim].dim, data_blocks[handle].dims[ndim].dim_n,
                              data_blocks[handle].dims[ndim].data_type));
 }
 
@@ -3844,11 +3844,11 @@ void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectS
 
     int token;
 
-    USERDEFINEDTYPELIST* userdefinedtypelist = getIdamUserDefinedTypeList(handle);
-    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle);
+    USERDEFINEDTYPELIST* userdefinedtypelist = udaGetUserDefinedTypeList(handle);
+    LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
     DATA_BLOCK_LIST data_block_list;
     data_block_list.count = 1;
-    data_block_list.data = getIdamDataBlock(handle);
+    data_block_list.data = udaGetDataBlock(handle);
     protocol2(&xdrs, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,
               &data_block_list, protocolVersion, log_struct_list, private_flags, malloc_source);
 
@@ -3878,17 +3878,17 @@ void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectS
 // Accessor Functions to General/Arbitrary Data Structures
 //----------------------------------------------------------------
 
-int setIdamDataTree(int handle)
+int udaSetDataTree(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
+    if (udaGetDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
         return 0; // Return FALSE
     }
-    if (getIdamData(handle) == nullptr) {
+    if (udaGetData(handle) == nullptr) {
         return 0;
     }
 
-    udaSetFullNTree((NTREE*)getIdamData(handle));
-    void* opaque_block = getIdamDataOpaqueBlock(handle);
+    udaSetFullNTree((NTREE*)udaGetData(handle));
+    void* opaque_block = udaGetDataOpaqueBlock(handle);
     setUserDefinedTypeList(((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist);
     setLogMallocList(((GENERAL_BLOCK*)opaque_block)->logmalloclist);
     setLastMallocIndexValue(&(((GENERAL_BLOCK*)opaque_block)->lastMallocIndex));
@@ -3897,44 +3897,44 @@ int setIdamDataTree(int handle)
 
 // Return a specific data tree
 
-NTREE* getIdamDataTree(int handle)
+NTREE* udaGetDataTree(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
+    if (udaGetDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
         return nullptr;
     }
-    return (NTREE*)getIdamData(handle);
+    return (NTREE*)udaGetData(handle);
 }
 
 // Return a user defined data structure definition
 
-USERDEFINEDTYPE* getIdamUserDefinedType(int handle)
+USERDEFINEDTYPE* udaGetUserDefinedType(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
+    if (udaGetDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
         return nullptr;
     }
-    void* opaque_block = getIdamDataOpaqueBlock(handle);
+    void* opaque_block = udaGetDataOpaqueBlock(handle);
     return ((GENERAL_BLOCK*)opaque_block)->userdefinedtype;
 }
 
-USERDEFINEDTYPELIST* getIdamUserDefinedTypeList(int handle)
+USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
+    if (udaGetDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
         return nullptr;
     }
-    void* opaque_block = getIdamDataOpaqueBlock(handle);
+    void* opaque_block = udaGetDataOpaqueBlock(handle);
     return ((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist;
 }
 
-LOGMALLOCLIST* getIdamLogMallocList(int handle)
+LOGMALLOCLIST* udaGetLogMallocList(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
+    if (udaGetDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
         return nullptr;
     }
-    void* opaque_block = getIdamDataOpaqueBlock(handle);
+    void* opaque_block = udaGetDataOpaqueBlock(handle);
     return ((GENERAL_BLOCK*)opaque_block)->logmalloclist;
 }
 
-NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target)
+NTREE* udaFindNTreeStructureDefinition(NTREE* node, const char* target)
 {
     return findNTreeStructureDefinition(node, target);
 }

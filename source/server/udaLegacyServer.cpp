@@ -74,7 +74,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
 
-    initUdaErrorStack();
+    udaInitErrorStack();
 
     initServerBlock(&server_block, server_version);
     initDataBlock(&data_block);
@@ -126,9 +126,9 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                     &client_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Data Block\n");
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Receiving Client Block)");
-                    concatUdaError(&server_block.idamerrorstack);
-                    closeUdaError();
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Receiving Client Block)");
+                    udaConcatError(&server_block.idamerrorstack);
+                    udaCloseError();
 
                     fatal = 1;
                     normalLegacyWait = 1;
@@ -176,9 +176,9 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                     &server_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block\n");
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Sending Server Block #1)");
-                    concatUdaError(&server_block.idamerrorstack); // Update Server State with Error Stack
-                    closeUdaError();
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Sending Server Block #1)");
+                    udaConcatError(&server_block.idamerrorstack); // Update Server State with Error Stack
+                    udaCloseError();
                     normalLegacyWait = 1;
                     fatal = 1;
                 }
@@ -207,7 +207,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                 &request_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                 malloc_source)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Request Block\n");
-                addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 1 Error (Receiving Client Request)");
+                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 1 Error (Receiving Client Request)");
                 break;
             }
 
@@ -248,7 +248,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
                 if (client_block.version < 6) {
                     err = 999;
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err,
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
                                  "PROXY redirection: Originating Client Version not compatible with the PROXY server "
                                  "interface.");
                     break;
@@ -266,7 +266,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
                 if (strstr(request_block.source, work) != nullptr) {
                     err = 999;
-                    addIdamError(
+                    udaAddError(
                         UDA_CODE_ERROR_TYPE, __func__, err,
                         "PROXY redirection: The PROXY is calling itself - Recursive server calls are not advisable!");
                     break;
@@ -277,7 +277,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 if (strlen(request_block.source) >=
                     (STRING_LENGTH - 1 - strlen(environment->server_proxy) - 4 + strlen(request_block.api_delim))) {
                     err = 999;
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err,
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
                                  "PROXY redirection: The source argument string is too long!");
                     break;
                 }
@@ -331,7 +331,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                     &(request_data->putDataBlockList), protocolVersion, &log_struct_list, &io_data,
                                     private_flags, malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving putData Block List\n");
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err,
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
                                  "Protocol 1 Error (Receiving Client putDataBlockList)");
                     break;
                 }
@@ -389,7 +389,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             printSignal(signal_rec);
             printSignalDesc(signal_desc);
             printDataBlock(data_block);
-            printIdamErrorStack();
+            udaPrintErrorStack();
             UDA_LOG(UDA_LOG_DEBUG,
                     "======================== ******************** ==========================================\n");
 
@@ -403,7 +403,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             if (client_block.get_dimdble || client_block.get_timedble || client_block.get_scalar) {
                 if (serverProcessing(client_block, &data_block) != 0) {
                     err = 779;
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Server-Side Processing Error");
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Server-Side Processing Error");
                     break;
                 }
             }
@@ -419,7 +419,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             if (data_block.data_n > 0 && (protocolVersionTypeTest(protocolVersion, data_block.data_type) ||
                                           protocolVersionTypeTest(protocolVersion, data_block.error_type))) {
                 err = 999;
-                addIdamError(UDA_CODE_ERROR_TYPE, __func__, err,
+                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
                              "The Data has a type that cannot be passed to the Client: A newer client library version "
                              "is required.");
                 break;
@@ -432,7 +432,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                     if (protocolVersionTypeTest(protocolVersion, dim.data_type) ||
                         protocolVersionTypeTest(protocolVersion, dim.error_type)) {
                         err = 999;
-                        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err,
+                        udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
                                      "A Coordinate Data has a numerical type that cannot be passed to the Client: A "
                                      "newer client library version is required.");
                         break;
@@ -456,8 +456,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             //----------------------------------------------------------------------------
             // Send Server Error State
 
-            concatUdaError(&server_block.idamerrorstack); // Update Server State with Error Stack
-            closeUdaError();
+            udaConcatError(&server_block.idamerrorstack); // Update Server State with Error Stack
+            udaCloseError();
 
             printServerBlock(server_block);
 
@@ -472,7 +472,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                 &server_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                 malloc_source)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
-                addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Sending Server Block #2)");
+                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Sending Server Block #2)");
                 break;
             }
 
@@ -502,7 +502,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                     userdefinedtypelist, nullptr, protocolVersion, &log_struct_list, &io_data,
                                     private_flags, malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem #1 Receiving Next Protocol ID\n");
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Next Protocol #1) Error");
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Next Protocol #1) Error");
                     break;
                 }
 
@@ -512,7 +512,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
                 if (next_protocol != UDA_PROTOCOL_DATA_SYSTEM) {
                     err = 998;
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err,
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
                                  "Protocol 3 Error: Protocol Request Inconsistency");
                     break;
                 }
@@ -526,7 +526,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                     &data_system, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure\n");
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error");
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error");
                     break;
                 }
 
@@ -539,7 +539,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                     &system_config, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure\n");
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error");
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error");
                     break;
                 }
 
@@ -552,7 +552,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                     &data_source, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure\n");
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error");
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error");
                     break;
                 }
 
@@ -565,7 +565,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                     &signal_rec, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure\n");
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error");
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error");
                     break;
                 }
 
@@ -578,7 +578,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                     &signal_desc, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure\n");
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error");
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error");
                     break;
                 }
 
@@ -593,7 +593,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                 userdefinedtypelist, nullptr, protocolVersion, &log_struct_list, &io_data,
                                 private_flags, malloc_source)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem #2 Receiving Next Protocol ID\n");
-                addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Next Protocol #2) Error");
+                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Next Protocol #2) Error");
                 break;
             }
 
@@ -606,7 +606,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
             if (next_protocol != UDA_PROTOCOL_DATA_BLOCK_LIST) {
                 err = 997;
-                addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 Error: Incorrect Request");
+                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 Error: Incorrect Request");
                 break;
             }
 
@@ -619,7 +619,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                 &data_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                 malloc_source)) != 0) {
                 UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure\n");
-                addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 2 Error");
+                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 2 Error");
                 break;
             }
 
@@ -636,13 +636,13 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                     userdefinedtypelist, nullptr, protocolVersion, &log_struct_list, &io_data,
                                     private_flags, malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem #2a Receiving Next Protocol ID\n");
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Next Protocol #2) Error");
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Next Protocol #2) Error");
                     break;
                 }
 
                 if (next_protocol != UDA_PROTOCOL_STRUCTURES) {
                     err = 999;
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Incorrect Next Protocol received: (Structures)");
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Incorrect Next Protocol received: (Structures)");
                     break;
                 }
             }
@@ -667,7 +667,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 if ((err = protocol(server_output, protocol_id, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
                                     &data_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err,
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
                                  "Server Side Protocol Error (Opaque Structure Type)");
                     break;
                 }
@@ -702,7 +702,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
         if ((err = protocol(server_input, protocol_id, XDR_RECEIVE, &next_protocol, logmalloclist, userdefinedtypelist,
                             nullptr, protocolVersion, &log_struct_list, &io_data, private_flags, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem #3 Receiving Next Protocol ID\n");
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Server Shutdown) Error");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 (Server Shutdown) Error");
             break;
         }
 
@@ -740,17 +740,17 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
 
-        UDA_LOG(UDA_LOG_DEBUG, "concatUdaError\n");
-        concatUdaError(&server_block.idamerrorstack); // Update Server State with Error Stack
+        UDA_LOG(UDA_LOG_DEBUG, "udaConcatError\n");
+        udaConcatError(&server_block.idamerrorstack); // Update Server State with Error Stack
 
-        UDA_LOG(UDA_LOG_DEBUG, "closeUdaError\n");
-        closeUdaError();
+        UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
+        udaCloseError();
 
         UDA_LOG(UDA_LOG_DEBUG, "udaErrorLog\n");
         udaErrorLog(client_block, request_block, &server_block.idamerrorstack);
 
-        UDA_LOG(UDA_LOG_DEBUG, "closeUdaError\n");
-        closeUdaError();
+        UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
+        udaCloseError();
 
         UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
         initServerBlock(&server_block, server_version);
@@ -793,7 +793,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
     // Write the Error Log Record & Free Error Stack Heap
 
     udaErrorLog(client_block, request_block, nullptr);
-    closeUdaError();
+    udaCloseError();
 
     //----------------------------------------------------------------------------
     // Close the Logs

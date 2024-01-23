@@ -33,7 +33,7 @@ int readBytes(const std::string& path, IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     if (environment->external_user) {
         err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "This Service is Disabled");
+        udaAddError(UDA_CODE_ERROR_TYPE, "readBytes", err, "This Service is Disabled");
         UDA_LOG(UDA_LOG_DEBUG, "Disabled Service - Requested File: %s \n", path.c_str());
         return err;
     }
@@ -43,7 +43,7 @@ int readBytes(const std::string& path, IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     if (!IsLegalFilePath(path.c_str())) {
         err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "The directory path has incorrect syntax");
+        udaAddError(UDA_CODE_ERROR_TYPE, "readBytes", err, "The directory path has incorrect syntax");
         UDA_LOG(UDA_LOG_DEBUG, "The directory path has incorrect syntax [%s] \n", path.c_str());
         return err;
     }
@@ -71,9 +71,9 @@ int readBytes(const std::string& path, IDAM_PLUGIN_INTERFACE* plugin_interface)
     if (fh == nullptr || ferror(fh) || serrno != 0) {
         err = BYTEFILEOPENERROR;
         if (serrno != 0) {
-            addIdamError(UDA_SYSTEM_ERROR_TYPE, "readBytes", serrno, "");
+            udaAddError(UDA_SYSTEM_ERROR_TYPE, "readBytes", serrno, "");
         }
-        addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "Unable to Open the File for Read Access");
+        udaAddError(UDA_CODE_ERROR_TYPE, "readBytes", err, "Unable to Open the File for Read Access");
         if (fh != nullptr) {
             fclose(fh);
         }
@@ -96,7 +96,7 @@ int readBytes(const std::string& path, IDAM_PLUGIN_INTERFACE* plugin_interface)
         while (!feof(fh)) {
             if ((bp = (char*)realloc(bp, (size_t)data_block->data_n)) == nullptr) {
                 err = BYTEFILEHEAPERROR;
-                addIdamError(UDA_CODE_ERROR_TYPE, "readBytes", err, "Unable to Allocate Heap Memory for the File");
+                udaAddError(UDA_CODE_ERROR_TYPE, "readBytes", err, "Unable to Allocate Heap Memory for the File");
                 break;
             }
             int nread = (int)fread(bp + offset, sizeof(char), (size_t)bufsize, fh);

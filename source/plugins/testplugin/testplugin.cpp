@@ -186,14 +186,14 @@ void testError1()
 {
     // Test of Error Management within Plugins
     int err = 9991;
-    addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Test #1 of Error State Management");
+    udaAddError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Test #1 of Error State Management");
 }
 
 void testError2()
 {
     // Test of Error Management within Plugins
     int err = 9992;
-    addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Test #2 of Error State Management");
+    udaAddError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Test #2 of Error State Management");
 }
 
 int TestPlugin::test0(IDAM_PLUGIN_INTERFACE* plugin_interface)
@@ -2862,7 +2862,7 @@ int TestPlugin::test40(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     if (request_block->putDataBlockList.blockCount == 0) {
         err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "No Put Data Blocks to process!");
+        udaAddError(UDA_CODE_ERROR_TYPE, "testplugin", err, "No Put Data Blocks to process!");
         return err;
     }
 
@@ -3514,7 +3514,7 @@ int TestPlugin::plugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
                     err = pluginList->plugin[i].idamPlugin(&next_plugin_interface); // Call the data reader
                 } else {
                     err = 999;
-                    addIdamError(UDA_CODE_ERROR_TYPE, "No Data Access plugin available for this data request", err, "");
+                    udaAddError(UDA_CODE_ERROR_TYPE, "No Data Access plugin available for this data request", err, "");
                 }
                 break;
             }
@@ -3542,7 +3542,7 @@ int TestPlugin::errortest(IDAM_PLUGIN_INTERFACE* plugin_interface)
     int err = 0;
     int test = 0;
 
-    initUdaErrorStack();
+    udaInitErrorStack();
     REQUEST_DATA* request = plugin_interface->request_data;
 
     FIND_REQUIRED_INT_VALUE(request->nameValueList, test);
@@ -3550,11 +3550,11 @@ int TestPlugin::errortest(IDAM_PLUGIN_INTERFACE* plugin_interface)
     switch (test) {
         case 1:
             testError1();
-            concatUdaError(&plugin_interface->error_stack);
+            udaConcatError(&plugin_interface->error_stack);
             return err;
         case 2:
             testError2();
-            concatUdaError(&plugin_interface->error_stack);
+            udaConcatError(&plugin_interface->error_stack);
             return err;
         case 3: {
             const char* p = "crash!"; // force a server crash! (write to read-only memory)
@@ -3827,8 +3827,8 @@ int createUDTSocket(int* usock, int port, int rendezvous)
 
     if (0 != getaddrinfo(nullptr, service, &hints, &res)) {
         int err = 9991;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:createUDTSocket", err, "Illegal port number or port is busy");
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:createUDTSocket", err, (char*)udt_getlasterror_desc());
+        udaAddError(UDA_CODE_ERROR_TYPE, "testplugin:createUDTSocket", err, "Illegal port number or port is busy");
+        udaAddError(UDA_CODE_ERROR_TYPE, "testplugin:createUDTSocket", err, (char*)udt_getlasterror_desc());
         return -1;
     }
 
@@ -3889,8 +3889,8 @@ int createTCPSocket(SYSSOCKET* ssock, int port, bool rendezvous)
 
     if (0 != getaddrinfo(nullptr, service, &hints, &res)) {
         int err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:createTCPSocket", err, "Illegal port number or port is busy");
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:createTCPSocket", err, (char*)udt_getlasterror_desc());
+        udaAddError(UDA_CODE_ERROR_TYPE, "testplugin:createTCPSocket", err, "Illegal port number or port is busy");
+        udaAddError(UDA_CODE_ERROR_TYPE, "testplugin:createTCPSocket", err, (char*)udt_getlasterror_desc());
         return -1;
     }
 
@@ -3898,8 +3898,8 @@ int createTCPSocket(SYSSOCKET* ssock, int port, bool rendezvous)
 
     if (bind(*ssock, res->ai_addr, res->ai_addrlen) != 0) {
         int err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:createTCPSocket", err, "Socket Bind error");
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:createTCPSocket", err, (char*)udt_getlasterror_desc());
+        udaAddError(UDA_CODE_ERROR_TYPE, "testplugin:createTCPSocket", err, "Socket Bind error");
+        udaAddError(UDA_CODE_ERROR_TYPE, "testplugin:createTCPSocket", err, (char*)udt_getlasterror_desc());
         return -1;
     }
 
@@ -3921,8 +3921,8 @@ int c_connect(UDTSOCKET* usock, int port)
 
     if (0 != getaddrinfo(g_Localhost, buffer, &hints, &peer)) {
         int err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:c_connect", err, "Socket Connect error");
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:c_connect", err, (char*)udt_getlasterror_desc());
+        udaAddError(UDA_CODE_ERROR_TYPE, "testplugin:c_connect", err, "Socket Connect error");
+        udaAddError(UDA_CODE_ERROR_TYPE, "testplugin:c_connect", err, (char*)udt_getlasterror_desc());
         return -1;
     }
 
@@ -3945,8 +3945,8 @@ int tcp_connect(SYSSOCKET* ssock, int port)
 
     if (0 != getaddrinfo(g_Localhost, buffer, &hints, &peer)) {
         int err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:tcp_connect", err, "Socket Connect error");
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:tcp_connect", err, (char*)udt_getlasterror_desc());
+        udaAddError(UDA_CODE_ERROR_TYPE, "testplugin:tcp_connect", err, "Socket Connect error");
+        udaAddError(UDA_CODE_ERROR_TYPE, "testplugin:tcp_connect", err, (char*)udt_getlasterror_desc());
         return -1;
     }
 
@@ -3977,7 +3977,7 @@ int TestPlugin::testudt(IDAM_PLUGIN_INTERFACE* plugin_interface)
     if (createUDTSocket(&client, 0, false) < 0) {
         ;
         err = 9990;
-        addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:udt", err, "Unable to create a UDT Socket");
+        udaAddError(UDA_CODE_ERROR_TYPE, "testplugin:udt", err, "Unable to create a UDT Socket");
         return err;
     }
 
@@ -4011,8 +4011,8 @@ int TestPlugin::testudt(IDAM_PLUGIN_INTERFACE* plugin_interface)
         int sent = udt_send(client, (char*)buffer + g_TotalNum * sizeof(int32_t) - tosend, tosend, 0);
         if (sent < 0) {
             err = 9990;
-            addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:udt", err, "Unable to Send Data");
-            addIdamError(UDA_CODE_ERROR_TYPE, "testplugin:udt", err, (char*)udt_getlasterror_desc());
+            udaAddError(UDA_CODE_ERROR_TYPE, "testplugin:udt", err, "Unable to Send Data");
+            udaAddError(UDA_CODE_ERROR_TYPE, "testplugin:udt", err, (char*)udt_getlasterror_desc());
             break;
         }
         tosend -= sent;

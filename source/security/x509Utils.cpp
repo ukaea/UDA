@@ -605,7 +605,7 @@ int importX509Reader(const char* fileName, ksba_cert_t* cert)
 
     fp = fopen(fileName, "rb");
     if (!fp) {
-        addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Problem opening the certificate file");
+        udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Problem opening the certificate file");
         UDA_THROW_ERROR(999, strerror(errno));
     }
 

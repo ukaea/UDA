@@ -87,7 +87,7 @@ void printServerBlock(SERVER_BLOCK str)
     UDA_LOG(UDA_LOG_DEBUG, "Server PID       : %d\n", str.pid);
     UDA_LOG(UDA_LOG_DEBUG, "OS Name          : %s\n", str.OSName);
     UDA_LOG(UDA_LOG_DEBUG, "Configuration DOI: %s\n", str.DOI);
-    printIdamErrorStack();
+    udaPrintErrorStack();
 }
 
 void printDataBlockList(DATA_BLOCK_LIST str)

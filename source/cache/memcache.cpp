@@ -236,7 +236,7 @@ uda::cache::UdaCache* uda::cache::open_cache()
     return cache;
 }
 
-void uda::cache::free_cache() // Will be called by the idamFreeAll function
+void uda::cache::free_cache() // Will be called by the udaFreeAll function
 {
     memcached_free(&global_cache->memcache);
     free(global_cache);

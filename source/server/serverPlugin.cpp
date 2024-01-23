@@ -478,7 +478,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     reset = 1;
     if ((rc = udaServerRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
         if (err != 0) {
             return err;
@@ -611,7 +611,7 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
     reset = 1;
     if ((rc = udaServerRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
         if (err != 0) {
             return err;

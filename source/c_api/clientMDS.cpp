@@ -16,7 +16,7 @@
  * @param treenum MDS+ Tree Number
  * @return
  */
-int idamClientMDS(const char* server, const char* tree, const char* node, int treenum)
+int udaClientMDS(const char* server, const char* tree, const char* node, int treenum)
 {
     //-------------------------------------------------------------------------
     // Open the Logs

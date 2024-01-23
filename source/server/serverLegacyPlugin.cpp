@@ -67,7 +67,7 @@ int udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNA
                     }
                 } else {
                     err = 999;
-                    addIdamError(UDA_CODE_ERROR_TYPE, __func__, err,
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
                                  "Unmatched count of Target and Substitute File Paths.");
                     break;
                 }
@@ -302,7 +302,7 @@ int udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNA
             default:
                 UDA_LOG(UDA_LOG_DEBUG, "Unknown Requested Data Access Routine (%d) \n", request->request);
                 err = 9999;
-                addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Unknown Requested Data Access Routine");
+                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Unknown Requested Data Access Routine");
                 break;
         }
 

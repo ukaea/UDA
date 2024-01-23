@@ -34,17 +34,17 @@ int UDAPluginBase::call(IDAM_PLUGIN_INTERFACE* plugin_interface)
             rc = (this->*fn)(plugin_interface);
         } else {
             UDA_LOG(UDA_LOG_ERROR, "Unknown function requested %s\n", function.c_str());
-            addIdamError(UDA_CODE_ERROR_TYPE, "UDAPluginBase::call", 999, "Unknown function requested");
-            concatUdaError(&plugin_interface->error_stack);
+            udaAddError(UDA_CODE_ERROR_TYPE, "UDAPluginBase::call", 999, "Unknown function requested");
+            udaConcatError(&plugin_interface->error_stack);
             return 999;
         }
 
-        concatUdaError(&plugin_interface->error_stack);
+        udaConcatError(&plugin_interface->error_stack);
         return rc;
     } catch (std::exception& ex) {
         UDA_LOG(UDA_LOG_ERROR, "Exception: %s\n", ex.what());
-        addIdamError(UDA_CODE_ERROR_TYPE, "UDAPluginBase::call", 999, ex.what());
-        concatUdaError(&plugin_interface->error_stack);
+        udaAddError(UDA_CODE_ERROR_TYPE, "UDAPluginBase::call", 999, ex.what());
+        udaConcatError(&plugin_interface->error_stack);
         return 999;
     }
 }

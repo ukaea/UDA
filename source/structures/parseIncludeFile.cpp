@@ -93,7 +93,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
     if (fh == nullptr || ferror(fh) || errno != 0) {
         err = 999;
         if (errno != 0) {
-            addIdamError(UDA_SYSTEM_ERROR_TYPE, "parseIncludeFile", errno,
+            udaAddError(UDA_SYSTEM_ERROR_TYPE, "parseIncludeFile", errno,
                          "Unable to Open Structure Definition Header file for Read Access!");
         }
         if (fh != nullptr) {
@@ -246,7 +246,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                     name1[0] = '\0';
                     name2[0] = '\0';
                 } else {
-                    addIdamError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
+                    udaAddError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
                                  "typedef statement does not conform to syntax model!");
                 }
                 buffer[0] = '\0';
@@ -277,7 +277,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                     name1[0] = '\0';
                     name2[0] = '\0';
                 } else {
-                    addIdamError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
+                    udaAddError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
                                  "typedef statement does not conform to syntax model!");
                 }
                 buffer[0] = '\0';
@@ -441,7 +441,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                             } else {
                                 // fprintf(stdout,"Names do Not Match: %s, %s, %s\n", name, name1, name2);
                                 err = 999;
-                                addIdamError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
+                                udaAddError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
                                              "typedef statement does not conform to syntax model!");
                                 return err;
                             }

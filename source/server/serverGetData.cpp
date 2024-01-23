@@ -1082,7 +1082,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
             int serrno = errno;
             if (serrno != 0 || xmlfile == nullptr) {
                 if (serrno != 0) {
-                    addIdamError(UDA_SYSTEM_ERROR_TYPE, "idamserverReadData", serrno, "");
+                    udaAddError(UDA_SYSTEM_ERROR_TYPE, "idamserverReadData", serrno, "");
                 }
                 if (xmlfile != nullptr) {
                     fclose(xmlfile);
@@ -1183,9 +1183,9 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
                 int err = pluginlist->plugin[id].idamPlugin(&idam_plugin_interface);
                 for (unsigned int i = 0; i < idam_plugin_interface.error_stack.nerrors; ++i) {
                     auto error = &idam_plugin_interface.error_stack.idamerror[i];
-                    addIdamError(error->type, error->location, error->code, error->msg);
+                    udaAddError(error->type, error->location, error->code, error->msg);
                 }
-                freeIdamErrorStack(&idam_plugin_interface.error_stack);
+                udaFreeErrorStack(&idam_plugin_interface.error_stack);
 
 #ifndef FATCLIENT
                 // Reset Redirected Output

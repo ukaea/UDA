@@ -65,7 +65,7 @@ void uda::Server::start_logs()
     if (environment_->loglevel <= UDA_LOG_ACCESS) {
         std::string cmd = fmt::format("mkdir -p {} 2>/dev/null", environment_->logdir);
         if (system(cmd.c_str()) != 0) {
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "mkdir command failed");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "mkdir command failed");
             throw uda::server::StartupException("mkdir command failed");
         }
 
@@ -74,8 +74,8 @@ void uda::Server::start_logs()
         FILE* accout = fopen(log_file.c_str(), environment_->logmode);
 
         if (errno != 0) {
-            addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Access Log: ");
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open access log");
+            udaAddError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Access Log: ");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open access log");
             if (accout != nullptr) {
                 fclose(accout);
             }
@@ -90,8 +90,8 @@ void uda::Server::start_logs()
         FILE* errout = fopen(log_file.c_str(), environment_->logmode);
 
         if (errno != 0) {
-            addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Error Log: ");
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open error log");
+            udaAddError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Error Log: ");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open error log");
             if (errout != nullptr) {
                 fclose(errout);
             }
@@ -106,7 +106,7 @@ void uda::Server::start_logs()
         FILE* dbgout = fopen(log_file.c_str(), environment_->logmode);
 
         if (errno != 0) {
-            addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Debug Log: ");
+            udaAddError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Debug Log: ");
             if (dbgout != nullptr) {
                 fclose(dbgout);
             }
@@ -178,7 +178,7 @@ void uda::Server::close()
     // Write the Error Log Record & Free Error Stack Heap
 
     udaErrorLog(client_block_, request_block_, nullptr);
-    closeUdaError();
+    udaCloseError();
 
     //----------------------------------------------------------------------------
     // Free Data Block Heap Memory in case by-passed
@@ -280,17 +280,17 @@ void uda::Server::loop()
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
 
-        UDA_LOG(UDA_LOG_DEBUG, "concatUdaError\n");
-        concatUdaError(&server_block_.idamerrorstack); // Update Server State with Error Stack
+        UDA_LOG(UDA_LOG_DEBUG, "udaConcatError\n");
+        udaConcatError(&server_block_.idamerrorstack); // Update Server State with Error Stack
 
-        UDA_LOG(UDA_LOG_DEBUG, "closeUdaError\n");
-        closeUdaError();
+        UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
+        udaCloseError();
 
         UDA_LOG(UDA_LOG_DEBUG, "udaErrorLog\n");
         udaErrorLog(client_block_, request_block_, &server_block_.idamerrorstack);
 
-        UDA_LOG(UDA_LOG_DEBUG, "closeUdaError\n");
-        closeUdaError();
+        UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
+        udaCloseError();
 
         UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
         initServerBlock(&server_block_, ServerVersion);
@@ -665,7 +665,7 @@ int uda::Server::handle_request()
     printSignal(metadata_block_.signal_rec);
     printSignalDesc(*signal_desc);
     print_data_block_list(data_blocks_);
-    printIdamErrorStack();
+    udaPrintErrorStack();
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
 
@@ -749,8 +749,8 @@ int uda::Server::report_to_client()
     // Gather Server Error State
 
     // Update Server State with Error Stack
-    concatUdaError(&server_block_.idamerrorstack);
-    closeUdaError();
+    udaConcatError(&server_block_.idamerrorstack);
+    udaCloseError();
 
     int err = 0;
 

@@ -32,10 +32,10 @@
 // findNTreeChildStructureComponent         data structure member name within the child nodes only
 // findNTreeChildStructure                  tree node name within the child nodes only
 //
-// idam_findNTreeStructureClass             user defined type class id
-// idam_maxCountVlenStructureArray
-// idam_regulariseVlenStructures
-// idam_regulariseVlenData
+// udaFindNTreeStructureClass             user defined type class id
+// udaMaxCountVlenStructureArray
+// udaRegulariseVlenStructures
+// udaRegulariseVlenData
 //
 // getNodeStructureDataCount
 // getNodeStructureDataSize
@@ -505,7 +505,7 @@ NTREE* findNTreeStructureComponentDefinition(NTREE* tree, const char* target)
  * @param class The Structure Class, e.g., UDA_TYPE_VLEN.
  * @return A pointer to the First tree node found with the targeted structure class.
  */
-NTREE* idam_findNTreeStructureClass(NTREE* tree, int cls)
+NTREE* udaFindNTreeStructureClass(NTREE* tree, int cls)
 {
     NTREE* next;
 
@@ -518,7 +518,7 @@ NTREE* idam_findNTreeStructureClass(NTREE* tree, int cls)
     }
 
     for (int i = 0; i < tree->branches; i++) {
-        if ((next = idam_findNTreeStructureClass(tree->children[i], cls)) != nullptr) {
+        if ((next = udaFindNTreeStructureClass(tree->children[i], cls)) != nullptr) {
             return next;
         }
     }
@@ -535,7 +535,7 @@ NTREE* idam_findNTreeStructureClass(NTREE* tree, int cls)
  * @param reset Reset the counbter to zero.
  * @return An integer returning the maximum count value.
  */
-int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
+int udaMaxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
 {
     static unsigned int count = 0;
     if (reset) {
@@ -554,7 +554,7 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
     }
 
     for (int i = 0; i < tree->branches; i++) {
-        count = (unsigned int)idam_maxCountVlenStructureArray(tree->children[i], target, 0);
+        count = (unsigned int)udaMaxCountVlenStructureArray(tree->children[i], target, 0);
     }
 
     return count;
@@ -569,7 +569,7 @@ int idam_maxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
  * @param count The maximum count size for the VLEN data arrays.
  * @return An integer returning an error code: 0 => OK.
  */
-int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist,
+int udaRegulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist,
                                   const char* target, unsigned int count)
 {
     if (tree == nullptr) {
@@ -616,7 +616,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
 
     for (int i = 0; i < tree->branches; i++) {
         int rc;
-        if ((rc = idam_regulariseVlenStructures(logmalloclist, tree->children[i], userdefinedtypelist, target,
+        if ((rc = udaRegulariseVlenStructures(logmalloclist, tree->children[i], userdefinedtypelist, target,
                                                 count)) != 0) {
             return rc;
         }
@@ -659,7 +659,7 @@ int idam_regulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USE
  * @param tree A pointer to a parent tree node. If nullptr the root node is assumed.
  * @return An integer returning an error code: 0 => OK.
  */
-int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist)
+int udaRegulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
     int rc = 0, count = 0;
     NTREE* nt = nullptr;
@@ -668,10 +668,10 @@ int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFIN
     }
 
     do {
-        if ((nt = idam_findNTreeStructureClass(tree, UDA_TYPE_VLEN)) != nullptr) {
-            count = idam_maxCountVlenStructureArray(tree, nt->userdefinedtype->name, 1);
+        if ((nt = udaFindNTreeStructureClass(tree, UDA_TYPE_VLEN)) != nullptr) {
+            count = udaMaxCountVlenStructureArray(tree, nt->userdefinedtype->name, 1);
             if (count > 0) {
-                rc = idam_regulariseVlenStructures(logmalloclist, tree, userdefinedtypelist, nt->userdefinedtype->name,
+                rc = udaRegulariseVlenStructures(logmalloclist, tree, userdefinedtypelist, nt->userdefinedtype->name,
                                                    count);
             }
             if (rc != 0) {
