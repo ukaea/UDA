@@ -16,6 +16,9 @@
 #  warning "using UDA legacy name mappings"
 
 // TODO: address embedded todos...
+// TODO: should these all be C functions instead of c++?
+//  - change blah() to blah(void)
+//  - are inline functions in header bad?
 
 /*
  * definitions from pluginStructs.h
@@ -920,5 +923,55 @@ inline int idam_regulariseVlenData(LOGMALLOCLIST * logmalloclist, NTREE * tree,
 // LIBRARY_API void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int
 // offset,
 //                                      int size);
+
+/*
+ * definitions from errorLog.h
+ */
+
+// inline int udaNumErrors()
+// {
+//     return udaNumErrors();
+// }
+
+// inline void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERROR_STACK* error_stack)
+// {
+//     return udaErrorLog(client_block, request_block, error_stack);
+// }
+
+inline void initUdaErrorStack()
+{
+    return udaInitErrorStack();
+}
+
+inline void initErrorRecords(const UDA_ERROR_STACK* errorstack)
+{
+    return udaInitErrorRecords(errorstack);
+}
+
+inline void printIdamErrorStack()
+{
+    return udaPrintErrorStack();
+}
+
+inline void addIdamError(int type, const char* location, int code, const char* msg)
+{
+    return udaAddError(type, location, code, msg);
+}
+
+inline void concatUdaError(UDA_ERROR_STACK* errorstackout)
+{
+    return udaConcatError(errorstackout);
+}
+
+inline void freeIdamErrorStack(UDA_ERROR_STACK* errorstack)
+{
+    return udaFreeErrorStack(errorstack);
+}
+
+inline void closeUdaError()
+{
+    return udaCloseError();
+}
+
 
 #endif // UDA_LEGACY_H
