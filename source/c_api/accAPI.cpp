@@ -98,8 +98,9 @@ int getThreadId(thread_t id)
 }
 
 // Lock the thread and set the previous STATE
-void udaLockThread(CLIENT_FLAGS* client_flags)
+void udaLockThread()
 {
+	CLIENT_FLAGS* client_flags = udaClientFlags();
     static unsigned int mutex_initialised = 0;
 
     if (!mutex_initialised) {
@@ -164,8 +165,9 @@ void udaLockThread(CLIENT_FLAGS* client_flags)
 /**
  * Unlock the thread and save the current STATE
  */
-void unlockUdaThread(CLIENT_FLAGS* client_flags)
+void unlockUdaThread()
 {
+	CLIENT_FLAGS* client_flags = udaClientFlags();
 #  ifdef __GNUC__
     thread_t threadId = pthread_self();
 #  else
@@ -190,8 +192,9 @@ void unlockUdaThread(CLIENT_FLAGS* client_flags)
 /**
  * Free thread resources
  */
-void udaFreeThread(CLIENT_FLAGS* client_flags)
+void udaFreeThread()
 {
+	CLIENT_FLAGS* client_flags = udaClientFlags();
     udaLockThread(client_flags);
 #  ifdef __GNUC__
     thread_t threadId = pthread_self();
@@ -242,8 +245,9 @@ void udaFreeDataBlocks()
     udaPutThreadLastHandle(-1);
 }
 
-DATA_BLOCK* udaGetCurrentDataBlock(CLIENT_FLAGS* client_flags)
+DATA_BLOCK* udaGetCurrentDataBlock()
 {
+	CLIENT_FLAGS* client_flags = udaClientFlags();
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         udaGetThreadLastHandle() >= 0) {
         return &data_blocks[udaGetThreadLastHandle()];
@@ -251,8 +255,9 @@ DATA_BLOCK* udaGetCurrentDataBlock(CLIENT_FLAGS* client_flags)
     return &data_blocks.back();
 }
 
-int udaGetCurrentDataBlockIndex(CLIENT_FLAGS* client_flags)
+int udaGetCurrentDataBlockIndex()
 {
+	CLIENT_FLAGS* client_flags = udaClientFlags();
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         udaGetThreadLastHandle() >= 0) {
         return udaGetThreadLastHandle();
@@ -260,8 +265,9 @@ int udaGetCurrentDataBlockIndex(CLIENT_FLAGS* client_flags)
     return data_blocks.size() - 1;
 }
 
-int udaGrowDataBlocks(CLIENT_FLAGS* client_flags)
+int udaGrowDataBlocks()
 {
+	CLIENT_FLAGS* client_flags = udaClientFlags();
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         udaGetThreadLastHandle() >= 0) {
         return 0;
@@ -286,8 +292,9 @@ static int findNewHandleIndex()
     return -1;
 }
 
-int udaGetNewDataHandle(CLIENT_FLAGS* client_flags)
+int udaGetNewDataHandle()
 {
+	CLIENT_FLAGS* client_flags = udaClientFlags();
     int newHandleIndex = -1;
 
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
@@ -665,8 +672,9 @@ void reudaSetProperty(const char* property, CLIENT_FLAGS* client_flags)
 /**
  * @return Void.
  */
-void udaResetProperties(CLIENT_FLAGS* client_flags)
+void udaResetProperties()
 {
+	CLIENT_FLAGS* client_flags = udaClientFlags();
     // Reset on Both Client and Server
 
     client_flags->get_datadble = 0;
@@ -983,8 +991,9 @@ int udaGetDataStatus(int handle)
 /**
 \return   handle.
 */
-int udaGetLastHandle(CLIENT_FLAGS* client_flags)
+int udaGetLastHandle()
 {
+	CLIENT_FLAGS* client_flags = udaClientFlags();
     return udaGetCurrentDataBlockIndex(client_flags);
 }
 
