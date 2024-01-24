@@ -2,8 +2,8 @@
 
 #  include "serverAuthentication.h"
 
-#  include <clientserver/errorLog.h>
-#  include <logging/logging.h>
+#  include <include/errorLog.h>
+#  include <include/logging.h>
 #  include <server/udaServer.h>
 #  ifndef TESTIDAMSECURITY
 #    include <clientserver/printStructs.h>

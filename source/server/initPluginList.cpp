@@ -3,7 +3,7 @@
 #include <cerrno>
 
 #include <cache/memcache.hpp>
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <fmt/format.h>
 #include <server/serverPlugin.h>

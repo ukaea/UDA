@@ -5,9 +5,9 @@
 #include "struct.h"
 
 #include "initStructs.h"
-#include "logging/logging.h"
+#include "include/logging.h"
 #include "udaTypes.h"
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/stringUtils.h>
 #include <server/getServerEnvironment.h>

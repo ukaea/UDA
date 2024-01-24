@@ -2,7 +2,7 @@
 
 #include "clientserver/protocol.h"
 #include "initStructs.h"
-#include "logging/logging.h"
+#include "include/logging.h"
 
 #include "client.h"
 #include "client/startup.h"

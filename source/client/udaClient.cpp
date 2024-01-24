@@ -13,11 +13,11 @@
 #include <cache/memcache.hpp>
 #include <client/connection.h>
 #include <client/getEnvironment.h>
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/userid.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #include "accAPI.h"
 #include "closedown.h"

@@ -3,10 +3,10 @@
 #include <cstdio>
 
 #include "initStructs.h"
-#include "logging/logging.h"
+#include "include/logging.h"
 #include "struct.h"
 #include <clientserver/copyStructs.h>
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/manageSockets.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>

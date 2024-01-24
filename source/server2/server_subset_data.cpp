@@ -21,10 +21,10 @@
 #include "struct.h"
 #include "udaTypes.h"
 #include <clientserver/compressDim.h>
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 //----------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------

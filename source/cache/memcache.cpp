@@ -52,11 +52,11 @@ DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DA
 // needed for GCC 12.0 - do not delete
 #  include <algorithm>
 
-#  include <clientserver/errorLog.h>
+#  include <include/errorLog.h>
 #  include <clientserver/initStructs.h>
 #  include <clientserver/memstream.h>
 #  include <clientserver/xdrlib.h>
-#  include <logging/logging.h>
+#  include <include/logging.h>
 
 #  define UDA_CACHE_HOST "localhost" // Override these with environment variables with the same name
 #  define UDA_CACHE_PORT 11211

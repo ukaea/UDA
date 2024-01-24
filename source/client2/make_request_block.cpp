@@ -6,9 +6,9 @@
 
 #include "initStructs.h"
 #include "udaErrors.h"
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/expand_path.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 namespace
 {

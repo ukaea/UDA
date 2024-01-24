@@ -5,7 +5,7 @@
 
 #include "udaTypes.h"
 #include <clientserver/allocData.h>
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 
 #include "accAPI.h"
 #include "thread_client.hpp"

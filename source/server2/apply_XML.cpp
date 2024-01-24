@@ -19,7 +19,7 @@
 
 #include "udaTypes.h"
 #include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 int uda::server_parse_signal_XML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC signal_desc, ACTIONS* actions_desc,
                                  ACTIONS* actions_sig)

@@ -1,7 +1,7 @@
 #include "bytesPlugin.h"
 
-#include "logging/logging.h"
-#include <clientserver/errorLog.h>
+#include "include/logging.h"
+#include <include/errorLog.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/stringUtils.h>
 #include <plugins/uda_plugin_base.hpp>

@@ -40,9 +40,9 @@
 #  endif
 #endif
 
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/manageSockets.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #include "error_codes.h"
 #include "host_list.hpp"

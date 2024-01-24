@@ -12,7 +12,7 @@
 
 #include "struct.h"
 #include <clientserver/protocol.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #include "errorLog.h"
 #include "printStructs.h"

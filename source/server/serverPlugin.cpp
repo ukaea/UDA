@@ -19,12 +19,12 @@
 #include "initStructs.h"
 #include "struct.h"
 #include <cache/memcache.hpp>
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/expand_path.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #define REQUEST_READ_START 1000
 #define REQUEST_PLUGIN_MCOUNT 100 // Maximum initial number of plugins that can be registered

@@ -19,10 +19,10 @@
 #endif
 
 #include "initStructs.h"
-#include "logging/logging.h"
+#include "include/logging.h"
 #include "struct.h"
 #include <cache/memcache.hpp>
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/expand_path.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>

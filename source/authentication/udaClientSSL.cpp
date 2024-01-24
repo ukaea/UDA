@@ -9,8 +9,8 @@
 
 #  include <client/udaClientHostList.h>
 #  include <client/updateSelectParms.h>
-#  include <clientserver/errorLog.h>
-#  include <logging/logging.h>
+#  include <include/errorLog.h>
+#  include <include/logging.h>
 
 static bool g_sslDisabled = true; // Default state is not SSL authentication
 static int g_sslProtocol = 0;     // The default server host name has the SSL protocol name prefix or

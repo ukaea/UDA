@@ -1,6 +1,6 @@
 #include "closedown.hpp"
 
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #include "connection.hpp"
 

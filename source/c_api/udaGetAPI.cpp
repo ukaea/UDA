@@ -14,10 +14,10 @@
 #  include <strings.h>
 #endif
 
-#include "clientserver/errorLog.h"
+#include "include/errorLog.h"
 #include "clientserver/printStructs.h"
 #include "initStructs.h"
-#include "logging/logging.h"
+#include "include/logging.h"
 
 #include "accAPI.h"
 #include "client.h"

@@ -27,7 +27,7 @@
 
 #include "udaDefines.h"
 #include "udaErrors.h"
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/stringUtils.h>
 
 #include "struct.h"

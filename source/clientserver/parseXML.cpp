@@ -19,11 +19,11 @@
 #include <cstdlib>
 #include <sstream>
 
-#include <logging/logging.h>
+#include <include/logging.h>
 #ifndef NOXMLPARSER
 
 #  include "udaTypes.h"
-#  include <clientserver/errorLog.h>
+#  include <include/errorLog.h>
 #  include <clientserver/parseOperation.h>
 #  include <clientserver/stringUtils.h>
 

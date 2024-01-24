@@ -50,7 +50,7 @@
 
 #include <clientserver/stringUtils.h>
 #include <cstdlib>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #include "struct.h"
 

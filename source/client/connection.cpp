@@ -42,9 +42,9 @@
 
 #include "client.h"
 #include <client/udaClientHostList.h>
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/manageSockets.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #include "getEnvironment.h"
 #include "updateSelectParms.h"

@@ -3,7 +3,7 @@
 #include <cerrno>
 #include <sys/stat.h>
 
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 
 int testFilePermissions(const char* object)
 {

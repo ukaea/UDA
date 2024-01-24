@@ -1,9 +1,9 @@
 #include "clientAuthentication.h"
 
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 #ifndef TESTIDAMSECURITY
 #  include "include/client.h"
 #  include "include/udaErrors.h"

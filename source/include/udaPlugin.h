@@ -7,7 +7,7 @@
 #include "pluginStructs.h"
 #include "udaStructs.h"
 #include "udaTypes.h"
-#include "errorLog.h'
+#include "errorLog.h"
 
 #ifdef __cplusplus
 extern "C" {

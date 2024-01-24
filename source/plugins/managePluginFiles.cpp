@@ -10,7 +10,7 @@
 #endif
 
 #include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #define UDA_PLUGIN_FILE_ALLOC 10
 #define MAX_OPEN_PLUGIN_FILE_DESC 50

@@ -4,7 +4,7 @@
 
 #include "struct.h"
 #include "udaErrors.h"
-#include <logging/logging.h>
+#include <include/logging.h>
 #include <structures/xdrUserDefinedData.h>
 
 #include "errorLog.h"

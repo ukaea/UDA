@@ -5,9 +5,9 @@
 #  include <strings.h>
 #endif
 
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #ifndef FATCLIENT
 #  include <server/getServerEnvironment.h>

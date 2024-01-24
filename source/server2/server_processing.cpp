@@ -3,7 +3,7 @@
 #include <cstdlib>
 
 #include "udaTypes.h"
-#include <logging/logging.h>
+#include <include/logging.h>
 
 /**
  * UDA Server Side Data Processing

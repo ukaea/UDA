@@ -18,8 +18,8 @@
 #include <cerrno>
 
 #include "udaErrors.h"
-#include <clientserver/errorLog.h>
-#include <logging/logging.h>
+#include <include/errorLog.h>
+#include <include/logging.h>
 
 #include "getEnvironment.h"
 #include "udaClient.h"

@@ -58,7 +58,7 @@
 
 #include "struct.h"
 #include <clientserver/memstream.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #include "errorLog.h"
 #include "protocol.h"

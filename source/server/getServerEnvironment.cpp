@@ -2,7 +2,7 @@
 
 #include <cstdlib>
 
-#include <logging/logging.h>
+#include <include/logging.h>
 
 // 2019-07-04 Herve Ancher (CEA): Add prefix "g_" to avoid conflict with internal MinGW varaible
 static ENVIRONMENT g_environ;

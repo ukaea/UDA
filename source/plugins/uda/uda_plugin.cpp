@@ -8,7 +8,7 @@
 #include "udaPlugin.h"
 #include <client/udaClient.h>
 #include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 #include <plugins/uda_plugin_base.hpp>
 
 #include <boost/filesystem.hpp>

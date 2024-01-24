@@ -16,7 +16,7 @@
 #include <fmt/format.h>
 
 #include "udaPlugin.h"
-#include "logging/logging.h"
+#include "include/logging.h"
 
 class UDAPluginBase;
 

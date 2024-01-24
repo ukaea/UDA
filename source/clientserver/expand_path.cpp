@@ -27,7 +27,7 @@
 #include <vector>
 
 #include "udaErrors.h"
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #include "errorLog.h"
 #include "stringUtils.h"

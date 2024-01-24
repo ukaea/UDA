@@ -13,13 +13,13 @@
 #include "udaTypes.h"
 #include <cache/fileCache.h>
 #include <clientserver/allocData.h>
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/userid.h>
 #include <clientserver/xdrlib.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 namespace
 {

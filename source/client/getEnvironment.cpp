@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <fmt/format.h>
 
-#include <logging/logging.h>
+#include <include/logging.h>
 
 bool env_host = true; // User can change these before startup so flag to the getEnvironment function
 bool env_port = true;

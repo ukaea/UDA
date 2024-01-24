@@ -5,9 +5,9 @@
 
 #include "initStructs.h"
 #include "udaTypes.h"
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 #include <plugins/bytes/md5Sum.h>
 
 #define BYTEFILEDOESNOTEXIST 100001

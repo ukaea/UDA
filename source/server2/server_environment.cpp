@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <string>
 
-#include <logging/logging.h>
+#include <include/logging.h>
 
 void uda::server::Environment::print()
 {

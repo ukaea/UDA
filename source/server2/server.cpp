@@ -4,13 +4,13 @@
 #include <string>
 #include <unistd.h>
 
-#include "clientserver/errorLog.h"
+#include "include/errorLog.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
 #include "clientserver/xdrlib.h"
 #include "initStructs.h"
 #include "logging/accessLog.h"
-#include "logging/logging.h"
+#include "include/logging.h"
 #include "server_environment.hpp"
 #include "server_exceptions.h"
 #include "server_plugin.h"

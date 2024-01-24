@@ -8,9 +8,9 @@
 #endif
 
 #include "initStructs.h"
-#include "logging/logging.h"
+#include "include/logging.h"
 #include "struct.h"
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/nameValueSubstitution.h>
 #include <clientserver/printStructs.h>

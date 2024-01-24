@@ -21,7 +21,7 @@
 #include "clientserver/stringUtils.h"
 #include "clientserver/xdrlib.h"
 #include "initStructs.h"
-#include "logging/logging.h"
+#include "include/logging.h"
 #include "struct.h"
 #include "version.h"
 

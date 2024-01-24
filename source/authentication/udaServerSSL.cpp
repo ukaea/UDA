@@ -11,8 +11,8 @@
 #  include <openssl/ssl.h>
 #  include <openssl/x509.h>
 
-#  include <clientserver/errorLog.h>
-#  include <logging/logging.h>
+#  include <include/errorLog.h>
+#  include <include/logging.h>
 #  include <server/writer.h>
 
 #  define VERIFY_DEPTH 4

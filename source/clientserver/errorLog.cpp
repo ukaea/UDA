@@ -4,7 +4,7 @@
 #include <vector>
 
 #include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 static std::vector<UDA_ERROR> udaerrorstack;
 

@@ -21,7 +21,7 @@
 #  include <ws2tcpip.h>
 #endif
 
-#include "clientserver/errorLog.h"
+#include "include/errorLog.h"
 #include "logging.h"
 #include "udaTypes.h"
 #include <clientserver/stringUtils.h>

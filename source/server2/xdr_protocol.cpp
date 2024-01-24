@@ -1,5 +1,5 @@
 #include "xdr_protocol.hpp"
-#include "clientserver/errorLog.h"
+#include "include/errorLog.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
 #include "clientserver/xdrlib.h"
@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 #include "udaDefines.h"
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #include "server.hpp"
 

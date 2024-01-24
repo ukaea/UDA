@@ -52,10 +52,10 @@
 #endif
 
 #include "udaErrors.h"
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/xdrlib.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #include "accessors.h"
 #include "xdrUserDefinedData.h"

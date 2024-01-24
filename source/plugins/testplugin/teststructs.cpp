@@ -1,7 +1,7 @@
 #include "teststructs.h"
 
 #include "struct.h"
-#include <logging/logging.h>
+#include <include/logging.h>
 
 void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 {

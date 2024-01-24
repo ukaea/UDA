@@ -17,7 +17,7 @@
 
 #include <client/udaClientHostList.h>
 #include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 static std::vector<HostData> g_host_list = {};
 

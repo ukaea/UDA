@@ -7,10 +7,10 @@
  *--------------------------------------------------------------*/
 #include "sleepServer.h"
 
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 #include <clientserver/protocol.h>
 #include <clientserver/xdrlib.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 #include <server/udaServer.h>
 
 int sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmalloclist,

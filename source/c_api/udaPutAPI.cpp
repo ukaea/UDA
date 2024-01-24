@@ -10,10 +10,10 @@
 #include "udaPutAPI.h"
 
 #include "clientserver/allocData.h"
-#include "clientserver/errorLog.h"
+#include "include/errorLog.h"
 #include "clientserver/printStructs.h"
 #include "initStructs.h"
-#include "logging/logging.h"
+#include "include/logging.h"
 
 #include "client/makeClientRequestBlock.h"
 #include "client/udaClient.h"

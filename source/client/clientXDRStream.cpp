@@ -4,7 +4,7 @@
 #include <rpc/rpc.h>
 
 #include "udaDefines.h"
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #include "connection.h"
 

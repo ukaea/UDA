@@ -11,7 +11,7 @@
 
 #include "client.h"
 #include <client/udaClientHostList.h>
-#include <logging/logging.h>
+#include <include/logging.h>
 
 #ifdef FATCLIENT
 #  include <server/closeServerSockets.h>

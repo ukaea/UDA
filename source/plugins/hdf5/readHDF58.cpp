@@ -26,7 +26,7 @@
 #endif
 
 #include "udaErrors.h"
-#include <clientserver/errorLog.h>
+#include <include/errorLog.h>
 
 #ifdef NOHDF5PLUGIN
 
