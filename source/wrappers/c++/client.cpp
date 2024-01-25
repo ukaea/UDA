@@ -74,8 +74,7 @@ void uda::Client::setProperty(Property prop, bool value)
             throw UDAException("Unknown property");
     }
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    value ? udaSetProperty(name.c_str(), client_flags) : reudaSetProperty(name.c_str(), client_flags);
+    value ? udaSetProperty(name.c_str()) : reudaSetProperty(name.c_str());
 }
 
 void uda::Client::setProperty(Property prop, int value)
@@ -121,42 +120,41 @@ void uda::Client::close()
 
 int uda::Client::property(Property prop)
 {
-    auto client_flags = udaClientFlags();
     switch (prop) {
         case PROP_DATADBLE:
-            return udaGetProperty("get_datadble", client_flags);
+            return udaGetProperty("get_datadble");
         case PROP_DIMDBLE:
-            return udaGetProperty("get_dimdble", client_flags);
+            return udaGetProperty("get_dimdble");
         case PROP_TIMEDBLE:
-            return udaGetProperty("get_timedble", client_flags);
+            return udaGetProperty("get_timedble");
         case PROP_BYTES:
-            return udaGetProperty("get_bytes", client_flags);
+            return udaGetProperty("get_bytes");
         case PROP_BAD:
-            return udaGetProperty("get_bad", client_flags);
+            return udaGetProperty("get_bad");
         case PROP_META:
-            return udaGetProperty("get_meta", client_flags);
+            return udaGetProperty("get_meta");
         case PROP_ASIS:
-            return udaGetProperty("get_asis", client_flags);
+            return udaGetProperty("get_asis");
         case PROP_UNCAL:
-            return udaGetProperty("get_uncal", client_flags);
+            return udaGetProperty("get_uncal");
         case PROP_NOTOFF:
-            return udaGetProperty("get_notoff", client_flags);
+            return udaGetProperty("get_notoff");
         case PROP_SYNTHETIC:
-            return udaGetProperty("get_synthetic", client_flags);
+            return udaGetProperty("get_synthetic");
         case PROP_SCALAR:
-            return udaGetProperty("get_scalar", client_flags);
+            return udaGetProperty("get_scalar");
         case PROP_NODIMDATA:
-            return udaGetProperty("get_nodimdata", client_flags);
+            return udaGetProperty("get_nodimdata");
         case PROP_VERBOSE:
-            return udaGetProperty("verbose", client_flags);
+            return udaGetProperty("verbose");
         case PROP_DEBUG:
-            return udaGetProperty("debug", client_flags);
+            return udaGetProperty("debug");
         case PROP_ALTDATA:
-            return udaGetProperty("altdata", client_flags);
+            return udaGetProperty("altdata");
         case PROP_TIMEOUT:
-            return udaGetProperty("timeout", client_flags);
+            return udaGetProperty("timeout");
         case PROP_ALTRANK:
-            return udaGetProperty("altrank", client_flags);
+            return udaGetProperty("altrank");
 
         default:
             throw UDAException("Unknown property");

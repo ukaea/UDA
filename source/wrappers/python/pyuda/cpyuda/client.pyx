@@ -40,21 +40,19 @@ else:
 def set_property(prop_name, value):
     if prop_name.lower() not in _properties:
         raise ValueError('invalid property ' + prop_name)
-    cdef uda.CLIENT_FLAGS* client_flags = uda.udaClientFlags()
     if _properties[prop_name][1]:
         prop_string = prop_name + '=' + str(value)
-        uda.setIdamProperty(prop_string.encode(), client_flags)
+        uda.setIdamProperty(prop_string.encode())
     elif value:
-        uda.setIdamProperty(prop_name.encode(), client_flags)
+        uda.setIdamProperty(prop_name.encode())
     else:
-        uda.resetIdamProperty(prop_name.encode(), client_flags)
+        uda.resetIdamProperty(prop_name.encode())
 
 
 def get_property(prop_name):
     if prop_name.lower() not in _properties:
         raise ValueError('invalid property ' + prop_name)
-    cdef uda.CLIENT_FLAGS* client_flags = uda.udaClientFlags()
-    prop = uda.getIdamProperty(prop_name.encode(), client_flags)
+    prop = uda.getIdamProperty(prop_name.encode())
     if _properties[prop_name][1]:
         return prop
     else:
