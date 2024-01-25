@@ -24,7 +24,7 @@
  * definitions from pluginStructs.h
  */
 
-#  define IDAM_PLUGIN_INTERFACE UDA_PLUGIN_INTERFACE
+#  define UDA_PLUGIN_INTERFACE UDA_PLUGIN_INTERFACE
 
 /*
  * definitions from udaGetAPI.h

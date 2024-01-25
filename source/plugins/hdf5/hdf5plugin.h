@@ -21,7 +21,7 @@ extern "C" {
 
 extern UDA_PLUGIN_FILE_LIST pluginFileList;
 
-LIBRARY_API int hdf5Plugin(IDAM_PLUGIN_INTERFACE* plugin_interface);
+LIBRARY_API int hdf5Plugin(UDA_PLUGIN_INTERFACE* plugin_interface);
 
 #ifdef __cplusplus
 }

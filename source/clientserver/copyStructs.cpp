@@ -47,7 +47,7 @@ void copyDataSource(DATA_SOURCE* out, DATA_SOURCE in)
     strcpy(out->xml_creation, in.xml_creation);
 }
 
-void copyPluginInterface(IDAM_PLUGIN_INTERFACE* out, IDAM_PLUGIN_INTERFACE* in)
+void copyPluginInterface(UDA_PLUGIN_INTERFACE* out, UDA_PLUGIN_INTERFACE* in)
 {
     out->interfaceVersion = in->interfaceVersion;
     out->pluginVersion = in->pluginVersion;

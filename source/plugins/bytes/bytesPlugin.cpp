@@ -14,8 +14,8 @@ class BytesPlugin : public UDAPluginBase
 {
   public:
     BytesPlugin();
-    int read(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
+    int read(UDA_PLUGIN_INTERFACE* plugin_interface);
+    void init(UDA_PLUGIN_INTERFACE* plugin_interface) override {}
     void reset() override {}
 };
 
@@ -25,7 +25,7 @@ BytesPlugin::BytesPlugin()
     register_method("read", static_cast<UDAPluginBase::plugin_member_type>(&BytesPlugin::read));
 }
 
-int bytesPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int bytesPlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static BytesPlugin plugin = {};
     return plugin.call(plugin_interface);
@@ -33,7 +33,7 @@ int bytesPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
 //----------------------------------------------------------------------------------------
 // Add functionality here ....
-int BytesPlugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int BytesPlugin::read(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto path = find_required_arg<std::string>(plugin_interface, "path");
 

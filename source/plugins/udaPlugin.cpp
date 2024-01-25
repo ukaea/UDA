@@ -12,9 +12,9 @@
 #include <clientserver/stringUtils.h>
 #include <server/getServerEnvironment.h>
 
-IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
+UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {
-    auto plugin_interface = (IDAM_PLUGIN_INTERFACE*)calloc(1, sizeof(IDAM_PLUGIN_INTERFACE));
+    auto plugin_interface = (UDA_PLUGIN_INTERFACE*)calloc(1, sizeof(UDA_PLUGIN_INTERFACE));
     auto environment = getServerEnvironment();
     auto plugin_list = (PLUGINLIST*)calloc(1, sizeof(PLUGINLIST));
 
@@ -42,7 +42,7 @@ IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
     return plugin_interface;
 }
 
-void udaFreePluginInterface(IDAM_PLUGIN_INTERFACE* plugin_interface)
+void udaFreePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     free(plugin_interface->request_data);
     udaFreeUserDefinedTypeList(plugin_interface->userdefinedtypelist);
@@ -55,7 +55,7 @@ void udaFreePluginInterface(IDAM_PLUGIN_INTERFACE* plugin_interface)
     free(plugin_interface);
 }
 
-int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
+int initPlugin(const UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     udaSetLogLevel((LOG_LEVEL)plugin_interface->environment->loglevel);
     return 0;
@@ -617,9 +617,9 @@ bool findValue(const NAMEVALUELIST* namevaluelist, const char* name)
     return found;
 }
 
-int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const IDAM_PLUGIN_INTERFACE* old_plugin_interface)
+int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const UDA_PLUGIN_INTERFACE* old_plugin_interface)
 {
-    IDAM_PLUGIN_INTERFACE idam_plugin_interface = *old_plugin_interface;
+    UDA_PLUGIN_INTERFACE idam_plugin_interface = *old_plugin_interface;
     REQUEST_DATA request = *old_plugin_interface->request_data;
     idam_plugin_interface.request_data = &request;
 

@@ -18,7 +18,7 @@
 #define BYTEFILEMD5ERROR 100006
 #define BYTEFILEMD5DIFF 100007
 
-int readBytes(const std::string& path, IDAM_PLUGIN_INTERFACE* plugin_interface)
+int readBytes(const std::string& path, UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     int err = 0;
 

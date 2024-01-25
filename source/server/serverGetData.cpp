@@ -1112,7 +1112,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
     // Test for known File formats and Server protocols
 
     {
-        IDAM_PLUGIN_INTERFACE idam_plugin_interface;
+        UDA_PLUGIN_INTERFACE idam_plugin_interface;
 
         UDA_LOG(UDA_LOG_DEBUG, "creating the plugin interface structure\n");
 

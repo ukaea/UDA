@@ -19,10 +19,10 @@ class Plugin : public UDAPluginBase
 {
   public:
     Plugin();
-    int write(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int read(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int del(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override;
+    int write(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int read(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int del(UDA_PLUGIN_INTERFACE* plugin_interface);
+    void init(UDA_PLUGIN_INTERFACE* plugin_interface) override;
     void reset() override;
 
   private:
@@ -43,13 +43,13 @@ Plugin::Plugin()
 } // namespace keyvalue
 } // namespace uda
 
-int keyValue(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int keyValue(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static uda::keyvalue::Plugin plugin = {};
     return plugin.call(plugin_interface);
 }
 
-void uda::keyvalue::Plugin::init(IDAM_PLUGIN_INTERFACE* plugin_interface)
+void uda::keyvalue::Plugin::init(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     options_ = leveldb_options_create();
     leveldb_options_set_create_if_missing(options_, 1);
@@ -79,7 +79,7 @@ void uda::keyvalue::Plugin::reset()
     options_ = nullptr;
 }
 
-int uda::keyvalue::Plugin::write(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int uda::keyvalue::Plugin::write(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto key = find_required_arg<std::string>(plugin_interface, "key");
     auto value = find_required_arg<std::string>(plugin_interface, "value");
@@ -105,7 +105,7 @@ int uda::keyvalue::Plugin::write(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int uda::keyvalue::Plugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int uda::keyvalue::Plugin::read(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto key = find_required_arg<std::string>(plugin_interface, "key");
 
@@ -135,7 +135,7 @@ int uda::keyvalue::Plugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int uda::keyvalue::Plugin::del(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int uda::keyvalue::Plugin::del(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto key = find_required_arg<std::string>(plugin_interface, "key");
 

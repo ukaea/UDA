@@ -12,9 +12,9 @@ class HelpPlugin : public UDAPluginBase
 {
   public:
     HelpPlugin();
-    int ping(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int services(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
+    int ping(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int services(UDA_PLUGIN_INTERFACE* plugin_interface);
+    void init(UDA_PLUGIN_INTERFACE* plugin_interface) override {}
     void reset() override {}
 };
 
@@ -25,13 +25,13 @@ HelpPlugin::HelpPlugin()
     register_method("services", static_cast<UDAPluginBase::plugin_member_type>(&HelpPlugin::services));
 }
 
-int helpPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int helpPlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static HelpPlugin plugin = {};
     return plugin.call(plugin_interface);
 }
 
-int HelpPlugin::ping(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int HelpPlugin::ping(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     //----------------------------------------------------------------------------------------
 
@@ -99,7 +99,7 @@ int HelpPlugin::ping(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int HelpPlugin::services(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int HelpPlugin::services(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     //======================================================================================
     // Plugin functionality

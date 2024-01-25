@@ -3,7 +3,7 @@
 #include "struct.h"
 #include <include/logging.h>
 
-void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+void init_structure_definitions(UDA_PLUGIN_INTERFACE* idam_plugin_interface)
 {
     USERDEFINEDTYPE* old;
 

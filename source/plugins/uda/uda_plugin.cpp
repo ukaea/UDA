@@ -22,9 +22,9 @@ class Plugin : public UDAPluginBase
   public:
     Plugin();
 
-    int get(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int get(UDA_PLUGIN_INTERFACE* plugin_interface);
 
-    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override
+    void init(UDA_PLUGIN_INTERFACE* plugin_interface) override
     {
         old_host_ = udaGetServerHost();
         old_port_ = udaGetServerPort();
@@ -45,13 +45,13 @@ Plugin::Plugin()
 
 } // namespace uda::plugins::uda
 
-extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
+extern int UDAPlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static uda::plugins::uda::Plugin plugin = {};
     return plugin.call(plugin_interface);
 }
 
-int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     int err = 0;
 

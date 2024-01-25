@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------
  * v1 UDA Plugin Template: Standardised plugin design template, just add ...
  *
- * Input Arguments:    IDAM_PLUGIN_INTERFACE *idam_plugin_interface
+ * Input Arguments:    UDA_PLUGIN_INTERFACE *idam_plugin_interface
  *
  * Returns:        0 if the plugin functionality was successful
  *            otherwise a Error Code is returned
@@ -30,8 +30,8 @@ class TemplatePlugin : public UDAPluginBase
 {
   public:
     TemplatePlugin();
-    int function(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
+    int function(UDA_PLUGIN_INTERFACE* plugin_interface);
+    void init(UDA_PLUGIN_INTERFACE* plugin_interface) override {}
     void reset() override {}
 };
 
@@ -42,7 +42,7 @@ TemplatePlugin::TemplatePlugin()
     register_method("function", static_cast<UDAPluginBase::plugin_member_type>(&TemplatePlugin::function));
 }
 
-int templatePlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int templatePlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static TemplatePlugin plugin = {};
     return plugin.call(plugin_interface);
@@ -66,7 +66,7 @@ template <typename T> std::string to_string(const std::vector<T>& array)
 
 //----------------------------------------------------------------------------------------
 // Add functionality here ....
-int TemplatePlugin::function(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TemplatePlugin::function(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 

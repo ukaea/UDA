@@ -32,10 +32,10 @@ typedef void (*ADDIDAMERRORFUNP)(UDA_ERROR_STACK*, int, char*, int, char*); // W
 // Prototypes
 
 LIBRARY_API int callPlugin(const PLUGINLIST* pluginlist, const char* request,
-                           const IDAM_PLUGIN_INTERFACE* old_plugin_interface);
+                           const UDA_PLUGIN_INTERFACE* old_plugin_interface);
 
-IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request);
-void udaFreePluginInterface(IDAM_PLUGIN_INTERFACE* plugin_interface);
+UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request);
+void udaFreePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface);
 
 LIBRARY_API int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list);
 LIBRARY_API int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list);

@@ -2,7 +2,7 @@
  * v1 IDAM Plugin viewPort: re-bin data to visualise with a rectangular viewport defined by horizonal
  * and vertical pixel ranges
  *
- * Input Arguments:    IDAM_PLUGIN_INTERFACE *plugin_interface
+ * Input Arguments:    UDA_PLUGIN_INTERFACE *plugin_interface
  *
  * Returns:        0 if the plugin functionality was successful
  *            otherwise a Error Code is returned
@@ -37,8 +37,8 @@ class ViewportPlugin : public UDAPluginBase
 {
   public:
     ViewportPlugin();
-    int get(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
+    int get(UDA_PLUGIN_INTERFACE* plugin_interface);
+    void init(UDA_PLUGIN_INTERFACE* plugin_interface) override {}
     void reset() override {}
 
   private:
@@ -80,13 +80,13 @@ int ViewportPlugin::find_handle(const std::string& signal, const std::string& so
     return -1;
 }
 
-extern int viewport(IDAM_PLUGIN_INTERFACE* plugin_interface)
+extern int viewport(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static ViewportPlugin plugin = {};
     return plugin.call(plugin_interface);
 }
 
-int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int ViewportPlugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     // Context based Tests: required - pixel_width, pixel_height, Signal, Source
 
