@@ -6877,7 +6877,7 @@ resetproperty(int argc, IDL_VPTR argv[], char* argk)
     IDL_ENSURE_STRING(argv[0]);  // Single String
     IDL_ENSURE_SCALAR(argv[0]);
     CLIENT_FLAGS* client_flags = udaClientFlags();
-    reudaSetProperty((char*)IDL_STRING_STR(&argv[0]->value.str), client_flags);
+    udaResetProperty((char*)IDL_STRING_STR(&argv[0]->value.str), client_flags);
     return (IDL_GettmpLong(0));
 }
 

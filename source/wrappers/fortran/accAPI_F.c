@@ -428,7 +428,7 @@ extern void resetidamproperty_(char* property, int lproperty)
     strncpy(s, property, lproperty);
     s[lproperty] = '\0';
     s = TrimString(s);
-    reudaSetProperty(s);
+    udaResetProperty(s);
     free( s);
 }
 

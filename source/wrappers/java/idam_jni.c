@@ -123,11 +123,11 @@ JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetProperty(JNIEnv* env, jobject obj, 
     return (value);
 }
 
-JNIEXPORT void JNICALL Java_jIdam_Idam_reudaSetProperty(JNIEnv* env, jobject obj, jstring _property)
+JNIEXPORT void JNICALL Java_jIdam_Idam_udaResetProperty(JNIEnv* env, jobject obj, jstring _property)
 {
     const char* property = (*env)->GetStringUTFChars(env, _property, NULL);
     if (property == NULL) return;
-    reudaSetProperty(property, udaClientFlags());
+    udaResetProperty(property, udaClientFlags());
     (*env)->ReleaseStringUTFChars(env, _property, property);
 }
 

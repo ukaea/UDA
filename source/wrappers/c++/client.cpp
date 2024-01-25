@@ -74,7 +74,7 @@ void uda::Client::setProperty(Property prop, bool value)
             throw UDAException("Unknown property");
     }
 
-    value ? udaSetProperty(name.c_str()) : reudaSetProperty(name.c_str());
+    value ? udaSetProperty(name.c_str()) : udaResetProperty(name.c_str());
 }
 
 void uda::Client::setProperty(Property prop, int value)

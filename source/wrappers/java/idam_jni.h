@@ -75,10 +75,10 @@ LIBRARY_API JNIEXPORT void JNICALL Java_Idam_reudaSetClientFlag(JNIEnv*, jclass,
 
 /*
  * Class:     Idam
- * Method:    reudaSetProperty
+ * Method:    udaResetProperty
  * Signature: (Ljava/lang/String;)V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_reudaSetProperty(JNIEnv*, jclass, jstring);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_udaResetProperty(JNIEnv*, jclass, jstring);
 
 /*
  * Class:     Idam

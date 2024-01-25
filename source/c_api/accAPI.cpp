@@ -602,7 +602,7 @@ int udaGetProperty(const char* property, const CLIENT_FLAGS* client_flags)
  * @return Void.
  */
 
-void reudaSetProperty(const char* property, CLIENT_FLAGS* client_flags)
+void udaResetProperty(const char* property, CLIENT_FLAGS* client_flags)
 {
     // User settings for Client and Server behaviour
 
