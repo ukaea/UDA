@@ -12,311 +12,311 @@ extern "C" {
 #  endif
 /*
  * Class:     Idam
- * Method:    idamGetAPI
+ * Method:    udaGetAPI
  * Signature: (Ljava/lang/String;Ljava/lang/String;)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_idamGetAPI(JNIEnv*, jclass, jstring, jstring);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetAPI(JNIEnv*, jclass, jstring, jstring);
 
 /*
  * Class:     Idam
- * Method:    idamFree
+ * Method:    udaFree
  * Signature: (I)V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_idamFree(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_udaFree(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    idamFreeAll
+ * Method:    udaFreeAll
  * Signature: ()V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_idamFreeAll(JNIEnv*, jclass);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_udaFreeAll(JNIEnv*, jclass);
 
 /*
  * Class:     Idam
- * Method:    setIdamPrivateFlag
+ * Method:    udaSetPrivateFlag
  * Signature: (I)V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_setIdamPrivateFlag(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_udaSetPrivateFlag(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    setIdamClientFlag
+ * Method:    udaSetClientFlag
  * Signature: (I)V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_setIdamClientFlag(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_udaSetClientFlag(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    setIdamProperty
+ * Method:    udaSetProperty
  * Signature: (Ljava/lang/String;)V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_setIdamProperty(JNIEnv*, jclass, jstring);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_udaSetProperty(JNIEnv*, jclass, jstring);
 
 /*
  * Class:     Idam
- * Method:    getIdamProperty
+ * Method:    udaGetProperty
  * Signature: (Ljava/lang/String;)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamProperty(JNIEnv*, jclass, jstring);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetProperty(JNIEnv*, jclass, jstring);
 
 /*
  * Class:     Idam
- * Method:    resetIdamPrivateFlag
+ * Method:    reudaSetPrivateFlag
  * Signature: (I)V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_resetIdamPrivateFlag(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_reudaSetPrivateFlag(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    resetIdamClientFlag
+ * Method:    reudaSetClientFlag
  * Signature: (I)V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_resetIdamClientFlag(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_reudaSetClientFlag(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    resetIdamProperty
+ * Method:    reudaSetProperty
  * Signature: (Ljava/lang/String;)V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_resetIdamProperty(JNIEnv*, jclass, jstring);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_reudaSetProperty(JNIEnv*, jclass, jstring);
 
 /*
  * Class:     Idam
- * Method:    resetIdamProperties
+ * Method:    udaResetProperties
  * Signature: ()V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_resetIdamProperties(JNIEnv*, jclass);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_udaResetProperties(JNIEnv*, jclass);
 
 /*
  * Class:     Idam
- * Method:    putIdamServer
+ * Method:    udaPutServer
  * Signature: (Ljava/lang/String;I)V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_putIdamServer(JNIEnv*, jclass, jstring, jint);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_udaPutServer(JNIEnv*, jclass, jstring, jint);
 
 /*
  * Class:     Idam
- * Method:    putIdamServerHost
+ * Method:    udaPutServerHost
  * Signature: (Ljava/lang/String;)V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_putIdamServerHost(JNIEnv*, jclass, jstring);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_udaPutServerHost(JNIEnv*, jclass, jstring);
 
 /*
  * Class:     Idam
- * Method:    putIdamServerPort
+ * Method:    udaPutServerPort
  * Signature: (I)V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_putIdamServerPort(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_udaPutServerPort(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    putIdamServerSocket
+ * Method:    udaPutServerSocket
  * Signature: (I)V
  */
-LIBRARY_API JNIEXPORT void JNICALL Java_Idam_putIdamServerSocket(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT void JNICALL Java_Idam_udaPutServerSocket(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamServerHost
+ * Method:    udaGetServerHost
  * Signature: ()Ljava/lang/String;
  */
-LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_getIdamServerHost(JNIEnv*, jclass);
+LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_udaGetServerHost(JNIEnv*, jclass);
 
 /*
  * Class:     Idam
- * Method:    getIdamServerPort
+ * Method:    udaGetServerPort
  * Signature: ()I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamServerPort(JNIEnv*, jclass);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetServerPort(JNIEnv*, jclass);
 
 /*
  * Class:     Idam
- * Method:    getIdamServerSocket
+ * Method:    udaGetServerSocket
  * Signature: ()I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamServerSocket(JNIEnv*, jclass);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetServerSocket(JNIEnv*, jclass);
 
 /*
  * Class:     Idam
- * Method:    getIdamClientVersion
+ * Method:    udaGetClientVersion
  * Signature: ()I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamClientVersion(JNIEnv*, jclass);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetClientVersion(JNIEnv*, jclass);
 
 /*
  * Class:     Idam
- * Method:    getIdamServerVersion
+ * Method:    udaGetServerVersion
  * Signature: ()I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamServerVersion(JNIEnv*, jclass);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetServerVersion(JNIEnv*, jclass);
 
 /*
  * Class:     Idam
- * Method:    getIdamServerErrorCode
+ * Method:    udaGetServerErrorCode
  * Signature: ()I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamServerErrorCode(JNIEnv*, jclass);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetServerErrorCode(JNIEnv*, jclass);
 
 /*
  * Class:     Idam
- * Method:    getIdamServerErrorMsg
+ * Method:    udaGetServerErrorMsg
  * Signature: ()Ljava/lang/String;
  */
-LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_getIdamServerErrorMsg(JNIEnv*, jclass);
+LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_udaGetServerErrorMsg(JNIEnv*, jclass);
 
 /*
  * Class:     Idam
- * Method:    getIdamServerErrorStackSize
+ * Method:    udaGetServerErrorStackSize
  * Signature: ()I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamServerErrorStackSize(JNIEnv*, jclass);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetServerErrorStackSize(JNIEnv*, jclass);
 
 /*
  * Class:     Idam
- * Method:    getIdamServerErrorStackRecordType
+ * Method:    udaGetServerErrorStackRecordType
  * Signature: (I)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamServerErrorStackRecordType(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetServerErrorStackRecordType(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamServerErrorStackRecordCode
+ * Method:    udaGetServerErrorStackRecordCode
  * Signature: (I)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamServerErrorStackRecordCode(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetServerErrorStackRecordCode(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamServerErrorStackRecordLocation
+ * Method:    udaGetServerErrorStackRecordLocation
  * Signature: (I)Ljava/lang/String;
  */
-LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_getIdamServerErrorStackRecordLocation(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_udaGetServerErrorStackRecordLocation(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamServerErrorStackRecordMsg
+ * Method:    udaGetServerErrorStackRecordMsg
  * Signature: (I)Ljava/lang/String;
  */
-LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_getIdamServerErrorStackRecordMsg(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_udaGetServerErrorStackRecordMsg(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamErrorCode
+ * Method:    udaGetErrorCode
  * Signature: (I)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamErrorCode(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetErrorCode(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamErrorMsg
+ * Method:    udaGetErrorMsg
  * Signature: (I)Ljava/lang/String;
  */
-LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_getIdamErrorMsg(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_udaGetErrorMsg(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamSignalStatus
+ * Method:    udaGetSignalStatus
  * Signature: (I)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamSignalStatus(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetSignalStatus(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamSourceStatus
+ * Method:    udaGetSourceStatus
  * Signature: (I)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamSourceStatus(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetSourceStatus(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamDataStatus
+ * Method:    udaGetDataStatus
  * Signature: (I)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamDataStatus(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetDataStatus(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamLastHandle
+ * Method:    udaGetLastHandle
  * Signature: (I)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamLastHandle(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetLastHandle(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamDataNum
+ * Method:    udaGetDataNum
  * Signature: (I)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamDataNum(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetDataNum(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamRank
+ * Method:    udaGetRank
  * Signature: (I)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamRank(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetRank(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamOrder
+ * Method:    udaGetOrder
  * Signature: (I)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamOrder(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetOrder(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamDataType
+ * Method:    udaGetDataType
  * Signature: (I)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamDataType(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetDataType(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamErrorType
+ * Method:    udaGetErrorType
  * Signature: (I)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamErrorType(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetErrorType(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamDataTypeId
+ * Method:    udaGetDataTypeId
  * Signature: (Ljava/lang/String;)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamDataTypeId(JNIEnv*, jclass, jstring);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetDataTypeId(JNIEnv*, jclass, jstring);
 
 /*
  * Class:     Idam
- * Method:    getIdamDataLabel
+ * Method:    udaGetDataLabel
  * Signature: (I)Ljava/lang/String;
  */
-LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_getIdamDataLabel(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_udaGetDataLabel(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamDataUnits
+ * Method:    udaGetDataUnits
  * Signature: (I)Ljava/lang/String;
  */
-LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_getIdamDataUnits(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_udaGetDataUnits(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamDataDesc
+ * Method:    udaGetDataDesc
  * Signature: (I)Ljava/lang/String;
  */
-LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_getIdamDataDesc(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_udaGetDataDesc(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamFloatData
+ * Method:    udaGetFloatData
  * Signature: (I)[F
  */
-LIBRARY_API JNIEXPORT jfloatArray JNICALL Java_Idam_getIdamFloatData(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jfloatArray JNICALL Java_Idam_udaGetFloatData(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamDoubleData
+ * Method:    udaGetDoubleData
  * Signature: (I)[D
  */
-LIBRARY_API JNIEXPORT jdoubleArray JNICALL Java_Idam_getIdamDoubleData(JNIEnv*, jclass, jint);
+LIBRARY_API JNIEXPORT jdoubleArray JNICALL Java_Idam_udaGetDoubleData(JNIEnv*, jclass, jint);
 
 /*
  * Class:     Idam
@@ -334,52 +334,52 @@ LIBRARY_API JNIEXPORT jdoubleArray JNICALL Java_Idam_castIdamDataToDouble(JNIEnv
 
 /*
  * Class:     Idam
- * Method:    getIdamDimNum
+ * Method:    udaGetDimNum
  * Signature: (II)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamDimNum(JNIEnv*, jclass, jint, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetDimNum(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamDimType
+ * Method:    udaGetDimType
  * Signature: (II)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamDimType(JNIEnv*, jclass, jint, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetDimType(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamDimErrorType
+ * Method:    udaGetDimErrorType
  * Signature: (II)I
  */
-LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_getIdamDimErrorType(JNIEnv*, jclass, jint, jint);
+LIBRARY_API JNIEXPORT jint JNICALL Java_Idam_udaGetDimErrorType(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamDimLabel
+ * Method:    udaGetDimLabel
  * Signature: (II)Ljava/lang/String;
  */
-LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_getIdamDimLabel(JNIEnv*, jclass, jint, jint);
+LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_udaGetDimLabel(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamDimUnits
+ * Method:    udaGetDimUnits
  * Signature: (II)Ljava/lang/String;
  */
-LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_getIdamDimUnits(JNIEnv*, jclass, jint, jint);
+LIBRARY_API JNIEXPORT jstring JNICALL Java_Idam_udaGetDimUnits(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamFloatDimData
+ * Method:    udaGetFloatDimData
  * Signature: (II)[F
  */
-LIBRARY_API JNIEXPORT jfloatArray JNICALL Java_Idam_getIdamFloatDimData(JNIEnv*, jclass, jint, jint);
+LIBRARY_API JNIEXPORT jfloatArray JNICALL Java_Idam_udaGetFloatDimData(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     Idam
- * Method:    getIdamDoubleDimData
+ * Method:    udaGetDoubleDimData
  * Signature: (II)[D
  */
-LIBRARY_API JNIEXPORT jdoubleArray JNICALL Java_Idam_getIdamDoubleDimData(JNIEnv*, jclass, jint, jint);
+LIBRARY_API JNIEXPORT jdoubleArray JNICALL Java_Idam_udaGetDoubleDimData(JNIEnv*, jclass, jint, jint);
 
 /*
  * Class:     Idam

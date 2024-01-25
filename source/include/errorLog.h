@@ -32,10 +32,10 @@ LIBRARY_API void udaCloseError(void);
 }
 #endif
 
-#define UDA_ADD_ERROR(ERR, MSG) addIdamError(UDA_CODE_ERROR_TYPE, __func__, ERR, MSG)
-#define UDA_ADD_SYS_ERROR(MSG) addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, MSG)
+#define UDA_ADD_ERROR(ERR, MSG) udaAddError(UDA_CODE_ERROR_TYPE, __func__, ERR, MSG)
+#define UDA_ADD_SYS_ERROR(MSG) udaAddError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, MSG)
 #define UDA_THROW_ERROR(ERR, MSG)                                                                                      \
-    addIdamError(UDA_CODE_ERROR_TYPE, __func__, ERR, MSG);                                                             \
+    udaAddError(UDA_CODE_ERROR_TYPE, __func__, ERR, MSG);                                                             \
     return ERR;
 
 #endif // UDA_CLIENTSERVER_ERRORLOG_H

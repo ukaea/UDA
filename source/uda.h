@@ -16,6 +16,8 @@
 #  include "udaStructs.h"
 #  include "udaTypes.h"
 #  include "version.h"
+#  include "errorLog.h"
+#  include "logging.h"
 
 #  ifdef UDA_LEGACY
 #    include "legacy.h"
