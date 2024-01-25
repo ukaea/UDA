@@ -62,9 +62,9 @@ int HelpPlugin::ping(UDA_PLUGIN_INTERFACE* plugin_interface)
     usertype.idamclass = UDA_TYPE_COMPOUND;
 
     int offset = 0;
-    defineField(&field, "seconds", "Server time in seconds from the epoch start", &offset, SCALARUINT);
+    udaDefineField(&field, "seconds", "Server time in seconds from the epoch start", &offset, SCALARUINT);
     udaAddCompoundField(&usertype, field);
-    defineField(&field, "microseconds", "Server inter-second time in microseconds", &offset, SCALARUINT);
+    udaDefineField(&field, "microseconds", "Server inter-second time in microseconds", &offset, SCALARUINT);
     udaAddCompoundField(&usertype, field);
 
     USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;

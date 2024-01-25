@@ -97,8 +97,8 @@ IDL_VPTR IDL_CDECL findidamtreestructurecomponent(int argc, IDL_VPTR argv[], cha
     // 3 Args: IDAM handle (long32 int), Node address or null (0) (long64 int) and the
     // target structure component name (string)
 
-    // calls: NTREE *findNTreeStructureComponent(NTREE *ntree, char *target)
-    // or     NTREE *findNTreeChildStructureComponent(NTREE *ntree, char *target) - if the children keyword is set
+    // calls: NTREE *udaFindNTreeStructureComponent(NTREE *ntree, char *target)
+    // or     NTREE *udaFindNTreeChildStructureComponent(NTREE *ntree, char *target) - if the children keyword is set
 
     int handle;
     NTREE* ntree;
@@ -180,9 +180,9 @@ IDL_VPTR IDL_CDECL findidamtreestructurecomponent(int argc, IDL_VPTR argv[], cha
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
     if (!kw.children) {
-        ntreeFound = (IDL_MEMINT) findNTreeStructureComponent(logmalloclist, ntree, target);
+        ntreeFound = (IDL_MEMINT) udaFindNTreeStructureComponent(logmalloclist, ntree, target);
     } else {
-        ntreeFound = (IDL_MEMINT) findNTreeChildStructureComponent(logmalloclist, ntree, target);
+        ntreeFound = (IDL_MEMINT) udaFindNTreeChildStructureComponent(logmalloclist, ntree, target);
     }
 
     if (kw.debug) {
@@ -217,7 +217,7 @@ IDL_VPTR IDL_CDECL findidamtreestructuredefinition(int argc, IDL_VPTR argv[], ch
     // 3 Args: IDAM handle (long32 int), Node address or null (0) (long64 int) and the
     // target structure component definition name (string)
 
-    // calls: NTREE *findNTreeStructureDefinition(NTREE *ntree, char *target){
+    // calls: NTREE *udaFindNTreeStructureDefinition(NTREE *ntree, char *target){
 
     int handle;
     NTREE* ntree;
@@ -293,7 +293,7 @@ IDL_VPTR IDL_CDECL findidamtreestructuredefinition(int argc, IDL_VPTR argv[], ch
     //---------------------------------------------------------------------------------------------
     // Call accessor
 
-    ntreeFound = (IDL_MEMINT) findNTreeStructureDefinition(ntree, target);
+    ntreeFound = (IDL_MEMINT) udaFindNTreeStructureDefinition(ntree, target);
 
     if (kw.debug) {
         fprintf(stdout, "+++ findIdamTreeStructureDefinition +++\n");
@@ -325,8 +325,8 @@ IDL_VPTR IDL_CDECL findidamtreestructure(int argc, IDL_VPTR argv[], char* argk) 
     // 3 Args: IDAM handle (long32 int), Node address or null (0) (long64 int) and the
     // target structure component name (string)
 
-    // calls: NTREE *findNTreeStructure(NTREE *ntree, char *target)
-    // or     NTREE *findNTreeChildStructure(NTREE *ntree, char *target)
+    // calls: NTREE *udaFindNTreeStructure(NTREE *ntree, char *target)
+    // or     NTREE *udaFindNTreeChildStructure(NTREE *ntree, char *target)
 
     int handle;
     NTREE* ntree;
@@ -408,9 +408,9 @@ IDL_VPTR IDL_CDECL findidamtreestructure(int argc, IDL_VPTR argv[], char* argk) 
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
     if (!kw.children) {
-        ntreeFound = (IDL_MEMINT) findNTreeStructure(logmalloclist, ntree, target);
+        ntreeFound = (IDL_MEMINT) udaFindNTreeStructure(logmalloclist, ntree, target);
     } else {
-        ntreeFound = (IDL_MEMINT) findNTreeChildStructure(logmalloclist, ntree, target);
+        ntreeFound = (IDL_MEMINT) udaFindNTreeChildStructure(logmalloclist, ntree, target);
     }
 
     if (kw.debug) {
@@ -2791,7 +2791,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatacount(int argc, IDL_VPTR argv[], char
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
-    // calls: int getNodeStructureDataCount(NTREE *ntree)
+    // calls: int udaGetNodeStructureDataCount(NTREE *ntree)
 
     int handle, count;
     NTREE* ntree;
@@ -2859,7 +2859,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatacount(int argc, IDL_VPTR argv[], char
 
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    count = getNodeStructureDataCount(logmalloclist, ntree);
+    count = udaGetNodeStructureDataCount(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -2882,7 +2882,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatarank(int argc, IDL_VPTR argv[], char*
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
-    // calls: int getNodeStructureDataRank(NTREE *ntree)
+    // calls: int udaGetNodeStructureDataRank(NTREE *ntree)
 
     int handle, rank;
     NTREE* ntree;
@@ -2950,7 +2950,7 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatarank(int argc, IDL_VPTR argv[], char*
 
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    rank = getNodeStructureDataRank(logmalloclist, ntree);
+    rank = udaGetNodeStructureDataRank(logmalloclist, ntree);
 
     if (kw.debug) {
         USERDEFINEDTYPE* udt = ntree->userdefinedtype;
@@ -2973,9 +2973,9 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char
     //
     // 2 Args: IDAM handle (long32 int), Node address or null (0) (long64 int)
 
-    // calls: int *getNodeStructureDataShape(NTREE *ntree)
-    //    int  getNodeStructureDataRank(NTREE *ntree)
-    //    int  getNodeStructureDataCount(NTREE *ntree)
+    // calls: int *udaGetNodeStructureDataShape(NTREE *ntree)
+    //    int  udaGetNodeStructureDataRank(NTREE *ntree)
+    //    int  udaGetNodeStructureDataCount(NTREE *ntree)
 
     int handle, count, rank, test;
     NTREE* ntree;
@@ -3046,14 +3046,14 @@ IDL_VPTR IDL_CDECL getidamnodestructuredatashape(int argc, IDL_VPTR argv[], char
 
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
 
-    count = getNodeStructureDataCount(logmalloclist, ntree);
-    rank = getNodeStructureDataRank(logmalloclist, ntree);
+    count = udaGetNodeStructureDataCount(logmalloclist, ntree);
+    rank = udaGetNodeStructureDataRank(logmalloclist, ntree);
     int* shape;
 
     if (rank <= 1) {
         idl_shape[0] = 1;
     } else {
-        if ((shape = getNodeStructureDataShape(logmalloclist, ntree)) == NULL) {
+        if ((shape = udaGetNodeStructureDataShape(logmalloclist, ntree)) == NULL) {
             fprintf(stdout, "ERROR: Structure Component has no Shape data when expected!\n");
             return (IDL_GettmpLong(0));
         }
@@ -4032,17 +4032,17 @@ IDL_VPTR IDL_CDECL makeidamstructure(int argc, IDL_VPTR argv[], char* argk) {
 
 
 IDL_VPTR IDL_CDECL getidamstructuredatasize(int argc, IDL_VPTR argv[], char* argk) {
-    //int getNodeStructureDataSize(NTREE *ntree)
+    //int udaGetNodeStructureDataSize(NTREE *ntree)
     return (IDL_GettmpLong(0));
 }
 
 IDL_VPTR IDL_CDECL getidamstructuredatadatatype(int argc, IDL_VPTR argv[], char* argk) {
-    //char *getNodeStructureDataDataType(NTREE *ntree)
+    //char *udaGetNodeStructureDataDataType(NTREE *ntree)
     return (IDL_GettmpLong(0));
 }
 
 IDL_VPTR IDL_CDECL getidamstructuredata(int argc, IDL_VPTR argv[], char* argk) {
-    //void *getNodeStructureData(NTREE *ntree)
+    //void *udaGetNodeStructureData(NTREE *ntree)
     return (IDL_GettmpLong(0));
 }
 

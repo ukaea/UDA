@@ -432,7 +432,7 @@ void udaPrintUserDefinedType(USERDEFINEDTYPE str)
     UDA_LOG(UDA_LOG_DEBUG, "size        : %d\n", str.size);
     UDA_LOG(UDA_LOG_DEBUG, "fieldcount  : %d\n", str.fieldcount);
 
-    printImage(str.image, str.imagecount);
+    udaPrintImage(str.image, str.imagecount);
     UDA_LOG(UDA_LOG_DEBUG, "\n");
 
     if (str.compoundfield != nullptr) {
@@ -1205,13 +1205,13 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
 
     offset = 0;
 
-    defineField(&field, "count", "Number of data array elements", &offset, SCALARINT);
+    udaDefineField(&field, "count", "Number of data array elements", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
-    defineField(&field, "rank", "Rank of the data array", &offset, SCALARINT);
+    udaDefineField(&field, "rank", "Rank of the data array", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
-    defineField(&field, "shape", "Shape of the data array", &offset, ARRAYINT);
+    udaDefineField(&field, "shape", "Shape of the data array", &offset, ARRAYINT);
     udaAddCompoundField(&usertype, field);
-    defineField(&field, "data", "Location of the Structure Array", &offset, ARRAYVOID);
+    udaDefineField(&field, "data", "Location of the Structure Array", &offset, ARRAYVOID);
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
@@ -1265,7 +1265,7 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
-    defineField(&field, "value", "The ENUM value", &offset, SCALARLONG64);
+    udaDefineField(&field, "value", "The ENUM value", &offset, SCALARLONG64);
     udaAddCompoundField(&usertype, field);
 
     udaAddUserDefinedType(list, usertype);
@@ -1302,11 +1302,11 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
-    defineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT);
+    udaDefineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
-    defineField(&field, "count", "The number of ENUM values", &offset, SCALARINT);
+    udaDefineField(&field, "count", "The number of ENUM values", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
@@ -1325,7 +1325,7 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field);
 
-    // defineField(&field, "data", "Generalised data pointer for all integer type arrays", &offset, ARRAYVOID);
+    // udaDefineField(&field, "data", "Generalised data pointer for all integer type arrays", &offset, ARRAYVOID);
     // ARRAYVOID doesn't work - not implemented in the middleware!
     // Naming the field "data" hits a bug and garbage is returned!
     // Don't know the correct type until the structure is used!!!! - so cannot pre-define!
@@ -1333,17 +1333,17 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     // Convert data to standard unsigned long64
 
     udaInitCompoundField(&field);
-    defineField(&field, "enumarray", "Data with this enumerated type", &offset,
+    udaDefineField(&field, "enumarray", "Data with this enumerated type", &offset,
                 ARRAYULONG64); // Data need to be converted to this type
     udaAddCompoundField(&usertype, field);
     udaInitCompoundField(&field);
-    defineField(&field, "enumarray_rank", "The rank of arraydata", &offset, SCALARINT);
+    udaDefineField(&field, "enumarray_rank", "The rank of arraydata", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
     udaInitCompoundField(&field);
-    defineField(&field, "enumarray_count", "The count of arraydata", &offset, SCALARINT);
+    udaDefineField(&field, "enumarray_count", "The count of arraydata", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
     udaInitCompoundField(&field);
-    defineField(&field, "enumarray_shape", "The shape of arraydata", &offset, ARRAYINT);
+    udaDefineField(&field, "enumarray_shape", "The shape of arraydata", &offset, ARRAYINT);
     udaAddCompoundField(&usertype, field);
 
     udaAddUserDefinedType(list, usertype);
@@ -2656,7 +2656,7 @@ COMPOUNDFIELD* getNodeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* nt
     }
 
     // Locate the Node with a Structure Component
-    ntree = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
+    ntree = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
 
     if (ntree != nullptr) {
         userdefinedtype = ntree->userdefinedtype;
@@ -2759,7 +2759,7 @@ void udaPrintNodeStructureDefinition(const char* target)
 {
     NTREE* ntree = nullptr;
     if (target[0] != '\0') {
-        if ((ntree = findNTreeStructureDefinition(ntree, target)) == nullptr) {
+        if ((ntree = udaFindNTreeStructureDefinition(ntree, target)) == nullptr) {
             UDA_LOG(UDA_LOG_DEBUG, "the Structure Definition for %s could not be Found\n", target);
             return;
         }
@@ -2778,11 +2778,11 @@ void udaPrintNodeStructureImage(const char* target)
 {
     NTREE* ntree = nullptr;
     if (target[0] != '\0') {
-        if ((ntree = findNTreeStructureDefinition(ntree, target)) == nullptr) {
+        if ((ntree = udaFindNTreeStructureDefinition(ntree, target)) == nullptr) {
             UDA_LOG(UDA_LOG_DEBUG, "the Structure Definition for %s could not be Found\n", target);
             return;
         }
-        printImage(ntree->userdefinedtype->image, ntree->userdefinedtype->imagecount);
+        udaPrintImage(ntree->userdefinedtype->image, ntree->userdefinedtype->imagecount);
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "no Structure Definition name was given!\n");
     }
@@ -2857,7 +2857,7 @@ void* udaGetNodeStructureArrayData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, i
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
-    if (getNodeStructureDataCount(logmalloclist, ntree) < (index + 1)) {
+    if (udaGetNodeStructureDataCount(logmalloclist, ntree) < (index + 1)) {
         udaAddError(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureArrayData", 999,
                      "The Tree Node array index > allocated array dimension");
         return nullptr;
@@ -3553,7 +3553,7 @@ int udaGetNodeStructureComponentDataCount(LOGMALLOCLIST* logmalloclist, NTREE* n
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
-    ntree = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+    ntree = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return 0;
     }
@@ -3599,7 +3599,7 @@ int udaGetNodeStructureComponentDataRank(LOGMALLOCLIST* logmalloclist, NTREE* nt
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
-    ntree = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+    ntree = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return 0;
     }
@@ -3642,7 +3642,7 @@ int* udaGetNodeStructureComponentDataShape(LOGMALLOCLIST* logmalloclist, NTREE* 
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
-    ntree = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+    ntree = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return nullptr;
     }
@@ -3683,7 +3683,7 @@ int udaGetNodeStructureComponentDataIsPointer(LOGMALLOCLIST* logmalloclist, NTRE
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
-    ntree = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+    ntree = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return 0;
     }
@@ -3714,7 +3714,7 @@ int udaGetNodeStructureComponentDataSize(LOGMALLOCLIST* logmalloclist, NTREE* nt
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
-    ntree = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+    ntree = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return 0;
     }
@@ -3753,7 +3753,7 @@ const char* udaGetNodeStructureComponentDataDataType(LOGMALLOCLIST* logmalloclis
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
-    ntree = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+    ntree = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return "unknown";
     }
@@ -3792,7 +3792,7 @@ void* udaGetNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntre
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
-    ntree = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+    ntree = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return nullptr;
     }
@@ -3841,7 +3841,7 @@ void udaPrintNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmallocli
         ntree = udaGetFullNTree();
     }
 
-    node = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Locate the Node
+    node = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Locate the Node
     if (ntree == nullptr) {
         return;
     }
@@ -3953,7 +3953,7 @@ void udaPrintNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     anamelist = udaGetNodeAtomicNames(logmalloclist, ntree);
     scount = udaGetNodeStructureCount(ntree); // Count of the Tree Node Structure structure type components
     snamelist = udaGetNodeStructureNames(logmalloclist, ntree);
-    count = getNodeStructureDataCount(logmalloclist, ntree); // Count of the Tree Node Structure Array elements
+    count = udaGetNodeStructureDataCount(logmalloclist, ntree); // Count of the Tree Node Structure Array elements
 
     node = ntree; // Start at the base node: all other structure array elements are sibling nodes
 
@@ -3990,7 +3990,7 @@ void udaPrintNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
             // Structured components must be children of this node.
 
-            if ((node2 = findNTreeStructure(logmalloclist, node, snamelist[i])) != nullptr) {
+            if ((node2 = udaFindNTreeStructure(logmalloclist, node, snamelist[i])) != nullptr) {
                 udaPrintNodeStructure(logmalloclist, node2);
             } else {
                 UDA_LOG(UDA_LOG_DEBUG, "%40s: null\n", snamelist[i]);
@@ -4016,7 +4016,7 @@ float* udaCastNodeStructureComponentDatatoFloat(LOGMALLOCLIST* logmalloclist, NT
         ntree = udaGetFullNTree();
     }
 
-    node = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
+    node = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
     if (ntree == nullptr) {
         return nullptr;
     }
@@ -4068,7 +4068,7 @@ double* castNodeStructureComponentDatatoDouble(LOGMALLOCLIST* logmalloclist, NTR
         ntree = udaGetFullNTree();
     }
 
-    node = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
+    node = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
     if (ntree == nullptr) {
         return nullptr;
     }
@@ -4582,7 +4582,7 @@ short* udaCastNodeStructureComponentDatatoShort(LOGMALLOCLIST* logmalloclist, NT
         ntree = udaGetFullNTree();
     }
 
-    node = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
+    node = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
     if (ntree == nullptr) {
         return nullptr;
     }

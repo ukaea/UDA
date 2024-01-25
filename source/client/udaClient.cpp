@@ -1707,7 +1707,7 @@ const char* udaGetServerErrorStackRecordMsg(int record)
 /**
 @return  the error message stack data structure
 */
-UDA_ERROR_STACK* getUdaServerErrorStack()
+UDA_ERROR_STACK* udaGetServerErrorStack()
 {
     return &server_block.idamerrorstack; // Server Error Stack Structure
 }

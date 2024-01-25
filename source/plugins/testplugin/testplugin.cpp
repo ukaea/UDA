@@ -2321,12 +2321,12 @@ int TestPlugin::test30(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD field;
 
     udaInitCompoundField(&field);
-    defineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
+    udaDefineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
 
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
-    defineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
+    udaDefineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
 
     udaAddCompoundField(&usertype, field);
 
@@ -2385,12 +2385,12 @@ int TestPlugin::test31(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD field;
 
     udaInitCompoundField(&field);
-    defineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
+    udaDefineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
 
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
-    defineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
+    udaDefineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
 
     udaAddCompoundField(&usertype, field);
 
@@ -2462,12 +2462,12 @@ int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD field;
 
     udaInitCompoundField(&field);
-    defineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
+    udaDefineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
 
     udaAddCompoundField(&usertype, field); // Single Structure element
 
     udaInitCompoundField(&field);
-    defineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
+    udaDefineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
 
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -2494,7 +2494,7 @@ int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
     offset = 0;
 
     udaInitCompoundField(&field);
-    defineField(&field, "count", "int structure element", &offset, SCALARINT);
+    udaDefineField(&field, "count", "int structure element", &offset, SCALARINT);
 
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -2577,12 +2577,12 @@ int TestPlugin::test33(UDA_PLUGIN_INTERFACE* plugin_interface)
     COMPOUNDFIELD field;
 
     udaInitCompoundField(&field);
-    defineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
+    udaDefineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
 
     udaAddCompoundField(&usertype, field); // Single Structure element
 
     udaInitCompoundField(&field);
-    defineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
+    udaDefineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
 
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -2609,7 +2609,7 @@ int TestPlugin::test33(UDA_PLUGIN_INTERFACE* plugin_interface)
     offset = 0;
 
     udaInitCompoundField(&field);
-    defineField(&field, "count", "int structure element", &offset, SCALARINT);
+    udaDefineField(&field, "count", "int structure element", &offset, SCALARINT);
 
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -2702,7 +2702,7 @@ int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.count = 1;
     field.rank = 0;
     field.shape = nullptr;
-    defineField(&field, "R", "unsigned char structure element", &offset, ARRAYUCHAR);
+    udaDefineField(&field, "R", "unsigned char structure element", &offset, ARRAYUCHAR);
 
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -2710,7 +2710,7 @@ int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.count = 1;
     field.rank = 0;
     field.shape = nullptr;
-    defineField(&field, "Z", "unsigned char structure element", &offset, ARRAYUCHAR);
+    udaDefineField(&field, "Z", "unsigned char structure element", &offset, ARRAYUCHAR);
 
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -2737,7 +2737,7 @@ int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
     offset = 0;
 
     udaInitCompoundField(&field);
-    defineField(&field, "count", "int structure element", &offset, SCALARINT);
+    udaDefineField(&field, "count", "int structure element", &offset, SCALARINT);
 
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -2866,17 +2866,17 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
         return err;
     }
 
-    defineField(&field, "dataCount", "the number of data array elements", &offset, SCALARUINT);
+    udaDefineField(&field, "dataCount", "the number of data array elements", &offset, SCALARUINT);
 
     switch (request_block->putDataBlockList.putDataBlock[0].data_type) {
         case UDA_TYPE_INT:
-            defineField(&field, "data", "the block data array", &offset, ARRAYINT);
+            udaDefineField(&field, "data", "the block data array", &offset, ARRAYINT);
             break;
         case UDA_TYPE_FLOAT:
-            defineField(&field, "data", "the block data array", &offset, ARRAYFLOAT);
+            udaDefineField(&field, "data", "the block data array", &offset, ARRAYFLOAT);
             break;
         case UDA_TYPE_DOUBLE:
-            defineField(&field, "data", "the block data array", &offset, ARRAYDOUBLE);
+            udaDefineField(&field, "data", "the block data array", &offset, ARRAYDOUBLE);
             break;
     }
 
@@ -2895,7 +2895,7 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
     offset = 0;
     udaInitCompoundField(&field);
 
-    defineField(&field, "count", "the number of data blocks", &offset, SCALARUINT);
+    udaDefineField(&field, "count", "the number of data blocks", &offset, SCALARUINT);
 
     strcpy(field.name, "blocks");
     field.atomictype = UDA_TYPE_UNKNOWN;
@@ -3115,7 +3115,7 @@ int TestPlugin::test60(UDA_PLUGIN_INTERFACE* plugin_interface)
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
-    defineField(&field, "value", "The ENUM value", &offset, SCALARLONG64);
+    udaDefineField(&field, "value", "The ENUM value", &offset, SCALARLONG64);
     udaAddCompoundField(&usertype, field);
 
     udaAddUserDefinedType(userdefinedtypelist, usertype);
@@ -3150,11 +3150,11 @@ int TestPlugin::test60(UDA_PLUGIN_INTERFACE* plugin_interface)
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
-    defineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT);
+    udaDefineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
-    defineField(&field, "count", "The number of ENUM values", &offset, SCALARINT);
+    udaDefineField(&field, "count", "The number of ENUM values", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
@@ -3176,40 +3176,40 @@ int TestPlugin::test60(UDA_PLUGIN_INTERFACE* plugin_interface)
     udaInitCompoundField(&field);
     switch (enumlist->type) {
         case (UDA_TYPE_UNSIGNED_SHORT): {
-            defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYUSHORT);
+            udaDefineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYUSHORT);
             break;
         }
         case (UDA_TYPE_SHORT): {
-            defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYSHORT);
+            udaDefineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYSHORT);
             break;
         }
         case (UDA_TYPE_UNSIGNED_INT): {
-            defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYUINT);
+            udaDefineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYUINT);
             break;
         }
         case (UDA_TYPE_INT): {
-            defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYINT);
+            udaDefineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYINT);
             break;
         }
         case (UDA_TYPE_UNSIGNED_LONG64): {
-            defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYULONG64);
+            udaDefineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYULONG64);
             break;
         }
         case (UDA_TYPE_LONG64): {
-            defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYLONG64);
+            udaDefineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYLONG64);
             break;
         }
     }
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
-    defineField(&field, "arraydata_rank", "The rank of arraydata", &offset, SCALARINT);
+    udaDefineField(&field, "arraydata_rank", "The rank of arraydata", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
     udaInitCompoundField(&field);
-    defineField(&field, "arraydata_count", "The count of arraydata", &offset, SCALARINT);
+    udaDefineField(&field, "arraydata_count", "The count of arraydata", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
     udaInitCompoundField(&field);
-    defineField(&field, "arraydata_shape", "The shape of arraydata", &offset, ARRAYINT);
+    udaDefineField(&field, "arraydata_shape", "The shape of arraydata", &offset, ARRAYINT);
     udaAddCompoundField(&usertype, field);
 
     udaAddUserDefinedType(userdefinedtypelist, usertype);
@@ -3309,7 +3309,7 @@ int TestPlugin::test61(UDA_PLUGIN_INTERFACE* plugin_interface)
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
-    defineField(&field, "value", "The ENUM value", &offset, SCALARLONG64);
+    udaDefineField(&field, "value", "The ENUM value", &offset, SCALARLONG64);
     udaAddCompoundField(&usertype, field);
 
     udaAddUserDefinedType(userdefinedtypelist, usertype);
@@ -3343,11 +3343,11 @@ int TestPlugin::test61(UDA_PLUGIN_INTERFACE* plugin_interface)
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
-    defineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT);
+    udaDefineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
-    defineField(&field, "count", "The number of ENUM values", &offset, SCALARINT);
+    udaDefineField(&field, "count", "The number of ENUM values", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
@@ -3367,17 +3367,17 @@ int TestPlugin::test61(UDA_PLUGIN_INTERFACE* plugin_interface)
     udaAddCompoundField(&usertype, field);
 
     udaInitCompoundField(&field);
-    defineField(&field, "arraydata", "Data with this enumerated type", &offset,
+    udaDefineField(&field, "arraydata", "Data with this enumerated type", &offset,
                 ARRAYULONG64); // Data need to be converted to this type
     udaAddCompoundField(&usertype, field);
     udaInitCompoundField(&field);
-    defineField(&field, "arraydata_rank", "The rank of arraydata", &offset, SCALARINT);
+    udaDefineField(&field, "arraydata_rank", "The rank of arraydata", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
     udaInitCompoundField(&field);
-    defineField(&field, "arraydata_count", "The count of arraydata", &offset, SCALARINT);
+    udaDefineField(&field, "arraydata_count", "The count of arraydata", &offset, SCALARINT);
     udaAddCompoundField(&usertype, field);
     udaInitCompoundField(&field);
-    defineField(&field, "arraydata_shape", "The shape of arraydata", &offset, ARRAYINT);
+    udaDefineField(&field, "arraydata_shape", "The shape of arraydata", &offset, ARRAYINT);
     udaAddCompoundField(&usertype, field);
 
     udaAddUserDefinedType(userdefinedtypelist, usertype);

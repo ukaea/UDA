@@ -101,11 +101,11 @@ void uda::Client::setProperty(Property prop, int value)
 
         case PROP_TIMEOUT:
             name = (boost::format("timeout=%1%") % value).str();
-            udaSetProperty(name.c_str(), udaClientFlags());
+            udaSetProperty(name.c_str());
             break;
         case PROP_ALTRANK:
             name = (boost::format("altrank=%1%") % value).str();
-            udaSetProperty(name.c_str(), udaClientFlags());
+            udaSetProperty(name.c_str());
             break;
 
         default:
@@ -183,7 +183,7 @@ int uda::Client::serverPort()
 
 [[noreturn]] void generate_exception()
 {
-    UDA_ERROR_STACK* errorstack = getUdaServerErrorStack();
+    UDA_ERROR_STACK* errorstack = udaGetServerErrorStack();
     std::vector<std::string> backtrace;
     int code = errorstack->nerrors > 0 ? errorstack->idamerror[0].code : 0;
     std::string msg = errorstack->nerrors > 0 ? errorstack->idamerror[0].msg : "";

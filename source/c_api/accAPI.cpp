@@ -3945,5 +3945,5 @@ LOGMALLOCLIST* udaGetLogMallocList(int handle)
 
 NTREE* udaFindNTreeStructureDefinition(NTREE* node, const char* target)
 {
-    return findNTreeStructureDefinition(node, target);
+    return udaFindNTreeStructureDefinition(node, target);
 }
