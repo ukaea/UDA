@@ -598,7 +598,7 @@ int udaRegulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERD
 
         auto old = (VOIDTYPE)vlen->data;
         USERDEFINEDTYPE* child =
-            findUserDefinedType(userdefinedtypelist, tree->userdefinedtype->compoundfield[1].type, 0);
+            udaFindUserDefinedType(userdefinedtypelist, tree->userdefinedtype->compoundfield[1].type, 0);
         vlen->data = realloc(vlen->data, count * child->size); // Expand Heap to regularise
         newnew = vlen->data;
         size = child->size;
@@ -984,8 +984,8 @@ void udaDefineField(COMPOUNDFIELD* field, const char* name, const char* desc, in
             field->pointer = 1;
             field->size = field->count * sizeof(char*);
             field->offset =
-                (int)newoffset((size_t)*offset, "char *"); // must be an explicit char pointer (STRING Convention!)
-            field->offpad = (int)padding((size_t)*offset, "char *");
+                (int)udaNewoffset((size_t)*offset, "char *"); // must be an explicit char pointer (STRING Convention!)
+            field->offpad = (int)udaPadding((size_t)*offset, "char *");
             field->alignment = udaGetalignmentof("char *");
             break;
         case ARRAYSTRING:
@@ -1022,8 +1022,8 @@ void udaDefineField(COMPOUNDFIELD* field, const char* name, const char* desc, in
     field->shape = nullptr;
 
     if (type_id != SCALARSTRING) {
-        field->offset = (int)newoffset(*offset, field->type);
-        field->offpad = (int)padding(*offset, field->type);
+        field->offset = (int)udaNewoffset(*offset, field->type);
+        field->offpad = (int)udaPadding(*offset, field->type);
         field->alignment = udaGetalignmentof(field->type);
     }
 
@@ -1046,6 +1046,6 @@ void udaDefineCompoundField(COMPOUNDFIELD* field, const char* type, const char* 
 
     field->size = field->count * size;
     field->offset = offset;
-    field->offpad = padding(offset, field->type);
+    field->offpad = udaPadding(offset, field->type);
     field->alignment = ALIGNMENT;
 }

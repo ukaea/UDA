@@ -143,7 +143,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     SARRAY* psarray = &sarray;
                     int shape = data_block->data_n;                        // rank 1 array of dimension lengths
                     auto udt = (USERDEFINEDTYPE*)data_block->opaque_block; // The data's structure definition
-                    USERDEFINEDTYPE* u = findUserDefinedType(userdefinedtypelist, "SARRAY",
+                    USERDEFINEDTYPE* u = udaFindUserDefinedType(userdefinedtypelist, "SARRAY",
                                                              0); // Locate the carrier structure definition
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Sending to Client\n");
@@ -235,12 +235,12 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     }
 #endif
                     // send the full set of known named structures
-                    rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
+                    rc = rc && udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Structure Definitions sent: rc = %d\n", rc);
 
                     // send the Data
-                    rc = rc && udaXdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
+                    rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
                                                       protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Data sent: rc = %d\n", rc);
@@ -429,7 +429,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         }
 #endif // !FATCLIENT
        // receive the full set of known named structures
-                        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
+                        rc = rc && udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: xdr_userdefinedtypelist #B\n");
 
@@ -439,14 +439,14 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                          "Failure receiving Structure Definitions");
                             break;
                         }
-                        UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXdrUserDefinedTypeData #A\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXDRUserDefinedTypeData #A\n");
                         udaInitUserDefinedType(udt_received);
 
-                        rc = rc && udaXdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
+                        rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
                                                           protocolVersion, xdr_stdio_flag, log_struct_list,
                                                           malloc_source); // receive the Data
 
-                        UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXdrUserDefinedTypeData #B\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXDRUserDefinedTypeData #B\n");
                         if (!rc) {
                             err = 999;
                             udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
@@ -589,7 +589,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             xdrs = &XDRInput;
 
                             // receive the full set of known named structures
-                            rc = xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
+                            rc = udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
                             if (!rc) {
                                 err = 999;
@@ -600,7 +600,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             udaInitUserDefinedType(udt_received);
 
-                            rc = rc && udaXdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                            rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                               &data, protocolVersion, xdr_stdio_flag, log_struct_list,
                                                               malloc_source); // receive the Data
 

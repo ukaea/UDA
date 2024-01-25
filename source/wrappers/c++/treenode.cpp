@@ -44,7 +44,7 @@ uda::TreeNode uda::TreeNode::child(int num)
     return TreeNode(handle_, udaGetNodeChild(node_, num));
 }
 
-void uda::TreeNode::udaPrintNode()
+void uda::TreeNode::printNode()
 {
     ::udaPrintNode(node_);
 }
@@ -72,17 +72,17 @@ uda::TreeNode uda::TreeNode::findStructureComponent(const std::string& name)
     return {handle_, udaFindNTreeStructureComponent(logmalloclist, node_, (char*)name.c_str())};
 }
 
-void uda::TreeNode::udaPrintUserDefinedTypeTable(const std::string& name)
+void uda::TreeNode::printUserDefinedTypeTable(const std::string& name)
 {
     USERDEFINEDTYPELIST* userdefinedtypelist = udaGetUserDefinedTypeList(handle_);
-    USERDEFINEDTYPE* type = findUserDefinedType(userdefinedtypelist, (char*)name.c_str(), 0);
+    USERDEFINEDTYPE* type = udaFindUserDefinedType(userdefinedtypelist, (char*)name.c_str(), 0);
     ::udaPrintUserDefinedTypeTable(userdefinedtypelist, *type);
 }
 
-void uda::TreeNode::udaPrintUserDefinedTypeTable()
+void uda::TreeNode::printUserDefinedTypeTable()
 {
     USERDEFINEDTYPELIST* userdefinedtypelist = udaGetUserDefinedTypeList(handle_);
-    USERDEFINEDTYPE* type = getNodeUserDefinedType(node_);
+    USERDEFINEDTYPE* type = udaGetNodeUserDefinedType(node_);
     ::udaPrintUserDefinedTypeTable(userdefinedtypelist, *type);
 }
 

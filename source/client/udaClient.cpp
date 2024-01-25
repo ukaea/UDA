@@ -129,7 +129,7 @@ int check_file_cache(const REQUEST_DATA* request_data, DATA_BLOCK** p_data_block
 
         if (data != nullptr) {
             // Success
-            int data_block_idx = udaGetNewDataHandle(client_flags);
+            int data_block_idx = udaGetNewDataHandle();
 
             if (data_block_idx < 0) { // Error
                 return -data_block_idx;
@@ -167,7 +167,7 @@ int check_mem_cache(uda::cache::UdaCache* cache, REQUEST_DATA* request_data, DAT
 
         if (data != nullptr) {
             // Success
-            int data_block_idx = udaGetNewDataHandle(client_flags);
+            int data_block_idx = udaGetNewDataHandle();
 
             if (data_block_idx < 0) { // Error
                 return -data_block_idx;
@@ -936,7 +936,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             //------------------------------------------------------------------------------
             // Allocate memory for the Data Block Structure
             // Re-use existing stale Data Blocks
-            int data_block_idx = udaGetNewDataHandle(client_flags);
+            int data_block_idx = udaGetNewDataHandle();
 
             if (data_block_idx < 0) { // Error
                 data_block_indices[i] = -data_block_idx;
@@ -1010,7 +1010,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         for (int i = 0; i < data_block_list0.count; ++i) {
             DATA_BLOCK* data_block0 = &data_block_list0.data[i];
 
-            int data_block_idx = udaGetNewDataHandle(client_flags);
+            int data_block_idx = udaGetNewDataHandle();
             DATA_BLOCK* data_block = udaGetDataBlock(data_block_idx); // data blocks may have been realloc'ed
             copyDataBlock(data_block, data_block0);
 
@@ -1433,9 +1433,7 @@ void udaFreeAll()
     uda::cache::free_cache();
 #endif
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-
-    for (int i = 0; i < udaGetCurrentDataBlockIndex(client_flags); ++i) {
+    for (int i = 0; i < udaGetCurrentDataBlockIndex(); ++i) {
 #ifndef FATCLIENT
         freeDataBlock(udaGetDataBlock(i));
 #else

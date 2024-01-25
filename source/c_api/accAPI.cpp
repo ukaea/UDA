@@ -194,8 +194,7 @@ void unlockUdaThread()
  */
 void udaFreeThread()
 {
-	CLIENT_FLAGS* client_flags = udaClientFlags();
-    udaLockThread(client_flags);
+    udaLockThread();
 #  ifdef __GNUC__
     thread_t threadId = pthread_self();
 #  else
@@ -217,7 +216,7 @@ void udaFreeThread()
         initServerBlock(&(idamState[threadCount].server_block), 0);
         threadList[threadCount] = 0;
     }
-    unlockUdaThread(client_flags);
+    unlockUdaThread();
 }
 
 #else
@@ -426,8 +425,9 @@ void reudaSetClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
  * @param property the name of the property to set true or a name value pair.
  * @return Void.
  */
-void udaSetProperty(const char* property, CLIENT_FLAGS* client_flags)
+void udaSetProperty(const char* property)
 {
+	CLIENT_FLAGS* client_flags = udaClientFlags();
     // User settings for Client and Server behaviour
 
     char name[56];
@@ -526,8 +526,9 @@ void udaSetProperty(const char* property, CLIENT_FLAGS* client_flags)
  * @param property the name of the property.
  * @return Void.
  */
-int udaGetProperty(const char* property, const CLIENT_FLAGS* client_flags)
+int udaGetProperty(const char* property)
 {
+	const CLIENT_FLAGS* client_flags = udaClientFlags();
     // User settings for Client and Server behaviour
 
     if (property[0] == 'g') {
@@ -602,8 +603,9 @@ int udaGetProperty(const char* property, const CLIENT_FLAGS* client_flags)
  * @return Void.
  */
 
-void udaResetProperty(const char* property, CLIENT_FLAGS* client_flags)
+void udaResetProperty(const char* property)
 {
+	CLIENT_FLAGS* client_flags = udaClientFlags();
     // User settings for Client and Server behaviour
 
     if (property[0] == 'g') {
@@ -993,8 +995,7 @@ int udaGetDataStatus(int handle)
 */
 int udaGetLastHandle()
 {
-	CLIENT_FLAGS* client_flags = udaClientFlags();
-    return udaGetCurrentDataBlockIndex(client_flags);
+    return udaGetCurrentDataBlockIndex();
 }
 
 //!  returns the number of data items in the data object
@@ -1338,21 +1339,21 @@ int udaGetErrorModelId(const char* model)
     return 0;
 }
 
-char* udaGetSyntheticData(int handle)
-{
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
-        return nullptr;
-    }
-    return data_blocks[handle].synthetic;
-}
+// char* udaGetSyntheticData(int handle)
+// {
+//     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+//         return nullptr;
+//     }
+//     return data_blocks[handle].synthetic;
+// }
 
-char* udaGetSyntheticDimData(int handle, int ndim)
-{
-    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
-        return nullptr;
-    }
-    return data_blocks[handle].dims[ndim].synthetic;
-}
+// char* udaGetSyntheticDimData(int handle, int ndim)
+// {
+//     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+//         return nullptr;
+//     }
+//     return data_blocks[handle].dims[ndim].synthetic;
+// }
 
 void udaSetSyntheticData(int handle, char* data)
 {

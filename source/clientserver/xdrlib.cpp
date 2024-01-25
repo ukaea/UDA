@@ -445,7 +445,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
         SARRAY* psarray = &sarray;
         int shape = str->data_n;                        // rank 1 array of dimension lengths
         auto udt = (USERDEFINEDTYPE*)str->opaque_block; // The data's structure definition
-        auto u = findUserDefinedType(userdefinedtypelist, "SARRAY",
+        auto u = udaFindUserDefinedType(userdefinedtypelist, "SARRAY",
                                      0); // Locate the carrier structure definition
 
         if (udt == nullptr || u == nullptr) {
@@ -470,9 +470,9 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         // Send the data
 
-        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist,
+        rc = rc && udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist,
                                            xdr_stdio_flag); // send the full set of known named structures
-        rc = rc && udaXdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
+        rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
                                           xdr_stdio_flag, log_struct_list, malloc_source); // send the Data
 
         if (!rc) {
@@ -502,7 +502,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
         udaInitUserDefinedTypeList(userdefinedtypelist);
 
         // receive the full set of known named structures
-        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
+        rc = rc && udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
         if (!rc) {
             err = 999;
@@ -515,7 +515,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
         auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
         udaInitUserDefinedType(udt_received);
 
-        rc = rc && udaXdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
+        rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
                                           protocolVersion, xdr_stdio_flag, log_struct_list,
                                           malloc_source); // receive the Data
 

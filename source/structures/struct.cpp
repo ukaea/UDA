@@ -12,7 +12,7 @@
 //
 // Fetch the structure Definition from the Master List of all known structures
 //
-// USERDEFINEDTYPE *udtype = findUserDefinedType("MYSTRUCT");
+// USERDEFINEDTYPE *udtype = udaFindUserDefinedType("MYSTRUCT");
 //
 // Send the Data
 //
@@ -452,7 +452,7 @@ void udaPrintUserDefinedType(USERDEFINEDTYPE str)
 void udaPrintUserDefinedTypeTable(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "USERDEFINEDTYPE name: %s size: %d [%d] fieldcount: %d ref_id: %d \n", str.name, str.size,
-            getStructureSize(userdefinedtypelist, &str), str.fieldcount, str.ref_id);
+            udaGetStructureSize(userdefinedtypelist, &str), str.fieldcount, str.ref_id);
     if (str.compoundfield != nullptr) {
         UDA_LOG(UDA_LOG_DEBUG,
                 "\t                Item\t            type\tpointer\tsize\tcount\toffset\toffpad\talignment\n");
@@ -1225,8 +1225,8 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
     field.shape[0] = field.count;
     field.size = field.count * sizeof(char);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     offset = field.offset + field.size;
     udaAddCompoundField(&usertype, field);
@@ -1260,7 +1260,7 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     field.size = field.count * sizeof(char);
     field.offset = offsetof(ENUMMEMBER, name);
     offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field);
 
@@ -1297,7 +1297,7 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     field.size = field.count * sizeof(char);
     field.offset = offsetof(ENUMLIST, name);
     offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field);
 
@@ -1321,7 +1321,7 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     field.size = sizeof(ENUMMEMBER*);
     field.offset = offsetof(ENUMLIST, enummember); // Different to newoffset
     offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field);
 
@@ -1491,7 +1491,7 @@ void udaFreeUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist)
  * @param type The name of the type
  * @return The size in bytes.
  */
-size_t getsizeof(USERDEFINEDTYPELIST* userdefinedtypelist, const char* type)
+size_t udaGetsizeof(USERDEFINEDTYPELIST* userdefinedtypelist, const char* type)
 {
     USERDEFINEDTYPE* udt;
     const char* base = type;
@@ -1571,7 +1571,7 @@ size_t getsizeof(USERDEFINEDTYPELIST* userdefinedtypelist, const char* type)
 
     // Search list of User defined types for size
 
-    if ((udt = findUserDefinedType(userdefinedtypelist, base, 0)) != nullptr) {
+    if ((udt = udaFindUserDefinedType(userdefinedtypelist, base, 0)) != nullptr) {
         return (size_t)udt->size;
     }
 
@@ -1832,13 +1832,13 @@ int udaGetalignmentof(const char* type)
     return ALIGNMENT; // Best Guess!
 }
 
-size_t newoffset(size_t offset, const char* type)
+size_t udaNewoffset(size_t offset, const char* type)
 {
     int alignment = udaGetalignmentof(type);
     return (offset + ((alignment - (offset % alignment)) % alignment));
 }
 
-size_t padding(size_t offset, const char* type)
+size_t udaPadding(size_t offset, const char* type)
 {
     int alignment = udaGetalignmentof(type);
     return ((alignment - (offset % alignment)) % alignment);
@@ -1888,7 +1888,7 @@ const char* udaNameType(UDA_TYPE type)
  * @param str The user defined structure definition.
  * @return The size in bytes.
  */
-size_t getStructureSize(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* str)
+size_t udaGetStructureSize(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* str)
 {
     size_t size;
     if (str == nullptr) {
@@ -1908,7 +1908,7 @@ size_t getStructureSize(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYP
             size = sizeof(void*);
             alignment = udaGetalignmentof("*");
         } else {
-            size = getsizeof(userdefinedtypelist, str->compoundfield[i].type);
+            size = udaGetsizeof(userdefinedtypelist, str->compoundfield[i].type);
             alignment = udaGetalignmentof(str->compoundfield[i].type);
         }
 
@@ -1916,9 +1916,9 @@ size_t getStructureSize(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYP
 
         if (i != 0) {
             if (str->compoundfield[i].pointer) {
-                offset = newoffset(offset + space0, "*");
+                offset = udaNewoffset(offset + space0, "*");
             } else {
-                offset = newoffset(offset + space0, str->compoundfield[i].type);
+                offset = udaNewoffset(offset + space0, str->compoundfield[i].type);
                 // Non-atomic types (structures) will already have been adjusted
             }
         } else {
@@ -2102,7 +2102,7 @@ int udaXdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFIN
             rc = 1;
         }
 
-        rc = rc && xdr_userdefinedtype(xdrs, userdefinedtypelist, userdefinedtype); // User Defined Type Definitions
+        rc = rc && udaXDRUserdefinedtype(xdrs, userdefinedtypelist, userdefinedtype); // User Defined Type Definitions
         rc = rc &&
              xdrUserDefinedData(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1, 0,
                                 nullptr, 0, &dataNTree, protocolVersion, malloc_source); // Data within Structures
@@ -2116,7 +2116,7 @@ int udaXdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFIN
             return 0;
         }
 
-        rc = xdr_userdefinedtype(xdrs, userdefinedtypelist, userdefinedtype); // User Defined Type Definitions
+        rc = udaXDRUserdefinedtype(xdrs, userdefinedtypelist, userdefinedtype); // User Defined Type Definitions
         rc = rc &&
              xdrUserDefinedData(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1, 0,
                                 nullptr, 0, nullptr, protocolVersion, malloc_source); // Data within Structures
@@ -2161,7 +2161,7 @@ int udaFindUserDefinedTypeId(USERDEFINEDTYPELIST* userdefinedtypelist, const cha
     return -1;
 }
 
-USERDEFINEDTYPE* findUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist, const char* name, int ref_id)
+USERDEFINEDTYPE* udaFindUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist, const char* name, int ref_id)
 {
     // Return the Structure Definition of a Named User Defined Structure
 
@@ -2264,7 +2264,7 @@ bool_t xdr_compoundfield(XDR* xdrs, COMPOUNDFIELD* str)
     return rc;
 }
 
-bool_t xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* str)
+bool_t udaXDRUserdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* str)
 {
     // Send/Receive a single user defined type
 
@@ -2315,7 +2315,7 @@ bool_t xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist, 
                 size = sizeof(void*);
             } else {
                 // Non-atomic types (structures) will already have been adjusted
-                size = getsizeof(userdefinedtypelist, str->compoundfield[i].type);
+                size = udaGetsizeof(userdefinedtypelist, str->compoundfield[i].type);
             }
             alignment = udaGetalignmentof(str->compoundfield[i].type);
             // Adjustment required
@@ -2333,7 +2333,7 @@ bool_t xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist, 
                 size = sizeof(void*);
                 alignment = udaGetalignmentof("*");
             } else {
-                size = getsizeof(userdefinedtypelist, str->compoundfield[i].type);
+                size = udaGetsizeof(userdefinedtypelist, str->compoundfield[i].type);
                 alignment = udaGetalignmentof(str->compoundfield[i].type);
             }
 
@@ -2341,11 +2341,11 @@ bool_t xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist, 
 
             if (i != 0) {
                 if (str->compoundfield[i].pointer) {
-                    offpad = padding(offset + space0, "*");
-                    offset = newoffset(offset + space0, "*");
+                    offpad = udaPadding(offset + space0, "*");
+                    offset = udaNewoffset(offset + space0, "*");
                 } else {
-                    offpad = padding(offset + space0, str->compoundfield[i].type);
-                    offset = newoffset(
+                    offpad = udaPadding(offset + space0, str->compoundfield[i].type);
+                    offset = udaNewoffset(
                         offset + space0,
                         str->compoundfield[i].type); // Non-atomic types (structures) will already have been adjusted
                 }
@@ -2412,7 +2412,7 @@ bool_t xdr_userdefinedtypelist(XDR* xdrs, USERDEFINEDTYPELIST* str, bool xdr_std
     }
 
     for (int i = 0; i < str->listCount; i++) {
-        rc = rc && xdr_userdefinedtype(xdrs, str, &str->userdefinedtype[i]);
+        rc = rc && udaXDRUserdefinedtype(xdrs, str, &str->userdefinedtype[i]);
     }
 
     if (!xdr_stdio_flag) {
@@ -3871,7 +3871,7 @@ void udaPrintNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmallocli
             UDA_LOG(UDA_LOG_DEBUG, "%s\n", s);
             return;
         }
-        if ((userdefinedtype = findUserDefinedType(userdefinedtypelist, type, 0)) != nullptr) {
+        if ((userdefinedtype = udaFindUserDefinedType(userdefinedtypelist, type, 0)) != nullptr) {
             int firstpass = 1, offset, namecount2;
             char** namelist2;
             NTREE temp;
@@ -3907,7 +3907,7 @@ void udaPrintNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmallocli
 
                         temp.data = data;
                         strcpy(temp.name, userdefinedtype->compoundfield[i].name);
-                        temp.userdefinedtype = findUserDefinedType(userdefinedtypelist, type, 0);
+                        temp.userdefinedtype = udaFindUserDefinedType(userdefinedtypelist, type, 0);
                         if (firstpass) {
                             udaAddNonMalloc(logmalloclist, data, 1, userdefinedtype->compoundfield[i].size, type);
                             firstpass = 0;
@@ -4692,7 +4692,7 @@ void udaAddStructureField(USERDEFINEDTYPE* user_type, const char* name, const ch
     }
     field.size = is_pointer ? (int)getPtrSizeOf(data_type) : (field.count * (int)getSizeOf(data_type));
     field.offset = (int)offset;
-    field.offpad = (int)padding(offset, field.type);
+    field.offpad = (int)udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
 
     udaAddCompoundField(user_type, field);

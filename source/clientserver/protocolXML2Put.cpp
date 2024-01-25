@@ -1267,7 +1267,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 count = (int)*prev; // the value of __size...
-                                size = (int)getsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
+                                size = (int)udaGetsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
                                 type = userdefinedtype->compoundfield[j].type;
                             } else {
                                 if (count > 0) {
@@ -1279,7 +1279,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                         type = chartype;
                                     } else {
                                         ssize =
-                                            (int)getsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
+                                            (int)udaGetsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
                                         type = userdefinedtype->compoundfield[j].type;
                                     }
 
@@ -1354,7 +1354,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
 
                 // Pointer to structure definition (void type ignored)
 
-                if ((utype = findUserDefinedType(userdefinedtypelist, type, 0)) == nullptr &&
+                if ((utype = udaFindUserDefinedType(userdefinedtypelist, type, 0)) == nullptr &&
                     strcmp(userdefinedtype->compoundfield[j].type, "void") != 0) {
 
                     UDA_LOG(UDA_LOG_DEBUG, "**** Error #1: User Defined Type %s not known!\n",
@@ -1441,7 +1441,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
 
                     if (udaGettypeof(type) != UDA_TYPE_UNKNOWN) {
                         char* z = (char*)*p;
-                        rc = rc && udaXdrAtomicData(logmalloclist, xdrs, type, count, size, &z); // Must be an Atomic Type
+                        rc = rc && udaXDRAtomicData(logmalloclist, xdrs, type, count, size, &z); // Must be an Atomic Type
                         *p = (VOIDTYPE)z;
                         break;
                     } else {
@@ -1470,7 +1470,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
 
 // Send/Receive Array of Structures
 
-int udaXdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+int udaXDRUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                               USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion,
                               LOGSTRUCTLIST* log_struct_list, int malloc_source)
 {
@@ -1482,7 +1482,7 @@ int udaXdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDE
 
         NTREE* dataNTree = nullptr;
 
-        rc = rc && xdr_userdefinedtype(xdrs, userdefinedtypelist,
+        rc = rc && udaXDRUserdefinedtype(xdrs, userdefinedtypelist,
                                        userdefinedtype); // User Defined Type Definitions
 
         rc = rc &&
@@ -1493,12 +1493,12 @@ int udaXdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDE
     } else {
 
         if (userdefinedtype == nullptr) {
-            udaAddError(UDA_CODE_ERROR_TYPE, "udaXdrUserDefinedTypeData", 999,
+            udaAddError(UDA_CODE_ERROR_TYPE, "udaXDRUserDefinedTypeData", 999,
                          "No User Defined Type passed - cannot send!");
             return 0;
         }
 
-        rc = xdr_userdefinedtype(xdrs, userdefinedtypelist,
+        rc = udaXDRUserdefinedtype(xdrs, userdefinedtypelist,
                                  userdefinedtype); // User Defined Type Definitions
 
         rc = rc &&
@@ -1537,7 +1537,7 @@ bool_t xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str)
     }
 
     for (int i = 0; i < str->listCount; i++) {
-        rc = rc && xdr_userdefinedtype(xdrs, str, &str->userdefinedtype[i]);
+        rc = rc && udaXDRUserdefinedtype(xdrs, str, &str->userdefinedtype[i]);
     }
 
     return rc;
@@ -1574,7 +1574,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                     SARRAY* psarray = &sarray;
                     int shape = data_block->data_n;                        // rank 1 array of dimension lengths
                     auto udt = (USERDEFINEDTYPE*)data_block->opaque_block; // The data's structure definition
-                    USERDEFINEDTYPE* u = findUserDefinedType(userdefinedtypelist, "SARRAY",
+                    USERDEFINEDTYPE* u = udaFindUserDefinedType(userdefinedtypelist, "SARRAY",
                                                              0); // Locate the carrier structure definition
 
                     if (udt == nullptr || u == nullptr) {
@@ -1613,7 +1613,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                     UDA_LOG(UDA_LOG_DEBUG, "Structure Definitions sent: rc = %d\n", rc);
 
-                    rc = rc && udaXdrUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
+                    rc = rc && udaXDRUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
                                                          protocolVersion, log_struct_list,
                                                          malloc_source); // send the Data
 
@@ -1679,12 +1679,12 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                         udaInitUserDefinedType(udt_received);
 
-                        rc = rc && udaXdrUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                        rc = rc && udaXDRUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                              &data, protocolVersion, log_struct_list,
                                                              malloc_source); // receive the Data
-                        // rc = rc && udaXdrUserDefinedTypeData(xdrs, udt_received, &data);        // receive the Data
+                        // rc = rc && udaXDRUserDefinedTypeData(xdrs, udt_received, &data);        // receive the Data
 
-                        UDA_LOG(UDA_LOG_DEBUG, "udaXdrUserDefinedTypeData received\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "udaXDRUserDefinedTypeData received\n");
 
                         if (!rc) {
                             err = 999;

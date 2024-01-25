@@ -1332,7 +1332,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                            &userdefinedtype->compoundfield[j - 1].name[6])) {
 
                                 count = (int)*prev; // the value of __size...
-                                size = getsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
+                                size = udaGetsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
                                 type = userdefinedtype->compoundfield[j].type;
                             } else {
                                 if (count > 0) {
@@ -1343,7 +1343,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                         ssize = sizeof(char); // Assume xml void pointer type is to char
                                         type = chartype;
                                     } else {
-                                        ssize = getsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
+                                        ssize = udaGetsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
                                         type = userdefinedtype->compoundfield[j].type;
                                     }
 
@@ -1420,7 +1420,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                 // Pointer to structure definition (void type ignored)
 
-                if ((utype = findUserDefinedType(userdefinedtypelist, type, 0)) == nullptr &&
+                if ((utype = udaFindUserDefinedType(userdefinedtypelist, type, 0)) == nullptr &&
                     strcmp(userdefinedtype->compoundfield[j].type, "void") != 0) {
 
                     UDA_LOG(UDA_LOG_DEBUG, "**** Error #1: User Defined Type %s not known!\n",
@@ -1505,7 +1505,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                     if (udaGettypeof(type) != UDA_TYPE_UNKNOWN) {
                         char* z = (char*)*p;
-                        rc = rc && udaXdrAtomicData(logmalloclist, xdrs, type, count, size, &z); // Must be an Atomic Type
+                        rc = rc && udaXDRAtomicData(logmalloclist, xdrs, type, count, size, &z); // Must be an Atomic Type
                         *p = (VOIDTYPE)z;
                         break;
                     } else {

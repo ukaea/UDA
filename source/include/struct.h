@@ -529,12 +529,12 @@ LIBRARY_API void udaPrintError(int warning, int line, char* file, char* msg);
 // The count of data structures to be received is passed ...
 //
 
-LIBRARY_API int udaXdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int count, int size,
+LIBRARY_API int udaXDRAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int count, int size,
                               char** data);
 
 // Send/Receive Array of Structures
 
-LIBRARY_API int udaXdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist,
+LIBRARY_API int udaXDRUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist,
                                        USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* userdefinedtype,
                                        void** data, int protocolVersion, bool xdr_stdio_flag,
                                        LOGSTRUCTLIST* log_struct_list, int malloc_source);
@@ -549,11 +549,11 @@ LIBRARY_API int udaTestUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist,
 //==============================================================================================================
 // Functions to Send or Receive Definitions of User Defined Structure
 
-LIBRARY_API bool_t udaXdr_compoundfield(XDR* xdrs, COMPOUNDFIELD* str);
+LIBRARY_API bool_t udaXDRCompoundfield(XDR* xdrs, COMPOUNDFIELD* str);
 
-LIBRARY_API bool_t udaXdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* str);
+LIBRARY_API bool_t udaXDRUserdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* str);
 
-LIBRARY_API bool_t udaXdr_userdefinedtypelist(XDR* xdrs, USERDEFINEDTYPELIST* str, bool xdr_stdio_flag);
+LIBRARY_API bool_t udaXDRUserdefinedtypelist(XDR* xdrs, USERDEFINEDTYPELIST* str, bool xdr_stdio_flag);
 
 //----------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------
