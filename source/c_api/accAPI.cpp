@@ -165,7 +165,7 @@ void udaLockThread()
 /**
  * Unlock the thread and save the current STATE
  */
-void unlockUdaThread()
+void udaUnlockThread()
 {
 	CLIENT_FLAGS* client_flags = udaClientFlags();
 #  ifdef __GNUC__
@@ -216,7 +216,7 @@ void udaFreeThread()
         initServerBlock(&(idamState[threadCount].server_block), 0);
         threadList[threadCount] = 0;
     }
-    unlockUdaThread();
+    udaUnlockThread();
 }
 
 #else

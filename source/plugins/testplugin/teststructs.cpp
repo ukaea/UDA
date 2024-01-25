@@ -32,8 +32,8 @@ void init_structure_definitions(UDA_PLUGIN_INTERFACE* idam_plugin_interface)
     field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
     field.shape[0] = field.count;
     field.size = field.count * sizeof(char);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     offset = field.offset + field.size; // Next Offset
     udaAddCompoundField(&usertype, field); // Single Structure element
@@ -50,8 +50,8 @@ void init_structure_definitions(UDA_PLUGIN_INTERFACE* idam_plugin_interface)
     field.shape[0] = 56;
     field.shape[1] = 3;
     field.size = field.count * sizeof(char);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     offset = field.offset + field.size; // Next Offset
     udaAddCompoundField(&usertype, field); // Single Structure element
@@ -66,8 +66,8 @@ void init_structure_definitions(UDA_PLUGIN_INTERFACE* idam_plugin_interface)
     field.rank = 0;
     field.shape = nullptr;
     field.size = field.count * sizeof(char*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     offset = field.offset + field.size; // Next Offset
     udaAddCompoundField(&usertype, field); // Single Structure element
@@ -83,8 +83,8 @@ void init_structure_definitions(UDA_PLUGIN_INTERFACE* idam_plugin_interface)
     field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
     field.shape[0] = 3;
     field.size = field.count * sizeof(char*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     offset = field.offset + field.size; // Next Offset
     udaAddCompoundField(&usertype, field); // Single Structure element
@@ -99,8 +99,8 @@ void init_structure_definitions(UDA_PLUGIN_INTERFACE* idam_plugin_interface)
     field.rank = 0;
     field.shape = nullptr;
     field.size = field.count * sizeof(char**);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -109,7 +109,7 @@ void init_structure_definitions(UDA_PLUGIN_INTERFACE* idam_plugin_interface)
 
     UDA_LOG(UDA_LOG_DEBUG, "Type TEST9 defined\n");
 
-    old = findUserDefinedType(userdefinedtypelist, "TEST9", 0); // Clone existing structure & modify
+    old = udaFindUserDefinedType(userdefinedtypelist, "TEST9", 0); // Clone existing structure & modify
     udaCopyUserDefinedType(old, &usertype);
 
     UDA_LOG(UDA_LOG_DEBUG, "Type TEST9 located\n");
@@ -130,8 +130,8 @@ void init_structure_definitions(UDA_PLUGIN_INTERFACE* idam_plugin_interface)
     field.rank = 0;
     field.shape = nullptr;
     field.size = field.count * sizeof(TEST9);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 

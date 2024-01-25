@@ -380,8 +380,8 @@ int TestPlugin::test4(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape[0] = field.count;
 
     field.size = field.count * sizeof(char);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -407,7 +407,7 @@ int TestPlugin::test4(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST4", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST4", 0);
 
     return 0;
 }
@@ -452,8 +452,8 @@ int TestPlugin::test5(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape[1] = 3;
 
     field.size = field.count * sizeof(char);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -481,7 +481,7 @@ int TestPlugin::test5(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST5", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST5", 0);
 
     return 0;
 }
@@ -524,8 +524,8 @@ int TestPlugin::test6(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr;
 
     field.size = field.count * sizeof(char*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -553,7 +553,7 @@ int TestPlugin::test6(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST6", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST6", 0);
 
     return 0;
 }
@@ -597,8 +597,8 @@ int TestPlugin::test7(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape[0] = 3;
 
     field.size = field.count * sizeof(char*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -635,7 +635,7 @@ int TestPlugin::test7(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST7", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST7", 0);
 
     return 0;
 }
@@ -678,8 +678,8 @@ int TestPlugin::test8(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr;
 
     field.size = field.count * sizeof(char**);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -719,7 +719,7 @@ int TestPlugin::test8(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST8", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST8", 0);
 
     return 0;
 }
@@ -783,7 +783,7 @@ int TestPlugin::test9(UDA_PLUGIN_INTERFACE* plugin_interface)
     data_block->opaque_count = 1;
 
     USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST9", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST9", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
@@ -891,7 +891,7 @@ int TestPlugin::test9A(UDA_PLUGIN_INTERFACE* plugin_interface)
     data_block->opaque_count = 1;
 
     USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST9A", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST9A", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (unsigned int i = 0; i < data_block->rank; i++) {
@@ -969,8 +969,8 @@ int TestPlugin::test11(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr; // Needed when rank >= 1
 
     field.size = field.count * sizeof(int);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -996,7 +996,7 @@ int TestPlugin::test11(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST11", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST11", 0);
 
     return 0;
 }
@@ -1039,8 +1039,8 @@ int TestPlugin::test12(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape[0] = field.count;
 
     field.size = field.count * sizeof(int);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -1068,7 +1068,7 @@ int TestPlugin::test12(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST12", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST12", 0);
 
     return 0;
 }
@@ -1112,8 +1112,8 @@ int TestPlugin::test13(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape[1] = 3; // Reversed ... Fortran/IDL like
 
     field.size = field.count * sizeof(int);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -1144,7 +1144,7 @@ int TestPlugin::test13(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST13", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST13", 0);
 
     return 0;
 }
@@ -1187,8 +1187,8 @@ int TestPlugin::test14(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr; // Needed when rank >= 1
 
     field.size = field.count * sizeof(int*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -1218,7 +1218,7 @@ int TestPlugin::test14(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST14", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST14", 0);
 
     return 0;
 }
@@ -1260,8 +1260,8 @@ int TestPlugin::test15(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr;
 
     field.size = field.count * sizeof(int*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -1294,7 +1294,7 @@ int TestPlugin::test15(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST15", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST15", 0);
 
     return 0;
 }
@@ -1336,8 +1336,8 @@ int TestPlugin::test16(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr;
 
     field.size = field.count * sizeof(int*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -1377,7 +1377,7 @@ int TestPlugin::test16(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST16", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST16", 0);
 
     return 0;
 }
@@ -1420,8 +1420,8 @@ int TestPlugin::test18(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr; // Needed when rank >= 1
 
     field.size = field.count * sizeof(int);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -1452,7 +1452,7 @@ int TestPlugin::test18(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST18", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST18", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (unsigned int i = 0; i < data_block->rank; i++) {
@@ -1505,8 +1505,8 @@ int TestPlugin::test19(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr; // Needed when rank >= 1
 
     field.size = field.count * sizeof(int);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -1546,8 +1546,8 @@ int TestPlugin::test19(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr; // Needed when rank >= 1
 
     field.size = field.count * sizeof(int);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     offset = field.offset + field.size; // Next Offset
     udaAddCompoundField(&usertype, field); // Single Structure element
@@ -1567,8 +1567,8 @@ int TestPlugin::test19(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape[0] = 7;
 
     field.size = field.count * sizeof(TEST19A);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -1601,7 +1601,7 @@ int TestPlugin::test19(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST19", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST19", 0);
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (unsigned int i = 0; i < data_block->rank; i++) {
@@ -1679,8 +1679,8 @@ int TestPlugin::test21(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr; // Needed when rank >= 1
 
     field.size = field.count * sizeof(short);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -1706,7 +1706,7 @@ int TestPlugin::test21(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST21", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST21", 0);
 
     return 0;
 }
@@ -1749,8 +1749,8 @@ int TestPlugin::test22(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape[0] = field.count;
 
     field.size = field.count * sizeof(short);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -1778,7 +1778,7 @@ int TestPlugin::test22(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST22", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST22", 0);
 
     return 0;
 }
@@ -1822,8 +1822,8 @@ int TestPlugin::test23(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape[1] = 2;
 
     field.size = field.count * sizeof(short);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -1854,7 +1854,7 @@ int TestPlugin::test23(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST23", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST23", 0);
 
     return 0;
 }
@@ -1897,8 +1897,8 @@ int TestPlugin::test24(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr; // Needed when rank >= 1
 
     field.size = field.count * sizeof(short*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -1928,7 +1928,7 @@ int TestPlugin::test24(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST24", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST24", 0);
 
     return 0;
 }
@@ -1970,8 +1970,8 @@ int TestPlugin::test25(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr;
 
     field.size = field.count * sizeof(short*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -2004,7 +2004,7 @@ int TestPlugin::test25(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST25", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST25", 0);
 
     return 0;
 }
@@ -2046,8 +2046,8 @@ int TestPlugin::test26(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr;
 
     field.size = field.count * sizeof(short*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -2088,7 +2088,7 @@ int TestPlugin::test26(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST26", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST26", 0);
 
     return 0;
 }
@@ -2133,8 +2133,8 @@ int TestPlugin::test27(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape[2] = 2;
 
     field.size = field.count * sizeof(short);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -2186,7 +2186,7 @@ int TestPlugin::test27(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST27", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST27", 0);
 
     return 0;
 }
@@ -2228,8 +2228,8 @@ int TestPlugin::test28(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr;
 
     field.size = field.count * sizeof(short*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field); // Single Structure element
 
@@ -2289,7 +2289,7 @@ int TestPlugin::test28(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST28", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST28", 0);
 
     return 0;
 }
@@ -2353,7 +2353,7 @@ int TestPlugin::test30(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST30", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST30", 0);
 
     return 0;
 }
@@ -2432,7 +2432,7 @@ int TestPlugin::test31(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST30", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST30", 0);
 
     return 0;
 }
@@ -2514,7 +2514,7 @@ int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     field.size = field.count * sizeof(TEST32A);
     field.offset = offsetof(TEST32, coords);
-    field.offpad = padding(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
 
     udaAddCompoundField(&usertype, field); // Single Structure element
@@ -2547,7 +2547,7 @@ int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST32", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST32", 0);
 
     return 0;
 }
@@ -2627,7 +2627,7 @@ int TestPlugin::test33(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     field.size = field.count * sizeof(TEST33A*);
     field.offset = offsetof(TEST33, coords);
-    field.offpad = padding(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
 
     udaAddCompoundField(&usertype, field); // Single Structure element
@@ -2669,7 +2669,7 @@ int TestPlugin::test33(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST33", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST33", 0);
 
     return 0;
 }
@@ -2755,7 +2755,7 @@ int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     field.size = field.count * sizeof(TEST33A*);
     field.offset = (int)offsetof(TEST33, coords);
-    field.offpad = (int)padding((size_t)offset, field.type);
+    field.offpad = (int)udaPadding((size_t)offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
 
     udaAddCompoundField(&usertype, field); // Single Structure element
@@ -2810,7 +2810,7 @@ int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST33", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST33", 0);
 
     return 0;
 }
@@ -2908,8 +2908,8 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.shape = nullptr; // Needed when rank >= 1
 
     field.size = field.count * sizeof(TEST40);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
+    field.offset = udaNewoffset(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     offset = field.offset + field.size; // Next Offset
     udaAddCompoundField(&usertype, field); // Single Structure element
@@ -2964,7 +2964,7 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST41", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "TEST41", 0);
 
     return 0;
 }
@@ -3110,7 +3110,7 @@ int TestPlugin::test60(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.size = field.count * sizeof(char);
     field.offset = offsetof(ENUMMEMBER60, name);
     offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field);
 
@@ -3145,7 +3145,7 @@ int TestPlugin::test60(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.size = field.count * sizeof(char);
     field.offset = offsetof(ENUMLIST60, name);
     offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field);
 
@@ -3169,7 +3169,7 @@ int TestPlugin::test60(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.size = sizeof(ENUMMEMBER60*);
     field.offset = offsetof(ENUMLIST60, enummember); // Different to newoffset
     offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field);
 
@@ -3226,7 +3226,7 @@ int TestPlugin::test60(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "ENUMLIST60", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "ENUMLIST60", 0);
 
     return 0;
 }
@@ -3304,7 +3304,7 @@ int TestPlugin::test61(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.size = field.count * sizeof(char);
     field.offset = offsetof(ENUMMEMBER60, name);
     offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field);
 
@@ -3338,7 +3338,7 @@ int TestPlugin::test61(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.size = field.count * sizeof(char);
     field.offset = offsetof(ENUMLIST60, name);
     offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field);
 
@@ -3362,7 +3362,7 @@ int TestPlugin::test61(UDA_PLUGIN_INTERFACE* plugin_interface)
     field.size = sizeof(ENUMMEMBER60*);
     field.offset = offsetof(ENUMLIST60, enummember); // Different to newoffset
     offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
+    field.offpad = udaPadding(offset, field.type);
     field.alignment = udaGetalignmentof(field.type);
     udaAddCompoundField(&usertype, field);
 
@@ -3394,7 +3394,7 @@ int TestPlugin::test61(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "ENUMLIST60", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "ENUMLIST60", 0);
 
     return 0;
 }
@@ -3454,7 +3454,7 @@ int TestPlugin::test62(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(plugin_interface->userdefinedtypelist, "ENUMLIST", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(plugin_interface->userdefinedtypelist, "ENUMLIST", 0);
 
     /*
     int id = udaFindUserDefinedTypeId(userdefinedtypelist, "ENUMLIST");

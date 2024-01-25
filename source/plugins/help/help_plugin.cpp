@@ -94,7 +94,7 @@ int HelpPlugin::ping(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "HELP_PING", 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(userdefinedtypelist, "HELP_PING", 0);
 
     return 0;
 }

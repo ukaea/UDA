@@ -170,7 +170,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     //----------------------------------------------------------------------
     // Private Flags, User Specified Flags and Properties for the Remote Server
 
-    reudaSetPrivateFlag(PRIVATEFLAG_FULLRESET);
+    udaResetPrivateFlag(PRIVATEFLAG_FULLRESET);
     // Ensure Hierarchical Data are passed as an opaque object/file
     udaSetPrivateFlag(PRIVATEFLAG_XDRFILE);
 
@@ -185,41 +185,40 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     // Set Properties
 
     CLIENT_BLOCK* client_block = plugin_interface->client_block;
-    auto client_flags = udaClientFlags();
 
     if (client_block->get_nodimdata) {
-        udaSetProperty("get_nodimdata", client_flags);
+       udaSetProperty("get_nodimdata");
     }
     if (client_block->get_timedble) {
-        udaSetProperty("get_timedble", client_flags);
+        udaSetProperty("get_timedble");
     }
     if (client_block->get_dimdble) {
-        udaSetProperty("get_dimdble", client_flags);
+        udaSetProperty("get_dimdble");
     }
     if (client_block->get_datadble) {
-        udaSetProperty("get_datadble", client_flags);
+        udaSetProperty("get_datadble");
     }
 
     if (client_block->get_bad) {
-        udaSetProperty("get_bad", client_flags);
+        udaSetProperty("get_bad");
     }
     if (client_block->get_meta) {
-        udaSetProperty("get_meta", client_flags);
+        udaSetProperty("get_meta");
     }
     if (client_block->get_asis) {
-        udaSetProperty("get_asis", client_flags);
+        udaSetProperty("get_asis");
     }
     if (client_block->get_uncal) {
-        udaSetProperty("get_uncal", client_flags);
+        udaSetProperty("get_uncal");
     }
     if (client_block->get_notoff) {
-        udaSetProperty("get_notoff", client_flags);
+        udaSetProperty("get_notoff");
     }
     if (client_block->get_scalar) {
-        udaSetProperty("get_scalar", client_flags);
+        udaSetProperty("get_scalar");
     }
     if (client_block->get_bytes) {
-        udaSetProperty("get_bytes", client_flags);
+        udaSetProperty("get_bytes");
     }
 
     // Timeout ...
@@ -228,8 +227,8 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Client Flags ...
 
-    reudaSetClientFlag(client_flags, CLIENTFLAG_FULLRESET);
-    udaSetClientFlag(client_flags, client_block->clientFlags);
+    udaResetClientFlag(CLIENTFLAG_FULLRESET);
+    udaSetClientFlag(client_block->clientFlags);
 
     // Client application provenance
 
@@ -472,8 +471,8 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         handle = udaGetAPI(request->signal, source);
     }
 
-    reudaSetPrivateFlag(PRIVATEFLAG_FULLRESET);
-    reudaSetClientFlag(client_flags, CLIENTFLAG_FULLRESET);
+    udaResetPrivateFlag(PRIVATEFLAG_FULLRESET);
+    udaResetClientFlag(CLIENTFLAG_FULLRESET);
 
     //----------------------------------------------------------------------
     // Test for Errors: Close Socket and Free heap

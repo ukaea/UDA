@@ -322,7 +322,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
 
     int err, rc, reset;
     DataBlock data_block = {};
-    IdamPluginInterface plugin_interface = {};
+    UdaPluginInterface plugin_interface = {};
 
     // Initialise the Data Block
 
@@ -473,7 +473,7 @@ int uda::call_metadata_plugin(const PluginData& plugin, RequestData* request_blo
                               uda::MetadataBlock& metadata)
 {
     int err, reset, rc;
-    IdamPluginInterface idam_plugin_interface = {};
+    UdaPluginInterface idam_plugin_interface = {};
 
     // Check the Interface Compliance
 

@@ -16,7 +16,7 @@
 //
 // Send the Data
 //
-// rc = udaXdrUserDefinedTypeData(xdrs, udtype, (void *)&mystruct);
+// rc = udaXDRUserDefinedTypeData(xdrs, udtype, (void *)&mystruct);
 //
 // Arrays of User Defined Structures are ported using a special structure names SARRAY ....
 //
@@ -32,7 +32,7 @@
 //
 // Receive the Data and its structure definition
 //
-// rc = udaXdrUserDefinedTypeData(xdrs, &udtype, (void *)&mystruct);
+// rc = udaXDRUserDefinedTypeData(xdrs, &udtype, (void *)&mystruct);
 //
 //
 //==============================================================================================================
@@ -1979,7 +1979,7 @@ void udaPrintError(int warning, int line, char* file, char* msg)
 // The count of data structures to be received is passed ...
 //
 
-int udaXdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int count, int size, char** data)
+int udaXDRAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int count, int size, char** data)
 {
     int type_id = udaGettypeof(type);
     char* d;
@@ -2084,7 +2084,7 @@ int udaXdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, 
 
 // Send/Receive Array of Structures
 
-int udaXdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+int udaXDRUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                            USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion, bool xdr_stdio_flag,
                            LOGSTRUCTLIST* log_struct_list, int malloc_source)
 {
@@ -2111,7 +2111,7 @@ int udaXdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFIN
     } else {
 
         if (userdefinedtype == nullptr) {
-            udaAddError(UDA_CODE_ERROR_TYPE, "udaXdrUserDefinedTypeData", 999,
+            udaAddError(UDA_CODE_ERROR_TYPE, "udaXDRUserDefinedTypeData", 999,
                          "No User Defined Type passed - cannot send!");
             return 0;
         }
@@ -2165,7 +2165,7 @@ USERDEFINEDTYPE* udaFindUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist
 {
     // Return the Structure Definition of a Named User Defined Structure
 
-    UDA_LOG(UDA_LOG_DEBUG, "findUserDefinedType: [%s]\n", name);
+    UDA_LOG(UDA_LOG_DEBUG, "udaFindUserDefinedType: [%s]\n", name);
     UDA_LOG(UDA_LOG_DEBUG, "ref_id: %d\n", ref_id);
     UDA_LOG(UDA_LOG_DEBUG, "listCount: %d\n", userdefinedtypelist->listCount);
 
@@ -2382,7 +2382,7 @@ bool_t udaXDRUserdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist
     return rc;
 }
 
-bool_t xdr_userdefinedtypelist(XDR* xdrs, USERDEFINEDTYPELIST* str, bool xdr_stdio_flag)
+bool_t udaXDRUserdefinedtypelist(XDR* xdrs, USERDEFINEDTYPELIST* str, bool xdr_stdio_flag)
 {
     // Send/Receive the list of userdefined types
 
@@ -2794,7 +2794,7 @@ void udaPrintNodeStructureImage(const char* target)
  * @return the User Defined Type Structure Definition.
  */
 
-USERDEFINEDTYPE* getNodeUserDefinedType(NTREE* ntree)
+USERDEFINEDTYPE* udaGetNodeUserDefinedType(NTREE* ntree)
 {
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
