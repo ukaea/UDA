@@ -2,14 +2,15 @@
 
 #include <cstdlib>
 
-#include "accAPI.h"
+// #include "accAPI.h"
 #include "initStructs.h"
-#include "udaGetAPI.h"
-#include "udaPlugin.h"
-#include <client/udaClient.h>
+// #include "udaGetAPI.h"
+// #include "udaPlugin.h"
+// #include <client/udaClient.h>
 #include <clientserver/stringUtils.h>
-#include <include/logging.h>
+// #include <include/logging.h>
 #include <plugins/uda_plugin_base.hpp>
+#include <uda.h>
 
 #include <boost/filesystem.hpp>
 #include <fmt/format.h>

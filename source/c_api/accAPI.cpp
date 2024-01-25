@@ -364,7 +364,7 @@ void udaSetPrivateFlag(unsigned int flag)
  * @return Void.
  */
 
-void reudaSetPrivateFlag(unsigned int flag)
+void udaResetPrivateFlag(unsigned int flag)
 {
     unsigned int* private_flags = udaPrivateFlags();
     *private_flags &= !flag;
@@ -380,8 +380,9 @@ void reudaSetPrivateFlag(unsigned int flag)
  * @return Void.
  */
 
-void udaSetClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
+void udaSetClientFlag(unsigned int flag)
 {
+    auto client_flags = udaClientFlags();
     client_flags->flags = client_flags->flags | flag;
 }
 
@@ -392,8 +393,9 @@ void udaSetClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
  * @return Void.
  */
 
-void reudaSetClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag)
+void udaResetClientFlag(unsigned int flag)
 {
+    auto client_flags = udaClientFlags();
     client_flags->flags &= !flag;
 }
 
