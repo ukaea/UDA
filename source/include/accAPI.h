@@ -279,7 +279,7 @@ LIBRARY_API USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle);
 
 LIBRARY_API LOGMALLOCLIST* udaGetLogMallocList(int handle);
 
-LIBRARY_API NTREE* udaFindNTreeStructureDefinition(NTREE* node, const char* target);
+// LIBRARY_API NTREE* udaFindNTreeStructureDefinition(NTREE* node, const char* target);
 
 #ifdef __cplusplus
 }
