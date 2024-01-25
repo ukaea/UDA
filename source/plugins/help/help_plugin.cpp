@@ -50,8 +50,8 @@ int HelpPlugin::ping(IDAM_PLUGIN_INTERFACE* plugin_interface)
     USERDEFINEDTYPE usertype;
     COMPOUNDFIELD field;
 
-    initUserDefinedType(&usertype); // New structure definition
-    initCompoundField(&field);
+    udaInitUserDefinedType(&usertype); // New structure definition
+    udaInitCompoundField(&field);
 
     strcpy(usertype.name, "HELP_PING");
     strcpy(usertype.source, "idamServerHelp");
@@ -63,17 +63,17 @@ int HelpPlugin::ping(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     int offset = 0;
     defineField(&field, "seconds", "Server time in seconds from the epoch start", &offset, SCALARUINT);
-    addCompoundField(&usertype, field);
+    udaAddCompoundField(&usertype, field);
     defineField(&field, "microseconds", "Server inter-second time in microseconds", &offset, SCALARUINT);
-    addCompoundField(&usertype, field);
+    udaAddCompoundField(&usertype, field);
 
     USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    udaAddUserDefinedType(userdefinedtypelist, usertype);
 
     // assign the returned data structure
 
     auto data = (HELP_PING*)malloc(sizeof(HELP_PING));
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(HELP_PING), "HELP_PING"); // Register
+    udaAddMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(HELP_PING), "HELP_PING"); // Register
 
     data->seconds = (unsigned int)serverTime.tv_sec;
     data->microseconds = (unsigned int)serverTime.tv_usec;

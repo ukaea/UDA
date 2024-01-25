@@ -422,10 +422,10 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     }
 
     USERDEFINEDTYPELIST userdefinedtypelist;
-    initUserDefinedTypeList(&userdefinedtypelist);
+    udaInitUserDefinedTypeList(&userdefinedtypelist);
 
     LOGMALLOCLIST logmalloclist;
-    initLogMallocList(&logmalloclist);
+    udaInitLogMallocList(&logmalloclist);
 
     idam_plugin_interface.interfaceVersion = 1;
     idam_plugin_interface.pluginVersion = 0;
@@ -574,10 +574,10 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
     data_block.signal_rec = signal_rec;
 
     USERDEFINEDTYPELIST userdefinedtypelist;
-    initUserDefinedTypeList(&userdefinedtypelist);
+    udaInitUserDefinedTypeList(&userdefinedtypelist);
 
     LOGMALLOCLIST logmalloclist;
-    initLogMallocList(&logmalloclist);
+    udaInitLogMallocList(&logmalloclist);
 
     idam_plugin_interface.interfaceVersion = 1;
     idam_plugin_interface.pluginVersion = 0;

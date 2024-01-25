@@ -11,16 +11,16 @@ uda::TreeNode uda::TreeNode::parent()
 
 size_t uda::TreeNode::numChildren() const
 {
-    return getNodeChildrenCount(node_);
+    return udaGetNodeChildrenCount(node_);
 }
 
 const std::vector<uda::TreeNode> uda::TreeNode::children() const
 {
-    int numChildren = getNodeChildrenCount(node_);
+    int numChildren = udaGetNodeChildrenCount(node_);
 
     std::vector<TreeNode> vec;
     for (int i = 0; i < numChildren; ++i) {
-        auto child = getNodeChild(node_, i);
+        auto child = udaGetNodeChild(node_, i);
         vec.push_back(TreeNode{handle_, child});
     }
 
@@ -29,11 +29,11 @@ const std::vector<uda::TreeNode> uda::TreeNode::children() const
 
 std::vector<uda::TreeNode> uda::TreeNode::children()
 {
-    int numChildren = getNodeChildrenCount(node_);
+    int numChildren = udaGetNodeChildrenCount(node_);
 
     std::vector<TreeNode> vec;
     for (int i = 0; i < numChildren; ++i) {
-        vec.push_back(TreeNode(handle_, getNodeChild(node_, i)));
+        vec.push_back(TreeNode(handle_, udaGetNodeChild(node_, i)));
     }
 
     return vec;
@@ -41,24 +41,24 @@ std::vector<uda::TreeNode> uda::TreeNode::children()
 
 uda::TreeNode uda::TreeNode::child(int num)
 {
-    return TreeNode(handle_, getNodeChild(node_, num));
+    return TreeNode(handle_, udaGetNodeChild(node_, num));
 }
 
-void uda::TreeNode::printNode()
+void uda::TreeNode::udaPrintNode()
 {
-    ::printNode(node_);
+    ::udaPrintNode(node_);
 }
 
 std::string uda::TreeNode::name() const
 {
-    char* name = getNodeStructureName(node_);
+    char* name = udaGetNodeStructureName(node_);
     return name == nullptr ? "" : name;
 }
 
 void uda::TreeNode::printStructureNames()
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
-    printNTreeStructureNames(logmalloclist, node_);
+    udaPrintNTreeStructureNames(logmalloclist, node_);
 }
 
 uda::TreeNode uda::TreeNode::findStructureDefinition(const std::string& name)
@@ -72,30 +72,30 @@ uda::TreeNode uda::TreeNode::findStructureComponent(const std::string& name)
     return {handle_, findNTreeStructureComponent(logmalloclist, node_, (char*)name.c_str())};
 }
 
-void uda::TreeNode::printUserDefinedTypeTable(const std::string& name)
+void uda::TreeNode::udaPrintUserDefinedTypeTable(const std::string& name)
 {
     USERDEFINEDTYPELIST* userdefinedtypelist = udaGetUserDefinedTypeList(handle_);
     USERDEFINEDTYPE* type = findUserDefinedType(userdefinedtypelist, (char*)name.c_str(), 0);
-    ::printUserDefinedTypeTable(userdefinedtypelist, *type);
+    ::udaPrintUserDefinedTypeTable(userdefinedtypelist, *type);
 }
 
-void uda::TreeNode::printUserDefinedTypeTable()
+void uda::TreeNode::udaPrintUserDefinedTypeTable()
 {
     USERDEFINEDTYPELIST* userdefinedtypelist = udaGetUserDefinedTypeList(handle_);
     USERDEFINEDTYPE* type = getNodeUserDefinedType(node_);
-    ::printUserDefinedTypeTable(userdefinedtypelist, *type);
+    ::udaPrintUserDefinedTypeTable(userdefinedtypelist, *type);
 }
 
 int uda::TreeNode::structureCount()
 {
-    return getNodeStructureCount(node_);
+    return udaGetNodeStructureCount(node_);
 }
 
 std::vector<std::string> uda::TreeNode::structureNames()
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
-    char** names = getNodeStructureNames(logmalloclist, node_);
-    int size = getNodeStructureCount(node_);
+    char** names = udaGetNodeStructureNames(logmalloclist, node_);
+    int size = udaGetNodeStructureCount(node_);
     std::vector<std::string> vec(names, names + size);
     return vec;
 }
@@ -103,22 +103,22 @@ std::vector<std::string> uda::TreeNode::structureNames()
 std::vector<std::string> uda::TreeNode::structureTypes()
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
-    char** names = getNodeStructureTypes(logmalloclist, node_);
-    int size = getNodeStructureCount(node_);
+    char** names = udaGetNodeStructureTypes(logmalloclist, node_);
+    int size = udaGetNodeStructureCount(node_);
     std::vector<std::string> vec(names, names + size);
     return vec;
 }
 
 int uda::TreeNode::atomicCount() const
 {
-    return getNodeAtomicCount(node_);
+    return udaGetNodeAtomicCount(node_);
 }
 
 std::vector<std::string> uda::TreeNode::atomicNames() const
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
-    char** names = getNodeAtomicNames(logmalloclist, node_);
-    int size = getNodeAtomicCount(node_);
+    char** names = udaGetNodeAtomicNames(logmalloclist, node_);
+    int size = udaGetNodeAtomicCount(node_);
     std::vector<std::string> vec(names, names + size);
     return vec;
 }
@@ -126,8 +126,8 @@ std::vector<std::string> uda::TreeNode::atomicNames() const
 std::vector<std::string> uda::TreeNode::atomicTypes() const
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
-    char** types = getNodeAtomicTypes(logmalloclist, node_);
-    int size = getNodeAtomicCount(node_);
+    char** types = udaGetNodeAtomicTypes(logmalloclist, node_);
+    int size = udaGetNodeAtomicCount(node_);
     std::vector<std::string> vec(types, types + size);
     return vec;
 }
@@ -135,8 +135,8 @@ std::vector<std::string> uda::TreeNode::atomicTypes() const
 std::vector<bool> uda::TreeNode::atomicPointers() const
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
-    int* isptr = getNodeAtomicPointers(logmalloclist, node_);
-    int size = getNodeAtomicCount(node_);
+    int* isptr = udaGetNodeAtomicPointers(logmalloclist, node_);
+    int size = udaGetNodeAtomicCount(node_);
     std::vector<bool> vec(size);
     for (int i = 0; i < size; ++i) {
         vec[i] = static_cast<bool>(isptr[i]);
@@ -147,8 +147,8 @@ std::vector<bool> uda::TreeNode::atomicPointers() const
 std::vector<std::size_t> uda::TreeNode::atomicRank() const
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
-    int* ranks = getNodeAtomicRank(logmalloclist, node_);
-    int size = getNodeAtomicCount(node_);
+    int* ranks = udaGetNodeAtomicRank(logmalloclist, node_);
+    int size = udaGetNodeAtomicCount(node_);
     std::vector<std::size_t> vec(ranks, ranks + size);
     return vec;
 }
@@ -156,9 +156,9 @@ std::vector<std::size_t> uda::TreeNode::atomicRank() const
 std::vector<std::vector<std::size_t>> uda::TreeNode::atomicShape() const
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
-    int** shapes = getNodeAtomicShape(logmalloclist, node_);
-    int* ranks = getNodeAtomicRank(logmalloclist, node_);
-    int size = getNodeAtomicCount(node_);
+    int** shapes = udaGetNodeAtomicShape(logmalloclist, node_);
+    int* ranks = udaGetNodeAtomicRank(logmalloclist, node_);
+    int size = udaGetNodeAtomicCount(node_);
     std::vector<std::vector<std::size_t>> vec;
     for (int i = 0; i < size; ++i) {
         if (shapes[i] == nullptr) {
@@ -179,24 +179,24 @@ std::vector<std::vector<std::size_t>> uda::TreeNode::atomicShape() const
 void* uda::TreeNode::structureComponentData(const std::string& name) const
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
-    return getNodeStructureComponentData(logmalloclist, node_, (char*)name.c_str());
+    return udaGetNodeStructureComponentData(logmalloclist, node_, (char*)name.c_str());
 }
 
 template <typename T> static uda::Scalar getScalar(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* name)
 {
-    T* val = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)name));
+    T* val = reinterpret_cast<T*>(udaGetNodeStructureComponentData(logmalloclist, node, (char*)name));
     return uda::Scalar(*val);
 }
 
 template <> uda::Scalar getScalar<char*>(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* name)
 {
-    char* val = reinterpret_cast<char*>(getNodeStructureComponentData(logmalloclist, node, (char*)name));
+    char* val = reinterpret_cast<char*>(udaGetNodeStructureComponentData(logmalloclist, node, (char*)name));
     return uda::Scalar(val);
 }
 
 template <> uda::Scalar getScalar<char**>(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* name)
 {
-    char** val = reinterpret_cast<char**>(getNodeStructureComponentData(logmalloclist, node, (char*)name));
+    char** val = reinterpret_cast<char**>(udaGetNodeStructureComponentData(logmalloclist, node, (char*)name));
     return uda::Scalar(val[0]);
 }
 
@@ -210,15 +210,15 @@ uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
         return Scalar::Null;
     }
 
-    int acount = getNodeAtomicCount(node); // Number of atomic typed structure members
+    int acount = udaGetNodeAtomicCount(node); // Number of atomic typed structure members
     if (acount == 0) {
         return Scalar::Null; // No atomic data
     }
 
-    char** anames = getNodeAtomicNames(logmalloclist, node);
-    char** atypes = getNodeAtomicTypes(logmalloclist, node);
-    int* arank = getNodeAtomicRank(logmalloclist, node);
-    int** ashape = getNodeAtomicShape(logmalloclist, node);
+    char** anames = udaGetNodeAtomicNames(logmalloclist, node);
+    char** atypes = udaGetNodeAtomicTypes(logmalloclist, node);
+    int* arank = udaGetNodeAtomicRank(logmalloclist, node);
+    int** ashape = udaGetNodeAtomicShape(logmalloclist, node);
 
     if (anames == nullptr || atypes == nullptr || arank == nullptr || ashape == nullptr) {
         return Scalar::Null;
@@ -263,13 +263,13 @@ uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
 // template <typename T>
 // static uda::Vector getVectorOverSiblings(NTREE* node, const std::string& target)
 //{
-//     int count = getNodeChildrenCount(node->parent);
+//     int count = udaGetNodeChildrenCount(node->parent);
 //     T* data = static_cast<T*>(malloc(count * sizeof(T)));
 //     if (data == nullptr) {
 //         return uda::Vector::Null;
 //     }
 //     for (int j = 0; j < count; j++) {
-//         data[j] = *reinterpret_cast<T*>(getNodeStructureComponentData(node->parent->children[j],
+//         data[j] = *reinterpret_cast<T*>(udaGetNodeStructureComponentData(node->parent->children[j],
 //                                                                       (char*)target.c_str()));
 //     }
 //     return uda::Vector(data, (size_t)count);
@@ -279,14 +279,14 @@ uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
 // uda::Vector getVectorOverSiblings<char*>(NTREE* node, const std::string& target)
 //{
 //     // Scalar String in an array of data structures
-//     int count = getNodeChildrenCount(node->parent);
+//     int count = udaGetNodeChildrenCount(node->parent);
 //     char** data = static_cast<char**>(malloc(count * sizeof(char*))); // Managed by IDAM
 //     if (data == nullptr) {
 //         return uda::Vector::Null;
 //     }
-//     addMalloc(data, count, sizeof(char*), (char*)"char *");
+//     udaAddMalloc(data, count, sizeof(char*), (char*)"char *");
 //     for (int j = 0; j < count; j++) {
-//         data[j] = reinterpret_cast<char*>(getNodeStructureComponentData(node->parent->children[j],
+//         data[j] = reinterpret_cast<char*>(udaGetNodeStructureComponentData(node->parent->children[j],
 //                                                                         (char*)target.c_str()));
 //     }
 //     return uda::Vector(data, (size_t)count);
@@ -295,7 +295,7 @@ uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
 template <typename T>
 static uda::Vector getVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, int count)
 {
-    T* data = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
+    T* data = reinterpret_cast<T*>(udaGetNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
 
     return uda::Vector(data, (size_t)count);
 }
@@ -309,7 +309,7 @@ uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std
         return uda::Vector::Null;
     }
 
-    auto val = reinterpret_cast<char*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
+    auto val = reinterpret_cast<char*>(udaGetNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
 
     for (int j = 0; j < count; j++) {
         data[j] = &val[j * shape[0]];
@@ -325,7 +325,7 @@ uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std
         return uda::Vector::Null;
     }
 
-    auto val = reinterpret_cast<char*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
+    auto val = reinterpret_cast<char*>(udaGetNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
     data[0] = val;
 
     return uda::Vector(data, (size_t)1);
@@ -340,16 +340,16 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
         return Vector::Null;
     }
 
-    int acount = getNodeAtomicCount(node); // Number of atomic typed structure members
+    int acount = udaGetNodeAtomicCount(node); // Number of atomic typed structure members
     if (acount == 0) {
         return Vector::Null; // No atomic data
     }
 
-    char** anames = getNodeAtomicNames(logmalloclist, node);
-    char** atypes = getNodeAtomicTypes(logmalloclist, node);
-    int* apoint = getNodeAtomicPointers(logmalloclist, node);
-    int* arank = getNodeAtomicRank(logmalloclist, node);
-    int** ashape = getNodeAtomicShape(logmalloclist, node);
+    char** anames = udaGetNodeAtomicNames(logmalloclist, node);
+    char** atypes = udaGetNodeAtomicTypes(logmalloclist, node);
+    int* apoint = udaGetNodeAtomicPointers(logmalloclist, node);
+    int* arank = udaGetNodeAtomicRank(logmalloclist, node);
+    int** ashape = udaGetNodeAtomicShape(logmalloclist, node);
 
     if (anames == nullptr || atypes == nullptr || apoint == nullptr || arank == nullptr || ashape == nullptr) {
         return Vector::Null;
@@ -361,10 +361,10 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
                 ((arank[i] == 0 && apoint[i] == 1) || (arank[i] == 1 && apoint[i] == 0))) {
                 // String array in a single data structure
                 char** val =
-                    reinterpret_cast<char**>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
+                    reinterpret_cast<char**>(udaGetNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
                 return uda::Vector(val, (size_t)ashape[i][0]);
             } else if (arank[i] == 0 && apoint[i] == 1) {
-                int count = getNodeStructureComponentDataCount(logmalloclist, node, (char*)target.c_str());
+                int count = udaGetNodeStructureComponentDataCount(logmalloclist, node, (char*)target.c_str());
                 if (std::string("STRING *") == atypes[i]) {
                     return getVector<char*>(logmalloclist, node, target, count);
                 }
@@ -432,7 +432,7 @@ uda::Vector uda::TreeNode::atomicVector(const std::string& target)
 template <typename T>
 static uda::Array getArray(LOGMALLOCLIST* logmalloclist, NTREE* node, const std::string& target, int* shape, int rank)
 {
-    auto data = reinterpret_cast<T*>(getNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
+    auto data = reinterpret_cast<T*>(udaGetNodeStructureComponentData(logmalloclist, node, (char*)target.c_str()));
 
     std::vector<uda::Dim> dims;
     for (int i = 0; i < rank; ++i) {
@@ -455,16 +455,16 @@ uda::Array uda::TreeNode::atomicArray(const std::string& target)
         return Array::Null;
     }
 
-    int acount = getNodeAtomicCount(node); // Number of atomic typed structure members
+    int acount = udaGetNodeAtomicCount(node); // Number of atomic typed structure members
     if (acount == 0) {
         return Array::Null; // No atomic data
     }
 
-    char** anames = getNodeAtomicNames(logmalloclist, node);
-    char** atypes = getNodeAtomicTypes(logmalloclist, node);
-    int* apoint = getNodeAtomicPointers(logmalloclist, node);
-    int* arank = getNodeAtomicRank(logmalloclist, node);
-    int** ashape = getNodeAtomicShape(logmalloclist, node);
+    char** anames = udaGetNodeAtomicNames(logmalloclist, node);
+    char** atypes = udaGetNodeAtomicTypes(logmalloclist, node);
+    int* apoint = udaGetNodeAtomicPointers(logmalloclist, node);
+    int* arank = udaGetNodeAtomicRank(logmalloclist, node);
+    int** ashape = udaGetNodeAtomicShape(logmalloclist, node);
 
     if (anames == nullptr || atypes == nullptr || apoint == nullptr || arank == nullptr || ashape == nullptr) {
         return Array::Null;
@@ -510,14 +510,14 @@ uda::StructData uda::TreeNode::structData(const std::string& target)
         return StructData::Null;
     }
 
-    int count = getNodeChildrenCount(node->parent);
+    int count = udaGetNodeChildrenCount(node->parent);
 
     uda::StructData data;
 
     for (int j = 0; j < count; j++) {
-        void* ptr = getNodeData(node->parent->children[j]);
-        std::string name(getNodeStructureType(node->parent->children[j]));
-        auto size = static_cast<std::size_t>(getNodeStructureSize(node->parent->children[j]));
+        void* ptr = udaGetNodeData(node->parent->children[j]);
+        std::string name(udaGetNodeStructureType(node->parent->children[j]));
+        auto size = static_cast<std::size_t>(udaGetNodeStructureSize(node->parent->children[j]));
         data.append(name, size, ptr);
     }
 
@@ -526,5 +526,5 @@ uda::StructData uda::TreeNode::structData(const std::string& target)
 
 void* uda::TreeNode::data()
 {
-    return getNodeData(node_);
+    return udaGetNodeData(node_);
 }

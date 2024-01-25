@@ -188,7 +188,7 @@ void uda::Server::close()
     //----------------------------------------------------------------------------
     // Free Structure Definition List (don't free the structure as stack variable)
 
-    // freeUserDefinedTypeList(&parseduserdefinedtypelist);
+    // udaFreeUserDefinedTypeList(&parseduserdefinedtypelist);
 
     //----------------------------------------------------------------------------
     // Free Plugin List and Close all open library entries
@@ -225,14 +225,14 @@ void uda::Server::loop()
         UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop\n");
 
         // Create a new userdefinedtypelist for the request by copying the parseduserdefinedtypelist structure
-        // copyUserDefinedTypeList(&userdefinedtypelist);
+        // udaCopyUserDefinedTypeList(&userdefinedtypelist);
 
-        getInitialUserDefinedTypeList(&user_defined_type_list_);
+        udaGetInitialUserDefinedTypeList(&user_defined_type_list_);
         parsed_user_defined_type_list_ = *user_defined_type_list_;
-        //        printUserDefinedTypeList(*user_defined_type_list_);
+        //        udaPrintUserDefinedTypeList(*user_defined_type_list_);
 
         log_malloc_list_ = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-        initLogMallocList(log_malloc_list_);
+        udaInitLogMallocList(log_malloc_list_);
 
         server_closedown_ = false;
 
@@ -258,11 +258,11 @@ void uda::Server::loop()
         //----------------------------------------------------------------------------
         // Free Data Block Heap Memory
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeUserDefinedTypeList\n");
-        freeUserDefinedTypeList(user_defined_type_list_);
+        UDA_LOG(UDA_LOG_DEBUG, "udaFreeUserDefinedTypeList\n");
+        udaFreeUserDefinedTypeList(user_defined_type_list_);
         user_defined_type_list_ = nullptr;
 
-        freeMallocLogList(log_malloc_list_);
+        udaFreeMallocLogList(log_malloc_list_);
         ::free(log_malloc_list_);
         log_malloc_list_ = nullptr;
 

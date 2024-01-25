@@ -337,10 +337,10 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
     }
 
     USERDEFINEDTYPELIST userdefinedtypelist;
-    initUserDefinedTypeList(&userdefinedtypelist);
+    udaInitUserDefinedTypeList(&userdefinedtypelist);
 
     LOGMALLOCLIST logmalloclist;
-    initLogMallocList(&logmalloclist);
+    udaInitLogMallocList(&logmalloclist);
 
     auto plugin_list = plugins.as_plugin_list();
     plugin_interface.interfaceVersion = 1;
@@ -486,10 +486,10 @@ int uda::call_metadata_plugin(const PluginData& plugin, RequestData* request_blo
     data_block.signal_rec = &metadata.signal_rec;
 
     UserDefinedTypeList userdefinedtypelist = {};
-    initUserDefinedTypeList(&userdefinedtypelist);
+    udaInitUserDefinedTypeList(&userdefinedtypelist);
 
     LogMallocList logmalloclist = {};
-    initLogMallocList(&logmalloclist);
+    udaInitLogMallocList(&logmalloclist);
 
     auto plugin_list = plugins.as_plugin_list();
     idam_plugin_interface.interfaceVersion = 1;

@@ -87,21 +87,21 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
         if (index == 0 && datacount > 0) {
             *data = malloc(datacount * userdefinedtype->size);
             if (structRank > 1 && structShape != nullptr) {
-                addMalloc2(logmalloclist, *data, datacount, userdefinedtype->size, userdefinedtype->name, structRank,
+                udaAddMalloc2(logmalloclist, *data, datacount, userdefinedtype->size, userdefinedtype->name, structRank,
                            structShape);
             } else {
-                addMalloc(logmalloclist, *data, datacount, userdefinedtype->size, userdefinedtype->name);
+                udaAddMalloc(logmalloclist, *data, datacount, userdefinedtype->size, userdefinedtype->name);
             }
             structRank = 0;
         }
 
         newNTree = (NTREE*)malloc(sizeof(NTREE)); // this is the parent node for the received structure
         // dgm 15Nov2011
-        addMalloc(logmalloclist, (void*)newNTree, 1, sizeof(NTREE), "NTREE");
+        udaAddMalloc(logmalloclist, (void*)newNTree, 1, sizeof(NTREE), "NTREE");
 
         *NTree = newNTree; // Return the new tree node address
 
-        initNTree(newNTree);
+        udaInitNTree(newNTree);
         newNTree->data = nullptr;
         newNTree->userdefinedtype = userdefinedtype; // preserve Pairing of data and data type
     }
@@ -159,7 +159,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                 shape = nullptr;
                             }
                             d = (char*)malloc(count * sizeof(float));
-                            addMalloc2(logmalloclist, (void*)d, count, sizeof(float), "float", rank, shape);
+                            udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(float), "float", rank, shape);
                             *p = (VOIDTYPE)d;
                         } else {
                             break;
@@ -175,14 +175,14 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             break;
                         }
 
-                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
+                        udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape); // Assume 0 means No Pointer data to send!
 
                         // Allocation of pointer data within SOAP is problematic.
                         // Data malloc'd within SOAP are typed "unknown".
                         // Generally, pointer class data are preceded within the data binding structures with integer
                         // elements named __size followed by the name of the element. The value stored by this element
-                        // is the equivalent of the count parameter required from findMalloc.
+                        // is the equivalent of the count parameter required from udaFindMalloc.
                         //
                         // Other data creators, e.g., XML DOM, also have types "unknown"
                         // In these cases, a best guess is made to the type and count based on expectations and the heap
@@ -256,7 +256,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                 shape = nullptr;
                             }
                             d = (char*)malloc(count * sizeof(double));
-                            addMalloc2(logmalloclist, (void*)d, count, sizeof(double), "double", rank, shape);
+                            udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(double), "double", rank, shape);
                             *p = (VOIDTYPE)d; // Save pointer: data will be written here
                         } else {
                             break;
@@ -269,7 +269,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             break;
                         }
 
-                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
+                        udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
@@ -342,7 +342,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                 shape = nullptr;
                             }
                             d = (char*)malloc(count * sizeof(short));
-                            addMalloc2(logmalloclist, (void*)d, count, sizeof(short), "short", rank, shape);
+                            udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(short), "short", rank, shape);
                             *p = (VOIDTYPE)d; // Save pointer: data will be written here
                         } else {
                             break;
@@ -354,7 +354,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             rc = rc && xdr_int(xdrs, &count); // No data to send
                             break;
                         }
-                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
+                        udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
@@ -425,7 +425,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                 shape = nullptr;
                             }
                             d = (char*)malloc(count * sizeof(unsigned short));
-                            addMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned short), "unsigned short", rank,
+                            udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned short), "unsigned short", rank,
                                        shape);
                             *p = (VOIDTYPE)d; // Save pointer: data will be written here
                         } else {
@@ -438,7 +438,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             rc = rc && xdr_int(xdrs, &count); // No data to send
                             break;
                         }
-                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
+                        udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
@@ -511,7 +511,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                 shape = nullptr;
                             }
                             d = (char*)malloc(count * sizeof(int));
-                            addMalloc2(logmalloclist, (void*)d, count, sizeof(int), "int", rank, shape);
+                            udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(int), "int", rank, shape);
                             *p = (VOIDTYPE)d; // Save pointer: data will be written here
                         } else {
                             break;
@@ -523,7 +523,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             rc = rc && xdr_int(xdrs, &count); // No data to send
                             break;
                         }
-                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
+                        udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
@@ -595,7 +595,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                 shape = nullptr;
                             }
                             d = (char*)malloc(count * sizeof(unsigned int));
-                            addMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned int), "unsigned int", rank,
+                            udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned int), "unsigned int", rank,
                                        shape);
                             *p = (VOIDTYPE)d; // Save pointer: data will be written here
                         } else {
@@ -608,7 +608,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             rc = rc && xdr_int(xdrs, &count); // No data to send
                             break;
                         }
-                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
+                        udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
@@ -677,7 +677,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                 shape = nullptr;
                             }
                             d = (char*)malloc(count * sizeof(long long));
-                            addMalloc2(logmalloclist, (void*)d, count, sizeof(long long), "long long", rank, shape);
+                            udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(long long), "long long", rank, shape);
                             *p = (VOIDTYPE)d; // Save pointer: data will be written here
                         } else {
                             break;
@@ -689,7 +689,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             rc = rc && xdr_int(xdrs, &count); // No data to send
                             break;
                         }
-                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
+                        udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
@@ -759,7 +759,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                 shape = nullptr;
                             }
                             d = (char*)malloc(count * sizeof(unsigned long long));
-                            addMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned long long), "unsigned long long",
+                            udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned long long), "unsigned long long",
                                        rank, shape);
                             *p = (VOIDTYPE)d; // Save pointer: data will be written here
                         } else {
@@ -772,7 +772,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             rc = rc && xdr_int(xdrs, &count); // No data to send
                             break;
                         }
-                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
+                        udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
@@ -846,7 +846,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                 shape = nullptr;
                             }
                             d = (char*)malloc(count * sizeof(char));
-                            addMalloc2(logmalloclist, (void*)d, count, sizeof(char), "char", rank, shape);
+                            udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(char), "char", rank, shape);
                             *p = (VOIDTYPE)d; // Save pointer: data will be written here
                         } else {
                             break;
@@ -858,7 +858,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             rc = rc && xdr_int(xdrs, &count); // No data to send
                             break;
                         }
-                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
+                        udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
                                     &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
@@ -960,7 +960,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                      &count); // Count is known from the client's malloc log and passed by the sender
                         if (count > 0) {
                             d = (char*)malloc(count * sizeof(char));
-                            addMalloc(logmalloclist, (void*)d, count, sizeof(char), "STRING");
+                            udaAddMalloc(logmalloclist, (void*)d, count, sizeof(char), "STRING");
                             *p = (VOIDTYPE)d; // Save pointer: data will be written here
                         } else {
                             break;
@@ -979,7 +979,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             break;
                         }
 
-                        findMalloc(logmalloclist, (void*)p, &count, &size,
+                        udaFindMalloc(logmalloclist, (void*)p, &count, &size,
                                    &type); // Assume 0 means No Pointer data to send!
 
                         if (malloc_source == UDA_MALLOC_SOURCE_DOM && (count == 0 || size == 0) && d != nullptr) {
@@ -1049,12 +1049,12 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             rc = rc && xdr_int(xdrs, &nstr); // Number of strings
                             if (nstr > 0) {
                                 char** str = (char**)malloc(nstr * sizeof(char*));
-                                addMalloc(logmalloclist, (void*)str, nstr, sizeof(char*), "STRING *");
+                                udaAddMalloc(logmalloclist, (void*)str, nstr, sizeof(char*), "STRING *");
                                 for (istr = 0; istr < nstr; istr++) {
                                     rc = rc && xdr_int(xdrs, &count);
                                     if (count > 0) {
                                         d = (char*)malloc(count * sizeof(char));
-                                        addMalloc(logmalloclist, (void*)d, count, sizeof(char), "char");
+                                        udaAddMalloc(logmalloclist, (void*)d, count, sizeof(char), "char");
                                         rc = rc && WrapXDRString(xdrs, d, count);
                                         str[istr] = d;
                                     }
@@ -1079,12 +1079,12 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             }
                             strarr = (char**)malloc(nstr *
                                                     sizeof(char*)); // nstr is the length of the array, not the strings
-                            addMalloc2(logmalloclist, (void*)strarr, nstr, sizeof(char*), "STRING", rank, shape);
+                            udaAddMalloc2(logmalloclist, (void*)strarr, nstr, sizeof(char*), "STRING", rank, shape);
                             *p = (VOIDTYPE)strarr;                // Save pointer: First String will be written here
                             for (istr = 0; istr < nstr; istr++) { // Receive individual String lengths, then the string
                                 rc = rc && xdr_int(xdrs, &count);
                                 strarr[istr] = (char*)malloc(count * sizeof(char));
-                                addMalloc(logmalloclist, (void*)strarr[istr], count, sizeof(char), "STRING");
+                                udaAddMalloc(logmalloclist, (void*)strarr[istr], count, sizeof(char), "STRING");
                                 rc = rc && WrapXDRString(xdrs, strarr[istr], count);
                                 if (rank == 0 && nstr == 1) {
                                     *p = (VOIDTYPE)strarr[0];
@@ -1097,11 +1097,11 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
 
                         if (STR_EQUALS(userdefinedtype->compoundfield[j].type, "STRING *")) {
                             char** str = (char**)*p;
-                            findMalloc(logmalloclist, (void*)&str, &nstr, &size, &type);
+                            udaFindMalloc(logmalloclist, (void*)&str, &nstr, &size, &type);
                             rc = rc && xdr_int(xdrs, &nstr); // Number of strings
                             if (nstr > 0) {
                                 for (istr = 0; istr < nstr; istr++) {
-                                    findMalloc(logmalloclist, (void*)&str[istr], &count, &size, &type);
+                                    udaFindMalloc(logmalloclist, (void*)&str[istr], &count, &size, &type);
                                     rc = rc && xdr_int(xdrs, &count);
                                     if (count > 0) {
                                         d = str[istr];
@@ -1119,7 +1119,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             break;
                         }
 
-                        findMalloc2(logmalloclist, (void*)p, &nstr, &size, &type, &rank,
+                        udaFindMalloc2(logmalloclist, (void*)p, &nstr, &size, &type, &rank,
                                     &shape); // Assume 0 means No Pointer data to send!
                         // or heap allocated in external library!
 
@@ -1175,12 +1175,12 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                         rc = rc && xdr_int(xdrs, &count); // Arbitrary String length
                                         if (count > 0) {
                                             d = (char*)malloc(count * sizeof(char));
-                                            addMalloc(logmalloclist, (void*)d, count, sizeof(char), "STRING");
+                                            udaAddMalloc(logmalloclist, (void*)d, count, sizeof(char), "STRING");
                                             rc = rc && WrapXDRString(xdrs, d, count);
                                             str[istr] = d;
                                         } // Save pointer: data will be written here
                                     } else {
-                                        findMalloc(logmalloclist, (void*)&str[istr], &count, &size, &type);
+                                        udaFindMalloc(logmalloclist, (void*)&str[istr], &count, &size, &type);
                                         rc = rc && xdr_int(xdrs, &count);
                                         if (count > 0) {
                                             d = (char*)str[istr];
@@ -1210,7 +1210,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                         &count); // Count is known from the client's malloc log and passed by the sender
                             if (count > 0) {
                                 d = (char*)malloc(count * sizeof(char));
-                                addMalloc(logmalloclist, (void*)d, count, sizeof(char), "STRING");
+                                udaAddMalloc(logmalloclist, (void*)d, count, sizeof(char), "STRING");
                                 *p = (VOIDTYPE)d; // Save pointer: data will be written here
                             } else {
                                 break;
@@ -1222,7 +1222,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                 rc = rc && xdr_int(xdrs, &count); // No data to send
                                 break;
                             }
-                            findMalloc(logmalloclist, (void*)p, &count, &size,
+                            udaFindMalloc(logmalloclist, (void*)p, &count, &size,
                                        &type);                               // Assume 0 means No string to send!
                             if (count == 1 && STR_EQUALS(type, "unknown")) { // ***** Fix for SOAP sources incomplete!
                                 count = size;
@@ -1256,7 +1256,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
 
                 if (userdefinedtype->compoundfield[j].pointer) {
                     if (xdrs->x_op != XDR_DECODE) {
-                        findMalloc2(logmalloclist, (void*)p, &count, &size, &type, &structRank, &structShape);
+                        udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &structRank, &structShape);
 
                         // Interpret an 'unknown' void data type using knowledge of the gSOAP or DOM systems
 
@@ -1340,7 +1340,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                     // Non Pointer types: Heap already allocated (pass 0 count to xdrUserDefinedData)
                     // Size and Type also known. Type cannot be 'void'.
 
-                    addNonMalloc(logmalloclist, (void*)p, userdefinedtype->compoundfield[j].count,
+                    udaAddNonMalloc(logmalloclist, (void*)p, userdefinedtype->compoundfield[j].count,
                                  userdefinedtype->compoundfield[j].size, userdefinedtype->compoundfield[j].type);
 
                     loopcount = userdefinedtype->compoundfield[j].count;
@@ -1389,7 +1389,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                             char* stype;
                             void* heap;
                             heap = p;
-                            id = findStructId(heap, &stype, log_struct_list);
+                            id = udaFindStructId(heap, &stype, log_struct_list);
                         }
 
                         if (id == 0) { // Only send/receive new structures
@@ -1417,7 +1417,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                     if (newNTree->children == nullptr && newNTree->branches == 0) {
                                         newNTree->children =
                                             (NTREE**)malloc(loopcount * sizeof(NTREE*)); // Allocate the node array
-                                        addMalloc(logmalloclist, (void*)newNTree->children, loopcount, sizeof(NTREE*),
+                                        udaAddMalloc(logmalloclist, (void*)newNTree->children, loopcount, sizeof(NTREE*),
                                                   "NTREE *");
                                     } else { // Multiple branches (user types) originating in the same node
                                         auto old = (VOIDTYPE)newNTree->children;
@@ -1425,11 +1425,11 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
                                             (void*)old,
                                             (newNTree->branches + loopcount) *
                                                 sizeof(NTREE*)); // Individual node addresses remain valid
-                                        changeMalloc(logmalloclist, old, (void*)newNTree->children,
+                                        udaChangeMalloc(logmalloclist, old, (void*)newNTree->children,
                                                      newNTree->branches + loopcount, sizeof(NTREE*), "NTREE *");
                                     }
                                 }
-                                addNTree(newNTree, subNTree); // Only first call creates new tree node
+                                udaAddNTree(newNTree, subNTree); // Only first call creates new tree node
                             }
                         }
                     }
@@ -1439,9 +1439,9 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
 
                     // Must be a voided atomic type
 
-                    if (gettypeof(type) != UDA_TYPE_UNKNOWN) {
+                    if (udaGettypeof(type) != UDA_TYPE_UNKNOWN) {
                         char* z = (char*)*p;
-                        rc = rc && xdrAtomicData(logmalloclist, xdrs, type, count, size, &z); // Must be an Atomic Type
+                        rc = rc && udaXdrAtomicData(logmalloclist, xdrs, type, count, size, &z); // Must be an Atomic Type
                         *p = (VOIDTYPE)z;
                         break;
                     } else {
@@ -1470,13 +1470,13 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
 
 // Send/Receive Array of Structures
 
-int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+int udaXdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                               USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion,
                               LOGSTRUCTLIST* log_struct_list, int malloc_source)
 {
     int rc = 1;
 
-    initLogStructList(log_struct_list); // Initialise Linked List Structure Log
+    udaInitLogStructList(log_struct_list); // Initialise Linked List Structure Log
 
     if (xdrs->x_op == XDR_DECODE) {
 
@@ -1493,7 +1493,7 @@ int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFIN
     } else {
 
         if (userdefinedtype == nullptr) {
-            udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedTypeData", 999,
+            udaAddError(UDA_CODE_ERROR_TYPE, "udaXdrUserDefinedTypeData", 999,
                          "No User Defined Type passed - cannot send!");
             return 0;
         }
@@ -1509,7 +1509,7 @@ int xdrUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFIN
         */
     }
 
-    freeLogStructList(log_struct_list); // Free Linked List Structure Log heap
+    udaFreeLogStructList(log_struct_list); // Free Linked List Structure Log heap
 
     return rc;
 }
@@ -1532,7 +1532,7 @@ bool_t xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str)
     if (xdrs->x_op == XDR_DECODE) { // Receiving array so allocate Heap for it then initialise
         str->userdefinedtype = (USERDEFINEDTYPE*)malloc(str->listCount * sizeof(USERDEFINEDTYPE));
         for (int i = 0; i < str->listCount; i++) {
-            initUserDefinedType(&str->userdefinedtype[i]);
+            udaInitUserDefinedType(&str->userdefinedtype[i]);
         }
     }
 
@@ -1580,7 +1580,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                     if (udt == nullptr || u == nullptr) {
                         err = 999;
                         UDA_LOG(UDA_LOG_DEBUG, "nullptr SARRAY User defined data Structure Definition\n");
-                        printUserDefinedTypeListTable(*userdefinedtypelist);
+                        udaPrintUserDefinedTypeListTable(*userdefinedtypelist);
                         udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML2Put", err,
                                      "nullptr User defined data Structure Definition");
                         break;
@@ -1588,14 +1588,14 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                     UDA_LOG(UDA_LOG_DEBUG, "Creating SARRAY carrier structure to Send\n");
 
-                    initSArray(&sarray);
+                    udaInitSArray(&sarray);
                     sarray.count = data_block->data_n;     // Number of this structure
                     sarray.rank = 1;                       // Array Data Rank?
                     sarray.shape = &shape;                 // Only if rank > 1?
                     sarray.data = (void*)data_block->data; // Pointer to the data to be passed
                     strcpy(sarray.type, udt->name);        // The name of the type
                     data = (void*)&psarray;                // Pointer to the SARRAY array pointer
-                    addNonMalloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
+                    udaAddNonMalloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
 
                     rc = 1;
 
@@ -1613,7 +1613,7 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
 
                     UDA_LOG(UDA_LOG_DEBUG, "Structure Definitions sent: rc = %d\n", rc);
 
-                    rc = rc && xdrUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
+                    rc = rc && udaXdrUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
                                                          protocolVersion, log_struct_list,
                                                          malloc_source); // send the Data
 
@@ -1657,12 +1657,12 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                     if (option == 1) {
 
                         logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-                        initLogMallocList(logmalloclist);
+                        udaInitLogMallocList(logmalloclist);
 
                         userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
                         auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
 
-                        initUserDefinedTypeList(userdefinedtypelist);
+                        udaInitUserDefinedTypeList(userdefinedtypelist);
 
                         rc = rc && xdr_userdefinedtypelistPut(
                                        xdrs,
@@ -1677,14 +1677,14 @@ int protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token, LOGMA
                             break;
                         }
 
-                        initUserDefinedType(udt_received);
+                        udaInitUserDefinedType(udt_received);
 
-                        rc = rc && xdrUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                        rc = rc && udaXdrUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                              &data, protocolVersion, log_struct_list,
                                                              malloc_source); // receive the Data
-                        // rc = rc && xdrUserDefinedTypeData(xdrs, udt_received, &data);        // receive the Data
+                        // rc = rc && udaXdrUserDefinedTypeData(xdrs, udt_received, &data);        // receive the Data
 
-                        UDA_LOG(UDA_LOG_DEBUG, "xdrUserDefinedTypeData received\n");
+                        UDA_LOG(UDA_LOG_DEBUG, "udaXdrUserDefinedTypeData received\n");
 
                         if (!rc) {
                             err = 999;

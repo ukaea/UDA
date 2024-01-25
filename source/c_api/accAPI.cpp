@@ -3900,7 +3900,7 @@ int udaSetDataTree(int handle)
     void* opaque_block = udaGetDataOpaqueBlock(handle);
     setUserDefinedTypeList(((GENERAL_BLOCK*)opaque_block)->userdefinedtypelist);
     setLogMallocList(((GENERAL_BLOCK*)opaque_block)->logmalloclist);
-    setLastMallocIndexValue(&(((GENERAL_BLOCK*)opaque_block)->lastMallocIndex));
+    udaSetLastMallocIndexValue(&(((GENERAL_BLOCK*)opaque_block)->lastMallocIndex));
     return 1; // Return TRUE
 }
 

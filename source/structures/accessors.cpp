@@ -136,7 +136,7 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
 
     if ((strchr(target, '.') != nullptr) || strchr(target, '/') != nullptr) {
         int ntargets;
-        char** targetlist = parseTarget(target, &ntargets); // Deconstruct the Name and search for each hierarchy group
+        char** targetlist = udaParseTarget(target, &ntargets); // Deconstruct the Name and search for each hierarchy group
 
         *lastname = targetlist[ntargets - 1]; // Preserve the last element name
 
@@ -165,7 +165,7 @@ NTREE* findNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, 
             child = found;
         }
 
-        addMalloc(logmalloclist, (void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1,
+        udaAddMalloc(logmalloclist, (void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1,
                   sizeof(char), "char");
 
         const char* last_target = targetlist[ntargets - 1];
@@ -230,7 +230,7 @@ NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const cha
         char** targetlist = nullptr;
         NTREE* child = ntree;
 
-        targetlist = parseTarget(target, &ntargets); // Deconstruct Name and search for each hierarchy group
+        targetlist = udaParseTarget(target, &ntargets); // Deconstruct Name and search for each hierarchy group
 
         for (int i = 0; i < ntargets; i++) { // Drill Down to requested named structure element
             if (i < ntargets - 1) {
@@ -253,7 +253,7 @@ NTREE* findNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const cha
 
         *lastname = targetlist[ntargets - 1]; // Preserve the last element name
 
-        addMalloc(logmalloclist, (void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1,
+        udaAddMalloc(logmalloclist, (void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1,
                   sizeof(char), "char");
         for (int i = 0; i < ntargets - 1; i++) {
             // Free all others
@@ -413,7 +413,7 @@ NTREE* findNTreeStructureDefinition(NTREE* ntree, const char* target)
         char** targetlist = nullptr;
         NTREE* child = ntree;
 
-        targetlist = parseTarget(target, &ntargets); // Deconstruct the Name and search for each hierarchy group
+        targetlist = udaParseTarget(target, &ntargets); // Deconstruct the Name and search for each hierarchy group
 
         for (int i = 0; i < ntargets; i++) { // Drill Down to requested named structure type
             if ((child = findNTreeStructureDefinition(child, targetlist[i])) == nullptr) {
@@ -602,7 +602,7 @@ int udaRegulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERD
         vlen->data = realloc(vlen->data, count * child->size); // Expand Heap to regularise
         newnew = vlen->data;
         size = child->size;
-        changeMalloc(logmalloclist, old, vlen->data, count, child->size, child->name);
+        udaChangeMalloc(logmalloclist, old, vlen->data, count, child->size, child->name);
         tree->data = (void*)vlen;
 
         // Write new data array to Original Tree Nodes
@@ -632,10 +632,10 @@ int udaRegulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERD
         unsigned int ui;
         for (ui = (unsigned int)resetBranches; ui < count; ui++) {
             tree->children[ui] = (NTREE*)malloc(sizeof(NTREE));
-            addMalloc(logmalloclist, (void*)tree->children[ui], 1, sizeof(NTREE), "NTREE");
+            udaAddMalloc(logmalloclist, (void*)tree->children[ui], 1, sizeof(NTREE), "NTREE");
             memcpy(tree->children[ui], tree->children[0], sizeof(NTREE));
         }
-        changeMalloc(logmalloclist, old, (void*)tree->children, count, sizeof(NTREE), "NTREE");
+        udaChangeMalloc(logmalloclist, old, (void*)tree->children, count, sizeof(NTREE), "NTREE");
 
         // Update All new Child Nodes with array element addresses
 
@@ -702,7 +702,7 @@ int getNodeStructureDataCount(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
-    findMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
+    udaFindMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
     return count;
 }
 
@@ -720,7 +720,7 @@ int getNodeStructureDataSize(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
-    findMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
+    udaFindMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
     return size;
 }
 
@@ -739,7 +739,7 @@ int getNodeStructureDataRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
-    findMalloc2(logmalloclist, (void*)&ntree->data, &count, &size, &type, &rank, &shape);
+    udaFindMalloc2(logmalloclist, (void*)&ntree->data, &count, &size, &type, &rank, &shape);
     return rank;
 }
 
@@ -777,7 +777,7 @@ int* getNodeStructureDataShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
         fflush(stdout);
     }
 
-    findMalloc2(logmalloclist, (void*)&ntree->data, &count, &size, &type, &rank, &shape);
+    udaFindMalloc2(logmalloclist, (void*)&ntree->data, &count, &size, &type, &rank, &shape);
     return shape;
 }
 
@@ -795,7 +795,7 @@ const char* getNodeStructureDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* nt
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
-    findMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
+    udaFindMalloc(logmalloclist, (void*)&ntree->data, &count, &size, &type);
     return type;
 }
 
@@ -853,7 +853,7 @@ void printImage(const char* image, int imagecount)
  */
 void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short type_id)
 {
-    initCompoundField(field);
+    udaInitCompoundField(field);
     strcpy(field->name, name);
 
     field->pointer = 0; // default for scalar values
@@ -986,7 +986,7 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
             field->offset =
                 (int)newoffset((size_t)*offset, "char *"); // must be an explicit char pointer (STRING Convention!)
             field->offpad = (int)padding((size_t)*offset, "char *");
-            field->alignment = getalignmentof("char *");
+            field->alignment = udaGetalignmentof("char *");
             break;
         case ARRAYSTRING:
             // Bug Fix dgm 07Jul2014: atomictype was missing!
@@ -1024,7 +1024,7 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
     if (type_id != SCALARSTRING) {
         field->offset = (int)newoffset(*offset, field->type);
         field->offpad = (int)padding(*offset, field->type);
-        field->alignment = getalignmentof(field->type);
+        field->alignment = udaGetalignmentof(field->type);
     }
 
     *offset = field->offset + field->size; // Next Offset
@@ -1032,7 +1032,7 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
 
 void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int offset, int size)
 {
-    initCompoundField(field);
+    udaInitCompoundField(field);
 
     strcpy(field->name, name);
     field->atomictype = UDA_TYPE_UNKNOWN;

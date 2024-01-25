@@ -116,7 +116,7 @@ int udaServer(CLIENT_BLOCK client_block)
     XDR* server_output = nullptr;
 
     LOGSTRUCTLIST log_struct_list;
-    initLogStructList(&log_struct_list);
+    udaInitLogStructList(&log_struct_list);
 
     int server_tot_block_time = 0;
     int server_timeout = TIMEOUT; // user specified Server Lifetime
@@ -841,14 +841,14 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
         UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop\n");
 
         // Create a new userdefinedtypelist for the request by copying the parseduserdefinedtypelist structure
-        // copyUserDefinedTypeList(&userdefinedtypelist);
+        // udaCopyUserDefinedTypeList(&userdefinedtypelist);
 
-        getInitialUserDefinedTypeList(&user_defined_type_list);
+        udaGetInitialUserDefinedTypeList(&user_defined_type_list);
         parsed_user_defined_type_list = *user_defined_type_list;
-        printUserDefinedTypeList(*user_defined_type_list);
+        udaPrintUserDefinedTypeList(*user_defined_type_list);
 
         log_malloc_list = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-        initLogMallocList(log_malloc_list);
+        udaInitLogMallocList(log_malloc_list);
 
         int server_closedown = 0;
         err = handleRequest(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
@@ -876,11 +876,11 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
         //----------------------------------------------------------------------------
         // Free Data Block Heap Memory
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeUserDefinedTypeList\n");
-        freeUserDefinedTypeList(user_defined_type_list);
+        UDA_LOG(UDA_LOG_DEBUG, "udaFreeUserDefinedTypeList\n");
+        udaFreeUserDefinedTypeList(user_defined_type_list);
         user_defined_type_list = nullptr;
 
-        freeMallocLogList(log_malloc_list);
+        udaFreeMallocLogList(log_malloc_list);
         free(log_malloc_list);
         log_malloc_list = nullptr;
 
@@ -946,14 +946,14 @@ int doServerClosedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, 
     //----------------------------------------------------------------------------
     // Free Structure Definition List (don't free the structure as stack variable)
 
-    // freeUserDefinedTypeList(&parseduserdefinedtypelist);
+    // udaFreeUserDefinedTypeList(&parseduserdefinedtypelist);
 
     //----------------------------------------------------------------------------
     // Free Plugin List and Close all open library entries
 
     freePluginList(&pluginList);
 
-    freeMallocLogList(log_malloc_list);
+    udaFreeMallocLogList(log_malloc_list);
     free(log_malloc_list);
     log_malloc_list = nullptr;
 
@@ -1175,7 +1175,7 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
     /*
         if (!fileParsed) {
             fileParsed = 1;
-            initUserDefinedTypeList(&parseduserdefinedtypelist);
+            udaInitUserDefinedTypeList(&parseduserdefinedtypelist);
 
             char* token = nullptr;
             if ((token = getenv("UDA_SARRAY_CONFIG")) == nullptr) {
@@ -1184,7 +1184,7 @@ int startupServer(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_o
 
             UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);
             parseIncludeFile(&parseduserdefinedtypelist, token); // file containing the SARRAY structure definition
-            printUserDefinedTypeList(parseduserdefinedtypelist);
+            udaPrintUserDefinedTypeList(parseduserdefinedtypelist);
         }
     */
 

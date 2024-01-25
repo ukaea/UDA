@@ -8,7 +8,7 @@ void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     USERDEFINEDTYPE* old;
 
     USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
+    udaInitUserDefinedType(&usertype); // New structure definition
 
     strcpy(usertype.name, "TEST9");
     strcpy(usertype.source, "Test #9");
@@ -21,7 +21,7 @@ void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     int offset = 0;
 
     COMPOUNDFIELD field;
-    initCompoundField(&field);
+    udaInitCompoundField(&field);
     strcpy(field.name, "v1");
     field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING"); // convert atomic type to a string label
@@ -34,11 +34,11 @@ void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.size = field.count * sizeof(char);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
+    field.alignment = udaGetalignmentof(field.type);
     offset = field.offset + field.size; // Next Offset
-    addCompoundField(&usertype, field); // Single Structure element
+    udaAddCompoundField(&usertype, field); // Single Structure element
 
-    initCompoundField(&field);
+    udaInitCompoundField(&field);
     strcpy(field.name, "v2");
     field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING"); // convert atomic type to a string label
@@ -52,11 +52,11 @@ void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.size = field.count * sizeof(char);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
+    field.alignment = udaGetalignmentof(field.type);
     offset = field.offset + field.size; // Next Offset
-    addCompoundField(&usertype, field); // Single Structure element
+    udaAddCompoundField(&usertype, field); // Single Structure element
 
-    initCompoundField(&field);
+    udaInitCompoundField(&field);
     strcpy(field.name, "v3");
     field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING"); // convert atomic type to a string label
@@ -68,11 +68,11 @@ void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.size = field.count * sizeof(char*);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
+    field.alignment = udaGetalignmentof(field.type);
     offset = field.offset + field.size; // Next Offset
-    addCompoundField(&usertype, field); // Single Structure element
+    udaAddCompoundField(&usertype, field); // Single Structure element
 
-    initCompoundField(&field);
+    udaInitCompoundField(&field);
     strcpy(field.name, "v4");
     field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING *"); // Array of String pointers
@@ -85,11 +85,11 @@ void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.size = field.count * sizeof(char*);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
+    field.alignment = udaGetalignmentof(field.type);
     offset = field.offset + field.size; // Next Offset
-    addCompoundField(&usertype, field); // Single Structure element
+    udaAddCompoundField(&usertype, field); // Single Structure element
 
-    initCompoundField(&field);
+    udaInitCompoundField(&field);
     strcpy(field.name, "v5");
     field.atomictype = UDA_TYPE_STRING;
     strcpy(field.type, "STRING *"); // Array of String pointers
@@ -101,16 +101,16 @@ void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.size = field.count * sizeof(char**);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
+    field.alignment = udaGetalignmentof(field.type);
+    udaAddCompoundField(&usertype, field); // Single Structure element
 
     USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    udaAddUserDefinedType(userdefinedtypelist, usertype);
 
     UDA_LOG(UDA_LOG_DEBUG, "Type TEST9 defined\n");
 
     old = findUserDefinedType(userdefinedtypelist, "TEST9", 0); // Clone existing structure & modify
-    copyUserDefinedType(old, &usertype);
+    udaCopyUserDefinedType(old, &usertype);
 
     UDA_LOG(UDA_LOG_DEBUG, "Type TEST9 located\n");
 
@@ -120,7 +120,7 @@ void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
 
     offset = old->size;
 
-    initCompoundField(&field);
+    udaInitCompoundField(&field);
     strcpy(field.name, "v6");
     field.atomictype = UDA_TYPE_UNKNOWN;
     strcpy(field.type, "TEST9"); // Array of String pointers
@@ -132,10 +132,10 @@ void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.size = field.count * sizeof(TEST9);
     field.offset = newoffset(offset, field.type);
     field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
+    field.alignment = udaGetalignmentof(field.type);
+    udaAddCompoundField(&usertype, field); // Single Structure element
 
-    addUserDefinedType(userdefinedtypelist, usertype);
+    udaAddUserDefinedType(userdefinedtypelist, usertype);
 
     UDA_LOG(UDA_LOG_DEBUG, "Type TEST9A defined\n");
 }

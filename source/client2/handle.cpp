@@ -40,12 +40,12 @@ void uda::client::free_handle(int handle)
                 auto general_block = (GENERAL_BLOCK*)data_block->opaque_block;
 
                 if (general_block->userdefinedtypelist != nullptr) {
-                    freeUserDefinedTypeList(general_block->userdefinedtypelist);
+                    udaFreeUserDefinedTypeList(general_block->userdefinedtypelist);
                     free(general_block->userdefinedtypelist);
                 }
 
                 if (general_block->logmalloclist != nullptr) {
-                    freeMallocLogList(general_block->logmalloclist);
+                    udaFreeMallocLogList(general_block->logmalloclist);
                     free(general_block->logmalloclist);
                 }
             }

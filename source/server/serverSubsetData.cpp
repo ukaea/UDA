@@ -210,7 +210,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                                 // Properties Must be identical for all structure array elements
                                 extract = *(char**)&data_block->data[jj * udt->size + udt->compoundfield[i].offset];
 
-                                findMalloc2(logmalloclist, (void*)extract, &count, &size, &type_name, &rank, &shape);
+                                udaFindMalloc2(logmalloclist, (void*)extract, &count, &size, &type_name, &rank, &shape);
                                 if (jj > 0) {
                                     if (count != count_p || size != size_p || rank != rank_p ||
                                         strcmp(type_name, type_name_p) != 0) {
@@ -238,7 +238,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
                         } else {
                             extract = *(char**)&data_block->data[udt->compoundfield[i].offset];
-                            findMalloc2(logmalloclist, (void*)extract, &count, &size, &type_name, &rank, &shape);
+                            udaFindMalloc2(logmalloclist, (void*)extract, &count, &size, &type_name, &rank, &shape);
                         }
 
                         if (mapType == 3) {
@@ -246,7 +246,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                                                  "member is also an array. (Functionality has not been implemented!)");
                         }
 
-                        int type = gettypeof(type_name);
+                        int type = udaGettypeof(type_name);
 
                         switch (type) {
                             case UDA_TYPE_DOUBLE: {
@@ -340,7 +340,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                     }
 
                     if (logmalloclist != nullptr) {
-                        freeMallocLogList(logmalloclist);
+                        udaFreeMallocLogList(logmalloclist);
                         free(logmalloclist);
                         logmalloclist = nullptr;
                     }

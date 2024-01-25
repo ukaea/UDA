@@ -61,7 +61,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
     ACTIONS actions_sig;
 
     LOGSTRUCTLIST log_struct_list;
-    initLogStructList(&log_struct_list);
+    udaInitLogStructList(&log_struct_list);
 
     int server_tot_block_time = 0;
     int server_timeout = TIMEOUT; // user specified Server Lifetime
@@ -782,7 +782,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
     //----------------------------------------------------------------------------
     // Free Structure Definition List (don't free the structure as stack variable)
 
-    freeUserDefinedTypeList(&parseduserdefinedtypelist);
+    udaFreeUserDefinedTypeList(&parseduserdefinedtypelist);
 
     //----------------------------------------------------------------------------
     // Close the Socket Connections to Other Data Servers

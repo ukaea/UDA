@@ -98,7 +98,7 @@ int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLO
     ACTIONS actions_sig;
 
     LOGSTRUCTLIST log_struct_list;
-    initLogStructList(&log_struct_list);
+    udaInitLogStructList(&log_struct_list);
 
     int server_tot_block_time = 0;
     int server_timeout = TIMEOUT; // user specified Server Lifetime
@@ -120,19 +120,19 @@ int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLO
 
     USERDEFINEDTYPELIST parseduserdefinedtypelist;
 
-    getInitialUserDefinedTypeList(&user_defined_type_list);
+    udaGetInitialUserDefinedTypeList(&user_defined_type_list);
     parseduserdefinedtypelist = *user_defined_type_list;
-    // printUserDefinedTypeList(*userdefinedtypelist);
+    // udaPrintUserDefinedTypeList(*userdefinedtypelist);
 
     log_malloc_list = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-    initLogMallocList(log_malloc_list);
+    udaInitLogMallocList(log_malloc_list);
 
     int err = startupFatServer(server_block, parseduserdefinedtypelist);
     if (err != 0) {
         return err;
     }
 
-    copyUserDefinedTypeList(&user_defined_type_list, &parseduserdefinedtypelist);
+    udaCopyUserDefinedTypeList(&user_defined_type_list, &parseduserdefinedtypelist);
 
     err = handleRequestFat(&request_block, request_block0, &client_block, server_block, &metadata_block, &data_blocks,
                            &actions_desc, &actions_sig);
@@ -150,11 +150,11 @@ int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLO
 
     err = doFatServerClosedown(server_block, &data_blocks, &actions_desc, &actions_sig, data_blocks0);
 
-    freeUserDefinedTypeList(user_defined_type_list);
+    udaFreeUserDefinedTypeList(user_defined_type_list);
     free(user_defined_type_list);
     user_defined_type_list = nullptr;
 
-    // freeMallocLogList(logmalloclist);
+    // udaFreeMallocLogList(logmalloclist);
     // free(logmalloclist);
 
     return err;
@@ -424,9 +424,9 @@ int startupFatServer(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduser
     //----------------------------------------------------------------------
     // Initialise General Structure Passing
 
-    getInitialUserDefinedTypeList(&user_defined_type_list);
+    udaGetInitialUserDefinedTypeList(&user_defined_type_list);
     parseduserdefinedtypelist = *user_defined_type_list;
-    printUserDefinedTypeList(*user_defined_type_list);
+    udaPrintUserDefinedTypeList(*user_defined_type_list);
     user_defined_type_list = nullptr; // Startup State
 
     /*
@@ -436,7 +436,7 @@ int startupFatServer(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduser
     if (!fileParsed) {
         fileParsed = 1;
 
-        initUserDefinedTypeList(&parseduserdefinedtypelist);
+        udaInitUserDefinedTypeList(&parseduserdefinedtypelist);
         userdefinedtypelist = &parseduserdefinedtypelist; // Switch before Parsing input file
 
         char* token = nullptr;
@@ -447,7 +447,7 @@ int startupFatServer(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduser
         UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);
         parseIncludeFile(userdefinedtypelist, token); // file containing the SARRAY structure definition
         parseduserdefinedtypelist = *userdefinedtypelist; // Switch back
-        printUserDefinedTypeList(parseduserdefinedtypelist);
+        udaPrintUserDefinedTypeList(parseduserdefinedtypelist);
     }
     */
 

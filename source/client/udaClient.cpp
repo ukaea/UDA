@@ -377,7 +377,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 #endif
 
     LOGSTRUCTLIST log_struct_list;
-    initLogStructList(&log_struct_list);
+    udaInitLogStructList(&log_struct_list);
 
     unsigned int* private_flags = udaPrivateFlags();
     CLIENT_FLAGS* client_flags = udaClientFlags();
@@ -1256,15 +1256,15 @@ void udaFree(int handle)
 #ifndef FATCLIENT
                     if (g_user_defined_type_list ==
                         general_block->userdefinedtypelist) { // Is this the current setting?
-                        freeUserDefinedTypeList(g_user_defined_type_list);
+                        udaFreeUserDefinedTypeList(g_user_defined_type_list);
                         free(g_user_defined_type_list);
                         g_user_defined_type_list = nullptr;
                     } else {
-                        freeUserDefinedTypeList(general_block->userdefinedtypelist);
+                        udaFreeUserDefinedTypeList(general_block->userdefinedtypelist);
                         free(general_block->userdefinedtypelist);
                     }
 #else
-                    freeUserDefinedTypeList(general_block->userdefinedtypelist);
+                    udaFreeUserDefinedTypeList(general_block->userdefinedtypelist);
                     free(general_block->userdefinedtypelist);
 #endif
                 }
@@ -1272,22 +1272,22 @@ void udaFree(int handle)
                 if (general_block->logmalloclist != nullptr) {
 #ifndef FATCLIENT
                     if (g_log_malloc_list == general_block->logmalloclist) {
-                        freeMallocLogList(g_log_malloc_list);
+                        udaFreeMallocLogList(g_log_malloc_list);
                         free(g_log_malloc_list);
                         g_log_malloc_list = nullptr;
                     } else {
-                        freeMallocLogList(general_block->logmalloclist);
+                        udaFreeMallocLogList(general_block->logmalloclist);
                         free(general_block->logmalloclist);
                     }
 #else
-                    freeMallocLogList(general_block->logmalloclist);
+                    udaFreeMallocLogList(general_block->logmalloclist);
                     free(general_block->logmalloclist);
 #endif
                 }
 
 #ifndef FATCLIENT
                 if (general_block->userdefinedtype != nullptr) {
-                    freeUserDefinedType(general_block->userdefinedtype);
+                    udaFreeUserDefinedType(general_block->userdefinedtype);
                     free(general_block->userdefinedtype);
                 }
 

@@ -45,9 +45,9 @@ IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 void udaFreePluginInterface(IDAM_PLUGIN_INTERFACE* plugin_interface)
 {
     free(plugin_interface->request_data);
-    freeUserDefinedTypeList(plugin_interface->userdefinedtypelist);
+    udaFreeUserDefinedTypeList(plugin_interface->userdefinedtypelist);
     free(plugin_interface->userdefinedtypelist);
-    freeMallocLogList(plugin_interface->logmalloclist);
+    udaFreeMallocLogList(plugin_interface->logmalloclist);
     free(plugin_interface->logmalloclist);
     freePluginList((PLUGINLIST*)plugin_interface->pluginList);
     free((PLUGINLIST*)plugin_interface->pluginList);

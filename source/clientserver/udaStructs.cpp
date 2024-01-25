@@ -63,7 +63,7 @@ void freeDataBlock(DATA_BLOCK* data_block)
             case UDA_OPAQUE_TYPE_STRUCTURES: {
                 if (data_block->opaque_block != nullptr) {
                     //                    if (logmalloclist != nullptr) {
-                    //                        freeMallocLogList(logmalloclist);
+                    //                        udaFreeMallocLogList(logmalloclist);
                     //                        free(logmalloclist);
                     //                        logmalloclist = nullptr;
                     //                    }
@@ -220,7 +220,7 @@ void freeReducedDataBlock(DATA_BLOCK* data_block)
     }
 
     //    if(logmalloclist != nullptr) {
-    //        freeMallocLogList(logmalloclist);
+    //        udaFreeMallocLogList(logmalloclist);
     //        free((void *)logmalloclist);
     //        logmalloclist = nullptr;
     //    }
