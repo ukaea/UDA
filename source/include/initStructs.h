@@ -8,21 +8,21 @@
 extern "C" {
 #endif
 
-LIBRARY_API void initNameValueList(NAMEVALUELIST* nameValueList);
-LIBRARY_API void initRequestData(REQUEST_DATA* str);
-LIBRARY_API void initRequestBlock(REQUEST_BLOCK* str);
-LIBRARY_API void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname);
-LIBRARY_API void initServerBlock(SERVER_BLOCK* str, int version);
-LIBRARY_API void initDataBlock(DATA_BLOCK* str);
-LIBRARY_API void initDataBlockList(DATA_BLOCK_LIST* str);
-LIBRARY_API void initDimBlock(DIMS* str);
-LIBRARY_API void initDataSystem(DATA_SYSTEM* str);
-LIBRARY_API void initSystemConfig(SYSTEM_CONFIG* str);
-LIBRARY_API void initDataSource(DATA_SOURCE* str);
-LIBRARY_API void initSignal(SIGNAL* str);
-LIBRARY_API void initSignalDesc(SIGNAL_DESC* str);
-LIBRARY_API void initIdamPutDataBlock(PUTDATA_BLOCK* str);
-LIBRARY_API void initPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+LIBRARY_API void udaInitNameValueList(NAMEVALUELIST* nameValueList);
+LIBRARY_API void udaInitRequestData(REQUEST_DATA* str);
+LIBRARY_API void udaInitRequestBlock(REQUEST_BLOCK* str);
+LIBRARY_API void udaInitClientBlock(CLIENT_BLOCK* str, int version, const char* clientname);
+LIBRARY_API void udaInitServerBlock(SERVER_BLOCK* str, int version);
+LIBRARY_API void udaInitDataBlock(DATA_BLOCK* str);
+LIBRARY_API void udaInitDataBlockList(DATA_BLOCK_LIST* str);
+LIBRARY_API void udaInitDimBlock(DIMS* str);
+LIBRARY_API void udaInitDataSystem(DATA_SYSTEM* str);
+LIBRARY_API void udaInitSystemConfig(SYSTEM_CONFIG* str);
+LIBRARY_API void udaInitDataSource(DATA_SOURCE* str);
+LIBRARY_API void udaInitSignal(SIGNAL* str);
+LIBRARY_API void udaInitSignalDesc(SIGNAL_DESC* str);
+LIBRARY_API void udaInitPutDataBlock(PUTDATA_BLOCK* str);
+LIBRARY_API void udaInitPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
 #ifdef __cplusplus
 }

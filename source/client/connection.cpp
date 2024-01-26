@@ -568,7 +568,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t* tv_server_st
     return 0;
 }
 
-void closeAllConnections()
+void udaCloseAllConnections()
 {
     closeConnection(ClosedownType::CLOSE_ALL);
 }

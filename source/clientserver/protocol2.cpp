@@ -560,7 +560,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                 // Fetch multiple put blocks
 
                 PUTDATA_BLOCK putData;
-                initIdamPutDataBlock(&putData);
+                udaInitPutDataBlock(&putData);
 
                 if (!xdr_putdata_block1(xdrs, &putData)) {
                     err = UDA_PROTOCOL_ERROR_61;
@@ -598,7 +598,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
 
                     // *** Add to malloclog and test to ensure it is freed after use ***
 
-                    initDataBlock(data_block);
+                    udaInitDataBlock(data_block);
                     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                     data_block->data_n = (int)putData.count;         // This number (also rank and shape)
                     data_block->opaque_block = putData.opaque_block; // User Defined Type
@@ -660,7 +660,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                     //   *** putdata.opaque_count is not used or needed - count is sufficient
 
                     DATA_BLOCK data_block;
-                    initDataBlock(&data_block);
+                    udaInitDataBlock(&data_block);
                     data_block.opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                     data_block.data_n =
                         (int)putDataBlockList->putDataBlock[i].count; // This number (also rank and shape)
@@ -740,7 +740,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
             if (data_block->rank > 0) { // Check if there are Dimensional Data to Receive
 
                 for (unsigned int i = 0; i < data_block->rank; i++) {
-                    initDimBlock(&data_block->dims[i]);
+                    udaInitDimBlock(&data_block->dims[i]);
                 }
 
                 if (!xdr_data_dim1(xdrs, data_block)) {
@@ -902,7 +902,7 @@ static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int
             data_block_list->data = (DATA_BLOCK*)malloc(data_block_list->count * sizeof(DATA_BLOCK));
             for (int i = 0; i < data_block_list->count; ++i) {
                 DATA_BLOCK* data_block = &data_block_list->data[i];
-                initDataBlock(data_block);
+                udaInitDataBlock(data_block);
                 err = handle_data_block(xdrs, XDR_RECEIVE, data_block, protocolVersion);
                 if (err != 0) {
                     err = UDA_PROTOCOL_ERROR_2;
@@ -956,7 +956,7 @@ static int handle_request_block(XDR* xdrs, int direction, const void* str, int p
             }
             request_block->requests = (REQUEST_DATA*)malloc(request_block->num_requests * sizeof(REQUEST_DATA));
             for (int i = 0; i < request_block->num_requests; ++i) {
-                initRequestData(&request_block->requests[i]);
+                udaInitRequestData(&request_block->requests[i]);
                 if (!xdr_request_data(xdrs, &request_block->requests[i], protocolVersion)) {
                     err = UDA_PROTOCOL_ERROR_2;
                     break;

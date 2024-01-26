@@ -130,10 +130,10 @@ int udaServer(CLIENT_BLOCK client_block)
     // Reinitialised after each logging action
 
     udaInitErrorStack();
-    initServerBlock(&server_block, server_version);
+    udaInitServerBlock(&server_block, server_version);
     initActions(&actions_desc); // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
-    initRequestBlock(&request_block);
+    udaInitRequestBlock(&request_block);
 
     uda::cache::UdaCache* cache = uda::cache::open_cache();
 
@@ -381,7 +381,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
 
     int err = 0;
 
-    initClientBlock(client_block, 0, "");
+    udaInitClientBlock(client_block, 0, "");
 
     UDA_LOG(UDA_LOG_DEBUG, "Waiting to receive Client Block\n");
 
@@ -673,9 +673,9 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     //----------------------------------------------------------------------
     // Initialise Data Structures
 
-    initDataSource(&metadata_block->data_source);
-    initSignalDesc(&metadata_block->signal_desc);
-    initSignal(&metadata_block->signal_rec);
+    udaInitDataSource(&metadata_block->data_source);
+    udaInitSignalDesc(&metadata_block->signal_desc);
+    udaInitSignal(&metadata_block->signal_rec);
 
     //----------------------------------------------------------------------------------------------
     // If this is a PUT request then receive the putData structure
@@ -683,7 +683,7 @@ int handleRequest(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERV
     for (int i = 0; i < request_block->num_requests; ++i) {
         REQUEST_DATA* request = &request_block->requests[0];
 
-        initPutDataBlockList(&request->putDataBlockList);
+        udaInitPutDataBlockList(&request->putDataBlockList);
 
         if (request->put) {
             if ((err = protocol2(server_input, UDA_PROTOCOL_PUTDATA_BLOCK_LIST, XDR_RECEIVE, nullptr, log_malloc_list,
@@ -910,8 +910,8 @@ int doServerLoop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
         UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
         udaCloseError();
 
-        UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
-        initServerBlock(server_block, server_version);
+        UDA_LOG(UDA_LOG_DEBUG, "udaInitServerBlock\n");
+        udaInitServerBlock(server_block, server_version);
 
         //----------------------------------------------------------------------------
         // Server Wait Loop
@@ -987,7 +987,7 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
 {
     static int authenticationNeeded = 1; // No data access until this is set TRUE
 
-    initClientBlock(client_block, 0, "");
+    udaInitClientBlock(client_block, 0, "");
 
     if (authenticationNeeded && protocolVersion >= UDA_SECURITY_VERSION) {
         // User or intermediate server Must Authenticate
@@ -1037,7 +1037,7 @@ int handshakeClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int*
 {
     // Exchange version details - once only
 
-    initClientBlock(client_block, 0, "");
+    udaInitClientBlock(client_block, 0, "");
 
     // Receive the client block, respecting earlier protocol versions
 

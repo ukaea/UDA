@@ -153,7 +153,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     if (data_block->rank > 0) { // Check if there are Dimensional Data to Receive
                         for (unsigned int i = 0; i < data_block->rank; i++) {
-                            initDimBlock(&data_block->dims[i]);
+                            udaInitDimBlock(&data_block->dims[i]);
                         }
 
                         if (!xdr_data_dim1(xdrs, data_block)) {
@@ -327,7 +327,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     for (unsigned int i = 0; i < blockCount; i++) { // Fetch multiple put blocks
 
-                        initIdamPutDataBlock(&putData);
+                        udaInitPutDataBlock(&putData);
 
                         if (!xdr_putdata_block1(xdrs, &putData)) {
                             err = UDA_PROTOCOL_ERROR_61;

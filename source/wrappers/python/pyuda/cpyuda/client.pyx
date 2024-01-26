@@ -42,17 +42,17 @@ def set_property(prop_name, value):
         raise ValueError('invalid property ' + prop_name)
     if _properties[prop_name][1]:
         prop_string = prop_name + '=' + str(value)
-        uda.setIdamProperty(prop_string.encode())
+        uda.udaSetProperty(prop_string.encode())
     elif value:
-        uda.setIdamProperty(prop_name.encode())
+        uda.udaSetProperty(prop_name.encode())
     else:
-        uda.resetIdamProperty(prop_name.encode())
+        uda.udaResetProperty(prop_name.encode())
 
 
 def get_property(prop_name):
     if prop_name.lower() not in _properties:
         raise ValueError('invalid property ' + prop_name)
-    prop = uda.getIdamProperty(prop_name.encode())
+    prop = uda.udaGetProperty(prop_name.encode())
     if _properties[prop_name][1]:
         return prop
     else:
@@ -60,11 +60,11 @@ def get_property(prop_name):
 
 
 def get_server_host_name():
-    return uda.getIdamServerHost().decode()
+    return uda.udaGetServerHost().decode()
 
 
 def get_server_port():
-    return uda.getIdamServerPort()
+    return uda.udaGetServerPort()
 
 
 def get_build_version():
@@ -76,24 +76,24 @@ def get_build_date():
 
 
 def set_server_host_name(host_name):
-    uda.putIdamServerHost(host_name.encode())
+    uda.udaPutServerHost(host_name.encode())
 
 
 def set_server_port(port):
-    uda.putIdamServerPort(port)
+    uda.udaPutServerPort(port)
 
 
 def close_connection():
-    uda.closeAllConnections()
+    uda.udaCloseAllConnections()
 
 
 def get_data(signal, source):
-    handle = uda.idamGetAPI(signal.encode(), source.encode())
+    handle = uda.udaGetAPI(signal.encode(), source.encode())
     cdef const char* err_msg
     cdef int err_code
     if handle < 0:
-        err_msg = uda.getIdamErrorMsg(handle)
-        err_code = uda.getIdamErrorCode(handle)
+        err_msg = uda.udaGetErrorMsg(handle)
+        err_code = uda.udaGetErrorCode(handle)
         if err_msg == NULL or string.strlen(err_msg) == 0:
             raise UDAException("unknown error occured")
         elif err_code < 0:
@@ -119,10 +119,10 @@ def get_data_batch(signals, sources):
             bytes = source.encode()
             source_bytes.append(bytes)
             sources_array[i] = bytes
-        rc = uda.idamGetBatchAPI(signals_array, sources_array, len(signals), handles)
+        rc = uda.udaGetBatchAPI(signals_array, sources_array, len(signals), handles)
         if rc < 0:
-            err_msg = uda.getIdamErrorMsg(rc)
-            err_code = uda.getIdamErrorCode(rc)
+            err_msg = uda.udaGetErrorMsg(rc)
+            err_code = uda.udaGetErrorCode(rc)
             if err_msg == NULL or string.strlen(err_msg) == 0:
                 raise UDAException("unknown error occured")
             elif err_code < 0:
@@ -140,7 +140,7 @@ def get_data_batch(signals, sources):
 
 
 cdef put_nothing(const char* instruction):
-    cdef int handle = uda.idamPutAPI(instruction, NULL)
+    cdef int handle = uda.udaPutAPI(instruction, NULL)
     return Result(Handle(handle))
 
 
@@ -203,7 +203,7 @@ cdef put_ndarray_string(const char* instruction, np.ndarray data):
         raise UDAException("String arrays with more than 1 dimension are not supported for putting to the server")
 
     cdef uda.PUTDATA_BLOCK put_data
-    uda.initIdamPutDataBlock(&put_data)
+    uda.udaInitPutDataBlock(&put_data)
 
     cdef np.npy_intp* shape = np.PyArray_DIMS(data)
     cdef int size = data.dtype.itemsize
@@ -227,14 +227,14 @@ cdef put_ndarray_string(const char* instruction, np.ndarray data):
     put_string = bytearray(fixed_len_array).decode().encode()
     put_data.data = put_string
 
-    cdef int handle = uda.idamPutAPI(instruction, &put_data)
+    cdef int handle = uda.udaPutAPI(instruction, &put_data)
     free(put_data.shape)
     return Result(Handle(handle))
 
 
 cdef put_ndarray(const char* instruction, np.ndarray data):
     cdef uda.PUTDATA_BLOCK put_data
-    uda.initIdamPutDataBlock(&put_data)
+    uda.udaInitPutDataBlock(&put_data)
 
     cdef int rank = np.PyArray_NDIM(data)
     cdef np.npy_intp* shape = np.PyArray_DIMS(data)
@@ -250,14 +250,14 @@ cdef put_ndarray(const char* instruction, np.ndarray data):
         i += 1
     put_data.data = np.PyArray_BYTES(data)
 
-    cdef int handle = uda.idamPutAPI(instruction, &put_data)
+    cdef int handle = uda.udaPutAPI(instruction, &put_data)
     free(put_data.shape)
     return Result(Handle(handle))
 
 
 cdef put_scalar(const char* instruction, object data):
     cdef uda.PUTDATA_BLOCK put_data
-    uda.initIdamPutDataBlock(&put_data)
+    uda.udaInitPutDataBlock(&put_data)
 
     cdef np.dtype type = np.PyArray_DescrFromScalar(data)
     cdef char* bytes = <char *> malloc(type.itemsize)
@@ -269,14 +269,14 @@ cdef put_scalar(const char* instruction, object data):
     put_data.shape = NULL
     put_data.data = bytes
 
-    cdef int handle = uda.idamPutAPI(instruction, &put_data)
+    cdef int handle = uda.udaPutAPI(instruction, &put_data)
     free(bytes)
     return Result(Handle(handle))
 
 
 cdef put_string(const char* instruction, const char* data):
     cdef uda.PUTDATA_BLOCK put_data
-    uda.initIdamPutDataBlock(&put_data)
+    uda.udaInitPutDataBlock(&put_data)
 
     cdef int string_length = strlen(data)
 
@@ -286,7 +286,7 @@ cdef put_string(const char* instruction, const char* data):
     put_data.shape = NULL
     put_data.data = data
 
-    cdef int handle = uda.idamPutAPI(instruction, &put_data)
+    cdef int handle = uda.udaPutAPI(instruction, &put_data)
     return Result(Handle(handle))
 
 

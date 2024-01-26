@@ -40,7 +40,7 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
     }
 
     NAMEVALUELIST newNameValueList;
-    initNameValueList(&newNameValueList);
+    udaInitNameValueList(&newNameValueList);
 
     unsigned short strip = 0; // Do Not Remove enclosing quotes from name value pairs
     if (name_value_pairs(tpass, &newNameValueList, strip) == -1) {
@@ -241,7 +241,7 @@ void embedded_value_substitution(NAMEVALUELIST* nameValueList)
             continue;
         }
 
-        initNameValueList(&newNameValueList);
+        udaInitNameValueList(&newNameValueList);
 
         UDA_LOG(UDA_LOG_DEBUG, "Extracting Name Value Pairs from [%d]: %s\n", i, nameValueList->nameValue[i].value);
 

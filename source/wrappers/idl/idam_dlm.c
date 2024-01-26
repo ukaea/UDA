@@ -743,10 +743,10 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
     // Array?, data[]
 
     PUTDATA_BLOCK putData;
-    initIdamPutDataBlock(&putData);
+    udaInitPutDataBlock(&putData);
 
     PUTDATA_BLOCK_LIST putDataBlockList;
-    initPutDataBlockList(&putDataBlockList);
+    udaInitPutDataBlockList(&putDataBlockList);
 
     int rank = 0, count = 0;
     int type = IDL_TYP_UNDEF;

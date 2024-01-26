@@ -32,7 +32,7 @@ void copy_data_block(DATA_BLOCK* str, DATA_BLOCK* in)
     memcpy(str->data_label, in->data_label, STRING_LENGTH);
     memcpy(str->data_desc, in->data_desc, STRING_LENGTH);
     memcpy(str->error_msg, in->error_msg, STRING_LENGTH);
-    initClientBlock(&str->client_block, 0, "");
+    udaInitClientBlock(&str->client_block, 0, "");
 }
 
 void copy_client_block(CLIENT_BLOCK* str, const ClientFlags* client_flags)
@@ -155,7 +155,7 @@ uda::client::Client::Client() : connection_{environment_}, protocol_version_{Cli
     userid(username);
     client_username_ = username;
 
-    initClientBlock(&client_block_, ClientVersion, client_username_.c_str());
+    udaInitClientBlock(&client_block_, ClientVersion, client_username_.c_str());
 
     //----------------------------------------------------------------
     // Check if Output Requested
@@ -328,7 +328,7 @@ int get_data_status(DATA_BLOCK* data_block)
 
 int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
 {
-    initServerBlock(&server_block_, 0);
+    udaInitServerBlock(&server_block_, 0);
     udaInitErrorStack();
 
     time_t tv_server_start = 0;
@@ -595,7 +595,7 @@ int uda::client::Client::send_putdata(const RequestBlock& request_block)
 int uda::client::Client::get(std::string_view data_signal, std::string_view data_source)
 {
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    udaInitRequestBlock(&request_block);
 
     auto signal_ptr = data_signal.data();
     auto source_ptr = data_source.data();
@@ -619,7 +619,7 @@ int uda::client::Client::get(std::string_view data_signal, std::string_view data
 std::vector<int> uda::client::Client::get(std::vector<std::pair<std::string, std::string>>& requests)
 {
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    udaInitRequestBlock(&request_block);
 
     std::vector<const char*> signals;
     std::transform(requests.begin(), requests.end(), std::back_inserter(signals),
@@ -1202,7 +1202,7 @@ void uda::client::Client::set_full_ntree(NTREE* full_ntree)
 int uda::client::Client::put(std::string_view put_instruction, PUTDATA_BLOCK* putdata_block)
 {
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    udaInitRequestBlock(&request_block);
 
     auto signal_ptr = put_instruction.data();
     auto source_ptr = "";
@@ -1231,7 +1231,7 @@ int uda::client::Client::put(std::string_view put_instruction, PUTDATA_BLOCK* pu
 int uda::client::Client::put(std::string_view put_instruction, PUTDATA_BLOCK_LIST* putdata_block_list)
 {
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    udaInitRequestBlock(&request_block);
 
     auto signal_ptr = put_instruction.data();
     auto source_ptr = "";

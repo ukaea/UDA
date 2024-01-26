@@ -574,12 +574,12 @@ int ViewportPlugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         // Return viewport data
         DATA_BLOCK* data_block = plugin_interface->data_block;
 
-        initDataBlock(data_block);
+        udaInitDataBlock(data_block);
 
         data_block->rank = 1;
         data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
         for (unsigned int i = 0; i < data_block->rank; i++) {
-            initDimBlock(&data_block->dims[i]);
+            udaInitDimBlock(&data_block->dims[i]);
         }
 
         data_block->data_n = pixelWidth2;

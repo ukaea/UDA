@@ -292,7 +292,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
     }
 
     RequestData request = {};
-    initRequestData(&request);
+    udaInitRequestData(&request);
 
     strcpy(request.api_delim, "::");
     strcpy(request.source, "");
@@ -326,7 +326,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
 
     // Initialise the Data Block
 
-    initDataBlock(&data_block);
+    udaInitDataBlock(&data_block);
 
     UDA_LOG(UDA_LOG_DEBUG, "Creating plugin interface\n");
 
@@ -482,7 +482,7 @@ int uda::call_metadata_plugin(const PluginData& plugin, RequestData* request_blo
     }
 
     DataBlock data_block = {};
-    initDataBlock(&data_block);
+    udaInitDataBlock(&data_block);
     data_block.signal_rec = &metadata.signal_rec;
 
     UserDefinedTypeList userdefinedtypelist = {};

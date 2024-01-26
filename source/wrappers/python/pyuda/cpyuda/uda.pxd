@@ -1,19 +1,19 @@
 from libcpp cimport bool as cbool
 
 cdef extern from "client.h":
-    const char* getIdamServerHost();
-    int getIdamServerPort();
+    const char* udaGetServerHost();
+    int udaGetServerPort();
     const char* udaGetBuildVersion();
     const char* udaGetBuildDate();
     void udaFree(int handle);
     CLIENT_FLAGS* udaClientFlags();
-    void closeAllConnections();
+    void udaCloseAllConnections();
 
     ctypedef struct CLIENT_FLAGS
 
 cdef extern from "udaGetAPI.h":
-    int idamGetAPI(const char* data_object, const char* data_source);
-    int idamGetBatchAPI(const char** signals, const char** sources, int count, int* handles);
+    int udaGetAPI(const char* data_object, const char* data_source);
+    int udaGetBatchAPI(const char** signals, const char** sources, int count, int* handles);
 
 cdef extern from "genStructs.h":
     ctypedef struct NTREE:                  # N-ary Tree linking all related user defined data structures: definitions and data
@@ -106,56 +106,56 @@ cdef extern from "udaStructs.h":
         PUTDATA_BLOCK* putDataBlock;    # Array of data blocks
 
 cdef extern from "accAPI.h":
-    char* getIdamData(int handle);
-    char* getIdamError(int handle);
-    int getIdamDataNum(int handle);
-    int getIdamDataType(int handle);
-    int getIdamErrorType(int handle);
-    void putIdamServerHost(const char* host);
-    void putIdamServerPort(int port);
-    int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags)
-    void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags);
-    void resetIdamProperty(const char* property, CLIENT_FLAGS* client_flags);
-    const char* getIdamDataLabel(int handle);
-    const char* getIdamDataUnits(int handle);
-    const char* getIdamDataDesc(int handle);
-    int getIdamRank(int handle);
-    int getIdamDimNum(int handle, int ndim);
-    int getIdamDimType(int handle, int ndim);
-    int getIdamDimErrorType(int handle, int ndim);
-    const char* getIdamDimLabel(int handle, int ndim);
-    const char* getIdamDimUnits(int handle, int ndim);
-    char* getIdamDimData(int handle, int ndim);
-    char* getIdamDimError(int handle, int ndim);
-    DATA_SOURCE* getIdamDataSource(int handle);
-    SIGNAL_DESC* getIdamSignalDesc(int handle);
-    int setIdamDataTree(int handle);
-    CLIENT_BLOCK* getIdamProperties(int handle);
-    const char* getIdamErrorMsg(int handle);
-    int getIdamErrorCode(int handle);
-    int getIdamOrder(int handle);
-    NTREE* getIdamDataTree(int handle);
-    LOGMALLOCLIST* getIdamLogMallocList(int handle);
+    char* udaGetData(int handle);
+    char* udaGetError(int handle);
+    int udaGetDataNum(int handle);
+    int udaGetDataType(int handle);
+    int udaGetErrorType(int handle);
+    void udaPutServerHost(const char* host);
+    void udaPutServerPort(int port);
+    int udaGetProperty(const char* property)
+    void udaSetProperty(const char* property);
+    void udaResetProperty(const char* property);
+    const char* udaGetDataLabel(int handle);
+    const char* udaGetDataUnits(int handle);
+    const char* udaGetDataDesc(int handle);
+    int udaGetRank(int handle);
+    int udaGetDimNum(int handle, int ndim);
+    int udaGetDimType(int handle, int ndim);
+    int udaGetDimErrorType(int handle, int ndim);
+    const char* udaGetDimLabel(int handle, int ndim);
+    const char* udaGetDimUnits(int handle, int ndim);
+    char* udaGetDimData(int handle, int ndim);
+    char* udaGetDimError(int handle, int ndim);
+    DATA_SOURCE* udaGetDataSource(int handle);
+    SIGNAL_DESC* udaGetSignalDesc(int handle);
+    int udaSetDataTree(int handle);
+    CLIENT_BLOCK* udaGetProperties(int handle);
+    const char* udaGetErrorMsg(int handle);
+    int udaGetErrorCode(int handle);
+    int udaGetOrder(int handle);
+    NTREE* udaGetDataTree(int handle);
+    LOGMALLOCLIST* udaGetLogMallocList(int handle);
 
 cdef extern from "initStructs.h":
-    void initIdamPutDataBlock(PUTDATA_BLOCK* str);
-    void initPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+    void udaInitPutDataBlock(PUTDATA_BLOCK* str);
+    void udaInitPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
 cdef extern from "udaPutAPI.h":
-    int idamPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);
+    int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData);
 
 cdef extern from "struct.h":
-    int getNodeChildrenCount(NTREE* ntree);
-    NTREE* getNodeChild(NTREE* ntree, int child);
-    char* getNodeStructureName(NTREE* ntree);
-    int getNodeAtomicCount(NTREE* ntree);
-    char** getNodeAtomicNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
-    char** getNodeStructureTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
-    char** getNodeAtomicTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
-    int* getNodeAtomicPointers(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
-    int* getNodeAtomicRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
-    int** getNodeAtomicShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
-    void* getNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
+    int udaGetNodeChildrenCount(NTREE* ntree);
+    NTREE* udaGetNodeChild(NTREE* ntree, int child);
+    char* udaGetNodeStructureName(NTREE* ntree);
+    int udaGetNodeAtomicCount(NTREE* ntree);
+    char** udaGetNodeAtomicNames(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
+    char** udaGetNodeStructureTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
+    char** udaGetNodeAtomicTypes(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
+    int* udaGetNodeAtomicPointers(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
+    int* udaGetNodeAtomicRank(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
+    int** udaGetNodeAtomicShape(LOGMALLOCLIST* logmalloclist, NTREE* ntree);
+    void* udaGetNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
 
 IF CAPNP:
     cdef extern from "serialisation/capnp_serialisation.h":

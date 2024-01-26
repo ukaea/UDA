@@ -19,35 +19,35 @@ cdef class Dim:
         self._data_type = data_type
 
     def label(self):
-        cdef const char* label = uda.getIdamDimLabel(int(self._handle), self._num)
+        cdef const char* label = uda.udaGetDimLabel(int(self._handle), self._num)
         return label.decode(errors='replace')
 
     def units(self):
-        cdef const char* units = uda.getIdamDimUnits(int(self._handle), self._num)
+        cdef const char* units = uda.udaGetDimUnits(int(self._handle), self._num)
         return units.decode(errors='replace')
 
     cdef int _size(self):
-        cdef int size = uda.getIdamDimNum(int(self._handle), self._num)
+        cdef int size = uda.udaGetDimNum(int(self._handle), self._num)
         return size
 
     cdef int _type(self):
-        cdef int type = uda.getIdamDimType(int(self._handle), self._num)
+        cdef int type = uda.udaGetDimType(int(self._handle), self._num)
         return type
 
     def type(self):
         cdef int type
         if self._data_type == DataType.DATA:
-            type = uda.getIdamDimType(int(self._handle), self._num)
+            type = uda.udaGetDimType(int(self._handle), self._num)
         else:
-            type = uda.getIdamDimErrorType(int(self._handle), self._num)
+            type = uda.udaGetDimErrorType(int(self._handle), self._num)
         return type
 
     cdef const char* _data(self):
         cdef const char* data
         if self._data_type == DataType.DATA:
-            data = uda.getIdamDimData(int(self._handle), self._num)
+            data = uda.udaGetDimData(int(self._handle), self._num)
         else:
-            data = uda.getIdamDimError(int(self._handle), self._num)
+            data = uda.udaGetDimError(int(self._handle), self._num)
         return data
 
     def data(self):

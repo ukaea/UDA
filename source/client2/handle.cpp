@@ -172,6 +172,6 @@ void uda::client::free_handle(int handle)
 
     // closeIdamError(&server_block.idamerrorstack);
 
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
     data_block->handle = -1; // Flag this as ready for re-use
 }

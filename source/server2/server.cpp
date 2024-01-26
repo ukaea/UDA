@@ -53,10 +53,10 @@ void print_data_block_list(const std::vector<DATA_BLOCK>& data_blocks)
 
 uda::Server::Server() : error_stack_{}, environment_{}, sockets_{}
 {
-    initServerBlock(&server_block_, ServerVersion);
+    udaInitServerBlock(&server_block_, ServerVersion);
     initActions(&actions_desc_); // There may be a Sequence of Actions to Apply
     initActions(&actions_sig_);
-    initRequestBlock(&request_block_);
+    udaInitRequestBlock(&request_block_);
     cache_ = cache::open_cache();
 }
 
@@ -292,8 +292,8 @@ void uda::Server::loop()
         UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
         udaCloseError();
 
-        UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
-        initServerBlock(&server_block_, ServerVersion);
+        UDA_LOG(UDA_LOG_DEBUG, "udaInitServerBlock\n");
+        udaInitServerBlock(&server_block_, ServerVersion);
 
         //----------------------------------------------------------------------------
         // Server Wait Loop
@@ -313,7 +313,7 @@ int uda::Server::handle_request()
 
     int err = 0;
 
-    initClientBlock(&client_block_, 0, "");
+    udaInitClientBlock(&client_block_, 0, "");
 
     err = protocol_.recv_client_block(server_block_, &client_block_, &fatal_error_, server_tot_block_time_,
                                       &server_timeout_, log_malloc_list_, user_defined_type_list_);
@@ -580,9 +580,9 @@ int uda::Server::handle_request()
     //----------------------------------------------------------------------
     // Initialise Data Structures
 
-    initDataSource(&metadata_block_.data_source);
-    initSignalDesc(&metadata_block_.signal_desc);
-    initSignal(&metadata_block_.signal_rec);
+    udaInitDataSource(&metadata_block_.data_source);
+    udaInitSignalDesc(&metadata_block_.signal_desc);
+    udaInitSignal(&metadata_block_.signal_rec);
 
     //----------------------------------------------------------------------------------------------
     // If this is a PUT request then receive the putData structure
@@ -590,7 +590,7 @@ int uda::Server::handle_request()
     for (int i = 0; i < request_block_.num_requests; ++i) {
         REQUEST_DATA* request = &request_block_.requests[0];
 
-        initPutDataBlockList(&request->putDataBlockList);
+        udaInitPutDataBlockList(&request->putDataBlockList);
 
         if (request->put) {
             err = protocol_.recv_putdata_block_list(&request->putDataBlockList, log_malloc_list_,
@@ -828,7 +828,7 @@ void uda::Server::handshake_client()
 {
     // Exchange version details - once only
 
-    initClientBlock(&client_block_, 0, "");
+    udaInitClientBlock(&client_block_, 0, "");
 
     // Receive the client block, respecting earlier protocol versions
 

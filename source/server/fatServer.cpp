@@ -113,8 +113,8 @@ int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLO
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
 
-    initServerBlock(server_block, server_version);
-    initDataBlockList(&data_blocks);
+    udaInitServerBlock(server_block, server_version);
+    udaInitDataBlockList(&data_blocks);
     initActions(&actions_desc); // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
 
@@ -293,9 +293,9 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     //----------------------------------------------------------------------
     // Initialise Data Structures
 
-    initDataSource(&metadata_block->data_source);
-    initSignalDesc(&metadata_block->signal_desc);
-    initSignal(&metadata_block->signal_rec);
+    udaInitDataSource(&metadata_block->data_source);
+    udaInitSignalDesc(&metadata_block->signal_desc);
+    udaInitSignal(&metadata_block->signal_rec);
 
     //----------------------------------------------------------------------------------------------
     // Decode the API Arguments: determine appropriate data plug-in to use
@@ -329,7 +329,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
         assert(i == data_blocks->count);
         data_blocks->data = (DATA_BLOCK*)realloc(data_blocks->data, (data_blocks->count + 1) * sizeof(DATA_BLOCK));
         auto data_block = &data_blocks->data[i];
-        initDataBlock(data_block);
+        udaInitDataBlock(data_block);
         err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
                          &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
                          &pluginList, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);

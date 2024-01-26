@@ -202,7 +202,7 @@ int udaGetAPIWithHost(const char* data_object, const char* data_source, const ch
     // Initialise the Client Data Request Structure
 
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    udaInitRequestBlock(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
@@ -316,7 +316,7 @@ int udaGetBatchAPIWithHost(const char** signals, const char** sources, int count
     // Initialise the Client Data Request Structure
 
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    udaInitRequestBlock(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)

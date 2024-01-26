@@ -235,9 +235,9 @@ LIBRARY_API SIGNAL_DESC* udaGetSignalDesc(int handle);
 
 LIBRARY_API const char* udaGetFileFormat(int handle);
 
-LIBRARY_API void udaInitDataBlock(DATA_BLOCK* str);
+// LIBRARY_API void udaInitDataBlock(DATA_BLOCK* str);
 
-LIBRARY_API void udaInitRequestBlock(REQUEST_BLOCK* str);
+// LIBRARY_API void udaInitRequestBlock(REQUEST_BLOCK* str);
 
 LIBRARY_API int udaDataCheckSum(void* data, int data_n, int type);
 

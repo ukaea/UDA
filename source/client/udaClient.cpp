@@ -193,7 +193,7 @@ void copyDataBlock(DATA_BLOCK* str, DATA_BLOCK* in)
     memcpy(str->data_label, in->data_label, STRING_LENGTH);
     memcpy(str->data_desc, in->data_desc, STRING_LENGTH);
     memcpy(str->error_msg, in->error_msg, STRING_LENGTH);
-    initClientBlock(&str->client_block, 0, "");
+    udaInitClientBlock(&str->client_block, 0, "");
 }
 
 void copyClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags)
@@ -407,7 +407,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         udaFreeErrorStack(&server_block.idamerrorstack); // Free Previous Stack Heap
     }
 
-    initServerBlock(&server_block, 0); // Reset previous Error Messages from the Server & Free Heap
+    udaInitServerBlock(&server_block, 0); // Reset previous Error Messages from the Server & Free Heap
     udaInitErrorStack();
 
     //-------------------------------------------------------------------------
@@ -565,7 +565,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         if (initServer && system_startup) {
             userid(client_username);
-            initClientBlock(&client_block, client_version, client_username);
+            udaInitClientBlock(&client_block, client_version, client_username);
             system_startup = false; // Don't call again!
         }
 
@@ -1004,7 +1004,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Fat Client Server
 
         DATA_BLOCK_LIST data_block_list0;
-        initDataBlockList(&data_block_list0);
+        udaInitDataBlockList(&data_block_list0);
         err = fatServer(client_block, &server_block, request_block, &data_block_list0);
 
         for (int i = 0; i < data_block_list0.count; ++i) {
@@ -1417,7 +1417,7 @@ void udaFree(int handle)
 
     // closeIdamError(&server_block.idamerrorstack);
     udaFreeErrorStack(&server_block.idamerrorstack);
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
     data_block->handle = -1; // Flag this as ready for re-use
 }
 

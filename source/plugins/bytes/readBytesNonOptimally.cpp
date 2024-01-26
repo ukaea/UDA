@@ -131,7 +131,7 @@ int readBytes(const std::string& path, UDA_PLUGIN_INTERFACE* plugin_interface)
 
         data_block->rank = 1;
         data_block->dims = (DIMS*)malloc(sizeof(DIMS));
-        initDimBlock(data_block->dims);
+        udaInitDimBlock(data_block->dims);
 
         data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
         data_block->dims[0].dim_n = data_block->data_n;

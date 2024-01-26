@@ -61,7 +61,7 @@ int allocData(DATA_BLOCK* data_block)
             return ERROR_ALLOCATING_HEAP;
         }
         for (unsigned int i = 0; i < data_block->rank; i++) {
-            initDimBlock(&data_block->dims[i]);
+            udaInitDimBlock(&data_block->dims[i]);
         }
     }
 

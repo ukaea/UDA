@@ -511,7 +511,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         // Write the structure components element by element! (Ignore the CLIENT_BLOCK component)
 
         DATA_BLOCK db;
-        initDataBlock(&db);
+        udaInitDataBlock(&db);
 
         auto odb = (OLD_DATA_BLOCK*)udaGetDataBlock(handle);
 

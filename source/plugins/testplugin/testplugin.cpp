@@ -203,13 +203,13 @@ int TestPlugin::test0(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     const char* help = "Hello World!";
 
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->rank = 1;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
     for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
+        udaInitDimBlock(&data_block->dims[i]);
     }
 
     if (STR_IEQUALS(request->function, "test0")) {
@@ -301,12 +301,12 @@ int TestPlugin::test2(UDA_PLUGIN_INTERFACE* plugin_interface)
     }
     free(sarr);
 
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->rank = 2;
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
+        udaInitDimBlock(&data_block->dims[i]);
     }
 
     if (STR_IEQUALS(request->function, "test2")) {
@@ -788,7 +788,7 @@ int TestPlugin::test9(UDA_PLUGIN_INTERFACE* plugin_interface)
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
     for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
+        udaInitDimBlock(&data_block->dims[i]);
     }
 
     data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
@@ -895,7 +895,7 @@ int TestPlugin::test9A(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
+        udaInitDimBlock(&data_block->dims[i]);
     }
 
     data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
@@ -1456,7 +1456,7 @@ int TestPlugin::test18(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
+        udaInitDimBlock(&data_block->dims[i]);
     }
 
     data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
@@ -1605,7 +1605,7 @@ int TestPlugin::test19(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
     for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
+        udaInitDimBlock(&data_block->dims[i]);
     }
 
     data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
@@ -2997,7 +2997,7 @@ int TestPlugin::test50(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     UDA_LOG(UDA_LOG_DEBUG, "test50: %s\n", work.c_str());
 
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->rank = 0;
     data_block->data_n = work.size();
@@ -3215,7 +3215,7 @@ int TestPlugin::test60(UDA_PLUGIN_INTERFACE* plugin_interface)
     udaAddUserDefinedType(userdefinedtypelist, usertype);
 
     DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->rank = 0;
     data_block->data_n = 1;
@@ -3383,7 +3383,7 @@ int TestPlugin::test61(UDA_PLUGIN_INTERFACE* plugin_interface)
     udaAddUserDefinedType(userdefinedtypelist, usertype);
 
     DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->rank = 0;
     data_block->data_n = 1;
@@ -3443,7 +3443,7 @@ int TestPlugin::test62(UDA_PLUGIN_INTERFACE* plugin_interface)
     udaAddMalloc(plugin_interface->logmalloclist, (void*)enumlist->enumarray_shape, 1, sizeof(int), "int");
 
     DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->rank = 0;
     data_block->data_n = 1;
@@ -3575,7 +3575,7 @@ int TestPlugin::scalartest(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     auto p = (int*)malloc(sizeof(int));
     *p = 10;
@@ -3590,7 +3590,7 @@ int TestPlugin::array1dtest(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     constexpr int N = 100;
     auto p = (double*)malloc(N * sizeof(double));
@@ -3603,7 +3603,7 @@ int TestPlugin::array1dtest(UDA_PLUGIN_INTERFACE* plugin_interface)
     data_block->rank = 1;
     data_block->dims = (DIMS*)malloc(sizeof(DIMS));
 
-    initDimBlock(data_block->dims);
+    udaInitDimBlock(data_block->dims);
     data_block->dims[0].dim_n = 100;
     data_block->dims[0].data_type = UDA_TYPE_INT;
     data_block->dims[0].compressed = 1;
@@ -3616,7 +3616,7 @@ int TestPlugin::array1dtest(UDA_PLUGIN_INTERFACE* plugin_interface)
 int TestPlugin::emptytest(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
     return 0;
 }
 
@@ -3674,7 +3674,7 @@ int TestPlugin::capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
     auto buffer = uda_capnp_serialise(tree);
 
     DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->data_n = static_cast<int>(buffer.size);
     data_block->data = buffer.data;
@@ -3730,7 +3730,7 @@ int TestPlugin::nested_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
     auto buffer = uda_capnp_serialise(tree);
 
     DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->data_n = static_cast<int>(buffer.size);
     data_block->data = buffer.data;
@@ -3769,7 +3769,7 @@ int TestPlugin::long_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
     auto buffer = uda_capnp_serialise(tree);
 
     DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->data_n = static_cast<int>(buffer.size);
     data_block->data = buffer.data;
@@ -3799,7 +3799,7 @@ int TestPlugin::large_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
     auto buffer = uda_capnp_serialise(tree);
 
     DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->data_n = static_cast<int>(buffer.size);
     data_block->data = buffer.data;
@@ -4038,7 +4038,7 @@ int TestPlugin::testudt(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Return IDAM status
 
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->rank = 0;
     data_block->data_n = 1;

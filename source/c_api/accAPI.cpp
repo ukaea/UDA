@@ -133,8 +133,8 @@ void udaLockThread()
             idamState[i].socket = -1;
             idamState[i].lastHandle = -1;
             // initEnvironment(&(idamState[i].environment));
-            initClientBlock(&(idamState[i].client_block), 0, "");
-            initServerBlock(&(idamState[i].server_block), 0);
+            udaInitClientBlock(&(idamState[i].client_block), 0, "");
+            udaInitServerBlock(&(idamState[i].server_block), 0);
             threadList[i] = 0; // and the thread identifiers
         }
     }
@@ -212,8 +212,8 @@ void udaFreeThread()
         idamState[threadCount].socket = -1;
         idamState[threadCount].lastHandle = -1;
         // initEnvironment(&(idamState[threadCount].environment));
-        initClientBlock(&(idamState[threadCount].client_block), 0, "");
-        initServerBlock(&(idamState[threadCount].server_block), 0);
+        udaInitClientBlock(&(idamState[threadCount].client_block), 0, "");
+        udaInitServerBlock(&(idamState[threadCount].server_block), 0);
         threadList[threadCount] = 0;
     }
     udaUnlockThread();
@@ -273,7 +273,7 @@ int udaGrowDataBlocks()
     }
 
     data_blocks.push_back({});
-    initDataBlock(&data_blocks.back());
+    udaInitDataBlock(&data_blocks.back());
     data_blocks.back().handle = data_blocks.size() - 1;
 
     udaPutThreadLastHandle(data_blocks.size() - 1);
@@ -302,7 +302,7 @@ int udaGetNewDataHandle()
             udaFree(newHandleIndex);
         } else {
             // Application has responsibility for freeing heap in the Data Block
-            initDataBlock(&data_blocks[newHandleIndex]);
+            udaInitDataBlock(&data_blocks[newHandleIndex]);
         }
         data_blocks[newHandleIndex].handle = newHandleIndex;
         return newHandleIndex;
@@ -311,10 +311,10 @@ int udaGetNewDataHandle()
     if ((newHandleIndex = findNewHandleIndex()) < 0) { // Search for an unused handle or issue a new one
         newHandleIndex = data_blocks.size();
         data_blocks.push_back({});
-        initDataBlock(&data_blocks[newHandleIndex]);
+        udaInitDataBlock(&data_blocks[newHandleIndex]);
         data_blocks[newHandleIndex].handle = newHandleIndex;
     } else {
-        initDataBlock(&data_blocks[newHandleIndex]);
+        udaInitDataBlock(&data_blocks[newHandleIndex]);
         data_blocks[newHandleIndex].handle = newHandleIndex;
     }
 
@@ -3650,15 +3650,15 @@ const char* udaGetFileFormat(int handle)
 //-----------------------------------------------------------------------------------------------------------
 // Various Utilities
 
-void udaInitDataBlock(DATA_BLOCK* str)
-{
-    initDataBlock(str);
-}
+// void udaInitDataBlock(DATA_BLOCK* str)
+// {
+//     udaInitDataBlock(str);
+// }
 
-void udaInitRequestBlock(REQUEST_BLOCK* str)
-{
-    initRequestBlock(str);
-}
+// void udaInitRequestBlock(REQUEST_BLOCK* str)
+// {
+//     udaInitRequestBlock(str);
+// }
 
 int udaDataCheckSum(void* data, int data_n, int type)
 {

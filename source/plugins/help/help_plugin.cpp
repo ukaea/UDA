@@ -81,7 +81,7 @@ int HelpPlugin::ping(UDA_PLUGIN_INTERFACE* plugin_interface)
     // return to the client
 
     DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;

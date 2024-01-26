@@ -64,7 +64,7 @@ int initPlugin(const UDA_PLUGIN_INTERFACE* plugin_interface)
 int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, const size_t* shape,
                             const char* description)
 {
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
@@ -77,7 +77,7 @@ int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, 
     size_t len = 1;
 
     for (size_t i = 0; i < rank; ++i) {
-        initDimBlock(&data_block->dims[i]);
+        udaInitDimBlock(&data_block->dims[i]);
 
         data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
         data_block->dims[i].dim_n = (int)shape[i];
@@ -102,7 +102,7 @@ int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, 
 int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank, const size_t* shape,
                              const char* description)
 {
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
@@ -115,7 +115,7 @@ int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank
     size_t len = 1;
 
     for (size_t i = 0; i < rank; ++i) {
-        initDimBlock(&data_block->dims[i]);
+        udaInitDimBlock(&data_block->dims[i]);
 
         data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
         data_block->dims[i].dim_n = (int)shape[i];
@@ -140,7 +140,7 @@ int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank
 int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const size_t* shape,
                           const char* description)
 {
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
@@ -153,7 +153,7 @@ int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, cons
     size_t len = 1;
 
     for (size_t i = 0; i < rank; ++i) {
-        initDimBlock(&data_block->dims[i]);
+        udaInitDimBlock(&data_block->dims[i]);
 
         data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
         data_block->dims[i].dim_n = (int)shape[i];
@@ -177,7 +177,7 @@ int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, cons
 
 int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* description)
 {
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     auto data = (double*)malloc(sizeof(double));
     data[0] = value;
@@ -197,7 +197,7 @@ int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* 
 
 int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* description)
 {
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     auto data = (float*)malloc(sizeof(float));
     data[0] = value;
@@ -217,7 +217,7 @@ int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* de
 
 int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* description)
 {
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     int* data = (int*)malloc(sizeof(int));
     data[0] = value;
@@ -237,7 +237,7 @@ int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* descri
 
 int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* description)
 {
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     long* data = (long*)malloc(sizeof(long));
     data[0] = value;
@@ -257,7 +257,7 @@ int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* desc
 
 int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* description)
 {
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     auto data = (short*)malloc(sizeof(short));
     data[0] = value;
@@ -277,7 +277,7 @@ int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* de
 
 int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* description)
 {
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->data_type = UDA_TYPE_STRING;
     data_block->data = strdup(value);
@@ -286,7 +286,7 @@ int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* d
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
     for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
+        udaInitDimBlock(&data_block->dims[i]);
     }
 
     if (description != nullptr) {
@@ -309,7 +309,7 @@ int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* d
 int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE type, int rank, const int* shape,
                   const char* description)
 {
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     data_block->data_type = type;
     data_block->data = (char*)malloc(size);
@@ -320,7 +320,7 @@ int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE typ
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
     for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
+        udaInitDimBlock(&data_block->dims[i]);
     }
 
     if (description != nullptr) {
