@@ -473,7 +473,7 @@ int uda::call_metadata_plugin(const PluginData& plugin, RequestData* request_blo
                               uda::MetadataBlock& metadata)
 {
     int err, reset, rc;
-    UdaPluginInterface idam_plugin_interface = {};
+    UdaPluginInterface plugin_interface = {};
 
     // Check the Interface Compliance
 
@@ -492,21 +492,21 @@ int uda::call_metadata_plugin(const PluginData& plugin, RequestData* request_blo
     udaInitLogMallocList(&logmalloclist);
 
     auto plugin_list = plugins.as_plugin_list();
-    idam_plugin_interface.interfaceVersion = 1;
-    idam_plugin_interface.pluginVersion = 0;
-    idam_plugin_interface.data_block = &data_block;
-    idam_plugin_interface.client_block = nullptr;
-    idam_plugin_interface.request_data = request_block;
-    idam_plugin_interface.data_source = &metadata.data_source;
-    idam_plugin_interface.signal_desc = &metadata.signal_desc;
-    idam_plugin_interface.environment = environment.p_env();
-    idam_plugin_interface.housekeeping = 0;
-    idam_plugin_interface.changePlugin = 0;
-    idam_plugin_interface.pluginList = &plugin_list;
-    idam_plugin_interface.userdefinedtypelist = &userdefinedtypelist;
-    idam_plugin_interface.logmalloclist = &logmalloclist;
-    idam_plugin_interface.error_stack.nerrors = 0;
-    idam_plugin_interface.error_stack.idamerror = nullptr;
+    plugin_interface.interfaceVersion = 1;
+    plugin_interface.pluginVersion = 0;
+    plugin_interface.data_block = &data_block;
+    plugin_interface.client_block = nullptr;
+    plugin_interface.request_data = request_block;
+    plugin_interface.data_source = &metadata.data_source;
+    plugin_interface.signal_desc = &metadata.signal_desc;
+    plugin_interface.environment = environment.p_env();
+    plugin_interface.housekeeping = 0;
+    plugin_interface.changePlugin = 0;
+    plugin_interface.pluginList = &plugin_list;
+    plugin_interface.userdefinedtypelist = &userdefinedtypelist;
+    plugin_interface.logmalloclist = &logmalloclist;
+    plugin_interface.error_stack.nerrors = 0;
+    plugin_interface.error_stack.idamerror = nullptr;
 
     // Redirect Output to temporary file if no file handles passed
 
@@ -517,7 +517,7 @@ int uda::call_metadata_plugin(const PluginData& plugin, RequestData* request_blo
 
     // Call the plugin (Error handling is managed within)
 
-    err = plugin.idamPlugin(&idam_plugin_interface);
+    err = plugin.idamPlugin(&plugin_interface);
 
     // Reset Redirected Output
 

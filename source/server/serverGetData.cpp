@@ -1112,7 +1112,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
     // Test for known File formats and Server protocols
 
     {
-        UDA_PLUGIN_INTERFACE idam_plugin_interface;
+        UDA_PLUGIN_INTERFACE plugin_interface;
 
         UDA_LOG(UDA_LOG_DEBUG, "creating the plugin interface structure\n");
 
@@ -1120,24 +1120,24 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
 
         udaInitDataBlock(data_block);
 
-        idam_plugin_interface.interfaceVersion = 1;
-        idam_plugin_interface.pluginVersion = 0;
-        idam_plugin_interface.sqlConnectionType = 0;
-        idam_plugin_interface.data_block = data_block;
-        idam_plugin_interface.client_block = &client_block;
-        idam_plugin_interface.request_data = request;
-        idam_plugin_interface.data_source = data_source;
-        idam_plugin_interface.signal_desc = signal_desc;
-        idam_plugin_interface.environment = environment;
-        idam_plugin_interface.sqlConnection = nullptr;
-        idam_plugin_interface.verbose = 0;
-        idam_plugin_interface.housekeeping = 0;
-        idam_plugin_interface.changePlugin = 0;
-        idam_plugin_interface.pluginList = pluginlist;
-        idam_plugin_interface.userdefinedtypelist = userdefinedtypelist;
-        idam_plugin_interface.logmalloclist = logmalloclist;
-        idam_plugin_interface.error_stack.nerrors = 0;
-        idam_plugin_interface.error_stack.idamerror = nullptr;
+        plugin_interface.interfaceVersion = 1;
+        plugin_interface.pluginVersion = 0;
+        plugin_interface.sqlConnectionType = 0;
+        plugin_interface.data_block = data_block;
+        plugin_interface.client_block = &client_block;
+        plugin_interface.request_data = request;
+        plugin_interface.data_source = data_source;
+        plugin_interface.signal_desc = signal_desc;
+        plugin_interface.environment = environment;
+        plugin_interface.sqlConnection = nullptr;
+        plugin_interface.verbose = 0;
+        plugin_interface.housekeeping = 0;
+        plugin_interface.changePlugin = 0;
+        plugin_interface.pluginList = pluginlist;
+        plugin_interface.userdefinedtypelist = userdefinedtypelist;
+        plugin_interface.logmalloclist = logmalloclist;
+        plugin_interface.error_stack.nerrors = 0;
+        plugin_interface.error_stack.idamerror = nullptr;
 
         int plugin_id;
 
@@ -1180,12 +1180,12 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
 #endif
 
                 // Call the plugin
-                int err = pluginlist->plugin[id].idamPlugin(&idam_plugin_interface);
-                for (unsigned int i = 0; i < idam_plugin_interface.error_stack.nerrors; ++i) {
-                    auto error = &idam_plugin_interface.error_stack.idamerror[i];
+                int err = pluginlist->plugin[id].idamPlugin(&plugin_interface);
+                for (unsigned int i = 0; i < plugin_interface.error_stack.nerrors; ++i) {
+                    auto error = &plugin_interface.error_stack.idamerror[i];
                     udaAddError(error->type, error->location, error->code, error->msg);
                 }
-                udaFreeErrorStack(&idam_plugin_interface.error_stack);
+                udaFreeErrorStack(&plugin_interface.error_stack);
 
 #ifndef FATCLIENT
                 // Reset Redirected Output
@@ -1216,7 +1216,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
                     }
                 }
 
-                if (!idam_plugin_interface.changePlugin) {
+                if (!plugin_interface.changePlugin) {
                     // job done!
 
                     data_block->source_status = data_source->status;

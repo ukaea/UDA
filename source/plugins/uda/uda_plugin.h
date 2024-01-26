@@ -12,7 +12,7 @@ extern "C" {
 #define THISPLUGIN_MAX_INTERFACE_VERSION 1 // Interface versions higher than this will not be understood!
 #define THISPLUGIN_DEFAULT_METHOD "help"
 
-int UDAPlugin(UDA_PLUGIN_INTERFACE* idam_plugin_interface);
+int UDAPlugin(UDA_PLUGIN_INTERFACE* plugin_interface);
 
 #ifdef __cplusplus
 }

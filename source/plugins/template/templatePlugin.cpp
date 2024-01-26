@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------
  * v1 UDA Plugin Template: Standardised plugin design template, just add ...
  *
- * Input Arguments:    UDA_PLUGIN_INTERFACE *idam_plugin_interface
+ * Input Arguments:    UDA_PLUGIN_INTERFACE *plugin_interface
  *
  * Returns:        0 if the plugin functionality was successful
  *            otherwise a Error Code is returned

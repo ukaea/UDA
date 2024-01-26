@@ -16,7 +16,7 @@ extern "C" {
 #define MAXSIGNALNAME 256
 #define FREEHANDLEBLOCK 4
 
-int viewport(UDA_PLUGIN_INTERFACE* idam_plugin_interface);
+int viewport(UDA_PLUGIN_INTERFACE* plugin_interface);
 
 #ifdef __cplusplus
 }

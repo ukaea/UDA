@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-int testPlugin(UDA_PLUGIN_INTERFACE* idam_plugin_interface);
+int testPlugin(UDA_PLUGIN_INTERFACE* plugin_interface);
 
 #ifdef __cplusplus
 }

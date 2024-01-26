@@ -619,9 +619,9 @@ bool findValue(const NAMEVALUELIST* namevaluelist, const char* name)
 
 int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const UDA_PLUGIN_INTERFACE* old_plugin_interface)
 {
-    UDA_PLUGIN_INTERFACE idam_plugin_interface = *old_plugin_interface;
+    UDA_PLUGIN_INTERFACE plugin_interface = *old_plugin_interface;
     REQUEST_DATA request = *old_plugin_interface->request_data;
-    idam_plugin_interface.request_data = &request;
+    plugin_interface.request_data = &request;
 
     request.source[0] = '\0';
     strcpy(request.signal, signal);
@@ -636,7 +636,7 @@ int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const UDA_PLUGI
     int id = findPluginIdByRequest(request.request, pluginlist);
     PLUGIN_DATA* plugin = &(pluginlist->plugin[id]);
     if (id >= 0 && plugin->idamPlugin != nullptr) {
-        err = plugin->idamPlugin(&idam_plugin_interface); // Call the data reader
+        err = plugin->idamPlugin(&plugin_interface); // Call the data reader
     } else {
         RAISE_PLUGIN_ERROR("Data Access is not available for this data request!");
     }
@@ -647,7 +647,7 @@ int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const UDA_PLUGI
         initAction(&action);
         action.actionType = UDA_SUBSET_TYPE;
         action.subset = request.datasubset;
-        err = serverSubsetData(idam_plugin_interface.data_block, action, idam_plugin_interface.logmalloclist);
+        err = serverSubsetData(plugin_interface.data_block, action, plugin_interface.logmalloclist);
     }
 
     return err;

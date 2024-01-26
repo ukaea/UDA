@@ -42,16 +42,16 @@ void allocPluginList(int count, PLUGINLIST* plugin_list)
 void resetPlugins(const PLUGINLIST* plugin_list)
 {
     REQUEST_DATA request_block;
-    UDA_PLUGIN_INTERFACE idam_plugin_interface;
+    UDA_PLUGIN_INTERFACE plugin_interface;
     udaInitRequestData(&request_block);
     strcpy(request_block.function, "reset");
 
-    idam_plugin_interface.interfaceVersion = 1;
-    idam_plugin_interface.housekeeping = 1; // Force a full reset
-    idam_plugin_interface.request_data = &request_block;
+    plugin_interface.interfaceVersion = 1;
+    plugin_interface.housekeeping = 1; // Force a full reset
+    plugin_interface.request_data = &request_block;
     for (int i = 0; i < plugin_list->count; i++) {
         if (plugin_list->plugin[i].pluginHandle != nullptr) {
-            plugin_list->plugin[i].idamPlugin(&idam_plugin_interface); // Call the housekeeping method
+            plugin_list->plugin[i].idamPlugin(&plugin_interface); // Call the housekeeping method
         }
     }
 }
@@ -407,7 +407,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
 
     int err, rc, reset;
     DATA_BLOCK data_block;
-    UDA_PLUGIN_INTERFACE idam_plugin_interface;
+    UDA_PLUGIN_INTERFACE plugin_interface;
 
     // Initialise the Data Block
 
@@ -427,21 +427,21 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     LOGMALLOCLIST logmalloclist;
     udaInitLogMallocList(&logmalloclist);
 
-    idam_plugin_interface.interfaceVersion = 1;
-    idam_plugin_interface.pluginVersion = 0;
-    idam_plugin_interface.data_block = &data_block;
-    idam_plugin_interface.client_block = client_block;
-    idam_plugin_interface.request_data = &request;
-    idam_plugin_interface.data_source = data_source;
-    idam_plugin_interface.signal_desc = signal_desc;
-    idam_plugin_interface.environment = environment;
-    idam_plugin_interface.housekeeping = 0;
-    idam_plugin_interface.changePlugin = 0;
-    idam_plugin_interface.pluginList = plugin_list;
-    idam_plugin_interface.userdefinedtypelist = &userdefinedtypelist;
-    idam_plugin_interface.logmalloclist = &logmalloclist;
-    idam_plugin_interface.error_stack.nerrors = 0;
-    idam_plugin_interface.error_stack.idamerror = nullptr;
+    plugin_interface.interfaceVersion = 1;
+    plugin_interface.pluginVersion = 0;
+    plugin_interface.data_block = &data_block;
+    plugin_interface.client_block = client_block;
+    plugin_interface.request_data = &request;
+    plugin_interface.data_source = data_source;
+    plugin_interface.signal_desc = signal_desc;
+    plugin_interface.environment = environment;
+    plugin_interface.housekeeping = 0;
+    plugin_interface.changePlugin = 0;
+    plugin_interface.pluginList = plugin_list;
+    plugin_interface.userdefinedtypelist = &userdefinedtypelist;
+    plugin_interface.logmalloclist = &logmalloclist;
+    plugin_interface.error_stack.nerrors = 0;
+    plugin_interface.error_stack.idamerror = nullptr;
 
     // Redirect Output to temporary file if no file handles passed
 
@@ -454,7 +454,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
 
     UDA_LOG(UDA_LOG_DEBUG, "entering the provenance plugin\n");
 
-    err = plugin_list->plugin[plugin_id].idamPlugin(&idam_plugin_interface);
+    err = plugin_list->plugin[plugin_id].idamPlugin(&plugin_interface);
 
     UDA_LOG(UDA_LOG_DEBUG, "returned from the provenance plugin\n");
 
@@ -561,7 +561,7 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
                             const ENVIRONMENT* environment)
 {
     int err, reset, rc;
-    UDA_PLUGIN_INTERFACE idam_plugin_interface;
+    UDA_PLUGIN_INTERFACE plugin_interface;
 
     // Check the Interface Compliance
 
@@ -579,21 +579,21 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
     LOGMALLOCLIST logmalloclist;
     udaInitLogMallocList(&logmalloclist);
 
-    idam_plugin_interface.interfaceVersion = 1;
-    idam_plugin_interface.pluginVersion = 0;
-    idam_plugin_interface.data_block = &data_block;
-    idam_plugin_interface.client_block = nullptr;
-    idam_plugin_interface.request_data = request_block;
-    idam_plugin_interface.data_source = data_source;
-    idam_plugin_interface.signal_desc = signal_desc;
-    idam_plugin_interface.environment = environment;
-    idam_plugin_interface.housekeeping = 0;
-    idam_plugin_interface.changePlugin = 0;
-    idam_plugin_interface.pluginList = plugin_list;
-    idam_plugin_interface.userdefinedtypelist = &userdefinedtypelist;
-    idam_plugin_interface.logmalloclist = &logmalloclist;
-    idam_plugin_interface.error_stack.nerrors = 0;
-    idam_plugin_interface.error_stack.idamerror = nullptr;
+    plugin_interface.interfaceVersion = 1;
+    plugin_interface.pluginVersion = 0;
+    plugin_interface.data_block = &data_block;
+    plugin_interface.client_block = nullptr;
+    plugin_interface.request_data = request_block;
+    plugin_interface.data_source = data_source;
+    plugin_interface.signal_desc = signal_desc;
+    plugin_interface.environment = environment;
+    plugin_interface.housekeeping = 0;
+    plugin_interface.changePlugin = 0;
+    plugin_interface.pluginList = plugin_list;
+    plugin_interface.userdefinedtypelist = &userdefinedtypelist;
+    plugin_interface.logmalloclist = &logmalloclist;
+    plugin_interface.error_stack.nerrors = 0;
+    plugin_interface.error_stack.idamerror = nullptr;
 
     // Redirect Output to temporary file if no file handles passed
 
@@ -604,7 +604,7 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
 
     // Call the plugin (Error handling is managed within)
 
-    err = plugin_list->plugin[plugin_id].idamPlugin(&idam_plugin_interface);
+    err = plugin_list->plugin[plugin_id].idamPlugin(&plugin_interface);
 
     // Reset Redirected Output
 
