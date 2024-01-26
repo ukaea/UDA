@@ -5,8 +5,8 @@
 #  include <strings.h>
 #endif
 
-#include <include/errorLog.h>
 #include <clientserver/stringUtils.h>
+#include <include/errorLog.h>
 #include <include/logging.h>
 
 #ifndef FATCLIENT
@@ -68,7 +68,7 @@ int udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNA
                 } else {
                     err = 999;
                     udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                                 "Unmatched count of Target and Substitute File Paths.");
+                                "Unmatched count of Target and Substitute File Paths.");
                     break;
                 }
             }

@@ -7,9 +7,9 @@
  *--------------------------------------------------------------*/
 #include "sleepServer.h"
 
-#include <include/errorLog.h>
 #include <clientserver/protocol.h>
 #include <clientserver/xdrlib.h>
+#include <include/errorLog.h>
 #include <include/logging.h>
 #include <server/udaServer.h>
 

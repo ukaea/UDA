@@ -446,12 +446,12 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
         int shape = str->data_n;                        // rank 1 array of dimension lengths
         auto udt = (USERDEFINEDTYPE*)str->opaque_block; // The data's structure definition
         auto u = udaFindUserDefinedType(userdefinedtypelist, "SARRAY",
-                                     0); // Locate the carrier structure definition
+                                        0); // Locate the carrier structure definition
 
         if (udt == nullptr || u == nullptr) {
             err = 999;
             udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err,
-                         "nullptr User defined data Structure Definition");
+                        "nullptr User defined data Structure Definition");
             return 0;
         }
 
@@ -471,9 +471,9 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
         // Send the data
 
         rc = rc && udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist,
-                                           xdr_stdio_flag); // send the full set of known named structures
+                                             xdr_stdio_flag); // send the full set of known named structures
         rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
-                                          xdr_stdio_flag, log_struct_list, malloc_source); // send the Data
+                                             xdr_stdio_flag, log_struct_list, malloc_source); // send the Data
 
         if (!rc) {
             err = 999;
@@ -516,13 +516,13 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
         udaInitUserDefinedType(udt_received);
 
         rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
-                                          protocolVersion, xdr_stdio_flag, log_struct_list,
-                                          malloc_source); // receive the Data
+                                             protocolVersion, xdr_stdio_flag, log_struct_list,
+                                             malloc_source); // receive the Data
 
         if (!rc) {
             err = 999;
             udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err,
-                         "Failure receiving Data and it's Structure Definition");
+                        "Failure receiving Data and it's Structure Definition");
             return 0;
         }
 

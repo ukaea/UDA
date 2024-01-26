@@ -3,10 +3,10 @@
 #include <cstdlib>
 
 #include "udaErrors.h"
-#include <include/errorLog.h>
 #include <clientserver/protocol.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/xdrlib.h>
+#include <include/errorLog.h>
 #include <include/logging.h>
 
 #include "struct.h"
@@ -82,7 +82,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
             *data = malloc(datacount * userdefinedtype->size);
             if (structRank > 1 && structShape != nullptr) {
                 udaAddMalloc2(logmalloclist, *data, datacount, userdefinedtype->size, userdefinedtype->name, structRank,
-                           structShape);
+                              structShape);
             } else {
                 udaAddMalloc(logmalloclist, *data, datacount, userdefinedtype->size, userdefinedtype->name);
             }
@@ -198,7 +198,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                                     if (rcount != 0) { // there should be no remainder
                                         udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                                     "Specified malloc total size not integer multiple!");
+                                                    "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
                                 }
@@ -209,7 +209,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                         if ((count == 0 || size == 0) && *p != 0) {
                             udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                         "Type Float Data Heap Allocation not found in log!");
+                                        "Type Float Data Heap Allocation not found in log!");
                             break;
                         }
 
@@ -281,7 +281,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                     count = totalsize / size;
                                     if (rcount != 0) {
                                         udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                                     "Specified malloc total size not integer multiple!");
+                                                    "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
                                 }
@@ -292,7 +292,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                         if ((count == 0 || size == 0) && *p != 0) {
                             udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                         "Type Double Data Heap Allocation not found in log!");
+                                        "Type Double Data Heap Allocation not found in log!");
                             break;
                         }
 
@@ -345,7 +345,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                             break;
                         }
                         udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
-                                    &shape); // Assume count of 0 means No Pointer data to send!
+                                       &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
@@ -364,7 +364,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                     count = totalsize / size;
                                     if (rcount != 0) {
                                         udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                                     "Specified short malloc total size not integer multiple!");
+                                                    "Specified short malloc total size not integer multiple!");
                                         count = 0;
                                     }
                                 }
@@ -375,7 +375,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                         if ((count == 0 || size == 0) && *p != 0) {
                             udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                         "Short Data Heap Allocation not found in log!");
+                                        "Short Data Heap Allocation not found in log!");
                             break;
                         }
 
@@ -415,7 +415,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                             }
                             d = (char*)malloc(count * sizeof(unsigned char));
                             udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned char), "unsigned char", rank,
-                                       shape);
+                                          shape);
                             *p = (VOIDTYPE)d; // Save pointer: data will be written here
                         } else {
                             break;
@@ -428,7 +428,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                             break;
                         }
                         udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
-                                    &shape); // Assume count of 0 means No Pointer data to send!
+                                       &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
@@ -447,7 +447,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                     count = totalsize / size;
                                     if (rcount != 0) {
                                         udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                                     "Specified unsigned char malloc total size not integer multiple!");
+                                                    "Specified unsigned char malloc total size not integer multiple!");
                                         count = 0;
                                     }
                                 }
@@ -458,7 +458,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                         if ((count == 0 || size == 0) && *p != 0) {
                             udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                         "Unsigned Char Data Heap Allocation not found in log!");
+                                        "Unsigned Char Data Heap Allocation not found in log!");
                             break;
                         }
 
@@ -497,8 +497,8 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                 shape = nullptr;
                             }
                             d = (char*)malloc(count * sizeof(unsigned short));
-                            udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned short), "unsigned short", rank,
-                                       shape);
+                            udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned short), "unsigned short",
+                                          rank, shape);
                             *p = (VOIDTYPE)d; // Save pointer: data will be written here
                         } else {
                             break;
@@ -511,7 +511,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                             break;
                         }
                         udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
-                                    &shape); // Assume count of 0 means No Pointer data to send!
+                                       &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
@@ -529,9 +529,8 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                     size = sizeof(unsigned short);
                                     count = totalsize / size;
                                     if (rcount != 0) {
-                                        udaAddError(
-                                            UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                            "Specified unsigned short malloc total size not integer multiple!");
+                                        udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
+                                                    "Specified unsigned short malloc total size not integer multiple!");
                                         count = 0;
                                     }
                                 }
@@ -542,7 +541,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                         if ((count == 0 || size == 0) && *p != 0) {
                             udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                         "Unsigned Short Data Heap Allocation not found in log!");
+                                        "Unsigned Short Data Heap Allocation not found in log!");
                             break;
                         }
 
@@ -594,7 +593,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                             break;
                         }
                         udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
-                                    &shape); // Assume count of 0 means No Pointer data to send!
+                                       &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
@@ -613,7 +612,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                     count = totalsize / size;
                                     if (rcount != 0) {
                                         udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                                     "Specified malloc total size not integer multiple!");
+                                                    "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
                                 }
@@ -624,7 +623,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                         if ((count == 0 || size == 0) && *p != 0) {
                             udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                         "Integer Data Heap Allocation not found in log!");
+                                        "Integer Data Heap Allocation not found in log!");
                             break;
                         }
 
@@ -664,7 +663,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                             }
                             d = (char*)malloc(count * sizeof(unsigned int));
                             udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned int), "unsigned int", rank,
-                                       shape);
+                                          shape);
                             *p = (VOIDTYPE)d; // Save pointer: data will be written here
                         } else {
                             break;
@@ -677,7 +676,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                             break;
                         }
                         udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
-                                    &shape); // Assume count of 0 means No Pointer data to send!
+                                       &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
@@ -696,7 +695,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                     count = totalsize / size;
                                     if (rcount != 0) {
                                         udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                                     "Specified malloc total size not integer multiple!");
+                                                    "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
                                 }
@@ -706,7 +705,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                         rc = rc && xdr_int(xdrs, &count);
                         if ((count == 0 || size == 0) && *p != 0) {
                             udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                         "Unsigned Integer Data Heap Allocation not found in log!");
+                                        "Unsigned Integer Data Heap Allocation not found in log!");
                             break;
                         }
                         rc = rc && xdr_int(xdrs, &rank); // Send Shape of arrays
@@ -757,7 +756,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                             break;
                         }
                         udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
-                                    &shape); // Assume count of 0 means No Pointer data to send!
+                                       &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
@@ -777,7 +776,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                     count = totalsize / size;
                                     if (rcount != 0) {
                                         udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                                     "Specified malloc total size not integer multiple!");
+                                                    "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
                                 }
@@ -787,7 +786,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                         rc = rc && xdr_int(xdrs, &count);
                         if ((count == 0 || size == 0) && *p != 0) {
                             udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                         "Long Long Data Heap Allocation not found in log!");
+                                        "Long Long Data Heap Allocation not found in log!");
                             break;
                         }
                         rc = rc && xdr_int(xdrs, &rank); // Send Shape of arrays
@@ -826,8 +825,8 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                 shape = nullptr;
                             }
                             d = (char*)malloc(count * sizeof(unsigned long long));
-                            udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned long long), "unsigned long long",
-                                       rank, shape);
+                            udaAddMalloc2(logmalloclist, (void*)d, count, sizeof(unsigned long long),
+                                          "unsigned long long", rank, shape);
                             *p = (VOIDTYPE)d; // Save pointer: data will be written here
                         } else {
                             break;
@@ -840,7 +839,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                             break;
                         }
                         udaFindMalloc2(logmalloclist, (void*)p, &count, &size, &type, &rank,
-                                    &shape); // Assume count of 0 means No Pointer data to send!
+                                       &shape); // Assume count of 0 means No Pointer data to send!
 
                         if (type != nullptr && STR_EQUALS(type, "unknown")) {
                             if (malloc_source == UDA_MALLOC_SOURCE_SOAP && j > 0 &&
@@ -860,7 +859,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                     count = totalsize / size;
                                     if (rcount != 0) {
                                         udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                                     "Specified malloc total size not integer multiple!");
+                                                    "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
                                 }
@@ -870,7 +869,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                         rc = rc && xdr_int(xdrs, &count);
                         if ((count == 0 || size == 0) && *p != 0) {
                             udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                         "Unsigned Long Long Data Heap Allocation not found in log!");
+                                        "Unsigned Long Long Data Heap Allocation not found in log!");
                             break;
                         }
                         rc = rc && xdr_int(xdrs, &rank); // Send Shape of arrays
@@ -944,7 +943,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                     count = totalsize / size;
                                     if (rcount != 0) {
                                         udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                                     "Specified malloc total size not integer multiple!");
+                                                    "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
                                 }
@@ -972,7 +971,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                         if ((count == 0 || size == 0) && *p != 0) {
                             udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                         "Char Data Heap Allocation not found in log!");
+                                        "Char Data Heap Allocation not found in log!");
                             break;
                         }
                         rc = rc && xdr_int(xdrs, &rank); // Send Shape of arrays
@@ -1045,7 +1044,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                         }
 
                         udaFindMalloc(logmalloclist, (void*)p, &count, &size,
-                                   &type); // Assume 0 means No Pointer data to send!
+                                      &type); // Assume 0 means No Pointer data to send!
 
                         if (malloc_source == UDA_MALLOC_SOURCE_DOM && (count == 0 || size == 0) && d != nullptr) {
                             int lstr = (int)strlen(d);
@@ -1070,7 +1069,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                         if ((count == 0 || size == 0) && *p != 0) {
                             udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                         "String Data Heap Allocation not found in log!");
+                                        "String Data Heap Allocation not found in log!");
                             break;
                         }
                     }
@@ -1185,7 +1184,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                         }
 
                         udaFindMalloc2(logmalloclist, (void*)p, &nstr, &size, &type, &rank,
-                                    &shape); // Assume 0 means No Pointer data to send!
+                                       &shape); // Assume 0 means No Pointer data to send!
                         // or heap allocated in external library!
 
                         // Is this a fixed length array of strings ?
@@ -1202,7 +1201,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                         if ((nstr == 0 || size == 0) && *p != 0) {
                             udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                         "String Array Data Heap Allocation not found in log!");
+                                        "String Array Data Heap Allocation not found in log!");
                             break;
                         }
 
@@ -1288,7 +1287,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                 break;
                             }
                             udaFindMalloc(logmalloclist, (void*)p, &count, &size,
-                                       &type);                               // Assume 0 means No string to send!
+                                          &type);                            // Assume 0 means No string to send!
                             if (count == 1 && STR_EQUALS(type, "unknown")) { // ***** Fix for SOAP sources incomplete!
                                 count = size;
                                 size = sizeof(char);
@@ -1296,7 +1295,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                             rc = rc && xdr_int(xdrs, &count);
                             if ((count == 0 || size == 0) && *p != 0) {
                                 udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                             "String Data Heap Allocation not found in log!");
+                                            "String Data Heap Allocation not found in log!");
                                 break;
                             }
                         }
@@ -1343,7 +1342,8 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                         ssize = sizeof(char); // Assume xml void pointer type is to char
                                         type = chartype;
                                     } else {
-                                        ssize = udaGetsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
+                                        ssize =
+                                            udaGetsizeof(userdefinedtypelist, userdefinedtype->compoundfield[j].type);
                                         type = userdefinedtype->compoundfield[j].type;
                                     }
 
@@ -1354,7 +1354,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                         if (rcount != 0) {}
                                     } else {
                                         udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                                     "Specified malloc total size not integer multiple!");
+                                                    "Specified malloc total size not integer multiple!");
                                         count = 0;
                                     }
                                 }
@@ -1363,7 +1363,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                         if ((count == 0 || size == 0) && *p != 0) {
                             udaAddError(UDA_CODE_ERROR_TYPE, "xdrUserDefinedData", 999,
-                                         "Data Heap Allocation not found in log!");
+                                        "Data Heap Allocation not found in log!");
                             break;
                         }
                     }
@@ -1407,7 +1407,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                     // Size and Type also known. Type cannot be 'void'.
 
                     udaAddNonMalloc(logmalloclist, (void*)p, userdefinedtype->compoundfield[j].count,
-                                 userdefinedtype->compoundfield[j].size, userdefinedtype->compoundfield[j].type);
+                                    userdefinedtype->compoundfield[j].size, userdefinedtype->compoundfield[j].type);
 
                     loopcount = userdefinedtype->compoundfield[j].count;
                     count = 0;
@@ -1479,8 +1479,8 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                     if (newNTree->children == nullptr && newNTree->branches == 0) {
                                         newNTree->children =
                                             (NTREE**)malloc(loopcount * sizeof(NTREE*)); // Allocate the node array
-                                        udaAddMalloc(logmalloclist, (void*)newNTree->children, loopcount, sizeof(NTREE*),
-                                                  "NTREE *");
+                                        udaAddMalloc(logmalloclist, (void*)newNTree->children, loopcount,
+                                                     sizeof(NTREE*), "NTREE *");
                                     } else { // Multiple branches (user types) originating in the same node
                                         auto old = (VOIDTYPE)newNTree->children;
                                         newNTree->children = (NTREE**)realloc(
@@ -1488,7 +1488,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                             (newNTree->branches + loopcount) *
                                                 sizeof(NTREE*)); // Individual node addresses remain valid
                                         udaChangeMalloc(logmalloclist, old, (void*)newNTree->children,
-                                                     newNTree->branches + loopcount, sizeof(NTREE*), "NTREE *");
+                                                        newNTree->branches + loopcount, sizeof(NTREE*), "NTREE *");
                                     }
                                 }
                                 udaAddNTree(newNTree, subNTree); // Only first call creates new tree node
@@ -1505,7 +1505,8 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
                     if (udaGettypeof(type) != UDA_TYPE_UNKNOWN) {
                         char* z = (char*)*p;
-                        rc = rc && udaXDRAtomicData(logmalloclist, xdrs, type, count, size, &z); // Must be an Atomic Type
+                        rc = rc &&
+                             udaXDRAtomicData(logmalloclist, xdrs, type, count, size, &z); // Must be an Atomic Type
                         *p = (VOIDTYPE)z;
                         break;
                     } else {

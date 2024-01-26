@@ -144,7 +144,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     int shape = data_block->data_n;                        // rank 1 array of dimension lengths
                     auto udt = (USERDEFINEDTYPE*)data_block->opaque_block; // The data's structure definition
                     USERDEFINEDTYPE* u = udaFindUserDefinedType(userdefinedtypelist, "SARRAY",
-                                                             0); // Locate the carrier structure definition
+                                                                0); // Locate the carrier structure definition
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Sending to Client\n");
 
@@ -153,7 +153,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: nullptr SARRAY User defined data Structure Definition\n");
                         udaPrintUserDefinedTypeListTable(*userdefinedtypelist);
                         udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                     "nullptr User defined data Structure Definition");
+                                    "nullptr User defined data Structure Definition");
                         break;
                     }
 
@@ -203,13 +203,13 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                 err = errno;
                             }
                             udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                         "Unable to Obtain a Temporary/Cache File Name");
+                                        "Unable to Obtain a Temporary/Cache File Name");
                             break;
                         }
                         if ((xdrfile = fopen(temp_file.c_str(), "wb")) == nullptr) {
                             err = 999;
                             udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                         "Unable to Open a Temporary/Cache XDR File for Writing");
+                                        "Unable to Open a Temporary/Cache XDR File for Writing");
                             break;
                         }
 
@@ -240,15 +240,15 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Structure Definitions sent: rc = %d\n", rc);
 
                     // send the Data
-                    rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
-                                                      protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
+                    rc = rc &&
+                         udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
+                                                   protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
 
                     UDA_LOG(UDA_LOG_DEBUG, "protocolXML: Data sent: rc = %d\n", rc);
 
                     if (!rc) {
                         err = 999;
-                        udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                     "Bad Return Code passing data structures");
+                        udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Bad Return Code passing data structures");
                         break;
                     }
 
@@ -355,7 +355,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                 err = errno;
                             }
                             udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                         "Unable to Obtain a Temporary File Name [3]");
+                                        "Unable to Obtain a Temporary File Name [3]");
                             err = 998;
                             udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
                             UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [3], tempFile=[%s]\n",
@@ -403,7 +403,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                     err = errno;
                                 }
                                 udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                             " Unable to Obtain a Temporary File Name [2]");
+                                            " Unable to Obtain a Temporary File Name [2]");
                                 err = 997;
                                 udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
                                 UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [2], tempFile=[%s]\n",
@@ -418,7 +418,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             if ((xdrfile = fopen(tempFile, "rb")) == nullptr) { // Read temporary file
                                 err = 999;
                                 udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                             " Unable to Open a Temporary XDR File for Writing");
+                                            " Unable to Open a Temporary XDR File for Writing");
                                 break;
                             }
 
@@ -436,21 +436,21 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         if (!rc) {
                             err = 999;
                             udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                         "Failure receiving Structure Definitions");
+                                        "Failure receiving Structure Definitions");
                             break;
                         }
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXDRUserDefinedTypeData #A\n");
                         udaInitUserDefinedType(udt_received);
 
-                        rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
-                                                          protocolVersion, xdr_stdio_flag, log_struct_list,
-                                                          malloc_source); // receive the Data
+                        rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                                             &data, protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                             malloc_source); // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXDRUserDefinedTypeData #B\n");
                         if (!rc) {
                             err = 999;
                             udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                         "Failure receiving Data and Structure Definition");
+                                        "Failure receiving Data and Structure Definition");
                             break;
                         }
 
@@ -497,7 +497,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         } else {
                             err = 999;
                             udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                         "Name of Received Data Structure Incorrect");
+                                        "Name of Received Data Structure Incorrect");
                             break;
                         }
                     }
@@ -540,7 +540,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                 err = errno;
                             }
                             udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                         " Unable to Obtain a Temporary File Name");
+                                        " Unable to Obtain a Temporary File Name");
                             err = 996;
                             udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
                             UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name, tempFile=[%s]\n", tempFile);
@@ -579,7 +579,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             if ((xdrfile = fopen(tempFile, "rb")) == nullptr) { // Read temporary file
                                 err = 999;
                                 udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                             " Unable to Open a Temporary XDR File for Writing");
+                                            " Unable to Open a Temporary XDR File for Writing");
                                 break;
                             }
 
@@ -594,20 +594,21 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             if (!rc) {
                                 err = 999;
                                 udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                             "Failure receiving Structure Definitions");
+                                            "Failure receiving Structure Definitions");
                                 break;
                             }
 
                             udaInitUserDefinedType(udt_received);
 
-                            rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                              &data, protocolVersion, xdr_stdio_flag, log_struct_list,
-                                                              malloc_source); // receive the Data
+                            rc =
+                                rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                                                &data, protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                                malloc_source); // receive the Data
 
                             if (!rc) {
                                 err = 999;
                                 udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                             "Failure receiving Data and Structure Definition");
+                                            "Failure receiving Data and Structure Definition");
                                 break;
                             }
 
@@ -634,8 +635,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                 auto s = (SARRAY*)data;
                                 if (s->count != data_block->data_n) { // check for consistency
                                     err = 999;
-                                    udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                                 "Inconsistent S Array Counts");
+                                    udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Inconsistent S Array Counts");
                                     break;
                                 }
                                 data_block->data = (char*)
@@ -650,7 +650,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             } else {
                                 err = 999;
                                 udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                             "Name of Received Data Structure Incorrect");
+                                            "Name of Received Data Structure Incorrect");
                                 break;
                             }
                         }

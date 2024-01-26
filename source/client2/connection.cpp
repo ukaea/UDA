@@ -40,8 +40,8 @@
 #  endif
 #endif
 
-#include <include/errorLog.h>
 #include <clientserver/manageSockets.h>
+#include <include/errorLog.h>
 #include <include/logging.h>
 
 #include "error_codes.h"
@@ -606,7 +606,7 @@ int uda::client::writeout(void* iohandle, char* buf, int count)
             if (errno == ECONNRESET) {
                 UDA_LOG(UDA_LOG_DEBUG, "ECONNRESET error!\n");
                 udaAddError(UDA_CODE_ERROR_TYPE, __func__, -2,
-                             "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
+                            "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
                 return -2;
             } else {
                 if (errno == ENETUNREACH) {

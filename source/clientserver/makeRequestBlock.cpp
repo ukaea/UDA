@@ -231,7 +231,7 @@ int makeRequestData(REQUEST_DATA* request, PLUGINLIST pluginList, const ENVIRONM
                 if ((p0 != nullptr || p1 != nullptr) && (p != nullptr || p2 != nullptr)) {
                     err = 999;
                     udaAddError(UDA_CODE_ERROR_TYPE, "makeServerRequestBlock", err,
-                                 "Source syntax: path with parenthesis () is incorrect!");
+                                "Source syntax: path with parenthesis () is incorrect!");
                     return err;
                 }
 
@@ -854,7 +854,7 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, PLUGINLIS
                             udaAddError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
                         }
                         udaAddError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999,
-                                     "Unable to Identify the File's Format");
+                                    "Unable to Identify the File's Format");
                         return -999;
                     }
 

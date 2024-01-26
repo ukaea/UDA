@@ -126,7 +126,7 @@ The first name must be searched for down the tree from the root or starting node
 All subsequent names must be within child nodes unless the last name
 */
 NTREE* udaFindNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
-                                    const char** lastname)
+                                       const char** lastname)
 {
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
@@ -136,7 +136,8 @@ NTREE* udaFindNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntre
 
     if ((strchr(target, '.') != nullptr) || strchr(target, '/') != nullptr) {
         int ntargets;
-        char** targetlist = udaParseTarget(target, &ntargets); // Deconstruct the Name and search for each hierarchy group
+        char** targetlist =
+            udaParseTarget(target, &ntargets); // Deconstruct the Name and search for each hierarchy group
 
         *lastname = targetlist[ntargets - 1]; // Preserve the last element name
 
@@ -166,7 +167,7 @@ NTREE* udaFindNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntre
         }
 
         udaAddMalloc(logmalloclist, (void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1,
-                  sizeof(char), "char");
+                     sizeof(char), "char");
 
         const char* last_target = targetlist[ntargets - 1];
 
@@ -254,7 +255,7 @@ NTREE* udaFindNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const 
         *lastname = targetlist[ntargets - 1]; // Preserve the last element name
 
         udaAddMalloc(logmalloclist, (void*)targetlist[ntargets - 1], (int)strlen(targetlist[ntargets - 1]) + 1,
-                  sizeof(char), "char");
+                     sizeof(char), "char");
         for (int i = 0; i < ntargets - 1; i++) {
             // Free all others
             free(targetlist[i]);
@@ -570,7 +571,7 @@ int udaMaxCountVlenStructureArray(NTREE* tree, const char* target, int reset)
  * @return An integer returning an error code: 0 => OK.
  */
 int udaRegulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINEDTYPELIST* userdefinedtypelist,
-                                  const char* target, unsigned int count)
+                                const char* target, unsigned int count)
 {
     if (tree == nullptr) {
         tree = udaGetFullNTree();
@@ -616,8 +617,8 @@ int udaRegulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERD
 
     for (int i = 0; i < tree->branches; i++) {
         int rc;
-        if ((rc = udaRegulariseVlenStructures(logmalloclist, tree->children[i], userdefinedtypelist, target,
-                                                count)) != 0) {
+        if ((rc = udaRegulariseVlenStructures(logmalloclist, tree->children[i], userdefinedtypelist, target, count)) !=
+            0) {
             return rc;
         }
     }
@@ -672,7 +673,7 @@ int udaRegulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, USERDEFINED
             count = udaMaxCountVlenStructureArray(tree, nt->userdefinedtype->name, 1);
             if (count > 0) {
                 rc = udaRegulariseVlenStructures(logmalloclist, tree, userdefinedtypelist, nt->userdefinedtype->name,
-                                                   count);
+                                                 count);
             }
             if (rc != 0) {
                 return rc;

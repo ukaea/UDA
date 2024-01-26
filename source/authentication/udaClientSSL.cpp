@@ -570,7 +570,7 @@ int readUdaClientSSL(void* iohandle, char* buf, int count)
             }
             err = 999;
             udaAddError(UDA_CODE_ERROR_TYPE, "readUdaClientSSL", err,
-                         "Socket is Closed! Data request failed. Restarting connection.");
+                        "Socket is Closed! Data request failed. Restarting connection.");
             UDA_LOG(UDA_LOG_DEBUG, "Socket is Closed! Data request failed. Restarting connection.\n");
             return -1;
         }

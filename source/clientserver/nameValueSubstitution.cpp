@@ -10,10 +10,10 @@
 
 #include "initStructs.h"
 #include "udaErrors.h"
-#include <include/errorLog.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/stringUtils.h>
 #include <fmt/format.h>
+#include <include/errorLog.h>
 #include <include/logging.h>
 
 static void embedded_value_substitution(NAMEVALUELIST* nameValueList);
@@ -124,7 +124,7 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
                 UDA_LOG(UDA_LOG_DEBUG, "Inconsistent count of placeholders and available substitutions!\n");
                 err = 999;
                 udaAddError(UDA_CODE_ERROR_TYPE, "nameValueSubstitution", err,
-                             "Inconsistent count of placeholders and available substitutions!");
+                            "Inconsistent count of placeholders and available substitutions!");
                 break;
             }
 
@@ -137,7 +137,7 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
                     UDA_LOG(UDA_LOG_DEBUG, "tpassIndex[%d] = %d  (%d)\n", i, tpassIndex[i], placeholderCount);
                     err = 999;
                     udaAddError(UDA_CODE_ERROR_TYPE, "nameValueSubstitution", err,
-                                 "Placeholder numbering is Inconsistent with Placeholder Count!");
+                                "Placeholder numbering is Inconsistent with Placeholder Count!");
                     break;
                 }
 

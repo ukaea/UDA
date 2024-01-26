@@ -17,14 +17,14 @@ int testFilePermissions(const char* object)
             udaAddError(UDA_SYSTEM_ERROR_TYPE, "testSecurityFilePermissions", errno, "");
         }
         udaAddError(UDA_CODE_ERROR_TYPE, "clientAuthentication", err,
-                     "Could not verify the user's private key directory's access permissions!");
+                    "Could not verify the user's private key directory's access permissions!");
         return err;
     }
     if (buffer.st_mode & S_IRGRP || buffer.st_mode & S_IWGRP || buffer.st_mode & S_IXGRP || buffer.st_mode & S_IROTH ||
         buffer.st_mode & S_IWOTH || buffer.st_mode & S_IXOTH) {
         err = 999;
         udaAddError(UDA_CODE_ERROR_TYPE, "testSecurityFilePermissions", err,
-                     "The user's private key directory is public: Your keys and certificate may be compromised!!!");
+                    "The user's private key directory is public: Your keys and certificate may be compromised!!!");
         return err;
     }
     return 0;

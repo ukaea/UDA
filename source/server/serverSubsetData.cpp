@@ -27,9 +27,9 @@
 #include "udaTypes.h"
 #include <boost/algorithm/string.hpp>
 #include <clientserver/compressDim.h>
-#include <include/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/stringUtils.h>
+#include <include/errorLog.h>
 #include <include/logging.h>
 
 //----------------------------------------------------------------------------------------------------------------------------

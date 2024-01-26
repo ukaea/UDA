@@ -18,15 +18,15 @@
 #  define dup2 _dup2
 #endif
 
-#include "initStructs.h"
 #include "include/logging.h"
+#include "initStructs.h"
 #include "struct.h"
 #include <cache/memcache.hpp>
-#include <include/errorLog.h>
 #include <clientserver/expand_path.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/stringUtils.h>
+#include <include/errorLog.h>
 
 #define REQUEST_READ_START 1000
 #define REQUEST_PLUGIN_MCOUNT 100 // Maximum initial number of plugins that can be registered

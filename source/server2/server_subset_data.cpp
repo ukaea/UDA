@@ -21,9 +21,9 @@
 #include "struct.h"
 #include "udaTypes.h"
 #include <clientserver/compressDim.h>
-#include <include/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/stringUtils.h>
+#include <include/errorLog.h>
 #include <include/logging.h>
 
 //----------------------------------------------------------------------------------------------------------------------------
@@ -241,7 +241,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                                     // Properties Must be identical for all structure array elements
                                     extract = *(char**)&data_block->data[jj * udt->size + udt->compoundfield[i].offset];
                                     udaFindMalloc2(logmalloclist, (void*)extract, &count, &size, &type_name, &rank,
-                                                &shape);
+                                                   &shape);
                                     if (jj > 0) {
                                         if (count != count_p || size != size_p || rank != rank_p ||
                                             strcmp(type_name, type_name_p) != 0) {

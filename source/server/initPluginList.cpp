@@ -3,9 +3,9 @@
 #include <cerrno>
 
 #include <cache/memcache.hpp>
-#include <include/errorLog.h>
 #include <clientserver/stringUtils.h>
 #include <fmt/format.h>
+#include <include/errorLog.h>
 #include <server/serverPlugin.h>
 
 #include "getPluginAddress.h"

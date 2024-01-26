@@ -117,7 +117,7 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
         if (gcry_pk_testkey(privatekey) != 0) {
             err = 999;
             udaAddError(UDA_CODE_ERROR_TYPE, "idamServerAuthentication", err,
-                         "The Server's Private Authentication Key is Invalid!");
+                        "The Server's Private Authentication Key is Invalid!");
             break;
         }
 

@@ -8,13 +8,13 @@
 #include "initStructs.h"
 #include "struct.h"
 #include "udaTypes.h"
-#include <include/errorLog.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/xdrlib.h>
-#include <logging/accessLog.h>
+#include <include/errorLog.h>
 #include <include/logging.h>
+#include <logging/accessLog.h>
 #include <server/serverPlugin.h>
 
 #include "closeServerSockets.h"
@@ -249,8 +249,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                 if (client_block.version < 6) {
                     err = 999;
                     udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                                 "PROXY redirection: Originating Client Version not compatible with the PROXY server "
-                                 "interface.");
+                                "PROXY redirection: Originating Client Version not compatible with the PROXY server "
+                                "interface.");
                     break;
                 }
 
@@ -278,7 +278,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                     (STRING_LENGTH - 1 - strlen(environment->server_proxy) - 4 + strlen(request_block.api_delim))) {
                     err = 999;
                     udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                                 "PROXY redirection: The source argument string is too long!");
+                                "PROXY redirection: The source argument string is too long!");
                     break;
                 }
 
@@ -332,7 +332,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                     private_flags, malloc_source)) != 0) {
                     UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving putData Block List\n");
                     udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                                 "Protocol 1 Error (Receiving Client putDataBlockList)");
+                                "Protocol 1 Error (Receiving Client putDataBlockList)");
                     break;
                 }
 
@@ -420,8 +420,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                           protocolVersionTypeTest(protocolVersion, data_block.error_type))) {
                 err = 999;
                 udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                             "The Data has a type that cannot be passed to the Client: A newer client library version "
-                             "is required.");
+                            "The Data has a type that cannot be passed to the Client: A newer client library version "
+                            "is required.");
                 break;
             }
 
@@ -433,8 +433,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                         protocolVersionTypeTest(protocolVersion, dim.error_type)) {
                         err = 999;
                         udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                                     "A Coordinate Data has a numerical type that cannot be passed to the Client: A "
-                                     "newer client library version is required.");
+                                    "A Coordinate Data has a numerical type that cannot be passed to the Client: A "
+                                    "newer client library version is required.");
                         break;
                     }
                 }
@@ -512,8 +512,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
 
                 if (next_protocol != UDA_PROTOCOL_DATA_SYSTEM) {
                     err = 998;
-                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                                 "Protocol 3 Error: Protocol Request Inconsistency");
+                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 3 Error: Protocol Request Inconsistency");
                     break;
                 }
 
@@ -668,7 +667,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
                                     &data_block, protocolVersion, &log_struct_list, &io_data, private_flags,
                                     malloc_source)) != 0) {
                     udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                                 "Server Side Protocol Error (Opaque Structure Type)");
+                                "Server Side Protocol Error (Opaque Structure Type)");
                     break;
                 }
 

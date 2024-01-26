@@ -20,8 +20,8 @@
 #include "clientserver/protocol.h"
 #include "clientserver/stringUtils.h"
 #include "clientserver/xdrlib.h"
-#include "initStructs.h"
 #include "include/logging.h"
+#include "initStructs.h"
 #include "struct.h"
 #include "version.h"
 
@@ -100,7 +100,7 @@ int getThreadId(thread_t id)
 // Lock the thread and set the previous STATE
 void udaLockThread()
 {
-	CLIENT_FLAGS* client_flags = udaClientFlags();
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     static unsigned int mutex_initialised = 0;
 
     if (!mutex_initialised) {
@@ -167,7 +167,7 @@ void udaLockThread()
  */
 void udaUnlockThread()
 {
-	CLIENT_FLAGS* client_flags = udaClientFlags();
+    CLIENT_FLAGS* client_flags = udaClientFlags();
 #  ifdef __GNUC__
     thread_t threadId = pthread_self();
 #  else
@@ -246,7 +246,7 @@ void udaFreeDataBlocks()
 
 DATA_BLOCK* udaGetCurrentDataBlock()
 {
-	CLIENT_FLAGS* client_flags = udaClientFlags();
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         udaGetThreadLastHandle() >= 0) {
         return &data_blocks[udaGetThreadLastHandle()];
@@ -256,7 +256,7 @@ DATA_BLOCK* udaGetCurrentDataBlock()
 
 int udaGetCurrentDataBlockIndex()
 {
-	CLIENT_FLAGS* client_flags = udaClientFlags();
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         udaGetThreadLastHandle() >= 0) {
         return udaGetThreadLastHandle();
@@ -266,7 +266,7 @@ int udaGetCurrentDataBlockIndex()
 
 int udaGrowDataBlocks()
 {
-	CLIENT_FLAGS* client_flags = udaClientFlags();
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
         udaGetThreadLastHandle() >= 0) {
         return 0;
@@ -293,7 +293,7 @@ static int findNewHandleIndex()
 
 int udaGetNewDataHandle()
 {
-	CLIENT_FLAGS* client_flags = udaClientFlags();
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     int newHandleIndex = -1;
 
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
@@ -429,7 +429,7 @@ void udaResetClientFlag(unsigned int flag)
  */
 void udaSetProperty(const char* property)
 {
-	CLIENT_FLAGS* client_flags = udaClientFlags();
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     // User settings for Client and Server behaviour
 
     char name[56];
@@ -530,7 +530,7 @@ void udaSetProperty(const char* property)
  */
 int udaGetProperty(const char* property)
 {
-	const CLIENT_FLAGS* client_flags = udaClientFlags();
+    const CLIENT_FLAGS* client_flags = udaClientFlags();
     // User settings for Client and Server behaviour
 
     if (property[0] == 'g') {
@@ -607,7 +607,7 @@ int udaGetProperty(const char* property)
 
 void udaResetProperty(const char* property)
 {
-	CLIENT_FLAGS* client_flags = udaClientFlags();
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     // User settings for Client and Server behaviour
 
     if (property[0] == 'g') {
@@ -678,7 +678,7 @@ void udaResetProperty(const char* property)
  */
 void udaResetProperties()
 {
-	CLIENT_FLAGS* client_flags = udaClientFlags();
+    CLIENT_FLAGS* client_flags = udaClientFlags();
     // Reset on Both Client and Server
 
     client_flags->get_datadble = 0;
@@ -3068,8 +3068,7 @@ void udaGetGenericDimData(int handle, int ndim, void* data)
             memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(char));
             break;
         case UDA_TYPE_UNSIGNED_INT:
-            memcpy(data, (void*)udaGetDimData(handle, ndim),
-                   (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned int));
+            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned int));
             break;
         case UDA_TYPE_UNSIGNED_LONG:
             memcpy(data, (void*)udaGetDimData(handle, ndim),
@@ -3823,7 +3822,7 @@ int udaGetDimDataCheckSum(int handle, int ndim)
     }
 
     return (udaDataCheckSum((void*)data_blocks[handle].dims[ndim].dim, data_blocks[handle].dims[ndim].dim_n,
-                             data_blocks[handle].dims[ndim].data_type));
+                            data_blocks[handle].dims[ndim].data_type));
 }
 
 //===========================================================================================================

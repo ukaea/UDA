@@ -23,9 +23,9 @@
 #ifndef NOXMLPARSER
 
 #  include "udaTypes.h"
-#  include <include/errorLog.h>
 #  include <clientserver/parseOperation.h>
 #  include <clientserver/stringUtils.h>
+#  include <include/errorLog.h>
 
 static double deScale(char* scale);
 static void parse_target_value(xmlDocPtr doc, xmlNodePtr cur, const char* target, double* value);

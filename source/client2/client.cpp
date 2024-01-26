@@ -13,12 +13,12 @@
 #include "udaTypes.h"
 #include <cache/fileCache.h>
 #include <clientserver/allocData.h>
-#include <include/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/stringUtils.h>
 #include <clientserver/userid.h>
 #include <clientserver/xdrlib.h>
+#include <include/errorLog.h>
 #include <include/logging.h>
 
 namespace
@@ -511,7 +511,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
             if (err == 0 && (get_data_status(data_block) == MIN_STATUS) && !client_flags_.get_bad) {
                 // If Data are not usable, flag the client
                 udaAddError(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
-                             "Data Status is BAD ... Data are Not Usable!");
+                            "Data Status is BAD ... Data are Not Usable!");
 
                 if (data_block->errcode == 0) {
                     // Don't over-rule a server side error
@@ -583,7 +583,7 @@ int uda::client::Client::send_putdata(const RequestBlock& request_block)
                                  &(request->putDataBlockList), protocol_version_, &log_struct_list_, private_flags_,
                                  malloc_source_)) != 0) {
                 udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                             "Protocol 1 Error (sending putDataBlockList from Request Block)");
+                            "Protocol 1 Error (sending putDataBlockList from Request Block)");
                 throw uda::exceptions::ClientError("Protocol 1 Error (sending putDataBlockList from Request Block)");
             }
         }
@@ -693,7 +693,7 @@ int uda::client::Client::test_connection()
         if (!rc) {
             int err = 999;
             udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                         "Corrupted input data stream! Please contact the system administrator.");
+                        "Corrupted input data stream! Please contact the system administrator.");
             UDA_LOG(UDA_LOG_DEBUG, "Unable to flush input buffer!!!\n");
             throw uda::exceptions::ClientError("Corrupted input data stream! Please contact the system administrator.");
         }

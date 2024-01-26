@@ -7,14 +7,14 @@
 #  define strncasecmp _strnicmp
 #endif
 
-#include "initStructs.h"
 #include "include/logging.h"
+#include "initStructs.h"
 #include "struct.h"
-#include <include/errorLog.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/nameValueSubstitution.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/stringUtils.h>
+#include <include/errorLog.h>
 
 #include "applyXML.h"
 #include "getServerEnvironment.h"

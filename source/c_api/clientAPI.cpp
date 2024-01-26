@@ -8,8 +8,8 @@
 #endif
 
 #include "include/errorLog.h"
-#include "initStructs.h"
 #include "include/logging.h"
+#include "initStructs.h"
 
 #include "client.h"
 #include "client/makeClientRequestBlock.h"

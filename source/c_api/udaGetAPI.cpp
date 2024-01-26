@@ -14,10 +14,10 @@
 #  include <strings.h>
 #endif
 
-#include "include/errorLog.h"
 #include "clientserver/printStructs.h"
-#include "initStructs.h"
+#include "include/errorLog.h"
 #include "include/logging.h"
+#include "initStructs.h"
 
 #include "accAPI.h"
 #include "client.h"
@@ -256,7 +256,7 @@ int udaGetBatchAPI(const char** signals, const char** sources, int count, int* h
 }
 
 int udaGetBatchAPIWithHost(const char** signals, const char** sources, int count, int* handles, const char* host,
-                            int port)
+                           int port)
 {
     CLIENT_FLAGS* client_flags = udaClientFlags();
 

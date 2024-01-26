@@ -169,7 +169,7 @@ int receiveXDRFile(XDR* xdrs, const char* xdrfile)
             if (nchar > bufsize) {
                 err = 999;
                 udaAddError(UDA_CODE_ERROR_TYPE, "receiveXDRFile", err,
-                             "File block size inconsistent with buffer size");
+                            "File block size inconsistent with buffer size");
                 break;
             }
 

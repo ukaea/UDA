@@ -52,8 +52,8 @@ int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request
 #  include <string>
 #  include <vector>
 
-#  include <include/errorLog.h>
 #  include <clientserver/stringUtils.h>
+#  include <include/errorLog.h>
 #  include <sstream>
 
 constexpr int CACHE_MAXCOUNT = 100; // Max Attempts at obtaining a database table lock

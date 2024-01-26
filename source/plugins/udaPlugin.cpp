@@ -4,12 +4,12 @@
 #include "server/serverSubsetData.h"
 #include "struct.h"
 
-#include "initStructs.h"
 #include "include/logging.h"
+#include "initStructs.h"
 #include "udaTypes.h"
-#include <include/errorLog.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/stringUtils.h>
+#include <include/errorLog.h>
 #include <server/getServerEnvironment.h>
 
 UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)

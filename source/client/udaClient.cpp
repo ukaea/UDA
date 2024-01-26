@@ -13,10 +13,10 @@
 #include <cache/memcache.hpp>
 #include <client/connection.h>
 #include <client/getEnvironment.h>
-#include <include/errorLog.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/userid.h>
+#include <include/errorLog.h>
 #include <include/logging.h>
 
 #include "accAPI.h"
@@ -776,8 +776,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             if (count > 0) { // Error if data is waiting
                 err = 999;
                 udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                             "Data waiting in the input data buffer when none expected! Please contact the system "
-                             "administrator.");
+                            "Data waiting in the input data buffer when none expected! Please contact the system "
+                            "administrator.");
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] excess data bytes waiting in input buffer!\n", count++);
                 break;
             }
@@ -793,7 +793,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             if (!rc) {
                 err = 999;
                 udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                             "Corrupted input data stream! Please contact the system administrator.");
+                            "Corrupted input data stream! Please contact the system administrator.");
                 UDA_LOG(UDA_LOG_DEBUG, "Unable to flush input buffer!!!\n");
                 break;
             }
@@ -836,7 +836,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                                      g_user_defined_type_list, &(request->putDataBlockList), protocol_version,
                                      &log_struct_list, *private_flags, malloc_source)) != 0) {
                     udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                                 "Protocol 1 Error (sending putDataBlockList from Request Block)");
+                                "Protocol 1 Error (sending putDataBlockList from Request Block)");
                     break;
                 }
             }
@@ -1067,7 +1067,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             if (err == 0 && (udaGetDataStatus(data_block_idx)) == MIN_STATUS && !client_flags->get_bad) {
                 // If Data are not usable, flag the client
                 udaAddError(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
-                             "Data Status is BAD ... Data are Not Usable!");
+                            "Data Status is BAD ... Data are Not Usable!");
 
                 DATA_BLOCK* data_block = udaGetDataBlock(data_block_idx);
                 if (data_block->errcode == 0) {
@@ -1149,7 +1149,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             if (err == 0 && (udaGetDataStatus(data_block_idx) == MIN_STATUS) && !client_flags->get_bad) {
                 // If Data are not usable, flag the client
                 udaAddError(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
-                             "Data Status is BAD ... Data are Not Usable!");
+                            "Data Status is BAD ... Data are Not Usable!");
 
                 DATA_BLOCK* data_block = udaGetDataBlock(data_block_idx);
                 if (data_block->errcode == 0) {

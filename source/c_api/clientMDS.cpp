@@ -1,8 +1,8 @@
 #include "clientMDS.h"
 
 #include "clientserver/protocol.h"
-#include "initStructs.h"
 #include "include/logging.h"
+#include "initStructs.h"
 
 #include "client.h"
 #include "client/startup.h"

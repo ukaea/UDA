@@ -2,16 +2,16 @@
 #include <cerrno>
 #include <cstdio>
 
-#include "initStructs.h"
 #include "include/logging.h"
+#include "initStructs.h"
 #include "struct.h"
 #include <clientserver/copyStructs.h>
-#include <include/errorLog.h>
 #include <clientserver/manageSockets.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/protocol.h>
 #include <clientserver/protocolXML.h>
 #include <clientserver/xdrlib.h>
+#include <include/errorLog.h>
 #include <logging/accessLog.h>
 #include <server/serverPlugin.h>
 #include <structures/parseIncludeFile.h>

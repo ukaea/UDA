@@ -27,8 +27,8 @@
 
 #include "udaDefines.h"
 #include "udaErrors.h"
-#include <include/errorLog.h>
 #include <clientserver/stringUtils.h>
+#include <include/errorLog.h>
 
 #include "struct.h"
 
@@ -94,7 +94,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
         err = 999;
         if (errno != 0) {
             udaAddError(UDA_SYSTEM_ERROR_TYPE, "parseIncludeFile", errno,
-                         "Unable to Open Structure Definition Header file for Read Access!");
+                        "Unable to Open Structure Definition Header file for Read Access!");
         }
         if (fh != nullptr) {
             fclose(fh);
@@ -247,7 +247,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                     name2[0] = '\0';
                 } else {
                     udaAddError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
-                                 "typedef statement does not conform to syntax model!");
+                                "typedef statement does not conform to syntax model!");
                 }
                 buffer[0] = '\0';
                 break;
@@ -278,7 +278,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                     name2[0] = '\0';
                 } else {
                     udaAddError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
-                                 "typedef statement does not conform to syntax model!");
+                                "typedef statement does not conform to syntax model!");
                 }
                 buffer[0] = '\0';
                 break;
@@ -442,7 +442,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                 // fprintf(stdout,"Names do Not Match: %s, %s, %s\n", name, name1, name2);
                                 err = 999;
                                 udaAddError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
-                                             "typedef statement does not conform to syntax model!");
+                                            "typedef statement does not conform to syntax model!");
                                 return err;
                             }
 
@@ -677,7 +677,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     } else {
                                         if (itemCount > 0) {
                                             space = size[itemCount - 1] * count[itemCount - 1];
-                                            offpad[itemCount] = udaPadding(offset[itemCount - 1] + space, type[itemCount]);
+                                            offpad[itemCount] =
+                                                udaPadding(offset[itemCount - 1] + space, type[itemCount]);
                                             offset[itemCount] =
                                                 udaNewoffset(offset[itemCount - 1] + space, type[itemCount]);
                                         } else {

@@ -42,8 +42,8 @@
 
 #include "client.h"
 #include <client/udaClientHostList.h>
-#include <include/errorLog.h>
 #include <clientserver/manageSockets.h>
+#include <include/errorLog.h>
 #include <include/logging.h>
 
 #include "getEnvironment.h"
@@ -265,7 +265,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t* tv_server_st
     if (host != nullptr) {
         if (host->host_name.empty()) {
             udaAddError(UDA_CODE_ERROR_TYPE, __func__, -1,
-                         "The host_name is not recognised for the host alias provided!");
+                        "The host_name is not recognised for the host alias provided!");
             return -1;
         }
         hostname = host->host_name.c_str();
@@ -408,7 +408,7 @@ int createConnection(XDR* client_input, XDR* client_output, time_t* tv_server_st
             if (host != nullptr) {
                 if (host->host_name.empty()) {
                     udaAddError(UDA_CODE_ERROR_TYPE, __func__, -1,
-                                 "The hostname2 is not recognised for the host alias provided!");
+                                "The hostname2 is not recognised for the host alias provided!");
                     return -1;
                 }
                 hostname = host->host_name.c_str();
@@ -605,7 +605,7 @@ int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
             if (errno == ECONNRESET) {
                 UDA_LOG(UDA_LOG_DEBUG, "ECONNRESET error!\n");
                 udaAddError(UDA_CODE_ERROR_TYPE, __func__, -2,
-                             "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
+                            "ECONNRESET: The server program has crashed or closed the socket unexpectedly");
                 return -2;
             } else {
                 if (errno == ENETUNREACH) {
