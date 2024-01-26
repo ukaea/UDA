@@ -10,8 +10,8 @@
 #  include <strings.h>
 #  include <unistd.h>
 #else
-#  include <Windows.h>
 #  include <winsock2.h>
+#  include <Windows.h>
 #  define strcasecmp _stricmp
 #  include <string.h>
 #endif
