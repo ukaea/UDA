@@ -5,15 +5,17 @@
 
 #include "client.hpp"
 
-namespace uda {
-namespace client {
+namespace uda
+{
+namespace client
+{
 
 class ThreadClient
 {
-public:
+  public:
     static uda::client::Client& instance();
 
-private:
+  private:
     ThreadClient() = default;
     ~ThreadClient() = default;
 
@@ -23,7 +25,7 @@ private:
     static void init_client();
 };
 
-[[nodiscard]] DATA_BLOCK *get_data_block(int handle);
+[[nodiscard]] DATA_BLOCK* get_data_block(int handle);
 [[nodiscard]] char* get_data(int handle);
 [[nodiscard]] char* get_synthetic_data(int handle);
 void set_synthetic_data(int handle, char* data);
@@ -51,7 +53,7 @@ void set_data_err_lo(int handle, char* err_lo);
 void set_data_err_type(int handle, int type);
 void set_data_err_asymmetry(int handle, int asymmetry);
 
-}
-}
+} // namespace client
+} // namespace uda
 
-#endif //UDA_SOURCE_CLIENT2_PERTHREADSINGLETON_H
+#endif // UDA_SOURCE_CLIENT2_PERTHREADSINGLETON_H

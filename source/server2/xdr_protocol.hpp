@@ -1,30 +1,30 @@
 #pragma once
 
 #ifndef UDA_SERVER_XDR_UDA_PROTOCOL_HPP
-#define UDA_SERVER_XDR_UDA_PROTOCOL_HPP
+#  define UDA_SERVER_XDR_UDA_PROTOCOL_HPP
 
-#include <rpc/rpc.h>
-#include <vector>
+#  include <rpc/rpc.h>
+#  include <vector>
 
-#include "udaDefines.h"
-#include "udaStructs.h"
-#include "genStructs.h"
-#include "cache/memcache.hpp"
-#include "server_environment.hpp"
+#  include "cache/memcache.hpp"
+#  include "genStructs.h"
+#  include "server_environment.hpp"
+#  include "udaDefines.h"
+#  include "udaStructs.h"
 
-struct IoData
-{
+struct IoData {
     int* server_tot_block_time;
     int* server_timeout;
 };
 
-namespace uda {
+namespace uda
+{
 
 struct MetadataBlock;
 
 class XdrProtocol
 {
-public:
+  public:
     XdrProtocol();
     void create();
     void set_version(int protocol_version);
@@ -57,7 +57,7 @@ public:
                           int server_tot_block_time, const int* server_timeout, LogMallocList* log_malloc_list,
                           UserDefinedTypeList* user_defined_type_list);
 
-private:
+  private:
     int protocol_version_ = 8;
     XDR server_input_;
     XDR server_output_;
@@ -71,6 +71,6 @@ private:
     void create_streams();
 };
 
-}
+} // namespace uda
 
 #endif // UDA_SERVER_XDR_UDA_PROTOCOL_HPP

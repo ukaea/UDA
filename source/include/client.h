@@ -74,37 +74,37 @@ LIBRARY_API const char* udaGetBuildVersion();
  */
 LIBRARY_API const char* udaGetBuildDate();
 
-LIBRARY_API const char* udaGetServerHost(); 
+LIBRARY_API const char* udaGetServerHost();
 
-LIBRARY_API int udaGetServerPort(); 
+LIBRARY_API int udaGetServerPort();
 
-LIBRARY_API int udaGetServerSocket(); 
+LIBRARY_API int udaGetServerSocket();
 
-LIBRARY_API const char* udaGetClientDOI(); 
+LIBRARY_API const char* udaGetClientDOI();
 
-LIBRARY_API const char* udaGetServerDOI(); 
+LIBRARY_API const char* udaGetServerDOI();
 
-LIBRARY_API const char* udaGetClientOSName(); 
+LIBRARY_API const char* udaGetClientOSName();
 
-LIBRARY_API const char* udaGetServerOSName(); 
+LIBRARY_API const char* udaGetServerOSName();
 
-LIBRARY_API int udaGetClientVersion(); 
+LIBRARY_API int udaGetClientVersion();
 
-LIBRARY_API int udaGetServerVersion(); 
+LIBRARY_API int udaGetServerVersion();
 
-LIBRARY_API int udaGetServerErrorCode(); 
+LIBRARY_API int udaGetServerErrorCode();
 
-LIBRARY_API const char* udaGetServerErrorMsg(); 
+LIBRARY_API const char* udaGetServerErrorMsg();
 
-LIBRARY_API int udaGetServerErrorStackSize(); 
+LIBRARY_API int udaGetServerErrorStackSize();
 
-LIBRARY_API int udaGetServerErrorStackRecordType(int record); 
+LIBRARY_API int udaGetServerErrorStackRecordType(int record);
 
-LIBRARY_API int udaGetServerErrorStackRecordCode(int record); 
+LIBRARY_API int udaGetServerErrorStackRecordCode(int record);
 
-LIBRARY_API const char* udaGetServerErrorStackRecordLocation(int record); 
+LIBRARY_API const char* udaGetServerErrorStackRecordLocation(int record);
 
-LIBRARY_API const char* udaGetServerErrorStackRecordMsg(int record); 
+LIBRARY_API const char* udaGetServerErrorStackRecordMsg(int record);
 
 LIBRARY_API void udaCloseAllConnections();
 

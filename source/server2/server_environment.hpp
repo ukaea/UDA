@@ -1,17 +1,19 @@
 #pragma once
 
 #ifndef UDA_SERVER_GETSERVERENVIRONMENT_HPP
-#define UDA_SERVER_GETSERVERENVIRONMENT_HPP
+#  define UDA_SERVER_GETSERVERENVIRONMENT_HPP
 
-#include "udaStructs.h"
-#include "export.h"
+#  include "export.h"
+#  include "udaStructs.h"
 
-namespace uda {
-namespace server {
+namespace uda
+{
+namespace server
+{
 
 class Environment
 {
-public:
+  public:
     Environment();
 
     void print();
@@ -20,7 +22,7 @@ public:
     ::Environment* operator->() { return &environment_; }
     const ::Environment* operator->() const { return &environment_; }
 
-private:
+  private:
     ::Environment environment_ = {};
 };
 

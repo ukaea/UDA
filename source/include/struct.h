@@ -78,7 +78,7 @@ LIBRARY_API void udaAddImage(char** image, int* imagecount, const char* line);
  * @return expand An expanded Image line.
  */
 LIBRARY_API void udaExpandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEMENTNAME], int* defvalues, int defCount,
-                             char* expand);
+                                char* expand);
 
 /** Initialise a LOGMALLOCLIST data structure.
  *
@@ -239,7 +239,7 @@ LIBRARY_API void udaAddNonMalloc(LOGMALLOCLIST* logmalloclist, void* stack, int 
 * @return void.
 */
 LIBRARY_API void udaAddNonMalloc2(LOGMALLOCLIST* logmalloclist, void* stack, int count, size_t size, const char* type,
-                               int rank, int* shape);
+                                  int rank, int* shape);
 
 /** Add a heap memory location to the LOGMALLOCLIST data structure. These are freed.
  *
@@ -262,7 +262,7 @@ LIBRARY_API void udaAddMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int coun
  * @return void.
  */
 LIBRARY_API void udaAddMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int count, size_t size, const char* type,
-                            int rank, int* shape);
+                               int rank, int* shape);
 
 /** Change the logged memory location to a new location (necessary with realloc).
  *
@@ -274,7 +274,7 @@ LIBRARY_API void udaAddMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int cou
  * @return void.
  */
 LIBRARY_API void udaChangeMalloc(LOGMALLOCLIST* logmalloclist, VOIDTYPE old, void* anew, int count, size_t size,
-                              const char* type);
+                                 const char* type);
 
 /** Change the logged memory location to a new location (necessary with realloc).
  *
@@ -286,7 +286,7 @@ LIBRARY_API void udaChangeMalloc(LOGMALLOCLIST* logmalloclist, VOIDTYPE old, voi
  * @return void.
  */
 LIBRARY_API void udaChangeNonMalloc(LOGMALLOCLIST* logmalloclist, void* old, void* anew, int count, size_t size,
-                                 const char* type);
+                                    const char* type);
 
 LIBRARY_API int udaDupCountMallocLog(LOGMALLOCLIST* str);
 
@@ -324,7 +324,7 @@ LIBRARY_API void udaFindMalloc(LOGMALLOCLIST* logmalloclist, void* heap, int* co
 * @return void.
 */
 LIBRARY_API void udaFindMalloc2(LOGMALLOCLIST* logmalloclist, void* heap, int* count, int* size, const char** type,
-                             int* rank, int** shape);
+                                int* rank, int** shape);
 
 /** Add a heap memory location to the LOGSTRUCTLIST data structure. These are freed.
  *
@@ -370,7 +370,7 @@ LIBRARY_API void udaCopyUserDefinedType(USERDEFINEDTYPE* old, USERDEFINEDTYPE* a
  * @return void.
  */
 LIBRARY_API void udaCopyUserDefinedTypeList(USERDEFINEDTYPELIST** anew,
-                                         const USERDEFINEDTYPELIST* parseduserdefinedtypelist);
+                                            const USERDEFINEDTYPELIST* parseduserdefinedtypelist);
 
 /** Create the Initial User Defined Structure Definition List.
  *
@@ -414,7 +414,7 @@ LIBRARY_API void udaUpdateUserDefinedType(USERDEFINEDTYPELIST* str, int typeId, 
  * @return void.
  */
 LIBRARY_API void udaChangeUserDefinedTypeElementProperty(USERDEFINEDTYPELIST* str, int typeId, char* element,
-                                                      char* property, void* value);
+                                                         char* property, void* value);
 
 /** The number of Structure Definitions or User Defined Types in the structure list
  *
@@ -530,19 +530,19 @@ LIBRARY_API void udaPrintError(int warning, int line, char* file, char* msg);
 //
 
 LIBRARY_API int udaXDRAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int count, int size,
-                              char** data);
+                                 char** data);
 
 // Send/Receive Array of Structures
 
 LIBRARY_API int udaXDRUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist,
-                                       USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* userdefinedtype,
-                                       void** data, int protocolVersion, bool xdr_stdio_flag,
-                                       LOGSTRUCTLIST* log_struct_list, int malloc_source);
+                                          USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* userdefinedtype,
+                                          void** data, int protocolVersion, bool xdr_stdio_flag,
+                                          LOGSTRUCTLIST* log_struct_list, int malloc_source);
 
 LIBRARY_API int udaFindUserDefinedTypeId(USERDEFINEDTYPELIST* userdefinedtypelist, const char* name);
 
 LIBRARY_API USERDEFINEDTYPE* udaFindUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist, const char* name,
-                                                 int ref_id);
+                                                    int ref_id);
 
 LIBRARY_API int udaTestUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* udt);
 
@@ -687,7 +687,7 @@ LIBRARY_API void* udaGetNodeStructureArrayData(LOGMALLOCLIST* logmalloclist, NTR
  * @return a Pointer to a Component Structure Array element.
  */
 LIBRARY_API void* udaGetNodeStructureComponentArrayData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
-                                                     int structureindex, int componentindex);
+                                                        int structureindex, int componentindex);
 
 /** Return the count of child User Defined Type Structures (elements of this structure).
  *
@@ -902,7 +902,8 @@ LIBRARY_API int* udaGetNodeStructureComponentDataShape(LOGMALLOCLIST* logmallocl
  * @return the value 1 if the User Defined Structure Component Data array is a pointer type.
  */
 
-LIBRARY_API int udaGetNodeStructureComponentDataIsPointer(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target);
+LIBRARY_API int udaGetNodeStructureComponentDataIsPointer(LOGMALLOCLIST* logmalloclist, NTREE* ntree,
+                                                          const char* target);
 
 /** Return the Size of a User Defined Structure Component.
  *
@@ -921,7 +922,7 @@ LIBRARY_API int udaGetNodeStructureComponentDataSize(LOGMALLOCLIST* logmalloclis
  */
 
 LIBRARY_API const char* udaGetNodeStructureComponentDataDataType(LOGMALLOCLIST* logmalloclist, NTREE* ntree,
-                                                              const char* target);
+                                                                 const char* target);
 
 /** Return a pointer to a User Defined Structure Component's data.
  *
@@ -941,7 +942,7 @@ LIBRARY_API void* udaGetNodeStructureComponentData(LOGMALLOCLIST* logmalloclist,
  */
 
 LIBRARY_API void udaPrintNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmalloclist,
-                                                 USERDEFINEDTYPELIST* userdefinedtypelist, const char* target);
+                                                    USERDEFINEDTYPELIST* userdefinedtypelist, const char* target);
 
 /** Print a Data Structure's Contents.
  *
@@ -960,7 +961,7 @@ LIBRARY_API void udaPrintNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntre
  */
 
 LIBRARY_API float* udaCastNodeStructureComponentDatatoFloat(LOGMALLOCLIST* logmalloclist, NTREE* ntree,
-                                                         const char* target);
+                                                            const char* target);
 
 /** Return a pointer to a User Defined Structure Component's data cast to DOUBLE.
  *
@@ -970,7 +971,7 @@ LIBRARY_API float* udaCastNodeStructureComponentDatatoFloat(LOGMALLOCLIST* logma
  */
 
 LIBRARY_API double* udaCastNodeStructureComponentDatatoDouble(LOGMALLOCLIST* logmalloclist, NTREE* ntree,
-                                                           const char* target);
+                                                              const char* target);
 
 //---------------------------------------------------------------------------------------------
 // Tree Branch Family: Whole tree is in scope
@@ -1100,29 +1101,29 @@ LIBRARY_API void udaPrintNTreeStructureComponentNames_stdout(LOGMALLOCLIST* logm
 LIBRARY_API void udaPrintAtomicType_stdout(LOGMALLOCLIST* logmalloclist, NTREE* tree, const char* target);
 
 LIBRARY_API void udaGetNodeStructureComponentDataShape_f(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
-                                                      int* shape_f);
+                                                         int* shape_f);
 
 LIBRARY_API void udaGetNodeStructureComponentShortData_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target,
-                                                      short* data_f);
+                                                         short* data_f);
 
 LIBRARY_API void udaGetNodeStructureComponentFloatData_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target,
-                                                      float* data_f);
+                                                         float* data_f);
 
 LIBRARY_API void udaDereferenceShortData(short* data_c, int count, short* data_f);
 
 LIBRARY_API void udaDereferenceFloatData(float* data_c, int count, float* data_f);
 
 LIBRARY_API short* udaCastNodeStructureComponentDatatoShort(LOGMALLOCLIST* logmalloclist, NTREE* ntree,
-                                                         const char* target);
+                                                            const char* target);
 
-LIBRARY_API void udaCastNodeStructureComponentDatatoShort_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target,
-                                                         short* data_f);
+LIBRARY_API void udaCastNodeStructureComponentDatatoShort_f(LOGMALLOCLIST* logmalloclist, NTREE* node,
+                                                            const char* target, short* data_f);
 
-LIBRARY_API void udaCastNodeStructureComponentDatatoFloat_f(LOGMALLOCLIST* logmalloclist, NTREE* node, const char* target,
-                                                         float* data_f);
+LIBRARY_API void udaCastNodeStructureComponentDatatoFloat_f(LOGMALLOCLIST* logmalloclist, NTREE* node,
+                                                            const char* target, float* data_f);
 
-LIBRARY_API void udaAddStructureField(USERDEFINEDTYPE* user_type, const char* name, const char* desc, UDA_TYPE data_type,
-                                   bool is_pointer, int rank, int* shape, size_t offset);
+LIBRARY_API void udaAddStructureField(USERDEFINEDTYPE* user_type, const char* name, const char* desc,
+                                      UDA_TYPE data_type, bool is_pointer, int rank, int* shape, size_t offset);
 
 #ifdef __cplusplus
 }

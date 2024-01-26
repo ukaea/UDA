@@ -23,7 +23,7 @@ extern "C" {
  * @return the Tree Node containing the named element.
  */
 LIBRARY_API NTREE* udaFindNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
-                                                const char** lastname);
+                                                   const char** lastname);
 
 /** Find (search type B) and return a Pointer to the named Data Tree Node with a data structure of the same name.
  * The name of the structure is also returned.
@@ -36,7 +36,7 @@ LIBRARY_API NTREE* udaFindNTreeStructureComponent2(LOGMALLOCLIST* logmalloclist,
  * @return the Data Tree Node with the structure name.
  */
 LIBRARY_API NTREE* udaFindNTreeStructure2(LOGMALLOCLIST* logmalloclist, NTREE* ntree, const char* target,
-                                       const char** lastname);
+                                          const char** lastname);
 
 /** Find (search type A) and return a Pointer to the Data Tree Node with a data structure that contains a named element.
  *
@@ -142,8 +142,8 @@ LIBRARY_API int udaMaxCountVlenStructureArray(NTREE* tree, const char* target, i
  * @return An integer returning an error code: 0 => OK.
  */
 LIBRARY_API int udaRegulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree,
-                                              USERDEFINEDTYPELIST* userdefinedtypelist, const char* target,
-                                              unsigned int count);
+                                            USERDEFINEDTYPELIST* userdefinedtypelist, const char* target,
+                                            unsigned int count);
 
 /** Regularise the Shape of All VLEN structured data arrays in the data tree: necessary for accessing in some languages,
  * e.g. IDL.
@@ -154,7 +154,7 @@ LIBRARY_API int udaRegulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE*
  * @return An integer returning an error code: 0 => OK.
  */
 LIBRARY_API int udaRegulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree,
-                                        USERDEFINEDTYPELIST* userdefinedtypelist);
+                                      USERDEFINEDTYPELIST* userdefinedtypelist);
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
@@ -242,10 +242,10 @@ LIBRARY_API void udaPrintImage(const char* image, int imagecount);
  * @return Void
  */
 LIBRARY_API void udaDefineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset,
-                             unsigned short type_id);
+                                unsigned short type_id);
 
-LIBRARY_API void udaDefineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int offset,
-                                     int size);
+LIBRARY_API void udaDefineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc,
+                                        int offset, int size);
 
 #ifdef __cplusplus
 }

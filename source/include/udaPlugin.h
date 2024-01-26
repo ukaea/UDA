@@ -3,11 +3,11 @@
 
 #include <stdbool.h>
 
+#include "errorLog.h"
 #include "export.h"
 #include "pluginStructs.h"
 #include "udaStructs.h"
 #include "udaTypes.h"
-#include "errorLog.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -80,7 +80,7 @@ LIBRARY_API bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** va
     {                                                                                                                  \
         int UNIQUE_VAR(err) = 999;                                                                                     \
         UDA_LOG(UDA_LOG_ERROR, "%s\n", MSG);                                                                           \
-        udaAddError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG);                                             \
+        udaAddError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG);                                              \
         udaConcatError(&plugin_interface_ptr->error_stack);                                                            \
         return UNIQUE_VAR(err);                                                                                        \
     }
@@ -89,7 +89,7 @@ LIBRARY_API bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** va
     {                                                                                                                  \
         int UNIQUE_VAR(err) = 999;                                                                                     \
         UDA_LOG(UDA_LOG_ERROR, "%s\n", MSG);                                                                           \
-        udaAddError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG);                                             \
+        udaAddError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG);                                              \
         return UNIQUE_VAR(err);                                                                                        \
     }
 
@@ -97,7 +97,7 @@ LIBRARY_API bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** va
     {                                                                                                                  \
         int UNIQUE_VAR(err) = 999;                                                                                     \
         UDA_LOG(UDA_LOG_ERROR, "%s\n", FMT, __VA_ARGS__);                                                              \
-        udaAddError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG);                                             \
+        udaAddError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG);                                              \
         return UNIQUE_VAR(err);                                                                                        \
     }
 
@@ -105,7 +105,7 @@ LIBRARY_API bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** va
     {                                                                                                                  \
         int UNIQUE_VAR(err) = 999;                                                                                     \
         UDA_LOG(UDA_LOG_ERROR, "%s\n", FMT, __VA_ARGS__);                                                              \
-        udaAddError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG);                                             \
+        udaAddError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG);                                              \
         udaConcatError(&plugin_interface_ptr->error_stack);                                                            \
         return UNIQUE_VAR(err);                                                                                        \
     }
@@ -113,7 +113,7 @@ LIBRARY_API bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** va
 #define RAISE_PLUGIN_ERROR_EX(MSG, CODE)                                                                               \
     int UNIQUE_VAR(err) = 999;                                                                                         \
     UDA_LOG(UDA_LOG_ERROR, "%s", MSG);                                                                                 \
-    udaAddError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG);                                                 \
+    udaAddError(UDA_CODE_ERROR_TYPE, __func__, UNIQUE_VAR(err), MSG);                                                  \
     CODE;                                                                                                              \
     return UNIQUE_VAR(err);
 

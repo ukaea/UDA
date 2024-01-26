@@ -23,7 +23,7 @@ enum pluginClass {
 struct PluginList; // Forward declaration
 typedef struct PluginList PLUGINLIST;
 
-typedef struct UdaPluginInterface {  // Standard Plugin interface
+typedef struct UdaPluginInterface {   // Standard Plugin interface
     unsigned short interfaceVersion;  // Interface Version
     unsigned short pluginVersion;     // Plugin Version
     unsigned short sqlConnectionType; // Which SQL is the server connected to

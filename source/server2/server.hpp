@@ -1,21 +1,22 @@
 #pragma once
 
 #ifndef UDA_SERVER_SERVER_HPP
-#define UDA_SERVER_SERVER_HPP
+#  define UDA_SERVER_SERVER_HPP
 
-#include <vector>
+#  include <vector>
 
-#include "xdr_protocol.hpp"
-#include "plugins.hpp"
-#include "get_data.hpp"
-#include "server_environment.hpp"
+#  include "get_data.hpp"
+#  include "plugins.hpp"
+#  include "server_environment.hpp"
+#  include "xdr_protocol.hpp"
 
-#include "clientserver/parseXML.h"
-#include "clientserver/socketStructs.h"
-#include "cache/memcache.hpp"
-#include "export.h"
+#  include "cache/memcache.hpp"
+#  include "clientserver/parseXML.h"
+#  include "clientserver/socketStructs.h"
+#  include "export.h"
 
-namespace uda {
+namespace uda
+{
 
 struct MetadataBlock {
     DataSource data_source;
@@ -25,8 +26,9 @@ struct MetadataBlock {
     DataSystem data_system;
 };
 
-class Server {
-public:
+class Server
+{
+  public:
     constexpr static int ServerVersion = 8;
     constexpr static int LegacyServerVersion = 6;
 
@@ -34,7 +36,7 @@ public:
     LIBRARY_API void run();
     LIBRARY_API void close();
 
-private:
+  private:
     void startup();
     void loop();
     int handle_request();

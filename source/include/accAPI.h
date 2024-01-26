@@ -15,15 +15,15 @@ extern "C" {
 
 #define UDA_NUM_CLIENT_THREADS 30
 
-LIBRARY_API DATA_BLOCK* udaGetCurrentDataBlock();  
+LIBRARY_API DATA_BLOCK* udaGetCurrentDataBlock();
 
-LIBRARY_API int udaGetCurrentDataBlockIndex();  
+LIBRARY_API int udaGetCurrentDataBlockIndex();
 
 LIBRARY_API int udaGrowDataBlocks();
 
-LIBRARY_API int udaGetNewDataHandle();  
+LIBRARY_API int udaGetNewDataHandle();
 
-LIBRARY_API void udaFreeDataBlocks();  
+LIBRARY_API void udaFreeDataBlocks();
 
 LIBRARY_API void udaSetPrivateFlag(unsigned int flag);
 
@@ -117,13 +117,13 @@ LIBRARY_API int udaGetErrorAsymmetry(int handle);
 
 LIBRARY_API int udaGetErrorModelId(const char* model);
 
-LIBRARY_API char* udaGetSyntheticData(int handle);  
+LIBRARY_API char* udaGetSyntheticData(int handle);
 
-LIBRARY_API char* udaGetSyntheticDimData(int handle, int ndim);  
+LIBRARY_API char* udaGetSyntheticDimData(int handle, int ndim);
 
-LIBRARY_API void udaSetSyntheticData(int handle, char* data);  
+LIBRARY_API void udaSetSyntheticData(int handle, char* data);
 
-LIBRARY_API void udaSetSyntheticDimData(int handle, int ndim, char* data);  
+LIBRARY_API void udaSetSyntheticDimData(int handle, int ndim, char* data);
 
 LIBRARY_API char* udaGetSyntheticData(int handle);
 
@@ -139,11 +139,11 @@ LIBRARY_API char* udaGetDataErrHi(int handle);
 
 LIBRARY_API int udaGetDataErrAsymmetry(int handle);
 
-LIBRARY_API void udaSetDataErrAsymmetry(int handle, int asymmetry);  
+LIBRARY_API void udaSetDataErrAsymmetry(int handle, int asymmetry);
 
-LIBRARY_API void udaSetDataErrType(int handle, int type);  
+LIBRARY_API void udaSetDataErrType(int handle, int type);
 
-LIBRARY_API void udaSetDataErrLo(int handle, char* errlo);  
+LIBRARY_API void udaSetDataErrLo(int handle, char* errlo);
 
 LIBRARY_API char* udaGetDimErrLo(int handle, int ndim);
 
@@ -151,11 +151,11 @@ LIBRARY_API char* udaGetDimErrHi(int handle, int ndim);
 
 LIBRARY_API int udaGetDimErrAsymmetry(int handle, int ndim);
 
-LIBRARY_API void udaSetDimErrAsymmetry(int handle, int ndim, int asymmetry);  
+LIBRARY_API void udaSetDimErrAsymmetry(int handle, int ndim, int asymmetry);
 
-LIBRARY_API void udaSetDimErrType(int handle, int ndim, int type);  
+LIBRARY_API void udaSetDimErrType(int handle, int ndim, int type);
 
-LIBRARY_API void udaSetDimErrLo(int handle, int ndim, char* errlo);  
+LIBRARY_API void udaSetDimErrLo(int handle, int ndim, char* errlo);
 
 LIBRARY_API char* udaGetError(int handle);
 

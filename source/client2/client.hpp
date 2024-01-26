@@ -1,26 +1,28 @@
 #pragma once
 
 #ifndef UDA_SOURCE_CLIENT2_CLIENT_H
-#define UDA_SOURCE_CLIENT2_CLIENT_H
+#  define UDA_SOURCE_CLIENT2_CLIENT_H
 
-#include <exception>
-#include <string_view>
-#include <string>
-#include <vector>
-#include <rpc/rpc.h>
+#  include <exception>
+#  include <rpc/rpc.h>
+#  include <string>
+#  include <string_view>
+#  include <vector>
 
-#include "udaStructs.h"
-#include <cache/memcache.hpp>
+#  include "udaStructs.h"
+#  include <cache/memcache.hpp>
 
-#include "connection.hpp"
-#include "host_list.hpp"
-#include "accAPI.h"
+#  include "accAPI.h"
+#  include "connection.hpp"
+#  include "host_list.hpp"
 
 constexpr auto DefaultHost = "localhost";
 constexpr auto DefaultPort = 56565;
 
-namespace uda {
-namespace client {
+namespace uda
+{
+namespace client
+{
 
 constexpr int ClientVersion = 8;
 
@@ -34,7 +36,7 @@ struct MetadataBlock {
 
 class Client
 {
-public:
+  public:
     Client();
 
     int get(std::string_view data_signal, std::string_view data_source);
@@ -49,8 +51,8 @@ public:
     DATA_BLOCK* current_data_block();
     DATA_BLOCK* data_block(int handle);
     int new_handle();
-    void set_flag(unsigned int flag, bool private_flag=false);
-    void reset_flag(unsigned int flag, bool private_flag=false);
+    void set_flag(unsigned int flag, bool private_flag = false);
+    void reset_flag(unsigned int flag, bool private_flag = false);
     void set_property(const char* property);
     int get_property(const char* property);
     void reset_property(const char* property);
@@ -66,7 +68,7 @@ public:
     Client(const Client&) = delete;
     Client& operator=(const Client&) = delete;
 
-private:
+  private:
     int get_requests(RequestBlock& request_block, int* indices);
     void concat_errors(UDA_ERROR_STACK* error_stack);
     const char* get_server_error_stack_record_msg(int record);
@@ -78,7 +80,7 @@ private:
     int alt_rank_ = 0;
     ENVIRONMENT environment_ = {};
     ClientFlags client_flags_ = {};
-    uint32_t private_flags_= 0;
+    uint32_t private_flags_ = 0;
     ClientBlock client_block_ = {};
     ServerBlock server_block_ = {};
     std::vector<DataBlock> data_blocks_ = {};
@@ -94,8 +96,8 @@ private:
     bool reopen_logs_ = false;
     std::string client_username_ = "client";
     int protocol_version_ = ClientVersion;
-    USERDEFINEDTYPELIST* userdefinedtypelist_ = nullptr;            // List of all known User Defined Structure Types
-    LOGMALLOCLIST* logmalloclist_ = nullptr;                        // List of all Heap Allocations for Data
+    USERDEFINEDTYPELIST* userdefinedtypelist_ = nullptr; // List of all known User Defined Structure Types
+    LOGMALLOCLIST* logmalloclist_ = nullptr;             // List of all Heap Allocations for Data
     NTREE* full_ntree_ = nullptr;
     LOGSTRUCTLIST log_struct_list_ = {};
     int malloc_source_ = UDA_MALLOC_SOURCE_NONE;
@@ -112,7 +114,7 @@ private:
     int fetch_hierarchical_data(DATA_BLOCK* data_block);
 };
 
-}
-}
+} // namespace client
+} // namespace uda
 
-#endif //UDA_SOURCE_CLIENT2_CLIENT_H
+#endif // UDA_SOURCE_CLIENT2_CLIENT_H
