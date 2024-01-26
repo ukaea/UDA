@@ -1,27 +1,29 @@
 #include "udaPlugin.h"
+
 #include "server/initPluginList.h"
 #include "server/serverPlugin.h"
 #include "server/serverSubsetData.h"
 #include "struct.h"
 
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "logging/logging.h"
 #include "udaTypes.h"
+#include "accessors.h"
 #include <clientserver/errorLog.h>
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/stringUtils.h>
 #include <server/getServerEnvironment.h>
 
-IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
+UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {
-    auto plugin_interface = (IDAM_PLUGIN_INTERFACE*)calloc(1, sizeof(IDAM_PLUGIN_INTERFACE));
+    auto plugin_interface = (UDA_PLUGIN_INTERFACE*)calloc(1, sizeof(UDA_PLUGIN_INTERFACE));
     auto environment = getServerEnvironment();
     auto plugin_list = (PLUGINLIST*)calloc(1, sizeof(PLUGINLIST));
 
     initPluginList(plugin_list, environment);
 
     auto request_data = (REQUEST_DATA*)calloc(1, sizeof(REQUEST_DATA));
-    makeRequestData(request_data, *plugin_list, environment);
+    makeRequestData(request_data, plugin_list, environment);
 
     auto user_defined_type_list = (USERDEFINEDTYPELIST*)calloc(1, sizeof(USERDEFINEDTYPELIST));
     auto log_malloc_list = (LOGMALLOCLIST*)calloc(1, sizeof(LOGMALLOCLIST));
@@ -42,7 +44,7 @@ IDAM_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
     return plugin_interface;
 }
 
-void udaFreePluginInterface(IDAM_PLUGIN_INTERFACE* plugin_interface)
+void udaFreePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     free(plugin_interface->request_data);
     freeUserDefinedTypeList(plugin_interface->userdefinedtypelist);
@@ -55,15 +57,16 @@ void udaFreePluginInterface(IDAM_PLUGIN_INTERFACE* plugin_interface)
     free(plugin_interface);
 }
 
-int initPlugin(const IDAM_PLUGIN_INTERFACE* plugin_interface)
+int initPlugin(const UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     udaSetLogLevel((LOG_LEVEL)plugin_interface->environment->loglevel);
     return 0;
 }
 
-int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, const size_t* shape,
+int setReturnDataFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, float* values, size_t rank, const size_t* shape,
                             const char* description)
 {
+    DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
     if (description != nullptr) {
@@ -99,9 +102,10 @@ int setReturnDataFloatArray(DATA_BLOCK* data_block, float* values, size_t rank, 
     return 0;
 }
 
-int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank, const size_t* shape,
+int setReturnDataDoubleArray(UDA_PLUGIN_INTERFACE* plugin_interface, double* values, size_t rank, const size_t* shape,
                              const char* description)
 {
+    DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
     if (description != nullptr) {
@@ -137,9 +141,10 @@ int setReturnDataDoubleArray(DATA_BLOCK* data_block, double* values, size_t rank
     return 0;
 }
 
-int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, const size_t* shape,
+int setReturnDataIntArray(UDA_PLUGIN_INTERFACE* plugin_interface, int* values, size_t rank, const size_t* shape,
                           const char* description)
 {
+    DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
     if (description != nullptr) {
@@ -175,8 +180,9 @@ int setReturnDataIntArray(DATA_BLOCK* data_block, int* values, size_t rank, cons
     return 0;
 }
 
-int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* description)
+int setReturnDataDoubleScalar(UDA_PLUGIN_INTERFACE* plugin_interface, double value, const char* description)
 {
+    DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
     auto data = (double*)malloc(sizeof(double));
@@ -195,8 +201,9 @@ int setReturnDataDoubleScalar(DATA_BLOCK* data_block, double value, const char* 
     return 0;
 }
 
-int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* description)
+int setReturnDataFloatScalar(UDA_PLUGIN_INTERFACE* plugin_interface, float value, const char* description)
 {
+    DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
     auto data = (float*)malloc(sizeof(float));
@@ -215,8 +222,9 @@ int setReturnDataFloatScalar(DATA_BLOCK* data_block, float value, const char* de
     return 0;
 }
 
-int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* description)
+int setReturnDataIntScalar(UDA_PLUGIN_INTERFACE* plugin_interface, int value, const char* description)
 {
+    DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
     int* data = (int*)malloc(sizeof(int));
@@ -235,8 +243,9 @@ int setReturnDataIntScalar(DATA_BLOCK* data_block, int value, const char* descri
     return 0;
 }
 
-int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* description)
+int setReturnDataLongScalar(UDA_PLUGIN_INTERFACE* plugin_interface, long value, const char* description)
 {
+    DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
     long* data = (long*)malloc(sizeof(long));
@@ -255,8 +264,9 @@ int setReturnDataLongScalar(DATA_BLOCK* data_block, long value, const char* desc
     return 0;
 }
 
-int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* description)
+int setReturnDataShortScalar(UDA_PLUGIN_INTERFACE* plugin_interface, short value, const char* description)
 {
+    DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
     auto data = (short*)malloc(sizeof(short));
@@ -275,8 +285,9 @@ int setReturnDataShortScalar(DATA_BLOCK* data_block, short value, const char* de
     return 0;
 }
 
-int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* description)
+int setReturnDataString(UDA_PLUGIN_INTERFACE* plugin_interface, const char* value, const char* description)
 {
+    DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
     data_block->data_type = UDA_TYPE_STRING;
@@ -306,9 +317,10 @@ int setReturnDataString(DATA_BLOCK* data_block, const char* value, const char* d
     return 0;
 }
 
-int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE type, int rank, const int* shape,
+int setReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, size_t size, UDA_TYPE type, int rank, const int* shape,
                   const char* description)
 {
+    DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
     data_block->data_type = type;
@@ -343,87 +355,6 @@ int setReturnData(DATA_BLOCK* data_block, void* value, size_t size, UDA_TYPE typ
 }
 
 /**
- * Find the Plugin identity: return the reference id or -1 if not found.
- * @param request
- * @param plugin_list
- * @return
- */
-int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list)
-{
-    for (int i = 0; i < plugin_list->count; i++) {
-        if (plugin_list->plugin[i].request == request) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-/**
- * Find the Plugin identity: return the reference id or -1 if not found.
- * @param format
- * @param plugin_list
- * @return
- */
-int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
-{
-    for (int i = 0; i < plugin_list->count; i++) {
-        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-/**
- * Find the Plugin identity: return the reference id or -1 if not found.
- * @param device
- * @param plugin_list
- * @return
- */
-int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list)
-{
-    for (int i = 0; i < plugin_list->count; i++) {
-        if (plugin_list->plugin[i].plugin_class == UDA_PLUGIN_CLASS_DEVICE &&
-            STR_IEQUALS(plugin_list->plugin[i].format, device)) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-/**
- * Find the Plugin Request: return the request or REQUEST_READ_UNKNOWN if not found.
- * @param format
- * @param plugin_list
- * @return
- */
-int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list)
-{
-    for (int i = 0; i < plugin_list->count; i++) {
-        if (STR_IEQUALS(plugin_list->plugin[i].format, format)) {
-            return plugin_list->plugin[i].request;
-        }
-    }
-    return REQUEST_READ_UNKNOWN;
-}
-
-/**
- * Find the Plugin Request: return the request or REQUEST_READ_UNKNOWN if not found.
- * @param extension
- * @param plugin_list
- * @return
- */
-int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list)
-{
-    for (int i = 0; i < plugin_list->count; i++) {
-        if (STR_IEQUALS(plugin_list->plugin[i].extension, extension)) {
-            return plugin_list->plugin[i].request;
-        }
-    }
-    return REQUEST_READ_UNKNOWN;
-}
-
-/**
  * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associated value.
  *
  * If the argument is found the value associated with the argument is provided via the value parameter and the function
@@ -433,8 +364,10 @@ int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin
  * @param name
  * @return
  */
-bool findStringValue(const NAMEVALUELIST* namevaluelist, const char** value, const char* name)
+bool findStringValue(const UDA_PLUGIN_INTERFACE* plugin_interface, const char** value, const char* name)
 {
+    auto namevaluelist = &plugin_interface->request_data->nameValueList;
+
     char** names = SplitString(name, "|");
     *value = nullptr;
 
@@ -464,10 +397,10 @@ bool findStringValue(const NAMEVALUELIST* namevaluelist, const char** value, con
  * @param name
  * @return
  */
-bool findIntValue(const NAMEVALUELIST* namevaluelist, int* value, const char* name)
+bool findIntValue(const UDA_PLUGIN_INTERFACE* plugin_interface, int* value, const char* name)
 {
     const char* str;
-    bool found = findStringValue(namevaluelist, &str, name);
+    bool found = findStringValue(plugin_interface, &str, name);
     if (found) {
         *value = atoi(str);
     }
@@ -484,10 +417,10 @@ bool findIntValue(const NAMEVALUELIST* namevaluelist, int* value, const char* na
  * @param name
  * @return
  */
-bool findShortValue(const NAMEVALUELIST* namevaluelist, short* value, const char* name)
+bool findShortValue(const UDA_PLUGIN_INTERFACE* plugin_interface, short* value, const char* name)
 {
     const char* str;
-    bool found = findStringValue(namevaluelist, &str, name);
+    bool found = findStringValue(plugin_interface, &str, name);
     if (found) {
         *value = (short)atoi(str);
     }
@@ -504,10 +437,10 @@ bool findShortValue(const NAMEVALUELIST* namevaluelist, short* value, const char
  * @param name
  * @return
  */
-bool findCharValue(const NAMEVALUELIST* namevaluelist, char* value, const char* name)
+bool findCharValue(const UDA_PLUGIN_INTERFACE* plugin_interface, char* value, const char* name)
 {
     const char* str;
-    bool found = findStringValue(namevaluelist, &str, name);
+    bool found = findStringValue(plugin_interface, &str, name);
     if (found) {
         *value = (char)atoi(str);
     }
@@ -524,20 +457,20 @@ bool findCharValue(const NAMEVALUELIST* namevaluelist, char* value, const char* 
  * @param name
  * @return
  */
-bool findFloatValue(const NAMEVALUELIST* namevaluelist, float* value, const char* name)
+bool findFloatValue(const UDA_PLUGIN_INTERFACE* plugin_interface, float* value, const char* name)
 {
     const char* str;
-    bool found = findStringValue(namevaluelist, &str, name);
+    bool found = findStringValue(plugin_interface, &str, name);
     if (found) {
         *value = strtof(str, nullptr);
     }
     return found;
 }
 
-bool findIntArray(const NAMEVALUELIST* namevaluelist, int** values, size_t* nvalues, const char* name)
+bool findIntArray(const UDA_PLUGIN_INTERFACE* plugin_interface, int** values, size_t* nvalues, const char* name)
 {
     const char* str;
-    bool found = findStringValue(namevaluelist, &str, name);
+    bool found = findStringValue(plugin_interface, &str, name);
     if (found) {
         char** tokens = SplitString(str, ";");
         size_t n;
@@ -555,10 +488,10 @@ bool findIntArray(const NAMEVALUELIST* namevaluelist, int** values, size_t* nval
     return found;
 }
 
-bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* nvalues, const char* name)
+bool findFloatArray(const UDA_PLUGIN_INTERFACE* plugin_interface, float** values, size_t* nvalues, const char* name)
 {
     const char* str;
-    bool found = findStringValue(namevaluelist, &str, name);
+    bool found = findStringValue(plugin_interface, &str, name);
     if (found) {
         char** tokens = SplitString(str, ";");
         size_t n;
@@ -576,10 +509,10 @@ bool findFloatArray(const NAMEVALUELIST* namevaluelist, float** values, size_t* 
     return found;
 }
 
-bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** values, size_t* nvalues, const char* name)
+bool findDoubleArray(const UDA_PLUGIN_INTERFACE* plugin_interface, double** values, size_t* nvalues, const char* name)
 {
     const char* str;
-    bool found = findStringValue(namevaluelist, &str, name);
+    bool found = findStringValue(plugin_interface, &str, name);
     if (found) {
         char** tokens = SplitString(str, ";");
         size_t n;
@@ -597,8 +530,9 @@ bool findDoubleArray(const NAMEVALUELIST* namevaluelist, double** values, size_t
     return found;
 }
 
-bool findValue(const NAMEVALUELIST* namevaluelist, const char* name)
+bool findValue(const UDA_PLUGIN_INTERFACE* plugin_interface, const char* name)
 {
+    auto namevaluelist = &plugin_interface->request_data->nameValueList;
     char** names = SplitString(name, "|");
 
     bool found = false;
@@ -617,38 +551,269 @@ bool findValue(const NAMEVALUELIST* namevaluelist, const char* name)
     return found;
 }
 
-int callPlugin(const PLUGINLIST* pluginlist, const char* signal, const IDAM_PLUGIN_INTERFACE* old_plugin_interface)
+int callPlugin(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request)
 {
-    IDAM_PLUGIN_INTERFACE idam_plugin_interface = *old_plugin_interface;
-    REQUEST_DATA request = *old_plugin_interface->request_data;
-    idam_plugin_interface.request_data = &request;
+    UDA_PLUGIN_INTERFACE new_plugin_interface = *plugin_interface;
+    REQUEST_DATA request_data = *plugin_interface->request_data;
+    new_plugin_interface.request_data = &request_data;
 
-    request.source[0] = '\0';
-    strcpy(request.signal, signal);
-    makeRequestData(&request, *pluginlist, old_plugin_interface->environment);
+    request_data.source[0] = '\0';
+    strcpy(request_data.signal, request);
+    makeRequestData(&request_data, plugin_interface->pluginList, plugin_interface->environment);
 
-    request.request = findPluginRequestByFormat(request.format, pluginlist);
-    if (request.request == REQUEST_READ_UNKNOWN) {
-        RAISE_PLUGIN_ERROR("Plugin not found!");
+    request_data.request = findPluginRequestByFormat(request_data.format, plugin_interface->pluginList);
+    if (request_data.request == REQUEST_READ_UNKNOWN) {
+        RAISE_PLUGIN_ERROR(plugin_interface, "Plugin not found!");
     }
 
     int err = 0;
-    int id = findPluginIdByRequest(request.request, pluginlist);
-    PLUGIN_DATA* plugin = &(pluginlist->plugin[id]);
+    int id = findPluginIdByRequest(request_data.request, plugin_interface->pluginList);
+    PLUGIN_DATA* plugin = &(plugin_interface->pluginList->plugin[id]);
     if (id >= 0 && plugin->idamPlugin != nullptr) {
-        err = plugin->idamPlugin(&idam_plugin_interface); // Call the data reader
+        err = plugin->idamPlugin(&new_plugin_interface); // Call the data reader
     } else {
-        RAISE_PLUGIN_ERROR("Data Access is not available for this data request!");
+        RAISE_PLUGIN_ERROR(plugin_interface, "Data Access is not available for this data request!");
     }
 
     // Apply subsettinng
-    if (request.datasubset.nbound > 0) {
+    if (request_data.datasubset.nbound > 0) {
         ACTION action = {};
         initAction(&action);
         action.actionType = UDA_SUBSET_TYPE;
-        action.subset = request.datasubset;
-        err = serverSubsetData(idam_plugin_interface.data_block, action, idam_plugin_interface.logmalloclist);
+        action.subset = request_data.datasubset;
+        err = serverSubsetData(new_plugin_interface.data_block, action, new_plugin_interface.logmalloclist);
     }
 
     return err;
+}
+
+int setReturnCompoundData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, const char *user_type) {
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    initDataBlock(data_block);
+
+    data_block->data_type = UDA_TYPE_COMPOUND;
+    data_block->rank = 0;
+    data_block->data_n = 1;
+    data_block->data = data;
+
+    strcpy(data_block->data_desc, "Local UDA server time");
+    strcpy(data_block->data_label, "servertime");
+    strcpy(data_block->data_units, "");
+
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_count = 1;
+    data_block->opaque_block = (void*)findUserDefinedType(plugin_interface->userdefinedtypelist, user_type, 0);
+
+    return 0;
+}
+
+COMPOUNDFIELD* udaNewCompoundField(const char* name, const char* description, int* offset, int type)
+{
+    COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
+    defineField(field, name, description, offset, type);
+    return field;
+}
+
+USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id, int image_count, char* image, size_t size, size_t num_fields, COMPOUNDFIELD** fields)
+{
+    USERDEFINEDTYPE* user_type = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
+
+    strcpy(user_type->name, name);
+    strcpy(user_type->source, source);
+    user_type->ref_id = ref_id;
+    user_type->imagecount = image_count; // No Structure Image data
+    user_type->image = image;
+    user_type->size = size; // Structure size
+    user_type->idamclass = UDA_TYPE_COMPOUND;
+
+    for (size_t i = 0; i < num_fields; ++i) {
+        COMPOUNDFIELD* field = fields[i];
+        addCompoundField(user_type, *field);
+    }
+
+    return user_type;
+}
+
+int udaAddUserType(UDA_PLUGIN_INTERFACE* plugin_interface, USERDEFINEDTYPE* user_type)
+{
+    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
+    addUserDefinedType(userdefinedtypelist, *user_type);
+
+    return 0;
+}
+
+int udaRegisterMalloc(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int count, size_t size, const char* type)
+{
+    addMalloc(plugin_interface->logmalloclist, data, count, size, type);
+
+    return 0;
+}
+
+int udaPluginPluginsCount(UDA_PLUGIN_INTERFACE* plugin_interface)
+{
+    return plugin_interface->pluginList->count;
+}
+
+namespace {
+int check_plugin_class(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num, int plugin_class)
+{
+    auto plugin_list = plugin_interface->pluginList;
+    auto environment = plugin_interface->environment;
+
+    bool is_valid = plugin_list->plugin[plugin_num].plugin_class == plugin_class &&
+                    plugin_list->plugin[plugin_num].status == UDA_PLUGIN_OPERATIONAL &&
+                    (plugin_list->plugin[plugin_num].is_private == UDA_PLUGIN_PUBLIC ||
+                     (plugin_list->plugin[plugin_num].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user));
+
+    if (plugin_class == UDA_PLUGIN_CLASS_FILE) {
+        is_valid |= (plugin_list->plugin[plugin_num].format[0] != '\0' && plugin_list->plugin[plugin_num].extension[0] != '\0');
+    }
+
+    return is_valid;
+}
+
+}
+
+int udaPluginCheckPluginClass(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num, const char* plugin_class)
+{
+    std::string plugin_class_string = plugin_class;
+
+    if (plugin_class_string == "file") {
+        return check_plugin_class(plugin_interface, plugin_num, UDA_PLUGIN_CLASS_FILE);
+    } else if (plugin_class_string == "function") {
+        return check_plugin_class(plugin_interface, plugin_num, UDA_PLUGIN_CLASS_FUNCTION);
+    } else if (plugin_class_string == "server") {
+        return check_plugin_class(plugin_interface, plugin_num, UDA_PLUGIN_CLASS_SERVER);
+    } else if (plugin_class_string == "device") {
+        return check_plugin_class(plugin_interface, plugin_num, UDA_PLUGIN_CLASS_DEVICE);
+    } else if (plugin_class_string == "other") {
+        return check_plugin_class(plugin_interface, plugin_num, UDA_PLUGIN_CLASS_OTHER);
+    }
+
+    return 0;
+}
+
+const char* udaPluginPluginFormat(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num)
+{
+    return plugin_interface->pluginList->plugin[plugin_num].format;
+}
+
+const char* udaPluginPluginExtension(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num)
+{
+    return plugin_interface->pluginList->plugin[plugin_num].extension;
+}
+
+const char* udaPluginPluginDescription(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num)
+{
+    return plugin_interface->pluginList->plugin[plugin_num].desc;
+}
+
+const char* udaPluginPluginExample(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num)
+{
+    return plugin_interface->pluginList->plugin[plugin_num].example;
+}
+
+void udaPluginLog(UDA_PLUGIN_INTERFACE* plugin_interface, const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+
+    udaLog(UDA_LOG_DEBUG, fmt, args);
+
+    va_end(args);
+}
+
+void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* location, int code, const char* msg)
+{
+    udaLog(UDA_LOG_ERROR, msg);
+    plugin_interface->error_stack.nerrors += 1;
+    plugin_interface->error_stack.idamerror = (UDA_ERROR*)realloc(plugin_interface->error_stack.idamerror, plugin_interface->error_stack.nerrors * sizeof(UDA_ERROR));
+    plugin_interface->error_stack.idamerror[plugin_interface->error_stack.nerrors - 1] = createIdamError(UDA_CODE_ERROR_TYPE, location, code, msg);
+}
+
+int udaPluginIsExternal(UDA_PLUGIN_INTERFACE* plugin_interface)
+{
+    return plugin_interface->environment->external_user;
+}
+
+int udaPluginCheckInterfaceVersion(UDA_PLUGIN_INTERFACE* plugin_interface, int interface_version)
+{
+    return plugin_interface->interfaceVersion > interface_version;
+}
+
+void udaPluginSetVersion(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_version)
+{
+    plugin_interface->pluginVersion = plugin_version;
+}
+
+const char* udaPluginFunction(UDA_PLUGIN_INTERFACE* plugin_interface)
+{
+    return plugin_interface->request_data->function;
+}
+
+int setReturnDataLabel(UDA_PLUGIN_INTERFACE* plugin_interface, const char* label)
+{
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    strcpy(data_block->data_label, label);
+    return 0;
+}
+
+int setReturnDataUnits(UDA_PLUGIN_INTERFACE* plugin_interface, const char* units)
+{
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    strcpy(data_block->data_units, units);
+    return 0;
+}
+
+int setReturnErrorAsymmetry(UDA_PLUGIN_INTERFACE* plugin_interface, bool flag)
+{
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    data_block->errasymmetry = flag;
+    return 0;
+}
+
+char* memdup(const void* mem, size_t size)
+{
+    char* out = (char*)malloc(size);
+
+    if (out != nullptr) {
+        memcpy(out, mem, size);
+    }
+
+    return out;
+}
+
+int setReturnErrorLow(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size)
+{
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    data_block->errlo = memdup(data, size);
+    return 0;
+}
+
+int setReturnErrorHigh(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size)
+{
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    data_block->errhi = memdup(data, size);
+    return 0;
+}
+
+int setReturnDataOrder(UDA_PLUGIN_INTERFACE* plugin_interface, int order)
+{
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    data_block->order = order;
+    return 0;
+}
+
+int setReturnDimensionFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, int dim_n, float* data, size_t size, const char* label, const char* units)
+{
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+
+    data_block->dims[0].data_type = UDA_TYPE_FLOAT;
+    data_block->dims[0].dim_n = dim_n;
+    data_block->dims[0].compressed = 0;
+    strcpy(data_block->dims[0].dim_label, label);
+    strcpy(data_block->dims[0].dim_units, units);
+
+    data_block->data = memdup(data, size);
+    return 0;
 }

@@ -3,16 +3,27 @@
 #include <cstdlib>
 
 #include "accAPI.h"
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "udaGetAPI.h"
 #include "udaPlugin.h"
 #include <client/udaClient.h>
 #include <clientserver/stringUtils.h>
 #include <logging/logging.h>
-#include <plugins/uda_plugin_base.hpp>
+#include "include/uda_plugin_base.hpp"
+#include "server/serverPlugin.h"
 
 #include <boost/filesystem.hpp>
 #include <fmt/format.h>
+
+namespace {
+void setIdamClientFlag(CLIENT_FLAGS *client_flags, unsigned int flag) {
+    client_flags->flags = client_flags->flags | flag;
+}
+
+void resetIdamClientFlag(CLIENT_FLAGS *client_flags, unsigned int flag) {
+    client_flags->flags &= !flag;
+}
+}
 
 namespace uda::plugins::uda
 {
@@ -22,9 +33,9 @@ class Plugin : public UDAPluginBase
   public:
     Plugin();
 
-    int get(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int get(UDA_PLUGIN_INTERFACE* plugin_interface);
 
-    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override
+    void init(UDA_PLUGIN_INTERFACE* plugin_interface) override
     {
         old_host_ = getIdamServerHost();
         old_port_ = getIdamServerPort();
@@ -45,13 +56,13 @@ Plugin::Plugin()
 
 } // namespace uda::plugins::uda
 
-extern int UDAPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
+extern int UDAPlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static uda::plugins::uda::Plugin plugin = {};
     return plugin.call(plugin_interface);
 }
 
-int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     int err = 0;
 
@@ -164,7 +175,7 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
         // Source URL may be an nullptr string
         pathway = 4;
     } else {
-        error("Execution pathway not recognised: Unable to execute the request!");
+        error(plugin_interface, "Execution pathway not recognised: Unable to execute the request!");
     }
 
     //----------------------------------------------------------------------
@@ -188,38 +199,38 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
     auto client_flags = udaClientFlags();
 
     if (client_block->get_nodimdata) {
-        setIdamProperty("get_nodimdata", client_flags);
+        setIdamProperty("get_nodimdata");
     }
     if (client_block->get_timedble) {
-        setIdamProperty("get_timedble", client_flags);
+        setIdamProperty("get_timedble");
     }
     if (client_block->get_dimdble) {
-        setIdamProperty("get_dimdble", client_flags);
+        setIdamProperty("get_dimdble");
     }
     if (client_block->get_datadble) {
-        setIdamProperty("get_datadble", client_flags);
+        setIdamProperty("get_datadble");
     }
 
     if (client_block->get_bad) {
-        setIdamProperty("get_bad", client_flags);
+        setIdamProperty("get_bad");
     }
     if (client_block->get_meta) {
-        setIdamProperty("get_meta", client_flags);
+        setIdamProperty("get_meta");
     }
     if (client_block->get_asis) {
-        setIdamProperty("get_asis", client_flags);
+        setIdamProperty("get_asis");
     }
     if (client_block->get_uncal) {
-        setIdamProperty("get_uncal", client_flags);
+        setIdamProperty("get_uncal");
     }
     if (client_block->get_notoff) {
-        setIdamProperty("get_notoff", client_flags);
+        setIdamProperty("get_notoff");
     }
     if (client_block->get_scalar) {
-        setIdamProperty("get_scalar", client_flags);
+        setIdamProperty("get_scalar");
     }
     if (client_block->get_bytes) {
-        setIdamProperty("get_bytes", client_flags);
+        setIdamProperty("get_bytes");
     }
 
     // Timeout ...
@@ -278,7 +289,7 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                         old_port_ = newPort;
                     }
                 } else {
-                    error("The Server Port must be an Integer Number passed using the formats 'server:port' or 'server "
+                    error(plugin_interface, "The Server Port must be an Integer Number passed using the formats 'server:port' or 'server "
                           "port'");
                 }
             } else {
@@ -288,14 +299,14 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                 }
             }
         } else {
-            error("No Server has been specified!");
+            error(plugin_interface, "No Server has been specified!");
         }
 
-        debug("UDA Server Host for UDA Plugin {}\n", data_source->server);
-        debug("UDA Server Port for UDA Plugin {}\n", newPort);
-        debug("Calling idamGetAPI API (Database based Request)\n");
-        debug("Signal: {}\n", signal.c_str());
-        debug("Source: {}\n", source.c_str());
+        debug(plugin_interface, "UDA Server Host for UDA Plugin {}\n", data_source->server);
+        debug(plugin_interface, "UDA Server Port for UDA Plugin {}\n", newPort);
+        debug(plugin_interface, "Calling idamGetAPI API (Database based Request)\n");
+        debug(plugin_interface, "Signal: {}\n", signal.c_str());
+        debug(plugin_interface, "Source: {}\n", source.c_str());
 
         handle = idamGetAPI(signal.c_str(), source.c_str());
 
@@ -315,7 +326,7 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                 p[0] = '\0';           // Break the String (work)
                 strcpy(source, p + 1); // Extract the Source URL Argument
             } else {
-                error("The Remote Server Data Source specified does not comply with the naming model: "
+                error(plugin_interface, "The Remote Server Data Source specified does not comply with the naming model: "
                       "serverHost:port/sourceURL");
             }
         } else {
@@ -324,7 +335,7 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                 p[0] = '\0';           // Break the String (work)
                 strcpy(source, p + 1); // Extract the Source URL Argument
             } else {
-                error("The Remote Server Data Source specified does not comply with the naming model: "
+                error(plugin_interface, "The Remote Server Data Source specified does not comply with the naming model: "
                       "serverHost:port/sourceURL");
             }
         }
@@ -354,7 +365,7 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                     old_port_ = newPort;
                 }
             } else {
-                error("The Server Port must be an Integer Number passed using the format 'server:port'  or 'server "
+                error(plugin_interface, "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server "
                       "port'");
             }
         } else {
@@ -364,11 +375,11 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
             }
         }
 
-        debug("UDA Server Host for UDA Plugin {}\n", request->server);
-        debug("UDA Server Port for UDA Plugin {}\n", newPort);
-        debug("Calling idamGetAPI API (Device redirect or server protocol based Request)\n");
-        debug("Signal: {}\n", request->signal);
-        debug("Source: {}\n", source);
+        debug(plugin_interface, "UDA Server Host for UDA Plugin {}\n", request->server);
+        debug(plugin_interface, "UDA Server Port for UDA Plugin {}\n", newPort);
+        debug(plugin_interface, "Calling idamGetAPI API (Device redirect or server protocol based Request)\n");
+        debug(plugin_interface, "Signal: {}\n", request->signal);
+        debug(plugin_interface, "Source: {}\n", source);
 
         handle = idamGetAPI(request->signal, source);
 
@@ -378,15 +389,15 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
         // Function library
 
         const char* host = nullptr;
-        bool isHost = findStringValue(&request->nameValueList, &host, "host");
+        bool isHost = findStringValue(plugin_interface, &host, "host");
 
         const char* signal = nullptr;
-        bool isSignal = findStringValue(&request->nameValueList, &signal, "signal");
+        bool isSignal = findStringValue(plugin_interface, &signal, "signal");
 
         const char* source = nullptr;
-        bool isSource = findStringValue(&request->nameValueList, &source, "source");
+        bool isSource = findStringValue(plugin_interface, &source, "source");
 
-        bool isPort = findIntValue(&request->nameValueList, &newPort, "port");
+        bool isPort = findIntValue(plugin_interface, &newPort, "port");
 
         // Set host and port
 
@@ -399,20 +410,20 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
             putIdamServerPort(newPort);
         }
 
-        debug("UDA Server Host for UDA Plugin {}\n", host);
-        debug("UDA Server Port for UDA Plugin {}\n", newPort);
-        debug("Calling idamGetAPI API (plugin library method based Request)\n");
+        debug(plugin_interface, "UDA Server Host for UDA Plugin {}\n", host);
+        debug(plugin_interface, "UDA Server Port for UDA Plugin {}\n", newPort);
+        debug(plugin_interface, "Calling idamGetAPI API (plugin library method based Request)\n");
 
         if (isSignal && isSource) {
-            debug("Signal: {}\n", signal);
-            debug("idamAPIPlugin; Source: {}\n", source);
+            debug(plugin_interface, "Signal: {}\n", signal);
+            debug(plugin_interface, "idamAPIPlugin; Source: {}\n", source);
             handle = idamGetAPI(signal, source);
         } else if (isSignal) {
-            debug("Signal: {}\n", signal);
-            debug("idamAPIPlugin; Source: {}\n", request->source);
+            debug(plugin_interface, "Signal: {}\n", signal);
+            debug(plugin_interface, "idamAPIPlugin; Source: {}\n", request->source);
             handle = idamGetAPI(signal, request->source);
         } else {
-            error("A data object (signal) has not been specified!");
+            error(plugin_interface, "A data object (signal) has not been specified!");
         }
     } else if (pathway == 4) {
 
@@ -452,7 +463,7 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                     old_port_ = newPort;
                 }
             } else {
-                error("The Server Port must be an Integer Number passed using the format 'server:port'  or 'server "
+                error(plugin_interface, "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server "
                       "port'");
             }
         } else {
@@ -463,11 +474,11 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
             }
         }
 
-        debug("UDA Server Host for UDA Plugin {}\n", request->server);
-        debug("UDA Server Port for UDA Plugin {}\n", newPort);
-        debug("Calling idamGetAPI API (Server protocol based Request)\n");
-        debug("Signal: {}\n", request->signal);
-        debug("Source: {}\n", source);
+        debug(plugin_interface, "UDA Server Host for UDA Plugin {}\n", request->server);
+        debug(plugin_interface, "UDA Server Port for UDA Plugin {}\n", newPort);
+        debug(plugin_interface, "Calling idamGetAPI API (Server protocol based Request)\n");
+        debug(plugin_interface, "Signal: {}\n", request->signal);
+        debug(plugin_interface, "Source: {}\n", source);
 
         handle = idamGetAPI(request->signal, source);
     }
@@ -478,12 +489,12 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
     //----------------------------------------------------------------------
     // Test for Errors: Close Socket and Free heap
 
-    debug("Returned from idamGetAPI API: handle = {}, error code = {}\n", handle, getIdamErrorCode(handle));
+    debug(plugin_interface, "Returned from idamGetAPI API: handle = {}, error code = {}\n", handle, getIdamErrorCode(handle));
 
     if (handle < 0) {
-        error(getIdamServerErrorStackRecordMsg(0));
+        error(plugin_interface, getIdamServerErrorStackRecordMsg(0));
     } else if ((err = getIdamErrorCode(handle)) != 0) {
-        error(getIdamErrorMsg(handle));
+        error(plugin_interface, getIdamErrorMsg(handle));
     }
 
     //----------------------------------------------------------------------
@@ -501,7 +512,7 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
     if (getIdamClientVersion() >= 7) {
         // This should contain everything!
-        *data_block = *getIdamDataBlock(handle);
+        *data_block = *getDataBlock(handle);
     } else { // use abstraction functions
 
         // Straight structure mapping causes potential problems when the client library uses different versions
@@ -513,7 +524,7 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
         DATA_BLOCK db;
         initDataBlock(&db);
 
-        auto odb = (OLD_DATA_BLOCK*)getIdamDataBlock(handle);
+        auto odb = (OLD_DATA_BLOCK*)getDataBlock(handle);
 
         db.handle = odb->handle;
         db.errcode = odb->errcode;
@@ -565,7 +576,7 @@ int uda::plugins::uda::Plugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
         *signal_desc = *(data_block->signal_desc);
     }
 
-    debug("Exit\n");
+    debug(plugin_interface, "Exit\n");
 
     //----------------------------------------------------------------------
     // If the Data are Hierarchical, then necessary to forward the xdr file

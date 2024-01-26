@@ -1,6 +1,6 @@
 #include "hdf5plugin.h"
 
-#include <plugins/uda_plugin_base.hpp>
+#include "include/uda_plugin_base.hpp"
 
 #include "readHDF58.h"
 
@@ -8,16 +8,16 @@ class HDF5Plugin : public UDAPluginBase
 {
   public:
     HDF5Plugin();
-    int read(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int hello(IDAM_PLUGIN_INTERFACE* plugin_interface)
+    int read(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int hello(UDA_PLUGIN_INTERFACE* plugin_interface)
     {
         return setReturnDataString(plugin_interface->data_block, "hello!", nullptr);
     }
-    static int foo(IDAM_PLUGIN_INTERFACE* plugin_interface)
+    static int foo(UDA_PLUGIN_INTERFACE* plugin_interface)
     {
         return setReturnDataString(plugin_interface->data_block, "foo!", nullptr);
     }
-    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
+    void init(UDA_PLUGIN_INTERFACE* plugin_interface) override {}
     void reset() override {}
 };
 
@@ -31,7 +31,7 @@ HDF5Plugin::HDF5Plugin() : UDAPluginBase("HDF5", 1, "read", "")
 /**
  * Entry function
  */
-extern int hdf5Plugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
+extern int hdf5Plugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static HDF5Plugin plugin = {};
     return plugin.call(plugin_interface);
@@ -40,7 +40,7 @@ extern int hdf5Plugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 //----------------------------------------------------------------------------------------
 // Read data from a HDF5 File
 
-int HDF5Plugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int HDF5Plugin::read(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_SOURCE* data_source = plugin_interface->data_source;
     SIGNAL_DESC* signal_desc = plugin_interface->signal_desc;

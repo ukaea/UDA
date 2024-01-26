@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "udaDefines.h"
-#include "udaStructs.h"
+#include "clientserver/udaStructs.h"
 #include "genStructs.h"
 #include "cache/memcache.hpp"
 #include "server_environment.hpp"

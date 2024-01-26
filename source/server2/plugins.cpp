@@ -17,7 +17,7 @@
 namespace
 {
 
-void init_plugin_data(PLUGIN_DATA* plugin)
+void init_plugin_data(PluginData* plugin)
 {
     plugin->format[0] = '\0';
     plugin->library[0] = '\0';

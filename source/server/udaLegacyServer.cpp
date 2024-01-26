@@ -5,7 +5,7 @@
 
 #include "udaLegacyServer.h"
 
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "struct.h"
 #include "udaTypes.h"
 #include <clientserver/errorLog.h>

@@ -2,7 +2,9 @@
 #define UDA_CLIENT_UDAPUTAPI_H
 
 #include "export.h"
-#include "udaStructs.h"
+
+typedef struct PutDataBlockList PUTDATA_BLOCK_LIST;
+typedef struct PutDataBlock PUTDATA_BLOCK;
 
 #ifdef FATCLIENT
 #  define idamPutListAPI idamPutListAPIFat

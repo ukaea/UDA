@@ -8,7 +8,7 @@
 #endif
 
 #include "clientserver/errorLog.h"
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "logging/logging.h"
 
 #include "client.h"

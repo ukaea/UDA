@@ -6,7 +6,7 @@
 
 #include "accAPI.h"
 #include "client.h"
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "udaGetAPI.h"
 #include "udaPutAPI.h"
 #include "udaTypes.h"
@@ -74,8 +74,7 @@ void uda::Client::setProperty(Property prop, bool value)
             throw UDAException("Unknown property");
     }
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-    value ? setIdamProperty(name.c_str(), client_flags) : resetIdamProperty(name.c_str(), client_flags);
+    value ? setIdamProperty(name.c_str()) : resetIdamProperty(name.c_str());
 }
 
 void uda::Client::setProperty(Property prop, int value)
@@ -102,11 +101,11 @@ void uda::Client::setProperty(Property prop, int value)
 
         case PROP_TIMEOUT:
             name = (boost::format("timeout=%1%") % value).str();
-            setIdamProperty(name.c_str(), udaClientFlags());
+            setIdamProperty(name.c_str());
             break;
         case PROP_ALTRANK:
             name = (boost::format("altrank=%1%") % value).str();
-            setIdamProperty(name.c_str(), udaClientFlags());
+            setIdamProperty(name.c_str());
             break;
 
         default:
@@ -121,42 +120,41 @@ void uda::Client::close()
 
 int uda::Client::property(Property prop)
 {
-    auto client_flags = udaClientFlags();
     switch (prop) {
         case PROP_DATADBLE:
-            return getIdamProperty("get_datadble", client_flags);
+            return getIdamProperty("get_datadble");
         case PROP_DIMDBLE:
-            return getIdamProperty("get_dimdble", client_flags);
+            return getIdamProperty("get_dimdble");
         case PROP_TIMEDBLE:
-            return getIdamProperty("get_timedble", client_flags);
+            return getIdamProperty("get_timedble");
         case PROP_BYTES:
-            return getIdamProperty("get_bytes", client_flags);
+            return getIdamProperty("get_bytes");
         case PROP_BAD:
-            return getIdamProperty("get_bad", client_flags);
+            return getIdamProperty("get_bad");
         case PROP_META:
-            return getIdamProperty("get_meta", client_flags);
+            return getIdamProperty("get_meta");
         case PROP_ASIS:
-            return getIdamProperty("get_asis", client_flags);
+            return getIdamProperty("get_asis");
         case PROP_UNCAL:
-            return getIdamProperty("get_uncal", client_flags);
+            return getIdamProperty("get_uncal");
         case PROP_NOTOFF:
-            return getIdamProperty("get_notoff", client_flags);
+            return getIdamProperty("get_notoff");
         case PROP_SYNTHETIC:
-            return getIdamProperty("get_synthetic", client_flags);
+            return getIdamProperty("get_synthetic");
         case PROP_SCALAR:
-            return getIdamProperty("get_scalar", client_flags);
+            return getIdamProperty("get_scalar");
         case PROP_NODIMDATA:
-            return getIdamProperty("get_nodimdata", client_flags);
+            return getIdamProperty("get_nodimdata");
         case PROP_VERBOSE:
-            return getIdamProperty("verbose", client_flags);
+            return getIdamProperty("verbose");
         case PROP_DEBUG:
-            return getIdamProperty("debug", client_flags);
+            return getIdamProperty("debug");
         case PROP_ALTDATA:
-            return getIdamProperty("altdata", client_flags);
+            return getIdamProperty("altdata");
         case PROP_TIMEOUT:
-            return getIdamProperty("timeout", client_flags);
+            return getIdamProperty("timeout");
         case PROP_ALTRANK:
-            return getIdamProperty("altrank", client_flags);
+            return getIdamProperty("altrank");
 
         default:
             throw UDAException("Unknown property");
@@ -185,15 +183,15 @@ int uda::Client::serverPort()
 
 [[noreturn]] void generate_exception()
 {
-    UDA_ERROR_STACK* errorstack = getUdaServerErrorStack();
+    int num_errors = udaNumErrors();
     std::vector<std::string> backtrace;
-    int code = errorstack->nerrors > 0 ? errorstack->idamerror[0].code : 0;
-    std::string msg = errorstack->nerrors > 0 ? errorstack->idamerror[0].msg : "";
+    int code = num_errors > 0 ? udaGetErrorCode(0) : 0;
+    std::string msg = num_errors > 0 ? udaGetErrorMessage(0) : "";
 
-    backtrace.reserve(errorstack->nerrors);
-    for (unsigned int i = 0; i < errorstack->nerrors; ++i) {
-        backtrace.push_back(std::string("[") + errorstack->idamerror[i].location +
-                            "]: " + errorstack->idamerror[i].msg);
+    backtrace.reserve(num_errors);
+    for (int i = 0; i < num_errors; ++i) {
+        backtrace.push_back(std::string("[") + udaGetErrorLocation(i) +
+                            "]: " + udaGetErrorMessage(i));
     }
 
     if ((code > 0 && code < 25) || (code > 60 && code < 66)) {

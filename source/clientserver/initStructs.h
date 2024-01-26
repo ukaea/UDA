@@ -2,6 +2,7 @@
 #define UDA_CLIENTSERVER_INITSTRUCTS_H
 
 #include "export.h"
+
 #include "udaStructs.h"
 
 #ifdef __cplusplus

@@ -2,7 +2,7 @@
 #define UDA_PLUGIN_UDA_PLUGIN_H
 
 #include "export.h"
-#include "pluginStructs.h"
+#include "udaPlugin.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,7 +12,7 @@ extern "C" {
 #define THISPLUGIN_MAX_INTERFACE_VERSION 1 // Interface versions higher than this will not be understood!
 #define THISPLUGIN_DEFAULT_METHOD "help"
 
-int UDAPlugin(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+int UDAPlugin(UDA_PLUGIN_INTERFACE* plugin_interface);
 
 #ifdef __cplusplus
 }

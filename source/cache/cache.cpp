@@ -1,6 +1,6 @@
 #include "cache.h"
 
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include <clientserver/protocol.h>
 #include <clientserver/xdrlib.h>
 

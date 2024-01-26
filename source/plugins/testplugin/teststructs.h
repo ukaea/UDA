@@ -1,7 +1,7 @@
 #ifndef UDA_PLUGIN_TESTPLUGIN_TESTSTRUCTS_H
 #define UDA_PLUGIN_TESTPLUGIN_TESTSTRUCTS_H
 
-#include "pluginStructs.h"
+#include "udaPlugin.h"
 
 typedef struct Test9 {
     char v1[56];    // single fixed length string
@@ -20,6 +20,6 @@ typedef struct Test9A {
     TEST9 v6;       // Sub Structure with String types
 } TEST9A;
 
-void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface);
+void init_structure_definitions(UDA_PLUGIN_INTERFACE* plugin_interface);
 
 #endif // UDA_PLUGIN_TESTPLUGIN_TESTSTRUCTS_H

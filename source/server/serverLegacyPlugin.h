@@ -4,7 +4,7 @@
 #  define UDA_SERVER_SERVERLEGACYPLUGIN_H
 
 #  include "export.h"
-#  include "udaStructs.h"
+#  include "clientserver/udaStructs.h"
 
 int udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc);
 

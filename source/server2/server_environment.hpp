@@ -3,7 +3,7 @@
 #ifndef UDA_SERVER_GETSERVERENVIRONMENT_HPP
 #define UDA_SERVER_GETSERVERENVIRONMENT_HPP
 
-#include "udaStructs.h"
+#include "clientserver/udaStructs.h"
 #include "export.h"
 
 namespace uda {

@@ -4,7 +4,7 @@
 #define UDA_SERVER_APPLYXML_H
 
 #include <clientserver/parseXML.h>
-#include "udaStructs.h"
+#include "clientserver/udaStructs.h"
 #include "export.h"
 
 namespace uda {

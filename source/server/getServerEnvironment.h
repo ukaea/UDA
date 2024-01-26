@@ -4,7 +4,7 @@
 #  define UDA_SERVER_GETSERVERENVIRONMENT_H
 
 #  include "export.h"
-#  include "udaStructs.h"
+#  include "clientserver/udaStructs.h"
 
 void printServerEnvironment(const ENVIRONMENT* environment);
 ENVIRONMENT* getServerEnvironment();

@@ -17,7 +17,7 @@
 #  define strncasecmp _strnicmp
 #endif
 
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "struct.h"
 #include "udaTypes.h"
 #include <clientserver/compressDim.h>

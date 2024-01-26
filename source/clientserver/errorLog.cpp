@@ -3,14 +3,39 @@
 #include <cstdlib>
 #include <vector>
 
+#include "client.h"
 #include <clientserver/stringUtils.h>
 #include <logging/logging.h>
 
 static std::vector<UDA_ERROR> udaerrorstack;
 
-int udaNumErrors()
+int udaNumErrors(void)
 {
     return static_cast<int>(udaerrorstack.size());
+}
+
+const char* udaGetErrorMessage(int err_num)
+{
+    if (err_num > (int)udaerrorstack.size() && err_num < (int)udaerrorstack.size()) {
+        return udaerrorstack[err_num].msg;
+    }
+    return "no error found";
+}
+
+int udaGetErrorCode(int err_num)
+{
+    if (err_num > (int)udaerrorstack.size() && err_num < (int)udaerrorstack.size()) {
+        return udaerrorstack[err_num].code;
+    }
+    return -1;
+}
+
+const char* udaGetErrorLocation(int err_num)
+{
+    if (err_num > (int)udaerrorstack.size() && err_num < (int)udaerrorstack.size()) {
+        return udaerrorstack[err_num].location;
+    }
+    return "no error found";
 }
 
 void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERROR_STACK* error_stack)
@@ -95,7 +120,7 @@ void printIdamErrorStack()
 //            1 => Code Error
 //            2 => Plugin Error
 
-void addIdamError(int type, const char* location, int code, const char* msg)
+UDA_ERROR createIdamError(int type, const char* location, int code, const char* msg)
 {
     UDA_ERROR error;
 
@@ -127,7 +152,12 @@ void addIdamError(int type, const char* location, int code, const char* msg)
         }
     }
 
-    udaerrorstack.push_back(error);
+    return error;
+}
+
+void addIdamError(int type, const char* location, int code, const char* msg)
+{
+    udaerrorstack.push_back(createIdamError(type, location, code, msg));
 }
 
 // Concatenate Error Stack structures

@@ -16,7 +16,7 @@
 
 #include "clientserver/errorLog.h"
 #include "clientserver/printStructs.h"
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "logging/logging.h"
 
 #include "accAPI.h"
@@ -28,6 +28,195 @@
 #ifdef MEMDEBUG
 #  include <mcheck.h>
 #endif
+
+#ifndef NOPTHREADS
+
+#  ifdef __GNUC__
+#    include <pthread.h>
+#  else
+#    include <Windows.h>
+#  endif
+
+typedef struct {
+    int id;     // Thread identifier assigned by the application
+    int socket; // Either a shared or private server socket connection
+    int lastHandle;
+    ENVIRONMENT environment; // State
+    CLIENT_BLOCK client_block;
+    SERVER_BLOCK server_block;
+} IDAMSTATE;
+
+#  ifdef __GNUC__
+typedef pthread_t thread_t;
+typedef pthread_mutex_t lock_t;
+
+static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+#  else
+typedef HANDLE lock_t;
+typedef HANDLE thread_t;
+
+static HANDLE lock;
+#  endif
+
+// STATE management
+
+static IDAMSTATE idamState[UDA_NUM_CLIENT_THREADS]; // Threads are managed by the application, not IDAM
+static thread_t threadList[UDA_NUM_CLIENT_THREADS];
+static int threadCount = 0;
+
+int getIdamMaxThreadCount()
+{
+    return UDA_NUM_CLIENT_THREADS;
+}
+
+/**
+ * Search the set of registered threads for the State ID
+ * @param id
+ * @return
+ */
+int getThreadId(thread_t id)
+{
+    for (int i = 0; i < threadCount; i++) {
+#  ifdef __GNUC__
+        if (pthread_equal(id, threadList[i])) {
+            return i;
+        }
+#  else
+        if (GetThreadId(id) == GetThreadId(threadList[i])) {
+            return i;
+        }
+#  endif
+    }
+    return -1;
+}
+
+// Lock the thread and set the previous STATE
+void lockIdamThread()
+{
+    static unsigned int mutex_initialised = 0;
+
+    if (!mutex_initialised) {
+#  ifndef __GNUC__
+        lock = CreateMutex(nullptr, FALSE, nullptr);
+#  endif
+    }
+
+    // Apply the lock first
+#  ifdef __GNUC__
+    pthread_mutex_lock(&lock);
+#  else
+    WaitForSingleObject(lock, INFINITE);
+#  endif
+
+    // Identify the Current Thread
+
+#  ifdef __GNUC__
+    thread_t threadId = pthread_self();
+#  else
+    thread_t threadId = GetCurrentThread();
+#  endif
+
+    // Initialise the thread's state
+
+    if (!mutex_initialised) {
+        mutex_initialised = 1;
+        for (int i = 0; i < UDA_NUM_CLIENT_THREADS; i++) { // Initialise the STATE array
+            idamState[i].id = i;
+            idamState[i].socket = -1;
+            idamState[i].lastHandle = -1;
+            // initEnvironment(&(idamState[i].environment));
+            initClientBlock(&(idamState[i].client_block), 0, "");
+            initServerBlock(&(idamState[i].server_block), 0);
+            threadList[i] = 0; // and the thread identifiers
+        }
+    }
+
+    // Retain unique thread IDs
+
+    int id = getThreadId(threadId);
+
+    if (threadCount < UDA_NUM_CLIENT_THREADS && id == -1) {
+        // Preserve the thread ID if not registered
+        threadList[++threadCount - 1] = threadId;
+    }
+
+    // Assign State for the current thread if previously registered
+
+    if (id >= 0) {
+        putIdamServerSocket(idamState[id].socket);
+        // putIdamClientEnvironment(&idamState[id].environment);
+        putIdamThreadClientBlock(&idamState[id].client_block);
+        putIdamThreadServerBlock(&idamState[id].server_block);
+        auto client_flags = udaClientFlags();
+        client_flags->flags = idamState[id].client_block.clientFlags;
+        putIdamThreadLastHandle(idamState[id].lastHandle);
+    } else {
+        putIdamThreadLastHandle(-1);
+    }
+}
+
+/**
+ * Unlock the thread and save the current STATE
+ */
+void unlockUdaThread()
+{
+#  ifdef __GNUC__
+    thread_t threadId = pthread_self();
+#  else
+    thread_t threadId = GetCurrentThread();
+#  endif
+    int id = getThreadId(threadId); // Must be registered
+    if (id >= 0) {
+        idamState[id].socket = getIdamServerSocket();
+        // idamState[id].environment = *getIdamClientEnvironment();
+        idamState[id].client_block = getIdamThreadClientBlock();
+        idamState[id].server_block = getIdamThreadServerBlock();
+        auto client_flags = udaClientFlags();
+        idamState[id].client_block.clientFlags = client_flags->flags;
+        idamState[id].lastHandle = getIdamThreadLastHandle();
+    }
+#  ifdef __GNUC__
+    pthread_mutex_unlock(&lock);
+#  else
+    ReleaseMutex(lock);
+#  endif
+}
+
+/**
+ * Free thread resources
+ */
+void freeIdamThread()
+{
+    lockIdamThread();
+#  ifdef __GNUC__
+    thread_t threadId = pthread_self();
+#  else
+    thread_t threadId = GetCurrentThread();
+#  endif
+    int id = getThreadId(threadId);
+    threadCount--;
+    if (id >= 0) {
+        for (int i = id; i < threadCount; i++) {
+            threadList[i] = threadList[i + 1]; // Shuffle state
+            idamState[i] = idamState[i + 1];
+            idamState[i].id = i;
+        }
+        idamState[threadCount].id = threadCount;
+        idamState[threadCount].socket = -1;
+        idamState[threadCount].lastHandle = -1;
+        // initEnvironment(&(idamState[threadCount].environment));
+        initClientBlock(&(idamState[threadCount].client_block), 0, "");
+        initServerBlock(&(idamState[threadCount].server_block), 0);
+        threadList[threadCount] = 0;
+    }
+    unlockUdaThread();
+}
+
+#else
+void lockIdamThread() {}
+void unlockIdamThread() {}
+void freeIdamThread() {}
+#endif // NOPTHREADS
 
 //! the principal IDAM API
 /** All requests are passed via two string arguments. These take multiple forms or patterns.\n\n
@@ -146,7 +335,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
-    lockIdamThread(client_flags);
+    lockIdamThread();
 
     if (host != nullptr) {
         putIdamServerHost(host);
@@ -174,7 +363,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     static bool reopen_logs = true;
 
     if (udaStartup(0, client_flags, &reopen_logs) != 0) {
-        unlockUdaThread(client_flags);
+        unlockUdaThread();
         return PROBLEM_OPENING_LOGS;
     }
 
@@ -217,7 +406,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
-        unlockUdaThread(client_flags);
+        unlockUdaThread();
         return -err;
     }
 
@@ -246,7 +435,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
 
     freeClientRequestBlock(&request_block);
     // Unlock the thread
-    unlockUdaThread(client_flags);
+    unlockUdaThread();
     return handle;
 }
 
@@ -261,7 +450,7 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
-    lockIdamThread(client_flags);
+    lockIdamThread();
 
     if (host != nullptr) {
         putIdamServerHost(host);
@@ -288,7 +477,7 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
     static bool reopen_logs = true;
 
     if (udaStartup(0, client_flags, &reopen_logs) != 0) {
-        unlockUdaThread(client_flags);
+        unlockUdaThread();
         return PROBLEM_OPENING_LOGS;
     }
 
@@ -331,7 +520,7 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
         if (udaNumErrors() == 0) {
             addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
-        unlockUdaThread(client_flags);
+        unlockUdaThread();
         return -err;
     }
 
@@ -356,6 +545,6 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
 #endif
 
     // Unlock the thread
-    unlockUdaThread(client_flags);
+    unlockUdaThread();
     return err;
 }

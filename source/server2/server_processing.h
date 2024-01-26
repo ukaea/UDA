@@ -4,7 +4,7 @@
 #  define UDA_SERVER_SERVERPROCESSING_H
 
 #  include "export.h"
-#  include "udaStructs.h"
+#  include "clientserver/udaStructs.h"
 
 namespace uda
 {

@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------
  * v1 UDA Plugin Template: Standardised plugin design template, just add ...
  *
- * Input Arguments:    IDAM_PLUGIN_INTERFACE *idam_plugin_interface
+ * Input Arguments:    UDA_PLUGIN_INTERFACE *plugin_interface
  *
  * Returns:        0 if the plugin functionality was successful
  *            otherwise a Error Code is returned
@@ -20,9 +20,9 @@
  *---------------------------------------------------------------------------------------------------------------*/
 #include "templatePlugin.h"
 
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include <clientserver/stringUtils.h>
-#include <plugins/uda_plugin_base.hpp>
+#include "include/uda_plugin_base.hpp"
 
 #include <boost/filesystem.hpp>
 
@@ -30,8 +30,8 @@ class TemplatePlugin : public UDAPluginBase
 {
   public:
     TemplatePlugin();
-    int function(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
+    int function(UDA_PLUGIN_INTERFACE* plugin_interface);
+    void init(UDA_PLUGIN_INTERFACE* plugin_interface) override {}
     void reset() override {}
 };
 
@@ -42,7 +42,7 @@ TemplatePlugin::TemplatePlugin()
     register_method("function", static_cast<UDAPluginBase::plugin_member_type>(&TemplatePlugin::function));
 }
 
-int templatePlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int templatePlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static TemplatePlugin plugin = {};
     return plugin.call(plugin_interface);
@@ -66,10 +66,8 @@ template <typename T> std::string to_string(const std::vector<T>& array)
 
 //----------------------------------------------------------------------------------------
 // Add functionality here ....
-int TemplatePlugin::function(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TemplatePlugin::function(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     auto required = find_required_arg<std::string>(plugin_interface, "required");
     auto array = find_required_array_arg<double>(plugin_interface, "array");
     auto optional = find_arg<int>(plugin_interface, "optional");
@@ -78,10 +76,9 @@ int TemplatePlugin::function(IDAM_PLUGIN_INTERFACE* plugin_interface)
     std::string result =
         fmt::format("Passed args: required={}, array=[{}], optional={}", required, to_string(array), optional_str);
 
-    setReturnDataString(data_block, result.c_str(), "result of TemplatePlugin::function");
-
-    strcpy(data_block->data_label, "");
-    strcpy(data_block->data_units, "");
+    setReturnDataString(plugin_interface, result.c_str(), "result of TemplatePlugin::function");
+    setReturnDataLabel(plugin_interface, "");
+    setReturnDataUnits(plugin_interface, "");
 
     return 0;
 }

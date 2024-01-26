@@ -4,7 +4,7 @@
 #include <boost/format.hpp>
 #include <string>
 
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "udaErrors.h"
 #include <clientserver/errorLog.h>
 #include <clientserver/expand_path.h>

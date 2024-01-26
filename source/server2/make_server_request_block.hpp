@@ -4,7 +4,7 @@
 #define UDA_SERVER_MAKESERVERREQUESTBLOCK_HPP
 
 #include "udaPlugin.h"
-#include "udaStructs.h"
+#include "clientserver/udaStructs.h"
 #include "export.h"
 
 #include "plugins.hpp"

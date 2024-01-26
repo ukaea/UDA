@@ -2,7 +2,7 @@
 #include "catch.hpp"
 
 #include "udaTypes.h"
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include <client2/udaGetAPI.h>
 #include <client2/accAPI.h>
 #include "struct.h"

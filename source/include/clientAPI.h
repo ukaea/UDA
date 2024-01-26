@@ -2,7 +2,6 @@
 #define UDA_CLIENT_CLIENTAPI_H
 
 #include "export.h"
-#include "udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {

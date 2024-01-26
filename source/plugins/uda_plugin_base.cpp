@@ -7,14 +7,14 @@
 #include <fstream>
 #include <sstream>
 
-int UDAPluginBase::call(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int UDAPluginBase::call(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     try {
-        if (plugin_interface->interfaceVersion > interface_version_) {
-            RAISE_PLUGIN_ERROR("Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
+        if (udaPluginCheckInterfaceVersion(plugin_interface, interface_version_)) {
+            error(plugin_interface, "Plugin Interface Version Unknown to this plugin: Unable to execute the request!");
         }
 
-        plugin_interface->pluginVersion = version_;
+        udaPluginSetVersion(plugin_interface, version_);
 
         do_reset();
         do_init(plugin_interface);
@@ -25,7 +25,7 @@ int UDAPluginBase::call(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
         std::string function = get_function(plugin_interface);
 
-        int rc;
+        int rc = 0;
 
         if (function_map_.find(function) != function_map_.end()) {
             rc = function_map_.at(function)(plugin_interface);
@@ -33,29 +33,21 @@ int UDAPluginBase::call(IDAM_PLUGIN_INTERFACE* plugin_interface)
             auto fn = method_map_.at(function);
             rc = (this->*fn)(plugin_interface);
         } else {
-            UDA_LOG(UDA_LOG_ERROR, "Unknown function requested %s\n", function.c_str());
-            addIdamError(UDA_CODE_ERROR_TYPE, "UDAPluginBase::call", 999, "Unknown function requested");
-            concatUdaError(&plugin_interface->error_stack);
-            return 999;
+            error(plugin_interface, "Unknown function requested");
         }
-
-        concatUdaError(&plugin_interface->error_stack);
         return rc;
     } catch (std::exception& ex) {
-        UDA_LOG(UDA_LOG_ERROR, "Exception: %s\n", ex.what());
-        addIdamError(UDA_CODE_ERROR_TYPE, "UDAPluginBase::call", 999, ex.what());
-        concatUdaError(&plugin_interface->error_stack);
-        return 999;
+        debug(plugin_interface, ex.what());
+        return 1;
     }
 }
 
-std::string UDAPluginBase::get_function(IDAM_PLUGIN_INTERFACE* plugin_interface)
+std::string UDAPluginBase::get_function(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    REQUEST_DATA* request = plugin_interface->request_data;
-    return boost::to_lower_copy<std::string>(request->function);
+    return boost::to_lower_copy<std::string>(udaPluginFunction(plugin_interface));
 }
 
-void UDAPluginBase::do_init(IDAM_PLUGIN_INTERFACE* plugin_interface)
+void UDAPluginBase::do_init(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     std::string function = get_function(plugin_interface);
     if (!init_ || (function == "init" || function == "initialise")) {
@@ -75,19 +67,19 @@ void UDAPluginBase::do_reset()
     init_ = false;
 }
 
-int UDAPluginBase::help(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int UDAPluginBase::help(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     std::string desc = name_ + ": help = description of this plugin";
 
     if (help_file_.empty()) {
         const char* help = "No help available";
-        return setReturnDataString(plugin_interface->data_block, help, desc.c_str());
+        return setReturnDataString(plugin_interface, help, desc.c_str());
     }
 
     auto path = boost::filesystem::path(help_file_);
     if (!boost::filesystem::exists(path)) {
         auto help = fmt::format("help file {} does not exist", path.string());
-        return setReturnDataString(plugin_interface->data_block, help.c_str(), desc.c_str());
+        return setReturnDataString(plugin_interface, help.c_str(), desc.c_str());
     }
 
     std::ifstream help_file{path.string()};
@@ -95,27 +87,27 @@ int UDAPluginBase::help(IDAM_PLUGIN_INTERFACE* plugin_interface)
     buffer << help_file.rdbuf();
     auto help = buffer.str();
 
-    return setReturnDataString(plugin_interface->data_block, help.c_str(), desc.c_str());
+    return setReturnDataString(plugin_interface, help.c_str(), desc.c_str());
 }
 
-int UDAPluginBase::version(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int UDAPluginBase::version(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataIntScalar(plugin_interface->data_block, version_, "Plugin version number");
+    return setReturnDataIntScalar(plugin_interface, version_, "Plugin version number");
 }
 
-int UDAPluginBase::build_date(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int UDAPluginBase::build_date(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataString(plugin_interface->data_block, __DATE__, "Plugin build date");
+    return setReturnDataString(plugin_interface, __DATE__, "Plugin build date");
 }
 
-int UDAPluginBase::default_method(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int UDAPluginBase::default_method(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataString(plugin_interface->data_block, default_method_.c_str(), "Plugin default method");
+    return setReturnDataString(plugin_interface, default_method_.c_str(), "Plugin default method");
 }
 
-int UDAPluginBase::max_interface_version(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int UDAPluginBase::max_interface_version(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataIntScalar(plugin_interface->data_block, interface_version_, "Maximum Interface Version");
+    return setReturnDataIntScalar(plugin_interface, interface_version_, "Maximum Interface Version");
 }
 
 void UDAPluginBase::register_method(const std::string& name, plugin_member_type plugin_method)
@@ -128,8 +120,8 @@ void UDAPluginBase::register_function(const std::string& name, plugin_function_t
     function_map_[name] = plugin_function;
 }
 
-bool UDAPluginBase::has_arg(IDAM_PLUGIN_INTERFACE* plugin_interface, const std::string& name)
+bool UDAPluginBase::has_arg(UDA_PLUGIN_INTERFACE* plugin_interface, const std::string& name)
 {
     const char* str;
-    return findStringValue(&plugin_interface->request_data->nameValueList, &str, name.c_str());
+    return findStringValue(plugin_interface, &str, name.c_str());
 }

@@ -7,7 +7,7 @@
 #include "exceptions.hpp"
 #include "make_request_block.hpp"
 
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "udaDefines.h"
 #include "udaErrors.h"
 #include "udaTypes.h"
@@ -35,7 +35,7 @@ void copy_data_block(DATA_BLOCK* str, DATA_BLOCK* in)
     initClientBlock(&str->client_block, 0, "");
 }
 
-void copy_client_block(CLIENT_BLOCK* str, const ClientFlags* client_flags)
+void copy_client_block(CLIENT_BLOCK* str, const uda::client::ClientFlags* client_flags)
 {
     str->timeout = client_flags->user_timeout;
     str->clientFlags = client_flags->flags;
@@ -75,7 +75,7 @@ int alloc_meta(DATA_SYSTEM** data_system, SYSTEM_CONFIG** system_config, DATA_SO
     return err;
 }
 
-void update_client_block(CLIENT_BLOCK& client_block, const ClientFlags& client_flags, unsigned int private_flags)
+void update_client_block(CLIENT_BLOCK& client_block, const uda::client::ClientFlags& client_flags, unsigned int private_flags)
 {
     client_block.timeout = client_flags.user_timeout;
     client_block.clientFlags = client_flags.flags;
@@ -1160,7 +1160,7 @@ void uda::client::Client::concat_errors(UDA_ERROR_STACK* error_stack)
     error_stack->nerrors = inew;
 }
 
-const CLIENT_FLAGS* uda::client::Client::client_flags()
+const uda::client::ClientFlags* uda::client::Client::client_flags()
 {
     return &client_flags_;
 }

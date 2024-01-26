@@ -22,7 +22,7 @@ Interprets the API arguments and assembles a Request data structure.
 
 #include <string>
 
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "udaErrors.h"
 #include <clientserver/errorLog.h>
 #include <clientserver/expand_path.h>

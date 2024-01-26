@@ -7,7 +7,6 @@
 #include "client.h"
 #include "export.h"
 #include "genStructs.h"
-#include "udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,39 +14,21 @@ extern "C" {
 
 #define UDA_NUM_CLIENT_THREADS 30
 
-LIBRARY_API DATA_BLOCK* acc_getCurrentDataBlock(CLIENT_FLAGS* client_flags);
-
-LIBRARY_API int acc_getCurrentDataBlockIndex(CLIENT_FLAGS* client_flags);
-
-LIBRARY_API int acc_growIdamDataBlocks(CLIENT_FLAGS* client_flags);
-
-LIBRARY_API int acc_getIdamNewDataHandle(CLIENT_FLAGS* client_flags);
-
-LIBRARY_API void acc_freeDataBlocks();
-
 LIBRARY_API void setIdamPrivateFlag(unsigned int flag);
 
 LIBRARY_API void resetIdamPrivateFlag(unsigned int flag);
 
-LIBRARY_API void setIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag);
+LIBRARY_API void setIdamClientFlag(unsigned int flag);
 
-LIBRARY_API void resetIdamClientFlag(CLIENT_FLAGS* client_flags, unsigned int flag);
+LIBRARY_API void resetIdamClientFlag(unsigned int flag);
 
-LIBRARY_API void setIdamProperty(const char* property, CLIENT_FLAGS* client_flags);
+LIBRARY_API void setIdamProperty(const char* property);
 
-LIBRARY_API int getIdamProperty(const char* property, const CLIENT_FLAGS* client_flags);
+LIBRARY_API int getIdamProperty(const char* property);
 
-LIBRARY_API void resetIdamProperty(const char* property, CLIENT_FLAGS* client_flags);
+LIBRARY_API void resetIdamProperty(const char* property);
 
-LIBRARY_API void resetIdamProperties(CLIENT_FLAGS* client_flags);
-
-LIBRARY_API CLIENT_BLOCK saveIdamProperties(const CLIENT_FLAGS* client_flags);
-
-LIBRARY_API void restoreIdamProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags);
-
-LIBRARY_API CLIENT_BLOCK* getIdamProperties(int handle);
-
-LIBRARY_API CLIENT_BLOCK* getIdamDataProperties(int handle);
+LIBRARY_API void resetIdamProperties();
 
 #ifndef __APPLE__
 
@@ -71,8 +52,6 @@ LIBRARY_API void putIdamServerSocket(int socket);
 
 LIBRARY_API void getIdamServer(const char** host, int* port, int* socket);
 
-LIBRARY_API UDA_ERROR_STACK* getUdaServerErrorStack();
-
 LIBRARY_API int getIdamErrorCode(int handle);
 
 LIBRARY_API const char* getIdamErrorMsg(int handle);
@@ -82,8 +61,6 @@ LIBRARY_API int getIdamSourceStatus(int handle);
 LIBRARY_API int getIdamSignalStatus(int handle);
 
 LIBRARY_API int getIdamDataStatus(int handle);
-
-LIBRARY_API int getIdamLastHandle(CLIENT_FLAGS* client_flags);
 
 LIBRARY_API int getIdamDataNum(int handle);
 
@@ -169,10 +146,6 @@ LIBRARY_API void getIdamFloatAsymmetricError(int handle, int above, float* fp);
 
 LIBRARY_API void getIdamFloatError(int handle, float* fp);
 
-LIBRARY_API void getIdamDBlock(int handle, DATA_BLOCK* db);
-
-LIBRARY_API DATA_BLOCK* getIdamDataBlock(int handle);
-
 LIBRARY_API const char* getIdamDataLabel(int handle);
 
 LIBRARY_API void getIdamDataLabelTdi(int handle, char* label);
@@ -213,8 +186,6 @@ LIBRARY_API void getIdamFloatDimData(int handle, int ndim, float* fp);
 
 LIBRARY_API void getIdamGenericDimData(int handle, int ndim, void* data);
 
-LIBRARY_API DIMS* getIdamDimBlock(int handle, int ndim);
-
 LIBRARY_API char* getIdamDimAsymmetricError(int handle, int ndim, int above);
 
 LIBRARY_API char* getIdamDimError(int handle, int ndim);
@@ -223,33 +194,11 @@ LIBRARY_API void getIdamFloatDimAsymmetricError(int handle, int ndim, int above,
 
 LIBRARY_API void getIdamFloatDimError(int handle, int ndim, float* fp);
 
-LIBRARY_API DATA_SYSTEM* getIdamDataSystem(int handle);
-
-LIBRARY_API SYSTEM_CONFIG* getIdamSystemConfig(int handle);
-
-LIBRARY_API DATA_SOURCE* getIdamDataSource(int handle);
-
-LIBRARY_API SIGNAL* getIdamSignal(int handle);
-
-LIBRARY_API SIGNAL_DESC* getIdamSignalDesc(int handle);
-
-LIBRARY_API const char* getIdamFileFormat(int handle);
-
-LIBRARY_API void initIdamDataBlock(DATA_BLOCK* str);
-
-LIBRARY_API void initIdamRequestBlock(REQUEST_BLOCK* str);
-
 LIBRARY_API int idamDataCheckSum(void* data, int data_n, int type);
 
 LIBRARY_API int getIdamDataCheckSum(int handle);
 
 LIBRARY_API int getIdamDimDataCheckSum(int handle, int ndim);
-
-LIBRARY_API void lockIdamThread(CLIENT_FLAGS* client_flags);
-
-LIBRARY_API void unlockUdaThread(CLIENT_FLAGS* client_flags);
-
-LIBRARY_API void freeIdamThread(CLIENT_FLAGS* client_flags);
 
 LIBRARY_API int getIdamThreadLastHandle();
 
@@ -257,27 +206,15 @@ LIBRARY_API void putIdamThreadLastHandle(int handle);
 
 LIBRARY_API int getIdamMaxThreadCount();
 
-LIBRARY_API SERVER_BLOCK getIdamThreadServerBlock();
-
-LIBRARY_API CLIENT_BLOCK getIdamThreadClientBlock();
-
-LIBRARY_API void putIdamThreadServerBlock(SERVER_BLOCK* str);
-
-LIBRARY_API void putIdamThreadClientBlock(CLIENT_BLOCK* str);
-
 LIBRARY_API int setIdamDataTree(int handle);
 
 // Return a specific data tree
 
+typedef struct NTree NTREE;
+
 LIBRARY_API NTREE* getIdamDataTree(int handle);
 
 // Return a user defined data structure definition
-
-LIBRARY_API USERDEFINEDTYPE* getIdamUserDefinedType(int handle);
-
-LIBRARY_API USERDEFINEDTYPELIST* getIdamUserDefinedTypeList(int handle);
-
-LIBRARY_API LOGMALLOCLIST* getIdamLogMallocList(int handle);
 
 LIBRARY_API NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target);
 

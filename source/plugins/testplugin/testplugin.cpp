@@ -5,12 +5,12 @@
 #include <vector>
 
 #include "accessors.h"
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "struct.h"
 #include <clientserver/makeRequestBlock.h>
 #include <clientserver/printStructs.h>
 #include <clientserver/stringUtils.h>
-#include <plugins/uda_plugin_base.hpp>
+#include "include/uda_plugin_base.hpp"
 #include <serialisation/capnp_serialisation.h>
 
 #include <boost/filesystem.hpp>
@@ -47,65 +47,65 @@ class TestPlugin : public UDAPluginBase
 {
   public:
     TestPlugin();
-    int test0(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test2(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test4(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test5(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test6(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test7(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test8(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test9(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test9A(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test10(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test11(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test12(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test13(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test14(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test15(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test16(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test18(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test19(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test20(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test21(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test22(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test23(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test24(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test25(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test26(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test27(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test28(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test30(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test31(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test32(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test33(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test34(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int test0(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test2(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test4(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test5(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test6(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test7(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test8(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test9(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test9A(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test10(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test11(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test12(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test13(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test14(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test15(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test16(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test18(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test19(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test20(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test21(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test22(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test23(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test24(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test25(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test26(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test27(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test28(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test30(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test31(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test32(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test33(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test34(UDA_PLUGIN_INTERFACE* plugin_interface);
 #ifdef PUTDATAENABLED
-    int test40(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int test40(UDA_PLUGIN_INTERFACE* plugin_interface);
 #endif // PUTDATAENABLED
-    int test50(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test60(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test61(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int test62(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int plugin(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int errortest(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int scalartest(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int array1dtest(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int call_plugin_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int call_plugin_test_index(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int call_plugin_test_slice(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int call_plugin_test_stride(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int emptytest(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int test50(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test60(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test61(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int test62(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int plugin(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int errortest(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int scalartest(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int array1dtest(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int call_plugin_test(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int call_plugin_test_index(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int call_plugin_test_slice(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int call_plugin_test_stride(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int emptytest(UDA_PLUGIN_INTERFACE* plugin_interface);
 #ifdef CAPNP_ENABLED
-    int capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int nested_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int long_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int large_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int nested_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int long_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int large_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface);
 #endif // CAPNP_ENABLED
 #ifdef TESTUDT
-    int testudt(IDAM_PLUGIN_INTERFACE* plugin_interface);
+    int testudt(UDA_PLUGIN_INTERFACE* plugin_interface);
 #endif // TESTUDT
 
-    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
+    void init(UDA_PLUGIN_INTERFACE* plugin_interface) override {}
     void reset() override {}
 };
 
@@ -176,7 +176,7 @@ TestPlugin::TestPlugin()
 #endif // TESTUDT
 }
 
-extern int testPlugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
+extern int testPlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static TestPlugin plugin = {};
     return plugin.call(plugin_interface);
@@ -196,7 +196,7 @@ void testError2()
     addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Test #2 of Error State Management");
 }
 
-int TestPlugin::test0(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test0(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     REQUEST_DATA* request = plugin_interface->request_data;
@@ -237,7 +237,7 @@ int TestPlugin::test0(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test2(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test2(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     REQUEST_DATA* request = plugin_interface->request_data;
@@ -341,7 +341,7 @@ int TestPlugin::test2(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test4(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test4(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -412,7 +412,7 @@ int TestPlugin::test4(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test5(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test5(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -486,7 +486,7 @@ int TestPlugin::test5(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test6(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test6(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -558,7 +558,7 @@ int TestPlugin::test6(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test7(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test7(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -640,7 +640,7 @@ int TestPlugin::test7(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test8(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test8(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -724,7 +724,7 @@ int TestPlugin::test8(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test9(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test9(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -801,7 +801,7 @@ int TestPlugin::test9(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test9A(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test9A(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -908,7 +908,7 @@ int TestPlugin::test9A(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test10(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test10(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -931,7 +931,7 @@ int TestPlugin::test10(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test11(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test11(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -1001,7 +1001,7 @@ int TestPlugin::test11(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test12(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test12(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -1073,7 +1073,7 @@ int TestPlugin::test12(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test13(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test13(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -1149,7 +1149,7 @@ int TestPlugin::test13(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test14(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test14(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -1223,7 +1223,7 @@ int TestPlugin::test14(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test15(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test15(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -1299,7 +1299,7 @@ int TestPlugin::test15(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test16(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test16(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -1382,7 +1382,7 @@ int TestPlugin::test16(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test18(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test18(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -1469,7 +1469,7 @@ int TestPlugin::test18(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test19(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test19(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -1618,7 +1618,7 @@ int TestPlugin::test19(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test20(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test20(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -1641,7 +1641,7 @@ int TestPlugin::test20(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test21(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test21(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -1711,7 +1711,7 @@ int TestPlugin::test21(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test22(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test22(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -1783,7 +1783,7 @@ int TestPlugin::test22(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test23(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test23(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -1859,7 +1859,7 @@ int TestPlugin::test23(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test24(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test24(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -1933,7 +1933,7 @@ int TestPlugin::test24(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test25(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test25(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -2009,7 +2009,7 @@ int TestPlugin::test25(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test26(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test26(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -2093,7 +2093,7 @@ int TestPlugin::test26(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test27(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test27(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -2191,7 +2191,7 @@ int TestPlugin::test27(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test28(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test28(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -2294,7 +2294,7 @@ int TestPlugin::test28(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test30(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test30(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -2358,7 +2358,7 @@ int TestPlugin::test30(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test31(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test31(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -2437,7 +2437,7 @@ int TestPlugin::test31(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test32(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -2552,7 +2552,7 @@ int TestPlugin::test32(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test33(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test33(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -2674,7 +2674,7 @@ int TestPlugin::test33(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test34(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -2821,7 +2821,7 @@ int TestPlugin::test34(IDAM_PLUGIN_INTERFACE* plugin_interface)
 // Echo passed data back as an array of structures
 // The library won't build if the server version is not OK for this functionality
 // If the client cannot pass putdata blocks then no data will appear here to process.
-int TestPlugin::test40(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     typedef struct Test40 {
         unsigned int dataCount;
@@ -2975,7 +2975,7 @@ int TestPlugin::test40(IDAM_PLUGIN_INTERFACE* plugin_interface)
 // Shot number passed via request_block->exp_number
 // Placeholder values passed via request_block->tpass
 
-int TestPlugin::test50(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test50(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     REQUEST_DATA* request = plugin_interface->request_data;
@@ -3037,7 +3037,7 @@ typedef struct EnumList60 {
     int* arraydata_shape;
 } ENUMLIST60;
 
-int TestPlugin::test60(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test60(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto enumlist = (ENUMLIST60*)malloc(sizeof(ENUMLIST60));
     strcpy(enumlist->name, "TEST60 ENUM of type unsigned short");
@@ -3231,7 +3231,7 @@ int TestPlugin::test60(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test61(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test61(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto enumlist = (ENUMLIST60*)malloc(sizeof(ENUMLIST60));
     strcpy(enumlist->name, "TEST61 ENUM of type unsigned long long");
@@ -3399,7 +3399,7 @@ int TestPlugin::test61(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::test62(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::test62(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto* enumlist = (ENUMLIST*)malloc(sizeof(ENUMLIST));
     strcpy(enumlist->name, "TEST62 ENUM of type unsigned long long");
@@ -3473,13 +3473,13 @@ int TestPlugin::test62(IDAM_PLUGIN_INTERFACE* plugin_interface)
 // If the housekeeping action is requested, this must be also applied to all plugins called.
 // A list must be maintained to register these plugin calls to manage housekeeping.
 // Calls to plugins must also respect access policy and user authentication policy
-int TestPlugin::plugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::plugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     REQUEST_DATA* request = plugin_interface->request_data;
 
     int err = 0;
 
-    IDAM_PLUGIN_INTERFACE next_plugin_interface;
+    UDA_PLUGIN_INTERFACE next_plugin_interface;
     REQUEST_DATA next_request = {0};
 
     const PLUGINLIST* pluginList = plugin_interface->pluginList;
@@ -3537,7 +3537,7 @@ int TestPlugin::plugin(IDAM_PLUGIN_INTERFACE* plugin_interface)
 // To maintain consistency with existing legacy code, use a local structure with a global scope (plugin library only)
 // A final necessary step is to concatenate this local structure with the server structure before returning.
 // When testing the plugin, errors are doubled (tripled!) up as both stacks are the same.
-int TestPlugin::errortest(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::errortest(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     int err = 0;
     int test = 0;
@@ -3571,7 +3571,7 @@ int TestPlugin::errortest(IDAM_PLUGIN_INTERFACE* plugin_interface)
     UDA_THROW_ERROR(9990 + test, "Test of Error State Management");
 }
 
-int TestPlugin::scalartest(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::scalartest(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -3586,7 +3586,7 @@ int TestPlugin::scalartest(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::array1dtest(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::array1dtest(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
@@ -3613,35 +3613,35 @@ int TestPlugin::array1dtest(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::emptytest(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::emptytest(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
     return 0;
 }
 
-int TestPlugin::call_plugin_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::call_plugin_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::array1dtest()", plugin_interface);
 }
 
-int TestPlugin::call_plugin_test_index(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::call_plugin_test_index(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::array1dtest()[25]", plugin_interface);
 }
 
-int TestPlugin::call_plugin_test_slice(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::call_plugin_test_slice(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::array1dtest()[10:20]", plugin_interface);
 }
 
-int TestPlugin::call_plugin_test_stride(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::call_plugin_test_stride(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::array1dtest()[::2]", plugin_interface);
 }
 
 #ifdef CAPNP_ENABLED
-int TestPlugin::capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto tree = uda_capnp_new_tree();
     auto root = uda_capnp_get_root(tree);
@@ -3684,7 +3684,7 @@ int TestPlugin::capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::nested_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::nested_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto tree = uda_capnp_new_tree();
     auto root = uda_capnp_get_root(tree);
@@ -3740,7 +3740,7 @@ int TestPlugin::nested_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::long_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::long_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto tree = uda_capnp_new_tree();
     auto root = uda_capnp_get_root(tree);
@@ -3779,7 +3779,7 @@ int TestPlugin::long_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int TestPlugin::large_capnp_test(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::large_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto tree = uda_capnp_new_tree();
     auto root = uda_capnp_get_root(tree);
@@ -3964,7 +3964,7 @@ int tcp_connect(SYSSOCKET* ssock, int port)
 // UDP has better performance but data packets may get lost - it is not reliable
 // UDT is an application level protocol, based on UDP, that is reliable and has the performance of UDP
 // The IDAM server acts as a UDT client and the IDAM client acts as the UDT server!
-int TestPlugin::testudt(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int TestPlugin::testudt(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     // Start a mini server loop and create a separate communiation channel with the client bye-passing the TCP socket
 

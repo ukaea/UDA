@@ -46,7 +46,8 @@ set( SRC_FILES
   xdrlib.cpp
   nameValueSubstitution.cpp
   udaStructs.cpp
-#  utils.c
+  make_request_block.cpp
+  #  utils.c
 )
 
 set( HIERARCHICAL_SRC_FILES

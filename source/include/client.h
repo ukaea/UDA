@@ -6,7 +6,6 @@
 
 #include "export.h"
 #include "genStructs.h"
-#include "udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,34 +34,9 @@ extern "C" {
 #define MIN_STATUS (-1)          // Deny Access to Data if this Status Value
 #define DATA_STATUS_BAD (-17000) // Error Code if Status is Bad
 
-typedef struct ClientFlags {
-    int get_dimdble;  // (Server Side) Return Dimensional Data in Double Precision
-    int get_timedble; // (Server Side) Server Side cast of time dimension to double precision if in compresed format
-    int get_scalar;   // (Server Side) Reduce Rank from 1 to 0 (Scalar) if time data are all zero
-    int get_bytes;    // (Server Side) Return IDA Data in native byte or integer array without IDA signal's
-                      // calibration factor applied
-    int get_meta;     // (Server Side) return All Meta Data
-    int get_asis;     // (Server Side) Apply no XML based corrections to Data or Dimensions
-    int get_uncal;    // (Server Side) Apply no XML based Calibrations to Data
-    int get_notoff;   // (Server Side) Apply no XML based Timing Corrections to Data
-    int get_nodimdata;
-
-    int get_datadble;  // (Client Side) Return Data in Double Precision
-    int get_bad;       // (Client Side) return data with BAD Status value
-    int get_synthetic; // (Client Side) Return Synthetic Data if available instead of Original data
-
-    uint32_t flags;
-
-    int user_timeout;
-    int alt_rank;
-} CLIENT_FLAGS;
-
 LIBRARY_API void udaFree(int handle);
 
 LIBRARY_API void udaFreeAll();
-
-LIBRARY_API CLIENT_FLAGS* udaClientFlags();
-LIBRARY_API unsigned int* udaPrivateFlags();
 
 /**
  * Get the version of the client c-library.
@@ -107,6 +81,17 @@ LIBRARY_API const char* getIdamServerErrorStackRecordLocation(int record);
 LIBRARY_API const char* getIdamServerErrorStackRecordMsg(int record);
 
 LIBRARY_API void closeAllConnections();
+
+LIBRARY_API int udaNumErrors(void);
+LIBRARY_API const char* udaGetErrorMessage(int err_num);
+LIBRARY_API int udaGetErrorCode(int err_num);
+LIBRARY_API const char* udaGetErrorLocation(int err_num);
+
+typedef struct LogMallocList LOGMALLOCLIST;
+typedef struct UserDefinedTypeList USERDEFINEDTYPELIST;
+
+LIBRARY_API LOGMALLOCLIST* getIdamLogMallocList(int handle);
+LIBRARY_API USERDEFINEDTYPELIST* getIdamUserDefinedTypeList(int handle);
 
 #ifdef __cplusplus
 }

@@ -79,16 +79,13 @@ set( HEADERS
   include/clientMDS.h
   include/export.h
   include/genStructs.h
-  include/initStructs.h
   include/legacy.h
-  include/pluginStructs.h
   include/struct.h
   include/udaDefines.h
   include/udaErrors.h
   include/udaGetAPI.h
   include/udaPlugin.h
   include/udaPutAPI.h
-  include/udaStructs.h
   include/udaTypes.h
 )
 install( FILES uda.h ${CMAKE_BINARY_DIR}/source/version.h DESTINATION include/uda )

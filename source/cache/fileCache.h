@@ -3,7 +3,7 @@
 
 #include "export.h"
 #include "genStructs.h"
-#include "udaStructs.h"
+#include "clientserver/udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {

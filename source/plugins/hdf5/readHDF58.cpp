@@ -44,7 +44,7 @@ void H5Fclose(int fh)
 
 #else
 
-#  include "initStructs.h"
+#  include "clientserver/initStructs.h"
 #  include "udaTypes.h"
 #  include <H5LTpublic.h>
 #  include <cerrno>

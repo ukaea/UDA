@@ -4,7 +4,7 @@
 #  define UDA_CLIENT_CONNECTION_H
 
 #  include "export.h"
-#  include "udaStructs.h"
+#  include "clientserver/udaStructs.h"
 #  include <clientserver/socketStructs.h>
 
 #  include "closedown.h"

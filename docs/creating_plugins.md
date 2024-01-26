@@ -28,18 +28,18 @@ called by the UDA server.
 
 The entry function must look like:
 
-`int entryFunction(IDAM_PLUGIN_INTERFACE*)`
+`int entryFunction(UDA_PLUGIN_INTERFACE*)`
 
 Then function can have any name — the name is specified in the plugin configuration
-file, see below. The `IDAM_PLUGIN_INTERFACE` is a structure defined in `uda/plugins.h`
+file, see below. The `UDA_PLUGIN_INTERFACE` is a structure defined in `uda/plugins.h`
 and provides a mechanism for the plugin to interact with the UDA server — reading the
 function arguments, returning the resultant data, etc. The returned `int` value specifies
 the return state of the plugin call — zero for success or non-zero for an error state
-(the actual error is returned via the `IDAM_PLUGIN_INTERFACE`).
+(the actual error is returned via the `UDA_PLUGIN_INTERFACE`).
 
 ## Accessing function name and arguments
 
-The function being called is provided in the `IDAM_PLUGIN_INTERFACE` structure passed into
+The function being called is provided in the `UDA_PLUGIN_INTERFACE` structure passed into
 entry function as a C-string (`const char*`) via:
 
 `plugin_interface->request->function`

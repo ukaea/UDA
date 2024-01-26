@@ -3,9 +3,9 @@
 #include <leveldb/c.h>
 
 #include <boost/filesystem.hpp>
-#include <plugins/uda_plugin_base.hpp>
+#include "include/uda_plugin_base.hpp"
 
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "udaPlugin.h"
 #include "udaTypes.h"
 #include <clientserver/stringUtils.h>
@@ -19,10 +19,10 @@ class Plugin : public UDAPluginBase
 {
   public:
     Plugin();
-    int write(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int read(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    int del(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override;
+    int write(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int read(UDA_PLUGIN_INTERFACE* plugin_interface);
+    int del(UDA_PLUGIN_INTERFACE* plugin_interface);
+    void init(UDA_PLUGIN_INTERFACE* plugin_interface) override;
     void reset() override;
 
   private:
@@ -43,13 +43,13 @@ Plugin::Plugin()
 } // namespace keyvalue
 } // namespace uda
 
-int keyValue(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int keyValue(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static uda::keyvalue::Plugin plugin = {};
     return plugin.call(plugin_interface);
 }
 
-void uda::keyvalue::Plugin::init(IDAM_PLUGIN_INTERFACE* plugin_interface)
+void uda::keyvalue::Plugin::init(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     options_ = leveldb_options_create();
     leveldb_options_set_create_if_missing(options_, 1);
@@ -57,7 +57,7 @@ void uda::keyvalue::Plugin::init(IDAM_PLUGIN_INTERFACE* plugin_interface)
     char* err = nullptr;
     db_ = leveldb_open(options_, "idam_ks", &err);
     if (err != nullptr) {
-        error(err);
+        error(plugin_interface, err);
     }
 
     woptions_ = leveldb_writeoptions_create();
@@ -79,45 +79,47 @@ void uda::keyvalue::Plugin::reset()
     options_ = nullptr;
 }
 
-int uda::keyvalue::Plugin::write(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int uda::keyvalue::Plugin::write(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto key = find_required_arg<std::string>(plugin_interface, "key");
     auto value = find_required_arg<std::string>(plugin_interface, "value");
 
     char* env = getenv("UDA_PLUGIN_KEYVALUE_STORE");
     if (env == nullptr) {
-        error("Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
+        error(plugin_interface, "Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
     }
 
     if (STR_EQUALS(env, "LEVELDB")) {
-        debug("Writing key {} to LevelDB keystore", key);
+        debug(plugin_interface, "Writing key {} to LevelDB keystore", key);
     } else {
-        error("Unknown keyvalue store requested");
+        error(plugin_interface, "Unknown keyvalue store requested");
     }
 
     char* err = nullptr;
     leveldb_put(db_, woptions_, key.c_str(), key.size(), value.c_str(), value.size(), &err);
 
     if (err != nullptr) {
-        RAISE_PLUGIN_ERROR_EX(err, { leveldb_free(err); });
+        debug(plugin_interface, err);
+        leveldb_free(err);
+        throw std::runtime_error{ err };
     }
 
     return 0;
 }
 
-int uda::keyvalue::Plugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int uda::keyvalue::Plugin::read(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto key = find_required_arg<std::string>(plugin_interface, "key");
 
     char* env = getenv("UDA_PLUGIN_KEYVALUE_STORE");
     if (env == nullptr) {
-        error("Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
+        error(plugin_interface, "Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
     }
 
     if (STR_EQUALS(env, "LEVELDB")) {
-        debug("Writing key {} to LevelDB keystore", key);
+        debug(plugin_interface, "Writing key {} to LevelDB keystore", key);
     } else {
-        error("Unknown keyvalue store requested");
+        error(plugin_interface, "Unknown keyvalue store requested");
     }
 
     char* err = nullptr;
@@ -126,28 +128,29 @@ int uda::keyvalue::Plugin::read(IDAM_PLUGIN_INTERFACE* plugin_interface)
     char* value = leveldb_get(db_, roptions_, key.c_str(), key.size(), &value_len, &err);
 
     if (err != nullptr) {
-        RAISE_PLUGIN_ERROR_EX(err, { leveldb_free(err); });
+        debug(plugin_interface, err);
+        throw std::runtime_error{ err };
     }
 
-    plugin_interface->data_block->data = value;
-    plugin_interface->data_block->data_n = value_len;
+    int shape[] = { (int)value_len };
+    setReturnData(plugin_interface, value, value_len, UDA_TYPE_CHAR, 1, shape, nullptr);
 
     return 0;
 }
 
-int uda::keyvalue::Plugin::del(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int uda::keyvalue::Plugin::del(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto key = find_required_arg<std::string>(plugin_interface, "key");
 
     char* env = getenv("UDA_PLUGIN_KEYVALUE_STORE");
     if (env == nullptr) {
-        error("Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
+        error(plugin_interface, "Environmental variable IDAM_PLUGIN_KEYVALUE_STORE not found");
     }
 
     if (STR_EQUALS(env, "LEVELDB")) {
-        debug("Writing key {} to LevelDB keystore", key);
+        debug(plugin_interface, "Writing key {} to LevelDB keystore", key);
     } else {
-        error("Unknown keyvalue store requested");
+        error(plugin_interface, "Unknown keyvalue store requested");
     }
 
     char* err = nullptr;
@@ -157,7 +160,7 @@ int uda::keyvalue::Plugin::del(IDAM_PLUGIN_INTERFACE* plugin_interface)
     if (err != nullptr) {
         std::string message = err;
         leveldb_free(err);
-        error(message);
+        error(plugin_interface, message);
     }
 
     return 0;

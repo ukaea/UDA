@@ -3,7 +3,7 @@
 #include "struct.h"
 #include <logging/logging.h>
 
-void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
+void init_structure_definitions(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     USERDEFINEDTYPE* old;
 
@@ -104,7 +104,7 @@ void init_structure_definitions(IDAM_PLUGIN_INTERFACE* idam_plugin_interface)
     field.alignment = getalignmentof(field.type);
     addCompoundField(&usertype, field); // Single Structure element
 
-    USERDEFINEDTYPELIST* userdefinedtypelist = idam_plugin_interface->userdefinedtypelist;
+    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
     addUserDefinedType(userdefinedtypelist, usertype);
 
     UDA_LOG(UDA_LOG_DEBUG, "Type TEST9 defined\n");

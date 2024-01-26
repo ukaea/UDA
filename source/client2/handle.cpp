@@ -1,8 +1,8 @@
 #include "handle.hpp"
 
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "struct.h"
-#include "udaStructs.h"
+#include "clientserver/udaStructs.h"
 #include "udaTypes.h"
 
 #include "thread_client.hpp"

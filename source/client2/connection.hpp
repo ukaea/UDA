@@ -6,7 +6,7 @@
 #include <vector>
 
 #include <clientserver/socketStructs.h>
-#include "udaStructs.h"
+#include "clientserver/udaStructs.h"
 #include "export.h"
 
 #include "closedown.hpp"

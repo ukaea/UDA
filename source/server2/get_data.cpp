@@ -4,7 +4,7 @@
 #include "clientserver/nameValueSubstitution.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/stringUtils.h"
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "logging/logging.h"
 #include "make_server_request_block.hpp"
 #include "server_plugin.h"
@@ -1082,7 +1082,7 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
     // Test for known File formats and Server protocols
 
     {
-        IDAM_PLUGIN_INTERFACE plugin_interface;
+        UDA_PLUGIN_INTERFACE plugin_interface;
 
         UDA_LOG(UDA_LOG_DEBUG, "creating the plugin interface structure\n");
 

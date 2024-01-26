@@ -8,7 +8,7 @@
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
 #include "clientserver/xdrlib.h"
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "logging/accessLog.h"
 #include "logging/logging.h"
 #include "server_environment.hpp"

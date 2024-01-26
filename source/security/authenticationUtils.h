@@ -2,7 +2,7 @@
 #define UDA_SECURITY_AUTHENTICATIONUTILS_H
 
 #include "export.h"
-#include "udaStructs.h"
+#include "clientserver/udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {

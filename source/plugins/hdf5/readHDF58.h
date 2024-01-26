@@ -2,7 +2,7 @@
 #define UDA_PLUGIN_READHDF58_H
 
 #include "export.h"
-#include "udaStructs.h"
+#include "clientserver/udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {

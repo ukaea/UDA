@@ -53,7 +53,7 @@ int uda::get_plugin_address(void** pluginHandle, const char* library, const char
 
     // Find the address of the required plugin function
 
-    int (*fptr)(IDAM_PLUGIN_INTERFACE*);
+    int (*fptr)(UDA_PLUGIN_INTERFACE*);
     *(void**)(&fptr) = dlsym(*pluginHandle, symbol);
 
     char* errstr = dlerror();

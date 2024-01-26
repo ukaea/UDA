@@ -2,7 +2,7 @@
  * v1 IDAM Plugin viewPort: re-bin data to visualise with a rectangular viewport defined by horizonal
  * and vertical pixel ranges
  *
- * Input Arguments:    IDAM_PLUGIN_INTERFACE *plugin_interface
+ * Input Arguments:    UDA_PLUGIN_INTERFACE *plugin_interface
  *
  * Returns:        0 if the plugin functionality was successful
  *            otherwise a Error Code is returned
@@ -19,10 +19,10 @@
 #endif
 
 #include "accAPI.h"
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "udaGetAPI.h"
 #include <clientserver/stringUtils.h>
-#include <plugins/uda_plugin_base.hpp>
+#include "include/uda_plugin_base.hpp"
 
 #include <boost/filesystem.hpp>
 #include <vector>
@@ -37,8 +37,8 @@ class ViewportPlugin : public UDAPluginBase
 {
   public:
     ViewportPlugin();
-    int get(IDAM_PLUGIN_INTERFACE* plugin_interface);
-    void init(IDAM_PLUGIN_INTERFACE* plugin_interface) override {}
+    int get(UDA_PLUGIN_INTERFACE* plugin_interface);
+    void init(UDA_PLUGIN_INTERFACE* plugin_interface) override {}
     void reset() override {}
 
   private:
@@ -59,17 +59,6 @@ void reduceOrderedData(float* values, int* count, float* startValue, float* endV
 void getVerticalPixelValues(float* values, int count, int pixel_height, float* startValue, float* endValue,
                             float** verticalPixelValues, float* delta);
 
-char* memdup(const void* mem, size_t size)
-{
-    char* out = (char*)malloc(size);
-
-    if (out != nullptr) {
-        memcpy(out, mem, size);
-    }
-
-    return out;
-}
-
 int ViewportPlugin::find_handle(const std::string& signal, const std::string& source)
 {
     for (const auto& entry : cache_) {
@@ -80,13 +69,13 @@ int ViewportPlugin::find_handle(const std::string& signal, const std::string& so
     return -1;
 }
 
-extern int viewport(IDAM_PLUGIN_INTERFACE* plugin_interface)
+extern int viewport(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     static ViewportPlugin plugin = {};
     return plugin.call(plugin_interface);
 }
 
-int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
+int ViewportPlugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     // Context based Tests: required - pixel_width, pixel_height, Signal, Source
 
@@ -111,7 +100,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
     if (handle < 0) {
 
         if ((handle = idamGetAPI(signal.c_str(), source.c_str())) < 0 || getIdamErrorCode(handle) != 0) {
-            error(getIdamErrorMsg(handle));
+            error(plugin_interface, getIdamErrorMsg(handle));
         }
 
         cache_.emplace_back(CacheEntry{handle, signal, source});
@@ -132,7 +121,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
         getIdamFloatDimData(handle, 0, coords.data());
 
         if (test) {
-            debug("Running Viewport Test {}\n", *test);
+            debug(plugin_interface, "Running Viewport Test {}\n", *test);
 
             switch (*test) {
                 case 1: { // Do nothing
@@ -298,7 +287,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
         if (pixel_width && pixel_height) {
             // Map to pixels if the device coordinate viewport is defined
 
-            debug("Viewport: Mapping data to device pixel coordinate range (width, height) = {}, {}\n", *pixel_width,
+            debug(plugin_interface, "Viewport: Mapping data to device pixel coordinate range (width, height) = {}, {}\n", *pixel_width,
                   *pixel_height);
 
             int* column = nullptr;
@@ -353,9 +342,9 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                 colCount = colCount + fctot[i];
             }
 
-            debug("Column Totals: {}\n", colCount);
+            debug(plugin_interface, "Column Totals: {}\n", colCount);
             for (int i = 0; i < *pixel_width; i++) {
-                debug("[{}] {}\n", i, fctot[i]);
+                debug(plugin_interface, "[{}] {}\n", i, fctot[i]);
             }
 
             // Which pixel row bin do each un-ordered data point fall into?
@@ -390,9 +379,9 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                 rowCount = rowCount + frtot[i];
             }
 
-            debug("Row Totals: {}\n", rowCount);
+            debug(plugin_interface, "Row Totals: {}\n", rowCount);
             for (int i = 0; i < *pixel_height; i++) {
-                debug("[{}] {}\n", i, frtot[i]);
+                debug(plugin_interface, "[{}] {}\n", i, frtot[i]);
             }
 
             free(column);
@@ -421,7 +410,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
                 if (range && mean) {
                     if (i == 0) {
-                        debug("Mean returned\n");
+                        debug(plugin_interface, "Mean returned\n");
                     }
                     for (int j = 0; j < pixel_height; j++) {
                         if (freq[i][j] > 0) {
@@ -436,7 +425,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                     }
 
                 } else if (!range && mode) {
-                    debug("Mode returned\n");
+                    debug(plugin_interface, "Mode returned\n");
                     int fmax = 0;
                     int fmaxID = -1;
                     for (int j = 0; j < pixel_height; j++) {
@@ -452,7 +441,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
                     }
                 } else if (!range && median) {
                     if (i == 0) {
-                        debug("Median returned\n");
+                        debug(plugin_interface, "Median returned\n");
                     }
                     integral[0] = freq[i][0];
 
@@ -510,7 +499,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
                 if (range) {
                     if (i == 0) {
-                        debug("Range returned\n");
+                        debug(plugin_interface, "Range returned\n");
                     }
                     data[i] = 0.5 * (err_lo[i] + err_hi[i]);
                     good_count++;
@@ -518,14 +507,14 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
 
                 free(freq[i]);
 
-                debug("[{}]   {}   {}   {}   {}\n", i, data[i], err_lo[i], err_hi[i], horizontal_pixel_values[i]);
+                debug(plugin_interface, "[{}]   {}   {}   {}   {}\n", i, data[i], err_lo[i], err_hi[i], horizontal_pixel_values[i]);
 
             } // end of loop over pixel_width
 
-            debug("good_count  = {}\n", good_count);
-            debug("pixel_width = {}\n", *pixel_width);
+            debug(plugin_interface, "good_count  = {}\n", good_count);
+            debug(plugin_interface, "pixel_width = {}\n", *pixel_width);
             for (int i = 0; i < pixelWidth2; i++) {
-                debug("[{}]   {}   {}   {}   {}\n", i, data[i], err_lo[i], err_hi[i], horizontal_pixel_values[i]);
+                debug(plugin_interface, "[{}]   {}   {}   {}   {}\n", i, data[i], err_lo[i], err_hi[i], horizontal_pixel_values[i]);
             }
             // Free allocated heap
 
@@ -540,7 +529,7 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
             // Remove pixel columns without data
 
             if (good_count < pixel_width) {
-                debug("Removing pixel columns without data [{}, {}]\n", good_count, *pixel_width);
+                debug(plugin_interface, "Removing pixel columns without data [{}, {}]\n", good_count, *pixel_width);
 
                 std::vector<float> new_data(static_cast<size_t>(good_count));
                 std::vector<float> new_err_hi(static_cast<size_t>(good_count));
@@ -572,42 +561,22 @@ int ViewportPlugin::get(IDAM_PLUGIN_INTERFACE* plugin_interface)
         }
 
         // Return viewport data
-        DATA_BLOCK* data_block = plugin_interface->data_block;
 
-        initDataBlock(data_block);
+        size_t shape[] = { (size_t)pixelWidth2 };
+        setReturnDataFloatArray(plugin_interface, data.data(), 1, shape, getIdamDataDesc(handle));
+        setReturnDataLabel(plugin_interface, getIdamDataLabel(handle));
+        setReturnDataUnits(plugin_interface, getIdamDataUnits(handle));
 
-        data_block->rank = 1;
-        data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-        for (unsigned int i = 0; i < data_block->rank; i++) {
-            initDimBlock(&data_block->dims[i]);
-        }
-
-        data_block->data_n = pixelWidth2;
-        data_block->data_type = UDA_TYPE_FLOAT;
-        strcpy(data_block->data_desc, getIdamDataDesc(handle));
-        strcpy(data_block->data_label, getIdamDataLabel(handle));
-        strcpy(data_block->data_units, getIdamDataUnits(handle));
-
-        data_block->dims[0].dim = memdup(horizontal_pixel_values.data(), horizontal_pixel_values.size());
-
-        data_block->dims[0].data_type = UDA_TYPE_FLOAT;
-        data_block->dims[0].dim_n = pixelWidth2;
-        data_block->dims[0].compressed = 0;
-        strcpy(data_block->dims[0].dim_label, getIdamDimLabel(handle, 0));
-        strcpy(data_block->dims[0].dim_units, getIdamDimUnits(handle, 0));
-
-        data_block->data = memdup(data.data(), data.size());
+        setReturnDimensionFloatArray(plugin_interface, 0, horizontal_pixel_values.data(), pixelWidth2, getIdamDimLabel(handle, 0), getIdamDimUnits(handle, 0));
 
         if (!range) {
-            data_block->errasymmetry = 1;
-            data_block->errlo = memdup(err_lo.data(), err_lo.size());
+            setReturnErrorAsymmetry(plugin_interface, true);
+            setReturnErrorLow(plugin_interface, err_lo.data(), err_lo.size());
         }
-        data_block->errhi = memdup(err_hi.data(), err_hi.size());
-        data_block->error_type = UDA_TYPE_FLOAT;
-
-        data_block->order = order;
+        setReturnErrorHigh(plugin_interface, err_hi.data(), err_hi.size());
+        setReturnDataOrder(plugin_interface, order);
     } else {
-        error("A viewport for rank > 1 data has not been implemented!");
+        error(plugin_interface, "A viewport for rank > 1 data has not been implemented!");
     }
 
     return 0;

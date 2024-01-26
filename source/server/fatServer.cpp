@@ -2,7 +2,7 @@
 #include <cerrno>
 #include <cstdio>
 
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "logging/logging.h"
 #include "struct.h"
 #include <clientserver/copyStructs.h>
@@ -67,23 +67,23 @@ void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
 }
 #endif
 
-static int startupFatServer(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduserdefinedtypelist);
+static int startup_fat_server(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduserdefinedtypelist);
 
-static int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, ACTIONS* actions_desc,
+static int do_fat_server_closedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, ACTIONS* actions_desc,
                                 ACTIONS* actions_sig, DATA_BLOCK_LIST* data_blocks0);
 
-static int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0, CLIENT_BLOCK* client_block,
+static int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0, CLIENT_BLOCK* client_block,
                             SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK_LIST* data_block,
                             ACTIONS* actions_desc, ACTIONS* actions_sig);
 
-static int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
+static int fat_client_return(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
                            REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
                            LOGSTRUCTLIST* log_struct_list, IoData* io_data);
 
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
-int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0,
+int fat_server(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0,
               DATA_BLOCK_LIST* data_blocks0)
 {
     assert(data_blocks0 != nullptr);
@@ -127,20 +127,20 @@ int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLO
     log_malloc_list = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
     initLogMallocList(log_malloc_list);
 
-    int err = startupFatServer(server_block, parseduserdefinedtypelist);
+    int err = startup_fat_server(server_block, parseduserdefinedtypelist);
     if (err != 0) {
         return err;
     }
 
     copyUserDefinedTypeList(&user_defined_type_list, &parseduserdefinedtypelist);
 
-    err = handleRequestFat(&request_block, request_block0, &client_block, server_block, &metadata_block, &data_blocks,
+    err = handle_request_fat(&request_block, request_block0, &client_block, server_block, &metadata_block, &data_blocks,
                            &actions_desc, &actions_sig);
     if (err != 0) {
         return err;
     }
 
-    err = fatClientReturn(server_block, &data_blocks, data_blocks0, &request_block, &client_block, &metadata_block,
+    err = fat_client_return(server_block, &data_blocks, data_blocks0, &request_block, &client_block, &metadata_block,
                           &log_struct_list, &io_data);
     if (err != 0) {
         return err;
@@ -148,7 +148,7 @@ int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLO
 
     udaAccessLog(FALSE, client_block, request_block, *server_block, total_datablock_size);
 
-    err = doFatServerClosedown(server_block, &data_blocks, &actions_desc, &actions_sig, data_blocks0);
+    err = do_fat_server_closedown(server_block, &data_blocks, &actions_desc, &actions_sig, data_blocks0);
 
     freeUserDefinedTypeList(user_defined_type_list);
     free(user_defined_type_list);
@@ -174,7 +174,7 @@ int fatServer(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLO
  * Client deletes stale files automatically on startup.
  * @return
  */
-static int processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list, IoData* io_data)
+static int process_hierarchical_data(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list, IoData* io_data)
 {
     int err = 0;
 
@@ -199,18 +199,18 @@ static int processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_st
         UDA_THROW_ERROR(999, "Unable to Open a Temporary XDR File for Writing");
     }
 
-    XDR xdrServerOutput;
-    xdrstdio_create(&xdrServerOutput, xdrfile, XDR_ENCODE);
+    XDR xdr_server_output;
+    xdrstdio_create(&xdr_server_output, xdrfile, XDR_ENCODE);
 
     // Write data to the temporary file
 
     int protocol_id = UDA_PROTOCOL_STRUCTURES;
-    protocolXML(&xdrServerOutput, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list, data_block,
+    protocolXML(&xdr_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list, data_block,
                 protocol_version, log_struct_list, io_data, private_flags, malloc_source, serverCreateXDRStream);
 
     // Close the stream and file
 
-    xdr_destroy(&xdrServerOutput);
+    xdr_destroy(&xdr_server_output);
     fclose(xdrfile);
 
     // Free Heap
@@ -224,19 +224,19 @@ static int processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_st
         UDA_THROW_ERROR(999, "Unable to Open a Temporary XDR File for Reading");
     }
 
-    XDR xdrServerInput;
-    xdrstdio_create(&xdrServerInput, xdrfile, XDR_DECODE);
+    XDR xdr_server_input;
+    xdrstdio_create(&xdr_server_input, xdrfile, XDR_DECODE);
 
     // Read data from the temporary file
 
     protocol_id = UDA_PROTOCOL_STRUCTURES;
-    err = protocolXML(&xdrServerInput, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
+    err = protocolXML(&xdr_server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
                       data_block, protocol_version, log_struct_list, io_data, private_flags, malloc_source,
                       serverCreateXDRStream);
 
     // Close the stream and file
 
-    xdr_destroy(&xdrServerInput);
+    xdr_destroy(&xdr_server_input);
     fclose(xdrfile);
 
     // Remove the Temporary File
@@ -246,7 +246,7 @@ static int processHierarchicalData(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_st
     return err;
 }
 
-int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
+int fat_client_return(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
                     REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
                     LOGSTRUCTLIST* log_struct_list, IoData* io_data)
 {
@@ -267,7 +267,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DA
     for (int i = 0; i < data_blocks->count; ++i) {
         auto data_block = &data_blocks->data[i];
         if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
-            processHierarchicalData(data_block, log_struct_list, io_data);
+            process_hierarchical_data(data_block, log_struct_list, io_data);
         }
     }
 
@@ -276,7 +276,7 @@ int fatClientReturn(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DA
     return err;
 }
 
-int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0, CLIENT_BLOCK* client_block,
+int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0, CLIENT_BLOCK* client_block,
                      SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK_LIST* data_blocks,
                      ACTIONS* actions_desc, ACTIONS* actions_sig)
 {
@@ -381,7 +381,7 @@ int handleRequestFat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0
     return err;
 }
 
-int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, ACTIONS* actions_desc,
+int do_fat_server_closedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, ACTIONS* actions_desc,
                          ACTIONS* actions_sig, DATA_BLOCK_LIST* data_blocks0)
 {
     //----------------------------------------------------------------------------
@@ -407,7 +407,7 @@ int doFatServerClosedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block
     return 0;
 }
 
-int startupFatServer(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduserdefinedtypelist)
+int startup_fat_server(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduserdefinedtypelist)
 {
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;

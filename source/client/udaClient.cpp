@@ -5,7 +5,7 @@
 #include <tuple>
 #include <vector>
 
-#include "initStructs.h"
+#include "clientserver/initStructs.h"
 #include "struct.h"
 #include "udaErrors.h"
 #include "udaTypes.h"
@@ -88,6 +88,121 @@ void setLogMallocList(LOGMALLOCLIST* logmalloclist_in) {}
 extern SOCKETLIST socket_list;
 #endif
 
+static std::vector<DATA_BLOCK> data_blocks = {};
+
+int getCurrentDataBlockIndex()
+{
+    auto client_flags = udaClientFlags();
+    if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+        getIdamThreadLastHandle() >= 0) {
+        return getIdamThreadLastHandle();
+    }
+    return data_blocks.size() - 1;
+}
+
+void freeDataBlocks()
+{
+    data_blocks.clear();
+    putIdamThreadLastHandle(-1);
+}
+
+int growDataBlocks()
+{
+    auto client_flags = udaClientFlags();
+    if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+        getIdamThreadLastHandle() >= 0) {
+        return 0;
+    }
+
+    data_blocks.push_back({});
+    initDataBlock(&data_blocks.back());
+    data_blocks.back().handle = data_blocks.size() - 1;
+
+    putIdamThreadLastHandle(data_blocks.size() - 1);
+
+    return 0;
+}
+
+static int findNewHandleIndex()
+{
+    for (int i = 0; i < (int)data_blocks.size(); i++) {
+        if (data_blocks[i].handle == -1) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int getNewDataHandle()
+{
+    auto client_flags = udaClientFlags();
+    int newHandleIndex = -1;
+
+    if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+        (newHandleIndex = getIdamThreadLastHandle()) >= 0) {
+        if (client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) {
+            udaFree(newHandleIndex);
+        } else {
+            // Application has responsibility for freeing heap in the Data Block
+            initDataBlock(&data_blocks[newHandleIndex]);
+        }
+        data_blocks[newHandleIndex].handle = newHandleIndex;
+        return newHandleIndex;
+    }
+
+    if ((newHandleIndex = findNewHandleIndex()) < 0) { // Search for an unused handle or issue a new one
+        newHandleIndex = data_blocks.size();
+        data_blocks.push_back({});
+        initDataBlock(&data_blocks[newHandleIndex]);
+        data_blocks[newHandleIndex].handle = newHandleIndex;
+    } else {
+        initDataBlock(&data_blocks[newHandleIndex]);
+        data_blocks[newHandleIndex].handle = newHandleIndex;
+    }
+
+    putIdamThreadLastHandle(newHandleIndex);
+    return newHandleIndex;
+}
+
+DATA_BLOCK* getDataBlock(int handle)
+{
+    if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
+        return nullptr;
+    }
+    return &data_blocks[handle];
+}
+
+int newDataHandle()
+{
+    int newHandleIndex = -1;
+    auto client_flags = udaClientFlags();
+
+    if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
+        (newHandleIndex = getIdamThreadLastHandle()) >= 0) {
+        if (client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) {
+            udaFree(newHandleIndex);
+        } else {
+            // Application has responsibility for freeing heap in the Data Block
+            initDataBlock(&data_blocks[newHandleIndex]);
+        }
+        data_blocks[newHandleIndex].handle = newHandleIndex;
+        return newHandleIndex;
+    }
+
+    if ((newHandleIndex = findNewHandleIndex()) < 0) { // Search for an unused handle or issue a new one
+        newHandleIndex = data_blocks.size();
+        data_blocks.push_back({});
+        initDataBlock(&data_blocks[newHandleIndex]);
+        data_blocks[newHandleIndex].handle = newHandleIndex;
+    } else {
+        initDataBlock(&data_blocks[newHandleIndex]);
+        data_blocks[newHandleIndex].handle = newHandleIndex;
+    }
+
+    putIdamThreadLastHandle(newHandleIndex);
+    return newHandleIndex;
+}
+
 void updateClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags, unsigned int private_flags)
 {
     // other structure elements are set when the structure is initialised
@@ -129,7 +244,7 @@ int check_file_cache(const REQUEST_DATA* request_data, DATA_BLOCK** p_data_block
 
         if (data != nullptr) {
             // Success
-            int data_block_idx = acc_getIdamNewDataHandle(client_flags);
+            int data_block_idx = getNewDataHandle();
 
             if (data_block_idx < 0) { // Error
                 return -data_block_idx;
@@ -167,7 +282,7 @@ int check_mem_cache(uda::cache::UdaCache* cache, REQUEST_DATA* request_data, DAT
 
         if (data != nullptr) {
             // Success
-            int data_block_idx = acc_getIdamNewDataHandle(client_flags);
+            int data_block_idx = getNewDataHandle(client_flags);
 
             if (data_block_idx < 0) { // Error
                 return -data_block_idx;
@@ -936,14 +1051,14 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             //------------------------------------------------------------------------------
             // Allocate memory for the Data Block Structure
             // Re-use existing stale Data Blocks
-            int data_block_idx = acc_getIdamNewDataHandle(client_flags);
+            int data_block_idx = getNewDataHandle();
 
             if (data_block_idx < 0) { // Error
                 data_block_indices[i] = -data_block_idx;
                 continue;
             }
 
-            DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
+            DATA_BLOCK* data_block = getDataBlock(data_block_idx);
 
             //           DATA_BLOCK* in_data;
             //           if (request_block->requests[i].request == REQUEST_CACHED) {
@@ -1005,13 +1120,13 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         DATA_BLOCK_LIST data_block_list0;
         initDataBlockList(&data_block_list0);
-        err = fatServer(client_block, &server_block, request_block, &data_block_list0);
+        err = fat_server(client_block, &server_block, request_block, &data_block_list0);
 
         for (int i = 0; i < data_block_list0.count; ++i) {
             DATA_BLOCK* data_block0 = &data_block_list0.data[i];
 
-            int data_block_idx = acc_getIdamNewDataHandle(client_flags);
-            DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx); // data blocks may have been realloc'ed
+            int data_block_idx = getNewDataHandle();
+            DATA_BLOCK* data_block = getDataBlock(data_block_idx); // data blocks may have been realloc'ed
             copyDataBlock(data_block, data_block0);
 
             if (err != 0 || server_block.idamerrorstack.nerrors > 0) {
@@ -1069,7 +1184,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                 addIdamError(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
                              "Data Status is BAD ... Data are Not Usable!");
 
-                DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
+                DATA_BLOCK* data_block = getDataBlock(data_block_idx);
                 if (data_block->errcode == 0) {
                     // Don't over-rule a server side error
                     data_block->errcode = DATA_STATUS_BAD;
@@ -1089,7 +1204,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
 
         for (auto data_block_idx : data_block_indices) {
-            DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
+            DATA_BLOCK* data_block = getDataBlock(data_block_idx);
 
             if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
                 data_block->errcode = getIdamServerErrorStackRecordCode(0);
@@ -1151,7 +1266,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                 addIdamError(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
                              "Data Status is BAD ... Data are Not Usable!");
 
-                DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
+                DATA_BLOCK* data_block = getDataBlock(data_block_idx);
                 if (data_block->errcode == 0) {
                     // Don't over-rule a server side error
                     data_block->errcode = DATA_STATUS_BAD;
@@ -1161,7 +1276,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         }
 
         for (auto data_block_idx : data_block_indices) {
-            DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
+            DATA_BLOCK* data_block = getDataBlock(data_block_idx);
 
             if (err != 0 && data_block->errcode == 0) {
                 addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Unknown Error");
@@ -1181,7 +1296,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
 
         for (auto data_block_idx : data_block_indices) {
-            DATA_BLOCK* data_block = getIdamDataBlock(data_block_idx);
+            DATA_BLOCK* data_block = getDataBlock(data_block_idx);
 
             if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
                 data_block->errcode = getIdamServerErrorStackRecordCode(0);
@@ -1228,7 +1343,7 @@ void udaFree(int handle)
     DIMS* ddims;
     int rank;
 
-    DATA_BLOCK* data_block = getIdamDataBlock(handle);
+    DATA_BLOCK* data_block = getDataBlock(handle);
 
     if (data_block == nullptr) {
         return;
@@ -1433,17 +1548,11 @@ void udaFreeAll()
     uda::cache::free_cache();
 #endif
 
-    CLIENT_FLAGS* client_flags = udaClientFlags();
-
-    for (int i = 0; i < acc_getCurrentDataBlockIndex(client_flags); ++i) {
-#ifndef FATCLIENT
-        freeDataBlock(getIdamDataBlock(i));
-#else
-        freeDataBlock(getIdamDataBlock(i));
-#endif
+    for (int i = 0; i < getCurrentDataBlockIndex(); ++i) {
+        freeDataBlock(getDataBlock(i));
     }
 
-    acc_freeDataBlocks();
+    freeDataBlocks();
 
 #ifndef FATCLIENT
     g_user_defined_type_list = nullptr; // malloc'd within protocolXML
