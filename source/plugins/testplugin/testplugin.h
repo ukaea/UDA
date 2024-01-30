@@ -1,8 +1,7 @@
 #ifndef UDA_PLUGIN_TESTPLUGIN_TESTPLUGIN_H
 #define UDA_PLUGIN_TESTPLUGIN_TESTPLUGIN_H
 
-#include "export.h"
-#include "udaPlugin.h"
+#include <uda/plugins.h>
 
 #ifdef __cplusplus
 extern "C" {

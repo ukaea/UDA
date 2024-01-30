@@ -18,16 +18,16 @@
 
 #include "idl_export.h"                 // IDL API Header
 
-#include <client/udaClient.h>
-#include <client/accAPI.h>
-#include <client/udaGetAPI.h>
-#include <client/udaPutAPI.h>
-#include <client/clientAPI.h>
-#include <client/clientMDS.h>
-#include <clientserver/stringUtils.h>
-#include <clientserver/udaTypes.h>
-#include <clientserver/initStructs.h>
-#include <clientserver/printStructs.h>
+#include "client/udaClient.h"
+#include "client/accAPI.h"
+#include "client/udaGetAPI.h"
+#include "client/udaPutAPI.h"
+#include "client/clientAPI.h"
+#include "client/clientMDS.h"
+#include "clientserver/stringUtils.h"
+#include "clientserver/udaTypes.h"
+#include "clientserver/initStructs.h"
+#include "clientserver/printStructs.h"
 
 #ifndef NDEBUG
     #define NDEBUG  0

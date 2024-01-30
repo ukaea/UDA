@@ -3,8 +3,8 @@
 #include <cstdio>
 #include <rpc/rpc.h>
 
-#include "udaDefines.h"
-#include <logging/logging.h>
+#include "clientserver/udaDefines.h"
+#include "logging/logging.h"
 
 #include "connection.h"
 

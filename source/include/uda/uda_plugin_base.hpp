@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef UDA_UDA_PLUGIN_H
-#define UDA_UDA_PLUGIN_H
+#ifndef UDA_PLUGIN_BASE_HPP
+#define UDA_PLUGIN_BASE_HPP
 
 #include <string>
 
@@ -12,7 +12,9 @@
 #include <unordered_map>
 #include <fmt/format.h>
 
-#include "udaPlugin.h"
+#include <uda/export.h>
+#include <uda/types.h>
+#include <uda/plugins.h>
 
 class UDAPluginBase;
 
@@ -141,4 +143,4 @@ private:
     std::unordered_map<std::string, plugin_function_type> function_map_;
 };
 
-#endif //UDA_UDA_PLUGIN_H
+#endif // UDA_PLUGIN_BASE_HPP

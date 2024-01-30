@@ -9,8 +9,8 @@
 #endif
 #include <cstdlib>
 
-#include <clientserver/manageSockets.h>
-#include <clientserver/stringUtils.h>
+#include "clientserver/manageSockets.h"
+#include "clientserver/stringUtils.h"
 
 void closeNamedServerSocket(SOCKETLIST* socks, char* host, int port)
 {

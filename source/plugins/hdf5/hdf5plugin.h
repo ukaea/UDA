@@ -7,9 +7,7 @@
 #  include <sys/time.h>
 #endif
 
-#include "export.h"
-#include "udaPlugin.h"
-#include <plugins/udaPluginFiles.h>
+#include <uda/plugins.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,9 +17,7 @@ extern "C" {
 #define THISPLUGIN_MAX_INTERFACE_VERSION 1
 #define THISPLUGIN_DEFAULT_METHOD "get"
 
-extern UDA_PLUGIN_FILE_LIST pluginFileList;
-
-LIBRARY_API int hdf5Plugin(UDA_PLUGIN_INTERFACE* plugin_interface);
+int hdf5Plugin(UDA_PLUGIN_INTERFACE* plugin_interface);
 
 #ifdef __cplusplus
 }

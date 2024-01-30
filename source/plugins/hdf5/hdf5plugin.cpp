@@ -1,6 +1,6 @@
 #include "hdf5plugin.h"
 
-#include "include/uda_plugin_base.hpp"
+#include "include/uda/uda_plugin_base.hpp"
 
 #include "readHDF58.h"
 

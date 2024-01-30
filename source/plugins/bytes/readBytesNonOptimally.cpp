@@ -50,40 +50,59 @@ int is_legal_file_path(const char *str) {
 }
 }
 
-std::string hash_sum(char* bp, int size)
+EVP_MD_CTX* new_hash_context()
 {
     EVP_MD_CTX* context = EVP_MD_CTX_new();
     std::string hash_string;
 
-    if (context != nullptr) {
-        if (EVP_DigestInit_ex(context, EVP_sha256(), nullptr)) {
-            if (EVP_DigestUpdate(context, bp, size)) {
-                unsigned char hash[EVP_MAX_MD_SIZE];
-                unsigned int length = 0;
-
-                if (EVP_DigestFinal_ex(context, hash, &length)) {
-                    std::stringstream ss;
-                    ss << std::hex << std::setw(2) << std::setfill('0');
-                    for (unsigned int i = 0; i < length; ++i) {
-                        ss << (int) hash[i];
-                    }
-                    hash_string = ss.str();
-                }
-            }
-        }
-
-        EVP_MD_CTX_free(context);
+    if (context != nullptr && EVP_DigestInit_ex(context, EVP_sha256(), nullptr)) {
+        return context;
     }
 
+    return nullptr;
+}
+
+void update_hash(EVP_MD_CTX* context, const char* data, size_t size)
+{
+    EVP_DigestUpdate(context, data, size);
+}
+
+std::string get_hash_sum(EVP_MD_CTX* context)
+{
+    std::string hash_string;
+
+    unsigned char hash[EVP_MAX_MD_SIZE];
+    unsigned int length = 0;
+
+    if (EVP_DigestFinal_ex(context, hash, &length)) {
+        std::stringstream ss;
+        ss << std::hex << std::setw(2) << std::setfill('0');
+        for (unsigned int i = 0; i < length; ++i) {
+            ss << (int) hash[i];
+        }
+        hash_string = ss.str();
+    }
+
+    EVP_MD_CTX_free(context);
     return hash_string;
+}
+
+std::string exec(const char* cmd) {
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+        result.append(buffer.data());
+    }
+    return result;
 }
 
 int readBytes(const std::string& path, UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     int err;
-
-    char md5file[2 * MD5_SIZE + 1] = "";
-    char md5check[2 * MD5_SIZE + 1] = "";
 
     //----------------------------------------------------------------------
     // Block Access to External Users
@@ -161,14 +180,20 @@ int readBytes(const std::string& path, UDA_PLUGIN_INTERFACE* plugin_interface)
         return err;
     }
 
-    auto sum = hash_sum(bp, nchar);
+    auto ctx = new_hash_context();
+    update_hash(ctx, bp, nchar);
+    auto read_hash = get_hash_sum(ctx);
 
     int shape[] = { (int)nchar };
-    setReturnData(plugin_interface, bp, nchar, UDA_TYPE_CHAR, 1, shape, sum.c_str());
+    setReturnData(plugin_interface, bp, nchar, UDA_TYPE_CHAR, 1, shape, read_hash.c_str());
+
+    // TODO: read sha256 sum command from config and try and run
+//    std::string cmd = "sha3sum -a 256 -b " + path;
+//    auto file_hash = exec(cmd.c_str());
 
     udaPluginLog(plugin_interface, "File Size          : %d \n", nchar);
-    udaPluginLog(plugin_interface, "File Checksum      : %s \n", md5file);
-    udaPluginLog(plugin_interface, "Read Checksum      : %s \n", md5check);
+//    udaPluginLog(plugin_interface, "File Checksum      : %s \n", file_hash.c_str());
+    udaPluginLog(plugin_interface, "Read Checksum      : %s \n", read_hash.c_str());
 
     return err;
 }

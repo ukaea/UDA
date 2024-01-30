@@ -12,9 +12,9 @@
 #  include <strings.h>
 #endif
 
-#include <client/udaClientHostList.h>
-#include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include "client/udaClientHostList.h"
+#include "clientserver/stringUtils.h"
+#include "logging/logging.h"
 
 const HostData* uda::client::HostList::find_by_alias(std::string_view alias) const
 {

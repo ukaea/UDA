@@ -23,8 +23,8 @@
 
 #include "clientserver/errorLog.h"
 #include "logging.h"
-#include "udaTypes.h"
-#include <clientserver/stringUtils.h>
+#include <uda/types.h>
+#include "clientserver/stringUtils.h"
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 #  include <boost/format.hpp>

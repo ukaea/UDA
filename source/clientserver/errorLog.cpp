@@ -3,9 +3,9 @@
 #include <cstdlib>
 #include <vector>
 
-#include "client.h"
-#include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include "uda/client.h"
+#include "clientserver/stringUtils.h"
+#include "logging/logging.h"
 
 static std::vector<UDA_ERROR> udaerrorstack;
 

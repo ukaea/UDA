@@ -1,8 +1,6 @@
 #pragma once
 
-#include "udaPlugin.h"
-
-typedef int (*PLUGINFUNP)(UDA_PLUGIN_INTERFACE*); // Plugin function type
+#include "plugins.hpp"
 
 namespace uda {
 

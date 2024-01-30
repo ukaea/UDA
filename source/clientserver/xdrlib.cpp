@@ -9,10 +9,11 @@
 
 #include <cstdlib>
 #include <memory.h>
+#include <uda/structured.h>
 
-#include "struct.h"
-#include <clientserver/protocol.h>
-#include <logging/logging.h>
+#include "clientserver/protocol.h"
+#include "clientserver/protocolXML2.h"
+#include "logging/logging.h"
 
 #include "errorLog.h"
 #include "printStructs.h"

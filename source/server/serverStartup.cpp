@@ -4,8 +4,8 @@
 #include <cstdlib>
 #include <string>
 
-#include <clientserver/errorLog.h>
-#include <logging/logging.h>
+#include "clientserver/errorLog.h"
+#include "logging/logging.h"
 
 #include "getServerEnvironment.h"
 

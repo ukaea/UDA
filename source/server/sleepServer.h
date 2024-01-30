@@ -5,8 +5,7 @@
 
 #  include <rpc/rpc.h>
 
-#  include "export.h"
-#  include "genStructs.h"
+#  include "structures/genStructs.h"
 
 struct IoData;
 

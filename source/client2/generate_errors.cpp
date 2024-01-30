@@ -3,11 +3,10 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "udaTypes.h"
-#include <clientserver/allocData.h>
-#include <clientserver/errorLog.h>
+#include <uda/types.h>
+#include "clientserver/allocData.h"
+#include "clientserver/errorLog.h"
 
-#include "accAPI.h"
 #include "thread_client.hpp"
 
 #ifndef NO_GSL_LIB

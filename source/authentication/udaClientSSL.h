@@ -23,10 +23,8 @@
 #    define VERIFY_DEPTH 4
 #    define X509STRINGSIZE 256
 
-#    include <export.h>
-
-#    include <client/udaClientHostList.h>
-#    include <clientserver/socketStructs.h>
+#    include "client/udaClientHostList.h"
+#    include "clientserver/socketStructs.h"
 
 bool getUdaClientSSLDisabled();
 SSL* getUdaClientSSL();

@@ -9,17 +9,16 @@
 #include <tuple>
 
 #include "clientserver/initStructs.h"
-#include "struct.h"
-#include "udaErrors.h"
-#include <cache/memcache.hpp>
-#include <clientserver/errorLog.h>
-#include <clientserver/manageSockets.h>
-#include <clientserver/printStructs.h>
-#include <clientserver/protocol.h>
-#include <clientserver/xdrlib.h>
-#include <logging/accessLog.h>
-#include <logging/logging.h>
-#include <server/serverPlugin.h>
+#include "clientserver/udaErrors.h"
+#include "cache/memcache.hpp"
+#include "clientserver/errorLog.h"
+#include "clientserver/manageSockets.h"
+#include "clientserver/printStructs.h"
+#include "clientserver/protocol.h"
+#include "clientserver/xdrlib.h"
+#include "logging/accessLog.h"
+#include "logging/logging.h"
+#include "server/serverPlugin.h"
 #include <structures/parseIncludeFile.h>
 
 #include "closeServerSockets.h"
@@ -31,6 +30,7 @@
 #include "serverProcessing.h"
 #include "serverStartup.h"
 #include "udaLegacyServer.h"
+#include "uda/structured.h"
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -858,7 +858,6 @@ int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_lis
 
         getInitialUserDefinedTypeList(&user_defined_type_list);
         parsed_user_defined_type_list = *user_defined_type_list;
-        printUserDefinedTypeList(*user_defined_type_list);
 
         log_malloc_list = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
         initLogMallocList(log_malloc_list);

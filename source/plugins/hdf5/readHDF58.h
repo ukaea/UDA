@@ -1,18 +1,17 @@
 #ifndef UDA_PLUGIN_READHDF58_H
 #define UDA_PLUGIN_READHDF58_H
 
-#include "export.h"
 #include "clientserver/udaStructs.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-LIBRARY_API int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block);
+int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block);
 
 #ifdef NOHDF5PLUGIN
 
-LIBRARY_API void H5Fclose(int fh);
+void H5Fclose(int fh);
 
 #else
 
@@ -29,8 +28,8 @@ LIBRARY_API void H5Fclose(int fh);
 #  define HDF5_ERROR_UNKNOWN_TYPE 208
 #  define HDF5_ERROR_OPENING_DATASET 209
 
-LIBRARY_API int readHDF5IdamType(H5T_class_t classtype, int precision, int issigned);
-LIBRARY_API int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_BLOCK* data_block);
+int readHDF5IdamType(H5T_class_t classtype, int precision, int issigned);
+int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_BLOCK* data_block);
 
 #endif
 

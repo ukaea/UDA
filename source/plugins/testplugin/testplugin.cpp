@@ -4,13 +4,11 @@
 #include <cstdlib>
 #include <vector>
 
-#include "accessors.h"
 #include "clientserver/initStructs.h"
-#include "struct.h"
-#include <clientserver/makeRequestBlock.h>
-#include <clientserver/printStructs.h>
-#include <clientserver/stringUtils.h>
-#include "include/uda_plugin_base.hpp"
+#include "clientserver/makeRequestBlock.h"
+#include "clientserver/printStructs.h"
+#include "clientserver/stringUtils.h"
+#include "include/uda/uda_plugin_base.hpp"
 #include <serialisation/capnp_serialisation.h>
 
 #include <boost/filesystem.hpp>

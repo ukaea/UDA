@@ -8,8 +8,7 @@
 #  include <winsock2.h>
 #endif
 
-#include "export.h"
-#include "udaDefines.h"
+#include "clientserver/udaDefines.h"
 
 #ifdef __cplusplus
 extern "C" {

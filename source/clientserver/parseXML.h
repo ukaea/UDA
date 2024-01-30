@@ -8,13 +8,8 @@
 
 #include <stdbool.h>
 
-#include "export.h"
 #include "udaDefines.h"
 #include "udaStructs.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct Map {
     int nmap;                                             // the Number of Mapping Operations
@@ -146,19 +141,15 @@ typedef struct Actions {
 } ACTIONS;
 
 #ifndef NOXMLPARSER
-LIBRARY_API int parseDoc(char* docname, ACTIONS* actions);
+int parseDoc(char* docname, ACTIONS* actions);
 #endif
-LIBRARY_API void printAction(ACTION action);
-LIBRARY_API void printActions(ACTIONS actions);
-LIBRARY_API void initAction(ACTION* act);
-LIBRARY_API void initActions(ACTIONS* act);
-LIBRARY_API void freeActions(ACTIONS* actions);
-LIBRARY_API void copyActions(ACTIONS* actions_out, ACTIONS* actions_in);
-LIBRARY_API void initServerside(SERVERSIDE* act);
-LIBRARY_API void initSubset(SUBSET* act);
-
-#ifdef __cplusplus
-}
-#endif
+void printAction(ACTION action);
+void printActions(ACTIONS actions);
+void initAction(ACTION* act);
+void initActions(ACTIONS* act);
+void freeActions(ACTIONS* actions);
+void copyActions(ACTIONS* actions_out, ACTIONS* actions_in);
+void initServerside(SERVERSIDE* act);
+void initSubset(SUBSET* act);
 
 #endif // UDA_CLIENTSERVER_PARSEXML_H

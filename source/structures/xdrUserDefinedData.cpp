@@ -1,15 +1,13 @@
 #include "xdrUserDefinedData.h"
 
 #include <cstdlib>
+#include <uda/structured.h>
 
-#include "udaErrors.h"
-#include <clientserver/errorLog.h>
-#include <clientserver/protocol.h>
-#include <clientserver/stringUtils.h>
-#include <clientserver/xdrlib.h>
-#include <logging/logging.h>
-
-#include "struct.h"
+#include "clientserver/errorLog.h"
+#include "clientserver/protocol.h"
+#include "clientserver/stringUtils.h"
+#include "clientserver/xdrlib.h"
+#include "logging/logging.h"
 
 static int recursiveDepth = 0; // Keep count of recursive calls
 

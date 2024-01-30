@@ -1,4 +1,4 @@
-#include "clientAPI.h"
+#include <uda/client.h>
 
 #ifdef __GNUC__
 #  include <strings.h>
@@ -11,7 +11,6 @@
 #include "clientserver/initStructs.h"
 #include "logging/logging.h"
 
-#include "client.h"
 #include "client/makeClientRequestBlock.h"
 #include "client/startup.h"
 

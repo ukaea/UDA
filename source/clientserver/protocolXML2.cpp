@@ -55,10 +55,10 @@
 
 #include <cerrno>
 #include <cstdlib>
+#include <uda/structured.h>
 
-#include "struct.h"
-#include <clientserver/memstream.h>
-#include <logging/logging.h>
+#include "clientserver/memstream.h"
+#include "logging/logging.h"
 
 #include "errorLog.h"
 #include "protocol.h"
@@ -67,9 +67,9 @@
 #include "xdrlib.h"
 
 #ifdef SERVERBUILD
-#  include <server/createXDRStream.h>
-#  include <server/serverStartup.h>
-#  include <server/udaServer.h>
+#  include "server/createXDRStream.h"
+#  include "server/serverStartup.h"
+#  include "server/udaServer.h"
 #endif
 
 #ifndef FATCLIENT

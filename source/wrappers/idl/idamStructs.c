@@ -7,10 +7,10 @@
 
 #include "idl_export.h"
 
-#include <client/accAPI.h>
+#include "client/accAPI.h"
 #include <structures/struct.h>
 #include <structures/accessors.h>
-#include <clientserver/stringUtils.h>
+#include "clientserver/stringUtils.h"
 
 typedef struct {
     IDL_KW_RESULT_FIRST_FIELD;

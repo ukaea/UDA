@@ -5,8 +5,8 @@
 #include <string_view>
 #include <string>
 
-#include "export.h"
-#include <clientserver/socketStructs.h>
+#include "include/uda/export.h"
+#include "clientserver/socketStructs.h"
 
 namespace uda {
 namespace client {

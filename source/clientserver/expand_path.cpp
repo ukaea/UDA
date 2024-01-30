@@ -27,12 +27,12 @@
 #include <vector>
 
 #include "udaErrors.h"
-#include <logging/logging.h>
+#include "logging/logging.h"
 
 #include "errorLog.h"
 #include "stringUtils.h"
 #ifdef SERVERBUILD
-#  include <server/serverStartup.h>
+#  include "server/serverStartup.h"
 #endif
 // Identify the current working Host
 #ifdef NOEXPANDPATH

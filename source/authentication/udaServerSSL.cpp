@@ -11,9 +11,9 @@
 #  include <openssl/ssl.h>
 #  include <openssl/x509.h>
 
-#  include <clientserver/errorLog.h>
-#  include <logging/logging.h>
-#  include <server/writer.h>
+#  include "clientserver/errorLog.h"
+#  include "logging/logging.h"
+#  include "server/writer.h"
 
 #  define VERIFY_DEPTH 4
 #  define X509STRINGSIZE 256

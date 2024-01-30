@@ -3,13 +3,9 @@
 #include <boost/format.hpp>
 #include <complex>
 #include <iterator>
+#include <uda/client.h>
 
-#include "accAPI.h"
-#include "client.h"
 #include "clientserver/initStructs.h"
-#include "udaGetAPI.h"
-#include "udaPutAPI.h"
-#include "udaTypes.h"
 
 #include "data.hpp"
 #include "result.hpp"

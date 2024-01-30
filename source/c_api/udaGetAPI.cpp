@@ -8,7 +8,7 @@
  *
  *--------------------------------------------------------------*/
 
-#include "udaGetAPI.h"
+#include <uda/client.h>
 
 #ifndef _WIN32
 #  include <strings.h>
@@ -19,9 +19,6 @@
 #include "clientserver/initStructs.h"
 #include "logging/logging.h"
 
-#include "accAPI.h"
-#include "client.h"
-#include "client/getEnvironment.h"
 #include "client/makeClientRequestBlock.h"
 #include "client/startup.h"
 

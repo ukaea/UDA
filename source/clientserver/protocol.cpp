@@ -23,9 +23,9 @@
 
 #include "protocol.h"
 
-#include "udaTypes.h"
+#include <uda/types.h>
 #include <cstdlib>
-#include <logging/logging.h>
+#include "logging/logging.h"
 
 #include "allocData.h"
 #include "compressDim.h"
@@ -36,7 +36,7 @@
 #include "xdrlib.h"
 
 #ifdef SERVERBUILD
-#  include <server/serverStartup.h>
+#  include "server/serverStartup.h"
 #endif
 
 int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,

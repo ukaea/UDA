@@ -1,8 +1,7 @@
 #include "signal.hpp"
 
 #include <boost/format.hpp>
-#include <clientserver/stringUtils.h>
-#include <uda.h>
+#include <uda/client.h>
 
 void uda::Signal::put() const
 {

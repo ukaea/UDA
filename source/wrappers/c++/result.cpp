@@ -5,11 +5,7 @@
 #include "result.hpp"
 
 #include <complex>
-#include <sstream>
-
-#include "accAPI.h"
-#include "client.h"
-#include "udaTypes.h"
+#include <uda/client.h>
 
 #include "array.hpp"
 #include "string.hpp"

@@ -3,8 +3,7 @@
 #ifndef UDA_CLIENT_UDACLIENT_H
 #  define UDA_CLIENT_UDACLIENT_H
 
-#  include "client.h"
-#  include "genStructs.h"
+#  include "structures/genStructs.h"
 #  include "clientserver/udaStructs.h"
 
 typedef struct ClientFlags {

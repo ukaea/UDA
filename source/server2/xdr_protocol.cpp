@@ -3,9 +3,8 @@
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
 #include "clientserver/xdrlib.h"
-#include "struct.h"
-#include "udaErrors.h"
-#include "udaTypes.h"
+#include "clientserver/udaErrors.h"
+#include <uda/types.h>
 #ifdef SSLAUTHENTICATION
 #  include "authentication/udaServerSSL.h"
 #endif
@@ -13,8 +12,8 @@
 #include <cerrno>
 #include <unistd.h>
 
-#include "udaDefines.h"
-#include <logging/logging.h>
+#include "clientserver/udaDefines.h"
+#include "logging/logging.h"
 
 #include "server.hpp"
 

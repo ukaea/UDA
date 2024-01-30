@@ -1,25 +1,23 @@
 #include "client.hpp"
 
-#include "accAPI.h"
 #include "client_environment.hpp"
 #include "client_xdr_stream.hpp"
-#include "error_codes.h"
 #include "exceptions.hpp"
 #include "make_request_block.hpp"
 
 #include "clientserver/initStructs.h"
-#include "udaDefines.h"
-#include "udaErrors.h"
-#include "udaTypes.h"
-#include <cache/fileCache.h>
-#include <clientserver/allocData.h>
-#include <clientserver/errorLog.h>
-#include <clientserver/printStructs.h>
-#include <clientserver/protocol.h>
-#include <clientserver/stringUtils.h>
-#include <clientserver/userid.h>
-#include <clientserver/xdrlib.h>
-#include <logging/logging.h>
+#include "clientserver/udaDefines.h"
+#include "clientserver/udaErrors.h"
+#include "uda/client.h"
+#include "cache/fileCache.h"
+#include "clientserver/allocData.h"
+#include "clientserver/errorLog.h"
+#include "clientserver/printStructs.h"
+#include "clientserver/protocol.h"
+#include "clientserver/stringUtils.h"
+#include "clientserver/userid.h"
+#include "clientserver/xdrlib.h"
+#include "logging/logging.h"
 
 namespace
 {

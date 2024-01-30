@@ -1,8 +1,8 @@
 #include "udaStructs.h"
 
-#include <logging/logging.h>
+#include "logging/logging.h"
 
-#include "udaTypes.h"
+#include <uda/types.h>
 
 void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
 {

@@ -11,22 +11,12 @@
 // Server host addressed beginng with SSL:// are assumed to be using SSL authentication. The SSL:// prefix is removed to
 // make the connection.
 
-#  include <export.h>
-
-#  ifdef __cplusplus
-extern "C" {
-#  endif
-
-LIBRARY_API int startUdaServerSSL();
-LIBRARY_API void closeUdaServerSSL();
-LIBRARY_API int readUdaServerSSL(void* iohandle, char* buf, int count);
-LIBRARY_API int writeUdaServerSSL(void* iohandle, const char* buf, int count);
-LIBRARY_API void putUdaServerSSLSocket(int socket);
-LIBRARY_API bool getUdaServerSSLDisabled();
-
-#  ifdef __cplusplus
-}
-#  endif
+int startUdaServerSSL();
+void closeUdaServerSSL();
+int readUdaServerSSL(void* iohandle, char* buf, int count);
+int writeUdaServerSSL(void* iohandle, const char* buf, int count);
+void putUdaServerSSLSocket(int socket);
+bool getUdaServerSSLDisabled();
 
 #endif // SSLAUTHENTICATION
 

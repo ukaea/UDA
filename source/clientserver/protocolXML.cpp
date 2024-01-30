@@ -57,10 +57,10 @@
 #include <cstdlib>
 #include <memory.h>
 #include <tuple>
+#include <uda/structured.h>
 
-#include "struct.h"
 #include <fmt/format.h>
-#include <logging/logging.h>
+#include "logging/logging.h"
 
 #include "errorLog.h"
 #include "protocol.h"
@@ -68,6 +68,7 @@
 #include "stringUtils.h"
 #include "udaErrors.h"
 #include "xdrlib.h"
+#include "protocolXML2.h"
 
 #ifdef HIERARCHICAL_DATA
 #  include "allocXMLData.h"

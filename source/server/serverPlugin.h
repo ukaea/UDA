@@ -1,7 +1,10 @@
 #ifndef UDA_SERVER_SERVERPLUGIN_H
 #define UDA_SERVER_SERVERPLUGIN_H
 
-#include "udaPlugin.h"
+#include <cstdio>
+#include <uda/types.h>
+
+#include "clientserver/udaStructs.h"
 
 #define REQUEST_READ_START 1000
 #define REQUEST_PLUGIN_MCOUNT 100 // Maximum initial number of plugins that can be registered

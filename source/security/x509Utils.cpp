@@ -2,8 +2,8 @@
 
 #include <cerrno>
 
-#include <clientserver/errorLog.h>
-#include <clientserver/stringUtils.h>
+#include "clientserver/errorLog.h"
+#include "clientserver/stringUtils.h"
 
 #include "security.h"
 

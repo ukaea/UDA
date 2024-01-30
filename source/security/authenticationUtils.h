@@ -1,19 +1,10 @@
 #ifndef UDA_SECURITY_AUTHENTICATIONUTILS_H
 #define UDA_SECURITY_AUTHENTICATIONUTILS_H
 
-#include "export.h"
 #include "clientserver/udaStructs.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+int testFilePermissions(const char* object);
 
-LIBRARY_API int testFilePermissions(const char* object);
-
-LIBRARY_API void initSecurityBlock(SECURITY_BLOCK* str);
-
-#ifdef __cplusplus
-}
-#endif
+void initSecurityBlock(SECURITY_BLOCK* str);
 
 #endif // UDA_SECURITY_AUTHENTICATIONUTILS_H

@@ -1,7 +1,6 @@
 #include "teststructs.h"
 
-#include "struct.h"
-#include <logging/logging.h>
+#include "logging/logging.h"
 
 void init_structure_definitions(UDA_PLUGIN_INTERFACE* plugin_interface)
 {

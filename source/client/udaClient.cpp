@@ -5,32 +5,31 @@
 #include <tuple>
 #include <vector>
 
+#include "uda/client.h"
+#include "uda/structured.h"
 #include "clientserver/initStructs.h"
-#include "struct.h"
-#include "udaErrors.h"
-#include "udaTypes.h"
-#include <cache/fileCache.h>
-#include <cache/memcache.hpp>
-#include <client/connection.h>
-#include <client/getEnvironment.h>
-#include <clientserver/errorLog.h>
-#include <clientserver/printStructs.h>
-#include <clientserver/protocol.h>
-#include <clientserver/userid.h>
-#include <logging/logging.h>
+#include "clientserver/udaErrors.h"
+#include "cache/fileCache.h"
+#include "client/connection.h"
+#include "client/getEnvironment.h"
+#include "clientserver/errorLog.h"
+#include "clientserver/printStructs.h"
+#include "clientserver/protocol.h"
+#include "clientserver/userid.h"
+#include "logging/logging.h"
 
-#include "accAPI.h"
 #include "closedown.h"
 
 #ifdef FATCLIENT
-#  include <clientserver/compressDim.h>
-#  include <server/udaServer.h>
+#  include "clientserver/compressDim.h"
+#  include "server/udaServer.h"
 #else
 #  include "clientXDRStream.h"
-#  include <cache/fileCache.h>
-#  include <cache/memcache.hpp>
+#  include "cache/fileCache.h"
+#  include "cache/memcache.hpp"
 #  include <cassert>
-#  include <clientserver/xdrlib.h>
+#  include "clientserver/xdrlib.h"
+
 #  ifdef SSLAUTHENTICATION
 #    include <authentication/udaClientSSL.h>
 #  endif

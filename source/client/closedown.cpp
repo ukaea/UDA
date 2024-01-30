@@ -9,13 +9,12 @@
  *--------------------------------------------------------------*/
 #include "closedown.h"
 
-#include "client.h"
-#include <client/udaClientHostList.h>
-#include <logging/logging.h>
+#include "client/udaClientHostList.h"
+#include "logging/logging.h"
 
 #ifdef FATCLIENT
-#  include <server/closeServerSockets.h>
-#  include <server/udaServer.h>
+#  include "server/closeServerSockets.h"
+#  include "server/udaServer.h"
 #else
 #  include "connection.h"
 #  include "getEnvironment.h"

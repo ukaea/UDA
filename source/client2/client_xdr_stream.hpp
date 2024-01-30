@@ -6,7 +6,7 @@
 #include <utility>
 #include <rpc/rpc.h>
 
-#include "export.h"
+#include "include/uda/export.h"
 #include "connection.hpp"
 
 namespace uda {

@@ -9,7 +9,6 @@
 #include "clientserver/makeRequestBlock.h"
 #include "clientserver/parseOperation.h"
 #include "getServerEnvironment.h"
-#include "udaPlugin.h"
 
 #include <cerrno>
 #include <cfloat>
@@ -23,14 +22,14 @@
 #endif
 
 #include "clientserver/initStructs.h"
-#include "struct.h"
-#include "udaTypes.h"
+#include <uda/types.h>
 #include <boost/algorithm/string.hpp>
-#include <clientserver/compressDim.h>
-#include <clientserver/errorLog.h>
-#include <clientserver/printStructs.h>
-#include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include "clientserver/compressDim.h"
+#include "clientserver/errorLog.h"
+#include "clientserver/printStructs.h"
+#include "clientserver/stringUtils.h"
+#include "logging/logging.h"
+#include "uda/structured.h"
 
 //----------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------

@@ -3,16 +3,6 @@
 
 #include "genStructs.h"
 
-#include "export.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-LIBRARY_API int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* header);
-
-#ifdef __cplusplus
-}
-#endif
+int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* header);
 
 #endif // UDA_STRUCTURES_PARSEINCLUDEFILE_H

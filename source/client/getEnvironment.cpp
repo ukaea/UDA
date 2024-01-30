@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <fmt/format.h>
 
-#include <logging/logging.h>
+#include "logging/logging.h"
 
 bool env_host = true; // User can change these before startup so flag to the getEnvironment function
 bool env_port = true;
@@ -55,12 +55,12 @@ bool udaGetEnvPort()
     return env_port;
 }
 
-LIBRARY_API void udaSetEnvHost(bool value)
+void udaSetEnvHost(bool value)
 {
     env_host = value;
 }
 
-LIBRARY_API void udaSetEnvPort(bool value)
+void udaSetEnvPort(bool value)
 {
     env_port = value;
 }

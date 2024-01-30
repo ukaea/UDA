@@ -1,7 +1,7 @@
-#include "accAPI.h"
+#include <uda/client.h>
+#include <uda/structured.h>
 
 #include <cmath>
-#include <vector>
 
 #ifdef __GNUC__
 #  include <strings.h>
@@ -13,7 +13,6 @@
 #  define strlwr _strlwr
 #endif
 
-#include "accessors.h"
 #include "clientserver/allocData.h"
 #include "clientserver/memstream.h"
 #include "clientserver/protocol.h"
@@ -21,12 +20,10 @@
 #include "clientserver/xdrlib.h"
 #include "clientserver/initStructs.h"
 #include "logging/logging.h"
-#include "struct.h"
-#include "version.h"
-
 #include "client/generateErrors.h"
 #include "client/getEnvironment.h"
 #include "client/udaClient.h"
+#include "version.h"
 
 #ifdef __APPLE__
 #  include <cstdlib>
@@ -3545,12 +3542,8 @@ void getIdamClientSerialisedDataBlock(int handle, void** object, size_t* objectS
 
 int setIdamDataTree(int handle)
 {
-    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
-        return 0; // Return FALSE
-    }
-    if (getIdamData(handle) == nullptr) {
-        return 0;
-    }
+    if (getIdamDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return 0;    // Return FALSE
+    if (getIdamData(handle) == nullptr) return 0;
 
     udaSetFullNTree((NTREE*)getIdamData(handle));
     void* opaque_block = getIdamDataOpaqueBlock(handle);

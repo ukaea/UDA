@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <cstdlib>
 
-#include "udaTypes.h"
+#include <uda/types.h>
 
 #include "udaErrors.h"
 

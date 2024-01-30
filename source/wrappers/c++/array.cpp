@@ -3,7 +3,6 @@
 // globals.
 #  include <winsock.h>
 #endif
-#include <uda.h>
 
 #include "array.hpp"
 #include "result.hpp"

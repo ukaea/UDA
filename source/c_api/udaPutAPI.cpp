@@ -7,7 +7,7 @@
  * Returns:
  *--------------------------------------------------------------*/
 
-#include "udaPutAPI.h"
+#include <uda/client.h>
 
 #include "clientserver/allocData.h"
 #include "clientserver/errorLog.h"

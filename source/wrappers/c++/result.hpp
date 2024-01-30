@@ -6,7 +6,7 @@
 #include <boost/noncopyable.hpp>
 #include <map>
 
-#include "export.h"
+#include "include/uda/export.h"
 #include "dim.hpp"
 #include "treenode.hpp"
 

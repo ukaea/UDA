@@ -4,16 +4,15 @@
 
 #include "clientserver/initStructs.h"
 #include "logging/logging.h"
-#include "struct.h"
-#include <clientserver/copyStructs.h>
-#include <clientserver/errorLog.h>
-#include <clientserver/manageSockets.h>
-#include <clientserver/printStructs.h>
-#include <clientserver/protocol.h>
-#include <clientserver/protocolXML.h>
-#include <clientserver/xdrlib.h>
-#include <logging/accessLog.h>
-#include <server/serverPlugin.h>
+#include "clientserver/copyStructs.h"
+#include "clientserver/errorLog.h"
+#include "clientserver/manageSockets.h"
+#include "clientserver/printStructs.h"
+#include "clientserver/protocol.h"
+#include "clientserver/protocolXML.h"
+#include "clientserver/xdrlib.h"
+#include "logging/accessLog.h"
+#include "server/serverPlugin.h"
 #include <structures/parseIncludeFile.h>
 
 #include "createXDRStream.h"
@@ -22,6 +21,7 @@
 #include "serverGetData.h"
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
+#include "uda/structured.h"
 
 #ifdef NONETCDFPLUGIN
 void ncclose(int fh) {}
@@ -426,7 +426,6 @@ int startup_fat_server(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parsedus
 
     getInitialUserDefinedTypeList(&user_defined_type_list);
     parseduserdefinedtypelist = *user_defined_type_list;
-    printUserDefinedTypeList(*user_defined_type_list);
     user_defined_type_list = nullptr; // Startup State
 
     /*

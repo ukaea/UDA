@@ -2,14 +2,14 @@
 
 #  include "serverAuthentication.h"
 
-#  include <clientserver/errorLog.h>
-#  include <logging/logging.h>
-#  include <server/udaServer.h>
+#  include "clientserver/errorLog.h"
+#  include "logging/logging.h"
+#  include "server/udaServer.h"
 #  ifndef TESTIDAMSECURITY
-#    include <clientserver/printStructs.h>
-#    include <clientserver/protocol.h>
-#    include <clientserver/udaErrors.h>
-#    include <clientserver/xdrlib.h>
+#    include "clientserver/printStructs.h"
+#    include "clientserver/protocol.h"
+#    include "clientserver/udaErrors.h"
+#    include "clientserver/xdrlib.h"
 #  endif
 
 #  include "authenticationUtils.h"

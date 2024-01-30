@@ -3,7 +3,6 @@
 #ifndef UDA_SERVER_SERVERPROCESSING_H
 #  define UDA_SERVER_SERVERPROCESSING_H
 
-#  include "export.h"
 #  include "clientserver/udaStructs.h"
 
 namespace uda

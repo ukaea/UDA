@@ -2,8 +2,9 @@
 
 #include <fmt/format.h>
 #include <boost/filesystem.hpp>
-
-#include "uda_plugin_base.hpp"
+#include <uda/uda_plugin_base.hpp>
+#include <uda/portability.h>
+#include <sys/time.h>
 
 class HelpPlugin : public UDAPluginBase
 {

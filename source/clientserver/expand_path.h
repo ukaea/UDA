@@ -1,26 +1,21 @@
 #ifndef UDA_CLIENTSERVER_EXPAND_PATH_H
 #define UDA_CLIENTSERVER_EXPAND_PATH_H
 
-#include "export.h"
 #include "udaStructs.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*! The workstation (client host) name is obtained using the operating system command 'hostname'.
 
 @param host The name of the client host workstation. The string is pre-allocated with length STRING_LENGTH
 @returns A pointer to the host string (Identical to the argument).
 */
-LIBRARY_API char* hostid(char* host);
+char* hostid(char* host);
 
 /*! Test a path is legitimate
 
 @param path The file path to be tested.
 @returns A pointer to the path argument. If a problem occurs, the path string is empty.
 */
-LIBRARY_API char* pathid(char* path);
+char* pathid(char* path);
 
 /*! Fully expand file directory paths to remove relative path or environment variable components.
 
@@ -42,7 +37,7 @@ LIBRARY_API char* pathid(char* path);
 @param path The file path to be resolved and expanded.
 @returns An integer Error Code: If non zero, a problem occured.
 */
-LIBRARY_API int expandFilePath(char* path, const ENVIRONMENT* environment);
+int expandFilePath(char* path, const ENVIRONMENT* environment);
 
 #ifndef NOEXPANDPATH
 
@@ -54,7 +49,7 @@ LIBRARY_API int expandFilePath(char* path, const ENVIRONMENT* environment);
 @param tokenList A Pointer to an array of token strings
 @param tokenCount The number of tokens in the list.
 */
-LIBRARY_API void freeTokenList(char*** tokenListArray, int* tokenCount);
+void freeTokenList(char*** tokenListArray, int* tokenCount);
 
 /*! Generate a lists of path elements tokens.
 
@@ -63,7 +58,7 @@ LIBRARY_API void freeTokenList(char*** tokenListArray, int* tokenCount);
 @param tokenList A pointer to an array of token strings. This must be freed using freeTokenList when no longer needed.
 returns A count of the tokens parsed from input.
 */
-LIBRARY_API int tokenList(const char* delims, char* input, char*** tokenListArray);
+int tokenList(const char* delims, char* input, char*** tokenListArray);
 
 /*! Substitute/Replace file path name elements for server side name resolution.
 
@@ -93,14 +88,10 @@ If there are more wildcards in the substitute string than in the target string, 
 @param path The path to be tested for targeted name element replacement.
 @returns An integer Error Code: If non zero, a problem occured.
 */
-LIBRARY_API int pathReplacement(char* path, const ENVIRONMENT* environment);
+int pathReplacement(char* path, const ENVIRONMENT* environment);
 
-LIBRARY_API int linkReplacement(char* path);
+int linkReplacement(char* path);
 
 #endif // NOEXPANDPATH
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // UDA_CLIENTSERVER_EXPAND_PATH_H

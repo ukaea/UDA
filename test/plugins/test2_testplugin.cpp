@@ -1,11 +1,10 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-#include "udaTypes.h"
+#include "include/uda/udaTypes.h"
 #include "clientserver/initStructs.h"
 #include <client2/udaGetAPI.h>
 #include <client2/accAPI.h>
-#include "struct.h"
 #include <c++/scalar.hpp>
 #include <c++/vector.hpp>
 #include <c++/array.hpp>

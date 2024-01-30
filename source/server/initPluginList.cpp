@@ -1,12 +1,13 @@
 #include "initPluginList.h"
 
 #include <cerrno>
-
-#include <cache/memcache.hpp>
-#include <clientserver/errorLog.h>
-#include <clientserver/stringUtils.h>
 #include <fmt/format.h>
-#include <server/serverPlugin.h>
+
+#include "cache/memcache.hpp"
+#include "clientserver/errorLog.h"
+#include "clientserver/stringUtils.h"
+#include "uda/plugins.h"
+#include "server/serverPlugin.h"
 
 #include "getPluginAddress.h"
 

@@ -1,14 +1,15 @@
 #ifndef UDA_SERVER_SERVERPLUGIN_H
 #define UDA_SERVER_SERVERPLUGIN_H
 
-#include "export.h"
 #include "plugins.hpp"
-#include "server.hpp"
-#include "udaPlugin.h"
+#include "clientserver/udaStructs.h"
+#include "uda/types.h"
 
 #define REQUEST_READ_START 1000
 #define REQUEST_PLUGIN_MCOUNT 100 // Maximum initial number of plugins that can be registered
 #define REQUEST_PLUGIN_MSTEP 10   // Increase heap by 10 records once the maximum is exceeded
+
+typedef struct PluginList PLUGINLIST;
 
 typedef struct UdaPluginInterface {  // Standard Plugin interface
     unsigned short interfaceVersion;  // Interface Version
@@ -32,8 +33,17 @@ typedef struct UdaPluginInterface {  // Standard Plugin interface
     UDA_ERROR_STACK error_stack;
 } UDA_PLUGIN_INTERFACE;
 
+struct PluginData;
+
 namespace uda
 {
+
+class Plugins;
+struct MetadataBlock;
+
+namespace server {
+class Environment;
+}
 
 int serverRedirectStdStreams(int reset);
 
@@ -43,10 +53,10 @@ int serverPlugin(RequestData* request, DataSource* data_source, SignalDesc* sign
 int provenancePlugin(ClientBlock* client_block, RequestData* original_request, const Plugins& plugins,
                      const char* logRecord, const server::Environment& environment, uda::MetadataBlock& metadata);
 
-boost::optional<PluginData> find_metadata_plugin(const Plugins& plugins, const server::Environment& environment);
-
 int call_metadata_plugin(const PluginData& plugin, RequestData* request_block, const server::Environment& environment,
                          const uda::Plugins& plugins, uda::MetadataBlock& metadata);
+
+boost::optional<PluginData> find_metadata_plugin(const Plugins& plugins, const server::Environment& environment);
 
 } // namespace uda
 

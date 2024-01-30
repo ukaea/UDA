@@ -3,7 +3,7 @@
 
 #include <string>
 #include <boost/multi_array/base.hpp>
-#include "export.h"
+#include "include/uda/export.h"
 #include "vector.hpp"
 
 #if defined(_WIN32)

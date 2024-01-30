@@ -3,12 +3,11 @@
 #include <leveldb/c.h>
 
 #include <boost/filesystem.hpp>
-#include "include/uda_plugin_base.hpp"
+#include "include/uda/uda_plugin_base.hpp"
 
 #include "clientserver/initStructs.h"
-#include "udaPlugin.h"
-#include "udaTypes.h"
-#include <clientserver/stringUtils.h>
+#include <uda/types.h>
+#include "clientserver/stringUtils.h"
 
 namespace uda
 {

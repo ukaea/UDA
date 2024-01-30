@@ -1,14 +1,9 @@
 #ifndef UDA_CLIENTSERVER_COMPRESSDIM_H
 #define UDA_CLIENTSERVER_COMPRESSDIM_H
 
-#include "export.h"
 #include "udaStructs.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-LIBRARY_API int compressDim(DIMS* ddim);
+int compressDim(DIMS* ddim);
 
 /*---------------------------------------------------------------
  * UDA Dimensional Data Uncompressor
@@ -25,10 +20,6 @@ LIBRARY_API int compressDim(DIMS* ddim);
  * must also have corrections applied.
  *
  *--------------------------------------------------------------*/
-LIBRARY_API int uncompressDim(DIMS* ddim);
-
-#ifdef __cplusplus
-}
-#endif
+int uncompressDim(DIMS* ddim);
 
 #endif // UDA_CLIENTSERVER_COMPRESSDIM_H

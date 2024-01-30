@@ -3,10 +3,7 @@
 #ifndef UDA_SERVER_MAKESERVERREQUESTBLOCK_HPP
 #define UDA_SERVER_MAKESERVERREQUESTBLOCK_HPP
 
-#include "udaPlugin.h"
 #include "clientserver/udaStructs.h"
-#include "export.h"
-
 #include "plugins.hpp"
 #include "server_environment.hpp"
 

@@ -37,7 +37,7 @@
 //
 //==============================================================================================================
 
-#include "struct.h"
+#include "genStructs.h"
 
 #include <cstdlib>
 #include <stddef.h>
@@ -51,17 +51,17 @@
 #  define strcasecmp _stricmp
 #endif
 
-#include "udaErrors.h"
-#include <clientserver/errorLog.h>
-#include <clientserver/stringUtils.h>
-#include <clientserver/xdrlib.h>
-#include <logging/logging.h>
+#include "clientserver/errorLog.h"
+#include "clientserver/stringUtils.h"
+#include "clientserver/xdrlib.h"
+#include "logging/logging.h"
+#include "clientserver/protocolXML2Put.h"
 
-#include "accessors.h"
+#include <uda/structured.h>
 #include "xdrUserDefinedData.h"
 
 #if defined(SERVERBUILD)
-#  include <server/udaServer.h>
+#  include "server/udaServer.h"
 #endif
 
 static unsigned int last_malloc_index = 0; // Malloc Log search index last value

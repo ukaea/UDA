@@ -18,11 +18,10 @@
 #  include <strings.h>
 #endif
 
-#include "accAPI.h"
 #include "clientserver/initStructs.h"
-#include "udaGetAPI.h"
-#include <clientserver/stringUtils.h>
-#include "include/uda_plugin_base.hpp"
+#include "clientserver/stringUtils.h"
+#include "include/uda/uda_plugin_base.hpp"
+#include "uda/client.h"
 
 #include <boost/filesystem.hpp>
 #include <vector>

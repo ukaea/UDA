@@ -1,7 +1,7 @@
 #pragma once
 
 #ifndef UDA_LEGACY_H
-#  define UDA_LEGACY_H
+#define UDA_LEGACY_H
 
 #  warning "using UDA legacy name mappings"
 

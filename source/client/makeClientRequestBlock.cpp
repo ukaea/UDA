@@ -23,13 +23,13 @@ Interprets the API arguments and assembles a Request data structure.
 #include <string>
 
 #include "clientserver/initStructs.h"
-#include "udaErrors.h"
-#include <clientserver/errorLog.h>
-#include <clientserver/expand_path.h>
-#include <clientserver/makeRequestBlock.h>
-#include <clientserver/stringUtils.h>
+#include "clientserver/udaErrors.h"
+#include "clientserver/errorLog.h"
+#include "clientserver/expand_path.h"
+#include "clientserver/makeRequestBlock.h"
+#include "clientserver/stringUtils.h"
 #include <fmt/format.h>
-#include <logging/logging.h>
+#include "logging/logging.h"
 
 int makeRequestData(const char* data_object, const char* data_source, REQUEST_DATA* request)
 {

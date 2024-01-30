@@ -13,9 +13,9 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <logging/logging.h>
-#include <clientserver/udaTypes.h>
-#include <clientserver/stringUtils.h>
+#include "logging/logging.h"
+#include "clientserver/udaTypes.h"
+#include "clientserver/stringUtils.h"
 
 #include "accAPI.h"
 #include "idamClient.h"

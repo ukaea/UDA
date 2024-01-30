@@ -3,7 +3,6 @@
 #ifndef UDA_CLIENTSERVER_READXDRFILE_H
 #  define UDA_CLIENTSERVER_READXDRFILE_H
 
-#  include "export.h"
 #  include <rpc/types.h>
 #  include <rpc/xdr.h>
 

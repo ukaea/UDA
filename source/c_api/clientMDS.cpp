@@ -1,10 +1,7 @@
-#include "clientMDS.h"
+#include <uda/client.h>
 
-#include "clientserver/protocol.h"
 #include "clientserver/initStructs.h"
 #include "logging/logging.h"
-
-#include "client.h"
 #include "client/startup.h"
 
 /**

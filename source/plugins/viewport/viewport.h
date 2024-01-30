@@ -1,8 +1,7 @@
 #ifndef IDAM_PLUGINS_VIEWPORT_VIEWPORT_H
 #define IDAM_PLUGINS_VIEWPORT_VIEWPORT_H
 
-#include "export.h"
-#include "udaPlugin.h"
+#include <uda/plugins.h>
 
 #ifdef __cplusplus
 extern "C" {

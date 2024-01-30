@@ -6,8 +6,7 @@
 #include <vector>
 #include <boost/optional.hpp>
 
-#include "udaDefines.h"
-#include "udaPlugin.h"
+#include "clientserver/udaDefines.h"
 
 enum pluginClass {
     UDA_PLUGIN_CLASS_UNKNOWN,
@@ -18,6 +17,7 @@ enum pluginClass {
     UDA_PLUGIN_CLASS_OTHER
 };
 
+typedef struct UdaPluginInterface UDA_PLUGIN_INTERFACE;
 typedef int (*PLUGINFUNP)(UDA_PLUGIN_INTERFACE*); // Plugin function type
 
 struct PluginData {

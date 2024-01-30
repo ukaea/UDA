@@ -1,9 +1,6 @@
 #pragma once
 
-#  include "export.h"
-#  include "genStructs.h"
-#  include "plugins/pluginStructs.h"
-#  include <clientserver/socketStructs.h>
+#include "clientserver/udaStructs.h"
 
 int uda_server(CLIENT_BLOCK client_block);
 

@@ -10,11 +10,10 @@
 #include <rpc/rpc.h>
 
 #include "clientserver/udaStructs.h"
-#include <cache/memcache.hpp>
+#include "cache/memcache.hpp"
 
 #include "connection.hpp"
 #include "host_list.hpp"
-#include "accAPI.h"
 
 constexpr auto DefaultHost = "localhost";
 constexpr auto DefaultPort = 56565;

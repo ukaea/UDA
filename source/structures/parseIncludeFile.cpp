@@ -22,15 +22,13 @@
 #include "parseIncludeFile.h"
 
 #include <cerrno>
-#include <cstdlib>
 #include <string.h>
 
-#include "udaDefines.h"
-#include "udaErrors.h"
-#include <clientserver/errorLog.h>
-#include <clientserver/stringUtils.h>
+#include <uda/structured.h>
 
-#include "struct.h"
+#include "clientserver/udaDefines.h"
+#include "clientserver/errorLog.h"
+#include "clientserver/stringUtils.h"
 
 int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* header)
 {

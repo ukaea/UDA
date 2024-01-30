@@ -1,6 +1,7 @@
 #include "thread_client.hpp"
+
 #include "generate_errors.hpp"
-#include "udaTypes.h"
+#include "uda/client.h"
 
 std::once_flag uda::client::ThreadClient::init_flag_ = {};
 uda::client::Client* uda::client::ThreadClient::instance_ = nullptr;

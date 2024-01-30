@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "genStructs.h"
-#include "export.h"
+#include "structures/genStructs.h"
+#include "include/uda/export.h"
 
 #include "scalar.hpp"
 #include "vector.hpp"
@@ -27,8 +27,6 @@ public:
     uda::TreeNode child(int num);
     void printNode();
     void printStructureNames();
-    void printUserDefinedTypeTable();
-    void printUserDefinedTypeTable(const std::string& name);
 
     int structureCount();
     std::vector<std::string> structureNames();

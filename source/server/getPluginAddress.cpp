@@ -5,7 +5,7 @@
 #include <fmt/format.h>
 
 #include "logging/logging.h"
-#include <clientserver/errorLog.h>
+#include "clientserver/errorLog.h"
 
 /**
  * Return the function address for plugin data readers located in external shared libraries

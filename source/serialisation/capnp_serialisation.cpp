@@ -11,7 +11,7 @@
 #include <numeric>
 #include <vector>
 
-#include "udaTypes.h"
+#include <uda/types.h>
 
 #include "schema.capnp.h"
 

@@ -1,7 +1,7 @@
 #ifndef UDA_PLUGIN_READBYTESNONOPTIMALLY_H
 #define UDA_PLUGIN_READBYTESNONOPTIMALLY_H
 
-#include "udaPlugin.h"
+#include <uda/plugins.h>
 
 #include <string>
 

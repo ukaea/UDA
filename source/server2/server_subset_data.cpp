@@ -18,13 +18,13 @@
 #endif
 
 #include "clientserver/initStructs.h"
-#include "struct.h"
-#include "udaTypes.h"
-#include <clientserver/compressDim.h>
-#include <clientserver/errorLog.h>
-#include <clientserver/printStructs.h>
-#include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include <uda/types.h>
+#include "clientserver/compressDim.h"
+#include "clientserver/errorLog.h"
+#include "clientserver/printStructs.h"
+#include "clientserver/stringUtils.h"
+#include "logging/logging.h"
+#include "uda/structured.h"
 
 //----------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------

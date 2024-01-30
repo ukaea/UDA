@@ -1,18 +1,17 @@
-#include "udaPlugin.h"
+#include "uda/plugins.h"
 
 #include "server/initPluginList.h"
 #include "server/serverPlugin.h"
 #include "server/serverSubsetData.h"
-#include "struct.h"
 
 #include "clientserver/initStructs.h"
 #include "logging/logging.h"
-#include "udaTypes.h"
-#include "accessors.h"
-#include <clientserver/errorLog.h>
-#include <clientserver/makeRequestBlock.h>
-#include <clientserver/stringUtils.h>
-#include <server/getServerEnvironment.h>
+#include <uda/types.h>
+#include "clientserver/errorLog.h"
+#include "clientserver/makeRequestBlock.h"
+#include "clientserver/stringUtils.h"
+#include "server/getServerEnvironment.h"
+#include "uda/structured.h"
 
 UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "genStructs.h"
+#include "structures/genStructs.h"
 #include "clientserver/udaStructs.h"
-#include <clientserver/parseXML.h>
+#include "clientserver/parseXML.h"
 #include "serverPlugin.h"
 
 int serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST* logmalloclist);

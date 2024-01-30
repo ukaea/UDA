@@ -4,7 +4,7 @@
 #define UDA_CLIENT_MAKECLIENTREQUESTBLOCK_H
 
 #include "clientserver/udaStructs.h"
-#include "export.h"
+#include "include/uda/export.h"
 
 namespace uda {
 namespace client {

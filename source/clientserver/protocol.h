@@ -6,9 +6,7 @@
 #  include <rpc/types.h>
 #  include <rpc/xdr.h>
 
-#  include "genStructs.h"
-
-#  include "export.h"
+#  include "structures/genStructs.h"
 
 //-------------------------------------------------------
 // Client Server Conversation Protocols

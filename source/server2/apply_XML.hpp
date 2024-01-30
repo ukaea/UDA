@@ -3,9 +3,9 @@
 #ifndef UDA_SERVER_APPLYXML_H
 #define UDA_SERVER_APPLYXML_H
 
-#include <clientserver/parseXML.h>
+#include "clientserver/parseXML.h"
 #include "clientserver/udaStructs.h"
-#include "export.h"
+#include "include/uda/export.h"
 
 namespace uda {
 

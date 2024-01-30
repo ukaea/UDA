@@ -13,11 +13,10 @@
 #endif
 
 #include <fmt/format.h>
-#include <logging/logging.h>
+#include "logging/logging.h"
 
 #include "errorLog.h"
 #include "parseXML.h"
-#include "plugins/pluginStructs.h"
 #include "stringUtils.h"
 #include "udaErrors.h"
 #include "udaStructs.h"

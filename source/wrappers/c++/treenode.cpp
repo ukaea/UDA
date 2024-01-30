@@ -1,8 +1,7 @@
 #include "treenode.hpp"
 
-#include "accAPI.h"
-#include "accessors.h"
-#include "struct.h"
+#include <uda/client.h>
+#include <uda/structured.h>
 
 uda::TreeNode uda::TreeNode::parent()
 {
@@ -70,20 +69,6 @@ uda::TreeNode uda::TreeNode::findStructureComponent(const std::string& name)
 {
     LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle_);
     return {handle_, findNTreeStructureComponent(logmalloclist, node_, (char*)name.c_str())};
-}
-
-void uda::TreeNode::printUserDefinedTypeTable(const std::string& name)
-{
-    USERDEFINEDTYPELIST* userdefinedtypelist = getIdamUserDefinedTypeList(handle_);
-    USERDEFINEDTYPE* type = findUserDefinedType(userdefinedtypelist, (char*)name.c_str(), 0);
-    ::printUserDefinedTypeTable(userdefinedtypelist, *type);
-}
-
-void uda::TreeNode::printUserDefinedTypeTable()
-{
-    USERDEFINEDTYPELIST* userdefinedtypelist = getIdamUserDefinedTypeList(handle_);
-    USERDEFINEDTYPE* type = getNodeUserDefinedType(node_);
-    ::printUserDefinedTypeTable(userdefinedtypelist, *type);
 }
 
 int uda::TreeNode::structureCount()

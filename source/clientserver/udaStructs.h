@@ -7,13 +7,7 @@
 
 #include <stdbool.h>
 
-#include "export.h"
 #include "udaDefines.h"
-// #include "clientserver/parseXML.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 //--------------------------------------------------------
 // Structure Definitions
@@ -463,9 +457,5 @@ void freeRequestBlock(REQUEST_BLOCK* request_block);
 // void freeRequestData(REQUEST_DATA* request_data);
 
 void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // UDA_CLIENTSERVER_UDASTRUCTS_H

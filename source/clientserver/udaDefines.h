@@ -1,12 +1,6 @@
 #ifndef UDA_CLIENTSERVER_IDAMDEFINES_H
 #define UDA_CLIENTSERVER_IDAMDEFINES_H
 
-#include "export.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 //--------------------------------------------------------
 // Size Definitions
 
@@ -146,18 +140,5 @@ extern "C" {
 // QA Status
 
 #define DEFAULT_STATUS 1 // Default Signal and Data_Source Status value
-
-//--------------------------------------------------------
-// Not defined functions for Windows MSVC
-
-#if defined(_WIN32)
-#  if !defined(__MINGW32__)
-LIBRARY_API int gettimeofday(struct timeval* tp, struct timezone* tzp);
-#  endif
-#endif
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // UDA_CLIENTSERVER_IDAMDEFINES_H

@@ -19,13 +19,13 @@
 #include <cstdlib>
 #include <sstream>
 
-#include <logging/logging.h>
+#include "logging/logging.h"
 #ifndef NOXMLPARSER
 
-#  include "udaTypes.h"
-#  include <clientserver/errorLog.h>
-#  include <clientserver/parseOperation.h>
-#  include <clientserver/stringUtils.h>
+#  include <uda/types.h>
+#  include "clientserver/errorLog.h"
+#  include "clientserver/parseOperation.h"
+#  include "clientserver/stringUtils.h"
 
 static double deScale(char* scale);
 static void parse_target_value(xmlDocPtr doc, xmlNodePtr cur, const char* target, double* value);

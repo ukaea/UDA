@@ -1,13 +1,13 @@
 #include "clientAuthentication.h"
 
-#include <clientserver/errorLog.h>
-#include <clientserver/printStructs.h>
-#include <clientserver/protocol.h>
-#include <logging/logging.h>
+#include "clientserver/errorLog.h"
+#include "clientserver/printStructs.h"
+#include "clientserver/protocol.h"
+#include "logging/logging.h"
 #ifndef TESTIDAMSECURITY
 #  include "include/client.h"
-#  include "include/udaErrors.h"
-#  include <clientserver/xdrlib.h>
+#  include "clientserver/udaErrors.h"
+#  include "clientserver/xdrlib.h"
 #endif
 
 #include "authenticationUtils.h"

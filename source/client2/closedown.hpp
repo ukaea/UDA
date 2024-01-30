@@ -3,8 +3,8 @@
 #ifndef UDA_CLIENT_CLOSEDOWN_H
 #define UDA_CLIENT_CLOSEDOWN_H
 
-#include <clientserver/socketStructs.h>
-#include "export.h"
+#include "clientserver/socketStructs.h"
+#include "include/uda/export.h"
 
 namespace uda {
 namespace client {

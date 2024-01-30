@@ -3,9 +3,8 @@
 #ifndef UDA_SERVER_APPLYXML_H
 #  define UDA_SERVER_APPLYXML_H
 
-#  include "export.h"
 #  include "clientserver/udaStructs.h"
-#  include <clientserver/parseXML.h>
+#  include "clientserver/parseXML.h"
 
 int serverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC signal_desc, ACTIONS* actions_desc,
                          ACTIONS* actions_sig);

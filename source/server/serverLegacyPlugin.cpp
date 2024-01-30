@@ -5,12 +5,12 @@
 #  include <strings.h>
 #endif
 
-#include <clientserver/errorLog.h>
-#include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include "clientserver/errorLog.h"
+#include "clientserver/stringUtils.h"
+#include "logging/logging.h"
 
 #ifndef FATCLIENT
-#  include <server/getServerEnvironment.h>
+#  include "server/getServerEnvironment.h"
 #endif
 
 int udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc)

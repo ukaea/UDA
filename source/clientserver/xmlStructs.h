@@ -1,12 +1,6 @@
 #ifndef UDA_XMLSTRUCTS_H
 #define UDA_XMLSTRUCTS_H
 
-#include "export.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define XMLMAXSTRING 56
 #define XMLMAX 200 * 1024
 #define UDA_XML_MAX_LOOP 1024 // Max Number of Array elements
@@ -144,9 +138,5 @@ typedef struct {
     TOROIDALFIELD* toroidalfield; // Toroidal Field
     LIMITER* limiter;             // Limiter Coordinates
 } EFIT;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // UDA_XMLSTRUCTS_H

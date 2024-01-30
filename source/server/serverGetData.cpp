@@ -9,18 +9,18 @@
 
 #include "clientserver/initStructs.h"
 #include "logging/logging.h"
-#include "struct.h"
-#include <clientserver/errorLog.h>
-#include <clientserver/makeRequestBlock.h>
-#include <clientserver/nameValueSubstitution.h>
-#include <clientserver/printStructs.h>
-#include <clientserver/stringUtils.h>
+#include "clientserver/errorLog.h"
+#include "clientserver/makeRequestBlock.h"
+#include "clientserver/nameValueSubstitution.h"
+#include "clientserver/printStructs.h"
+#include "clientserver/stringUtils.h"
 
 #include "applyXML.h"
 #include "getServerEnvironment.h"
 #include "makeServerRequestBlock.h"
 #include "serverPlugin.h"
 #include "serverSubsetData.h"
+#include "uda/plugins.h"
 
 static int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry);
 static int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2);

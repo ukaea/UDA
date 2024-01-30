@@ -1,10 +1,9 @@
 #include "protocolXML2Put.h"
 
 #include <cstdlib>
+#include <uda/structured.h>
 
-#include "struct.h"
-#include "udaErrors.h"
-#include <logging/logging.h>
+#include "logging/logging.h"
 #include <structures/xdrUserDefinedData.h>
 
 #include "errorLog.h"
@@ -13,7 +12,7 @@
 #include "xdrlib.h"
 
 #ifdef SERVERBUILD
-#  include <server/serverStartup.h>
+#  include "server/serverStartup.h"
 #endif
 
 static int recursiveDepthPut = 0; // Keep count of recursive calls

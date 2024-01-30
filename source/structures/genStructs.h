@@ -3,12 +3,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <rpc/xdr.h>
 
-#include "export.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 //-------------------------------------------------------------------------------------------------------
 // Macro definitions
@@ -23,30 +20,6 @@ extern "C" {
 #define POINTER_SIZE32 4 // Pointer size (bytes) on 32-bit architecture
 
 #define MAXRECURSIVEDEPTH 30
-
-#define SCALARDOUBLE 1
-#define ARRAYDOUBLE 2
-#define SCALARFLOAT 3
-#define ARRAYFLOAT 4
-#define SCALARLONG64 5
-#define ARRAYLONG64 6
-#define SCALARULONG64 7
-#define ARRAYULONG64 8
-#define SCALARINT 9
-#define ARRAYINT 10
-#define SCALARUINT 11
-#define ARRAYUINT 12
-#define SCALARSHORT 13
-#define ARRAYSHORT 14
-#define SCALARUSHORT 15
-#define ARRAYUSHORT 16
-#define SCALARCHAR 17
-#define ARRAYCHAR 18
-#define SCALARSTRING 19
-#define ARRAYSTRING 20
-#define ARRAYVOID 21
-#define SCALARUCHAR 22
-#define ARRAYUCHAR 23
 
 typedef intptr_t VOIDTYPE;
 typedef uintptr_t UVOIDTYPE;
@@ -185,8 +158,8 @@ typedef struct GeneralBlock {                 // Generalised Data Structures: Cl
 #define UDA_PACKAGE_STRUCTDATA 2
 #define UDA_PACKAGE_XDROBJECT 3
 
-#ifdef __cplusplus
-}
-#endif
+int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int count, int size, char** data);
+void printUserDefinedTypeListTable(USERDEFINEDTYPELIST str);
+void initSArray(SARRAY* str);
 
 #endif // UDA_STRUCTURES_GENSTRUCTS_H

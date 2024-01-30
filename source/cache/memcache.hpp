@@ -2,8 +2,8 @@
 #define UDA_CACHE_MEMCACHE_H
 
 #include "clientserver/udaStructs.h"
-#include "genStructs.h"
-#include "export.h"
+#include "structures/genStructs.h"
+#include "include/uda/export.h"
 
 namespace uda {
 namespace cache {

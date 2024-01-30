@@ -1,31 +1,22 @@
 #ifndef UDA_CLIENTSERVER_MANAGESOCKETS_H
 #define UDA_CLIENTSERVER_MANAGESOCKETS_H
 
-#include "export.h"
 #include "socketStructs.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // Initialise
-LIBRARY_API void initSocketList(SOCKETLIST* socks);
+void initSocketList(SOCKETLIST* socks);
 
 // Add a New Socket to the Socket List
-LIBRARY_API int addSocket(SOCKETLIST* socks, int type, int status, char* host, int port, int fh);
+int addSocket(SOCKETLIST* socks, int type, int status, char* host, int port, int fh);
 
 // Search for an Open Socket in the Socket List
-LIBRARY_API int getSocket(SOCKETLIST* socks, int type, int* status, char* host, int port, int* fh);
+int getSocket(SOCKETLIST* socks, int type, int* status, char* host, int port, int* fh);
 
 // Search for an Open Socket in the Socket List
-LIBRARY_API int getSocketRecordId(SOCKETLIST* socks, int fh);
+int getSocketRecordId(SOCKETLIST* socks, int fh);
 
-LIBRARY_API void closeClientSockets(SOCKETLIST* socks);
+void closeClientSockets(SOCKETLIST* socks);
 
-LIBRARY_API void closeClientSocket(SOCKETLIST* socks, int fh);
-
-#ifdef __cplusplus
-}
-#endif
+void closeClientSocket(SOCKETLIST* socks, int fh);
 
 #endif // UDA_CLIENTSERVER_MANAGESOCKETS_H

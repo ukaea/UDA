@@ -1,6 +1,5 @@
-#include "uda_plugin_base.hpp"
+#include "include/uda/uda_plugin_base.hpp"
 #include "clientserver/stringUtils.h"
-#include "udaPlugin.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>

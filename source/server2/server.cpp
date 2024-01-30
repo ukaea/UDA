@@ -15,10 +15,11 @@
 #include "server_exceptions.h"
 #include "server_plugin.h"
 #include "server_processing.h"
-#include "struct.h"
-#include "udaErrors.h"
+#include "clientserver/udaErrors.h"
 #ifdef SSLAUTHENTICATION
 #  include "authentication/udaServerSSL.h"
+#include "uda/structured.h"
+
 #endif
 
 void free_data_blocks(std::vector<DataBlock>& data_blocks)

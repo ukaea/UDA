@@ -1,7 +1,6 @@
 #ifndef UDA_LOGGING_IDAMLOG_H
 #define UDA_LOGGING_IDAMLOG_H
 
-#include "export.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -49,12 +48,12 @@ typedef enum LogLevel {
 
 typedef void (*logFunc)(FILE*);
 
-LIBRARY_API void udaSetLogLevel(LOG_LEVEL level);
-LIBRARY_API LOG_LEVEL udaGetLogLevel();
-LIBRARY_API void udaCloseLogging();
-LIBRARY_API void udaSetLogFile(LOG_LEVEL mode, FILE* file);
-LIBRARY_API void udaLogWithFunc(LOG_LEVEL mode, logFunc func);
-LIBRARY_API void udaLog(LOG_LEVEL mode, const char* fmt, ...);
+void udaSetLogLevel(LOG_LEVEL level);
+LOG_LEVEL udaGetLogLevel();
+void udaCloseLogging();
+void udaSetLogFile(LOG_LEVEL mode, FILE* file);
+void udaLogWithFunc(LOG_LEVEL mode, logFunc func);
+void udaLog(LOG_LEVEL mode, const char* fmt, ...);
 
 #ifdef __cplusplus
 }

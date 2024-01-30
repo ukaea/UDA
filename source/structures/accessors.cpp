@@ -46,13 +46,11 @@
 //
 // printImage
 //
-#include "accessors.h"
+#include <uda/structured.h>
 
-#include <clientserver/stringUtils.h>
-#include <cstdlib>
-#include <logging/logging.h>
-
-#include "struct.h"
+#include "clientserver/stringUtils.h"
+#include <structures/genStructs.h>
+#include "logging/logging.h"
 
 /** Find (search type A) the first Tree Node with a data structure type containing a named element/member.
  *

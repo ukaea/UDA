@@ -9,8 +9,8 @@
 #  include <strings.h>
 #endif
 
-#include <clientserver/stringUtils.h>
-#include <logging/logging.h>
+#include "clientserver/stringUtils.h"
+#include "logging/logging.h"
 
 #define UDA_PLUGIN_FILE_ALLOC 10
 #define MAX_OPEN_PLUGIN_FILE_DESC 50

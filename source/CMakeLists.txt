@@ -72,23 +72,16 @@ configure_file(
 )
 
 set( HEADERS
-  include/accAPI.h
-  include/accessors.h
-  include/client.h
-  include/clientAPI.h
-  include/clientMDS.h
-  include/export.h
-  include/genStructs.h
-  include/legacy.h
-  include/struct.h
-  include/udaDefines.h
-  include/udaErrors.h
-  include/udaGetAPI.h
-  include/udaPlugin.h
-  include/udaPutAPI.h
-  include/udaTypes.h
+  include/uda/client.h
+  include/uda/export.h
+  include/uda/legacy.h
+  include/uda/plugins.h
+  include/uda/structured.h
+  include/uda/types.h
+  include/uda/uda_plugin_base.hpp
+  include/uda/portability.h
 )
-install( FILES uda.h ${CMAKE_BINARY_DIR}/source/version.h DESTINATION include/uda )
+install( FILES include/uda.h ${CMAKE_BINARY_DIR}/source/version.h DESTINATION include/uda )
 install( FILES ${HEADERS} DESTINATION include/uda )
 
 set( ENV_PATH )

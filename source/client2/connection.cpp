@@ -40,12 +40,12 @@
 #  endif
 #endif
 
-#include <clientserver/errorLog.h>
-#include <clientserver/manageSockets.h>
-#include <logging/logging.h>
+#include "clientserver/errorLog.h"
+#include "clientserver/manageSockets.h"
+#include "logging/logging.h"
 
-#include "error_codes.h"
 #include "host_list.hpp"
+#include "uda/client.h"
 
 #if defined(SSLAUTHENTICATION)
 #  include <authentication/udaClientSSL.h>

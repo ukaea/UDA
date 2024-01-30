@@ -3,7 +3,7 @@
 #ifndef UDA_CLIENT_GENERATEERRORS_H
 #define UDA_CLIENT_GENERATEERRORS_H
 
-#include "export.h"
+#include "include/uda/export.h"
 
 namespace uda {
 namespace client {

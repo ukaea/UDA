@@ -10,11 +10,11 @@
 
 #include "initStructs.h"
 #include "udaErrors.h"
-#include <clientserver/errorLog.h>
-#include <clientserver/makeRequestBlock.h>
-#include <clientserver/stringUtils.h>
+#include "clientserver/errorLog.h"
+#include "clientserver/makeRequestBlock.h"
+#include "clientserver/stringUtils.h"
 #include <fmt/format.h>
-#include <logging/logging.h>
+#include "logging/logging.h"
 
 static void embedded_value_substitution(NAMEVALUELIST* nameValueList);
 

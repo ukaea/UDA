@@ -2,12 +2,12 @@
 
 #include <cerrno>
 #include <cstdlib>
-#include <logging/logging.h>
+#include "logging/logging.h"
 
 #include "errorLog.h"
 
 #ifdef SERVERBUILD
-#  include <server/serverStartup.h>
+#  include "server/serverStartup.h"
 #endif
 
 #define MAXDOLOOPLIMIT 500 // ~50MB file

@@ -3,7 +3,6 @@
 #ifndef UDA_CLIENT_UPDATESELECTPARMS_H
 #  define UDA_CLIENT_UPDATESELECTPARMS_H
 
-#  include "export.h"
 #  include <ctime>
 
 #  ifndef _WIN32

@@ -1,24 +1,8 @@
-#ifndef UDA_PLUGINS_UDAPLUGIN_H
-#define UDA_PLUGINS_UDAPLUGIN_H
+#ifndef UDA_PLUGINS_H
+#define UDA_PLUGINS_H
 
-#include <stdbool.h>
-
-#include "export.h"
-#include "plugins/pluginStructs.h"
-#include "udaTypes.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef struct UdaErrorStack UDA_ERROR_STACK;
-typedef struct UdaPluginInterface UDA_PLUGIN_INTERFACE;
-typedef struct CompoundField COMPOUNDFIELD;
-typedef struct UserDefinedType USERDEFINEDTYPE;
-
-#define MAXFUNCTIONNAME 256
-
-// plugin State
+#include <uda/export.h>
+#include <uda/types.h>
 
 #define UDA_PLUGIN_INTERNAL 0
 #define UDA_PLUGIN_EXTERNAL 1 // The plugin resides in an external shared library
@@ -29,6 +13,10 @@ typedef struct UserDefinedType USERDEFINEDTYPE;
 
 #define UDA_PLUGIN_PRIVATE 1 // Only internal users can use the service (access the data!)
 #define UDA_PLUGIN_PUBLIC 0  // All users - internal and external - can use the service
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef void (*ADDIDAMERRORFUNP)(UDA_ERROR_STACK*, int, char*, int, char*); // Write to the Error Log
 
@@ -49,9 +37,9 @@ LIBRARY_API UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request);
 
 LIBRARY_API void udaFreePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface);
 
-LIBRARY_API COMPOUNDFIELD* udaNewCompoundField(const char*, const char*, int*, int);
+LIBRARY_API COMPOUNDFIELD* udaNewCompoundField(const char* name, const char* description, int* offset, int type);
 
-LIBRARY_API USERDEFINEDTYPE* udaNewUserType(const char*, const char*, int, int, char*, size_t, size_t, COMPOUNDFIELD**);
+LIBRARY_API USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id, int image_count, char* image, size_t size, size_t num_fields, COMPOUNDFIELD** fields);
 
 LIBRARY_API int udaAddUserType(UDA_PLUGIN_INTERFACE*, USERDEFINEDTYPE* user_type);
 LIBRARY_API int udaRegisterMalloc(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int, size_t, const char*);
@@ -195,4 +183,4 @@ LIBRARY_API bool findDoubleArray(const UDA_PLUGIN_INTERFACE* plugin_interface, d
 }
 #endif
 
-#endif // UDA_PLUGINS_UDAPLUGIN_H
+#endif // UDA_PLUGINS_H

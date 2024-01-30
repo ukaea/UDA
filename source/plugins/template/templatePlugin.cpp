@@ -21,8 +21,8 @@
 #include "templatePlugin.h"
 
 #include "clientserver/initStructs.h"
-#include <clientserver/stringUtils.h>
-#include "include/uda_plugin_base.hpp"
+#include "clientserver/stringUtils.h"
+#include "include/uda/uda_plugin_base.hpp"
 
 #include <boost/filesystem.hpp>
 

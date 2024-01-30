@@ -3,7 +3,6 @@
 #ifndef UDA_CLIENTSERVER_XDRLIB_H
 #  define UDA_CLIENTSERVER_XDRLIB_H
 
-#  include "export.h"
 #  include "udaStructs.h"
 
 #  include <rpc/types.h>

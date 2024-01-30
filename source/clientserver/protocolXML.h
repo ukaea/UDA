@@ -7,8 +7,7 @@
 #  include <rpc/rpc.h>
 #  include <tuple>
 
-#  include "export.h"
-#  include "genStructs.h"
+#  include "structures/genStructs.h"
 
 #  ifdef FATCLIENT
 #    define protocolXML protocolXMLFat
