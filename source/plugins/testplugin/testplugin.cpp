@@ -4,21 +4,17 @@
 #include <cstdlib>
 #include <vector>
 
-#include "clientserver/initStructs.h"
-#include "clientserver/makeRequestBlock.h"
-#include "clientserver/printStructs.h"
-#include "clientserver/stringUtils.h"
-#include "include/uda/uda_plugin_base.hpp"
-#include <serialisation/capnp_serialisation.h>
-
 #include <boost/filesystem.hpp>
 #include <fmt/format.h>
+#include <uda/plugins.h>
+#include <uda/uda_plugin_base.hpp>
+#include <uda/client.h>
+
+#include <serialisation/capnp_serialisation.h>
 
 #include "teststructs.h"
 
-#ifdef PUTDATAENABLED
-#  include <structures/accessors.h>
-#endif // PUTDATAENABLED
+#define MAXELEMENTNAME 1024
 
 #ifdef TESTUDT
 #  include "udtc.h"
@@ -180,68 +176,38 @@ extern int testPlugin(UDA_PLUGIN_INTERFACE* plugin_interface)
     return plugin.call(plugin_interface);
 }
 
-void testError1()
+void testError1(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     // Test of Error Management within Plugins
     int err = 9991;
-    addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Test #1 of Error State Management");
+    udaAddPluginError(plugin_interface, "testplugin", err, "Test #1 of Error State Management");
 }
 
-void testError2()
+void testError2(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     // Test of Error Management within Plugins
     int err = 9992;
-    addIdamError(UDA_CODE_ERROR_TYPE, "testplugin", err, "Test #2 of Error State Management");
+    udaAddPluginError(plugin_interface, "testplugin", err, "Test #2 of Error State Management");
 }
 
 int TestPlugin::test0(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    REQUEST_DATA* request = plugin_interface->request_data;
-
     const char* help = "Hello World!";
 
-    initDataBlock(data_block);
-
-    data_block->rank = 1;
-    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-
-    for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
-    }
-
-    if (STR_IEQUALS(request->function, "test0")) {
-        data_block->data_type = UDA_TYPE_CHAR;
-        strcpy(data_block->data_desc, "testplugins: test0 = single string as a char array");
+    if (get_function(plugin_interface) == "test0") {
+        int shape[] = {(int)strlen(help)};
+        setReturnDataCharArray(plugin_interface, help, 1, shape, "testplugins: test0 = single string as a char array");
     } else {
-        data_block->data_type = UDA_TYPE_STRING;
-        strcpy(data_block->data_desc, "testplugins: test1 = single string");
+        setReturnDataString(plugin_interface, help, "testplugins: test1 = single string");
     }
-
-    data_block->data = strdup(help);
-
-    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
-    data_block->dims[0].dim_n = (int)strlen(help) + 1;
-    data_block->dims[0].compressed = 1;
-    data_block->dims[0].dim0 = 0.0;
-    data_block->dims[0].diff = 1.0;
-    data_block->dims[0].method = 0;
-
-    data_block->data_n = data_block->dims[0].dim_n;
-
-    strcpy(data_block->data_label, "");
-    strcpy(data_block->data_units, "");
 
     return 0;
 }
 
 int TestPlugin::test2(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    REQUEST_DATA* request = plugin_interface->request_data;
-
     // An array of strings can be formed in two distinct ways.
-    // 1> A fixed block of contiguous memory with each string beginning at a well defined regular location - as if each
+    // 1> A fixed block of contiguous memory with each string beginning at a well-defined regular location - as if each
     //    string were the same length.
     // 2> An array of string pointers: each string has its own length. Memory is not contiguous. This is the normal
     //    representation of string arrays.
@@ -252,211 +218,83 @@ int TestPlugin::test2(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // create original data using model 2
 
-    int sCount = 3;
-    char** sarr = (char**)malloc(sCount * sizeof(char*));
+    std::vector<std::string> strings = {
+            "Hello World!",
+            "Qwerty keyboard",
+            "MAST Upgrade",
+    };
 
-    {
-        for (int i = 0; i < sCount; i++) {
-            sarr[i] = (char*)malloc(30 * sizeof(char));
-        }
-    }
-
-    strcpy(sarr[0], "Hello World!");
-    strcpy(sarr[1], "Qwerty keyboard");
-    strcpy(sarr[2], "MAST Upgrade");
-
-    // Maximum size of any individual string
-
-    int sMax = 0;
-    {
-        for (int i = 0; i < sCount; i++) {
-            int sLen;
-            if ((sLen = (int)strlen(sarr[i]) + 1) > sMax) {
-                sMax = sLen;
-            }
-        }
+    int max_len = 0;
+    for (const auto& string : strings) {
+        max_len = std::max(max_len, (int)string.size());
     }
 
     // Create a block of contigous memory and assign all bytes to nullptr character
-
-    char* p = (char*)malloc(sMax * sCount * sizeof(char));
-    memset(p, '\0', sMax * sCount);
-
-    // Copy string data into the block positioned at regular intervals
-
-    {
-        for (int i = 0; i < sCount; i++) {
-            strcpy(&p[i * sMax], sarr[i]);
-        }
+    auto data = std::make_unique<char[]>(strings.size() * max_len);
+    for (size_t i = 0; i < strings.size(); i++) {
+        strcpy(&data[i * max_len], strings[i].data());
     }
 
-    // Free original data
-
-    {
-        for (int i = 0; i < sCount; i++) {
-            free(sarr[i]);
-        }
-    }
-    free(sarr);
-
-    initDataBlock(data_block);
-
-    data_block->rank = 2;
-    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-    for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
-    }
-
-    if (STR_IEQUALS(request->function, "test2")) {
-        data_block->data_type = UDA_TYPE_CHAR;
-        strcpy(data_block->data_desc, "testplugins: test2 = 2D array of chars");
+    if (get_function(plugin_interface) == "test2") {
+        int shape[] = {max_len, (int)strings.size()};
+        setReturnDataCharArray(plugin_interface, data.get(), 2, shape, "testplugins: test2 = 2D array of chars");
     } else {
-        data_block->data_type = UDA_TYPE_STRING;
-        strcpy(data_block->data_desc, "testplugins: test3 = array of strings");
+//        int shape[] = {max_len, (int)strings.size()};
+        // TODO: yuck!
+//        setReturnDataStringArray(plugin_interface, data.get(), 2, shape, "testplugins: test3 = array of strings");
     }
-
-    data_block->data = p;
-
-    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
-    data_block->dims[0].dim_n = sMax;
-    data_block->dims[0].compressed = 1;
-    data_block->dims[0].dim0 = 0.0;
-    data_block->dims[0].diff = 1.0;
-    data_block->dims[0].method = 0;
-
-    data_block->dims[1].data_type = UDA_TYPE_UNSIGNED_INT;
-    data_block->dims[1].dim_n = sCount;
-    data_block->dims[1].compressed = 1;
-    data_block->dims[1].dim0 = 0.0;
-    data_block->dims[1].diff = 1.0;
-    data_block->dims[1].method = 0;
-
-    data_block->data_n = data_block->dims[0].dim_n * data_block->dims[1].dim_n;
-
-    strcpy(data_block->data_label, "");
-    strcpy(data_block->data_units, "");
 
     return 0;
 }
 
 int TestPlugin::test4(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test4 {
         char value[56];
     } TEST4;
 
     TEST4* data;
 
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST4");
-    strcpy(usertype.source, "Test #4");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST4); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    COMPOUNDFIELD* fields[1] = {nullptr};
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING"); // convert atomic type to a string label
-    strcpy(field.desc, "string structure element: value[56]");
+    int shape[1] = {56};
+    fields[0] = udaNewCompoundArrayField("value", "string structure element", &offset, ARRAYSTRING, 1, shape);
 
-    field.pointer = 0;
-    field.count = 56;
-    field.rank = 1;
-
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = field.count;
-
-    field.size = field.count * sizeof(char);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test4_type = udaNewUserType("TEST4", "Test #4", 0, 0, nullptr, sizeof(TEST4), 1, fields);
+    udaAddUserType(plugin_interface, test4_type);
 
     // Create Data
 
     data = (TEST4*)malloc(sizeof(TEST4)); // Structured Data Must be a heap variable
     strcpy(data->value, "012345678901234567890");
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST4), "TEST4");
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST4), "TEST4");
 
     // Pass Data
-
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #4");
-    strcpy(data_block->data_label, "Values: 012345678901234567890");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST4", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST4", " Structure Data Test #4");
+    setReturnDataLabel(plugin_interface, "Values: 012345678901234567890");
 
     return 0;
 }
 
 int TestPlugin::test5(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test5 {
         char value[3][56];
     } TEST5;
 
-    TEST5* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST5");
-    strcpy(usertype.source, "Test #5");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST5); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* fields[1] = {nullptr};
 
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    int shape[2] = {56, 3};
+    fields[0] = udaNewCompoundArrayField("value", "string structure element", &offset, ARRAYSTRING, 2, shape);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING"); // convert atomic type to a string label
-    strcpy(field.desc, "string structure element: value[3][56]");
+    USERDEFINEDTYPE* test5_type = udaNewUserType("TEST5", "Test #5", 0, 0, nullptr, sizeof(TEST5), 1, fields);
+    udaAddUserType(plugin_interface, test5_type);
 
-    field.pointer = 0;
-    field.count = 3 * 56;
-    field.rank = 2;
-
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = 56;
-    field.shape[1] = 3;
-
-    field.size = field.count * sizeof(char);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    TEST5* data;
 
     // Create Data
 
@@ -464,157 +302,74 @@ int TestPlugin::test5(UDA_PLUGIN_INTERFACE* plugin_interface)
     strcpy(data->value[0], "012345678901234567890");
     strcpy(data->value[1], "QWERTY KEYBOARD");
     strcpy(data->value[2], "MAST TOKAMAK");
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST5), "TEST5");
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST5), "TEST5");
 
     // Pass Data
-
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #5");
-    strcpy(data_block->data_label, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST5", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST5", "Structure Data Test #5");
+    setReturnDataLabel(plugin_interface, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
 
     return 0;
 }
 
 int TestPlugin::test6(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test6 {
         char* value;
     } TEST6;
 
-    TEST6* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST6");
-    strcpy(usertype.source, "Test #6");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST6); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* fields[1] = {nullptr};
 
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    fields[0] = udaNewCompoundField("value", "string structure element", &offset, SCALARSTRING);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING"); // convert atomic type to a string label
-    strcpy(field.desc, "string structure element: *value");
-
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-
-    field.shape = nullptr;
-
-    field.size = field.count * sizeof(char*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test6_type = udaNewUserType("TEST6", "Test #6", 0, 0, nullptr, sizeof(TEST6), 1, fields);
+    udaAddUserType(plugin_interface, test6_type);
 
     // Create Data
 
-    data = (TEST6*)malloc(sizeof(TEST6)); // Structured Data Must be a heap variable
+    TEST6* data = (TEST6*)malloc(sizeof(TEST6)); // Structured Data Must be a heap variable
     data->value = (char*)malloc(56 * sizeof(char));
     strcpy(data->value, "PI=3.1415927");
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST6), "TEST6");
-    addMalloc(plugin_interface->logmalloclist, (void*)data->value, 1, 56 * sizeof(char), "char");
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST6), "TEST6");
+    udaRegisterMalloc(plugin_interface, (void*)data->value, 1, 56 * sizeof(char), "char");
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #6");
-    strcpy(data_block->data_label, "Value: PI=3.1415927");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST6", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST6", "Structure Data Test #6");
+    setReturnDataLabel(plugin_interface, "Value: PI=3.1415927");
 
     return 0;
 }
 
 int TestPlugin::test7(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test7 {
         char* value[3]; // 3 strings of arbitrary length
     } TEST7;
 
-    TEST7* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST7");
-    strcpy(usertype.source, "Test #7");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST7); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* fields[1] = {nullptr};
 
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    int shape[1] = {3};
+    fields[0] = udaNewCompoundArrayField("value", "string structure element", &offset, ARRAYSTRING, 1, shape);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING *"); // Array of String pointers
-    strcpy(field.desc, "string structure element: *value[3]");
-
-    field.pointer = 0;
-    field.count = 3;
-    field.rank = 1;
-
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = 3;
-
-    field.size = field.count * sizeof(char*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test7_type = udaNewUserType("TEST7", "Test #7", 0, 0, nullptr, sizeof(TEST7), 1, fields);
+    udaAddUserType(plugin_interface, test7_type);
 
     // Create Data
 
-    data = (TEST7*)malloc(sizeof(TEST7)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST7), "TEST7");
+    TEST7* data = (TEST7*)malloc(sizeof(TEST7)); // Structured Data Must be a heap variable
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST7), "TEST7");
 
     data->value[0] = (char*)malloc(56 * sizeof(char));
     data->value[1] = (char*)malloc(55 * sizeof(char));
     data->value[2] = (char*)malloc(54 * sizeof(char));
 
-    addMalloc(plugin_interface->logmalloclist, (void*)data->value[0], 56, sizeof(char), "char");
-    addMalloc(plugin_interface->logmalloclist, (void*)data->value[1], 55, sizeof(char), "char");
-    addMalloc(plugin_interface->logmalloclist, (void*)data->value[2], 54, sizeof(char), "char");
+    udaRegisterMalloc(plugin_interface, (void*)data->value[0], 56, sizeof(char), "char");
+    udaRegisterMalloc(plugin_interface, (void*)data->value[1], 55, sizeof(char), "char");
+    udaRegisterMalloc(plugin_interface, (void*)data->value[2], 54, sizeof(char), "char");
 
     strcpy(data->value[0], "012345678901234567890");
     strcpy(data->value[1], "QWERTY KEYBOARD");
@@ -622,83 +377,42 @@ int TestPlugin::test7(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #7");
-    strcpy(data_block->data_label, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST7", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST7", "Structure Data Test #7");
+    setReturnDataLabel(plugin_interface, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
 
     return 0;
 }
 
 int TestPlugin::test8(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test8 {
         char** value; // arbitrary number of strings of arbitrary length
     } TEST8;
 
-    TEST8* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST8");
-    strcpy(usertype.source, "Test #8");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST8); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* fields[1] = {nullptr};
 
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    fields[0] = udaNewCompoundField("value", "string structure element", &offset, ARRAYSTRING);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING *"); // Array of String pointers
-    strcpy(field.desc, "string structure element: **value");
-
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-
-    field.shape = nullptr;
-
-    field.size = field.count * sizeof(char**);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test8_type = udaNewUserType("TEST8", "Test #8", 0, 0, nullptr, sizeof(TEST8), 1, fields);
+    udaAddUserType(plugin_interface, test8_type);
 
     // Create Data
 
-    data = (TEST8*)malloc(sizeof(TEST8)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST8), "TEST8");
+    TEST8* data = (TEST8*)malloc(sizeof(TEST8)); // Structured Data Must be a heap variable
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST8), "TEST8");
 
     data->value = (char**)malloc(3 * sizeof(char*));
-    addMalloc(plugin_interface->logmalloclist, (void*)data->value, 3, sizeof(char*), "STRING *");
+    udaRegisterMalloc(plugin_interface, (void*)data->value, 3, sizeof(char*), "STRING *");
 
     data->value[0] = (char*)malloc(56 * sizeof(char));
     data->value[1] = (char*)malloc(55 * sizeof(char));
     data->value[2] = (char*)malloc(54 * sizeof(char));
 
-    addMalloc(plugin_interface->logmalloclist, (void*)data->value[0], 56, sizeof(char), "char");
-    addMalloc(plugin_interface->logmalloclist, (void*)data->value[1], 55, sizeof(char), "char");
-    addMalloc(plugin_interface->logmalloclist, (void*)data->value[2], 54, sizeof(char), "char");
+    udaRegisterMalloc(plugin_interface, (void*)data->value[0], 56, sizeof(char), "char");
+    udaRegisterMalloc(plugin_interface, (void*)data->value[1], 55, sizeof(char), "char");
+    udaRegisterMalloc(plugin_interface, (void*)data->value[2], 54, sizeof(char), "char");
 
     strcpy(data->value[0], "012345678901234567890");
     strcpy(data->value[1], "QWERTY KEYBOARD");
@@ -706,30 +420,18 @@ int TestPlugin::test8(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #8");
-    strcpy(data_block->data_label, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST8", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST5", "Structure Data Test #5");
+    setReturnDataLabel(plugin_interface, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
 
     return 0;
 }
 
 int TestPlugin::test9(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     // Create Data
 
     TEST9* data = (TEST9*)malloc(4 * sizeof(TEST9)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 4, sizeof(TEST9), "TEST9");
+    udaRegisterMalloc(plugin_interface, (void*)data, 4, sizeof(TEST9), "TEST9");
 
     {
         for (int i = 0; i < 4; i++) {
@@ -740,26 +442,26 @@ int TestPlugin::test9(UDA_PLUGIN_INTERFACE* plugin_interface)
 
             data[i].v3 = (char*)malloc(56 * sizeof(char));
             strcpy(data[i].v3, "PI=3.1415927");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v3, 1, 56 * sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v3, 1, 56 * sizeof(char), "char");
 
             data[i].v4[0] = (char*)malloc(56 * sizeof(char));
             data[i].v4[1] = (char*)malloc(55 * sizeof(char));
             data[i].v4[2] = (char*)malloc(54 * sizeof(char));
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v4[0], 56, sizeof(char), "char");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v4[1], 55, sizeof(char), "char");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v4[2], 54, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v4[0], 56, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v4[1], 55, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v4[2], 54, sizeof(char), "char");
             strcpy(data[i].v4[0], "012345678901234567890");
             strcpy(data[i].v4[1], "QWERTY KEYBOARD");
             strcpy(data[i].v4[2], "MAST TOKAMAK");
 
             data[i].v5 = (char**)malloc(3 * sizeof(char*));
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v5, 3, sizeof(char*), "STRING *");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v5, 3, sizeof(char*), "STRING *");
             data[i].v5[0] = (char*)malloc(56 * sizeof(char));
             data[i].v5[1] = (char*)malloc(55 * sizeof(char));
             data[i].v5[2] = (char*)malloc(54 * sizeof(char));
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v5[0], 56, sizeof(char), "char");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v5[1], 55, sizeof(char), "char");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v5[2], 54, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v5[0], 56, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v5[1], 55, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v5[2], 54, sizeof(char), "char");
             strcpy(data[i].v5[0], "012345678901234567890");
             strcpy(data[i].v5[1], "QWERTY KEYBOARD");
             strcpy(data[i].v5[2], "MAST TOKAMAK");
@@ -768,45 +470,18 @@ int TestPlugin::test9(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 1;
-    data_block->data_n = 4;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #9");
-    strcpy(data_block->data_label, "Multiple test results");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST9", 0);
-
-    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-
-    for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
-    }
-
-    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
-    data_block->dims[0].dim_n = data_block->data_n;
-    data_block->dims[0].compressed = 1;
-    data_block->dims[0].dim0 = 0.0;
-    data_block->dims[0].diff = 1.0;
-    data_block->dims[0].method = 0;
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST9", "Structure Data Test #9");
+    setReturnDataLabel(plugin_interface, "Multiple test results");
 
     return 0;
 }
 
 int TestPlugin::test9A(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     // Create Data
 
     TEST9A* data = (TEST9A*)malloc(4 * sizeof(TEST9A)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 4, sizeof(TEST9A), "TEST9A");
+    udaRegisterMalloc(plugin_interface, (void*)data, 4, sizeof(TEST9A), "TEST9A");
 
     {
         for (int i = 0; i < 4; i++) {
@@ -817,26 +492,26 @@ int TestPlugin::test9A(UDA_PLUGIN_INTERFACE* plugin_interface)
 
             data[i].v3 = (char*)malloc(56 * sizeof(char));
             strcpy(data[i].v3, "PI=3.1415927");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v3, 1, 56 * sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v3, 1, 56 * sizeof(char), "char");
 
             data[i].v4[0] = (char*)malloc(56 * sizeof(char));
             data[i].v4[1] = (char*)malloc(55 * sizeof(char));
             data[i].v4[2] = (char*)malloc(54 * sizeof(char));
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v4[0], 56, sizeof(char), "char");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v4[1], 55, sizeof(char), "char");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v4[2], 54, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v4[0], 56, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v4[1], 55, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v4[2], 54, sizeof(char), "char");
             strcpy(data[i].v4[0], "012345678901234567890");
             strcpy(data[i].v4[1], "QWERTY KEYBOARD");
             strcpy(data[i].v4[2], "MAST TOKAMAK");
 
             data[i].v5 = (char**)malloc(3 * sizeof(char*));
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v5, 3, sizeof(char*), "STRING *");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v5, 3, sizeof(char*), "STRING *");
             data[i].v5[0] = (char*)malloc(56 * sizeof(char));
             data[i].v5[1] = (char*)malloc(55 * sizeof(char));
             data[i].v5[2] = (char*)malloc(54 * sizeof(char));
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v5[0], 56, sizeof(char), "char");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v5[1], 55, sizeof(char), "char");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v5[2], 54, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v5[0], 56, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v5[1], 55, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v5[2], 54, sizeof(char), "char");
             strcpy(data[i].v5[0], "012345678901234567890");
             strcpy(data[i].v5[1], "QWERTY KEYBOARD");
             strcpy(data[i].v5[2], "MAST TOKAMAK");
@@ -848,26 +523,26 @@ int TestPlugin::test9A(UDA_PLUGIN_INTERFACE* plugin_interface)
 
             data[i].v6.v3 = (char*)malloc(56 * sizeof(char));
             strcpy(data[i].v6.v3, "PI=3.1415927");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v6.v3, 1, 56 * sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v6.v3, 1, 56 * sizeof(char), "char");
 
             data[i].v6.v4[0] = (char*)malloc(56 * sizeof(char));
             data[i].v6.v4[1] = (char*)malloc(55 * sizeof(char));
             data[i].v6.v4[2] = (char*)malloc(54 * sizeof(char));
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v6.v4[0], 56, sizeof(char), "char");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v6.v4[1], 55, sizeof(char), "char");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v6.v4[2], 54, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v6.v4[0], 56, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v6.v4[1], 55, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v6.v4[2], 54, sizeof(char), "char");
             strcpy(data[i].v6.v4[0], "012345678901234567890");
             strcpy(data[i].v6.v4[1], "QWERTY KEYBOARD");
             strcpy(data[i].v6.v4[2], "MAST TOKAMAK");
 
             data[i].v6.v5 = (char**)malloc(3 * sizeof(char*));
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v6.v5, 3, sizeof(char*), "STRING *");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v6.v5, 3, sizeof(char*), "STRING *");
             data[i].v6.v5[0] = (char*)malloc(56 * sizeof(char));
             data[i].v6.v5[1] = (char*)malloc(55 * sizeof(char));
             data[i].v6.v5[2] = (char*)malloc(54 * sizeof(char));
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v6.v5[0], 56, sizeof(char), "char");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v6.v5[1], 55, sizeof(char), "char");
-            addMalloc(plugin_interface->logmalloclist, (void*)data[i].v6.v5[2], 54, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v6.v5[0], 56, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v6.v5[1], 55, sizeof(char), "char");
+            udaRegisterMalloc(plugin_interface, (void*)data[i].v6.v5[2], 54, sizeof(char), "char");
             strcpy(data[i].v6.v5[0], "012345678901234567890");
             strcpy(data[i].v6.v5[1], "QWERTY KEYBOARD");
             strcpy(data[i].v6.v5[2], "MAST TOKAMAK");
@@ -876,404 +551,176 @@ int TestPlugin::test9A(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 1;
-    data_block->data_n = 4;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #9A");
-    strcpy(data_block->data_label, "Multiple test results");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST9A", 0);
-
-    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-    for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
-    }
-
-    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
-    data_block->dims[0].dim_n = data_block->data_n;
-    data_block->dims[0].compressed = 1;
-    data_block->dims[0].dim0 = 0.0;
-    data_block->dims[0].diff = 1.0;
-    data_block->dims[0].method = 0;
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST9A", "Structure Data Test #9A");
+    setReturnDataLabel(plugin_interface, "Multiple test results");
 
     return 0;
 }
 
 int TestPlugin::test10(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     // Create Data
 
     int* data = (int*)malloc(sizeof(int));
     data[0] = 7;
 
     // Pass Data
-
-    data_block->data_type = UDA_TYPE_INT;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #10");
-    strcpy(data_block->data_label, "Value: 7");
-    strcpy(data_block->data_units, "");
+    setReturnDataIntScalar(plugin_interface, 7, "Structure Data Test #10");
+    setReturnDataLabel(plugin_interface, "Value: 7");
 
     return 0;
 }
 
 int TestPlugin::test11(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test11 {
         int value;
     } TEST11;
 
-    TEST11* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST11");
-    strcpy(usertype.source, "Test #11");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST11); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* fields[1] = {nullptr};
 
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, SCALARINT);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_INT;
-    strcpy(field.type, "int"); // convert atomic type to a string label
-    strcpy(field.desc, "single integer structure element: value");
-
-    field.pointer = 0;
-    field.count = 1;
-    field.rank = 0;
-
-    field.shape = nullptr; // Needed when rank >= 1
-
-    field.size = field.count * sizeof(int);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test11_type = udaNewUserType("TEST11", "Test #11", 0, 0, nullptr, sizeof(TEST11), 1, fields);
+    udaAddUserType(plugin_interface, test11_type);
 
     // Create Data
 
-    data = (TEST11*)malloc(sizeof(TEST11)); // Structured Data Must be a heap variable
+    TEST11* data = (TEST11*)malloc(sizeof(TEST11)); // Structured Data Must be a heap variable
     data[0].value = 11;
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST11), "TEST11");
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST11), "TEST11");
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #11");
-    strcpy(data_block->data_label, "Value: 11");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST11", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST11", "Structure Data Test #11");
+    setReturnDataLabel(plugin_interface, "Value: 11");
 
     return 0;
 }
 
 int TestPlugin::test12(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test12 {
         int value[3];
     } TEST12;
 
-    TEST12* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST12");
-    strcpy(usertype.source, "Test #12");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST12); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* fields[1] = {nullptr};
 
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    int shape[1] = {3};
+    fields[0] = udaNewCompoundArrayField("value", "single integer structure element", &offset, SCALARINT, 1, shape);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_INT;
-    strcpy(field.type, "int"); // convert atomic type to a string label
-    strcpy(field.desc, "single integer structure element: value");
+    USERDEFINEDTYPE* test12_type = udaNewUserType("TEST12", "Test #12", 0, 0, nullptr, sizeof(TEST12), 1, fields);
+    udaAddUserType(plugin_interface, test12_type);
 
-    field.pointer = 0;
-    field.count = 3;
-    field.rank = 1;
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = field.count;
-
-    field.size = field.count * sizeof(int);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
-
-    // Create Data
-
-    data = (TEST12*)malloc(sizeof(TEST12)); // Structured Data Must be a heap variable
+    TEST12* data = (TEST12*)malloc(sizeof(TEST12)); // Structured Data Must be a heap variable
     data[0].value[0] = 10;
     data[0].value[1] = 11;
     data[0].value[2] = 12;
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST12), "TEST12");
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST12), "TEST12");
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #12");
-    strcpy(data_block->data_label, "Values: 10,11,12");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST12", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST12", "Structure Data Test #12");
+    setReturnDataLabel(plugin_interface, "Value: 10,11,12");
 
     return 0;
 }
 
 int TestPlugin::test13(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test13 {
         int value[2][3];
     } TEST13;
 
-    TEST13* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST13");
-    strcpy(usertype.source, "Test #13");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST13); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* fields[1] = {nullptr};
 
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    int shape[2] = {2, 3};
+    fields[0] = udaNewCompoundArrayField("value", "single integer structure element", &offset, ARRAYINT, 2, shape);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_INT;
-    strcpy(field.type, "int"); // convert atomic type to a string label
-    strcpy(field.desc, "single integer structure element: value");
-
-    field.pointer = 0;
-    field.count = 6;
-    field.rank = 2;
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = 2;
-    field.shape[1] = 3; // Reversed ... Fortran/IDL like
-
-    field.size = field.count * sizeof(int);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test13_type = udaNewUserType("TEST13", "Test #13", 0, 0, nullptr, sizeof(TEST13), 1, fields);
+    udaAddUserType(plugin_interface, test13_type);
 
     // Create Data
 
-    data = (TEST13*)malloc(sizeof(TEST13)); // Structured Data Must be a heap variable
+    TEST13* data = (TEST13*)malloc(sizeof(TEST13)); // Structured Data Must be a heap variable
     data[0].value[0][0] = 0;
     data[0].value[0][1] = 1;
     data[0].value[0][2] = 2;
     data[0].value[1][0] = 10;
     data[0].value[1][1] = 11;
     data[0].value[1][2] = 12;
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST13), "TEST13");
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST13), "TEST13");
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #13");
-    strcpy(data_block->data_label, "Values: {0,1,2},{10,11,12}");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST13", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST13", "Structure Data Test #13");
+    setReturnDataLabel(plugin_interface, "Value: {0,1,2},{10,11,12}");
 
     return 0;
 }
 
 int TestPlugin::test14(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test14 {
         int* value;
     } TEST14;
 
-    TEST14* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST14");
-    strcpy(usertype.source, "Test #14");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST14); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* fields[1] = {nullptr};
 
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, ARRAYINT);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_INT;
-    strcpy(field.type, "int"); // convert atomic type to a string label
-    strcpy(field.desc, "single integer structure element: int *value");
-
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-
-    field.shape = nullptr; // Needed when rank >= 1
-
-    field.size = field.count * sizeof(int*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test14_type = udaNewUserType("TEST14", "Test #14", 0, 0, nullptr, sizeof(TEST14), 1, fields);
+    udaAddUserType(plugin_interface, test14_type);
 
     // Create Data
 
-    data = (TEST14*)malloc(sizeof(TEST14)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST14), "TEST14");
+    TEST14* data = (TEST14*)malloc(sizeof(TEST14)); // Structured Data Must be a heap variable
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST14), "TEST14");
 
     data[0].value = (int*)malloc(sizeof(int));
-    addMalloc(plugin_interface->logmalloclist, (void*)data[0].value, 1, sizeof(int), "int");
+    udaRegisterMalloc(plugin_interface, (void*)data[0].value, 1, sizeof(int), "int");
 
     data[0].value[0] = 14;
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #14");
-    strcpy(data_block->data_label, "int *value: 14");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST14", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST14", "Structure Data Test #14");
+    setReturnDataLabel(plugin_interface, "int *value: 14");
 
     return 0;
 }
 
 int TestPlugin::test15(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test15 {
         int* value;
     } TEST15;
 
-    TEST15* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST15");
-    strcpy(usertype.source, "Test #15");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST15); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* fields[1] = {nullptr};
 
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, ARRAYINT);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_INT;
-    strcpy(field.type, "int"); // convert atomic type to a string label
-    strcpy(field.desc, "single integer structure element: value");
-
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-
-    field.size = field.count * sizeof(int*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test15_type = udaNewUserType("TEST15", "Test #15", 0, 0, nullptr, sizeof(TEST15), 1, fields);
+    udaAddUserType(plugin_interface, test15_type);
 
     // Create Data
 
-    data = (TEST15*)malloc(sizeof(TEST15)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST15), "TEST15");
+    TEST15* data = (TEST15*)malloc(sizeof(TEST15)); // Structured Data Must be a heap variable
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST15), "TEST15");
 
     data[0].value = (int*)malloc(3 * sizeof(int));
-    int shape[] = {3};
-    addMalloc2(plugin_interface->logmalloclist, (void*)data[0].value, 3, sizeof(int), "int", 1, shape);
+    int shape[1] = {3};
+    udaRegisterMallocArray(plugin_interface, (void*)data[0].value, 3, sizeof(int), "int", 1, shape);
 
     data[0].value[0] = 13;
     data[0].value[1] = 14;
@@ -1281,71 +728,31 @@ int TestPlugin::test15(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #15");
-    strcpy(data_block->data_label, "Values: 13,14,15");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST15", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST15", "Structure Data Test #15");
+    setReturnDataLabel(plugin_interface, "Values: 13,14,15");
 
     return 0;
 }
 
 int TestPlugin::test16(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test16 {
         int* value;
     } TEST16;
 
-    TEST16* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST16");
-    strcpy(usertype.source, "Test #16");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST16); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* fields[1] = {nullptr};
 
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, ARRAYINT);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_INT;
-    strcpy(field.type, "int"); // convert atomic type to a string label
-    strcpy(field.desc, "single integer structure element: value");
-
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-
-    field.size = field.count * sizeof(int*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test16_type = udaNewUserType("TEST16", "Test #16", 0, 0, nullptr, sizeof(TEST16), 1, fields);
+    udaAddUserType(plugin_interface, test16_type);
 
     // Create Data
 
-    data = (TEST16*)malloc(sizeof(TEST16)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST16), "TEST16");
+    TEST16* data = (TEST16*)malloc(sizeof(TEST16)); // Structured Data Must be a heap variable
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST16), "TEST16");
 
     int* shape = (int*)malloc(2 * sizeof(int));
     shape[0] = 2;
@@ -1353,7 +760,7 @@ int TestPlugin::test16(UDA_PLUGIN_INTERFACE* plugin_interface)
     int count = shape[0] * shape[1];
     int rank = 2;
     data[0].value = (int*)malloc(count * sizeof(int));
-    addMalloc2(plugin_interface->logmalloclist, (void*)data[0].value, count, sizeof(int), "int", rank, shape);
+    udaRegisterMallocArray(plugin_interface, (void*)data[0].value, count, sizeof(int), "int", rank, shape);
 
     data[0].value[0] = 0;
     data[0].value[1] = 1;
@@ -1364,262 +771,98 @@ int TestPlugin::test16(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #16");
-    strcpy(data_block->data_label, "Values: {0,1,2},{10,11,12}");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST16", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST16", "Structure Data Test #16");
+    setReturnDataLabel(plugin_interface, "Values: {0,1,2},{10,11,12}");
 
     return 0;
 }
 
 int TestPlugin::test18(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test18 {
         int value;
     } TEST18;
 
-    TEST18* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST18");
-    strcpy(usertype.source, "Test #18");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST18); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* fields[1] = {nullptr};
 
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, SCALARINT);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_INT;
-    strcpy(field.type, "int"); // convert atomic type to a string label
-    strcpy(field.desc, "single integer structure element: value");
-
-    field.pointer = 0;
-    field.count = 1;
-    field.rank = 0;
-
-    field.shape = nullptr; // Needed when rank >= 1
-
-    field.size = field.count * sizeof(int);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test18_type = udaNewUserType("TEST18", "Test #18", 0, 0, nullptr, sizeof(TEST18), 1, fields);
+    udaAddUserType(plugin_interface, test18_type);
 
     // Create Data
-
-    data_block->data_n = 100000;
-    data = (TEST18*)malloc(data_block->data_n * sizeof(TEST18)); // Structured Data Must be a heap variable
-
-    {
-        for (int i = 0; i < data_block->data_n; i++) {
-            data[i].value = i;
-        }
+    constexpr int data_n = 100000;
+    TEST18* data = (TEST18*)malloc(data_n * sizeof(TEST18)); // Structured Data Must be a heap variable
+    for (int i = 0; i < data_n; i++) {
+        data[i].value = i;
     }
-    addMalloc(plugin_interface->logmalloclist, (void*)data, data_block->data_n, sizeof(TEST18), "TEST18");
+    udaRegisterMalloc(plugin_interface, (void*)data, data_n, sizeof(TEST18), "TEST18");
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Array Integer Data Test #18");
-    strcpy(data_block->data_label, "100000 Values: i 0, 100000");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST18", 0);
-
-    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-    for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
-    }
-
-    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
-    data_block->dims[0].dim_n = data_block->data_n;
-    data_block->dims[0].compressed = 1;
-    data_block->dims[0].dim0 = 0.0;
-    data_block->dims[0].diff = 1.0;
-    data_block->dims[0].method = 0;
+    int data_shape[1] = {data_n};
+    setReturnCompoundArrayData(plugin_interface, (char*)data, "TEST18", "Structure Data Test #18", 1, data_shape);
+    setReturnDataLabel(plugin_interface, "100000 Values: i 0, 100000");
 
     return 0;
 }
 
 int TestPlugin::test19(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test19A {
         int value;
     } TEST19A;
 
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST19A");
-    strcpy(usertype.source, "Test #19");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST19A); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* test19a_fields[1] = {nullptr};
 
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    test19a_fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, SCALARINT);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_INT;
-    strcpy(field.type, "int");
-    strcpy(field.desc, "integer structure element");
-
-    field.pointer = 0;
-    field.count = 1;
-    field.rank = 0;
-
-    field.shape = nullptr; // Needed when rank >= 1
-
-    field.size = field.count * sizeof(int);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test19a_type = udaNewUserType("TEST19A", "Test #19", 0, 0, nullptr, sizeof(TEST19A), 1, test19a_fields);
+    udaAddUserType(plugin_interface, test19a_type);
 
     typedef struct Test19 {
         int value;
         TEST19A vals[7];
     } TEST19;
 
-    TEST19* data;
-
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST19");
-    strcpy(usertype.source, "Test #19");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST19); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* test19_fields[2] = {nullptr};
 
     offset = 0;
 
-    initCompoundField(&field);
+    test19_fields[0] = udaNewCompoundField("value", "single integer structure element", &offset, SCALARINT);
+    int shape[1] = {7};
+    test19_fields[1] = udaNewCompoundUserTypeArrayField("vals", "single integer structure element", &offset, test19a_type, 1, shape);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_INT;
-    strcpy(field.type, "int");
-    strcpy(field.desc, "integer");
-
-    field.pointer = 0;
-    field.count = 1;
-    field.rank = 0;
-
-    field.shape = nullptr; // Needed when rank >= 1
-
-    field.size = field.count * sizeof(int);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size; // Next Offset
-    addCompoundField(&usertype, field); // Single Structure element
-
-    initCompoundField(&field);
-
-    strcpy(field.name, "vals");
-    field.atomictype = UDA_TYPE_UNKNOWN;
-    strcpy(field.type, "TEST19A");
-    strcpy(field.desc, "structure TEST19A");
-
-    field.pointer = 0;
-    field.count = 7;
-    field.rank = 1;
-
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = 7;
-
-    field.size = field.count * sizeof(TEST19A);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test19_type = udaNewUserType("TEST19", "Test #19", 0, 0, nullptr, sizeof(TEST19), 2, test19_fields);
+    udaAddUserType(plugin_interface, test19_type);
 
     // Create Data
 
-    data_block->data_n = 3;
-    data = (TEST19*)malloc(data_block->data_n * sizeof(TEST19)); // Structured Data Must be a heap variable
-
-    {
-        for (int i = 0; i < data_block->data_n; i++) {
-            data[i].value = 3 + i;
-            for (int j = 0; j < 7; j++) {
-                data[i].vals[j].value = 10 * i + j;
-            }
+    constexpr int data_n = 3;
+    TEST19* data = (TEST19*)malloc(data_n * sizeof(TEST19)); // Structured Data Must be a heap variable
+    for (int i = 0; i < data_n; i++) {
+        data[i].value = 3 + i;
+        for (int j = 0; j < 7; j++) {
+            data[i].vals[j].value = 10 * i + j;
         }
     }
-    addMalloc(plugin_interface->logmalloclist, (void*)data, data_block->data_n, sizeof(TEST19), "TEST19");
+    udaRegisterMalloc(plugin_interface, (void*)data, data_n, sizeof(TEST19), "TEST19");
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Test #19");
-    strcpy(data_block->data_label, "Values: ");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST19", 0);
-
-    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
-    for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
-    }
-
-    data_block->dims[0].data_type = UDA_TYPE_UNSIGNED_INT;
-    data_block->dims[0].dim_n = data_block->data_n;
-    data_block->dims[0].compressed = 1;
-    data_block->dims[0].dim0 = 0.0;
-    data_block->dims[0].diff = 1.0;
-    data_block->dims[0].method = 0;
+    int data_shape[1] = {data_n};
+    setReturnCompoundArrayData(plugin_interface, (char*)data, "TEST19", "Structure Data Test #19", 1, data_shape);
+    setReturnDataLabel(plugin_interface, "Values: ");
 
     return 0;
 }
 
 int TestPlugin::test20(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     // Create Data
 
     short* data = (short*)malloc(sizeof(short));
@@ -1627,363 +870,159 @@ int TestPlugin::test20(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_SHORT;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #20");
-    strcpy(data_block->data_label, "Short Value: 7");
-    strcpy(data_block->data_units, "");
+    setReturnDataShortScalar(plugin_interface, 7, "Structure Data Test #20");
+    setReturnDataLabel(plugin_interface, "Short Value: 7");
 
     return 0;
 }
 
 int TestPlugin::test21(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test21 {
         short value;
     } TEST21;
 
-    TEST21* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST21");
-    strcpy(usertype.source, "Test #21");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST21); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* test21_fields[1] = {nullptr};
 
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    test21_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, SCALARSHORT);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_SHORT;
-    strcpy(field.type, "short"); // convert atomic type to a string label
-    strcpy(field.desc, "single short integer structure element: value");
-
-    field.pointer = 0;
-    field.count = 1;
-    field.rank = 0;
-
-    field.shape = nullptr; // Needed when rank >= 1
-
-    field.size = field.count * sizeof(short);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test21_type = udaNewUserType("TEST21", "Test #21", 0, 0, nullptr, sizeof(TEST21), 1, test21_fields);
+    udaAddUserType(plugin_interface, test21_type);
 
     // Create Data
 
-    data = (TEST21*)malloc(sizeof(TEST21)); // Structured Data Must be a heap variable
+    TEST21* data = (TEST21*)malloc(sizeof(TEST21)); // Structured Data Must be a heap variable
     data[0].value = 21;
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST21), "TEST21");
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST21), "TEST21");
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #21");
-    strcpy(data_block->data_label, "Short Value: 21");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST21", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST21", "Structure Data Test #21");
+    setReturnDataLabel(plugin_interface, "Short Value: 21");
 
     return 0;
 }
 
 int TestPlugin::test22(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test22 {
         short value[3];
     } TEST22;
 
-    TEST22* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST22");
-    strcpy(usertype.source, "Test #22");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST22); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* test22_fields[1] = {nullptr};
 
     int offset = 0;
+    int shape[1] = {3};
+    test22_fields[0] = udaNewCompoundArrayField("value", "single short structure element", &offset, ARRAYSHORT, 1, shape);
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
-
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_SHORT;
-    strcpy(field.type, "short"); // convert atomic type to a string label
-    strcpy(field.desc, "single short integer structure element: value");
-
-    field.pointer = 0;
-    field.count = 3;
-    field.rank = 1;
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = field.count;
-
-    field.size = field.count * sizeof(short);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test22_type = udaNewUserType("TEST22", "Test #22", 0, 0, nullptr, sizeof(TEST22), 1, test22_fields);
+    udaAddUserType(plugin_interface, test22_type);
 
     // Create Data
 
-    data = (TEST22*)malloc(sizeof(TEST22)); // Structured Data Must be a heap variable
+    TEST22* data = (TEST22*)malloc(sizeof(TEST22)); // Structured Data Must be a heap variable
     data[0].value[0] = 20;
     data[0].value[1] = 21;
     data[0].value[2] = 22;
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST22), "TEST22");
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST22), "TEST22");
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #22");
-    strcpy(data_block->data_label, "Short Array Values: 20,21,22");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST22", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST22", "Structure Data Test #22");
+    setReturnDataLabel(plugin_interface, "Short Array Values: 20,21,22");
 
     return 0;
 }
 
 int TestPlugin::test23(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test23 {
         short value[2][3];
     } TEST23;
 
-    TEST23* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST23");
-    strcpy(usertype.source, "Test #23");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST23); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
+    COMPOUNDFIELD* test23_fields[1] = {nullptr};
 
     int offset = 0;
+    int shape[2] = {3, 2};
+    test23_fields[0] = udaNewCompoundArrayField("value", "single short structure element", &offset, ARRAYSHORT, 1, shape);
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
-
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_SHORT;
-    strcpy(field.type, "short"); // convert atomic type to a string label
-    strcpy(field.desc, "short integer array: value");
-
-    field.pointer = 0;
-    field.count = 6;
-    field.rank = 2;
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = 3;
-    field.shape[1] = 2;
-
-    field.size = field.count * sizeof(short);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test23_type = udaNewUserType("TEST23", "Test #23", 0, 0, nullptr, sizeof(TEST23), 1, test23_fields);
+    udaAddUserType(plugin_interface, test23_type);
 
     // Create Data
 
-    data = (TEST23*)malloc(sizeof(TEST23)); // Structured Data Must be a heap variable
+    TEST23* data = (TEST23*)malloc(sizeof(TEST23)); // Structured Data Must be a heap variable
     data[0].value[0][0] = 0;
     data[0].value[0][1] = 1;
     data[0].value[0][2] = 2;
     data[0].value[1][0] = 10;
     data[0].value[1][1] = 11;
     data[0].value[1][2] = 12;
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST23), "TEST23");
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST23), "TEST23");
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #23");
-    strcpy(data_block->data_label, "Values: {0,1,2},{10,11,12}");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST23", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST23", "Structure Data Test #23");
+    setReturnDataLabel(plugin_interface, "Values: {0,1,2},{10,11,12}");
 
     return 0;
 }
 
 int TestPlugin::test24(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test24 {
         short* value;
     } TEST24;
 
-    TEST24* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST24");
-    strcpy(usertype.source, "Test #24");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST24); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
+    COMPOUNDFIELD* test24_fields[1] = {nullptr};
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    test24_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, ARRAYSHORT);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_SHORT;
-    strcpy(field.type, "short"); // convert atomic type to a string label
-    strcpy(field.desc, "short *value");
-
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-
-    field.shape = nullptr; // Needed when rank >= 1
-
-    field.size = field.count * sizeof(short*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test24_type = udaNewUserType("TEST24", "Test #24", 0, 0, nullptr, sizeof(TEST24), 1, test24_fields);
+    udaAddUserType(plugin_interface, test24_type);
 
     // Create Data
 
-    data = (TEST24*)malloc(sizeof(TEST24)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST24), "TEST24");
+    TEST24* data = (TEST24*)malloc(sizeof(TEST24)); // Structured Data Must be a heap variable
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST24), "TEST24");
 
     data[0].value = (short*)malloc(sizeof(short));
-    addMalloc(plugin_interface->logmalloclist, (void*)data[0].value, 1, sizeof(short), "short");
+    udaRegisterMalloc(plugin_interface, (void*)data[0].value, 1, sizeof(short), "short");
 
     data[0].value[0] = 24;
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #24");
-    strcpy(data_block->data_label, "short *value: 14");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST24", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST24", "Structure Data Test #24");
+    setReturnDataLabel(plugin_interface, "short *value: 14");
 
     return 0;
 }
 
 int TestPlugin::test25(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test25 {
         short* value;
     } TEST25;
 
-    TEST25* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST25");
-    strcpy(usertype.source, "Test #25");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST25); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
+    COMPOUNDFIELD* test25_fields[1] = {nullptr};
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    test25_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, ARRAYSHORT);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_SHORT;
-    strcpy(field.type, "short"); // convert atomic type to a string label
-    strcpy(field.desc, "short *value");
-
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-
-    field.size = field.count * sizeof(short*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
-
+    USERDEFINEDTYPE* test25_type = udaNewUserType("TEST25", "Test #25", 0, 0, nullptr, sizeof(TEST25), 1, test25_fields);
+    udaAddUserType(plugin_interface, test25_type);
     // Create Data
 
-    data = (TEST25*)malloc(sizeof(TEST25)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST25), "TEST25");
+    TEST25* data = (TEST25*)malloc(sizeof(TEST25)); // Structured Data Must be a heap variable
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST25), "TEST25");
 
     data[0].value = (short*)malloc(3 * sizeof(short));
     int shape[] = {3};
-    addMalloc2(plugin_interface->logmalloclist, (void*)data[0].value, 3, sizeof(short), "short", 1, shape);
+    udaRegisterMallocArray(plugin_interface, (void*)data[0].value, 3, sizeof(short), "short", 1, shape);
 
     data[0].value[0] = 13;
     data[0].value[1] = 14;
@@ -1991,71 +1030,30 @@ int TestPlugin::test25(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #25");
-    strcpy(data_block->data_label, "Short Values: 13,14,15");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST25", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST25", "Structure Data Test #25");
+    setReturnDataLabel(plugin_interface, "Short Values: 13,14,15");
 
     return 0;
 }
 
 int TestPlugin::test26(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test26 {
         short* value;
     } TEST26;
 
-    TEST26* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST26");
-    strcpy(usertype.source, "Test #26");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST26); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
+    COMPOUNDFIELD* test26_fields[1] = {nullptr};
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    test26_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, ARRAYSHORT);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_SHORT;
-    strcpy(field.type, "short"); // convert atomic type to a string label
-    strcpy(field.desc, "short *value");
-
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-
-    field.size = field.count * sizeof(short*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test26_type = udaNewUserType("TEST26", "Test #26", 0, 0, nullptr, sizeof(TEST26), 1, test26_fields);
+    udaAddUserType(plugin_interface, test26_type);
 
     // Create Data Structure
 
-    data = (TEST26*)malloc(sizeof(TEST26)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST26), "TEST26");
+    TEST26* data = (TEST26*)malloc(sizeof(TEST26)); // Structured Data Must be a heap variable
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST26), "TEST26");
 
     // Data is a compact Fortran like rank 2 array
 
@@ -2063,7 +1061,7 @@ int TestPlugin::test26(UDA_PLUGIN_INTERFACE* plugin_interface)
     int* shape = (int*)malloc(2 * sizeof(int));
     shape[0] = 3;
     shape[1] = 2;
-    addMalloc2(plugin_interface->logmalloclist, (void*)data[0].value, 6, sizeof(short), "short", 2, shape);
+    udaRegisterMallocArray(plugin_interface, (void*)data[0].value, 6, sizeof(short), "short", 2, shape);
 
     data[0].value[0] = 13;
     data[0].value[1] = 14;
@@ -2075,73 +1073,30 @@ int TestPlugin::test26(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #26");
-    strcpy(data_block->data_label, "Short Values: 13,14,15   23,24,25");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST26", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST26", "Structure Data Test #26");
+    setReturnDataLabel(plugin_interface, "Short Values: 13,14,15   23,24,25");
 
     return 0;
 }
 
 int TestPlugin::test27(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test27 {
         short value[2][3][4];
     } TEST27;
 
-    TEST27* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST27");
-    strcpy(usertype.source, "Test #27");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST27); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
+    COMPOUNDFIELD* test27_fields[1] = {nullptr};
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    int shape[3] = {4, 3, 2};
+    test27_fields[0] = udaNewCompoundArrayField("value", "single short structure element", &offset, ARRAYSHORT, 3, shape);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_SHORT;
-    strcpy(field.type, "short"); // convert atomic type to a string label
-    strcpy(field.desc, "short integer array: value");
-
-    field.pointer = 0;
-    field.count = 24;
-    field.rank = 3;
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = 4;
-    field.shape[1] = 3;
-    field.shape[2] = 2;
-
-    field.size = field.count * sizeof(short);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test27_type = udaNewUserType("TEST27", "Test #27", 0, 0, nullptr, sizeof(TEST27), 1, test27_fields);
+    udaAddUserType(plugin_interface, test27_type);
 
     // Create Data
 
-    data = (TEST27*)malloc(sizeof(TEST27)); // Structured Data Must be a heap variable
+    TEST27* data = (TEST27*)malloc(sizeof(TEST27)); // Structured Data Must be a heap variable
 
     data[0].value[0][0][0] = 0;
     data[0].value[0][0][1] = 1;
@@ -2169,75 +1124,34 @@ int TestPlugin::test27(UDA_PLUGIN_INTERFACE* plugin_interface)
     data[0].value[1][2][2] = 122;
     data[0].value[1][2][3] = 123;
 
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST27), "TEST27");
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST27), "TEST27");
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #27");
-    strcpy(data_block->data_label, "Values: {0,1,2,3},{10,11,12,13},...");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST27", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST27", "Structure Data Test #27");
+    setReturnDataLabel(plugin_interface, "Values: {0,1,2,3},{10,11,12,13},...");
 
     return 0;
 }
 
 int TestPlugin::test28(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test28 {
         short* value;
     } TEST28;
 
-    TEST28* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST28");
-    strcpy(usertype.source, "Test #28");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST28); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
+    COMPOUNDFIELD* test28_fields[1] = {nullptr};
     int offset = 0;
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
+    test28_fields[0] = udaNewCompoundField("value", "single short structure element", &offset, ARRAYSHORT);
 
-    strcpy(field.name, "value");
-    field.atomictype = UDA_TYPE_SHORT;
-    strcpy(field.type, "short"); // convert atomic type to a string label
-    strcpy(field.desc, "short *value");
-
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-
-    field.size = field.count * sizeof(short*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test28_type = udaNewUserType("TEST28", "Test #28", 0, 0, nullptr, sizeof(TEST28), 1, test28_fields);
+    udaAddUserType(plugin_interface, test28_type);
 
     // Create Data Structure
 
-    data = (TEST28*)malloc(sizeof(TEST28)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST28), "TEST28");
+    TEST28* data = (TEST28*)malloc(sizeof(TEST28)); // Structured Data Must be a heap variable
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST28), "TEST28");
 
     // Data is a compact Fortran like rank 3 array
 
@@ -2246,7 +1160,7 @@ int TestPlugin::test28(UDA_PLUGIN_INTERFACE* plugin_interface)
     shape[0] = 4;
     shape[1] = 3;
     shape[2] = 2;
-    addMalloc2(plugin_interface->logmalloclist, (void*)data[0].value, 24, sizeof(short), "short", 3, shape);
+    udaRegisterMallocArray(plugin_interface, (void*)data[0].value, 24, sizeof(short), "short", 3, shape);
 
     int index = 0;
     data[0].value[index++] = 0;
@@ -2276,129 +1190,63 @@ int TestPlugin::test28(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #28");
-    strcpy(data_block->data_label, "Short Values: 13,14,15   23,24,25");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST28", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST28", "Structure Data Test #28");
+    setReturnDataLabel(plugin_interface, "Short Values: 13,14,15   23,24,25");
 
     return 0;
 }
 
 int TestPlugin::test30(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test30 {
         double R;
         double Z;
     } TEST30;
 
-    TEST30* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST30");
-    strcpy(usertype.source, "Test #30");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST30); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
+    COMPOUNDFIELD* test30_fields[2] = {nullptr};
     int offset = 0;
 
-    COMPOUNDFIELD field;
+    test30_fields[0] = udaNewCompoundField("R", "double structure element", &offset, SCALARDOUBLE);
+    test30_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, SCALARDOUBLE);
 
-    initCompoundField(&field);
-    defineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
-
-    addCompoundField(&usertype, field);
-
-    initCompoundField(&field);
-    defineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
-
-    addCompoundField(&usertype, field);
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test30_type = udaNewUserType("TEST30", "Test #30", 0, 0, nullptr, sizeof(TEST30), 2, test30_fields);
+    udaAddUserType(plugin_interface, test30_type);
 
     // Create Data
 
-    data = (TEST30*)malloc(sizeof(TEST30)); // Structured Data Must be a heap variable
+    TEST30* data = (TEST30*)malloc(sizeof(TEST30)); // Structured Data Must be a heap variable
     data[0].R = 1.0;
     data[0].Z = 2.0;
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST30), "TEST30");
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST30), "TEST30");
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #30");
-    strcpy(data_block->data_label, "Double Values: (1, 2)");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST30", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST30", "Structure Data Test #30");
+    setReturnDataLabel(plugin_interface, "Double Values: (1, 2)");
 
     return 0;
 }
 
 int TestPlugin::test31(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
-    typedef struct Test30 {
+    typedef struct Test31 {
         double R;
         double Z;
-    } TEST30;
+    } TEST31;
 
-    TEST30* data;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST30");
-    strcpy(usertype.source, "Test #31");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST30); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
+    COMPOUNDFIELD* test31_fields[2] = {nullptr};
     int offset = 0;
 
-    COMPOUNDFIELD field;
+    test31_fields[0] = udaNewCompoundField("R", "double structure element", &offset, SCALARDOUBLE);
+    test31_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, SCALARDOUBLE);
 
-    initCompoundField(&field);
-    defineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
-
-    addCompoundField(&usertype, field);
-
-    initCompoundField(&field);
-    defineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
-
-    addCompoundField(&usertype, field);
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test31_type = udaNewUserType("TEST31", "Test #31", 0, 0, nullptr, sizeof(TEST31), 2, test31_fields);
+    udaAddUserType(plugin_interface, test31_type);
 
     // Create Data
 
-    int count = 100;
-    data = (TEST30*)malloc(count * sizeof(TEST30)); // Structured Data Must be a heap variable
+    constexpr int count = 100;
+    TEST31* data = (TEST31*)malloc(count * sizeof(TEST31)); // Structured Data Must be a heap variable
 
     offset = 0;
 
@@ -2415,239 +1263,116 @@ int TestPlugin::test31(UDA_PLUGIN_INTERFACE* plugin_interface)
     shape[0] = 5;
     shape[1] = 20;
 
-    addMalloc2(plugin_interface->logmalloclist, (void*)data, count, sizeof(TEST30), "TEST30", rank, shape);
+    udaRegisterMallocArray(plugin_interface, (void*)data, count, sizeof(TEST31), "TEST30", rank, shape);
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #30");
-    strcpy(data_block->data_label, "Double Values [5, 20] : (1*, 10*)");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST30", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST31", "Structure Data Test #31");
+    setReturnDataLabel(plugin_interface, "Double Values [5, 20] : (1*, 10*)");
 
     return 0;
 }
 
 int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test32A {
         double R;
         double Z;
     } TEST32A;
 
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST32A");
-    strcpy(usertype.source, "Test #32");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST32A); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
+    COMPOUNDFIELD* test32a_fields[2] = {nullptr};
     int offset = 0;
 
-    COMPOUNDFIELD field;
+    test32a_fields[0] = udaNewCompoundField("R", "double structure element", &offset, SCALARDOUBLE);
+    test32a_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, SCALARDOUBLE);
 
-    initCompoundField(&field);
-    defineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
-
-    addCompoundField(&usertype, field); // Single Structure element
-
-    initCompoundField(&field);
-    defineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
-
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test32a_type = udaNewUserType("TEST32A", "Test #32", 0, 0, nullptr, sizeof(TEST32A), 2, test32a_fields);
+    udaAddUserType(plugin_interface, test32a_type);
 
     typedef struct Test32 {
         int count;
         TEST32A coords[100];
     } TEST32;
 
-    TEST32* data;
-
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST32");
-    strcpy(usertype.source, "Test #32");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST32); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
+    COMPOUNDFIELD* test32_fields[2] = {nullptr};
     offset = 0;
 
-    initCompoundField(&field);
-    defineField(&field, "count", "int structure element", &offset, SCALARINT);
+    test32_fields[0] = udaNewCompoundField("count", "int structure element", &offset, SCALARINT);
+    int shape[1] = {100};
+    test32_fields[1] = udaNewCompoundUserTypeArrayField("coords", "structure TEST32A", &offset, test32a_type, 1, shape);
 
-    addCompoundField(&usertype, field); // Single Structure element
-
-    initCompoundField(&field);
-
-    strcpy(field.name, "coords");
-    field.atomictype = UDA_TYPE_UNKNOWN;
-    strcpy(field.type, "TEST32A");
-    strcpy(field.desc, "structure TEST32A");
-
-    field.pointer = 0;
-    field.count = 100;
-    field.rank = 1;
-
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = field.count;
-
-    field.size = field.count * sizeof(TEST32A);
-    field.offset = offsetof(TEST32, coords);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-
-    addCompoundField(&usertype, field); // Single Structure element
-
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test32_type = udaNewUserType("TEST32", "Test #32", 0, 0, nullptr, sizeof(TEST32), 2, test32_fields);
+    udaAddUserType(plugin_interface, test32_type);
 
     // Create Data
 
-    data_block->data_n = 1;
-    data = (TEST32*)malloc(data_block->data_n * sizeof(TEST32)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, data_block->data_n, sizeof(TEST32), "TEST32");
+    constexpr int data_n = 1;
+    TEST32* data = (TEST32*)malloc(data_n * sizeof(TEST32)); // Structured Data Must be a heap variable
+    udaRegisterMalloc(plugin_interface, (void*)data, data_n, sizeof(TEST32), "TEST32");
 
-    data[0].count = field.count;
+    constexpr int field_count = 2;
 
-    for (int i = 0; i < field.count; i++) {
+    data[0].count = field_count;
+
+    for (int i = 0; i < field_count; i++) {
         data[0].coords[i].R = 1.0 * i;
         data[0].coords[i].Z = 10.0 * i;
     }
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #32");
-    strcpy(data_block->data_label, "Double Values [5, 20] : (1*, 10*)");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST32", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST32", "Structure Data Test #32");
+    setReturnDataLabel(plugin_interface, "Double Values [5, 20] : (1*, 10*)");
 
     return 0;
 }
 
 int TestPlugin::test33(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
     typedef struct Test33A {
         double R;
         double Z;
     } TEST33A;
 
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST33A");
-    strcpy(usertype.source, "Test #33");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST33A); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
+    COMPOUNDFIELD* test33a_fields[2] = {nullptr};
     int offset = 0;
 
-    COMPOUNDFIELD field;
+    test33a_fields[0] = udaNewCompoundField("R", "double structure element", &offset, SCALARDOUBLE);
+    test33a_fields[1] = udaNewCompoundField("Z", "double structure element", &offset, SCALARDOUBLE);
 
-    initCompoundField(&field);
-    defineField(&field, "R", "double structure element", &offset, SCALARDOUBLE);
-
-    addCompoundField(&usertype, field); // Single Structure element
-
-    initCompoundField(&field);
-    defineField(&field, "Z", "double structure element", &offset, SCALARDOUBLE);
-
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test33a_type = udaNewUserType("TEST33A", "Test #33", 0, 0, nullptr, sizeof(TEST33A), 2, test33a_fields);
+    udaAddUserType(plugin_interface, test33a_type);
 
     typedef struct Test33 {
         int count;
         TEST33A* coords;
     } TEST33;
 
-    TEST33* data;
-
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST33");
-    strcpy(usertype.source, "Test #33");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST33); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
+    COMPOUNDFIELD* test33_fields[2] = {nullptr};
     offset = 0;
 
-    initCompoundField(&field);
-    defineField(&field, "count", "int structure element", &offset, SCALARINT);
+    test33_fields[0] = udaNewCompoundField("count", "int structure element", &offset, SCALARINT);
+    int shape[1] = {100};
+    test33_fields[1] = udaNewCompoundUserTypeArrayField("coords", "structure TEST33A", &offset, test33a_type, 1, shape);
 
-    addCompoundField(&usertype, field); // Single Structure element
-
-    initCompoundField(&field);
-
-    strcpy(field.name, "coords");
-    field.atomictype = UDA_TYPE_UNKNOWN;
-    strcpy(field.type, "TEST33A");
-    strcpy(field.desc, "structure TEST33A");
-
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-
-    field.size = field.count * sizeof(TEST33A*);
-    field.offset = offsetof(TEST33, coords);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-
-    addCompoundField(&usertype, field); // Single Structure element
-
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test33_type = udaNewUserType("TEST33", "Test #33", 0, 0, nullptr, sizeof(TEST33), 2, test33_fields);
+    udaAddUserType(plugin_interface, test33_type);
 
     // Create Data
 
-    data_block->data_n = 1;
-    data = (TEST33*)malloc(data_block->data_n * sizeof(TEST33)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, data_block->data_n, sizeof(TEST33), "TEST33");
+    constexpr int data_n = 1;
+    TEST33* data = (TEST33*)malloc(data_n * sizeof(TEST33)); // Structured Data Must be a heap variable
+    udaRegisterMalloc(plugin_interface, (void*)data, data_n, sizeof(TEST33), "TEST33");
 
     data->count = 100;
     data->coords = (TEST33A*)malloc(data->count * sizeof(TEST33A));
 
-    int rank = 2;
-    auto shape = (int*)malloc(2 * sizeof(int));
-    shape[0] = 5;
-    shape[1] = 20;
+    int malloc_shape[2] = {0};
+    malloc_shape[0] = 5;
+    malloc_shape[1] = 20;
 
-    addMalloc2(plugin_interface->logmalloclist, (void*)data->coords, data->count, sizeof(TEST33A), "TEST33A", rank,
-               shape);
+    udaRegisterMallocArray(plugin_interface, (void*)data->coords, data->count, sizeof(TEST33A), "TEST33A", 2,
+                           malloc_shape);
 
     for (int i = 0; i < data->count; i++) {
         data->coords[i].R = 1.0 * i;
@@ -2656,159 +1381,78 @@ int TestPlugin::test33(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #33");
-    strcpy(data_block->data_label, "Double Values [5, 20] : (1*, 10*)");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST33", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST33", "Structure Data Test #33");
+    setReturnDataLabel(plugin_interface, "Double Values [5, 20] : (1*, 10*)");
 
     return 0;
 }
 
 int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
-    typedef struct Test33A {
+    typedef struct Test34A {
         unsigned char* R;
         unsigned char* Z;
-    } TEST33A;
+    } TEST34A;
 
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST33A");
-    strcpy(usertype.source, "Test #33");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST33A); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
+    COMPOUNDFIELD* test34a_fields[2] = {nullptr};
     int offset = 0;
 
-    COMPOUNDFIELD field;
+    test34a_fields[0] = udaNewCompoundField("R", "unsigned char structure element", &offset, ARRAYUCHAR);
+    test34a_fields[1] = udaNewCompoundField("Z", "unsigned char structure element", &offset, ARRAYUCHAR);
 
-    initCompoundField(&field);
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-    defineField(&field, "R", "unsigned char structure element", &offset, ARRAYUCHAR);
+    USERDEFINEDTYPE* test34a_type = udaNewUserType("TEST34A", "Test #34", 0, 0, nullptr, sizeof(TEST34A), 2, test34a_fields);
+    udaAddUserType(plugin_interface, test34a_type);
 
-    addCompoundField(&usertype, field); // Single Structure element
-
-    initCompoundField(&field);
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-    defineField(&field, "Z", "unsigned char structure element", &offset, ARRAYUCHAR);
-
-    addCompoundField(&usertype, field); // Single Structure element
-
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
-
-    typedef struct Test33 {
+    typedef struct Test34 {
         int count;
-        TEST33A* coords;
-    } TEST33;
+        TEST34A* coords;
+    } TEST34;
 
-    TEST33* data;
-
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST33");
-    strcpy(usertype.source, "Test #33");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST33); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
+    COMPOUNDFIELD* test34_fields[2] = {nullptr};
     offset = 0;
 
-    initCompoundField(&field);
-    defineField(&field, "count", "int structure element", &offset, SCALARINT);
+    test34_fields[0] = udaNewCompoundField("count", "int structure element", &offset, SCALARINT);
+    test34_fields[1] = udaNewCompoundUserTypePointerField("coords", "structure TEST34A", &offset, test34a_type);
 
-    addCompoundField(&usertype, field); // Single Structure element
-
-    initCompoundField(&field);
-
-    strcpy(field.name, "coords");
-    field.atomictype = UDA_TYPE_UNKNOWN;
-    strcpy(field.type, "TEST33A");
-    strcpy(field.desc, "structure TEST33A");
-
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-
-    field.size = field.count * sizeof(TEST33A*);
-    field.offset = (int)offsetof(TEST33, coords);
-    field.offpad = (int)padding((size_t)offset, field.type);
-    field.alignment = getalignmentof(field.type);
-
-    addCompoundField(&usertype, field); // Single Structure element
-
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test34_type = udaNewUserType("TEST34", "Test #34", 0, 0, nullptr, sizeof(TEST34), 2, test34_fields);
+    udaAddUserType(plugin_interface, test34_type);
 
     // Create Data
 
-    data_block->data_n = 1;
-    data = (TEST33*)malloc(data_block->data_n * sizeof(TEST33)); // Structured Data Must be a heap variable
-    addMalloc(plugin_interface->logmalloclist, (void*)data, data_block->data_n, sizeof(TEST33), "TEST33");
+    constexpr int data_n = 1;
+    TEST34* data = (TEST34*)malloc(data_n * sizeof(TEST34)); // Structured Data Must be a heap variable
+    udaRegisterMalloc(plugin_interface, (void*)data, data_n, sizeof(TEST34), "TEST34");
 
     data->count = 100;
-    data->coords = (TEST33A*)malloc(data->count * sizeof(TEST33A));
+    data->coords = (TEST34A*)malloc(data->count * sizeof(TEST34A));
 
     int rank = 2;
     int* shape = (int*)malloc(2 * sizeof(int));
     shape[0] = 5;
     shape[1] = 20;
 
-    addMalloc2(plugin_interface->logmalloclist, (void*)data->coords, data->count, sizeof(TEST33A), "TEST33A", rank,
+    udaRegisterMallocArray(plugin_interface, (void*)data->coords, data->count, sizeof(TEST34A), "TEST34A", rank,
                shape);
 
     for (int i = 0; i < data->count; i++) {
         data->coords[i].R = (unsigned char*)malloc(10 * sizeof(unsigned char));
         data->coords[i].Z = (unsigned char*)malloc(10 * sizeof(unsigned char));
 
-        addMalloc(plugin_interface->logmalloclist, (void*)data->coords[i].R, 10, sizeof(unsigned char),
+        udaRegisterMalloc(plugin_interface, (void*)data->coords[i].R, 10, sizeof(unsigned char),
                   "unsigned char *");
-        addMalloc(plugin_interface->logmalloclist, (void*)data->coords[i].Z, 10, sizeof(unsigned char),
+        udaRegisterMalloc(plugin_interface, (void*)data->coords[i].Z, 10, sizeof(unsigned char),
                   "unsigned char *");
 
         for (int j = 0; j < 10; ++j) {
             data->coords[i].R[j] = (unsigned char)(1 * i);
             data->coords[i].Z[j] = (unsigned char)(10 * i);
         }
-
-        //        data->coords[i].R = 1 * i;
-        //        data->coords[i].Z = 10 * i;
     }
 
     // Pass Data
 
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data = (char*)data;
-
-    strcpy(data_block->data_desc, "Structure Data Test #33");
-    strcpy(data_block->data_label, "Double Values [5, 20] : (1*, 10*)");
-    strcpy(data_block->data_units, "");
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "TEST33", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "TEST34", "Structure Data Test #34");
+    setReturnDataLabel(plugin_interface, "Double Values [5, 20] : (1*, 10*)");
 
     return 0;
 }
@@ -2919,8 +1563,8 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
     TEST41* data = (TEST41*)malloc(sizeof(TEST41));
     TEST40* blocks = (TEST40*)malloc(request_block->putDataBlockList.blockCount * sizeof(TEST40));
 
-    addMalloc(plugin_interface->logmalloclist, (void*)data, 1, sizeof(TEST41), "TEST41");
-    addMalloc(plugin_interface->logmalloclist, (void*)blocks, request_block->putDataBlockList.blockCount,
+    udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST41), "TEST41");
+    udaRegisterMalloc(plugin_interface, (void*)blocks, request_block->putDataBlockList.blockCount,
               sizeof(TEST40), "TEST40");
 
     data->count = request_block->putDataBlockList.blockCount;
@@ -2975,37 +1619,21 @@ int TestPlugin::test40(UDA_PLUGIN_INTERFACE* plugin_interface)
 
 int TestPlugin::test50(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    REQUEST_DATA* request = plugin_interface->request_data;
-
-    UDA_LOG(UDA_LOG_DEBUG, "TESTPLUGIN test50\n");
-    printRequestData(*request);
-
     // Return an array of strings with all passed parameters and substitutions
 
-    std::string work = "test50 passed parameters and substitutions\n";
-    work += fmt::format("Shot number: {}\n", request->exp_number);
-    work += fmt::format("Pass number: {}\n", request->pass);
-    work += fmt::format("substitution parameters: {}\n", request->tpass);
-    work += fmt::format("Number of name-value pairs: {}\n", request->nameValueList.pairCount);
-    for (int i = 0; i < request->nameValueList.pairCount; i++) {
-        work += fmt::format("name: {}, value: {}\n", request->nameValueList.nameValue[i].name,
-                            request->nameValueList.nameValue[i].value);
+    std::string work = "test50 passed parameters\n";
+
+    int count = udaPluginArgumentCount(plugin_interface);
+
+    work += fmt::format("Number of name-value pairs: {}\n", count);
+    for (int i = 0; i < count; i++) {
+        const char* name = udaPluginArgument(plugin_interface, i);
+        const char* value;
+        findStringValue(plugin_interface, &value, name);
+        work += fmt::format("name: {}, value: {}\n", name, value);
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "test50: %s\n", work.c_str());
-
-    initDataBlock(data_block);
-
-    data_block->rank = 0;
-    data_block->data_n = work.size();
-    data_block->data_type = UDA_TYPE_STRING;
-    strcpy(data_block->data_desc, "testplugins:test50 = passing placeholders and substitution values to plugins");
-
-    data_block->data = strdup(work.c_str());
-
-    strcpy(data_block->data_label, "");
-    strcpy(data_block->data_units, "");
+    setReturnDataString(plugin_interface, work.c_str(), nullptr);
 
     return 0;
 }
@@ -3035,6 +1663,66 @@ typedef struct EnumList60 {
     int* arraydata_shape;
 } ENUMLIST60;
 
+int register_enumlist(UDA_PLUGIN_INTERFACE* plugin_interface, ENUMLIST60* enum_list)
+{
+    COMPOUNDFIELD* enummember60_fields[2] = {nullptr};
+    int offset = 0;
+
+    int shape[1] = {MAXELEMENTNAME};
+    enummember60_fields[0] = udaNewCompoundArrayField("name", "char array structure element", &offset, ARRAYCHAR, 1, shape);
+    enummember60_fields[1] = udaNewCompoundField("value", "long long structure element", &offset, SCALARLONG64);
+
+    USERDEFINEDTYPE* enummember60_type = udaNewUserType("ENUMMEMBER60", "Test #60", 0, 0, nullptr, sizeof(ENUMMEMBER60), 2, enummember60_fields);
+    udaAddUserType(plugin_interface, enummember60_type);
+
+    COMPOUNDFIELD* enumlist60_fields[8] = {nullptr};
+    offset = 0;
+
+    enumlist60_fields[0] = udaNewCompoundArrayField("name", "char array structure element", &offset, ARRAYCHAR, 1, shape);
+    enumlist60_fields[1] = udaNewCompoundField("type", "int structure element", &offset, SCALARINT);
+    enumlist60_fields[2] = udaNewCompoundField("count", "int structure element", &offset, SCALARINT);
+    enumlist60_fields[3] = udaNewCompoundUserTypePointerField("enummember", "ENUMMEMBER60* structure element", &offset, enummember60_type);
+
+    enumlist60_fields[5] = udaNewCompoundField("arraydata_rank", "int structure element", &offset, SCALARINT);
+    enumlist60_fields[6] = udaNewCompoundField("arraydata_count", "int structure element", &offset, SCALARINT);
+    enumlist60_fields[7] = udaNewCompoundField("arraydata_shape", "int* structure element", &offset, ARRAYINT);
+
+    COMPOUNDFIELD* arraydata_field = nullptr;
+    switch (enum_list->type) {
+        case (UDA_TYPE_UNSIGNED_SHORT): {
+            arraydata_field = udaNewCompoundField("arraydata", "unsigned short* structure element", &offset, ARRAYUSHORT);
+            break;
+        }
+        case (UDA_TYPE_SHORT): {
+            arraydata_field = udaNewCompoundField("arraydata", "unsigned short* structure element", &offset, ARRAYSHORT);
+            break;
+        }
+        case (UDA_TYPE_UNSIGNED_INT): {
+            arraydata_field = udaNewCompoundField("arraydata", "unsigned short* structure element", &offset, ARRAYUINT);
+            break;
+        }
+        case (UDA_TYPE_INT): {
+            arraydata_field = udaNewCompoundField("arraydata", "unsigned short* structure element", &offset, ARRAYINT);
+            break;
+        }
+        case (UDA_TYPE_UNSIGNED_LONG64): {
+            arraydata_field = udaNewCompoundField("arraydata", "unsigned short* structure element", &offset, ARRAYULONG64);
+            break;
+        }
+        case (UDA_TYPE_LONG64): {
+            arraydata_field = udaNewCompoundField("arraydata", "unsigned short* structure element", &offset, ARRAYLONG64);
+            break;
+        }
+    }
+
+    enumlist60_fields[4] = arraydata_field;
+
+    USERDEFINEDTYPE* enumlist60_type = udaNewUserType("ENUMLIST60", "Test #60", 0, 0, nullptr, sizeof(ENUMLIST60), 2, enumlist60_fields);
+    udaAddUserType(plugin_interface, enumlist60_type);
+
+    return 0;
+}
+
 int TestPlugin::test60(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto enumlist = (ENUMLIST60*)malloc(sizeof(ENUMLIST60));
@@ -3048,8 +1736,8 @@ int TestPlugin::test60(UDA_PLUGIN_INTERFACE* plugin_interface)
     enumlist->enummember[0].value = (long long)1;
     enumlist->enummember[1].value = (long long)2;
     enumlist->enummember[2].value = (long long)3;
-    addMalloc(plugin_interface->logmalloclist, (void*)enumlist, 1, sizeof(ENUMLIST60), "ENUMLIST60");
-    addMalloc(plugin_interface->logmalloclist, (void*)enumlist->enummember, enumlist->count, sizeof(ENUMMEMBER60),
+    udaRegisterMalloc(plugin_interface, (void*)enumlist, 1, sizeof(ENUMLIST60), "ENUMLIST60");
+    udaRegisterMalloc(plugin_interface, (void*)enumlist->enummember, enumlist->count, sizeof(ENUMMEMBER60),
               "ENUMMEMBER60");
 
     int count = 10;
@@ -3070,161 +1758,19 @@ int TestPlugin::test60(UDA_PLUGIN_INTERFACE* plugin_interface)
     enumlist->arraydata_shape = (int*)malloc(sizeof(int));
     enumlist->arraydata_shape[0] = count;
 
-    addMalloc(plugin_interface->logmalloclist, (void*)enumlist->arraydata, count, sizeof(unsigned short),
+    udaRegisterMalloc(plugin_interface, (void*)enumlist->arraydata, count, sizeof(unsigned short),
               "unsigned short");
 
     count = 1;
     int rank = 1;
-    int shape[] = {1}; // Shape of the shape array!
-    addMalloc2(plugin_interface->logmalloclist, (void*)enumlist->arraydata_shape, count, sizeof(int), "int", rank,
-               shape);
+    int malloc_shape[] = {1}; // Shape of the shape array!
+    udaRegisterMallocArray(plugin_interface, (void*)enumlist->arraydata_shape, count, sizeof(int), "int", rank,
+                           malloc_shape);
 
-    USERDEFINEDTYPE usertype;
-    int offset;
-    COMPOUNDFIELD field;
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
+    register_enumlist(plugin_interface, enumlist);
 
-    initUserDefinedType(&usertype); // New structure definition
-    strcpy(usertype.name, "ENUMMEMBER60");
-    strcpy(usertype.source, "Test #60 ENUMMEMBER structure");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(ENUMMEMBER60); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
-    offset = 0;
-
-    initCompoundField(&field);
-    strcpy(field.name, "name");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING"); // convert atomic type to a string label
-    strcpy(field.desc, "The ENUM label");
-    field.pointer = 0;
-    field.count = MAXELEMENTNAME;
-    field.rank = 1;
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = field.count;
-    field.size = field.count * sizeof(char);
-    field.offset = offsetof(ENUMMEMBER60, name);
-    offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);
-
-    initCompoundField(&field);
-    defineField(&field, "value", "The ENUM value", &offset, SCALARLONG64);
-    addCompoundField(&usertype, field);
-
-    addUserDefinedType(userdefinedtypelist, usertype);
-
-    initUserDefinedType(&usertype); // New structure definition
-    strcpy(usertype.name, "ENUMLIST60");
-    strcpy(usertype.source, "Test #60 ENUMLIST structure");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(ENUMLIST60); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
-    offset = 0;
-
-    initCompoundField(&field);
-    strcpy(field.name, "name");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING"); // convert atomic type to a string label
-    strcpy(field.desc, "The ENUM name");
-    field.pointer = 0;
-    field.count = MAXELEMENTNAME;
-    field.rank = 1;
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = field.count;
-    field.size = field.count * sizeof(char);
-    field.offset = offsetof(ENUMLIST60, name);
-    offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);
-
-    initCompoundField(&field);
-    defineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-
-    initCompoundField(&field);
-    defineField(&field, "count", "The number of ENUM values", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-
-    initCompoundField(&field);
-    strcpy(field.name, "enummember");
-    field.atomictype = UDA_TYPE_UNKNOWN;
-    strcpy(field.type, "ENUMMEMBER60");
-    strcpy(field.desc, "The ENUM list members: labels and value");
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-    field.size = sizeof(ENUMMEMBER60*);
-    field.offset = offsetof(ENUMLIST60, enummember); // Different to newoffset
-    offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);
-
-    initCompoundField(&field);
-    switch (enumlist->type) {
-        case (UDA_TYPE_UNSIGNED_SHORT): {
-            defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYUSHORT);
-            break;
-        }
-        case (UDA_TYPE_SHORT): {
-            defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYSHORT);
-            break;
-        }
-        case (UDA_TYPE_UNSIGNED_INT): {
-            defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYUINT);
-            break;
-        }
-        case (UDA_TYPE_INT): {
-            defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYINT);
-            break;
-        }
-        case (UDA_TYPE_UNSIGNED_LONG64): {
-            defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYULONG64);
-            break;
-        }
-        case (UDA_TYPE_LONG64): {
-            defineField(&field, "arraydata", "The array of values defined by the ENUM", &offset, ARRAYLONG64);
-            break;
-        }
-    }
-    addCompoundField(&usertype, field);
-
-    initCompoundField(&field);
-    defineField(&field, "arraydata_rank", "The rank of arraydata", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-    initCompoundField(&field);
-    defineField(&field, "arraydata_count", "The count of arraydata", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-    initCompoundField(&field);
-    defineField(&field, "arraydata_shape", "The shape of arraydata", &offset, ARRAYINT);
-    addCompoundField(&usertype, field);
-
-    addUserDefinedType(userdefinedtypelist, usertype);
-
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    strcpy(data_block->data_desc, "testplugins:test60 = ENUM Values");
-
-    data_block->data = (char*)enumlist;
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "ENUMLIST60", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "ENUMLIST60", "Test60 = ENUM Values");
+    setReturnDataLabel(plugin_interface, "");
 
     return 0;
 }
@@ -3242,8 +1788,8 @@ int TestPlugin::test61(UDA_PLUGIN_INTERFACE* plugin_interface)
     enumlist->enummember[0].value = (long long)1;
     enumlist->enummember[1].value = (long long)2;
     enumlist->enummember[2].value = (long long)3;
-    addMalloc(plugin_interface->logmalloclist, (void*)enumlist, 1, sizeof(ENUMLIST60), "ENUMLIST60");
-    addMalloc(plugin_interface->logmalloclist, (void*)enumlist->enummember, enumlist->count, sizeof(ENUMMEMBER60),
+    udaRegisterMalloc(plugin_interface, (void*)enumlist, 1, sizeof(ENUMLIST60), "ENUMLIST60");
+    udaRegisterMalloc(plugin_interface, (void*)enumlist->enummember, enumlist->count, sizeof(ENUMMEMBER60),
               "ENUMMEMBER60");
 
     int count = 10;
@@ -3264,155 +1810,39 @@ int TestPlugin::test61(UDA_PLUGIN_INTERFACE* plugin_interface)
     enumlist->arraydata_shape = (int*)malloc(sizeof(int));
     enumlist->arraydata_shape[0] = count;
 
-    addMalloc(plugin_interface->logmalloclist, (void*)enumlist->arraydata, count, sizeof(unsigned long long),
+    udaRegisterMalloc(plugin_interface, (void*)enumlist->arraydata, count, sizeof(unsigned long long),
               "unsigned long long");
 
     count = 1;
     int rank = 1;
     int shape[] = {1}; // Shape of the shape array!
-    addMalloc2(plugin_interface->logmalloclist, (void*)enumlist->arraydata_shape, count, sizeof(int), "int", rank,
+    udaRegisterMallocArray(plugin_interface, (void*)enumlist->arraydata_shape, count, sizeof(int), "int", rank,
                shape);
 
-    USERDEFINEDTYPE usertype;
-    int offset;
-    COMPOUNDFIELD field;
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
+    register_enumlist(plugin_interface, enumlist);
 
-    initUserDefinedType(&usertype); // New structure definition
-    strcpy(usertype.name, "ENUMMEMBER60");
-    strcpy(usertype.source, "Test #61 ENUMMEMBER structure");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(ENUMMEMBER60); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
-    offset = 0;
-
-    initCompoundField(&field);
-    strcpy(field.name, "name");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING"); // convert atomic type to a string label
-    strcpy(field.desc, "The ENUM label");
-    field.pointer = 0;
-    field.count = MAXELEMENTNAME;
-    field.rank = 1;
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = field.count;
-    field.size = field.count * sizeof(char);
-    field.offset = offsetof(ENUMMEMBER60, name);
-    offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);
-
-    initCompoundField(&field);
-    defineField(&field, "value", "The ENUM value", &offset, SCALARLONG64);
-    addCompoundField(&usertype, field);
-
-    addUserDefinedType(userdefinedtypelist, usertype);
-
-    initUserDefinedType(&usertype); // New structure definition
-    strcpy(usertype.name, "ENUMLIST60");
-    strcpy(usertype.source, "Test #61 ENUMLIST structure");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(ENUMLIST60); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
-    offset = 0;
-
-    initCompoundField(&field);
-    strcpy(field.name, "name");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING"); // convert atomic type to a string label
-    strcpy(field.desc, "The ENUM name");
-    field.pointer = 0;
-    field.count = MAXELEMENTNAME;
-    field.rank = 1;
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = field.count;
-    field.size = field.count * sizeof(char);
-    field.offset = offsetof(ENUMLIST60, name);
-    offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);
-
-    initCompoundField(&field);
-    defineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-
-    initCompoundField(&field);
-    defineField(&field, "count", "The number of ENUM values", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-
-    initCompoundField(&field);
-    strcpy(field.name, "enummember");
-    field.atomictype = UDA_TYPE_UNKNOWN;
-    strcpy(field.type, "ENUMMEMBER60");
-    strcpy(field.desc, "The ENUM list members: labels and value");
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-    field.size = sizeof(ENUMMEMBER60*);
-    field.offset = offsetof(ENUMLIST60, enummember); // Different to newoffset
-    offset = field.offset + field.size;
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field);
-
-    initCompoundField(&field);
-    defineField(&field, "arraydata", "Data with this enumerated type", &offset,
-                ARRAYULONG64); // Data need to be converted to this type
-    addCompoundField(&usertype, field);
-    initCompoundField(&field);
-    defineField(&field, "arraydata_rank", "The rank of arraydata", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-    initCompoundField(&field);
-    defineField(&field, "arraydata_count", "The count of arraydata", &offset, SCALARINT);
-    addCompoundField(&usertype, field);
-    initCompoundField(&field);
-    defineField(&field, "arraydata_shape", "The shape of arraydata", &offset, ARRAYINT);
-    addCompoundField(&usertype, field);
-
-    addUserDefinedType(userdefinedtypelist, usertype);
-
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    strcpy(data_block->data_desc, "testplugins:test61 = ENUM Values");
-
-    data_block->data = (char*)enumlist;
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(userdefinedtypelist, "ENUMLIST60", 0);
+    setReturnCompoundData(plugin_interface, (char*)data, "ENUMLIST60", "Test61 = ENUM Values");
+    setReturnDataLabel(plugin_interface, "");
 
     return 0;
 }
 
 int TestPlugin::test62(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    auto* enumlist = (ENUMLIST*)malloc(sizeof(ENUMLIST));
+    auto* enumlist = (ENUMLIST60*)malloc(sizeof(ENUMLIST60));
     strcpy(enumlist->name, "TEST62 ENUM of type unsigned long long");
     enumlist->type = UDA_TYPE_UNSIGNED_SHORT;
     enumlist->count = 3;
-    enumlist->enummember = (ENUMMEMBER*)malloc(enumlist->count * sizeof(ENUMMEMBER));
+    enumlist->enummember = (ENUMMEMBER60*)malloc(enumlist->count * sizeof(ENUMMEMBER60));
     strcpy(enumlist->enummember[0].name, "ENUM Value 1");
     strcpy(enumlist->enummember[1].name, "ENUM Value 2");
     strcpy(enumlist->enummember[2].name, "ENUM Value 3");
     enumlist->enummember[0].value = (long long)1;
     enumlist->enummember[1].value = (long long)2;
     enumlist->enummember[2].value = (long long)3;
-    addMalloc(plugin_interface->logmalloclist, (void*)enumlist, 1, sizeof(ENUMLIST), "ENUMLIST");
-    addMalloc(plugin_interface->logmalloclist, (void*)enumlist->enummember, enumlist->count, sizeof(ENUMMEMBER),
-              "ENUMMEMBER");
+    udaRegisterMalloc(plugin_interface, (void*)enumlist, 1, sizeof(ENUMLIST60), "ENUMLIST60");
+    udaRegisterMalloc(plugin_interface, (void*)enumlist->enummember, enumlist->count, sizeof(ENUMMEMBER60),
+              "ENUMMEMBER60");
 
     int count = 10;
     auto data = (unsigned long long*)malloc(count * sizeof(unsigned long long));
@@ -3426,41 +1856,25 @@ int TestPlugin::test62(UDA_PLUGIN_INTERFACE* plugin_interface)
     data[7] = 2;
     data[8] = 3;
     data[9] = 2;
-    enumlist->enumarray = data;
-    enumlist->enumarray_rank = 1;
-    enumlist->enumarray_count = count;
-    enumlist->enumarray_shape = (int*)malloc(sizeof(int));
-    enumlist->enumarray_shape[0] = count;
+    enumlist->arraydata = data;
+    enumlist->arraydata_rank = 1;
+    enumlist->arraydata_count = count;
+    enumlist->arraydata_shape = (int*)malloc(sizeof(int));
+    enumlist->arraydata_shape[0] = count;
 
-    addMalloc(plugin_interface->logmalloclist, (void*)enumlist->enumarray, count, sizeof(unsigned long long),
+    udaRegisterMalloc(plugin_interface, (void*)enumlist->arraydata, count, sizeof(unsigned long long),
               "unsigned long long");
 
     // count = 1;
     // int rank = 1;
     // int shape[] = {1};        // Shape of the shape array!
-    addMalloc(plugin_interface->logmalloclist, (void*)enumlist->enumarray_shape, 1, sizeof(int), "int");
+    udaRegisterMalloc(plugin_interface, (void*)enumlist->arraydata_shape, 1, sizeof(int), "int");
 
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
+    register_enumlist(plugin_interface, enumlist);
 
-    data_block->rank = 0;
-    data_block->data_n = 1;
-    data_block->data_type = UDA_TYPE_COMPOUND;
-    strcpy(data_block->data_desc, "testplugins:test62 = ENUM Values");
+    setReturnCompoundData(plugin_interface, (char*)data, "ENUMLIST60", "Test62 = ENUM Values");
+    setReturnDataLabel(plugin_interface, "");
 
-    data_block->data = (char*)enumlist;
-
-    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
-    data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(plugin_interface->userdefinedtypelist, "ENUMLIST", 0);
-
-    /*
-    int id = findUserDefinedTypeId(userdefinedtypelist, "ENUMLIST");
-    changeUserDefinedTypeElementProperty(userdefinedtypelist, id, "data", "name", (void *)"arraydata");
-    int value = UDA_TYPE_UNSIGNED_LONG64;
-    changeUserDefinedTypeElementProperty(userdefinedtypelist, id, "arraydata", "atomictype", (void *)&value);
-    changeUserDefinedTypeElementProperty(userdefinedtypelist, id, "arraydata", "type", (void *)"unsigned long long");
-    */
     return 0;
 }
 
@@ -3473,17 +1887,12 @@ int TestPlugin::test62(UDA_PLUGIN_INTERFACE* plugin_interface)
 // Calls to plugins must also respect access policy and user authentication policy
 int TestPlugin::plugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    REQUEST_DATA* request = plugin_interface->request_data;
-
     int err = 0;
 
-    UDA_PLUGIN_INTERFACE next_plugin_interface;
-    REQUEST_DATA next_request = {0};
+    int plugin_count = udaPluginPluginsCount(plugin_interface);
 
-    const PLUGINLIST* pluginList = plugin_interface->pluginList;
-
-    if (pluginList == nullptr) {
-        RAISE_PLUGIN_ERROR("No plugins available for this data request");
+    if (plugin_count == 0) {
+        RAISE_PLUGIN_ERROR(plugin_interface, "No plugins available for this data request");
     }
 
     // Test specifics
@@ -3491,34 +1900,11 @@ int TestPlugin::plugin(UDA_PLUGIN_INTERFACE* plugin_interface)
     const char* signal = nullptr;
     const char* source = nullptr;
 
-    FIND_REQUIRED_STRING_VALUE(request->nameValueList, signal);
-    FIND_REQUIRED_STRING_VALUE(request->nameValueList, source);
+    FIND_REQUIRED_STRING_VALUE(plugin_interface, signal);
+    FIND_REQUIRED_STRING_VALUE(plugin_interface, source);
 
     if (signal != nullptr || source != nullptr) { // Identify the plugin to test
-
-        next_plugin_interface = *plugin_interface; // New plugin interface
-
-        next_plugin_interface.request_data = &next_request;
-        strcpy(next_request.api_delim, request->api_delim);
-
-        strcpy(next_request.signal, signal);
-        strcpy(next_request.source, source);
-
-        makeRequestData(&next_request, *pluginList, plugin_interface->environment);
-
-        for (int i = 0; i < pluginList->count; i++) {
-            if (next_request.request == pluginList->plugin[i].request) {
-                if (pluginList->plugin[i].idamPlugin != nullptr) {
-                    err = pluginList->plugin[i].idamPlugin(&next_plugin_interface); // Call the data reader
-                } else {
-                    err = 999;
-                    addIdamError(UDA_CODE_ERROR_TYPE, "No Data Access plugin available for this data request", err, "");
-                }
-                break;
-            }
-        }
-
-        freeNameValueList(&next_request.nameValueList);
+        callPlugin2(plugin_interface, signal, source);
     }
 
     return err;
@@ -3540,19 +1926,14 @@ int TestPlugin::errortest(UDA_PLUGIN_INTERFACE* plugin_interface)
     int err = 0;
     int test = 0;
 
-    initUdaErrorStack();
-    REQUEST_DATA* request = plugin_interface->request_data;
-
-    FIND_REQUIRED_INT_VALUE(request->nameValueList, test);
+    FIND_REQUIRED_INT_VALUE(plugin_interface, test);
 
     switch (test) {
         case 1:
-            testError1();
-            concatUdaError(&plugin_interface->error_stack);
+            testError1(plugin_interface);
             return err;
         case 2:
-            testError2();
-            concatUdaError(&plugin_interface->error_stack);
+            testError2(plugin_interface);
             return err;
         case 3: {
             const char* p = "crash!"; // force a server crash! (write to read-only memory)
@@ -3566,76 +1947,53 @@ int TestPlugin::errortest(UDA_PLUGIN_INTERFACE* plugin_interface)
         }
     }
 
-    UDA_THROW_ERROR(9990 + test, "Test of Error State Management");
+    RAISE_PLUGIN_ERROR(plugin_interface, "Test of Error State Management");
 }
 
 int TestPlugin::scalartest(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
-    initDataBlock(data_block);
-
-    auto p = (int*)malloc(sizeof(int));
-    *p = 10;
-    data_block->data = (char*)p;
-    data_block->data_n = 1;
-    data_block->data_type = UDA_TYPE_INT;
+    setReturnDataIntScalar(plugin_interface, 10, nullptr);
 
     return 0;
 }
 
 int TestPlugin::array1dtest(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-
-    initDataBlock(data_block);
-
     constexpr int N = 100;
-    auto p = (double*)malloc(N * sizeof(double));
+    auto data = std::make_unique<double[]>(N);
     for (int i = 0; i < N; ++i) {
-        p[i] = i;
+        data[i] = i;
     }
-    data_block->data = (char*)p;
-    data_block->data_n = 100;
-    data_block->data_type = UDA_TYPE_DOUBLE;
-    data_block->rank = 1;
-    data_block->dims = (DIMS*)malloc(sizeof(DIMS));
 
-    initDimBlock(data_block->dims);
-    data_block->dims[0].dim_n = 100;
-    data_block->dims[0].data_type = UDA_TYPE_INT;
-    data_block->dims[0].compressed = 1;
-    data_block->dims[0].dim0 = 0;
-    data_block->dims[0].diff = 1;
+    size_t shape[1] = {N};
+    setReturnDataDoubleArray(plugin_interface, data.get(), 1, shape, nullptr);
 
     return 0;
 }
 
 int TestPlugin::emptytest(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
     return 0;
 }
 
 int TestPlugin::call_plugin_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::array1dtest()", plugin_interface);
+    return callPlugin(plugin_interface, "TESTPLUGIN::array1dtest()");
 }
 
 int TestPlugin::call_plugin_test_index(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::array1dtest()[25]", plugin_interface);
+    return callPlugin(plugin_interface, "TESTPLUGIN::array1dtest()[25]");
 }
 
 int TestPlugin::call_plugin_test_slice(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::array1dtest()[10:20]", plugin_interface);
+    return callPlugin(plugin_interface, "TESTPLUGIN::array1dtest()[10:20]");
 }
 
 int TestPlugin::call_plugin_test_stride(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return callPlugin(plugin_interface->pluginList, "TESTPLUGIN::array1dtest()[::2]", plugin_interface);
+    return callPlugin(plugin_interface, "TESTPLUGIN::array1dtest()[::2]");
 }
 
 #ifdef CAPNP_ENABLED
@@ -3671,13 +2029,7 @@ int TestPlugin::capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     auto buffer = uda_capnp_serialise(tree);
 
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    data_block->data_n = static_cast<int>(buffer.size);
-    data_block->data = buffer.data;
-    data_block->dims = nullptr;
-    data_block->data_type = UDA_TYPE_CAPNP;
+    setReturnData(plugin_interface, buffer.data, static_cast<int>(buffer.size), UDA_TYPE_CAPNP, 0, nullptr, nullptr);
 
     return 0;
 }
@@ -3727,13 +2079,7 @@ int TestPlugin::nested_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     auto buffer = uda_capnp_serialise(tree);
 
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    data_block->data_n = static_cast<int>(buffer.size);
-    data_block->data = buffer.data;
-    data_block->dims = nullptr;
-    data_block->data_type = UDA_TYPE_CAPNP;
+    setReturnData(plugin_interface, buffer.data, static_cast<int>(buffer.size), UDA_TYPE_CAPNP, 0, nullptr, nullptr);
 
     return 0;
 }
@@ -3766,13 +2112,7 @@ int TestPlugin::long_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     auto buffer = uda_capnp_serialise(tree);
 
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    data_block->data_n = static_cast<int>(buffer.size);
-    data_block->data = buffer.data;
-    data_block->dims = nullptr;
-    data_block->data_type = UDA_TYPE_CAPNP;
+    setReturnData(plugin_interface, buffer.data, static_cast<int>(buffer.size), UDA_TYPE_CAPNP, 0, nullptr, nullptr);
 
     return 0;
 }
@@ -3796,13 +2136,7 @@ int TestPlugin::large_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     auto buffer = uda_capnp_serialise(tree);
 
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    data_block->data_n = static_cast<int>(buffer.size);
-    data_block->data = buffer.data;
-    data_block->dims = nullptr;
-    data_block->data_type = UDA_TYPE_CAPNP;
+    setReturnData(plugin_interface, buffer.data, static_cast<int>(buffer.size), UDA_TYPE_CAPNP, 0, nullptr, nullptr);
 
     return 0;
 }

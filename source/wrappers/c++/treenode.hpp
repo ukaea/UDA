@@ -26,7 +26,6 @@ public:
 
     uda::TreeNode child(int num);
     void printNode();
-    void printStructureNames();
 
     int structureCount();
     std::vector<std::string> structureNames();

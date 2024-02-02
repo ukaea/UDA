@@ -46,10 +46,11 @@
 //
 // printImage
 //
+#include "accessors.h"
+
 #include <uda/structured.h>
 
 #include "clientserver/stringUtils.h"
-#include <structures/genStructs.h>
 #include "logging/logging.h"
 
 /** Find (search type A) the first Tree Node with a data structure type containing a named element/member.
@@ -837,19 +838,105 @@ void printImage(const char* image, int imagecount)
     }
 }
 
+template <typename T>
+struct TypeNamer {
+    static constexpr const char* Name = "";
+};
+
+template <>
+struct TypeNamer<short> {
+    static constexpr const char* Name = "short";
+};
+
+template <>
+struct TypeNamer<int> {
+    static constexpr const char* Name = "int";
+};
+
+template <>
+struct TypeNamer<long long> {
+    static constexpr const char* Name = "long long";
+};
+
+template <>
+struct TypeNamer<unsigned short> {
+    static constexpr const char* Name = "unsigned short";
+};
+
+template <>
+struct TypeNamer<unsigned int> {
+    static constexpr const char* Name = "unsigned int";
+};
+
+template <>
+struct TypeNamer<unsigned long long> {
+    static constexpr const char* Name = "unsigned long long";
+};
+
+template <>
+struct TypeNamer<float> {
+    static constexpr const char* Name = "float";
+};
+
+template <>
+struct TypeNamer<double> {
+    static constexpr const char* Name = "double";
+};
+
+template <>
+struct TypeNamer<char> {
+    static constexpr const char* Name = "char";
+};
+
+template <>
+struct TypeNamer<unsigned char> {
+    static constexpr const char* Name = "unsigned char";
+};
+
+template <>
+struct TypeNamer<char*> {
+    static constexpr const char* Name = "string";
+};
+
+template <typename T>
+void defineArrayField(CompoundField* field, const char* name, const char* desc, int rank, int* shape)
+{
+    strcpy(field->type, TypeNamer<T>::Name);
+    if (rank == 0) {
+        strcat(field->type, "*");
+        field->pointer = 1;
+        field->size = field->count * sizeof(T*);
+    } else {
+        int count = 1;
+        for (int i = 0; i < rank; ++i) {
+            count *= shape[i];
+        }
+
+        field->pointer = 0;
+        field->count = count;
+        field->size = count * sizeof(T);
+        field->rank = rank;
+        field->shape = (int*)malloc(rank * sizeof(int));
+        for (int i = 0; i < rank; ++i) {
+            field->shape[i] = shape[i];
+        }
+    }
+    snprintf(field->desc, MAXELEMENTNAME, "[%s %s] %s", field->type, name, desc);
+}
+
 //----------------------------------------------------------------------------------------------------------
 /**User defined structure field definition for common types
  *
  * This is a public function
  *
  * @param field The user defined structure's field to be populated
- * @param name Name of the structure's field.
+ * @param name Name of the structure's field->
  * @param desc Description of the fields contents
  * @param offset Current field byte offset from the start of the structure. Ppdated on return.
  * @param type_id Enumerated key indicating the type of data field, e.g. float array
  * @return Void
  */
-void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short type_id)
+void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short type_id, int rank, int* shape)
 {
     initCompoundField(field);
     strcpy(field->name, name);
@@ -866,10 +953,7 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
             break;
         case ARRAYDOUBLE:
             field->atomictype = UDA_TYPE_DOUBLE;
-            strcpy(field->type, "double *");
-            snprintf(field->desc, MAXELEMENTNAME, "[double *%s] %s", name, desc);
-            field->pointer = 1;
-            field->size = field->count * sizeof(double*);
+            defineArrayField<double>(field, name, desc, rank, shape);
             break;
         case SCALARFLOAT:
             field->atomictype = UDA_TYPE_FLOAT;
@@ -879,10 +963,7 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
             break;
         case ARRAYFLOAT:
             field->atomictype = UDA_TYPE_FLOAT;
-            strcpy(field->type, "float *");
-            snprintf(field->desc, MAXELEMENTNAME, "[float *%s] %s", name, desc);
-            field->pointer = 1;
-            field->size = field->count * sizeof(float*);
+            defineArrayField<float>(field, name, desc, rank, shape);
             break;
         case SCALARLONG64:
             field->atomictype = UDA_TYPE_LONG64;
@@ -892,10 +973,7 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
             break;
         case ARRAYLONG64:
             field->atomictype = UDA_TYPE_LONG64;
-            strcpy(field->type, "long long *");
-            snprintf(field->desc, MAXELEMENTNAME, "[long long *%s] %s", name, desc);
-            field->pointer = 1;
-            field->size = field->count * sizeof(long long*);
+            defineArrayField<long long>(field, name, desc, rank, shape);
             break;
         case SCALARULONG64:
             field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
@@ -905,10 +983,7 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
             break;
         case ARRAYULONG64:
             field->atomictype = UDA_TYPE_UNSIGNED_LONG64;
-            strcpy(field->type, "unsigned long long *");
-            snprintf(field->desc, MAXELEMENTNAME, "[unsigned long long *%s] %s", name, desc);
-            field->pointer = 1;
-            field->size = field->count * sizeof(unsigned long long*);
+            defineArrayField<unsigned long long>(field, name, desc, rank, shape);
             break;
         case SCALARINT:
             field->atomictype = UDA_TYPE_INT;
@@ -918,10 +993,7 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
             break;
         case ARRAYINT:
             field->atomictype = UDA_TYPE_INT;
-            strcpy(field->type, "int *");
-            snprintf(field->desc, MAXELEMENTNAME, "[int *%s] %s", name, desc);
-            field->pointer = 1;
-            field->size = field->count * sizeof(int*);
+            defineArrayField<int>(field, name, desc, rank, shape);
             break;
         case SCALARUINT:
             field->atomictype = UDA_TYPE_UNSIGNED_INT;
@@ -931,10 +1003,7 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
             break;
         case ARRAYUINT:
             field->atomictype = UDA_TYPE_UNSIGNED_INT;
-            strcpy(field->type, "unsigned int *");
-            snprintf(field->desc, MAXELEMENTNAME, "[unsigned int *%s] %s", name, desc);
-            field->pointer = 1;
-            field->size = field->count * sizeof(unsigned int*);
+            defineArrayField<unsigned int>(field, name, desc, rank, shape);
             break;
         case SCALARSHORT:
             field->atomictype = UDA_TYPE_SHORT;
@@ -944,10 +1013,7 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
             break;
         case ARRAYSHORT:
             field->atomictype = UDA_TYPE_SHORT;
-            strcpy(field->type, "short *");
-            snprintf(field->desc, MAXELEMENTNAME, "[short *%s] %s", name, desc);
-            field->pointer = 1;
-            field->size = field->count * sizeof(short*);
+            defineArrayField<short>(field, name, desc, rank, shape);
             break;
         case SCALARUSHORT:
             field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
@@ -957,10 +1023,7 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
             break;
         case ARRAYUSHORT:
             field->atomictype = UDA_TYPE_UNSIGNED_SHORT;
-            strcpy(field->type, "unsigned short *");
-            snprintf(field->desc, MAXELEMENTNAME, "[unsigned short *%s] %s", name, desc);
-            field->pointer = 1;
-            field->size = field->count * sizeof(unsigned short*);
+            defineArrayField<unsigned short>(field, name, desc, rank, shape);
             break;
         case SCALARCHAR:
             field->atomictype = UDA_TYPE_CHAR;
@@ -970,15 +1033,12 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
             break;
         case ARRAYCHAR:
             field->atomictype = UDA_TYPE_CHAR;
-            strcpy(field->type, "char *");
-            snprintf(field->desc, MAXELEMENTNAME, "[char *%s] %s", name, desc);
-            field->pointer = 1;
-            field->size = field->count * sizeof(char*);
+            defineArrayField<char>(field, name, desc, rank, shape);
             break;
         case SCALARSTRING:
             field->atomictype = UDA_TYPE_STRING;
             strcpy(field->type, "STRING");
-            snprintf(field->desc, MAXELEMENTNAME, "[char *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[char* %s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(char*);
             field->offset =
@@ -989,15 +1049,12 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
         case ARRAYSTRING:
             // Bug Fix dgm 07Jul2014: atomictype was missing!
             field->atomictype = UDA_TYPE_STRING;
-            strcpy(field->type, "STRING *");
-            snprintf(field->desc, MAXELEMENTNAME, "[char **%s] %s", name, desc);
-            field->pointer = 1;
-            field->size = field->count * sizeof(char**);
+            defineArrayField<char*>(field, name, desc, rank, shape);
             break;
         case ARRAYVOID:
             field->atomictype = UDA_TYPE_VOID;
             strcpy(field->type, "void *");
-            snprintf(field->desc, MAXELEMENTNAME, "[void *%s] %s", name, desc);
+            snprintf(field->desc, MAXELEMENTNAME, "[void* %s] %s", name, desc);
             field->pointer = 1;
             field->size = field->count * sizeof(void*);
             break;
@@ -1009,10 +1066,7 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
             break;
         case ARRAYUCHAR:
             field->atomictype = UDA_TYPE_UNSIGNED_CHAR;
-            strcpy(field->type, "unsigned char *");
-            snprintf(field->desc, MAXELEMENTNAME, "[unsigned char *%s] %s", name, desc);
-            field->pointer = 1;
-            field->size = field->count * sizeof(unsigned char*);
+            defineArrayField<unsigned char>(field, name, desc, rank, shape);
             break;
     }
 
@@ -1028,22 +1082,38 @@ void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* 
     *offset = field->offset + field->size; // Next Offset
 }
 
-void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int offset, int size)
+void defineUserTypeField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, int rank, int* shape,
+                         USERDEFINEDTYPE* user_type, bool is_pointer)
 {
     initCompoundField(field);
-
     strcpy(field->name, name);
+
     field->atomictype = UDA_TYPE_UNKNOWN;
-    strcpy(field->type, type);
+
+    strcpy(field->type, user_type->name);
     strcpy(field->desc, desc);
+    
+    field->pointer = (int)is_pointer;
 
-    field->pointer = 1;
-    field->count = 1;
-    field->rank = 0;
-    field->shape = nullptr;
+    if (is_pointer || rank == 0) {
+        field->rank = 0;
+        field->shape = nullptr;
+        field->count = 1;
+    } else {
+        field->rank = rank;
+        field->shape = (int *) malloc(rank * sizeof(int));
+        int count = 1;
+        for (int i = 0; i < rank; ++i) {
+            field->shape[i] = shape[i];
+            count *= shape[i];
+        }
+        field->count = count;
+    }
 
-    field->size = field->count * size;
-    field->offset = offset;
-    field->offpad = padding(offset, field->type);
-    field->alignment = ALIGNMENT;
+    field->size = field->count * user_type->size;
+    field->offset = (int)newoffset(*offset, field->type);
+    field->offpad = (int)padding(*offset, field->type);
+    field->alignment = getalignmentof(field->type);
+
+    *offset = field->offset + field->size; // Next Offset
 }

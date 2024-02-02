@@ -94,6 +94,8 @@ LIBRARY_API size_t getPtrSizeOf(UDA_TYPE data_type);
 #define ARRAYVOID 21
 #define SCALARUCHAR 22
 #define ARRAYUCHAR 23
+#define SCALARCOMPOUND 24
+#define ARRAYCOMPOUND 25
 
 typedef struct NTree NTREE;
 typedef struct NTreeList NTREELIST;

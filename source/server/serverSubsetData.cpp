@@ -1667,8 +1667,22 @@ template <typename T> struct EpsilonSelector {
 template <typename T> T EpsilonSelector<T>::Epsilon = (T)0;
 
 template <> double EpsilonSelector<double>::Epsilon = DBL_EPSILON;
-
 template <> float EpsilonSelector<float>::Epsilon = FLT_EPSILON;
+
+template <typename T> struct Abs {
+    T operator()(T value);
+};
+
+template <> float Abs<float>::operator()(float value) { return std::fabs(value); }
+template <> double Abs<double>::operator()(double value) { return std::fabs(value); }
+template <> short Abs<short>::operator()(short value) { return std::abs(value); }
+template <> unsigned short Abs<unsigned short>::operator()(unsigned short value) { return value; }
+template <> int Abs<int>::operator()(int value) { return std::abs(value); }
+template <> unsigned int Abs<unsigned int>::operator()(unsigned int value) { return value; }
+template <> long Abs<long>::operator()(long value) { return std::labs(value); }
+template <> unsigned long Abs<unsigned long>::operator()(unsigned long value) { return value; }
+template <> long long Abs<long long>::operator()(long long value) { return std::llabs(value); }
+template <> unsigned long long Abs<unsigned long long>::operator()(unsigned long long value) { return value; }
 
 template <typename T>
 int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double value, unsigned int* subset_indices)
@@ -1686,7 +1700,7 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
         }
         if (count == 0 && operation == "~=") {
             for (int k = 0; k < dim->dim_n; k++) {
-                if (fabs(p[k] - (T)value) <= EpsilonSelector<T>::Epsilon) {
+                if (Abs<T>()(p[k] - (T)value) <= EpsilonSelector<T>::Epsilon) {
                     subset_indices[count++] = k;
                 }
             }
@@ -1695,7 +1709,7 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
                 double delta;
                 double minvalue = fabs((T)value - p[0]);
                 for (int k = 0; k < dim->dim_n; k++) {
-                    delta = fabs((T)value - p[k]);
+                    delta = Abs<T>()((T)value - p[k]);
                     if (delta < minvalue) { // Look for the Single Nearest Value
                         minvalue = delta;
                         index = k;
@@ -1708,11 +1722,11 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
                     if (index == 0 || index == dim->dim_n - 1) { // Check not an end point by default
                         if (dim->dim_n > 1) {
                             if (index == 0) {
-                                delta = fabs(p[1] - p[0]);
+                                delta = Abs<T>()(p[1] - p[0]);
                             } else {
-                                delta = fabs(p[dim->dim_n - 1] - p[dim->dim_n - 2]);
+                                delta = Abs<T>()(p[dim->dim_n - 1] - p[dim->dim_n - 2]);
                             }
-                            if (fabs((T)value - p[index]) > delta) {
+                            if (Abs<T>()((T)value - p[index]) > delta) {
                                 count = 0; // Suspect match!
                             }
                         }
@@ -1754,9 +1768,9 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
                 }
             } else {
                 int index = -1;
-                double delta, minvalue = fabs((T)value - p[0]);
+                double delta, minvalue = Abs<T>()((T)value - p[0]);
                 for (int k = 0; k < dim->dim_n; k++) {
-                    delta = fabs((T)value - p[k]);
+                    delta = Abs<T>()((T)value - p[k]);
                     if (delta < minvalue) { // Look for the Single Nearest Value
                         minvalue = delta;
                         index = k;
@@ -1772,11 +1786,11 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
                         // Check not an end point by default
                         if (dim->dim_n > 1) {
                             if (index == 0) {
-                                delta = fabs(p[1] - p[0]);
+                                delta = Abs<T>()(p[1] - p[0]);
                             } else {
-                                delta = fabs(p[dim->dim_n - 1] - p[dim->dim_n - 2]);
+                                delta = Abs<T>()(p[dim->dim_n - 1] - p[dim->dim_n - 2]);
                             }
-                            if (fabs((T)value - p[index]) > delta) {
+                            if (Abs<T>()((T)value - p[index]) > delta) {
                                 count = 0;
                             } // Suspect match!
                         }

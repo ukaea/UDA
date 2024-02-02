@@ -1,7 +1,7 @@
 #ifndef UDA_PLUGIN_TESTPLUGIN_TESTSTRUCTS_H
 #define UDA_PLUGIN_TESTPLUGIN_TESTSTRUCTS_H
 
-#include "udaPlugin.h"
+#include <uda/plugins.h>
 
 typedef struct Test9 {
     char v1[56];    // single fixed length string

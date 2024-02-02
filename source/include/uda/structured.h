@@ -1229,24 +1229,6 @@ LIBRARY_API void* getNodeStructureData(NTREE* ntree);
  */
 LIBRARY_API void printImage(const char* image, int imagecount);
 
-//----------------------------------------------------------------------------------------------------------
-/**User defined structure field definition for common types
- *
- * This is a public function
- *
- * @param field The user defined structure's field to be populated
- * @param name Name of the structure's field.
- * @param desc Description of the fields contents
- * @param offset Current field byte offset from the start of the structure. Ppdated on return.
- * @param type_id Enumerated key indicating the type of data field, e.g. float array
- * @return Void
- */
-LIBRARY_API void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset,
-                             unsigned short type_id);
-
-LIBRARY_API void defineCompoundField(COMPOUNDFIELD* field, const char* type, const char* name, char* desc, int offset,
-                                     int size);
-
 #ifdef __cplusplus
 }
 #endif

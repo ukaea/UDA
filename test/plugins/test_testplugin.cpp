@@ -227,9 +227,6 @@ TEST_CASE( "Run test4 - pass struct containing char array", "[plugins][TESTPLUGI
 
     uda::TreeNode child = tree.child(0);
 
-    child.printUserDefinedTypeTable();
-    child.printStructureNames();
-
     REQUIRE( child.name() == "data" );
     REQUIRE( child.numChildren() == 0 );
     REQUIRE( child.atomicCount() == 1 );
@@ -303,9 +300,6 @@ TEST_CASE( "Run test6 - pass struct containing string", "[plugins][TESTPLUGIN]" 
     REQUIRE( tree.numChildren() == 1 );
 
     uda::TreeNode child = tree.child(0);
-
-    child.printUserDefinedTypeTable();
-    child.printStructureNames();
 
     REQUIRE( child.name() == "data" );
     REQUIRE( child.numChildren() == 0 );

@@ -1,17 +1,18 @@
 #include "uda/plugins.h"
 
+#include <uda/types.h>
+#include <uda/structured.h>
+
 #include "server/initPluginList.h"
 #include "server/serverPlugin.h"
 #include "server/serverSubsetData.h"
-
 #include "clientserver/initStructs.h"
 #include "logging/logging.h"
-#include <uda/types.h>
 #include "clientserver/errorLog.h"
 #include "clientserver/makeRequestBlock.h"
 #include "clientserver/stringUtils.h"
 #include "server/getServerEnvironment.h"
-#include "uda/structured.h"
+#include "structures/accessors.h"
 
 UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {
@@ -134,6 +135,45 @@ int setReturnDataDoubleArray(UDA_PLUGIN_INTERFACE* plugin_interface, double* val
     memcpy(data, values, len * sizeof(double));
 
     data_block->data_type = UDA_TYPE_DOUBLE;
+    data_block->data = (char*)data;
+    data_block->data_n = (int)len;
+
+    return 0;
+}
+
+int setReturnDataCharArray(UDA_PLUGIN_INTERFACE* plugin_interface, const char* values, size_t rank, int *shape,
+                           const char* description)
+{
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    initDataBlock(data_block);
+
+    if (description != nullptr) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
+    }
+
+    data_block->rank = (int)rank;
+    data_block->dims = (DIMS*)malloc(rank * sizeof(DIMS));
+
+    size_t len = 1;
+
+    for (size_t i = 0; i < rank; ++i) {
+        initDimBlock(&data_block->dims[i]);
+
+        data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
+        data_block->dims[i].dim_n = (int)shape[i];
+        data_block->dims[i].compressed = 1;
+        data_block->dims[i].dim0 = 0.0;
+        data_block->dims[i].diff = 1.0;
+        data_block->dims[i].method = 0;
+
+        len *= shape[i];
+    }
+
+    int* data = (int*)malloc(len * sizeof(int));
+    memcpy(data, values, len * sizeof(int));
+
+    data_block->data_type = UDA_TYPE_CHAR;
     data_block->data = (char*)data;
     data_block->data_n = (int)len;
 
@@ -353,6 +393,19 @@ int setReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, size_t si
     return 0;
 }
 
+LIBRARY_API int udaPluginArgumentCount(const UDA_PLUGIN_INTERFACE* plugin_interface)
+{
+    return plugin_interface->request_data->nameValueList.listSize;
+}
+
+LIBRARY_API const char* udaPluginArgument(const UDA_PLUGIN_INTERFACE* plugin_interface, int num)
+{
+    if (num > 0 && num < plugin_interface->request_data->nameValueList.pairCount) {
+        return plugin_interface->request_data->nameValueList.nameValue[num].name;
+    }
+    return nullptr;
+}
+
 /**
  * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associated value.
  *
@@ -552,12 +605,18 @@ bool findValue(const UDA_PLUGIN_INTERFACE* plugin_interface, const char* name)
 
 int callPlugin(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request)
 {
+    return callPlugin2(plugin_interface, request, "");
+}
+
+int callPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, const char* source)
+{
     UDA_PLUGIN_INTERFACE new_plugin_interface = *plugin_interface;
     REQUEST_DATA request_data = *plugin_interface->request_data;
     new_plugin_interface.request_data = &request_data;
 
-    request_data.source[0] = '\0';
     strcpy(request_data.signal, request);
+    strcpy(request_data.source, source);
+
     makeRequestData(&request_data, plugin_interface->pluginList, plugin_interface->environment);
 
     request_data.request = findPluginRequestByFormat(request_data.format, plugin_interface->pluginList);
@@ -586,7 +645,7 @@ int callPlugin(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request)
     return err;
 }
 
-int setReturnCompoundData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, const char *user_type) {
+int setReturnCompoundData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, const char *user_type, const char* description) {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
@@ -603,13 +662,88 @@ int setReturnCompoundData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, co
     data_block->opaque_count = 1;
     data_block->opaque_block = (void*)findUserDefinedType(plugin_interface->userdefinedtypelist, user_type, 0);
 
+    if (description != nullptr) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
+    }
+
+    return 0;
+}
+
+int setReturnCompoundArrayData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, const char *user_type, const char* description, int rank, int* shape) {
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    initDataBlock(data_block);
+
+    int count = 1;
+    for (int i = 0; i < rank; ++i) {
+        count *= shape[i];
+    }
+
+    data_block->data_type = UDA_TYPE_COMPOUND;
+    data_block->rank = rank;
+    data_block->data_n = count;
+    data_block->data = data;
+    data_block->dims = (DIMS*)malloc(rank * sizeof(DIMS));
+
+    for (int i = 0; i < rank; ++i) {
+        initDimBlock(&data_block->dims[i]);
+
+        data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
+        data_block->dims[i].dim_n = (int)shape[i];
+        data_block->dims[i].compressed = 1;
+        data_block->dims[i].dim0 = 0.0;
+        data_block->dims[i].diff = 1.0;
+        data_block->dims[i].method = 0;
+    }
+
+    strcpy(data_block->data_desc, "Local UDA server time");
+    strcpy(data_block->data_label, "servertime");
+    strcpy(data_block->data_units, "");
+
+    data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
+    data_block->opaque_count = 1;
+    data_block->opaque_block = (void*)findUserDefinedType(plugin_interface->userdefinedtypelist, user_type, 0);
+
+    if (description != nullptr) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
+    }
+
     return 0;
 }
 
 COMPOUNDFIELD* udaNewCompoundField(const char* name, const char* description, int* offset, int type)
 {
     COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
-    defineField(field, name, description, offset, type);
+    defineField(field, name, description, offset, type, 0, nullptr);
+    return field;
+}
+
+COMPOUNDFIELD* udaNewCompoundArrayField(const char* name, const char* description, int* offset, int type, int rank, int* shape)
+{
+    COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
+    defineField(field, name, description, offset, type, rank, shape);
+    return field;
+}
+
+COMPOUNDFIELD* udaNewCompoundUserTypeField(const char* name, const char* description, int* offset, USERDEFINEDTYPE* user_type)
+{
+    COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
+    defineUserTypeField(field, name, description, offset, 0, nullptr, user_type, false);
+    return field;
+}
+
+COMPOUNDFIELD* udaNewCompoundUserTypePointerField(const char* name, const char* description, int* offset, USERDEFINEDTYPE* user_type)
+{
+    COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
+    defineUserTypeField(field, name, description, offset, 0, nullptr, user_type, true);
+    return field;
+}
+
+COMPOUNDFIELD* udaNewCompoundUserTypeArrayField(const char* name, const char* description, int* offset, USERDEFINEDTYPE* user_type, int rank, int* shape)
+{
+    COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
+    defineUserTypeField(field, name, description, offset, rank, shape, user_type, false);
     return field;
 }
 
@@ -644,6 +778,13 @@ int udaAddUserType(UDA_PLUGIN_INTERFACE* plugin_interface, USERDEFINEDTYPE* user
 int udaRegisterMalloc(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int count, size_t size, const char* type)
 {
     addMalloc(plugin_interface->logmalloclist, data, count, size, type);
+
+    return 0;
+}
+
+int udaRegisterMallocArray(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int count, size_t size, const char* type, int rank, int* shape)
+{
+    addMalloc2(plugin_interface->logmalloclist, data, count, size, type, rank, shape);
 
     return 0;
 }

@@ -1,140 +1,43 @@
 #include "teststructs.h"
 
-#include "logging/logging.h"
-
 void init_structure_definitions(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    USERDEFINEDTYPE* old;
-
-    USERDEFINEDTYPE usertype;
-    initUserDefinedType(&usertype); // New structure definition
-
-    strcpy(usertype.name, "TEST9");
-    strcpy(usertype.source, "Test #9");
-    usertype.ref_id = 0;
-    usertype.imagecount = 0; // No Structure Image data
-    usertype.image = nullptr;
-    usertype.size = sizeof(TEST9); // Structure size
-    usertype.idamclass = UDA_TYPE_COMPOUND;
-
     int offset = 0;
+    int shape[2] = {};
+    COMPOUNDFIELD* fields[5] = {};
 
-    COMPOUNDFIELD field;
-    initCompoundField(&field);
-    strcpy(field.name, "v1");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING"); // convert atomic type to a string label
-    strcpy(field.desc, "string structure element: char [56]");
-    field.pointer = 0;
-    field.count = 56;
-    field.rank = 1;
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = field.count;
-    field.size = field.count * sizeof(char);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size; // Next Offset
-    addCompoundField(&usertype, field); // Single Structure element
+    shape[0] = 56;
+    fields[0] = udaNewCompoundArrayField("v1", "string structure element", &offset, ARRAYCHAR, 1, shape);
 
-    initCompoundField(&field);
-    strcpy(field.name, "v2");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING"); // convert atomic type to a string label
-    strcpy(field.desc, "string structure element: char [3][56]");
-    field.pointer = 0;
-    field.count = 3 * 56;
-    field.rank = 2;
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = 56;
-    field.shape[1] = 3;
-    field.size = field.count * sizeof(char);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size; // Next Offset
-    addCompoundField(&usertype, field); // Single Structure element
+    shape[0] = 56;
+    shape[1] = 3;
+    fields[1] = udaNewCompoundArrayField("v2", "string structure element", &offset, ARRAYCHAR, 2, shape);
 
-    initCompoundField(&field);
-    strcpy(field.name, "v3");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING"); // convert atomic type to a string label
-    strcpy(field.desc, "string structure element: char *");
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-    field.size = field.count * sizeof(char*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size; // Next Offset
-    addCompoundField(&usertype, field); // Single Structure element
+    fields[2] = udaNewCompoundField("v3", "string structure element", &offset, SCALARSTRING);
 
-    initCompoundField(&field);
-    strcpy(field.name, "v4");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING *"); // Array of String pointers
-    strcpy(field.desc, "string structure element: char *[3]");
-    field.pointer = 0;
-    field.count = 3;
-    field.rank = 1;
-    field.shape = (int*)malloc(field.rank * sizeof(int)); // Needed when rank >= 1
-    field.shape[0] = 3;
-    field.size = field.count * sizeof(char*);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    offset = field.offset + field.size; // Next Offset
-    addCompoundField(&usertype, field); // Single Structure element
+    shape[0] = 3;
+    fields[3] = udaNewCompoundArrayField("v4", "string structure element", &offset, ARRAYSTRING, 1, shape);
 
-    initCompoundField(&field);
-    strcpy(field.name, "v5");
-    field.atomictype = UDA_TYPE_STRING;
-    strcpy(field.type, "STRING *"); // Array of String pointers
-    strcpy(field.desc, "string structure element: char **");
-    field.pointer = 1;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-    field.size = field.count * sizeof(char**);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
+    fields[4] = udaNewCompoundField("v4", "string structure element", &offset, ARRAYSTRING);
 
-    USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, usertype);
+    USERDEFINEDTYPE* test9_type = udaNewUserType("TEST9", "Test #9", 0, 0, nullptr, sizeof(TEST9), 5, fields);
 
-    UDA_LOG(UDA_LOG_DEBUG, "Type TEST9 defined\n");
+    udaAddUserType(plugin_interface, test9_type);
 
-    old = findUserDefinedType(userdefinedtypelist, "TEST9", 0); // Clone existing structure & modify
-    copyUserDefinedType(old, &usertype);
+    udaPluginLog(plugin_interface, "Type TEST9 defined\n");
 
-    UDA_LOG(UDA_LOG_DEBUG, "Type TEST9 located\n");
+    COMPOUNDFIELD* test9a_fields[6] = {};
+    test9a_fields[0] = fields[0];
+    test9a_fields[1] = fields[1];
+    test9a_fields[2] = fields[2];
+    test9a_fields[3] = fields[3];
+    test9a_fields[4] = fields[4];
 
-    strcpy(usertype.name, "TEST9A");
-    strcpy(usertype.source, "Test #9A");
-    usertype.size = sizeof(TEST9A); // Structure size
+    test9a_fields[5] = udaNewCompoundUserTypeField("v4", "string structure element", &offset, test9_type);
 
-    offset = old->size;
+    USERDEFINEDTYPE* test9a_user_type = udaNewUserType("TEST9A", "Test #9A", 0, 0, nullptr, sizeof(TEST9A), 6, test9a_fields);
 
-    initCompoundField(&field);
-    strcpy(field.name, "v6");
-    field.atomictype = UDA_TYPE_UNKNOWN;
-    strcpy(field.type, "TEST9"); // Array of String pointers
-    strcpy(field.desc, "string structure elements with sub structure");
-    field.pointer = 0;
-    field.count = 1;
-    field.rank = 0;
-    field.shape = nullptr;
-    field.size = field.count * sizeof(TEST9);
-    field.offset = newoffset(offset, field.type);
-    field.offpad = padding(offset, field.type);
-    field.alignment = getalignmentof(field.type);
-    addCompoundField(&usertype, field); // Single Structure element
+    udaAddUserType(plugin_interface, test9a_user_type);
 
-    addUserDefinedType(userdefinedtypelist, usertype);
-
-    UDA_LOG(UDA_LOG_DEBUG, "Type TEST9A defined\n");
+    udaPluginLog(plugin_interface, "Type TEST9A defined\n");
 }

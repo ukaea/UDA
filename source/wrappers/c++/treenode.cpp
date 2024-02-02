@@ -54,12 +54,6 @@ std::string uda::TreeNode::name() const
     return name == nullptr ? "" : name;
 }
 
-void uda::TreeNode::printStructureNames()
-{
-    LOGMALLOCLIST* logmalloclist = getIdamLogMallocList(handle_);
-    printNTreeStructureNames(logmalloclist, node_);
-}
-
 uda::TreeNode uda::TreeNode::findStructureDefinition(const std::string& name)
 {
     return {handle_, findNTreeStructureDefinition(node_, (char*)name.c_str())};

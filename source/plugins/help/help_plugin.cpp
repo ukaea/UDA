@@ -63,7 +63,7 @@ int HelpPlugin::ping(UDA_PLUGIN_INTERFACE* plugin_interface)
     data->microseconds = (unsigned int)serverTime.tv_usec;
 
     // return to the client
-    setReturnCompoundData(plugin_interface, (char*)data, "HELP_PING");
+    setReturnCompoundData(plugin_interface, (char*)data, "HELP_PING", nullptr);
 
     return 0;
 }

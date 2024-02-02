@@ -128,10 +128,11 @@ protected:
     LIBRARY_API int default_method(UDA_PLUGIN_INTERFACE* plugin_interface);
     LIBRARY_API int max_interface_version(UDA_PLUGIN_INTERFACE* plugin_interface);
 
+    static std::string get_function(UDA_PLUGIN_INTERFACE* plugin_interface);
+
 private:
     void do_init(UDA_PLUGIN_INTERFACE* plugin_interface);
     void do_reset();
-    static std::string get_function(UDA_PLUGIN_INTERFACE* plugin_interface);
 
     bool init_;
     std::string name_;

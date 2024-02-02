@@ -23,6 +23,7 @@ typedef void (*ADDIDAMERRORFUNP)(UDA_ERROR_STACK*, int, char*, int, char*); // W
 // Prototypes
 
 LIBRARY_API int callPlugin(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request);
+LIBRARY_API int callPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, const char* source);
 
 LIBRARY_API int udaPluginIsExternal(UDA_PLUGIN_INTERFACE* plugin_interface);
 LIBRARY_API int udaPluginCheckInterfaceVersion(UDA_PLUGIN_INTERFACE* plugin_interface, int interface_version);
@@ -38,11 +39,17 @@ LIBRARY_API UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request);
 LIBRARY_API void udaFreePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface);
 
 LIBRARY_API COMPOUNDFIELD* udaNewCompoundField(const char* name, const char* description, int* offset, int type);
+LIBRARY_API COMPOUNDFIELD* udaNewCompoundArrayField(const char* name, const char* description, int* offset, int type, int rank, int* shape);
+
+LIBRARY_API COMPOUNDFIELD* udaNewCompoundUserTypeField(const char* name, const char* description, int* offset, USERDEFINEDTYPE* user_type);
+LIBRARY_API COMPOUNDFIELD* udaNewCompoundUserTypePointerField(const char* name, const char* description, int* offset, USERDEFINEDTYPE* user_type);
+LIBRARY_API COMPOUNDFIELD* udaNewCompoundUserTypeArrayField(const char* name, const char* description, int* offset, USERDEFINEDTYPE* user_type, int rank, int* shape);
 
 LIBRARY_API USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id, int image_count, char* image, size_t size, size_t num_fields, COMPOUNDFIELD** fields);
 
 LIBRARY_API int udaAddUserType(UDA_PLUGIN_INTERFACE*, USERDEFINEDTYPE* user_type);
 LIBRARY_API int udaRegisterMalloc(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int, size_t, const char*);
+LIBRARY_API int udaRegisterMallocArray(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int count, size_t size, const char* type, int rank, int* shape);
 
 LIBRARY_API int udaPluginPluginsCount(UDA_PLUGIN_INTERFACE* plugin_interface);
 LIBRARY_API int udaPluginCheckPluginClass(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num, const char* plugin_class);
@@ -58,6 +65,8 @@ LIBRARY_API int setReturnDataFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, 
                                         const char* description);
 LIBRARY_API int setReturnDataDoubleArray(UDA_PLUGIN_INTERFACE* plugin_interface, double* values, size_t rank, const size_t* shape,
                                          const char* description);
+LIBRARY_API int setReturnDataCharArray(UDA_PLUGIN_INTERFACE* plugin_interface, const char* values, size_t rank, int *shape,
+                                       const char* description);
 LIBRARY_API int setReturnDataIntArray(UDA_PLUGIN_INTERFACE* plugin_interface, int* values, size_t rank, const size_t* shape,
                                       const char* description);
 LIBRARY_API int setReturnDataDoubleScalar(UDA_PLUGIN_INTERFACE* plugin_interface, double value, const char* description);
@@ -77,7 +86,11 @@ LIBRARY_API int setReturnErrorLow(UDA_PLUGIN_INTERFACE* plugin_interface, float*
 LIBRARY_API int setReturnErrorHigh(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size);
 LIBRARY_API int setReturnDataOrder(UDA_PLUGIN_INTERFACE* plugin_interface, int order);
 
-LIBRARY_API int setReturnCompoundData(UDA_PLUGIN_INTERFACE* plugin_interface, char* data, const char* user_type);
+LIBRARY_API int setReturnCompoundData(UDA_PLUGIN_INTERFACE* plugin_interface, char* data, const char* user_type, const char* description);
+LIBRARY_API int setReturnCompoundArrayData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, const char *user_type, const char* description, int rank, int* shape);
+
+LIBRARY_API int udaPluginArgumentCount(const UDA_PLUGIN_INTERFACE* plugin_interface);
+LIBRARY_API const char* udaPluginArgument(const UDA_PLUGIN_INTERFACE* plugin_interface, int num);
 
 LIBRARY_API bool findStringValue(const UDA_PLUGIN_INTERFACE* plugin_interface, const char** value, const char* name);
 LIBRARY_API bool findValue(const UDA_PLUGIN_INTERFACE* plugin_interface, const char* name);
@@ -107,7 +120,7 @@ LIBRARY_API bool findDoubleArray(const UDA_PLUGIN_INTERFACE* plugin_interface, d
 #define RAISE_PLUGIN_ERROR(PLUGIN_INTERFACE, MSG)                                                                      \
     {                                                                                                                  \
         int UNIQUE_VAR(err) = 999;                                                                                     \
-        UDA_LOG(UDA_LOG_ERROR, "%s\n", MSG);                                                                           \
+        udaPluginLog(PLUGIN_INTERFACE, "%s\n", MSG);                                                                           \
         udaAddPluginError(PLUGIN_INTERFACE, __func__, UNIQUE_VAR(err), MSG);                                           \
         return UNIQUE_VAR(err);                                                                                        \
     }
@@ -137,12 +150,12 @@ LIBRARY_API bool findDoubleArray(const UDA_PLUGIN_INTERFACE* plugin_interface, d
 
 #define FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, TYPE)                                                          \
     if (!find##TYPE##Value(PLUGIN_INTERFACE, &VARIABLE, QUOTE(VARIABLE))) {                                            \
-        RAISE_PLUGIN_ERROR("Required argument '" QUOTE(VARIABLE) "' not given");                                       \
+        RAISE_PLUGIN_ERROR(PLUGIN_INTERFACE, "Required argument '" QUOTE(VARIABLE) "' not given");                     \
     }
 
 #define FIND_REQUIRED_ARRAY(PLUGIN_INTERFACE, VARIABLE, TYPE)                                                          \
     if (!find##TYPE##Array(PLUGIN_INTERFACE, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(VARIABLE))) {                      \
-        RAISE_PLUGIN_ERROR("Required argument '" QUOTE(VARIABLE) "' not given");                                       \
+        RAISE_PLUGIN_ERROR(PLUGIN_INTERFACE, "Required argument '" QUOTE(VARIABLE) "' not given");                     \
     }
 
 #define FIND_REQUIRED_INT_VALUE(PLUGIN_INTERFACE, VARIABLE) FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, Int)

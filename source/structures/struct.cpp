@@ -36,7 +36,7 @@
 //
 //
 //==============================================================================================================
-
+#include "accessors.h"
 #include "genStructs.h"
 
 #include <cstdlib>
@@ -1205,13 +1205,13 @@ void getInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
 
     offset = 0;
 
-    defineField(&field, "count", "Number of data array elements", &offset, SCALARINT);
+    defineField(&field, "count", "Number of data array elements", &offset, SCALARINT, 0, nullptr);
     addCompoundField(&usertype, field);
-    defineField(&field, "rank", "Rank of the data array", &offset, SCALARINT);
+    defineField(&field, "rank", "Rank of the data array", &offset, SCALARINT, 0, nullptr);
     addCompoundField(&usertype, field);
-    defineField(&field, "shape", "Shape of the data array", &offset, ARRAYINT);
+    defineField(&field, "shape", "Shape of the data array", &offset, ARRAYINT, 0, nullptr);
     addCompoundField(&usertype, field);
-    defineField(&field, "data", "Location of the Structure Array", &offset, ARRAYVOID);
+    defineField(&field, "data", "Location of the Structure Array", &offset, ARRAYVOID, 0, nullptr);
     addCompoundField(&usertype, field);
 
     initCompoundField(&field);
@@ -1265,7 +1265,7 @@ void getInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     addCompoundField(&usertype, field);
 
     initCompoundField(&field);
-    defineField(&field, "value", "The ENUM value", &offset, SCALARLONG64);
+    defineField(&field, "value", "The ENUM value", &offset, SCALARLONG64, 0, nullptr);
     addCompoundField(&usertype, field);
 
     addUserDefinedType(list, usertype);
@@ -1302,11 +1302,11 @@ void getInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     addCompoundField(&usertype, field);
 
     initCompoundField(&field);
-    defineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT);
+    defineField(&field, "type", "The ENUM base integer atomic type", &offset, SCALARINT, 0, nullptr);
     addCompoundField(&usertype, field);
 
     initCompoundField(&field);
-    defineField(&field, "count", "The number of ENUM values", &offset, SCALARINT);
+    defineField(&field, "count", "The number of ENUM values", &offset, SCALARINT, 0, nullptr);
     addCompoundField(&usertype, field);
 
     initCompoundField(&field);
@@ -1334,16 +1334,16 @@ void getInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
 
     initCompoundField(&field);
     defineField(&field, "enumarray", "Data with this enumerated type", &offset,
-                ARRAYULONG64); // Data need to be converted to this type
+                ARRAYULONG64, 0, nullptr); // Data need to be converted to this type
     addCompoundField(&usertype, field);
     initCompoundField(&field);
-    defineField(&field, "enumarray_rank", "The rank of arraydata", &offset, SCALARINT);
+    defineField(&field, "enumarray_rank", "The rank of arraydata", &offset, SCALARINT, 0, nullptr);
     addCompoundField(&usertype, field);
     initCompoundField(&field);
-    defineField(&field, "enumarray_count", "The count of arraydata", &offset, SCALARINT);
+    defineField(&field, "enumarray_count", "The count of arraydata", &offset, SCALARINT, 0, nullptr);
     addCompoundField(&usertype, field);
     initCompoundField(&field);
-    defineField(&field, "enumarray_shape", "The shape of arraydata", &offset, ARRAYINT);
+    defineField(&field, "enumarray_shape", "The shape of arraydata", &offset, ARRAYINT, 0, nullptr);
     addCompoundField(&usertype, field);
 
     addUserDefinedType(list, usertype);
