@@ -72,13 +72,13 @@ int UDAPluginBase::help(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     if (help_file_.empty()) {
         const char* help = "No help available";
-        return setReturnDataString(plugin_interface, help, desc.c_str());
+        return udaPluginReturnDataStringScalar(plugin_interface, help, desc.c_str());
     }
 
     auto path = boost::filesystem::path(help_file_);
     if (!boost::filesystem::exists(path)) {
         auto help = fmt::format("help file {} does not exist", path.string());
-        return setReturnDataString(plugin_interface, help.c_str(), desc.c_str());
+        return udaPluginReturnDataStringScalar(plugin_interface, help.c_str(), desc.c_str());
     }
 
     std::ifstream help_file{path.string()};
@@ -86,27 +86,27 @@ int UDAPluginBase::help(UDA_PLUGIN_INTERFACE* plugin_interface)
     buffer << help_file.rdbuf();
     auto help = buffer.str();
 
-    return setReturnDataString(plugin_interface, help.c_str(), desc.c_str());
+    return udaPluginReturnDataStringScalar(plugin_interface, help.c_str(), desc.c_str());
 }
 
 int UDAPluginBase::version(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataIntScalar(plugin_interface, version_, "Plugin version number");
+    return udaPluginReturnDataIntScalar(plugin_interface, version_, "Plugin version number");
 }
 
 int UDAPluginBase::build_date(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataString(plugin_interface, __DATE__, "Plugin build date");
+    return udaPluginReturnDataStringScalar(plugin_interface, __DATE__, "Plugin build date");
 }
 
 int UDAPluginBase::default_method(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataString(plugin_interface, default_method_.c_str(), "Plugin default method");
+    return udaPluginReturnDataStringScalar(plugin_interface, default_method_.c_str(), "Plugin default method");
 }
 
 int UDAPluginBase::max_interface_version(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return setReturnDataIntScalar(plugin_interface, interface_version_, "Maximum Interface Version");
+    return udaPluginReturnDataIntScalar(plugin_interface, interface_version_, "Maximum Interface Version");
 }
 
 void UDAPluginBase::register_method(const std::string& name, plugin_member_type plugin_method)

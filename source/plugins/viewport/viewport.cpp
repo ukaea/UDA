@@ -562,18 +562,18 @@ int ViewportPlugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         // Return viewport data
 
         size_t shape[] = { (size_t)pixelWidth2 };
-        setReturnDataFloatArray(plugin_interface, data.data(), 1, shape, getIdamDataDesc(handle));
-        setReturnDataLabel(plugin_interface, getIdamDataLabel(handle));
-        setReturnDataUnits(plugin_interface, getIdamDataUnits(handle));
+        udaPluginReturnDataFloatArray(plugin_interface, data.data(), 1, shape, getIdamDataDesc(handle));
+        udaPluginReturnDataLabel(plugin_interface, getIdamDataLabel(handle));
+        udaPluginReturnDataUnits(plugin_interface, getIdamDataUnits(handle));
 
-        setReturnDimensionFloatArray(plugin_interface, 0, horizontal_pixel_values.data(), pixelWidth2, getIdamDimLabel(handle, 0), getIdamDimUnits(handle, 0));
+        udaPluginReturnDimensionFloatArray(plugin_interface, 0, horizontal_pixel_values.data(), pixelWidth2, getIdamDimLabel(handle, 0), getIdamDimUnits(handle, 0));
 
         if (!range) {
-            setReturnErrorAsymmetry(plugin_interface, true);
-            setReturnErrorLow(plugin_interface, err_lo.data(), err_lo.size());
+            udaPluginReturnErrorAsymmetry(plugin_interface, true);
+            udaPluginReturnErrorLow(plugin_interface, err_lo.data(), err_lo.size());
         }
-        setReturnErrorHigh(plugin_interface, err_hi.data(), err_hi.size());
-        setReturnDataOrder(plugin_interface, order);
+        udaPluginReturnErrorHigh(plugin_interface, err_hi.data(), err_hi.size());
+        udaPluginReturnDataOrder(plugin_interface, order);
     } else {
         error(plugin_interface, "A viewport for rank > 1 data has not been implemented!");
     }

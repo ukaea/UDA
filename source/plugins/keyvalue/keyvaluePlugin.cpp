@@ -132,7 +132,7 @@ int uda::keyvalue::Plugin::read(UDA_PLUGIN_INTERFACE* plugin_interface)
     }
 
     int shape[] = { (int)value_len };
-    setReturnData(plugin_interface, value, value_len, UDA_TYPE_CHAR, 1, shape, nullptr);
+    udaPluginReturnData(plugin_interface, value, value_len, UDA_TYPE_CHAR, 1, shape, nullptr);
 
     return 0;
 }

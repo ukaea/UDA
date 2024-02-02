@@ -7,6 +7,7 @@
 #include "server/serverPlugin.h"
 #include "server/serverSubsetData.h"
 #include "clientserver/initStructs.h"
+#include "clientserver/type_convertor.hpp"
 #include "logging/logging.h"
 #include "clientserver/errorLog.h"
 #include "clientserver/makeRequestBlock.h"
@@ -63,8 +64,30 @@ int initPlugin(const UDA_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-int setReturnDataFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, float* values, size_t rank, const size_t* shape,
-                            const char* description)
+template <typename T>
+int setReturnDataScalar(UDA_PLUGIN_INTERFACE* plugin_interface, T value, const char* description)
+{
+    DATA_BLOCK* data_block = plugin_interface->data_block;
+    initDataBlock(data_block);
+
+    auto data = (T*)malloc(sizeof(T));
+    data[0] = value;
+
+    if (description != nullptr) {
+        strncpy(data_block->data_desc, description, STRING_LENGTH);
+        data_block->data_desc[STRING_LENGTH - 1] = '\0';
+    }
+
+    data_block->rank = 0;
+    data_block->data_type = TypeConvertor<T>::type;
+    data_block->data = (char*)data;
+    data_block->data_n = 1;
+
+    return 0;
+}
+
+template <typename T>
+int setReturnDataArray(UDA_PLUGIN_INTERFACE* plugin_interface, const T* values, size_t rank, const size_t* shape, const char* description)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
@@ -92,239 +115,40 @@ int setReturnDataFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, float* value
         len *= shape[i];
     }
 
-    auto data = (float*)malloc(len * sizeof(float));
-    memcpy(data, values, len * sizeof(float));
+    auto data = (T*)malloc(len * sizeof(T));
+    memcpy(data, values, len * sizeof(T));
 
-    data_block->data_type = UDA_TYPE_FLOAT;
+    data_block->data_type = TypeConvertor<T>::type;
     data_block->data = (char*)data;
     data_block->data_n = (int)len;
 
     return 0;
 }
 
-int setReturnDataDoubleArray(UDA_PLUGIN_INTERFACE* plugin_interface, double* values, size_t rank, const size_t* shape,
-                             const char* description)
-{
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
-    }
-
-    data_block->rank = (int)rank;
-    data_block->dims = (DIMS*)malloc(rank * sizeof(DIMS));
-
-    size_t len = 1;
-
-    for (size_t i = 0; i < rank; ++i) {
-        initDimBlock(&data_block->dims[i]);
-
-        data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
-        data_block->dims[i].dim_n = (int)shape[i];
-        data_block->dims[i].compressed = 1;
-        data_block->dims[i].dim0 = 0.0;
-        data_block->dims[i].diff = 1.0;
-        data_block->dims[i].method = 0;
-
-        len *= shape[i];
-    }
-
-    auto data = (double*)malloc(len * sizeof(double));
-    memcpy(data, values, len * sizeof(double));
-
-    data_block->data_type = UDA_TYPE_DOUBLE;
-    data_block->data = (char*)data;
-    data_block->data_n = (int)len;
-
-    return 0;
+#define UDA_IMPL_SET_RETURN_FUNCS(NAME, TYPE) \
+int udaPluginReturnData##NAME##Scalar(UDA_PLUGIN_INTERFACE* plugin_interface, const TYPE value, const char* description) \
+{ \
+    return setReturnDataScalar<TYPE>(plugin_interface, value, description); \
+}                                    \
+int udaPluginReturnData##NAME##Array(UDA_PLUGIN_INTERFACE* plugin_interface, const TYPE* values, size_t rank, const size_t* shape, const char* description) \
+{ \
+    return setReturnDataArray<TYPE>(plugin_interface, values, rank, shape, description); \
 }
 
-int setReturnDataCharArray(UDA_PLUGIN_INTERFACE* plugin_interface, const char* values, size_t rank, int *shape,
-                           const char* description)
-{
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
+UDA_IMPL_SET_RETURN_FUNCS(Float, float)
+UDA_IMPL_SET_RETURN_FUNCS(Double, double)
+UDA_IMPL_SET_RETURN_FUNCS(Char, char)
+UDA_IMPL_SET_RETURN_FUNCS(UChar, unsigned char)
+UDA_IMPL_SET_RETURN_FUNCS(Short, short)
+UDA_IMPL_SET_RETURN_FUNCS(UShort, unsigned short)
+UDA_IMPL_SET_RETURN_FUNCS(Int, int)
+UDA_IMPL_SET_RETURN_FUNCS(UInt, unsigned int)
+UDA_IMPL_SET_RETURN_FUNCS(Long, long)
+UDA_IMPL_SET_RETURN_FUNCS(ULong, unsigned long)
 
-    if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
-    }
+#undef UDA_IMPL_SET_RETURN_FUNCS
 
-    data_block->rank = (int)rank;
-    data_block->dims = (DIMS*)malloc(rank * sizeof(DIMS));
-
-    size_t len = 1;
-
-    for (size_t i = 0; i < rank; ++i) {
-        initDimBlock(&data_block->dims[i]);
-
-        data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
-        data_block->dims[i].dim_n = (int)shape[i];
-        data_block->dims[i].compressed = 1;
-        data_block->dims[i].dim0 = 0.0;
-        data_block->dims[i].diff = 1.0;
-        data_block->dims[i].method = 0;
-
-        len *= shape[i];
-    }
-
-    int* data = (int*)malloc(len * sizeof(int));
-    memcpy(data, values, len * sizeof(int));
-
-    data_block->data_type = UDA_TYPE_CHAR;
-    data_block->data = (char*)data;
-    data_block->data_n = (int)len;
-
-    return 0;
-}
-
-int setReturnDataIntArray(UDA_PLUGIN_INTERFACE* plugin_interface, int* values, size_t rank, const size_t* shape,
-                          const char* description)
-{
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
-    }
-
-    data_block->rank = (int)rank;
-    data_block->dims = (DIMS*)malloc(rank * sizeof(DIMS));
-
-    size_t len = 1;
-
-    for (size_t i = 0; i < rank; ++i) {
-        initDimBlock(&data_block->dims[i]);
-
-        data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
-        data_block->dims[i].dim_n = (int)shape[i];
-        data_block->dims[i].compressed = 1;
-        data_block->dims[i].dim0 = 0.0;
-        data_block->dims[i].diff = 1.0;
-        data_block->dims[i].method = 0;
-
-        len *= shape[i];
-    }
-
-    int* data = (int*)malloc(len * sizeof(int));
-    memcpy(data, values, len * sizeof(int));
-
-    data_block->data_type = UDA_TYPE_INT;
-    data_block->data = (char*)data;
-    data_block->data_n = (int)len;
-
-    return 0;
-}
-
-int setReturnDataDoubleScalar(UDA_PLUGIN_INTERFACE* plugin_interface, double value, const char* description)
-{
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    auto data = (double*)malloc(sizeof(double));
-    data[0] = value;
-
-    if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
-    }
-
-    data_block->rank = 0;
-    data_block->data_type = UDA_TYPE_DOUBLE;
-    data_block->data = (char*)data;
-    data_block->data_n = 1;
-
-    return 0;
-}
-
-int setReturnDataFloatScalar(UDA_PLUGIN_INTERFACE* plugin_interface, float value, const char* description)
-{
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    auto data = (float*)malloc(sizeof(float));
-    data[0] = value;
-
-    if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
-    }
-
-    data_block->rank = 0;
-    data_block->data_type = UDA_TYPE_FLOAT;
-    data_block->data = (char*)data;
-    data_block->data_n = 1;
-
-    return 0;
-}
-
-int setReturnDataIntScalar(UDA_PLUGIN_INTERFACE* plugin_interface, int value, const char* description)
-{
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    int* data = (int*)malloc(sizeof(int));
-    data[0] = value;
-
-    if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
-    }
-
-    data_block->rank = 0;
-    data_block->data_type = UDA_TYPE_INT;
-    data_block->data = (char*)data;
-    data_block->data_n = 1;
-
-    return 0;
-}
-
-int setReturnDataLongScalar(UDA_PLUGIN_INTERFACE* plugin_interface, long value, const char* description)
-{
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    long* data = (long*)malloc(sizeof(long));
-    data[0] = value;
-
-    if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
-    }
-
-    data_block->rank = 0;
-    data_block->data_type = UDA_TYPE_LONG;
-    data_block->data = (char*)data;
-    data_block->data_n = 1;
-
-    return 0;
-}
-
-int setReturnDataShortScalar(UDA_PLUGIN_INTERFACE* plugin_interface, short value, const char* description)
-{
-    DATA_BLOCK* data_block = plugin_interface->data_block;
-    initDataBlock(data_block);
-
-    auto data = (short*)malloc(sizeof(short));
-    data[0] = value;
-
-    if (description != nullptr) {
-        strncpy(data_block->data_desc, description, STRING_LENGTH);
-        data_block->data_desc[STRING_LENGTH - 1] = '\0';
-    }
-
-    data_block->rank = 0;
-    data_block->data_type = UDA_TYPE_SHORT;
-    data_block->data = (char*)data;
-    data_block->data_n = 1;
-
-    return 0;
-}
-
-int setReturnDataString(UDA_PLUGIN_INTERFACE* plugin_interface, const char* value, const char* description)
+int udaPluginReturnDataStringScalar(UDA_PLUGIN_INTERFACE* plugin_interface, const char* value, const char* description)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
@@ -356,7 +180,7 @@ int setReturnDataString(UDA_PLUGIN_INTERFACE* plugin_interface, const char* valu
     return 0;
 }
 
-int setReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, size_t size, UDA_TYPE type, int rank, const int* shape,
+int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, size_t size, UDA_TYPE type, int rank, const int* shape,
                   const char* description)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
@@ -645,7 +469,7 @@ int callPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, con
     return err;
 }
 
-int setReturnCompoundData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, const char *user_type, const char* description) {
+int udaPluginReturnCompoundData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, const char *user_type, const char* description) {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
@@ -670,7 +494,7 @@ int setReturnCompoundData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, co
     return 0;
 }
 
-int setReturnCompoundArrayData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, const char *user_type, const char* description, int rank, int* shape) {
+int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, const char *user_type, const char* description, int rank, int* shape) {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
@@ -891,21 +715,21 @@ const char* udaPluginFunction(UDA_PLUGIN_INTERFACE* plugin_interface)
     return plugin_interface->request_data->function;
 }
 
-int setReturnDataLabel(UDA_PLUGIN_INTERFACE* plugin_interface, const char* label)
+int udaPluginReturnDataLabel(UDA_PLUGIN_INTERFACE* plugin_interface, const char* label)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     strcpy(data_block->data_label, label);
     return 0;
 }
 
-int setReturnDataUnits(UDA_PLUGIN_INTERFACE* plugin_interface, const char* units)
+int udaPluginReturnDataUnits(UDA_PLUGIN_INTERFACE* plugin_interface, const char* units)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     strcpy(data_block->data_units, units);
     return 0;
 }
 
-int setReturnErrorAsymmetry(UDA_PLUGIN_INTERFACE* plugin_interface, bool flag)
+int udaPluginReturnErrorAsymmetry(UDA_PLUGIN_INTERFACE* plugin_interface, bool flag)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     data_block->errasymmetry = flag;
@@ -923,28 +747,28 @@ char* memdup(const void* mem, size_t size)
     return out;
 }
 
-int setReturnErrorLow(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size)
+int udaPluginReturnErrorLow(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     data_block->errlo = memdup(data, size);
     return 0;
 }
 
-int setReturnErrorHigh(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size)
+int udaPluginReturnErrorHigh(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     data_block->errhi = memdup(data, size);
     return 0;
 }
 
-int setReturnDataOrder(UDA_PLUGIN_INTERFACE* plugin_interface, int order)
+int udaPluginReturnDataOrder(UDA_PLUGIN_INTERFACE* plugin_interface, int order)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     data_block->order = order;
     return 0;
 }
 
-int setReturnDimensionFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, int dim_n, float* data, size_t size, const char* label, const char* units)
+int udaPluginReturnDimensionFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, int dim_n, float* data, size_t size, const char* label, const char* units)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 

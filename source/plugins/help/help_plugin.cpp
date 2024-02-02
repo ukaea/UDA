@@ -63,7 +63,7 @@ int HelpPlugin::ping(UDA_PLUGIN_INTERFACE* plugin_interface)
     data->microseconds = (unsigned int)serverTime.tv_usec;
 
     // return to the client
-    setReturnCompoundData(plugin_interface, (char*)data, "HELP_PING", nullptr);
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "HELP_PING", nullptr);
 
     return 0;
 }
@@ -152,5 +152,5 @@ int HelpPlugin::services(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     doc += "\n\n";
 
-    return setReturnDataString(plugin_interface, doc.c_str(), "Description of UDA data access services");
+    return udaPluginReturnDataStringScalar(plugin_interface, doc.c_str(), "Description of UDA data access services");
 }

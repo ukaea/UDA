@@ -185,7 +185,7 @@ int readBytes(const std::string& path, UDA_PLUGIN_INTERFACE* plugin_interface)
     auto read_hash = get_hash_sum(ctx);
 
     int shape[] = { (int)nchar };
-    setReturnData(plugin_interface, bp, nchar, UDA_TYPE_CHAR, 1, shape, read_hash.c_str());
+    udaPluginReturnData(plugin_interface, bp, nchar, UDA_TYPE_CHAR, 1, shape, read_hash.c_str());
 
     // TODO: read sha256 sum command from config and try and run
 //    std::string cmd = "sha3sum -a 256 -b " + path;

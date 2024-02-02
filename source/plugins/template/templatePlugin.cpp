@@ -76,9 +76,9 @@ int TemplatePlugin::function(UDA_PLUGIN_INTERFACE* plugin_interface)
     std::string result =
         fmt::format("Passed args: required={}, array=[{}], optional={}", required, to_string(array), optional_str);
 
-    setReturnDataString(plugin_interface, result.c_str(), "result of TemplatePlugin::function");
-    setReturnDataLabel(plugin_interface, "");
-    setReturnDataUnits(plugin_interface, "");
+    udaPluginReturnDataStringScalar(plugin_interface, result.c_str(), "result of TemplatePlugin::function");
+    udaPluginReturnDataLabel(plugin_interface, "");
+    udaPluginReturnDataUnits(plugin_interface, "");
 
     return 0;
 }

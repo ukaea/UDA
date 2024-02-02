@@ -58,36 +58,39 @@ LIBRARY_API const char* udaPluginPluginExtension(UDA_PLUGIN_INTERFACE* plugin_in
 LIBRARY_API const char* udaPluginPluginDescription(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num);
 LIBRARY_API const char* udaPluginPluginExample(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num);
 
-LIBRARY_API int setReturnDataLabel(UDA_PLUGIN_INTERFACE* plugin_interface, const char* label);
-LIBRARY_API int setReturnDataUnits(UDA_PLUGIN_INTERFACE* plugin_interface, const char* units);
+LIBRARY_API int udaPluginReturnDataLabel(UDA_PLUGIN_INTERFACE* plugin_interface, const char* label);
+LIBRARY_API int udaPluginReturnDataUnits(UDA_PLUGIN_INTERFACE* plugin_interface, const char* units);
 
-LIBRARY_API int setReturnDataFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, float* values, size_t rank, const size_t* shape,
-                                        const char* description);
-LIBRARY_API int setReturnDataDoubleArray(UDA_PLUGIN_INTERFACE* plugin_interface, double* values, size_t rank, const size_t* shape,
-                                         const char* description);
-LIBRARY_API int setReturnDataCharArray(UDA_PLUGIN_INTERFACE* plugin_interface, const char* values, size_t rank, int *shape,
-                                       const char* description);
-LIBRARY_API int setReturnDataIntArray(UDA_PLUGIN_INTERFACE* plugin_interface, int* values, size_t rank, const size_t* shape,
-                                      const char* description);
-LIBRARY_API int setReturnDataDoubleScalar(UDA_PLUGIN_INTERFACE* plugin_interface, double value, const char* description);
-LIBRARY_API int setReturnDataFloatScalar(UDA_PLUGIN_INTERFACE* plugin_interface, float value, const char* description);
-LIBRARY_API int setReturnDataIntScalar(UDA_PLUGIN_INTERFACE* plugin_interface, int value, const char* description);
-LIBRARY_API int setReturnDataLongScalar(UDA_PLUGIN_INTERFACE* plugin_interface, long value, const char* description);
-LIBRARY_API int setReturnDataShortScalar(UDA_PLUGIN_INTERFACE* plugin_interface, short value, const char* description);
-LIBRARY_API int setReturnDataString(UDA_PLUGIN_INTERFACE* plugin_interface, const char* value, const char* description);
+#define UDA_DEF_SET_RETURN_FUNCS(NAME, TYPE) \
+LIBRARY_API int udaPluginReturnData##NAME##Scalar(UDA_PLUGIN_INTERFACE* plugin_interface, const TYPE value, const char* description); \
+LIBRARY_API int udaPluginReturnData##NAME##Array(UDA_PLUGIN_INTERFACE* plugin_interface, const TYPE* values, size_t rank, const size_t* shape, const char* description);
 
-LIBRARY_API int setReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, size_t size, UDA_TYPE type, int rank,
+UDA_DEF_SET_RETURN_FUNCS(Float, float)
+UDA_DEF_SET_RETURN_FUNCS(Double, double)
+UDA_DEF_SET_RETURN_FUNCS(Char, char)
+UDA_DEF_SET_RETURN_FUNCS(UChar, unsigned char)
+UDA_DEF_SET_RETURN_FUNCS(Short, short)
+UDA_DEF_SET_RETURN_FUNCS(UShort, unsigned short)
+UDA_DEF_SET_RETURN_FUNCS(Int, int)
+UDA_DEF_SET_RETURN_FUNCS(UInt, unsigned int)
+UDA_DEF_SET_RETURN_FUNCS(Long, long)
+UDA_DEF_SET_RETURN_FUNCS(ULong, unsigned long)
+UDA_DEF_SET_RETURN_FUNCS(String, char*)
+
+#undef UDA_DEF_SET_RETURN_FUNCS
+
+LIBRARY_API int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, size_t size, UDA_TYPE type, int rank,
                               const int* shape, const char* description);
 
-LIBRARY_API int setReturnDimensionFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, int dim_n, float* data, size_t size, const char* label, const char* units);
+LIBRARY_API int udaPluginReturnDimensionFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, int dim_n, float* data, size_t size, const char* label, const char* units);
 
-LIBRARY_API int setReturnErrorAsymmetry(UDA_PLUGIN_INTERFACE* plugin_interface, bool flag);
-LIBRARY_API int setReturnErrorLow(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size);
-LIBRARY_API int setReturnErrorHigh(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size);
-LIBRARY_API int setReturnDataOrder(UDA_PLUGIN_INTERFACE* plugin_interface, int order);
+LIBRARY_API int udaPluginReturnErrorAsymmetry(UDA_PLUGIN_INTERFACE* plugin_interface, bool flag);
+LIBRARY_API int udaPluginReturnErrorLow(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size);
+LIBRARY_API int udaPluginReturnErrorHigh(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size);
+LIBRARY_API int udaPluginReturnDataOrder(UDA_PLUGIN_INTERFACE* plugin_interface, int order);
 
-LIBRARY_API int setReturnCompoundData(UDA_PLUGIN_INTERFACE* plugin_interface, char* data, const char* user_type, const char* description);
-LIBRARY_API int setReturnCompoundArrayData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, const char *user_type, const char* description, int rank, int* shape);
+LIBRARY_API int udaPluginReturnCompoundData(UDA_PLUGIN_INTERFACE* plugin_interface, char* data, const char* user_type, const char* description);
+LIBRARY_API int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, const char *user_type, const char* description, int rank, int* shape);
 
 LIBRARY_API int udaPluginArgumentCount(const UDA_PLUGIN_INTERFACE* plugin_interface);
 LIBRARY_API const char* udaPluginArgument(const UDA_PLUGIN_INTERFACE* plugin_interface, int num);

@@ -195,10 +195,10 @@ int TestPlugin::test0(UDA_PLUGIN_INTERFACE* plugin_interface)
     const char* help = "Hello World!";
 
     if (get_function(plugin_interface) == "test0") {
-        int shape[] = {(int)strlen(help)};
-        setReturnDataCharArray(plugin_interface, help, 1, shape, "testplugins: test0 = single string as a char array");
+        size_t shape[] = {strlen(help)};
+        udaPluginReturnDataCharArray(plugin_interface, help, 1, shape, "testplugins: test0 = single string as a char array");
     } else {
-        setReturnDataString(plugin_interface, help, "testplugins: test1 = single string");
+        udaPluginReturnDataStringScalar(plugin_interface, help, "testplugins: test1 = single string");
     }
 
     return 0;
@@ -224,9 +224,9 @@ int TestPlugin::test2(UDA_PLUGIN_INTERFACE* plugin_interface)
             "MAST Upgrade",
     };
 
-    int max_len = 0;
+    size_t max_len = 0;
     for (const auto& string : strings) {
-        max_len = std::max(max_len, (int)string.size());
+        max_len = std::max(max_len, string.size());
     }
 
     // Create a block of contigous memory and assign all bytes to nullptr character
@@ -236,12 +236,12 @@ int TestPlugin::test2(UDA_PLUGIN_INTERFACE* plugin_interface)
     }
 
     if (get_function(plugin_interface) == "test2") {
-        int shape[] = {max_len, (int)strings.size()};
-        setReturnDataCharArray(plugin_interface, data.get(), 2, shape, "testplugins: test2 = 2D array of chars");
+        size_t shape[] = {max_len, strings.size()};
+        udaPluginReturnDataCharArray(plugin_interface, data.get(), 2, shape, "testplugins: test2 = 2D array of chars");
     } else {
 //        int shape[] = {max_len, (int)strings.size()};
         // TODO: yuck!
-//        setReturnDataStringArray(plugin_interface, data.get(), 2, shape, "testplugins: test3 = array of strings");
+//        udaPluginReturnDataStringArray(plugin_interface, data.get(), 2, shape, "testplugins: test3 = array of strings");
     }
 
     return 0;
@@ -272,8 +272,8 @@ int TestPlugin::test4(UDA_PLUGIN_INTERFACE* plugin_interface)
     udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST4), "TEST4");
 
     // Pass Data
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST4", " Structure Data Test #4");
-    setReturnDataLabel(plugin_interface, "Values: 012345678901234567890");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST4", " Structure Data Test #4");
+    udaPluginReturnDataLabel(plugin_interface, "Values: 012345678901234567890");
 
     return 0;
 }
@@ -305,8 +305,8 @@ int TestPlugin::test5(UDA_PLUGIN_INTERFACE* plugin_interface)
     udaRegisterMalloc(plugin_interface, (void*)data, 1, sizeof(TEST5), "TEST5");
 
     // Pass Data
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST5", "Structure Data Test #5");
-    setReturnDataLabel(plugin_interface, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST5", "Structure Data Test #5");
+    udaPluginReturnDataLabel(plugin_interface, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
 
     return 0;
 }
@@ -336,8 +336,8 @@ int TestPlugin::test6(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST6", "Structure Data Test #6");
-    setReturnDataLabel(plugin_interface, "Value: PI=3.1415927");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST6", "Structure Data Test #6");
+    udaPluginReturnDataLabel(plugin_interface, "Value: PI=3.1415927");
 
     return 0;
 }
@@ -377,8 +377,8 @@ int TestPlugin::test7(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST7", "Structure Data Test #7");
-    setReturnDataLabel(plugin_interface, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST7", "Structure Data Test #7");
+    udaPluginReturnDataLabel(plugin_interface, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
 
     return 0;
 }
@@ -420,8 +420,8 @@ int TestPlugin::test8(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST5", "Structure Data Test #5");
-    setReturnDataLabel(plugin_interface, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST5", "Structure Data Test #5");
+    udaPluginReturnDataLabel(plugin_interface, "Values: 012345678901234567890, QWERTY KEYBOARD, MAST TOKAMAK");
 
     return 0;
 }
@@ -470,8 +470,8 @@ int TestPlugin::test9(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST9", "Structure Data Test #9");
-    setReturnDataLabel(plugin_interface, "Multiple test results");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST9", "Structure Data Test #9");
+    udaPluginReturnDataLabel(plugin_interface, "Multiple test results");
 
     return 0;
 }
@@ -551,8 +551,8 @@ int TestPlugin::test9A(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST9A", "Structure Data Test #9A");
-    setReturnDataLabel(plugin_interface, "Multiple test results");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST9A", "Structure Data Test #9A");
+    udaPluginReturnDataLabel(plugin_interface, "Multiple test results");
 
     return 0;
 }
@@ -565,8 +565,8 @@ int TestPlugin::test10(UDA_PLUGIN_INTERFACE* plugin_interface)
     data[0] = 7;
 
     // Pass Data
-    setReturnDataIntScalar(plugin_interface, 7, "Structure Data Test #10");
-    setReturnDataLabel(plugin_interface, "Value: 7");
+    udaPluginReturnDataIntScalar(plugin_interface, 7, "Structure Data Test #10");
+    udaPluginReturnDataLabel(plugin_interface, "Value: 7");
 
     return 0;
 }
@@ -594,8 +594,8 @@ int TestPlugin::test11(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST11", "Structure Data Test #11");
-    setReturnDataLabel(plugin_interface, "Value: 11");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST11", "Structure Data Test #11");
+    udaPluginReturnDataLabel(plugin_interface, "Value: 11");
 
     return 0;
 }
@@ -624,8 +624,8 @@ int TestPlugin::test12(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST12", "Structure Data Test #12");
-    setReturnDataLabel(plugin_interface, "Value: 10,11,12");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST12", "Structure Data Test #12");
+    udaPluginReturnDataLabel(plugin_interface, "Value: 10,11,12");
 
     return 0;
 }
@@ -659,8 +659,8 @@ int TestPlugin::test13(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST13", "Structure Data Test #13");
-    setReturnDataLabel(plugin_interface, "Value: {0,1,2},{10,11,12}");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST13", "Structure Data Test #13");
+    udaPluginReturnDataLabel(plugin_interface, "Value: {0,1,2},{10,11,12}");
 
     return 0;
 }
@@ -692,8 +692,8 @@ int TestPlugin::test14(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST14", "Structure Data Test #14");
-    setReturnDataLabel(plugin_interface, "int *value: 14");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST14", "Structure Data Test #14");
+    udaPluginReturnDataLabel(plugin_interface, "int *value: 14");
 
     return 0;
 }
@@ -728,8 +728,8 @@ int TestPlugin::test15(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST15", "Structure Data Test #15");
-    setReturnDataLabel(plugin_interface, "Values: 13,14,15");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST15", "Structure Data Test #15");
+    udaPluginReturnDataLabel(plugin_interface, "Values: 13,14,15");
 
     return 0;
 }
@@ -771,8 +771,8 @@ int TestPlugin::test16(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST16", "Structure Data Test #16");
-    setReturnDataLabel(plugin_interface, "Values: {0,1,2},{10,11,12}");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST16", "Structure Data Test #16");
+    udaPluginReturnDataLabel(plugin_interface, "Values: {0,1,2},{10,11,12}");
 
     return 0;
 }
@@ -803,8 +803,8 @@ int TestPlugin::test18(UDA_PLUGIN_INTERFACE* plugin_interface)
     // Pass Data
 
     int data_shape[1] = {data_n};
-    setReturnCompoundArrayData(plugin_interface, (char*)data, "TEST18", "Structure Data Test #18", 1, data_shape);
-    setReturnDataLabel(plugin_interface, "100000 Values: i 0, 100000");
+    udaPluginReturnCompoundArrayData(plugin_interface, (char*)data, "TEST18", "Structure Data Test #18", 1, data_shape);
+    udaPluginReturnDataLabel(plugin_interface, "100000 Values: i 0, 100000");
 
     return 0;
 }
@@ -855,8 +855,8 @@ int TestPlugin::test19(UDA_PLUGIN_INTERFACE* plugin_interface)
     // Pass Data
 
     int data_shape[1] = {data_n};
-    setReturnCompoundArrayData(plugin_interface, (char*)data, "TEST19", "Structure Data Test #19", 1, data_shape);
-    setReturnDataLabel(plugin_interface, "Values: ");
+    udaPluginReturnCompoundArrayData(plugin_interface, (char*)data, "TEST19", "Structure Data Test #19", 1, data_shape);
+    udaPluginReturnDataLabel(plugin_interface, "Values: ");
 
     return 0;
 }
@@ -870,8 +870,8 @@ int TestPlugin::test20(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnDataShortScalar(plugin_interface, 7, "Structure Data Test #20");
-    setReturnDataLabel(plugin_interface, "Short Value: 7");
+    udaPluginReturnDataShortScalar(plugin_interface, 7, "Structure Data Test #20");
+    udaPluginReturnDataLabel(plugin_interface, "Short Value: 7");
 
     return 0;
 }
@@ -899,8 +899,8 @@ int TestPlugin::test21(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST21", "Structure Data Test #21");
-    setReturnDataLabel(plugin_interface, "Short Value: 21");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST21", "Structure Data Test #21");
+    udaPluginReturnDataLabel(plugin_interface, "Short Value: 21");
 
     return 0;
 }
@@ -930,8 +930,8 @@ int TestPlugin::test22(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST22", "Structure Data Test #22");
-    setReturnDataLabel(plugin_interface, "Short Array Values: 20,21,22");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST22", "Structure Data Test #22");
+    udaPluginReturnDataLabel(plugin_interface, "Short Array Values: 20,21,22");
 
     return 0;
 }
@@ -964,8 +964,8 @@ int TestPlugin::test23(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST23", "Structure Data Test #23");
-    setReturnDataLabel(plugin_interface, "Values: {0,1,2},{10,11,12}");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST23", "Structure Data Test #23");
+    udaPluginReturnDataLabel(plugin_interface, "Values: {0,1,2},{10,11,12}");
 
     return 0;
 }
@@ -996,8 +996,8 @@ int TestPlugin::test24(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST24", "Structure Data Test #24");
-    setReturnDataLabel(plugin_interface, "short *value: 14");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST24", "Structure Data Test #24");
+    udaPluginReturnDataLabel(plugin_interface, "short *value: 14");
 
     return 0;
 }
@@ -1030,8 +1030,8 @@ int TestPlugin::test25(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST25", "Structure Data Test #25");
-    setReturnDataLabel(plugin_interface, "Short Values: 13,14,15");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST25", "Structure Data Test #25");
+    udaPluginReturnDataLabel(plugin_interface, "Short Values: 13,14,15");
 
     return 0;
 }
@@ -1073,8 +1073,8 @@ int TestPlugin::test26(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST26", "Structure Data Test #26");
-    setReturnDataLabel(plugin_interface, "Short Values: 13,14,15   23,24,25");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST26", "Structure Data Test #26");
+    udaPluginReturnDataLabel(plugin_interface, "Short Values: 13,14,15   23,24,25");
 
     return 0;
 }
@@ -1128,8 +1128,8 @@ int TestPlugin::test27(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST27", "Structure Data Test #27");
-    setReturnDataLabel(plugin_interface, "Values: {0,1,2,3},{10,11,12,13},...");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST27", "Structure Data Test #27");
+    udaPluginReturnDataLabel(plugin_interface, "Values: {0,1,2,3},{10,11,12,13},...");
 
     return 0;
 }
@@ -1190,8 +1190,8 @@ int TestPlugin::test28(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST28", "Structure Data Test #28");
-    setReturnDataLabel(plugin_interface, "Short Values: 13,14,15   23,24,25");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST28", "Structure Data Test #28");
+    udaPluginReturnDataLabel(plugin_interface, "Short Values: 13,14,15   23,24,25");
 
     return 0;
 }
@@ -1221,8 +1221,8 @@ int TestPlugin::test30(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST30", "Structure Data Test #30");
-    setReturnDataLabel(plugin_interface, "Double Values: (1, 2)");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST30", "Structure Data Test #30");
+    udaPluginReturnDataLabel(plugin_interface, "Double Values: (1, 2)");
 
     return 0;
 }
@@ -1267,8 +1267,8 @@ int TestPlugin::test31(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST31", "Structure Data Test #31");
-    setReturnDataLabel(plugin_interface, "Double Values [5, 20] : (1*, 10*)");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST31", "Structure Data Test #31");
+    udaPluginReturnDataLabel(plugin_interface, "Double Values [5, 20] : (1*, 10*)");
 
     return 0;
 }
@@ -1321,8 +1321,8 @@ int TestPlugin::test32(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST32", "Structure Data Test #32");
-    setReturnDataLabel(plugin_interface, "Double Values [5, 20] : (1*, 10*)");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST32", "Structure Data Test #32");
+    udaPluginReturnDataLabel(plugin_interface, "Double Values [5, 20] : (1*, 10*)");
 
     return 0;
 }
@@ -1381,8 +1381,8 @@ int TestPlugin::test33(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST33", "Structure Data Test #33");
-    setReturnDataLabel(plugin_interface, "Double Values [5, 20] : (1*, 10*)");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST33", "Structure Data Test #33");
+    udaPluginReturnDataLabel(plugin_interface, "Double Values [5, 20] : (1*, 10*)");
 
     return 0;
 }
@@ -1451,8 +1451,8 @@ int TestPlugin::test34(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Pass Data
 
-    setReturnCompoundData(plugin_interface, (char*)data, "TEST34", "Structure Data Test #34");
-    setReturnDataLabel(plugin_interface, "Double Values [5, 20] : (1*, 10*)");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "TEST34", "Structure Data Test #34");
+    udaPluginReturnDataLabel(plugin_interface, "Double Values [5, 20] : (1*, 10*)");
 
     return 0;
 }
@@ -1633,7 +1633,7 @@ int TestPlugin::test50(UDA_PLUGIN_INTERFACE* plugin_interface)
         work += fmt::format("name: {}, value: {}\n", name, value);
     }
 
-    setReturnDataString(plugin_interface, work.c_str(), nullptr);
+    udaPluginReturnDataStringScalar(plugin_interface, work.c_str(), nullptr);
 
     return 0;
 }
@@ -1769,8 +1769,8 @@ int TestPlugin::test60(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     register_enumlist(plugin_interface, enumlist);
 
-    setReturnCompoundData(plugin_interface, (char*)data, "ENUMLIST60", "Test60 = ENUM Values");
-    setReturnDataLabel(plugin_interface, "");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "ENUMLIST60", "Test60 = ENUM Values");
+    udaPluginReturnDataLabel(plugin_interface, "");
 
     return 0;
 }
@@ -1821,8 +1821,8 @@ int TestPlugin::test61(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     register_enumlist(plugin_interface, enumlist);
 
-    setReturnCompoundData(plugin_interface, (char*)data, "ENUMLIST60", "Test61 = ENUM Values");
-    setReturnDataLabel(plugin_interface, "");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "ENUMLIST60", "Test61 = ENUM Values");
+    udaPluginReturnDataLabel(plugin_interface, "");
 
     return 0;
 }
@@ -1872,8 +1872,8 @@ int TestPlugin::test62(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     register_enumlist(plugin_interface, enumlist);
 
-    setReturnCompoundData(plugin_interface, (char*)data, "ENUMLIST60", "Test62 = ENUM Values");
-    setReturnDataLabel(plugin_interface, "");
+    udaPluginReturnCompoundData(plugin_interface, (char*)data, "ENUMLIST60", "Test62 = ENUM Values");
+    udaPluginReturnDataLabel(plugin_interface, "");
 
     return 0;
 }
@@ -1952,7 +1952,7 @@ int TestPlugin::errortest(UDA_PLUGIN_INTERFACE* plugin_interface)
 
 int TestPlugin::scalartest(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    setReturnDataIntScalar(plugin_interface, 10, nullptr);
+    udaPluginReturnDataIntScalar(plugin_interface, 10, nullptr);
 
     return 0;
 }
@@ -1966,7 +1966,7 @@ int TestPlugin::array1dtest(UDA_PLUGIN_INTERFACE* plugin_interface)
     }
 
     size_t shape[1] = {N};
-    setReturnDataDoubleArray(plugin_interface, data.get(), 1, shape, nullptr);
+    udaPluginReturnDataDoubleArray(plugin_interface, data.get(), 1, shape, nullptr);
 
     return 0;
 }
@@ -2029,7 +2029,7 @@ int TestPlugin::capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     auto buffer = uda_capnp_serialise(tree);
 
-    setReturnData(plugin_interface, buffer.data, static_cast<int>(buffer.size), UDA_TYPE_CAPNP, 0, nullptr, nullptr);
+    udaPluginReturnData(plugin_interface, buffer.data, static_cast<int>(buffer.size), UDA_TYPE_CAPNP, 0, nullptr, nullptr);
 
     return 0;
 }
@@ -2079,7 +2079,7 @@ int TestPlugin::nested_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     auto buffer = uda_capnp_serialise(tree);
 
-    setReturnData(plugin_interface, buffer.data, static_cast<int>(buffer.size), UDA_TYPE_CAPNP, 0, nullptr, nullptr);
+    udaPluginReturnData(plugin_interface, buffer.data, static_cast<int>(buffer.size), UDA_TYPE_CAPNP, 0, nullptr, nullptr);
 
     return 0;
 }
@@ -2112,7 +2112,7 @@ int TestPlugin::long_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     auto buffer = uda_capnp_serialise(tree);
 
-    setReturnData(plugin_interface, buffer.data, static_cast<int>(buffer.size), UDA_TYPE_CAPNP, 0, nullptr, nullptr);
+    udaPluginReturnData(plugin_interface, buffer.data, static_cast<int>(buffer.size), UDA_TYPE_CAPNP, 0, nullptr, nullptr);
 
     return 0;
 }
@@ -2136,7 +2136,7 @@ int TestPlugin::large_capnp_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     auto buffer = uda_capnp_serialise(tree);
 
-    setReturnData(plugin_interface, buffer.data, static_cast<int>(buffer.size), UDA_TYPE_CAPNP, 0, nullptr, nullptr);
+    udaPluginReturnData(plugin_interface, buffer.data, static_cast<int>(buffer.size), UDA_TYPE_CAPNP, 0, nullptr, nullptr);
 
     return 0;
 }
