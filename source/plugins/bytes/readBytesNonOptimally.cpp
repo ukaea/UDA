@@ -1,5 +1,6 @@
 #include "readBytesNonOptimally.h"
 
+#include <cstring>
 #include <cerrno>
 #include <cstdlib>
 #include <sstream>
