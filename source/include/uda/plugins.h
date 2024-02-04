@@ -62,7 +62,7 @@ LIBRARY_API int udaPluginReturnDataLabel(UDA_PLUGIN_INTERFACE* plugin_interface,
 LIBRARY_API int udaPluginReturnDataUnits(UDA_PLUGIN_INTERFACE* plugin_interface, const char* units);
 
 #define UDA_DEF_SET_RETURN_FUNCS(NAME, TYPE) \
-LIBRARY_API int udaPluginReturnData##NAME##Scalar(UDA_PLUGIN_INTERFACE* plugin_interface, const TYPE value, const char* description); \
+LIBRARY_API int udaPluginReturnData##NAME##Scalar(UDA_PLUGIN_INTERFACE* plugin_interface, TYPE value, const char* description); \
 LIBRARY_API int udaPluginReturnData##NAME##Array(UDA_PLUGIN_INTERFACE* plugin_interface, const TYPE* values, size_t rank, const size_t* shape, const char* description);
 
 UDA_DEF_SET_RETURN_FUNCS(Float, float)
@@ -75,7 +75,9 @@ UDA_DEF_SET_RETURN_FUNCS(Int, int)
 UDA_DEF_SET_RETURN_FUNCS(UInt, unsigned int)
 UDA_DEF_SET_RETURN_FUNCS(Long, long)
 UDA_DEF_SET_RETURN_FUNCS(ULong, unsigned long)
-UDA_DEF_SET_RETURN_FUNCS(String, char*)
+
+LIBRARY_API int udaPluginReturnDataStringScalar(UDA_PLUGIN_INTERFACE* plugin_interface, const char* value, const char* description);
+LIBRARY_API int udaPluginReturnDataStringArray(UDA_PLUGIN_INTERFACE* plugin_interface, const char** values, size_t rank, const size_t* shape, const char* description);
 
 #undef UDA_DEF_SET_RETURN_FUNCS
 
@@ -94,6 +96,9 @@ LIBRARY_API int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE *plugin_in
 
 LIBRARY_API int udaPluginArgumentCount(const UDA_PLUGIN_INTERFACE* plugin_interface);
 LIBRARY_API const char* udaPluginArgument(const UDA_PLUGIN_INTERFACE* plugin_interface, int num);
+
+#define UDA_DEF_FIND_FUNCS(NAME, TYPE) \
+LIBRARY_API bool find##NAME##Value(const UDA_PLUGIN_INTERFACE* plugin_interface, const TYPE* value, const char* name);
 
 LIBRARY_API bool findStringValue(const UDA_PLUGIN_INTERFACE* plugin_interface, const char** value, const char* name);
 LIBRARY_API bool findValue(const UDA_PLUGIN_INTERFACE* plugin_interface, const char* name);
