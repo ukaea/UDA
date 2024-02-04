@@ -52,6 +52,7 @@ jobs:
           libboost-dev
           libboost-program-options-dev
           libboost-filesystem-dev
+          libboost-regex-dev
           libssl-dev
           cmake
           build-essential
@@ -99,6 +100,7 @@ jobs:
           boost-algorithm
           boost-multi-array
           boost-filesystem
+          boost-regex
           openssl
           dlfcn-win32
           spdlog
