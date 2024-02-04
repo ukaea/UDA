@@ -3,6 +3,7 @@
 #include <fmt/format.h>
 #include <string>
 #include <unistd.h>
+#include <uda/structured.h>
 
 #include "clientserver/errorLog.h"
 #include "clientserver/printStructs.h"
@@ -11,15 +12,12 @@
 #include "clientserver/initStructs.h"
 #include "logging/accessLog.h"
 #include "logging/logging.h"
-#include "server_environment.hpp"
 #include "server_exceptions.h"
 #include "server_plugin.h"
 #include "server_processing.h"
-#include "clientserver/udaErrors.h"
+
 #ifdef SSLAUTHENTICATION
 #  include "authentication/udaServerSSL.h"
-#include "uda/structured.h"
-
 #endif
 
 void free_data_blocks(std::vector<DataBlock>& data_blocks)
