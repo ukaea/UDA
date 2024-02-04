@@ -2,6 +2,7 @@
 #define UDA_STRUCTURED_H
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <uda/export.h>
 #include <uda/types.h>
 
