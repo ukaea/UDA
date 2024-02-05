@@ -40,21 +40,19 @@ else:
 def set_property(prop_name, value):
     if prop_name.lower() not in _properties:
         raise ValueError('invalid property ' + prop_name)
-    cdef uda.CLIENT_FLAGS* client_flags = uda.udaClientFlags()
     if _properties[prop_name][1]:
         prop_string = prop_name + '=' + str(value)
-        uda.setIdamProperty(prop_string.encode(), client_flags)
+        uda.setIdamProperty(prop_string.encode())
     elif value:
-        uda.setIdamProperty(prop_name.encode(), client_flags)
+        uda.setIdamProperty(prop_name.encode())
     else:
-        uda.resetIdamProperty(prop_name.encode(), client_flags)
+        uda.resetIdamProperty(prop_name.encode())
 
 
 def get_property(prop_name):
     if prop_name.lower() not in _properties:
         raise ValueError('invalid property ' + prop_name)
-    cdef uda.CLIENT_FLAGS* client_flags = uda.udaClientFlags()
-    prop = uda.getIdamProperty(prop_name.encode(), client_flags)
+    prop = uda.getIdamProperty(prop_name.encode())
     if _properties[prop_name][1]:
         return prop
     else:
@@ -97,7 +95,7 @@ def get_data(signal, source):
         err_msg = uda.getIdamErrorMsg(handle)
         err_code = uda.getIdamErrorCode(handle)
         if err_msg == NULL or string.strlen(err_msg) == 0:
-            raise UDAException("unknown error occured")
+            raise UDAException("unknown error occurred")
         elif err_code < 0:
             raise ClientException(err_msg.decode())
         else:
@@ -204,91 +202,85 @@ cdef put_ndarray_string(const char* instruction, np.ndarray data):
     if rank > 1:
         raise UDAException("String arrays with more than 1 dimension are not supported for putting to the server")
 
-    cdef uda.PUTDATA_BLOCK put_data
-    uda.initIdamPutDataBlock(&put_data)
-
     cdef np.npy_intp* shape = np.PyArray_DIMS(data)
     cdef int size = data.dtype.itemsize
     cdef int max_str_len = len(max(data, key=len))
 
-    put_data.data_type = UDA_TYPE_STRING
-    put_data.rank = rank + 1
-    put_data.count = np.PyArray_SIZE(data) * (max_str_len + 1)
-    put_data.shape = <int *> malloc((rank + 1) * sizeof(int))
+    cdef int data_type = UDA_TYPE_STRING
+    cdef int count = np.PyArray_SIZE(data) * (max_str_len + 1)
+    cdef int* shape_ptr = <int *> malloc((rank + 1) * sizeof(int))
 
     cdef int i = 0
     while i < rank:
-        put_data.shape[i] = shape[i]
+        shape_ptr[i] = shape[i]
         i += 1
-    put_data.shape[rank] = max_str_len
+    shape_ptr[rank] = max_str_len
 
     cdef np.ndarray fixed_len_array = np.zeros(np.PyArray_SIZE(data), dtype='S'+str(max_str_len+1))
     for sind, s in enumerate(data):
         fixed_len_array[sind] = s
 
     put_string = bytearray(fixed_len_array).decode().encode()
-    put_data.data = put_string
 
-    cdef int handle = uda.idamPutAPI(instruction, &put_data)
-    free(put_data.shape)
+    cdef uda.PUTDATA_BLOCK* put_data = uda.udaNewPutDataBlock(<uda.UdaType>data_type, count, rank + 1, shape_ptr, put_string)
+
+    cdef int handle = uda.idamPutAPI(instruction, put_data)
+    free(shape)
+    uda.udaFreePutDataBlock(put_data)
+
     return Result(Handle(handle))
 
 
 cdef put_ndarray(const char* instruction, np.ndarray data):
-    cdef uda.PUTDATA_BLOCK put_data
-    uda.initIdamPutDataBlock(&put_data)
-
     cdef int rank = np.PyArray_NDIM(data)
     cdef np.npy_intp* shape = np.PyArray_DIMS(data)
     cdef int size = data.dtype.itemsize
 
-    put_data.data_type = numpy_type_to_UDA_type(np.PyArray_TYPE(data))
-    put_data.rank = rank
-    put_data.count = np.PyArray_SIZE(data)
-    put_data.shape = <int *> malloc(rank * size)
+    cdef int data_type = numpy_type_to_UDA_type(np.PyArray_TYPE(data))
+    cdef int count = np.PyArray_SIZE(data)
+    cdef int* shape_ptr = <int *> malloc(rank * size)
     cdef int i = 0
     while i < rank:
-        put_data.shape[i] = shape[i]
+        shape_ptr[i] = shape[i]
         i += 1
-    put_data.data = np.PyArray_BYTES(data)
+    cdef const char* byte_data = np.PyArray_BYTES(data)
 
-    cdef int handle = uda.idamPutAPI(instruction, &put_data)
-    free(put_data.shape)
+    cdef uda.PUTDATA_BLOCK* put_data = uda.udaNewPutDataBlock(<uda.UdaType>data_type, count, rank, shape_ptr, byte_data)
+
+    cdef int handle = uda.idamPutAPI(instruction, put_data)
+    free(shape)
+    uda.udaFreePutDataBlock(put_data)
+
     return Result(Handle(handle))
 
 
 cdef put_scalar(const char* instruction, object data):
-    cdef uda.PUTDATA_BLOCK put_data
-    uda.initIdamPutDataBlock(&put_data)
-
     cdef np.dtype type = np.PyArray_DescrFromScalar(data)
     cdef char* bytes = <char *> malloc(type.itemsize)
     np.PyArray_ScalarAsCtype(data, bytes)
 
-    put_data.data_type = numpy_type_to_UDA_type(type.type_num)
-    put_data.rank = 0
-    put_data.count = 1
-    put_data.shape = NULL
-    put_data.data = bytes
+    cdef int data_type = numpy_type_to_UDA_type(type.type_num)
 
-    cdef int handle = uda.idamPutAPI(instruction, &put_data)
+    cdef uda.PUTDATA_BLOCK* put_data = uda.udaNewPutDataBlock(<uda.UdaType>data_type, 1, 0, NULL, bytes)
+
+    cdef int handle = uda.idamPutAPI(instruction, put_data)
     free(bytes)
+    uda.udaFreePutDataBlock(put_data)
+
     return Result(Handle(handle))
 
 
 cdef put_string(const char* instruction, const char* data):
-    cdef uda.PUTDATA_BLOCK put_data
-    uda.initIdamPutDataBlock(&put_data)
-
     cdef int string_length = strlen(data)
 
-    put_data.data_type = 17 # UDA_TYPE_STRING
-    put_data.rank = 0
-    put_data.count = string_length + 1
-    put_data.shape = NULL
-    put_data.data = data
+    cdef int data_type = 17 # UDA_TYPE_STRING
+    cdef int count = string_length + 1
 
-    cdef int handle = uda.idamPutAPI(instruction, &put_data)
+    cdef uda.PUTDATA_BLOCK* put_data = uda.udaNewPutDataBlock(<uda.UdaType>data_type, count, 0, NULL, data)
+
+    cdef int handle = uda.idamPutAPI(instruction, put_data)
+    uda.udaFreePutDataBlock(put_data)
+
     return Result(Handle(handle))
 
 

@@ -47,12 +47,12 @@ else:
 
 ext = Extension(
     'cpyuda',
-    ['pyuda/cpyuda/cpyuda.pyx'],
+    ['pyuda/cpyuda/cpyuda.pyx', 'pyuda/cpyuda/capnp_tree.pyx'],
     include_dirs=list(filter(None, [
         '/usr/include/tirpc',
         '@TIRPC_PYUDA_INCLUDE_DIR@',
         '@LIBXML2_INCLUDE_DIR@',
-        os.path.join(root, 'include', 'uda'),
+        os.path.join(root, 'include'),
         numpy.get_include(),
         '@FMT_INCLUDE_DIR@'
     ])),

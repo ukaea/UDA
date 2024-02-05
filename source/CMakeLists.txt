@@ -81,7 +81,8 @@ set( HEADERS
   include/uda/uda_plugin_base.hpp
   include/uda/portability.h
 )
-install( FILES include/uda.h ${CMAKE_BINARY_DIR}/source/version.h DESTINATION include/uda )
+install( FILES include/uda.h DESTINATION include )
+install( FILES ${CMAKE_BINARY_DIR}/source/version.h DESTINATION include/uda )
 install( FILES ${HEADERS} DESTINATION include/uda )
 
 set( ENV_PATH )

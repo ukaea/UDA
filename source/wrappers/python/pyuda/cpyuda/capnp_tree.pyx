@@ -1,7 +1,13 @@
 cimport uda
+cimport capnp
 
 from libc cimport string
 cimport numpy as np
+from libc.stdlib cimport malloc, free
+from cpython.ref cimport Py_INCREF
+from handle cimport Handle
+from types import uda_type_to_numpy_type
+
 
 np.import_array()
 
@@ -9,8 +15,8 @@ np.import_array()
 cdef class CapnpTreeNode:
 
     cdef Handle _handle
-    cdef uda.TreeReader* _tree
-    cdef uda.NodeReader* _node
+    cdef capnp.TreeReader* _tree
+    cdef capnp.NodeReader* _node
     cdef list _children
     cdef int _children_init
     cdef int _data_init
@@ -23,7 +29,7 @@ cdef class CapnpTreeNode:
         self._data = None
 
     @staticmethod
-    cdef new_(Handle handle, uda.TreeReader* tree, uda.NodeReader* node):
+    cdef new_(Handle handle, capnp.TreeReader* tree, capnp.NodeReader* node):
         cdef char* data
         cdef int num
         tree_node = CapnpTreeNode()
@@ -31,18 +37,18 @@ cdef class CapnpTreeNode:
         if tree == NULL:
             data = uda.getIdamData(int(handle))
             num = uda.getIdamDataNum(int(handle))
-            tree_node._tree = uda.uda_capnp_deserialise(data, num)
-            tree_node._node = uda.uda_capnp_read_root(tree_node._tree)
+            tree_node._tree = capnp.uda_capnp_deserialise(data, num)
+            tree_node._node = capnp.uda_capnp_read_root(tree_node._tree)
         else:
             tree_node._tree = tree
             tree_node._node = node
         return tree_node
 
     def _load_children(self):
-        cdef size_t num_children = uda.uda_capnp_num_children(self._node)
-        cdef uda.NodeReader* child
+        cdef size_t num_children = capnp.uda_capnp_num_children(self._node)
+        cdef capnp.NodeReader* child
         for i in range(num_children):
-            child = uda.uda_capnp_read_child_n(self._tree, self._node, i)
+            child = capnp.uda_capnp_read_child_n(self._tree, self._node, i)
             self._children.append(CapnpTreeNode.new_(self._handle, self._tree, child))
 
     def children(self):
@@ -52,18 +58,18 @@ cdef class CapnpTreeNode:
         return self._children
 
     def name(self):
-        cdef const char* name = uda.uda_capnp_read_name(self._node)
+        cdef const char* name = capnp.uda_capnp_read_name(self._node)
         return name.decode() if name is not NULL else ""
 
     cdef _import_data(self):
-        cdef uda.Optional_Size_t maybe_rank = uda.uda_capnp_read_rank(self._node)
+        cdef capnp.Optional_Size_t maybe_rank = capnp.uda_capnp_read_rank(self._node)
         if not maybe_rank.has_value:
             return
 
-        cdef int type = uda.uda_capnp_read_type(self._node)
+        cdef int type = capnp.uda_capnp_read_type(self._node)
         cdef size_t rank = maybe_rank.value
         cdef size_t* shape = <size_t*>malloc(rank * sizeof(size_t))
-        uda.uda_capnp_read_shape(self._node, shape)
+        capnp.uda_capnp_read_shape(self._node, shape)
 
         cdef np.npy_intp* np_shape = <np.npy_intp*>malloc(rank * sizeof(np.npy_intp))
         cdef size_t size = 1;
@@ -80,7 +86,7 @@ cdef class CapnpTreeNode:
 
         free(np_shape)
 
-        cdef size_t num_slices = uda.uda_capnp_read_num_slices(self._node)
+        cdef size_t num_slices = capnp.uda_capnp_read_num_slices(self._node)
         cdef char* bytes = NULL
         cdef size_t slice_size = 0
         cdef size_t offset = 0
@@ -89,12 +95,12 @@ cdef class CapnpTreeNode:
             if num_slices > 1:
                 raise Exception('Invalid scalar data')
             bytes = np.PyArray_BYTES(self._data)
-            uda.uda_capnp_read_data(self._node, 0, bytes)
+            capnp.uda_capnp_read_data(self._node, 0, bytes)
         else:
             for i in range(0, num_slices):
                 bytes = np.PyArray_BYTES(self._data)
-                slice_size = uda.uda_capnp_read_slice_size(self._node, i)
-                uda.uda_capnp_read_data(self._node, i, bytes + offset)
+                slice_size = capnp.uda_capnp_read_slice_size(self._node, i)
+                capnp.uda_capnp_read_data(self._node, i, bytes + offset)
                 offset += slice_size
 
     def data(self):

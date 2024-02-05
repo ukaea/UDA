@@ -7,7 +7,7 @@
 #  include <stdlib.h>
 #endif
 
-#include "include/uda/export.h"
+#include <uda/export.h>
 
 #ifdef __cplusplus
 extern "C" {

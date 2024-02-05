@@ -1,6 +1,19 @@
-file( GLOB CYTHON_FILES pyuda/cpyuda/*.pyx )
+file( GLOB CYTHON_FILES
+  pyuda/cpyuda/capnp.pxd
+  pyuda/cpyuda/capnp_tree.pyx
+  pyuda/cpyuda/client.pyx
+  pyuda/cpyuda/cpyuda.pyx
+  pyuda/cpyuda/dim.pyx
+  pyuda/cpyuda/exceptions.pyx
+  pyuda/cpyuda/handle.pxd
+  pyuda/cpyuda/handle.pyx
+  pyuda/cpyuda/result.pyx
+  pyuda/cpyuda/tree_node.pyx
+  pyuda/cpyuda/types.pyx
+  pyuda/cpyuda/uda.pxd
+)
 
-install( FILES ${CYTHON_FILES} pyuda/cpyuda/uda.pxd DESTINATION python_installer/pyuda/cpyuda )
+install( FILES ${CYTHON_FILES} DESTINATION python_installer/pyuda/cpyuda )
 
 file( GLOB INSTALL_FILES pyuda/*.py )
 

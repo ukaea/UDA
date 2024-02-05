@@ -1,6 +1,7 @@
 #cython: language_level=3
 
 cimport uda
+cimport capnp
 cimport numpy as np
 from cpython.bytes cimport PyBytes_FromStringAndSize
 from cpython.ref cimport Py_INCREF
@@ -20,21 +21,10 @@ cdef class Result:
     def __init__(self, Handle handle):
         self._handle = handle
         self._is_tree = 1 if uda.setIdamDataTree(int(handle)) != 0 else 0
-        cdef uda.SIGNAL_DESC* signal_desc
-        cdef uda.DATA_SOURCE* source
         self._meta = {}
-        if int(handle) >= 0 and uda.getIdamProperties(int(handle)).get_meta:
-            signal_desc = uda.getIdamSignalDesc(int(handle))
-            self._meta["signal_name"] = signal_desc.signal_name
-            self._meta["signal_alias"] = signal_desc.signal_alias
-
-            source = uda.getIdamDataSource(int(handle))
-            self._meta["path"] = source.path
-            self._meta["filename"] = source.filename
-            self._meta["format"] = source.format
-            self._meta["exp_number"] = source.exp_number
-            self._meta["pass"] = source.pass_
-            self._meta["pass_date"] = source.pass_date
+        if int(handle) >= 0 and uda.getIdamProperty("get_meta"):
+            # TODO: Update for new metadata structures
+            pass
 
     def error_message(self):
         return uda.getIdamErrorMsg(int(self._handle))
@@ -73,7 +63,7 @@ cdef class Result:
 
     def capnp_tree(self):
         IF CAPNP:
-            return CapnpTreeNode.new_(self._handle, NULL, NULL)
+            return capnp.CapnpTreeNode.new_(self._handle, NULL, NULL)
         ELSE:
             raise NotImplementedError('UDA built without Capn Proto support.')
 
