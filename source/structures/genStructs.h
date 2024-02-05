@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <rpc/types.h>
 #include <rpc/xdr.h>
 
 //-------------------------------------------------------------------------------------------------------
