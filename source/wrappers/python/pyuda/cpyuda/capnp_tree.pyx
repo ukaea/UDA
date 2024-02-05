@@ -1,3 +1,5 @@
+include "handle.pyx"
+
 cimport uda
 cimport capnp
 
@@ -5,7 +7,6 @@ from libc cimport string
 cimport numpy as np
 from libc.stdlib cimport malloc, free
 from cpython.ref cimport Py_INCREF
-from handle cimport Handle
 from types import uda_type_to_numpy_type
 
 

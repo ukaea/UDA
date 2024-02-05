@@ -3563,6 +3563,26 @@ NTREE* getIdamDataTree(int handle)
     return (NTREE*)getIdamData(handle);
 }
 
+LIBRARY_API PUTDATA_BLOCK* udaNewPutDataBlock(UDA_TYPE data_type, int count, int rank, int* shape, const char* data)
+{
+    PUTDATA_BLOCK* put_data = (PUTDATA_BLOCK*)malloc(sizeof(PUTDATA_BLOCK));
+    put_data->data_type = data_type;
+    put_data->count = count;
+    put_data->rank = rank;
+    put_data->shape = (int*)malloc(sizeof(int) * rank);
+    for (int i = 0; i < rank; ++i) {
+        put_data->shape[i] = shape[i];
+    }
+    put_data->data = data;
+    return put_data;
+}
+
+LIBRARY_API void udaFreePutDataBlock(PUTDATA_BLOCK* putdata_block)
+{
+    free(putdata_block->shape);
+    free(putdata_block);
+}
+
 // Return a user defined data structure definition
 
 USERDEFINEDTYPE* getIdamUserDefinedType(int handle)

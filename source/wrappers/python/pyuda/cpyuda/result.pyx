@@ -1,10 +1,10 @@
 #cython: language_level=3
 
 cimport uda
-cimport capnp
 cimport numpy as np
 from cpython.bytes cimport PyBytes_FromStringAndSize
 from cpython.ref cimport Py_INCREF
+
 
 import numpy
 
@@ -63,7 +63,8 @@ cdef class Result:
 
     def capnp_tree(self):
         IF CAPNP:
-            return capnp.CapnpTreeNode.new_(self._handle, NULL, NULL)
+            raise NotImplementedError('UDA built without Capn Proto support.')
+            # return capnp.CapnpTreeNode.new_(self._handle, NULL, NULL)
         ELSE:
             raise NotImplementedError('UDA built without Capn Proto support.')
 

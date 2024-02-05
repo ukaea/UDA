@@ -110,8 +110,6 @@ LIBRARY_API const char *udaGetErrorLocation(int err_num);
 LIBRARY_API PUTDATA_BLOCK* udaNewPutDataBlock(UDA_TYPE data_type, int count, int rank, int* shape, const char* data);
 LIBRARY_API void udaFreePutDataBlock(PUTDATA_BLOCK* putdata_block);
 
-LIBRARY_API bool udaHasMetaData(int handle);
-
 LIBRARY_API LOGMALLOCLIST *getIdamLogMallocList(int handle);
 LIBRARY_API USERDEFINEDTYPELIST *getIdamUserDefinedTypeList(int handle);
 

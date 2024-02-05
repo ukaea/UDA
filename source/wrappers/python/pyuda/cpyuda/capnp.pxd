@@ -1,6 +1,8 @@
 from libcpp cimport bool as cbool
-from handle cimport Handle
 
+
+cdef class Handle:
+    cdef int _handle
 
 cdef extern from "uda/serialisation/capnp_serialisation.h":
     ctypedef struct TreeReader

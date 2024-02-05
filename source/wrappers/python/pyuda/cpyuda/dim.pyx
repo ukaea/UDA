@@ -4,7 +4,6 @@ cimport numpy as np
 from cpython.bytes cimport PyBytes_FromStringAndSize
 from cpython.ref cimport Py_INCREF
 
-
 np.import_array()
 
 
