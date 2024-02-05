@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <iomanip>
+#include <array>
 #include <openssl/evp.h>
 
 #define BYTEFILEDOESNOTEXIST 100001
