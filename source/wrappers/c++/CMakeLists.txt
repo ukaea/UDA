@@ -59,22 +59,23 @@ target_include_directories( cpp-objects PRIVATE
 )
 target_link_libraries( cpp-objects PRIVATE ${LIBS} )
 
-set( CLIENT_OBJS
-  $<TARGET_OBJECTS:client-objects>
-  $<TARGET_OBJECTS:c_api-objects>
-  $<TARGET_OBJECTS:clientserver-client-objects>
-  $<TARGET_OBJECTS:cache-objects>
-  $<TARGET_OBJECTS:logging-client-objects>
-  $<TARGET_OBJECTS:structures-client-objects>
-  $<TARGET_OBJECTS:authentication-client-objects>
+set( OBJECT_LIBS
+  cpp-objects
+  client-objects
+  c_api-objects
+  clientserver-client-objects
+  cache-objects
+  logging-client-objects
+  structures-client-objects
+  authentication-client-objects
 )
 
-add_library( ${LIB_NAME}-static STATIC $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-target_link_libraries( ${LIB_NAME}-static PRIVATE ${LIBS} )
+add_library( ${LIB_NAME}-static STATIC )
+target_link_libraries( ${LIB_NAME}-static PRIVATE ${LIBS} ${OBJECT_LIBS} )
 
 if( BUILD_SHARED_LIBS )
-  add_library( ${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:cpp-objects> ${CLIENT_OBJS} )
-  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${LIBS} )
+  add_library( ${LIB_NAME}-shared SHARED )
+  target_link_libraries( ${LIB_NAME}-shared PRIVATE ${LIBS} ${OBJECT_LIBS} )
 endif()
 
 if( NOT CLIENT_ONLY )
@@ -86,23 +87,24 @@ if( NOT CLIENT_ONLY )
   )
   target_link_libraries( fatcpp-objects PRIVATE ${LIBS} )
 
-  set( FATCLIENT_OBJS
-    $<TARGET_OBJECTS:fatclient-objects>
-    $<TARGET_OBJECTS:fatc_api-objects>
-    $<TARGET_OBJECTS:fatserver-objects>
-    $<TARGET_OBJECTS:fatclientserver-objects>
-    $<TARGET_OBJECTS:structures-server-objects>
-    $<TARGET_OBJECTS:cache-objects>
-    $<TARGET_OBJECTS:logging-server-objects>
-    $<TARGET_OBJECTS:plugins-objects>
+  set( FATOBJECT_LIBS
+    fatcpp-objects
+    fatclient-objects
+    fatc_api-objects
+    fatserver-objects
+    fatclientserver-objects
+    structures-server-objects
+    cache-objects
+    logging-server-objects
+    plugins-objects
   )
 
-  add_library( fat${LIB_NAME}-static STATIC $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-  target_link_libraries( fat${LIB_NAME}-static PRIVATE ${LIBS} plugins-static )
+  add_library( fat${LIB_NAME}-static STATIC )
+  target_link_libraries( fat${LIB_NAME}-static PRIVATE ${LIBS} plugins-static ${FATOBJECT_LIBS} )
   
   if( BUILD_SHARED_LIBS )
-    add_library( fat${LIB_NAME}-shared SHARED $<TARGET_OBJECTS:fatcpp-objects> ${FATCLIENT_OBJS} )
-    target_link_libraries( fat${LIB_NAME}-shared PRIVATE ${LIBS} plugins-shared )
+    add_library( fat${LIB_NAME}-shared SHARED ${FATCLIENT_OBJS} )
+    target_link_libraries( fat${LIB_NAME}-shared PRIVATE ${LIBS} plugins-shared ${FATOBJECT_LIBS} )
   endif()
 endif()
 

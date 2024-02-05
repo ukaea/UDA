@@ -31,25 +31,28 @@ endif()
 # Targets
 
 add_library( logging-client-objects OBJECT ${SRC_FILES} )
-
-if( NOT CLIENT_ONLY )
-  add_library( logging-server-objects OBJECT accessLog.cpp ${SRC_FILES} )
-  target_compile_definitions( logging-server-objects PRIVATE -DSERVERBUILD )
-endif()
-
 target_link_libraries( logging-client-objects PUBLIC ${LIBS} )
-target_link_libraries( logging-server-objects PUBLIC ${LIBS} )
 
 target_include_directories( logging-client-objects PRIVATE
-  ${CMAKE_SOURCE_DIR}/source
-  ${CMAKE_SOURCE_DIR}/source/include
-)
-target_include_directories( logging-server-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source
   ${CMAKE_SOURCE_DIR}/source/include
 )
 
 if( MINGW )
   target_compile_options( logging-client-objects PRIVATE -Wno-error=pointer-sign )
-  target_compile_options( logging-server-objects PRIVATE -Wno-error=pointer-sign )
+endif()
+
+if( NOT CLIENT_ONLY )
+  add_library( logging-server-objects OBJECT accessLog.cpp ${SRC_FILES} )
+  target_compile_definitions( logging-server-objects PRIVATE -DSERVERBUILD )
+  target_link_libraries( logging-server-objects PUBLIC ${LIBS} )
+
+  target_include_directories( logging-server-objects PRIVATE
+    ${CMAKE_SOURCE_DIR}/source
+    ${CMAKE_SOURCE_DIR}/source/include
+  )
+
+  if( MINGW )
+    target_compile_options( logging-server-objects PRIVATE -Wno-error=pointer-sign )
+  endif()
 endif()

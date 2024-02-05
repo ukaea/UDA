@@ -1,0 +1,33 @@
+FROM ubuntu:latest
+
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt-get install -y \
+    git \
+    libboost-dev \
+    libboost-program-options-dev \
+    libboost-filesystem-dev \
+    libboost-regex-dev \
+    libssl-dev \
+    cmake \
+    build-essential \
+    pkg-config \
+    libxml2-dev \
+    libspdlog-dev \
+    ninja-build \
+    capnproto \
+    libcapnp-dev
+
+COPY .. /uda
+
+RUN cd /uda && \
+    cmake -G Ninja -B build \
+    -DBUILD_SHARED_LIBS=ON \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DSSLAUTHENTICATION=ON \
+    -DCLIENT_ONLY=OFF \
+    -DENABLE_CAPNP=ON
+
+RUN cd /uda && cmake --build build --config Release
+
+RUN cd /uda && cmake --install build --config Release

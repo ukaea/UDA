@@ -8,7 +8,9 @@ if( WIN32 OR MINGW )
   list( APPEND LIBS XDR::XDR )
 else()
   find_package( TIRPC QUIET)
-  list( APPEND LIBS TIRPC::TIRPC )
+  if( TIRPC_FOUND )
+    list( APPEND LIBS TIRPC::TIRPC )
+  endif()
 endif()
 
 # Sources

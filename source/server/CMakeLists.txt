@@ -74,23 +74,23 @@ target_include_directories( fatserver-objects PRIVATE
 
 target_compile_definitions( fatserver-objects PRIVATE -DFATCLIENT )
 
-set( SERVER_OBJ
-  $<TARGET_OBJECTS:server-objects>
-  $<TARGET_OBJECTS:clientserver-server-objects>
-  $<TARGET_OBJECTS:logging-server-objects>
-  $<TARGET_OBJECTS:structures-server-objects>
-  $<TARGET_OBJECTS:authentication-server-objects>
-  $<TARGET_OBJECTS:cache-objects>
+set( OBJECT_LIBS
+  server-objects
+  clientserver-server-objects
+  logging-server-objects
+  structures-server-objects
+  authentication-server-objects
+  cache-objects
 )
 
-add_library( server-static STATIC ${SERVER_OBJ} )
+add_library( server-static STATIC )
 if( BUILD_SHARED_LIBS )
-  add_library( server-shared SHARED ${SERVER_OBJ} )
+  add_library( server-shared SHARED )
 endif()
 
-target_link_libraries( server-static PRIVATE ${LIBS} )
+target_link_libraries( server-static PRIVATE ${LIBS} ${OBJECT_LIBS} )
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( server-shared PRIVATE ${LIBS} )
+  target_link_libraries( server-shared PRIVATE ${LIBS} ${OBJECT_LIBS} )
 endif()
 
 set( EXE_FLAG )

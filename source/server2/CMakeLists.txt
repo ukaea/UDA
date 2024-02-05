@@ -56,23 +56,23 @@ target_include_directories( server2-objects PRIVATE
   ${CMAKE_SOURCE_DIR}/source/include
 )
 
-set( SERVER2_OBJ
-  $<TARGET_OBJECTS:server2-objects>
-  $<TARGET_OBJECTS:clientserver-server-objects>
-  $<TARGET_OBJECTS:logging-server-objects>
-  $<TARGET_OBJECTS:structures-server-objects>
-  $<TARGET_OBJECTS:authentication-server-objects>
-  $<TARGET_OBJECTS:cache-objects>
+set( OBJECT_LIBS
+  server2-objects
+  clientserver-server-objects
+  logging-server-objects
+  structures-server-objects
+  authentication-server-objects
+  cache-objects
 )
 
-add_library( server2-static STATIC ${SERVER2_OBJ} )
+add_library( server2-static STATIC )
 if( BUILD_SHARED_LIBS )
-  add_library( server2-shared SHARED ${SERVER2_OBJ} )
+  add_library( server2-shared SHARED )
 endif()
 
-target_link_libraries( server2-static PRIVATE ${LIBS} )
+target_link_libraries( server2-static PRIVATE ${LIBS} ${OBJECT_LIBS} )
 if( BUILD_SHARED_LIBS )
-  target_link_libraries( server2-shared PRIVATE ${LIBS} )
+  target_link_libraries( server2-shared PRIVATE ${LIBS} ${OBJECT_LIBS} )
 endif()
 
 set( EXE_FLAG )
