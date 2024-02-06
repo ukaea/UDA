@@ -1,77 +1,60 @@
 #pragma once
 
 #ifndef UDA_SOURCE_CLIENT2_EXCEPTIONS_H
-#define UDA_SOURCE_CLIENT2_EXCEPTIONS_H
+#  define UDA_SOURCE_CLIENT2_EXCEPTIONS_H
 
-#include <stdexcept>
-#include <string_view>
-#include <string>
-#include <boost/format.hpp>
+#  include <boost/format.hpp>
+#  include <stdexcept>
+#  include <string>
+#  include <string_view>
 
-namespace uda {
-namespace exceptions {
+namespace uda
+{
+namespace exceptions
+{
 
 class UDAException : std::exception
 {
-public:
-    UDAException(std::string_view msg)
-    {
-        msg_ = msg;
-    }
+  public:
+    UDAException(std::string_view msg) { msg_ = msg; }
 
-    template<class... Args>
-    UDAException(std::string_view msg, Args... args)
+    template <class... Args> UDAException(std::string_view msg, Args... args)
     {
         boost::format formatter{msg.data()};
         msg_ = format(formatter, args...);
     }
 
-    const char* what() const noexcept override
-    {
-        return msg_.c_str();
-    }
+    const char* what() const noexcept override { return msg_.c_str(); }
 
-protected:
+  protected:
     std::string msg_;
 
-    std::string format(boost::format& formatter) {
-        return formatter.str();
-    }
+    std::string format(boost::format& formatter) { return formatter.str(); }
 
-    template<class Arg, class... Args>
-    std::string format(boost::format& formatter, Arg arg, Args... args) {
+    template <class Arg, class... Args> std::string format(boost::format& formatter, Arg arg, Args... args)
+    {
         formatter = formatter % arg;
         return format(formatter, args...);
     }
 };
 
-class ClientError: UDAException
+class ClientError : UDAException
 {
-public:
-    ClientError(std::string_view msg)
-    : UDAException(msg)
-    {}
+  public:
+    ClientError(std::string_view msg) : UDAException(msg) {}
 
-    template<class... Args>
-    ClientError(std::string_view msg, Args... args)
-    : UDAException(msg, args...)
-    {}
+    template <class... Args> ClientError(std::string_view msg, Args... args) : UDAException(msg, args...) {}
 };
 
 class ServerError : UDAException
 {
-public:
-    ServerError(std::string_view msg)
-    : UDAException(msg)
-    {}
+  public:
+    ServerError(std::string_view msg) : UDAException(msg) {}
 
-    template<class... Args>
-    ServerError(std::string_view msg, Args... args)
-    : UDAException(msg, args...)
-    {}
+    template <class... Args> ServerError(std::string_view msg, Args... args) : UDAException(msg, args...) {}
 };
 
-}
-}
+} // namespace exceptions
+} // namespace uda
 
-#endif //UDA_SOURCE_CLIENT2_EXCEPTIONS_H
+#endif // UDA_SOURCE_CLIENT2_EXCEPTIONS_H

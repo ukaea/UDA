@@ -52,10 +52,10 @@ void print_data_block_list(const std::vector<DATA_BLOCK>& data_blocks)
 
 uda::Server::Server() : error_stack_{}, environment_{}, sockets_{}
 {
-    initServerBlock(&server_block_, ServerVersion);
+    udaInitServerBlock(&server_block_, ServerVersion);
     initActions(&actions_desc_); // There may be a Sequence of Actions to Apply
     initActions(&actions_sig_);
-    initRequestBlock(&request_block_);
+    udaInitRequestBlock(&request_block_);
     cache_ = cache::open_cache();
 }
 
@@ -64,7 +64,7 @@ void uda::Server::start_logs()
     if (environment_->loglevel <= UDA_LOG_ACCESS) {
         std::string cmd = fmt::format("mkdir -p {} 2>/dev/null", environment_->logdir);
         if (system(cmd.c_str()) != 0) {
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "mkdir command failed");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "mkdir command failed");
             throw uda::server::StartupException("mkdir command failed");
         }
 
@@ -73,8 +73,8 @@ void uda::Server::start_logs()
         FILE* accout = fopen(log_file.c_str(), environment_->logmode);
 
         if (errno != 0) {
-            addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Access Log: ");
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open access log");
+            udaAddError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Access Log: ");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open access log");
             if (accout != nullptr) {
                 fclose(accout);
             }
@@ -89,8 +89,8 @@ void uda::Server::start_logs()
         FILE* errout = fopen(log_file.c_str(), environment_->logmode);
 
         if (errno != 0) {
-            addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Error Log: ");
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open error log");
+            udaAddError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Error Log: ");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open error log");
             if (errout != nullptr) {
                 fclose(errout);
             }
@@ -105,7 +105,7 @@ void uda::Server::start_logs()
         FILE* dbgout = fopen(log_file.c_str(), environment_->logmode);
 
         if (errno != 0) {
-            addIdamError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Debug Log: ");
+            udaAddError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Debug Log: ");
             if (dbgout != nullptr) {
                 fclose(dbgout);
             }
@@ -177,7 +177,7 @@ void uda::Server::close()
     // Write the Error Log Record & Free Error Stack Heap
 
     udaErrorLog(client_block_, request_block_, nullptr);
-    closeUdaError();
+    udaCloseError();
 
     //----------------------------------------------------------------------------
     // Free Data Block Heap Memory in case by-passed
@@ -187,7 +187,7 @@ void uda::Server::close()
     //----------------------------------------------------------------------------
     // Free Structure Definition List (don't free the structure as stack variable)
 
-    // freeUserDefinedTypeList(&parseduserdefinedtypelist);
+    // udaFreeUserDefinedTypeList(&parseduserdefinedtypelist);
 
     //----------------------------------------------------------------------------
     // Free Plugin List and Close all open library entries
@@ -224,14 +224,14 @@ void uda::Server::loop()
         UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop\n");
 
         // Create a new userdefinedtypelist for the request by copying the parseduserdefinedtypelist structure
-        // copyUserDefinedTypeList(&userdefinedtypelist);
+        // udaCopyUserDefinedTypeList(&userdefinedtypelist);
 
-        getInitialUserDefinedTypeList(&user_defined_type_list_);
+        udaGetInitialUserDefinedTypeList(&user_defined_type_list_);
         parsed_user_defined_type_list_ = *user_defined_type_list_;
-        //        printUserDefinedTypeList(*user_defined_type_list_);
+        //        udaPrintUserDefinedTypeList(*user_defined_type_list_);
 
         log_malloc_list_ = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-        initLogMallocList(log_malloc_list_);
+        udaInitLogMallocList(log_malloc_list_);
 
         server_closedown_ = false;
 
@@ -257,11 +257,11 @@ void uda::Server::loop()
         //----------------------------------------------------------------------------
         // Free Data Block Heap Memory
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeUserDefinedTypeList\n");
-        freeUserDefinedTypeList(user_defined_type_list_);
+        UDA_LOG(UDA_LOG_DEBUG, "udaFreeUserDefinedTypeList\n");
+        udaFreeUserDefinedTypeList(user_defined_type_list_);
         user_defined_type_list_ = nullptr;
 
-        freeMallocLogList(log_malloc_list_);
+        udaFreeMallocLogList(log_malloc_list_);
         ::free(log_malloc_list_);
         log_malloc_list_ = nullptr;
 
@@ -279,20 +279,20 @@ void uda::Server::loop()
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
 
-        UDA_LOG(UDA_LOG_DEBUG, "concatUdaError\n");
-        concatUdaError(&server_block_.idamerrorstack); // Update Server State with Error Stack
+        UDA_LOG(UDA_LOG_DEBUG, "udaConcatError\n");
+        udaConcatError(&server_block_.idamerrorstack); // Update Server State with Error Stack
 
-        UDA_LOG(UDA_LOG_DEBUG, "closeUdaError\n");
-        closeUdaError();
+        UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
+        udaCloseError();
 
         UDA_LOG(UDA_LOG_DEBUG, "udaErrorLog\n");
         udaErrorLog(client_block_, request_block_, &server_block_.idamerrorstack);
 
-        UDA_LOG(UDA_LOG_DEBUG, "closeUdaError\n");
-        closeUdaError();
+        UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
+        udaCloseError();
 
-        UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
-        initServerBlock(&server_block_, ServerVersion);
+        UDA_LOG(UDA_LOG_DEBUG, "udaInitServerBlock\n");
+        udaInitServerBlock(&server_block_, ServerVersion);
 
         //----------------------------------------------------------------------------
         // Server Wait Loop
@@ -312,7 +312,7 @@ int uda::Server::handle_request()
 
     int err = 0;
 
-    initClientBlock(&client_block_, 0, "");
+    udaInitClientBlock(&client_block_, 0, "");
 
     err = protocol_.recv_client_block(server_block_, &client_block_, &fatal_error_, server_tot_block_time_,
                                       &server_timeout_, log_malloc_list_, user_defined_type_list_);
@@ -579,9 +579,9 @@ int uda::Server::handle_request()
     //----------------------------------------------------------------------
     // Initialise Data Structures
 
-    initDataSource(&metadata_block_.data_source);
-    initSignalDesc(&metadata_block_.signal_desc);
-    initSignal(&metadata_block_.signal_rec);
+    udaInitDataSource(&metadata_block_.data_source);
+    udaInitSignalDesc(&metadata_block_.signal_desc);
+    udaInitSignal(&metadata_block_.signal_rec);
 
     //----------------------------------------------------------------------------------------------
     // If this is a PUT request then receive the putData structure
@@ -589,7 +589,7 @@ int uda::Server::handle_request()
     for (int i = 0; i < request_block_.num_requests; ++i) {
         REQUEST_DATA* request = &request_block_.requests[0];
 
-        initPutDataBlockList(&request->putDataBlockList);
+        udaInitPutDataBlockList(&request->putDataBlockList);
 
         if (request->put) {
             err = protocol_.recv_putdata_block_list(&request->putDataBlockList, log_malloc_list_,
@@ -664,7 +664,7 @@ int uda::Server::handle_request()
     printSignal(metadata_block_.signal_rec);
     printSignalDesc(*signal_desc);
     print_data_block_list(data_blocks_);
-    printIdamErrorStack();
+    udaPrintErrorStack();
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
 
@@ -748,8 +748,8 @@ int uda::Server::report_to_client()
     // Gather Server Error State
 
     // Update Server State with Error Stack
-    concatUdaError(&server_block_.idamerrorstack);
-    closeUdaError();
+    udaConcatError(&server_block_.idamerrorstack);
+    udaCloseError();
 
     int err = 0;
 
@@ -827,7 +827,7 @@ void uda::Server::handshake_client()
 {
     // Exchange version details - once only
 
-    initClientBlock(&client_block_, 0, "");
+    udaInitClientBlock(&client_block_, 0, "");
 
     // Receive the client block, respecting earlier protocol versions
 

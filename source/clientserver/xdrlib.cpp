@@ -446,24 +446,24 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
         SARRAY* psarray = &sarray;
         int shape = str->data_n;                        // rank 1 array of dimension lengths
         auto udt = (USERDEFINEDTYPE*)str->opaque_block; // The data's structure definition
-        auto u = findUserDefinedType(userdefinedtypelist, "SARRAY",
-                                     0); // Locate the carrier structure definition
+        auto u = udaFindUserDefinedType(userdefinedtypelist, "SARRAY",
+                                        0); // Locate the carrier structure definition
 
         if (udt == nullptr || u == nullptr) {
             err = 999;
-            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err,
-                         "nullptr User defined data Structure Definition");
+            udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err,
+                        "nullptr User defined data Structure Definition");
             return 0;
         }
 
-        initSArray(&sarray);
+        udaInitSArray(&sarray);
         sarray.count = str->data_n;     // Number of this structure
         sarray.rank = 1;                // Array Data Rank?
         sarray.shape = &shape;          // Only if rank > 1?
         sarray.data = (void*)str->data; // Pointer to the data to be passed
         strcpy(sarray.type, udt->name); // The name of the type
         data = (void*)&psarray;         // Pointer to the SARRAY array pointer
-        addNonMalloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
+        udaAddNonMalloc(logmalloclist, (void*)&shape, 1, sizeof(int), "int");
 
         packageType = UDA_PACKAGE_XDROBJECT; // The package is an XDR serialised object
 
@@ -471,14 +471,14 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         // Send the data
 
-        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist,
-                                           xdr_stdio_flag); // send the full set of known named structures
-        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
-                                          xdr_stdio_flag, log_struct_list, malloc_source); // send the Data
+        rc = rc && udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist,
+                                             xdr_stdio_flag); // send the full set of known named structures
+        rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
+                                             xdr_stdio_flag, log_struct_list, malloc_source); // send the Data
 
         if (!rc) {
             err = 999;
-            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Bad Return Code passing data structures");
+            udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Bad Return Code passing data structures");
             return 0;
         }
 
@@ -488,42 +488,42 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         if (packageType != UDA_PACKAGE_XDROBJECT) {
             err = 999;
-            addIdamError(UDA_SYSTEM_ERROR_TYPE, "protocolDataObject", err, "Incorrect package Type option");
+            udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolDataObject", err, "Incorrect package Type option");
             return 0;
         }
 
         // Heap allocations log
 
         logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-        initLogMallocList(logmalloclist);
+        udaInitLogMallocList(logmalloclist);
 
         // Data structure definitions
 
         userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-        initUserDefinedTypeList(userdefinedtypelist);
+        udaInitUserDefinedTypeList(userdefinedtypelist);
 
         // receive the full set of known named structures
-        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
+        rc = rc && udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
         if (!rc) {
             err = 999;
-            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Failure receiving Structure Definitions");
+            udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Failure receiving Structure Definitions");
             return 0;
         }
 
         // Receive data
 
         auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
-        initUserDefinedType(udt_received);
+        udaInitUserDefinedType(udt_received);
 
-        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
-                                          protocolVersion, xdr_stdio_flag, log_struct_list,
-                                          malloc_source); // receive the Data
+        rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
+                                             protocolVersion, xdr_stdio_flag, log_struct_list,
+                                             malloc_source); // receive the Data
 
         if (!rc) {
             err = 999;
-            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err,
-                         "Failure receiving Data and it's Structure Definition");
+            udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err,
+                        "Failure receiving Data and it's Structure Definition");
             return 0;
         }
 
@@ -536,7 +536,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
             auto s = (SARRAY*)data;
             if (s->count != str->data_n) { // check for consistency
                 err = 999;
-                addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Inconsistent S Array Counts");
+                udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Inconsistent S Array Counts");
                 return 0;
             }
             str->data = (char*)udaGetFullNTree(); // Global Root Node with the Carrier Structure containing data
@@ -548,7 +548,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         } else {
             err = 999;
-            addIdamError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Name of Received Data Structure Incorrect");
+            udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Name of Received Data Structure Incorrect");
             return 0;
         }
     }

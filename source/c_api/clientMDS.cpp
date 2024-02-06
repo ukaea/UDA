@@ -13,7 +13,7 @@
  * @param treenum MDS+ Tree Number
  * @return
  */
-int idamClientMDS(const char* server, const char* tree, const char* node, int treenum)
+int udaClientMDS(const char* server, const char* tree, const char* node, int treenum)
 {
     //-------------------------------------------------------------------------
     // Open the Logs
@@ -29,12 +29,12 @@ int idamClientMDS(const char* server, const char* tree, const char* node, int tr
     // Passed Args
 
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    udaInitRequestBlock(&request_block);
 
     request_block.num_requests = 1;
     request_block.requests = (REQUEST_DATA*)malloc(sizeof(REQUEST_DATA));
     auto request = &request_block.requests[0];
-    initRequestData(request);
+    udaInitRequestData(request);
 
     request->request = REQUEST_READ_MDS;
     request->exp_number = treenum;

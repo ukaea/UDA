@@ -99,7 +99,7 @@ private:
     int alt_rank_ = 0;
     ENVIRONMENT environment_ = {};
     ClientFlags client_flags_ = {};
-    uint32_t private_flags_= 0;
+    uint32_t private_flags_ = 0;
     ClientBlock client_block_ = {};
     ServerBlock server_block_ = {};
     std::vector<DataBlock> data_blocks_ = {};
@@ -115,8 +115,8 @@ private:
     bool reopen_logs_ = false;
     std::string client_username_ = "client";
     int protocol_version_ = ClientVersion;
-    USERDEFINEDTYPELIST* userdefinedtypelist_ = nullptr;            // List of all known User Defined Structure Types
-    LOGMALLOCLIST* logmalloclist_ = nullptr;                        // List of all Heap Allocations for Data
+    USERDEFINEDTYPELIST* userdefinedtypelist_ = nullptr; // List of all known User Defined Structure Types
+    LOGMALLOCLIST* logmalloclist_ = nullptr;             // List of all Heap Allocations for Data
     NTREE* full_ntree_ = nullptr;
     LOGSTRUCTLIST log_struct_list_ = {};
     int malloc_source_ = UDA_MALLOC_SOURCE_NONE;
@@ -133,7 +133,7 @@ private:
     int fetch_hierarchical_data(DATA_BLOCK* data_block);
 };
 
-}
-}
+} // namespace client
+} // namespace uda
 
-#endif //UDA_SOURCE_CLIENT2_CLIENT_H
+#endif // UDA_SOURCE_CLIENT2_CLIENT_H

@@ -209,7 +209,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                                 // Properties Must be identical for all structure array elements
                                 extract = *(char**)&data_block->data[jj * udt->size + udt->compoundfield[i].offset];
 
-                                findMalloc2(logmalloclist, (void*)extract, &count, &size, &type_name, &rank, &shape);
+                                udaFindMalloc2(logmalloclist, (void*)extract, &count, &size, &type_name, &rank, &shape);
                                 if (jj > 0) {
                                     if (count != count_p || size != size_p || rank != rank_p ||
                                         strcmp(type_name, type_name_p) != 0) {
@@ -237,7 +237,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
                         } else {
                             extract = *(char**)&data_block->data[udt->compoundfield[i].offset];
-                            findMalloc2(logmalloclist, (void*)extract, &count, &size, &type_name, &rank, &shape);
+                            udaFindMalloc2(logmalloclist, (void*)extract, &count, &size, &type_name, &rank, &shape);
                         }
 
                         if (mapType == 3) {
@@ -245,7 +245,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                                                  "member is also an array. (Functionality has not been implemented!)");
                         }
 
-                        int type = gettypeof(type_name);
+                        int type = udaGettypeof(type_name);
 
                         switch (type) {
                             case UDA_TYPE_DOUBLE: {
@@ -305,7 +305,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                         data_block->dims = (DIMS*)realloc((void*)data_block->dims, rank * sizeof(DIMS));
 
                         for (int k = k0; k < rank; k++) {
-                            initDimBlock(&data_block->dims[k]);
+                            udaInitDimBlock(&data_block->dims[k]);
                             if (shape == nullptr) {
                                 data_block->dims[k].dim_n = data_n;
                             } else {
@@ -327,7 +327,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                             data_block->dims = (DIMS*)realloc((void*)data_block->dims, data_block->rank * sizeof(DIMS));
 
                             for (unsigned int k = k0; k < data_block->rank; k++) {
-                                initDimBlock(&data_block->dims[k]);
+                                udaInitDimBlock(&data_block->dims[k]);
                                 data_block->dims[k].dim_n = udt->compoundfield[i].shape[k - k0];
                                 data_block->dims[k].data_type = UDA_TYPE_UNSIGNED_INT;
                                 data_block->dims[k].compressed = 1;
@@ -339,7 +339,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                     }
 
                     if (logmalloclist != nullptr) {
-                        freeMallocLogList(logmalloclist);
+                        udaFreeMallocLogList(logmalloclist);
                         free(logmalloclist);
                         logmalloclist = nullptr;
                     }
@@ -375,7 +375,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         // Decompress the dimensional data if necessary & free Heap Associated with Compression
 
         DIMS new_dim;
-        initDimBlock(&new_dim); // Holder for the Sub-setted Dimension (part copy of the original)
+        udaInitDimBlock(&new_dim); // Holder for the Sub-setted Dimension (part copy of the original)
 
         auto dim = &(data_block->dims[dim_id]); // the original dimension to be subset
 
@@ -1049,7 +1049,7 @@ int apply_count(SUBSET subset, DATA_BLOCK* data_block)
     if (p1 == nullptr) {
         count[0] = (unsigned int)data_block->data_n;
         freeDataBlock(data_block);
-        initDataBlock(data_block);
+        udaInitDataBlock(data_block);
         data_block->data_n = 1;
         data_block->data = (char*)count;
         data_block->data_type = UDA_TYPE_UNSIGNED_INT;

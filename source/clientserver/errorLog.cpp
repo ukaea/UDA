@@ -86,12 +86,12 @@ void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERR
 
 // Initialise the Error Stack
 
-void initUdaErrorStack()
+void udaInitErrorStack()
 {
     udaerrorstack.clear();
 }
 
-void initErrorRecords(const UDA_ERROR_STACK* errorstack)
+void udaInitErrorRecords(const UDA_ERROR_STACK* errorstack)
 {
     for (unsigned int i = 0; i < errorstack->nerrors; i++) {
         errorstack->idamerror[i].type = 0;
@@ -101,7 +101,7 @@ void initErrorRecords(const UDA_ERROR_STACK* errorstack)
     }
 }
 
-void printIdamErrorStack()
+void udaPrintErrorStack()
 {
     if (udaerrorstack.empty()) {
         UDA_LOG(UDA_LOG_DEBUG, "Empty Error Stack\n");
@@ -120,7 +120,7 @@ void printIdamErrorStack()
 //            1 => Code Error
 //            2 => Plugin Error
 
-UDA_ERROR createIdamError(int type, const char* location, int code, const char* msg)
+UDA_ERROR udaCreateError(int type, const char* location, int code, const char* msg)
 {
     UDA_ERROR error;
 
@@ -155,14 +155,14 @@ UDA_ERROR createIdamError(int type, const char* location, int code, const char* 
     return error;
 }
 
-void addIdamError(int type, const char* location, int code, const char* msg)
+void udaAddError(int type, const char* location, int code, const char* msg)
 {
-    udaerrorstack.push_back(createIdamError(type, location, code, msg));
+    udaerrorstack.push_back(udaCreateError(type, location, code, msg));
 }
 
 // Concatenate Error Stack structures
 
-void concatUdaError(UDA_ERROR_STACK* errorstackout)
+void udaConcatError(UDA_ERROR_STACK* errorstackout)
 {
     if (udaerrorstack.empty()) {
         return;
@@ -179,7 +179,7 @@ void concatUdaError(UDA_ERROR_STACK* errorstackout)
     errorstackout->nerrors = inew;
 }
 
-void freeIdamErrorStack(UDA_ERROR_STACK* errorstack)
+void udaFreeErrorStack(UDA_ERROR_STACK* errorstack)
 {
     // "FIX" : this is causing segfaults when using multiple clients (eg. get and put)
     //         apparently due to both trying to free the same memory. Needs fixing properly.
@@ -191,7 +191,7 @@ void freeIdamErrorStack(UDA_ERROR_STACK* errorstack)
 
 // Free Stack Heap
 
-void closeUdaError()
+void udaCloseError()
 {
-    initUdaErrorStack();
+    udaInitErrorStack();
 }

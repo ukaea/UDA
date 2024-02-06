@@ -98,8 +98,8 @@ int ViewportPlugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     if (handle < 0) {
 
-        if ((handle = idamGetAPI(signal.c_str(), source.c_str())) < 0 || getIdamErrorCode(handle) != 0) {
-            error(plugin_interface, getIdamErrorMsg(handle));
+        if ((handle = udaGetAPI(signal.c_str(), source.c_str())) < 0 || udaGetErrorCode(handle) != 0) {
+            error(udaGetErrorMsg(handle));
         }
 
         cache_.emplace_back(CacheEntry{handle, signal, source});
@@ -107,17 +107,17 @@ int ViewportPlugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Get the data rank and data shape, the data and the coordinates
 
-    int rank = getIdamRank(handle);
-    int order = getIdamOrder(handle);
+    int rank = udaGetRank(handle);
+    int order = udaGetOrder(handle);
 
     if (rank == 1) {
-        int count = getIdamDataNum(handle);
+        int count = udaGetDataNum(handle);
 
         std::vector<float> values(static_cast<size_t>(count));
         std::vector<float> coords(static_cast<size_t>(count));
 
-        getIdamFloatData(handle, values.data());
-        getIdamFloatDimData(handle, 0, coords.data());
+        udaGetFloatData(handle, values.data());
+        udaGetFloatDimData(handle, 0, coords.data());
 
         if (test) {
             debug(plugin_interface, "Running Viewport Test {}\n", *test);

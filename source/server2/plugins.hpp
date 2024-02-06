@@ -75,6 +75,6 @@ private:
     void process_config_file(std::ifstream& conf_file);
 };
 
-}
+} // namespace uda
 
 #endif // UDA_SERVER_PLUGINS_HPP

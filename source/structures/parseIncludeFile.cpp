@@ -91,8 +91,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
     if (fh == nullptr || ferror(fh) || errno != 0) {
         err = 999;
         if (errno != 0) {
-            addIdamError(UDA_SYSTEM_ERROR_TYPE, "parseIncludeFile", errno,
-                         "Unable to Open Structure Definition Header file for Read Access!");
+            udaAddError(UDA_SYSTEM_ERROR_TYPE, "parseIncludeFile", errno,
+                        "Unable to Open Structure Definition Header file for Read Access!");
         }
         if (fh != nullptr) {
             fclose(fh);
@@ -244,8 +244,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                     name1[0] = '\0';
                     name2[0] = '\0';
                 } else {
-                    addIdamError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
-                                 "typedef statement does not conform to syntax model!");
+                    udaAddError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
+                                "typedef statement does not conform to syntax model!");
                 }
                 buffer[0] = '\0';
                 break;
@@ -275,8 +275,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                     name1[0] = '\0';
                     name2[0] = '\0';
                 } else {
-                    addIdamError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
-                                 "typedef statement does not conform to syntax model!");
+                    udaAddError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
+                                "typedef statement does not conform to syntax model!");
                 }
                 buffer[0] = '\0';
                 break;
@@ -304,7 +304,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
 
                         image = nullptr;
                         imagecount = 0;
-                        addImage(&image, &imagecount, buffer);
+                        udaAddImage(&image, &imagecount, buffer);
 
                         if (model == 1) {
                             strcpy(name, &buffer[7]);
@@ -329,10 +329,10 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                         if (model != 0 && STR_STARTSWITH(buffer, "}")) {
 
                             if (model == 1) {
-                                addImage(&image, &imagecount, "};\n");
+                                udaAddImage(&image, &imagecount, "};\n");
                             }
-                            addImage(&image, &imagecount, buffer);
-                            addImage(&image, &imagecount, "\n");
+                            udaAddImage(&image, &imagecount, buffer);
+                            udaAddImage(&image, &imagecount, "\n");
 
                             if (model == 1) {
                                 if (buffer[0] == '}') { // No typedef statement
@@ -380,7 +380,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                         (userdefinedtypelist->listCount + 1) * sizeof(USERDEFINEDTYPE));
                                     userdefinedtype =
                                         &userdefinedtypelist->userdefinedtype[userdefinedtypelist->listCount];
-                                    initUserDefinedType(userdefinedtype);
+                                    udaInitUserDefinedType(userdefinedtype);
 
                                     userdefinedtypelist->listCount = userdefinedtypelist->listCount + 1;
 
@@ -393,7 +393,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     byteCount = 0;
                                     maxAlign = 0;
                                     for (int i = 0; i < itemCount; i++) {
-                                        initCompoundField(&userdefinedtype->compoundfield[i]);
+                                        udaInitCompoundField(&userdefinedtype->compoundfield[i]);
                                         strcpy(userdefinedtype->compoundfield[i].name, item[i]);
                                         strcpy(userdefinedtype->compoundfield[i].type, type[i]);
                                         strcpy(userdefinedtype->compoundfield[i].desc, desc[i]);
@@ -402,14 +402,14 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                         userdefinedtype->compoundfield[i].offset = offset[i];
                                         userdefinedtype->compoundfield[i].offpad = offpad[i];
                                         if (pointer[i]) {
-                                            userdefinedtype->compoundfield[i].alignment = getalignmentof("*");
+                                            userdefinedtype->compoundfield[i].alignment = udaGetalignmentof("*");
                                         } else {
-                                            userdefinedtype->compoundfield[i].alignment = getalignmentof(type[i]);
+                                            userdefinedtype->compoundfield[i].alignment = udaGetalignmentof(type[i]);
                                         }
                                         if (userdefinedtype->compoundfield[i].alignment > maxAlign) {
                                             maxAlign = userdefinedtype->compoundfield[i].alignment;
                                         }
-                                        userdefinedtype->compoundfield[i].atomictype = gettypeof(type[i]);
+                                        userdefinedtype->compoundfield[i].atomictype = udaGettypeof(type[i]);
                                         userdefinedtype->compoundfield[i].rank = rank[i];
                                         userdefinedtype->compoundfield[i].count = count[i];
                                         if (rank[i] > 0) {
@@ -428,7 +428,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     // Add a final Packing to align the structure if necessary
 
                                     byteCount = byteCount + ((maxAlign - (byteCount % maxAlign)) %
-                                                             maxAlign); // padding(byteCount, "STRUCTURE");
+                                                             maxAlign); // udaPadding(byteCount, "STRUCTURE");
 
                                     userdefinedtype->fieldcount = itemCount; // Count of child elements
                                     userdefinedtype->size = byteCount; // Size of the Object (on the run time system)
@@ -439,8 +439,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                             } else {
                                 // fprintf(stdout,"Names do Not Match: %s, %s, %s\n", name, name1, name2);
                                 err = 999;
-                                addIdamError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
-                                             "typedef statement does not conform to syntax model!");
+                                udaAddError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
+                                            "typedef statement does not conform to syntax model!");
                                 return err;
                             }
 
@@ -451,8 +451,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
 
                             if (buffer[0] != '}' && strlen(buffer) > 0) { // Structure Contents
 
-                                expandImage(buffer, defnames, defvalues, defCount, work);
-                                addImage(&image, &imagecount, work);
+                                udaExpandImage(buffer, defnames, defvalues, defCount, work);
+                                udaAddImage(&image, &imagecount, work);
 
                                 convertNonPrintable2(buffer);
                                 LeftTrimString(buffer);
@@ -611,9 +611,9 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
 
                                     if (!pointer[itemCount]) {
                                         if (STR_STARTSWITH(type[itemCount], "STRING")) {
-                                            size[itemCount] = (int)getsizeof(userdefinedtypelist, "char");
+                                            size[itemCount] = (int)udaGetsizeof(userdefinedtypelist, "char");
                                         } else {
-                                            size[itemCount] = (int)getsizeof(userdefinedtypelist, type[itemCount]);
+                                            size[itemCount] = (int)udaGetsizeof(userdefinedtypelist, type[itemCount]);
                                         }
                                     }
 
@@ -666,8 +666,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                             sizeof(void*); // Offsets and Pointer sizes are architecture dependent
                                         if (itemCount > 0) {
                                             space = size[itemCount - 1] * count[itemCount - 1];
-                                            offpad[itemCount] = padding(offset[itemCount - 1] + space, "*");
-                                            offset[itemCount] = newoffset(offset[itemCount - 1] + space, "*");
+                                            offpad[itemCount] = udaPadding(offset[itemCount - 1] + space, "*");
+                                            offset[itemCount] = udaNewoffset(offset[itemCount - 1] + space, "*");
                                         } else {
                                             offpad[itemCount] = 0;
                                             offset[itemCount] = 0;
@@ -675,9 +675,10 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     } else {
                                         if (itemCount > 0) {
                                             space = size[itemCount - 1] * count[itemCount - 1];
-                                            offpad[itemCount] = padding(offset[itemCount - 1] + space, type[itemCount]);
+                                            offpad[itemCount] =
+                                                udaPadding(offset[itemCount - 1] + space, type[itemCount]);
                                             offset[itemCount] =
-                                                newoffset(offset[itemCount - 1] + space, type[itemCount]);
+                                                udaNewoffset(offset[itemCount - 1] + space, type[itemCount]);
                                         } else {
                                             offpad[itemCount] = 0;
                                             offset[itemCount] = 0;

@@ -1306,12 +1306,12 @@ int parseDoc(char* docname, ACTIONS* actions)
     if ((doc = xmlParseDoc((xmlChar*)docname)) == nullptr) {
         xmlFreeDoc(doc);
         xmlCleanupParser();
-        addIdamError(UDA_CODE_ERROR_TYPE, "parseDoc", 1, "XML Not Parsed");
+        udaAddError(UDA_CODE_ERROR_TYPE, "parseDoc", 1, "XML Not Parsed");
         return 1;
     }
 
     if ((cur = xmlDocGetRootElement(doc)) == nullptr) {
-        addIdamError(UDA_CODE_ERROR_TYPE, "parseDoc", 1, "Empty XML Document");
+        udaAddError(UDA_CODE_ERROR_TYPE, "parseDoc", 1, "Empty XML Document");
         xmlFreeDoc(doc);
         xmlCleanupParser();
         return 1;

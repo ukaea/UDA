@@ -170,7 +170,7 @@ option( ENABLE_CAPNP "Enable Cap’n Proto serialisation" OFF )
 option( NO_WRAPPERS "Don't build any UDA client wrappers" OFF )
 option( NO_CXX_WRAPPER "Don't build C++ wrapper" OFF )
 option( NO_PYTHON_WRAPPER "Don't build Python wrapper" OFF )
-option( NO_JAVA_WRAPPER "Don't build Java wrapper" OFF )
+option( NO_JAVA_WRAPPER "Don't build Java wrapper" ON )
 option( NO_IDL_WRAPPER "Don't build IDL wrapper" OFF )
 option( FAT_IDL "Build IDL wrapper using fat-client" OFF )
 

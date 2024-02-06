@@ -322,24 +322,24 @@ Legacy exception: treat PPF and JPF formats as server protocols => no file path 
 * @param data_source identifies the location of data.
 * @return a reference ID handle used to identify the accessed data in subsequent API accessor function calls.
 */
-int idamGetAPI(const char* data_object, const char* data_source)
+int udaGetAPI(const char* data_object, const char* data_source)
 {
-    return idamGetAPIWithHost(data_object, data_source, nullptr, 0);
+    return udaGetAPIWithHost(data_object, data_source, nullptr, 0);
 }
 
-int idamGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port)
+int udaGetAPIWithHost(const char* data_object, const char* data_source, const char* host, int port)
 {
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
-    lockIdamThread();
+    udaLockThread();
 
     if (host != nullptr) {
-        putIdamServerHost(host);
+        udaPutServerHost(host);
     }
 
     if (port) {
-        putIdamServerPort(port);
+        udaPutServerPort(port);
     }
 
     int err = 0;
@@ -360,7 +360,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     static bool reopen_logs = true;
 
     if (udaStartup(0, client_flags, &reopen_logs) != 0) {
-        unlockUdaThread();
+        udaUnlockThread();
         return PROBLEM_OPENING_LOGS;
     }
 
@@ -375,7 +375,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
         mkstemp(tempFile);
         argstack = fopen(tempFile, environment.logmode);
         if (argstack != nullptr) {
-            fprintf(argstack, "idamGetAPI\n");
+            fprintf(argstack, "udaGetAPI\n");
         }
     }
     if (argstack != nullptr) {
@@ -388,22 +388,22 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     // Initialise the Client Data Request Structure
 
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    udaInitRequestBlock(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initUdaErrorStack();
+        udaInitErrorStack();
         startup = false;
     }
 
     if ((err = makeClientRequestBlock(&data_object, &data_source, 1, &request_block)) != 0) {
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
-        unlockUdaThread();
+        udaUnlockThread();
         return -err;
     }
 
@@ -413,7 +413,7 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
     // Fetch Data
 
 #ifdef TESTSERVERCLIENT
-    unlockIdamThread();
+    unudaLockThread();
     return -1;
 #endif
 
@@ -432,29 +432,29 @@ int idamGetAPIWithHost(const char* data_object, const char* data_source, const c
 
     freeClientRequestBlock(&request_block);
     // Unlock the thread
-    unlockUdaThread();
+    udaUnlockThread();
     return handle;
 }
 
-int idamGetBatchAPI(const char** signals, const char** sources, int count, int* handles)
+int udaGetBatchAPI(const char** signals, const char** sources, int count, int* handles)
 {
-    return idamGetBatchAPIWithHost(signals, sources, count, handles, nullptr, 0);
+    return udaGetBatchAPIWithHost(signals, sources, count, handles, nullptr, 0);
 }
 
-int idamGetBatchAPIWithHost(const char** signals, const char** sources, int count, int* handles, const char* host,
-                            int port)
+int udaGetBatchAPIWithHost(const char** signals, const char** sources, int count, int* handles, const char* host,
+                           int port)
 {
     CLIENT_FLAGS* client_flags = udaClientFlags();
 
     // Lock the thread
-    lockIdamThread();
+    udaLockThread();
 
     if (host != nullptr) {
-        putIdamServerHost(host);
+        udaPutServerHost(host);
     }
 
     if (port) {
-        putIdamServerPort(port);
+        udaPutServerPort(port);
     }
 
     static bool startup = true;
@@ -474,7 +474,7 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
     static bool reopen_logs = true;
 
     if (udaStartup(0, client_flags, &reopen_logs) != 0) {
-        unlockUdaThread();
+        udaUnlockThread();
         return PROBLEM_OPENING_LOGS;
     }
 
@@ -489,7 +489,7 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
         mkstemp(tempFile);
         argstack = fopen(tempFile, environment.logmode);
         if (argstack != nullptr) {
-            fprintf(argstack, "idamGetAPI\n");
+            fprintf(argstack, "udaGetAPI\n");
         }
     }
     if (argstack != nullptr) {
@@ -502,33 +502,33 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
     // Initialise the Client Data Request Structure
 
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    udaInitRequestBlock(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initUdaErrorStack();
+        udaInitErrorStack();
         startup = false;
     }
 
     int err = 0;
     if ((err = makeClientRequestBlock(signals, sources, count, &request_block)) != 0) {
         if (udaNumErrors() == 0) {
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
-        unlockUdaThread();
+        udaUnlockThread();
         return -err;
     }
 
-    UDA_LOG(UDA_LOG_DEBUG, "Routine: idamGetBatchAPI\n");
+    UDA_LOG(UDA_LOG_DEBUG, "Routine: udaGetBatchAPI\n");
     printRequestBlock(request_block);
 
     //-------------------------------------------------------------------------
     // Fetch Data
 
 #ifdef TESTSERVERCLIENT
-    unlockIdamThread();
+    unudaLockThread();
     return -1;
 #endif
 
@@ -542,6 +542,6 @@ int idamGetBatchAPIWithHost(const char** signals, const char** sources, int coun
 #endif
 
     // Unlock the thread
-    unlockUdaThread();
+    udaUnlockThread();
     return err;
 }

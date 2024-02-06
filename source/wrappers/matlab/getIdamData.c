@@ -52,8 +52,8 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     listIndex = 0;
 
     /* First get the IDAM data
-        setIdamProperty("verbose");
-        setIdamProperty("debug");
+        udaSetProperty("verbose");
+        udaSetProperty("debug");
     */
 
     name = mxArrayToString(prhs[0]);
@@ -64,16 +64,16 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     addItem(OUT, mxCreateString("Source"));
     addItem(OUT, mxCreateString(source));
 
-    handle = idamGetAPI(name, source);
+    handle = udaGetAPI(name, source);
 
     mxFree(name);
     mxFree(source);
 
-    erc = getIdamErrorCode(handle);
+    erc = udaGetErrorCode(handle);
     addItem(OUT, mxCreateString("ErrorCode"));
     addItem(OUT, mxCreateDoubleScalar(erc));
     addItem(OUT, mxCreateString("ErrorMessage"));
-    addItem(OUT, mxCreateString(getIdamErrorMsg(handle)));
+    addItem(OUT, mxCreateString(udaGetErrorMsg(handle)));
 
     /* check status and exit now if appropriate
     */
@@ -83,26 +83,26 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
     /* get and store the data and associated information
     */
-    ndata = getIdamDataNum(handle);
+    ndata = udaGetDataNum(handle);
     addItem(OUT, mxCreateString("Data"));
-    addItem(OUT, mxCreateString(getIdamDataLabel(handle)));
-    addItem(OUT, mxCreateString(getIdamDataUnits(handle)));
+    addItem(OUT, mxCreateString(udaGetDataLabel(handle)));
+    addItem(OUT, mxCreateString(udaGetDataUnits(handle)));
 
     item = mxCreateDoubleMatrix(1, ndata, mxREAL);
     ptr = mxGetPr(item);
 
     // Cast atomic data types to double
-    getIdamDoubleData(handle, ptr);
+    udaGetDoubleData(handle, ptr);
     addItem(OUT, item);
 
     /* Error Data
     */
-    char* error = getIdamError(handle);
+    char* error = udaGetError(handle);
 
     if (error != NULL) {
         addItem(OUT, mxCreateString("Error"));
         addItem(OUT, mxCreateString("Error"));
-        addItem(OUT, mxCreateString(getIdamDataUnits(handle)));
+        addItem(OUT, mxCreateString(udaGetDataUnits(handle)));
 
         item = mxCreateDoubleMatrix(1, ndata, mxREAL);
         ptr = mxGetPr(item);
@@ -110,7 +110,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         // Cast atomic data types to double
         // Fudge as required accessor not in library - small loss of precision!
         float* fp = (float*)malloc(ndata * sizeof(float));
-        getIdamFloatError(handle, fp);
+        udaGetFloatError(handle, fp);
 
         for (int i = 0; i < ndata; i++) {
             ptr[i] = (double)fp[i];
@@ -122,25 +122,25 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
     /* do the same for the dimensions
     */
-    order = getIdamOrder(handle);
+    order = udaGetOrder(handle);
     addItem(OUT, mxCreateString("Order"));
     addItem(OUT, mxCreateDoubleScalar(order));
-    rank = getIdamRank(handle);
+    rank = udaGetRank(handle);
     addItem(OUT, mxCreateString("Rank"));
     addItem(OUT, mxCreateDoubleScalar(rank));
 
     if (rank > 0) {
         for (int i = 0; i < rank; i++) {
-            ndata = getIdamDimNum(handle, i);
+            ndata = udaGetDimNum(handle, i);
             addItem(OUT, mxCreateString("Dimension"));
-            addItem(OUT, mxCreateString(getIdamDimLabel(handle, i)));
-            addItem(OUT, mxCreateString(getIdamDimUnits(handle, i)));
+            addItem(OUT, mxCreateString(udaGetDimLabel(handle, i)));
+            addItem(OUT, mxCreateString(udaGetDimUnits(handle, i)));
 
             item = mxCreateDoubleMatrix(1, ndata, mxREAL);
             ptr = mxGetPr(item);
 
             // Cast atomic data types to double
-            getIdamDoubleDimData(handle, i, ptr);
+            udaGetDoubleDimData(handle, i, ptr);
             addItem(OUT, item);
         }
     }

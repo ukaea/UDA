@@ -128,7 +128,7 @@ int uda_server(CLIENT_BLOCK client_block)
     XDR* server_output = nullptr;
 
     LOGSTRUCTLIST log_struct_list;
-    initLogStructList(&log_struct_list);
+    udaInitLogStructList(&log_struct_list);
 
     int server_tot_block_time = 0;
     int server_timeout = TIMEOUT; // user specified Server Lifetime
@@ -141,11 +141,11 @@ int uda_server(CLIENT_BLOCK client_block)
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
 
-    initUdaErrorStack();
-    initServerBlock(&server_block, SERVER_VERSION);
+    udaInitErrorStack();
+    udaInitServerBlock(&server_block, server_version);
     initActions(&actions_desc); // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
-    initRequestBlock(&request_block);
+    udaInitRequestBlock(&request_block);
 
     uda::cache::UdaCache* cache = uda::cache::open_cache();
 
@@ -188,8 +188,8 @@ report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, C
     // Gather Server Error State
 
     // Update Server State with Error Stack
-    concatUdaError(&server_block->idamerrorstack);
-    closeUdaError();
+    udaConcatError(&server_block->idamerrorstack);
+    udaCloseError();
 
     int err = 0;
 
@@ -213,7 +213,7 @@ report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, C
     if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                          server_block, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
-        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Sending Server Block #2)");
+        udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Sending Server Block #2)");
         return err;
     }
 
@@ -233,7 +233,7 @@ report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, C
         if (!xdrrec_endofrecord(server_output, 1)) {
             err = UDA_PROTOCOL_ERROR_7;
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Server Data Block #2\n");
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Server Block)");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Server Block)");
             return err;
         }
 
@@ -252,7 +252,7 @@ report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, C
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                              &metadata_block->data_system, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data System Structure\n");
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error");
             return err;
         }
 
@@ -265,7 +265,7 @@ report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, C
                              &metadata_block->system_config, protocol_version, log_struct_list, 0, malloc_source)) !=
             0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending System Configuration Structure\n");
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error");
             return err;
         }
 
@@ -277,7 +277,7 @@ report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, C
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                              &metadata_block->data_source, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Source Structure\n");
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error");
             return err;
         }
 
@@ -289,7 +289,7 @@ report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, C
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                              &metadata_block->signal_rec, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Structure\n");
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error");
             return err;
         }
 
@@ -301,7 +301,7 @@ report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, C
         if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                              &metadata_block->signal_desc, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Signal Description Structure\n");
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error");
             return err;
         }
 
@@ -327,7 +327,7 @@ report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, C
                          user_defined_type_list, data_block_list, protocol_version, log_struct_list, 0,
                          malloc_source)) != 0) {
         UDA_LOG(UDA_LOG_DEBUG, "Problem Sending Data Structure\n");
-        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 2 Error");
+        udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 2 Error");
         return err;
     }
 
@@ -340,7 +340,7 @@ report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, C
 
     if (!xdrrec_endofrecord(server_output, 1)) {
         err = UDA_PROTOCOL_ERROR_7;
-        addIdamError(UDA_CODE_ERROR_TYPE, "idamClient", err, "Protocol 7 Error (Server Block)");
+        udaAddError(UDA_CODE_ERROR_TYPE, "idamClient", err, "Protocol 7 Error (Server Block)");
         return err;
     }
 
@@ -367,7 +367,7 @@ report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, C
 
             if ((err = protocol2(server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list,
                                  data_block, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
-                addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Server Side Protocol Error (Opaque Structure Type)");
+                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Server Side Protocol Error (Opaque Structure Type)");
                 return err;
             }
 
@@ -394,7 +394,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
 
     int err = 0;
 
-    initClientBlock(client_block, 0, "");
+    udaInitClientBlock(client_block, 0, "");
 
     UDA_LOG(UDA_LOG_DEBUG, "Waiting to receive Client Block\n");
 
@@ -416,9 +416,9 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
 
         UDA_LOG(UDA_LOG_DEBUG, "Problem Receiving Client Data Block\n");
 
-        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Receiving Client Block)");
-        concatUdaError(&server_block->idamerrorstack); // Update Server State with Error Stack
-        closeUdaError();
+        udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Receiving Client Block)");
+        udaConcatError(&server_block->idamerrorstack); // Update Server State with Error Stack
+        udaCloseError();
 
         *fatal = 1;
         return err;
@@ -686,9 +686,9 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     //----------------------------------------------------------------------
     // Initialise Data Structures
 
-    initDataSource(&metadata_block->data_source);
-    initSignalDesc(&metadata_block->signal_desc);
-    initSignal(&metadata_block->signal_rec);
+    udaInitDataSource(&metadata_block->data_source);
+    udaInitSignalDesc(&metadata_block->signal_desc);
+    udaInitSignal(&metadata_block->signal_rec);
 
     //----------------------------------------------------------------------------------------------
     // If this is a PUT request then receive the putData structure
@@ -696,7 +696,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     for (int i = 0; i < request_block->num_requests; ++i) {
         REQUEST_DATA* request = &request_block->requests[0];
 
-        initPutDataBlockList(&request->putDataBlockList);
+        udaInitPutDataBlockList(&request->putDataBlockList);
 
         if (request->put) {
             if ((err = protocol2(server_input, UDA_PROTOCOL_PUTDATA_BLOCK_LIST, XDR_RECEIVE, nullptr, log_malloc_list,
@@ -781,7 +781,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     printSignal(metadata_block->signal_rec);
     printSignalDesc(*signal_desc);
     printDataBlockList(*data_block_list);
-    printIdamErrorStack();
+    udaPrintErrorStack();
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
 
@@ -854,13 +854,14 @@ int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_lis
         UDA_LOG(UDA_LOG_DEBUG, "Start of Server Wait Loop\n");
 
         // Create a new userdefinedtypelist for the request by copying the parseduserdefinedtypelist structure
-        // copyUserDefinedTypeList(&userdefinedtypelist);
+        // udaCopyUserDefinedTypeList(&userdefinedtypelist);
 
-        getInitialUserDefinedTypeList(&user_defined_type_list);
+        udaGetInitialUserDefinedTypeList(&user_defined_type_list);
         parsed_user_defined_type_list = *user_defined_type_list;
+        udaPrintUserDefinedTypeList(*user_defined_type_list);
 
         log_malloc_list = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-        initLogMallocList(log_malloc_list);
+        udaInitLogMallocList(log_malloc_list);
 
         int server_closedown = 0;
         err = handle_request(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
@@ -888,11 +889,11 @@ int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_lis
         //----------------------------------------------------------------------------
         // Free Data Block Heap Memory
 
-        UDA_LOG(UDA_LOG_DEBUG, "freeUserDefinedTypeList\n");
-        freeUserDefinedTypeList(user_defined_type_list);
+        UDA_LOG(UDA_LOG_DEBUG, "udaFreeUserDefinedTypeList\n");
+        udaFreeUserDefinedTypeList(user_defined_type_list);
         user_defined_type_list = nullptr;
 
-        freeMallocLogList(log_malloc_list);
+        udaFreeMallocLogList(log_malloc_list);
         free(log_malloc_list);
         log_malloc_list = nullptr;
 
@@ -910,20 +911,20 @@ int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_lis
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
 
-        UDA_LOG(UDA_LOG_DEBUG, "concatUdaError\n");
-        concatUdaError(&server_block->idamerrorstack); // Update Server State with Error Stack
+        UDA_LOG(UDA_LOG_DEBUG, "udaConcatError\n");
+        udaConcatError(&server_block->idamerrorstack); // Update Server State with Error Stack
 
-        UDA_LOG(UDA_LOG_DEBUG, "closeUdaError\n");
-        closeUdaError();
+        UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
+        udaCloseError();
 
         UDA_LOG(UDA_LOG_DEBUG, "udaErrorLog\n");
         udaErrorLog(*client_block, *request_block, &server_block->idamerrorstack);
 
-        UDA_LOG(UDA_LOG_DEBUG, "closeUdaError\n");
-        closeUdaError();
+        UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
+        udaCloseError();
 
-        UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
-        initServerBlock(server_block, SERVER_VERSION);
+        UDA_LOG(UDA_LOG_DEBUG, "udaInitServerBlock\n");
+        udaInitServerBlock(server_block, server_version);
 
         //----------------------------------------------------------------------------
         // Server Wait Loop
@@ -948,7 +949,7 @@ int do_server_closedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block
     // Write the Error Log Record & Free Error Stack Heap
 
     udaErrorLog(*client_block, *request_block, nullptr);
-    closeUdaError();
+    udaCloseError();
 
     //----------------------------------------------------------------------------
     // Free Data Block Heap Memory in case by-passed
@@ -958,14 +959,14 @@ int do_server_closedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block
     //----------------------------------------------------------------------------
     // Free Structure Definition List (don't free the structure as stack variable)
 
-    // freeUserDefinedTypeList(&parseduserdefinedtypelist);
+    // udaFreeUserDefinedTypeList(&parseduserdefinedtypelist);
 
     //----------------------------------------------------------------------------
     // Free Plugin List and Close all open library entries
 
     freePluginList(&plugin_list);
 
-    freeMallocLogList(log_malloc_list);
+    udaFreeMallocLogList(log_malloc_list);
     free(log_malloc_list);
     log_malloc_list = nullptr;
 
@@ -999,7 +1000,7 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
 {
     static int authenticationNeeded = 1; // No data access until this is set TRUE
 
-    initClientBlock(client_block, 0, "");
+    udaInitClientBlock(client_block, 0, "");
 
     if (authenticationNeeded && protocolVersion >= UDA_SECURITY_VERSION) {
         // User or intermediate server Must Authenticate
@@ -1049,7 +1050,7 @@ int handshake_client(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int
 {
     // Exchange version details - once only
 
-    initClientBlock(client_block, 0, "");
+    udaInitClientBlock(client_block, 0, "");
 
     // Receive the client block, respecting earlier protocol versions
 
@@ -1060,14 +1061,14 @@ int handshake_client(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int
     if (!xdrrec_skiprecord(server_input)) {
         err = UDA_PROTOCOL_ERROR_5;
         UDA_LOG(UDA_LOG_DEBUG, "xdrrec_skiprecord error!\n");
-        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (Client Block)");
+        udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (Client Block)");
     } else {
 
         int protocol_id = UDA_PROTOCOL_CLIENT_BLOCK; // Recieve Client Block
 
         if ((err = protocol2(server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
                              client_block, protocol_version, log_struct_list, 0, malloc_source)) != 0) {
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
             UDA_LOG(UDA_LOG_DEBUG, "protocol error! Client Block not received!\n");
         }
 
@@ -1139,9 +1140,9 @@ int startup_server(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_
 
     if (startup() != 0) {
         int err = FATAL_ERROR_LOGS;
-        addIdamError(UDA_CODE_ERROR_TYPE, __func__, err, "Fatal Error Opening the Server Logs");
-        concatUdaError(&server_block->idamerrorstack);
-        initUdaErrorStack();
+        udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Fatal Error Opening the Server Logs");
+        udaConcatError(&server_block->idamerrorstack);
+        udaInitErrorStack();
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "New Server Instance\n");
@@ -1187,7 +1188,7 @@ int startup_server(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_
     /*
         if (!fileParsed) {
             fileParsed = 1;
-            initUserDefinedTypeList(&parseduserdefinedtypelist);
+            udaInitUserDefinedTypeList(&parseduserdefinedtypelist);
 
             char* token = nullptr;
             if ((token = getenv("UDA_SARRAY_CONFIG")) == nullptr) {
@@ -1196,7 +1197,7 @@ int startup_server(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_
 
             UDA_LOG(UDA_LOG_DEBUG, "Parsing structure definition file: %s\n", token);
             parseIncludeFile(&parseduserdefinedtypelist, token); // file containing the SARRAY structure definition
-            printUserDefinedTypeList(parseduserdefinedtypelist);
+            udaPrintUserDefinedTypeList(parseduserdefinedtypelist);
         }
     */
 

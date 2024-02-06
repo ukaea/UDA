@@ -66,8 +66,7 @@ int uda::client::synthetic_model(int model, int param_n, float* params, int data
 
 #ifdef NO_GSL_LIB
     int err = 999;
-    addIdamError(UDA_CODE_ERROR_TYPE, "synthetic_model", err,
-                 "Random Number Generators from the GSL library required.");
+    udaAddError(UDA_CODE_ERROR_TYPE, "synthetic_model", err, "Random Number Generators from the GSL library required.");
     return 999;
 #else
     float shift;
@@ -173,8 +172,8 @@ int uda::client::generate_synthetic_data(int handle)
 
     if (get_data_type(handle) == UDA_TYPE_DCOMPLEX || get_data_type(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "generate_synthetic_data", err,
-                     "Not configured to Generate Complex Type Synthetic Data");
+        udaAddError(UDA_CODE_ERROR_TYPE, "generate_synthetic_data", err,
+                    "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
 
@@ -280,7 +279,7 @@ int uda::client::generate_synthetic_data(int handle)
     err = synthetic_model(model, param_n, params, get_data_num(handle), data);
 
     if (err != 0) {
-        addIdamError(UDA_CODE_ERROR_TYPE, "generate_synthetic_data", err, "Unable to Generate Synthetic Data");
+        udaAddError(UDA_CODE_ERROR_TYPE, "generate_synthetic_data", err, "Unable to Generate Synthetic Data");
         free(data);
         return err;
     }
@@ -290,8 +289,8 @@ int uda::client::generate_synthetic_data(int handle)
 
     if (getSyntheticData(handle) == nullptr) {
         if ((err = allocArray(get_data_type(handle), get_data_num(handle), &synthetic))) {
-            addIdamError(UDA_CODE_ERROR_TYPE, "generate_synthetic_data", err,
-                         "Problem Allocating Heap Memory for Synthetic Data");
+            udaAddError(UDA_CODE_ERROR_TYPE, "generate_synthetic_data", err,
+                        "Problem Allocating Heap Memory for Synthetic Data");
             return err;
         }
         set_synthetic_data(handle, synthetic);
@@ -428,15 +427,15 @@ int uda::client::generate_synthetic_dim_data(int handle, int ndim)
 
     if (get_data_type(handle) == UDA_TYPE_DCOMPLEX || get_data_type(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "generate_synthetic_dim_data", err,
-                     "Not configured to Generate Complex Type Synthetic Data");
+        udaAddError(UDA_CODE_ERROR_TYPE, "generate_synthetic_dim_data", err,
+                    "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
 
     float* data;
     if ((data = (float*)malloc(get_dim_num(handle, ndim) * sizeof(float))) == nullptr) {
-        addIdamError(UDA_CODE_ERROR_TYPE, "generate_synthetic_dim_data", 1,
-                     "Problem Allocating Heap Memory for Synthetic Dimensional Data");
+        udaAddError(UDA_CODE_ERROR_TYPE, "generate_synthetic_dim_data", 1,
+                    "Problem Allocating Heap Memory for Synthetic Dimensional Data");
         return 1;
     }
 
@@ -536,8 +535,8 @@ int uda::client::generate_synthetic_dim_data(int handle, int ndim)
     err = synthetic_model(model, param_n, params, get_dim_num(handle, ndim), data);
 
     if (err != 0) {
-        addIdamError(UDA_CODE_ERROR_TYPE, "generate_synthetic_dim_data", err,
-                     "Unable to Generate Synthetic Dimensional Data");
+        udaAddError(UDA_CODE_ERROR_TYPE, "generate_synthetic_dim_data", err,
+                    "Unable to Generate Synthetic Dimensional Data");
         free(data);
         return err;
     }
@@ -547,8 +546,8 @@ int uda::client::generate_synthetic_dim_data(int handle, int ndim)
 
     if (get_synthetic_dim_data(handle, ndim) == nullptr) {
         if ((err = allocArray(get_dim_type(handle, ndim), get_dim_num(handle, ndim), &synthetic))) {
-            addIdamError(UDA_CODE_ERROR_TYPE, "generate_synthetic_dim_data", err,
-                         "Problem Allocating Heap Memory for Synthetic Dimensional Data");
+            udaAddError(UDA_CODE_ERROR_TYPE, "generate_synthetic_dim_data", err,
+                        "Problem Allocating Heap Memory for Synthetic Dimensional Data");
             return err;
         }
 
@@ -682,8 +681,8 @@ int uda::client::generate_data_error(int handle)
 
     if (get_data_type(handle) == UDA_TYPE_DCOMPLEX || get_data_type(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "generate_data_error", err,
-                     "Not configured to Generate Complex Type Synthetic Data");
+        udaAddError(UDA_CODE_ERROR_TYPE, "generate_data_error", err,
+                    "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
 
@@ -1000,8 +999,8 @@ int uda::client::generate_dim_data_error(int handle, int ndim)
 
     if (get_data_type(handle) == UDA_TYPE_DCOMPLEX || get_data_type(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        addIdamError(UDA_CODE_ERROR_TYPE, "generate_dim_data_error", err,
-                     "Not configured to Generate Complex Type Synthetic Data");
+        udaAddError(UDA_CODE_ERROR_TYPE, "generate_dim_data_error", err,
+                    "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
 

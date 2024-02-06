@@ -27,7 +27,7 @@ JNIEXPORT jint JNICALL Java_jIdam_Idam_idamLoad(JNIEnv *env, jobject oobj, jstri
    if(library != NULL){
       void *libhandle = dlopen((char *)library, RTLD_LOCAL | RTLD_LAZY);
       if(libhandle != NULL){
-         void *fptr = dlsym(libhandle, "idamGetAPI");
+         void *fptr = dlsym(libhandle, "udaGetAPI");
      if(fptr != NULL)err = 0;
       }
    }
@@ -36,21 +36,21 @@ JNIEXPORT jint JNICALL Java_jIdam_Idam_idamLoad(JNIEnv *env, jobject oobj, jstri
 }
 */
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_idamGetAPI(JNIEnv* env, jobject oobj, jstring _signal, jstring _source)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetAPI(JNIEnv* env, jobject oobj, jstring _signal, jstring _source)
 {
     const char* signal = (*env)->GetStringUTFChars(env, _signal, NULL);
     const char* source = (*env)->GetStringUTFChars(env, _source, NULL);
-    jint handle = idamGetAPI(signal, source);
+    jint handle = udaGetAPI(signal, source);
     (*env)->ReleaseStringUTFChars(env, _signal, signal);
     (*env)->ReleaseStringUTFChars(env, _source, source);
     return handle;
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_idamGetAPIMT(JNIEnv* env, jobject oobj, jstring _signal, jstring _source)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetAPIMT(JNIEnv* env, jobject oobj, jstring _signal, jstring _source)
 {
     const char* signal = (*env)->GetStringUTFChars(env, _signal, NULL);
     const char* source = (*env)->GetStringUTFChars(env, _source, NULL);
-    jint handle = idamGetAPI(signal, source);
+    jint handle = udaGetAPI(signal, source);
     (*env)->ReleaseStringUTFChars(env, _signal, signal);
     (*env)->ReleaseStringUTFChars(env, _source, source);
     return handle;
@@ -80,247 +80,247 @@ JNIEXPORT void JNICALL Java_jIdam_Idam_idamFreeAll(JNIEnv* env, jobject obj)
 //--------------------------------------------------------------
 // Private Flags (Server to Server communication via an IDAM client server plugin)
 
-JNIEXPORT void JNICALL Java_jIdam_Idam_setIdamPrivateFlag(JNIEnv* env, jobject oobj, jint flag)
+JNIEXPORT void JNICALL Java_jIdam_Idam_udaSetPrivateFlag(JNIEnv* env, jobject oobj, jint flag)
 {
-    setIdamPrivateFlag((unsigned int)flag);
+    udaSetPrivateFlag((unsigned int)flag);
 }
 
-JNIEXPORT void JNICALL Java_jIdam_Idam_resetIdamPrivateFlag(JNIEnv* env, jobject obj, jint flag)
+JNIEXPORT void JNICALL Java_jIdam_Idam_reudaSetPrivateFlag(JNIEnv* env, jobject obj, jint flag)
 {
-    resetIdamPrivateFlag((unsigned int)flag);
+    reudaSetPrivateFlag((unsigned int)flag);
 }
 
 //--------------------------------------------------------------
 // Client Flags
 
-JNIEXPORT void JNICALL Java_jIdam_Idam_setIdamClientFlag(JNIEnv* env, jobject obj, jint flag)
+JNIEXPORT void JNICALL Java_jIdam_Idam_udaSetClientFlag(JNIEnv* env, jobject obj, jint flag)
 {
-    setIdamClientFlag(udaClientFlags(), (unsigned int)flag);
+    udaSetClientFlag(udaClientFlags(), (unsigned int)flag);
 }
 
-JNIEXPORT void JNICALL Java_jIdam_Idam_resetIdamClientFlag(JNIEnv* env, jobject obj, jint flag)
+JNIEXPORT void JNICALL Java_jIdam_Idam_reudaSetClientFlag(JNIEnv* env, jobject obj, jint flag)
 {
-    resetIdamClientFlag(udaClientFlags(), (unsigned int)flag);
+    reudaSetClientFlag(udaClientFlags(), (unsigned int)flag);
 }
 
 //--------------------------------------------------------------
 // Set and Get Server Properties
 
-JNIEXPORT void JNICALL Java_jIdam_Idam_setIdamProperty(JNIEnv* env, jobject obj, jstring _property)
+JNIEXPORT void JNICALL Java_jIdam_Idam_udaSetProperty(JNIEnv* env, jobject obj, jstring _property)
 {
     const char* property = (*env)->GetStringUTFChars(env, _property, NULL);
     if (property == NULL) return;
-    setIdamProperty(property, udaClientFlags());
+    udaSetProperty(property, udaClientFlags());
     (*env)->ReleaseStringUTFChars(env, _property, property);
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamProperty(JNIEnv* env, jobject obj, jstring _property)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetProperty(JNIEnv* env, jobject obj, jstring _property)
 {
     const char* property = (*env)->GetStringUTFChars(env, _property, NULL);
     if (property == NULL) return 0;
-    jint value = (jint)getIdamProperty(property, udaClientFlags());
+    jint value = (jint)udaGetProperty(property, udaClientFlags());
     (*env)->ReleaseStringUTFChars(env, _property, property);
     return (value);
 }
 
-JNIEXPORT void JNICALL Java_jIdam_Idam_resetIdamProperty(JNIEnv* env, jobject obj, jstring _property)
+JNIEXPORT void JNICALL Java_jIdam_Idam_udaResetProperty(JNIEnv* env, jobject obj, jstring _property)
 {
     const char* property = (*env)->GetStringUTFChars(env, _property, NULL);
     if (property == NULL) return;
-    resetIdamProperty(property, udaClientFlags());
+    udaResetProperty(property, udaClientFlags());
     (*env)->ReleaseStringUTFChars(env, _property, property);
 }
 
-JNIEXPORT void JNICALL Java_jIdam_Idam_resetIdamProperties(JNIEnv* env, jobject obj)
+JNIEXPORT void JNICALL Java_jIdam_Idam_udaResetProperties(JNIEnv* env, jobject obj)
 {
-    resetIdamProperties(udaClientFlags());
+    udaResetProperties(udaClientFlags());
 }
 
 //--------------------------------------------------------------
 // Set and Get Server Host and Port
 
-JNIEXPORT void JNICALL Java_jIdam_Idam_putIdamServer(JNIEnv* env, jobject obj, jstring _host, jint port)
+JNIEXPORT void JNICALL Java_jIdam_Idam_udaPutServer(JNIEnv* env, jobject obj, jstring _host, jint port)
 {
     const char* host = (*env)->GetStringUTFChars(env, _host, NULL);
     if (host == NULL) return;
-    putIdamServer(host, (int)port);
+    udaPutServer(host, (int)port);
     (*env)->ReleaseStringUTFChars(env, _host, host);
 }
 
-JNIEXPORT void JNICALL Java_jIdam_Idam_putIdamServerHost(JNIEnv* env, jobject obj, jstring _host)
+JNIEXPORT void JNICALL Java_jIdam_Idam_udaPutServerHost(JNIEnv* env, jobject obj, jstring _host)
 {
     const char* host = (*env)->GetStringUTFChars(env, _host, NULL);
     if (host == NULL) return;
-    putIdamServerHost(host);
+    udaPutServerHost(host);
     (*env)->ReleaseStringUTFChars(env, _host, host);
 }
 
-JNIEXPORT void JNICALL Java_jIdam_Idam_putIdamServerPort(JNIEnv* env, jobject obj, jint port)
+JNIEXPORT void JNICALL Java_jIdam_Idam_udaPutServerPort(JNIEnv* env, jobject obj, jint port)
 {
-    putIdamServerPort((int)port);
+    udaPutServerPort((int)port);
 }
 
-JNIEXPORT void JNICALL Java_jIdam_Idam_putIdamServerSocket(JNIEnv* env, jobject obj, jint socket)
+JNIEXPORT void JNICALL Java_jIdam_Idam_udaPutServerSocket(JNIEnv* env, jobject obj, jint socket)
 {
-    putIdamServerSocket((int)socket);
+    udaPutServerSocket((int)socket);
 }
 
-JNIEXPORT jstring JNICALL Java_jIdam_Idam_getIdamServerHost(JNIEnv* env, jobject obj)
+JNIEXPORT jstring JNICALL Java_jIdam_Idam_udaGetServerHost(JNIEnv* env, jobject obj)
 {
-    return (*env)->NewStringUTF(env, getIdamServerHost());
+    return (*env)->NewStringUTF(env, udaGetServerHost());
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamServerPort(JNIEnv* env, jobject obj)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetServerPort(JNIEnv* env, jobject obj)
 {
-    return (jint)getIdamServerPort();
+    return (jint)udaGetServerPort();
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamServerSocket(JNIEnv* env, jobject obj)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetServerSocket(JNIEnv* env, jobject obj)
 {
-    return (jint)getIdamServerSocket();
+    return (jint)udaGetServerSocket();
 }
 
 
 //--------------------------------------------------------------
 // Standard GET Accessor Routines
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamClientVersion(JNIEnv* env, jobject obj)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetClientVersion(JNIEnv* env, jobject obj)
 {
-    return (jint)getIdamClientVersion();
+    return (jint)udaGetClientVersion();
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamServerVersion(JNIEnv* env, jobject obj)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetServerVersion(JNIEnv* env, jobject obj)
 {
-    return (jint)getIdamServerVersion();
+    return (jint)udaGetServerVersion();
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamServerErrorCode(JNIEnv* env, jobject obj)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetServerErrorCode(JNIEnv* env, jobject obj)
 {
-    return (jint)getIdamServerErrorCode();
+    return (jint)udaGetServerErrorCode();
 }
 
-JNIEXPORT jstring JNICALL Java_jIdam_Idam_getIdamServerErrorMsg(JNIEnv* env, jobject obj)
+JNIEXPORT jstring JNICALL Java_jIdam_Idam_udaGetServerErrorMsg(JNIEnv* env, jobject obj)
 {
-    return (*env)->NewStringUTF(env, getIdamServerErrorMsg());
+    return (*env)->NewStringUTF(env, udaGetServerErrorMsg());
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamServerErrorStackSize(JNIEnv* env, jobject obj)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetServerErrorStackSize(JNIEnv* env, jobject obj)
 {
-    return (jint)getIdamServerErrorStackSize();
+    return (jint)udaGetServerErrorStackSize();
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamServerErrorStackRecordType(JNIEnv* env, jobject obj, jint record)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetServerErrorStackRecordType(JNIEnv* env, jobject obj, jint record)
 {
-    return (jint)getIdamServerErrorStackRecordType((int)record);
+    return (jint)udaGetServerErrorStackRecordType((int)record);
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamServerErrorStackRecordCode(JNIEnv* env, jobject obj, jint record)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetServerErrorStackRecordCode(JNIEnv* env, jobject obj, jint record)
 {
-    return (jint)getIdamServerErrorStackRecordCode((int)record);
+    return (jint)udaGetServerErrorStackRecordCode((int)record);
 }
 
-JNIEXPORT jstring JNICALL Java_jIdam_Idam_getIdamServerErrorStackRecordLocation(JNIEnv* env, jobject obj, jint record)
+JNIEXPORT jstring JNICALL Java_jIdam_Idam_udaGetServerErrorStackRecordLocation(JNIEnv* env, jobject obj, jint record)
 {
-    return (*env)->NewStringUTF(env, getIdamServerErrorStackRecordLocation((int)record));
+    return (*env)->NewStringUTF(env, udaGetServerErrorStackRecordLocation((int)record));
 }
 
-JNIEXPORT jstring JNICALL Java_jIdam_Idam_getIdamServerErrorStackRecordMsg(JNIEnv* env, jobject obj, jint record)
+JNIEXPORT jstring JNICALL Java_jIdam_Idam_udaGetServerErrorStackRecordMsg(JNIEnv* env, jobject obj, jint record)
 {
-    return (*env)->NewStringUTF(env, getIdamServerErrorStackRecordMsg((int)record));
+    return (*env)->NewStringUTF(env, udaGetServerErrorStackRecordMsg((int)record));
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamErrorCode(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetErrorCode(JNIEnv* env, jobject obj, jint handle)
 {
-    return (jint)getIdamErrorCode((int)handle);
+    return (jint)udaGetErrorCode((int)handle);
 }
 
-JNIEXPORT jstring JNICALL Java_jIdam_Idam_getIdamErrorMsg(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jstring JNICALL Java_jIdam_Idam_udaGetErrorMsg(JNIEnv* env, jobject obj, jint handle)
 {
-    return (*env)->NewStringUTF(env, getIdamErrorMsg((int)handle));
+    return (*env)->NewStringUTF(env, udaGetErrorMsg((int)handle));
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamSourceStatus(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetSourceStatus(JNIEnv* env, jobject obj, jint handle)
 {
-    return (jint)getIdamSourceStatus((int)handle);
+    return (jint)udaGetSourceStatus((int)handle);
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamSignalStatus(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetSignalStatus(JNIEnv* env, jobject obj, jint handle)
 {
-    return (jint)getIdamSignalStatus((int)handle);
+    return (jint)udaGetSignalStatus((int)handle);
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamDataStatus(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetDataStatus(JNIEnv* env, jobject obj, jint handle)
 {
-    return (jint)getIdamDataStatus((int)handle);
+    return (jint)udaGetDataStatus((int)handle);
 }
 
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamLastHandle(JNIEnv* env, jobject obj)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetLastHandle(JNIEnv* env, jobject obj)
 {
-    return (jint)getIdamLastHandle(udaClientFlags());
+    return (jint)udaGetLastHandle(udaClientFlags());
 }
 
 
 //---------------------------------------------------------------------------------------------------------
 // Data properties
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamDataNum(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetDataNum(JNIEnv* env, jobject obj, jint handle)
 {
-    return (jint)getIdamDataNum((int)handle);
+    return (jint)udaGetDataNum((int)handle);
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamRank(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetRank(JNIEnv* env, jobject obj, jint handle)
 {
-    return (jint)getIdamRank((int)handle);
+    return (jint)udaGetRank((int)handle);
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamOrder(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetOrder(JNIEnv* env, jobject obj, jint handle)
 {
-    return (jint)getIdamOrder((int)handle);
+    return (jint)udaGetOrder((int)handle);
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamDataType(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetDataType(JNIEnv* env, jobject obj, jint handle)
 {
-    return (jint)getIdamDataType((int)handle);
+    return (jint)udaGetDataType((int)handle);
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamErrorType(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetErrorType(JNIEnv* env, jobject obj, jint handle)
 {
-    return (jint)getIdamErrorType((int)handle);
+    return (jint)udaGetErrorType((int)handle);
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamDataTypeId(JNIEnv* env, jobject obj, jstring _type)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetDataTypeId(JNIEnv* env, jobject obj, jstring _type)
 {
     const char* type = (*env)->GetStringUTFChars(env, _type, NULL);
-    jint value = getIdamDataTypeId(type);
+    jint value = udaGetDataTypeId(type);
     (*env)->ReleaseStringUTFChars(env, _type, type);
     return (value);
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamDataTypeSize(JNIEnv* env, jobject obj, jint datatype)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetDataTypeSize(JNIEnv* env, jobject obj, jint datatype)
 {
-    return (jint)getIdamDataTypeSize((int)datatype);
+    return (jint)udaGetDataTypeSize((int)datatype);
 }
 
-JNIEXPORT jstring JNICALL Java_jIdam_Idam_getIdamDataLabel(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jstring JNICALL Java_jIdam_Idam_udaGetDataLabel(JNIEnv* env, jobject obj, jint handle)
 {
-    return (*env)->NewStringUTF(env, getIdamDataLabel((int)handle));
+    return (*env)->NewStringUTF(env, udaGetDataLabel((int)handle));
 }
 
-JNIEXPORT jstring JNICALL Java_jIdam_Idam_getIdamDataUnits(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jstring JNICALL Java_jIdam_Idam_udaGetDataUnits(JNIEnv* env, jobject obj, jint handle)
 {
-    return (*env)->NewStringUTF(env, getIdamDataUnits((int)handle));
+    return (*env)->NewStringUTF(env, udaGetDataUnits((int)handle));
 }
 
-JNIEXPORT jstring JNICALL Java_jIdam_Idam_getIdamDataDesc(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jstring JNICALL Java_jIdam_Idam_udaGetDataDesc(JNIEnv* env, jobject obj, jint handle)
 {
-    return (*env)->NewStringUTF(env, getIdamDataDesc((int)handle));
+    return (*env)->NewStringUTF(env, udaGetDataDesc((int)handle));
 }
 
 //---------------------------------------------------------------------------------------------------------
 // Return data
 
-JNIEXPORT jfloatArray JNICALL Java_jIdam_Idam_getIdamFloatData(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jfloatArray JNICALL Java_jIdam_Idam_udaGetFloatData(JNIEnv* env, jobject obj, jint handle)
 {
 
 // Multi-dimensional arrays are returned from IDAM as a single contiguous block in memory
@@ -328,38 +328,38 @@ JNIEXPORT jfloatArray JNICALL Java_jIdam_Idam_getIdamFloatData(JNIEnv* env, jobj
 // Data are row (C, C++, Java) ordered but coordinates are indexed in column order (Fortran, IDL)
 
     jfloatArray ret;
-    int targetType = getIdamDataTypeId("float");
-    int dataType = getIdamDataType((int)handle);
-    int dataNum = getIdamDataNum((int)handle);
+    int targetType = udaGetDataTypeId("float");
+    int dataType = udaGetDataType((int)handle);
+    int dataNum = udaGetDataNum((int)handle);
 
     ret = (*env)->NewFloatArray(env, dataNum);
 
     if (dataType == targetType) {
-        (*env)->SetFloatArrayRegion(env, ret, 0, dataNum, (jfloat*)getIdamData((int)handle));
+        (*env)->SetFloatArrayRegion(env, ret, 0, dataNum, (jfloat*)udaGetData((int)handle));
     } else {
         float* data = (float*)malloc(dataNum * sizeof(float));
-        getIdamFloatData((int)handle, data);
+        udaGetFloatData((int)handle, data);
         (*env)->SetFloatArrayRegion(env, ret, 0, dataNum, data);
         free(data);
     }
     return ret;
 }
 
-JNIEXPORT jdoubleArray JNICALL Java_jIdam_Idam_getIdamDoubleData(JNIEnv* env, jobject obj, jint handle)
+JNIEXPORT jdoubleArray JNICALL Java_jIdam_Idam_udaGetDoubleData(JNIEnv* env, jobject obj, jint handle)
 {
 
     jdoubleArray ret;
-    int targetType = getIdamDataTypeId("double");
-    int dataType = getIdamDataType((int)handle);
-    int dataNum = getIdamDataNum((int)handle);
+    int targetType = udaGetDataTypeId("double");
+    int dataType = udaGetDataType((int)handle);
+    int dataNum = udaGetDataNum((int)handle);
 
     ret = (*env)->NewDoubleArray(env, dataNum);
 
     if (dataType == targetType) {
-        (*env)->SetDoubleArrayRegion(env, ret, 0, dataNum, (jdouble*)getIdamData((int)handle));
+        (*env)->SetDoubleArrayRegion(env, ret, 0, dataNum, (jdouble*)udaGetData((int)handle));
     } else {
         double* data = (double*)malloc(dataNum * sizeof(double));
-        getIdamDoubleData((int)handle, data);
+        udaGetDoubleData((int)handle, data);
         (*env)->SetDoubleArrayRegion(env, ret, 0, dataNum, (jdouble*)data);
         free(data);
     }
@@ -370,9 +370,9 @@ JNIEXPORT jlongArray JNICALL Java_jIdam_Idam_getIdamLongData(JNIEnv* env, jobjec
 {
 
     jlongArray ret;
-    int dataType = getIdamDataType((int)handle);
-    int dataNum = getIdamDataNum((int)handle);
-    int dataTypeSize = getIdamDataTypeSize(dataType);
+    int dataType = udaGetDataType((int)handle);
+    int dataNum = udaGetDataNum((int)handle);
+    int dataTypeSize = udaGetDataTypeSize(dataType);
 
     if (dataTypeSize != 8) {
         jclass Exception = (*env)->FindClass(env, "java/lang/Exception");
@@ -382,7 +382,7 @@ JNIEXPORT jlongArray JNICALL Java_jIdam_Idam_getIdamLongData(JNIEnv* env, jobjec
     }
     ret = (*env)->NewLongArray(env, dataNum);
 
-    (*env)->SetLongArrayRegion(env, ret, 0, dataNum, (jlong*)getIdamData((int)handle));
+    (*env)->SetLongArrayRegion(env, ret, 0, dataNum, (jlong*)udaGetData((int)handle));
     return ret;
 }
 
@@ -390,9 +390,9 @@ JNIEXPORT jintArray JNICALL Java_jIdam_Idam_getIdamIntData(JNIEnv* env, jobject 
 {
 
     jintArray ret;
-    int dataType = getIdamDataType((int)handle);
-    int dataNum = getIdamDataNum((int)handle);
-    int dataTypeSize = getIdamDataTypeSize(dataType);
+    int dataType = udaGetDataType((int)handle);
+    int dataNum = udaGetDataNum((int)handle);
+    int dataTypeSize = udaGetDataTypeSize(dataType);
 
     if (dataTypeSize != 4) {
         jclass Exception = (*env)->FindClass(env, "java/lang/Exception");
@@ -402,7 +402,7 @@ JNIEXPORT jintArray JNICALL Java_jIdam_Idam_getIdamIntData(JNIEnv* env, jobject 
     }
     ret = (*env)->NewIntArray(env, dataNum);
 
-    (*env)->SetIntArrayRegion(env, ret, 0, dataNum, (jint*)getIdamData((int)handle));
+    (*env)->SetIntArrayRegion(env, ret, 0, dataNum, (jint*)udaGetData((int)handle));
     return ret;
 }
 
@@ -410,9 +410,9 @@ JNIEXPORT jshortArray JNICALL Java_jIdam_Idam_getIdamShortData(JNIEnv* env, jobj
 {
 
     jshortArray ret;
-    int dataType = getIdamDataType((int)handle);
-    int dataNum = getIdamDataNum((int)handle);
-    int dataTypeSize = getIdamDataTypeSize(dataType);
+    int dataType = udaGetDataType((int)handle);
+    int dataNum = udaGetDataNum((int)handle);
+    int dataTypeSize = udaGetDataTypeSize(dataType);
 
     if (dataTypeSize != 2) {
         jclass Exception = (*env)->FindClass(env, "java/lang/Exception");
@@ -422,7 +422,7 @@ JNIEXPORT jshortArray JNICALL Java_jIdam_Idam_getIdamShortData(JNIEnv* env, jobj
     }
     ret = (*env)->NewShortArray(env, dataNum);
 
-    (*env)->SetShortArrayRegion(env, ret, 0, dataNum, (jshort*)getIdamData((int)handle));
+    (*env)->SetShortArrayRegion(env, ret, 0, dataNum, (jshort*)udaGetData((int)handle));
     return ret;
 }
 
@@ -430,9 +430,9 @@ JNIEXPORT jcharArray JNICALL Java_jIdam_Idam_getIdamCharData(JNIEnv* env, jobjec
 {
 
     jcharArray ret;
-    int dataType = getIdamDataType((int)handle);
-    int dataNum = getIdamDataNum((int)handle);
-    int dataTypeSize = getIdamDataTypeSize(dataType);
+    int dataType = udaGetDataType((int)handle);
+    int dataNum = udaGetDataNum((int)handle);
+    int dataTypeSize = udaGetDataTypeSize(dataType);
 
     if (dataTypeSize != 1) {
         jclass Exception = (*env)->FindClass(env, "java/lang/Exception");
@@ -442,7 +442,7 @@ JNIEXPORT jcharArray JNICALL Java_jIdam_Idam_getIdamCharData(JNIEnv* env, jobjec
     }
     ret = (*env)->NewCharArray(env, dataNum);
 
-    (*env)->SetCharArrayRegion(env, ret, 0, dataNum, (jchar*)getIdamData((int)handle));
+    (*env)->SetCharArrayRegion(env, ret, 0, dataNum, (jchar*)udaGetData((int)handle));
     return ret;
 }
 
@@ -450,9 +450,9 @@ JNIEXPORT jbyteArray JNICALL Java_jIdam_Idam_getIdamByteData(JNIEnv* env, jobjec
 {
 
     jbyteArray ret;
-    int dataType = getIdamDataType((int)handle);
-    int dataNum = getIdamDataNum((int)handle);
-    int dataTypeSize = getIdamDataTypeSize(dataType);
+    int dataType = udaGetDataType((int)handle);
+    int dataNum = udaGetDataNum((int)handle);
+    int dataTypeSize = udaGetDataTypeSize(dataType);
 
     if (dataTypeSize != 1) {
         jclass Exception = (*env)->FindClass(env, "java/lang/Exception");
@@ -462,79 +462,79 @@ JNIEXPORT jbyteArray JNICALL Java_jIdam_Idam_getIdamByteData(JNIEnv* env, jobjec
     }
     ret = (*env)->NewByteArray(env, dataNum);
 
-    (*env)->SetByteArrayRegion(env, ret, 0, dataNum, (jbyte*)getIdamData((int)handle));
+    (*env)->SetByteArrayRegion(env, ret, 0, dataNum, (jbyte*)udaGetData((int)handle));
     return ret;
 }
 
 //---------------------------------------------------------------------------------------------------------
 // Coordinate data properties
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamDimNum(JNIEnv* env, jobject obj, jint handle, jint dimId)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetDimNum(JNIEnv* env, jobject obj, jint handle, jint dimId)
 {
-    return (jint)getIdamDimNum((int)handle, (int)dimId);
+    return (jint)udaGetDimNum((int)handle, (int)dimId);
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamDimType(JNIEnv* env, jobject obj, jint handle, jint dimId)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetDimType(JNIEnv* env, jobject obj, jint handle, jint dimId)
 {
-    return (jint)getIdamDimType((int)handle, (int)dimId);
+    return (jint)udaGetDimType((int)handle, (int)dimId);
 }
 
-JNIEXPORT jint JNICALL Java_jIdam_Idam_getIdamDimErrorType(JNIEnv* env, jobject obj, jint handle, jint dimId)
+JNIEXPORT jint JNICALL Java_jIdam_Idam_udaGetDimErrorType(JNIEnv* env, jobject obj, jint handle, jint dimId)
 {
-    return (jint)getIdamDimErrorType((int)handle, (int)dimId);
+    return (jint)udaGetDimErrorType((int)handle, (int)dimId);
 }
 
-JNIEXPORT jstring JNICALL Java_jIdam_Idam_getIdamDimLabel(JNIEnv* env, jobject obj, jint handle, jint dimId)
+JNIEXPORT jstring JNICALL Java_jIdam_Idam_udaGetDimLabel(JNIEnv* env, jobject obj, jint handle, jint dimId)
 {
-    return (*env)->NewStringUTF(env, getIdamDimLabel((int)handle, (int)dimId));
+    return (*env)->NewStringUTF(env, udaGetDimLabel((int)handle, (int)dimId));
 }
 
-JNIEXPORT jstring JNICALL Java_jIdam_Idam_getIdamDimUnits(JNIEnv* env, jobject obj, jint handle, jint dimId)
+JNIEXPORT jstring JNICALL Java_jIdam_Idam_udaGetDimUnits(JNIEnv* env, jobject obj, jint handle, jint dimId)
 {
-    return (*env)->NewStringUTF(env, getIdamDimUnits((int)handle, (int)dimId));
+    return (*env)->NewStringUTF(env, udaGetDimUnits((int)handle, (int)dimId));
 }
 
 //---------------------------------------------------------------------------------------------------------
 // Return Coordinate data
 
-JNIEXPORT jfloatArray JNICALL Java_jIdam_Idam_getIdamFloatDimData(JNIEnv* env, jobject obj, jint handle, jint dimId)
+JNIEXPORT jfloatArray JNICALL Java_jIdam_Idam_udaGetFloatDimData(JNIEnv* env, jobject obj, jint handle, jint dimId)
 {
 
 // Coordinate arrays are rank 1
 
     jfloatArray ret;
-    int targetType = getIdamDataTypeId("float");
-    int dataType = getIdamDimType((int)handle, (int)dimId);
-    int dataNum = getIdamDimNum((int)handle, (int)dimId);
+    int targetType = udaGetDataTypeId("float");
+    int dataType = udaGetDimType((int)handle, (int)dimId);
+    int dataNum = udaGetDimNum((int)handle, (int)dimId);
 
     ret = (*env)->NewFloatArray(env, dataNum);
 
     if (dataType == targetType) {
-        (*env)->SetFloatArrayRegion(env, ret, 0, dataNum, (jfloat*)getIdamDimData((int)handle, (int)dimId));
+        (*env)->SetFloatArrayRegion(env, ret, 0, dataNum, (jfloat*)udaGetDimData((int)handle, (int)dimId));
     } else {
         float* data = (float*)malloc(dataNum * sizeof(float));
-        getIdamFloatDimData((int)handle, (int)dimId, data);
+        udaGetFloatDimData((int)handle, (int)dimId, data);
         (*env)->SetFloatArrayRegion(env, ret, 0, dataNum, (jfloat*)data);
         free(data);
     }
     return ret;
 }
 
-JNIEXPORT jdoubleArray JNICALL Java_jIdam_Idam_getIdamDoubleDimData(JNIEnv* env, jobject obj, jint handle, jint dimId)
+JNIEXPORT jdoubleArray JNICALL Java_jIdam_Idam_udaGetDoubleDimData(JNIEnv* env, jobject obj, jint handle, jint dimId)
 {
 
     jdoubleArray ret;
-    int targetType = getIdamDataTypeId("double");
-    int dataType = getIdamDimType((int)handle, (int)dimId);
-    int dataNum = getIdamDimNum((int)handle, (int)dimId);
+    int targetType = udaGetDataTypeId("double");
+    int dataType = udaGetDimType((int)handle, (int)dimId);
+    int dataNum = udaGetDimNum((int)handle, (int)dimId);
 
     ret = (*env)->NewDoubleArray(env, dataNum);
 
     if (dataType == targetType) {
-        (*env)->SetDoubleArrayRegion(env, ret, 0, dataNum, (jdouble*)getIdamDimData((int)handle, (int)dimId));
+        (*env)->SetDoubleArrayRegion(env, ret, 0, dataNum, (jdouble*)udaGetDimData((int)handle, (int)dimId));
     } else {
         double* data = (double*)malloc(dataNum * sizeof(double));
-        getIdamDoubleDimData((int)handle, (int)dimId, data);
+        udaGetDoubleDimData((int)handle, (int)dimId, data);
         (*env)->SetDoubleArrayRegion(env, ret, 0, dataNum, (jdouble*)data);
         free(data);
     }
@@ -545,9 +545,9 @@ JNIEXPORT jlongArray JNICALL Java_jIdam_Idam_getIdamLongDimData(JNIEnv* env, job
 {
 
     jlongArray ret;
-    int dataType = getIdamDimType((int)handle, (int)dimId);
-    int dataNum = getIdamDimNum((int)handle, (int)dimId);
-    int dataTypeSize = getIdamDataTypeSize(dataType);
+    int dataType = udaGetDimType((int)handle, (int)dimId);
+    int dataNum = udaGetDimNum((int)handle, (int)dimId);
+    int dataTypeSize = udaGetDataTypeSize(dataType);
 
     if (dataTypeSize != 8) {
         jclass Exception = (*env)->FindClass(env, "java/lang/Exception");
@@ -558,7 +558,7 @@ JNIEXPORT jlongArray JNICALL Java_jIdam_Idam_getIdamLongDimData(JNIEnv* env, job
 
     ret = (*env)->NewLongArray(env, dataNum);
 
-    (*env)->SetLongArrayRegion(env, ret, 0, dataNum, (jlong*)getIdamDimData((int)handle, (int)dimId));
+    (*env)->SetLongArrayRegion(env, ret, 0, dataNum, (jlong*)udaGetDimData((int)handle, (int)dimId));
     return ret;
 }
 
@@ -566,9 +566,9 @@ JNIEXPORT jintArray JNICALL Java_jIdam_Idam_getIdamIntDimData(JNIEnv* env, jobje
 {
 
     jintArray ret;
-    int dataType = getIdamDimType((int)handle, (int)dimId);
-    int dataNum = getIdamDimNum((int)handle, (int)dimId);
-    int dataTypeSize = getIdamDataTypeSize(dataType);
+    int dataType = udaGetDimType((int)handle, (int)dimId);
+    int dataNum = udaGetDimNum((int)handle, (int)dimId);
+    int dataTypeSize = udaGetDataTypeSize(dataType);
 
     if (dataTypeSize != 4) {
         jclass Exception = (*env)->FindClass(env, "java/lang/Exception");
@@ -578,7 +578,7 @@ JNIEXPORT jintArray JNICALL Java_jIdam_Idam_getIdamIntDimData(JNIEnv* env, jobje
     }
     ret = (*env)->NewIntArray(env, dataNum);
 
-    (*env)->SetIntArrayRegion(env, ret, 0, dataNum, (jint*)getIdamDimData((int)handle, (int)dimId));
+    (*env)->SetIntArrayRegion(env, ret, 0, dataNum, (jint*)udaGetDimData((int)handle, (int)dimId));
     return ret;
 }
 
@@ -586,9 +586,9 @@ JNIEXPORT jshortArray JNICALL Java_jIdam_Idam_getIdamShortDimData(JNIEnv* env, j
 {
 
     jshortArray ret;
-    int dataType = getIdamDimType((int)handle, (int)dimId);
-    int dataNum = getIdamDimNum((int)handle, (int)dimId);
-    int dataTypeSize = getIdamDataTypeSize(dataType);
+    int dataType = udaGetDimType((int)handle, (int)dimId);
+    int dataNum = udaGetDimNum((int)handle, (int)dimId);
+    int dataTypeSize = udaGetDataTypeSize(dataType);
 
     if (dataTypeSize != 2) {
         jclass Exception = (*env)->FindClass(env, "java/lang/Exception");
@@ -598,7 +598,7 @@ JNIEXPORT jshortArray JNICALL Java_jIdam_Idam_getIdamShortDimData(JNIEnv* env, j
     }
     ret = (*env)->NewShortArray(env, dataNum);
 
-    (*env)->SetShortArrayRegion(env, ret, 0, dataNum, (jshort*)getIdamDimData((int)handle, (int)dimId));
+    (*env)->SetShortArrayRegion(env, ret, 0, dataNum, (jshort*)udaGetDimData((int)handle, (int)dimId));
     return ret;
 }
 
@@ -606,9 +606,9 @@ JNIEXPORT jcharArray JNICALL Java_jIdam_Idam_getIdamCharDimData(JNIEnv* env, job
 {
 
     jcharArray ret;
-    int dataType = getIdamDimType((int)handle, (int)dimId);
-    int dataNum = getIdamDimNum((int)handle, (int)dimId);
-    int dataTypeSize = getIdamDataTypeSize(dataType);
+    int dataType = udaGetDimType((int)handle, (int)dimId);
+    int dataNum = udaGetDimNum((int)handle, (int)dimId);
+    int dataTypeSize = udaGetDataTypeSize(dataType);
 
     if (dataTypeSize != 1) {
         jclass Exception = (*env)->FindClass(env, "java/lang/Exception");
@@ -618,7 +618,7 @@ JNIEXPORT jcharArray JNICALL Java_jIdam_Idam_getIdamCharDimData(JNIEnv* env, job
     }
     ret = (*env)->NewCharArray(env, dataNum);
 
-    (*env)->SetCharArrayRegion(env, ret, 0, dataNum, (jchar*)getIdamDimData((int)handle, (int)dimId));
+    (*env)->SetCharArrayRegion(env, ret, 0, dataNum, (jchar*)udaGetDimData((int)handle, (int)dimId));
     return ret;
 }
 
@@ -626,9 +626,9 @@ JNIEXPORT jbyteArray JNICALL Java_jIdam_Idam_getIdamByteDimData(JNIEnv* env, job
 {
 
     jbyteArray ret;
-    int dataType = getIdamDimType((int)handle, (int)dimId);
-    int dataNum = getIdamDimNum((int)handle, (int)dimId);
-    int dataTypeSize = getIdamDataTypeSize(dataType);
+    int dataType = udaGetDimType((int)handle, (int)dimId);
+    int dataNum = udaGetDimNum((int)handle, (int)dimId);
+    int dataTypeSize = udaGetDataTypeSize(dataType);
 
     if (dataTypeSize != 1) {
         jclass Exception = (*env)->FindClass(env, "java/lang/Exception");
@@ -638,7 +638,7 @@ JNIEXPORT jbyteArray JNICALL Java_jIdam_Idam_getIdamByteDimData(JNIEnv* env, job
     }
     ret = (*env)->NewByteArray(env, dataNum);
 
-    (*env)->SetByteArrayRegion(env, ret, 0, dataNum, (jbyte*)getIdamDimData((int)handle, (int)dimId));
+    (*env)->SetByteArrayRegion(env, ret, 0, dataNum, (jbyte*)udaGetDimData((int)handle, (int)dimId));
     return ret;
 }
 
@@ -707,7 +707,7 @@ JNIEXPORT jobjectArray JNICALL Java_jIdam_Idam_getVariablesRegex(JNIEnv* env, jo
     sprintf(CMD, "UDA::getListPVSimple(pattern='%s')", pattern);
     (*env)->ReleaseStringUTFChars(env, _pattern, pattern);
 
-    int handle = idamGetAPI(CMD, "");
+    int handle = udaGetAPI(CMD, "");
 
     if (handle < 0) {
         return NULL;
@@ -715,11 +715,11 @@ JNIEXPORT jobjectArray JNICALL Java_jIdam_Idam_getVariablesRegex(JNIEnv* env, jo
 
     ret = NULL;
 
-    if (getIdamErrorCode(handle) != 0) {
+    if (udaGetErrorCode(handle) != 0) {
         goto END;
     }
 
-    char* vStr = getIdamData(handle);
+    char* vStr = udaGetData(handle);
 
 //RC    char vStr[500]="PV:PERF1-SYSTEM0-DUMMY0|PV:CHANNEL1|PV:OFF:SIGNAL";
 

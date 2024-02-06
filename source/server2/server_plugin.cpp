@@ -294,7 +294,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
     }
 
     RequestData request = {};
-    initRequestData(&request);
+    udaInitRequestData(&request);
 
     strcpy(request.api_delim, "::");
     strcpy(request.source, "");
@@ -329,7 +329,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
 
     // Initialise the Data Block
 
-    initDataBlock(&data_block);
+    udaInitDataBlock(&data_block);
 
     UDA_LOG(UDA_LOG_DEBUG, "Creating plugin interface\n");
 
@@ -340,10 +340,10 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
     }
 
     USERDEFINEDTYPELIST userdefinedtypelist;
-    initUserDefinedTypeList(&userdefinedtypelist);
+    udaInitUserDefinedTypeList(&userdefinedtypelist);
 
     LOGMALLOCLIST logmalloclist;
-    initLogMallocList(&logmalloclist);
+    udaInitLogMallocList(&logmalloclist);
 
     plugin_interface.interfaceVersion = 1;
     plugin_interface.pluginVersion = 0;
@@ -396,7 +396,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
     reset = 1;
     if ((rc = uda::serverRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
         if (err != 0) {
             return err;
@@ -484,14 +484,14 @@ int uda::call_metadata_plugin(const PluginData& plugin, RequestData* request_blo
     }
 
     DataBlock data_block = {};
-    initDataBlock(&data_block);
+    udaInitDataBlock(&data_block);
     data_block.signal_rec = &metadata.signal_rec;
 
     UserDefinedTypeList userdefinedtypelist = {};
-    initUserDefinedTypeList(&userdefinedtypelist);
+    udaInitUserDefinedTypeList(&userdefinedtypelist);
 
     LogMallocList logmalloclist = {};
-    initLogMallocList(&logmalloclist);
+    udaInitLogMallocList(&logmalloclist);
 
     auto plugin_list = plugins.as_plugin_list();
     plugin_interface.interfaceVersion = 1;
@@ -526,7 +526,7 @@ int uda::call_metadata_plugin(const PluginData& plugin, RequestData* request_blo
     reset = 1;
     if ((rc = uda::serverRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
         if (err != 0) {
             return err;

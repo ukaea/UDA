@@ -77,7 +77,7 @@ int HelpPlugin::services(UDA_PLUGIN_INTERFACE* plugin_interface)
     std::string doc;
 
     // Total Number of registered plugins available
-    
+
     int count = udaPluginPluginsCount(plugin_interface);
 
     doc = fmt::format("\nTotal number of registered plugins available: {}\n", count);
@@ -101,7 +101,7 @@ int HelpPlugin::services(UDA_PLUGIN_INTERFACE* plugin_interface)
             }
             case 1: {
                 doc += fmt::format("\nPlugins for functions:\n\n");
-                
+
                 for (int i = 0; i < count; i++) {
                     if (udaPluginCheckPluginClass(plugin_interface, i, "function")) {
                         doc += fmt::format("Library name:\t\t{}\n", udaPluginPluginFormat(plugin_interface, i));

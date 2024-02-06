@@ -35,8 +35,8 @@ class Plugin : public UDAPluginBase
 
     void init(UDA_PLUGIN_INTERFACE* plugin_interface) override
     {
-        old_host_ = getIdamServerHost();
-        old_port_ = getIdamServerPort();
+        old_host_ = udaGetServerHost();
+        old_port_ = udaGetServerPort();
     }
 
     void reset() override {}
@@ -179,13 +179,13 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     //----------------------------------------------------------------------
     // Private Flags, User Specified Flags and Properties for the Remote Server
 
-    resetIdamPrivateFlag(PRIVATEFLAG_FULLRESET);
+    udaResetPrivateFlag(PRIVATEFLAG_FULLRESET);
     // Ensure Hierarchical Data are passed as an opaque object/file
-    setIdamPrivateFlag(PRIVATEFLAG_XDRFILE);
+    udaSetPrivateFlag(PRIVATEFLAG_XDRFILE);
 
     // This fails if the legacy UDA plugin is called by a server in the forward chain and it set marked a 'private'
     // For IMAS development, this has been disabled
-    // if(environment.external_user) setIdamPrivateFlag(PRIVATEFLAG_EXTERNAL);    // Maintain external user status
+    // if(environment.external_user) udaSetPrivateFlag(PRIVATEFLAG_EXTERNAL);    // Maintain external user status
 
     // Set Userid
 
@@ -194,41 +194,40 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     // Set Properties
 
     CLIENT_BLOCK* client_block = plugin_interface->client_block;
-    auto client_flags = udaClientFlags();
 
     if (client_block->get_nodimdata) {
-        setIdamProperty("get_nodimdata");
+       udaSetProperty("get_nodimdata");
     }
     if (client_block->get_timedble) {
-        setIdamProperty("get_timedble");
+        udaSetProperty("get_timedble");
     }
     if (client_block->get_dimdble) {
-        setIdamProperty("get_dimdble");
+        udaSetProperty("get_dimdble");
     }
     if (client_block->get_datadble) {
-        setIdamProperty("get_datadble");
+        udaSetProperty("get_datadble");
     }
 
     if (client_block->get_bad) {
-        setIdamProperty("get_bad");
+        udaSetProperty("get_bad");
     }
     if (client_block->get_meta) {
-        setIdamProperty("get_meta");
+        udaSetProperty("get_meta");
     }
     if (client_block->get_asis) {
-        setIdamProperty("get_asis");
+        udaSetProperty("get_asis");
     }
     if (client_block->get_uncal) {
-        setIdamProperty("get_uncal");
+        udaSetProperty("get_uncal");
     }
     if (client_block->get_notoff) {
-        setIdamProperty("get_notoff");
+        udaSetProperty("get_notoff");
     }
     if (client_block->get_scalar) {
-        setIdamProperty("get_scalar");
+        udaSetProperty("get_scalar");
     }
     if (client_block->get_bytes) {
-        setIdamProperty("get_bytes");
+        udaSetProperty("get_bytes");
     }
 
     // Timeout ...
@@ -237,8 +236,8 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Client Flags ...
 
-    resetIdamClientFlag(client_flags, CLIENTFLAG_FULLRESET);
-    setIdamClientFlag(client_flags, client_block->clientFlags);
+    udaResetClientFlag(CLIENTFLAG_FULLRESET);
+    udaSetClientFlag(client_block->clientFlags);
 
     // Client application provenance
 
@@ -250,7 +249,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     //----------------------------------------------------------------------
     // Signal/Data Object & Data Source Details from the UDA Database records
 
-    // Very primitive: Need to replicate fully the idamGetAPI arguments from the database
+    // Very primitive: Need to replicate fully the udaGetAPI arguments from the database
 
     if (pathway == 1) { // Request via the Database
 
@@ -278,12 +277,12 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
                 p[0] = '\0';
                 if (strcasecmp(old_host_.c_str(), data_source->server) != 0) {
                     old_host_ = data_source->server;
-                    putIdamServerHost(data_source->server);
+                    udaPutServerHost(data_source->server);
                 }
                 if (IsNumber(&p[1])) {
                     newPort = atoi(&p[1]);
                     if (newPort != old_port_) {
-                        putIdamServerPort(newPort);
+                        udaPutServerPort(newPort);
                         old_port_ = newPort;
                     }
                 } else {
@@ -293,7 +292,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
             } else {
                 if (strcasecmp(old_host_.c_str(), data_source->server) != 0) {
                     old_host_ = data_source->server;
-                    putIdamServerHost(data_source->server);
+                    udaPutServerHost(data_source->server);
                 }
             }
         } else {
@@ -302,11 +301,11 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
         debug(plugin_interface, "UDA Server Host for UDA Plugin {}\n", data_source->server);
         debug(plugin_interface, "UDA Server Port for UDA Plugin {}\n", newPort);
-        debug(plugin_interface, "Calling idamGetAPI API (Database based Request)\n");
+        debug(plugin_interface, "Calling udaGetAPI API (Database based Request)\n");
         debug(plugin_interface, "Signal: {}\n", signal.c_str());
         debug(plugin_interface, "Source: {}\n", source.c_str());
 
-        handle = idamGetAPI(signal.c_str(), source.c_str());
+        handle = udaGetAPI(signal.c_str(), source.c_str());
 
     } else if (pathway == 2) {
 
@@ -354,12 +353,12 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
             p[0] = '\0';
             if (strcasecmp(old_host_.c_str(), request->server) != 0) {
                 old_host_ = request->server;
-                putIdamServerHost(request->server); // different host name?
+                udaPutServerHost(request->server); // different host name?
             }
             if (IsNumber(&p[1])) {
                 newPort = atoi(&p[1]);
                 if (newPort != old_port_) {
-                    putIdamServerPort(newPort);
+                    udaPutServerPort(newPort);
                     old_port_ = newPort;
                 }
             } else {
@@ -369,17 +368,17 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         } else {
             if (strcasecmp(old_host_.c_str(), request->server) != 0) {
                 old_host_ = request->server;
-                putIdamServerHost(request->server);
+                udaPutServerHost(request->server);
             }
         }
 
         debug(plugin_interface, "UDA Server Host for UDA Plugin {}\n", request->server);
         debug(plugin_interface, "UDA Server Port for UDA Plugin {}\n", newPort);
-        debug(plugin_interface, "Calling idamGetAPI API (Device redirect or server protocol based Request)\n");
+        debug(plugin_interface, "Calling udaGetAPI API (Device redirect or server protocol based Request)\n");
         debug(plugin_interface, "Signal: {}\n", request->signal);
         debug(plugin_interface, "Source: {}\n", source);
 
-        handle = idamGetAPI(request->signal, source);
+        handle = udaGetAPI(request->signal, source);
 
     } else if (pathway == 3) {
 
@@ -401,25 +400,25 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
         if (isHost && strcasecmp(old_host_.c_str(), host) != 0) {
             old_host_ = host;
-            putIdamServerHost(host);
+            udaPutServerHost(host);
         }
         if (isPort && old_port_ != newPort) {
             old_port_ = newPort;
-            putIdamServerPort(newPort);
+            udaPutServerPort(newPort);
         }
 
         debug(plugin_interface, "UDA Server Host for UDA Plugin {}\n", host);
         debug(plugin_interface, "UDA Server Port for UDA Plugin {}\n", newPort);
-        debug(plugin_interface, "Calling idamGetAPI API (plugin library method based Request)\n");
+        debug(plugin_interface, "Calling udaGetAPI API (plugin library method based Request)\n");
 
         if (isSignal && isSource) {
             debug(plugin_interface, "Signal: {}\n", signal);
             debug(plugin_interface, "idamAPIPlugin; Source: {}\n", source);
-            handle = idamGetAPI(signal, source);
+            handle = udaGetAPI(signal, source);
         } else if (isSignal) {
             debug(plugin_interface, "Signal: {}\n", signal);
             debug(plugin_interface, "idamAPIPlugin; Source: {}\n", request->source);
-            handle = idamGetAPI(signal, request->source);
+            handle = udaGetAPI(signal, request->source);
         } else {
             error(plugin_interface, "A data object (signal) has not been specified!");
         }
@@ -451,13 +450,13 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
             p[0] = '\0';                                               // Split
             if (strcasecmp(old_host_.c_str(), request->server) != 0) { // Different Hosts?
                 old_host_ = request->server;
-                putIdamServerHost(request->server); // Change to a different host name
+                udaPutServerHost(request->server); // Change to a different host name
             }
             if (IsNumber(&p[1])) {
                 newPort = atoi(&p[1]);
                 if (newPort != old_port_) {
                     // Different Ports?
-                    putIdamServerPort(newPort);
+                    udaPutServerPort(newPort);
                     old_port_ = newPort;
                 }
             } else {
@@ -468,31 +467,31 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
             // No port number passed
             if (strcasecmp(old_host_.c_str(), request->server) != 0) { // Different Hosts?
                 old_host_ = request->server;
-                putIdamServerHost(request->server);
+                udaPutServerHost(request->server);
             }
         }
 
         debug(plugin_interface, "UDA Server Host for UDA Plugin {}\n", request->server);
         debug(plugin_interface, "UDA Server Port for UDA Plugin {}\n", newPort);
-        debug(plugin_interface, "Calling idamGetAPI API (Server protocol based Request)\n");
+        debug(plugin_interface, "Calling udaGetAPI API (Server protocol based Request)\n");
         debug(plugin_interface, "Signal: {}\n", request->signal);
         debug(plugin_interface, "Source: {}\n", source);
 
-        handle = idamGetAPI(request->signal, source);
+        handle = udaGetAPI(request->signal, source);
     }
 
-    resetIdamPrivateFlag(PRIVATEFLAG_FULLRESET);
-    resetIdamClientFlag(client_flags, CLIENTFLAG_FULLRESET);
+    udaResetPrivateFlag(PRIVATEFLAG_FULLRESET);
+    udaResetClientFlag(CLIENTFLAG_FULLRESET);
 
     //----------------------------------------------------------------------
     // Test for Errors: Close Socket and Free heap
 
-    debug(plugin_interface, "Returned from idamGetAPI API: handle = {}, error code = {}\n", handle, getIdamErrorCode(handle));
+    debug(plugin_interface, "Returned from udaGetAPI API: handle = {}, error code = {}\n", handle, udaGetErrorCode(handle));
 
     if (handle < 0) {
-        error(plugin_interface, getIdamServerErrorStackRecordMsg(0));
-    } else if ((err = getIdamErrorCode(handle)) != 0) {
-        error(plugin_interface, getIdamErrorMsg(handle));
+        error(plugin_interface, udaGetServerErrorStackRecordMsg(0));
+    } else if ((err = udaGetErrorCode(handle)) != 0) {
+        error(plugin_interface, udaGetErrorMsg(handle));
     }
 
     //----------------------------------------------------------------------
@@ -508,9 +507,9 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     DATA_BLOCK* data_block = plugin_interface->data_block;
 
-    if (getIdamClientVersion() >= 7) {
+    if (udaGetClientVersion() >= 7) {
         // This should contain everything!
-        *data_block = *getDataBlock(handle);
+        *data_block = *udaGetDataBlock(handle);
     } else { // use abstraction functions
 
         // Straight structure mapping causes potential problems when the client library uses different versions
@@ -520,9 +519,9 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         // Write the structure components element by element! (Ignore the CLIENT_BLOCK component)
 
         DATA_BLOCK db;
-        initDataBlock(&db);
+        udaInitDataBlock(&db);
 
-        auto odb = (OLD_DATA_BLOCK*)getDataBlock(handle);
+        auto odb = (OLD_DATA_BLOCK*)udaGetDataBlock(handle);
 
         db.handle = odb->handle;
         db.errcode = odb->errcode;

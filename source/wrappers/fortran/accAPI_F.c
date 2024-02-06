@@ -19,7 +19,7 @@
 
 #include "accAPI.h"
 #include "idamClient.h"
-#include "idamGetAPI.h"
+#include "udaGetAPI.h"
 #include "clientAPI.h"
 #include "clientMDS.h"
 
@@ -55,7 +55,7 @@ extern void idamgetapi_(char* data_object, char* data_source, int* handle, int l
     strncpy(source, data_source, ldata_source);
     source[ldata_source] = '\0';
     TrimString(source);
-    *handle = idamGetAPI(object, source);
+    *handle = udaGetAPI(object, source);
     free( object);
     free( source);
     return;
@@ -95,7 +95,7 @@ extern void idamapi_(char* signal, int* pulno, int* handle, int lsignal)
         fclose(ftnout);
     }
 
-    *handle = idamGetAPI(sig, source);
+    *handle = udaGetAPI(sig, source);
 
     free( sig);
 
@@ -137,7 +137,7 @@ extern void idampassapi_(char* signal, int* pulno, int* pass, int* handle, int l
         fclose(ftnout);
     }
 
-    *handle = idamGetAPI(sig, source);
+    *handle = udaGetAPI(sig, source);
 
     free( sig);
 
@@ -179,7 +179,7 @@ extern void idamgenapi_(char* archive, char* device, char* signal, int* pulno, i
         fclose(ftnout);
     }
 
-    *handle = idamGetAPI(sig, source);
+    *handle = udaGetAPI(sig, source);
 
     free( sig);
 
@@ -207,7 +207,7 @@ extern void idamfileapi_(char* file, char* signal, char* format, int* handle,
     s = TrimString(s);
     f = TrimString(f);
 
-    *handle = idamClientFileAPI(p, s, f);
+    *handle = udaClientFileAPI(p, s, f);
 
     free( p);
     free( s);
@@ -259,7 +259,7 @@ extern void idamida_(char* file, char* signal, int* pulno, int* pass, int* handl
         fclose(ftnout);
     }
 
-    *handle = idamClientAPI(f, s, ps, pno);
+    *handle = udaClientAPI(f, s, ps, pno);
 
     free( f);
     free( s);
@@ -317,7 +317,7 @@ extern void idammds_(char* server, char* tree, char* node, int* treenum, int* ha
         fprintf(ftnout, "Length Node   %d (%d)\n", (int) strlen(n), lnode);
     }
 
-    *handle = idamClientMDS(s, t, n, tnum);
+    *handle = udaClientMDS(s, t, n, tnum);
 
     free( s);
     free( t);
@@ -384,7 +384,7 @@ extern void idamlocalapi_(char* archive, char* owner, char* file, char* format, 
         }
     }
 
-    *handle = idamGetAPI(api_signal, api_source);
+    *handle = udaGetAPI(api_signal, api_source);
 
     free(a);
     free(p);
@@ -409,7 +409,7 @@ extern void setidamproperty_(char* property, int lproperty)
     strncpy(s, property, lproperty);
     s[lproperty] = '\0';
     s = TrimString(s);
-    setIdamProperty(s);
+    udaSetProperty(s);
     free( s);
 }
 
@@ -419,7 +419,7 @@ extern void getidamproperty_(const char* property, int* value, int lproperty)
     strncpy(s, property, lproperty);
     s[lproperty] = '\0';
     s = TrimString(s);
-    *value = getIdamProperty(s);
+    *value = udaGetProperty(s);
 }
 
 extern void resetidamproperty_(char* property, int lproperty)
@@ -428,13 +428,13 @@ extern void resetidamproperty_(char* property, int lproperty)
     strncpy(s, property, lproperty);
     s[lproperty] = '\0';
     s = TrimString(s);
-    resetIdamProperty(s);
+    udaResetProperty(s);
     free( s);
 }
 
 extern void resetidamproperties_()
 {
-    resetIdamProperties();
+    udaResetProperties();
     return;
 }
 
@@ -442,12 +442,12 @@ extern void resetidamproperties_()
 
 extern void putidamerrormodel_(int* handle, int* model, int* param_n, float* params)
 {
-    putIdamErrorModel(*handle, *model, *param_n, params);
+    udaPutErrorModel(*handle, *model, *param_n, params);
 }
 
 extern void putidamdimerrormodel_(int* handle, int* ndim, int* model, int* param_n, float* params)
 {
-    putIdamDimErrorModel(*handle, *ndim, *model, *param_n, params);
+    udaPutDimErrorModel(*handle, *ndim, *model, *param_n, params);
 }
 
 // IDAM Server Host controls
@@ -458,7 +458,7 @@ extern void putidamserver_(char* h, int* port, int lh)
     strncpy(host, h, lh);
     host[lh] = '\0';
     TrimString(host);
-    putIdamServer(host, *port);
+    udaPutServer(host, *port);
     free( host);
 }
 
@@ -468,25 +468,25 @@ extern void putidamserverhost_(char* h, int lh)
     strncpy(host, h, lh);
     host[lh] = '\0';
     TrimString(host);
-    putIdamServerHost(host);
+    udaPutServerHost(host);
     free( host);
 }
 
 extern void putidamserverport_(int* port)
 {
-    putIdamServerPort(*port);
+    udaPutServerPort(*port);
 }
 
 extern void putidamserversocket_(int* socket)
 {
-    putIdamServerSocket(*socket);
+    udaPutServerSocket(*socket);
 }
 
 extern void getidamserver_(char* h, int* p, int* s, int lh)
 {
     int port, socket, lhost;
     char* host = NULL;
-    getIdamServer(&host, &port, &socket);
+    udaGetServer(&host, &port, &socket);
 
     lhost = (int) strlen(host);
     if (lhost <= lh)
@@ -499,7 +499,7 @@ extern void getidamserver_(char* h, int* p, int* s, int lh)
 
 extern void getidamserverhost_(char* h, int lh)
 {
-    char* host = getIdamServerHost();
+    char* host = udaGetServerHost();
     int lhost = (int) strlen(host);
     if (lhost <= lh)
         strncpy(h, host, lhost);
@@ -509,34 +509,34 @@ extern void getidamserverhost_(char* h, int lh)
 
 extern void getidamserverport_(int* port)
 {
-    *port = getIdamServerPort();
+    *port = udaGetServerPort();
 }
 
 extern void getidamserversocket_(int* socket)
 {
-    *socket = getIdamServerSocket();
+    *socket = udaGetServerSocket();
 }
 
 // IDAM versions
 
 extern void getidamclientversion_(int* version)
 {
-    *version = getIdamClientVersion();
+    *version = udaGetClientVersion();
 }
 
 extern void getidamserverversion_(int* version)
 {
-    *version = getIdamServerVersion();
+    *version = udaGetServerVersion();
 }
 
 extern void getidamservererrorcode_(int* errcode)
 {
-    *errcode = getIdamServerErrorCode();
+    *errcode = udaGetServerErrorCode();
 }
 
 extern void getidamservererrormsg_(char* s, int ls)
 {
-    char* msg = getIdamServerErrorMsg();
+    char* msg = udaGetServerErrorMsg();
     int lmsg = (int) strlen(msg);
     if (lmsg > ls)
         strncpy(s, msg, ls);
@@ -546,22 +546,22 @@ extern void getidamservererrormsg_(char* s, int ls)
 
 extern void getidamservererrorstacksize_(int* size)
 {
-    *size = getIdamServerErrorStackSize();
+    *size = udaGetServerErrorStackSize();
 }
 
 extern void getidamservererrorstackrecordtype_(int* record, int* type)
 {
-    *type = getIdamServerErrorStackRecordType(*record);
+    *type = udaGetServerErrorStackRecordType(*record);
 }
 
 extern void getidamservererrorstackrecordcode_(int* record, int* code)
 {
-    *code = getIdamServerErrorStackRecordCode(*record);
+    *code = udaGetServerErrorStackRecordCode(*record);
 }
 
 extern void getidamservererrorstackrecordlocation_(int* record, char* s, int ls)
 {
-    char* location = getIdamServerErrorStackRecordLocation(*record);
+    char* location = udaGetServerErrorStackRecordLocation(*record);
     int lloc = (int) strlen(location);
     if (lloc > ls)
         strncpy(s, location, ls);
@@ -571,7 +571,7 @@ extern void getidamservererrorstackrecordlocation_(int* record, char* s, int ls)
 
 extern void getidamservererrorstackrecordmsg_(int* record, char* s, int ls)
 {
-    char* msg = getIdamServerErrorStackRecordMsg(*record);
+    char* msg = udaGetServerErrorStackRecordMsg(*record);
     int lmsg = (int) strlen(msg);
     if (lmsg > ls)
         strncpy(s, msg, ls);
@@ -582,12 +582,12 @@ extern void getidamservererrorstackrecordmsg_(int* record, char* s, int ls)
 
 extern void getidamerrorcode_(int* handle, int* errcode)
 {
-    *errcode = getIdamErrorCode(*handle);
+    *errcode = udaGetErrorCode(*handle);
 }
 
 extern void getidamerrormsg_(int* handle, char* s, int ls)
 {        //Error Message
-    char* msg = getIdamErrorMsg(*handle);
+    char* msg = udaGetErrorMsg(*handle);
     int lmsg = (int) strlen(msg);
     if (lmsg > ls)
         strncpy(s, msg, ls);
@@ -597,29 +597,29 @@ extern void getidamerrormsg_(int* handle, char* s, int ls)
 
 extern void getidamsourcestatus_(int* handle, int* status)
 {
-    *status = getIdamSourceStatus(*handle);
+    *status = udaGetSourceStatus(*handle);
 }
 
 extern void getidamsignalstatus_(int* handle, int* status)
 {
-    *status = getIdamSignalStatus(*handle);
+    *status = udaGetSignalStatus(*handle);
 }
 
 extern void getidamdatastatus_(int* handle, int* status)
 {
-    *status = getIdamDataStatus(*handle);
+    *status = udaGetDataStatus(*handle);
 }
 
 extern void getidamlasthandle_(int* handle)
 {
-    *handle = getIdamLastHandle();
+    *handle = udaGetLastHandle();
 }
 
 extern void getidamdatanum_(int* hd, int* datanum)
 {                // Number of Data Items
     int handle;
     handle = *hd;
-    *datanum = getIdamDataNum(handle);
+    *datanum = udaGetDataNum(handle);
     return;
 }
 
@@ -627,28 +627,28 @@ extern void getidamrank_(int* hd, int* rank)
 {                // Data Array Rank
     int handle;
     handle = *hd;
-    *rank = getIdamRank(handle);
+    *rank = udaGetRank(handle);
 }
 
 extern void getidamorder_(int* hd, int* order)
 {                // Location of the Time Dimension
     int handle;
     handle = *hd;
-    *order = getIdamOrder(handle);
+    *order = udaGetOrder(handle);
 }
 
 extern void getidamdatatype_(int* hd, int* data_type)
 {            // Type of Data Returned
     int handle;
     handle = *hd;
-    *data_type = getIdamDataType(handle);
+    *data_type = udaGetDataType(handle);
 }
 
 extern void getidamerrortype_(int* hd, int* error_type)
 {            // Type of Data Error Returned
     int handle;
     handle = *hd;
-    *error_type = getIdamErrorType(handle);
+    *error_type = udaGetErrorType(handle);
 }
 
 extern void getidamdatatypeid_(char* t, int* id, int lt)
@@ -657,18 +657,18 @@ extern void getidamdatatypeid_(char* t, int* id, int lt)
     strncpy(type, t, lt);
     type[lt] = '\0';
     TrimString(type);
-    *id = getIdamDataTypeId(type);
+    *id = udaGetDataTypeId(type);
     free( type);
 }
 
 extern void getidamerrormodel_(int* handle, int* model, int* param_n, float* params)
 {
-    getIdamErrorModel(*handle, model, param_n, params);
+    udaGetErrorModel(*handle, model, param_n, params);
 }
 
 extern void getidamerrorasymmetry_(int* handle, int* asymmetry)
 {
-    *asymmetry = getIdamErrorAsymmetry(*handle);
+    *asymmetry = udaGetErrorAsymmetry(*handle);
 }
 
 extern void getidamerrormodelid_(char* m, int* id, int lm)
@@ -677,15 +677,15 @@ extern void getidamerrormodelid_(char* m, int* id, int lm)
     strncpy(model, m, lm);
     model[lm] = '\0';
     TrimString(model);
-    *id = getIdamErrorModelId(model);
+    *id = udaGetErrorModelId(model);
     free( model);
 }
 
 extern void getidamsyntheticdatablock_(int* handle, void* data)
 {
-    void* synth = (void*) getIdamSyntheticData(*handle);
-    size_t ndata = (size_t) getIdamDataNum(*handle);
-    switch (getIdamDataType(*handle)) {
+    void* synth = (void*) udaGetSyntheticData(*handle);
+    size_t ndata = (size_t) udaGetDataNum(*handle);
+    switch (udaGetDataType(*handle)) {
         case UDA_TYPE_FLOAT:
             memcpy(data, synth, ndata * sizeof(float));
             break;
@@ -733,24 +733,24 @@ extern void getidamsyntheticdatablock_(int* handle, void* data)
 
 extern void getidamdoubledatablock_(int* handle, double* data)
 {            // Return the Data Array cast to type double
-    getIdamDoubleData(*handle, data);
+    udaGetDoubleData(*handle, data);
 }
 
 extern void getidamfloatdatablock_(int* handle, float* data)
 {            // Return the Data Array cast to type float
-    getIdamFloatData(*handle, data);
+    udaGetFloatData(*handle, data);
 }
 
 extern void getidamdatablock_(int* hd, void* data)
 {                    // Return the Data Array
-    getIdamGenericData(*hd, data);
+    udaGetGenericData(*hd, data);
 }
 
 extern void getidamerrorblock_(int* handle, void* errdata)
 {                // Return the Data Error Array
-    void* errb = (void*) getIdamError(*handle);
-    size_t ndata = (size_t) getIdamDataNum(*handle);
-    switch (getIdamErrorType(*handle)) {
+    void* errb = (void*) udaGetError(*handle);
+    size_t ndata = (size_t) udaGetDataNum(*handle);
+    switch (udaGetErrorType(*handle)) {
         case UDA_TYPE_FLOAT:
             memcpy(errdata, errb, ndata * sizeof(float));
             break;
@@ -799,14 +799,14 @@ extern void getidamerrorblock_(int* handle, void* errdata)
 
 extern void getidamfloaterrorblock_(int* handle, float* data)
 {            // Return the Data Array cast to type Float
-    getIdamFloatError(*handle, data);
+    udaGetFloatError(*handle, data);
 }
 
 extern void getidamasymmetricerrorblock_(int* handle, int* above, void* errdata)
 {        // Return the Asymmetric Error Array Component
-    void* errb = (void*) getIdamAsymmetricError(*handle, *above);
-    size_t ndata = (size_t) getIdamDataNum(*handle);
-    switch ((int) getIdamErrorType(*handle)) {
+    void* errb = (void*) udaGetAsymmetricError(*handle, *above);
+    size_t ndata = (size_t) udaGetDataNum(*handle);
+    switch ((int) udaGetErrorType(*handle)) {
         case UDA_TYPE_FLOAT:
             memcpy(errdata, errb, ndata * sizeof(float));
             break;
@@ -855,17 +855,17 @@ extern void getidamasymmetricerrorblock_(int* handle, int* above, void* errdata)
 
 extern void getidamfloatasymmetricerrorblock_(int* handle, int* above, float* data)
 {    // Return the Asymmetric Error Array cast to type Float
-    getIdamFloatAsymmetricError(*handle, *above, data);
+    udaGetFloatAsymmetricError(*handle, *above, data);
 }
 
 extern void getidamdatalabellength_(int* handle, int* lngth)
 {            // Length of Data Units String
-    *lngth = (int) strlen(getIdamDataLabel(*handle));
+    *lngth = (int) strlen(udaGetDataLabel(*handle));
 }
 
 extern void getidamdatalabel_(int* handle, char* s, int ls)
 {            // The Data Label
-    char* msg = getIdamDataLabel(*handle);
+    char* msg = udaGetDataLabel(*handle);
     int lmsg = (int) strlen(msg);
     if (lmsg > ls)
         strncpy(s, msg, ls);
@@ -875,12 +875,12 @@ extern void getidamdatalabel_(int* handle, char* s, int ls)
 
 extern void getidamdataunitslength_(int* handle, int* lngth)
 {            // Length of Data Units String
-    *lngth = (int) strlen(getIdamDataUnits(*handle));
+    *lngth = (int) strlen(udaGetDataUnits(*handle));
 }
 
 extern void getidamdataunits_(int* handle, char* s, int ls)
 {            // Data Units
-    char* msg = getIdamDataUnits(*handle);
+    char* msg = udaGetDataUnits(*handle);
     int lmsg = (int) strlen(msg);
     if (lmsg > ls)
         strncpy(s, msg, ls);
@@ -890,12 +890,12 @@ extern void getidamdataunits_(int* handle, char* s, int ls)
 
 extern void getidamdatadesclength_(int* handle, int* lngth)
 {            // Length of Data Description String
-    *lngth = (int) strlen(getIdamDataDesc(*handle));
+    *lngth = (int) strlen(udaGetDataDesc(*handle));
 }
 
 extern void getidamdatadesc_(int* handle, char* s, int ls)
 {            // Data Description
-    char* msg = getIdamDataDesc(*handle);
+    char* msg = udaGetDataDesc(*handle);
     int lmsg = (int) strlen(msg);
     if (lmsg > ls)
         strncpy(s, msg, ls);
@@ -908,7 +908,7 @@ extern void getidamdimnum_(int* hd, int* nd, int* num)
     int handle, ndim;
     handle = *hd;
     ndim = *nd;
-    *num = getIdamDimNum(handle, ndim);
+    *num = udaGetDimNum(handle, ndim);
 }
 
 extern void getidamdimtype_(int* hd, int* nd, int* type)
@@ -916,31 +916,31 @@ extern void getidamdimtype_(int* hd, int* nd, int* type)
     int handle, ndim;
     handle = *hd;
     ndim = *nd;
-    *type = getIdamDimType(handle, ndim);
+    *type = udaGetDimType(handle, ndim);
 }
 
 extern void getidamdimerrortype_(int* handle, int* ndim, int* type)
 {    // Dimension Error Data Type
-    *type = getIdamDimErrorType(*handle, *ndim);
+    *type = udaGetDimErrorType(*handle, *ndim);
 }
 
 extern void getidamdimerrormodel_(int* handle, int* ndim, int* model, int* param_n, float* params)
 {
-    getIdamDimErrorModel(*handle, *ndim, model, param_n, params);
+    udaGetDimErrorModel(*handle, *ndim, model, param_n, params);
 }
 
 extern void getidamdimerrorasymmetry_(int* handle, int* ndim, int* asymmetry)
 {
-    *asymmetry = (int) getIdamDimErrorAsymmetry((int) *handle, (int) *ndim);
+    *asymmetry = (int) udaGetDimErrorAsymmetry((int) *handle, (int) *ndim);
 }
 
 //==============================================================
 
 extern void getidamsyntheticdimdatablock_(int* handle, int* ndim, void* data)
 {
-    void* synth = (void*) getIdamSyntheticDimData(*handle, *ndim);
-    size_t ndata = (size_t) getIdamDimNum(*handle, *ndim);
-    switch (getIdamDimType(*handle, *ndim)) {
+    void* synth = (void*) udaGetSyntheticDimData(*handle, *ndim);
+    size_t ndata = (size_t) udaGetDimNum(*handle, *ndim);
+    switch (udaGetDimType(*handle, *ndim)) {
         case UDA_TYPE_FLOAT:
             memcpy(data, synth, ndata * sizeof(float));
             break;
@@ -988,17 +988,17 @@ extern void getidamsyntheticdimdatablock_(int* handle, int* ndim, void* data)
 
 extern void getidamdoubledimdata_(int* handle, int* ndim, double* data)
 {        // Dimension nd Data Array cast to double
-    getIdamDoubleDimData(*handle, *ndim, data);
+    udaGetDoubleDimData(*handle, *ndim, data);
 }
 
 extern void getidamfloatdimdata_(int* handle, int* ndim, float* data)
 {        // Dimension nd Data Array cast to Float
-    getIdamFloatDimData(*handle, *ndim, data);
+    udaGetFloatDimData(*handle, *ndim, data);
 }
 
 extern void getidamdimdata_(int* hd, int* nd, void* data)
 {                // Dimension nd Data Array
-    getIdamGenericDimData(*hd, *nd, data);
+    udaGetGenericDimData(*hd, *nd, data);
 }
 
 extern void getidamdimdatablock_(int* hd, int* nd, void* data)
@@ -1008,9 +1008,9 @@ extern void getidamdimdatablock_(int* hd, int* nd, void* data)
 
 extern void getidamdimasymmetricerrorblock_(int* handle, int* ndim, int* above, void* data)
 {
-    void* errb = (void*) getIdamDimAsymmetricError(*handle, *ndim, *above);
-    size_t ndata = (size_t) getIdamDimNum(*handle, *ndim);
-    switch (getIdamDimErrorType(*handle, *ndim)) {
+    void* errb = (void*) udaGetDimAsymmetricError(*handle, *ndim, *above);
+    size_t ndata = (size_t) udaGetDimNum(*handle, *ndim);
+    switch (udaGetDimErrorType(*handle, *ndim)) {
         case UDA_TYPE_FLOAT:
             memcpy(data, errb, ndata * sizeof(float));
             break;
@@ -1058,9 +1058,9 @@ extern void getidamdimasymmetricerrorblock_(int* handle, int* ndim, int* above, 
 
 extern void getidamdimerrorblock_(int* handle, int* ndim, void* data)
 {
-    void* errb = (void*) getIdamDimError(*handle, *ndim);
-    size_t ndata = (size_t) getIdamDimNum(*handle, *ndim);
-    switch (getIdamDimErrorType(*handle, *ndim)) {
+    void* errb = (void*) udaGetDimError(*handle, *ndim);
+    size_t ndata = (size_t) udaGetDimNum(*handle, *ndim);
+    switch (udaGetDimErrorType(*handle, *ndim)) {
         case UDA_TYPE_FLOAT:
             memcpy(data, errb, ndata * sizeof(float));
             break;
@@ -1108,24 +1108,24 @@ extern void getidamdimerrorblock_(int* handle, int* ndim, void* data)
 
 extern void getidamfloatdimasymmetricerrorblock_(int* handle, int* ndim, int* above, float* data)
 {
-    getIdamFloatDimAsymmetricError(*handle, *ndim, *above, data);
+    udaGetFloatDimAsymmetricError(*handle, *ndim, *above, data);
 }
 
 extern void getidamfloatdimerrorblock_(int* handle, int* ndim, float* data)
 {
-    getIdamFloatDimError(*handle, *ndim, data);
+    udaGetFloatDimError(*handle, *ndim, data);
 }
 
 //=============================================================
 
 extern void getidamdimlabellength_(int* hd, int* nd, int* lngth)
 {    // Length of Dimension nd Label String
-    *lngth = (int) strlen(getIdamDimLabel(*hd, *nd));
+    *lngth = (int) strlen(udaGetDimLabel(*hd, *nd));
 }
 
 extern void getidamdimlabel_(int* hd, int* nd, char* s, int ls)
 {    // Dimension nd Label
-    char* msg = getIdamDimLabel(*hd, *nd);
+    char* msg = udaGetDimLabel(*hd, *nd);
     int lmsg = (int) strlen(msg);
     if (lmsg > ls)
         strncpy(s, msg, ls);
@@ -1135,12 +1135,12 @@ extern void getidamdimlabel_(int* hd, int* nd, char* s, int ls)
 
 extern void getidamdimunitslength_(int* hd, int* nd, int* lngth)
 {    // Length of Dimension nd Units String
-    *lngth = (int) strlen(getIdamDimUnits(*hd, *nd));
+    *lngth = (int) strlen(udaGetDimUnits(*hd, *nd));
 }
 
 extern void getidamdimunits_(int* hd, int* nd, char* s, int ls)
 {    // Dimension nd Units
-    char* msg = getIdamDimUnits(*hd, *nd);
+    char* msg = udaGetDimUnits(*hd, *nd);
     int lmsg = (int) strlen(msg);
     if (lmsg > ls)
         strncpy(s, msg, ls);
@@ -1150,7 +1150,7 @@ extern void getidamdimunits_(int* hd, int* nd, char* s, int ls)
 
 extern void getidamfileformat_(int* hd, char* s, int ls)
 {    // Data Source File Format
-    char* format = getIdamFileFormat(*hd);
+    char* format = udaGetFileFormat(*hd);
     if (format == NULL) return;
     int lstr = (int) strlen(format);
     if (lstr > ls)
@@ -1161,12 +1161,12 @@ extern void getidamfileformat_(int* hd, char* s, int ls)
 
 extern void getidamdatachecksum_(int* handle, int* sum)
 {
-    *sum = getIdamDataCheckSum(*handle);
+    *sum = udaGetDataCheckSum(*handle);
 }
 
 extern void getidamdimdatachecksum_(int* handle, int* ndim, int* sum)
 {
-    *sum = getIdamDimDataCheckSum(*handle, *ndim);
+    *sum = udaGetDimDataCheckSum(*handle, *ndim);
 }
 
 

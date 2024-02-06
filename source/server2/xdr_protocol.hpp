@@ -71,6 +71,6 @@ private:
     void create_streams();
 };
 
-}
+} // namespace uda
 
 #endif // UDA_SERVER_XDR_UDA_PROTOCOL_HPP

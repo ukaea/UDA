@@ -20,40 +20,40 @@ cdef class Result:
 
     def __init__(self, Handle handle):
         self._handle = handle
-        self._is_tree = 1 if uda.setIdamDataTree(int(handle)) != 0 else 0
+        self._is_tree = 1 if uda.udaSetDataTree(int(handle)) != 0 else 0
         self._meta = {}
-        if int(handle) >= 0 and uda.getIdamProperty("get_meta"):
+        if int(handle) >= 0 and uda.udaGetProperty("get_meta"):
             # TODO: Update for new metadata structures
             pass
 
     def error_message(self):
-        return uda.getIdamErrorMsg(int(self._handle))
+        return uda.udaGetErrorMsg(int(self._handle))
 
     def error_code(self):
-        return uda.getIdamErrorCode(int(self._handle))
+        return uda.udaGetErrorCode(int(self._handle))
 
     def rank(self):
-        cdef int rank = uda.getIdamRank(int(self._handle))
+        cdef int rank = uda.udaGetRank(int(self._handle))
         return rank
 
     cdef int _size(self):
-        cdef int size = uda.getIdamDataNum(int(self._handle))
+        cdef int size = uda.udaGetDataNum(int(self._handle))
         return size
 
     cdef int _type(self, int data_type):
         cdef int type
         if data_type == DataType.DATA:
-            type = uda.getIdamDataType(int(self._handle))
+            type = uda.udaGetDataType(int(self._handle))
         else:
-            type = uda.getIdamErrorType(int(self._handle))
+            type = uda.udaGetErrorType(int(self._handle))
         return type
 
     def is_string(self):
-        cdef int type = uda.getIdamDataType(int(self._handle))
+        cdef int type = uda.udaGetDataType(int(self._handle))
         return type == 17
 
     def is_capnp(self):
-        cdef int type = uda.getIdamDataType(int(self._handle))
+        cdef int type = uda.udaGetDataType(int(self._handle))
         IF CAPNP:
             return type == 22
         ELSE:
@@ -71,16 +71,16 @@ cdef class Result:
     cdef const char* _get_data(self, int data_type):
         cdef const char* data
         if data_type == DataType.DATA:
-            data = uda.getIdamData(int(self._handle))
+            data = uda.udaGetData(int(self._handle))
         else:
-            data = uda.getIdamError(int(self._handle))
+            data = uda.udaGetError(int(self._handle))
         return data
 
     cdef _data(self, int data_type):
         cdef const char* data = self._get_data(data_type)
         cdef int size
         cdef int type = self._type(data_type)
-        cdef int rank = uda.getIdamRank(int(self._handle))
+        cdef int rank = uda.udaGetRank(int(self._handle))
         cdef int i
         cdef np.npy_intp shape[1024]
         if rank == 0:
@@ -88,7 +88,7 @@ cdef class Result:
             shape[0] = <np.npy_intp> size
         else:
             for i in range(rank):
-                size = uda.getIdamDimNum(int(self._handle), rank - 1 - i)
+                size = uda.udaGetDimNum(int(self._handle), rank - 1 - i)
                 shape[i] = <np.npy_intp> size
         arr = to_python_i(type, rank, shape, <void *>data)
         if isinstance(arr, np.ndarray):
@@ -103,19 +103,19 @@ cdef class Result:
         return self._data(DataType.ERRORS)
 
     def label(self):
-        return uda.getIdamDataLabel(int(self._handle)).decode(errors='replace') if int(self._handle) >= 0 else ""
+        return uda.udaGetDataLabel(int(self._handle)).decode(errors='replace') if int(self._handle) >= 0 else ""
 
     def units(self):
-        return uda.getIdamDataUnits(int(self._handle)).decode(errors='replace') if int(self._handle) >= 0 else ""
+        return uda.udaGetDataUnits(int(self._handle)).decode(errors='replace') if int(self._handle) >= 0 else ""
 
     def description(self):
-        return uda.getIdamDataDesc(int(self._handle)).decode(errors='replace') if int(self._handle) >= 0 else ""
+        return uda.udaGetDataDesc(int(self._handle)).decode(errors='replace') if int(self._handle) >= 0 else ""
 
     def shape(self):
-        cdef int rank = uda.getIdamRank(int(self._handle))
+        cdef int rank = uda.udaGetRank(int(self._handle))
         shape = numpy.zeros(rank, dtype=numpy.int32)
         for i in range(rank):
-            shape[i] = uda.getIdamDimNum(int(self._handle), rank - 1 - i)
+            shape[i] = uda.udaGetDimNum(int(self._handle), rank - 1 - i)
         return shape
 
     def dim(self, num, data_type):
@@ -125,20 +125,20 @@ cdef class Result:
         return bool(self._is_tree)
 
     def tree(self):
-        cdef uda.NTREE* root = uda.getIdamDataTree(int(self._handle))
+        cdef uda.NTREE* root = uda.udaGetDataTree(int(self._handle))
         return TreeNode.new_(self._handle, root)
 
     def meta(self):
         return self._meta
 
     def has_time_dim(self):
-        cdef int order = uda.getIdamOrder(int(self._handle))
+        cdef int order = uda.udaGetOrder(int(self._handle))
         return order >= 0
 
     def time_order(self):
-        cdef int order = uda.getIdamOrder(int(self._handle))
+        cdef int order = uda.udaGetOrder(int(self._handle))
         return order
 
     def time_dim(self, data_type):
-        cdef int order = uda.getIdamOrder(int(self._handle))
+        cdef int order = uda.udaGetOrder(int(self._handle))
         return Dim(self._handle, order, data_type)

@@ -30,10 +30,10 @@ cdef class TreeNode:
         return tree_node
 
     def _load_children(self):
-        cdef int num_children = uda.getNodeChildrenCount(self._node)
+        cdef int num_children = uda.udaGetNodeChildrenCount(self._node)
         cdef uda.NTREE* child
         for i in range(num_children):
-            child = uda.getNodeChild(self._node, i)
+            child = uda.udaGetNodeChild(self._node, i)
             self._children.append(TreeNode.new_(self._handle, child))
 
     def children(self):
@@ -43,15 +43,15 @@ cdef class TreeNode:
         return self._children
 
     def name(self):
-        cdef const char* name = uda.getNodeStructureName(self._node)
+        cdef const char* name = uda.udaGetNodeStructureName(self._node)
         return name.decode() if name is not NULL else ""
 
     cdef _load_atomic_data(self, int idx, uda.LOGMALLOCLIST* logmalloclist):
-        cdef const char** anames = <const char**>uda.getNodeAtomicNames(logmalloclist, self._node)
-        cdef const char** atypes = <const char**>uda.getNodeAtomicTypes(logmalloclist, self._node)
-        cdef int* apoint = uda.getNodeAtomicPointers(logmalloclist, self._node)
-        cdef int* arank = uda.getNodeAtomicRank(logmalloclist, self._node)
-        cdef int** ashape = uda.getNodeAtomicShape(logmalloclist, self._node)
+        cdef const char** anames = <const char**>uda.udaGetNodeAtomicNames(logmalloclist, self._node)
+        cdef const char** atypes = <const char**>uda.udaGetNodeAtomicTypes(logmalloclist, self._node)
+        cdef int* apoint = uda.udaGetNodeAtomicPointers(logmalloclist, self._node)
+        cdef int* arank = uda.udaGetNodeAtomicRank(logmalloclist, self._node)
+        cdef int** ashape = uda.udaGetNodeAtomicShape(logmalloclist, self._node)
 
         cdef const char* name = anames[idx]
         cdef const char* type = atypes[idx]
@@ -59,14 +59,14 @@ cdef class TreeNode:
         cdef int rank = arank[idx]
         cdef int* shape = ashape[idx]
 
-        cdef void* data = uda.getNodeStructureComponentData(logmalloclist, self._node, name)
+        cdef void* data = uda.udaGetNodeStructureComponentData(logmalloclist, self._node, name)
         return to_python_c(type, rank, shape, point, data, <PyObject*>self._handle)
 
     cdef _import_data(self):
-        cdef uda.LOGMALLOCLIST* logmalloclist = uda.getIdamLogMallocList(self._handle)
-        cdef const char** anames = <const char**>uda.getNodeAtomicNames(logmalloclist, self._node)
+        cdef uda.LOGMALLOCLIST* logmalloclist = uda.udaGetLogMallocList(self._handle)
+        cdef const char** anames = <const char**>uda.udaGetNodeAtomicNames(logmalloclist, self._node)
 
-        cdef int size = uda.getNodeAtomicCount(self._node)
+        cdef int size = uda.udaGetNodeAtomicCount(self._node)
         cdef int i
         cdef const char* name
 

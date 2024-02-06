@@ -39,12 +39,12 @@ void uda::client::free_handle(int handle)
                 auto general_block = (GENERAL_BLOCK*)data_block->opaque_block;
 
                 if (general_block->userdefinedtypelist != nullptr) {
-                    freeUserDefinedTypeList(general_block->userdefinedtypelist);
+                    udaFreeUserDefinedTypeList(general_block->userdefinedtypelist);
                     free(general_block->userdefinedtypelist);
                 }
 
                 if (general_block->logmalloclist != nullptr) {
-                    freeMallocLogList(general_block->logmalloclist);
+                    udaFreeMallocLogList(general_block->logmalloclist);
                     free(general_block->logmalloclist);
                 }
             }
@@ -171,6 +171,6 @@ void uda::client::free_handle(int handle)
 
     // closeIdamError(&server_block.idamerrorstack);
 
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
     data_block->handle = -1; // Flag this as ready for re-use
 }

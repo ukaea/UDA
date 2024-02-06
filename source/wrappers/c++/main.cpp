@@ -122,7 +122,7 @@ int main()
         node = root.findStructureComponent("lastshot");
 
         node.print();
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         int acount = node.atomicCount();
 
@@ -202,7 +202,7 @@ int main()
         // Target the first child node with the named variable target
         node = root.findStructureComponent("signal_name");
 
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         // If the structure definition is known and located, a simple cast is all that is required
 
@@ -261,7 +261,7 @@ int main()
         // Target the first child node with the named variable target
         node = root.findStructureComponent("signal_name");
 
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         // If the structure definition is known and located, a simple cast is all that is required
         // Check the number of structures is one
@@ -365,7 +365,7 @@ int main()
         // node containing data with a specific structure type
         node = root.findStructureDefinition("SIGNALSET");
 
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         std::vector<uda::TreeNode> signals = node.parent().children();
         int signalSetCount = signals.size();
@@ -514,8 +514,8 @@ int main()
             node = root.findStructureDefinition("SARRAY.root.COIL");
 
             if (i == 0) {
-                node.printUserDefinedTypeTable();
-                node.printUserDefinedTypeTable("COORDINATE");
+                node.udaPrintUserDefinedTypeTable();
+                node.udaPrintUserDefinedTypeTable("COORDINATE");
             }
 
             std::vector<uda::TreeNode> coils = node.parent().children();
@@ -610,7 +610,7 @@ int main()
 
         node = root.findStructureDefinition("TEST11");
 
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         // Check only 1 structure
 
@@ -676,7 +676,7 @@ int main()
 
         node = root.findStructureDefinition("TEST12");
 
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         // Check only 1 structure
 
@@ -743,23 +743,23 @@ int main()
 
         // node containing data with a specific structure type
         node = root.findStructureDefinition("root");
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         // node containing data with a specific structure type
         node = root.findStructureDefinition("magnetics");
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         // node containing data with a specific structure type
         node = root.findStructureDefinition("flux_loop");
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         // node containing data with a specific structure type
         node = root.findStructureDefinition("13");
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         // node containing data with a specific structure type
         node = root.findStructureDefinition("flux");
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         // *** Searching by Type may fail as types are auto-generated to be unique.
         // *** Searching without hierarchical structure will return the first data node satisfying the passed name -
@@ -768,7 +768,7 @@ int main()
 
         // node containing data with a specific component name
         node = root.findStructureComponent("magnetics.flux_loop.13.flux");
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         if (test != 0) {
             return 0;
@@ -805,7 +805,7 @@ int main()
         // The first node has no name other tha the generic 'data'
         uda::TreeNode node = root.findStructureComponent("data");
 
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         // Check only 1 structure
 
@@ -871,7 +871,7 @@ int main()
 
         uda::TreeNode node = root.findStructureComponent("2");
 
-        node.printUserDefinedTypeTable();
+        node.udaPrintUserDefinedTypeTable();
 
         // Check only 1 structure
 

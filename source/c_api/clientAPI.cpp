@@ -14,7 +14,7 @@
 #include "client/makeClientRequestBlock.h"
 #include "client/startup.h"
 
-int idamClientAPI(const char* file, const char* signal, int pass, int exp_number)
+int udaClientAPI(const char* file, const char* signal, int pass, int exp_number)
 {
     REQUEST_BLOCK request_block;
     static short startup = 1;
@@ -32,13 +32,13 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
 
-    initRequestBlock(&request_block);
+    udaInitRequestBlock(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initUdaErrorStack();
+        udaInitErrorStack();
         startup = 0;
     }
 
@@ -57,10 +57,10 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
     }
 
     if ((err = makeClientRequestBlock(&signal, (const char**)&data_source, 1, &request_block)) != 0) {
-        closeUdaError();
+        udaCloseError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
     }
@@ -88,7 +88,7 @@ int idamClientAPI(const char* file, const char* signal, int pass, int exp_number
  *
  *--------------------------------------------------------------*/
 
-int idamClientFileAPI(const char* file, const char* signal, const char* format)
+int udaClientFileAPI(const char* file, const char* signal, const char* format)
 {
     REQUEST_BLOCK request_block;
     static short startup = 1;
@@ -106,13 +106,13 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
 
-    initRequestBlock(&request_block);
+    udaInitRequestBlock(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initUdaErrorStack();
+        udaInitErrorStack();
         startup = 0;
     }
 
@@ -127,10 +127,10 @@ int idamClientFileAPI(const char* file, const char* signal, const char* format)
     }
 
     if ((err = makeClientRequestBlock(&signal, (const char**)&data_source, 1, &request_block)) != 0) {
-        closeUdaError();
+        udaCloseError();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            addIdamError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
+            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
     }

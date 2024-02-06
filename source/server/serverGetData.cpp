@@ -382,10 +382,10 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
             initActions(&actions_comp_desc2);
             initActions(&actions_comp_sig2);
-            initDataBlock(&data_block2);
-            initDataSource(&data_source2);
-            initSignal(&signal_rec2);
-            initSignalDesc(&signal_desc2);
+            udaInitDataBlock(&data_block2);
+            udaInitDataSource(&data_source2);
+            udaInitSignal(&signal_rec2);
+            udaInitSignalDesc(&signal_desc2);
 
             // Check if the source file was originally defined in the client API?
 
@@ -431,7 +431,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
             initActions(&actions_comp_desc2);
             initActions(&actions_comp_sig2);
-            initDataBlock(&data_block2);
+            udaInitDataBlock(&data_block2);
 
             // Check if the source file was originally defined in the client API?
 
@@ -515,8 +515,8 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
                     initActions(&actions_comp_desc2);
                     initActions(&actions_comp_sig2);
-                    initDataBlock(&data_block2);
-                    initSignalDesc(&signal_desc2); // Added 06Nov2008
+                    udaInitDataBlock(&data_block2);
+                    udaInitSignalDesc(&signal_desc2); // Added 06Nov2008
 
                     // Check if the source file was originally defined in the client API?
 
@@ -583,7 +583,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
                     initActions(&actions_comp_desc2);
                     initActions(&actions_comp_sig2);
-                    initDataBlock(&data_block2);
+                    udaInitDataBlock(&data_block2);
 
                     // Check if the source file was originally defined in the client API?
 
@@ -631,7 +631,7 @@ int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block
 
                     initActions(&actions_comp_desc2);
                     initActions(&actions_comp_sig2);
-                    initDataBlock(&data_block2);
+                    udaInitDataBlock(&data_block2);
 
                     // Check if the source file was originally defined in the client API?
 
@@ -1082,7 +1082,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
             int serrno = errno;
             if (serrno != 0 || xmlfile == nullptr) {
                 if (serrno != 0) {
-                    addIdamError(UDA_SYSTEM_ERROR_TYPE, "idamserverReadData", serrno, "");
+                    udaAddError(UDA_SYSTEM_ERROR_TYPE, "idamserverReadData", serrno, "");
                 }
                 if (xmlfile != nullptr) {
                     fclose(xmlfile);
@@ -1118,7 +1118,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
 
         // Initialise the Data Block
 
-        initDataBlock(data_block);
+        udaInitDataBlock(data_block);
 
         plugin_interface.interfaceVersion = 1;
         plugin_interface.pluginVersion = 0;
@@ -1183,9 +1183,9 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
                 int err = pluginlist->plugin[id].idamPlugin(&plugin_interface);
                 for (unsigned int i = 0; i < plugin_interface.error_stack.nerrors; ++i) {
                     auto error = &plugin_interface.error_stack.idamerror[i];
-                    addIdamError(error->type, error->location, error->code, error->msg);
+                    udaAddError(error->type, error->location, error->code, error->msg);
                 }
-                freeIdamErrorStack(&plugin_interface.error_stack);
+                udaFreeErrorStack(&plugin_interface.error_stack);
 
 #ifndef FATCLIENT
                 // Reset Redirected Output
@@ -1274,7 +1274,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
     //----------------------------------------------------------------------------
     // Initialise the Data Block Structure
 
-    initDataBlock(data_block);
+    udaInitDataBlock(data_block);
 
     //----------------------------------------------------------------------------
     // Status values

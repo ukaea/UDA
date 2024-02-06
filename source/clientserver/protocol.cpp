@@ -153,7 +153,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     if (data_block->rank > 0) { // Check if there are Dimensional Data to Receive
                         for (unsigned int i = 0; i < data_block->rank; i++) {
-                            initDimBlock(&data_block->dims[i]);
+                            udaInitDimBlock(&data_block->dims[i]);
                         }
 
                         if (!xdr_data_dim1(xdrs, data_block)) {
@@ -327,7 +327,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     for (unsigned int i = 0; i < blockCount; i++) { // Fetch multiple put blocks
 
-                        initIdamPutDataBlock(&putData);
+                        udaInitPutDataBlock(&putData);
 
                         if (!xdr_putdata_block1(xdrs, &putData)) {
                             err = UDA_PROTOCOL_ERROR_61;
@@ -752,7 +752,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         break;
                     }
 
-                    closeUdaError(); // Free Heap associated with Previous Data Access
+                    udaCloseError(); // Free Heap associated with Previous Data Access
 
                     if (!xdr_server1(xdrs, server_block, protocolVersion)) {
                         err = UDA_PROTOCOL_ERROR_22;
@@ -763,7 +763,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                         server_block->idamerrorstack.idamerror =
                             (UDA_ERROR*)malloc(server_block->idamerrorstack.nerrors * sizeof(UDA_ERROR));
-                        initErrorRecords(&server_block->idamerrorstack);
+                        udaInitErrorRecords(&server_block->idamerrorstack);
 
                         if (!xdr_server2(xdrs, server_block)) {
                             err = UDA_PROTOCOL_ERROR_22;
