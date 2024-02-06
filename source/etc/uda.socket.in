@@ -1,0 +1,13 @@
+[Unit]
+Description=@USER@-uda Listener
+
+[Socket]
+ListenStream=0.0.0.0:@UDA_SERVER_PORT@
+Accept=yes
+NoDelay=true
+KeepAlive=true
+MaxConnections=100
+MaxConnectionsPerSource=30
+
+[Install]
+WantedBy=sockets.target

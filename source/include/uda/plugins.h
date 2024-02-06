@@ -22,8 +22,8 @@ typedef void (*ADDIDAMERRORFUNP)(UDA_ERROR_STACK*, int, char*, int, char*); // W
 
 // Prototypes
 
-LIBRARY_API int callPlugin(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request);
-LIBRARY_API int callPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, const char* source);
+LIBRARY_API int udaCallPlugin(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request);
+LIBRARY_API int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, const char* source);
 
 LIBRARY_API int udaPluginIsExternal(UDA_PLUGIN_INTERFACE* plugin_interface);
 LIBRARY_API int udaPluginCheckInterfaceVersion(UDA_PLUGIN_INTERFACE* plugin_interface, int interface_version);
@@ -97,19 +97,26 @@ LIBRARY_API int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE *plugin_in
 LIBRARY_API int udaPluginArgumentCount(const UDA_PLUGIN_INTERFACE* plugin_interface);
 LIBRARY_API const char* udaPluginArgument(const UDA_PLUGIN_INTERFACE* plugin_interface, int num);
 
-#define UDA_DEF_FIND_FUNCS(NAME, TYPE) \
-LIBRARY_API bool find##NAME##Value(const UDA_PLUGIN_INTERFACE* plugin_interface, const TYPE* value, const char* name);
 
-LIBRARY_API bool findStringValue(const UDA_PLUGIN_INTERFACE* plugin_interface, const char** value, const char* name);
-LIBRARY_API bool findValue(const UDA_PLUGIN_INTERFACE* plugin_interface, const char* name);
-LIBRARY_API bool findIntValue(const UDA_PLUGIN_INTERFACE* plugin_interface, int* value, const char* name);
-LIBRARY_API bool findShortValue(const UDA_PLUGIN_INTERFACE* plugin_interface, short* value, const char* name);
-LIBRARY_API bool findCharValue(const UDA_PLUGIN_INTERFACE* plugin_interface, char* value, const char* name);
-LIBRARY_API bool findFloatValue(const UDA_PLUGIN_INTERFACE* plugin_interface, float* values, const char* name);
-LIBRARY_API bool findIntArray(const UDA_PLUGIN_INTERFACE* plugin_interface, int** values, size_t* nvalues, const char* name);
-LIBRARY_API bool findFloatArray(const UDA_PLUGIN_INTERFACE* plugin_interface, float** values, size_t* nvalues, const char* name);
-LIBRARY_API bool findDoubleArray(const UDA_PLUGIN_INTERFACE* plugin_interface, double** values, size_t* nvalues,
-                                 const char* name);
+LIBRARY_API bool udaPluginFindArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const char* name);
+
+#define UDA_DEF_FIND_FUNCS(NAME, TYPE) \
+LIBRARY_API bool udaPluginFind##NAME##Arg(const UDA_PLUGIN_INTERFACE* plugin_interface, TYPE* value, const char* name); \
+LIBRARY_API bool udaPluginFind##NAME##ArrayArg(const UDA_PLUGIN_INTERFACE* plugin_interface, TYPE** value, size_t* nvalues, const char* name);
+
+UDA_DEF_FIND_FUNCS(Float, float)
+UDA_DEF_FIND_FUNCS(Double, double)
+UDA_DEF_FIND_FUNCS(Char, char)
+UDA_DEF_FIND_FUNCS(UChar, unsigned char)
+UDA_DEF_FIND_FUNCS(Short, short)
+UDA_DEF_FIND_FUNCS(UShort, unsigned short)
+UDA_DEF_FIND_FUNCS(Int, int)
+UDA_DEF_FIND_FUNCS(UInt, unsigned int)
+UDA_DEF_FIND_FUNCS(Long, long)
+UDA_DEF_FIND_FUNCS(ULong, unsigned long)
+UDA_DEF_FIND_FUNCS(String, const char*)
+
+#undef UDA_DEF_FIND_FUNCS
 
 #define QUOTE_(X) #X
 #define QUOTE(X) QUOTE_(X)
@@ -117,7 +124,7 @@ LIBRARY_API bool findDoubleArray(const UDA_PLUGIN_INTERFACE* plugin_interface, d
 #define CONCAT(X, Y) CONCAT_(X, Y)
 #define UNIQUE_VAR(NAME) __func__##NAME##__
 
-#define RAISE_PLUGIN_ERROR_AND_EXIT(PLUGIN_INTERFACE, MSG)                                                             \
+#define UDA_RAISE_PLUGIN_ERROR_AND_EXIT(PLUGIN_INTERFACE, MSG)                                                             \
     {                                                                                                                  \
         int UNIQUE_VAR(err) = 999;                                                                                     \
         udaPluginLog("%s\n", MSG);                                                                                     \
@@ -125,7 +132,7 @@ LIBRARY_API bool findDoubleArray(const UDA_PLUGIN_INTERFACE* plugin_interface, d
         return UNIQUE_VAR(err);                                                                                        \
     }
 
-#define RAISE_PLUGIN_ERROR(PLUGIN_INTERFACE, MSG)                                                                      \
+#define UDA_RAISE_PLUGIN_ERROR(PLUGIN_INTERFACE, MSG)                                                                      \
     {                                                                                                                  \
         int UNIQUE_VAR(err) = 999;                                                                                     \
         udaPluginLog(PLUGIN_INTERFACE, "%s\n", MSG);                                                                           \
@@ -133,7 +140,7 @@ LIBRARY_API bool findDoubleArray(const UDA_PLUGIN_INTERFACE* plugin_interface, d
         return UNIQUE_VAR(err);                                                                                        \
     }
 
-#define RAISE_PLUGIN_ERROR_F(PLUGIN_INTERFACE, MSG, FMT, ...)                                                          \
+#define UDA_RAISE_PLUGIN_ERROR_F(PLUGIN_INTERFACE, MSG, FMT, ...)                                                          \
     {                                                                                                                  \
         int UNIQUE_VAR(err) = 999;                                                                                     \
         udaPluginLog("%s\n", FMT, __VA_ARGS__);                                                                        \
@@ -141,7 +148,7 @@ LIBRARY_API bool findDoubleArray(const UDA_PLUGIN_INTERFACE* plugin_interface, d
         return UNIQUE_VAR(err);                                                                                        \
     }
 
-#define RAISE_PLUGIN_ERROR_AND_EXIT_F(PLUGIN_INTERFACE, MSG, FMT, ...)                                                 \
+#define UDA_RAISE_PLUGIN_ERROR_AND_EXIT_F(PLUGIN_INTERFACE, MSG, FMT, ...)                                                 \
     {                                                                                                                  \
         int UNIQUE_VAR(err) = 999;                                                                                     \
         udaPluginLog("%s\n", FMT, __VA_ARGS__);                                                                        \
@@ -149,54 +156,54 @@ LIBRARY_API bool findDoubleArray(const UDA_PLUGIN_INTERFACE* plugin_interface, d
         return UNIQUE_VAR(err);                                                                                        \
     }
 
-#define RAISE_PLUGIN_ERROR_EX(PLUGIN_INTERFACE, MSG, CODE)                                                             \
+#define UDA_RAISE_PLUGIN_ERROR_EX(PLUGIN_INTERFACE, MSG, CODE)                                                             \
     int UNIQUE_VAR(err) = 999;                                                                                         \
     udaPluginLog("%s", MSG);                                                                                           \
     udaAddPluginError(PLUGIN_INTERFACE, __func__, UNIQUE_VAR(err), MSG);                                               \
     { CODE }                                                                                                           \
     return UNIQUE_VAR(err);
 
-#define FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, TYPE)                                                          \
-    if (!find##TYPE##Value(PLUGIN_INTERFACE, &VARIABLE, QUOTE(VARIABLE))) {                                            \
-        RAISE_PLUGIN_ERROR(PLUGIN_INTERFACE, "Required argument '" QUOTE(VARIABLE) "' not given");                     \
+#define UDA_FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, TYPE)                                                          \
+    if (!udaPluginFind##TYPE##Arg(PLUGIN_INTERFACE, &VARIABLE, QUOTE(VARIABLE))) {                                            \
+        UDA_RAISE_PLUGIN_ERROR(PLUGIN_INTERFACE, "Required argument '" QUOTE(VARIABLE) "' not given");                     \
     }
 
-#define FIND_REQUIRED_ARRAY(PLUGIN_INTERFACE, VARIABLE, TYPE)                                                          \
-    if (!find##TYPE##Array(PLUGIN_INTERFACE, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(VARIABLE))) {                      \
-        RAISE_PLUGIN_ERROR(PLUGIN_INTERFACE, "Required argument '" QUOTE(VARIABLE) "' not given");                     \
+#define UDA_FIND_REQUIRED_ARRAY(PLUGIN_INTERFACE, VARIABLE, TYPE)                                                          \
+    if (!udaPluginFind##TYPE##ArrayArg(PLUGIN_INTERFACE, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(VARIABLE))) {                      \
+        UDA_RAISE_PLUGIN_ERROR(PLUGIN_INTERFACE, "Required argument '" QUOTE(VARIABLE) "' not given");                     \
     }
 
-#define FIND_REQUIRED_INT_VALUE(PLUGIN_INTERFACE, VARIABLE) FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, Int)
-#define FIND_REQUIRED_SHORT_VALUE(PLUGIN_INTERFACE, VARIABLE) FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, Short)
-#define FIND_REQUIRED_CHAR_VALUE(PLUGIN_INTERFACE, VARIABLE) FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, Char)
-#define FIND_REQUIRED_FLOAT_VALUE(PLUGIN_INTERFACE, VARIABLE) FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, Float)
-#define FIND_REQUIRED_STRING_VALUE(PLUGIN_INTERFACE, VARIABLE) FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, String)
+#define UDA_FIND_REQUIRED_INT_VALUE(PLUGIN_INTERFACE, VARIABLE) UDA_FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, Int)
+#define UDA_FIND_REQUIRED_SHORT_VALUE(PLUGIN_INTERFACE, VARIABLE) UDA_FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, Short)
+#define UDA_FIND_REQUIRED_CHAR_VALUE(PLUGIN_INTERFACE, VARIABLE) UDA_FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, Char)
+#define UDA_FIND_REQUIRED_FLOAT_VALUE(PLUGIN_INTERFACE, VARIABLE) UDA_FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, Float)
+#define UDA_FIND_REQUIRED_STRING_VALUE(PLUGIN_INTERFACE, VARIABLE) UDA_FIND_REQUIRED_VALUE(PLUGIN_INTERFACE, VARIABLE, String)
 
-#define FIND_REQUIRED_INT_ARRAY(PLUGIN_INTERFACE, VARIABLE) FIND_REQUIRED_ARRAY(PLUGIN_INTERFACE, VARIABLE, Int)
-#define FIND_REQUIRED_FLOAT_ARRAY(PLUGIN_INTERFACE, VARIABLE) FIND_REQUIRED_ARRAY(PLUGIN_INTERFACE, VARIABLE, Float)
-#define FIND_REQUIRED_DOUBLE_ARRAY(PLUGIN_INTERFACE, VARIABLE) FIND_REQUIRED_ARRAY(PLUGIN_INTERFACE, VARIABLE, Double)
+#define UDA_FIND_REQUIRED_INT_ARRAY(PLUGIN_INTERFACE, VARIABLE) UDA_FIND_REQUIRED_ARRAY(PLUGIN_INTERFACE, VARIABLE, Int)
+#define UDA_FIND_REQUIRED_FLOAT_ARRAY(PLUGIN_INTERFACE, VARIABLE) UDA_FIND_REQUIRED_ARRAY(PLUGIN_INTERFACE, VARIABLE, Float)
+#define UDA_FIND_REQUIRED_DOUBLE_ARRAY(PLUGIN_INTERFACE, VARIABLE) UDA_FIND_REQUIRED_ARRAY(PLUGIN_INTERFACE, VARIABLE, Double)
 
-#define FIND_INT_VALUE(PLUGIN_INTERFACE, VARIABLE) findIntValue(PLUGIN_INTERFACE, &VARIABLE, QUOTE(VARIABLE))
-#define FIND_SHORT_VALUE(PLUGIN_INTERFACE, VARIABLE) findShortValue(PLUGIN_INTERFACE, &VARIABLE, QUOTE(VARIABLE))
-#define FIND_CHAR_VALUE(PLUGIN_INTERFACE, VARIABLE) findCharValue(PLUGIN_INTERFACE, &VARIABLE, QUOTE(VARIABLE))
-#define FIND_FLOAT_VALUE(PLUGIN_INTERFACE, VARIABLE) findFloatValue(PLUGIN_INTERFACE, &VARIABLE, QUOTE(VARIABLE))
-#define FIND_STRING_VALUE(PLUGIN_INTERFACE, VARIABLE) findStringValue(PLUGIN_INTERFACE, &VARIABLE, QUOTE(VARIABLE))
+#define UDA_FIND_INT_VALUE(PLUGIN_INTERFACE, VARIABLE) udaPluginFindIntArg(PLUGIN_INTERFACE, &VARIABLE, QUOTE(VARIABLE))
+#define UDA_FIND_SHORT_VALUE(PLUGIN_INTERFACE, VARIABLE) udaPluginFindShortArg(PLUGIN_INTERFACE, &VARIABLE, QUOTE(VARIABLE))
+#define UDA_FIND_CHAR_VALUE(PLUGIN_INTERFACE, VARIABLE) udaPluginFindCharArg(PLUGIN_INTERFACE, &VARIABLE, QUOTE(VARIABLE))
+#define UDA_FIND_FLOAT_VALUE(PLUGIN_INTERFACE, VARIABLE) udaPluginFindFloatArg(PLUGIN_INTERFACE, &VARIABLE, QUOTE(VARIABLE))
+#define UDA_FIND_STRING_VALUE(PLUGIN_INTERFACE, VARIABLE) udaPluginFindStringArg(PLUGIN_INTERFACE, &VARIABLE, QUOTE(VARIABLE))
 
-#define FIND_INT_ARRAY(PLUGIN_INTERFACE, VARIABLE)                                                                      \
-    findIntArray(PLUGIN_INTERFACE, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(VARIABLE))
-#define FIND_FLOAT_ARRAY(PLUGIN_INTERFACE, VARIABLE)                                                                    \
-    findFloatArray(PLUGIN_INTERFACE, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(VARIABLE))
-#define FIND_DOUBLE_ARRAY(PLUGIN_INTERFACE, VARIABLE)                                                                   \
-    findDoubleArray(PLUGIN_INTERFACE, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(VARIABLE))
+#define UDA_FIND_INT_ARRAY(PLUGIN_INTERFACE, VARIABLE)                                                                      \
+    udaPluginFindIntArrayArg(PLUGIN_INTERFACE, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(VARIABLE))
+#define UDA_FIND_FLOAT_ARRAY(PLUGIN_INTERFACE, VARIABLE)                                                                    \
+    udaPluginFindFloatArrayArg(PLUGIN_INTERFACE, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(VARIABLE))
+#define UDA_FIND_DOUBLE_ARRAY(PLUGIN_INTERFACE, VARIABLE)                                                                   \
+    udaPluginFindDoubleArrayArg(PLUGIN_INTERFACE, &VARIABLE, CONCAT(&n, VARIABLE), QUOTE(VARIABLE))
 
-#define CALL_PLUGIN(PLUGIN_INTERFACE, FMT, ...)                                                                        \
+#define UDA_CALL_PLUGIN(PLUGIN_INTERFACE, FMT, ...)                                                                        \
     {                                                                                                                  \
         char UNIQUE_VAR(request)[1024];                                                                                \
         snprintf(UNIQUE_VAR(request), 1024, FMT, __VA_ARGS__);                                                         \
         UNIQUE_VAR(request)[1023] = '\0';                                                                              \
         int UNIQUE_VAR(err) = callPlugin(PLUGIN_INTERFACE, UNIQUE_VAR(request));         \
         if (UNIQUE_VAR(err)) {                                                                                         \
-            RAISE_PLUGIN_ERROR("Plugin call failed");                                                                  \
+            UDA_RAISE_PLUGIN_ERROR("Plugin call failed");                                                                  \
         }                                                                                                              \
     }
 

@@ -212,6 +212,8 @@ set( ETC_FILES
   xinetd.conf
   rc.uda
   README.md
+  uda.socket
+  uda@.service
 )
 
 set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )
