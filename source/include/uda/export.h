@@ -3,9 +3,9 @@
 
 #ifdef _WIN32
 #  ifdef UDA_EXPORT
-#    define __declspec(dllexport)
+#    define LIBRARY_API __declspec(dllexport)
 #  else
-#    define __declspec(dllimport)
+#    define LIBRARY_API __declspec(dllimport)
 #  endif
 #else
 #  define LIBRARY_API
