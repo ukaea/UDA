@@ -1,6 +1,8 @@
 #include "uda/plugins.h"
 
 #include <sstream>
+#include <vector>
+#include <string>
 #include <boost/algorithm/string.hpp>
 #include <uda/types.h>
 #include <uda/structured.h>
