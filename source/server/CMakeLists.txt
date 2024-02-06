@@ -214,6 +214,7 @@ set( ETC_FILES
   README.md
   uda.socket
   uda@.service
+  uda.plist
 )
 
 set( GEN_ETC_FILES ${CMAKE_BINARY_DIR}/etc/udagenstruct.conf )

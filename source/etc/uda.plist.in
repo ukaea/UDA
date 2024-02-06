@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>@USER@-uda.service</string>
+    <key>inetdCompatibility</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ProgramArguments</key>
+    <array>
+      <string>@CMAKE_INSTALL_PREFIX@/etc/udaserver.sh</string>
+    </array>
+    <key>UserName</key>
+    <string>@USER@</string>
+    <key>Sockets</key>
+    <dict>
+      <key>Listeners</key>
+      <dict>
+        <key>SockServiceName</key>
+        <string>@UDA_SERVER_PORT@</string>
+        <key>SockType</key>
+        <string>stream</string>
+        <key>SockFamily</key>
+        <string>IPv4</string>
+      </dict>
+    </dict>
+  </dict>
+</plist>
