@@ -47,7 +47,7 @@ else:
 
 ext = Extension(
     'cpyuda',
-    ['pyuda/cpyuda/cpyuda.pyx', 'pyuda/cpyuda/capnp_tree.pyx'],
+    '@CYTHON_SOURCES@'.split(';'),
     include_dirs=list(filter(None, [
         '/usr/include/tirpc',
         '@TIRPC_PYUDA_INCLUDE_DIR@',

@@ -1,6 +1,4 @@
-file( GLOB CYTHON_FILES
-  pyuda/cpyuda/capnp.pxd
-  pyuda/cpyuda/capnp_tree.pyx
+set( CYTHON_FILES
   pyuda/cpyuda/client.pyx
   pyuda/cpyuda/cpyuda.pyx
   pyuda/cpyuda/dim.pyx
@@ -12,6 +10,12 @@ file( GLOB CYTHON_FILES
   pyuda/cpyuda/types.pyx
   pyuda/cpyuda/uda.pxd
 )
+set( CYTHON_SOURCES pyuda/cpyuda/cpyuda.pyx )
+
+if( ENABLE_CAPNP )
+  list( APPEND CYTHON_FILES pyuda/cpyuda/capnp.pxd pyuda/cpyuda/capnp_tree.pyx  )
+  list( APPEND CYTHON_SOURCES pyuda/cpyuda/capnp_tree.pyx )
+endif( )
 
 install( FILES ${CYTHON_FILES} DESTINATION python_installer/pyuda/cpyuda )
 
