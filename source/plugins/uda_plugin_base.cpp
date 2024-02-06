@@ -122,5 +122,5 @@ void UDAPluginBase::register_function(const std::string& name, plugin_function_t
 bool UDAPluginBase::has_arg(UDA_PLUGIN_INTERFACE* plugin_interface, const std::string& name)
 {
     const char* str;
-    return findStringValue(plugin_interface, &str, name.c_str());
+    return udaPluginFindStringArg(plugin_interface, &str, name.c_str());
 }

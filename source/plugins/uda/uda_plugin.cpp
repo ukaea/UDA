@@ -387,15 +387,15 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         // Function library
 
         const char* host = nullptr;
-        bool isHost = findStringValue(plugin_interface, &host, "host");
+        bool isHost = udaPluginFindStringArg(plugin_interface, &host, "host");
 
         const char* signal = nullptr;
-        bool isSignal = findStringValue(plugin_interface, &signal, "signal");
+        bool isSignal = udaPluginFindStringArg(plugin_interface, &signal, "signal");
 
         const char* source = nullptr;
-        bool isSource = findStringValue(plugin_interface, &source, "source");
+        bool isSource = udaPluginFindStringArg(plugin_interface, &source, "source");
 
-        bool isPort = findIntValue(plugin_interface, &newPort, "port");
+        bool isPort = udaPluginFindIntArg(plugin_interface, &newPort, "port");
 
         // Set host and port
 

@@ -1,5 +1,7 @@
 #include "uda/plugins.h"
 
+#include <sstream>
+#include <boost/algorithm/string.hpp>
 #include <uda/types.h>
 #include <uda/structured.h>
 
@@ -240,7 +242,7 @@ LIBRARY_API const char* udaPluginArgument(const UDA_PLUGIN_INTERFACE* plugin_int
  * @param name
  * @return
  */
-bool findStringValue(const UDA_PLUGIN_INTERFACE* plugin_interface, const char** value, const char* name)
+bool udaPluginFindStringArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const char** value, const char* name)
 {
     auto namevaluelist = &plugin_interface->request_data->nameValueList;
 
@@ -263,150 +265,58 @@ bool findStringValue(const UDA_PLUGIN_INTERFACE* plugin_interface, const char** 
     return found;
 }
 
-/**
- * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associate value as an integer.
- *
- * If the argument is found the value associated with the argument is provided via the value parameter and the function
- * returns 1. Otherwise value is not set and the function returns 0.
- * @param namevaluelist
- * @param value
- * @param name
- * @return
- */
-bool findIntValue(const UDA_PLUGIN_INTERFACE* plugin_interface, int* value, const char* name)
+template <typename T>
+bool findArg(const UDA_PLUGIN_INTERFACE* plugin_interface, T* value, const char* name)
 {
     const char* str;
-    bool found = findStringValue(plugin_interface, &str, name);
+    bool found = udaPluginFindStringArg(plugin_interface, &str, name);
     if (found) {
-        *value = atoi(str);
+        std::stringstream ss(str);
+        ss >> *value;
     }
     return found;
 }
 
-/**
- * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associate value as a short.
- *
- * If the argument is found the value associated with the argument is provided via the value parameter and the function
- * returns 1. Otherwise value is not set and the function returns 0.
- * @param namevaluelist
- * @param value
- * @param name
- * @return
- */
-bool findShortValue(const UDA_PLUGIN_INTERFACE* plugin_interface, short* value, const char* name)
+template <typename T>
+bool findArrayArg(const UDA_PLUGIN_INTERFACE* plugin_interface, T** values, size_t* nvalues, const char* name)
 {
     const char* str;
-    bool found = findStringValue(plugin_interface, &str, name);
+    bool found = udaPluginFindStringArg(plugin_interface, &str, name);
     if (found) {
-        *value = (short)atoi(str);
-    }
-    return found;
-}
-
-/**
- * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associate value as a short.
- *
- * If the argument is found the value associated with the argument is provided via the value parameter and the function
- * returns 1. Otherwise value is not set and the function returns 0.
- * @param namevaluelist
- * @param value
- * @param name
- * @return
- */
-bool findCharValue(const UDA_PLUGIN_INTERFACE* plugin_interface, char* value, const char* name)
-{
-    const char* str;
-    bool found = findStringValue(plugin_interface, &str, name);
-    if (found) {
-        *value = (char)atoi(str);
-    }
-    return found;
-}
-
-/**
- * Look for an argument with the given name in the provided NAMEVALUELIST and return it's associate value as a float.
- *
- * If the argument is found the value associated with the argument is provided via the value parameter and the function
- * returns 1. Otherwise value is not set and the function returns 0.
- * @param namevaluelist
- * @param value
- * @param name
- * @return
- */
-bool findFloatValue(const UDA_PLUGIN_INTERFACE* plugin_interface, float* value, const char* name)
-{
-    const char* str;
-    bool found = findStringValue(plugin_interface, &str, name);
-    if (found) {
-        *value = strtof(str, nullptr);
-    }
-    return found;
-}
-
-bool findIntArray(const UDA_PLUGIN_INTERFACE* plugin_interface, int** values, size_t* nvalues, const char* name)
-{
-    const char* str;
-    bool found = findStringValue(plugin_interface, &str, name);
-    if (found) {
-        char** tokens = SplitString(str, ";");
-        size_t n;
-        size_t num_tokens = 0;
-        for (n = 0; tokens[n] != nullptr; ++n) {
-            ++num_tokens;
+        std::vector<std::string> tokens;
+        boost::split(tokens, str, boost::is_any_of(";"), boost::token_compress_on);
+        *values = (T*)calloc(tokens.size(), sizeof(T));
+        size_t n = 0;
+        for (const auto& token : tokens) {
+            std::stringstream ss(token);
+            ss >> (*values)[n];
+            ++n;
         }
-        *values = (int*)calloc(num_tokens, sizeof(int));
-        for (n = 0; tokens[n] != nullptr; ++n) {
-            (*values)[n] = (int)strtol(tokens[n], nullptr, 10);
-        }
-        FreeSplitStringTokens(&tokens);
-        *nvalues = num_tokens;
+        *nvalues = tokens.size();
     }
     return found;
 }
 
-bool findFloatArray(const UDA_PLUGIN_INTERFACE* plugin_interface, float** values, size_t* nvalues, const char* name)
-{
-    const char* str;
-    bool found = findStringValue(plugin_interface, &str, name);
-    if (found) {
-        char** tokens = SplitString(str, ";");
-        size_t n;
-        size_t num_tokens = 0;
-        for (n = 0; tokens[n] != nullptr; ++n) {
-            ++num_tokens;
-        }
-        *values = (float*)calloc(num_tokens, sizeof(float));
-        for (n = 0; tokens[n] != nullptr; ++n) {
-            (*values)[n] = strtof(tokens[n], nullptr);
-        }
-        FreeSplitStringTokens(&tokens);
-        *nvalues = num_tokens;
-    }
-    return found;
+#define UDA_IMPL_FIND_FUNCS(NAME, TYPE) \
+bool udaPluginFind##NAME##Arg(const UDA_PLUGIN_INTERFACE* plugin_interface, TYPE* value, const char* name) { \
+    return findArg<TYPE>(plugin_interface, value, name); \
+}                                       \
+bool udaPluginFind##NAME##ArrayArg(const UDA_PLUGIN_INTERFACE* plugin_interface, TYPE** value, size_t* nvalues, const char* name) { \
+    return findArrayArg<TYPE>(plugin_interface, value, nvalues, name); \
 }
 
-bool findDoubleArray(const UDA_PLUGIN_INTERFACE* plugin_interface, double** values, size_t* nvalues, const char* name)
-{
-    const char* str;
-    bool found = findStringValue(plugin_interface, &str, name);
-    if (found) {
-        char** tokens = SplitString(str, ";");
-        size_t n;
-        size_t num_tokens = 0;
-        for (n = 0; tokens[n] != nullptr; ++n) {
-            ++num_tokens;
-        }
-        *values = (double*)calloc(num_tokens, sizeof(double));
-        for (n = 0; tokens[n] != nullptr; ++n) {
-            (*values)[n] = strtod(tokens[n], nullptr);
-        }
-        FreeSplitStringTokens(&tokens);
-        *nvalues = num_tokens;
-    }
-    return found;
-}
+UDA_IMPL_FIND_FUNCS(Float, float)
+UDA_IMPL_FIND_FUNCS(Double, double)
+UDA_IMPL_FIND_FUNCS(Char, char)
+UDA_IMPL_FIND_FUNCS(UChar, unsigned char)
+UDA_IMPL_FIND_FUNCS(Short, short)
+UDA_IMPL_FIND_FUNCS(UShort, unsigned short)
+UDA_IMPL_FIND_FUNCS(Int, int)
+UDA_IMPL_FIND_FUNCS(UInt, unsigned int)
+UDA_IMPL_FIND_FUNCS(Long, long)
+UDA_IMPL_FIND_FUNCS(ULong, unsigned long)
 
-bool findValue(const UDA_PLUGIN_INTERFACE* plugin_interface, const char* name)
+bool udaPluginFindArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const char* name)
 {
     auto namevaluelist = &plugin_interface->request_data->nameValueList;
     char** names = SplitString(name, "|");
@@ -427,12 +337,12 @@ bool findValue(const UDA_PLUGIN_INTERFACE* plugin_interface, const char* name)
     return found;
 }
 
-int callPlugin(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request)
+int udaCallPlugin(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request)
 {
-    return callPlugin2(plugin_interface, request, "");
+    return udaCallPlugin2(plugin_interface, request, "");
 }
 
-int callPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, const char* source)
+int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, const char* source)
 {
     UDA_PLUGIN_INTERFACE new_plugin_interface = *plugin_interface;
     REQUEST_DATA request_data = *plugin_interface->request_data;
@@ -445,7 +355,7 @@ int callPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, con
 
     request_data.request = findPluginRequestByFormat(request_data.format, plugin_interface->pluginList);
     if (request_data.request == REQUEST_READ_UNKNOWN) {
-        RAISE_PLUGIN_ERROR(plugin_interface, "Plugin not found!");
+        UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Plugin not found!");
     }
 
     int err = 0;
@@ -454,7 +364,7 @@ int callPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, con
     if (id >= 0 && plugin->idamPlugin != nullptr) {
         err = plugin->idamPlugin(&new_plugin_interface); // Call the data reader
     } else {
-        RAISE_PLUGIN_ERROR(plugin_interface, "Data Access is not available for this data request!");
+        UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Data Access is not available for this data request!");
     }
 
     // Apply subsettinng

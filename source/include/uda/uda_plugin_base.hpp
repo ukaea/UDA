@@ -74,7 +74,7 @@ protected:
     boost::optional<T> find_arg(UDA_PLUGIN_INTERFACE* plugin_interface, const std::string& name, bool required=false)
     {
         const char* str;
-        bool found = findStringValue(plugin_interface, &str, name.c_str());
+        bool found = udaPluginFindStringArg(plugin_interface, &str, name.c_str());
         if (found) {
             std::stringstream ss(str);
             T value;
@@ -97,7 +97,7 @@ protected:
     boost::optional<std::vector<T>> find_array_arg(UDA_PLUGIN_INTERFACE* plugin_interface, const std::string& name, bool required=false)
     {
         const char* str;
-        bool found = findStringValue(plugin_interface, &str, name.c_str());
+        bool found = udaPluginFindStringArg(plugin_interface, &str, name.c_str());
         if (found) {
             std::vector<std::string> tokens;
             boost::split(tokens, str, boost::is_any_of(";"));

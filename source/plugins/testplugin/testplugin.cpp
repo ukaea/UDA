@@ -1629,7 +1629,7 @@ int TestPlugin::test50(UDA_PLUGIN_INTERFACE* plugin_interface)
     for (int i = 0; i < count; i++) {
         const char* name = udaPluginArgument(plugin_interface, i);
         const char* value;
-        findStringValue(plugin_interface, &value, name);
+        udaPluginFindStringArg(plugin_interface, &value, name);
         work += fmt::format("name: {}, value: {}\n", name, value);
     }
 
@@ -1892,7 +1892,7 @@ int TestPlugin::plugin(UDA_PLUGIN_INTERFACE* plugin_interface)
     int plugin_count = udaPluginPluginsCount(plugin_interface);
 
     if (plugin_count == 0) {
-        RAISE_PLUGIN_ERROR(plugin_interface, "No plugins available for this data request");
+        UDA_RAISE_PLUGIN_ERROR(plugin_interface, "No plugins available for this data request");
     }
 
     // Test specifics
@@ -1900,11 +1900,11 @@ int TestPlugin::plugin(UDA_PLUGIN_INTERFACE* plugin_interface)
     const char* signal = nullptr;
     const char* source = nullptr;
 
-    FIND_REQUIRED_STRING_VALUE(plugin_interface, signal);
-    FIND_REQUIRED_STRING_VALUE(plugin_interface, source);
+    UDA_FIND_REQUIRED_STRING_VALUE(plugin_interface, signal);
+    UDA_FIND_REQUIRED_STRING_VALUE(plugin_interface, source);
 
     if (signal != nullptr || source != nullptr) { // Identify the plugin to test
-        callPlugin2(plugin_interface, signal, source);
+        udaCallPlugin2(plugin_interface, signal, source);
     }
 
     return err;
@@ -1926,7 +1926,7 @@ int TestPlugin::errortest(UDA_PLUGIN_INTERFACE* plugin_interface)
     int err = 0;
     int test = 0;
 
-    FIND_REQUIRED_INT_VALUE(plugin_interface, test);
+    UDA_FIND_REQUIRED_INT_VALUE(plugin_interface, test);
 
     switch (test) {
         case 1:
@@ -1947,7 +1947,7 @@ int TestPlugin::errortest(UDA_PLUGIN_INTERFACE* plugin_interface)
         }
     }
 
-    RAISE_PLUGIN_ERROR(plugin_interface, "Test of Error State Management");
+    UDA_RAISE_PLUGIN_ERROR(plugin_interface, "Test of Error State Management");
 }
 
 int TestPlugin::scalartest(UDA_PLUGIN_INTERFACE* plugin_interface)
@@ -1978,22 +1978,22 @@ int TestPlugin::emptytest(UDA_PLUGIN_INTERFACE* plugin_interface)
 
 int TestPlugin::call_plugin_test(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return callPlugin(plugin_interface, "TESTPLUGIN::array1dtest()");
+    return udaCallPlugin(plugin_interface, "TESTPLUGIN::array1dtest()");
 }
 
 int TestPlugin::call_plugin_test_index(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return callPlugin(plugin_interface, "TESTPLUGIN::array1dtest()[25]");
+    return udaCallPlugin(plugin_interface, "TESTPLUGIN::array1dtest()[25]");
 }
 
 int TestPlugin::call_plugin_test_slice(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return callPlugin(plugin_interface, "TESTPLUGIN::array1dtest()[10:20]");
+    return udaCallPlugin(plugin_interface, "TESTPLUGIN::array1dtest()[10:20]");
 }
 
 int TestPlugin::call_plugin_test_stride(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    return callPlugin(plugin_interface, "TESTPLUGIN::array1dtest()[::2]");
+    return udaCallPlugin(plugin_interface, "TESTPLUGIN::array1dtest()[::2]");
 }
 
 #ifdef CAPNP_ENABLED
