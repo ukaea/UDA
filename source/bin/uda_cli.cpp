@@ -1,5 +1,5 @@
-#include <uda/types.h>
 #include <serialisation/capnp_serialisation.h>
+#include <uda/types.h>
 #include <wrappers/c++/UDA.hpp>
 
 #include <boost/program_options.hpp>

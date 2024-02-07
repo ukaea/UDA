@@ -186,8 +186,7 @@ int uda::Client::serverPort()
 
     backtrace.reserve(num_errors);
     for (int i = 0; i < num_errors; ++i) {
-        backtrace.push_back(std::string("[") + udaGetErrorLocation(i) +
-                            "]: " + udaGetErrorMessage(i));
+        backtrace.push_back(std::string("[") + udaGetErrorLocation(i) + "]: " + udaGetErrorMessage(i));
     }
 
     if ((code > 0 && code < 25) || (code > 60 && code < 66)) {

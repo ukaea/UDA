@@ -1,7 +1,7 @@
 #pragma once
 
 #ifndef UDA_LEGACY_H
-#define UDA_LEGACY_H
+#  define UDA_LEGACY_H
 
 // to delete just used for debugging...
 // #include "client.h"

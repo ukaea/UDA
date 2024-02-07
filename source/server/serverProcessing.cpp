@@ -2,8 +2,8 @@
 
 #include <cstdlib>
 
-#include <uda/types.h>
 #include "logging/logging.h"
+#include <uda/types.h>
 
 template <typename T> bool reduce_dim(DIMS* ddim)
 {

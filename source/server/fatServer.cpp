@@ -2,16 +2,16 @@
 #include <cerrno>
 #include <cstdio>
 
-#include "clientserver/initStructs.h"
-#include "logging/logging.h"
 #include "clientserver/copyStructs.h"
 #include "clientserver/errorLog.h"
+#include "clientserver/initStructs.h"
 #include "clientserver/manageSockets.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
 #include "clientserver/protocolXML.h"
 #include "clientserver/xdrlib.h"
 #include "logging/accessLog.h"
+#include "logging/logging.h"
 #include "server/serverPlugin.h"
 #include "structures/struct.h"
 
@@ -70,21 +70,21 @@ void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
 static int startup_fat_server(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduserdefinedtypelist);
 
 static int do_fat_server_closedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, ACTIONS* actions_desc,
-                                ACTIONS* actions_sig, DATA_BLOCK_LIST* data_blocks0);
+                                   ACTIONS* actions_sig, DATA_BLOCK_LIST* data_blocks0);
 
 static int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0, CLIENT_BLOCK* client_block,
-                            SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK_LIST* data_block,
-                            ACTIONS* actions_desc, ACTIONS* actions_sig);
+                              SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK_LIST* data_block,
+                              ACTIONS* actions_desc, ACTIONS* actions_sig);
 
 static int fat_client_return(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
-                           REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
-                           LOGSTRUCTLIST* log_struct_list, IoData* io_data);
+                             REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
+                             LOGSTRUCTLIST* log_struct_list, IoData* io_data);
 
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
 int fat_server(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0,
-              DATA_BLOCK_LIST* data_blocks0)
+               DATA_BLOCK_LIST* data_blocks0)
 {
     assert(data_blocks0 != nullptr);
 
@@ -135,13 +135,13 @@ int fat_server(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BL
     udaCopyUserDefinedTypeList(&user_defined_type_list, &parseduserdefinedtypelist);
 
     err = handle_request_fat(&request_block, request_block0, &client_block, server_block, &metadata_block, &data_blocks,
-                           &actions_desc, &actions_sig);
+                             &actions_desc, &actions_sig);
     if (err != 0) {
         return err;
     }
 
     err = fat_client_return(server_block, &data_blocks, data_blocks0, &request_block, &client_block, &metadata_block,
-                          &log_struct_list, &io_data);
+                            &log_struct_list, &io_data);
     if (err != 0) {
         return err;
     }
@@ -247,8 +247,8 @@ static int process_hierarchical_data(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_
 }
 
 int fat_client_return(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
-                    REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
-                    LOGSTRUCTLIST* log_struct_list, IoData* io_data)
+                      REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
+                      LOGSTRUCTLIST* log_struct_list, IoData* io_data)
 {
     //----------------------------------------------------------------------------
     // Gather Server Error State
@@ -277,8 +277,8 @@ int fat_client_return(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, 
 }
 
 int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0, CLIENT_BLOCK* client_block,
-                     SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK_LIST* data_blocks,
-                     ACTIONS* actions_desc, ACTIONS* actions_sig)
+                       SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK_LIST* data_blocks,
+                       ACTIONS* actions_desc, ACTIONS* actions_sig)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
@@ -382,7 +382,7 @@ int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_bloc
 }
 
 int do_fat_server_closedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, ACTIONS* actions_desc,
-                         ACTIONS* actions_sig, DATA_BLOCK_LIST* data_blocks0)
+                            ACTIONS* actions_sig, DATA_BLOCK_LIST* data_blocks0)
 {
     //----------------------------------------------------------------------------
     // Free Plugin List and Close all open library entries

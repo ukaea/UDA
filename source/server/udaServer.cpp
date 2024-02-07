@@ -8,13 +8,13 @@
 
 #include <tuple>
 
-#include "clientserver/initStructs.h"
-#include "clientserver/udaErrors.h"
 #include "cache/memcache.hpp"
 #include "clientserver/errorLog.h"
+#include "clientserver/initStructs.h"
 #include "clientserver/manageSockets.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
+#include "clientserver/udaErrors.h"
 #include "clientserver/xdrlib.h"
 #include "logging/accessLog.h"
 #include "logging/logging.h"
@@ -29,8 +29,8 @@
 #include "serverLegacyPlugin.h"
 #include "serverProcessing.h"
 #include "serverStartup.h"
-#include "udaLegacyServer.h"
 #include "uda/structured.h"
+#include "udaLegacyServer.h"
 
 #ifdef SECURITYENABLED
 #  include <security/serverAuthentication.h>
@@ -68,7 +68,7 @@ USERDEFINEDTYPELIST parsed_user_defined_type_list; // Initial set of User Define
 // Total amount sent for the last data request
 
 static PLUGINLIST plugin_list; // List of all data reader plugins (internal and external shared libraries)
-ENVIRONMENT environment;      // Holds local environment variable values
+ENVIRONMENT environment;       // Holds local environment variable values
 
 static SOCKETLIST socket_list;
 
@@ -83,30 +83,29 @@ typedef struct MetadataBlock {
 static int startup_server(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output, IoData* io_data);
 
 static int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
-                         METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
-                         DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown,
-                         uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list, XDR* server_input,
-                         const unsigned int* total_datablock_size, int server_tot_block_time, int* server_timeout);
+                          METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
+                          DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown,
+                          uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list, XDR* server_input,
+                          const unsigned int* total_datablock_size, int server_tot_block_time, int* server_timeout);
 
 static int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
-                        SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
-                        ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
-                        XDR* server_input, XDR* server_output, unsigned int* total_datablock_size,
-                        int server_tot_block_time, int* server_timeout);
+                          SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
+                          ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
+                          XDR* server_input, XDR* server_output, unsigned int* total_datablock_size,
+                          int server_tot_block_time, int* server_timeout);
 
-static int
-report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, CLIENT_BLOCK *client_block, int trap1Err,
-                 METADATA_BLOCK *metadata_block, LOGSTRUCTLIST *log_struct_list, XDR *server_output,
-                 unsigned int *total_datablock_size);
+static int report_to_client(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
+                            int trap1Err, METADATA_BLOCK* metadata_block, LOGSTRUCTLIST* log_struct_list,
+                            XDR* server_output, unsigned int* total_datablock_size);
 
-static int do_server_closedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
-                             int server_tot_block_time, int server_timeout);
+static int do_server_closedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block,
+                               DATA_BLOCK_LIST* data_block_list, int server_tot_block_time, int server_timeout);
 
 #ifdef SECURITYENABLED
 static int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block);
 #else
 static int handshake_client(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int* server_closedown,
-                           LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output);
+                            LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output);
 #endif
 
 //--------------------------------------------------------------------------------------
@@ -159,8 +158,8 @@ int uda_server(CLIENT_BLOCK client_block)
     err = authenticateClient(&client_block, &server_block);
 #else
     int server_closedown = 0;
-    err =
-        handshake_client(&client_block, &server_block, &server_closedown, &log_struct_list, server_input, server_output);
+    err = handshake_client(&client_block, &server_block, &server_closedown, &log_struct_list, server_input,
+                           server_output);
 #endif
 
     DATA_BLOCK_LIST data_block_list;
@@ -170,8 +169,8 @@ int uda_server(CLIENT_BLOCK client_block)
     if (!err && !server_closedown) {
         int fatal = 0;
         do_server_loop(&request_block, &data_block_list, &client_block, &server_block, &metadata_block, &actions_desc,
-                     &actions_sig, &fatal, cache, &log_struct_list, server_input, server_output, &total_datablock_size,
-                     server_tot_block_time, &server_timeout);
+                       &actions_sig, &fatal, cache, &log_struct_list, server_input, server_output,
+                       &total_datablock_size, server_tot_block_time, &server_timeout);
     }
 
     err = do_server_closedown(&client_block, &request_block, &data_block_list, server_tot_block_time, server_timeout);
@@ -179,10 +178,9 @@ int uda_server(CLIENT_BLOCK client_block)
     return err;
 }
 
-int
-report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, CLIENT_BLOCK *client_block, int trap1Err,
-                 METADATA_BLOCK *metadata_block, LOGSTRUCTLIST *log_struct_list, XDR *server_output,
-                 unsigned int *total_datablock_size)
+int report_to_client(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
+                     int trap1Err, METADATA_BLOCK* metadata_block, LOGSTRUCTLIST* log_struct_list, XDR* server_output,
+                     unsigned int* total_datablock_size)
 {
     //----------------------------------------------------------------------------
     // Gather Server Error State
@@ -379,10 +377,10 @@ report_to_client(SERVER_BLOCK *server_block, DATA_BLOCK_LIST *data_block_list, C
 }
 
 int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
-                  METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
-                  DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache,
-                  LOGSTRUCTLIST* log_struct_list, XDR* server_input, const unsigned int* total_datablock_size,
-                  int server_tot_block_time, int* server_timeout)
+                   METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
+                   DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache,
+                   LOGSTRUCTLIST* log_struct_list, XDR* server_input, const unsigned int* total_datablock_size,
+                   int server_tot_block_time, int* server_timeout)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
@@ -723,8 +721,8 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[i];
         if (protocol_version >= 6) {
-            if ((err = udaServerPlugin(request, &metadata_block->data_source, &metadata_block->signal_desc, &plugin_list,
-                                       getServerEnvironment())) != 0) {
+            if ((err = udaServerPlugin(request, &metadata_block->data_source, &metadata_block->signal_desc,
+                                       &plugin_list, getServerEnvironment())) != 0) {
                 return err;
             }
         } else {
@@ -841,10 +839,10 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
 }
 
 int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
-                 SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
-                 ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
-                 XDR* server_input, XDR* server_output, unsigned int* total_datablock_size, int server_tot_block_time,
-                 int* server_timeout)
+                   SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
+                   ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
+                   XDR* server_input, XDR* server_output, unsigned int* total_datablock_size, int server_tot_block_time,
+                   int* server_timeout)
 {
     int err = 0;
 
@@ -864,8 +862,8 @@ int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_lis
 
         int server_closedown = 0;
         err = handle_request(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
-                            data_block_list, fatal, &server_closedown, cache, log_struct_list, server_input,
-                            total_datablock_size, server_tot_block_time, server_timeout);
+                             data_block_list, fatal, &server_closedown, cache, log_struct_list, server_input,
+                             total_datablock_size, server_tot_block_time, server_timeout);
 
         if (server_closedown) {
             break;
@@ -934,7 +932,7 @@ int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_lis
 }
 
 int do_server_closedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
-                      int server_tot_block_time, int server_timeout)
+                        int server_tot_block_time, int server_timeout)
 {
     //----------------------------------------------------------------------------
     // Server Destruct.....
@@ -1045,7 +1043,7 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
 #endif
 
 int handshake_client(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int* server_closedown,
-                    LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output)
+                     LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output)
 {
     // Exchange version details - once only
 

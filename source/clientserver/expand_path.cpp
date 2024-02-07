@@ -26,8 +26,8 @@
 #include <cstdlib>
 #include <vector>
 
-#include "udaErrors.h"
 #include "logging/logging.h"
+#include "udaErrors.h"
 
 #include "errorLog.h"
 #include "stringUtils.h"

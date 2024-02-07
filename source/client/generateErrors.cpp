@@ -15,9 +15,9 @@
 #include <cstdlib>
 #include <math.h>
 
-#include <uda/client.h>
 #include "clientserver/allocData.h"
 #include "clientserver/errorLog.h"
+#include <uda/client.h>
 
 #ifndef NO_GSL_LIB
 #  include <gsl/gsl_randist.h>

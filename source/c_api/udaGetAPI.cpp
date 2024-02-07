@@ -15,8 +15,8 @@
 #endif
 
 #include "clientserver/errorLog.h"
-#include "clientserver/printStructs.h"
 #include "clientserver/initStructs.h"
+#include "clientserver/printStructs.h"
 #include "logging/logging.h"
 
 #include "client/makeClientRequestBlock.h"

@@ -1,10 +1,10 @@
 #include "bytesPlugin.h"
 
-#include "logging/logging.h"
 #include "clientserver/errorLog.h"
 #include "clientserver/makeRequestBlock.h"
 #include "clientserver/stringUtils.h"
 #include "include/uda/uda_plugin_base.hpp"
+#include "logging/logging.h"
 
 #include <boost/filesystem.hpp>
 

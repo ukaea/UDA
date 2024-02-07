@@ -1,7 +1,7 @@
 #include "client_environment.hpp"
+#include "logging/logging.h"
 #include <cstdlib>
 #include <fmt/format.h>
-#include "logging/logging.h"
 
 Environment uda::client::load_environment(bool* env_host, bool* env_port)
 {

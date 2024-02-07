@@ -28,10 +28,10 @@ namespace UtilitiesNs
   \return                Time-window average.
 */
 SingleValueNs::SingleValue<double> timeAverage(const SingleValueNs::SingleValue<double> timeWindow,
-                                                           const SingleValueNs::SingleValue<double> timePoint,
-                                                           const SingleValueNs::SingleValue<int> index,
-                                                           const blitz::Array<double, 1>& times,
-                                                           const blitz::Array<double, 1>& values);
+                                               const SingleValueNs::SingleValue<double> timePoint,
+                                               const SingleValueNs::SingleValue<int> index,
+                                               const blitz::Array<double, 1>& times,
+                                               const blitz::Array<double, 1>& values);
 
 //! Assigns the value of an  XML attribute to a SingleValueNs::SingleValue<double> object.
 /*!
@@ -41,7 +41,7 @@ SingleValueNs::SingleValue<double> timeAverage(const SingleValueNs::SingleValue<
   \return If successful returns true, otherwise false
 */
 bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName,
-                                   SingleValueNs::SingleValue<double>& attributeValue);
+                       SingleValueNs::SingleValue<double>& attributeValue);
 
 //! Assigns the value of an  XML attribute to a SingleValueNs::SingleValue<int> object.
 /*!
@@ -51,7 +51,7 @@ bool getAttributeValue(const QDomElement& domElement, const std::string& attribu
   \return If successful returns true, otherwise false
 */
 bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName,
-                                   SingleValueNs::SingleValue<int>& attributeValue);
+                       SingleValueNs::SingleValue<int>& attributeValue);
 
 //! Assigns the value of an  XML attribute to a blitz::Array<double,1> object.
 /*!
@@ -65,7 +65,7 @@ bool getAttributeValue(const QDomElement& domElement, const std::string& attribu
   \return If successful returns true, otherwise false
 */
 bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName,
-                                   blitz::Array<double, 1>& attributeValue);
+                       blitz::Array<double, 1>& attributeValue);
 
 //! Assigns the value of an  XML attribute to a blitz::Array<int,1> object.
 /*!
@@ -79,7 +79,7 @@ bool getAttributeValue(const QDomElement& domElement, const std::string& attribu
   \return If successful returns true, otherwise false
 */
 bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName,
-                                   blitz::Array<int, 1>& attributeValue);
+                       blitz::Array<int, 1>& attributeValue);
 
 //! Assigns the value of an  XML attribute to a blitz::Array<double,2> object.
 /*!
@@ -93,7 +93,7 @@ bool getAttributeValue(const QDomElement& domElement, const std::string& attribu
   \return If successful returns true, otherwise false
 */
 bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName,
-                                   blitz::Array<double, 2>& attributeValue);
+                       blitz::Array<double, 2>& attributeValue);
 
 //! Assigns the value of an  XML attribute to a std::string object.
 /*!
@@ -102,8 +102,7 @@ bool getAttributeValue(const QDomElement& domElement, const std::string& attribu
   \param AttributeValue The variable into which to place the contents of the XML attribute (if it  hadn't been
   specified, then returns "notSet"). \return  If the variable has been set returns true, otherwise false.
 */
-bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName,
-                                   std::string& attributeValue);
+bool getAttributeValue(const QDomElement& domElement, const std::string& attributeName, std::string& attributeValue);
 
 /*!
   \file utilities.h

@@ -37,10 +37,10 @@ typedef enum AuthenticationStep {
     HOUSEKEEPING = 9,
 } AUTHENTICATION_STEP;
 
-int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD encryptionMethod,
-                                  TOKEN_TYPE tokenType, unsigned short tokenByteLength, gcry_sexp_t publickey,
-                                  gcry_sexp_t privatekey, gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken,
-                                  unsigned char** client_ciphertext, size_t* client_ciphertextLength,
-                                  unsigned char** server_ciphertext, size_t* server_ciphertextLength);
+int udaAuthentication(AUTHENTICATION_STEP authenticationStep, ENCRYPTION_METHOD encryptionMethod, TOKEN_TYPE tokenType,
+                      unsigned short tokenByteLength, gcry_sexp_t publickey, gcry_sexp_t privatekey,
+                      gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken, unsigned char** client_ciphertext,
+                      size_t* client_ciphertextLength, unsigned char** server_ciphertext,
+                      size_t* server_ciphertextLength);
 
 #endif // UDA_SECURITY_SECURITY_H

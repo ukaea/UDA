@@ -2,8 +2,8 @@
 #include "clientserver/errorLog.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
-#include "clientserver/xdrlib.h"
 #include "clientserver/udaErrors.h"
+#include "clientserver/xdrlib.h"
 #include <uda/types.h>
 #ifdef SSLAUTHENTICATION
 #  include "authentication/udaServerSSL.h"

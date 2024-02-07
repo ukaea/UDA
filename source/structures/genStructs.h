@@ -1,12 +1,12 @@
 #ifndef UDA_STRUCTURES_GENSTRUCTS_H
 #define UDA_STRUCTURES_GENSTRUCTS_H
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
 #include <rpc/types.h>
 #include <rpc/xdr.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 //-------------------------------------------------------------------------------------------------------
 // Macro definitions

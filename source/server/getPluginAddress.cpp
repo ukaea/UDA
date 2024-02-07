@@ -4,8 +4,8 @@
 #include <dlfcn.h>
 #include <fmt/format.h>
 
-#include "logging/logging.h"
 #include "clientserver/errorLog.h"
+#include "logging/logging.h"
 
 /**
  * Return the function address for plugin data readers located in external shared libraries

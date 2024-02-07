@@ -3,10 +3,10 @@
 #ifndef UDA_CLIENTSERVER_STRINGUTILS_H
 #  define UDA_CLIENTSERVER_STRINGUTILS_H
 
+#  include <algorithm>
 #  include <ctype.h>
 #  include <stdbool.h>
 #  include <string.h>
-#  include <algorithm>
 #  include <string>
 
 #  ifndef _WIN32

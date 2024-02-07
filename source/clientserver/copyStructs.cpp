@@ -1,7 +1,7 @@
 #include "copyStructs.h"
 
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
 
 void copyRequestData(REQUEST_DATA* out, REQUEST_DATA in)
 {
@@ -26,4 +26,3 @@ void copyRequestBlock(REQUEST_BLOCK* out, REQUEST_BLOCK in)
         copyRequestData(&out->requests[i], in.requests[i]);
     }
 }
-

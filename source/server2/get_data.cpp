@@ -2,16 +2,16 @@
 
 #include "apply_XML.hpp"
 #include "clientserver/errorLog.h"
+#include "clientserver/initStructs.h"
 #include "clientserver/nameValueSubstitution.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/stringUtils.h"
-#include "clientserver/initStructs.h"
 #include "logging/logging.h"
 #include "make_server_request_block.hpp"
+#include "plugins.hpp"
+#include "server.hpp"
 #include "server_plugin.h"
 #include "server_subset_data.h"
-#include "server.hpp"
-#include "plugins.hpp"
 #include "uda/plugins.h"
 #include <uda/types.h>
 

@@ -1,12 +1,12 @@
 #include "readBytesNonOptimally.h"
 
-#include <cstring>
+#include <array>
 #include <cerrno>
 #include <cstdlib>
-#include <sstream>
+#include <cstring>
 #include <iomanip>
-#include <array>
 #include <openssl/evp.h>
+#include <sstream>
 
 #define BYTEFILEDOESNOTEXIST 100001
 #define BYTEFILEATTRIBUTEERROR 100002
@@ -16,8 +16,10 @@
 #define BYTEFILEMD5ERROR 100006
 #define BYTEFILEMD5DIFF 100007
 
-namespace {
-int is_legal_file_path(const char *str) {
+namespace
+{
+int is_legal_file_path(const char* str)
+{
     // Basic check that the filename complies with good naming practice - some protection against malign embedded code!
     // Test against the Portable Filename Character Set A-Z, a-z, 0-9, <period>, <underscore> and <hyphen> and <plus>
     // Include <space> and back-slash for windows filenames only, forward-slash for the path seperator and $ for
@@ -28,7 +30,7 @@ int is_legal_file_path(const char *str) {
     // path
     //
 
-    const char *tst = str;
+    const char* tst = str;
     while (*tst != '\0') {
         if ((*tst >= '0' && *tst <= '9') || (*tst >= 'A' && *tst <= 'Z') || (*tst >= 'a' && *tst <= 'z')) {
             tst++;
@@ -50,7 +52,7 @@ int is_legal_file_path(const char *str) {
     }
     return 1;
 }
-}
+} // namespace
 
 EVP_MD_CTX* new_hash_context()
 {
@@ -80,7 +82,7 @@ std::string get_hash_sum(EVP_MD_CTX* context)
         std::stringstream ss;
         ss << std::hex << std::setw(2) << std::setfill('0');
         for (unsigned int i = 0; i < length; ++i) {
-            ss << (int) hash[i];
+            ss << (int)hash[i];
         }
         hash_string = ss.str();
     }
@@ -89,7 +91,8 @@ std::string get_hash_sum(EVP_MD_CTX* context)
     return hash_string;
 }
 
-std::string exec(const char* cmd) {
+std::string exec(const char* cmd)
+{
     std::array<char, 128> buffer;
     std::string result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
@@ -186,15 +189,15 @@ int readBytes(const std::string& path, UDA_PLUGIN_INTERFACE* plugin_interface)
     update_hash(ctx, bp, nchar);
     auto read_hash = get_hash_sum(ctx);
 
-    int shape[] = { (int)nchar };
+    int shape[] = {(int)nchar};
     udaPluginReturnData(plugin_interface, bp, nchar, UDA_TYPE_CHAR, 1, shape, read_hash.c_str());
 
     // TODO: read sha256 sum command from config and try and run
-//    std::string cmd = "sha3sum -a 256 -b " + path;
-//    auto file_hash = exec(cmd.c_str());
+    //    std::string cmd = "sha3sum -a 256 -b " + path;
+    //    auto file_hash = exec(cmd.c_str());
 
     udaPluginLog(plugin_interface, "File Size          : %d \n", nchar);
-//    udaPluginLog(plugin_interface, "File Checksum      : %s \n", file_hash.c_str());
+    //    udaPluginLog(plugin_interface, "File Checksum      : %s \n", file_hash.c_str());
     udaPluginLog(plugin_interface, "Read Checksum      : %s \n", read_hash.c_str());
 
     return err;

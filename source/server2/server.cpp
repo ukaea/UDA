@@ -2,14 +2,14 @@
 
 #include <fmt/format.h>
 #include <string>
-#include <unistd.h>
 #include <uda/structured.h>
+#include <unistd.h>
 
 #include "clientserver/errorLog.h"
+#include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
 #include "clientserver/xdrlib.h"
-#include "clientserver/initStructs.h"
 #include "logging/accessLog.h"
 #include "logging/logging.h"
 #include "server_exceptions.h"

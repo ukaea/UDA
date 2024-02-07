@@ -840,63 +840,51 @@ void printImage(const char* image, int imagecount)
     }
 }
 
-template <typename T>
-struct TypeNamer {
+template <typename T> struct TypeNamer {
     static constexpr const char* Name = "";
 };
 
-template <>
-struct TypeNamer<short> {
+template <> struct TypeNamer<short> {
     static constexpr const char* Name = "short";
 };
 
-template <>
-struct TypeNamer<int> {
+template <> struct TypeNamer<int> {
     static constexpr const char* Name = "int";
 };
 
-template <>
-struct TypeNamer<long long> {
+template <> struct TypeNamer<long long> {
     static constexpr const char* Name = "long long";
 };
 
-template <>
-struct TypeNamer<unsigned short> {
+template <> struct TypeNamer<unsigned short> {
     static constexpr const char* Name = "unsigned short";
 };
 
-template <>
-struct TypeNamer<unsigned int> {
+template <> struct TypeNamer<unsigned int> {
     static constexpr const char* Name = "unsigned int";
 };
 
-template <>
-struct TypeNamer<unsigned long long> {
+template <> struct TypeNamer<unsigned long long> {
     static constexpr const char* Name = "unsigned long long";
 };
 
-template <>
-struct TypeNamer<float> {
+template <> struct TypeNamer<float> {
     static constexpr const char* Name = "float";
 };
 
-template <>
-struct TypeNamer<double> {
+template <> struct TypeNamer<double> {
     static constexpr const char* Name = "double";
 };
 
-template <>
-struct TypeNamer<char> {
+template <> struct TypeNamer<char> {
     static constexpr const char* Name = "char";
 };
 
-template <>
-struct TypeNamer<unsigned char> {
+template <> struct TypeNamer<unsigned char> {
     static constexpr const char* Name = "unsigned char";
 };
 
-template <>
-struct TypeNamer<char*> {
+template <> struct TypeNamer<char*> {
     static constexpr const char* Name = "string";
 };
 
@@ -938,7 +926,8 @@ void defineArrayField(CompoundField* field, const char* name, const char* desc, 
  * @param type_id Enumerated key indicating the type of data field, e.g. float array
  * @return Void
  */
-void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short type_id, int rank, int* shape)
+void defineField(COMPOUNDFIELD* field, const char* name, const char* desc, int* offset, unsigned short type_id,
+                 int rank, int* shape)
 {
     initCompoundField(field);
     strcpy(field->name, name);
@@ -1103,7 +1092,7 @@ void defineUserTypeField(COMPOUNDFIELD* field, const char* name, const char* des
         field->count = 1;
     } else {
         field->rank = rank;
-        field->shape = (int *) malloc(rank * sizeof(int));
+        field->shape = (int*)malloc(rank * sizeof(int));
         int count = 1;
         for (int i = 0; i < rank; ++i) {
             field->shape[i] = shape[i];

@@ -86,10 +86,10 @@
 
 #include <zconf.h>
 
-#include <uda/types.h>
 #include "clientserver/errorLog.h"
 #include "logging/logging.h"
 #include <stdbool.h>
+#include <uda/types.h>
 
 static void logToken(const char* msg, const gcry_mpi_t mpi_token)
 {

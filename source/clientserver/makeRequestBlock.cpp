@@ -12,8 +12,8 @@
 #  include <libgen.h>
 #endif
 
-#include <fmt/format.h>
 #include "logging/logging.h"
+#include <fmt/format.h>
 
 #include "errorLog.h"
 #include "parseXML.h"
@@ -46,7 +46,8 @@ static int generic_request_test(const char* source, REQUEST_DATA* request);
 
 static int extract_subset(REQUEST_DATA* request);
 
-namespace uda {
+namespace uda
+{
 struct NameValue {
     std::string pair;
     std::string name;
@@ -54,7 +55,7 @@ struct NameValue {
 };
 
 std::vector<uda::NameValue> name_value_pairs(std::string_view input, bool strip);
-}
+} // namespace uda
 
 static int find_plugin_id_by_format(const char* format, const PLUGINLIST* plugin_list)
 {

@@ -286,7 +286,8 @@ int ViewportPlugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         if (pixel_width && pixel_height) {
             // Map to pixels if the device coordinate viewport is defined
 
-            debug(plugin_interface, "Viewport: Mapping data to device pixel coordinate range (width, height) = {}, {}\n", *pixel_width,
+            debug(plugin_interface,
+                  "Viewport: Mapping data to device pixel coordinate range (width, height) = {}, {}\n", *pixel_width,
                   *pixel_height);
 
             int* column = nullptr;
@@ -506,14 +507,16 @@ int ViewportPlugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
                 free(freq[i]);
 
-                debug(plugin_interface, "[{}]   {}   {}   {}   {}\n", i, data[i], err_lo[i], err_hi[i], horizontal_pixel_values[i]);
+                debug(plugin_interface, "[{}]   {}   {}   {}   {}\n", i, data[i], err_lo[i], err_hi[i],
+                      horizontal_pixel_values[i]);
 
             } // end of loop over pixel_width
 
             debug(plugin_interface, "good_count  = {}\n", good_count);
             debug(plugin_interface, "pixel_width = {}\n", *pixel_width);
             for (int i = 0; i < pixelWidth2; i++) {
-                debug(plugin_interface, "[{}]   {}   {}   {}   {}\n", i, data[i], err_lo[i], err_hi[i], horizontal_pixel_values[i]);
+                debug(plugin_interface, "[{}]   {}   {}   {}   {}\n", i, data[i], err_lo[i], err_hi[i],
+                      horizontal_pixel_values[i]);
             }
             // Free allocated heap
 
@@ -561,12 +564,13 @@ int ViewportPlugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
         // Return viewport data
 
-        size_t shape[] = { (size_t)pixelWidth2 };
+        size_t shape[] = {(size_t)pixelWidth2};
         udaPluginReturnDataFloatArray(plugin_interface, data.data(), 1, shape, udaGetDataDesc(handle));
         udaPluginReturnDataLabel(plugin_interface, udaGetDataLabel(handle));
         udaPluginReturnDataUnits(plugin_interface, udaGetDataUnits(handle));
 
-        udaPluginReturnDimensionFloatArray(plugin_interface, 0, horizontal_pixel_values.data(), pixelWidth2, udaGetDimLabel(handle, 0), udaGetDimUnits(handle, 0));
+        udaPluginReturnDimensionFloatArray(plugin_interface, 0, horizontal_pixel_values.data(), pixelWidth2,
+                                           udaGetDimLabel(handle, 0), udaGetDimUnits(handle, 0));
 
         if (!range) {
             udaPluginReturnErrorAsymmetry(plugin_interface, true);

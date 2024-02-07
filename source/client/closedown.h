@@ -12,7 +12,6 @@ enum class ClosedownType {
     CLOSE_ALL = 1,
 };
 
-int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XDR* client_output,
-                          bool* reopen_logs);
+int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XDR* client_output, bool* reopen_logs);
 
 #endif // UDA_CLIENT_CLOSEDOWN_H

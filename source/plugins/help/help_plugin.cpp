@@ -1,10 +1,10 @@
 #include "help_plugin.h"
 
-#include <fmt/format.h>
 #include <boost/filesystem.hpp>
-#include <uda/uda_plugin_base.hpp>
-#include <uda/portability.h>
+#include <fmt/format.h>
 #include <sys/time.h>
+#include <uda/portability.h>
+#include <uda/uda_plugin_base.hpp>
 
 class HelpPlugin : public UDAPluginBase
 {
@@ -46,11 +46,14 @@ int HelpPlugin::ping(UDA_PLUGIN_INTERFACE* plugin_interface)
     typedef struct HELP_PING HELP_PING;
 
     int offset = 0;
-    COMPOUNDFIELD* field1 = udaNewCompoundField("seconds", "Server time in seconds from the epoch start", &offset, SCALARUINT);
-    COMPOUNDFIELD* field2 = udaNewCompoundField("microseconds", "Server inter-second time in microseconds", &offset, SCALARUINT);
+    COMPOUNDFIELD* field1 =
+        udaNewCompoundField("seconds", "Server time in seconds from the epoch start", &offset, SCALARUINT);
+    COMPOUNDFIELD* field2 =
+        udaNewCompoundField("microseconds", "Server inter-second time in microseconds", &offset, SCALARUINT);
 
-    COMPOUNDFIELD* fields[] = { field1, field2 };
-    USERDEFINEDTYPE* user_type = udaNewUserType("HELP_PING", "idamServerHelp", 0, 0, nullptr, sizeof(HELP_PING), 2, fields);
+    COMPOUNDFIELD* fields[] = {field1, field2};
+    USERDEFINEDTYPE* user_type =
+        udaNewUserType("HELP_PING", "idamServerHelp", 0, 0, nullptr, sizeof(HELP_PING), 2, fields);
 
     udaAddUserType(plugin_interface, user_type);
 

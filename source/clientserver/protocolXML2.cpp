@@ -328,8 +328,8 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
                     }
 
                     rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
-                                                         protocolVersion, xdr_stdio_flag, log_struct_list,
-                                                         malloc_source); // send the Data
+                                                      protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                      malloc_source); // send the Data
 
                     UDA_LOG(UDA_LOG_DEBUG, "Data sent: rc = %d\n", rc);
 
@@ -710,9 +710,9 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
                         UDA_LOG(UDA_LOG_DEBUG, "udaXDRUserDefinedTypeData #A\n");
                         initUserDefinedType(udt_received);
 
-                        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                             &data, protocolVersion, xdr_stdio_flag, log_struct_list,
-                                                             malloc_source); // receive the Data
+                        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
+                                                          protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                          malloc_source); // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "udaXDRUserDefinedTypeData #B\n");
                         if (!rc) {
@@ -904,10 +904,9 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
 
                             initUserDefinedType(udt_received);
 
-                            rc =
-                                rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                                &data, protocolVersion, xdr_stdio_flag, log_struct_list,
-                                                                malloc_source); // receive the Data
+                            rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                                              &data, protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                              malloc_source); // receive the Data
 
                             if (!rc) {
                                 err = 999;
@@ -1039,10 +1038,9 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
 
                             initUserDefinedType(udt_received);
 
-                            rc =
-                                rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
-                                                                &data, protocolVersion, xdr_stdio_flag, log_struct_list,
-                                                                malloc_source); // receive the Data
+                            rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                                              &data, protocolVersion, xdr_stdio_flag, log_struct_list,
+                                                              malloc_source); // receive the Data
 
                             if (!rc) {
                                 err = 999;
@@ -1230,7 +1228,7 @@ int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filena
         initUserDefinedType(udt_received);
 
         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
-                                             protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
+                                          protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
 
         if (!rc) {
             err = 999;
@@ -1340,7 +1338,7 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
         initUserDefinedType(udt_received);
 
         rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
-                                             protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
+                                          protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
 
         if (!rc) {
             err = 999;

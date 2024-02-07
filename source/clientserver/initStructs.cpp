@@ -11,8 +11,8 @@
 #  include <process.h>
 #endif
 
-#include <uda/types.h>
 #include <cstring>
+#include <uda/types.h>
 
 void initNameValueList(NAMEVALUELIST* nameValueList)
 {

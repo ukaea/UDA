@@ -4,9 +4,9 @@
 
 #include "printStructs.h"
 
-#include <uda/types.h>
 #include "clientserver/errorLog.h"
 #include "logging/logging.h"
+#include <uda/types.h>
 
 void printRequestData(REQUEST_DATA str)
 {

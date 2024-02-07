@@ -1,8 +1,8 @@
 #include <uda/client.h>
 
+#include "client/startup.h"
 #include "clientserver/initStructs.h"
 #include "logging/logging.h"
-#include "client/startup.h"
 
 /**
  * Reads the Requested Data

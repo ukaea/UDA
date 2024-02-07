@@ -1,8 +1,8 @@
 #include "readXDRFile.h"
 
+#include "logging/logging.h"
 #include <cerrno>
 #include <cstdlib>
-#include "logging/logging.h"
 
 #include "errorLog.h"
 

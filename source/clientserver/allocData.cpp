@@ -10,8 +10,8 @@
 
 #include "allocData.h"
 
-#include <uda/types.h>
 #include "logging/logging.h"
+#include <uda/types.h>
 
 #include "initStructs.h"
 #include "udaErrors.h"

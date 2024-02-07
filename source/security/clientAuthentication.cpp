@@ -5,9 +5,9 @@
 #include "clientserver/protocol.h"
 #include "logging/logging.h"
 #ifndef TESTIDAMSECURITY
-#  include "include/client.h"
 #  include "clientserver/udaErrors.h"
 #  include "clientserver/xdrlib.h"
+#  include "include/client.h"
 #endif
 
 #include "authenticationUtils.h"

@@ -54,13 +54,13 @@
 #endif
 
 #include "clientserver/errorLog.h"
+#include "clientserver/protocolXML2Put.h"
 #include "clientserver/stringUtils.h"
 #include "clientserver/xdrlib.h"
 #include "logging/logging.h"
-#include "clientserver/protocolXML2Put.h"
 
-#include <uda/structured.h>
 #include "xdrUserDefinedData.h"
+#include <uda/structured.h>
 
 #if defined(SERVERBUILD)
 #  include "server/udaServer.h"
@@ -1336,8 +1336,8 @@ void udaGetInitialUserDefinedTypeList(USERDEFINEDTYPELIST** anew)
     // Convert data to standard unsigned long64
 
     initCompoundField(&field);
-    defineField(&field, "enumarray", "Data with this enumerated type", &offset,
-                   ARRAYULONG64, 0, nullptr); // Data need to be converted to this type
+    defineField(&field, "enumarray", "Data with this enumerated type", &offset, ARRAYULONG64, 0,
+                nullptr); // Data need to be converted to this type
     udaAddCompoundField(&usertype, field);
     initCompoundField(&field);
     defineField(&field, "enumarray_rank", "The rank of arraydata", &offset, SCALARINT, 0, nullptr);
@@ -2088,8 +2088,8 @@ int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int
 // Send/Receive Array of Structures
 
 int xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                              USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion, bool xdr_stdio_flag,
-                              LOGSTRUCTLIST* log_struct_list, int malloc_source)
+                           USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion, bool xdr_stdio_flag,
+                           LOGSTRUCTLIST* log_struct_list, int malloc_source)
 {
     int rc;
 
@@ -3557,7 +3557,7 @@ int udaGetNodeStructureComponentDataCount(LOGMALLOCLIST* logmalloclist, NTREE* n
         ntree = udaGetFullNTree();
     }
     ntree =
-            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return 0;
     }
@@ -3604,7 +3604,7 @@ int udaGetNodeStructureComponentDataRank(LOGMALLOCLIST* logmalloclist, NTREE* nt
         ntree = udaGetFullNTree();
     }
     ntree =
-            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return 0;
     }
@@ -3648,7 +3648,7 @@ int* udaGetNodeStructureComponentDataShape(LOGMALLOCLIST* logmalloclist, NTREE* 
         ntree = udaGetFullNTree();
     }
     ntree =
-            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return nullptr;
     }
@@ -3690,7 +3690,7 @@ int udaGetNodeStructureComponentDataIsPointer(LOGMALLOCLIST* logmalloclist, NTRE
         ntree = udaGetFullNTree();
     }
     ntree =
-            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return 0;
     }
@@ -3722,7 +3722,7 @@ int udaGetNodeStructureComponentDataSize(LOGMALLOCLIST* logmalloclist, NTREE* nt
         ntree = udaGetFullNTree();
     }
     ntree =
-            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return 0;
     }
@@ -3762,7 +3762,7 @@ const char* udaGetNodeStructureComponentDataDataType(LOGMALLOCLIST* logmalloclis
         ntree = udaGetFullNTree();
     }
     ntree =
-            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return "unknown";
     }
@@ -3802,7 +3802,7 @@ void* udaGetNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntre
         ntree = udaGetFullNTree();
     }
     ntree =
-            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+        udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return nullptr;
     }

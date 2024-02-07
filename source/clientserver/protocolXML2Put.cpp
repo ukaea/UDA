@@ -9,8 +9,8 @@
 #include "errorLog.h"
 #include "protocol.h"
 #include "stringUtils.h"
-#include "xdrlib.h"
 #include "structures/struct.h"
+#include "xdrlib.h"
 
 #ifdef SERVERBUILD
 #  include "server/serverStartup.h"
@@ -1440,8 +1440,7 @@ int xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST
 
                     if (udaGettypeof(type) != UDA_TYPE_UNKNOWN) {
                         char* z = (char*)*p;
-                        rc = rc &&
-                             xdrAtomicData(logmalloclist, xdrs, type, count, size, &z); // Must be an Atomic Type
+                        rc = rc && xdrAtomicData(logmalloclist, xdrs, type, count, size, &z); // Must be an Atomic Type
                         *p = (VOIDTYPE)z;
                         break;
                     } else {
@@ -1483,7 +1482,7 @@ int udaXDRUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDE
         NTREE* dataNTree = nullptr;
 
         rc = rc && xdr_userdefinedtype(xdrs, userdefinedtypelist,
-                                         userdefinedtype); // User Defined Type Definitions
+                                       userdefinedtype); // User Defined Type Definitions
 
         rc = rc &&
              xdrUserDefinedDataPut(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1,
@@ -1499,7 +1498,7 @@ int udaXDRUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDE
         }
 
         rc = xdr_userdefinedtype(xdrs, userdefinedtypelist,
-                                   userdefinedtype); // User Defined Type Definitions
+                                 userdefinedtype); // User Defined Type Definitions
 
         rc = rc &&
              xdrUserDefinedDataPut(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1,

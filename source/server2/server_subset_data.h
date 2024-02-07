@@ -3,9 +3,9 @@
 #ifndef UDA_SERVER_SERVERSUBSETDATA_H
 #  define UDA_SERVER_SERVERSUBSETDATA_H
 
-#  include "structures/genStructs.h"
-#  include "clientserver/udaStructs.h"
 #  include "clientserver/parseXML.h"
+#  include "clientserver/udaStructs.h"
+#  include "structures/genStructs.h"
 
 namespace uda
 {

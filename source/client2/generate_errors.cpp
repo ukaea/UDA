@@ -3,9 +3,9 @@
 #include <cmath>
 #include <cstdlib>
 
-#include <uda/types.h>
 #include "clientserver/allocData.h"
 #include "clientserver/errorLog.h"
+#include <uda/types.h>
 
 #include "thread_client.hpp"
 

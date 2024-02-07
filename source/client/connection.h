@@ -3,8 +3,8 @@
 #ifndef UDA_CLIENT_CONNECTION_H
 #  define UDA_CLIENT_CONNECTION_H
 
-#  include "clientserver/udaStructs.h"
 #  include "clientserver/socketStructs.h"
+#  include "clientserver/udaStructs.h"
 
 #  include "closedown.h"
 

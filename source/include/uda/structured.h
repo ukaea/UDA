@@ -1,14 +1,14 @@
 #ifndef UDA_STRUCTURED_H
 #define UDA_STRUCTURED_H
 
-#include <stdlib.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include <uda/export.h>
 #include <uda/types.h>
 
-#define MAXELEMENTS 256        // Max number of structure elements
-#define MAXELEMENTNAME 256     // structure element name
+#define MAXELEMENTS 256    // Max number of structure elements
+#define MAXELEMENTNAME 256 // structure element name
 
 #ifdef __cplusplus
 extern "C" {
@@ -364,7 +364,8 @@ LIBRARY_API void udaPrintError(int warning, int line, char* file, char* msg);
 
 LIBRARY_API int udaFindUserDefinedTypeId(USERDEFINEDTYPELIST* userdefinedtypelist, const char* name);
 
-LIBRARY_API USERDEFINEDTYPE* udaFindUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist, const char* name, int ref_id);
+LIBRARY_API USERDEFINEDTYPE* udaFindUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist, const char* name,
+                                                    int ref_id);
 
 LIBRARY_API int udaTestUserDefinedType(USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* udt);
 
@@ -1072,8 +1073,8 @@ LIBRARY_API int udaMaxCountVlenStructureArray(NTREE* tree, const char* target, i
  * @return An integer returning an error code: 0 => OK.
  */
 LIBRARY_API int udaRegulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE* tree,
-                                              USERDEFINEDTYPELIST* userdefinedtypelist, const char* target,
-                                              unsigned int count);
+                                            USERDEFINEDTYPELIST* userdefinedtypelist, const char* target,
+                                            unsigned int count);
 
 /** Regularise the Shape of All VLEN structured data arrays in the data tree: necessary for accessing in some languages,
  * e.g. IDL.
@@ -1084,7 +1085,7 @@ LIBRARY_API int udaRegulariseVlenStructures(LOGMALLOCLIST* logmalloclist, NTREE*
  * @return An integer returning an error code: 0 => OK.
  */
 LIBRARY_API int udaRegulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree,
-                                        USERDEFINEDTYPELIST* userdefinedtypelist);
+                                      USERDEFINEDTYPELIST* userdefinedtypelist);
 
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------

@@ -2,11 +2,11 @@
 
 #include <cstdlib>
 
-#include "clientserver/initStructs.h"
 #include "client/udaClient.h"
+#include "clientserver/initStructs.h"
 #include "clientserver/stringUtils.h"
-#include "logging/logging.h"
 #include "include/uda/uda_plugin_base.hpp"
+#include "logging/logging.h"
 #include "server/serverPlugin.h"
 #include "uda/client.h"
 
@@ -186,7 +186,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     CLIENT_BLOCK* client_block = plugin_interface->client_block;
 
     if (client_block->get_nodimdata) {
-       udaSetProperty("get_nodimdata");
+        udaSetProperty("get_nodimdata");
     }
     if (client_block->get_timedble) {
         udaSetProperty("get_timedble");
@@ -276,7 +276,8 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
                         old_port_ = newPort;
                     }
                 } else {
-                    error(plugin_interface, "The Server Port must be an Integer Number passed using the formats 'server:port' or 'server "
+                    error(plugin_interface,
+                          "The Server Port must be an Integer Number passed using the formats 'server:port' or 'server "
                           "port'");
                 }
             } else {
@@ -313,7 +314,8 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
                 p[0] = '\0';           // Break the String (work)
                 strcpy(source, p + 1); // Extract the Source URL Argument
             } else {
-                error(plugin_interface, "The Remote Server Data Source specified does not comply with the naming model: "
+                error(plugin_interface,
+                      "The Remote Server Data Source specified does not comply with the naming model: "
                       "serverHost:port/sourceURL");
             }
         } else {
@@ -322,7 +324,8 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
                 p[0] = '\0';           // Break the String (work)
                 strcpy(source, p + 1); // Extract the Source URL Argument
             } else {
-                error(plugin_interface, "The Remote Server Data Source specified does not comply with the naming model: "
+                error(plugin_interface,
+                      "The Remote Server Data Source specified does not comply with the naming model: "
                       "serverHost:port/sourceURL");
             }
         }
@@ -352,7 +355,8 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
                     old_port_ = newPort;
                 }
             } else {
-                error(plugin_interface, "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server "
+                error(plugin_interface,
+                      "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server "
                       "port'");
             }
         } else {
@@ -450,7 +454,8 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
                     old_port_ = newPort;
                 }
             } else {
-                error(plugin_interface, "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server "
+                error(plugin_interface,
+                      "The Server Port must be an Integer Number passed using the format 'server:port'  or 'server "
                       "port'");
             }
         } else {
@@ -476,7 +481,8 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     //----------------------------------------------------------------------
     // Test for Errors: Close Socket and Free heap
 
-    debug(plugin_interface, "Returned from udaGetAPI API: handle = {}, error code = {}\n", handle, udaGetErrorCode(handle));
+    debug(plugin_interface, "Returned from udaGetAPI API: handle = {}, error code = {}\n", handle,
+          udaGetErrorCode(handle));
 
     if (handle < 0) {
         error(plugin_interface, udaGetServerErrorStackRecordMsg(0));

@@ -5,19 +5,19 @@
 #include "exceptions.hpp"
 #include "make_request_block.hpp"
 
-#include "clientserver/initStructs.h"
-#include "clientserver/udaDefines.h"
-#include "clientserver/udaErrors.h"
-#include "uda/client.h"
 #include "cache/fileCache.h"
 #include "clientserver/allocData.h"
 #include "clientserver/errorLog.h"
+#include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
 #include "clientserver/stringUtils.h"
+#include "clientserver/udaDefines.h"
+#include "clientserver/udaErrors.h"
 #include "clientserver/userid.h"
 #include "clientserver/xdrlib.h"
 #include "logging/logging.h"
+#include "uda/client.h"
 
 namespace
 {
@@ -73,7 +73,8 @@ int alloc_meta(DATA_SYSTEM** data_system, SYSTEM_CONFIG** system_config, DATA_SO
     return err;
 }
 
-void update_client_block(CLIENT_BLOCK& client_block, const uda::client::ClientFlags& client_flags, unsigned int private_flags)
+void update_client_block(CLIENT_BLOCK& client_block, const uda::client::ClientFlags& client_flags,
+                         unsigned int private_flags)
 {
     client_block.timeout = client_flags.user_timeout;
     client_block.clientFlags = client_flags.flags;

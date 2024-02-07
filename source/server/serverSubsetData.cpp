@@ -21,15 +21,15 @@
 #  define strncasecmp _strnicmp
 #endif
 
-#include "clientserver/initStructs.h"
-#include <uda/types.h>
-#include <boost/algorithm/string.hpp>
 #include "clientserver/compressDim.h"
 #include "clientserver/errorLog.h"
+#include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/stringUtils.h"
 #include "logging/logging.h"
 #include "uda/structured.h"
+#include <boost/algorithm/string.hpp>
+#include <uda/types.h>
 
 //----------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------
@@ -1673,16 +1673,46 @@ template <typename T> struct Abs {
     T operator()(T value);
 };
 
-template <> float Abs<float>::operator()(float value) { return std::fabs(value); }
-template <> double Abs<double>::operator()(double value) { return std::fabs(value); }
-template <> short Abs<short>::operator()(short value) { return std::abs(value); }
-template <> unsigned short Abs<unsigned short>::operator()(unsigned short value) { return value; }
-template <> int Abs<int>::operator()(int value) { return std::abs(value); }
-template <> unsigned int Abs<unsigned int>::operator()(unsigned int value) { return value; }
-template <> long Abs<long>::operator()(long value) { return std::labs(value); }
-template <> unsigned long Abs<unsigned long>::operator()(unsigned long value) { return value; }
-template <> long long Abs<long long>::operator()(long long value) { return std::llabs(value); }
-template <> unsigned long long Abs<unsigned long long>::operator()(unsigned long long value) { return value; }
+template <> float Abs<float>::operator()(float value)
+{
+    return std::fabs(value);
+}
+template <> double Abs<double>::operator()(double value)
+{
+    return std::fabs(value);
+}
+template <> short Abs<short>::operator()(short value)
+{
+    return std::abs(value);
+}
+template <> unsigned short Abs<unsigned short>::operator()(unsigned short value)
+{
+    return value;
+}
+template <> int Abs<int>::operator()(int value)
+{
+    return std::abs(value);
+}
+template <> unsigned int Abs<unsigned int>::operator()(unsigned int value)
+{
+    return value;
+}
+template <> long Abs<long>::operator()(long value)
+{
+    return std::labs(value);
+}
+template <> unsigned long Abs<unsigned long>::operator()(unsigned long value)
+{
+    return value;
+}
+template <> long long Abs<long long>::operator()(long long value)
+{
+    return std::llabs(value);
+}
+template <> unsigned long long Abs<unsigned long long>::operator()(unsigned long long value)
+{
+    return value;
+}
 
 template <typename T>
 int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double value, unsigned int* subset_indices)

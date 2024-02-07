@@ -23,9 +23,9 @@
 
 #include "protocol.h"
 
-#include <uda/types.h>
-#include <cstdlib>
 #include "logging/logging.h"
+#include <cstdlib>
+#include <uda/types.h>
 
 #include "allocData.h"
 #include "compressDim.h"

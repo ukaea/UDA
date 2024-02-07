@@ -22,7 +22,7 @@ enum pluginClass {
 struct PluginList; // Forward declaration
 typedef struct PluginList PLUGINLIST;
 
-typedef struct UdaPluginInterface {  // Standard Plugin interface
+typedef struct UdaPluginInterface {   // Standard Plugin interface
     unsigned short interfaceVersion;  // Interface Version
     unsigned short pluginVersion;     // Plugin Version
     unsigned short sqlConnectionType; // Which SQL is the server connected to
@@ -87,13 +87,13 @@ void freePluginList(PLUGINLIST* plugin_list);
 void initPluginData(PLUGIN_DATA* plugin);
 int udaServerRedirectStdStreams(int reset);
 int udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
-                                const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
-int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_request,
-                                    DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list,
-                                    const char* logRecord, const ENVIRONMENT* environment);
+                    const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
+int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_request, DATA_SOURCE* data_source,
+                        SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list, const char* logRecord,
+                        const ENVIRONMENT* environment);
 int udaServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
 int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_DATA* request_block,
-                                        SIGNAL_DESC* signal_desc, SIGNAL* signal_rec, DATA_SOURCE* data_source,
-                                        const ENVIRONMENT* environment);
+                            SIGNAL_DESC* signal_desc, SIGNAL* signal_rec, DATA_SOURCE* data_source,
+                            const ENVIRONMENT* environment);
 
 #endif // UDA_SERVER_SERVERPLUGIN_H

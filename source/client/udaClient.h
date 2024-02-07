@@ -3,8 +3,8 @@
 #ifndef UDA_CLIENT_UDACLIENT_H
 #  define UDA_CLIENT_UDACLIENT_H
 
-#  include "structures/genStructs.h"
 #  include "clientserver/udaStructs.h"
+#  include "structures/genStructs.h"
 
 typedef struct ClientFlags {
     int get_dimdble;  // (Server Side) Return Dimensional Data in Double Precision
@@ -12,10 +12,10 @@ typedef struct ClientFlags {
     int get_scalar;   // (Server Side) Reduce Rank from 1 to 0 (Scalar) if time data are all zero
     int get_bytes;    // (Server Side) Return IDA Data in native byte or integer array without IDA signal's
     // calibration factor applied
-    int get_meta;     // (Server Side) return All Meta Data
-    int get_asis;     // (Server Side) Apply no XML based corrections to Data or Dimensions
-    int get_uncal;    // (Server Side) Apply no XML based Calibrations to Data
-    int get_notoff;   // (Server Side) Apply no XML based Timing Corrections to Data
+    int get_meta;   // (Server Side) return All Meta Data
+    int get_asis;   // (Server Side) Apply no XML based corrections to Data or Dimensions
+    int get_uncal;  // (Server Side) Apply no XML based Calibrations to Data
+    int get_notoff; // (Server Side) Apply no XML based Timing Corrections to Data
     int get_nodimdata;
 
     int get_datadble;  // (Client Side) Return Data in Double Precision

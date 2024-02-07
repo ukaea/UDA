@@ -2,12 +2,12 @@
 
 #include <leveldb/c.h>
 
-#include <boost/filesystem.hpp>
 #include "include/uda/uda_plugin_base.hpp"
+#include <boost/filesystem.hpp>
 
 #include "clientserver/initStructs.h"
-#include <uda/types.h>
 #include "clientserver/stringUtils.h"
+#include <uda/types.h>
 
 namespace uda
 {
@@ -100,7 +100,7 @@ int uda::keyvalue::Plugin::write(UDA_PLUGIN_INTERFACE* plugin_interface)
     if (err != nullptr) {
         debug(plugin_interface, err);
         leveldb_free(err);
-        throw std::runtime_error{ err };
+        throw std::runtime_error{err};
     }
 
     return 0;
@@ -128,10 +128,10 @@ int uda::keyvalue::Plugin::read(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     if (err != nullptr) {
         debug(plugin_interface, err);
-        throw std::runtime_error{ err };
+        throw std::runtime_error{err};
     }
 
-    int shape[] = { (int)value_len };
+    int shape[] = {(int)value_len};
     udaPluginReturnData(plugin_interface, value, value_len, UDA_TYPE_CHAR, 1, shape, nullptr);
 
     return 0;

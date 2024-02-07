@@ -46,8 +46,8 @@
 #include "logging/logging.h"
 
 #include "getEnvironment.h"
-#include "updateSelectParms.h"
 #include "uda/client.h"
+#include "updateSelectParms.h"
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include <authentication/udaClientSSL.h>

@@ -5,9 +5,8 @@
 
 #include "udaLegacyServer.h"
 
-#include "clientserver/initStructs.h"
-#include "uda/structured.h"
 #include "clientserver/errorLog.h"
+#include "clientserver/initStructs.h"
 #include "clientserver/makeRequestBlock.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/protocol.h"
@@ -16,6 +15,7 @@
 #include "logging/logging.h"
 #include "server/serverPlugin.h"
 #include "structures/struct.h"
+#include "uda/structured.h"
 
 #include "closeServerSockets.h"
 #include "createXDRStream.h"

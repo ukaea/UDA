@@ -69,17 +69,17 @@ uda::Result::Result(int handle)
 {
     if (handle >= 0 && (bool)udaGetProperty("get_meta")) {
         // TODO: fix reading all meta fields
-//        SIGNAL_DESC* signal_desc = getIdamSignalDesc(handle);
-//        meta_["signal_name"] = signal_desc->signal_name;
-//        meta_["signal_alias"] = signal_desc->signal_alias;
-//
-//        DATA_SOURCE* source = getIdamDataSource(handle);
-//        meta_["path"] = source->path;
-//        meta_["filename"] = source->filename;
-//        meta_["format"] = source->format;
-//        meta_["exp_number"] = std::to_string(source->exp_number);
-//        meta_["pass"] = std::to_string(source->pass);
-//        meta_["pass_date"] = source->pass_date;
+        //        SIGNAL_DESC* signal_desc = getIdamSignalDesc(handle);
+        //        meta_["signal_name"] = signal_desc->signal_name;
+        //        meta_["signal_alias"] = signal_desc->signal_alias;
+        //
+        //        DATA_SOURCE* source = getIdamDataSource(handle);
+        //        meta_["path"] = source->path;
+        //        meta_["filename"] = source->filename;
+        //        meta_["format"] = source->format;
+        //        meta_["exp_number"] = std::to_string(source->exp_number);
+        //        meta_["pass"] = std::to_string(source->pass);
+        //        meta_["pass_date"] = source->pass_date;
     }
     istree_ = (udaSetDataTree(handle) != 0);
 }

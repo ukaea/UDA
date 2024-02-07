@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-int readBytes(const std::string &path, UDA_PLUGIN_INTERFACE *plugin_interface);
+int readBytes(const std::string& path, UDA_PLUGIN_INTERFACE* plugin_interface);
 
 #ifdef __cplusplus
 }

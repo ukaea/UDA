@@ -17,14 +17,14 @@
 #  define strncasecmp _strnicmp
 #endif
 
-#include "clientserver/initStructs.h"
-#include <uda/types.h>
 #include "clientserver/compressDim.h"
 #include "clientserver/errorLog.h"
+#include "clientserver/initStructs.h"
 #include "clientserver/printStructs.h"
 #include "clientserver/stringUtils.h"
 #include "logging/logging.h"
 #include "uda/structured.h"
+#include <uda/types.h>
 
 //----------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------

@@ -8,13 +8,13 @@
 #  include <unistd.h>
 #endif
 
-#include "initStructs.h"
-#include "udaErrors.h"
 #include "clientserver/errorLog.h"
 #include "clientserver/makeRequestBlock.h"
 #include "clientserver/stringUtils.h"
-#include <fmt/format.h>
+#include "initStructs.h"
 #include "logging/logging.h"
+#include "udaErrors.h"
+#include <fmt/format.h>
 
 static void embedded_value_substitution(NAMEVALUELIST* nameValueList);
 

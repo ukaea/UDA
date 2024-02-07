@@ -1,22 +1,22 @@
 #include "uda/plugins.h"
 
-#include <sstream>
-#include <vector>
-#include <string>
 #include <boost/algorithm/string.hpp>
-#include <uda/types.h>
+#include <sstream>
+#include <string>
 #include <uda/structured.h>
+#include <uda/types.h>
+#include <vector>
 
+#include "clientserver/errorLog.h"
+#include "clientserver/initStructs.h"
+#include "clientserver/makeRequestBlock.h"
+#include "clientserver/stringUtils.h"
+#include "clientserver/type_convertor.hpp"
+#include "logging/logging.h"
+#include "server/getServerEnvironment.h"
 #include "server/initPluginList.h"
 #include "server/serverPlugin.h"
 #include "server/serverSubsetData.h"
-#include "clientserver/initStructs.h"
-#include "clientserver/type_convertor.hpp"
-#include "logging/logging.h"
-#include "clientserver/errorLog.h"
-#include "clientserver/makeRequestBlock.h"
-#include "clientserver/stringUtils.h"
-#include "server/getServerEnvironment.h"
 #include "structures/accessors.h"
 #include "structures/struct.h"
 
@@ -69,8 +69,7 @@ int initPlugin(const UDA_PLUGIN_INTERFACE* plugin_interface)
     return 0;
 }
 
-template <typename T>
-int setReturnDataScalar(UDA_PLUGIN_INTERFACE* plugin_interface, T value, const char* description)
+template <typename T> int setReturnDataScalar(UDA_PLUGIN_INTERFACE* plugin_interface, T value, const char* description)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
@@ -92,7 +91,8 @@ int setReturnDataScalar(UDA_PLUGIN_INTERFACE* plugin_interface, T value, const c
 }
 
 template <typename T>
-int setReturnDataArray(UDA_PLUGIN_INTERFACE* plugin_interface, const T* values, size_t rank, const size_t* shape, const char* description)
+int setReturnDataArray(UDA_PLUGIN_INTERFACE* plugin_interface, const T* values, size_t rank, const size_t* shape,
+                       const char* description)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
@@ -130,15 +130,17 @@ int setReturnDataArray(UDA_PLUGIN_INTERFACE* plugin_interface, const T* values, 
     return 0;
 }
 
-#define UDA_IMPL_SET_RETURN_FUNCS(NAME, TYPE) \
-int udaPluginReturnData##NAME##Scalar(UDA_PLUGIN_INTERFACE* plugin_interface, const TYPE value, const char* description) \
-{ \
-    return setReturnDataScalar<TYPE>(plugin_interface, value, description); \
-}                                    \
-int udaPluginReturnData##NAME##Array(UDA_PLUGIN_INTERFACE* plugin_interface, const TYPE* values, size_t rank, const size_t* shape, const char* description) \
-{ \
-    return setReturnDataArray<TYPE>(plugin_interface, values, rank, shape, description); \
-}
+#define UDA_IMPL_SET_RETURN_FUNCS(NAME, TYPE)                                                                          \
+    int udaPluginReturnData##NAME##Scalar(UDA_PLUGIN_INTERFACE* plugin_interface, const TYPE value,                    \
+                                          const char* description)                                                     \
+    {                                                                                                                  \
+        return setReturnDataScalar<TYPE>(plugin_interface, value, description);                                        \
+    }                                                                                                                  \
+    int udaPluginReturnData##NAME##Array(UDA_PLUGIN_INTERFACE* plugin_interface, const TYPE* values, size_t rank,      \
+                                         const size_t* shape, const char* description)                                 \
+    {                                                                                                                  \
+        return setReturnDataArray<TYPE>(plugin_interface, values, rank, shape, description);                           \
+    }
 
 UDA_IMPL_SET_RETURN_FUNCS(Float, float)
 UDA_IMPL_SET_RETURN_FUNCS(Double, double)
@@ -185,8 +187,8 @@ int udaPluginReturnDataStringScalar(UDA_PLUGIN_INTERFACE* plugin_interface, cons
     return 0;
 }
 
-int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, size_t size, UDA_TYPE type, int rank, const int* shape,
-                  const char* description)
+int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, size_t size, UDA_TYPE type, int rank,
+                        const int* shape, const char* description)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
@@ -268,8 +270,7 @@ bool udaPluginFindStringArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const 
     return found;
 }
 
-template <typename T>
-bool findArg(const UDA_PLUGIN_INTERFACE* plugin_interface, T* value, const char* name)
+template <typename T> bool findArg(const UDA_PLUGIN_INTERFACE* plugin_interface, T* value, const char* name)
 {
     const char* str;
     bool found = udaPluginFindStringArg(plugin_interface, &str, name);
@@ -300,13 +301,16 @@ bool findArrayArg(const UDA_PLUGIN_INTERFACE* plugin_interface, T** values, size
     return found;
 }
 
-#define UDA_IMPL_FIND_FUNCS(NAME, TYPE) \
-bool udaPluginFind##NAME##Arg(const UDA_PLUGIN_INTERFACE* plugin_interface, TYPE* value, const char* name) { \
-    return findArg<TYPE>(plugin_interface, value, name); \
-}                                       \
-bool udaPluginFind##NAME##ArrayArg(const UDA_PLUGIN_INTERFACE* plugin_interface, TYPE** value, size_t* nvalues, const char* name) { \
-    return findArrayArg<TYPE>(plugin_interface, value, nvalues, name); \
-}
+#define UDA_IMPL_FIND_FUNCS(NAME, TYPE)                                                                                \
+    bool udaPluginFind##NAME##Arg(const UDA_PLUGIN_INTERFACE* plugin_interface, TYPE* value, const char* name)         \
+    {                                                                                                                  \
+        return findArg<TYPE>(plugin_interface, value, name);                                                           \
+    }                                                                                                                  \
+    bool udaPluginFind##NAME##ArrayArg(const UDA_PLUGIN_INTERFACE* plugin_interface, TYPE** value, size_t* nvalues,    \
+                                       const char* name)                                                               \
+    {                                                                                                                  \
+        return findArrayArg<TYPE>(plugin_interface, value, nvalues, name);                                             \
+    }
 
 UDA_IMPL_FIND_FUNCS(Float, float)
 UDA_IMPL_FIND_FUNCS(Double, double)
@@ -382,7 +386,9 @@ int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, 
     return err;
 }
 
-int udaPluginReturnCompoundData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, const char *user_type, const char* description) {
+int udaPluginReturnCompoundData(UDA_PLUGIN_INTERFACE* plugin_interface, char* data, const char* user_type,
+                                const char* description)
+{
     DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
@@ -407,7 +413,9 @@ int udaPluginReturnCompoundData(UDA_PLUGIN_INTERFACE *plugin_interface, char* da
     return 0;
 }
 
-int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE *plugin_interface, char* data, const char *user_type, const char* description, int rank, int* shape) {
+int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE* plugin_interface, char* data, const char* user_type,
+                                     const char* description, int rank, int* shape)
+{
     DATA_BLOCK* data_block = plugin_interface->data_block;
     initDataBlock(data_block);
 
@@ -456,35 +464,40 @@ COMPOUNDFIELD* udaNewCompoundField(const char* name, const char* description, in
     return field;
 }
 
-COMPOUNDFIELD* udaNewCompoundArrayField(const char* name, const char* description, int* offset, int type, int rank, int* shape)
+COMPOUNDFIELD* udaNewCompoundArrayField(const char* name, const char* description, int* offset, int type, int rank,
+                                        int* shape)
 {
     COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
     defineField(field, name, description, offset, type, rank, shape);
     return field;
 }
 
-COMPOUNDFIELD* udaNewCompoundUserTypeField(const char* name, const char* description, int* offset, USERDEFINEDTYPE* user_type)
+COMPOUNDFIELD* udaNewCompoundUserTypeField(const char* name, const char* description, int* offset,
+                                           USERDEFINEDTYPE* user_type)
 {
     COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
     defineUserTypeField(field, name, description, offset, 0, nullptr, user_type, false);
     return field;
 }
 
-COMPOUNDFIELD* udaNewCompoundUserTypePointerField(const char* name, const char* description, int* offset, USERDEFINEDTYPE* user_type)
+COMPOUNDFIELD* udaNewCompoundUserTypePointerField(const char* name, const char* description, int* offset,
+                                                  USERDEFINEDTYPE* user_type)
 {
     COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
     defineUserTypeField(field, name, description, offset, 0, nullptr, user_type, true);
     return field;
 }
 
-COMPOUNDFIELD* udaNewCompoundUserTypeArrayField(const char* name, const char* description, int* offset, USERDEFINEDTYPE* user_type, int rank, int* shape)
+COMPOUNDFIELD* udaNewCompoundUserTypeArrayField(const char* name, const char* description, int* offset,
+                                                USERDEFINEDTYPE* user_type, int rank, int* shape)
 {
     COMPOUNDFIELD* field = (COMPOUNDFIELD*)malloc(sizeof(COMPOUNDFIELD));
     defineUserTypeField(field, name, description, offset, rank, shape, user_type, false);
     return field;
 }
 
-USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id, int image_count, char* image, size_t size, size_t num_fields, COMPOUNDFIELD** fields)
+USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id, int image_count, char* image,
+                                size_t size, size_t num_fields, COMPOUNDFIELD** fields)
 {
     USERDEFINEDTYPE* user_type = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
 
@@ -519,7 +532,8 @@ int udaRegisterMalloc(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int co
     return 0;
 }
 
-int udaRegisterMallocArray(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int count, size_t size, const char* type, int rank, int* shape)
+int udaRegisterMallocArray(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int count, size_t size, const char* type,
+                           int rank, int* shape)
 {
     udaAddMalloc2(plugin_interface->logmalloclist, data, count, size, type, rank, shape);
 
@@ -531,7 +545,8 @@ int udaPluginPluginsCount(UDA_PLUGIN_INTERFACE* plugin_interface)
     return plugin_interface->pluginList->count;
 }
 
-namespace {
+namespace
+{
 int check_plugin_class(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num, int plugin_class)
 {
     auto plugin_list = plugin_interface->pluginList;
@@ -543,13 +558,14 @@ int check_plugin_class(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num, i
                      (plugin_list->plugin[plugin_num].is_private == UDA_PLUGIN_PRIVATE && !environment->external_user));
 
     if (plugin_class == UDA_PLUGIN_CLASS_FILE) {
-        is_valid |= (plugin_list->plugin[plugin_num].format[0] != '\0' && plugin_list->plugin[plugin_num].extension[0] != '\0');
+        is_valid |=
+            (plugin_list->plugin[plugin_num].format[0] != '\0' && plugin_list->plugin[plugin_num].extension[0] != '\0');
     }
 
     return is_valid;
 }
 
-}
+} // namespace
 
 int udaPluginCheckPluginClass(UDA_PLUGIN_INTERFACE* plugin_interface, int plugin_num, const char* plugin_class)
 {
@@ -604,8 +620,10 @@ void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* locat
 {
     udaLog(UDA_LOG_ERROR, msg);
     plugin_interface->error_stack.nerrors += 1;
-    plugin_interface->error_stack.idamerror = (UDA_ERROR*)realloc(plugin_interface->error_stack.idamerror, plugin_interface->error_stack.nerrors * sizeof(UDA_ERROR));
-    plugin_interface->error_stack.idamerror[plugin_interface->error_stack.nerrors - 1] = udaCreateError(UDA_CODE_ERROR_TYPE, location, code, msg);
+    plugin_interface->error_stack.idamerror = (UDA_ERROR*)realloc(
+        plugin_interface->error_stack.idamerror, plugin_interface->error_stack.nerrors * sizeof(UDA_ERROR));
+    plugin_interface->error_stack.idamerror[plugin_interface->error_stack.nerrors - 1] =
+        udaCreateError(UDA_CODE_ERROR_TYPE, location, code, msg);
 }
 
 int udaPluginIsExternal(UDA_PLUGIN_INTERFACE* plugin_interface)
@@ -681,7 +699,8 @@ int udaPluginReturnDataOrder(UDA_PLUGIN_INTERFACE* plugin_interface, int order)
     return 0;
 }
 
-int udaPluginReturnDimensionFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, int dim_n, float* data, size_t size, const char* label, const char* units)
+int udaPluginReturnDimensionFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, int dim_n, float* data, size_t size,
+                                       const char* label, const char* units)
 {
     DATA_BLOCK* data_block = plugin_interface->data_block;
 

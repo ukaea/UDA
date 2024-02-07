@@ -1,6 +1,6 @@
 #include "logging/logging.h"
-#include "udaStructs.h"
 #include "server/serverPlugin.h"
+#include "udaStructs.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/range/adaptors.hpp>

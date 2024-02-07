@@ -13,16 +13,16 @@
 #  define strlwr _strlwr
 #endif
 
+#include "client/generateErrors.h"
+#include "client/getEnvironment.h"
+#include "client/udaClient.h"
 #include "clientserver/allocData.h"
+#include "clientserver/initStructs.h"
 #include "clientserver/memstream.h"
 #include "clientserver/protocol.h"
 #include "clientserver/stringUtils.h"
 #include "clientserver/xdrlib.h"
-#include "clientserver/initStructs.h"
 #include "logging/logging.h"
-#include "client/generateErrors.h"
-#include "client/getEnvironment.h"
-#include "client/udaClient.h"
 #include "version.h"
 
 #ifdef __APPLE__
@@ -53,8 +53,6 @@ void udaPutThreadLastHandle(int handle)
 //--------------------------------------------------------------------------------------
 // C Accessor Routines
 
-
-
 //--------------------------------------------------------------
 /* Notes:
 
@@ -77,10 +75,10 @@ Rank Ordering is as follows:
 
 //! Set a client_flags->flags property
 /** Set a/multiple specific bit/s in the client_flags->flags property sent to the UDA server.
-*
-* @param flag The bit/s to be set to 1.
-* @return Void.
-*/
+ *
+ * @param flag The bit/s to be set to 1.
+ * @return Void.
+ */
 
 void udaSetClientFlag(unsigned int flag)
 {
@@ -90,10 +88,10 @@ void udaSetClientFlag(unsigned int flag)
 
 //! Reset a client_flags->flags property
 /** Reset a/multiple specific bit/s in the client_flags->flags property sent to the UDA server.
-*
-* @param flag The bit/s to be set to 0.
-* @return Void.
-*/
+ *
+ * @param flag The bit/s to be set to 0.
+ * @return Void.
+ */
 
 void udaResetClientFlag(unsigned int flag)
 {
@@ -160,7 +158,7 @@ void udaResetPrivateFlag(unsigned int flag)
 void udaSetProperty(const char* property)
 {
     auto client_flags = udaClientFlags();
-    
+
     // User settings for Client and Server behaviour
 
     char name[56];
@@ -340,7 +338,7 @@ int udaGetProperty(const char* property)
 void udaResetProperty(const char* property)
 {
     auto client_flags = udaClientFlags();
-    
+
     // User settings for Client and Server behaviour
 
     if (property[0] == 'g') {
@@ -412,7 +410,7 @@ void udaResetProperty(const char* property)
 void udaResetProperties()
 {
     auto client_flags = udaClientFlags();
-    
+
     // Reset on Both Client and Server
 
     client_flags->get_datadble = 0;
@@ -1319,8 +1317,7 @@ char* udaGetAsymmetricError(int handle, int above)
             int ndata;
 
             ndata = data_block->data_n;
-            data_block->error_type =
-                data_block->data_type; // Error Type is Unknown so Assume Data's Data Type
+            data_block->error_type = data_block->data_type; // Error Type is Unknown so Assume Data's Data Type
 
             if (allocArray(data_block->error_type, ndata, &errhi) != 0) {
                 // Allocate Heap for Regular Error Data
@@ -1603,8 +1600,7 @@ void udaGetDoubleData(int handle, double* fp)
         } else {
             generateIdamSyntheticData(handle);
             if (data_block->synthetic != nullptr) {
-                memcpy((void*)fp, (void*)data_block->synthetic,
-                       (size_t)data_block->data_n * sizeof(double));
+                memcpy((void*)fp, (void*)data_block->synthetic, (size_t)data_block->data_n * sizeof(double));
             } else {
                 memcpy((void*)fp, (void*)data_block->data, (size_t)data_block->data_n * sizeof(double));
             }
@@ -1771,8 +1767,7 @@ void udaGetFloatData(int handle, float* fp)
         } else {
             generateIdamSyntheticData(handle);
             if (data_block->synthetic != nullptr) {
-                memcpy((void*)fp, (void*)data_block->synthetic,
-                       (size_t)data_block->data_n * sizeof(float));
+                memcpy((void*)fp, (void*)data_block->synthetic, (size_t)data_block->data_n * sizeof(float));
             } else {
                 memcpy((void*)fp, (void*)data_block->data, (size_t)data_block->data_n * sizeof(float));
             }
@@ -2298,8 +2293,7 @@ void udaGetDataDescTdi(int handle, char* desc)
 int udaGetDimNum(int handle, int ndim)
 {
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return 0;
     }
     return data_block->dims[ndim].dim_n;
@@ -2314,8 +2308,7 @@ int udaGetDimNum(int handle, int ndim)
 int udaGetDimType(int handle, int ndim)
 {
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return UDA_TYPE_UNKNOWN;
     }
     return data_block->dims[ndim].data_type;
@@ -2330,8 +2323,7 @@ int udaGetDimType(int handle, int ndim)
 int udaGetDimErrorType(int handle, int ndim)
 {
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return UDA_TYPE_UNKNOWN;
     }
     return data_block->dims[ndim].error_type;
@@ -2346,8 +2338,7 @@ int udaGetDimErrorType(int handle, int ndim)
 int udaGetDimErrorAsymmetry(int handle, int ndim)
 {
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return 0;
     }
     return data_block->dims[ndim].errasymmetry;
@@ -2356,8 +2347,7 @@ int udaGetDimErrorAsymmetry(int handle, int ndim)
 void udaGetDimErrorModel(int handle, int ndim, int* model, int* param_n, float* params)
 {
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
 
         *model = ERROR_MODEL_UNKNOWN;
         *param_n = 0;
@@ -2380,8 +2370,7 @@ void udaGetDimErrorModel(int handle, int ndim, int* model, int* param_n, float* 
 char* udaGetDimData(int handle, int ndim)
 {
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return nullptr;
     }
     auto client_flags = udaClientFlags();
@@ -2400,8 +2389,7 @@ char* udaGetDimData(int handle, int ndim)
 const char* udaGetDimLabel(int handle, int ndim)
 {
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return nullptr;
     }
     return data_block->dims[ndim].dim_label;
@@ -2415,8 +2403,7 @@ const char* udaGetDimLabel(int handle, int ndim)
 const char* udaGetDimUnits(int handle, int ndim)
 {
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return nullptr;
     }
     return data_block->dims[ndim].dim_units;
@@ -2432,8 +2419,7 @@ const char* udaGetDimUnits(int handle, int ndim)
 void udaGetDimLabelTdi(int handle, int ndim, char* label)
 {
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return;
     }
     strcpy(label, data_block->dims[ndim].dim_label);
@@ -2449,8 +2435,7 @@ void udaGetDimLabelTdi(int handle, int ndim, char* label)
 void udaGetDimUnitsTdi(int handle, int ndim, char* units)
 {
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return;
     }
     strcpy(units, data_block->dims[ndim].dim_units);
@@ -2468,15 +2453,13 @@ void udaGetDoubleDimData(int handle, int ndim, double* fp)
     // **** The double array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
 
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return;
     }
     auto client_flags = udaClientFlags();
     if (data_block->dims[ndim].data_type == UDA_TYPE_DOUBLE) {
         if (!client_flags->get_synthetic) {
-            memcpy((void*)fp, (void*)data_block->dims[ndim].dim,
-                   (size_t)data_block->dims[ndim].dim_n * sizeof(double));
+            memcpy((void*)fp, (void*)data_block->dims[ndim].dim, (size_t)data_block->dims[ndim].dim_n * sizeof(double));
         } else {
             generateIdamSyntheticDimData(handle, ndim);
             if (data_block->dims[ndim].synthetic != nullptr) {
@@ -2626,15 +2609,13 @@ void udaGetFloatDimData(int handle, int ndim, float* fp)
     // **** The float array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
 
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return;
     }
     auto client_flags = udaClientFlags();
     if (data_block->dims[ndim].data_type == UDA_TYPE_FLOAT) {
         if (!client_flags->get_synthetic) {
-            memcpy((void*)fp, (void*)data_block->dims[ndim].dim,
-                   (size_t)data_block->dims[ndim].dim_n * sizeof(float));
+            memcpy((void*)fp, (void*)data_block->dims[ndim].dim, (size_t)data_block->dims[ndim].dim_n * sizeof(float));
         } else {
             generateIdamSyntheticDimData(handle, ndim);
             if (data_block->dims[ndim].synthetic != nullptr) {
@@ -2805,8 +2786,7 @@ void udaGetGenericDimData(int handle, int ndim, void* data)
             memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(char));
             break;
         case UDA_TYPE_UNSIGNED_INT:
-            memcpy(data, (void*)udaGetDimData(handle, ndim),
-                   (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned int));
+            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned int));
             break;
         case UDA_TYPE_UNSIGNED_LONG:
             memcpy(data, (void*)udaGetDimData(handle, ndim),
@@ -2842,8 +2822,7 @@ void udaGetGenericDimData(int handle, int ndim, void* data)
 DIMS* udaGetDimBlock(int handle, int ndim)
 {
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return nullptr;
     }
     return data_block->dims + ndim;
@@ -2852,8 +2831,7 @@ DIMS* udaGetDimBlock(int handle, int ndim)
 char* udaGetDimAsymmetricError(int handle, int ndim, int above)
 {
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return nullptr;
     }
     if (data_block->dims[ndim].error_type != UDA_TYPE_UNKNOWN) {
@@ -3117,8 +3095,7 @@ char* udaGetDimError(int handle, int ndim)
 {
     int above = 1;
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return nullptr;
     }
     return udaGetDimAsymmetricError(handle, ndim, above);
@@ -3129,8 +3106,7 @@ void udaGetFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
     // Copy Error Data cast as float to User Provided Array
 
     auto data_block = getDataBlock(handle);
-    if (data_block == nullptr || ndim < 0 ||
-        (unsigned int)ndim >= data_block->rank) {
+    if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
         return;
     }
 
@@ -3457,8 +3433,7 @@ int udaGetDataCheckSum(int handle)
         return 0;
     }
 
-    return (
-        idamDataCheckSum((void*)data_block->data, data_block->data_n, data_block->data_type));
+    return (idamDataCheckSum((void*)data_block->data, data_block->data_n, data_block->data_type));
 }
 
 int udaGetDimDataCheckSum(int handle, int ndim)
@@ -3482,8 +3457,8 @@ int udaGetDimDataCheckSum(int handle, int ndim)
 // Access to (De)Serialiser
 
 void udaGetClientSerialisedDataBlock(int handle, void** object, size_t* objectSize, char** key, size_t* keySize,
-                                      int protocolVersion, LOGSTRUCTLIST* log_struct_list, int private_flags,
-                                      int malloc_source)
+                                     int protocolVersion, LOGSTRUCTLIST* log_struct_list, int private_flags,
+                                     int malloc_source)
 {
     // Extract the serialised Data Block from Cache or serialise it if not cached (hash key in Data Block, empty if not
     // cached) Use Case: extract data in object form for storage in external data object store, e.g. CEPH, HDF5
@@ -3544,8 +3519,12 @@ void udaGetClientSerialisedDataBlock(int handle, void** object, size_t* objectSi
 
 int udaSetDataTree(int handle)
 {
-    if (udaGetDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) return 0;    // Return FALSE
-    if (udaGetData(handle) == nullptr) return 0;
+    if (udaGetDataOpaqueType(handle) != UDA_OPAQUE_TYPE_STRUCTURES) {
+        return 0; // Return FALSE
+    }
+    if (udaGetData(handle) == nullptr) {
+        return 0;
+    }
 
     udaSetFullNTree((NTREE*)udaGetData(handle));
     void* opaque_block = udaGetDataOpaqueBlock(handle);

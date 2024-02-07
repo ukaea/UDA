@@ -1,8 +1,8 @@
 #ifndef UDA_SERVER_SERVERPLUGIN_H
 #define UDA_SERVER_SERVERPLUGIN_H
 
-#include "plugins.hpp"
 #include "clientserver/udaStructs.h"
+#include "plugins.hpp"
 #include "uda/types.h"
 
 #define REQUEST_READ_START 1000
@@ -11,7 +11,7 @@
 
 typedef struct PluginList PLUGINLIST;
 
-typedef struct UdaPluginInterface {  // Standard Plugin interface
+typedef struct UdaPluginInterface {   // Standard Plugin interface
     unsigned short interfaceVersion;  // Interface Version
     unsigned short pluginVersion;     // Plugin Version
     unsigned short sqlConnectionType; // Which SQL is the server connected to
@@ -41,7 +41,8 @@ namespace uda
 class Plugins;
 struct MetadataBlock;
 
-namespace server {
+namespace server
+{
 class Environment;
 }
 

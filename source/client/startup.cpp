@@ -17,8 +17,8 @@
 
 #include <cerrno>
 
-#include "clientserver/udaErrors.h"
 #include "clientserver/errorLog.h"
+#include "clientserver/udaErrors.h"
 #include "logging/logging.h"
 
 #include "getEnvironment.h"

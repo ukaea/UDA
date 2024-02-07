@@ -7,9 +7,9 @@
 #include "get_plugin_address.hpp"
 #include "plugins.hpp"
 
+#include "clientserver/errorLog.h"
 #include "clientserver/stringUtils.h"
 #include "logging/logging.h"
-#include "clientserver/errorLog.h"
 #include "uda/plugins.h"
 
 #define REQUEST_READ_START 1000

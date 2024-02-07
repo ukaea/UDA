@@ -3,13 +3,13 @@
 /* Header for class Idam */
 
 #ifndef _Included_Idam
-#define _Included_Idam
+#  define _Included_Idam
 
-#include <uda/export.h>
+#  include <uda/export.h>
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 extern "C" {
-#endif
+#  endif
 /*
  * Class:     Idam
  * Method:    udaGetAPI
@@ -416,8 +416,8 @@ JNIEXPORT jint JNICALL Java_Idam_sumArray1(JNIEnv*, jclass, jintArray);
  */
 JNIEXPORT jint JNICALL Java_Idam_sumArray2(JNIEnv*, jclass, jintArray);
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 }
-#endif
+#  endif
 
 #endif

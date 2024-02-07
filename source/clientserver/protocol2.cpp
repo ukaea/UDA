@@ -25,8 +25,8 @@
 
 #include <cstdlib>
 
-#include <uda/types.h>
 #include "logging/logging.h"
+#include <uda/types.h>
 
 #include "allocData.h"
 #include "compressDim.h"

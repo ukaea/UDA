@@ -6,8 +6,8 @@
 #include "cache/memcache.hpp"
 #include "clientserver/errorLog.h"
 #include "clientserver/stringUtils.h"
-#include "uda/plugins.h"
 #include "server/serverPlugin.h"
+#include "uda/plugins.h"
 
 #include "getPluginAddress.h"
 
