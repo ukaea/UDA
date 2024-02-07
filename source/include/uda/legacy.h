@@ -829,7 +829,7 @@ inline LOGMALLOCLIST* getIdamLogMallocList(int handle)
     return udaGetLogMallocList(handle);
 }
 
-inline NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target)
+inline NTREE* udaFindIdamNTreeStructureDefinition(NTREE* node, const char* target)
 {
     return findNTreeStructureDefinition(node, target);
 }

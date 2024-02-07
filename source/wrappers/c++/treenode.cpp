@@ -56,13 +56,13 @@ std::string uda::TreeNode::name() const
 
 uda::TreeNode uda::TreeNode::findStructureDefinition(const std::string& name)
 {
-    return {handle_, findNTreeStructureDefinition(node_, (char*)name.c_str())};
+    return {handle_, udaFindNTreeStructureDefinition(node_, (char *) name.c_str())};
 }
 
 uda::TreeNode uda::TreeNode::findStructureComponent(const std::string& name)
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
-    return {handle_, findNTreeStructureComponent(logmalloclist, node_, (char*)name.c_str())};
+    return {handle_, udaFindNTreeStructureComponent(logmalloclist, node_, (char *) name.c_str())};
 }
 
 int uda::TreeNode::structureCount()
@@ -183,7 +183,7 @@ uda::Scalar uda::TreeNode::atomicScalar(const std::string& target)
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
     NTREE* node =
-        findNTreeStructureComponent(logmalloclist, node_, (char*)target.c_str()); // Locate the named variable target
+            udaFindNTreeStructureComponent(logmalloclist, node_, (char *) target.c_str()); // Locate the named variable target
     // NTREE * node = udaFindNTreeStructureComponent(node_, target.c_str()); // Locate the named variable target
     if (node == nullptr) {
         return Scalar::Null;
@@ -313,7 +313,7 @@ uda::Vector getStringVector(LOGMALLOCLIST* logmalloclist, NTREE* node, const std
 uda::Vector uda::TreeNode::atomicVector(const std::string& target)
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
-    NTREE* node = findNTreeStructureComponent(logmalloclist, node_, (char*)target.c_str());
+    NTREE* node = udaFindNTreeStructureComponent(logmalloclist, node_, (char *) target.c_str());
     // NTREE * node = udaFindNTreeStructureComponent(node_, (char *)target.c_str()); // Locate the named variable target
     if (node == nullptr) {
         return Vector::Null;
@@ -428,7 +428,7 @@ static uda::Array getArray(LOGMALLOCLIST* logmalloclist, NTREE* node, const std:
 uda::Array uda::TreeNode::atomicArray(const std::string& target)
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
-    NTREE* node = findNTreeStructureComponent(logmalloclist, node_, (char*)target.c_str());
+    NTREE* node = udaFindNTreeStructureComponent(logmalloclist, node_, (char *) target.c_str());
     // NTREE * node = udaFindNTreeStructureComponent(node_, (char *)target.c_str()); // Locate the named variable target
     if (node == nullptr) {
         return Array::Null;
@@ -484,7 +484,7 @@ uda::Array uda::TreeNode::atomicArray(const std::string& target)
 uda::StructData uda::TreeNode::structData(const std::string& target)
 {
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle_);
-    NTREE* node = findNTreeStructureComponent(logmalloclist, node_, (char*)target.c_str());
+    NTREE* node = udaFindNTreeStructureComponent(logmalloclist, node_, (char *) target.c_str());
     if (node == nullptr) {
         return StructData::Null;
     }

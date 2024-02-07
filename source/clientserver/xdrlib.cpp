@@ -18,6 +18,7 @@
 #include "errorLog.h"
 #include "printStructs.h"
 #include "stringUtils.h"
+#include "structures/struct.h"
 
 //-----------------------------------------------------------------------
 // Test version's type passing capability

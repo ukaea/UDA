@@ -59,6 +59,7 @@
 
 #include "clientserver/memstream.h"
 #include "logging/logging.h"
+#include "structures/struct.h"
 
 #include "errorLog.h"
 #include "protocol.h"

@@ -13,7 +13,7 @@
 #include "clientserver/xdrlib.h"
 #include "logging/accessLog.h"
 #include "server/serverPlugin.h"
-#include <structures/parseIncludeFile.h>
+#include "structures/struct.h"
 
 #include "createXDRStream.h"
 #include "getServerEnvironment.h"

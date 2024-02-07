@@ -17,6 +17,7 @@
 #include "clientserver/protocol.h"
 #include "clientserver/userid.h"
 #include "logging/logging.h"
+#include "structures/struct.h"
 
 #include "closedown.h"
 

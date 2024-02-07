@@ -15,6 +15,7 @@
 #include "logging/accessLog.h"
 #include "logging/logging.h"
 #include "server/serverPlugin.h"
+#include "structures/struct.h"
 
 #include "closeServerSockets.h"
 #include "createXDRStream.h"

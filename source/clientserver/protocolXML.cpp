@@ -69,6 +69,7 @@
 #include "udaErrors.h"
 #include "xdrlib.h"
 #include "protocolXML2.h"
+#include "structures/struct.h"
 
 #ifdef HIERARCHICAL_DATA
 #  include "allocXMLData.h"

@@ -18,6 +18,7 @@
 #include "clientserver/stringUtils.h"
 #include "server/getServerEnvironment.h"
 #include "structures/accessors.h"
+#include "structures/struct.h"
 
 UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {

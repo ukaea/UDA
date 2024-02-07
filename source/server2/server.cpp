@@ -15,6 +15,7 @@
 #include "server_exceptions.h"
 #include "server_plugin.h"
 #include "server_processing.h"
+#include "structures/struct.h"
 
 #ifdef SSLAUTHENTICATION
 #  include "authentication/udaServerSSL.h"

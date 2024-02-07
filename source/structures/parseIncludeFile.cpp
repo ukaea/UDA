@@ -29,6 +29,7 @@
 #include "clientserver/udaDefines.h"
 #include "clientserver/errorLog.h"
 #include "clientserver/stringUtils.h"
+#include "struct.h"
 
 int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* header)
 {

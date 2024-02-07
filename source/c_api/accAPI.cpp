@@ -3614,7 +3614,7 @@ LOGMALLOCLIST* udaGetLogMallocList(int handle)
     return ((GENERAL_BLOCK*)opaque_block)->logmalloclist;
 }
 
-NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target)
+NTREE* udaFindIdamNTreeStructureDefinition(NTREE* node, const char* target)
 {
-    return findNTreeStructureDefinition(node, target);
+    return udaFindNTreeStructureDefinition(node, target);
 }

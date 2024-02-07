@@ -17,7 +17,6 @@
 #endif
 
 #include "clientserver/initStructs.h"
-#include "cache/memcache.hpp"
 #include "clientserver/errorLog.h"
 #include "clientserver/expand_path.h"
 #include "clientserver/makeRequestBlock.h"
@@ -25,7 +24,7 @@
 #include "clientserver/stringUtils.h"
 #include "logging/logging.h"
 #include "uda/plugins.h"
-#include "uda/structured.h"
+#include "structures/struct.h"
 
 #define REQUEST_READ_START 1000
 #define REQUEST_PLUGIN_MCOUNT 100 // Maximum initial number of plugins that can be registered

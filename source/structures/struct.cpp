@@ -36,6 +36,8 @@
 //
 //
 //==============================================================================================================
+#include "struct.h"
+
 #include "accessors.h"
 #include "genStructs.h"
 
@@ -2657,7 +2659,7 @@ COMPOUNDFIELD* getNodeStructureComponent(LOGMALLOCLIST* logmalloclist, NTREE* nt
     }
 
     // Locate the Node with a Structure Component
-    ntree = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
+    ntree = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
 
     if (ntree != nullptr) {
         userdefinedtype = ntree->userdefinedtype;
@@ -2760,7 +2762,7 @@ void udaPrintNodeStructureDefinition(const char* target)
 {
     NTREE* ntree = nullptr;
     if (target[0] != '\0') {
-        if ((ntree = findNTreeStructureDefinition(ntree, target)) == nullptr) {
+        if ((ntree = udaFindNTreeStructureDefinition(ntree, target)) == nullptr) {
             UDA_LOG(UDA_LOG_DEBUG, "the Structure Definition for %s could not be Found\n", target);
             return;
         }
@@ -2779,7 +2781,7 @@ void udaPrintNodeStructureImage(const char* target)
 {
     NTREE* ntree = nullptr;
     if (target[0] != '\0') {
-        if ((ntree = findNTreeStructureDefinition(ntree, target)) == nullptr) {
+        if ((ntree = udaFindNTreeStructureDefinition(ntree, target)) == nullptr) {
             UDA_LOG(UDA_LOG_DEBUG, "the Structure Definition for %s could not be Found\n", target);
             return;
         }
@@ -2858,7 +2860,7 @@ void* udaGetNodeStructureArrayData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, i
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
-    if (getNodeStructureDataCount(logmalloclist, ntree) < (index + 1)) {
+    if (udaGetNodeStructureDataCount(logmalloclist, ntree) < (index + 1)) {
         udaAddError(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureArrayData", 999,
                     "The Tree Node array index > allocated array dimension");
         return nullptr;
@@ -3555,7 +3557,7 @@ int udaGetNodeStructureComponentDataCount(LOGMALLOCLIST* logmalloclist, NTREE* n
         ntree = udaGetFullNTree();
     }
     ntree =
-        findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return 0;
     }
@@ -3602,7 +3604,7 @@ int udaGetNodeStructureComponentDataRank(LOGMALLOCLIST* logmalloclist, NTREE* nt
         ntree = udaGetFullNTree();
     }
     ntree =
-        findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return 0;
     }
@@ -3646,7 +3648,7 @@ int* udaGetNodeStructureComponentDataShape(LOGMALLOCLIST* logmalloclist, NTREE* 
         ntree = udaGetFullNTree();
     }
     ntree =
-        findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return nullptr;
     }
@@ -3688,7 +3690,7 @@ int udaGetNodeStructureComponentDataIsPointer(LOGMALLOCLIST* logmalloclist, NTRE
         ntree = udaGetFullNTree();
     }
     ntree =
-        findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return 0;
     }
@@ -3720,7 +3722,7 @@ int udaGetNodeStructureComponentDataSize(LOGMALLOCLIST* logmalloclist, NTREE* nt
         ntree = udaGetFullNTree();
     }
     ntree =
-        findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return 0;
     }
@@ -3760,7 +3762,7 @@ const char* udaGetNodeStructureComponentDataDataType(LOGMALLOCLIST* logmalloclis
         ntree = udaGetFullNTree();
     }
     ntree =
-        findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return "unknown";
     }
@@ -3800,7 +3802,7 @@ void* udaGetNodeStructureComponentData(LOGMALLOCLIST* logmalloclist, NTREE* ntre
         ntree = udaGetFullNTree();
     }
     ntree =
-        findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
+            udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Identify node and component name
     if (ntree == nullptr) {
         return nullptr;
     }
@@ -3849,7 +3851,7 @@ void udaPrintNodeStructureComponentData(NTREE* ntree, LOGMALLOCLIST* logmallocli
         ntree = udaGetFullNTree();
     }
 
-    node = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Locate the Node
+    node = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname); // Locate the Node
     if (ntree == nullptr) {
         return;
     }
@@ -3961,7 +3963,7 @@ void udaPrintNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
     anamelist = udaGetNodeAtomicNames(logmalloclist, ntree);
     scount = udaGetNodeStructureCount(ntree); // Count of the Tree Node Structure structure type components
     snamelist = udaGetNodeStructureNames(logmalloclist, ntree);
-    count = getNodeStructureDataCount(logmalloclist, ntree); // Count of the Tree Node Structure Array elements
+    count = udaGetNodeStructureDataCount(logmalloclist, ntree); // Count of the Tree Node Structure Array elements
 
     node = ntree; // Start at the base node: all other structure array elements are sibling nodes
 
@@ -3999,7 +4001,7 @@ void udaPrintNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
 
             // Structured components must be children of this node.
 
-            if ((node2 = findNTreeStructure(logmalloclist, node, snamelist[i])) != nullptr) {
+            if ((node2 = udaFindNTreeStructure(logmalloclist, node, snamelist[i])) != nullptr) {
                 udaPrintNodeStructure(logmalloclist, node2);
             } else {
                 UDA_LOG(UDA_LOG_DEBUG, "%40s: null\n", snamelist[i]);
@@ -4025,7 +4027,7 @@ float* udaCastNodeStructureComponentDatatoFloat(LOGMALLOCLIST* logmalloclist, NT
         ntree = udaGetFullNTree();
     }
 
-    node = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
+    node = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
     if (ntree == nullptr) {
         return nullptr;
     }
@@ -4077,7 +4079,7 @@ double* castNodeStructureComponentDatatoDouble(LOGMALLOCLIST* logmalloclist, NTR
         ntree = udaGetFullNTree();
     }
 
-    node = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
+    node = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
     if (ntree == nullptr) {
         return nullptr;
     }
@@ -4592,7 +4594,7 @@ short* udaCastNodeStructureComponentDatatoShort(LOGMALLOCLIST* logmalloclist, NT
         ntree = udaGetFullNTree();
     }
 
-    node = findNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
+    node = udaFindNTreeStructureComponent2(logmalloclist, ntree, target, &lastname);
     if (ntree == nullptr) {
         return nullptr;
     }

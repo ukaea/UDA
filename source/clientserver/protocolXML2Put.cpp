@@ -10,6 +10,7 @@
 #include "protocol.h"
 #include "stringUtils.h"
 #include "xdrlib.h"
+#include "structures/struct.h"
 
 #ifdef SERVERBUILD
 #  include "server/serverStartup.h"
