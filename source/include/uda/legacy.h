@@ -738,12 +738,12 @@ inline const char* getIdamFileFormat(int handle)
 
 inline void initIdamDataBlock(DATA_BLOCK* str)
 {
-    return udaInitDataBlock(str);
+    return initDataBlock(str);
 }
 
 inline void initIdamRequestBlock(REQUEST_BLOCK* str)
 {
-    return udaInitRequestBlock(str);
+    return initRequestBlock(str);
 }
 
 /*
@@ -794,16 +794,6 @@ inline int getIdamMaxThreadCount()
     return udaGetMaxThreadCount();
 }
 
-inline SERVER_BLOCK getIdamThreadServerBlock()
-{
-    return udaGetThreadServerBlock();
-}
-
-inline CLIENT_BLOCK getIdamThreadClientBlock()
-{
-    return udaGetThreadClientBlock();
-}
-
 inline void putIdamThreadServerBlock(SERVER_BLOCK* str)
 {
     return udaPutThreadServerBlock(str);
@@ -841,7 +831,7 @@ inline LOGMALLOCLIST* getIdamLogMallocList(int handle)
 
 inline NTREE* findIdamNTreeStructureDefinition(NTREE* node, const char* target)
 {
-    return udaFindNTreeStructureDefinition(node, target);
+    return findNTreeStructureDefinition(node, target);
 }
 
 /*
@@ -940,12 +930,12 @@ inline int idam_regulariseVlenData(LOGMALLOCLIST* logmalloclist, NTREE* tree, US
 
 inline void initUdaErrorStack()
 {
-    return udaInitErrorStack();
+    return initErrorStack();
 }
 
 inline void initErrorRecords(const UDA_ERROR_STACK* errorstack)
 {
-    return udaInitErrorRecords(errorstack);
+    return initErrorRecords(errorstack);
 }
 
 inline void printIdamErrorStack()

@@ -9,7 +9,7 @@ void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
     if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {
         free(putDataBlockList->putDataBlock);
     }
-    //    udaInitPutDataBlockList(putDataBlockList);
+    //    initPutDataBlockList(putDataBlockList);
 }
 
 // void freeRequestData(REQUEST_DATA* request_data)
@@ -33,7 +33,7 @@ void freeClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
     if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {
         free(putDataBlockList->putDataBlock);
     }
-    //    udaInitPutDataBlockList(putDataBlockList);
+    //    initPutDataBlockList(putDataBlockList);
 }
 
 void freeDataBlock(DATA_BLOCK* data_block)

@@ -344,7 +344,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                             data_block->dims = (DIMS*)realloc((void*)data_block->dims, rank * sizeof(DIMS));
 
                             for (int k = k0; k < rank; k++) {
-                                udaInitDimBlock(&data_block->dims[k]);
+                                initDimBlock(&data_block->dims[k]);
                                 if (shape == nullptr) {
                                     data_block->dims[k].dim_n = data_n;
                                 } else {
@@ -367,7 +367,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
                                     (DIMS*)realloc((void*)data_block->dims, data_block->rank * sizeof(DIMS));
 
                                 for (unsigned int k = k0; k < data_block->rank; k++) {
-                                    udaInitDimBlock(&data_block->dims[k]);
+                                    initDimBlock(&data_block->dims[k]);
                                     data_block->dims[k].dim_n = udt->compoundfield[i].shape[k - k0];
                                     data_block->dims[k].data_type = UDA_TYPE_UNSIGNED_INT;
                                     data_block->dims[k].compressed = 1;
@@ -414,7 +414,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             //----------------------------------------------------------------------------------------------------------------------------
             // Decompress the dimensional data if necessary & free Heap Associated with Compression
 
-            udaInitDimBlock(&newdim); // Holder for the Subsetted Dimension (part copy of the original)
+            initDimBlock(&newdim); // Holder for the Subsetted Dimension (part copy of the original)
 
             dim = &(data_block->dims[dimid]); // the original dimension to be subset
 
@@ -891,7 +891,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             if (p1 == nullptr) {
                 count[0] = (unsigned int)data_block->data_n;
                 freeDataBlock(data_block);
-                udaInitDataBlock(data_block);
+                initDataBlock(data_block);
                 data_block->data_n = 1;
                 data_block->data = (char*)count;
                 data_block->data_type = UDA_TYPE_UNSIGNED_INT;

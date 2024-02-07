@@ -16,7 +16,7 @@ void initSystemConfig(SYSTEM_CONFIG* str);
 void initDataSource(DATA_SOURCE* str);
 void initSignal(SIGNAL* str);
 void initSignalDesc(SIGNAL_DESC* str);
-void initIdamPutDataBlock(PUTDATA_BLOCK* str);
+void initPutDataBlock(PUTDATA_BLOCK* str);
 void initPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
 
 #endif // UDA_CLIENTSERVER_INITSTRUCTS_H

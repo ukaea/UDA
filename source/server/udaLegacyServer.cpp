@@ -60,7 +60,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
     ACTIONS actions_sig;
 
     LOGSTRUCTLIST log_struct_list;
-    udaInitLogStructList(&log_struct_list);
+    initLogStructList(&log_struct_list);
 
     int server_tot_block_time = 0;
     int server_timeout = TIMEOUT; // user specified Server Lifetime
@@ -73,10 +73,10 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
 
-    udaInitErrorStack();
+    initErrorStack();
 
-    udaInitServerBlock(&server_block, server_version);
-    udaInitDataBlock(&data_block);
+    initServerBlock(&server_block, server_version);
+    initDataBlock(&data_block);
     initActions(&actions_desc); // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
 
@@ -98,13 +98,13 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             // Initialise the Client Structure - only if this is not the first time in the wait loop
 
             if (normalLegacyWait) {
-                udaInitClientBlock(&client_block, 0, "");
+                initClientBlock(&client_block, 0, "");
             }
 
             //----------------------------------------------------------------------------
             // Initialise the Request Structure
 
-            udaInitRequestBlock(&request_block);
+            initRequestBlock(&request_block);
 
             //----------------------------------------------------------------------------
             // Client and Server States
@@ -311,16 +311,16 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             //----------------------------------------------------------------------
             // Initialise Data Structures
 
-            udaInitDataSource(&data_source);
-            udaInitSignalDesc(&signal_desc);
-            udaInitSignal(&signal_rec);
+            initDataSource(&data_source);
+            initSignalDesc(&signal_desc);
+            initSignal(&signal_rec);
 
             //----------------------------------------------------------------------------------------------
             // If this is a PUT request then receive the putData structure
 
             REQUEST_DATA* request_data = &request_block.requests[0];
 
-            udaInitPutDataBlockList(&(request_data->putDataBlockList));
+            initPutDataBlockList(&(request_data->putDataBlockList));
 
             if (request_data->put) {
 
@@ -750,8 +750,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
         UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
         udaCloseError();
 
-        UDA_LOG(UDA_LOG_DEBUG, "udaInitServerBlock\n");
-        udaInitServerBlock(&server_block, server_version);
+        UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
+        initServerBlock(&server_block, server_version);
 
         UDA_LOG(UDA_LOG_DEBUG, "At End of Error Trap\n");
 

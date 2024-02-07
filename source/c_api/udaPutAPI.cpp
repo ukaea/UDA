@@ -45,7 +45,7 @@ int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlock
         putDataBlockList = inPutDataBlockList;
     } else {
         putDataBlockList = &emptyPutDataBlockList;
-        udaInitPutDataBlockList(putDataBlockList);
+        initPutDataBlockList(putDataBlockList);
     }
 
     //-------------------------------------------------------------------------
@@ -72,7 +72,7 @@ int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlock
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
 
-    udaInitRequestBlock(&request_block);
+    initRequestBlock(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
@@ -123,7 +123,7 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
         putData = inPutData;
     } else {
         putData = &emptyPutDataBlock;
-        udaInitPutDataBlock(putData);
+        initPutDataBlock(putData);
     }
 
     //-------------------------------------------------------------------------
@@ -151,7 +151,7 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
 
-    udaInitRequestBlock(&request_block);
+    initRequestBlock(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)

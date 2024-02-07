@@ -571,10 +571,10 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
             initActions(&actions_comp_desc2);
             initActions(&actions_comp_sig2);
-            udaInitDataBlock(&data_block2);
-            udaInitDataSource(&data_source2);
-            udaInitSignal(&signal_rec2);
-            udaInitSignalDesc(&signal_desc2);
+            initDataBlock(&data_block2);
+            initDataSource(&data_source2);
+            initSignal(&signal_rec2);
+            initSignalDesc(&signal_desc2);
 
             // Check if the source file was originally defined in the client API?
 
@@ -618,7 +618,7 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
             initActions(&actions_comp_desc2);
             initActions(&actions_comp_sig2);
-            udaInitDataBlock(&data_block2);
+            initDataBlock(&data_block2);
 
             // Check if the source file was originally defined in the client API?
 
@@ -700,8 +700,8 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
                     initActions(&actions_comp_desc2);
                     initActions(&actions_comp_sig2);
-                    udaInitDataBlock(&data_block2);
-                    udaInitSignalDesc(&signal_desc2); // Added 06Nov2008
+                    initDataBlock(&data_block2);
+                    initSignalDesc(&signal_desc2); // Added 06Nov2008
 
                     // Check if the source file was originally defined in the client API?
 
@@ -771,7 +771,7 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
                     initActions(&actions_comp_desc2);
                     initActions(&actions_comp_sig2);
-                    udaInitDataBlock(&data_block2);
+                    initDataBlock(&data_block2);
 
                     // Check if the source file was originally defined in the client API?
 
@@ -817,7 +817,7 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
                     initActions(&actions_comp_desc2);
                     initActions(&actions_comp_sig2);
-                    udaInitDataBlock(&data_block2);
+                    initDataBlock(&data_block2);
 
                     // Check if the source file was originally defined in the client API?
 
@@ -1091,7 +1091,7 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
 
         // Initialise the Data Block
 
-        udaInitDataBlock(data_block);
+        initDataBlock(data_block);
 
         auto plugin_list = plugins_.as_plugin_list();
         plugin_interface.interfaceVersion = 1;
@@ -1246,7 +1246,7 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
     //----------------------------------------------------------------------------
     // Initialise the Data Block Structure
 
-    udaInitDataBlock(data_block);
+    initDataBlock(data_block);
 
     //----------------------------------------------------------------------------
     // Status values

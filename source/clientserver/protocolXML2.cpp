@@ -176,7 +176,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
                     if (udt == nullptr || u == nullptr) {
                         err = 999;
                         UDA_LOG(UDA_LOG_DEBUG, "nullptr SARRAY User defined data Structure Definition\n");
-                        udaPrintUserDefinedTypeListTable(*userdefinedtypelist);
+                        printUserDefinedTypeListTable(*userdefinedtypelist);
                         udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
                                     "nullptr User defined data Structure Definition");
                         break;
@@ -184,7 +184,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
 
                     UDA_LOG(UDA_LOG_DEBUG, "Creating SARRAY carrier structure\n");
 
-                    udaInitSArray(&sarray);
+                    initSArray(&sarray);
                     sarray.count = data_block->data_n;     // Number of this structure
                     sarray.rank = 1;                       // Array Data Rank?
                     sarray.shape = &shape;                 // Only if rank > 1?
@@ -307,7 +307,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
                     // Send the data
 
                     // send the full set of known named structures
-                    rc = rc && udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
+                    rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
                     UDA_LOG(UDA_LOG_DEBUG, "Structure Definitions sent: rc = %d\n", rc);
 
@@ -326,7 +326,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
                         break;
                     }
 
-                    rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
+                    rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data,
                                                          protocolVersion, xdr_stdio_flag, log_struct_list,
                                                          malloc_source); // send the Data
 
@@ -601,12 +601,12 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
                     // Unpack data structures
                     if (option == 1 || option == 2 || option == 5) {
                         logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-                        udaInitLogMallocList(logmalloclist);
+                        initLogMallocList(logmalloclist);
 
                         userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
                         auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
 
-                        udaInitUserDefinedTypeList(userdefinedtypelist);
+                        initUserDefinedTypeList(userdefinedtypelist);
 
                         UDA_LOG(UDA_LOG_DEBUG, "xdr_userdefinedtypelist #A\n");
 
@@ -687,7 +687,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
 #endif
 
                         // receive the full set of known named structures
-                        rc = rc && udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
+                        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
                         UDA_LOG(UDA_LOG_DEBUG, "xdr_userdefinedtypelist #B\n");
 
@@ -707,9 +707,9 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
                         }
 
                         UDA_LOG(UDA_LOG_DEBUG, "udaXDRUserDefinedTypeData #A\n");
-                        udaInitUserDefinedType(udt_received);
+                        initUserDefinedType(udt_received);
 
-                        rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                              &data, protocolVersion, xdr_stdio_flag, log_struct_list,
                                                              malloc_source); // receive the Data
 
@@ -873,12 +873,12 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
                             // Unpack the data Structures
 
                             logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-                            udaInitLogMallocList(logmalloclist);
+                            initLogMallocList(logmalloclist);
 
                             userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
                             USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
 
-                            udaInitUserDefinedTypeList(userdefinedtypelist);
+                            initUserDefinedTypeList(userdefinedtypelist);
 
                             // Close current input xdr stream and create a memory stream
 
@@ -887,7 +887,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
                             xdrs = &XDRInput; // Switch from TCP stream to memory based object
 
                             // receive the full set of known named structures
-                            rc = udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
+                            rc = xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
                             if (!rc) {
                                 err = 999;
@@ -901,10 +901,10 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
                                 break;
                             }
 
-                            udaInitUserDefinedType(udt_received);
+                            initUserDefinedType(udt_received);
 
                             rc =
-                                rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                                 &data, protocolVersion, xdr_stdio_flag, log_struct_list,
                                                                 malloc_source); // receive the Data
 
@@ -1001,12 +1001,12 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
                             // Unpack the data Structures
 
                             logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-                            udaInitLogMallocList(logmalloclist);
+                            initLogMallocList(logmalloclist);
 
                             userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
                             USERDEFINEDTYPE* udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
 
-                            udaInitUserDefinedTypeList(userdefinedtypelist);
+                            initUserDefinedTypeList(userdefinedtypelist);
 
                             // Create input xdr file stream
 
@@ -1021,7 +1021,7 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
                             xdrstdio_create(&XDRInput, xdrfile, XDR_DECODE);
                             xdrs = &XDRInput;
 
-                            rc = udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
+                            rc = xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
                             // receive the full set of known named structures
 
                             if (!rc) {
@@ -1036,10 +1036,10 @@ int protocolXML2(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLO
                                 break;
                             }
 
-                            udaInitUserDefinedType(udt_received);
+                            initUserDefinedType(udt_received);
 
                             rc =
-                                rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
+                                rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                                 &data, protocolVersion, xdr_stdio_flag, log_struct_list,
                                                                 malloc_source); // receive the Data
 
@@ -1188,12 +1188,12 @@ int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filena
     // Unpack the data Structures
 
     logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-    udaInitLogMallocList(logmalloclist);
+    initLogMallocList(logmalloclist);
 
     auto userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
     auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
 
-    udaInitUserDefinedTypeList(userdefinedtypelist);
+    initUserDefinedTypeList(userdefinedtypelist);
 
     // Close current input xdr stream and create a file stream
 
@@ -1211,7 +1211,7 @@ int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filena
 
         // Unpack the associated set of named structures
 
-        rc = udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
+        rc = xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
         if (!rc) {
             err = 999;
@@ -1226,9 +1226,9 @@ int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filena
 
         // Unpack the Data
 
-        udaInitUserDefinedType(udt_received);
+        initUserDefinedType(udt_received);
 
-        rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
+        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
                                              protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
 
         if (!rc) {
@@ -1304,12 +1304,12 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
     // Unpack the data Structures
 
     logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-    udaInitLogMallocList(logmalloclist);
+    initLogMallocList(logmalloclist);
 
     auto userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
     auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
 
-    udaInitUserDefinedTypeList(userdefinedtypelist);
+    initUserDefinedTypeList(userdefinedtypelist);
 
     // Create a memory stream
 
@@ -1321,7 +1321,7 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
 
         // Unpack the associated set of named structures
 
-        rc = udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
+        rc = xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
         if (!rc) {
             err = 999;
@@ -1336,9 +1336,9 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
 
         // Unpack the Data
 
-        udaInitUserDefinedType(udt_received);
+        initUserDefinedType(udt_received);
 
-        rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
+        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
                                              protocolVersion, xdr_stdio_flag, log_struct_list, malloc_source);
 
         if (!rc) {

@@ -1,5 +1,5 @@
-#ifndef UDA_LOGGING_IDAMLOG_H
-#define UDA_LOGGING_IDAMLOG_H
+#ifndef UDA_LOGGING_LOGGING_H
+#define UDA_LOGGING_LOGGING_H
 
 #include <stdio.h>
 #include <string.h>
@@ -59,4 +59,4 @@ void udaLog(LOG_LEVEL mode, const char* fmt, ...);
 }
 #endif
 
-#endif // UDA_LOGGING_IDAMLOG_H
+#endif // UDA_LOGGING_LOGGING_H

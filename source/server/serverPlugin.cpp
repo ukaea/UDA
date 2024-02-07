@@ -125,7 +125,7 @@ void resetPlugins(const PLUGINLIST* plugin_list)
 {
     REQUEST_DATA request_block;
     UDA_PLUGIN_INTERFACE plugin_interface;
-    udaInitRequestData(&request_block);
+    initRequestData(&request_block);
     strcpy(request_block.function, "reset");
 
     plugin_interface.interfaceVersion = 1;
@@ -459,7 +459,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     }
 
     REQUEST_DATA request;
-    udaInitRequestData(&request);
+    initRequestData(&request);
 
     strcpy(request.api_delim, "::");
     strcpy(request.source, "");
@@ -493,7 +493,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
 
     // Initialise the Data Block
 
-    udaInitDataBlock(&data_block);
+    initDataBlock(&data_block);
 
     UDA_LOG(UDA_LOG_DEBUG, "Creating plugin interface\n");
 
@@ -504,10 +504,10 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
     }
 
     USERDEFINEDTYPELIST userdefinedtypelist;
-    udaInitUserDefinedTypeList(&userdefinedtypelist);
+    initUserDefinedTypeList(&userdefinedtypelist);
 
     LOGMALLOCLIST logmalloclist;
-    udaInitLogMallocList(&logmalloclist);
+    initLogMallocList(&logmalloclist);
 
     plugin_interface.interfaceVersion = 1;
     plugin_interface.pluginVersion = 0;
@@ -652,14 +652,14 @@ int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUES
     }
 
     DATA_BLOCK data_block;
-    udaInitDataBlock(&data_block);
+    initDataBlock(&data_block);
     data_block.signal_rec = signal_rec;
 
     USERDEFINEDTYPELIST userdefinedtypelist;
-    udaInitUserDefinedTypeList(&userdefinedtypelist);
+    initUserDefinedTypeList(&userdefinedtypelist);
 
     LOGMALLOCLIST logmalloclist;
-    udaInitLogMallocList(&logmalloclist);
+    initLogMallocList(&logmalloclist);
 
     plugin_interface.interfaceVersion = 1;
     plugin_interface.pluginVersion = 0;

@@ -380,7 +380,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                         (userdefinedtypelist->listCount + 1) * sizeof(USERDEFINEDTYPE));
                                     userdefinedtype =
                                         &userdefinedtypelist->userdefinedtype[userdefinedtypelist->listCount];
-                                    udaInitUserDefinedType(userdefinedtype);
+                                    initUserDefinedType(userdefinedtype);
 
                                     userdefinedtypelist->listCount = userdefinedtypelist->listCount + 1;
 
@@ -393,7 +393,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     byteCount = 0;
                                     maxAlign = 0;
                                     for (int i = 0; i < itemCount; i++) {
-                                        udaInitCompoundField(&userdefinedtype->compoundfield[i]);
+                                        initCompoundField(&userdefinedtype->compoundfield[i]);
                                         strcpy(userdefinedtype->compoundfield[i].name, item[i]);
                                         strcpy(userdefinedtype->compoundfield[i].type, type[i]);
                                         strcpy(userdefinedtype->compoundfield[i].desc, desc[i]);

@@ -54,7 +54,7 @@
 #define UDA_BUGFIX_VERSION(X) (int)((X >> 8) & 0x000F)
 #define UDA_DELTA_VERSION(X) (int)((X >> 0) & 0x000F)
 
-constexpr int SERVER_VERSION = 9;
+constexpr int server_version = 9;
 static int protocol_version = 9;
 static int legacy_server_version = 6;
 
@@ -128,7 +128,7 @@ int uda_server(CLIENT_BLOCK client_block)
     XDR* server_output = nullptr;
 
     LOGSTRUCTLIST log_struct_list;
-    udaInitLogStructList(&log_struct_list);
+    initLogStructList(&log_struct_list);
 
     int server_tot_block_time = 0;
     int server_timeout = TIMEOUT; // user specified Server Lifetime
@@ -141,11 +141,11 @@ int uda_server(CLIENT_BLOCK client_block)
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
 
-    udaInitErrorStack();
-    udaInitServerBlock(&server_block, server_version);
+    initErrorStack();
+    initServerBlock(&server_block, server_version);
     initActions(&actions_desc); // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
-    udaInitRequestBlock(&request_block);
+    initRequestBlock(&request_block);
 
     uda::cache::UdaCache* cache = uda::cache::open_cache();
 
@@ -394,7 +394,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
 
     int err = 0;
 
-    udaInitClientBlock(client_block, 0, "");
+    initClientBlock(client_block, 0, "");
 
     UDA_LOG(UDA_LOG_DEBUG, "Waiting to receive Client Block\n");
 
@@ -433,8 +433,8 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     // This defines the set of elements within data structures passed between client and server
     // Must be the same on both sides of the socket
 
-    protocol_version = SERVER_VERSION;
-    if (client_block->version < SERVER_VERSION) {
+    protocol_version = server_version;
+    if (client_block->version < server_version) {
         protocol_version = client_block->version;
     }
 
@@ -459,7 +459,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
 
     // Test the client version is compatible with this server version
 
-    if (protocol_version > SERVER_VERSION) {
+    if (protocol_version > server_version) {
         UDA_THROW_ERROR(999, "Protocol Error: Client API Version is Newer than the Server Version");
     }
 
@@ -686,9 +686,9 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     //----------------------------------------------------------------------
     // Initialise Data Structures
 
-    udaInitDataSource(&metadata_block->data_source);
-    udaInitSignalDesc(&metadata_block->signal_desc);
-    udaInitSignal(&metadata_block->signal_rec);
+    initDataSource(&metadata_block->data_source);
+    initSignalDesc(&metadata_block->signal_desc);
+    initSignal(&metadata_block->signal_rec);
 
     //----------------------------------------------------------------------------------------------
     // If this is a PUT request then receive the putData structure
@@ -696,7 +696,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     for (int i = 0; i < request_block->num_requests; ++i) {
         REQUEST_DATA* request = &request_block->requests[0];
 
-        udaInitPutDataBlockList(&request->putDataBlockList);
+        initPutDataBlockList(&request->putDataBlockList);
 
         if (request->put) {
             if ((err = protocol2(server_input, UDA_PROTOCOL_PUTDATA_BLOCK_LIST, XDR_RECEIVE, nullptr, log_malloc_list,
@@ -858,10 +858,9 @@ int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_lis
 
         udaGetInitialUserDefinedTypeList(&user_defined_type_list);
         parsed_user_defined_type_list = *user_defined_type_list;
-        udaPrintUserDefinedTypeList(*user_defined_type_list);
 
         log_malloc_list = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-        udaInitLogMallocList(log_malloc_list);
+        initLogMallocList(log_malloc_list);
 
         int server_closedown = 0;
         err = handle_request(request_block, client_block, server_block, metadata_block, actions_desc, actions_sig,
@@ -923,8 +922,8 @@ int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_lis
         UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
         udaCloseError();
 
-        UDA_LOG(UDA_LOG_DEBUG, "udaInitServerBlock\n");
-        udaInitServerBlock(server_block, server_version);
+        UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
+        initServerBlock(server_block, server_version);
 
         //----------------------------------------------------------------------------
         // Server Wait Loop
@@ -1000,7 +999,7 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
 {
     static int authenticationNeeded = 1; // No data access until this is set TRUE
 
-    udaInitClientBlock(client_block, 0, "");
+    initClientBlock(client_block, 0, "");
 
     if (authenticationNeeded && protocolVersion >= UDA_SECURITY_VERSION) {
         // User or intermediate server Must Authenticate
@@ -1050,7 +1049,7 @@ int handshake_client(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int
 {
     // Exchange version details - once only
 
-    udaInitClientBlock(client_block, 0, "");
+    initClientBlock(client_block, 0, "");
 
     // Receive the client block, respecting earlier protocol versions
 
@@ -1142,7 +1141,7 @@ int startup_server(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_
         int err = FATAL_ERROR_LOGS;
         udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Fatal Error Opening the Server Logs");
         udaConcatError(&server_block->idamerrorstack);
-        udaInitErrorStack();
+        initErrorStack();
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "New Server Instance\n");
@@ -1188,7 +1187,7 @@ int startup_server(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_
     /*
         if (!fileParsed) {
             fileParsed = 1;
-            udaInitUserDefinedTypeList(&parseduserdefinedtypelist);
+            initUserDefinedTypeList(&parseduserdefinedtypelist);
 
             char* token = nullptr;
             if ((token = getenv("UDA_SARRAY_CONFIG")) == nullptr) {

@@ -242,7 +242,7 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
         }
 
         for (unsigned int i = 0; i < data_block->rank; i++) {
-            udaInitDimBlock(&data_block->dims[i]);
+            initDimBlock(&data_block->dims[i]);
             data_block->dims[i].compressed = 1;
             data_block->dims[i].method = 0;
             data_block->dims[i].dim_n = (int)shape[data_block->rank - i - 1];
@@ -479,7 +479,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
 
         {
             for (unsigned int i = 0; i < data_block->rank; i++) {
-                udaInitDimBlock(&data_block->dims[i]);
+                initDimBlock(&data_block->dims[i]);
             }
         }
 

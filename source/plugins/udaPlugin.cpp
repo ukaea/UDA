@@ -52,9 +52,9 @@ UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 void udaFreePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     free(plugin_interface->request_data);
-    freeUserDefinedTypeList(plugin_interface->userdefinedtypelist);
+    udaFreeUserDefinedTypeList(plugin_interface->userdefinedtypelist);
     free(plugin_interface->userdefinedtypelist);
-    freeMallocLogList(plugin_interface->logmalloclist);
+    udaFreeMallocLogList(plugin_interface->logmalloclist);
     free(plugin_interface->logmalloclist);
     freePluginList((PLUGINLIST*)plugin_interface->pluginList);
     free((PLUGINLIST*)plugin_interface->pluginList);
@@ -396,7 +396,7 @@ int udaPluginReturnCompoundData(UDA_PLUGIN_INTERFACE *plugin_interface, char* da
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(plugin_interface->userdefinedtypelist, user_type, 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(plugin_interface->userdefinedtypelist, user_type, 0);
 
     if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
@@ -438,7 +438,7 @@ int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE *plugin_interface, cha
 
     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
     data_block->opaque_count = 1;
-    data_block->opaque_block = (void*)findUserDefinedType(plugin_interface->userdefinedtypelist, user_type, 0);
+    data_block->opaque_block = (void*)udaFindUserDefinedType(plugin_interface->userdefinedtypelist, user_type, 0);
 
     if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
@@ -497,7 +497,7 @@ USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id
 
     for (size_t i = 0; i < num_fields; ++i) {
         COMPOUNDFIELD* field = fields[i];
-        addCompoundField(user_type, *field);
+        udaAddCompoundField(user_type, *field);
     }
 
     return user_type;
@@ -506,21 +506,21 @@ USERDEFINEDTYPE* udaNewUserType(const char* name, const char* source, int ref_id
 int udaAddUserType(UDA_PLUGIN_INTERFACE* plugin_interface, USERDEFINEDTYPE* user_type)
 {
     USERDEFINEDTYPELIST* userdefinedtypelist = plugin_interface->userdefinedtypelist;
-    addUserDefinedType(userdefinedtypelist, *user_type);
+    udaAddUserDefinedType(userdefinedtypelist, *user_type);
 
     return 0;
 }
 
 int udaRegisterMalloc(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int count, size_t size, const char* type)
 {
-    addMalloc(plugin_interface->logmalloclist, data, count, size, type);
+    udaAddMalloc(plugin_interface->logmalloclist, data, count, size, type);
 
     return 0;
 }
 
 int udaRegisterMallocArray(UDA_PLUGIN_INTERFACE* plugin_interface, void* data, int count, size_t size, const char* type, int rank, int* shape)
 {
-    addMalloc2(plugin_interface->logmalloclist, data, count, size, type, rank, shape);
+    udaAddMalloc2(plugin_interface->logmalloclist, data, count, size, type, rank, shape);
 
     return 0;
 }
@@ -604,7 +604,7 @@ void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* locat
     udaLog(UDA_LOG_ERROR, msg);
     plugin_interface->error_stack.nerrors += 1;
     plugin_interface->error_stack.idamerror = (UDA_ERROR*)realloc(plugin_interface->error_stack.idamerror, plugin_interface->error_stack.nerrors * sizeof(UDA_ERROR));
-    plugin_interface->error_stack.idamerror[plugin_interface->error_stack.nerrors - 1] = createIdamError(UDA_CODE_ERROR_TYPE, location, code, msg);
+    plugin_interface->error_stack.idamerror[plugin_interface->error_stack.nerrors - 1] = udaCreateError(UDA_CODE_ERROR_TYPE, location, code, msg);
 }
 
 int udaPluginIsExternal(UDA_PLUGIN_INTERFACE* plugin_interface)

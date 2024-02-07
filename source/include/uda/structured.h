@@ -69,48 +69,48 @@ LIBRARY_API void udaExpandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEM
  * @param str A pointer to a LOGMALLOCLIST data structure instance.
  * @return void.
  */
-LIBRARY_API void udaInitLogMallocList(LOGMALLOCLIST* str);
+LIBRARY_API void initLogMallocList(LOGMALLOCLIST* str);
 
 /** Initialise a LOGMALLOC data structure.
  *
  * @param str A pointer to a LOGMALLOC data structure instance.
  * @return void.
  */
-LIBRARY_API void udaInitLogMalloc(LOGMALLOC* str);
+LIBRARY_API void initLogMalloc(LOGMALLOC* str);
 
 /** Initialise a LOGSTRUCTLIST data structure.
  *
  * @return void.
  */
-LIBRARY_API void udaInitLogStructList(LOGSTRUCTLIST* logstructlist);
+LIBRARY_API void initLogStructList(LOGSTRUCTLIST* logstructlist);
 
 /** Initialise a LOGSTRUCT data structure.
  *
  * @param str A pointer to a LOGSTRUCT data structure instance.
  * @return void.
  */
-LIBRARY_API void udaInitLogStruct(LOGSTRUCT* str);
+LIBRARY_API void initLogStruct(LOGSTRUCT* str);
 
 /** Initialise a COMPOUNDFIELD data structure.
  *
  * @param str A pointer to a COMPOUNDFIELD data structure instance.
  * @return void.
  */
-LIBRARY_API void udaInitCompoundField(COMPOUNDFIELD* str);
+LIBRARY_API void initCompoundField(COMPOUNDFIELD* str);
 
 /** Initialise a USERDEFINEDTYPE data structure.
  *
  * @param str A pointer to a USERDEFINEDTYPE data structure instance.
  * @return void.
  */
-LIBRARY_API void udaInitUserDefinedType(USERDEFINEDTYPE* str);
+LIBRARY_API void initUserDefinedType(USERDEFINEDTYPE* str);
 
 /** Initialise a USERDEFINEDTYPELIST data structure.
  *
  * @param str A pointer to a USERDEFINEDTYPELIST data structure instance.
  * @return void.
  */
-LIBRARY_API void udaInitUserDefinedTypeList(USERDEFINEDTYPELIST* str);
+LIBRARY_API void initUserDefinedTypeList(USERDEFINEDTYPELIST* str);
 
 /** Print the Contents of the Global LOGMALLOCLIST data structure.
  *
@@ -867,14 +867,14 @@ LIBRARY_API double* udaCastNodeStructureComponentDatatoDouble(LOGMALLOCLIST* log
  * @return void.
  */
 
-LIBRARY_API void udaInitNTree(NTREE* str);
+LIBRARY_API void initNTree(NTREE* str);
 
 /** Initialise the Global NTREE list structure.
  *
  * @return void.
  */
 
-LIBRARY_API void udaInitNTreeList(NTREELIST* ntree_list);
+LIBRARY_API void initNTreeList(NTREELIST* ntree_list);
 
 /** Print the Contents of a tree node to a specified File Descriptor.
  *

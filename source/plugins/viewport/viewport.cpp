@@ -99,7 +99,7 @@ int ViewportPlugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     if (handle < 0) {
 
         if ((handle = udaGetAPI(signal.c_str(), source.c_str())) < 0 || udaGetErrorCode(handle) != 0) {
-            error(udaGetErrorMsg(handle));
+            error(plugin_interface, udaGetErrorMsg(handle));
         }
 
         cache_.emplace_back(CacheEntry{handle, signal, source});
@@ -562,11 +562,11 @@ int ViewportPlugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         // Return viewport data
 
         size_t shape[] = { (size_t)pixelWidth2 };
-        udaPluginReturnDataFloatArray(plugin_interface, data.data(), 1, shape, getIdamDataDesc(handle));
-        udaPluginReturnDataLabel(plugin_interface, getIdamDataLabel(handle));
-        udaPluginReturnDataUnits(plugin_interface, getIdamDataUnits(handle));
+        udaPluginReturnDataFloatArray(plugin_interface, data.data(), 1, shape, udaGetDataDesc(handle));
+        udaPluginReturnDataLabel(plugin_interface, udaGetDataLabel(handle));
+        udaPluginReturnDataUnits(plugin_interface, udaGetDataUnits(handle));
 
-        udaPluginReturnDimensionFloatArray(plugin_interface, 0, horizontal_pixel_values.data(), pixelWidth2, getIdamDimLabel(handle, 0), getIdamDimUnits(handle, 0));
+        udaPluginReturnDimensionFloatArray(plugin_interface, 0, horizontal_pixel_values.data(), pixelWidth2, udaGetDimLabel(handle, 0), udaGetDimUnits(handle, 0));
 
         if (!range) {
             udaPluginReturnErrorAsymmetry(plugin_interface, true);

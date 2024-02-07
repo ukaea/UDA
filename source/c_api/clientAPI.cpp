@@ -32,13 +32,13 @@ int udaClientAPI(const char* file, const char* signal, int pass, int exp_number)
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
 
-    udaInitRequestBlock(&request_block);
+    initRequestBlock(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        udaInitErrorStack();
+        initErrorStack();
         startup = 0;
     }
 
@@ -106,13 +106,13 @@ int udaClientFileAPI(const char* file, const char* signal, const char* format)
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
 
-    udaInitRequestBlock(&request_block);
+    initRequestBlock(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        udaInitErrorStack();
+        initErrorStack();
         startup = 0;
     }
 

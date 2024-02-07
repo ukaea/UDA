@@ -22,14 +22,6 @@ const char* udaGetErrorMessage(int err_num)
     return "no error found";
 }
 
-int udaGetErrorCode(int err_num)
-{
-    if (err_num > (int)udaerrorstack.size() && err_num < (int)udaerrorstack.size()) {
-        return udaerrorstack[err_num].code;
-    }
-    return -1;
-}
-
 const char* udaGetErrorLocation(int err_num)
 {
     if (err_num > (int)udaerrorstack.size() && err_num < (int)udaerrorstack.size()) {
@@ -86,12 +78,12 @@ void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERR
 
 // Initialise the Error Stack
 
-void udaInitErrorStack()
+void initErrorStack()
 {
     udaerrorstack.clear();
 }
 
-void udaInitErrorRecords(const UDA_ERROR_STACK* errorstack)
+void initErrorRecords(const UDA_ERROR_STACK* errorstack)
 {
     for (unsigned int i = 0; i < errorstack->nerrors; i++) {
         errorstack->idamerror[i].type = 0;
@@ -193,5 +185,5 @@ void udaFreeErrorStack(UDA_ERROR_STACK* errorstack)
 
 void udaCloseError()
 {
-    udaInitErrorStack();
+    initErrorStack();
 }

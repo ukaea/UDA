@@ -98,7 +98,7 @@ int fat_server(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BL
     ACTIONS actions_sig;
 
     LOGSTRUCTLIST log_struct_list;
-    udaInitLogStructList(&log_struct_list);
+    initLogStructList(&log_struct_list);
 
     int server_tot_block_time = 0;
     int server_timeout = TIMEOUT; // user specified Server Lifetime
@@ -113,8 +113,8 @@ int fat_server(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BL
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
 
-    udaInitServerBlock(server_block, server_version);
-    udaInitDataBlockList(&data_blocks);
+    initServerBlock(server_block, server_version);
+    initDataBlockList(&data_blocks);
     initActions(&actions_desc); // There may be a Sequence of Actions to Apply
     initActions(&actions_sig);
 
@@ -125,7 +125,7 @@ int fat_server(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BL
     // udaPrintUserDefinedTypeList(*userdefinedtypelist);
 
     log_malloc_list = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-    udaInitLogMallocList(log_malloc_list);
+    initLogMallocList(log_malloc_list);
 
     int err = startup_fat_server(server_block, parseduserdefinedtypelist);
     if (err != 0) {
@@ -293,9 +293,9 @@ int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_bloc
     //----------------------------------------------------------------------
     // Initialise Data Structures
 
-    udaInitDataSource(&metadata_block->data_source);
-    udaInitSignalDesc(&metadata_block->signal_desc);
-    udaInitSignal(&metadata_block->signal_rec);
+    initDataSource(&metadata_block->data_source);
+    initSignalDesc(&metadata_block->signal_desc);
+    initSignal(&metadata_block->signal_rec);
 
     //----------------------------------------------------------------------------------------------
     // Decode the API Arguments: determine appropriate data plug-in to use
@@ -329,7 +329,7 @@ int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_bloc
         assert(i == data_blocks->count);
         data_blocks->data = (DATA_BLOCK*)realloc(data_blocks->data, (data_blocks->count + 1) * sizeof(DATA_BLOCK));
         auto data_block = &data_blocks->data[i];
-        udaInitDataBlock(data_block);
+        initDataBlock(data_block);
         err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
                          &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
                          &pluginList, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
@@ -435,7 +435,7 @@ int startup_fat_server(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parsedus
     if (!fileParsed) {
         fileParsed = 1;
 
-        udaInitUserDefinedTypeList(&parseduserdefinedtypelist);
+        initUserDefinedTypeList(&parseduserdefinedtypelist);
         userdefinedtypelist = &parseduserdefinedtypelist; // Switch before Parsing input file
 
         char* token = nullptr;

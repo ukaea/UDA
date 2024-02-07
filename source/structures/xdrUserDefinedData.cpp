@@ -92,7 +92,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
 
         *NTree = newNTree; // Return the new tree node address
 
-        udaInitNTree(newNTree);
+        initNTree(newNTree);
         newNTree->data = nullptr;
         newNTree->userdefinedtype = userdefinedtype; // preserve Pairing of data and data type
     }
@@ -1504,7 +1504,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                     if (udaGettypeof(type) != UDA_TYPE_UNKNOWN) {
                         char* z = (char*)*p;
                         rc = rc &&
-                             udaXDRAtomicData(logmalloclist, xdrs, type, count, size, &z); // Must be an Atomic Type
+                             xdrAtomicData(logmalloclist, xdrs, type, count, size, &z); // Must be an Atomic Type
                         *p = (VOIDTYPE)z;
                         break;
                     } else {

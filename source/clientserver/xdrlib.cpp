@@ -456,7 +456,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
             return 0;
         }
 
-        udaInitSArray(&sarray);
+        initSArray(&sarray);
         sarray.count = str->data_n;     // Number of this structure
         sarray.rank = 1;                // Array Data Rank?
         sarray.shape = &shape;          // Only if rank > 1?
@@ -471,9 +471,9 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         // Send the data
 
-        rc = rc && udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist,
+        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist,
                                              xdr_stdio_flag); // send the full set of known named structures
-        rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
+        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
                                              xdr_stdio_flag, log_struct_list, malloc_source); // send the Data
 
         if (!rc) {
@@ -495,15 +495,15 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
         // Heap allocations log
 
         logmalloclist = (LOGMALLOCLIST*)malloc(sizeof(LOGMALLOCLIST));
-        udaInitLogMallocList(logmalloclist);
+        initLogMallocList(logmalloclist);
 
         // Data structure definitions
 
         userdefinedtypelist = (USERDEFINEDTYPELIST*)malloc(sizeof(USERDEFINEDTYPELIST));
-        udaInitUserDefinedTypeList(userdefinedtypelist);
+        initUserDefinedTypeList(userdefinedtypelist);
 
         // receive the full set of known named structures
-        rc = rc && udaXDRUserdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
+        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
         if (!rc) {
             err = 999;
@@ -514,9 +514,9 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
         // Receive data
 
         auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
-        udaInitUserDefinedType(udt_received);
+        initUserDefinedType(udt_received);
 
-        rc = rc && udaXDRUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
+        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
                                              protocolVersion, xdr_stdio_flag, log_struct_list,
                                              malloc_source); // receive the Data
 

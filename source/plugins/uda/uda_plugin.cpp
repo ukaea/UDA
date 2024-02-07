@@ -13,16 +13,6 @@
 #include <boost/filesystem.hpp>
 #include <fmt/format.h>
 
-namespace {
-void setIdamClientFlag(CLIENT_FLAGS *client_flags, unsigned int flag) {
-    client_flags->flags = client_flags->flags | flag;
-}
-
-void resetIdamClientFlag(CLIENT_FLAGS *client_flags, unsigned int flag) {
-    client_flags->flags &= !flag;
-}
-}
-
 namespace uda::plugins::uda
 {
 
@@ -509,7 +499,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     if (udaGetClientVersion() >= 7) {
         // This should contain everything!
-        *data_block = *udaGetDataBlock(handle);
+        *data_block = *getDataBlock(handle);
     } else { // use abstraction functions
 
         // Straight structure mapping causes potential problems when the client library uses different versions
@@ -519,9 +509,9 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         // Write the structure components element by element! (Ignore the CLIENT_BLOCK component)
 
         DATA_BLOCK db;
-        udaInitDataBlock(&db);
+        initDataBlock(&db);
 
-        auto odb = (OLD_DATA_BLOCK*)udaGetDataBlock(handle);
+        auto odb = (OLD_DATA_BLOCK*)getDataBlock(handle);
 
         db.handle = odb->handle;
         db.errcode = odb->errcode;

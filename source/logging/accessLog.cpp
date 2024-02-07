@@ -21,10 +21,10 @@
 #  include <ws2tcpip.h>
 #endif
 
-#include "include/errorLog.h"
 #include "logging.h"
 #include <uda/types.h>
 #include "clientserver/stringUtils.h"
+#include "clientserver/errorLog.h"
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 #  include <boost/format.hpp>

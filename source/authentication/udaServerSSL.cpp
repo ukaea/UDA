@@ -13,6 +13,7 @@
 
 #  include "clientserver/errorLog.h"
 #  include "logging/logging.h"
+
 #  include "server/writer.h"
 
 #  define VERIFY_DEPTH 4

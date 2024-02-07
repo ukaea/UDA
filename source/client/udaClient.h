@@ -30,13 +30,13 @@ typedef struct ClientFlags {
 
 DATA_BLOCK* getDataBlock(int handle);
 
-void putIdamThreadServerBlock(SERVER_BLOCK* str);
+void udaPutThreadServerBlock(SERVER_BLOCK* str);
 
-void putIdamThreadClientBlock(CLIENT_BLOCK* str);
+void udaPutThreadClientBlock(CLIENT_BLOCK* str);
 
-SERVER_BLOCK getIdamThreadServerBlock();
+SERVER_BLOCK udaGetThreadServerBlock();
 
-CLIENT_BLOCK getIdamThreadClientBlock();
+CLIENT_BLOCK udaGetThreadClientBlock();
 
 CLIENT_FLAGS* udaClientFlags();
 

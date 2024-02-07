@@ -93,8 +93,8 @@ int getCurrentDataBlockIndex()
 {
     auto client_flags = udaClientFlags();
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
-        getIdamThreadLastHandle() >= 0) {
-        return getIdamThreadLastHandle();
+        udaGetThreadLastHandle() >= 0) {
+        return udaGetThreadLastHandle();
     }
     return data_blocks.size() - 1;
 }
@@ -102,14 +102,14 @@ int getCurrentDataBlockIndex()
 void freeDataBlocks()
 {
     data_blocks.clear();
-    putIdamThreadLastHandle(-1);
+    udaPutThreadLastHandle(-1);
 }
 
 int growDataBlocks()
 {
     auto client_flags = udaClientFlags();
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
-        getIdamThreadLastHandle() >= 0) {
+        udaGetThreadLastHandle() >= 0) {
         return 0;
     }
 
@@ -117,7 +117,7 @@ int growDataBlocks()
     initDataBlock(&data_blocks.back());
     data_blocks.back().handle = data_blocks.size() - 1;
 
-    putIdamThreadLastHandle(data_blocks.size() - 1);
+    udaPutThreadLastHandle(data_blocks.size() - 1);
 
     return 0;
 }
@@ -138,7 +138,7 @@ int getNewDataHandle()
     int newHandleIndex = -1;
 
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
-        (newHandleIndex = getIdamThreadLastHandle()) >= 0) {
+        (newHandleIndex = udaGetThreadLastHandle()) >= 0) {
         if (client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) {
             udaFree(newHandleIndex);
         } else {
@@ -159,7 +159,7 @@ int getNewDataHandle()
         data_blocks[newHandleIndex].handle = newHandleIndex;
     }
 
-    putIdamThreadLastHandle(newHandleIndex);
+    udaPutThreadLastHandle(newHandleIndex);
     return newHandleIndex;
 }
 
@@ -177,7 +177,7 @@ int newDataHandle()
     auto client_flags = udaClientFlags();
 
     if ((client_flags->flags & CLIENTFLAG_REUSELASTHANDLE || client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) &&
-        (newHandleIndex = getIdamThreadLastHandle()) >= 0) {
+        (newHandleIndex = udaGetThreadLastHandle()) >= 0) {
         if (client_flags->flags & CLIENTFLAG_FREEREUSELASTHANDLE) {
             udaFree(newHandleIndex);
         } else {
@@ -198,7 +198,7 @@ int newDataHandle()
         data_blocks[newHandleIndex].handle = newHandleIndex;
     }
 
-    putIdamThreadLastHandle(newHandleIndex);
+    udaPutThreadLastHandle(newHandleIndex);
     return newHandleIndex;
 }
 
@@ -307,7 +307,7 @@ void copyDataBlock(DATA_BLOCK* str, DATA_BLOCK* in)
     memcpy(str->data_label, in->data_label, STRING_LENGTH);
     memcpy(str->data_desc, in->data_desc, STRING_LENGTH);
     memcpy(str->error_msg, in->error_msg, STRING_LENGTH);
-    udaInitClientBlock(&str->client_block, 0, "");
+    initClientBlock(&str->client_block, 0, "");
 }
 
 void copyClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags)
@@ -491,7 +491,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 #endif
 
     LOGSTRUCTLIST log_struct_list;
-    udaInitLogStructList(&log_struct_list);
+    initLogStructList(&log_struct_list);
 
     unsigned int* private_flags = udaPrivateFlags();
     CLIENT_FLAGS* client_flags = udaClientFlags();
@@ -521,8 +521,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         udaFreeErrorStack(&server_block.idamerrorstack); // Free Previous Stack Heap
     }
 
-    udaInitServerBlock(&server_block, 0); // Reset previous Error Messages from the Server & Free Heap
-    udaInitErrorStack();
+    initServerBlock(&server_block, 0); // Reset previous Error Messages from the Server & Free Heap
+    initErrorStack();
 
     //-------------------------------------------------------------------------
     // Initialise Protocol Timings (in Debug Mode only)
@@ -679,7 +679,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         if (initServer && system_startup) {
             userid(client_username);
-            udaInitClientBlock(&client_block, client_version, client_username);
+            initClientBlock(&client_block, client_version, client_username);
             system_startup = false; // Don't call again!
         }
 
@@ -1050,14 +1050,14 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             //------------------------------------------------------------------------------
             // Allocate memory for the Data Block Structure
             // Re-use existing stale Data Blocks
-            int data_block_idx = udaGetNewDataHandle();
+            int data_block_idx = getNewDataHandle();
 
             if (data_block_idx < 0) { // Error
                 data_block_indices[i] = -data_block_idx;
                 continue;
             }
 
-            DATA_BLOCK* data_block = udaGetDataBlock(data_block_idx);
+            DATA_BLOCK* data_block = getDataBlock(data_block_idx);
 
             //           DATA_BLOCK* in_data;
             //           if (request_block->requests[i].request == REQUEST_CACHED) {
@@ -1118,14 +1118,14 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Fat Client Server
 
         DATA_BLOCK_LIST data_block_list0;
-        udaInitDataBlockList(&data_block_list0);
-        err = fatServer(client_block, &server_block, request_block, &data_block_list0);
+        initDataBlockList(&data_block_list0);
+        err = fat_server(client_block, &server_block, request_block, &data_block_list0);
 
         for (int i = 0; i < data_block_list0.count; ++i) {
             DATA_BLOCK* data_block0 = &data_block_list0.data[i];
 
-            int data_block_idx = udaGetNewDataHandle();
-            DATA_BLOCK* data_block = udaGetDataBlock(data_block_idx); // data blocks may have been realloc'ed
+            int data_block_idx = getNewDataHandle();
+            DATA_BLOCK* data_block = getDataBlock(data_block_idx); // data blocks may have been realloc'ed
             copyDataBlock(data_block, data_block0);
 
             if (err != 0 || server_block.idamerrorstack.nerrors > 0) {
@@ -1183,7 +1183,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                 udaAddError(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
                             "Data Status is BAD ... Data are Not Usable!");
 
-                DATA_BLOCK* data_block = udaGetDataBlock(data_block_idx);
+                DATA_BLOCK* data_block = getDataBlock(data_block_idx);
                 if (data_block->errcode == 0) {
                     // Don't over-rule a server side error
                     data_block->errcode = DATA_STATUS_BAD;
@@ -1203,7 +1203,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
 
         for (auto data_block_idx : data_block_indices) {
-            DATA_BLOCK* data_block = udaGetDataBlock(data_block_idx);
+            DATA_BLOCK* data_block = getDataBlock(data_block_idx);
 
             if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
                 data_block->errcode = udaGetServerErrorStackRecordCode(0);
@@ -1265,7 +1265,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                 udaAddError(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
                             "Data Status is BAD ... Data are Not Usable!");
 
-                DATA_BLOCK* data_block = udaGetDataBlock(data_block_idx);
+                DATA_BLOCK* data_block = getDataBlock(data_block_idx);
                 if (data_block->errcode == 0) {
                     // Don't over-rule a server side error
                     data_block->errcode = DATA_STATUS_BAD;
@@ -1275,7 +1275,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         }
 
         for (auto data_block_idx : data_block_indices) {
-            DATA_BLOCK* data_block = udaGetDataBlock(data_block_idx);
+            DATA_BLOCK* data_block = getDataBlock(data_block_idx);
 
             if (err != 0 && data_block->errcode == 0) {
                 udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Unknown Error");
@@ -1295,7 +1295,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
 
         for (auto data_block_idx : data_block_indices) {
-            DATA_BLOCK* data_block = udaGetDataBlock(data_block_idx);
+            DATA_BLOCK* data_block = getDataBlock(data_block_idx);
 
             if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
                 data_block->errcode = udaGetServerErrorStackRecordCode(0);
@@ -1342,7 +1342,7 @@ void udaFree(int handle)
     DIMS* ddims;
     int rank;
 
-    DATA_BLOCK* data_block = udaGetDataBlock(handle);
+    DATA_BLOCK* data_block = getDataBlock(handle);
 
     if (data_block == nullptr) {
         return;
@@ -1531,7 +1531,7 @@ void udaFree(int handle)
 
     // closeIdamError(&server_block.idamerrorstack);
     udaFreeErrorStack(&server_block.idamerrorstack);
-    udaInitDataBlock(data_block);
+    initDataBlock(data_block);
     data_block->handle = -1; // Flag this as ready for re-use
 }
 
@@ -1547,15 +1547,15 @@ void udaFreeAll()
     uda::cache::free_cache();
 #endif
 
-    for (int i = 0; i < udaGetCurrentDataBlockIndex(); ++i) {
+    for (int i = 0; i < getCurrentDataBlockIndex(); ++i) {
 #ifndef FATCLIENT
-        freeDataBlock(udaGetDataBlock(i));
+        freeDataBlock(getDataBlock(i));
 #else
-        freeDataBlock(udaGetDataBlock(i));
+        freeDataBlock(getDataBlock(i));
 #endif
     }
 
-    udaFreeDataBlocks();
+    freeDataBlocks();
 
 #ifndef FATCLIENT
     g_user_defined_type_list = nullptr; // malloc'd within protocolXML
@@ -1675,7 +1675,7 @@ const char* udaGetClientDOI()
 /**
  * @assign the DOI
  */
-void putIdamClientDOI(char* doi)
+void udaPutClientDOI(char* doi)
 {
     strcpy(client_block.DOI, doi);
 }
@@ -1702,7 +1702,7 @@ const char* udaGetClientOSName()
 /**
  * @assign the OS name
  */
-void putIdamClientOSName(char* os)
+void udaPutClientOSName(char* os)
 {
     strcpy(client_block.OSName, os);
 }

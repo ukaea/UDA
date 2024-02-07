@@ -179,7 +179,7 @@ int uda::Client::serverPort()
 
 [[noreturn]] void generate_exception()
 {
-    UDA_ERROR_STACK* errorstack = udaGetServerErrorStack();
+    int num_errors = udaGetServerErrorStackSize();
     std::vector<std::string> backtrace;
     int code = num_errors > 0 ? udaGetErrorCode(0) : 0;
     std::string msg = num_errors > 0 ? udaGetErrorMessage(0) : "";
@@ -373,7 +373,7 @@ void uda::Client::put(const uda::Signal& signal)
     udaPutAPI(request.c_str(), nullptr);
 
     PUTDATA_BLOCK pdblock{};
-    udaInitPutDataBlock(&pdblock);
+    initPutDataBlock(&pdblock);
 
     const uda::Array& array = signal.array();
 
@@ -392,7 +392,7 @@ void uda::Client::put(const uda::Signal& signal)
 template <typename T> void put_scalar(const std::string& instruction, T data)
 {
     PUTDATA_BLOCK putdata_block{};
-    udaInitPutDataBlock(&putdata_block);
+    initPutDataBlock(&putdata_block);
 
     putdata_block.data_type = typeIDToUDAType(typeid(T));
     putdata_block.rank = 0;
@@ -457,7 +457,7 @@ void uda::Client::put(const std::string& instruction, double data)
 template <typename T> void put_vector(const std::string& instruction, const std::vector<T>& data)
 {
     PUTDATA_BLOCK putdata_block{};
-    udaInitPutDataBlock(&putdata_block);
+    initPutDataBlock(&putdata_block);
 
     putdata_block.data_type = typeIDToUDAType(typeid(T));
     putdata_block.rank = 1;
@@ -536,7 +536,7 @@ void uda::Client::put(const std::string& instruction, const uda::Array& data)
     };
 
     PUTDATA_BLOCK putdata_block{};
-    udaInitPutDataBlock(&putdata_block);
+    initPutDataBlock(&putdata_block);
 
     putdata_block.data_type = typeIDToUDAType(data.type());
     putdata_block.rank = static_cast<unsigned int>(data.dims().size());

@@ -294,7 +294,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
     }
 
     RequestData request = {};
-    udaInitRequestData(&request);
+    initRequestData(&request);
 
     strcpy(request.api_delim, "::");
     strcpy(request.source, "");
@@ -329,7 +329,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
 
     // Initialise the Data Block
 
-    udaInitDataBlock(&data_block);
+    initDataBlock(&data_block);
 
     UDA_LOG(UDA_LOG_DEBUG, "Creating plugin interface\n");
 
@@ -340,10 +340,10 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
     }
 
     USERDEFINEDTYPELIST userdefinedtypelist;
-    udaInitUserDefinedTypeList(&userdefinedtypelist);
+    initUserDefinedTypeList(&userdefinedtypelist);
 
     LOGMALLOCLIST logmalloclist;
-    udaInitLogMallocList(&logmalloclist);
+    initLogMallocList(&logmalloclist);
 
     plugin_interface.interfaceVersion = 1;
     plugin_interface.pluginVersion = 0;
@@ -484,14 +484,14 @@ int uda::call_metadata_plugin(const PluginData& plugin, RequestData* request_blo
     }
 
     DataBlock data_block = {};
-    udaInitDataBlock(&data_block);
+    initDataBlock(&data_block);
     data_block.signal_rec = &metadata.signal_rec;
 
     UserDefinedTypeList userdefinedtypelist = {};
-    udaInitUserDefinedTypeList(&userdefinedtypelist);
+    initUserDefinedTypeList(&userdefinedtypelist);
 
     LogMallocList logmalloclist = {};
-    udaInitLogMallocList(&logmalloclist);
+    initLogMallocList(&logmalloclist);
 
     auto plugin_list = plugins.as_plugin_list();
     plugin_interface.interfaceVersion = 1;

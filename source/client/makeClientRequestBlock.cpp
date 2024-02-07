@@ -145,7 +145,7 @@ int makeClientRequestBlock(const char** signals, const char** sources, int count
     int err = 0;
     for (int i = 0; i < count; ++i) {
         REQUEST_DATA* request = &request_block->requests[i];
-        udaInitRequestData(request);
+        initRequestData(request);
         if ((err = makeRequestData(signals[i], sources[i], request))) {
             return err;
         }
