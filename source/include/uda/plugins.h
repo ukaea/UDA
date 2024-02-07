@@ -127,7 +127,7 @@ UDA_DEF_FIND_FUNCS(String, const char*)
 #define UDA_RAISE_PLUGIN_ERROR_AND_EXIT(PLUGIN_INTERFACE, MSG)                                                             \
     {                                                                                                                  \
         int UNIQUE_VAR(err) = 999;                                                                                     \
-        udaPluginLog("%s\n", MSG);                                                                                     \
+        udaPluginLog(PLUGIN_INTERFACE, "%s\n", MSG);                                                                                     \
         udaAddPluginError(__func__, UNIQUE_VAR(err), MSG);                                                             \
         return UNIQUE_VAR(err);                                                                                        \
     }
@@ -143,7 +143,7 @@ UDA_DEF_FIND_FUNCS(String, const char*)
 #define UDA_RAISE_PLUGIN_ERROR_F(PLUGIN_INTERFACE, MSG, FMT, ...)                                                          \
     {                                                                                                                  \
         int UNIQUE_VAR(err) = 999;                                                                                     \
-        udaPluginLog("%s\n", FMT, __VA_ARGS__);                                                                        \
+        udaPluginLog(PLUGIN_INTERFACE, "%s\n", FMT, __VA_ARGS__);                                                                        \
         udaAddPluginError(PLUGIN_INTERFACE, __func__, UNIQUE_VAR(err), MSG);                                           \
         return UNIQUE_VAR(err);                                                                                        \
     }
@@ -151,14 +151,14 @@ UDA_DEF_FIND_FUNCS(String, const char*)
 #define UDA_RAISE_PLUGIN_ERROR_AND_EXIT_F(PLUGIN_INTERFACE, MSG, FMT, ...)                                                 \
     {                                                                                                                  \
         int UNIQUE_VAR(err) = 999;                                                                                     \
-        udaPluginLog("%s\n", FMT, __VA_ARGS__);                                                                        \
+        udaPluginLog(PLUGIN_INTERFACE, "%s\n", FMT, __VA_ARGS__);                                                                        \
         udaAddPluginError(PLUGIN_INTERFACE, __func__, UNIQUE_VAR(err), MSG);                                           \
         return UNIQUE_VAR(err);                                                                                        \
     }
 
 #define UDA_RAISE_PLUGIN_ERROR_EX(PLUGIN_INTERFACE, MSG, CODE)                                                             \
     int UNIQUE_VAR(err) = 999;                                                                                         \
-    udaPluginLog("%s", MSG);                                                                                           \
+    udaPluginLog(PLUGIN_INTERFACE, "%s", MSG);                                                                                           \
     udaAddPluginError(PLUGIN_INTERFACE, __func__, UNIQUE_VAR(err), MSG);                                               \
     { CODE }                                                                                                           \
     return UNIQUE_VAR(err);
