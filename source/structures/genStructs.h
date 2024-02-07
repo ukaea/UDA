@@ -1,11 +1,13 @@
 #ifndef UDA_STRUCTURES_GENSTRUCTS_H
 #define UDA_STRUCTURES_GENSTRUCTS_H
 
+// needs to be included before xdr.h
+#include <stdio.h>
+
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 //-------------------------------------------------------------------------------------------------------
