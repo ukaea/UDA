@@ -228,7 +228,7 @@ int uda::XdrProtocol::read_client_block(ClientBlock* client_block, LogMallocList
     return err;
 }
 
-int uda::XdrProtocol::send_server_block(SERVER_BLOCK server_block, LogMallocList* log_malloc_list,
+int uda::XdrProtocol::send_server_block(ServerBlock server_block, LogMallocList* log_malloc_list,
                                         UserDefinedTypeList* user_defined_type_list)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Sending Server Block\n");
@@ -329,9 +329,9 @@ int uda::XdrProtocol::send_data_blocks(const std::vector<DataBlock>& data_blocks
 {
     UDA_LOG(UDA_LOG_DEBUG, "Sending Data Block Structure to Client\n");
 
-    DATA_BLOCK_LIST data_block_list = {};
+    DataBlockList data_block_list = {};
     data_block_list.count = static_cast<int>(data_blocks.size());
-    data_block_list.data = const_cast<DATA_BLOCK*>(data_blocks.data());
+    data_block_list.data = const_cast<DataBlock*>(data_blocks.data());
 
     int err = 0;
     if ((err = protocol2(&server_output_, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, nullptr, log_malloc_list,
@@ -381,7 +381,7 @@ int uda::XdrProtocol::send_hierachical_data(const DataBlock& data_block, LogMall
     return 0;
 }
 
-int uda::XdrProtocol::recv_client_block(SERVER_BLOCK& server_block, CLIENT_BLOCK* client_block, bool* fatal,
+int uda::XdrProtocol::recv_client_block(ServerBlock& server_block, ClientBlock* client_block, bool* fatal,
                                         int server_tot_block_time, const int* server_timeout,
                                         LogMallocList* log_malloc_list, UserDefinedTypeList* user_defined_type_list)
 {
@@ -420,7 +420,7 @@ void uda::XdrProtocol::set_version(int protocol_version)
     protocol_version_ = protocol_version;
 }
 
-int uda::XdrProtocol::recv_request_block(REQUEST_BLOCK* request_block, LogMallocList* log_malloc_list,
+int uda::XdrProtocol::recv_request_block(RequestBlock* request_block, LogMallocList* log_malloc_list,
                                          UserDefinedTypeList* user_defined_type_list)
 {
     int err = 0;
@@ -459,7 +459,7 @@ int uda::XdrProtocol::eof()
     return 0;
 }
 
-DATA_BLOCK* uda::XdrProtocol::read_from_cache(uda::cache::UdaCache* cache, RequestData* request,
+DataBlock* uda::XdrProtocol::read_from_cache(uda::cache::UdaCache* cache, RequestData* request,
                                               server::Environment& environment, LogMallocList* log_malloc_list,
                                               UserDefinedTypeList* user_defined_type_list)
 {

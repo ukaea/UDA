@@ -42,10 +42,10 @@ typedef struct {
     int id;     // Thread identifier assigned by the application
     int socket; // Either a shared or private server socket connection
     int lastHandle;
-    ENVIRONMENT environment; // State
-    CLIENT_BLOCK client_block;
-    SERVER_BLOCK server_block;
-} IDAMSTATE;
+    Environment environment; // State
+    ClientBlock client_block;
+    ServerBlock server_block;
+} UDA_STATE;
 
 #  ifdef __GNUC__
 typedef pthread_t thread_t;
@@ -61,9 +61,9 @@ static HANDLE lock;
 
 // STATE management
 
-static IDAMSTATE idamState[UDA_NUM_CLIENT_THREADS]; // Threads are managed by the application, not IDAM
-static thread_t threadList[UDA_NUM_CLIENT_THREADS];
-static int threadCount = 0;
+static UDA_STATE uda_state[UDA_NUM_CLIENT_THREADS]; // Threads are managed by the application, not IDAM
+static thread_t thread_list[UDA_NUM_CLIENT_THREADS];
+static int thread_count = 0;
 
 int udaGetMaxThreadCount()
 {
@@ -77,13 +77,13 @@ int udaGetMaxThreadCount()
  */
 int getThreadId(thread_t id)
 {
-    for (int i = 0; i < threadCount; i++) {
+    for (int i = 0; i < thread_count; i++) {
 #  ifdef __GNUC__
-        if (pthread_equal(id, threadList[i])) {
+        if (pthread_equal(id, thread_list[i])) {
             return i;
         }
 #  else
-        if (GetThreadId(id) == GetThreadId(threadList[i])) {
+        if (GetThreadId(id) == GetThreadId(thread_list[i])) {
             return i;
         }
 #  endif
@@ -122,13 +122,13 @@ void udaLockThread()
     if (!mutex_initialised) {
         mutex_initialised = 1;
         for (int i = 0; i < UDA_NUM_CLIENT_THREADS; i++) { // Initialise the STATE array
-            idamState[i].id = i;
-            idamState[i].socket = -1;
-            idamState[i].lastHandle = -1;
-            // initEnvironment(&(idamState[i].environment));
-            init_client_block(&(idamState[i].client_block), 0, "");
-            init_server_block(&(idamState[i].server_block), 0);
-            threadList[i] = 0; // and the thread identifiers
+            uda_state[i].id = i;
+            uda_state[i].socket = -1;
+            uda_state[i].lastHandle = -1;
+            // initEnvironment(&(uda_state[i].environment));
+            init_client_block(&(uda_state[i].client_block), 0, "");
+            init_server_block(&(uda_state[i].server_block), 0);
+            thread_list[i] = 0; // and the thread identifiers
         }
     }
 
@@ -136,21 +136,21 @@ void udaLockThread()
 
     int id = getThreadId(threadId);
 
-    if (threadCount < UDA_NUM_CLIENT_THREADS && id == -1) {
+    if (thread_count < UDA_NUM_CLIENT_THREADS && id == -1) {
         // Preserve the thread ID if not registered
-        threadList[++threadCount - 1] = threadId;
+        thread_list[++thread_count - 1] = threadId;
     }
 
     // Assign State for the current thread if previously registered
 
     if (id >= 0) {
-        udaPutServerSocket(idamState[id].socket);
-        // putIdamClientEnvironment(&idamState[id].environment);
-        udaPutThreadClientBlock(&idamState[id].client_block);
-        udaPutThreadServerBlock(&idamState[id].server_block);
+        udaPutServerSocket(uda_state[id].socket);
+        // putIdamClientEnvironment(&uda_state[id].environment);
+        udaPutThreadClientBlock(&uda_state[id].client_block);
+        udaPutThreadServerBlock(&uda_state[id].server_block);
         auto client_flags = udaClientFlags();
-        client_flags->flags = idamState[id].client_block.clientFlags;
-        udaPutThreadLastHandle(idamState[id].lastHandle);
+        client_flags->flags = uda_state[id].client_block.clientFlags;
+        udaPutThreadLastHandle(uda_state[id].lastHandle);
     } else {
         udaPutThreadLastHandle(-1);
     }
@@ -168,13 +168,13 @@ void udaUnlockThread()
 #  endif
     int id = getThreadId(threadId); // Must be registered
     if (id >= 0) {
-        idamState[id].socket = udaGetServerSocket();
-        // idamState[id].environment = *getIdamClientEnvironment();
-        idamState[id].client_block = udaGetThreadClientBlock();
-        idamState[id].server_block = udaGetThreadServerBlock();
+        uda_state[id].socket = udaGetServerSocket();
+        // uda_state[id].environment = *getIdamClientEnvironment();
+        uda_state[id].client_block = udaGetThreadClientBlock();
+        uda_state[id].server_block = udaGetThreadServerBlock();
         auto client_flags = udaClientFlags();
-        idamState[id].client_block.clientFlags = client_flags->flags;
-        idamState[id].lastHandle = udaGetThreadLastHandle();
+        uda_state[id].client_block.clientFlags = client_flags->flags;
+        uda_state[id].lastHandle = udaGetThreadLastHandle();
     }
 #  ifdef __GNUC__
     pthread_mutex_unlock(&lock);
@@ -195,20 +195,20 @@ void udaFreeThread()
     thread_t threadId = GetCurrentThread();
 #  endif
     int id = getThreadId(threadId);
-    threadCount--;
+    thread_count--;
     if (id >= 0) {
-        for (int i = id; i < threadCount; i++) {
-            threadList[i] = threadList[i + 1]; // Shuffle state
-            idamState[i] = idamState[i + 1];
-            idamState[i].id = i;
+        for (int i = id; i < thread_count; i++) {
+            thread_list[i] = thread_list[i + 1]; // Shuffle state
+            uda_state[i] = uda_state[i + 1];
+            uda_state[i].id = i;
         }
-        idamState[threadCount].id = threadCount;
-        idamState[threadCount].socket = -1;
-        idamState[threadCount].lastHandle = -1;
-        // initEnvironment(&(idamState[threadCount].environment));
-        init_client_block(&(idamState[threadCount].client_block), 0, "");
-        init_server_block(&(idamState[threadCount].server_block), 0);
-        threadList[threadCount] = 0;
+        uda_state[thread_count].id = thread_count;
+        uda_state[thread_count].socket = -1;
+        uda_state[thread_count].lastHandle = -1;
+        // initEnvironment(&(uda_state[thread_count].environment));
+        init_client_block(&(uda_state[thread_count].client_block), 0, "");
+        init_server_block(&(uda_state[thread_count].server_block), 0);
+        thread_list[thread_count] = 0;
     }
     udaUnlockThread();
 }
@@ -391,7 +391,7 @@ int udaGetAPIWithHost(const char* data_object, const char* data_source, const ch
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
 
-    REQUEST_BLOCK request_block;
+    RequestBlock request_block;
     init_request_block(&request_block);
 
     //------------------------------------------------------------------------------
@@ -505,7 +505,7 @@ int udaGetBatchAPIWithHost(const char** signals, const char** sources, int count
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
 
-    REQUEST_BLOCK request_block;
+    RequestBlock request_block;
     init_request_block(&request_block);
 
     //------------------------------------------------------------------------------

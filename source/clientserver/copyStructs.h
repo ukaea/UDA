@@ -5,8 +5,8 @@
 namespace uda::client_server
 {
 
-void copy_request_data(REQUEST_DATA* out, REQUEST_DATA in);
+void copy_request_data(RequestData* out, RequestData in);
 
-void copy_request_block(REQUEST_BLOCK* out, REQUEST_BLOCK in);
+void copy_request_block(RequestBlock* out, RequestBlock in);
 
 } // namespace uda::client_server

@@ -142,7 +142,7 @@ If there are more wildcards in the substitute string than in the target string, 
 @param path The path to be tested for targeted name element replacement.
 @returns An integer Error Code: If non zero, a problem occurred.
 */
-int uda::client_server::path_replacement(char* path, const ENVIRONMENT* environment)
+int uda::client_server::path_replacement(char* path, const Environment* environment)
 {
     //----------------------------------------------------------------------------------------------
     // Does the Path contain hierarchical components not seen by the server? If so make a substitution.
@@ -379,7 +379,7 @@ int uda::client_server::link_replacement(char* path)
 @returns An integer Error Code: If non zero, a problem occured.
 */
 
-int uda::client_server::expand_file_path(char* path, const ENVIRONMENT* environment)
+int uda::client_server::expand_file_path(char* path, const Environment* environment)
 {
 
 #  ifdef _WIN32

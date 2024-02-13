@@ -39,16 +39,16 @@
 using namespace uda::client_server;
 using namespace uda::logging;
 
-static void extract_function_name(const char* str, REQUEST_DATA* request);
+static void extract_function_name(const char* str, RequestData* request);
 
-static int source_file_format_test(const char* source, REQUEST_DATA* request,
-                                   const uda::plugins::PluginList* pluginList, const ENVIRONMENT* environment);
+static int source_file_format_test(const char* source, RequestData* request,
+                                   const uda::plugins::PluginList* pluginList, const Environment* environment);
 
-static int extract_archive(REQUEST_DATA* request, int reduceSignal, const ENVIRONMENT* environment);
+static int extract_archive(RequestData* request, int reduceSignal, const Environment* environment);
 
-static int generic_request_test(const char* source, REQUEST_DATA* request);
+static int generic_request_test(const char* source, RequestData* request);
 
-static int extract_subset(REQUEST_DATA* request);
+static int extract_subset(RequestData* request);
 
 namespace uda
 {
@@ -71,8 +71,8 @@ static int find_plugin_id_by_format(const char* format, const uda::plugins::Plug
     return -1;
 }
 
-int uda::client_server::make_request_data(REQUEST_DATA* request, const uda::plugins::PluginList* pluginList,
-                                        const ENVIRONMENT* environment)
+int uda::client_server::make_request_data(RequestData* request, const uda::plugins::PluginList* pluginList,
+                                        const Environment* environment)
 {
     int ldelim;
     int err = 0;
@@ -168,7 +168,7 @@ int uda::client_server::make_request_data(REQUEST_DATA* request, const uda::plug
     //
     //    function(arguments or name value pair list)        server side processing of data
     //    LIBRARY::function(arguments or name value pair list)    function plugin library
-    //    DEVICE::function(arguments or name value pair list)    Not allowed - use DEVICE::SERVERSIDE::function()
+    //    DEVICE::function(arguments or name value pair list)    Not allowed - use DEVICE::ServerSide::function()
     //
     //    DEVICE::FORMAT:: ...            If the DEVICE is not the default device, then a server protocol is invoked to
     //    pass
@@ -593,7 +593,7 @@ int uda::client_server::make_request_data(REQUEST_DATA* request, const uda::plug
 
             if (!isFunction) { // Must be a default server-side function
                 for (int i = 0; i < pluginList->count; i++) {
-                    if (STR_IEQUALS(pluginList->plugin[i].symbol, "SERVERSIDE") &&
+                    if (STR_IEQUALS(pluginList->plugin[i].symbol, "ServerSide") &&
                         pluginList->plugin[i].library[0] == '\0') {
                         request->request = REQUEST_READ_SERVERSIDE; // Found
                         strcpy(request->format, pluginList->plugin[i].format);
@@ -742,8 +742,8 @@ int uda::client_server::make_request_data(REQUEST_DATA* request, const uda::plug
     return 0;
 }
 
-int uda::client_server::make_request_block(REQUEST_BLOCK* request_block, const uda::plugins::PluginList* pluginList,
-                                           const ENVIRONMENT* environment)
+int uda::client_server::make_request_block(RequestBlock* request_block, const uda::plugins::PluginList* pluginList,
+                                           const Environment* environment)
 {
     int rc = 0;
 
@@ -758,7 +758,7 @@ int uda::client_server::make_request_block(REQUEST_BLOCK* request_block, const u
     return rc;
 }
 
-void extract_function_name(const char* str, REQUEST_DATA* request)
+void extract_function_name(const char* str, RequestData* request)
 {
     int lstr;
     char* p;
@@ -789,8 +789,8 @@ void extract_function_name(const char* str, REQUEST_DATA* request)
 /**
  * returns true if a format was identified, false otherwise.
  */
-int source_file_format_test(const char* source, REQUEST_DATA* request, const uda::plugins::PluginList* pluginList,
-                            const ENVIRONMENT* environment)
+int source_file_format_test(const char* source, RequestData* request, const uda::plugins::PluginList* pluginList,
+                            const Environment* environment)
 {
     int rc = 0;
     const char* test;
@@ -1051,7 +1051,7 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, const uda
 /**
  * Return true if the Generic plugin was selected, false otherwise
  */
-int generic_request_test(const char* source, REQUEST_DATA* request)
+int generic_request_test(const char* source, RequestData* request)
 {
     int rc = 0;
     char* token = nullptr;
@@ -1108,9 +1108,9 @@ int generic_request_test(const char* source, REQUEST_DATA* request)
 
 //------------------------------------------------------------------------------
 // Strip out the Archive or Plugin name from the data_object name
-// syntax:    ARCHIVE::Data_OBJECT or DATA_OBJECT
+// syntax:    ARCHIVE::Data_OBJECT or DataObject
 //        ARCHIVE::PLUGIN::Function() or PLUGIN::Function()
-// conflict:    ARCHIVE::DATA_OBJECT[::] or DATA_OBJECT[::] subsetting operations
+// conflict:    ARCHIVE::DataObject[::] or DataObject[::] subsetting operations
 //
 // NOTE: Archive/Plugin Name should not terminate with the character [ or { when a signal begins with the
 //       character ] or }. These clash with subsetting syntax.
@@ -1118,7 +1118,7 @@ int generic_request_test(const char* source, REQUEST_DATA* request)
 // Input Argument: reduceSignal - If TRUE (1) then extract the archive name and return the data object name
 //                                without the prefixed archive name.
 
-int extract_archive(REQUEST_DATA* request, int reduceSignal, const ENVIRONMENT* environment)
+int extract_archive(RequestData* request, int reduceSignal, const Environment* environment)
 {
     int err = 0, test1, test2;
     int ldelim = (int)strlen(request->api_delim);
@@ -1283,7 +1283,7 @@ void udaExpandEnvironmentalVariables(char* path)
     }
 }
 
-OPTIONAL_LONG parse_integer(const std::string& value)
+OptionalLong parse_integer(const std::string& value)
 {
     if (value.empty()) {
         return {.init = false, .value = 0};
@@ -1296,7 +1296,7 @@ OPTIONAL_LONG parse_integer(const std::string& value)
     return {.init = true, .value = num};
 }
 
-int parse_element(SUBSET& subset, const std::string& element)
+int parse_element(Subset& subset, const std::string& element)
 {
     std::vector<std::string> tokens;
     boost::split(tokens, element, boost::is_any_of(":"), boost::token_compress_off);
@@ -1342,7 +1342,7 @@ int parse_element(SUBSET& subset, const std::string& element)
     return 0;
 }
 
-int parse_operation(SUBSET& subset, const std::string& operation)
+int parse_operation(Subset& subset, const std::string& operation)
 {
     //----------------------------------------------------------------------------------------------------------------------------
     // Split instructions using syntax [a:b:c, d:e:f] where [startIndex:stopIndex:stride]
@@ -1378,7 +1378,7 @@ int parse_operation(SUBSET& subset, const std::string& operation)
 //
 // Signal should avoid using subset like components in their name
 
-int extract_subset(REQUEST_DATA* request)
+int extract_subset(RequestData* request)
 {
     // Return codes:
     //
@@ -1443,7 +1443,7 @@ int extract_subset(REQUEST_DATA* request)
 //
 // The returned value is the count of the name value pairs. If an error occurs, the returned value of the
 // pair count is -1.
-void uda::client_server::free_name_value_list(NAMEVALUELIST* nameValueList)
+void uda::client_server::free_name_value_list(NameValueList* nameValueList)
 {
     if (nameValueList->nameValue != nullptr) {
         for (int i = 0; i < nameValueList->pairCount; i++) {
@@ -1464,7 +1464,7 @@ void uda::client_server::free_name_value_list(NAMEVALUELIST* nameValueList)
     nameValueList->nameValue = nullptr;
 }
 
-void parse_name_value(const char* pair, NAMEVALUE* nameValue, unsigned short strip)
+void parse_name_value(const char* pair, NameValue* nameValue, unsigned short strip)
 {
     int lstr;
     char *p, *copy;
@@ -1589,7 +1589,7 @@ std::vector<uda::NameValue> uda::name_value_pairs(std::string_view input, bool s
     return name_values;
 }
 
-int uda::client_server::name_value_pairs(const char* pairList, NAMEVALUELIST* nameValueList, unsigned short strip)
+int uda::client_server::name_value_pairs(const char* pairList, NameValueList* nameValueList, unsigned short strip)
 {
     // Ignore delimiter in anything enclosed in single or double quotes
     // Recognise /name as name=TRUE
@@ -1598,7 +1598,7 @@ int uda::client_server::name_value_pairs(const char* pairList, NAMEVALUELIST* na
     int lstr, pairCount = 0;
     char proposal, delimiter = ',', substitute = 1;
     char *p, *p2, *p3 = nullptr, *buffer, *copy;
-    NAMEVALUE nameValue;
+    NameValue nameValue;
     lstr = (int)strlen(pairList);
 
     if (lstr == 0) {
@@ -1704,8 +1704,8 @@ int uda::client_server::name_value_pairs(const char* pairList, NAMEVALUELIST* na
         if (nameValue.name != nullptr) { // Values may be nullptr for use case where placeholder substitution is used
             pairCount++;
             if (pairCount > nameValueList->listSize) {
-                nameValueList->nameValue = (NAMEVALUE*)realloc((void*)nameValueList->nameValue,
-                                                               (nameValueList->listSize + 10) * sizeof(NAMEVALUE));
+                nameValueList->nameValue = (NameValue*)realloc((void*)nameValueList->nameValue,
+                                                               (nameValueList->listSize + 10) * sizeof(NameValue));
                 nameValueList->listSize = nameValueList->listSize + 10;
             }
             nameValueList->pairCount = pairCount;

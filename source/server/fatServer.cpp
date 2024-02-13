@@ -34,7 +34,7 @@ using namespace uda::server;
 using namespace uda::logging;
 
 static uda::plugins::PluginList pluginList; // List of all data reader plugins (internal and external shared libraries)
-ENVIRONMENT environment;                    // Holds local environment variable values
+Environment environment;                    // Holds local environment variable values
 
 static USERDEFINEDTYPELIST* user_defined_type_list = nullptr;
 static LOGMALLOCLIST* log_malloc_list = nullptr;
@@ -50,13 +50,13 @@ static int protocol_version = 8;
 
 SOCKETLIST socket_list;
 
-typedef struct MetadataBlock {
-    DATA_SOURCE data_source;
-    SIGNAL signal_rec;
-    SIGNAL_DESC signal_desc;
-    SYSTEM_CONFIG system_config;
-    DATA_SYSTEM data_system;
-} METADATA_BLOCK;
+struct MetaDataBlock {
+    DataSource data_source;
+    Signal signal_rec;
+    SignalDesc signal_desc;
+    SystemConfig system_config;
+    DataSystem data_system;
+};
 
 #ifdef FATCLIENT
 extern "C" {
@@ -73,35 +73,35 @@ void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
 }
 #endif
 
-static int startup_fat_server(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduserdefinedtypelist);
+static int startup_fat_server(ServerBlock* server_block, USERDEFINEDTYPELIST& parseduserdefinedtypelist);
 
-static int do_fat_server_closedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, ACTIONS* actions_desc,
-                                   ACTIONS* actions_sig, DATA_BLOCK_LIST* data_blocks0);
+static int do_fat_server_closedown(ServerBlock* server_block, DataBlockList* data_blocks, Actions* actions_desc,
+                                   Actions* actions_sig, DataBlockList* data_blocks0);
 
-static int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0, CLIENT_BLOCK* client_block,
-                              SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK_LIST* data_block,
-                              ACTIONS* actions_desc, ACTIONS* actions_sig);
+static int handle_request_fat(RequestBlock* request_block, RequestBlock* request_block0, ClientBlock* client_block,
+                              ServerBlock* server_block, MetaDataBlock* metadata_block, DataBlockList* data_block,
+                              Actions* actions_desc, Actions* actions_sig);
 
-static int fat_client_return(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
-                             REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
+static int fat_client_return(ServerBlock* server_block, DataBlockList* data_blocks, DataBlockList* data_blocks0,
+                             RequestBlock* request_block, ClientBlock* client_block, MetaDataBlock* metadata_block,
                              LOGSTRUCTLIST* log_struct_list, uda::server::IoData* io_data);
 
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
-int uda::server::fat_server(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0,
-                            DATA_BLOCK_LIST* data_blocks0)
+int uda::server::fat_server(ClientBlock client_block, ServerBlock* server_block, RequestBlock* request_block0,
+                            DataBlockList* data_blocks0)
 {
     assert(data_blocks0 != nullptr);
 
-    METADATA_BLOCK metadata_block;
-    memset(&metadata_block, '\0', sizeof(METADATA_BLOCK));
+    MetaDataBlock metadata_block;
+    memset(&metadata_block, '\0', sizeof(MetaDataBlock));
 
-    DATA_BLOCK_LIST data_blocks;
-    REQUEST_BLOCK request_block;
+    DataBlockList data_blocks;
+    RequestBlock request_block;
 
-    ACTIONS actions_desc;
-    ACTIONS actions_sig;
+    Actions actions_desc;
+    Actions actions_sig;
 
     LOGSTRUCTLIST log_struct_list;
     initLogStructList(&log_struct_list);
@@ -180,7 +180,7 @@ int uda::server::fat_server(CLIENT_BLOCK client_block, SERVER_BLOCK* server_bloc
  * Client deletes stale files automatically on startup.
  * @return
  */
-static int process_hierarchical_data(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list,
+static int process_hierarchical_data(DataBlock* data_block, LOGSTRUCTLIST* log_struct_list,
                                      uda::server::IoData* io_data)
 {
     int err = 0;
@@ -196,7 +196,7 @@ static int process_hierarchical_data(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_
         strcpy(tempFile, "/tmp/idamXDRXXXXXX");
     }
 
-    DATA_BLOCK data_block_copy = *data_block;
+    DataBlock data_block_copy = *data_block;
 
     errno = 0;
     if (mkstemp(tempFile) < 0 || errno != 0) {
@@ -253,8 +253,8 @@ static int process_hierarchical_data(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_
     return err;
 }
 
-int fat_client_return(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
-                      REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
+int fat_client_return(ServerBlock* server_block, DataBlockList* data_blocks, DataBlockList* data_blocks0,
+                      RequestBlock* request_block, ClientBlock* client_block, MetaDataBlock* metadata_block,
                       LOGSTRUCTLIST* log_struct_list, uda::server::IoData* io_data)
 {
     //----------------------------------------------------------------------------
@@ -283,9 +283,9 @@ int fat_client_return(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, 
     return err;
 }
 
-int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_block0, CLIENT_BLOCK* client_block,
-                       SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, DATA_BLOCK_LIST* data_blocks,
-                       ACTIONS* actions_desc, ACTIONS* actions_sig)
+int handle_request_fat(RequestBlock* request_block, RequestBlock* request_block0, ClientBlock* client_block,
+                       ServerBlock* server_block, MetaDataBlock* metadata_block, DataBlockList* data_blocks,
+                       Actions* actions_desc, Actions* actions_sig)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
@@ -334,7 +334,7 @@ int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_bloc
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[i];
         assert(i == data_blocks->count);
-        data_blocks->data = (DATA_BLOCK*)realloc(data_blocks->data, (data_blocks->count + 1) * sizeof(DATA_BLOCK));
+        data_blocks->data = (DataBlock*)realloc(data_blocks->data, (data_blocks->count + 1) * sizeof(DataBlock));
         auto data_block = &data_blocks->data[i];
         init_data_block(data_block);
         err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
@@ -347,8 +347,8 @@ int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_bloc
         return err;
     }
 
-    DATA_SOURCE* data_source = &metadata_block->data_source;
-    SIGNAL_DESC* signal_desc = &metadata_block->signal_desc;
+    DataSource* data_source = &metadata_block->data_source;
+    SignalDesc* signal_desc = &metadata_block->signal_desc;
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
     UDA_LOG(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
@@ -388,8 +388,8 @@ int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_bloc
     return err;
 }
 
-int do_fat_server_closedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, ACTIONS* actions_desc,
-                            ACTIONS* actions_sig, DATA_BLOCK_LIST* data_blocks0)
+int do_fat_server_closedown(ServerBlock* server_block, DataBlockList* data_blocks, Actions* actions_desc,
+                            Actions* actions_sig, DataBlockList* data_blocks0)
 {
     //----------------------------------------------------------------------------
     // Free Plugin List and Close all open library entries
@@ -414,7 +414,7 @@ int do_fat_server_closedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_bl
     return 0;
 }
 
-int startup_fat_server(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parseduserdefinedtypelist)
+int startup_fat_server(ServerBlock* server_block, USERDEFINEDTYPELIST& parseduserdefinedtypelist)
 {
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;

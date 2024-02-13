@@ -1551,7 +1551,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
                                         void* str, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
                                         unsigned int private_flags, int malloc_source)
 {
-    DATA_BLOCK* data_block;
+    DataBlock* data_block;
 
     int rc = 1;
     int err = 0;
@@ -1567,7 +1567,7 @@ int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direct
         if (protocol_id == UDA_PROTOCOL_STRUCTURES) {
 
             void* data = nullptr;
-            data_block = (DATA_BLOCK*)str;
+            data_block = (DataBlock*)str;
 
             if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
                 int packageType = 0;

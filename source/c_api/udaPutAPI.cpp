@@ -38,7 +38,7 @@ int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlock
 {
 
     int err = 0;
-    REQUEST_BLOCK request_block;
+    RequestBlock request_block;
     PutDataBlockList emptyPutDataBlockList;
     PutDataBlockList* putDataBlockList = nullptr;
 
@@ -116,7 +116,7 @@ int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlock
 int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 {
     int err = 0;
-    REQUEST_BLOCK request_block;
+    RequestBlock request_block;
     PutDataBlock emptyPutDataBlock;
     PutDataBlock* putData = nullptr;
 

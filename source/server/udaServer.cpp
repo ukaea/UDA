@@ -76,61 +76,61 @@ USERDEFINEDTYPELIST parsed_user_defined_type_list; // Initial set of User Define
 // Total amount sent for the last data request
 
 static uda::plugins::PluginList plugin_list; // List of all data reader plugins (internal and external shared libraries)
-ENVIRONMENT environment;                     // Holds local environment variable values
+Environment environment;                     // Holds local environment variable values
 
 static SOCKETLIST socket_list;
 
 typedef struct MetadataBlock {
-    DATA_SOURCE data_source;
-    SIGNAL signal_rec;
-    SIGNAL_DESC signal_desc;
-    SYSTEM_CONFIG system_config;
-    DATA_SYSTEM data_system;
-} METADATA_BLOCK;
+    DataSource data_source;
+    Signal signal_rec;
+    SignalDesc signal_desc;
+    SystemConfig system_config;
+    DataSystem data_system;
+} MetaDataBlock;
 
-static int startup_server(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output,
+static int startup_server(ServerBlock* server_block, XDR*& server_input, XDR*& server_output,
                           uda::server::IoData* io_data);
 
-static int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
-                          METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
-                          DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown,
+static int handle_request(RequestBlock* request_block, ClientBlock* client_block, ServerBlock* server_block,
+                          MetaDataBlock* metadata_block, Actions* actions_desc, Actions* actions_sig,
+                          DataBlockList* data_block_list, int* fatal, int* server_closedown,
                           uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list, XDR* server_input,
                           const unsigned int* total_datablock_size, int server_tot_block_time, int* server_timeout);
 
-static int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
-                          SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
-                          ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
+static int do_server_loop(RequestBlock* request_block, DataBlockList* data_block_list, ClientBlock* client_block,
+                          ServerBlock* server_block, MetaDataBlock* metadata_block, Actions* actions_desc,
+                          Actions* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
                           XDR* server_input, XDR* server_output, unsigned int* total_datablock_size,
                           int server_tot_block_time, int* server_timeout);
 
-static int report_to_client(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
-                            int trap1Err, METADATA_BLOCK* metadata_block, LOGSTRUCTLIST* log_struct_list,
+static int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, ClientBlock* client_block,
+                            int trap1Err, MetaDataBlock* metadata_block, LOGSTRUCTLIST* log_struct_list,
                             XDR* server_output, unsigned int* total_datablock_size);
 
-static int do_server_closedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block,
-                               DATA_BLOCK_LIST* data_block_list, int server_tot_block_time, int server_timeout);
+static int do_server_closedown(ClientBlock* client_block, RequestBlock* request_block,
+                               DataBlockList* data_block_list, int server_tot_block_time, int server_timeout);
 
 #ifdef SECURITYENABLED
-static int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block);
+static int authenticateClient(ClientBlock* client_block, ServerBlock* server_block);
 #else
-static int handshake_client(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int* server_closedown,
+static int handshake_client(ClientBlock* client_block, ServerBlock* server_block, int* server_closedown,
                             LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output);
 #endif
 
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
-int uda::server::uda_server(uda::client_server::CLIENT_BLOCK client_block)
+int uda::server::uda_server(uda::client_server::ClientBlock client_block)
 {
     int err = 0;
-    METADATA_BLOCK metadata_block;
-    memset(&metadata_block, '\0', sizeof(METADATA_BLOCK));
+    MetaDataBlock metadata_block;
+    memset(&metadata_block, '\0', sizeof(MetaDataBlock));
 
-    REQUEST_BLOCK request_block;
-    SERVER_BLOCK server_block;
+    RequestBlock request_block;
+    ServerBlock server_block;
 
-    ACTIONS actions_desc;
-    ACTIONS actions_sig;
+    Actions actions_desc;
+    Actions actions_sig;
 
     XDR* server_input = nullptr;
     XDR* server_output = nullptr;
@@ -171,7 +171,7 @@ int uda::server::uda_server(uda::client_server::CLIENT_BLOCK client_block)
                            server_output);
 #endif
 
-    DATA_BLOCK_LIST data_block_list;
+    DataBlockList data_block_list;
     data_block_list.count = 0;
     data_block_list.data = nullptr;
 
@@ -187,8 +187,8 @@ int uda::server::uda_server(uda::client_server::CLIENT_BLOCK client_block)
     return err;
 }
 
-int report_to_client(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
-                     int trap1Err, METADATA_BLOCK* metadata_block, LOGSTRUCTLIST* log_struct_list, XDR* server_output,
+int report_to_client(ServerBlock* server_block, DataBlockList* data_block_list, ClientBlock* client_block,
+                     int trap1Err, MetaDataBlock* metadata_block, LOGSTRUCTLIST* log_struct_list, XDR* server_output,
                      unsigned int* total_datablock_size)
 {
     //----------------------------------------------------------------------------
@@ -249,7 +249,7 @@ int report_to_client(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_lis
 
     if (client_block->get_meta) {
         *total_datablock_size +=
-            sizeof(DATA_SYSTEM) + sizeof(SYSTEM_CONFIG) + sizeof(DATA_SOURCE) + sizeof(SIGNAL) + sizeof(SIGNAL_DESC);
+            sizeof(DataSystem) + sizeof(SystemConfig) + sizeof(DataSource) + sizeof(Signal) + sizeof(SignalDesc);
 
         //----------------------------------------------------------------------------
         // Send the Data System Structure
@@ -355,7 +355,7 @@ int report_to_client(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_lis
     // Legacy Hierarchical Data Structures
 
     for (int i = 0; i < data_block_list->count; ++i) {
-        DATA_BLOCK* data_block = &data_block_list->data[i];
+        DataBlock* data_block = &data_block_list->data[i];
 
         if (protocol_version < 10 && data_block->data_type == UDA_TYPE_COMPOUND &&
             data_block->opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
@@ -385,9 +385,9 @@ int report_to_client(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_lis
     return err;
 }
 
-int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
-                   METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
-                   DATA_BLOCK_LIST* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache,
+int handle_request(RequestBlock* request_block, ClientBlock* client_block, ServerBlock* server_block,
+                   MetaDataBlock* metadata_block, Actions* actions_desc, Actions* actions_sig,
+                   DataBlockList* data_block_list, int* fatal, int* server_closedown, uda::cache::UdaCache* cache,
                    LOGSTRUCTLIST* log_struct_list, XDR* server_input, const unsigned int* total_datablock_size,
                    int server_tot_block_time, int* server_timeout)
 {
@@ -505,7 +505,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     print_request_block(*request_block);
 
     data_block_list->count = request_block->num_requests;
-    data_block_list->data = (DATA_BLOCK*)calloc(data_block_list->count, sizeof(DATA_BLOCK));
+    data_block_list->data = (DataBlock*)calloc(data_block_list->count, sizeof(DataBlock));
 
     //------------------------------------------------------------------------------------------------------------------
     // Prepend Proxy Host to Source to redirect client request
@@ -628,7 +628,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
 #else
 
     for (int i = 0; i < request_block->num_requests; ++i) {
-        REQUEST_DATA* request = &request_block->requests[i];
+        RequestData* request = &request_block->requests[i];
 
         std::string work;
         if (request->api_delim[0] != '\0') {
@@ -701,7 +701,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     // If this is a PUT request then receive the putData structure
 
     for (int i = 0; i < request_block->num_requests; ++i) {
-        REQUEST_DATA* request = &request_block->requests[0];
+        RequestData* request = &request_block->requests[0];
 
         init_put_data_block_list(&request->putDataBlockList);
 
@@ -757,7 +757,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
             continue;
         }
 
-        DATA_BLOCK* data_block = &data_block_list->data[i];
+        DataBlock* data_block = &data_block_list->data[i];
         int depth = 0;
         err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
                          &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
@@ -771,8 +771,8 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
         request_block->requests[i].function[0] = '\0';
     }
 
-    DATA_SOURCE* data_source = &metadata_block->data_source;
-    SIGNAL_DESC* signal_desc = &metadata_block->signal_desc;
+    DataSource* data_source = &metadata_block->data_source;
+    SignalDesc* signal_desc = &metadata_block->signal_desc;
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
     UDA_LOG(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
@@ -801,7 +801,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
 
     if (client_block->get_dimdble || client_block->get_timedble || client_block->get_scalar) {
         for (int i = 0; i < data_block_list->count; ++i) {
-            DATA_BLOCK* data_block = &data_block_list->data[i];
+            DataBlock* data_block = &data_block_list->data[i];
             if (serverProcessing(*client_block, data_block) != 0) {
                 UDA_THROW_ERROR(779, "Server-Side Processing Error");
             }
@@ -813,7 +813,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     // Otherwise inform the client via the server state block
 
     for (int i = 0; i < data_block_list->count; ++i) {
-        DATA_BLOCK* data_block = &data_block_list->data[i];
+        DataBlock* data_block = &data_block_list->data[i];
 
         if (protocol_version < 6 && data_block->data_type == UDA_TYPE_STRING) {
             data_block->data_type = UDA_TYPE_CHAR;
@@ -827,7 +827,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
         }
 
         if (data_block->rank > 0) {
-            DIMS dim;
+            Dims dim;
             for (unsigned int j = 0; j < data_block->rank; j++) {
                 dim = data_block->dims[j];
                 if (protocol_version_type_test(protocol_version, dim.data_type) ||
@@ -847,9 +847,9 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     return err;
 }
 
-int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block,
-                   SERVER_BLOCK* server_block, METADATA_BLOCK* metadata_block, ACTIONS* actions_desc,
-                   ACTIONS* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
+int do_server_loop(RequestBlock* request_block, DataBlockList* data_block_list, ClientBlock* client_block,
+                   ServerBlock* server_block, MetaDataBlock* metadata_block, Actions* actions_desc,
+                   Actions* actions_sig, int* fatal, uda::cache::UdaCache* cache, LOGSTRUCTLIST* log_struct_list,
                    XDR* server_input, XDR* server_output, unsigned int* total_datablock_size, int server_tot_block_time,
                    int* server_timeout)
 {
@@ -940,7 +940,7 @@ int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_lis
     return err;
 }
 
-int do_server_closedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_list,
+int do_server_closedown(ClientBlock* client_block, RequestBlock* request_block, DataBlockList* data_block_list,
                         int server_tot_block_time, int server_timeout)
 {
     //----------------------------------------------------------------------------
@@ -1002,7 +1002,7 @@ int do_server_closedown(CLIENT_BLOCK* client_block, REQUEST_BLOCK* request_block
 }
 
 #ifdef SECURITYENABLED
-int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
+int authenticateClient(ClientBlock* client_block, ServerBlock* server_block)
 {
     static int authenticationNeeded = 1; // No data access until this is set TRUE
 
@@ -1051,7 +1051,7 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
 }
 #endif
 
-int handshake_client(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int* server_closedown,
+int handshake_client(ClientBlock* client_block, ServerBlock* server_block, int* server_closedown,
                      LOGSTRUCTLIST* log_struct_list, XDR* server_input, XDR* server_output)
 {
     // Exchange version details - once only
@@ -1136,7 +1136,7 @@ int handshake_client(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int
     return err;
 }
 
-int startup_server(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output, uda::server::IoData* io_data)
+int startup_server(ServerBlock* server_block, XDR*& server_input, XDR*& server_output, uda::server::IoData* io_data)
 {
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;

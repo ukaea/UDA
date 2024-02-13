@@ -28,23 +28,23 @@ typedef struct ClientFlags {
     int alt_rank;
 } CLIENT_FLAGS;
 
-uda::client_server::DATA_BLOCK* getDataBlock(int handle);
+uda::client_server::DataBlock* getDataBlock(int handle);
 
-void udaPutThreadServerBlock(uda::client_server::SERVER_BLOCK* str);
+void udaPutThreadServerBlock(uda::client_server::ServerBlock* str);
 
-void udaPutThreadClientBlock(uda::client_server::CLIENT_BLOCK* str);
+void udaPutThreadClientBlock(uda::client_server::ClientBlock* str);
 
-uda::client_server::SERVER_BLOCK udaGetThreadServerBlock();
+uda::client_server::ServerBlock udaGetThreadServerBlock();
 
-uda::client_server::CLIENT_BLOCK udaGetThreadClientBlock();
+uda::client_server::ClientBlock udaGetThreadClientBlock();
 
 CLIENT_FLAGS* udaClientFlags();
 
 unsigned int* udaPrivateFlags();
 
-int idamClient(uda::client_server::REQUEST_BLOCK* request_block, int* indices);
+int idamClient(uda::client_server::RequestBlock* request_block, int* indices);
 
-void updateClientBlock(uda::client_server::CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags,
+void updateClientBlock(uda::client_server::ClientBlock* str, const CLIENT_FLAGS* client_flags,
                        unsigned int private_flags);
 
 void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist);

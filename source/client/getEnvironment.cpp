@@ -10,14 +10,14 @@ using namespace uda::logging;
 bool env_host = true; // User can change these before startup so flag to the getEnvironment function
 bool env_port = true;
 
-static uda::client_server::ENVIRONMENT udaEnviron;
+static uda::client_server::Environment udaEnviron;
 
-void uda::client::putIdamClientEnvironment(const uda::client_server::ENVIRONMENT* environment)
+void uda::client::putIdamClientEnvironment(const uda::client_server::Environment* environment)
 {
     udaEnviron = *environment;
 }
 
-void uda::client::printIdamClientEnvironment(const uda::client_server::ENVIRONMENT* environment)
+void uda::client::printIdamClientEnvironment(const uda::client_server::Environment* environment)
 {
     UDA_LOG(UDA_LOG_INFO, "Client Environment Variable values\n");
     UDA_LOG(UDA_LOG_INFO, "Log Location    : %s\n", environment->logdir);
@@ -67,7 +67,7 @@ void uda::client::udaSetEnvPort(bool value)
     env_port = value;
 }
 
-uda::client_server::ENVIRONMENT* uda::client::getIdamClientEnvironment()
+uda::client_server::Environment* uda::client::getIdamClientEnvironment()
 {
     char* env = nullptr;
 

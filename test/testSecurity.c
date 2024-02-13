@@ -87,7 +87,7 @@ int main()
     int err = 0;
 
     CLIENT_BLOCK client_block;
-    SERVER_BLOCK server_block;
+    ServerBlock server_block;
 
     int clientVersion = 7;
     char* clientUsername = "jholloc";

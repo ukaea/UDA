@@ -18,7 +18,7 @@ int uda::server::startup()
     //----------------------------------------------------------------
     // Read Environment Variable Values (Held in a Global Structure)
 
-    const ENVIRONMENT* environment = getServerEnvironment();
+    const Environment* environment = getServerEnvironment();
 
     //---------------------------------------------------------------
     // Open the Log Files

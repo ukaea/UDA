@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 
     // Run server
 
-    uda::client_server::CLIENT_BLOCK client_block = {0};
+    uda::client_server::ClientBlock client_block = {0};
 
     int rc = uda::server::uda_server(client_block);
 

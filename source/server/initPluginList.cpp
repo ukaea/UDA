@@ -14,7 +14,7 @@
 using namespace uda::client_server;
 using namespace uda::plugins;
 
-void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, ENVIRONMENT* environment)
+void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, Environment* environment)
 {
     // initialise the Plugin List and Allocate heap for the list
 

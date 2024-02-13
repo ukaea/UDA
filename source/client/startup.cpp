@@ -42,7 +42,7 @@ int uda::client::udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_
     //----------------------------------------------------------------
     // Read Environment Variable Values (Held in a Global Structure)
 
-    const ENVIRONMENT* environment = nullptr;
+    const Environment* environment = nullptr;
 
     if (!start_status || environment == nullptr) {
         environment = getIdamClientEnvironment();

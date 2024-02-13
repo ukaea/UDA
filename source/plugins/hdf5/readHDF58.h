@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block);
+int readHDF5(DataSource data_source, SignalDesc signal_desc, DATA_BLOCK* data_block);
 
 #ifdef NOHDF5PLUGIN
 

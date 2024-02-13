@@ -43,7 +43,7 @@ void close_sockets(std::vector<Sockets>& sockets)
     sockets.clear();
 }
 
-void print_data_block_list(const std::vector<DATA_BLOCK>& data_blocks)
+void print_data_block_list(const std::vector<DataBlock>& data_blocks)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Data Blocks\n");
     UDA_LOG(UDA_LOG_DEBUG, "count        : %d\n", data_blocks.size());
@@ -517,7 +517,7 @@ int uda::Server::handle_request()
 #else
 
     for (int i = 0; i < request_block_.num_requests; ++i) {
-        REQUEST_DATA* request = &request_block_.requests[0];
+        RequestData* request = &request_block_.requests[0];
 
         char work[STRING_LENGTH];
         if (request->api_delim[0] != '\0') {
@@ -592,7 +592,7 @@ int uda::Server::handle_request()
     // If this is a PUT request then receive the putData structure
 
     for (int i = 0; i < request_block_.num_requests; ++i) {
-        REQUEST_DATA* request = &request_block_.requests[0];
+        RequestData* request = &request_block_.requests[0];
 
         init_put_data_block_list(&request->putDataBlockList);
 
@@ -641,7 +641,7 @@ int uda::Server::handle_request()
         }
 
         data_blocks_.push_back({});
-        DATA_BLOCK* data_block = &data_blocks_.back();
+        DataBlock* data_block = &data_blocks_.back();
 
         err = get_data(&depth, request, data_block, protocol_version);
 
@@ -652,8 +652,8 @@ int uda::Server::handle_request()
         request_block_.requests[i].function[0] = '\0';
     }
 
-    DATA_SOURCE* data_source = &metadata_block_.data_source;
-    SIGNAL_DESC* signal_desc = &metadata_block_.signal_desc;
+    DataSource* data_source = &metadata_block_.data_source;
+    SignalDesc* signal_desc = &metadata_block_.signal_desc;
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
     UDA_LOG(UDA_LOG_DEBUG, "Archive      : %s \n", data_source->archive);
@@ -706,7 +706,7 @@ int uda::Server::handle_request()
         }
 
         if (data_block.rank > 0) {
-            DIMS dim;
+            Dims dim;
             for (unsigned int j = 0; j < data_block.rank; j++) {
                 dim = data_block.dims[j];
                 if (protocol_version_type_test(protocol_version, dim.data_type) ||
@@ -793,7 +793,7 @@ int uda::Server::report_to_client()
 
     if (client_block_.get_meta) {
         total_datablock_size_ +=
-            sizeof(DATA_SYSTEM) + sizeof(SYSTEM_CONFIG) + sizeof(DATA_SOURCE) + sizeof(SIGNAL) + sizeof(SIGNAL_DESC);
+            sizeof(DataSystem) + sizeof(SystemConfig) + sizeof(DataSource) + sizeof(Signal) + sizeof(SignalDesc);
 
         err = protocol_.send_meta_data(metadata_block_, log_malloc_list_, user_defined_type_list_);
         if (err != 0) {

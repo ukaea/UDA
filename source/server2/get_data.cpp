@@ -233,14 +233,14 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 {
     int isDerived = 0, compId = -1, serverside = 0;
 
-    REQUEST_DATA request_block2;
-    DATA_BLOCK data_block2;
-    DATA_SOURCE data_source2;
-    SIGNAL signal_rec2;
-    SIGNAL_DESC signal_desc2;
-    ACTIONS actions_serverside;
-    ACTIONS actions_comp_desc, actions_comp_sig;
-    ACTIONS actions_comp_desc2, actions_comp_sig2;
+    RequestData request_block2;
+    DataBlock data_block2;
+    DataSource data_source2;
+    Signal signal_rec2;
+    SignalDesc signal_desc2;
+    Actions actions_serverside;
+    Actions actions_comp_desc, actions_comp_sig;
+    Actions actions_comp_desc2, actions_comp_sig2;
 
     static int original_request = 0; // First entry value of the Plugin Request
     static int original_xml = 0;     // First entry flag that XML was passed in
@@ -258,7 +258,7 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
         }
     }
 
-    SIGNAL_DESC* signal_desc = &metadata_block_.signal_desc;
+    SignalDesc* signal_desc = &metadata_block_.signal_desc;
 
     if (original_xml == 1 && *depth == 1) {
         metadata_block_.signal_desc.xml[0] = '\0';
@@ -281,14 +281,14 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
     if (protocol_version < 6) {
         if (STR_IEQUALS(request_data->archive, "SS") || STR_IEQUALS(request_data->archive, "SERVERSIDE")) {
-            if (!strncasecmp(request_data->signal, "SUBSET(", 7)) {
+            if (!strncasecmp(request_data->signal, "Subset(", 7)) {
                 serverside = 1;
                 init_actions(&actions_serverside);
                 int rc;
                 if ((rc = serverParseServerSide(request_data, &actions_serverside, nullptr)) != 0) {
                     return rc;
                 }
-                // Erase original SUBSET request
+                // Erase original Subset request
                 copy_string(trim_string(request_data->signal), metadata_block_.signal_desc.signal_name, MAXNAME);
             }
         }
@@ -302,7 +302,7 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
                 if ((rc = serverParseServerSide(request_data, &actions_serverside, nullptr)) != 0) {
                     return rc;
                 }
-                // Erase original SUBSET request
+                // Erase original Subset request
                 copy_string(trim_string(request_data->signal), metadata_block_.signal_desc.signal_name, MAXNAME);
             }
         }
@@ -475,13 +475,13 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
                     // This is not passed back via the argument as only a 'by value' pointer is specified.
                     // Assign to a global to pass back - poor design that needs correcting at a later date!
 
-                    // If the Archive is XML and the signal contains a ServerSide SUBSET function then parse and replace
+                    // If the Archive is XML and the signal contains a ServerSide Subset function then parse and replace
 
                     if (STR_IEQUALS(request_block2.archive, "XML") &&
-                        (strstr(request_block2.signal, "SS::SUBSET") != nullptr ||
-                         strstr(request_block2.signal, "SERVERSIDE::SUBSET") != nullptr)) {
+                        (strstr(request_block2.signal, "SS::Subset") != nullptr ||
+                         strstr(request_block2.signal, "SERVERSIDE::Subset") != nullptr)) {
                         strcpy(request_block2.archive, "SS");
-                        char* p = strstr(request_block2.signal, "::SUBSET");
+                        char* p = strstr(request_block2.signal, "::Subset");
                         strcpy(request_block2.signal, &p[2]);
                     }
 
@@ -728,12 +728,12 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
                                         "User Specified Composite Dimension Data Signal's File Format NOT Recognised");
                     }
 
-                    // If the Archive is XML and the signal contains a ServerSide SUBSET function then parse and replace
+                    // If the Archive is XML and the signal contains a ServerSide Subset function then parse and replace
 
-                    if ((strstr(request_block2.signal, "SS::SUBSET") != nullptr ||
-                         strstr(request_block2.signal, "SERVERSIDE::SUBSET") != nullptr)) {
+                    if ((strstr(request_block2.signal, "SS::Subset") != nullptr ||
+                         strstr(request_block2.signal, "SERVERSIDE::Subset") != nullptr)) {
                         strcpy(request_block2.archive, "SS");
-                        char* p = strstr(request_block2.signal, "::SUBSET");
+                        char* p = strstr(request_block2.signal, "::Subset");
                         strcpy(request_block2.signal, &p[2]);
                     }
 
@@ -896,7 +896,7 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
     if (!serverside && !isDerived && metadata_block_.signal_desc.type == 'S') {
         for (int i = 0; i < actions_desc_.nactions; i++) {
             if (actions_desc_.action[i].actionType == UDA_SUBSET_TYPE) {
-                UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (SUBSET)   %d\n", *depth);
+                UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Subset)   %d\n", *depth);
                 print_data_block(*data_block);
 
                 if ((rc = serverSubsetData(data_block, actions_desc_.action[i], log_malloc_list_)) != 0) {
@@ -933,7 +933,7 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
     return 0;
 }
 
-int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
+int uda::Server::read_data(RequestData* request, DataBlock* data_block)
 {
     // If err = 0 then standard signal data read
     // If err > 0 then an error occured
@@ -999,7 +999,7 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
 #endif
     //------------------------------------------------------------------------------
     // Identify the Signal Required from the Database if a Generic Signal Requested
-    // Plugin sourced data (type 'P') will fail as there is no entry in the DATA_SOURCE table so ignore
+    // Plugin sourced data (type 'P') will fail as there is no entry in the DataSource table so ignore
     //------------------------------------------------------------------------------
 
     if (request->request == REQUEST_READ_GENERIC) {

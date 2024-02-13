@@ -8,9 +8,9 @@
 namespace uda::server
 {
 
-int makeServerRequestBlock(uda::client_server::REQUEST_BLOCK* request_block, uda::plugins::PluginList pluginList);
+int makeServerRequestBlock(uda::client_server::RequestBlock* request_block, uda::plugins::PluginList pluginList);
 
-int makeServerRequestData(uda::client_server::REQUEST_DATA* request, uda::plugins::PluginList pluginList);
+int makeServerRequestData(uda::client_server::RequestData* request, uda::plugins::PluginList pluginList);
 
 } // namespace uda::server
 

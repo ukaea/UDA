@@ -74,7 +74,7 @@ int uda::client::connectionOpen()
     return client_socket != -1;
 }
 
-int uda::client::reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output, time_t* tv_server_start,
+int uda::client::reconnect(Environment* environment, XDR** client_input, XDR** client_output, time_t* tv_server_start,
                            int* user_timeout)
 {
     int err = 0;
@@ -236,7 +236,7 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
         }
     }
 
-    ENVIRONMENT* environment = getIdamClientEnvironment();
+    Environment* environment = getIdamClientEnvironment();
 
     if (client_socket >= 0) {
         // Check Already Opened?

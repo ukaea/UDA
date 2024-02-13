@@ -15,7 +15,7 @@ using namespace uda::client_server;
 namespace
 {
 int make_request_data(const Environment* environment, const char* data_object, const char* data_source,
-                      REQUEST_DATA* request)
+                      RequestData* request)
 {
     //------------------------------------------------------------------------------------------------------------------
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
@@ -119,14 +119,14 @@ int make_request_data(const Environment* environment, const char* data_object, c
 } // namespace
 
 int uda::client::make_request_block(const Environment* environment, const char** signals, const char** sources,
-                                    int count, REQUEST_BLOCK* request_block)
+                                    int count, RequestBlock* request_block)
 {
     request_block->num_requests = (int)count;
-    request_block->requests = (REQUEST_DATA*)malloc(count * sizeof(REQUEST_DATA));
+    request_block->requests = (RequestData*)malloc(count * sizeof(RequestData));
 
     int err = 0;
     for (int i = 0; i < count; ++i) {
-        REQUEST_DATA* request = &request_block->requests[i];
+        RequestData* request = &request_block->requests[i];
         init_request_data(request);
         if ((err = make_request_data(environment, signals[i], sources[i], request))) {
             return err;

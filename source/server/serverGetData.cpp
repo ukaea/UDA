@@ -26,30 +26,30 @@ using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::logging;
 
-static int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry);
-static int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2);
-static int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
+static int swap_signal_error(DataBlock* data_block, DataBlock* data_block2, int asymmetry);
+static int swap_signal_dim(DimComposite dimcomposite, DataBlock* data_block, DataBlock* data_block2);
+static int swap_signal_dim_error(DimComposite dimcomposite, DataBlock* data_block, DataBlock* data_block2,
                                  int asymmetry);
-static int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data_block, DATA_SOURCE* data_source,
-                     SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, const uda::plugins::PluginList* pluginlist,
+static int read_data(RequestData* request, ClientBlock client_block, DataBlock* data_block, DataSource* data_source,
+                     Signal* signal_rec, SignalDesc* signal_desc, const uda::plugins::PluginList* pluginlist,
                      LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist);
 
-int uda::server::udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block, DATA_BLOCK* data_block,
-                            DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
-                            ACTIONS* actions_desc, ACTIONS* actions_sig, const uda::plugins::PluginList* pluginlist,
+int uda::server::udaGetData(int* depth, RequestData* request_data, ClientBlock client_block, DataBlock* data_block,
+                            DataSource* data_source, Signal* signal_rec, SignalDesc* signal_desc,
+                            Actions* actions_desc, Actions* actions_sig, const uda::plugins::PluginList* pluginlist,
                             LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                             SOCKETLIST* socket_list, int protocolVersion)
 {
     int isDerived = 0, compId = -1, serverside = 0;
 
-    REQUEST_DATA request_block2;
-    DATA_BLOCK data_block2;
-    DATA_SOURCE data_source2;
-    SIGNAL signal_rec2;
-    SIGNAL_DESC signal_desc2;
-    ACTIONS actions_serverside;
-    ACTIONS actions_comp_desc, actions_comp_sig;
-    ACTIONS actions_comp_desc2, actions_comp_sig2;
+    RequestData request_block2;
+    DataBlock data_block2;
+    DataSource data_source2;
+    Signal signal_rec2;
+    SignalDesc signal_desc2;
+    Actions actions_serverside;
+    Actions actions_comp_desc, actions_comp_sig;
+    Actions actions_comp_desc2, actions_comp_sig2;
 
     static int original_request = 0; // First entry value of the Plugin Request
     static int original_xml = 0;     // First entry flag that XML was passed in
@@ -88,14 +88,14 @@ int uda::server::udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK
 
     if (protocolVersion < 6) {
         if (STR_IEQUALS(request_data->archive, "SS") || STR_IEQUALS(request_data->archive, "SERVERSIDE")) {
-            if (!strncasecmp(request_data->signal, "SUBSET(", 7)) {
+            if (!strncasecmp(request_data->signal, "Subset(", 7)) {
                 serverside = 1;
                 init_actions(&actions_serverside);
                 int rc;
                 if ((rc = serverParseServerSide(request_data, &actions_serverside, pluginlist)) != 0) {
                     return rc;
                 }
-                // Erase original SUBSET request
+                // Erase original Subset request
                 copy_string(trim_string(request_data->signal), signal_desc->signal_name, MAXNAME);
             }
         }
@@ -109,7 +109,7 @@ int uda::server::udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK
                 if ((rc = serverParseServerSide(request_data, &actions_serverside, pluginlist)) != 0) {
                     return rc;
                 }
-                // Erase original SUBSET request
+                // Erase original Subset request
                 copy_string(trim_string(request_data->signal), signal_desc->signal_name, MAXNAME);
             }
         }
@@ -132,8 +132,8 @@ int uda::server::udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK
     // Perform data subsetting if requested
 
     if (request_data->datasubset.nbound > 0) {
-        UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (SUBSET)   %d\n", *depth);
-        ACTION action = {};
+        UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Subset)   %d\n", *depth);
+        Action action = {};
         init_action(&action);
         action.actionType = UDA_SUBSET_TYPE;
         action.subset = request_data->datasubset;
@@ -285,13 +285,13 @@ int uda::server::udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK
                     // This is not passed back via the argument as only a 'by value' pointer is specified.
                     // Assign to a global to pass back - poor design that needs correcting at a later date!
 
-                    // If the Archive is XML and the signal contains a ServerSide SUBSET function then parse and replace
+                    // If the Archive is XML and the signal contains a ServerSide Subset function then parse and replace
 
                     if (STR_IEQUALS(request_block2.archive, "XML") &&
-                        (strstr(request_block2.signal, "SS::SUBSET") != nullptr ||
-                         strstr(request_block2.signal, "SERVERSIDE::SUBSET") != nullptr)) {
+                        (strstr(request_block2.signal, "SS::Subset") != nullptr ||
+                         strstr(request_block2.signal, "SERVERSIDE::Subset") != nullptr)) {
                         strcpy(request_block2.archive, "SS");
-                        char* p = strstr(request_block2.signal, "::SUBSET");
+                        char* p = strstr(request_block2.signal, "::Subset");
                         strcpy(request_block2.signal, &p[2]);
                     }
 
@@ -489,7 +489,7 @@ int uda::server::udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK
                     strcpy(request_block2.signal,
                            actions_desc->action[compId].composite.dimensions[i].dimcomposite.dim_signal);
 
-                    // Replace other properties if defined by the original client request or the XML DIMCOMPOSITE record
+                    // Replace other properties if defined by the original client request or the XML DimComposite record
 
                     if (strlen(request_data->path) > 0) {
                         strcpy(request_block2.path, request_data->file);
@@ -539,12 +539,12 @@ int uda::server::udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK
                                         "User Specified Composite Dimension Data Signal's File Format NOT Recognised");
                     }
 
-                    // If the Archive is XML and the signal contains a ServerSide SUBSET function then parse and replace
+                    // If the Archive is XML and the signal contains a ServerSide Subset function then parse and replace
 
-                    if ((strstr(request_block2.signal, "SS::SUBSET") != nullptr ||
-                         strstr(request_block2.signal, "SERVERSIDE::SUBSET") != nullptr)) {
+                    if ((strstr(request_block2.signal, "SS::Subset") != nullptr ||
+                         strstr(request_block2.signal, "SERVERSIDE::Subset") != nullptr)) {
                         strcpy(request_block2.archive, "SS");
-                        char* p = strstr(request_block2.signal, "::SUBSET");
+                        char* p = strstr(request_block2.signal, "::Subset");
                         strcpy(request_block2.signal, &p[2]);
                     }
 
@@ -713,7 +713,7 @@ int uda::server::udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK
     if (!serverside && !isDerived && signal_desc->type == 'S') {
         for (int i = 0; i < actions_desc->nactions; i++) {
             if (actions_desc->action[i].actionType == UDA_SUBSET_TYPE) {
-                UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (SUBSET)   %d\n", *depth);
+                UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Subset)   %d\n", *depth);
                 print_data_block(*data_block);
 
                 if ((rc = serverSubsetData(data_block, actions_desc->action[i], logmalloclist)) != 0) {
@@ -750,7 +750,7 @@ int uda::server::udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK
     return 0;
 }
 
-int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry)
+int swap_signal_error(DataBlock* data_block, DataBlock* data_block2, int asymmetry)
 {
     // Check Rank and Array Block Size are equal
 
@@ -781,7 +781,7 @@ int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymm
     return 0;
 }
 
-int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2)
+int swap_signal_dim(DimComposite dimcomposite, DataBlock* data_block, DataBlock* data_block2)
 {
     void* cptr = nullptr;
 
@@ -921,7 +921,7 @@ int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOC
     return 0;
 }
 
-int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry)
+int swap_signal_dim_error(DimComposite dimcomposite, DataBlock* data_block, DataBlock* data_block2, int asymmetry)
 {
     void* cptr = nullptr;
 
@@ -955,8 +955,8 @@ int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DAT
     return 0;
 }
 
-int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data_block, DATA_SOURCE* data_source,
-              SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, const uda::plugins::PluginList* pluginlist,
+int read_data(RequestData* request, ClientBlock client_block, DataBlock* data_block, DataSource* data_source,
+              Signal* signal_rec, SignalDesc* signal_desc, const uda::plugins::PluginList* pluginlist,
               LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
     // If err = 0 then standard signal data read
@@ -1022,7 +1022,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
 #endif
     //------------------------------------------------------------------------------
     // Identify the Signal Required from the Database if a Generic Signal Requested
-    // Plugin sourced data (type 'P') will fail as there is no entry in the DATA_SOURCE table so ignore
+    // Plugin sourced data (type 'P') will fail as there is no entry in the DataSource table so ignore
     //------------------------------------------------------------------------------
 
     if (request->request == REQUEST_READ_GENERIC) {
@@ -1108,7 +1108,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
         return -1;
     }
 
-    ENVIRONMENT* environment = getServerEnvironment();
+    Environment* environment = getServerEnvironment();
 
     //------------------------------------------------------------------------------
     // Read Data via a Suitable Registered Plugin using a standard interface

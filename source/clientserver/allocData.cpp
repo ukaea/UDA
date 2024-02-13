@@ -1,10 +1,10 @@
 /*---------------------------------------------------------------
  * Allocate Memory for the Data and Dim Blocks and Data Error Block
  *
- * Arguments:    DATA_BLOCK *        Data Block Structure
+ * Arguments:    DataBlock *        Data Block Structure
  *
  * Returns:    allocData        0 if heap allocation was successful
- *        DATA_BLOCK->data    Pointer to Memory Block
+ *        DataBlock->data    Pointer to Memory Block
  *
  *--------------------------------------------------------------*/
 
@@ -52,13 +52,13 @@ int uda::client_server::alloc_array(int data_type, size_t n_data, char** ap)
  * @param data_block
  * @return
  */
-int uda::client_server::alloc_data(DATA_BLOCK* data_block)
+int uda::client_server::alloc_data(DataBlock* data_block)
 {
     //------------------------------------------------------------------------
     // Allocate Memory for data Dimensions
 
     if (data_block->rank > 0) {
-        data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+        data_block->dims = (Dims*)malloc(data_block->rank * sizeof(Dims));
         if (data_block->dims == nullptr) {
             return ERROR_ALLOCATING_HEAP;
         }
@@ -127,7 +127,7 @@ int uda::client_server::alloc_data(DATA_BLOCK* data_block)
     return 0;
 }
 
-int uda::client_server::alloc_dim(DATA_BLOCK* data_block)
+int uda::client_server::alloc_dim(DataBlock* data_block)
 {
     // This routine is only called by the Client if data
     // are NOT in a compressed form, when Heap is

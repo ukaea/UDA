@@ -20,7 +20,7 @@ using namespace uda::logging;
 
 int udaClientAPI(const char* file, const char* signal, int pass, int exp_number)
 {
-    REQUEST_BLOCK request_block;
+    RequestBlock request_block;
     static short startup = 1;
     static bool reopen_logs = true;
 
@@ -94,7 +94,7 @@ int udaClientAPI(const char* file, const char* signal, int pass, int exp_number)
 
 int udaClientFileAPI(const char* file, const char* signal, const char* format)
 {
-    REQUEST_BLOCK request_block;
+    RequestBlock request_block;
     static short startup = 1;
     static bool reopen_logs = true;
 

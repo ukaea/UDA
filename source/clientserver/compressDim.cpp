@@ -19,7 +19,7 @@ template <typename T> T Precision<T>::precision = 0;
 template <> float Precision<float>::precision = FLT_EPSILON;
 template <> double Precision<double>::precision = DBL_EPSILON;
 
-template <typename T> int compress(uda::client_server::DIMS* ddim)
+template <typename T> int compress(uda::client_server::Dims* ddim)
 {
     T* dim_data = (T*)ddim->dim;
     if (dim_data == nullptr) {
@@ -61,7 +61,7 @@ template <typename T> int compress(uda::client_server::DIMS* ddim)
     return 0;
 }
 
-template <typename T> int decompress(uda::client_server::DIMS* ddim)
+template <typename T> int decompress(uda::client_server::Dims* ddim)
 {
     int ndata = ddim->dim_n;
 
@@ -114,15 +114,15 @@ template <typename T> int decompress(uda::client_server::DIMS* ddim)
  * @return          0 if no problems found
  *                  1 if no data compression performed
  *
- * Out:             DIMS* ->dim0            Starting value
- *                  DIMS* ->diff            Value increment
- *                  DIMS* ->method          0 for naive compression
- *                  DIMS* ->compressed      1 if compression performed
+ * Out:             Dims* ->dim0            Starting value
+ *                  Dims* ->diff            Value increment
+ *                  Dims* ->method          0 for naive compression
+ *                  Dims* ->compressed      1 if compression performed
  *
  * Notes: If the dimensional data is regular it can be compressed into three numbers: A starting value, a step value
  * and the number of data points. The first two of these are cast as doubles to preserve the highest level of accuracy.
  */
-int uda::client_server::compress_dim(DIMS* ddim)
+int uda::client_server::compress_dim(Dims* ddim)
 {
     if (!ddim || !ddim->dim || ddim->compressed) {
         // No Data or Already Compressed or Functionality disabled
@@ -167,13 +167,13 @@ int uda::client_server::compress_dim(DIMS* ddim)
  * @return          0 if no Problems Found
  *                  Error Code if a Problem Occurred
  *
- * Out:             DIMS* ->dim             Un-Compressed Dimensional Data
- *                  DIMS* ->compressed      Unchanged (necessary)
+ * Out:             Dims* ->dim             Un-Compressed Dimensional Data
+ *                  Dims* ->compressed      Unchanged (necessary)
  *
  * Note: XML based data correction also uses the compression models: New models
  * must also have corrections applied.
  */
-int uda::client_server::uncompress_dim(DIMS* ddim)
+int uda::client_server::uncompress_dim(Dims* ddim)
 {
     if (!ddim || ddim->compressed == 0) {
         return 0; // Nothing to Uncompress!

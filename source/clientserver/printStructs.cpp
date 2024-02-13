@@ -10,7 +10,7 @@
 using namespace uda::client_server;
 using namespace uda::logging;
 
-void uda::client_server::print_request_data(REQUEST_DATA str)
+void uda::client_server::print_request_data(RequestData str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "request     : %d\n", str.request);
     UDA_LOG(UDA_LOG_DEBUG, "exp_number  : %d\n", str.exp_number);
@@ -39,7 +39,7 @@ void uda::client_server::print_request_data(REQUEST_DATA str)
     }
 }
 
-void uda::client_server::print_request_block(REQUEST_BLOCK str)
+void uda::client_server::print_request_block(RequestBlock str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Client Request Block\n");
     UDA_LOG(UDA_LOG_DEBUG, "# requests  : %d\n", str.num_requests);
@@ -49,7 +49,7 @@ void uda::client_server::print_request_block(REQUEST_BLOCK str)
     }
 }
 
-void uda::client_server::print_client_block(CLIENT_BLOCK str)
+void uda::client_server::print_client_block(ClientBlock str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Client State Block\n");
     UDA_LOG(UDA_LOG_DEBUG, "version      : %d\n", str.version);
@@ -80,7 +80,7 @@ void uda::client_server::print_client_block(CLIENT_BLOCK str)
     UDA_LOG(UDA_LOG_DEBUG, "Study DOI    : %s\n", str.DOI);
 }
 
-void uda::client_server::print_server_block(SERVER_BLOCK str)
+void uda::client_server::print_server_block(ServerBlock str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Server State Block\n");
     UDA_LOG(UDA_LOG_DEBUG, "version          : %d\n", str.version);
@@ -92,7 +92,7 @@ void uda::client_server::print_server_block(SERVER_BLOCK str)
     print_error_stack();
 }
 
-void uda::client_server::print_data_block_list(DATA_BLOCK_LIST str)
+void uda::client_server::print_data_block_list(DataBlockList str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Data Blocks\n");
     UDA_LOG(UDA_LOG_DEBUG, "count        : %d\n", str.count);
@@ -102,7 +102,7 @@ void uda::client_server::print_data_block_list(DATA_BLOCK_LIST str)
     }
 }
 
-void uda::client_server::print_data_block(DATA_BLOCK str)
+void uda::client_server::print_data_block(DataBlock str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Data Block Contents\n");
     UDA_LOG(UDA_LOG_DEBUG, "handle       : %d\n", str.handle);
@@ -299,7 +299,7 @@ void uda::client_server::print_data_block(DATA_BLOCK str)
     }
 }
 
-void uda::client_server::print_system_config(SYSTEM_CONFIG str)
+void uda::client_server::print_system_config(SystemConfig str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "System Configuration Record\n");
     UDA_LOG(UDA_LOG_DEBUG, "config_id   : %d\n", str.config_id);
@@ -312,7 +312,7 @@ void uda::client_server::print_system_config(SYSTEM_CONFIG str)
     UDA_LOG(UDA_LOG_DEBUG, "xml_creation: %s\n", str.xml_creation);
 }
 
-void uda::client_server::print_data_system(DATA_SYSTEM str)
+void uda::client_server::print_data_system(DataSystem str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Data System Record\n");
     UDA_LOG(UDA_LOG_DEBUG, "system_id   : %d\n", str.system_id);
@@ -327,7 +327,7 @@ void uda::client_server::print_data_system(DATA_SYSTEM str)
     UDA_LOG(UDA_LOG_DEBUG, "xml_creation: %s\n", str.xml_creation);
 }
 
-void uda::client_server::print_data_source(DATA_SOURCE str)
+void uda::client_server::print_data_source(DataSource str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Data Source Record\n");
     UDA_LOG(UDA_LOG_DEBUG, "source_id     : %d\n", str.source_id);
@@ -362,7 +362,7 @@ void uda::client_server::print_data_source(DATA_SOURCE str)
     UDA_LOG(UDA_LOG_DEBUG, "xml_creation  : %s\n", str.xml_creation);
 }
 
-void uda::client_server::print_signal(SIGNAL str)
+void uda::client_server::print_signal(Signal str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Signal Record\n");
     UDA_LOG(UDA_LOG_DEBUG, "source_id         : %d\n", str.source_id);
@@ -381,7 +381,7 @@ void uda::client_server::print_signal(SIGNAL str)
     UDA_LOG(UDA_LOG_DEBUG, "xml_creation      : %s\n", str.xml_creation);
 }
 
-void uda::client_server::print_signal_desc(SIGNAL_DESC str)
+void uda::client_server::print_signal_desc(SignalDesc str)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Signal Description Record\n");
     UDA_LOG(UDA_LOG_DEBUG, "signal_desc_id: %d\n", str.signal_desc_id);

@@ -52,12 +52,12 @@ using namespace uda::logging;
 // todo:
 //
 
-static int get_subset_indices(const std::string& operation, DIMS* dim, double value, unsigned int* subset_indices);
+static int get_subset_indices(const std::string& operation, Dims* dim, double value, unsigned int* subset_indices);
 
-int apply_sub_setting(DIMS* dims, int rank, int dim_id, char* data, int ndata, int data_type, int not_operation,
+int apply_sub_setting(Dims* dims, int rank, int dim_id, char* data, int ndata, int data_type, int not_operation,
                       int start, int end, int start1, int end1, int stride, int* n, void** new_data);
 
-int number_of_subsetting_operations(const ACTION* action)
+int number_of_subsetting_operations(const Action* action)
 {
     switch (action->actionType) {
         case UDA_COMPOSITE_TYPE:
@@ -80,7 +80,7 @@ int number_of_subsetting_operations(const ACTION* action)
     }
 }
 
-int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist)
+int process_subset_operation(int ii, Subset subset, DataBlock* data_block, LOGMALLOCLIST* logmalloclist)
 {
     int n_bound = subset.nbound; // the Number of operations in the set
 
@@ -306,7 +306,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
 
                         data_block->rank = rank;
 
-                        data_block->dims = (DIMS*)realloc((void*)data_block->dims, rank * sizeof(DIMS));
+                        data_block->dims = (Dims*)realloc((void*)data_block->dims, rank * sizeof(Dims));
 
                         for (int k = k0; k < rank; k++) {
                             init_dim_block(&data_block->dims[k]);
@@ -328,7 +328,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
                             unsigned int k0 = data_block->rank;
                             data_block->rank = data_block->rank + udt->compoundfield[i].rank;
 
-                            data_block->dims = (DIMS*)realloc((void*)data_block->dims, data_block->rank * sizeof(DIMS));
+                            data_block->dims = (Dims*)realloc((void*)data_block->dims, data_block->rank * sizeof(Dims));
 
                             for (unsigned int k = k0; k < data_block->rank; k++) {
                                 init_dim_block(&data_block->dims[k]);
@@ -378,7 +378,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         //----------------------------------------------------------------------------------------------------------------------------
         // Decompress the dimensional data if necessary & free Heap Associated with Compression
 
-        DIMS new_dim;
+        Dims new_dim;
         init_dim_block(&new_dim); // Holder for the Sub-setted Dimension (part copy of the original)
 
         auto dim = &(data_block->dims[dim_id]); // the original dimension to be subset
@@ -619,7 +619,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
     return 0;
 }
 
-int reform_data(DATA_BLOCK* data_block)
+int reform_data(DataBlock* data_block)
 {
     int rank = data_block->rank;
     for (int j = 0; j < rank; j++) {
@@ -666,7 +666,7 @@ int reform_data(DATA_BLOCK* data_block)
     return 0;
 }
 
-int apply_minimum(SUBSET subset, DATA_BLOCK* data_block)
+int apply_minimum(Subset subset, DataBlock* data_block)
 {
     int dim_id = 0;
 
@@ -856,7 +856,7 @@ int apply_minimum(SUBSET subset, DATA_BLOCK* data_block)
     return 0;
 }
 
-int apply_maximum(SUBSET subset, DATA_BLOCK* data_block)
+int apply_maximum(Subset subset, DataBlock* data_block)
 {
     int dim_id = 0;
 
@@ -1046,7 +1046,7 @@ int apply_maximum(SUBSET subset, DATA_BLOCK* data_block)
     return 0;
 }
 
-int apply_count(SUBSET subset, DATA_BLOCK* data_block)
+int apply_count(Subset subset, DataBlock* data_block)
 {
     char* p1 = strstr(subset.function, "dim_id");
     auto count = (unsigned int*)malloc(sizeof(unsigned int));
@@ -1072,7 +1072,7 @@ int apply_count(SUBSET subset, DATA_BLOCK* data_block)
         }
         if (dim_id < (int)data_block->rank) {
             count[0] = (unsigned int)data_block->dims[dim_id].dim_n; // Preserve this value
-            DIMS ddim = data_block->dims[dim_id];
+            Dims ddim = data_block->dims[dim_id];
             if (ddim.dim != nullptr) {
                 free(ddim.dim);
             }
@@ -1137,7 +1137,7 @@ int apply_count(SUBSET subset, DATA_BLOCK* data_block)
     return 0;
 }
 
-int apply_abs(SUBSET subset, DATA_BLOCK* data_block)
+int apply_abs(Subset subset, DataBlock* data_block)
 {
     switch (data_block->data_type) {
         case UDA_TYPE_FLOAT: {
@@ -1160,7 +1160,7 @@ int apply_abs(SUBSET subset, DATA_BLOCK* data_block)
     return 0;
 }
 
-int apply_const(SUBSET subset, DATA_BLOCK* data_block)
+int apply_const(Subset subset, DataBlock* data_block)
 {
     double value = 0.0; // Zero data default
     char* p1 = strstr(subset.function, "value");
@@ -1220,7 +1220,7 @@ int apply_const(SUBSET subset, DATA_BLOCK* data_block)
     return 0;
 }
 
-int apply_order(SUBSET subset, DATA_BLOCK* data_block)
+int apply_order(Subset subset, DataBlock* data_block)
 {
     char* p1 = strstr(subset.function, "dim_id");
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
@@ -1242,7 +1242,7 @@ int apply_order(SUBSET subset, DATA_BLOCK* data_block)
     return 0;
 }
 
-int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
+int apply_rotate_rz(Subset subset, DataBlock* data_block)
 {
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", subset.function);
     if (data_block->rank != 3) {
@@ -1292,8 +1292,8 @@ int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
         }
         free(data);
 
-        DIMS d1 = data_block->dims[1];
-        DIMS d2 = data_block->dims[2];
+        Dims d1 = data_block->dims[1];
+        Dims d2 = data_block->dims[2];
         data_block->dims[1] = d2;
         data_block->dims[2] = d1;
     } else if (order == 1) { // array[nz][nt][nr]
@@ -1328,8 +1328,8 @@ int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
             free(data[k]);
         }
         free(data);
-        DIMS d0 = data_block->dims[0];
-        DIMS d1 = data_block->dims[1];
+        Dims d0 = data_block->dims[0];
+        Dims d1 = data_block->dims[1];
         data_block->dims[0] = d1;
         data_block->dims[1] = d0;
     } else {
@@ -1340,7 +1340,7 @@ int apply_rotate_rz(SUBSET subset, DATA_BLOCK* data_block)
     return 0;
 }
 
-int apply_functions(SUBSET subset, DATA_BLOCK* data_block)
+int apply_functions(Subset subset, DataBlock* data_block)
 {
     if (STR_ISTARTSWITH(subset.function, "minimum")) { // Single scalar result
         return apply_minimum(subset, data_block);
@@ -1373,7 +1373,7 @@ int apply_functions(SUBSET subset, DATA_BLOCK* data_block)
     UDA_THROW_ERROR(999, "Unknown function");
 }
 
-int uda::server::serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST* logmalloclist)
+int uda::server::serverSubsetData(DataBlock* data_block, const Action& action, LOGMALLOCLIST* logmalloclist)
 {
     print_action(action);
     print_data_block(*data_block);
@@ -1395,7 +1395,7 @@ int uda::server::serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, 
     // Process all sets of sub-setting operations
 
     for (int i = 0; i < n_subsets; i++) { // the number of sets of Subset Operations
-        SUBSET subset;
+        Subset subset;
         if (action.actionType == UDA_COMPOSITE_TYPE) {
             subset = action.composite.subsets[i]; // the set of Subset Operations
         } else {
@@ -1439,26 +1439,26 @@ int uda::server::serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, 
 //-------------------------------------------------------------------------------------------------------------
 // Build an Action Structure for Serverside Data Operations
 
-// SS::SUBSET(\"xx\", [!=0.15])
-// SS::SUBSET(\"xx\", [0:25])
-// SS::SUBSET(\"xx\", [=0.15, *], reform)
-// SS::SUBSET(\"xx\", [0:5, *])
-// SS::SUBSET(\"xx\", [0:0, *], reform)
-// SS::SUBSET(\"xx\", [*, 2:8])
-// SS::SUBSET(\"xx\", [*, 2:8], member=\"name\")
-// SS::SUBSET(\"xx\", [*, 3], member=\"name\", reform)
-// SS::SUBSET(\"xx\", [*, 3], member=\"name\", reform, function=\"minimum(dim_id=0)\" )
+// SS::Subset(\"xx\", [!=0.15])
+// SS::Subset(\"xx\", [0:25])
+// SS::Subset(\"xx\", [=0.15, *], reform)
+// SS::Subset(\"xx\", [0:5, *])
+// SS::Subset(\"xx\", [0:0, *], reform)
+// SS::Subset(\"xx\", [*, 2:8])
+// SS::Subset(\"xx\", [*, 2:8], member=\"name\")
+// SS::Subset(\"xx\", [*, 3], member=\"name\", reform)
+// SS::Subset(\"xx\", [*, 3], member=\"name\", reform, function=\"minimum(dim_id=0)\" )
 
-int uda::server::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serverside,
+int uda::server::serverParseServerSide(RequestData* request_block, Actions* actions_serverside,
                                        const uda::plugins::PluginList* plugin_list)
 {
-    ACTION* action = nullptr;
-    SUBSET* subsets = nullptr;
+    Action* action = nullptr;
+    Subset* subsets = nullptr;
 
     int ierr = 0;
 
     //-------------------------------------------------------------------------------------------------------------
-    // Extract the ARCHIVE::SIGNAL element
+    // Extract the ARCHIVE::Signal element
     // use the first character after the left parenthesis as the opening quotation character
 
     std::string signal = request_block->signal;
@@ -1541,7 +1541,7 @@ int uda::server::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* act
     // Extend the Action Structure and Initialise
 
     int nactions = actions_serverside->nactions + 1;
-    if ((action = (ACTION*)realloc((void*)actions_serverside->action, nactions * sizeof(ACTION))) == nullptr) {
+    if ((action = (Action*)realloc((void*)actions_serverside->action, nactions * sizeof(Action))) == nullptr) {
         UDA_THROW_ERROR(9999, "Unable to Allocate Heap memory");
     }
 
@@ -1554,7 +1554,7 @@ int uda::server::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* act
     init_server_side(&action[nactions - 1].serverside);
 
     int nsubsets = 1;
-    if ((subsets = (SUBSET*)malloc(sizeof(SUBSET))) == nullptr) {
+    if ((subsets = (Subset*)malloc(sizeof(Subset))) == nullptr) {
         UDA_THROW_ERROR(9999, "Unable to Allocate Heap memory");
     }
 
@@ -1720,7 +1720,7 @@ template <> unsigned long long Abs<unsigned long long>::operator()(unsigned long
 }
 
 template <typename T>
-int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double value, unsigned int* subset_indices)
+int get_subset_indices_for_type(const std::string& operation, Dims* dim, double value, unsigned int* subset_indices)
 {
     int count = 0;
 
@@ -1838,7 +1838,7 @@ int get_subset_indices_for_type(const std::string& operation, DIMS* dim, double 
     return 0;
 }
 
-int get_subset_indices(const std::string& operation, DIMS* dim, double value, unsigned int* subset_indices)
+int get_subset_indices(const std::string& operation, Dims* dim, double value, unsigned int* subset_indices)
 {
     int count = 0;
 
@@ -1871,7 +1871,7 @@ int get_subset_indices(const std::string& operation, DIMS* dim, double value, un
 }
 
 template <typename T>
-int apply_sub_setting_for_type(DIMS* dims, int rank, int dim_id, const char* data, int ndata, int data_type,
+int apply_sub_setting_for_type(Dims* dims, int rank, int dim_id, const char* data, int ndata, int data_type,
                                int not_operation, int start, int end, int start1, int end1, int stride, int* n,
                                void** new_data)
 {
@@ -2017,7 +2017,7 @@ int apply_sub_setting_for_type(DIMS* dims, int rank, int dim_id, const char* dat
     return 0;
 }
 
-int apply_sub_setting(DIMS* dims, int rank, int dim_id, char* data, int ndata, int data_type, int not_operation,
+int apply_sub_setting(Dims* dims, int rank, int dim_id, char* data, int ndata, int data_type, int not_operation,
                       int start, int end, int start1, int end1, int stride, int* n, void** new_data)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Data Type: %d    Rank: %d\n", data_type, rank);

@@ -9,7 +9,7 @@
 
 using namespace uda::logging;
 
-static std::vector<uda::client_server::UDA_ERROR> udaerrorstack;
+static std::vector<uda::client_server::UdaError> udaerrorstack;
 
 int udaNumErrors(void)
 {
@@ -32,9 +32,9 @@ const char* udaGetErrorLocation(int err_num)
     return "no error found";
 }
 
-void uda::client_server::error_log(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, ErrorStack* error_stack)
+void uda::client_server::error_log(ClientBlock client_block, RequestBlock request_block, ErrorStack* error_stack)
 {
-    UDA_ERROR* errors = nullptr;
+    UdaError* errors = nullptr;
     unsigned int nerrors;
 
     if (error_stack == nullptr) {
@@ -114,10 +114,10 @@ void uda::client_server::print_error_stack()
 //            1 => Code Error
 //            2 => Plugin Error
 
-uda::client_server::UDA_ERROR uda::client_server::create_error(int type, const char* location, int code,
+uda::client_server::UdaError uda::client_server::create_error(int type, const char* location, int code,
                                                                const char* msg)
 {
-    UDA_ERROR error;
+    UdaError error;
 
     error.type = type;
     error.code = code;
@@ -166,7 +166,7 @@ void uda::client_server::concat_error(ErrorStack* errorstackout)
     unsigned int iold = errorstackout->nerrors;
     unsigned int inew = udaerrorstack.size() + errorstackout->nerrors;
 
-    errorstackout->idamerror = (UDA_ERROR*)realloc((void*)errorstackout->idamerror, (inew * sizeof(UDA_ERROR)));
+    errorstackout->idamerror = (UdaError*)realloc((void*)errorstackout->idamerror, (inew * sizeof(UdaError)));
 
     for (unsigned int i = iold; i < inew; i++) {
         errorstackout->idamerror[i] = udaerrorstack[i - iold];

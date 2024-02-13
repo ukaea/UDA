@@ -9,9 +9,9 @@ namespace uda::client_server
 
 int alloc_array(int data_type, size_t ndata, char** ap);
 
-int alloc_data(DATA_BLOCK* data_block);
+int alloc_data(DataBlock* data_block);
 
-int alloc_dim(DATA_BLOCK* data_block);
+int alloc_dim(DataBlock* data_block);
 
 int alloc_put_data(PutDataBlock* putData);
 

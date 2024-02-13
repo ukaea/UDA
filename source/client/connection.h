@@ -10,7 +10,7 @@ namespace uda::client
 
 int connectionOpen();
 
-int reconnect(uda::client_server::ENVIRONMENT* environment, XDR** client_input, XDR** client_output,
+int reconnect(uda::client_server::Environment* environment, XDR** client_input, XDR** client_output,
               time_t* tv_server_start, int* user_timeout);
 
 int createConnection(XDR* client_input, XDR* client_output, time_t* tv_server_start, int user_timeout);

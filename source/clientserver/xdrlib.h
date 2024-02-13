@@ -28,23 +28,23 @@ int wrap_string(XDR* xdrs, char* sp);
 
 int wrap_xdr_string(XDR* xdrs, const char* sp, int maxlen);
 
-bool_t xdr_meta(XDR* xdrs, DATA_BLOCK* str);
+bool_t xdr_meta(XDR* xdrs, DataBlock* str);
 
-bool_t xdr_security_block1(XDR* xdrs, SECURITY_BLOCK* str);
+bool_t xdr_security_block1(XDR* xdrs, SecurityBlock* str);
 
-bool_t xdr_security_block2(XDR* xdrs, SECURITY_BLOCK* str);
+bool_t xdr_security_block2(XDR* xdrs, SecurityBlock* str);
 
-bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion);
+bool_t xdr_client(XDR* xdrs, ClientBlock* str, int protocolVersion);
 
-bool_t xdr_server(XDR* xdrs, SERVER_BLOCK* str);
+bool_t xdr_server(XDR* xdrs, ServerBlock* str);
 
-bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str, int protocolVersion);
+bool_t xdr_server1(XDR* xdrs, ServerBlock* str, int protocolVersion);
 
-bool_t xdr_server2(XDR* xdrs, SERVER_BLOCK* str);
+bool_t xdr_server2(XDR* xdrs, ServerBlock* str);
 
-bool_t xdr_request(XDR* xdrs, REQUEST_BLOCK* str, int protocolVersion);
+bool_t xdr_request(XDR* xdrs, RequestBlock* str, int protocolVersion);
 
-bool_t xdr_request_data(XDR* xdrs, REQUEST_DATA* str, int protocolVersion);
+bool_t xdr_request_data(XDR* xdrs, RequestData* str, int protocolVersion);
 
 bool_t xdr_putdatablocklist_block(XDR* xdrs, PutDataBlockList* str);
 
@@ -52,46 +52,46 @@ bool_t xdr_putdata_block1(XDR* xdrs, PutDataBlock* str);
 
 bool_t xdr_putdata_block2(XDR* xdrs, PutDataBlock* str);
 
-bool_t xdr_data_block_list(XDR* xdrs, DATA_BLOCK_LIST* str, int protocolVersion);
+bool_t xdr_data_block_list(XDR* xdrs, DataBlockList* str, int protocolVersion);
 
-bool_t xdr_data_block1(XDR* xdrs, DATA_BLOCK* str, int protocolVersion);
+bool_t xdr_data_block1(XDR* xdrs, DataBlock* str, int protocolVersion);
 
-bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str);
+bool_t xdr_data_block2(XDR* xdrs, DataBlock* str);
 
-bool_t xdr_data_block3(XDR* xdrs, DATA_BLOCK* str);
+bool_t xdr_data_block3(XDR* xdrs, DataBlock* str);
 
-bool_t xdr_data_block4(XDR* xdrs, DATA_BLOCK* str);
+bool_t xdr_data_block4(XDR* xdrs, DataBlock* str);
 
-bool_t xdr_data_dim1(XDR* xdrs, DATA_BLOCK* str);
+bool_t xdr_data_dim1(XDR* xdrs, DataBlock* str);
 
-bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str);
+bool_t xdr_data_dim2(XDR* xdrs, DataBlock* str);
 
-bool_t xdr_data_dim3(XDR* xdrs, DATA_BLOCK* str);
+bool_t xdr_data_dim3(XDR* xdrs, DataBlock* str);
 
-bool_t xdr_data_dim4(XDR* xdrs, DATA_BLOCK* str);
+bool_t xdr_data_dim4(XDR* xdrs, DataBlock* str);
 
-bool_t xdr_data_object1(XDR* xdrs, DATA_OBJECT* str);
+bool_t xdr_data_object1(XDR* xdrs, DataObject* str);
 
-bool_t xdr_data_object2(XDR* xdrs, DATA_OBJECT* str);
-
-//-----------------------------------------------------------------------
-// From DATA_SYSTEM Table
-bool_t xdr_data_system(XDR* xdrs, DATA_SYSTEM* str);
+bool_t xdr_data_object2(XDR* xdrs, DataObject* str);
 
 //-----------------------------------------------------------------------
-// From SYSTEM_CONFIG Table
-bool_t xdr_system_config(XDR* xdrs, SYSTEM_CONFIG* str);
+// From DataSystem Table
+bool_t xdr_data_system(XDR* xdrs, DataSystem* str);
 
 //-----------------------------------------------------------------------
-// From DATA_SOURCE Table
-bool_t xdr_data_source(XDR* xdrs, DATA_SOURCE* str);
+// From SystemConfig Table
+bool_t xdr_system_config(XDR* xdrs, SystemConfig* str);
 
 //-----------------------------------------------------------------------
-// From SIGNAL Table
-bool_t xdr_signal(XDR* xdrs, SIGNAL* str);
+// From DataSource Table
+bool_t xdr_data_source(XDR* xdrs, DataSource* str);
 
 //-----------------------------------------------------------------------
-// From SIGNAL_DESC Table
-bool_t xdr_signal_desc(XDR* xdrs, SIGNAL_DESC* str);
+// From Signal Table
+bool_t xdr_signal(XDR* xdrs, Signal* str);
+
+//-----------------------------------------------------------------------
+// From SignalDesc Table
+bool_t xdr_signal_desc(XDR* xdrs, SignalDesc* str);
 
 } // namespace uda::client_server

@@ -22,32 +22,32 @@ namespace uda::client_server
 //--------------------------------------------------------
 // Structure Definitions
 
-typedef struct DataSubset {
+struct DataSubset {
     int subsetCount;      // Number of defined dimensions to subset
     int subset[MAXRANK2]; // If 1 then subset to apply
     int start[MAXRANK2];  // Starting Index of each dimension
     int stop[MAXRANK2];   // Ending Index of each dimension
     int count[MAXRANK2];  // The number of values (sub-samples) read from each dimension
     int stride[MAXRANK2]; // The step stride along each dimension
-} DATASUBSET;
+};
 
-typedef struct VLen {
+struct VLen {
     int len;
     int type;
     void* data;
-} VLEN;
+};
 
-typedef struct DComplex {
+struct DComplex {
     double real;
     double imaginary;
-} DCOMPLEX;
+};
 
-typedef struct Complex {
+struct Complex {
     float real;
     float imaginary;
-} COMPLEX;
+};
 
-typedef struct DataSystem {
+struct DataSystem {
     int system_id;
     int version;
     int meta_id;
@@ -59,9 +59,9 @@ typedef struct DataSystem {
     char xml[MAXMETA];
     char xml_creation[MAXDATE];
     char _padding[3];
-} DATA_SYSTEM;
+};
 
-typedef struct SystemConfig {
+struct SystemConfig {
     int config_id;
     int system_id;
     int meta_id;
@@ -70,9 +70,9 @@ typedef struct SystemConfig {
     char creation[MAXDATE];
     char xml[MAXMETA];
     char xml_creation[MAXDATE];
-} SYSTEM_CONFIG;
+};
 
-typedef struct DataSource {
+struct DataSource {
     int source_id;
     int config_id;
     int reason_id;
@@ -104,9 +104,9 @@ typedef struct DataSource {
     char xml[MAXMETA];
     char xml_creation[MAXDATE];
     char _padding[1];
-} DATA_SOURCE;
+};
 
-typedef struct Signal {
+struct Signal {
     int source_id;
     int signal_desc_id;
     int meta_id;
@@ -122,9 +122,9 @@ typedef struct Signal {
     char xml[MAXMETA];
     char xml_creation[MAXDATE];
     char _padding[2];
-} SIGNAL;
+};
 
-typedef struct SignalDesc {
+struct SignalDesc {
     int signal_desc_id;
     int meta_id;
     int rank;
@@ -145,9 +145,9 @@ typedef struct SignalDesc {
     char _padding[3];
     int signal_alias_type;
     int signal_map_id;
-} SIGNAL_DESC;
+};
 
-typedef struct Dims {
+struct Dims {
     int data_type;     // Type of data
     int error_type;    // Type of error data
     int error_model;   // Identify the Error Model
@@ -174,9 +174,9 @@ typedef struct Dims {
 
     char dim_units[STRING_LENGTH];
     char dim_label[STRING_LENGTH];
-} DIMS;
+};
 
-typedef struct SecurityBlock {
+struct SecurityBlock {
     unsigned short structVersion;           // Structure Version number
     unsigned short encryptionMethod;        // How mutual authentication is executed
     unsigned short authenticationStep;      // Authentication step that created this data structure
@@ -190,9 +190,9 @@ typedef struct SecurityBlock {
     unsigned char* client2_ciphertext; // client2 token encrypted with either the client's or nth server's public key
     unsigned char* client_X509;
     unsigned char* client2_X509;
-} SECURITY_BLOCK;
+};
 
-typedef struct ClientBlock {
+struct ClientBlock {
     int version;
     int pid;                 // Client Application process id
     char uid[STRING_LENGTH]; // Who the Client is (claim of identity to the first server)
@@ -224,12 +224,10 @@ typedef struct ClientBlock {
     char DOI[STRING_LENGTH];    // User's research DOI - to be logged with all data access requests
 
     char uid2[STRING_LENGTH]; // Who the Client is (claim of identity to the last server)
-    SECURITY_BLOCK
-    securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
+    SecurityBlock securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
+};
 
-} CLIENT_BLOCK;
-
-typedef struct DataBlock {
+struct DataBlock {
     int handle;
     int errcode;
     int source_status;
@@ -257,35 +255,35 @@ typedef struct DataBlock {
 
     char error_msg[STRING_LENGTH];
 
-    DIMS* dims;
-    DATA_SYSTEM* data_system;
-    SYSTEM_CONFIG* system_config;
-    DATA_SOURCE* data_source;
-    SIGNAL* signal_rec;
-    SIGNAL_DESC* signal_desc;
+    Dims* dims;
+    DataSystem* data_system;
+    SystemConfig* system_config;
+    DataSource* data_source;
+    Signal* signal_rec;
+    SignalDesc* signal_desc;
 
-    CLIENT_BLOCK client_block; // Used to pass properties into data reader plugins
+    ClientBlock client_block; // Used to pass properties into data reader plugins
 
     int opaque_type;                 // Identifies the Data Structure Type;
     int opaque_count;                // Number of Instances of the Data Structure;
     void* opaque_block;              // Opaque pointer to Hierarchical Data Structures
     unsigned int totalDataBlockSize; // The amount of data within this structure.
     unsigned int cachePermission;    // Permission for the Client to cache this structure.
-} DATA_BLOCK;
+};
 
-typedef struct DataBlockList {
+struct DataBlockList {
     int count;
-    DATA_BLOCK* data;
-} DATA_BLOCK_LIST;
+    DataBlock* data;
+};
 
-typedef struct DataObject {
+struct DataObject {
     unsigned short objectType; // File or regular object
     unsigned int objectSize;
     unsigned short hashType;
     unsigned short hashLength;
     char* md;
     char* object;
-} DATA_OBJECT;
+};
 
 struct PutDataBlock : PUTDATA_BLOCK {
     int data_type;
@@ -306,19 +304,19 @@ struct PutDataBlockList : PUTDATA_BLOCK_LIST {
     PutDataBlock* putDataBlock; // Array of data blocks
 };
 
-typedef struct UdaError {
+struct UdaError {
     int type;                     // Error Classification
     int code;                     // Error Code
     char location[STRING_LENGTH]; // Where this Error is Located
     char msg[STRING_LENGTH];      // Message
-} UDA_ERROR;
+};
 
-typedef struct ErrorStack : UDA_ERROR_STACK {
+struct ErrorStack : UDA_ERROR_STACK {
     unsigned int nerrors; // Number of Errors
-    UDA_ERROR* idamerror; // Array of Errors
-} UDA_ERROR_STACK;
+    UdaError* idamerror; // Array of Errors
+};
 
-typedef struct ServerBlock {
+struct ServerBlock {
     int version;
     int error;
     char msg[STRING_LENGTH];
@@ -326,21 +324,20 @@ typedef struct ServerBlock {
     ErrorStack idamerrorstack;
     char OSName[STRING_LENGTH]; // Name of the Server's Operating System, e.g. OSX
     char DOI[STRING_LENGTH];    // Server version/implementation DOI - to be logged with all data consumers
-    SECURITY_BLOCK
-    securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
-} SERVER_BLOCK;
+    SecurityBlock securityBlock; // Contains encrypted tokens exchanged between client and server for mutual authentication
+};
 
-typedef struct NameValue {
+struct NameValue {
     char* pair;  // The name value pair string
     char* name;  // The name
     char* value; // The value
-} NAMEVALUE;
+};
 
-typedef struct NameValueList {
+struct NameValueList {
     int pairCount;        // Number of name value pairs in list
     int listSize;         // Allocated Size of the List
-    NAMEVALUE* nameValue; // List of individual name value pairs in parse order
-} NAMEVALUELIST;
+    NameValue* nameValue; // List of individual name value pairs in parse order
+};
 
 enum REQUEST {
     REQUEST_SHUTDOWN = 1,
@@ -370,28 +367,28 @@ enum REQUEST {
     REQUEST_CACHED,
 };
 
-typedef struct OptionalLong {
+struct OptionalLong {
     bool init;
     long value;
-} OPTIONAL_LONG;
+};
 
-typedef struct Subset {
+struct Subset {
     int nbound;                                             // the Number of Subsetting Operations
     int reform;                                             // reduce Rank if any dimension has length 1
     int order;                                              // Time Dimension order
     double bound[UDA_MAX_DATA_RANK];                        // Array of Floating point Bounding values
-    OPTIONAL_LONG stride[UDA_MAX_DATA_RANK];                // Array of Integer values: Striding values
-    OPTIONAL_LONG ubindex[UDA_MAX_DATA_RANK];               // Array of Integer values: Bounding or Upper Index
-    OPTIONAL_LONG lbindex[UDA_MAX_DATA_RANK];               // Array of Integer values: Lower Index
+    OptionalLong stride[UDA_MAX_DATA_RANK];                // Array of Integer values: Striding values
+    OptionalLong ubindex[UDA_MAX_DATA_RANK];               // Array of Integer values: Bounding or Upper Index
+    OptionalLong lbindex[UDA_MAX_DATA_RANK];               // Array of Integer values: Lower Index
     char operation[UDA_MAX_DATA_RANK][UDA_SXML_MAX_STRING]; // Array of Subsetting Operations
     int dimid[UDA_MAX_DATA_RANK];                           // Array of Dimension IDs to subset
     bool isindex[UDA_MAX_DATA_RANK];                        // Flag the Operation Bound is an Integer Type
     char data_signal[UDA_SXML_MAX_STRING];                  // Name of Signal to subset
     char member[UDA_SXML_MAX_STRING];                       // Name of Structure Member to extract and to subset
     char function[UDA_SXML_MAX_STRING];                     // Apply this named function to the subsetted data
-} SUBSET;
+};
 
-typedef struct RequestData {
+struct RequestData {
     int request;                     // Plugin or Shutdown Server
     int exp_number;                  // Pulse No.,Tree No., etc
     int pass;                        // Pass, Sequence, etc
@@ -407,22 +404,22 @@ typedef struct RequestData {
     char function[STRING_LENGTH];    // Server-Side function or attached plugin function
     char api_delim[MAXNAME];         // Delimiter string to use decoding the signal and source arguments
     char subset[STRING_LENGTH];      // Subset instructions
-    SUBSET datasubset;               // Parsed subset instructions (Server Side)
-    NAMEVALUELIST nameValueList;     // Set of Name-Value pairs (Server Side Function)
+    Subset datasubset;               // Parsed subset instructions (Server Side)
+    NameValueList nameValueList;     // Set of Name-Value pairs (Server Side Function)
 
     int put;                           // flag to set the server to a put state
     PutDataBlockList putDataBlockList; // Data to be put on the server
-} REQUEST_DATA;
+};
 
-typedef struct RequestBlock {
+struct RequestBlock {
     int num_requests;
-    REQUEST_DATA* requests;
-} REQUEST_BLOCK;
+    RequestData* requests;
+};
 
 //---------------------------------------------------------------------------------------------------
 // System Environment Variables
 
-typedef struct Environment {
+struct Environment {
     int server_port;  // Principal UDA server port
     int server_port2; // Backup UDA server port
     int sql_port;
@@ -452,19 +449,19 @@ typedef struct Environment {
     char private_path_substitute[STRING_LENGTH]; // and substitute with this path (so the server can locate them!)
     char initialised;                            // Environment already initialised.
     char _padding[1];
-} ENVIRONMENT;
+};
 
 void freeClientPutDataBlockList(PutDataBlockList* putDataBlockList);
 
-void freeDataBlock(DATA_BLOCK* data_block);
+void freeDataBlock(DataBlock* data_block);
 
-void freeDataBlockList(DATA_BLOCK_LIST* data_block_list);
+void freeDataBlockList(DataBlockList* data_block_list);
 
-void freeReducedDataBlock(DATA_BLOCK* data_block);
+void freeReducedDataBlock(DataBlock* data_block);
 
-void freeRequestBlock(REQUEST_BLOCK* request_block);
+void freeRequestBlock(RequestBlock* request_block);
 
-// void freeRequestData(REQUEST_DATA* request_data);
+// void freeRequestData(RequestData* request_data);
 
 void freePutDataBlockList(PutDataBlockList* putDataBlockList);
 

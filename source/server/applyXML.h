@@ -6,14 +6,14 @@
 namespace uda::server
 {
 
-int serverParseSignalXML(uda::client_server::DATA_SOURCE data_source, uda::client_server::SIGNAL signal,
-                         uda::client_server::SIGNAL_DESC signal_desc, uda::client_server::ACTIONS* actions_desc,
-                         uda::client_server::ACTIONS* actions_sig);
+int serverParseSignalXML(uda::client_server::DataSource data_source, uda::client_server::Signal signal,
+                         uda::client_server::SignalDesc signal_desc, uda::client_server::Actions* actions_desc,
+                         uda::client_server::Actions* actions_sig);
 
-void serverApplySignalXML(uda::client_server::CLIENT_BLOCK client_block, uda::client_server::DATA_SOURCE* data_source,
-                          uda::client_server::SIGNAL* signal, uda::client_server::SIGNAL_DESC* signal_desc,
-                          uda::client_server::DATA_BLOCK* data_block, uda::client_server::ACTIONS actions);
+void serverApplySignalXML(uda::client_server::ClientBlock client_block, uda::client_server::DataSource* data_source,
+                          uda::client_server::Signal* signal, uda::client_server::SignalDesc* signal_desc,
+                          uda::client_server::DataBlock* data_block, uda::client_server::Actions actions);
 
-void serverDeselectSignalXML(uda::client_server::ACTIONS* actions_desc, uda::client_server::ACTIONS* actions_sig);
+void serverDeselectSignalXML(uda::client_server::Actions* actions_desc, uda::client_server::Actions* actions_sig);
 
 } // namespace uda::server

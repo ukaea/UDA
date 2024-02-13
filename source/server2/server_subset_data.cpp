@@ -49,19 +49,19 @@ using namespace uda::logging;
 namespace
 {
 
-int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* subsetindices);
+int serverSubsetIndices(char* operation, Dims* dim, double value, unsigned int* subsetindices);
 
-int serverNewDataArray2(DIMS* dims, int rank, int dimid, char* data, int ndata, int data_type, int notoperation,
+int serverNewDataArray2(Dims* dims, int rank, int dimid, char* data, int ndata, int data_type, int notoperation,
                         int reverse, int start, int end, int start1, int end1, int* n, void** newdata);
 
 } // namespace
 
-int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::client_server::ACTION action,
+int uda::serverSubsetData(uda::client_server::DataBlock* data_block, uda::client_server::Action action,
                           LOGMALLOCLIST* logmalloclist)
 {
-    DIMS* dim;
-    DIMS newdim;
-    SUBSET subset;
+    Dims* dim;
+    Dims newdim;
+    Subset subset;
     char* operation;
 
     char *newdata, *newerrhi, *newerrlo;
@@ -345,7 +345,7 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
 
                             data_block->rank = rank;
 
-                            data_block->dims = (DIMS*)realloc((void*)data_block->dims, rank * sizeof(DIMS));
+                            data_block->dims = (Dims*)realloc((void*)data_block->dims, rank * sizeof(Dims));
 
                             for (int k = k0; k < rank; k++) {
                                 init_dim_block(&data_block->dims[k]);
@@ -368,7 +368,7 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
                                 data_block->rank = data_block->rank + udt->compoundfield[i].rank;
 
                                 data_block->dims =
-                                    (DIMS*)realloc((void*)data_block->dims, data_block->rank * sizeof(DIMS));
+                                    (Dims*)realloc((void*)data_block->dims, data_block->rank * sizeof(Dims));
 
                                 for (unsigned int k = k0; k < data_block->rank; k++) {
                                     init_dim_block(&data_block->dims[k]);
@@ -914,7 +914,7 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
                 }
                 if (dimid < (int)data_block->rank) {
                     count[0] = (unsigned int)data_block->dims[dimid].dim_n; // Preserve this value
-                    DIMS ddim = data_block->dims[dimid];
+                    Dims ddim = data_block->dims[dimid];
                     if (ddim.dim != nullptr) {
                         free(ddim.dim);
                     }
@@ -1119,8 +1119,8 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
                 }
                 free(data);
 
-                DIMS d1 = data_block->dims[1];
-                DIMS d2 = data_block->dims[2];
+                Dims d1 = data_block->dims[1];
+                Dims d2 = data_block->dims[2];
                 data_block->dims[1] = d2;
                 data_block->dims[2] = d1;
             } else if (order == 1) { // array[nz][nt][nr]
@@ -1156,8 +1156,8 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
                     free(data[k]);
                 }
                 free(data);
-                DIMS d0 = data_block->dims[0];
-                DIMS d1 = data_block->dims[1];
+                Dims d0 = data_block->dims[0];
+                Dims d1 = data_block->dims[1];
                 data_block->dims[0] = d1;
                 data_block->dims[1] = d0;
             } else {
@@ -1182,17 +1182,17 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
 //-------------------------------------------------------------------------------------------------------------
 // Build an Action Structure for Serverside Data Operations
 
-// SS::SUBSET(\"xx\", [!=0.15])
-// SS::SUBSET(\"xx\", [0:25])
-// SS::SUBSET(\"xx\", [=0.15, *], reform)
-// SS::SUBSET(\"xx\", [0:5, *])
-// SS::SUBSET(\"xx\", [0:0, *], reform)
-// SS::SUBSET(\"xx\", [*, 2:8])
-// SS::SUBSET(\"xx\", [*, 2:8], member=\"name\")
-// SS::SUBSET(\"xx\", [*, 3], member=\"name\", reform)
-// SS::SUBSET(\"xx\", [*, 3], member=\"name\", reform, function=\"minimum(dimid=0)\" )
+// SS::Subset(\"xx\", [!=0.15])
+// SS::Subset(\"xx\", [0:25])
+// SS::Subset(\"xx\", [=0.15, *], reform)
+// SS::Subset(\"xx\", [0:5, *])
+// SS::Subset(\"xx\", [0:0, *], reform)
+// SS::Subset(\"xx\", [*, 2:8])
+// SS::Subset(\"xx\", [*, 2:8], member=\"name\")
+// SS::Subset(\"xx\", [*, 3], member=\"name\", reform)
+// SS::Subset(\"xx\", [*, 3], member=\"name\", reform, function=\"minimum(dimid=0)\" )
 
-int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serverside, Environment* environment)
+int uda::serverParseServerSide(RequestData* request_block, Actions* actions_serverside, Environment* environment)
 {
 
     char qchar[2];
@@ -1208,13 +1208,13 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
 
     int lsignal, nactions, nsubsets, nbound, ierr, lop;
 
-    ACTION* action = nullptr;
-    SUBSET* subsets = nullptr;
+    Action* action = nullptr;
+    Subset* subsets = nullptr;
 
     ierr = 0;
 
     //-------------------------------------------------------------------------------------------------------------
-    // Extract the ARCHIVE::SIGNAL element
+    // Extract the ARCHIVE::Signal element
     // use the first character after the left parenthesis as the opening quotation character
 
     strncpy(qchar, request_block->signal + 7, 1);
@@ -1281,7 +1281,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
     // Extend the Action Structure and Initialise
 
     nactions = actions_serverside->nactions + 1;
-    if ((action = (ACTION*)realloc((void*)actions_serverside->action, nactions * sizeof(ACTION))) == nullptr) {
+    if ((action = (Action*)realloc((void*)actions_serverside->action, nactions * sizeof(Action))) == nullptr) {
         UDA_THROW_ERROR(9999, "Unable to Allocate Heap memory");
     }
 
@@ -1294,7 +1294,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
     init_server_side(&action[nactions - 1].serverside);
 
     nsubsets = 1;
-    if ((subsets = (SUBSET*)malloc(sizeof(SUBSET))) == nullptr) {
+    if ((subsets = (Subset*)malloc(sizeof(Subset))) == nullptr) {
         UDA_THROW_ERROR(9999, "Unable to Allocate Heap memory");
     }
 
@@ -1517,7 +1517,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
 namespace
 {
 
-int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* subsetindices)
+int serverSubsetIndices(char* operation, Dims* dim, double value, unsigned int* subsetindices)
 {
     int count = 0;
 
@@ -1822,7 +1822,7 @@ int serverSubsetIndices(char* operation, DIMS* dim, double value, unsigned int* 
     return count;
 }
 
-int serverNewDataArray2(DIMS* dims, int rank, int dimid, char* data, int ndata, int data_type, int notoperation,
+int serverNewDataArray2(Dims* dims, int rank, int dimid, char* data, int ndata, int data_type, int notoperation,
                         int reverse, int start, int end, int start1, int end1, int* n, void** newdata)
 {
 

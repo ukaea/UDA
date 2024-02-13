@@ -6,8 +6,8 @@ namespace uda::client
 {
 
 int makeClientRequestBlock(const char** signals, const char** sources, int count,
-                           uda::client_server::REQUEST_BLOCK* request_block);
+                           uda::client_server::RequestBlock* request_block);
 
-void freeClientRequestBlock(uda::client_server::REQUEST_BLOCK* request_block);
+void freeClientRequestBlock(uda::client_server::RequestBlock* request_block);
 
 } // namespace uda::client

@@ -83,7 +83,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 
         if (protocol_id == UDA_PROTOCOL_REQUEST_BLOCK) {
 
-            auto request_block = (REQUEST_BLOCK*)str;
+            auto request_block = (RequestBlock*)str;
 
             switch (direction) {
                 case XDR_RECEIVE:
@@ -128,7 +128,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 
         if (protocol_id == UDA_PROTOCOL_DATA_BLOCK_LIST) {
 
-            auto data_block = (DATA_BLOCK*)str;
+            auto data_block = (DataBlock*)str;
 
             switch (direction) {
                 case XDR_RECEIVE:
@@ -480,7 +480,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         // Data System record
 
         if (protocol_id == UDA_PROTOCOL_DATA_SYSTEM) {
-            auto data_system = (DATA_SYSTEM*)str;
+            auto data_system = (DataSystem*)str;
 
             switch (direction) {
                 case XDR_RECEIVE: // From Client to Server
@@ -526,7 +526,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 
         if (protocol_id == UDA_PROTOCOL_SYSTEM_CONFIG) {
 
-            auto system_config = (SYSTEM_CONFIG*)str;
+            auto system_config = (SystemConfig*)str;
 
             switch (direction) {
                 case XDR_RECEIVE:
@@ -573,7 +573,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 
         if (protocol_id == UDA_PROTOCOL_DATA_SOURCE) {
 
-            auto data_source = (DATA_SOURCE*)str;
+            auto data_source = (DataSource*)str;
 
             switch (direction) {
                 case XDR_RECEIVE:
@@ -620,7 +620,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 
         if (protocol_id == UDA_PROTOCOL_SIGNAL) {
 
-            auto signal = (SIGNAL*)str;
+            auto signal = (Signal*)str;
 
             switch (direction) {
 
@@ -668,7 +668,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 
         if (protocol_id == UDA_PROTOCOL_SIGNAL_DESC) {
 
-            auto signal_desc = (SIGNAL_DESC*)str;
+            auto signal_desc = (SignalDesc*)str;
 
             switch (direction) {
 
@@ -717,7 +717,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 
         if (protocol_id == UDA_PROTOCOL_CLIENT_BLOCK) {
 
-            auto client_block = (CLIENT_BLOCK*)str;
+            auto client_block = (ClientBlock*)str;
 
             switch (direction) {
 
@@ -767,7 +767,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 
         if (protocol_id == UDA_PROTOCOL_SERVER_BLOCK) {
 
-            auto server_block = (SERVER_BLOCK*)str;
+            auto server_block = (ServerBlock*)str;
 
             switch (direction) {
 
@@ -788,7 +788,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
                     if (server_block->idamerrorstack.nerrors > 0) { // No Data to Receive?
 
                         server_block->idamerrorstack.idamerror =
-                            (UDA_ERROR*)malloc(server_block->idamerrorstack.nerrors * sizeof(UDA_ERROR));
+                            (UdaError*)malloc(server_block->idamerrorstack.nerrors * sizeof(UdaError));
                         init_error_records(&server_block->idamerrorstack);
 
                         if (!xdr_server2(xdrs, server_block)) {

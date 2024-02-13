@@ -25,7 +25,7 @@ class ThreadClient
     static void init_client();
 };
 
-[[nodiscard]] uda::client_server::DATA_BLOCK* get_data_block(int handle);
+[[nodiscard]] uda::client_server::DataBlock* get_data_block(int handle);
 [[nodiscard]] char* get_data(int handle);
 [[nodiscard]] char* get_synthetic_data(int handle);
 void set_synthetic_data(int handle, char* data);

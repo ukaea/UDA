@@ -9,12 +9,12 @@
 
 using namespace uda::client_server;
 
-int uda::server::makeServerRequestBlock(REQUEST_BLOCK* request_block, uda::plugins::PluginList pluginList)
+int uda::server::makeServerRequestBlock(RequestBlock* request_block, uda::plugins::PluginList pluginList)
 {
     return make_request_block(request_block, &pluginList, getServerEnvironment());
 }
 
-int uda::server::makeServerRequestData(REQUEST_DATA* request, uda::plugins::PluginList pluginList)
+int uda::server::makeServerRequestData(RequestData* request, uda::plugins::PluginList pluginList)
 {
     return make_request_data(request, &pluginList, getServerEnvironment());
 }

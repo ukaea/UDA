@@ -26,7 +26,7 @@
  *---------------------------------------------------------------------------------------------------------
  * Notes on Generalised Data Structures:
  *
- * The DATA_BLOCK structure has the following fields used to pass and receive generalised data structures
+ * The DataBlock structure has the following fields used to pass and receive generalised data structures
  *
  * data_block->data_type        set to UDA_TYPE_COMPOUND (external to this routine)
  * data_block->data_n        set to the count of structure array elements (external to this routine)
@@ -101,7 +101,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
                                      int protocolVersion, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
                                      int malloc_source)
 {
-    DATA_BLOCK* data_block;
+    DataBlock* data_block;
 
     int rc, err = 0, count = 0;
 
@@ -155,7 +155,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
         if (protocol_id == UDA_PROTOCOL_STRUCTURES) {
 
             void* data = nullptr;
-            data_block = (DATA_BLOCK*)str;
+            data_block = (DataBlock*)str;
 
             unsigned char* object = nullptr;
             size_t objectSize = 0;
@@ -1113,7 +1113,7 @@ int uda::client_server::protocol_xml2(XDR* xdrs, int protocol_id, int direction,
 #ifndef FATCLIENT
 
         if (protocol_id == UDA_PROTOCOL_META) {
-            data_block = (DATA_BLOCK*)str;
+            data_block = (DataBlock*)str;
             if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT && data_block->opaque_count > 0) {
                 switch (direction) {
                     case XDR_RECEIVE:
@@ -1177,7 +1177,7 @@ void sha1Block(unsigned char* block, size_t blockSize, unsigned char* md)
 
 #ifndef FATCLIENT
 
-int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filename, DATA_BLOCK* data_block,
+int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filename, DataBlock* data_block,
                   int protocolVersion, bool xdr_stdio_flag, LOGSTRUCTLIST* log_struct_list, int malloc_source)
 {
     int rc = 1, err = 0;
@@ -1293,7 +1293,7 @@ int unpackXDRFile(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* filena
 }
 
 int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* object, size_t objectSize,
-                    DATA_BLOCK* data_block, int protocolVersion, bool xdr_stdio_flag, LOGSTRUCTLIST* log_struct_list,
+                    DataBlock* data_block, int protocolVersion, bool xdr_stdio_flag, LOGSTRUCTLIST* log_struct_list,
                     int malloc_source)
 {
 
@@ -1401,7 +1401,7 @@ int unpackXDRObject(LOGMALLOCLIST* logmalloclist, XDR* xdrs, unsigned char* obje
 // Serialise a regular Data_Block structure
 // Write to a memory block - the data object - using a memory stream
 
-int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* data_block,
+int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DataBlock* data_block,
                            LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
                            LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
@@ -1445,7 +1445,7 @@ int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK*
 
         // Serialise the structure and create the data object
 
-        DATA_BLOCK_LIST data_block_list;
+        DataBlockList data_block_list;
         data_block_list.count = 1;
         data_block_list.data = data_block;
         err = protocol2(&xdrObject, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, nullptr, logmalloclist, userdefinedtypelist,
@@ -1466,7 +1466,7 @@ int packXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK*
 // Deserialise a regular Data_Block structure
 // Read from a memory block - the data object - using a memory stream
 
-int unpackXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOCK* data_block,
+int unpackXDRDataBlockObject(unsigned char* object, size_t objectSize, DataBlock* data_block,
                              LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                              int protocolVersion, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
                              int malloc_source)
@@ -1488,7 +1488,7 @@ int unpackXDRDataBlockObject(unsigned char* object, size_t objectSize, DATA_BLOC
 
         // Deserialise the object and create the data_block structure
 
-        DATA_BLOCK_LIST data_block_list;
+        DataBlockList data_block_list;
         data_block_list.count = 1;
         data_block_list.data = data_block;
         err = protocol2(&xdrObject, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_RECEIVE, nullptr, logmalloclist,

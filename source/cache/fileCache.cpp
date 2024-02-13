@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------
 * UDA Client Data Cache
 *----------------------------------------------------------------
-Contents of DATA_BLOCK structures written to a local cache
+Contents of DataBlock structures written to a local cache
 Date/Time Stamp used to build in automatic obsolescence.
 Unique hash key used to identify cached data using signal/source arguments
 Cache located in directory given by environment variables UDA_CACHE_DIR, UDA_CACHE_TABLE
@@ -27,14 +27,14 @@ char source[]
 #include "fileCache.h"
 
 #ifdef _WIN32
-DATA_BLOCK* udaFileCacheRead(const REQUEST_DATA* request, LOGMALLOCLIST* logmalloclist,
+DataBlock* udaFileCacheRead(const RequestData* request, LOGMALLOCLIST* logmalloclist,
                              USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
                              LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     return nullptr;
 }
 
-int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+int udaFileCacheWrite(const DataBlock* data_block, const RequestBlock* request_block, LOGMALLOCLIST* logmalloclist,
                       USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
                       unsigned int private_flags, int malloc_source)
 {
@@ -101,7 +101,7 @@ static bool is_cache_file_valid(const std::string& filename);
 static boost::optional<CacheStats> get_cache_stats(FILE* db);
 static int update_cache_stats(FILE* db, CacheStats stats);
 static boost::optional<CacheStats> purge_cache(FILE* db);
-static boost::optional<CacheEntry> find_cache_entry(const REQUEST_DATA* request);
+static boost::optional<CacheEntry> find_cache_entry(const RequestData* request);
 static unsigned int xcrc32(const unsigned char* buf, int len, unsigned int init);
 static int set_entry_state(const CacheEntry& entry, EntryState state);
 static std::string get_file_path(const std::string& filename);
@@ -373,7 +373,7 @@ boost::optional<CacheStats> purge_cache(FILE* db)
     return stats;
 }
 
-DATA_BLOCK* udaFileCacheRead(const REQUEST_DATA* request, LOGMALLOCLIST* logmalloclist,
+DataBlock* udaFileCacheRead(const RequestData* request, LOGMALLOCLIST* logmalloclist,
                              USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
                              LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
@@ -465,7 +465,7 @@ boost::optional<CacheEntry> processLine(const std::string& line, size_t position
     return entry;
 }
 
-unsigned int generate_hash_key(const REQUEST_DATA* request)
+unsigned int generate_hash_key(const RequestData* request)
 {
     // Generate a Hash Key (not guaranteed unique)
     unsigned int key = 0;
@@ -495,7 +495,7 @@ int set_entry_state(const CacheEntry& entry, EntryState state)
 }
 
 // Identify the name of the required cache file
-boost::optional<CacheEntry> find_cache_entry(const REQUEST_DATA* request)
+boost::optional<CacheEntry> find_cache_entry(const RequestData* request)
 {
     // Lock the database
     FILE* db = open_db_file(false);
@@ -538,7 +538,7 @@ boost::optional<CacheEntry> find_cache_entry(const REQUEST_DATA* request)
     return found_entry;
 }
 
-int add_cache_record(const REQUEST_DATA* request, const char* filename)
+int add_cache_record(const RequestData* request, const char* filename)
 {
     // Generate a Hash Key (not guaranteed unique)
     unsigned int key = 0;
@@ -597,17 +597,17 @@ int add_cache_record(const REQUEST_DATA* request, const char* filename)
     return set_db_file_lock_state(db, LockActionType::UNLOCK);
 }
 
-std::string generate_cache_filename(const REQUEST_DATA* request)
+std::string generate_cache_filename(const RequestData* request)
 {
     unsigned int key = generate_hash_key(request);
     return std::string{"uda_"} + std::to_string(key) + ".cache";
 }
 
-int udaFileCacheWrite(const DATA_BLOCK* data_block, const REQUEST_BLOCK* request_block, LOGMALLOCLIST* logmalloclist,
+int udaFileCacheWrite(const DataBlock* data_block, const RequestBlock* request_block, LOGMALLOCLIST* logmalloclist,
                       USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
                       unsigned int private_flags, int malloc_source)
 {
-    REQUEST_DATA* request = &request_block->requests[0];
+    RequestData* request = &request_block->requests[0];
 
     auto maybe_entry = find_cache_entry(request);
     if (maybe_entry) {

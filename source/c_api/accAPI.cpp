@@ -440,9 +440,9 @@ void udaResetProperties()
 
 //! Return the client state associated with a specific data item
 /** The client state information is at the time the data was accessed.
- * @return CLIENT_BLOCK pointer to the data structure.
+ * @return ClientBlock pointer to the data structure.
  */
-CLIENT_BLOCK* udaGetProperties(int handle)
+ClientBlock* udaGetProperties(int handle)
 {
     auto data_block = getDataBlock(handle);
     if (data_block == nullptr) {
@@ -453,9 +453,9 @@ CLIENT_BLOCK* udaGetProperties(int handle)
 
 //! Return the client state associated with a specific data item
 /** The client state information is at the time the data was accessed.
- * @return CLIENT_BLOCK pointer to the data structure.
+ * @return ClientBlock pointer to the data structure.
  */
-CLIENT_BLOCK* udaGetDataProperties(int handle)
+ClientBlock* udaGetDataProperties(int handle)
 {
     return udaGetProperties(handle);
 }
@@ -546,7 +546,7 @@ void udaPutDimErrorModel(int handle, int ndim, int model, int param_n, const flo
  */
 void udaPutServer(const char* host, int port)
 {
-    ENVIRONMENT* environment = getIdamClientEnvironment();
+    Environment* environment = getIdamClientEnvironment();
     environment->server_port = port;        // UDA server service port number
     strcpy(environment->server_host, host); // UDA server's host name or IP address
     environment->server_reconnect = 1;      // Create a new Server instance
@@ -561,7 +561,7 @@ void udaPutServer(const char* host, int port)
  */
 void udaPutServerHost(const char* host)
 {
-    ENVIRONMENT* environment = getIdamClientEnvironment();
+    Environment* environment = getIdamClientEnvironment();
     std::string old_host = host;
     strcpy(environment->server_host, host); // UDA server's host name or IP address
     if (old_host != host) {
@@ -577,7 +577,7 @@ void udaPutServerHost(const char* host)
  */
 void udaPutServerPort(int port)
 {
-    ENVIRONMENT* environment = getIdamClientEnvironment();
+    Environment* environment = getIdamClientEnvironment();
     int old_port = port;
     environment->server_port = port; // UDA server service port number
     if (old_port != port) {
@@ -594,7 +594,7 @@ Select the server connection required.
 */
 void udaPutServerSocket(int socket)
 {
-    ENVIRONMENT* environment = getIdamClientEnvironment();
+    Environment* environment = getIdamClientEnvironment();
     if (environment->server_socket != socket) { // Change to a different socket
         environment->server_socket = socket;    // UDA server service socket number (Must be Open)
         environment->server_change_socket = 1;  // Connect to an Existing Server
@@ -613,7 +613,7 @@ void udaPutServerSocket(int socket)
  */
 void udaGetServer(const char** host, int* port, int* socket)
 { // Active ...
-    ENVIRONMENT* environment = getIdamClientEnvironment();
+    Environment* environment = getIdamClientEnvironment();
     *socket = environment->server_socket; // UDA server service socket number
     *port = environment->server_port;     // UDA server service port number
     *host = environment->server_host;     // UDA server's host name or IP address
@@ -625,7 +625,7 @@ void udaGetServer(const char** host, int* port, int* socket)
  */
 const char* udaGetServerHost()
 {
-    ENVIRONMENT* environment = getIdamClientEnvironment();
+    Environment* environment = getIdamClientEnvironment();
     return environment->server_host; // Active UDA server's host name or IP address
 }
 
@@ -635,7 +635,7 @@ const char* udaGetServerHost()
  */
 int udaGetServerPort()
 {
-    ENVIRONMENT* environment = getIdamClientEnvironment();
+    Environment* environment = getIdamClientEnvironment();
     return environment->server_port; // Active UDA server service port number
 }
 
@@ -655,7 +655,7 @@ const char* udaGetBuildDate()
  */
 int udaGetServerSocket()
 {
-    ENVIRONMENT* environment = getIdamClientEnvironment();
+    Environment* environment = getIdamClientEnvironment();
     return environment->server_socket; // Active UDA server service socket number
 }
 
@@ -1514,10 +1514,10 @@ char* udaGetAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_DCOMPLEX: {
-                    DCOMPLEX *ch, *cl = nullptr;
-                    ch = (DCOMPLEX*)data_block->errhi;
+                    DComplex *ch, *cl = nullptr;
+                    ch = (DComplex*)data_block->errhi;
                     if (data_block->errasymmetry) {
-                        cl = (DCOMPLEX*)data_block->errlo;
+                        cl = (DComplex*)data_block->errlo;
                     }
                     for (int i = 0; i < ndata; i++) {
                         ch[i].real = (double)0.0;
@@ -1530,10 +1530,10 @@ char* udaGetAsymmetricError(int handle, int above)
                     break;
                 }
                 case UDA_TYPE_COMPLEX: {
-                    COMPLEX *ch, *cl = nullptr;
-                    ch = (COMPLEX*)data_block->errhi;
+                    Complex *ch, *cl = nullptr;
+                    ch = (Complex*)data_block->errhi;
                     if (data_block->errasymmetry) {
-                        cl = (COMPLEX*)data_block->errlo;
+                        cl = (Complex*)data_block->errlo;
                     }
                     for (int i = 0; i < ndata; i++) {
                         ch[i].real = (float)0.0;
@@ -1582,7 +1582,7 @@ void udaGetDoubleData(int handle, double* fp)
 {
     // Copy Data cast as double to User Provided Array
 
-    // **** The double array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
+    // **** The double array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
     auto data_block = getDataBlock(handle);
     auto client_flags = udaClientFlags();
@@ -1714,7 +1714,7 @@ void udaGetDoubleData(int handle, double* fp)
             }
             case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
-                auto dp = (DCOMPLEX*)array;
+                auto dp = (DComplex*)array;
                 for (int i = 0; i < ndata; i++) {
                     fp[j++] = (double)dp[i].real;
                     fp[j++] = (double)dp[i].imaginary;
@@ -1723,7 +1723,7 @@ void udaGetDoubleData(int handle, double* fp)
             }
             case UDA_TYPE_COMPLEX: {
                 int j = 0;
-                auto dp = (COMPLEX*)array;
+                auto dp = (Complex*)array;
                 for (int i = 0; i < ndata; i++) {
                     fp[j++] = (double)dp[i].real;
                     fp[j++] = (double)dp[i].imaginary;
@@ -1749,7 +1749,7 @@ void udaGetFloatData(int handle, float* fp)
 {
     // Copy Data cast as float to User Provided Array
 
-    // **** The float array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
+    // **** The float array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
     auto data_block = getDataBlock(handle);
     auto client_flags = udaClientFlags();
@@ -1881,7 +1881,7 @@ void udaGetFloatData(int handle, float* fp)
             }
             case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
-                auto dp = (DCOMPLEX*)array;
+                auto dp = (DComplex*)array;
                 for (int i = 0; i < ndata; i++) {
                     fp[j++] = (float)dp[i].real;
                     fp[j++] = (float)dp[i].imaginary;
@@ -1890,7 +1890,7 @@ void udaGetFloatData(int handle, float* fp)
             }
             case UDA_TYPE_COMPLEX: {
                 int j = 0;
-                auto dp = (COMPLEX*)array;
+                auto dp = (Complex*)array;
                 for (int i = 0; i < ndata; i++) {
                     fp[j++] = (float)dp[i].real;
                     fp[j++] = (float)dp[i].imaginary;
@@ -1953,10 +1953,10 @@ void udaGetGenericData(int handle, void* data)
             memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(unsigned char));
             break;
         case UDA_TYPE_DCOMPLEX:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(DCOMPLEX));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(DComplex));
             break;
         case UDA_TYPE_COMPLEX:
-            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(COMPLEX));
+            memcpy(data, (void*)udaGetData(handle), (size_t)udaGetDataNum(handle) * sizeof(Complex));
             break;
     }
 }
@@ -1965,7 +1965,7 @@ void udaGetFloatAsymmetricError(int handle, int above, float* fp)
 {
     // Copy Error Data cast as float to User Provided Array
 
-    // **** The float array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
+    // **** The float array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
     auto data_block = getDataBlock(handle);
     if (data_block == nullptr) {
@@ -2149,13 +2149,13 @@ void udaGetFloatAsymmetricError(int handle, int above, float* fp)
         }
         case UDA_TYPE_DCOMPLEX: {
             int j = 0;
-            DCOMPLEX* cp;
+            DComplex* cp;
             if (above) {
-                cp = (DCOMPLEX*)data_block->errhi;
+                cp = (DComplex*)data_block->errhi;
             } else if (!data_block->errasymmetry) {
-                cp = (DCOMPLEX*)data_block->errhi;
+                cp = (DComplex*)data_block->errhi;
             } else {
-                cp = (DCOMPLEX*)data_block->errlo;
+                cp = (DComplex*)data_block->errlo;
             }
             for (int i = 0; i < ndata; i++) {
                 fp[j++] = (float)cp[i].real;
@@ -2165,13 +2165,13 @@ void udaGetFloatAsymmetricError(int handle, int above, float* fp)
         }
         case UDA_TYPE_COMPLEX: {
             int j = 0;
-            COMPLEX* cp;
+            Complex* cp;
             if (above) {
-                cp = (COMPLEX*)data_block->errhi;
+                cp = (Complex*)data_block->errhi;
             } else if (!data_block->errasymmetry) {
-                cp = (COMPLEX*)data_block->errhi;
+                cp = (Complex*)data_block->errhi;
             } else {
-                cp = (COMPLEX*)data_block->errlo;
+                cp = (Complex*)data_block->errlo;
             }
             for (int i = 0; i < ndata; i++) {
                 fp[j++] = (float)cp[i].real;
@@ -2454,7 +2454,7 @@ void udaGetDimUnitsTdi(int handle, int ndim, char* units)
 */
 void udaGetDoubleDimData(int handle, int ndim, double* fp)
 {
-    // **** The double array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
+    // **** The double array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
     auto data_block = getDataBlock(handle);
     if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
@@ -2570,7 +2570,7 @@ void udaGetDoubleDimData(int handle, int ndim, double* fp)
             }
             case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
-                auto cp = (DCOMPLEX*)array;
+                auto cp = (DComplex*)array;
                 for (int i = 0; i < ndata; i++) {
                     fp[j++] = (double)cp[i].real;
                     fp[j++] = (double)cp[i].imaginary;
@@ -2579,7 +2579,7 @@ void udaGetDoubleDimData(int handle, int ndim, double* fp)
             }
             case UDA_TYPE_COMPLEX: {
                 int j = 0;
-                auto cp = (COMPLEX*)array;
+                auto cp = (Complex*)array;
                 for (int i = 0; i < ndata; i++) {
                     fp[j++] = (double)cp[i].real;
                     fp[j++] = (double)cp[i].imaginary;
@@ -2610,7 +2610,7 @@ void udaGetDoubleDimData(int handle, int ndim, double* fp)
 */
 void udaGetFloatDimData(int handle, int ndim, float* fp)
 {
-    // **** The float array must be TWICE the size if the type is COMPLEX otherwise a seg fault will occur!
+    // **** The float array must be TWICE the size if the type is Complex otherwise a seg fault will occur!
 
     auto data_block = getDataBlock(handle);
     if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
@@ -2726,7 +2726,7 @@ void udaGetFloatDimData(int handle, int ndim, float* fp)
             }
             case UDA_TYPE_DCOMPLEX: {
                 int j = 0;
-                auto cp = (DCOMPLEX*)array;
+                auto cp = (DComplex*)array;
                 for (int i = 0; i < ndata; i++) {
                     fp[j++] = (float)cp[i].real;
                     fp[j++] = (float)cp[i].imaginary;
@@ -2735,7 +2735,7 @@ void udaGetFloatDimData(int handle, int ndim, float* fp)
             }
             case UDA_TYPE_COMPLEX: {
                 int j = 0;
-                auto cp = (COMPLEX*)array;
+                auto cp = (Complex*)array;
                 for (int i = 0; i < ndata; i++) {
                     fp[j++] = (float)cp[i].real;
                     fp[j++] = (float)cp[i].imaginary;
@@ -2809,21 +2809,21 @@ void udaGetGenericDimData(int handle, int ndim, void* data)
                    (size_t)udaGetDimNum(handle, ndim) * sizeof(unsigned char));
             break;
         case UDA_TYPE_DCOMPLEX:
-            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(DCOMPLEX));
+            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(DComplex));
             break;
         case UDA_TYPE_COMPLEX:
-            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(COMPLEX));
+            memcpy(data, (void*)udaGetDimData(handle, ndim), (size_t)udaGetDimNum(handle, ndim) * sizeof(Complex));
             break;
     }
 }
 
-//!  Returns the coordinate dimension's DIMS data structure - the coordinate data and associated meta data.
+//!  Returns the coordinate dimension's Dims data structure - the coordinate data and associated meta data.
 /**
 \param   handle   The data object handle
 \param   ndim    the position of the dimension in the data array - numbering is as data[0][1][2]
-\return  DIMS pointer
+\return  Dims pointer
 */
-DIMS* udaGetDimBlock(int handle, int ndim)
+Dims* udaGetDimBlock(int handle, int ndim)
 {
     auto data_block = getDataBlock(handle);
     if (data_block == nullptr || ndim < 0 || (unsigned int)ndim >= data_block->rank) {
@@ -3052,10 +3052,10 @@ char* udaGetDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
                 case UDA_TYPE_DCOMPLEX: {
-                    DCOMPLEX* cl = nullptr;
-                    auto ch = (DCOMPLEX*)data_block->dims[ndim].errhi;
+                    DComplex* cl = nullptr;
+                    auto ch = (DComplex*)data_block->dims[ndim].errhi;
                     if (data_block->dims[ndim].errasymmetry) {
-                        cl = (DCOMPLEX*)data_block->dims[ndim].errlo;
+                        cl = (DComplex*)data_block->dims[ndim].errlo;
                     }
                     for (int i = 0; i < ndata; i++) {
                         ch[i].real = (double)0.0;
@@ -3068,10 +3068,10 @@ char* udaGetDimAsymmetricError(int handle, int ndim, int above)
                     break;
                 }
                 case UDA_TYPE_COMPLEX: {
-                    COMPLEX* cl = nullptr;
-                    auto ch = (COMPLEX*)data_block->dims[ndim].errhi;
+                    Complex* cl = nullptr;
+                    auto ch = (Complex*)data_block->dims[ndim].errhi;
                     if (data_block->dims[ndim].errasymmetry) {
-                        cl = (COMPLEX*)data_block->dims[ndim].errlo;
+                        cl = (Complex*)data_block->dims[ndim].errlo;
                     }
                     for (int i = 0; i < ndata; i++) {
                         ch[i].real = (float)0.0;
@@ -3245,11 +3245,11 @@ void udaGetFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
         }
         case UDA_TYPE_DCOMPLEX: {
             int j = 0;
-            DCOMPLEX* cp;
+            DComplex* cp;
             if (above || !data_block->dims[ndim].errasymmetry) {
-                cp = (DCOMPLEX*)data_block->dims[ndim].errhi;
+                cp = (DComplex*)data_block->dims[ndim].errhi;
             } else {
-                cp = (DCOMPLEX*)data_block->dims[ndim].errlo;
+                cp = (DComplex*)data_block->dims[ndim].errlo;
             }
             for (int i = 0; i < ndata; i++) {
                 fp[j++] = (float)cp[i].real;
@@ -3259,11 +3259,11 @@ void udaGetFloatDimAsymmetricError(int handle, int ndim, int above, float* fp)
         }
         case UDA_TYPE_COMPLEX: {
             int j = 0;
-            COMPLEX* cp;
+            Complex* cp;
             if (above || !data_block->dims[ndim].errasymmetry) {
-                cp = (COMPLEX*)data_block->dims[ndim].errhi;
+                cp = (Complex*)data_block->dims[ndim].errhi;
             } else {
-                cp = (COMPLEX*)data_block->dims[ndim].errlo;
+                cp = (Complex*)data_block->dims[ndim].errlo;
             }
             for (int i = 0; i < ndata; i++) {
                 fp[j++] = (float)cp[i].real;
@@ -3324,7 +3324,7 @@ int idamDataCheckSum(void* data, int data_n, int type)
         }
         case UDA_TYPE_COMPLEX: {
             float fsum = 0.0;
-            auto dp = (COMPLEX*)data;
+            auto dp = (Complex*)data;
             for (int i = 0; i < data_n; i++) {
                 if (std::isfinite(dp[i].real) && std::isfinite(dp[i].imaginary)) {
                     fsum = fsum + dp[i].real + dp[i].imaginary;
@@ -3338,7 +3338,7 @@ int idamDataCheckSum(void* data, int data_n, int type)
         }
         case UDA_TYPE_DCOMPLEX: {
             double fsum = 0.0;
-            auto dp = (DCOMPLEX*)data;
+            auto dp = (DComplex*)data;
             for (int i = 0; i < data_n; i++) {
                 if (std::isfinite(dp[i].real) && std::isfinite(dp[i].imaginary)) {
                     fsum = fsum + dp[i].real + dp[i].imaginary;
@@ -3469,8 +3469,8 @@ void udaGetClientSerialisedDataBlock(int handle, void** object, size_t* objectSi
     /*
      * TODO
      *
-     * 1> Add cache key to DATA_BLOCK
-     * 2> Investigate creation of cache key when REQUEST_BLOCK is out of scope!
+     * 1> Add cache key to DataBlock
+     * 2> Investigate creation of cache key when RequestBlock is out of scope!
      * 3> is keySize useful if the key is always a string!
      */
 
@@ -3489,7 +3489,7 @@ void udaGetClientSerialisedDataBlock(int handle, void** object, size_t* objectSi
 
     USERDEFINEDTYPELIST* userdefinedtypelist = udaGetUserDefinedTypeList(handle);
     LOGMALLOCLIST* logmalloclist = udaGetLogMallocList(handle);
-    DATA_BLOCK_LIST data_block_list;
+    DataBlockList data_block_list;
     data_block_list.count = 1;
     data_block_list.data = getDataBlock(handle);
     protocol2(&xdrs, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_SEND, &token, logmalloclist, userdefinedtypelist,

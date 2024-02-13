@@ -42,9 +42,9 @@ private:
     void handshake_client();
     void start_logs();
     int get_data(int* depth, uda::client_server::RequestData* request_data, uda::client_server::DataBlock* data_block, int protocol_version);
-    int read_data(uda::client_server::RequestData* request, uda::client_server::DATA_BLOCK* data_block);
+    int read_data(uda::client_server::RequestData* request, uda::client_server::DataBlock* data_block);
 
-    std::vector<uda::client_server::UDA_ERROR> error_stack_;
+    std::vector<uda::client_server::UdaError> error_stack_;
     uda::client_server::RequestBlock request_block_;
     uda::client_server::ServerBlock server_block_;
     uda::client_server::ClientBlock client_block_;
@@ -57,7 +57,7 @@ private:
     Plugins plugins_;
     bool server_closedown_ = false;
     int malloc_source_ = UDA_MALLOC_SOURCE_NONE;
-    std::vector<uda::client_server::DATA_BLOCK> data_blocks_;
+    std::vector<uda::client_server::DataBlock> data_blocks_;
     size_t total_datablock_size_;
     MetadataBlock metadata_block_;
     int server_timeout_ = TIMEOUT;

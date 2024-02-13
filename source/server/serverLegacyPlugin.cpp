@@ -17,7 +17,7 @@ using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::logging;
 
-int uda::server::udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc)
+int uda::server::udaServerLegacyPlugin(RequestData* request, DataSource* data_source, SignalDesc* signal_desc)
 {
     int err = 0;
     char* token = nullptr;
@@ -36,7 +36,7 @@ int uda::server::udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_
 
 #ifndef FATCLIENT
 
-        ENVIRONMENT* environment = getServerEnvironment();
+        Environment* environment = getServerEnvironment();
 
         if (request->request == REQUEST_READ_FORMAT) {
             if (environment->private_path_target[0] != '\0') {

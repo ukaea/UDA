@@ -26,7 +26,7 @@
  *-----------------------------------------------------return;---------------------------------------------
  * Notes on Generalised Data Structures:
  *
- * The DATA_BLOCK structure has the following fields used to pass and receive generalised data structures
+ * The DataBlock structure has the following fields used to pass and receive generalised data structures
  *
  * data_block->data_type        set to UDA_TYPE_COMPOUND (external to this routine)
  * data_block->data_n        set to the count of structure array elements (external to this routine)
@@ -79,7 +79,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
                                     LOGSTRUCTLIST* log_struct_list, IoData* io_data, unsigned int private_flags,
                                     int malloc_source, CreateXDRStreams create_xdr_streams)
 {
-    DATA_BLOCK* data_block;
+    DataBlock* data_block;
 
     int rc;
     int err = 0;
@@ -115,7 +115,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
         if (protocol_id == UDA_PROTOCOL_STRUCTURES) {
 
             void* data = nullptr;
-            data_block = (DATA_BLOCK*)str;
+            data_block = (DataBlock*)str;
 
             if (data_block->opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
 
@@ -653,7 +653,7 @@ int uda::client_server::protocol_xml(XDR* xdrs, int protocol_id, int direction, 
 #ifndef FATCLIENT
 
         if (protocol_id == UDA_PROTOCOL_META) {
-            data_block = (DATA_BLOCK*)str;
+            data_block = (DataBlock*)str;
             if (data_block->opaque_type == UDA_OPAQUE_TYPE_XML_DOCUMENT && data_block->opaque_count > 0) {
                 switch (direction) {
                     case XDR_RECEIVE:

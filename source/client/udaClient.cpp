@@ -62,8 +62,8 @@ LOGSTRUCTLIST* g_log_struct_list = nullptr;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-CLIENT_BLOCK client_block;
-SERVER_BLOCK server_block;
+ClientBlock client_block;
+ServerBlock server_block;
 
 time_t tv_server_start = 0;
 time_t tv_server_end = 0;
@@ -91,7 +91,7 @@ void uda::client::setLogMallocList(LOGMALLOCLIST* logmalloclist_in) {}
 extern SOCKETLIST socket_list;
 #endif
 
-static std::vector<DATA_BLOCK> data_blocks = {};
+static std::vector<DataBlock> data_blocks = {};
 
 int getCurrentDataBlockIndex()
 {
@@ -167,7 +167,7 @@ int getNewDataHandle()
     return newHandleIndex;
 }
 
-DATA_BLOCK* uda::client::getDataBlock(int handle)
+DataBlock* uda::client::getDataBlock(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -206,7 +206,7 @@ int newDataHandle()
     return newHandleIndex;
 }
 
-void uda::client::updateClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags, unsigned int private_flags)
+void uda::client::updateClientBlock(ClientBlock* str, const CLIENT_FLAGS* client_flags, unsigned int private_flags)
 {
     // other structure elements are set when the structure is initialised
 
@@ -237,13 +237,13 @@ void uda::client::updateClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* clien
  * @param p_data_block
  * @return
  */
-int check_file_cache(const REQUEST_DATA* request_data, DATA_BLOCK** p_data_block, LOGMALLOCLIST* log_malloc_list,
+int check_file_cache(const RequestData* request_data, DataBlock** p_data_block, LOGMALLOCLIST* log_malloc_list,
                      USERDEFINEDTYPELIST* user_defined_type_list, LOGSTRUCTLIST* log_struct_list,
                      CLIENT_FLAGS* client_flags, unsigned int private_flags, int malloc_source)
 {
     if (client_flags->flags & CLIENTFLAG_FILECACHE && !request_data->put) {
         // Query the cache for the Data
-        DATA_BLOCK* data = udaFileCacheRead(request_data, log_malloc_list, user_defined_type_list, protocol_version,
+        DataBlock* data = udaFileCacheRead(request_data, log_malloc_list, user_defined_type_list, protocol_version,
                                             log_struct_list, private_flags, malloc_source);
 
         if (data != nullptr) {
@@ -256,7 +256,7 @@ int check_file_cache(const REQUEST_DATA* request_data, DATA_BLOCK** p_data_block
 
             *p_data_block = udaGetDataBlock(data_block_idx);
 
-            memcpy(*p_data_block, data, sizeof(DATA_BLOCK));
+            memcpy(*p_data_block, data, sizeof(DataBlock));
             free(data);
 
             return data_block_idx;
@@ -266,7 +266,7 @@ int check_file_cache(const REQUEST_DATA* request_data, DATA_BLOCK** p_data_block
     return -1;
 }
 
-int check_mem_cache(uda::cache::UdaCache* cache, REQUEST_DATA* request_data, DATA_BLOCK** p_data_block,
+int check_mem_cache(uda::cache::UdaCache* cache, RequestData* request_data, DataBlock** p_data_block,
                     LOGMALLOCLIST* log_malloc_list, USERDEFINEDTYPELIST* user_defined_type_list,
                     LOGSTRUCTLIST* log_struct_list, CLIENT_FLAGS* client_flags, unsigned int private_flags,
                     int malloc_source)
@@ -280,7 +280,7 @@ int check_mem_cache(uda::cache::UdaCache* cache, REQUEST_DATA* request_data, DAT
         }
 
         // Query the cache for the Data
-        DATA_BLOCK* data =
+        DataBlock* data =
             cache_read(cache, request_data, log_malloc_list, user_defined_type_list, *getIdamClientEnvironment(),
                        protocol_version, client_flags->flags, log_struct_list, private_flags, malloc_source);
 
@@ -294,7 +294,7 @@ int check_mem_cache(uda::cache::UdaCache* cache, REQUEST_DATA* request_data, DAT
 
             *p_data_block = udaGetDataBlock(data_block_idx);
 
-            memcpy(*p_data_block, data, sizeof(DATA_BLOCK));
+            memcpy(*p_data_block, data, sizeof(DataBlock));
             free(data);
 
             return data_block_idx;
@@ -305,7 +305,7 @@ int check_mem_cache(uda::cache::UdaCache* cache, REQUEST_DATA* request_data, DAT
 }
 #endif
 
-void copyDataBlock(DATA_BLOCK* str, DATA_BLOCK* in)
+void copyDataBlock(DataBlock* str, DataBlock* in)
 {
     *str = *in;
     memcpy(str->errparams, in->errparams, MAXERRPARAMS);
@@ -316,7 +316,7 @@ void copyDataBlock(DATA_BLOCK* str, DATA_BLOCK* in)
     init_client_block(&str->client_block, 0, "");
 }
 
-void copyClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags)
+void copyClientBlock(ClientBlock* str, const CLIENT_FLAGS* client_flags)
 {
     // other structure elements are set when the structure is initialised
 
@@ -339,10 +339,10 @@ void copyClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags)
 }
 
 /*
- *** stop using Data_Block_Count-1 to identify the new DATA_BLOCK structure, use newHandleIndex
+ *** stop using Data_Block_Count-1 to identify the new DataBlock structure, use newHandleIndex
  *** retain Data_Block_Count as this identifies the upper value of valid handles issued
  *** search for a handle < 0
- *** when freed/initialised, the DATA_BLOCK handle should be set to -1
+ *** when freed/initialised, the DataBlock handle should be set to -1
  *** are there any instances where the data_block handle value is used?
  */
 
@@ -352,7 +352,7 @@ void copyClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags)
  *
  * manages it's own client/server conversation current buffer status in protocolXML2 ...
  */
-static int fetchHierarchicalData(XDR* client_input, DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list,
+static int fetchHierarchicalData(XDR* client_input, DataBlock* data_block, LOGSTRUCTLIST* log_struct_list,
                                  unsigned int private_flags, int malloc_source)
 {
     if (data_block->data_type == UDA_TYPE_COMPOUND && data_block->opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
@@ -383,17 +383,17 @@ static int fetchHierarchicalData(XDR* client_input, DATA_BLOCK* data_block, LOGS
 }
 #endif
 
-static int allocMeta(DATA_SYSTEM** data_system, SYSTEM_CONFIG** system_config, DATA_SOURCE** data_source,
-                     SIGNAL** signal_rec, SIGNAL_DESC** signal_desc)
+static int allocMeta(DataSystem** data_system, SystemConfig** system_config, DataSource** data_source,
+                     Signal** signal_rec, SignalDesc** signal_desc)
 {
     int err = 0;
 
     // Allocate memory for the Meta Data
-    *data_system = (DATA_SYSTEM*)malloc(sizeof(DATA_SYSTEM));
-    *system_config = (SYSTEM_CONFIG*)malloc(sizeof(SYSTEM_CONFIG));
-    *data_source = (DATA_SOURCE*)malloc(sizeof(DATA_SOURCE));
-    *signal_rec = (SIGNAL*)malloc(sizeof(SIGNAL));
-    *signal_desc = (SIGNAL_DESC*)malloc(sizeof(SIGNAL_DESC));
+    *data_system = (DataSystem*)malloc(sizeof(DataSystem));
+    *system_config = (SystemConfig*)malloc(sizeof(SystemConfig));
+    *data_source = (DataSource*)malloc(sizeof(DataSource));
+    *signal_rec = (Signal*)malloc(sizeof(Signal));
+    *signal_desc = (SignalDesc*)malloc(sizeof(SignalDesc));
 
     if (*data_system == nullptr || *system_config == nullptr || *data_source == nullptr || *signal_rec == nullptr ||
         *signal_desc == nullptr) {
@@ -405,8 +405,8 @@ static int allocMeta(DATA_SYSTEM** data_system, SYSTEM_CONFIG** system_config, D
     return err;
 }
 
-static int fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG* system_config,
-                     DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
+static int fetchMeta(XDR* client_input, DataSystem* data_system, SystemConfig* system_config,
+                     DataSource* data_source, Signal* signal_rec, SignalDesc* signal_desc,
                      LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     int err = 0;
@@ -468,7 +468,7 @@ unsigned int* uda::client::udaPrivateFlags()
     return &private_flags;
 }
 
-int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
+int uda::client::idamClient(RequestBlock* request_block, int* indices)
 {
     // Efficient reduced (filled) tcp packet protocol for efficiency over large RTT fat pipes
     // This client version will only be able to communicate with a version 7+ server
@@ -535,9 +535,9 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
 
     time(&protocol_time);
 
-    DATA_BLOCK_LIST cached_data_block_list;
+    DataBlockList cached_data_block_list;
     cached_data_block_list.count = request_block->num_requests;
-    cached_data_block_list.data = (DATA_BLOCK*)malloc(cached_data_block_list.count * sizeof(DATA_BLOCK));
+    cached_data_block_list.data = (DataBlock*)malloc(cached_data_block_list.count * sizeof(DataBlock));
 
     //------------------------------------------------------------------------------
     // Error Trap: Some Errors are Fatal => Server Destroyed & Connections Closed
@@ -548,11 +548,11 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
     std::vector<int> data_block_indices(request_block->num_requests);
     std::fill(data_block_indices.begin(), data_block_indices.end(), -1);
 
-    DATA_SYSTEM* data_system = nullptr;
-    SYSTEM_CONFIG* system_config = nullptr;
-    DATA_SOURCE* data_source = nullptr;
-    SIGNAL* signal_rec = nullptr;
-    SIGNAL_DESC* signal_desc = nullptr;
+    DataSystem* data_system = nullptr;
+    SystemConfig* system_config = nullptr;
+    DataSource* data_source = nullptr;
+    Signal* signal_rec = nullptr;
+    SignalDesc* signal_desc = nullptr;
 
     do {
 
@@ -567,7 +567,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
         int num_cached = 0;
         for (int i = 0; i < request_block->num_requests; ++i) {
             auto request = &request_block->requests[i];
-            DATA_BLOCK* data_block = &cached_data_block_list.data[i];
+            DataBlock* data_block = &cached_data_block_list.data[i];
             int rc = check_file_cache(request, &data_block, g_log_malloc_list, g_user_defined_type_list,
                                       &log_struct_list, client_flags, *private_flags, malloc_source);
             if (rc >= 0) {
@@ -590,7 +590,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
         //
         // Instance a new server on the same Host/Port or on a different Host/port
 
-        ENVIRONMENT* environment = getIdamClientEnvironment();
+        Environment* environment = getIdamClientEnvironment();
 
         if (environment->server_reconnect || environment->server_change_socket) {
             err = reconnect(environment, &client_input, &client_output, &tv_server_start, &client_flags->user_timeout);
@@ -947,7 +947,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Pass the PUTDATA structure
 
         for (int i = 0; i < request_block->num_requests; ++i) {
-            REQUEST_DATA* request = &request_block->requests[i];
+            RequestData* request = &request_block->requests[i];
 
             if (request->put) {
                 protocol_id = UDA_PROTOCOL_PUTDATA_BLOCK_LIST;
@@ -1037,7 +1037,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
         //------------------------------------------------------------------------------
         // Fetch the data Block
 
-        DATA_BLOCK_LIST recv_data_block_list;
+        DataBlockList recv_data_block_list;
 
         if ((err = protocol2(client_input, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_RECEIVE, nullptr, g_log_malloc_list,
                              g_user_defined_type_list, &recv_data_block_list, protocol_version, &log_struct_list,
@@ -1063,9 +1063,9 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
                 continue;
             }
 
-            DATA_BLOCK* data_block = getDataBlock(data_block_idx);
+            DataBlock* data_block = getDataBlock(data_block_idx);
 
-            //           DATA_BLOCK* in_data;
+            //           DataBlock* in_data;
             //           if (request_block->requests[i].request == REQUEST_CACHED) {
             //               in_data = &cached_data_block_list.data[i];
             //           } else {
@@ -1123,15 +1123,15 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
         //------------------------------------------------------------------------------
         // Fat Client Server
 
-        DATA_BLOCK_LIST data_block_list0;
+        DataBlockList data_block_list0;
         init_data_block_list(&data_block_list0);
         err = uda::server::fat_server(client_block, &server_block, request_block, &data_block_list0);
 
         for (int i = 0; i < data_block_list0.count; ++i) {
-            DATA_BLOCK* data_block0 = &data_block_list0.data[i];
+            DataBlock* data_block0 = &data_block_list0.data[i];
 
             int data_block_idx = getNewDataHandle();
-            DATA_BLOCK* data_block = getDataBlock(data_block_idx); // data blocks may have been realloc'ed
+            DataBlock* data_block = getDataBlock(data_block_idx); // data blocks may have been realloc'ed
             copyDataBlock(data_block, data_block0);
 
             if (err != 0 || server_block.idamerrorstack.nerrors > 0) {
@@ -1189,7 +1189,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
                 add_error(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
                           "Data Status is BAD ... Data are Not Usable!");
 
-                DATA_BLOCK* data_block = getDataBlock(data_block_idx);
+                DataBlock* data_block = getDataBlock(data_block_idx);
                 if (data_block->errcode == 0) {
                     // Don't over-rule a server side error
                     data_block->errcode = DATA_STATUS_BAD;
@@ -1209,7 +1209,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
 
         for (auto data_block_idx : data_block_indices) {
-            DATA_BLOCK* data_block = getDataBlock(data_block_idx);
+            DataBlock* data_block = getDataBlock(data_block_idx);
 
             if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
                 data_block->errcode = udaGetServerErrorStackRecordCode(0);
@@ -1271,7 +1271,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
                 add_error(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
                           "Data Status is BAD ... Data are Not Usable!");
 
-                DATA_BLOCK* data_block = getDataBlock(data_block_idx);
+                DataBlock* data_block = getDataBlock(data_block_idx);
                 if (data_block->errcode == 0) {
                     // Don't over-rule a server side error
                     data_block->errcode = DATA_STATUS_BAD;
@@ -1281,7 +1281,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
         }
 
         for (auto data_block_idx : data_block_indices) {
-            DATA_BLOCK* data_block = getDataBlock(data_block_idx);
+            DataBlock* data_block = getDataBlock(data_block_idx);
 
             if (err != 0 && data_block->errcode == 0) {
                 add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Unknown Error");
@@ -1301,7 +1301,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
 
         for (auto data_block_idx : data_block_indices) {
-            DATA_BLOCK* data_block = getDataBlock(data_block_idx);
+            DataBlock* data_block = getDataBlock(data_block_idx);
 
             if (data_block->errcode == 0 && server_block.idamerrorstack.nerrors > 0) {
                 data_block->errcode = udaGetServerErrorStackRecordCode(0);
@@ -1345,10 +1345,10 @@ void udaFree(int handle)
     // Free Heap Memory (Not the Data Blocks themselves: These will be re-used.)
 
     char* cptr;
-    DIMS* ddims;
+    Dims* ddims;
     int rank;
 
-    DATA_BLOCK* data_block = getDataBlock(handle);
+    DataBlock* data_block = getDataBlock(handle);
 
     if (data_block == nullptr) {
         return;
@@ -1572,10 +1572,10 @@ void udaFreeAll()
 
 #ifndef FATCLIENT // <========================== Client Server Code Only
 
-    // After each data request, the server waits for the CLIENT_BLOCK to be sent.
+    // After each data request, the server waits for the ClientBlock to be sent.
     // When the client application closes, the socket is closed and the server terminates with a Protocol Error
     // meaning the expected data structure was not received. This error is written to the server log.
-    // To avoid this, we can send a CLIENT_BLOCK with a CLOSEDOWN instruction.
+    // To avoid this, we can send a ClientBlock with a CLOSEDOWN instruction.
 
     if (connectionOpen()) {
         client_block.timeout = 0;                                                   // Surrogate CLOSEDOWN instruction
@@ -1598,29 +1598,29 @@ void udaFreeAll()
 #endif
 }
 
-SERVER_BLOCK uda::client::udaGetThreadServerBlock()
+ServerBlock uda::client::udaGetThreadServerBlock()
 {
     return server_block;
 }
 
-CLIENT_BLOCK uda::client::udaGetThreadClientBlock()
+ClientBlock uda::client::udaGetThreadClientBlock()
 {
     return client_block;
 }
 
-void uda::client::udaPutThreadServerBlock(SERVER_BLOCK* str)
+void uda::client::udaPutThreadServerBlock(ServerBlock* str)
 {
     server_block = *str;
 }
 
-void uda::client::udaPutThreadClientBlock(CLIENT_BLOCK* str)
+void uda::client::udaPutThreadClientBlock(ClientBlock* str)
 {
     client_block = *str;
 }
 
-CLIENT_BLOCK udaSaveProperties(const CLIENT_FLAGS* client_flags)
+ClientBlock udaSaveProperties(const CLIENT_FLAGS* client_flags)
 {                                   // save current state of properties for future rollback
-    CLIENT_BLOCK cb = client_block; // Copy of Global Structure (maybe not initialised! i.e. idam API not called)
+    ClientBlock cb = client_block; // Copy of Global Structure (maybe not initialised! i.e. idam API not called)
     cb.get_datadble = client_flags->get_datadble; // Copy individual properties only
     cb.get_dimdble = client_flags->get_dimdble;
     cb.get_timedble = client_flags->get_timedble;
@@ -1638,7 +1638,7 @@ CLIENT_BLOCK udaSaveProperties(const CLIENT_FLAGS* client_flags)
     return cb;
 }
 
-void udaRestoreProperties(CLIENT_BLOCK cb, CLIENT_FLAGS* client_flags)
+void udaRestoreProperties(ClientBlock cb, CLIENT_FLAGS* client_flags)
 {                                                // Restore Properties to a prior saved state
     client_block.get_datadble = cb.get_datadble; // Overwrite Individual Global Structure Components
     client_block.get_dimdble = cb.get_dimdble;

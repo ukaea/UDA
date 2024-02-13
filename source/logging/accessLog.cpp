@@ -33,7 +33,7 @@
 
 using namespace uda::client_server;
 
-unsigned int uda::logging::countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block)
+unsigned int uda::logging::countDataBlockListSize(const DataBlockList* data_block_list, ClientBlock* client_block)
 {
     unsigned int total = 0;
     for (int i = 0; i < data_block_list->count; ++i) {
@@ -42,11 +42,11 @@ unsigned int uda::logging::countDataBlockListSize(const DATA_BLOCK_LIST* data_bl
     return total;
 }
 
-unsigned int uda::logging::countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* client_block)
+unsigned int uda::logging::countDataBlockSize(const DataBlock* data_block, ClientBlock* client_block)
 {
     int factor;
-    DIMS dim;
-    unsigned int count = sizeof(DATA_BLOCK);
+    Dims dim;
+    unsigned int count = sizeof(DataBlock);
 
     count += (unsigned int)(getSizeOf((UDA_TYPE)data_block->data_type) * data_block->data_n);
 
@@ -59,7 +59,7 @@ unsigned int uda::logging::countDataBlockSize(const DATA_BLOCK* data_block, CLIE
 
     if (data_block->rank > 0) {
         for (unsigned int k = 0; k < data_block->rank; k++) {
-            count += sizeof(DIMS);
+            count += sizeof(Dims);
             dim = data_block->dims[k];
             if (!dim.compressed) {
                 count += (unsigned int)(getSizeOf((UDA_TYPE)dim.data_type) * dim.dim_n);
@@ -93,7 +93,7 @@ unsigned int uda::logging::countDataBlockSize(const DATA_BLOCK* data_block, CLIE
 
     if (client_block->get_meta) {
         count +=
-            sizeof(DATA_SYSTEM) + sizeof(SYSTEM_CONFIG) + sizeof(DATA_SOURCE) + sizeof(SIGNAL) + sizeof(SIGNAL_DESC);
+            sizeof(DataSystem) + sizeof(SystemConfig) + sizeof(DataSource) + sizeof(Signal) + sizeof(SignalDesc);
     }
 
     return count;
@@ -101,8 +101,8 @@ unsigned int uda::logging::countDataBlockSize(const DATA_BLOCK* data_block, CLIE
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
-void uda::logging::udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_block,
-                                SERVER_BLOCK server_block, unsigned int total_datablock_size)
+void uda::logging::udaAccessLog(int init, ClientBlock client_block, RequestBlock request_block,
+                                ServerBlock server_block, unsigned int total_datablock_size)
 {
     int err = 0;
 

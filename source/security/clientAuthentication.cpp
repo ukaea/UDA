@@ -24,7 +24,7 @@ static TOKEN_TYPE tokenType = NONCESTRONGRANDOM; // NONCESTRONGRANDOM NONCESTRIN
  * Key locations are identified from an environment variable
  * Server public key are from a x509 certificate (to check date validity - a key file isn't sufficient)
  */
-static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out, gcry_sexp_t* privatekey_out)
+static int initialiseKeys(ClientBlock* client_block, gcry_sexp_t* publickey_out, gcry_sexp_t* privatekey_out)
 {
     SECURITY_BLOCK* securityBlock = nullptr;
 
@@ -237,7 +237,7 @@ static int initialiseKeys(CLIENT_BLOCK* client_block, gcry_sexp_t* publickey_out
     return 0;
 }
 
-static int issueToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmalloclist,
+static int issueToken(ClientBlock* client_block, LOGMALLOCLIST* logmalloclist,
                       USERDEFINEDTYPELIST* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
                       gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
 {
@@ -300,7 +300,7 @@ static int issueToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmalloclist,
     return err;
 }
 
-static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmalloclist,
+static int decryptServerToken(ServerBlock* server_block, ClientBlock* client_block, LOGMALLOCLIST* logmalloclist,
                               USERDEFINEDTYPELIST* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
                               gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
 {
@@ -375,7 +375,7 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
     return err;
 }
 
-static int encryptServerToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmalloclist,
+static int encryptServerToken(ClientBlock* client_block, LOGMALLOCLIST* logmalloclist,
                               USERDEFINEDTYPELIST* userdefinedtypelist, gcry_sexp_t publickey, gcry_sexp_t privatekey,
                               gcry_mpi_t* client_mpiToken, gcry_mpi_t* server_mpiToken)
 {
@@ -399,7 +399,7 @@ static int encryptServerToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmall
         UDA_THROW_ERROR(err, "Failed Preparing Authentication Step #6!");
     }
 
-    // Send the encrypted token to the server via the CLIENT_BLOCK data structure
+    // Send the encrypted token to the server via the ClientBlock data structure
 
     SECURITY_BLOCK* securityBlock = &client_block->securityBlock;
 
@@ -429,7 +429,7 @@ static int encryptServerToken(CLIENT_BLOCK* client_block, LOGMALLOCLIST* logmall
     return err;
 }
 
-int clientAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, LOGMALLOCLIST* logmalloclist,
+int clientAuthentication(ClientBlock* client_block, ServerBlock* server_block, LOGMALLOCLIST* logmalloclist,
                          USERDEFINEDTYPELIST* userdefinedtypelist, AUTHENTICATION_STEP authenticationStep)
 {
     gcry_sexp_t privatekey = nullptr;

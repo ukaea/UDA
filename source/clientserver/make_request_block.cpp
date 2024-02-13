@@ -111,7 +111,7 @@ uda::NameValue parse_name_value(std::string_view argument, bool strip)
     return name_value;
 }
 
-OPTIONAL_LONG parse_integer(const std::string& value)
+OptionalLong parse_integer(const std::string& value)
 {
     if (value.empty()) {
         return {.init = false, .value = 0};

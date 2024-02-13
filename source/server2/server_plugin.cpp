@@ -172,8 +172,8 @@ int uda::serverRedirectStdStreams(int reset)
 // 5. open the library
 // 6. get plugin function address
 // 7. close the file
-int uda::serverPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc, const Plugins& plugins,
-                      const ENVIRONMENT* environment)
+int uda::serverPlugin(RequestData* request, DataSource* data_source, SignalDesc* signal_desc, const Plugins& plugins,
+                      const Environment* environment)
 {
     int err = 0;
 

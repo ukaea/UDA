@@ -6,7 +6,7 @@
 
 using namespace uda::logging;
 
-template <typename T> bool reduce_dim(uda::client_server::DIMS* ddim)
+template <typename T> bool reduce_dim(uda::client_server::Dims* ddim)
 {
     T sf = (T)0.0;
     switch (ddim->method) {
@@ -47,7 +47,7 @@ template <typename T> bool reduce_dim(uda::client_server::DIMS* ddim)
  * @param data_block
  * @return
  */
-int reduce_data(uda::client_server::DATA_BLOCK* data_block)
+int reduce_data(uda::client_server::DataBlock* data_block)
 {
     auto ddim = data_block->dims;
     if (ddim->compressed) {
@@ -111,7 +111,7 @@ int reduce_data(uda::client_server::DATA_BLOCK* data_block)
     return 0;
 }
 
-template <typename T> int cast_dim(uda::client_server::DIMS* ddim)
+template <typename T> int cast_dim(uda::client_server::Dims* ddim)
 {
     switch (ddim->method) {
         case 1: {
@@ -166,7 +166,7 @@ template <typename T> int cast_dim(uda::client_server::DIMS* ddim)
  * @param client_block
  * @return
  */
-int cast_data(uda::client_server::DATA_BLOCK* data_block, const uda::client_server::CLIENT_BLOCK* client_block)
+int cast_data(uda::client_server::DataBlock* data_block, const uda::client_server::ClientBlock* client_block)
 {
     int rc = 0;
     for (unsigned int k = 0; k < data_block->rank; k++) {
@@ -174,7 +174,7 @@ int cast_data(uda::client_server::DATA_BLOCK* data_block, const uda::client_serv
             continue; // Only Process the Time Dimension
         }
         UDA_LOG(UDA_LOG_DEBUG, "Processing Dimension %d\n", k);
-        uda::client_server::DIMS* ddim = &data_block->dims[k];
+        uda::client_server::Dims* ddim = &data_block->dims[k];
         if (ddim->compressed) {
             if (ddim->method == 0) {
                 ddim->data_type = UDA_TYPE_DOUBLE;
@@ -223,8 +223,8 @@ int cast_data(uda::client_server::DATA_BLOCK* data_block, const uda::client_serv
  * @param data_block
  * @return 1 if an error occurred, otherwise 0
  */
-int uda::server::serverProcessing(uda::client_server::CLIENT_BLOCK client_block,
-                                  uda::client_server::DATA_BLOCK* data_block)
+int uda::server::serverProcessing(uda::client_server::ClientBlock client_block,
+                                  uda::client_server::DataBlock* data_block)
 {
     int rc = 0;
 

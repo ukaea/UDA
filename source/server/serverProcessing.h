@@ -5,6 +5,6 @@
 namespace uda::server
 {
 
-int serverProcessing(uda::client_server::CLIENT_BLOCK client_block, uda::client_server::DATA_BLOCK* data_block);
+int serverProcessing(uda::client_server::ClientBlock client_block, uda::client_server::DataBlock* data_block);
 
 }

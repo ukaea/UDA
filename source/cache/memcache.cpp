@@ -26,19 +26,19 @@ uda::cache::UdaCache* uda::cache::open_cache()
 
 void uda::cache::free_cache() {}
 
-int uda::cache::cache_write(uda::cache::UdaCache* cache, const uda::client_server::REQUEST_DATA* request_data,
-                            uda::client_server::DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist,
-                            USERDEFINEDTYPELIST* userdefinedtypelist, uda::client_server::ENVIRONMENT environment,
+int uda::cache::cache_write(uda::cache::UdaCache* cache, const uda::client_server::RequestData* request_data,
+                            uda::client_server::DataBlock* data_block, LOGMALLOCLIST* logmalloclist,
+                            USERDEFINEDTYPELIST* userdefinedtypelist, uda::client_server::Environment environment,
                             int protocolVersion, uint32_t flags, LOGSTRUCTLIST* log_struct_list,
                             unsigned int private_flags, int malloc_source)
 {
     return 0;
 }
 
-uda::client_server::DATA_BLOCK*
-uda::cache::cache_read(uda::cache::UdaCache* cache, const uda::client_server::REQUEST_DATA* request_data,
+uda::client_server::DataBlock*
+uda::cache::cache_read(uda::cache::UdaCache* cache, const uda::client_server::RequestData* request_data,
                        LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                       uda::client_server::ENVIRONMENT environment, int protocolVersion, uint32_t flags,
+                       uda::client_server::Environment environment, int protocolVersion, uint32_t flags,
                        LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     return nullptr;
@@ -91,7 +91,7 @@ static uda::cache::UdaCache* global_cache = nullptr; // scope limited to this co
  * There is a 250 character limit - use SHA1 hash if it exceeds 250. The local cache should only be used to record data
  * returned from a server after a GET method - Note: Put methods may be disguised in a GET call!
  */
-std::string generate_cache_key(const REQUEST_DATA* request, ENVIRONMENT environment, uint32_t flags,
+std::string generate_cache_key(const RequestData* request, Environment environment, uint32_t flags,
                                unsigned int private_flags)
 {
     // Check Properties for permission and requested method
@@ -245,9 +245,9 @@ void uda::cache::free_cache() // Will be called by the udaFreeAll function
     global_cache = nullptr;
 }
 
-int uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
+int uda::cache::cache_write(uda::cache::UdaCache* cache, const RequestData* request_data, DataBlock* data_block,
                             LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                            ENVIRONMENT environment, int protocolVersion, uint32_t flags,
+                            Environment environment, int protocolVersion, uint32_t flags,
                             LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
 #  ifdef CACHEDEV
@@ -281,9 +281,9 @@ int uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* req
     return rc;
 }
 
-DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data,
+DataBlock* uda::cache::cache_read(uda::cache::UdaCache* cache, const RequestData* request_data,
                                    LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                                   ENVIRONMENT environment, int protocolVersion, uint32_t flags,
+                                   Environment environment, int protocolVersion, uint32_t flags,
                                    LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     auto key = generate_cache_key(request_data, environment, flags, private_flags);

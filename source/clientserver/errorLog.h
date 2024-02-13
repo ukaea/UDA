@@ -13,7 +13,7 @@
 namespace uda::client_server
 {
 
-void error_log(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, ErrorStack* error_stack);
+void error_log(ClientBlock client_block, RequestBlock request_block, ErrorStack* error_stack);
 
 void init_error_stack(void);
 
@@ -23,7 +23,7 @@ void print_error_stack(void);
 
 void add_error(int type, const char* location, int code, const char* msg);
 
-UDA_ERROR create_error(int type, const char* location, int code, const char* msg);
+UdaError create_error(int type, const char* location, int code, const char* msg);
 
 void concat_error(ErrorStack* errorstackout);
 

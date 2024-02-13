@@ -6,10 +6,10 @@
 #include <cstdio>
 
 void writeCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                    const uda::client_server::DATA_BLOCK* data_block, int protocolVersion,
+                    const uda::client_server::DataBlock* data_block, int protocolVersion,
                     LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source);
 
-uda::client_server::DATA_BLOCK* readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist,
+uda::client_server::DataBlock* readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist,
                                               USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
                                               LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
                                               int malloc_source);

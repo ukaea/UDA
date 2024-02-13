@@ -14,13 +14,13 @@ void uda::client_server::freePutDataBlockList(PutDataBlockList* putDataBlockList
     //    init_put_data_block_list(putDataBlockList);
 }
 
-// void freeRequestData(REQUEST_DATA* request_data)
+// void freeRequestData(RequestData* request_data)
 //{
 //     free_name_value_list(&request_data->nameValueList);
 //     freePutDataBlockList(&request_data->putDataBlockList);
 // }
 
-void uda::client_server::freeRequestBlock(REQUEST_BLOCK* request_block)
+void uda::client_server::freeRequestBlock(RequestBlock* request_block)
 {
     //    for (int i = 0; i < request_block->num_requests; ++i) {
     //        freeRequestData(&request_block->requests[0]);
@@ -38,12 +38,12 @@ void uda::client_server::freeClientPutDataBlockList(PutDataBlockList* putDataBlo
     //    init_put_data_block_list(putDataBlockList);
 }
 
-void uda::client_server::freeDataBlock(DATA_BLOCK* data_block)
+void uda::client_server::freeDataBlock(DataBlock* data_block)
 {
     // Free Heap Memory & Zero all Integer values
 
     void* cptr;
-    DIMS* ddims;
+    Dims* ddims;
     unsigned int rank;
 
     UDA_LOG(UDA_LOG_DEBUG, "Enter\n");
@@ -197,7 +197,7 @@ void uda::client_server::freeDataBlock(DATA_BLOCK* data_block)
     UDA_LOG(UDA_LOG_DEBUG, "Exit\n");
 }
 
-void uda::client_server::freeDataBlockList(DATA_BLOCK_LIST* data_block_list)
+void uda::client_server::freeDataBlockList(DataBlockList* data_block_list)
 {
     for (int i = 0; i < data_block_list->count; ++i) {
         freeDataBlock(&data_block_list->data[i]);
@@ -208,7 +208,7 @@ void uda::client_server::freeDataBlockList(DATA_BLOCK_LIST* data_block_list)
 }
 
 // Free Heap Memory & Zero all Integer values
-void uda::client_server::freeReducedDataBlock(DATA_BLOCK* data_block)
+void uda::client_server::freeReducedDataBlock(DataBlock* data_block)
 {
 #ifdef FATCLIENT
     if (data_block == nullptr) {

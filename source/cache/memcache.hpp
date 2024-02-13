@@ -14,13 +14,13 @@ UdaCache* open_cache();
 
 void free_cache();
 
-int cache_write(uda::cache::UdaCache* cache, const uda::client_server::REQUEST_DATA* request_data, uda::client_server::DATA_BLOCK* data_block,
-                LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, uda::client_server::ENVIRONMENT environment,
+int cache_write(uda::cache::UdaCache* cache, const uda::client_server::RequestData* request_data, uda::client_server::DataBlock* data_block,
+                LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist, uda::client_server::Environment environment,
                 int protocolVersion, uint32_t flags, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags,
                 int malloc_source);
 
-uda::client_server::DATA_BLOCK* cache_read(uda::cache::UdaCache* cache, const uda::client_server::REQUEST_DATA* request_data, LOGMALLOCLIST* logmalloclist,
-                       USERDEFINEDTYPELIST* userdefinedtypelist, uda::client_server::ENVIRONMENT environment, int protocolVersion,
+uda::client_server::DataBlock* cache_read(uda::cache::UdaCache* cache, const uda::client_server::RequestData* request_data, LOGMALLOCLIST* logmalloclist,
+                       USERDEFINEDTYPELIST* userdefinedtypelist, uda::client_server::Environment environment, int protocolVersion,
                        uint32_t flags, LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source);
 
 } // namespace cache

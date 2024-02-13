@@ -24,11 +24,11 @@ namespace client {
 constexpr int ClientVersion = 8;
 
 struct MetadataBlock {
-    uda::client_server::DATA_SOURCE data_source;
-    uda::client_server::SIGNAL signal_rec;
-    uda::client_server::SIGNAL_DESC signal_desc;
-    uda::client_server::SYSTEM_CONFIG system_config;
-    uda::client_server::DATA_SYSTEM data_system;
+    uda::client_server::DataSource data_source;
+    uda::client_server::Signal signal_rec;
+    uda::client_server::SignalDesc signal_desc;
+    uda::client_server::SystemConfig system_config;
+    uda::client_server::DataSystem data_system;
 };
 
 typedef struct ClientFlags {
@@ -67,8 +67,8 @@ public:
     void set_host(std::string_view host);
     void set_port(int port);
     void clear();
-    uda::client_server::DATA_BLOCK* current_data_block();
-    uda::client_server::DATA_BLOCK* data_block(int handle);
+    uda::client_server::DataBlock* current_data_block();
+    uda::client_server::DataBlock* data_block(int handle);
     int new_handle();
     void set_flag(unsigned int flag, bool private_flag=false);
     void reset_flag(unsigned int flag, bool private_flag=false);
@@ -76,10 +76,10 @@ public:
     int get_property(const char* property);
     void reset_property(const char* property);
     void reset_properties();
-    const uda::client_server::CLIENT_BLOCK* client_block(int handle);
+    const uda::client_server::ClientBlock* client_block(int handle);
     const CLIENT_FLAGS* client_flags();
-    const uda::client_server::SERVER_BLOCK* server_block();
-    uda::client_server::ENVIRONMENT* environment();
+    const uda::client_server::ServerBlock* server_block();
+    uda::client_server::Environment* environment();
     void set_user_defined_type_list(USERDEFINEDTYPELIST* userdefinedtypelist);
     void set_log_malloc_list(LOGMALLOCLIST* logmalloclist);
     void set_full_ntree(NTREE* full_ntree);
@@ -97,14 +97,14 @@ private:
     int port_ = 0;
     uint32_t flags_ = 0;
     int alt_rank_ = 0;
-    uda::client_server::ENVIRONMENT environment_ = {};
+    uda::client_server::Environment environment_ = {};
     ClientFlags client_flags_ = {};
     uint32_t private_flags_ = 0;
     uda::client_server::ClientBlock client_block_ = {};
     uda::client_server::ServerBlock server_block_ = {};
     std::vector<uda::client_server::DataBlock> data_blocks_ = {};
     uda::cache::UdaCache* cache_ = nullptr;
-    std::vector<uda::client_server::UDA_ERROR> error_stack_ = {};
+    std::vector<uda::client_server::UdaError> error_stack_ = {};
     XDR* client_input_ = nullptr;
     XDR* client_output_ = nullptr;
     Connection connection_;
@@ -130,7 +130,7 @@ private:
     int flush_sockets();
     int receive_server_block();
     int fetch_meta();
-    int fetch_hierarchical_data(uda::client_server::DATA_BLOCK* data_block);
+    int fetch_hierarchical_data(uda::client_server::DataBlock* data_block);
 };
 
 } // namespace client

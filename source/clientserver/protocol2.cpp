@@ -130,8 +130,8 @@ int uda::client_server::protocol2(XDR* xdrs, int protocol_id, int direction, int
 static int handle_security_block(XDR* xdrs, int direction, const void* str)
 {
     int err = 0;
-    CLIENT_BLOCK* client_block = (CLIENT_BLOCK*)str;
-    SECURITY_BLOCK* security_block = &(client_block->securityBlock);
+    ClientBlock* client_block = (ClientBlock*)str;
+    SecurityBlock* security_block = &(client_block->securityBlock);
 
     switch (direction) {
         case XDR_RECEIVE:
@@ -226,7 +226,7 @@ static int handle_dataobject_file(int direction, const void* str)
 static int handle_dataobject(XDR* xdrs, int direction, const void* str)
 {
     int err = 0;
-    auto data_object = (DATA_OBJECT*)str;
+    auto data_object = (DataObject*)str;
 
     switch (direction) {
         case XDR_RECEIVE:
@@ -268,7 +268,7 @@ static int handle_dataobject(XDR* xdrs, int direction, const void* str)
 static int handle_server_block(XDR* xdrs, int direction, const void* str, int protocolVersion)
 {
     int err = 0;
-    auto server_block = (SERVER_BLOCK*)str;
+    auto server_block = (ServerBlock*)str;
 
     switch (direction) {
         case XDR_RECEIVE:
@@ -282,7 +282,7 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str, int pr
             if (server_block->idamerrorstack.nerrors > 0) { // No Data to Receive?
 
                 server_block->idamerrorstack.idamerror =
-                    (UDA_ERROR*)malloc(server_block->idamerrorstack.nerrors * sizeof(UDA_ERROR));
+                    (UdaError*)malloc(server_block->idamerrorstack.nerrors * sizeof(UdaError));
                 init_error_records(&server_block->idamerrorstack);
 
                 if (!xdr_server2(xdrs, server_block)) {
@@ -321,7 +321,7 @@ static int handle_server_block(XDR* xdrs, int direction, const void* str, int pr
 static int handle_client_block(XDR* xdrs, int direction, const void* str, int protocolVersion)
 {
     int err = 0;
-    auto client_block = (CLIENT_BLOCK*)str;
+    auto client_block = (ClientBlock*)str;
 
     switch (direction) {
         case XDR_RECEIVE:
@@ -351,7 +351,7 @@ static int handle_client_block(XDR* xdrs, int direction, const void* str, int pr
 static int handle_signal_desc(XDR* xdrs, int direction, const void* str)
 {
     int err = 0;
-    auto signal_desc = (SIGNAL_DESC*)str;
+    auto signal_desc = (SignalDesc*)str;
 
     switch (direction) {
         case XDR_RECEIVE:
@@ -381,7 +381,7 @@ static int handle_signal_desc(XDR* xdrs, int direction, const void* str)
 static int handle_signal(XDR* xdrs, int direction, const void* str)
 {
     int err = 0;
-    auto signal = (SIGNAL*)str;
+    auto signal = (Signal*)str;
 
     switch (direction) {
         case XDR_RECEIVE:
@@ -411,7 +411,7 @@ static int handle_signal(XDR* xdrs, int direction, const void* str)
 static int handle_data_source(XDR* xdrs, int direction, const void* str)
 {
     int err = 0;
-    auto data_source = (DATA_SOURCE*)str;
+    auto data_source = (DataSource*)str;
 
     switch (direction) {
 
@@ -442,7 +442,7 @@ static int handle_data_source(XDR* xdrs, int direction, const void* str)
 static int handle_system_config(XDR* xdrs, int direction, const void* str)
 {
     int err = 0;
-    auto system_config = (SYSTEM_CONFIG*)str;
+    auto system_config = (SystemConfig*)str;
 
     switch (direction) {
         case XDR_RECEIVE:
@@ -472,7 +472,7 @@ static int handle_system_config(XDR* xdrs, int direction, const void* str)
 static int handle_data_system(XDR* xdrs, int direction, const void* str)
 {
     int err = 0;
-    auto data_system = (DATA_SYSTEM*)str;
+    auto data_system = (DataSystem*)str;
 
     switch (direction) {
         case XDR_RECEIVE:
@@ -587,13 +587,13 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                 if (put_data.data_type == UDA_TYPE_COMPOUND && put_data.opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
                     // Structured Data
 
-                    // Create a temporary DATA_BLOCK as the function's argument with structured data
+                    // Create a temporary DataBlock as the function's argument with structured data
 
                     // logmalloc list is automatically generated
                     // userdefinedtypelist is passed from the client
                     // NTREE is automatically generated
 
-                    auto data_block = (DATA_BLOCK*)malloc(sizeof(DATA_BLOCK));
+                    auto data_block = (DataBlock*)malloc(sizeof(DataBlock));
 
                     // *** Add to malloclog and test to ensure it is freed after use ***
 
@@ -654,11 +654,11 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                     putDataBlockList->putDataBlock[i].opaque_type == UDA_OPAQUE_TYPE_STRUCTURES) {
                     // Structured Data
 
-                    // Create a temporary DATA_BLOCK as the function's argument with structured data
+                    // Create a temporary DataBlock as the function's argument with structured data
 
                     //   *** putdata.opaque_count is not used or needed - count is sufficient
 
-                    DATA_BLOCK data_block;
+                    DataBlock data_block;
                     init_data_block(&data_block);
                     data_block.opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                     data_block.data_n =
@@ -691,7 +691,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
 static int handle_data_block(XDR* xdrs, int direction, const void* str, int protocolVersion)
 {
     int err = 0;
-    auto data_block = (DATA_BLOCK*)str;
+    auto data_block = (DataBlock*)str;
 
     switch (direction) {
         case XDR_RECEIVE: {
@@ -749,7 +749,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
 
                 if (protocolVersion < 3) {
                     for (unsigned int i = 0; i < data_block->rank; i++) {
-                        DIMS* dim = &data_block->dims[i];
+                        Dims* dim = &data_block->dims[i];
                         if (protocol_version_type_test(protocolVersion, dim->data_type) ||
                             protocol_version_type_test(protocolVersion, dim->error_type)) {
                             err = UDA_PROTOCOL_ERROR_9999;
@@ -839,7 +839,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
 
                 if (protocolVersion < 3) {
                     for (unsigned int i = 0; i < data_block->rank; i++) {
-                        DIMS* dim = &data_block->dims[i];
+                        Dims* dim = &data_block->dims[i];
                         if (protocol_version_type_test(protocolVersion, dim->data_type) ||
                             protocol_version_type_test(protocolVersion, dim->error_type)) {
                             err = UDA_PROTOCOL_ERROR_9999;
@@ -890,7 +890,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
 static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int protocolVersion)
 {
     int err = 0;
-    auto data_block_list = (DATA_BLOCK_LIST*)str;
+    auto data_block_list = (DataBlockList*)str;
 
     switch (direction) {
         case XDR_RECEIVE:
@@ -898,9 +898,9 @@ static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int
                 err = UDA_PROTOCOL_ERROR_1;
                 break;
             }
-            data_block_list->data = (DATA_BLOCK*)malloc(data_block_list->count * sizeof(DATA_BLOCK));
+            data_block_list->data = (DataBlock*)malloc(data_block_list->count * sizeof(DataBlock));
             for (int i = 0; i < data_block_list->count; ++i) {
-                DATA_BLOCK* data_block = &data_block_list->data[i];
+                DataBlock* data_block = &data_block_list->data[i];
                 init_data_block(data_block);
                 err = handle_data_block(xdrs, XDR_RECEIVE, data_block, protocolVersion);
                 if (err != 0) {
@@ -919,7 +919,7 @@ static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int
                 break;
             }
             for (int i = 0; i < data_block_list->count; ++i) {
-                DATA_BLOCK* data_block = &data_block_list->data[i];
+                DataBlock* data_block = &data_block_list->data[i];
                 int rc = handle_data_block(xdrs, XDR_SEND, data_block, protocolVersion);
                 if (rc != 0) {
                     err = UDA_PROTOCOL_ERROR_2;
@@ -945,7 +945,7 @@ static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int
 static int handle_request_block(XDR* xdrs, int direction, const void* str, int protocolVersion)
 {
     int err = 0;
-    auto request_block = (REQUEST_BLOCK*)str;
+    auto request_block = (RequestBlock*)str;
 
     switch (direction) {
         case XDR_RECEIVE:
@@ -953,7 +953,7 @@ static int handle_request_block(XDR* xdrs, int direction, const void* str, int p
                 err = UDA_PROTOCOL_ERROR_1;
                 break;
             }
-            request_block->requests = (REQUEST_DATA*)malloc(request_block->num_requests * sizeof(REQUEST_DATA));
+            request_block->requests = (RequestData*)malloc(request_block->num_requests * sizeof(RequestData));
             for (int i = 0; i < request_block->num_requests; ++i) {
                 init_request_data(&request_block->requests[i]);
                 if (!xdr_request_data(xdrs, &request_block->requests[i], protocolVersion)) {

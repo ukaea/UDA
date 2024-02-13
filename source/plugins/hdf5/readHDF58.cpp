@@ -1,18 +1,18 @@
 /*---------------------------------------------------------------
  * IDAM Plugin data Reader to Access DATA from HDF5 Files
  *
- * Input Arguments:    DATA_SOURCE data_source
- *            SIGNAL_DESC signal_desc
+ * Input Arguments:    DataSource data_source
+ *            SignalDesc signal_desc
  *
  * Returns:        readHDF5    0 if read was successful
  *                    otherwise a Error Code is returned
- *            DATA_BLOCK    Structure with Data from the HDF5 File
+ *            DataBlock    Structure with Data from the HDF5 File
  *
  * Calls        freeDataBlock    to free Heap memory if an Error Occurs
  *
  * Notes:     All memory required to hold data is allocated dynamically
  *        in heap storage. Pointers to these areas of memory are held
- *        by the passed DATA_BLOCK structure. Local memory allocations
+ *        by the passed DataBlock structure. Local memory allocations
  *        are freed on exit. However, the blocks reserved for data are
  *        not and MUST BE FREED by the calling routine.
  *
@@ -30,7 +30,7 @@
 
 #ifdef NOHDF5PLUGIN
 
-int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block)
+int readHDF5(DataSource data_source, SignalDesc signal_desc, DataBlock* data_block)
 {
     int err = 999;
     add_error(UDA_CODE_ERROR_TYPE, "readHDF5", err, "Cannot Read HDF5 Files - PLUGIN NOT ENABLED");
@@ -103,7 +103,7 @@ int readHDF5IdamType(H5T_class_t classtype, int precision, int issigned)
     }
 }
 
-int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_BLOCK* data_block)
+int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DataBlock* data_block)
 {
     H5T_class_t classtype;
     int err = 0, rc;
@@ -226,7 +226,7 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
         return err;
     }
 
-    // Fill out the DATA_BLOCK structure
+    // Fill out the DataBlock structure
 
     data_block->order = -1;
     data_block->data = data;
@@ -235,7 +235,7 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
     strcpy(data_block->data_desc, object);
 
     if (data_block->rank >= 1 && data_block->data_n > 1) {
-        if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
+        if ((data_block->dims = (Dims*)malloc(data_block->rank * sizeof(Dims))) == NULL) {
             err = HDF5_ERROR_ALLOCATING_DIM_HEAP;
             add_error(UDA_CODE_ERROR_TYPE, "readHDF5", err, "Problem Allocating Dimension Heap Memory");
             return err;
@@ -260,7 +260,7 @@ int readHDF5Att(hid_t file_id, char* object, hid_t att_id, char* attname, DATA_B
     return 0;
 }
 
-int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_block)
+int readHDF5(DataSource data_source, SignalDesc signal_desc, DataBlock* data_block)
 {
 
     hid_t file_id = -1, dataset_id = -1, space_id = -1, datatype_id = -1, att_id = -1, grp_id = -1;
@@ -470,7 +470,7 @@ int readHDF5(DATA_SOURCE data_source, SIGNAL_DESC signal_desc, DATA_BLOCK* data_
         // Allocate & Initialise Dimensional Structures
 
         if (data_block->rank > 0) {
-            if ((data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS))) == NULL) {
+            if ((data_block->dims = (Dims*)malloc(data_block->rank * sizeof(Dims))) == NULL) {
                 err = HDF5_ERROR_ALLOCATING_DIM_HEAP;
                 add_error(UDA_CODE_ERROR_TYPE, "readHDF5", err, "Problem Allocating Dimension Heap Memory");
                 break;

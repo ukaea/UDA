@@ -721,7 +721,7 @@ JNIEXPORT jobjectArray JNICALL Java_jIdam_Idam_getVariablesRegex(JNIEnv* env, jo
 
     char* vStr = udaGetData(handle);
 
-//RC    char vStr[500]="PV:PERF1-SYSTEM0-DUMMY0|PV:CHANNEL1|PV:OFF:SIGNAL";
+//RC    char vStr[500]="PV:PERF1-SYSTEM0-DUMMY0|PV:CHANNEL1|PV:OFF:Signal";
 
     if ((vStr == NULL) || (strlen(vStr) < 1)) {
         goto END;

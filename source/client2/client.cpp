@@ -25,7 +25,7 @@ using namespace uda::logging;
 namespace
 {
 
-void copy_data_block(DATA_BLOCK* str, DATA_BLOCK* in)
+void copy_data_block(DataBlock* str, DataBlock* in)
 {
     *str = *in;
     memcpy(str->errparams, in->errparams, MAXERRPARAMS);
@@ -36,7 +36,7 @@ void copy_data_block(DATA_BLOCK* str, DATA_BLOCK* in)
     init_client_block(&str->client_block, 0, "");
 }
 
-void copy_client_block(CLIENT_BLOCK* str, const uda::client::ClientFlags* client_flags)
+void copy_client_block(ClientBlock* str, const uda::client::ClientFlags* client_flags)
 {
     str->timeout = client_flags->user_timeout;
     str->clientFlags = client_flags->flags;
@@ -54,17 +54,17 @@ void copy_client_block(CLIENT_BLOCK* str, const uda::client::ClientFlags* client
     str->get_nodimdata = client_flags->get_nodimdata;
 }
 
-int alloc_meta(DATA_SYSTEM** data_system, SYSTEM_CONFIG** system_config, DATA_SOURCE** data_source, SIGNAL** signal_rec,
-               SIGNAL_DESC** signal_desc)
+int alloc_meta(DataSystem** data_system, SystemConfig** system_config, DataSource** data_source, Signal** signal_rec,
+               SignalDesc** signal_desc)
 {
     int err = 0;
 
     // Allocate memory for the Meta Data
-    *data_system = (DATA_SYSTEM*)malloc(sizeof(DATA_SYSTEM));
-    *system_config = (SYSTEM_CONFIG*)malloc(sizeof(SYSTEM_CONFIG));
-    *data_source = (DATA_SOURCE*)malloc(sizeof(DATA_SOURCE));
-    *signal_rec = (SIGNAL*)malloc(sizeof(SIGNAL));
-    *signal_desc = (SIGNAL_DESC*)malloc(sizeof(SIGNAL_DESC));
+    *data_system = (DataSystem*)malloc(sizeof(DataSystem));
+    *system_config = (SystemConfig*)malloc(sizeof(SystemConfig));
+    *data_source = (DataSource*)malloc(sizeof(DataSource));
+    *signal_rec = (Signal*)malloc(sizeof(Signal));
+    *signal_desc = (SignalDesc*)malloc(sizeof(SignalDesc));
 
     if (*data_system == nullptr || *system_config == nullptr || *data_source == nullptr || *signal_rec == nullptr ||
         *signal_desc == nullptr) {
@@ -76,7 +76,7 @@ int alloc_meta(DATA_SYSTEM** data_system, SYSTEM_CONFIG** system_config, DATA_SO
     return err;
 }
 
-void update_client_block(CLIENT_BLOCK& client_block, const uda::client::ClientFlags& client_flags,
+void update_client_block(ClientBlock& client_block, const uda::client::ClientFlags& client_flags,
                          unsigned int private_flags)
 {
     client_block.timeout = client_flags.user_timeout;
@@ -207,11 +207,11 @@ int uda::client::Client::fetch_meta()
     int err = 0;
 
 #ifndef FATCLIENT // <========================== Client Server Code Only
-    DATA_SYSTEM* data_system = &metadata_.data_system;
-    SYSTEM_CONFIG* system_config = &metadata_.system_config;
-    DATA_SOURCE* data_source = &metadata_.data_source;
-    SIGNAL* signal_rec = &metadata_.signal_rec;
-    SIGNAL_DESC* signal_desc = &metadata_.signal_desc;
+    DataSystem* data_system = &metadata_.data_system;
+    SystemConfig* system_config = &metadata_.system_config;
+    DataSource* data_source = &metadata_.data_source;
+    Signal* signal_rec = &metadata_.signal_rec;
+    SignalDesc* signal_desc = &metadata_.signal_desc;
 
     if ((err = protocol2(client_input_, UDA_PROTOCOL_DATA_SYSTEM, XDR_RECEIVE, nullptr, logmalloclist_,
                          userdefinedtypelist_, data_system, protocol_version_, &log_struct_list_, private_flags_,
@@ -256,7 +256,7 @@ int uda::client::Client::fetch_meta()
     return err;
 }
 
-int uda::client::Client::fetch_hierarchical_data(DATA_BLOCK* data_block)
+int uda::client::Client::fetch_hierarchical_data(DataBlock* data_block)
 {
     if (data_block->data_type == UDA_TYPE_COMPOUND && data_block->opaque_type != UDA_OPAQUE_TYPE_UNKNOWN) {
 
@@ -304,7 +304,7 @@ int uda::client::Client::get_server_error_stack_record_code(int record)
 
 namespace
 {
-int get_signal_status(DATA_BLOCK* data_block)
+int get_signal_status(DataBlock* data_block)
 {
     // Signal Status
     if (data_block == nullptr) {
@@ -313,7 +313,7 @@ int get_signal_status(DATA_BLOCK* data_block)
     return data_block->signal_status;
 }
 
-int get_data_status(DATA_BLOCK* data_block)
+int get_data_status(DataBlock* data_block)
 {
     // Data Status based on Standard Rule
     if (data_block == nullptr) {
@@ -438,7 +438,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
     //------------------------------------------------------------------------------
     // Fetch the data Block
 
-    DATA_BLOCK_LIST recv_data_block_list;
+    DataBlockList recv_data_block_list;
 
     if ((err = protocol2(client_input_, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_RECEIVE, nullptr, logmalloclist_,
                          userdefinedtypelist_, &recv_data_block_list, protocol_version_, &log_struct_list_,
@@ -463,11 +463,11 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         copy_client_block(&data_block->client_block, &client_flags_);
 
         if (client_block_.get_meta) {
-            data_block->data_system = (DATA_SYSTEM*)malloc(sizeof(DATA_SYSTEM));
-            data_block->system_config = (SYSTEM_CONFIG*)malloc(sizeof(SYSTEM_CONFIG));
-            data_block->data_source = (DATA_SOURCE*)malloc(sizeof(DATA_SOURCE));
-            data_block->signal_rec = (SIGNAL*)malloc(sizeof(SIGNAL));
-            data_block->signal_desc = (SIGNAL_DESC*)malloc(sizeof(SIGNAL_DESC));
+            data_block->data_system = (DataSystem*)malloc(sizeof(DataSystem));
+            data_block->system_config = (SystemConfig*)malloc(sizeof(SystemConfig));
+            data_block->data_source = (DataSource*)malloc(sizeof(DataSource));
+            data_block->signal_rec = (Signal*)malloc(sizeof(Signal));
+            data_block->signal_desc = (SignalDesc*)malloc(sizeof(SignalDesc));
             if ((err = alloc_meta(&data_block->data_system, &data_block->system_config, &data_block->data_source,
                                   &data_block->signal_rec, &data_block->signal_desc)) != 0) {
                 break;
@@ -508,7 +508,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         }
 
         for (auto data_block_idx : data_block_indices) {
-            DATA_BLOCK* data_block = &data_blocks_[data_block_idx];
+            DataBlock* data_block = &data_blocks_[data_block_idx];
 
             if (err == 0 && (get_data_status(data_block) == MIN_STATUS) && !client_flags_.get_bad) {
                 // If Data are not usable, flag the client
@@ -534,7 +534,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
 
         for (auto data_block_idx : data_block_indices) {
-            DATA_BLOCK* data_block = &data_blocks_[data_block_idx];
+            DataBlock* data_block = &data_blocks_[data_block_idx];
 
             if (data_block->errcode == 0 && server_block_.idamerrorstack.nerrors > 0) {
                 data_block->errcode = get_server_error_stack_record_code(0);
@@ -576,7 +576,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
 int uda::client::Client::send_putdata(const RequestBlock& request_block)
 {
     for (int i = 0; i < request_block.num_requests; ++i) {
-        REQUEST_DATA* request = &request_block.requests[i];
+        RequestData* request = &request_block.requests[i];
 
         if (request->put) {
             int protocol_id = UDA_PROTOCOL_PUTDATA_BLOCK_LIST;
@@ -596,7 +596,7 @@ int uda::client::Client::send_putdata(const RequestBlock& request_block)
 
 int uda::client::Client::get(std::string_view data_signal, std::string_view data_source)
 {
-    REQUEST_BLOCK request_block;
+    RequestBlock request_block;
     init_request_block(&request_block);
 
     auto signal_ptr = data_signal.data();
@@ -620,7 +620,7 @@ int uda::client::Client::get(std::string_view data_signal, std::string_view data
 
 std::vector<int> uda::client::Client::get(std::vector<std::pair<std::string, std::string>>& requests)
 {
-    REQUEST_BLOCK request_block;
+    RequestBlock request_block;
     init_request_block(&request_block);
 
     std::vector<const char*> signals;
@@ -1130,7 +1130,7 @@ void uda::client::Client::reset_properties()
     client_flags_.alt_rank = 0;
 }
 
-DATA_BLOCK* uda::client::Client::data_block(int handle)
+DataBlock* uda::client::Client::data_block(int handle)
 {
     auto idx = static_cast<size_t>(handle);
     if (idx < data_blocks_.size()) {
@@ -1140,7 +1140,7 @@ DATA_BLOCK* uda::client::Client::data_block(int handle)
     }
 }
 
-const CLIENT_BLOCK* uda::client::Client::client_block(int handle)
+const ClientBlock* uda::client::Client::client_block(int handle)
 {
     return &client_block_;
 }
@@ -1154,7 +1154,7 @@ void uda::client::Client::concat_errors(uda::client_server::ErrorStack* error_st
     unsigned int iold = error_stack->nerrors;
     unsigned int inew = error_stack_.size() + error_stack->nerrors;
 
-    error_stack->idamerror = (UDA_ERROR*)realloc((void*)error_stack->idamerror, (inew * sizeof(UDA_ERROR)));
+    error_stack->idamerror = (UdaError*)realloc((void*)error_stack->idamerror, (inew * sizeof(UdaError)));
 
     for (unsigned int i = iold; i < inew; i++) {
         error_stack->idamerror[i] = error_stack_[i - iold];
@@ -1167,7 +1167,7 @@ const uda::client::ClientFlags* uda::client::Client::client_flags()
     return &client_flags_;
 }
 
-DATA_BLOCK* uda::client::Client::current_data_block()
+DataBlock* uda::client::Client::current_data_block()
 {
     if (!data_blocks_.empty()) {
         return &data_blocks_.back();
@@ -1176,12 +1176,12 @@ DATA_BLOCK* uda::client::Client::current_data_block()
     }
 }
 
-const SERVER_BLOCK* uda::client::Client::server_block()
+const ServerBlock* uda::client::Client::server_block()
 {
     return &server_block_;
 }
 
-ENVIRONMENT* uda::client::Client::environment()
+Environment* uda::client::Client::environment()
 {
     return &environment_;
 }
@@ -1203,7 +1203,7 @@ void uda::client::Client::set_full_ntree(NTREE* full_ntree)
 
 int uda::client::Client::put(std::string_view put_instruction, uda::client_server::PutDataBlock* putdata_block)
 {
-    REQUEST_BLOCK request_block;
+    RequestBlock request_block;
     init_request_block(&request_block);
 
     auto signal_ptr = put_instruction.data();
@@ -1232,7 +1232,7 @@ int uda::client::Client::put(std::string_view put_instruction, uda::client_serve
 
 int uda::client::Client::put(std::string_view put_instruction, uda::client_server::PutDataBlockList* putdata_block_list)
 {
-    REQUEST_BLOCK request_block;
+    RequestBlock request_block;
     init_request_block(&request_block);
 
     auto signal_ptr = put_instruction.data();

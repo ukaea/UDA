@@ -36,9 +36,9 @@ public:
 
     int read_client_block(uda::client_server::ClientBlock* client_block, LogMallocList* log_malloc_list,
                           UserDefinedTypeList* user_defined_type_list);
-    int recv_request_block(uda::client_server::REQUEST_BLOCK* request_block, LogMallocList* log_malloc_list,
+    int recv_request_block(uda::client_server::RequestBlock* request_block, LogMallocList* log_malloc_list,
                            UserDefinedTypeList* user_defined_type_list);
-    int send_server_block(uda::client_server::SERVER_BLOCK server_block, LogMallocList* log_malloc_list,
+    int send_server_block(uda::client_server::ServerBlock server_block, LogMallocList* log_malloc_list,
                           UserDefinedTypeList* user_defined_type_list);
     int recv_putdata_block_list(uda::client_server::PutDataBlockList* putdata_block_list, LogMallocList* log_malloc_list,
                                 UserDefinedTypeList* user_defined_type_list);
@@ -46,7 +46,7 @@ public:
     int flush();
     int eof();
 
-    uda::client_server::DATA_BLOCK* read_from_cache(uda::cache::UdaCache* cache, uda::client_server::RequestData* request, server::Environment& environment,
+    uda::client_server::DataBlock* read_from_cache(uda::cache::UdaCache* cache, uda::client_server::RequestData* request, server::Environment& environment,
                                 LogMallocList* log_malloc_list, UserDefinedTypeList* user_defined_type_list);
     void write_to_cache(uda::cache::UdaCache* cache, uda::client_server::RequestData* request, uda::server::Environment& environment,
                         uda::client_server::DataBlock* data_block, LogMallocList* log_malloc_list,
@@ -58,7 +58,7 @@ public:
                          UserDefinedTypeList* user_defined_type_list);
     int send_hierachical_data(const uda::client_server::DataBlock& data_block, LogMallocList* log_malloc_list,
                               UserDefinedTypeList* user_defined_type_list);
-    int recv_client_block(uda::client_server::SERVER_BLOCK& server_block, uda::client_server::CLIENT_BLOCK* client_block, bool* fatal,
+    int recv_client_block(uda::client_server::ServerBlock& server_block, uda::client_server::ClientBlock* client_block, bool* fatal,
                           int server_tot_block_time, const int* server_timeout, LogMallocList* log_malloc_list,
                           UserDefinedTypeList* user_defined_type_list);
 

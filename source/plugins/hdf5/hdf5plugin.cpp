@@ -42,9 +42,9 @@ extern int hdf5Plugin(UDA_PLUGIN_INTERFACE* plugin_interface)
 
 int HDF5Plugin::read(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
-    DATA_SOURCE* data_source = plugin_interface->data_source;
-    SIGNAL_DESC* signal_desc = plugin_interface->signal_desc;
-    DATA_BLOCK* data_block = plugin_interface->data_block;
+    DataSource* data_source = plugin_interface->data_source;
+    SignalDesc* signal_desc = plugin_interface->signal_desc;
+    DataBlock* data_block = plugin_interface->data_block;
 
     auto file_path = find_required_arg<std::string>(plugin_interface, "file_path");
     auto cdf_path = find_required_arg<std::string>(plugin_interface, "cdf_path");

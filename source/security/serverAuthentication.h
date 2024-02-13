@@ -6,7 +6,7 @@
 
 #include "security.h"
 
-int serverAuthentication(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, LOGMALLOCLIST* logmalloclist,
+int serverAuthentication(CLIENT_BLOCK* client_block, ServerBlock* server_block, LOGMALLOCLIST* logmalloclist,
                          USERDEFINEDTYPELIST* userdefinedtypelist, AUTHENTICATION_STEP authenticationStep);
 
 #endif // UDA_SECURITY_SERVERAUTHENTICATION_H

@@ -711,22 +711,22 @@ inline DATA_SYSTEM* getIdamDataSystem(int handle)
     return udaGetDataSystem(handle);
 }
 
-inline SYSTEM_CONFIG* getIdamSystemConfig(int handle)
+inline SystemConfig* getIdamSystemConfig(int handle)
 {
     return udaGetSystemConfig(handle);
 }
 
-inline DATA_SOURCE* getIdamDataSource(int handle)
+inline DataSource* getIdamDataSource(int handle)
 {
     return udaGetDataSource(handle);
 }
 
-inline SIGNAL* getIdamSignal(int handle)
+inline Signal* getIdamSignal(int handle)
 {
     return udaGetSignal(handle);
 }
 
-inline SIGNAL_DESC* getIdamSignalDesc(int handle)
+inline SignalDesc* getIdamSignalDesc(int handle)
 {
     return udaGetSignalDesc(handle);
 }
@@ -794,7 +794,7 @@ inline int getIdamMaxThreadCount()
     return udaGetMaxThreadCount();
 }
 
-inline void putIdamThreadServerBlock(SERVER_BLOCK* str)
+inline void putIdamThreadServerBlock(ServerBlock* str)
 {
     return udaPutThreadServerBlock(str);
 }

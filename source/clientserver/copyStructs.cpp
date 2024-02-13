@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 
-void uda::client_server::copy_request_data(REQUEST_DATA* out, REQUEST_DATA in)
+void uda::client_server::copy_request_data(RequestData* out, RequestData in)
 {
     *out = in;
     strcpy(out->tpass, in.tpass);
@@ -18,10 +18,10 @@ void uda::client_server::copy_request_data(REQUEST_DATA* out, REQUEST_DATA in)
     strcpy(out->api_delim, in.api_delim);
 }
 
-void uda::client_server::copy_request_block(REQUEST_BLOCK* out, REQUEST_BLOCK in)
+void uda::client_server::copy_request_block(RequestBlock* out, RequestBlock in)
 {
     *out = in;
-    out->requests = (REQUEST_DATA*)malloc(out->num_requests * sizeof(REQUEST_DATA));
+    out->requests = (RequestData*)malloc(out->num_requests * sizeof(RequestData));
     for (int i = 0; i < out->num_requests; ++i) {
         copy_request_data(&out->requests[i], in.requests[i]);
     }

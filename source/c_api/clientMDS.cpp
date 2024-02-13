@@ -32,11 +32,11 @@ int udaClientMDS(const char* server, const char* tree, const char* node, int tre
     //-------------------------------------------------------------------------
     // Passed Args
 
-    REQUEST_BLOCK request_block;
+    RequestBlock request_block;
     init_request_block(&request_block);
 
     request_block.num_requests = 1;
-    request_block.requests = (REQUEST_DATA*)malloc(sizeof(REQUEST_DATA));
+    request_block.requests = (RequestData*)malloc(sizeof(RequestData));
     auto request = &request_block.requests[0];
     init_request_data(request);
 

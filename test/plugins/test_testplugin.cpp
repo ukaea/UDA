@@ -1660,7 +1660,7 @@ TEST_CASE( "Test array subsetting - take first 10 values", "[plugins][TESTPLUGIN
 
     uda::Client client;
 
-//    const uda::Result& result = client.get("SS::SUBSET(\"TESTPLUGIN::array1dtest()\", [0:10])", "");
+//    const uda::Result& result = client.get("SS::Subset(\"TESTPLUGIN::array1dtest()\", [0:10])", "");
     const uda::Result& result = client.get("TESTPLUGIN::array1dtest()[0:10]", "");
 
     REQUIRE( result.errorCode() == 0 );
@@ -1692,7 +1692,7 @@ TEST_CASE( "Test array subsetting - take last 10 values", "[plugins][TESTPLUGIN]
 
     uda::Client client;
 
-//    const uda::Result& result = client.get("SS::SUBSET(\"TESTPLUGIN::array1dtest()\", [-10:])", "");
+//    const uda::Result& result = client.get("SS::Subset(\"TESTPLUGIN::array1dtest()\", [-10:])", "");
     const uda::Result& result = client.get("TESTPLUGIN::array1dtest()[-10:]", "");
 
     REQUIRE( result.errorCode() == 0 );
@@ -1724,7 +1724,7 @@ TEST_CASE( "Test array subsetting - take every 5th value", "[plugins][TESTPLUGIN
 
     uda::Client client;
 
-//    const uda::Result& result = client.get("SS::SUBSET(\"TESTPLUGIN::array1dtest()\", [::5])", "");
+//    const uda::Result& result = client.get("SS::Subset(\"TESTPLUGIN::array1dtest()\", [::5])", "");
     const uda::Result& result = client.get("TESTPLUGIN::array1dtest()[::5]", "");
 
     REQUIRE( result.errorCode() == 0 );

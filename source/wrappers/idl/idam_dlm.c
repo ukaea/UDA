@@ -1218,7 +1218,7 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
 
     IDL_STRUCT_TAG_DEF pTags[] = {
             { "EXP_NUMBER",    0, (void*)IDL_TYP_LONG },
-            { "SIGNAL",        0, (void*)IDL_TYP_STRING },
+            { "Signal",        0, (void*)IDL_TYP_STRING },
             { "SOURCE",        0, (void*)IDL_TYP_STRING },
             { "PASS",          0, (void*)IDL_TYP_LONG },
             { "TPASS",         0, (void*)IDL_TYP_STRING },
@@ -1314,7 +1314,7 @@ IDL_VPTR IDL_CDECL callidam2(int argc, IDL_VPTR argv[], char* argk)
 
     IDL_STRUCT_TAG_DEF pTags[] = {
             { "EXP_NUMBER",    0, (void*)IDL_TYP_LONG },
-            { "SIGNAL",        0, (void*)IDL_TYP_STRING },
+            { "Signal",        0, (void*)IDL_TYP_STRING },
             { "SOURCE",        0, (void*)IDL_TYP_STRING },
             { "PASS",          0, (void*)IDL_TYP_LONG },
             { "TPASS",         0, (void*)IDL_TYP_STRING },
@@ -1752,7 +1752,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
 
     IDL_STRUCT_TAG_DEF pTags[] = {
             { "EXP_NUMBER",    0, (void*)IDL_TYP_LONG },
-            { "SIGNAL",        0, (void*)IDL_TYP_STRING },
+            { "Signal",        0, (void*)IDL_TYP_STRING },
             { "SOURCE",        0, (void*)IDL_TYP_STRING },
             { "PASS",          0, (void*)IDL_TYP_LONG },
             { "TPASS",         0, (void*)IDL_TYP_STRING },
@@ -1879,7 +1879,7 @@ callidam(int argc, IDL_VPTR argv[], char* argk)
             { "SERVER", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(isserver), IDL_KW_OFFSETOF(server) },
             { "SHOTNO", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(isexp_number),
               IDL_KW_OFFSETOF(exp_number) },
-            { "SIGNAL", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(issignal), IDL_KW_OFFSETOF(signal) },
+            { "Signal", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(issignal), IDL_KW_OFFSETOF(signal) },
             { "SN", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(isexp_number), IDL_KW_OFFSETOF(exp_number) },
             { "TEST", IDL_TYP_LONG, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(istest), IDL_KW_OFFSETOF(testid) },
             { "TPASS", IDL_TYP_STRING, 1, IDL_KW_ZERO, IDL_KW_OFFSETOF(istpass), IDL_KW_OFFSETOF(tpass) },
@@ -4520,7 +4520,7 @@ void userhelp(FILE* fh, char* name)
                              "PULSE - the experiment pulse number",
                              "SERVER - the name or IP address of an external data server",
                              "SHOTNO - the experiment pulse number",
-                             "SIGNAL - the generic or actual name of the requested signal",
+                             "Signal - the generic or actual name of the requested signal",
                              "SN - the experiment pulse number",
                              "TPASS - not implemented yet!",
                              "VERBOSE - print error messages when they occur",
@@ -6136,7 +6136,7 @@ getsystemconfigmeta(int argc, IDL_VPTR argv[], char* argk)
     //-------------------------------------------------------------------------
 
     int handle;
-    SYSTEM_CONFIG* system_config;
+    SystemConfig* system_config;
 
     IDAM_SYSTEM_CONFIG* sout;       // Returned Structure
     IDL_VPTR ivReturn = NULL;
@@ -6288,7 +6288,7 @@ getdatasourcemeta(int argc, IDL_VPTR argv[], char* argk)
     // 18Apr2007    dgm ilDims changed from type IDL_LONG to IDL_MEMINT
     //-------------------------------------------------------------------------
     int handle;
-    DATA_SOURCE* data_source;
+    DataSource* data_source;
     char typestr[2] = " ";
 
     IDAM_DATA_SOURCE* sout;     // Returned Structure
@@ -6491,7 +6491,7 @@ getsignalmeta(int argc, IDL_VPTR argv[], char* argk)
     // 18Apr2007    dgm ilDims changed from type IDL_LONG to IDL_MEMINT
     //-------------------------------------------------------------------------
     int handle;
-    SIGNAL* signal_rec;
+    Signal* signal_rec;
     char typestr[2] = " ";
 
     IDAM_SIGNAL* sout;      // Returned Structure
@@ -6662,7 +6662,7 @@ getsignaldescmeta(int argc, IDL_VPTR argv[], char* argk)
     // 18Apr2007    dgm ilDims changed from type IDL_LONG to IDL_MEMINT
     //-------------------------------------------------------------------------
     int handle;
-    SIGNAL_DESC* signal_desc;
+    SignalDesc* signal_desc;
 
     IDAM_SIGNAL_DESC* sout;     // Returned Structure
     IDL_VPTR ivReturn = NULL;

@@ -19,7 +19,7 @@
 using namespace uda::client_server;
 using namespace uda::logging;
 
-static void embedded_value_substitution(NAMEVALUELIST* nameValueList);
+static void embedded_value_substitution(NameValueList* nameValueList);
 
 // Deconstruct the text pass parameter (tpass) for name value placeholder substitution values
 // Identify name value placeholders in the signal argument and replace with substitution values
@@ -28,7 +28,7 @@ static void embedded_value_substitution(NAMEVALUELIST* nameValueList);
 // shot/tpass data source pattern: "12345/a,b,c, name=value, name=value, d, e, delimiter=',', placeholder='$'"
 //
 
-int uda::client_server::name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
+int uda::client_server::name_value_substitution(NameValueList* nameValueList, char* tpass)
 {
     int err = 0;
 
@@ -42,7 +42,7 @@ int uda::client_server::name_value_substitution(NAMEVALUELIST* nameValueList, ch
                 nameValueList->nameValue[i].name, nameValueList->nameValue[i].value);
     }
 
-    NAMEVALUELIST newNameValueList;
+    NameValueList newNameValueList;
     init_name_value_list(&newNameValueList);
 
     unsigned short strip = 0; // Do Not Remove enclosing quotes from name value pairs
@@ -185,8 +185,8 @@ int uda::client_server::name_value_substitution(NAMEVALUELIST* nameValueList, ch
 
     if (nameValueList->pairCount + newNameValueList.pairCount > nameValueList->listSize) {
         nameValueList->nameValue =
-            (NAMEVALUE*)realloc((void*)nameValueList->nameValue,
-                                (nameValueList->listSize + newNameValueList.pairCount) * sizeof(NAMEVALUE));
+            (NameValue*)realloc((void*)nameValueList->nameValue,
+                                (nameValueList->listSize + newNameValueList.pairCount) * sizeof(NameValue));
         nameValueList->listSize = nameValueList->listSize + newNameValueList.pairCount;
     }
 
@@ -220,10 +220,10 @@ int uda::client_server::name_value_substitution(NAMEVALUELIST* nameValueList, ch
 // patterns with name values: string="UDA::getdata(variable='/a/b/c', shot=$shot, tstart=$tstart, tend=$tend)"
 // substitution for named string elements: $shot, $tstart, $tend
 
-void embedded_value_substitution(NAMEVALUELIST* nameValueList)
+void embedded_value_substitution(NameValueList* nameValueList)
 {
     int m;
-    NAMEVALUELIST newNameValueList;
+    NameValueList newNameValueList;
 
     if (nameValueList->pairCount == 0) {
         return;
@@ -288,28 +288,28 @@ void embedded_value_substitution(NAMEVALUELIST* nameValueList)
                         char* original = strdup(nameValueList->nameValue[i].value);
                         UDA_LOG(UDA_LOG_DEBUG, "Original: %s\n", original);
 
-                        char* p = strstr(original, newNameValueList.nameValue[j].value);
+                        char* pp = strstr(original, newNameValueList.nameValue[j].value);
                         int lstr = strlen(newNameValueList.nameValue[j].value); // Target this
                         int ok = 1;
 
-                        UDA_LOG(UDA_LOG_DEBUG, "targeting %s [%d] from %s to %s\n", p, lstr,
+                        UDA_LOG(UDA_LOG_DEBUG, "targeting %s [%d] from %s to %s\n", pp, lstr,
                                 newNameValueList.nameValue[j].value, nameValueList->nameValue[k].value);
 
                         for (m = 0; m < lstr; m++) {
-                            ok = ok && p[m] == newNameValueList.nameValue[j].value[m]; // Test the name is correct
+                            ok = ok && pp[m] == newNameValueList.nameValue[j].value[m]; // Test the name is correct
                         }
 
                         if (ok) {
                             UDA_LOG(UDA_LOG_DEBUG, "Substituting %s with %s\n", newNameValueList.nameValue[j].value,
                                     nameValueList->nameValue[k].value);
 
-                            p[0] = '\0';
+                            pp[0] = '\0';
                             std::string replace =
-                                fmt::format("{}{}{}", original, nameValueList->nameValue[k].value, &p[lstr]);
+                                fmt::format("{}{}{}", original, nameValueList->nameValue[k].value, &pp[lstr]);
 
                             UDA_LOG(UDA_LOG_DEBUG, "original %s\n", original);
                             UDA_LOG(UDA_LOG_DEBUG, "value    %s\n", nameValueList->nameValue[k].value);
-                            UDA_LOG(UDA_LOG_DEBUG, "residual %s\n", &p[lstr]);
+                            UDA_LOG(UDA_LOG_DEBUG, "residual %s\n", &pp[lstr]);
                             UDA_LOG(UDA_LOG_DEBUG, "Modified Original %s\n", replace.c_str());
 
                             free(original);

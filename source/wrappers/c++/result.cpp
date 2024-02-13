@@ -69,11 +69,11 @@ uda::Result::Result(int handle)
 {
     if (handle >= 0 && (bool)udaGetProperty("get_meta")) {
         // TODO: fix reading all meta fields
-        //        SIGNAL_DESC* signal_desc = getIdamSignalDesc(handle);
+        //        SignalDesc* signal_desc = getIdamSignalDesc(handle);
         //        meta_["signal_name"] = signal_desc->signal_name;
         //        meta_["signal_alias"] = signal_desc->signal_alias;
         //
-        //        DATA_SOURCE* source = getIdamDataSource(handle);
+        //        DataSource* source = getIdamDataSource(handle);
         //        meta_["path"] = source->path;
         //        meta_["filename"] = source->filename;
         //        meta_["format"] = source->format;

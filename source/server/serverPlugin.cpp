@@ -127,7 +127,7 @@ void uda::server::allocPluginList(int count, uda::plugins::PluginList* plugin_li
 
 void resetPlugins(const uda::plugins::PluginList* plugin_list)
 {
-    REQUEST_DATA request_block;
+    RequestData request_block;
     uda::plugins::UdaPluginInterface plugin_interface;
     init_request_data(&request_block);
     strcpy(request_block.function, "reset");
@@ -338,8 +338,8 @@ int uda::server::udaServerRedirectStdStreams(int reset)
 // 5. open the library
 // 6. get plugin function address
 // 7. close the file
-int uda::server::udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
-                                 const uda::plugins::PluginList* plugin_list, const ENVIRONMENT* environment)
+int uda::server::udaServerPlugin(RequestData* request, DataSource* data_source, SignalDesc* signal_desc,
+                                 const uda::plugins::PluginList* plugin_list, const Environment* environment)
 {
     int err = 0;
 
@@ -406,10 +406,10 @@ int uda::server::udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source
 // changePlugin option disabled in this context
 // private malloc log and userdefinedtypelist
 
-int uda::server::udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_request,
-                                     DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
+int uda::server::udaProvenancePlugin(ClientBlock* client_block, RequestData* original_request,
+                                     DataSource* data_source, SignalDesc* signal_desc,
                                      const uda::plugins::PluginList* plugin_list, const char* logRecord,
-                                     const ENVIRONMENT* environment)
+                                     const Environment* environment)
 {
 
     if (STR_EQUALS(client_block->DOI, "")) {
@@ -464,7 +464,7 @@ int uda::server::udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* o
         return 0;
     }
 
-    REQUEST_DATA request;
+    RequestData request;
     init_request_data(&request);
 
     strcpy(request.api_delim, "::");
@@ -494,7 +494,7 @@ int uda::server::udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* o
     make_request_data(&request, plugin_list, environment);
 
     int err, rc, reset;
-    DATA_BLOCK data_block;
+    DataBlock data_block;
     UdaPluginInterface plugin_interface;
 
     // Initialise the Data Block
@@ -586,7 +586,7 @@ int uda::server::udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* o
 //------------------------------------------------------------------------------------------------
 // Identify the Plugin to use to resolve Generic Name mappings and return its ID
 
-int uda::server::udaServerMetaDataPluginId(const uda::plugins::PluginList* plugin_list, const ENVIRONMENT* environment)
+int uda::server::udaServerMetaDataPluginId(const uda::plugins::PluginList* plugin_list, const Environment* environment)
 {
     static unsigned short noPluginRegistered = 0;
     static int plugin_id = -1;
@@ -645,8 +645,8 @@ int uda::server::udaServerMetaDataPluginId(const uda::plugins::PluginList* plugi
 // Execute the Generic Name mapping Plugin
 
 int uda::server::udaServerMetaDataPlugin(const uda::plugins::PluginList* plugin_list, int plugin_id,
-                                         REQUEST_DATA* request_block, SIGNAL_DESC* signal_desc, SIGNAL* signal_rec,
-                                         DATA_SOURCE* data_source, const ENVIRONMENT* environment)
+                                         RequestData* request_block, SignalDesc* signal_desc, Signal* signal_rec,
+                                         DataSource* data_source, const Environment* environment)
 {
     int err, reset, rc;
     UdaPluginInterface plugin_interface;
@@ -657,7 +657,7 @@ int uda::server::udaServerMetaDataPlugin(const uda::plugins::PluginList* plugin_
         UDA_THROW_ERROR(999, "The Plugin's Interface Version is not Implemented.");
     }
 
-    DATA_BLOCK data_block;
+    DataBlock data_block;
     init_data_block(&data_block);
     data_block.signal_rec = signal_rec;
 

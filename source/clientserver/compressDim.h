@@ -5,23 +5,23 @@
 namespace uda::client_server
 {
 
-int compress_dim(DIMS* ddim);
+int compress_dim(Dims* ddim);
 
 /*---------------------------------------------------------------
  * UDA Dimensional Data Uncompressor
  *
- * Input Arguments:    DIMS *        Dimensional Data
+ * Input Arguments:    Dims *        Dimensional Data
  *
  * Returns:        uncompressDim    0 if no Problems Found
  *                    Error Code if a Problem Occured
  *
- *            DIMS* ->dim    Un-Compressed Dimensional Data
- *            DIMS* ->compressed    Unchanged (necessary)
+ *            Dims* ->dim    Un-Compressed Dimensional Data
+ *            Dims* ->compressed    Unchanged (necessary)
  *
  * Note: XML based data correction also uses the compression models: New models
  * must also have corrections applied.
  *
  *--------------------------------------------------------------*/
-int uncompress_dim(DIMS* ddim);
+int uncompress_dim(Dims* ddim);
 
 } // namespace uda::client_server

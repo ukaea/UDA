@@ -118,12 +118,12 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
         char error_msg[STRING_LENGTH];
 
-        DIMS* dims;
-        DATA_SYSTEM* data_system;
-        SYSTEM_CONFIG* system_config;
-        DATA_SOURCE* data_source;
-        SIGNAL* signal_rec;
-        SIGNAL_DESC* signal_desc;
+        Dims* dims;
+        DataSystem* data_system;
+        SystemConfig* system_config;
+        DataSource* data_source;
+        Signal* signal_rec;
+        SignalDesc* signal_desc;
 
         OLD_CLIENT_BLOCK client_block; // Used to pass properties into legacy data reader plugins - ignore!
 
@@ -153,9 +153,9 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     int pathway = 0;
 
     auto interface = static_cast<::uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_SOURCE* data_source = interface->data_source;
-    SIGNAL_DESC* signal_desc = interface->signal_desc;
-    REQUEST_DATA* request = interface->request_data;
+    DataSource* data_source = interface->data_source;
+    SignalDesc* signal_desc = interface->signal_desc;
+    RequestData* request = interface->request_data;
 
     if (data_source->source_id > 0 && signal_desc->signal_desc_id > 0) {
         pathway = 1;
@@ -187,7 +187,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Set Properties
 
-    CLIENT_BLOCK* client_block = interface->client_block;
+    ClientBlock* client_block = interface->client_block;
 
     if (client_block->get_nodimdata) {
         udaSetProperty("get_nodimdata");
@@ -505,7 +505,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     // Check the originals have no XML action definitions before replacement
     // Why should a plugin have this concern?
 
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
 
     if (udaGetClientVersion() >= 7) {
         // This should contain everything!
@@ -513,12 +513,12 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     } else { // use abstraction functions
 
         // Straight structure mapping causes potential problems when the client library uses different versions
-        // of the DATA_BLOCK structure
-        // or its component structure CLIENT_BLOCK
+        // of the DataBlock structure
+        // or its component structure ClientBlock
         // or the initialisation is incomplete!
-        // Write the structure components element by element! (Ignore the CLIENT_BLOCK component)
+        // Write the structure components element by element! (Ignore the ClientBlock component)
 
-        DATA_BLOCK db;
+        DataBlock db;
         init_data_block(&db);
 
         auto odb = (OLD_DATA_BLOCK*)getDataBlock(handle);

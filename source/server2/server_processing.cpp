@@ -16,7 +16,7 @@ using namespace uda::logging;
  */
 int uda::serverProcessing(uda::client_server::ClientBlock client_block, uda::client_server::DataBlock* data_block)
 {
-    uda::client_server::DIMS* ddim = nullptr;
+    uda::client_server::Dims* ddim = nullptr;
     double *newoffs = nullptr, *newints = nullptr;
 
     int reduce = 0;

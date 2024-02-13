@@ -33,12 +33,12 @@
 #define UDA_XML_MAX_RECURSIVE 10
 #define UDA_XML_MAX_LOOP 1024
 
-#define UDA_DIM_CALIBRATION_TYPE 1 // Identifies DIMENSION Union Structures
+#define UDA_DIM_CALIBRATION_TYPE 1 // Identifies Dimension Union Structures
 #define UDA_DIM_COMPOSITE_TYPE 2
 #define UDA_DIM_DOCUMENTATION_TYPE 3
 #define UDA_DIM_ERROR_MODEL_TYPE 4
 
-#define UDA_TIME_OFFSET_TYPE 1 // Identifies ACTION Union Structures
+#define UDA_TIME_OFFSET_TYPE 1 // Identifies Action Union Structures
 #define UDA_DOCUMENTATION_TYPE 2
 #define UDA_CALIBRATION_TYPE 3
 #define UDA_COMPOSITE_TYPE 4

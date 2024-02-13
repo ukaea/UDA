@@ -3,8 +3,8 @@
  *
  * Returns:
  *
- * Notes: Actions defined within the SIGNAL record have a Higher priority than
- *     Actions defined within the SIGNAL_DESC record.
+ * Notes: Actions defined within the Signal record have a Higher priority than
+ *     Actions defined within the SignalDesc record.
  *
  *        Priorities are subject to exp_number and pass range checks
  *
@@ -23,9 +23,9 @@
 
 using namespace uda::logging;
 
-int uda::server_parse_signal_XML(uda::client_server::DATA_SOURCE data_source, uda::client_server::SIGNAL signal,
-                                 uda::client_server::SIGNAL_DESC signal_desc, uda::client_server::ACTIONS* actions_desc,
-                                 uda::client_server::ACTIONS* actions_sig)
+int uda::server_parse_signal_XML(uda::client_server::DataSource data_source, uda::client_server::Signal signal,
+                                 uda::client_server::SignalDesc signal_desc, uda::client_server::Actions* actions_desc,
+                                 uda::client_server::Actions* actions_sig)
 {
 
     // return -1 if No Qualifying Actionable XML otherwise return 0
@@ -281,10 +281,10 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
 
 } // namespace
 
-void uda::server_apply_signal_XML(uda::client_server::CLIENT_BLOCK client_block,
-                                  uda::client_server::DATA_SOURCE* data_source, uda::client_server::SIGNAL* signal,
-                                  uda::client_server::SIGNAL_DESC* signal_desc,
-                                  uda::client_server::DATA_BLOCK* data_block, uda::client_server::ACTIONS actions)
+void uda::server_apply_signal_XML(uda::client_server::ClientBlock client_block,
+                                  uda::client_server::DataSource* data_source, uda::client_server::Signal* signal,
+                                  uda::client_server::SignalDesc* signal_desc,
+                                  uda::client_server::DataBlock* data_block, uda::client_server::Actions actions)
 {
 
     int ndata, dimid;
@@ -1536,8 +1536,8 @@ void uda::server_apply_signal_XML(uda::client_server::CLIENT_BLOCK client_block,
 
 // Combine the set of Actions from both sources with Signal XML having Priority of Signal_Desc XML
 
-void uda::server_deselect_signal_XML(uda::client_server::ACTIONS* actions_desc,
-                                     uda::client_server::ACTIONS* actions_sig)
+void uda::server_deselect_signal_XML(uda::client_server::Actions* actions_desc,
+                                     uda::client_server::Actions* actions_sig)
 {
 
     int type;

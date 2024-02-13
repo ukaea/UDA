@@ -34,7 +34,7 @@ Interprets the API arguments and assembles a Request data structure.
 using namespace uda::client_server;
 using namespace uda::client;
 
-int make_request_data(const char* data_object, const char* data_source, REQUEST_DATA* request)
+int make_request_data(const char* data_object, const char* data_source, RequestData* request)
 {
     //------------------------------------------------------------------------------------------------------------------
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
@@ -59,7 +59,7 @@ int make_request_data(const char* data_object, const char* data_source, REQUEST_
      * interpret the data access request.
      */
 
-    ENVIRONMENT* environment = getIdamClientEnvironment();
+    Environment* environment = getIdamClientEnvironment();
 
     strcpy(request->api_delim, environment->api_delim); // Server needs to know how to parse the arguments
 
@@ -141,14 +141,14 @@ int make_request_data(const char* data_object, const char* data_source, REQUEST_
 }
 
 int uda::client::makeClientRequestBlock(const char** signals, const char** sources, int count,
-                                        REQUEST_BLOCK* request_block)
+                                        RequestBlock* request_block)
 {
     request_block->num_requests = (int)count;
-    request_block->requests = (REQUEST_DATA*)malloc(count * sizeof(REQUEST_DATA));
+    request_block->requests = (RequestData*)malloc(count * sizeof(RequestData));
 
     int err = 0;
     for (int i = 0; i < count; ++i) {
-        REQUEST_DATA* request = &request_block->requests[i];
+        RequestData* request = &request_block->requests[i];
         init_request_data(request);
         if ((err = make_request_data(signals[i], sources[i], request))) {
             return err;
@@ -158,7 +158,7 @@ int uda::client::makeClientRequestBlock(const char** signals, const char** sourc
     return err;
 }
 
-void uda::client::freeClientRequestBlock(REQUEST_BLOCK* request_block)
+void uda::client::freeClientRequestBlock(RequestBlock* request_block)
 {
     if (request_block != nullptr && request_block->requests != nullptr) {
         for (int i = 0; i < request_block->num_requests; i++) {

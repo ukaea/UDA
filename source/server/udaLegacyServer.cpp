@@ -26,7 +26,7 @@
 #include "sleepServer.h"
 
 #ifdef LEGACYSERVER
-int idamLegacyServer(CLIENT_BLOCK client_block)
+int idamLegacyServer(ClientBlock client_block)
 {
     return 0;
 }
@@ -40,7 +40,7 @@ constexpr int server_version = 8;
 
 // Legacy Server Entry point
 
-int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::PluginList* pluginlist,
+int uda::server::legacyServer(ClientBlock client_block, const uda::plugins::PluginList* pluginlist,
                               LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                               SOCKETLIST* socket_list, int protocolVersion, XDR* server_input, XDR* server_output,
                               unsigned int private_flags, int malloc_source)
@@ -52,18 +52,18 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
     static unsigned short normalLegacyWait = 0;
     static unsigned int total_datablock_size = 0;
 
-    SYSTEM_CONFIG system_config;
-    DATA_SYSTEM data_system;
-    DATA_SOURCE data_source;
-    SIGNAL signal_rec;
-    SIGNAL_DESC signal_desc;
+    SystemConfig system_config;
+    DataSystem data_system;
+    DataSource data_source;
+    Signal signal_rec;
+    SignalDesc signal_desc;
 
-    DATA_BLOCK data_block;
-    REQUEST_BLOCK request_block;
-    SERVER_BLOCK server_block;
+    DataBlock data_block;
+    RequestBlock request_block;
+    ServerBlock server_block;
 
-    ACTIONS actions_desc;
-    ACTIONS actions_sig;
+    Actions actions_desc;
+    Actions actions_sig;
 
     LOGSTRUCTLIST log_struct_list;
     initLogStructList(&log_struct_list);
@@ -159,7 +159,7 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
             // Is the Originating server an externally facing server? If so then switch to this mode: preserve local
             // access policy
 
-            ENVIRONMENT* environment = getServerEnvironment();
+            Environment* environment = getServerEnvironment();
 
             if (!environment->external_user && (private_flags & PRIVATEFLAG_EXTERNAL)) {
                 environment->external_user = 1;
@@ -324,7 +324,7 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
             //----------------------------------------------------------------------------------------------
             // If this is a PUT request then receive the putData structure
 
-            REQUEST_DATA* request_data = &request_block.requests[0];
+            RequestData* request_data = &request_block.requests[0];
 
             init_put_data_block_list(&(request_data->putDataBlockList));
 
@@ -431,7 +431,7 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
             }
 
             if (data_block.rank > 0) {
-                DIMS dim;
+                Dims dim;
                 for (unsigned int i = 0; i < data_block.rank; i++) {
                     dim = data_block.dims[i];
                     if (protocol_version_type_test(protocolVersion, dim.data_type) ||

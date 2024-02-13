@@ -11,11 +11,11 @@
 namespace uda::client
 {
 
-void printIdamClientEnvironment(const uda::client_server::ENVIRONMENT* environment);
+void printIdamClientEnvironment(const uda::client_server::Environment* environment);
 
-uda::client_server::ENVIRONMENT* getIdamClientEnvironment();
+uda::client_server::Environment* getIdamClientEnvironment();
 
-void putIdamClientEnvironment(const uda::client_server::ENVIRONMENT* environment);
+void putIdamClientEnvironment(const uda::client_server::Environment* environment);
 
 bool udaGetEnvHost();
 

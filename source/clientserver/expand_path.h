@@ -39,7 +39,7 @@ char* path_id(char* path);
 @param path The file path to be resolved and expanded.
 @returns An integer Error Code: If non zero, a problem occured.
 */
-int expand_file_path(char* path, const ENVIRONMENT* environment);
+int expand_file_path(char* path, const Environment* environment);
 
 #ifndef NO_EXPAND_PATH
 
@@ -90,7 +90,7 @@ If there are more wildcards in the substitute string than in the target string, 
 @param path The path to be tested for targeted name element replacement.
 @returns An integer Error Code: If non zero, a problem occured.
 */
-int path_replacement(char* path, const ENVIRONMENT* environment);
+int path_replacement(char* path, const Environment* environment);
 
 int link_replacement(char* path);
 

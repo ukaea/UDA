@@ -34,7 +34,7 @@ UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 
     initPluginList(plugin_list, environment);
 
-    auto request_data = (REQUEST_DATA*)calloc(1, sizeof(REQUEST_DATA));
+    auto request_data = (RequestData*)calloc(1, sizeof(RequestData));
     make_request_data(request_data, plugin_list, environment);
 
     auto user_defined_type_list = (USERDEFINEDTYPELIST*)calloc(1, sizeof(USERDEFINEDTYPELIST));
@@ -66,7 +66,7 @@ void udaFreePluginInterface(UDA_PLUGIN_INTERFACE* plugin_interface)
     free(interface->logmalloclist);
     freePluginList((uda::plugins::PluginList*)interface->pluginList);
     free((PLUGINLIST*)interface->pluginList);
-    free((ENVIRONMENT*)interface->environment);
+    free((Environment*)interface->environment);
     free(plugin_interface);
 }
 
@@ -80,7 +80,7 @@ int initPlugin(const UDA_PLUGIN_INTERFACE* plugin_interface)
 template <typename T> int setReturnDataScalar(UDA_PLUGIN_INTERFACE* plugin_interface, T value, const char* description)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
     init_data_block(data_block);
 
     auto data = (T*)malloc(sizeof(T));
@@ -104,7 +104,7 @@ int setReturnDataArray(UDA_PLUGIN_INTERFACE* plugin_interface, const T* values, 
                        const char* description)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
     init_data_block(data_block);
 
     if (description != nullptr) {
@@ -113,7 +113,7 @@ int setReturnDataArray(UDA_PLUGIN_INTERFACE* plugin_interface, const T* values, 
     }
 
     data_block->rank = (int)rank;
-    data_block->dims = (DIMS*)malloc(rank * sizeof(DIMS));
+    data_block->dims = (Dims*)malloc(rank * sizeof(Dims));
 
     size_t len = 1;
 
@@ -168,14 +168,14 @@ UDA_IMPL_SET_RETURN_FUNCS(ULong, unsigned long)
 int udaPluginReturnDataStringScalar(UDA_PLUGIN_INTERFACE* plugin_interface, const char* value, const char* description)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
     init_data_block(data_block);
 
     data_block->data_type = UDA_TYPE_STRING;
     data_block->data = strdup(value);
 
     data_block->rank = 1;
-    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (Dims*)malloc(data_block->rank * sizeof(Dims));
 
     for (unsigned int i = 0; i < data_block->rank; i++) {
         init_dim_block(&data_block->dims[i]);
@@ -202,7 +202,7 @@ int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, siz
                         const int* shape, const char* description)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
     init_data_block(data_block);
 
     data_block->data_type = type;
@@ -211,7 +211,7 @@ int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, siz
     memcpy(data_block->data, value, size);
 
     data_block->rank = rank;
-    data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
+    data_block->dims = (Dims*)malloc(data_block->rank * sizeof(Dims));
 
     for (unsigned int i = 0; i < data_block->rank; i++) {
         init_dim_block(&data_block->dims[i]);
@@ -369,7 +369,7 @@ int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, 
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
     uda::plugins::UdaPluginInterface new_plugin_interface = *interface;
-    REQUEST_DATA request_data = *interface->request_data;
+    RequestData request_data = *interface->request_data;
     new_plugin_interface.request_data = &request_data;
 
     strcpy(request_data.signal, request);
@@ -393,7 +393,7 @@ int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, 
 
     // Apply subsettinng
     if (request_data.datasubset.nbound > 0) {
-        ACTION action = {};
+        Action action = {};
         init_action(&action);
         action.actionType = UDA_SUBSET_TYPE;
         action.subset = request_data.datasubset;
@@ -407,7 +407,7 @@ int udaPluginReturnCompoundData(UDA_PLUGIN_INTERFACE* plugin_interface, char* da
                                 const char* description)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
     init_data_block(data_block);
 
     data_block->data_type = UDA_TYPE_COMPOUND;
@@ -435,7 +435,7 @@ int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE* plugin_interface, cha
                                      const char* description, int rank, int* shape)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
     init_data_block(data_block);
 
     int count = 1;
@@ -447,7 +447,7 @@ int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE* plugin_interface, cha
     data_block->rank = rank;
     data_block->data_n = count;
     data_block->data = data;
-    data_block->dims = (DIMS*)malloc(rank * sizeof(DIMS));
+    data_block->dims = (Dims*)malloc(rank * sizeof(Dims));
 
     for (int i = 0; i < rank; ++i) {
         init_dim_block(&data_block->dims[i]);
@@ -650,7 +650,7 @@ void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* locat
     udaLog(UDA_LOG_ERROR, msg);
     interface->error_stack.nerrors += 1;
     interface->error_stack.idamerror =
-        (UDA_ERROR*)realloc(interface->error_stack.idamerror, interface->error_stack.nerrors * sizeof(UDA_ERROR));
+        (UdaError*)realloc(interface->error_stack.idamerror, interface->error_stack.nerrors * sizeof(UdaError));
     interface->error_stack.idamerror[interface->error_stack.nerrors - 1] =
         create_error(UDA_CODE_ERROR_TYPE, location, code, msg);
 }
@@ -682,7 +682,7 @@ const char* udaPluginFunction(UDA_PLUGIN_INTERFACE* plugin_interface)
 int udaPluginReturnDataLabel(UDA_PLUGIN_INTERFACE* plugin_interface, const char* label)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
     strcpy(data_block->data_label, label);
     return 0;
 }
@@ -690,7 +690,7 @@ int udaPluginReturnDataLabel(UDA_PLUGIN_INTERFACE* plugin_interface, const char*
 int udaPluginReturnDataUnits(UDA_PLUGIN_INTERFACE* plugin_interface, const char* units)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
     strcpy(data_block->data_units, units);
     return 0;
 }
@@ -698,7 +698,7 @@ int udaPluginReturnDataUnits(UDA_PLUGIN_INTERFACE* plugin_interface, const char*
 int udaPluginReturnErrorAsymmetry(UDA_PLUGIN_INTERFACE* plugin_interface, bool flag)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
     data_block->errasymmetry = flag;
     return 0;
 }
@@ -717,7 +717,7 @@ char* memdup(const void* mem, size_t size)
 int udaPluginReturnErrorLow(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
     data_block->errlo = memdup(data, size);
     return 0;
 }
@@ -725,7 +725,7 @@ int udaPluginReturnErrorLow(UDA_PLUGIN_INTERFACE* plugin_interface, float* data,
 int udaPluginReturnErrorHigh(UDA_PLUGIN_INTERFACE* plugin_interface, float* data, size_t size)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
     data_block->errhi = memdup(data, size);
     return 0;
 }
@@ -733,7 +733,7 @@ int udaPluginReturnErrorHigh(UDA_PLUGIN_INTERFACE* plugin_interface, float* data
 int udaPluginReturnDataOrder(UDA_PLUGIN_INTERFACE* plugin_interface, int order)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
     data_block->order = order;
     return 0;
 }
@@ -742,7 +742,7 @@ int udaPluginReturnDimensionFloatArray(UDA_PLUGIN_INTERFACE* plugin_interface, i
                                        const char* label, const char* units)
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
-    DATA_BLOCK* data_block = interface->data_block;
+    DataBlock* data_block = interface->data_block;
 
     data_block->dims[0].data_type = UDA_TYPE_FLOAT;
     data_block->dims[0].dim_n = dim_n;

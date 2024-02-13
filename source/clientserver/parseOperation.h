@@ -5,6 +5,6 @@
 namespace uda::client_server
 {
 
-int parse_operation(SUBSET* sub);
+int parse_operation(Subset* sub);
 
 }
