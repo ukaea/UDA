@@ -6,6 +6,8 @@
 
 #if !defined(FATCLIENT) && defined(SSLAUTHENTICATION)
 #  include <authentication/udaServerSSL.h>
+
+using namespace uda::authentication;
 #endif
 
 std::pair<XDR*, XDR*> uda::server::serverCreateXDRStream(uda::client_server::IoData* io_data)

@@ -17,8 +17,9 @@
 #include "server_processing.h"
 #include "structures/struct.h"
 
-#ifdef SSLAUTHENTICATION
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include "authentication/udaServerSSL.h"
+using namespace uda::authentication;
 #endif
 
 using namespace uda::client_server;

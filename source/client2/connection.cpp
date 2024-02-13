@@ -47,8 +47,9 @@
 #include "host_list.hpp"
 #include "uda/client.h"
 
-#if defined(SSLAUTHENTICATION)
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include <authentication/udaClientSSL.h>
+using namespace uda::authentication;
 #endif
 
 #if defined(COMPILER_GCC) || defined(__clang__)

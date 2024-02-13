@@ -30,6 +30,8 @@
 
 #  ifdef SSLAUTHENTICATION
 #    include <authentication/udaClientSSL.h>
+
+using namespace uda::authentication;
 #  endif
 #endif
 

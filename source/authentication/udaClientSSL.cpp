@@ -25,22 +25,22 @@ static SSL* g_ssl = nullptr;
 static SSL_CTX* g_ctx = nullptr;
 static const HostData* g_host = nullptr;
 
-void putClientHost(const HostData* host)
+void uda::authentication::putClientHost(const HostData* host)
 {
     g_host = host;
 }
 
-bool getUdaClientSSLDisabled()
+bool uda::authentication::getUdaClientSSLDisabled()
 {
     return g_sslDisabled;
 }
 
-void putUdaClientSSLProtocol(int specified)
+void uda::authentication::putUdaClientSSLProtocol(int specified)
 {
     g_sslProtocol = specified;
 }
 
-void putUdaClientSSLSocket(int s)
+void uda::authentication::putUdaClientSSLSocket(int s)
 {
     g_sslSocket = s;
 }
@@ -69,7 +69,7 @@ static void init_ssl_library()
     UDA_LOG(UDA_LOG_DEBUG, "SSL initialised\n");
 }
 
-void closeUdaClientSSL()
+void uda::authentication::closeUdaClientSSL()
 {
     // Requires re-initialisation
     if (g_sslDisabled) {
@@ -100,7 +100,7 @@ void closeUdaClientSSL()
     UDA_LOG(UDA_LOG_DEBUG, "SSL closed\n");
 }
 
-SSL* getUdaClientSSL()
+SSL* uda::authentication::getUdaClientSSL()
 {
     return g_ssl;
 }
@@ -328,7 +328,7 @@ int configureUdaClientSSLContext(const HostData* host)
     return 0;
 }
 
-int initUdaClientSSL()
+int uda::authentication::initUdaClientSSL()
 {
     // Has SSL/TLS authentication already been passed?
     if (g_sslOK) {
@@ -374,7 +374,7 @@ int initUdaClientSSL()
     return 0;
 }
 
-int startUdaClientSSL()
+int uda::authentication::startUdaClientSSL()
 {
     if (g_sslDisabled) {
         return 0;
@@ -480,7 +480,7 @@ int startUdaClientSSL()
     return 0;
 }
 
-int writeUdaClientSSL(void* iohandle, char* buf, int count)
+int uda::authentication::writeUdaClientSSL(void* iohandle, char* buf, int count)
 {
     // This routine is only called when there is something to write to the Server
     // SSL uses an all or nothing approach when the socket is blocking - an SSL error or incomplete write
@@ -550,7 +550,7 @@ int writeUdaClientSSL(void* iohandle, char* buf, int count)
     return rc;
 }
 
-int readUdaClientSSL(void* iohandle, char* buf, int count)
+int uda::authentication::readUdaClientSSL(void* iohandle, char* buf, int count)
 {
     int rc, err = 0;
     fd_set rfds;

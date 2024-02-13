@@ -5,8 +5,10 @@
 #include "clientserver/udaErrors.h"
 #include "clientserver/xdrlib.h"
 #include <uda/types.h>
-#ifdef SSLAUTHENTICATION
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include "authentication/udaServerSSL.h"
+
+using namespace uda::authentication;
 #endif
 
 #include <cerrno>

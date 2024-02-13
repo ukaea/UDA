@@ -23,6 +23,8 @@ using namespace uda::server;
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include <authentication/udaClientSSL.h>
+
+using namespace uda::authentication;
 #endif
 
 using namespace uda::client;

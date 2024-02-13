@@ -1,5 +1,4 @@
-#ifndef UDA_AUTHENTICATION_SERVER_SSL_H
-#define UDA_AUTHENTICATION_SERVER_SSL_H
+#pragma once
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 
@@ -11,13 +10,21 @@
 // Server host addressed beginng with SSL:// are assumed to be using SSL authentication. The SSL:// prefix is removed to
 // make the connection.
 
+namespace uda::authentication
+{
+
 int startUdaServerSSL();
+
 void closeUdaServerSSL();
+
 int readUdaServerSSL(void* iohandle, char* buf, int count);
+
 int writeUdaServerSSL(void* iohandle, const char* buf, int count);
+
 void putUdaServerSSLSocket(int socket);
+
 bool getUdaServerSSLDisabled();
 
-#endif // SSLAUTHENTICATION
+} // namespace uda::authentication
 
-#endif // UDA_AUTHENTICATION_SERVER_SSL_H
+#endif // SSLAUTHENTICATION

@@ -4,8 +4,10 @@
 
 #include "connection.hpp"
 
-#ifdef SSLAUTHENTICATION
+#if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include <authentication/udaClientSSL.h>
+
+using namespace uda::authentication;
 #endif
 
 int uda::client::closedown(ClosedownType type, Connection* connection, XDR* client_input, XDR* client_output,

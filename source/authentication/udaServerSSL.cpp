@@ -45,12 +45,12 @@ static int configureUdaServerSSLContext();
 static X509_CRL* loadUdaServerSSLCrl(const char* crlist);
 static int addUdaServerSSLCrlsStore(X509_STORE* st, STACK_OF(X509_CRL) * crls);
 
-void putUdaServerSSLSocket(int socket)
+void uda::authentication::putUdaServerSSLSocket(int socket)
 {
     g_sslSocket = socket;
 }
 
-bool getUdaServerSSLDisabled()
+bool uda::authentication::getUdaServerSSLDisabled()
 {
     return g_sslDisabled;
 }
@@ -118,7 +118,7 @@ void initUdaServerSSL()
     UDA_LOG(UDA_LOG_DEBUG, "SSL initialised\n");
 }
 
-void closeUdaServerSSL()
+void uda::authentication::closeUdaServerSSL()
 {
     // Requires re-initialisation (should only be called once at closedown!)
     if (g_sslDisabled) {
@@ -306,7 +306,7 @@ int addUdaServerSSLCrlsStore(X509_STORE* st, STACK_OF(X509_CRL) * crls)
     return 1;
 }
 
-int startUdaServerSSL()
+int uda::authentication::startUdaServerSSL()
 {
     int rc;
 
@@ -406,7 +406,7 @@ int startUdaServerSSL()
 #    define UNUSED
 #  endif
 
-int writeUdaServerSSL(void* iohandle, const char* buf, int count)
+int uda::authentication::writeUdaServerSSL(void* iohandle, const char* buf, int count)
 {
     // This routine is only called when there is something to write back to the Client
     // SSL uses an all or nothing approach when the socket is blocking - an SSL error or incomplete write
@@ -486,7 +486,7 @@ int writeUdaServerSSL(void* iohandle, const char* buf, int count)
     return rc;
 }
 
-int readUdaServerSSL(void* iohandle, char* buf, int count)
+int uda::authentication::readUdaServerSSL(void* iohandle, char* buf, int count)
 {
     int rc;
     fd_set rfds; // File Descriptor Set for Reading from the Socket
