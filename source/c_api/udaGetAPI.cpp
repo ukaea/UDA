@@ -126,8 +126,8 @@ void udaLockThread()
             idamState[i].socket = -1;
             idamState[i].lastHandle = -1;
             // initEnvironment(&(idamState[i].environment));
-            initClientBlock(&(idamState[i].client_block), 0, "");
-            initServerBlock(&(idamState[i].server_block), 0);
+            init_client_block(&(idamState[i].client_block), 0, "");
+            init_server_block(&(idamState[i].server_block), 0);
             threadList[i] = 0; // and the thread identifiers
         }
     }
@@ -206,8 +206,8 @@ void udaFreeThread()
         idamState[threadCount].socket = -1;
         idamState[threadCount].lastHandle = -1;
         // initEnvironment(&(idamState[threadCount].environment));
-        initClientBlock(&(idamState[threadCount].client_block), 0, "");
-        initServerBlock(&(idamState[threadCount].server_block), 0);
+        init_client_block(&(idamState[threadCount].client_block), 0, "");
+        init_server_block(&(idamState[threadCount].server_block), 0);
         threadList[threadCount] = 0;
     }
     udaUnlockThread();
@@ -392,7 +392,7 @@ int udaGetAPIWithHost(const char* data_object, const char* data_source, const ch
     // Initialise the Client Data Request Structure
 
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    init_request_block(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
@@ -411,7 +411,7 @@ int udaGetAPIWithHost(const char* data_object, const char* data_source, const ch
         return -err;
     }
 
-    printRequestBlock(request_block);
+    print_request_block(request_block);
 
     //-------------------------------------------------------------------------
     // Fetch Data
@@ -506,7 +506,7 @@ int udaGetBatchAPIWithHost(const char** signals, const char** sources, int count
     // Initialise the Client Data Request Structure
 
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    init_request_block(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
@@ -526,7 +526,7 @@ int udaGetBatchAPIWithHost(const char** signals, const char** sources, int count
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "Routine: udaGetBatchAPI\n");
-    printRequestBlock(request_block);
+    print_request_block(request_block);
 
     //-------------------------------------------------------------------------
     // Fetch Data

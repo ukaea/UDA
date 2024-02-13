@@ -67,8 +67,8 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
     char *newdata, *newerrhi, *newerrlo;
     int nsubsets, nbound, dimid, start, end, start1, end1, dim_n, ndata, n, reshape, reverse, notoperation, ierr = 0;
 
-    printAction(action);
-    printDataBlock(*data_block);
+    print_action(action);
+    print_data_block(*data_block);
 
     //-----------------------------------------------------------------------------------------------------------------------
     // How many sets of subsetting operations?
@@ -132,7 +132,7 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
             if (dimid < 0 || dimid >= (int)data_block->rank) {
                 UDA_LOG(UDA_LOG_ERROR, "DIM id = %d,  Rank = %d, Test = %d \n", dimid, data_block->rank,
                         dimid >= (int)data_block->rank);
-                printDataBlock(*data_block);
+                print_data_block(*data_block);
                 UDA_THROW_ERROR(9999, "Data Subsetting is Impossible as the subset Dimension is not Compatible with "
                                       "the Rank of the Signal");
                 return ierr;
@@ -348,7 +348,7 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
                             data_block->dims = (DIMS*)realloc((void*)data_block->dims, rank * sizeof(DIMS));
 
                             for (int k = k0; k < rank; k++) {
-                                initDimBlock(&data_block->dims[k]);
+                                init_dim_block(&data_block->dims[k]);
                                 if (shape == nullptr) {
                                     data_block->dims[k].dim_n = data_n;
                                 } else {
@@ -371,7 +371,7 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
                                     (DIMS*)realloc((void*)data_block->dims, data_block->rank * sizeof(DIMS));
 
                                 for (unsigned int k = k0; k < data_block->rank; k++) {
-                                    initDimBlock(&data_block->dims[k]);
+                                    init_dim_block(&data_block->dims[k]);
                                     data_block->dims[k].dim_n = udt->compoundfield[i].shape[k - k0];
                                     data_block->dims[k].data_type = UDA_TYPE_UNSIGNED_INT;
                                     data_block->dims[k].compressed = 1;
@@ -418,7 +418,7 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
             //----------------------------------------------------------------------------------------------------------------------------
             // Decompress the dimensional data if necessary & free Heap Associated with Compression
 
-            initDimBlock(&newdim); // Holder for the Subsetted Dimension (part copy of the original)
+            init_dim_block(&newdim); // Holder for the Subsetted Dimension (part copy of the original)
 
             dim = &(data_block->dims[dimid]); // the original dimension to be subset
 
@@ -563,7 +563,7 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
             //----------------------------------------------------------------------------------------------------------------------------
             // Build the New Subsetted Dimension
 
-            printDataBlock(*data_block);
+            print_data_block(*data_block);
             UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->data_type: %d\n\n\n", dim->data_type);
             UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->errhi != nullptr: %d\n\n\n", dim->errhi != nullptr);
             UDA_LOG(UDA_LOG_DEBUG, "\n\n\n*** dim->errlo != nullptr: %d\n\n\n", dim->errlo != nullptr);
@@ -590,7 +590,7 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
             //-----------------------------------------------------------------------------------------------------------------------
             // Reshape and Save the Subsetted Data
 
-            printDataBlock(*data_block);
+            print_data_block(*data_block);
 
             if ((ierr = serverNewDataArray2(data_block->dims, data_block->rank, dimid, data_block->data,
                                             data_block->data_n, data_block->data_type, notoperation, reverse, start,
@@ -705,7 +705,7 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
                     p2[0] = ' ';
                     p3 = strchr(p2, ')');
                     p3[0] = '\0';
-                    if (IsNumber(p2)) {
+                    if (is_number(p2)) {
                         dimid = atoi(p2);
                     } else {
                         // ERROR
@@ -895,7 +895,7 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
             if (p1 == nullptr) {
                 count[0] = (unsigned int)data_block->data_n;
                 freeDataBlock(data_block);
-                initDataBlock(data_block);
+                init_data_block(data_block);
                 data_block->data_n = 1;
                 data_block->data = (char*)count;
                 data_block->data_type = UDA_TYPE_UNSIGNED_INT;
@@ -906,7 +906,7 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
                     p2[0] = ' ';
                     p3 = strchr(p2, ')');
                     p3[0] = '\0';
-                    if (IsNumber(p2)) {
+                    if (is_number(p2)) {
                         dimid = atoi(p2);
                     } else {
                         // ERROR
@@ -1004,10 +1004,10 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
                 p2[0] = ' ';
                 p3 = strchr(p2, ')');
                 p3[0] = '\0';
-                TrimString(p2);
-                LeftTrimString(p2);
+                trim_string(p2);
+                left_trim_string(p2);
                 UDA_LOG(UDA_LOG_DEBUG, "p2 = [%s]\n", p2);
-                if (IsFloat(p2)) {
+                if (is_float(p2)) {
                     value = atof(p2);
                 } else {
                     UDA_LOG(UDA_LOG_DEBUG, "IsFloat FALSE!\n");
@@ -1058,10 +1058,10 @@ int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::clien
                 p2[0] = ' ';
                 p3 = strchr(p2, ')');
                 p3[0] = '\0';
-                TrimString(p2);
-                LeftTrimString(p2);
+                trim_string(p2);
+                left_trim_string(p2);
                 UDA_LOG(UDA_LOG_DEBUG, "p2 = [%s]\n", p2);
-                if (IsNumber(p2)) {
+                if (is_number(p2)) {
                     data_block->order = (int)atof(p2);
                 } else {
                     // ERROR
@@ -1285,13 +1285,13 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
         UDA_THROW_ERROR(9999, "Unable to Allocate Heap memory");
     }
 
-    initAction(&action[nactions - 1]);
+    init_action(&action[nactions - 1]);
 
     action[nactions - 1].actionType = UDA_SERVER_SIDE_TYPE;
     action[nactions - 1].inRange = 1;
     action[nactions - 1].actionId = nactions;
 
-    initServerside(&action[nactions - 1].serverside);
+    init_server_side(&action[nactions - 1].serverside);
 
     nsubsets = 1;
     if ((subsets = (SUBSET*)malloc(sizeof(SUBSET))) == nullptr) {
@@ -1299,7 +1299,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
     }
 
     for (int i = 0; i < nsubsets; i++) {
-        initSubset(&subsets[i]);
+        init_subset(&subsets[i]);
     }
 
     action[nactions - 1].serverside.nsubsets = 1;
@@ -1313,10 +1313,10 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
 
     if ((p = strstr(options, "member=")) != nullptr) { // Extract a Structure member
         strcpy(subsets[nsubsets - 1].member, &p[7]);
-        LeftTrimString(subsets[nsubsets - 1].member);
+        left_trim_string(subsets[nsubsets - 1].member);
         if (subsets[nsubsets - 1].member[0] == '"') {
             subsets[nsubsets - 1].member[0] = ' ';
-            LeftTrimString(subsets[nsubsets - 1].member);
+            left_trim_string(subsets[nsubsets - 1].member);
         }
         if ((p = strchr(subsets[nsubsets - 1].member, '"')) != nullptr) {
             p[0] = '\0';
@@ -1330,10 +1330,10 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
 
     if ((p = strstr(options, "function=")) != nullptr) { // Identify a function
         strcpy(subsets[nsubsets - 1].function, &p[9]);
-        LeftTrimString(subsets[nsubsets - 1].function);
+        left_trim_string(subsets[nsubsets - 1].function);
         if (subsets[nsubsets - 1].function[0] == '"') {
             subsets[nsubsets - 1].function[0] = ' ';
-            LeftTrimString(subsets[nsubsets - 1].function);
+            left_trim_string(subsets[nsubsets - 1].function);
         }
         if ((p = strchr(subsets[nsubsets - 1].function, '"')) != nullptr) {
             p[0] = '\0';
@@ -1346,7 +1346,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
     //-------------------------------------------------------------------------------------------------------------
     // Parse the Operation String for Value and Operation
 
-    LeftTrimString(TrimString(operation)); // Remove Leading white space
+    left_trim_string(trim_string(operation)); // Remove Leading white space
     strcpy(opcopy, operation);
     nbound = 0;
 
@@ -1355,7 +1355,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
         nbound++;
         if (strlen(p) < UDA_SXML_MAX_STRING) {
             strcpy(subsets[nsubsets - 1].operation[nbound - 1], p);
-            MidTrimString(subsets[nsubsets - 1].operation[nbound - 1]); // Remove internal white space
+            mid_trim_string(subsets[nsubsets - 1].operation[nbound - 1]); // Remove internal white space
         } else {
             free(subsets);
             UDA_THROW_ERROR(9999, "Syntax Error: The Signal Operation String is too long");
@@ -1370,7 +1370,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
             }
             if (strlen(p) < UDA_SXML_MAX_STRING) {
                 strcpy(subsets[nsubsets - 1].operation[nbound - 1], p);
-                MidTrimString(subsets[nsubsets - 1].operation[nbound - 1]); // Remove white space
+                mid_trim_string(subsets[nsubsets - 1].operation[nbound - 1]); // Remove white space
             } else {
                 free(subsets);
                 UDA_THROW_ERROR(9999, "Syntax Error: The Signal Operation String is too long");
@@ -1408,7 +1408,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
             } // Reverse the data as # => Final array value
 
             if (strlen(t1) > 0 && t1[0] != '*' && t1[0] != '#') {
-                if (IsNumber(t1)) {
+                if (is_number(t1)) {
                     // the Lower Index Value of the Bound
                     subsets[nsubsets - 1].lbindex[i] = {.init = true, .value = strtol(t1, &endp, 0)};
                     if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
@@ -1421,7 +1421,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
                 }
             }
             if (strlen(t2) > 0 && t2[0] != '*' && t2[0] != '#') {
-                if (IsNumber(t2)) {
+                if (is_number(t2)) {
                     // the Upper Index Value of the Bound
                     subsets[nsubsets - 1].ubindex[i] = {.init = true, .value = strtol(t2, &endp, 0)};
                     if (*endp != '\0' || errno == EINVAL || errno == ERANGE) {
@@ -1453,7 +1453,7 @@ int uda::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_ser
             continue;
         }
 
-        if (IsNumber(opcopy)) { // Single Index value
+        if (is_number(opcopy)) { // Single Index value
             subsets[nsubsets - 1].isindex[i] = true;
             // the Index Value of the Bound
             subsets[nsubsets - 1].ubindex[i] = {.init = true, .value = strtol(opcopy, &endp, 0)};

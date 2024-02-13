@@ -103,14 +103,14 @@ int make_request_data(const Environment* environment, const char* data_object, c
         if (strchr(request->source, '(') == nullptr && strchr(request->source, ')') == nullptr) {
             // source is not a function call
             strcpy(request->path, request->source);
-            expandFilePath(request->path, environment);
+            expand_file_path(request->path, environment);
         }
     } else {
         if (strchr(test, '(') == nullptr && strchr(test, ')') == nullptr) {
             // Prefixed and not a function call
             int ldelim = (int)strlen(request->api_delim);
             strcpy(request->path, &test[ldelim]);
-            expandFilePath(request->path, environment);
+            expand_file_path(request->path, environment);
         }
     }
 
@@ -127,7 +127,7 @@ int uda::client::make_request_block(const Environment* environment, const char**
     int err = 0;
     for (int i = 0; i < count; ++i) {
         REQUEST_DATA* request = &request_block->requests[i];
-        initRequestData(request);
+        init_request_data(request);
         if ((err = make_request_data(environment, signals[i], sources[i], request))) {
             return err;
         }

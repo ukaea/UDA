@@ -49,7 +49,7 @@ int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlock
         putDataBlockList = (PutDataBlockList*)inPutDataBlockList;
     } else {
         putDataBlockList = &emptyPutDataBlockList;
-        initPutDataBlockList(putDataBlockList);
+        init_put_data_block_list(putDataBlockList);
     }
 
     //-------------------------------------------------------------------------
@@ -76,7 +76,7 @@ int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlock
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
 
-    initRequestBlock(&request_block);
+    init_request_block(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
@@ -91,7 +91,7 @@ int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlock
         return -err;
     }
 
-    printRequestBlock(request_block);
+    print_request_block(request_block);
 
     //-------------------------------------------------------------------------
     // Pass an empty structure rather than nullptr
@@ -127,7 +127,7 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
         putData = (PutDataBlock*)inPutData;
     } else {
         putData = &emptyPutDataBlock;
-        initPutDataBlock(putData);
+        init_put_data_block(putData);
     }
 
     //-------------------------------------------------------------------------
@@ -155,7 +155,7 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
     //-------------------------------------------------------------------------
     // Initialise the Client Data Request Structure
 
-    initRequestBlock(&request_block);
+    init_request_block(&request_block);
 
     //------------------------------------------------------------------------------
     // Build the Request Data Block (Version and API dependent)
@@ -170,7 +170,7 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
         return -err;
     }
 
-    printRequestBlock(request_block);
+    print_request_block(request_block);
 
     //-------------------------------------------------------------------------
     // Data to Put to the server

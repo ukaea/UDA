@@ -14,10 +14,10 @@ namespace uda::client_server
 {
 
 // Reverse a String
-void reverseString(const char* in, char* out);
+void reverse_string(const char* in, char* out);
 
 // Copy a String subject to a Maximum length constraint
-void copyString(const char* in, char* out, int maxlength);
+void copy_string(const char* in, char* out, int maxlength);
 
 /**
  * Allocate and return a string built using the given format and arguments.
@@ -25,15 +25,15 @@ void copyString(const char* in, char* out, int maxlength);
  * @param ... The arguments to use to generate the string
  * @return The allocated string, needs to be freed
  */
-char* FormatString(const char* fmt, ...);
+char* format_string(const char* fmt, ...);
 
 // Trim Trailing Space Characters from a String
-char* TrimString(char* szSource);
+char* trim_string(char* szSource);
 
 // Trim Leading Space Characters from a String
-char* LeftTrimString(char* str);
+char* left_trim_string(char* str);
 
-void StringCopy(char* dest, const char* src, size_t len);
+void string_copy(char* dest, const char* src, size_t len);
 
 #ifdef __GNUC__
 
@@ -46,28 +46,28 @@ char* strlwr(char* a);
 #endif
 
 // Trim Internal Space Characters from a String
-char* MidTrimString(char* str);
+char* mid_trim_string(char* str);
 
 // Replace all instances of string `find` with string `replace` in the given string
-char* StringReplaceAll(const char* string, const char* find, const char* replace);
+char* string_replace_all(const char* string, const char* find, const char* replace);
 
 // Replace the first instance of string `find` with string `replace` in the given string
-char* StringReplace(const char* string, const char* find, const char* replace);
+char* string_replace(const char* string, const char* find, const char* replace);
 
 // Is the String an Integer Number? (Simple but not exhaustive Check)
-int IsNumber(const char* a);
+int is_number(const char* a);
 
 // Is the String a Simple Float Number?
-int IsFloat(char* a);
+int is_float(char* a);
 
 // Is the String a Number List (#,#,#,#;#;#;#)?
-int IsNumberList(char* a);
+int is_number_list(char* a);
 
-char* convertNonPrintable(char* str);
+char* convert_non_printable(char* str);
 
-char* convertNonPrintable2(char* str);
+char* convert_non_printable2(char* str);
 
-int IsLegalFilePath(const char* str);
+int is_legal_file_path(const char* str);
 
 #if !defined(asprintf)
 #  if defined(__cplusplus) && !defined(__APPLE__)
@@ -79,21 +79,21 @@ int asprintf(char** strp, const char* fmt, ...);
 #  endif
 #endif
 
-char** SplitString(const char* string, const char* delim);
+char** split_string(const char* string, const char* delim);
 
-void FreeSplitStringTokens(char*** tokens);
+void free_split_string_tokens(char*** tokens);
 
-bool StringEquals(const char* a, const char* b);
+bool string_equals(const char* a, const char* b);
 
-bool StringIEquals(const char* a, const char* b);
+bool string_iequals(const char* a, const char* b);
 
-bool StringEndsWith(const char* str, const char* find);
+bool string_ends_with(const char* str, const char* find);
 
 #define STR_STARTSWITH(X, Y) !strncmp(X, Y, strlen(Y))
 #define STR_ISTARTSWITH(X, Y) !strncasecmp(X, Y, strlen(Y))
 
-#define STR_EQUALS(X, Y) uda::client_server::StringEquals(X, Y)
-#define STR_IEQUALS(X, Y) uda::client_server::StringIEquals(X, Y)
+#define STR_EQUALS(X, Y) uda::client_server::string_equals(X, Y)
+#define STR_IEQUALS(X, Y) uda::client_server::string_iequals(X, Y)
 
 // remove non printable characters
 static inline void convert_non_printable(std::string& str)

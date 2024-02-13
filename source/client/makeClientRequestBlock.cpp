@@ -34,7 +34,7 @@ Interprets the API arguments and assembles a Request data structure.
 using namespace uda::client_server;
 using namespace uda::client;
 
-int makeRequestData(const char* data_object, const char* data_source, REQUEST_DATA* request)
+int make_request_data(const char* data_object, const char* data_source, REQUEST_DATA* request)
 {
     //------------------------------------------------------------------------------------------------------------------
     //! Test Input Arguments comply with string length limits, then copy to the request structure without modification
@@ -126,14 +126,14 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
         if (strchr(request->source, '(') == nullptr && strchr(request->source, ')') == nullptr) {
             // source is not a function call
             strcpy(request->path, request->source);
-            expandFilePath(request->path, getIdamClientEnvironment());
+            expand_file_path(request->path, getIdamClientEnvironment());
         }
     } else {
         if (strchr(test, '(') == nullptr && strchr(test, ')') == nullptr) {
             // Prefixed and not a function call
             int ldelim = (int)strlen(request->api_delim);
             strcpy(request->path, &test[ldelim]);
-            expandFilePath(request->path, getIdamClientEnvironment());
+            expand_file_path(request->path, getIdamClientEnvironment());
         }
     }
 
@@ -149,8 +149,8 @@ int uda::client::makeClientRequestBlock(const char** signals, const char** sourc
     int err = 0;
     for (int i = 0; i < count; ++i) {
         REQUEST_DATA* request = &request_block->requests[i];
-        initRequestData(request);
-        if ((err = makeRequestData(signals[i], sources[i], request))) {
+        init_request_data(request);
+        if ((err = make_request_data(signals[i], sources[i], request))) {
             return err;
         }
     }
@@ -162,7 +162,7 @@ void uda::client::freeClientRequestBlock(REQUEST_BLOCK* request_block)
 {
     if (request_block != nullptr && request_block->requests != nullptr) {
         for (int i = 0; i < request_block->num_requests; i++) {
-            freeNameValueList(&request_block->requests[i].nameValueList);
+            free_name_value_list(&request_block->requests[i].nameValueList);
             freeClientPutDataBlockList(&request_block->requests[i].putDataBlockList);
         }
         free(request_block->requests);
@@ -190,14 +190,14 @@ int shotRequestTest(const char* source)
     // pulse        plasma shot number - an integer
     // pulse/pass        include a pass or sequence number - this may be a text based component, e.g. LATEST
 
-    if (IsNumber((char*)source)) {
+    if (is_number((char*)source)) {
         return 1; // The source an integer number
     }
 
     strcpy(work, source);
 
     if ((token = strtok(work, "/")) != nullptr) { // Tokenise the remaining string
-        if (IsNumber(token)) {
+        if (is_number(token)) {
             return 1; // Is the First token an integer number?
         }
     }

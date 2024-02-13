@@ -71,7 +71,7 @@ static int find_plugin_id_by_format(const char* format, const uda::plugins::Plug
     return -1;
 }
 
-int uda::client_server::makeRequestData(REQUEST_DATA* request, const uda::plugins::PluginList* pluginList,
+int uda::client_server::make_request_data(REQUEST_DATA* request, const uda::plugins::PluginList* pluginList,
                                         const ENVIRONMENT* environment)
 {
     int ldelim;
@@ -101,10 +101,10 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const uda::plugin
     snprintf(work, MAXMETA, "%s%s", environment->api_archive, environment->api_delim); // default archive
     snprintf(work2, MAXMETA, "%s%s", environment->api_device, environment->api_delim); // default device
 
-    LeftTrimString(request->signal);
-    TrimString(request->signal);
-    LeftTrimString(request->source);
-    TrimString(request->source);
+    left_trim_string(request->signal);
+    trim_string(request->signal);
+    left_trim_string(request->source);
+    trim_string(request->source);
 
     bool noSource = (request->source[0] == '\0' ||                            // no source
                      STR_IEQUALS(request->source, environment->api_device) || // default device name
@@ -122,7 +122,7 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const uda::plugin
         for (size_t i = 0; i < lstr; i++) {
             request->source[i] = ' ';
         }
-        LeftTrimString(request->source);
+        left_trim_string(request->source);
     }
 
     //------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const uda::plugin
     if (test != nullptr) {
         strncpy(work2, request->source, test - request->source);
         work2[test - request->source] = '\0';
-        TrimString(work2);
+        trim_string(work2);
         strcpy(work, test + ldelim);
     } else {
         work2[0] = '\0';
@@ -206,12 +206,12 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const uda::plugin
         lstr = (p - work);
         strncpy(work2, work, lstr); // Ignore the default device name - force a pass to Scenario 2
         work2[lstr] = '\0';
-        TrimString(work2);
+        trim_string(work2);
         lstr = lstr + ldelim;
         for (size_t i = 0; i < lstr; i++) {
             work[i] = ' ';
         }
-        LeftTrimString(work);
+        left_trim_string(work);
     }
 
     bool reduceSignal;
@@ -293,8 +293,8 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const uda::plugin
                     strcpy(work2, &p[1]);
                     p = strchr(work2, ')');
                     p[0] = '\0';
-                    LeftTrimString(work2);
-                    TrimString(work2);
+                    left_trim_string(work2);
+                    trim_string(work2);
 
                     request->request = REQUEST_READ_SERVERSIDE;
                     extract_function_name(work, request);
@@ -400,7 +400,7 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const uda::plugin
                                 UDA_THROW_ERROR(999,
                                                 "Too many chained Device Name to Server Protocol Host subtitutions!");
                             }
-                            err = makeRequestData(request, pluginList, environment);
+                            err = make_request_data(request, pluginList, environment);
                             depth--;
                             return err;
                         }
@@ -457,8 +457,8 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const uda::plugin
                 strcpy(work, &p[1]);
                 p = strrchr(work, ')');
                 p[0] = '\0';
-                LeftTrimString(work);
-                TrimString(work);
+                left_trim_string(work);
+                trim_string(work);
 
                 // Extract Name Value pairs
 
@@ -521,7 +521,7 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const uda::plugin
         if (p != nullptr) {
             p[0] = '\0'; // Remove subset operations from variable name
         }
-        TrimString(request->signal);
+        trim_string(request->signal);
     } else {
         request->subset[0] = '\0';
         request->datasubset.nbound = 0;
@@ -557,8 +557,8 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const uda::plugin
         strcpy(work, &p[1]);
         if ((p = strrchr(work, ')')) != nullptr) {
             p[0] = '\0';
-            LeftTrimString(work);
-            TrimString(work);
+            left_trim_string(work);
+            trim_string(work);
             isFunction = true;
             if (name_value_pairs(work, &request->nameValueList, strip) == -1) {
                 UDA_THROW_ERROR(999, "Name Value pair syntax is incorrect!");
@@ -654,15 +654,15 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const uda::plugin
 
     if (request->request == REQUEST_READ_MDS && !isProxy) {
 
-        reverseString(test + ldelim, work); // Drop the delimiters and Reverse the Source String
+        reverse_string(test + ldelim, work); // Drop the delimiters and Reverse the Source String
 
         char* token;
         if ((token = strtok(work, "/")) != nullptr) { // Tokenise
-            if (IsNumber(token)) {           // This should be the tree Number otherwise only the server is passed
-                reverseString(token, work2); // Un-Reverse the token
+            if (is_number(token)) {           // This should be the tree Number otherwise only the server is passed
+                reverse_string(token, work2); // Un-Reverse the token
                 request->exp_number = (int)strtol(work2, nullptr, 10); // Extract the Data Tree Number
                 if ((token = strtok(nullptr, "/")) != nullptr) {
-                    reverseString(token, request->file); // This should be the Tree Name
+                    reverse_string(token, request->file); // This should be the Tree Name
                     work2[0] = '\0';
                     while ((token = strtok(nullptr, "/")) != nullptr) {
                         // Everything Else is the Server Host and URL Path to the Tree
@@ -672,11 +672,11 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const uda::plugin
                     if (work2[0] == '/') {
                         strcpy(work2, &work2[1]); // Drop Trailing /
                     }
-                    reverseString(work2, request->server);
+                    reverse_string(work2, request->server);
                     token = test + ldelim; // Preserve Leading /
                     if (token[0] != '/' && request->server[0] == '/') {
                         request->server[0] = ' ';
-                        LeftTrimString(request->server);
+                        left_trim_string(request->server);
                     }
                 } else {
                     err = 3;
@@ -749,7 +749,7 @@ int uda::client_server::make_request_block(REQUEST_BLOCK* request_block, const u
 
     for (int i = 0; i < request_block->num_requests; ++i) {
         auto request = &request_block->requests[0];
-        rc = makeRequestData(request, pluginList, environment);
+        rc = make_request_data(request, pluginList, environment);
         if (rc != 0) {
             break;
         }
@@ -778,8 +778,8 @@ void extract_function_name(const char* str, REQUEST_DATA* request)
             for (int i = 0; i < lstr; i++) {
                 work[i] = ' ';
             }
-            TrimString(work);
-            LeftTrimString(work);
+            trim_string(work);
+            left_trim_string(work);
         } while ((p = strstr(work, request->api_delim)) != nullptr);
     }
     strcpy(request->function, work);
@@ -817,7 +817,7 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, const uda
 
     // Does the path contain any Illegal (or problem) characters
 
-    if (!IsLegalFilePath((char*)source)) {
+    if (!is_legal_file_path((char*)source)) {
         return rc; // Not compliant with Portable Filename character set
     }
 
@@ -856,9 +856,9 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, const uda
         pclose(ph);
 
         test = blank;
-        convertNonPrintable2(buffer);
-        LeftTrimString(buffer);
-        TrimString(buffer);
+        convert_non_printable2(buffer);
+        left_trim_string(buffer);
+        trim_string(buffer);
 
         if (STR_EQUALS(buffer, "CDF")) { // Legacy netCDF file
             test = nc;
@@ -884,9 +884,9 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, const uda
                         }
                     }
                     pclose(ph);
-                    convertNonPrintable2(buffer);
-                    LeftTrimString(buffer);
-                    TrimString(buffer);
+                    convert_non_printable2(buffer);
+                    left_trim_string(buffer);
+                    trim_string(buffer);
 
                     if (STR_EQUALS(buffer, "netcdf")) { // netCDF file written to an HDF5 file
                         test = nc;
@@ -941,9 +941,9 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, const uda
                         }
                     }
                     pclose(ph);
-                    convertNonPrintable2(buffer);
-                    LeftTrimString(buffer);
-                    TrimString(buffer);
+                    convert_non_printable2(buffer);
+                    left_trim_string(buffer);
+                    trim_string(buffer);
                     if (strncmp(buffer, "ida_open error", 14) != 0) {
                         test = ida; // Legacy IDA file
                     }
@@ -977,7 +977,7 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, const uda
 
         // Other regular types
 
-        if (strlen(&test[1]) == 2 && IsNumber(&test[1])) { // an integer number?
+        if (strlen(&test[1]) == 2 && is_number(&test[1])) { // an integer number?
             strcpy(request->format, "IDA3");
             break;
         }
@@ -1077,7 +1077,7 @@ int generic_request_test(const char* source, REQUEST_DATA* request)
     // pulse        plasma shot number - an integer
     // pulse/pass        include a pass or sequence number - this may be a text based component, e.g. LATEST
 
-    if (IsNumber((char*)source)) { // Is the source an integer number?
+    if (is_number((char*)source)) { // Is the source an integer number?
         rc = 1;
         request->request = REQUEST_READ_GENERIC;
         strcpy(request->path, "");                              // Clean the path
@@ -1086,13 +1086,13 @@ int generic_request_test(const char* source, REQUEST_DATA* request)
     } else {
         strcpy(work, source);
         if ((token = strtok(work, "/")) != nullptr) { // Tokenise the remaining string
-            if (IsNumber(token)) {                    // Is the First token an integer number?
+            if (is_number(token)) {                    // Is the First token an integer number?
                 rc = 1;
                 request->request = REQUEST_READ_GENERIC;
                 strcpy(request->path, ""); // Clean the path
                 request->exp_number = (int)strtol(token, nullptr, 10);
                 if ((token = strtok(nullptr, "/")) != nullptr) { // Next Token
-                    if (IsNumber(token)) {
+                    if (is_number(token)) {
                         request->pass = (int)strtol(token, nullptr, 10); // Must be the Pass number
                     } else {
                         strcpy(request->tpass, token); // capture anything else
@@ -1124,7 +1124,7 @@ int extract_archive(REQUEST_DATA* request, int reduceSignal, const ENVIRONMENT* 
     int ldelim = (int)strlen(request->api_delim);
     char *test, *token, *work;
 
-    TrimString(request->signal);
+    trim_string(request->signal);
 
     if (request->signal[0] != '\0' && environment->server_proxy[0] == '\0') {
 
@@ -1138,7 +1138,7 @@ int extract_archive(REQUEST_DATA* request, int reduceSignal, const ENVIRONMENT* 
             }
             strncpy(request->archive, request->signal, test - request->signal);
             request->archive[test - request->signal] = '\0';
-            TrimString(request->archive);
+            trim_string(request->archive);
 
             // If a plugin is prefixed by the local archive name then discard the archive name
             if (reduceSignal && !strcasecmp(request->archive, environment->api_archive)) {
@@ -1147,7 +1147,7 @@ int extract_archive(REQUEST_DATA* request, int reduceSignal, const ENVIRONMENT* 
                 return extract_archive(request, reduceSignal, environment);
             }
 
-            if (!IsLegalFilePath(request->archive)) {
+            if (!is_legal_file_path(request->archive)) {
                 request->archive[0] = '\0';
                 return 0;
             }
@@ -1159,14 +1159,14 @@ int extract_archive(REQUEST_DATA* request, int reduceSignal, const ENVIRONMENT* 
 
             if ((token = strchr(request->archive, '[')) != nullptr ||
                 (token = strchr(request->archive, '{')) != nullptr) {
-                test1 = (strlen(&token[1]) == 0 || IsNumber(&token[1]));
+                test1 = (strlen(&token[1]) == 0 || is_number(&token[1]));
             }
 
             if ((token = strchr(test + ldelim, ']')) != nullptr || (token = strchr(test + ldelim, '}')) != nullptr) {
                 work = (char*)malloc((strlen(test + ldelim) + 1) * sizeof(char));
                 strcpy(work, test + ldelim);
                 work[token - (test + ldelim)] = '\0';
-                test2 = (strlen(work) == 0 || IsNumber(work));
+                test2 = (strlen(work) == 0 || is_number(work));
                 free(work);
             }
 
@@ -1176,7 +1176,7 @@ int extract_archive(REQUEST_DATA* request, int reduceSignal, const ENVIRONMENT* 
                     strcpy(work, test + ldelim);
                     strcpy(request->signal, work); // Valid Archive & signal
                     free(work);
-                    TrimString(request->signal);
+                    trim_string(request->signal);
                 }
             } else {
                 request->archive[0] = '\0'; // Reset Archive
@@ -1387,7 +1387,7 @@ int extract_subset(REQUEST_DATA* request)
     //     -1 => Error
 
     request->subset[0] = '\0';
-    initSubset(&request->datasubset);
+    init_subset(&request->datasubset);
 
     std::string signal = request->signal;
 
@@ -1443,7 +1443,7 @@ int extract_subset(REQUEST_DATA* request)
 //
 // The returned value is the count of the name value pairs. If an error occurs, the returned value of the
 // pair count is -1.
-void uda::client_server::freeNameValueList(NAMEVALUELIST* nameValueList)
+void uda::client_server::free_name_value_list(NAMEVALUELIST* nameValueList)
 {
     if (nameValueList->nameValue != nullptr) {
         for (int i = 0; i < nameValueList->pairCount; i++) {
@@ -1471,11 +1471,11 @@ void parse_name_value(const char* pair, NAMEVALUE* nameValue, unsigned short str
     lstr = (int)strlen(pair) + 1;
     copy = (char*)malloc(lstr * sizeof(char));
     strcpy(copy, pair);
-    LeftTrimString(copy);
-    TrimString(copy);
+    left_trim_string(copy);
+    trim_string(copy);
     nameValue->pair = (char*)malloc(lstr * sizeof(char));
     strcpy(nameValue->pair, copy);
-    LeftTrimString(nameValue->pair);
+    left_trim_string(nameValue->pair);
     UDA_LOG(UDA_LOG_DEBUG, "Pair: %s\n", pair);
     if ((p = strchr(copy, '=')) != nullptr) {
         *p = '\0';
@@ -1502,10 +1502,10 @@ void parse_name_value(const char* pair, NAMEVALUE* nameValue, unsigned short str
             UDA_LOG(UDA_LOG_DEBUG, "Placeholder value: %s\n", nameValue->name);
         }
     }
-    LeftTrimString(nameValue->name);
-    LeftTrimString(nameValue->value);
-    TrimString(nameValue->name);
-    TrimString(nameValue->value);
+    left_trim_string(nameValue->name);
+    left_trim_string(nameValue->value);
+    trim_string(nameValue->name);
+    trim_string(nameValue->value);
     UDA_LOG(UDA_LOG_DEBUG, "Name: %s     Value: %s\n", nameValue->name, nameValue->value);
 
     // Regardless of whether or not the Value is not enclosed in quotes, strip out a possible closing parenthesis
@@ -1523,16 +1523,16 @@ void parse_name_value(const char* pair, NAMEVALUE* nameValue, unsigned short str
             (nameValue->name[0] == '"' && nameValue->name[lstr - 1] == '"')) {
             nameValue->name[0] = ' ';
             nameValue->name[lstr - 1] = ' ';
-            LeftTrimString(nameValue->name);
-            TrimString(nameValue->name);
+            left_trim_string(nameValue->name);
+            trim_string(nameValue->name);
         }
         lstr = (int)strlen(nameValue->value);
         if ((nameValue->value[0] == '\'' && nameValue->value[lstr - 1] == '\'') ||
             (nameValue->value[0] == '"' && nameValue->value[lstr - 1] == '"')) {
             nameValue->value[0] = ' ';
             nameValue->value[lstr - 1] = ' ';
-            LeftTrimString(nameValue->value);
-            TrimString(nameValue->value);
+            left_trim_string(nameValue->value);
+            trim_string(nameValue->value);
         }
         UDA_LOG(UDA_LOG_DEBUG, "Name: %s     Value: %s\n", nameValue->name, nameValue->value);
     }
@@ -1628,10 +1628,10 @@ int uda::client_server::name_value_pairs(const char* pairList, NAMEVALUELIST* na
 
     if ((p = strcasestr(copy, "delimiter")) != nullptr) {
         strcpy(buffer, &p[9]);
-        LeftTrimString(buffer);
+        left_trim_string(buffer);
         if (buffer[0] == '=' && buffer[1] != '\0') {
             buffer[0] = ' ';
-            LeftTrimString(buffer); // remove whitespace
+            left_trim_string(buffer); // remove whitespace
             if (strlen(buffer) >= 3 &&
                 ((buffer[0] == '\'' && buffer[2] == '\'') || (buffer[0] == '"' && buffer[2] == '"'))) {
                 proposal = buffer[1]; // proposal delimiter
@@ -1643,14 +1643,14 @@ int uda::client_server::name_value_pairs(const char* pairList, NAMEVALUELIST* na
                 } else {
                     strncpy(buffer, copy, lstr); // check 'delimiter' is not part of another name value pair
                     buffer[lstr] = '\0';
-                    TrimString(buffer);
+                    trim_string(buffer);
                     lstr = (int)strlen(buffer);
                     if (buffer[lstr - 1] == proposal) { // must be an immediately preceeding delimiter character
                         delimiter = proposal;           // new delimiter accepted
                         p3 = strchr(&p[9], delimiter);  // change delimiter temporarily to avert incorrect parse
                         *p3 = '#';
                     } else {
-                        TrimString(buffer); // Check for non alpha-numeric character
+                        trim_string(buffer); // Check for non alpha-numeric character
                         lstr = (int)strlen(buffer);
                         if (!isalpha(buffer[lstr - 1]) && !isdigit(buffer[lstr - 1])) { // Probable syntax error!
                             free(buffer);

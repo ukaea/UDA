@@ -129,7 +129,7 @@ void resetPlugins(const uda::plugins::PluginList* plugin_list)
 {
     REQUEST_DATA request_block;
     uda::plugins::UdaPluginInterface plugin_interface;
-    initRequestData(&request_block);
+    init_request_data(&request_block);
     strcpy(request_block.function, "reset");
 
     plugin_interface.interfaceVersion = 1;
@@ -348,12 +348,12 @@ int uda::server::udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source
     //----------------------------------------------------------------------------------------------
     // Decode the API Arguments: determine appropriate data reader plug-in
 
-    if ((err = makeRequestData(request, plugin_list, environment)) != 0) {
+    if ((err = make_request_data(request, plugin_list, environment)) != 0) {
         return err;
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "request_block\n");
-    printRequestData(*request);
+    print_request_data(*request);
 
     //----------------------------------------------------------------------------------------------
     // Does the Path to Private Files contain hierarchical components not seen by the server?
@@ -361,7 +361,7 @@ int uda::server::udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source
 
     if (strlen(request->server) == 0 && request->request != REQUEST_READ_SERVERSIDE) {
         // Must be a File plugin
-        if ((err = pathReplacement(request->path, environment)) != 0) {
+        if ((err = path_replacement(request->path, environment)) != 0) {
             return err;
         }
     }
@@ -369,17 +369,17 @@ int uda::server::udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source
     //----------------------------------------------------------------------
     // Copy request details into the data_source structure mimicking a SQL query
 
-    strcpy(data_source->source_alias, TrimString(request->file));
-    strcpy(data_source->filename, TrimString(request->file));
-    strcpy(data_source->path, TrimString(request->path));
+    strcpy(data_source->source_alias, trim_string(request->file));
+    strcpy(data_source->filename, trim_string(request->file));
+    strcpy(data_source->path, trim_string(request->path));
 
-    copyString(TrimString(request->signal), signal_desc->signal_name, MAXNAME);
+    copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
 
-    strcpy(data_source->server, TrimString(request->server));
+    strcpy(data_source->server, trim_string(request->server));
 
-    strcpy(data_source->format, TrimString(request->format));
-    strcpy(data_source->archive, TrimString(request->archive));
-    strcpy(data_source->device_name, TrimString(request->device_name));
+    strcpy(data_source->format, trim_string(request->format));
+    strcpy(data_source->archive, trim_string(request->archive));
+    strcpy(data_source->device_name, trim_string(request->device_name));
 
     data_source->exp_number = request->exp_number;
     data_source->pass = request->pass;
@@ -465,7 +465,7 @@ int uda::server::udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* o
     }
 
     REQUEST_DATA request;
-    initRequestData(&request);
+    init_request_data(&request);
 
     strcpy(request.api_delim, "::");
     strcpy(request.source, "");
@@ -491,7 +491,7 @@ int uda::server::udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* o
 
     UDA_LOG(UDA_LOG_DEBUG, "Provenance Plugin signal: %s\n", request.signal);
 
-    makeRequestData(&request, plugin_list, environment);
+    make_request_data(&request, plugin_list, environment);
 
     int err, rc, reset;
     DATA_BLOCK data_block;
@@ -499,7 +499,7 @@ int uda::server::udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* o
 
     // Initialise the Data Block
 
-    initDataBlock(&data_block);
+    init_data_block(&data_block);
 
     UDA_LOG(UDA_LOG_DEBUG, "Creating plugin interface\n");
 
@@ -550,7 +550,7 @@ int uda::server::udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* o
 
     UDA_LOG(UDA_LOG_DEBUG, "housekeeping\n");
 
-    freeNameValueList(&request.nameValueList);
+    free_name_value_list(&request.nameValueList);
 
     UDA_LOG(UDA_LOG_DEBUG, "testing for bug!!!\n");
     if (data_block.opaque_type != UDA_OPAQUE_TYPE_UNKNOWN || data_block.opaque_count != 0 ||
@@ -658,7 +658,7 @@ int uda::server::udaServerMetaDataPlugin(const uda::plugins::PluginList* plugin_
     }
 
     DATA_BLOCK data_block;
-    initDataBlock(&data_block);
+    init_data_block(&data_block);
     data_block.signal_rec = signal_rec;
 
     USERDEFINEDTYPELIST userdefinedtypelist;

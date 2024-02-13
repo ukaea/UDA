@@ -129,11 +129,11 @@ int uda::server::udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_
         switch (request->request) {
             case REQUEST_READ_IDA:
 
-                strcpy(data_source->source_alias, TrimString(request->file));
-                strcpy(data_source->filename, TrimString(request->file));
-                strcpy(data_source->path, TrimString(request->path));
+                strcpy(data_source->source_alias, trim_string(request->file));
+                strcpy(data_source->filename, trim_string(request->file));
+                strcpy(data_source->path, trim_string(request->path));
 
-                copyString(TrimString(request->signal), signal_desc->signal_name, MAXNAME);
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
 
                 data_source->exp_number = request->exp_number;
                 data_source->pass = request->pass;
@@ -148,11 +148,11 @@ int uda::server::udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_
                 break;
 
             case REQUEST_READ_NEW_PLUGIN:
-                strcpy(data_source->source_alias, TrimString(request->file));
-                strcpy(data_source->filename, TrimString(request->file));
-                strcpy(data_source->path, TrimString(request->path));
+                strcpy(data_source->source_alias, trim_string(request->file));
+                strcpy(data_source->filename, trim_string(request->file));
+                strcpy(data_source->path, trim_string(request->path));
 
-                copyString(TrimString(request->signal), signal_desc->signal_name, MAXNAME);
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
 
                 data_source->exp_number = request->exp_number;
                 data_source->pass = request->pass;
@@ -167,13 +167,13 @@ int uda::server::udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_
                 break;
 
             case REQUEST_READ_MDS:
-                strcpy(data_source->filename, TrimString(request->file)); // MDS+ Tree
-                strcpy(data_source->server, TrimString(request->server)); // MDS+ Server Name
+                strcpy(data_source->filename, trim_string(request->file)); // MDS+ Tree
+                strcpy(data_source->server, trim_string(request->server)); // MDS+ Server Name
 
-                copyString(TrimString(request->signal), signal_desc->signal_name, MAXNAME);
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
 
                 if (strlen(signal_desc->signal_name) == MAXNAME - 1) {
-                    copyString(TrimString(request->signal), signal_desc->xml, MAXMETA); // Pass via XML member
+                    copy_string(trim_string(request->signal), signal_desc->xml, MAXMETA); // Pass via XML member
                     signal_desc->signal_name[0] = '\0';
                 }
 
@@ -194,8 +194,8 @@ int uda::server::udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_
                 break;
 
             case REQUEST_READ_CDF:
-                strcpy(data_source->path, TrimString(request->path)); // netCDF File Location
-                copyString(TrimString(request->signal), signal_desc->signal_name, MAXNAME);
+                strcpy(data_source->path, trim_string(request->path)); // netCDF File Location
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: readnetCDF \n");
                 UDA_LOG(UDA_LOG_DEBUG, "netCDF File  : %s \n", request->path);
@@ -203,8 +203,8 @@ int uda::server::udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_
                 break;
 
             case REQUEST_READ_HDF5:
-                strcpy(data_source->path, TrimString(request->path)); // HDF5 File Location
-                copyString(TrimString(request->signal), signal_desc->signal_name, MAXNAME);
+                strcpy(data_source->path, trim_string(request->path)); // HDF5 File Location
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadHDF5 \n");
                 UDA_LOG(UDA_LOG_DEBUG, "HDF5 File    : %s \n", request->path);
@@ -221,32 +221,32 @@ int uda::server::udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_
                 break;
 
             case REQUEST_READ_UFILE:
-                strcpy(data_source->path, TrimString(request->path)); // UFile File Location
+                strcpy(data_source->path, trim_string(request->path)); // UFile File Location
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadUFile \n");
                 UDA_LOG(UDA_LOG_DEBUG, "UFile File   : %s \n", request->path);
                 break;
 
             case REQUEST_READ_FILE:
-                strcpy(data_source->path, TrimString(request->path)); // File Location
+                strcpy(data_source->path, trim_string(request->path)); // File Location
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadBytes \n");
                 UDA_LOG(UDA_LOG_DEBUG, "File  : %s \n", request->path);
                 break;
 
             case REQUEST_READ_HDATA:
-                strcpy(data_source->path, TrimString(request->path)); // File Location
+                strcpy(data_source->path, trim_string(request->path)); // File Location
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadHData \n");
                 UDA_LOG(UDA_LOG_DEBUG, "File  : %s \n", request->path);
                 break;
 
             case REQUEST_READ_SQL:
-                strcpy(data_source->path, TrimString(request->path));     // SQL database etc.
-                strcpy(data_source->server, TrimString(request->server)); // SQL server host
-                strcpy(data_source->format, TrimString(request->format));
-                strcpy(data_source->archive, TrimString(request->archive));
-                strcpy(data_source->device_name, TrimString(request->device_name));
+                strcpy(data_source->path, trim_string(request->path));     // SQL database etc.
+                strcpy(data_source->server, trim_string(request->server)); // SQL server host
+                strcpy(data_source->format, trim_string(request->format));
+                strcpy(data_source->archive, trim_string(request->archive));
+                strcpy(data_source->device_name, trim_string(request->device_name));
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: ReadSQL \n");
                 UDA_LOG(UDA_LOG_DEBUG, "SQL   : %s \n", request->signal);
@@ -259,10 +259,10 @@ int uda::server::udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_
                 if (data_source->exp_number == 0 && data_source->pass == -1) { // May be passed in Path String
                     strcpy(work, request->path);
                     if (work[0] == '/' && (token = strtok(work, "/")) != nullptr) { // Tokenise the remaining string
-                        if (IsNumber(token)) { // Is the First token an integer number?
+                        if (is_number(token)) { // Is the First token an integer number?
                             request->exp_number = atoi(token);
                             if ((token = strtok(nullptr, "/")) != nullptr) { // Next Token
-                                if (IsNumber(token)) {
+                                if (is_number(token)) {
                                     request->pass = atoi(token); // Must be the Pass number
                                 } else {
                                     strcpy(request->tpass, token); // anything else
@@ -278,10 +278,10 @@ int uda::server::udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_
                 break;
 
             case REQUEST_READ_PPF:
-                strcpy(data_source->source_alias, TrimString(request->file));
-                strcpy(data_source->filename, TrimString(request->file));
-                strcpy(data_source->path, TrimString(request->path));
-                copyString(TrimString(request->signal), signal_desc->signal_name, MAXNAME);
+                strcpy(data_source->source_alias, trim_string(request->file));
+                strcpy(data_source->filename, trim_string(request->file));
+                strcpy(data_source->path, trim_string(request->path));
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
                 data_source->exp_number = request->exp_number;
                 data_source->pass = request->pass;
                 data_source->type = ' ';
@@ -295,7 +295,7 @@ int uda::server::udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_
                 break;
 
             case REQUEST_READ_JPF:
-                copyString(TrimString(request->signal), signal_desc->signal_name, MAXNAME);
+                copy_string(trim_string(request->signal), signal_desc->signal_name, MAXNAME);
                 data_source->exp_number = request->exp_number;
 
                 UDA_LOG(UDA_LOG_DEBUG, "Request: Read JPF \n");

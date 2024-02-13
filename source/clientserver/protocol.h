@@ -61,9 +61,9 @@ namespace uda::client_server
 struct IoData {
 };
 
-void setSelectParms(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time);
+void set_select_params(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time);
 
-void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time);
+void update_select_params(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time);
 
 int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
              USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, LOGSTRUCTLIST* log_struct_list,

@@ -6,19 +6,19 @@ namespace uda::client_server
 {
 
 // Initialise
-void initSocketList(SOCKETLIST* socks);
+void init_socket_list(SOCKETLIST* socks);
 
 // Add a New Socket to the Socket List
-int addSocket(SOCKETLIST* socks, int type, int status, char* host, int port, int fh);
+int add_socket(SOCKETLIST* socks, int type, int status, char* host, int port, int fh);
 
 // Search for an Open Socket in the Socket List
-int getSocket(SOCKETLIST* socks, int type, int* status, char* host, int port, int* fh);
+int get_socket(SOCKETLIST* socks, int type, int* status, char* host, int port, int* fh);
 
 // Search for an Open Socket in the Socket List
-int getSocketRecordId(SOCKETLIST* socks, int fh);
+int get_socket_record_id(SOCKETLIST* socks, int fh);
 
-void closeClientSockets(SOCKETLIST* socks);
+void close_client_sockets(SOCKETLIST* socks);
 
-void closeClientSocket(SOCKETLIST* socks, int fh);
+void close_client_socket(SOCKETLIST* socks, int fh);
 
 } // namespace uda::client_server

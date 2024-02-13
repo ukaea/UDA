@@ -21,7 +21,7 @@
 
 // Initialise
 
-void uda::client_server::initSocketList(SOCKETLIST* socks)
+void uda::client_server::init_socket_list(SOCKETLIST* socks)
 {
     socks->nsocks = 0;
     socks->sockets = nullptr;
@@ -29,10 +29,10 @@ void uda::client_server::initSocketList(SOCKETLIST* socks)
 
 // Add a New Socket to the Socket List
 
-int uda::client_server::addSocket(SOCKETLIST* socks, int type, int status, char* host, int port, int fh)
+int uda::client_server::add_socket(SOCKETLIST* socks, int type, int status, char* host, int port, int fh)
 {
     int old_fh = -1;
-    if (!getSocket(socks, type, &status, host, port, &old_fh)) { // Is an Open Socket already listed?
+    if (!get_socket(socks, type, &status, host, port, &old_fh)) { // Is an Open Socket already listed?
         if (old_fh == fh) {
             return 0;
         }
@@ -54,7 +54,7 @@ int uda::client_server::addSocket(SOCKETLIST* socks, int type, int status, char*
 
 // Search for an Open Socket in the Socket List
 
-int uda::client_server::getSocket(SOCKETLIST* socks, int type, int* status, char* host, int port, int* fh)
+int uda::client_server::get_socket(SOCKETLIST* socks, int type, int* status, char* host, int port, int* fh)
 {
     for (int i = 0; i < socks->nsocks; i++) {
         if (STR_IEQUALS(host, socks->sockets[i].host) && socks->sockets[i].type == type &&
@@ -72,7 +72,7 @@ int uda::client_server::getSocket(SOCKETLIST* socks, int type, int* status, char
 
 // Search for an Open Socket in the Socket List
 
-int uda::client_server::getSocketRecordId(SOCKETLIST* socks, int fh)
+int uda::client_server::get_socket_record_id(SOCKETLIST* socks, int fh)
 {
     for (int i = 0; i < socks->nsocks; i++) {
         if (socks->sockets[i].fh == fh) {
@@ -82,7 +82,7 @@ int uda::client_server::getSocketRecordId(SOCKETLIST* socks, int fh)
     return -1; // Failed - No Socket
 }
 
-void uda::client_server::closeClientSocket(SOCKETLIST* socks, int fh)
+void uda::client_server::close_client_socket(SOCKETLIST* socks, int fh)
 {
     for (int i = 0; i < socks->nsocks; i++) {
         if (socks->sockets[i].fh == fh && socks->sockets[i].fh >= 0) {
@@ -100,11 +100,11 @@ void uda::client_server::closeClientSocket(SOCKETLIST* socks, int fh)
     }
 }
 
-void uda::client_server::closeClientSockets(SOCKETLIST* socks)
+void uda::client_server::close_client_sockets(SOCKETLIST* socks)
 {
     for (int i = 0; i < socks->nsocks; i++) {
-        closeClientSocket(socks, socks->sockets[i].fh);
+        close_client_socket(socks, socks->sockets[i].fh);
     }
     free(socks->sockets);
-    initSocketList(socks);
+    init_socket_list(socks);
 }

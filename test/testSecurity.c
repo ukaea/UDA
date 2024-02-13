@@ -98,8 +98,8 @@ int main()
     idamSetLogFile(UDA_LOG_ERROR, stderr);
     idamSetLogLevel(UDA_LOG_DEBUG);
 
-    initClientBlock(&client_block, clientVersion, clientUsername);
-    initServerBlock(&server_block, 0);
+    init_client_block(&client_block, clientVersion, clientUsername);
+    init_server_block(&server_block, 0);
 
     initSecurityBlock(&client_block.securityBlock);
     initSecurityBlock(&server_block.securityBlock);

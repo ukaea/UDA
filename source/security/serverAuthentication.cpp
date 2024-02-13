@@ -188,7 +188,7 @@ static SECURITY_BLOCK* receiveSecurityBlock(CLIENT_BLOCK* client_block, LOGMALLO
 
         if (err == 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Initial Client Block received\n");
-            printClientBlock(*client_block);
+            print_client_block(*client_block);
         }
     }
 

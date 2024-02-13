@@ -209,13 +209,13 @@ void udaSetProperty(const char* property)
         if (property[0] == 't') {
             strncpy(name, property, 55);
             name[55] = '\0';
-            TrimString(name);
-            LeftTrimString(name);
-            MidTrimString(name);
+            trim_string(name);
+            left_trim_string(name);
+            mid_trim_string(name);
             strlwr(name);
             if ((value = strstr(name, "timeout=")) != nullptr) {
                 value = name + 8;
-                if (IsNumber(value)) {
+                if (is_number(value)) {
                     client_flags->user_timeout = atoi(value);
                 }
             }
@@ -232,13 +232,13 @@ void udaSetProperty(const char* property)
             if (!strncasecmp(property, "altRank", 7)) {
                 strncpy(name, property, 55);
                 name[55] = '\0';
-                TrimString(name);
-                LeftTrimString(name);
-                MidTrimString(name);
+                trim_string(name);
+                left_trim_string(name);
+                mid_trim_string(name);
                 strlwr(name);
                 if ((value = strcasestr(name, "altRank=")) != nullptr) {
                     value = name + 8;
-                    if (IsNumber(value)) {
+                    if (is_number(value)) {
                         client_flags->alt_rank = atoi(value);
                     }
                 }

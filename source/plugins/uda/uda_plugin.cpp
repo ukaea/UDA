@@ -273,7 +273,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
                     old_host_ = data_source->server;
                     udaPutServerHost(data_source->server);
                 }
-                if (IsNumber(&p[1])) {
+                if (is_number(&p[1])) {
                     newPort = atoi(&p[1]);
                     if (newPort != old_port_) {
                         udaPutServerPort(newPort);
@@ -352,7 +352,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
                 old_host_ = request->server;
                 udaPutServerHost(request->server); // different host name?
             }
-            if (IsNumber(&p[1])) {
+            if (is_number(&p[1])) {
                 newPort = atoi(&p[1]);
                 if (newPort != old_port_) {
                     udaPutServerPort(newPort);
@@ -450,7 +450,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
                 old_host_ = request->server;
                 udaPutServerHost(request->server); // Change to a different host name
             }
-            if (IsNumber(&p[1])) {
+            if (is_number(&p[1])) {
                 newPort = atoi(&p[1]);
                 if (newPort != old_port_) {
                     // Different Ports?
@@ -519,7 +519,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
         // Write the structure components element by element! (Ignore the CLIENT_BLOCK component)
 
         DATA_BLOCK db;
-        initDataBlock(&db);
+        init_data_block(&db);
 
         auto odb = (OLD_DATA_BLOCK*)getDataBlock(handle);
 

@@ -62,8 +62,8 @@ void uda::client_server::error_log(CLIENT_BLOCK client_block, REQUEST_BLOCK requ
     asctime_s(accessdate, UDA_DATE_LENGTH, broken);
 #endif
 
-    convertNonPrintable2(accessdate);
-    TrimString(accessdate);
+    convert_non_printable2(accessdate);
+    trim_string(accessdate);
 
     for (int i = 0; i < request_block.num_requests; ++i) {
         auto request = &request_block.requests[i];

@@ -137,8 +137,8 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, ENVIRONM
         */
 
         while (fgets(buffer, STRING_LENGTH - 1, conf) != nullptr) {
-            convertNonPrintable2(buffer);
-            LeftTrimString(TrimString(buffer));
+            convert_non_printable2(buffer);
+            left_trim_string(trim_string(buffer));
             do {
                 if (buffer[0] == '#') {
                     break;
@@ -153,25 +153,25 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, ENVIRONM
                     if (csv != nullptr && i <= 8) {
                         csv[0] = '\0'; // Extract the sub-string ignoring the example - has a comma within text
                     }
-                    LeftTrimString(TrimString(next));
+                    left_trim_string(trim_string(next));
                     switch (i) {
 
                         case 0:
                             // File Format or Server Protocol or Library name or Device name etc.
-                            strcpy(plugin_list->plugin[plugin_list->count].format, LeftTrimString(next));
+                            strcpy(plugin_list->plugin[plugin_list->count].format, left_trim_string(next));
                             // If the Format or Protocol is Not unique, the plugin that is selected will be the first
                             // one registered: others will be ignored.
                             break;
 
                         case 1: // Plugin class: File, Server, Function or Device
                             plugin_list->plugin[plugin_list->count].plugin_class = UDA_PLUGIN_CLASS_FILE;
-                            if (STR_IEQUALS(LeftTrimString(next), "server")) {
+                            if (STR_IEQUALS(left_trim_string(next), "server")) {
                                 plugin_list->plugin[plugin_list->count].plugin_class = UDA_PLUGIN_CLASS_SERVER;
-                            } else if (STR_IEQUALS(LeftTrimString(next), "function")) {
+                            } else if (STR_IEQUALS(left_trim_string(next), "function")) {
                                 plugin_list->plugin[plugin_list->count].plugin_class = UDA_PLUGIN_CLASS_FUNCTION;
-                            } else if (STR_IEQUALS(LeftTrimString(next), "file")) {
+                            } else if (STR_IEQUALS(left_trim_string(next), "file")) {
                                 plugin_list->plugin[plugin_list->count].plugin_class = UDA_PLUGIN_CLASS_FILE;
-                            } else if (STR_IEQUALS(LeftTrimString(next), "device")) {
+                            } else if (STR_IEQUALS(left_trim_string(next), "device")) {
                                 plugin_list->plugin[plugin_list->count].plugin_class = UDA_PLUGIN_CLASS_DEVICE;
                             }
                             break;
@@ -180,7 +180,7 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, ENVIRONM
                             // Allow the same symbol (name of data access reader function or plugin entrypoint symbol)
                             // but from different libraries!
                             if (plugin_list->plugin[plugin_list->count].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
-                                strcpy(plugin_list->plugin[plugin_list->count].symbol, LeftTrimString(next));
+                                strcpy(plugin_list->plugin[plugin_list->count].symbol, left_trim_string(next));
                                 plugin_list->plugin[plugin_list->count].external =
                                     UDA_PLUGIN_EXTERNAL; // External (not linked) shared library
 
@@ -196,16 +196,16 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, ENVIRONM
 
                             } else {
                                 // Device name Substitution protocol
-                                strcpy(plugin_list->plugin[plugin_list->count].deviceProtocol, LeftTrimString(next));
+                                strcpy(plugin_list->plugin[plugin_list->count].deviceProtocol, left_trim_string(next));
                             }
                             break;
 
                         case 3: // Server Host or Name of the shared library - can contain multiple plugin symbols so
                                 // may not be unique
                             if (plugin_list->plugin[plugin_list->count].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
-                                strcpy(plugin_list->plugin[plugin_list->count].library, LeftTrimString(next));
+                                strcpy(plugin_list->plugin[plugin_list->count].library, left_trim_string(next));
                             } else {
-                                strcpy(plugin_list->plugin[plugin_list->count].deviceHost, LeftTrimString(next));
+                                strcpy(plugin_list->plugin[plugin_list->count].deviceHost, left_trim_string(next));
                             }
                             break;
 
@@ -219,7 +219,7 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, ENVIRONM
                                     strcpy(plugin_list->plugin[plugin_list->count].method, next);
                                 }
                             } else {
-                                strcpy(plugin_list->plugin[plugin_list->count].devicePort, LeftTrimString(next));
+                                strcpy(plugin_list->plugin[plugin_list->count].devicePort, left_trim_string(next));
                             }
                             break;
 
@@ -231,7 +231,7 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, ENVIRONM
 
                         case 6: // Permission to Cache returned values
 
-                            strcpy(plugin_list->plugin[plugin_list->count].desc, LeftTrimString(next));
+                            strcpy(plugin_list->plugin[plugin_list->count].desc, left_trim_string(next));
                             if (plugin_list->plugin[plugin_list->count].desc[0] != '\0' &&
                                 (plugin_list->plugin[plugin_list->count].desc[0] == 'Y' ||
                                  plugin_list->plugin[plugin_list->count].desc[0] == 'y' ||
@@ -250,7 +250,7 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, ENVIRONM
 
                         case 7: // Private or Public plugin - i.e. available to external users
 
-                            strcpy(plugin_list->plugin[plugin_list->count].desc, LeftTrimString(next));
+                            strcpy(plugin_list->plugin[plugin_list->count].desc, left_trim_string(next));
                             if (plugin_list->plugin[plugin_list->count].desc[0] != '\0' &&
                                 (plugin_list->plugin[plugin_list->count].desc[0] == 'Y' ||
                                  plugin_list->plugin[plugin_list->count].desc[0] == 'y' ||
@@ -265,18 +265,18 @@ void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, ENVIRONM
 
                         case 8: // Description
 
-                            strcpy(plugin_list->plugin[plugin_list->count].desc, LeftTrimString(next));
+                            strcpy(plugin_list->plugin[plugin_list->count].desc, left_trim_string(next));
                             break;
 
                         case 9: {
                             // Example
 
-                            LeftTrimString(next);
+                            left_trim_string(next);
                             char* p = strchr(next, '\n');
                             if (p != nullptr) {
                                 p[0] = '\0';
                             }
-                            strcpy(plugin_list->plugin[plugin_list->count].example, LeftTrimString(next));
+                            strcpy(plugin_list->plugin[plugin_list->count].example, left_trim_string(next));
                             break;
                         }
 

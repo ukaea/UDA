@@ -21,7 +21,7 @@ int uda::makeServerRequestData(RequestData* request, const uda::Plugins& plugins
                                const server::Environment& environment)
 {
     auto plugin_list = plugins.as_plugin_list();
-    return makeRequestData(request, &plugin_list, environment.p_env());
+    return make_request_data(request, &plugin_list, environment.p_env());
 }
 
 #endif

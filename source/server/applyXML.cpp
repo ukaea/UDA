@@ -45,30 +45,30 @@ int uda::server::serverParseSignalXML(uda::client_server::DATA_SOURCE data_sourc
     //----------------------------------------------------------------------
     // Initialise
 
-    initActions(actions_desc); // Array of actions from the Signal_Desc record
-    initActions(actions_sig);  // Array of actions from the Signal Record
+    init_actions(actions_desc); // Array of actions from the Signal_Desc record
+    init_actions(actions_sig);  // Array of actions from the Signal Record
 
     //----------------------------------------------------------------------
     // Parse Signal XML
 
     if (strlen(signal.xml) > 0) { // If this Signal level XML exists then populated components takes priority.
-        if ((rc = parseDoc(signal.xml, actions_sig)) != 0) {
+        if ((rc = parse_doc(signal.xml, actions_sig)) != 0) {
             return 1;
         }
         UDA_LOG(UDA_LOG_DEBUG, "XML from the Signal Record parsed\n");
-        printActions(*actions_sig);
+        print_actions(*actions_sig);
     }
 
     //----------------------------------------------------------------------
     // Parse Signal_Desc XML
 
     if (strlen(signal_desc.xml) > 0) {
-        if ((rc = parseDoc(signal_desc.xml, actions_desc)) != 0) {
+        if ((rc = parse_doc(signal_desc.xml, actions_desc)) != 0) {
             return 1;
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "XML from the Signal_Desc Record parsed\n");
-        printActions(*actions_desc);
+        print_actions(*actions_desc);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ int uda::server::serverParseSignalXML(uda::client_server::DATA_SOURCE data_sourc
         }
     }
 
-    printActions(*actions_desc);
+    print_actions(*actions_desc);
 
     if (actions_sig->nactions == 0 && ndesc == 0) { // No qualifying XML from either source
         UDA_LOG(UDA_LOG_DEBUG, "No Applicable Actionable XML Found\n");

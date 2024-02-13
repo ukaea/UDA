@@ -22,17 +22,17 @@ namespace uda::client_server
 //-----------------------------------------------------------------------
 // Test version's type passing capability
 
-int protocolVersionTypeTest(int protocolVersion, int type);
+int protocol_version_type_test(int protocolVersion, int type);
 
 int wrap_string(XDR* xdrs, char* sp);
 
-int WrapXDRString(XDR* xdrs, const char* sp, int maxlen);
+int wrap_xdr_string(XDR* xdrs, const char* sp, int maxlen);
 
 bool_t xdr_meta(XDR* xdrs, DATA_BLOCK* str);
 
-bool_t xdr_securityBlock1(XDR* xdrs, SECURITY_BLOCK* str);
+bool_t xdr_security_block1(XDR* xdrs, SECURITY_BLOCK* str);
 
-bool_t xdr_securityBlock2(XDR* xdrs, SECURITY_BLOCK* str);
+bool_t xdr_security_block2(XDR* xdrs, SECURITY_BLOCK* str);
 
 bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion);
 

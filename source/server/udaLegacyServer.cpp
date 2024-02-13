@@ -81,10 +81,10 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
 
     init_error_stack();
 
-    initServerBlock(&server_block, server_version);
-    initDataBlock(&data_block);
-    initActions(&actions_desc); // There may be a Sequence of Actions to Apply
-    initActions(&actions_sig);
+    init_server_block(&server_block, server_version);
+    init_data_block(&data_block);
+    init_actions(&actions_desc); // There may be a Sequence of Actions to Apply
+    init_actions(&actions_sig);
 
     USERDEFINEDTYPELIST parseduserdefinedtypelist;
 
@@ -104,13 +104,13 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
             // Initialise the Client Structure - only if this is not the first time in the wait loop
 
             if (normalLegacyWait) {
-                initClientBlock(&client_block, 0, "");
+                init_client_block(&client_block, 0, "");
             }
 
             //----------------------------------------------------------------------------
             // Initialise the Request Structure
 
-            initRequestBlock(&request_block);
+            init_request_block(&request_block);
 
             //----------------------------------------------------------------------------
             // Client and Server States
@@ -220,9 +220,9 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
             UDA_LOG(UDA_LOG_DEBUG, "Request Block Received\n");
             UDA_LOG(UDA_LOG_DEBUG, "XDR #C xdrrec_eof ? %d\n", rc);
 
-            printClientBlock(client_block);
-            printServerBlock(server_block);
-            printRequestBlock(request_block);
+            print_client_block(client_block);
+            print_server_block(server_block);
+            print_request_block(request_block);
 
             //------------------------------------------------------------------------------------------------------------------
             // Prepend Proxy Host to Source to redirect client request
@@ -317,16 +317,16 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
             //----------------------------------------------------------------------
             // Initialise Data Structures
 
-            initDataSource(&data_source);
-            initSignalDesc(&signal_desc);
-            initSignal(&signal_rec);
+            init_data_source(&data_source);
+            init_signal_desc(&signal_desc);
+            init_signal(&signal_rec);
 
             //----------------------------------------------------------------------------------------------
             // If this is a PUT request then receive the putData structure
 
             REQUEST_DATA* request_data = &request_block.requests[0];
 
-            initPutDataBlockList(&(request_data->putDataBlockList));
+            init_put_data_block_list(&(request_data->putDataBlockList));
 
             if (request_data->put) {
 
@@ -389,11 +389,11 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
             UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source.exp_number);
             UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source.pass);
             UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
-            printRequestBlock(request_block);
-            printDataSource(data_source);
-            printSignal(signal_rec);
-            printSignalDesc(signal_desc);
-            printDataBlock(data_block);
+            print_request_block(request_block);
+            print_data_source(data_source);
+            print_signal(signal_rec);
+            print_signal_desc(signal_desc);
+            print_data_block(data_block);
             print_error_stack();
             UDA_LOG(UDA_LOG_DEBUG,
                     "======================== ******************** ==========================================\n");
@@ -421,8 +421,8 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
                 data_block.data_type = UDA_TYPE_CHAR;
             }
 
-            if (data_block.data_n > 0 && (protocolVersionTypeTest(protocolVersion, data_block.data_type) ||
-                                          protocolVersionTypeTest(protocolVersion, data_block.error_type))) {
+            if (data_block.data_n > 0 && (protocol_version_type_test(protocolVersion, data_block.data_type) ||
+                                          protocol_version_type_test(protocolVersion, data_block.error_type))) {
                 err = 999;
                 add_error(UDA_CODE_ERROR_TYPE, __func__, err,
                           "The Data has a type that cannot be passed to the Client: A newer client library version "
@@ -434,8 +434,8 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
                 DIMS dim;
                 for (unsigned int i = 0; i < data_block.rank; i++) {
                     dim = data_block.dims[i];
-                    if (protocolVersionTypeTest(protocolVersion, dim.data_type) ||
-                        protocolVersionTypeTest(protocolVersion, dim.error_type)) {
+                    if (protocol_version_type_test(protocolVersion, dim.data_type) ||
+                        protocol_version_type_test(protocolVersion, dim.error_type)) {
                         err = 999;
                         add_error(UDA_CODE_ERROR_TYPE, __func__, err,
                                   "A Coordinate Data has a numerical type that cannot be passed to the Client: A "
@@ -464,7 +464,7 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
             concat_error(&server_block.idamerrorstack); // Update Server State with Error Stack
             close_error();
 
-            printServerBlock(server_block);
+            print_server_block(server_block);
 
             if (server_block.idamerrorstack.nerrors > 0) {
                 server_block.error = server_block.idamerrorstack.idamerror[0].code;
@@ -614,7 +614,7 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
                 break;
             }
 
-            printDataBlock(data_block);
+            print_data_block(data_block);
             UDA_LOG(UDA_LOG_DEBUG, "Sending Data Block Structure to Client\n");
 
             protocol_id = UDA_PROTOCOL_DATA_BLOCK_LIST;
@@ -732,10 +732,10 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
         freeDataBlock(&data_block);
 
         UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
-        freeActions(&actions_desc);
+        free_actions(&actions_desc);
 
         UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
-        freeActions(&actions_sig);
+        free_actions(&actions_sig);
 
         UDA_LOG(UDA_LOG_DEBUG, "freeRequestBlock\n");
         freeRequestBlock(&request_block);
@@ -756,7 +756,7 @@ int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::Plu
         close_error();
 
         UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
-        initServerBlock(&server_block, server_version);
+        init_server_block(&server_block, server_version);
 
         UDA_LOG(UDA_LOG_DEBUG, "At End of Error Trap\n");
 

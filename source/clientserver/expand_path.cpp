@@ -67,7 +67,7 @@ using namespace uda::logging;
  * @param host The name of the client host workstation. The string is pre-allocated with length STRING_LENGTH
  * @return A pointer to the host string (Identical to the argument).
  */
-char* uda::client_server::hostid(char* host)
+char* uda::client_server::host_id(char* host)
 {
 
 #  ifdef _WIN32
@@ -82,7 +82,7 @@ char* uda::client_server::hostid(char* host)
     if ((gethostname(host, STRING_LENGTH - 1)) != 0) {
         char* env = getenv("HOSTNAME");
         if (env != nullptr) {
-            copyString(env, host, STRING_LENGTH);
+            copy_string(env, host, STRING_LENGTH);
         }
     }
 #    else
@@ -99,13 +99,13 @@ char* uda::client_server::hostid(char* host)
     } else {
         char* env = getenv("HOSTNAME");
         if (env != nullptr) {
-            copyString(env, host, STRING_LENGTH);
+            copy_string(env, host, STRING_LENGTH);
         }
     }
 #    endif
 
     if (host[0] == '\0') {
-        add_error(UDA_CODE_ERROR_TYPE, "hostid", 999, "Unable to Identify the Host Name");
+        add_error(UDA_CODE_ERROR_TYPE, "host_id", 999, "Unable to Identify the Host Name");
     }
     return host;
 
@@ -142,7 +142,7 @@ If there are more wildcards in the substitute string than in the target string, 
 @param path The path to be tested for targeted name element replacement.
 @returns An integer Error Code: If non zero, a problem occurred.
 */
-int uda::client_server::pathReplacement(char* path, const ENVIRONMENT* environment)
+int uda::client_server::path_replacement(char* path, const ENVIRONMENT* environment)
 {
     //----------------------------------------------------------------------------------------------
     // Does the Path contain hierarchical components not seen by the server? If so make a substitution.
@@ -174,7 +174,7 @@ int uda::client_server::pathReplacement(char* path, const ENVIRONMENT* environme
     std::string work;
     work.resize(strlen(path));
 
-    UDA_LOG(UDA_LOG_DEBUG, "pathReplacement: Testing for File Path Replacement\n");
+    UDA_LOG(UDA_LOG_DEBUG, "path_replacement: Testing for File Path Replacement\n");
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", path);
 
     // Parse targets
@@ -280,7 +280,7 @@ int uda::client_server::pathReplacement(char* path, const ENVIRONMENT* environme
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "%s\n", path);
-    UDA_LOG(UDA_LOG_DEBUG, "pathReplacement: End\n");
+    UDA_LOG(UDA_LOG_DEBUG, "path_replacement: End\n");
 
     return 0;
 }
@@ -289,7 +289,7 @@ int uda::client_server::pathReplacement(char* path, const ENVIRONMENT* environme
 
 #  ifndef SERVERBUILD
 
-int uda::client_server::linkReplacement(char* path)
+int uda::client_server::link_replacement(char* path)
 {
 
     //----------------------------------------------------------------------------------------------
@@ -315,10 +315,10 @@ int uda::client_server::linkReplacement(char* path)
     errno = 0;
     if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
         if (errno != 0) {
-            add_error(UDA_SYSTEM_ERROR_TYPE, "linkReplacement", errno, "");
+            add_error(UDA_SYSTEM_ERROR_TYPE, "link_replacement", errno, "");
         }
         err = 1;
-        add_error(UDA_CODE_ERROR_TYPE, "linkReplacement", err, "Unable to Dereference Symbolic links");
+        add_error(UDA_CODE_ERROR_TYPE, "link_replacement", err, "Unable to Dereference Symbolic links");
         path[0] = '\0';
         return err;
     }
@@ -337,8 +337,8 @@ int uda::client_server::linkReplacement(char* path)
     if ((p = strstr(buffer, " -> ")) != nullptr) {
         if (p[4] == '/') {
             strcpy(path, p + 4);
-            convertNonPrintable2(path);
-            TrimString(path);
+            convert_non_printable2(path);
+            trim_string(path);
             // expandFilePath(path);
         }
     }
@@ -349,7 +349,7 @@ int uda::client_server::linkReplacement(char* path)
 }
 
 #  else
-int uda::client_server::linkReplacement(char* path)
+int uda::client_server::link_replacement(char* path)
 {
     // Links are resolved client side only
     return 0;
@@ -379,7 +379,7 @@ int uda::client_server::linkReplacement(char* path)
 @returns An integer Error Code: If non zero, a problem occured.
 */
 
-int uda::client_server::expandFilePath(char* path, const ENVIRONMENT* environment)
+int uda::client_server::expand_file_path(char* path, const ENVIRONMENT* environment)
 {
 
 #  ifdef _WIN32
@@ -412,9 +412,9 @@ int uda::client_server::expandFilePath(char* path, const ENVIRONMENT* environmen
     //------------------------------------------------------------------------------------------------------------------
     // Test for possible imbedded linux command
 
-    if (!IsLegalFilePath(path)) {
+    if (!is_legal_file_path(path)) {
         err = 999;
-        add_error(UDA_CODE_ERROR_TYPE, "expandFilePath", err, "The Source contains a Syntax Error!");
+        add_error(UDA_CODE_ERROR_TYPE, "expand_file_path", err, "The Source contains a Syntax Error!");
         return err;
     }
 
@@ -520,7 +520,7 @@ int uda::client_server::expandFilePath(char* path, const ENVIRONMENT* environmen
     token = strtok(work, "/");
 
     if (token != nullptr) {
-        if (IsNumber(token)) {
+        if (is_number(token)) {
             return 0; // Is the First token an integer number?
         }
     }
@@ -555,10 +555,10 @@ int uda::client_server::expandFilePath(char* path, const ENVIRONMENT* environmen
         if ((fp = strrchr(path, '/')) == nullptr) { // Search backwards - extract filename
             strcpy(work1, path);
             snprintf(path, STRING_LENGTH, "%s/%s", cwd, work1); // prepend the CWD and return
-            if ((err = linkReplacement(path)) != 0) {
+            if ((err = link_replacement(path)) != 0) {
                 return err;
             }
-            if ((err = pathReplacement(path, environment)) != 0) {
+            if ((err = path_replacement(path, environment)) != 0) {
                 return err;
             }
 
@@ -686,7 +686,7 @@ int uda::client_server::expandFilePath(char* path, const ENVIRONMENT* environmen
     /*! Symbolic Links might not be visible by the server: Pass the true location
      */
 
-    if ((err = linkReplacement(path)) != 0) {
+    if ((err = link_replacement(path)) != 0) {
         return err;
     }
 
@@ -709,7 +709,7 @@ int uda::client_server::expandFilePath(char* path, const ENVIRONMENT* environmen
             if ((env = getenv("HOSTNAME")) != nullptr) { // Check for a system Environment Variable
                 strcpy(host, env);
             } else {
-                hostid(host); // Identify the Name of the Current Workstation or Host
+                host_id(host); // Identify the Name of the Current Workstation or Host
             }
 
             // TODO: refactor this function so that we do not have to guess the path size
@@ -734,7 +734,7 @@ int uda::client_server::expandFilePath(char* path, const ENVIRONMENT* environmen
     /*! Does the Path to a user's Private Files contain network components not seen by the server?
     If so, target these and make a suitable substitution to resolve path problems.
     */
-    err = pathReplacement(path, environment);
+    err = path_replacement(path, environment);
 
     return err;
 
@@ -748,7 +748,7 @@ int uda::client_server::expandFilePath(char* path, const ENVIRONMENT* environmen
 @returns A pointer to the path argument. If a problem occurs, the path string is empty.
 */
 
-char* uda::client_server::pathid(char* path)
+char* uda::client_server::path_id(char* path)
 {
 
 #  ifdef _WIN32
@@ -763,8 +763,8 @@ char* uda::client_server::pathid(char* path)
     // the path string may contain malign embedded linux commands: is chdir secure?
     // basic check
 
-    if (!IsLegalFilePath(path)) {
-        add_error(UDA_CODE_ERROR_TYPE, "pathid", 999, "The directory path has incorrect syntax");
+    if (!is_legal_file_path(path)) {
+        add_error(UDA_CODE_ERROR_TYPE, "path_id", 999, "The directory path has incorrect syntax");
         path[0] = '\0';
         return path;
     }
@@ -778,17 +778,17 @@ char* uda::client_server::pathid(char* path)
                     add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
                     add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "The directory path is not available");
                 }
-                TrimString(path);
-                LeftTrimString(path);
+                trim_string(path);
+                left_trim_string(path);
                 return path;
             }
         } else {
             if (errno == EACCES) {
-                add_error(UDA_SYSTEM_ERROR_TYPE, "pathid", errno, "");
-                add_error(UDA_CODE_ERROR_TYPE, "pathid", 999, "The directory path is not available");
+                add_error(UDA_SYSTEM_ERROR_TYPE, "path_id", errno, "");
+                add_error(UDA_CODE_ERROR_TYPE, "path_id", 999, "The directory path is not available");
             } else if (errno == ENOENT || errno == ENOTDIR) {
-                add_error(UDA_SYSTEM_ERROR_TYPE, "pathid", errno, "");
-                add_error(UDA_CODE_ERROR_TYPE, "pathid", 999, "The directory path does not exist");
+                add_error(UDA_SYSTEM_ERROR_TYPE, "path_id", errno, "");
+                add_error(UDA_CODE_ERROR_TYPE, "path_id", 999, "The directory path does not exist");
             }
         }
     }

@@ -26,7 +26,7 @@ using namespace uda::logging;
 //-----------------------------------------------------------------------
 // Test version's type passing capability
 
-int uda::client_server::protocolVersionTypeTest(int protocol_version, int type)
+int uda::client_server::protocol_version_type_test(int protocol_version, int type)
 {
     // If this client/server version cannot pass/receive a specific type, then return TRUE
 
@@ -67,7 +67,7 @@ int uda::client_server::wrap_string(XDR* xdrs, char* sp)
     return xdr_string(xdrs, &sp, MAX_STRING_LENGTH);
 }
 
-int uda::client_server::WrapXDRString(XDR* xdrs, const char* sp, int maxlen)
+int uda::client_server::wrap_xdr_string(XDR* xdrs, const char* sp, int maxlen)
 {
     return xdr_string(xdrs, (char**)&sp, (unsigned int)maxlen);
 }
@@ -77,14 +77,14 @@ int uda::client_server::WrapXDRString(XDR* xdrs, const char* sp, int maxlen)
 
 bool_t uda::client_server::xdr_meta(XDR* xdrs, DATA_BLOCK* str)
 {
-    int rc = WrapXDRString(xdrs, (char*)str->opaque_block, str->opaque_count + 1);
+    int rc = wrap_xdr_string(xdrs, (char*)str->opaque_block, str->opaque_count + 1);
     return rc;
 }
 
 //-----------------------------------------------------------------------
 // Security block
 
-bool_t uda::client_server::xdr_securityBlock1(XDR* xdrs, SECURITY_BLOCK* str)
+bool_t uda::client_server::xdr_security_block1(XDR* xdrs, SECURITY_BLOCK* str)
 {
     int rc = xdr_u_short(xdrs, &str->structVersion) && xdr_u_short(xdrs, &str->encryptionMethod) &&
              xdr_u_short(xdrs, &str->authenticationStep) && xdr_u_short(xdrs, &str->client_ciphertextLength) &&
@@ -93,7 +93,7 @@ bool_t uda::client_server::xdr_securityBlock1(XDR* xdrs, SECURITY_BLOCK* str)
     return rc;
 }
 
-bool_t uda::client_server::xdr_securityBlock2(XDR* xdrs, SECURITY_BLOCK* str)
+bool_t uda::client_server::xdr_security_block2(XDR* xdrs, SECURITY_BLOCK* str)
 {
     int rc = 1;
 
@@ -150,7 +150,7 @@ bool_t uda::client_server::xdr_securityBlock2(XDR* xdrs, SECURITY_BLOCK* str)
 bool_t uda::client_server::xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
 {
     int rc = xdr_int(xdrs, &str->version) && xdr_int(xdrs, &str->pid) && xdr_int(xdrs, &str->timeout) &&
-             WrapXDRString(xdrs, (char*)str->uid, STRING_LENGTH);
+             wrap_xdr_string(xdrs, (char*)str->uid, STRING_LENGTH);
 
     if (str->version < protocolVersion) {
         protocolVersion = str->version;
@@ -190,16 +190,16 @@ bool_t uda::client_server::xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocol
     }
 
     if (protocolVersion >= 7) {
-        rc = rc && WrapXDRString(xdrs, (char*)str->OSName, STRING_LENGTH) &&
-             WrapXDRString(xdrs, (char*)str->DOI, STRING_LENGTH);
+        rc = rc && wrap_xdr_string(xdrs, (char*)str->OSName, STRING_LENGTH) &&
+             wrap_xdr_string(xdrs, (char*)str->DOI, STRING_LENGTH);
 
 #ifdef SECURITYENABLED
-        rc = rc && WrapXDRString(xdrs, (char*)str->uid2, STRING_LENGTH);
+        rc = rc && wrap_xdr_string(xdrs, (char*)str->uid2, STRING_LENGTH);
 #endif
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "protocolVersion %d\n", protocolVersion);
-    printClientBlock(*str);
+    print_client_block(*str);
 
     return rc;
 }
@@ -233,7 +233,7 @@ bool_t uda::client_server::xdr_server1(XDR* xdrs, SERVER_BLOCK* str, int protoco
     rc = rc && xdr_u_int(xdrs, &str->idamerrorstack.nerrors);
     UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[3] = %d, error = %d\n", rc, str->idamerrorstack.nerrors);
 
-    rc = rc && WrapXDRString(xdrs, (char*)str->msg, STRING_LENGTH);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->msg, STRING_LENGTH);
 
     UDA_LOG(UDA_LOG_DEBUG, "Server #1 rc[4] = %d, strlen = %zd\n", rc, strlen(str->msg));
     UDA_LOG(UDA_LOG_DEBUG, "str->msg = %p\n", str->msg);
@@ -242,8 +242,8 @@ bool_t uda::client_server::xdr_server1(XDR* xdrs, SERVER_BLOCK* str, int protoco
     UDA_LOG(UDA_LOG_DEBUG, "Server #1 protocolVersion %d [rc = %d]\n", protocolVersion, rc);
 
     if ((xdrs->x_op == XDR_DECODE && protocolVersion >= 7) || (xdrs->x_op == XDR_ENCODE && protocolVersion >= 7)) {
-        rc = rc && WrapXDRString(xdrs, (char*)str->OSName, STRING_LENGTH) &&
-             WrapXDRString(xdrs, (char*)str->DOI, STRING_LENGTH);
+        rc = rc && wrap_xdr_string(xdrs, (char*)str->OSName, STRING_LENGTH) &&
+             wrap_xdr_string(xdrs, (char*)str->DOI, STRING_LENGTH);
 #ifdef SECURITYENABLED
         // rc = rc && xdr_securityBlock(xdrs, &str->securityBlock);
 #endif
@@ -260,8 +260,8 @@ bool_t uda::client_server::xdr_server2(XDR* xdrs, SERVER_BLOCK* str)
     for (unsigned int i = 0; i < str->idamerrorstack.nerrors; i++) {
         rc = rc && xdr_int(xdrs, &str->idamerrorstack.idamerror[i].type) &&
              xdr_int(xdrs, &str->idamerrorstack.idamerror[i].code) &&
-             WrapXDRString(xdrs, (char*)str->idamerrorstack.idamerror[i].location, STRING_LENGTH) &&
-             WrapXDRString(xdrs, (char*)str->idamerrorstack.idamerror[i].msg, STRING_LENGTH);
+             wrap_xdr_string(xdrs, (char*)str->idamerrorstack.idamerror[i].location, STRING_LENGTH) &&
+             wrap_xdr_string(xdrs, (char*)str->idamerrorstack.idamerror[i].msg, STRING_LENGTH);
 
         UDA_LOG(UDA_LOG_DEBUG, "xdr_server2 [%d] %s\n", i, str->idamerrorstack.idamerror[i].msg);
     }
@@ -274,7 +274,7 @@ bool_t uda::client_server::xdr_server2(XDR* xdrs, SERVER_BLOCK* str)
 bool_t uda::client_server::xdr_server(XDR* xdrs, SERVER_BLOCK* str)
 {
     return xdr_int(xdrs, &str->version) && xdr_int(xdrs, &str->error) &&
-           WrapXDRString(xdrs, (char*)str->msg, STRING_LENGTH);
+           wrap_xdr_string(xdrs, (char*)str->msg, STRING_LENGTH);
 }
 
 //-----------------------------------------------------------------------
@@ -287,19 +287,19 @@ bool_t uda::client_server::xdr_request_data(XDR* xdrs, REQUEST_DATA* str, int pr
     str->request = static_cast<REQUEST>(request);
     rc = rc && xdr_int(xdrs, &str->exp_number);
     rc = rc && xdr_int(xdrs, &str->pass);
-    rc = rc && WrapXDRString(xdrs, (char*)str->tpass, STRING_LENGTH);
-    rc = rc && WrapXDRString(xdrs, (char*)str->archive, STRING_LENGTH);
-    rc = rc && WrapXDRString(xdrs, (char*)str->device_name, STRING_LENGTH);
-    rc = rc && WrapXDRString(xdrs, (char*)str->server, STRING_LENGTH);
-    rc = rc && WrapXDRString(xdrs, (char*)str->path, STRING_LENGTH);
-    rc = rc && WrapXDRString(xdrs, (char*)str->file, STRING_LENGTH);
-    rc = rc && WrapXDRString(xdrs, (char*)str->format, STRING_LENGTH);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->tpass, STRING_LENGTH);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->archive, STRING_LENGTH);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->device_name, STRING_LENGTH);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->server, STRING_LENGTH);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->path, STRING_LENGTH);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->file, STRING_LENGTH);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->format, STRING_LENGTH);
 
-    rc = rc && WrapXDRString(xdrs, (char*)str->signal, MAXMETA);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->signal, MAXMETA);
 
     if ((xdrs->x_op == XDR_DECODE && protocolVersion >= 6) || (xdrs->x_op == XDR_ENCODE && protocolVersion >= 6)) {
-        rc = rc && WrapXDRString(xdrs, (char*)str->source, STRING_LENGTH) &&
-             WrapXDRString(xdrs, (char*)str->api_delim, MAXNAME);
+        rc = rc && wrap_xdr_string(xdrs, (char*)str->source, STRING_LENGTH) &&
+             wrap_xdr_string(xdrs, (char*)str->api_delim, MAXNAME);
     }
 
     if (protocolVersion >= 7) {
@@ -363,7 +363,7 @@ bool_t uda::client_server::xdr_putdata_block2(XDR* xdrs, PutDataBlock* str)
     }
 
     if (str->blockNameLength > 0) {
-        rc = rc && WrapXDRString(xdrs, (char*)str->blockName, str->blockNameLength + 1);
+        rc = rc && wrap_xdr_string(xdrs, (char*)str->blockName, str->blockNameLength + 1);
     }
 
     switch (str->data_type) {
@@ -474,9 +474,9 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         // Send the data
 
-        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist,
+        rc = rc && xdr_user_defined_type_list(xdrs, userdefinedtypelist,
                                            xdr_stdio_flag); // send the full set of known named structures
-        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
+        rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, u, (void**)data, protocolVersion,
                                           xdr_stdio_flag, log_struct_list, malloc_source); // send the Data
 
         if (!rc) {
@@ -506,7 +506,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
         initUserDefinedTypeList(userdefinedtypelist);
 
         // receive the full set of known named structures
-        rc = rc && xdr_userdefinedtypelist(xdrs, userdefinedtypelist, xdr_stdio_flag);
+        rc = rc && xdr_user_defined_type_list(xdrs, userdefinedtypelist, xdr_stdio_flag);
 
         if (!rc) {
             err = 999;
@@ -519,7 +519,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
         auto udt_received = (USERDEFINEDTYPE*)malloc(sizeof(USERDEFINEDTYPE));
         initUserDefinedType(udt_received);
 
-        rc = rc && xdrUserDefinedTypeData(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
+        rc = rc && xdr_user_defined_type_data(xdrs, logmalloclist, userdefinedtypelist, udt_received, &data,
                                           protocolVersion, xdr_stdio_flag, log_struct_list,
                                           malloc_source); // receive the Data
 
@@ -575,10 +575,10 @@ bool_t uda::client_server::xdr_data_block1(XDR* xdrs, DATA_BLOCK* str, int proto
     rc = rc && xdr_int(xdrs, &str->errcode);
     rc = rc && xdr_int(xdrs, &str->source_status);
     rc = rc && xdr_int(xdrs, &str->signal_status);
-    rc = rc && WrapXDRString(xdrs, (char*)str->data_units, STRING_LENGTH);
-    rc = rc && WrapXDRString(xdrs, (char*)str->data_label, STRING_LENGTH);
-    rc = rc && WrapXDRString(xdrs, (char*)str->data_desc, STRING_LENGTH);
-    rc = rc && WrapXDRString(xdrs, (char*)str->error_msg, STRING_LENGTH);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->data_units, STRING_LENGTH);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->data_label, STRING_LENGTH);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->data_desc, STRING_LENGTH);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->error_msg, STRING_LENGTH);
 
     // output (ENCODE) means written by the server
     // input (DECODE) means read by the client
@@ -752,8 +752,8 @@ bool_t uda::client_server::xdr_data_dim1(XDR* xdrs, DATA_BLOCK* str)
              xdr_int(xdrs, &str->dims[i].compressed) && xdr_double(xdrs, &str->dims[i].dim0) &&
              xdr_double(xdrs, &str->dims[i].diff) && xdr_int(xdrs, &str->dims[i].method) &&
              xdr_u_int(xdrs, &str->dims[i].udoms) &&
-             WrapXDRString(xdrs, (char*)str->dims[i].dim_units, STRING_LENGTH) &&
-             WrapXDRString(xdrs, (char*)str->dims[i].dim_label, STRING_LENGTH);
+             wrap_xdr_string(xdrs, (char*)str->dims[i].dim_units, STRING_LENGTH) &&
+             wrap_xdr_string(xdrs, (char*)str->dims[i].dim_label, STRING_LENGTH);
     }
 
     return rc;
@@ -1382,11 +1382,11 @@ bool_t uda::client_server::xdr_data_dim4(XDR* xdrs, DATA_BLOCK* str)
 bool_t uda::client_server::xdr_data_system(XDR* xdrs, DATA_SYSTEM* str)
 {
     return xdr_int(xdrs, &str->system_id) && xdr_int(xdrs, &str->version) && xdr_int(xdrs, &str->meta_id) &&
-           xdr_char(xdrs, &str->type) && WrapXDRString(xdrs, (char*)str->device_name, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->system_name, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->system_desc, MAX_STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH) && WrapXDRString(xdrs, (char*)str->xml, MAXMETA) &&
-           WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH);
+           xdr_char(xdrs, &str->type) && wrap_xdr_string(xdrs, (char*)str->device_name, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->system_name, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->system_desc, MAX_STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->creation, DATE_LENGTH) && wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
+           wrap_xdr_string(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }
 
 //-----------------------------------------------------------------------
@@ -1395,10 +1395,10 @@ bool_t uda::client_server::xdr_data_system(XDR* xdrs, DATA_SYSTEM* str)
 bool_t uda::client_server::xdr_system_config(XDR* xdrs, SYSTEM_CONFIG* str)
 {
     return xdr_int(xdrs, &str->config_id) && xdr_int(xdrs, &str->system_id) && xdr_int(xdrs, &str->meta_id) &&
-           WrapXDRString(xdrs, (char*)str->config_name, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->config_desc, MAX_STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH) && WrapXDRString(xdrs, (char*)str->xml, MAXMETA) &&
-           WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH);
+           wrap_xdr_string(xdrs, (char*)str->config_name, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->config_desc, MAX_STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->creation, DATE_LENGTH) && wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
+           wrap_xdr_string(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }
 
 //-----------------------------------------------------------------------
@@ -1411,21 +1411,21 @@ bool_t uda::client_server::xdr_data_source(XDR* xdrs, DATA_SOURCE* str)
            xdr_int(xdrs, &str->exp_number) && xdr_int(xdrs, &str->pass) && xdr_int(xdrs, &str->status) &&
            xdr_int(xdrs, &str->status_reason_code) && xdr_int(xdrs, &str->status_impact_code) &&
            xdr_char(xdrs, &str->access) && xdr_char(xdrs, &str->reprocess) && xdr_char(xdrs, &str->type) &&
-           WrapXDRString(xdrs, (char*)str->source_alias, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->pass_date, DATE_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->archive, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->device_name, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->format, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->path, MAX_STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->filename, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->server, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->userid, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->reason_desc, MAX_STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->status_desc, MAXMETA) &&
-           WrapXDRString(xdrs, (char*)str->run_desc, MAXMETA) &&
-           WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->modified, DATE_LENGTH) && WrapXDRString(xdrs, (char*)str->xml, MAXMETA) &&
-           WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH);
+           wrap_xdr_string(xdrs, (char*)str->source_alias, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->pass_date, DATE_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->archive, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->device_name, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->format, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->path, MAX_STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->filename, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->server, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->userid, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->reason_desc, MAX_STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->status_desc, MAXMETA) &&
+           wrap_xdr_string(xdrs, (char*)str->run_desc, MAXMETA) &&
+           wrap_xdr_string(xdrs, (char*)str->creation, DATE_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->modified, DATE_LENGTH) && wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
+           wrap_xdr_string(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }
 
 //-----------------------------------------------------------------------
@@ -1437,10 +1437,10 @@ bool_t uda::client_server::xdr_signal(XDR* xdrs, SIGNAL* str)
            xdr_int(xdrs, &str->status_desc_id) && xdr_int(xdrs, &str->status) &&
            xdr_int(xdrs, &str->status_reason_code) && xdr_int(xdrs, &str->status_impact_code) &&
            xdr_char(xdrs, &str->access) && xdr_char(xdrs, &str->reprocess) &&
-           WrapXDRString(xdrs, (char*)str->status_desc, MAXMETA) &&
-           WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->modified, DATE_LENGTH) && WrapXDRString(xdrs, (char*)str->xml, MAXMETA) &&
-           WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH);
+           wrap_xdr_string(xdrs, (char*)str->status_desc, MAXMETA) &&
+           wrap_xdr_string(xdrs, (char*)str->creation, DATE_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->modified, DATE_LENGTH) && wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
+           wrap_xdr_string(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }
 
 //-----------------------------------------------------------------------
@@ -1450,14 +1450,14 @@ bool_t uda::client_server::xdr_signal_desc(XDR* xdrs, SIGNAL_DESC* str)
 {
     return xdr_int(xdrs, &str->signal_desc_id) && xdr_int(xdrs, &str->meta_id) && xdr_int(xdrs, &str->rank) &&
            xdr_int(xdrs, &str->range_start) && xdr_int(xdrs, &str->range_stop) && xdr_char(xdrs, &str->type) &&
-           WrapXDRString(xdrs, (char*)str->source_alias, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->signal_alias, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->signal_name, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->generic_name, STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->description, MAX_STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->signal_class, MAX_STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->signal_owner, MAX_STRING_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->creation, DATE_LENGTH) &&
-           WrapXDRString(xdrs, (char*)str->modified, DATE_LENGTH) && WrapXDRString(xdrs, (char*)str->xml, MAXMETA) &&
-           WrapXDRString(xdrs, (char*)str->xml_creation, DATE_LENGTH);
+           wrap_xdr_string(xdrs, (char*)str->source_alias, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->signal_alias, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->signal_name, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->generic_name, STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->description, MAX_STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->signal_class, MAX_STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->signal_owner, MAX_STRING_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->creation, DATE_LENGTH) &&
+           wrap_xdr_string(xdrs, (char*)str->modified, DATE_LENGTH) && wrap_xdr_string(xdrs, (char*)str->xml, MAXMETA) &&
+           wrap_xdr_string(xdrs, (char*)str->xml_creation, DATE_LENGTH);
 }

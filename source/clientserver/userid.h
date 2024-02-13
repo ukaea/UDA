@@ -3,6 +3,6 @@
 namespace uda::client_server
 {
 
-void userid(char* uid);
+void user_id(char* uid);
 
 }

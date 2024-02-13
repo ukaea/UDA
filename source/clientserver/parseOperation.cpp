@@ -9,7 +9,7 @@
 
 using namespace uda::client_server;
 
-int uda::client_server::parseOperation(SUBSET* sub)
+int uda::client_server::parse_operation(SUBSET* sub)
 {
     //-------------------------------------------------------------------------------------------------------------
     // Extract the Value Component from each separate Operation

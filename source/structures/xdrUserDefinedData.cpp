@@ -960,7 +960,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                         size = sizeof(char);
                                         type = userdefinedtype->compoundfield[j].type;
                                     }
-                                    convertNonPrintable2(d); // Remove obvious garbage (bug - non initialised...?)
+                                    convert_non_printable2(d); // Remove obvious garbage (bug - non initialised...?)
                                 }
                             }
                         }
@@ -993,7 +993,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                 d[count - 1] = '\0'; // Terminate
                             }
                         }
-                        rc = rc && WrapXDRString(xdrs, d, count);
+                        rc = rc && wrap_xdr_string(xdrs, d, count);
                         isSOAP = 0;
                     } else {
                         rc = rc && xdr_vector(xdrs, d, count, sizeof(char), (xdrproc_t)xdr_char);
@@ -1076,11 +1076,11 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                     }
 
                     if (count > 0) {
-                        rc = rc && WrapXDRString(xdrs, d, count);
+                        rc = rc && wrap_xdr_string(xdrs, d, count);
                     }
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 1) { // Element is a Regular String
-                        rc = rc && WrapXDRString(xdrs, (char*)p, userdefinedtype->compoundfield[j].count);
+                        rc = rc && wrap_xdr_string(xdrs, (char*)p, userdefinedtype->compoundfield[j].count);
                     } else {
                         // Element is an Array of Strings of fixed max size
                     }
@@ -1120,7 +1120,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                     if (count > 0) {
                                         d = (char*)malloc(count * sizeof(char));
                                         udaAddMalloc(logmalloclist, (void*)d, count, sizeof(char), "char");
-                                        rc = rc && WrapXDRString(xdrs, d, count);
+                                        rc = rc && wrap_xdr_string(xdrs, d, count);
                                         str[istr] = d;
                                     }
                                 }
@@ -1150,7 +1150,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                 rc = rc && xdr_int(xdrs, &count);
                                 strarr[istr] = (char*)malloc(count * sizeof(char));
                                 udaAddMalloc(logmalloclist, (void*)strarr[istr], count, sizeof(char), "STRING");
-                                rc = rc && WrapXDRString(xdrs, strarr[istr], count);
+                                rc = rc && wrap_xdr_string(xdrs, strarr[istr], count);
                                 if (rank == 0 && nstr == 1) {
                                     *p = (VOIDTYPE)strarr[0];
                                 }
@@ -1170,7 +1170,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                     rc = rc && xdr_int(xdrs, &count);
                                     if (count > 0) {
                                         d = (char*)str[istr];
-                                        rc = rc && WrapXDRString(xdrs, d, count);
+                                        rc = rc && wrap_xdr_string(xdrs, d, count);
                                     }
                                 }
                             }
@@ -1212,14 +1212,14 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                         }
                         if (rank == 0) {
                             rc = rc && xdr_int(xdrs, &size); // This length of string
-                            rc = rc && WrapXDRString(xdrs, (char*)d, size);
+                            rc = rc && wrap_xdr_string(xdrs, (char*)d, size);
                         } else {
                             strarr = (char**)d;
                             for (istr = 0; istr < nstr;
                                  istr++) { // Send individual String lengths, then the string itself
                                 count = (int)strlen(strarr[istr]) + 1;
                                 rc = rc && xdr_int(xdrs, &count);
-                                rc = rc && WrapXDRString(xdrs, strarr[istr], count);
+                                rc = rc && wrap_xdr_string(xdrs, strarr[istr], count);
                             }
                         }
                     }
@@ -1229,7 +1229,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                         if (userdefinedtype->compoundfield[j].rank == 1 &&
                             strcmp(userdefinedtype->compoundfield[j].type, "STRING *") !=
                                 0) { // Element is a Single String
-                            rc = rc && WrapXDRString(xdrs, (char*)p, userdefinedtype->compoundfield[j].count);
+                            rc = rc && wrap_xdr_string(xdrs, (char*)p, userdefinedtype->compoundfield[j].count);
                         } else { // Element is a String Array: Treat as Rank 1 array
                             if (userdefinedtype->compoundfield[j].rank == 1 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].type, "STRING *")) {
@@ -1241,7 +1241,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                         if (count > 0) {
                                             d = (char*)malloc(count * sizeof(char));
                                             udaAddMalloc(logmalloclist, (void*)d, count, sizeof(char), "STRING");
-                                            rc = rc && WrapXDRString(xdrs, d, count);
+                                            rc = rc && wrap_xdr_string(xdrs, d, count);
                                             str[istr] = d;
                                         } // Save pointer: data will be written here
                                     } else {
@@ -1249,7 +1249,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                         rc = rc && xdr_int(xdrs, &count);
                                         if (count > 0) {
                                             d = (char*)str[istr];
-                                            rc = rc && WrapXDRString(xdrs, d, count);
+                                            rc = rc && wrap_xdr_string(xdrs, d, count);
                                         }
                                     }
                                 }
@@ -1262,7 +1262,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                                       .shape[istr]; // Number of strings to send/receive
                                 }
                                 for (istr = 0; istr < nstr; istr++) { // send/receive individual strings
-                                    rc = rc && WrapXDRString(xdrs, &str[istr * stride],
+                                    rc = rc && wrap_xdr_string(xdrs, &str[istr * stride],
                                                              userdefinedtype->compoundfield[j].count);
                                 }
                             }
@@ -1300,7 +1300,7 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                                 break;
                             }
                         }
-                        rc = rc && WrapXDRString(xdrs, d, count);
+                        rc = rc && wrap_xdr_string(xdrs, d, count);
                     }
                 }
                 break;
@@ -1380,10 +1380,10 @@ int xdrUserDefinedData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* l
                     rc = rc && xdr_int(xdrs, &size); // Structure Size
 
                     if (xdrs->x_op == XDR_DECODE) {
-                        rc = rc && WrapXDRString(xdrs, (char*)rudtype, MAXELEMENTNAME - 1);
+                        rc = rc && wrap_xdr_string(xdrs, (char*)rudtype, MAXELEMENTNAME - 1);
                         type = rudtype;
                     } else {
-                        rc = rc && WrapXDRString(xdrs, type, MAXELEMENTNAME - 1);
+                        rc = rc && wrap_xdr_string(xdrs, type, MAXELEMENTNAME - 1);
                     }
 
                     if (protocolVersion >= 7) {

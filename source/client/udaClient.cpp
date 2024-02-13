@@ -118,7 +118,7 @@ int growDataBlocks()
     }
 
     data_blocks.push_back({});
-    initDataBlock(&data_blocks.back());
+    init_data_block(&data_blocks.back());
     data_blocks.back().handle = data_blocks.size() - 1;
 
     udaPutThreadLastHandle(data_blocks.size() - 1);
@@ -147,7 +147,7 @@ int getNewDataHandle()
             udaFree(newHandleIndex);
         } else {
             // Application has responsibility for freeing heap in the Data Block
-            initDataBlock(&data_blocks[newHandleIndex]);
+            init_data_block(&data_blocks[newHandleIndex]);
         }
         data_blocks[newHandleIndex].handle = newHandleIndex;
         return newHandleIndex;
@@ -156,10 +156,10 @@ int getNewDataHandle()
     if ((newHandleIndex = findNewHandleIndex()) < 0) { // Search for an unused handle or issue a new one
         newHandleIndex = data_blocks.size();
         data_blocks.push_back({});
-        initDataBlock(&data_blocks[newHandleIndex]);
+        init_data_block(&data_blocks[newHandleIndex]);
         data_blocks[newHandleIndex].handle = newHandleIndex;
     } else {
-        initDataBlock(&data_blocks[newHandleIndex]);
+        init_data_block(&data_blocks[newHandleIndex]);
         data_blocks[newHandleIndex].handle = newHandleIndex;
     }
 
@@ -186,7 +186,7 @@ int newDataHandle()
             udaFree(newHandleIndex);
         } else {
             // Application has responsibility for freeing heap in the Data Block
-            initDataBlock(&data_blocks[newHandleIndex]);
+            init_data_block(&data_blocks[newHandleIndex]);
         }
         data_blocks[newHandleIndex].handle = newHandleIndex;
         return newHandleIndex;
@@ -195,10 +195,10 @@ int newDataHandle()
     if ((newHandleIndex = findNewHandleIndex()) < 0) { // Search for an unused handle or issue a new one
         newHandleIndex = data_blocks.size();
         data_blocks.push_back({});
-        initDataBlock(&data_blocks[newHandleIndex]);
+        init_data_block(&data_blocks[newHandleIndex]);
         data_blocks[newHandleIndex].handle = newHandleIndex;
     } else {
-        initDataBlock(&data_blocks[newHandleIndex]);
+        init_data_block(&data_blocks[newHandleIndex]);
         data_blocks[newHandleIndex].handle = newHandleIndex;
     }
 
@@ -313,7 +313,7 @@ void copyDataBlock(DATA_BLOCK* str, DATA_BLOCK* in)
     memcpy(str->data_label, in->data_label, STRING_LENGTH);
     memcpy(str->data_desc, in->data_desc, STRING_LENGTH);
     memcpy(str->error_msg, in->error_msg, STRING_LENGTH);
-    initClientBlock(&str->client_block, 0, "");
+    init_client_block(&str->client_block, 0, "");
 }
 
 void copyClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags)
@@ -418,7 +418,7 @@ static int fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG*
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error (Data System)");
         return err;
     }
-    printDataSystem(*data_system);
+    print_data_system(*data_system);
 
     if ((err = protocol2(client_input, UDA_PROTOCOL_SYSTEM_CONFIG, XDR_RECEIVE, nullptr, g_log_malloc_list,
                          g_user_defined_type_list, system_config, protocol_version, log_struct_list, private_flags,
@@ -426,7 +426,7 @@ static int fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG*
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (System Config)");
         return err;
     }
-    printSystemConfig(*system_config);
+    print_system_config(*system_config);
 
     if ((err = protocol2(client_input, UDA_PROTOCOL_DATA_SOURCE, XDR_RECEIVE, nullptr, g_log_malloc_list,
                          g_user_defined_type_list, data_source, protocol_version, log_struct_list, private_flags,
@@ -434,7 +434,7 @@ static int fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG*
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error (Data Source)");
         return err;
     }
-    printDataSource(*data_source);
+    print_data_source(*data_source);
 
     if ((err = protocol2(client_input, UDA_PROTOCOL_SIGNAL, XDR_RECEIVE, nullptr, g_log_malloc_list,
                          g_user_defined_type_list, signal_rec, protocol_version, log_struct_list, private_flags,
@@ -442,7 +442,7 @@ static int fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG*
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Signal)");
         return err;
     }
-    printSignal(*signal_rec);
+    print_signal(*signal_rec);
 
     if ((err = protocol2(client_input, UDA_PROTOCOL_SIGNAL_DESC, XDR_RECEIVE, nullptr, g_log_malloc_list,
                          g_user_defined_type_list, signal_desc, protocol_version, log_struct_list, private_flags,
@@ -450,7 +450,7 @@ static int fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG*
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error (Signal Desc)");
         return err;
     }
-    printSignalDesc(*signal_desc);
+    print_signal_desc(*signal_desc);
 #endif
 
     return err;
@@ -527,7 +527,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
         free_error_stack(&server_block.idamerrorstack); // Free Previous Stack Heap
     }
 
-    initServerBlock(&server_block, 0); // Reset previous Error Messages from the Server & Free Heap
+    init_server_block(&server_block, 0); // Reset previous Error Messages from the Server & Free Heap
     init_error_stack();
 
     //-------------------------------------------------------------------------
@@ -684,8 +684,8 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Initialise the Client/Server Structures
 
         if (initServer && system_startup) {
-            userid(client_username);
-            initClientBlock(&client_block, client_version, client_username);
+            user_id(client_username);
+            init_client_block(&client_block, client_version, client_username);
             system_startup = false; // Don't call again!
         }
 
@@ -713,7 +713,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
             strcpy(client_block.DOI, env);
         }
 
-        printClientBlock(client_block);
+        print_client_block(client_block);
 
         //------------------------------------------------------------------------------
         // User Authentication at startup
@@ -849,7 +849,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
 
             UDA_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
             UDA_LOG(UDA_LOG_DEBUG, "xdrrec_eof rc = %d [1 => no more input]\n", rc);
-            printServerBlock(server_block);
+            print_server_block(server_block);
 
             // Protocol Version: Lower of the client and server version numbers
             // This defines the set of elements within data structures passed between client and server
@@ -998,7 +998,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
         }
 
         UDA_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
-        printServerBlock(server_block);
+        print_server_block(server_block);
 
         serverside = 0;
 
@@ -1050,7 +1050,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         // Flush (mark as at EOF) the input socket buffer (All regular Data has been received)
 
-        printDataBlockList(recv_data_block_list);
+        print_data_block_list(recv_data_block_list);
 
         for (int i = 0; i < request_block->num_requests; ++i) {
             //------------------------------------------------------------------------------
@@ -1124,7 +1124,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
         // Fat Client Server
 
         DATA_BLOCK_LIST data_block_list0;
-        initDataBlockList(&data_block_list0);
+        init_data_block_list(&data_block_list0);
         err = uda::server::fat_server(client_block, &server_block, request_block, &data_block_list0);
 
         for (int i = 0; i < data_block_list0.count; ++i) {
@@ -1150,7 +1150,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
                 err = 0;                                                          // Need to Test for Error Condition!
             }
 
-            printDataBlock(*data_block);
+            print_data_block(*data_block);
         }
 
 #endif // <========================== End of FatClient Code Only
@@ -1537,7 +1537,7 @@ void udaFree(int handle)
 
     // closeIdamError(&server_block.idamerrorstack);
     free_error_stack(&server_block.idamerrorstack);
-    initDataBlock(data_block);
+    init_data_block(data_block);
     data_block->handle = -1; // Flag this as ready for re-use
 }
 

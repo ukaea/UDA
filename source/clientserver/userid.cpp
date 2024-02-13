@@ -17,7 +17,7 @@ using namespace uda::client_server;
  * Request userid from OS
  * @param uid OUT
  */
-void uda::client_server::userid(char* uid)
+void uda::client_server::user_id(char* uid)
 {
 #ifdef _WIN32
     DWORD size = STRING_LENGTH - 1;
@@ -28,13 +28,13 @@ void uda::client_server::userid(char* uid)
     uid[0] = '\0';
 #  if defined(cuserid)
     if ((user = cuserid(nullptr)) != nullptr) {
-        copyString(user, uid, STRING_LENGTH);
+        copy_string(user, uid, STRING_LENGTH);
         return;
     } else
 #  endif
         if ((user = getlogin()) != nullptr || (user = getenv("USER")) != nullptr ||
             (user = getenv("LOGNAME")) != nullptr) {
-        copyString(user, uid, STRING_LENGTH);
+        copy_string(user, uid, STRING_LENGTH);
         return;
     }
 #endif // _WIN32

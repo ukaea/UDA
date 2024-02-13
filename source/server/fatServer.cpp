@@ -119,10 +119,10 @@ int uda::server::fat_server(CLIENT_BLOCK client_block, SERVER_BLOCK* server_bloc
     // Initialise the Error Stack & the Server Status Structure
     // Reinitialised after each logging action
 
-    initServerBlock(server_block, server_version);
-    initDataBlockList(&data_blocks);
-    initActions(&actions_desc); // There may be a Sequence of Actions to Apply
-    initActions(&actions_sig);
+    init_server_block(server_block, server_version);
+    init_data_block_list(&data_blocks);
+    init_actions(&actions_desc); // There may be a Sequence of Actions to Apply
+    init_actions(&actions_sig);
 
     USERDEFINEDTYPELIST parseduserdefinedtypelist;
 
@@ -212,7 +212,7 @@ static int process_hierarchical_data(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_
     // Write data to the temporary file
 
     int protocol_id = UDA_PROTOCOL_STRUCTURES;
-    protocolXML(&xdr_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list, data_block,
+    protocol_xml(&xdr_server_output, protocol_id, XDR_SEND, nullptr, log_malloc_list, user_defined_type_list, data_block,
                 protocol_version, log_struct_list, io_data, private_flags, malloc_source, serverCreateXDRStream);
 
     // Close the stream and file
@@ -237,7 +237,7 @@ static int process_hierarchical_data(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_
     // Read data from the temporary file
 
     protocol_id = UDA_PROTOCOL_STRUCTURES;
-    err = protocolXML(&xdr_server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
+    err = protocol_xml(&xdr_server_input, protocol_id, XDR_RECEIVE, nullptr, log_malloc_list, user_defined_type_list,
                       data_block, protocol_version, log_struct_list, io_data, private_flags, malloc_source,
                       serverCreateXDRStream);
 
@@ -293,16 +293,16 @@ int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_bloc
 
     int err = 0;
 
-    printClientBlock(*client_block);
-    printServerBlock(*server_block);
-    printRequestBlock(*request_block);
+    print_client_block(*client_block);
+    print_server_block(*server_block);
+    print_request_block(*request_block);
 
     //----------------------------------------------------------------------
     // Initialise Data Structures
 
-    initDataSource(&metadata_block->data_source);
-    initSignalDesc(&metadata_block->signal_desc);
-    initSignal(&metadata_block->signal_rec);
+    init_data_source(&metadata_block->data_source);
+    init_signal_desc(&metadata_block->signal_desc);
+    init_signal(&metadata_block->signal_rec);
 
     //----------------------------------------------------------------------------------------------
     // Decode the API Arguments: determine appropriate data plug-in to use
@@ -336,7 +336,7 @@ int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_bloc
         assert(i == data_blocks->count);
         data_blocks->data = (DATA_BLOCK*)realloc(data_blocks->data, (data_blocks->count + 1) * sizeof(DATA_BLOCK));
         auto data_block = &data_blocks->data[i];
-        initDataBlock(data_block);
+        init_data_block(data_block);
         err = udaGetData(&depth, request, *client_block, data_block, &metadata_block->data_source,
                          &metadata_block->signal_rec, &metadata_block->signal_desc, actions_desc, actions_sig,
                          &pluginList, log_malloc_list, user_defined_type_list, &socket_list, protocol_version);
@@ -359,11 +359,11 @@ int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_bloc
     UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source->exp_number);
     UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source->pass);
     UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
-    printRequestBlock(*request_block);
-    printDataSource(*data_source);
-    printSignal(metadata_block->signal_rec);
-    printSignalDesc(*signal_desc);
-    printDataBlockList(*data_blocks);
+    print_request_block(*request_block);
+    print_data_source(*data_source);
+    print_signal(metadata_block->signal_rec);
+    print_signal_desc(*signal_desc);
+    print_data_block_list(*data_blocks);
     print_error_stack();
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
@@ -399,8 +399,8 @@ int do_fat_server_closedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_bl
     //----------------------------------------------------------------------------
     // Free Actions Heap
 
-    freeActions(actions_desc);
-    freeActions(actions_sig);
+    free_actions(actions_desc);
+    free_actions(actions_sig);
 
     //----------------------------------------------------------------------------
 
@@ -409,7 +409,7 @@ int do_fat_server_closedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_bl
 
     *data_blocks0 = *data_blocks;
 
-    printDataBlockList(*data_blocks0);
+    print_data_block_list(*data_blocks0);
 
     return 0;
 }
@@ -424,7 +424,7 @@ int startup_fat_server(SERVER_BLOCK* server_block, USERDEFINEDTYPELIST& parsedus
     // Open and Initialise the Socket List (Once Only)
 
     if (!socket_list_initialised) {
-        initSocketList(&socket_list);
+        init_socket_list(&socket_list);
         socket_list_initialised = 1;
     }
 

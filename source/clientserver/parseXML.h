@@ -144,24 +144,24 @@ typedef struct Actions {
 
 #ifndef NOXMLPARSER
 
-int parseDoc(char* docname, ACTIONS* actions);
+int parse_doc(char* docname, ACTIONS* actions);
 
 #endif
 
-void printAction(ACTION action);
+void print_action(ACTION action);
 
-void printActions(ACTIONS actions);
+void print_actions(ACTIONS actions);
 
-void initAction(ACTION* act);
+void init_action(ACTION* act);
 
-void initActions(ACTIONS* act);
+void init_actions(ACTIONS* act);
 
-void freeActions(ACTIONS* actions);
+void free_actions(ACTIONS* actions);
 
-void copyActions(ACTIONS* actions_out, ACTIONS* actions_in);
+void copy_actions(ACTIONS* actions_out, ACTIONS* actions_in);
 
-void initServerside(SERVERSIDE* act);
+void init_server_side(SERVERSIDE* act);
 
-void initSubset(SUBSET* act);
+void init_subset(SUBSET* act);
 
 } // namespace uda::client_server

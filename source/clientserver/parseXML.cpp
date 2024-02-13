@@ -69,7 +69,7 @@ float* parse_float_array(xmlDocPtr doc, xmlNodePtr cur, const char* target, int*
     while (cur != nullptr) {
         if ((!xmlStrcmp(cur->name, (const xmlChar*)target))) {
             key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-            convertNonPrintable((char*)key);
+            convert_non_printable((char*)key);
             if (strlen((char*)key) > 0) {
                 int lkey = (int)strlen((char*)key);
                 UDA_LOG(UDA_LOG_DEBUG, "parseFloatArray: [%d] %s %s \n", lkey, target, key);
@@ -106,7 +106,7 @@ template <typename T> void parse_fixed_length_array(xmlNodePtr cur, const char* 
     int nco = 0;
 
     if ((att = xmlGetProp(cur, (xmlChar*)target)) != nullptr) {
-        convertNonPrintable((char*)att);
+        convert_non_printable((char*)att);
         if (strlen((char*)att) > 0) {
             int l = (int)strlen((char*)att);
             UDA_LOG(UDA_LOG_DEBUG, "parseFixedLengthArray: [%d] %s %s \n", l, target, att);
@@ -138,7 +138,7 @@ void parse_fixed_length_array(xmlNodePtr cur, const char* target, void* array, i
     int nco = 0;
 
     if ((att = xmlGetProp(cur, (xmlChar*)target)) != nullptr) {
-        convertNonPrintable((char*)att);
+        convert_non_printable((char*)att);
         if (strlen((char*)att) > 0) {
             int l = (int)strlen((char*)att);
             UDA_LOG(UDA_LOG_DEBUG, "parseFixedLengthArray: [%d] %s %s \n", l, target, att);
@@ -382,7 +382,7 @@ void parse_time_offset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             n++;
             str = (ACTION*)realloc((void*)str, n * sizeof(ACTION));
 
-            initAction(&str[n - 1]);
+            init_action(&str[n - 1]);
             str[n - 1].actionType = UDA_TIME_OFFSET_TYPE;
             init_time_offset(&str[n - 1].timeoffset);
 
@@ -492,7 +492,7 @@ void parseCompositeSubset(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
             n++;
             str = (SUBSET*)realloc((void*)str, n * sizeof(SUBSET));
 
-            initSubset(&str[n - 1]);
+            init_subset(&str[n - 1]);
 
             // Attributes
 
@@ -545,7 +545,7 @@ void parseCompositeSubset(xmlDocPtr doc, xmlNodePtr cur, COMPOSITE* comp)
             parse_fixed_length_array(cur, "bound", (void*)str[n - 1].bound, UDA_TYPE_DOUBLE, &n0);
             parse_fixed_length_array(cur, "dimid", (void*)str[n - 1].dimid, UDA_TYPE_INT, &n1);
 
-            if (parseOperation(&str[n - 1]) != 0) {
+            if (parse_operation(&str[n - 1]) != 0) {
                 return;
             }
 
@@ -664,7 +664,7 @@ void parseComposite(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             n++;
             str = (ACTION*)realloc((void*)str, n * sizeof(ACTION));
 
-            initAction(&str[n - 1]);
+            init_action(&str[n - 1]);
             str[n - 1].actionType = UDA_COMPOSITE_TYPE;
             init_composite(&str[n - 1].composite);
 
@@ -854,7 +854,7 @@ void parse_error_model(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             n++;
             str = (ACTION*)realloc((void*)str, n * sizeof(ACTION));
 
-            initAction(&str[n - 1]);
+            init_action(&str[n - 1]);
             str[n - 1].actionType = UDA_ERROR_MODEL_TYPE;
             init_error_model(&str[n - 1].errormodel);
 
@@ -982,7 +982,7 @@ void parse_documentation(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             n++;
             str = (ACTION*)realloc((void*)str, n * sizeof(ACTION));
 
-            initAction(&str[n - 1]);
+            init_action(&str[n - 1]);
             str[n - 1].actionType = UDA_DOCUMENTATION_TYPE;
             init_documentation(&str[n - 1].documentation);
 
@@ -1108,7 +1108,7 @@ void parse_calibration(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             n++;
             str = (ACTION*)realloc((void*)str, n * sizeof(ACTION));
 
-            initAction(&str[n - 1]);
+            init_action(&str[n - 1]);
             str[n - 1].actionType = UDA_CALIBRATION_TYPE;
             init_calibration(&str[n - 1].calibration);
 
@@ -1204,10 +1204,10 @@ void parse_subset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             n++;
             str = (ACTION*)realloc((void*)str, n * sizeof(ACTION));
 
-            initAction(&str[n - 1]);
+            init_action(&str[n - 1]);
             str[n - 1].actionType = UDA_SUBSET_TYPE;
             sub = &str[n - 1].subset;
-            initSubset(sub);
+            init_subset(sub);
 
             // Attributes
 
@@ -1272,7 +1272,7 @@ void parse_subset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
             parse_fixed_length_array(cur, "bound", (void*)sub->bound, UDA_TYPE_DOUBLE, &n0);
             parse_fixed_length_array(cur, "dimid", (void*)sub->dimid, UDA_TYPE_INT, &n1);
 
-            if (parseOperation(sub) != 0) {
+            if (parse_operation(sub) != 0) {
                 return;
             }
 
@@ -1292,7 +1292,7 @@ void parse_subset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
     actions->action = str; // Array of Actions bounded by a Ranges
 }
 
-int uda::client_server::parseDoc(char* docname, ACTIONS* actions)
+int uda::client_server::parse_doc(char* docname, ACTIONS* actions)
 {
     xmlDocPtr doc;
     xmlNodePtr cur;
@@ -1399,7 +1399,7 @@ void print_dimensions(int ndim, DIMENSION* dims)
     }
 }
 
-void uda::client_server::printAction(ACTION action)
+void uda::client_server::print_action(ACTION action)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Action XML Id    : %d\n", action.actionId);
     UDA_LOG(UDA_LOG_DEBUG, "Action Type      : %d\n", action.actionType);
@@ -1490,12 +1490,12 @@ void uda::client_server::printAction(ACTION action)
     }
 }
 
-void uda::client_server::printActions(ACTIONS actions)
+void uda::client_server::print_actions(ACTIONS actions)
 {
     UDA_LOG(UDA_LOG_DEBUG, "No. Action Blocks: %d\n", actions.nactions);
     for (int i = 0; i < actions.nactions; i++) {
         UDA_LOG(UDA_LOG_DEBUG, "\n\n# %d\n", i);
-        printAction(actions.action[i]);
+        print_action(actions.action[i]);
     }
     UDA_LOG(UDA_LOG_DEBUG, "\n\n");
 }
@@ -1586,7 +1586,7 @@ void init_composite(COMPOSITE* act)
     act->maps = nullptr;
 }
 
-void uda::client_server::initServerside(SERVERSIDE* act)
+void uda::client_server::init_server_side(SERVERSIDE* act)
 {
     act->nsubsets = 0;
     act->nmaps = 0;
@@ -1605,7 +1605,7 @@ void init_error_model(ERRORMODEL* act)
     act->dimensions = nullptr;
 }
 
-void uda::client_server::initSubset(SUBSET* act)
+void uda::client_server::init_subset(SUBSET* act)
 {
     for (int i = 0; i < UDA_MAX_DATA_RANK; i++) {
         act->bound[i] = 0.0;                           // Subsetting Float Bounds
@@ -1626,7 +1626,7 @@ void uda::client_server::initSubset(SUBSET* act)
 
 // Initialise an Action Structure
 
-void uda::client_server::initAction(ACTION* act)
+void uda::client_server::init_action(ACTION* act)
 {
     act->actionType = 0;   // Action Range Type
     act->inRange = 0;      // Is this Action Record Applicable to the Current data Request?
@@ -1639,13 +1639,13 @@ void uda::client_server::initAction(ACTION* act)
 
 // Initialise an Action Array Structure
 
-void uda::client_server::initActions(ACTIONS* act)
+void uda::client_server::init_actions(ACTIONS* act)
 {
     act->nactions = 0;     // Number of Action blocks
     act->action = nullptr; // Array of Action blocks
 }
 
-void uda::client_server::freeActions(ACTIONS* actions)
+void uda::client_server::free_actions(ACTIONS* actions)
 {
     // Free Heap Memory From ACTION Structures
     void* cptr;
@@ -1746,7 +1746,7 @@ void uda::client_server::freeActions(ACTIONS* actions)
 
 // Copy an Action Structure and Drop Pointers to ACTION & DIMENSION Structures (ensures a single Heap free later)
 
-void uda::client_server::copyActions(ACTIONS* actions_out, ACTIONS* actions_in)
+void uda::client_server::copy_actions(ACTIONS* actions_out, ACTIONS* actions_in)
 {
     *actions_out = *actions_in;
     actions_in->action = nullptr;

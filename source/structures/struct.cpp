@@ -16,7 +16,7 @@
 //
 // Send the Data
 //
-// rc = xdrUserDefinedTypeData(xdrs, udtype, (void *)&mystruct);
+// rc = xdr_user_defined_type_data(xdrs, udtype, (void *)&mystruct);
 //
 // Arrays of User Defined Structures are ported using a special structure names SARRAY ....
 //
@@ -32,7 +32,7 @@
 //
 // Receive the Data and its structure definition
 //
-// rc = xdrUserDefinedTypeData(xdrs, &udtype, (void *)&mystruct);
+// rc = xdr_user_defined_type_data(xdrs, &udtype, (void *)&mystruct);
 //
 //
 //==============================================================================================================
@@ -238,7 +238,7 @@ void udaExpandImage(char* buffer, char defnames[MAXELEMENTS][MAXELEMENTNAME], in
                 lstr = (int)(p2 - p1 - 1);
                 strncpy(work, &p1[1], lstr);
                 work[lstr] = '\0';
-                if (IsNumber(work)) { // hard coded size
+                if (is_number(work)) { // hard coded size
                     strncat(expand, &p1[1], p2 - &p1[1] + 1);
                     len = len + (int)(p2 - &p1[1] + 1);
                     expand[len] = '\0';
@@ -2091,7 +2091,7 @@ int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int
 
 // Send/Receive Array of Structures
 
-int uda::client_server::xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist,
+int uda::client_server::xdr_user_defined_type_data(XDR* xdrs, LOGMALLOCLIST* logmalloclist,
                                                USERDEFINEDTYPELIST* userdefinedtypelist,
                                                USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion,
                                                bool xdr_stdio_flag, LOGSTRUCTLIST* log_struct_list, int malloc_source)
@@ -2110,7 +2110,7 @@ int uda::client_server::xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmall
             rc = 1;
         }
 
-        rc = rc && xdr_userdefinedtype(xdrs, userdefinedtypelist, userdefinedtype); // User Defined Type Definitions
+        rc = rc && xdr_user_defined_type(xdrs, userdefinedtypelist, userdefinedtype); // User Defined Type Definitions
         rc = rc &&
              xdrUserDefinedData(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1, 0,
                                 nullptr, 0, &dataNTree, protocolVersion, malloc_source); // Data within Structures
@@ -2124,7 +2124,7 @@ int uda::client_server::xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmall
             return 0;
         }
 
-        rc = xdr_userdefinedtype(xdrs, userdefinedtypelist, userdefinedtype); // User Defined Type Definitions
+        rc = xdr_user_defined_type(xdrs, userdefinedtypelist, userdefinedtype); // User Defined Type Definitions
         rc = rc &&
              xdrUserDefinedData(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1, 0,
                                 nullptr, 0, nullptr, protocolVersion, malloc_source); // Data within Structures
@@ -2250,9 +2250,9 @@ bool_t xdr_compoundfield(XDR* xdrs, COMPOUNDFIELD* str)
     rc = rc && xdr_int(xdrs, &str->pointer);
     rc = rc && xdr_int(xdrs, &str->rank);
     rc = rc && xdr_int(xdrs, &str->count);
-    rc = rc && WrapXDRString(xdrs, (char*)str->type, MAXELEMENTNAME - 1);
-    rc = rc && WrapXDRString(xdrs, (char*)str->name, MAXELEMENTNAME - 1);
-    rc = rc && WrapXDRString(xdrs, (char*)str->desc, MAXELEMENTNAME - 1);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->type, MAXELEMENTNAME - 1);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->name, MAXELEMENTNAME - 1);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->desc, MAXELEMENTNAME - 1);
     if (!rc) {
         return 0;
     }
@@ -2272,7 +2272,7 @@ bool_t xdr_compoundfield(XDR* xdrs, COMPOUNDFIELD* str)
     return rc;
 }
 
-bool_t uda::client_server::xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist,
+bool_t uda::client_server::xdr_user_defined_type(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist,
                                                USERDEFINEDTYPE* str)
 {
     // Send/Receive a single user defined type
@@ -2280,8 +2280,8 @@ bool_t uda::client_server::xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* u
     int rc, adjust = 0;
 
     rc = xdr_int(xdrs, &str->idamclass);
-    rc = rc && WrapXDRString(xdrs, (char*)str->name, MAXELEMENTNAME - 1);
-    rc = rc && WrapXDRString(xdrs, (char*)str->source, MAXELEMENTNAME - 1);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->name, MAXELEMENTNAME - 1);
+    rc = rc && wrap_xdr_string(xdrs, (char*)str->source, MAXELEMENTNAME - 1);
     rc = rc && xdr_int(xdrs, &str->ref_id);
     rc = rc && xdr_int(xdrs, &str->size); // Size determined on the server side: client must recalculate
     rc = rc && xdr_int(xdrs, &str->imagecount);
@@ -2391,7 +2391,7 @@ bool_t uda::client_server::xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* u
     return rc;
 }
 
-bool_t uda::client_server::xdr_userdefinedtypelist(XDR* xdrs, USERDEFINEDTYPELIST* str, bool xdr_stdio_flag)
+bool_t uda::client_server::xdr_user_defined_type_list(XDR* xdrs, USERDEFINEDTYPELIST* str, bool xdr_stdio_flag)
 {
     // Send/Receive the list of userdefined types
 
@@ -2421,7 +2421,7 @@ bool_t uda::client_server::xdr_userdefinedtypelist(XDR* xdrs, USERDEFINEDTYPELIS
     }
 
     for (int i = 0; i < str->listCount; i++) {
-        rc = rc && xdr_userdefinedtype(xdrs, str, &str->userdefinedtype[i]);
+        rc = rc && xdr_user_defined_type(xdrs, str, &str->userdefinedtype[i]);
     }
 
     if (!xdr_stdio_flag) {

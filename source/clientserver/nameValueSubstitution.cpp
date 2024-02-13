@@ -43,7 +43,7 @@ int uda::client_server::name_value_substitution(NAMEVALUELIST* nameValueList, ch
     }
 
     NAMEVALUELIST newNameValueList;
-    initNameValueList(&newNameValueList);
+    init_name_value_list(&newNameValueList);
 
     unsigned short strip = 0; // Do Not Remove enclosing quotes from name value pairs
     if (name_value_pairs(tpass, &newNameValueList, strip) == -1) {
@@ -54,7 +54,7 @@ int uda::client_server::name_value_substitution(NAMEVALUELIST* nameValueList, ch
 
     if (newNameValueList.pairCount == 0) { // No passed substitution values or additional name value pairs
         if (newNameValueList.nameValue != nullptr) {
-            freeNameValueList(&newNameValueList);
+            free_name_value_list(&newNameValueList);
         }
         return 0;
     }
@@ -85,7 +85,7 @@ int uda::client_server::name_value_substitution(NAMEVALUELIST* nameValueList, ch
                     tpassIndex[placeholderCount] =
                         tpassPosition++; // Ordering: Default substitution value to use - list position
                     if (nameValueList->nameValue[i].value[1] != '\0') {
-                        if (IsNumber(&nameValueList->nameValue[i]
+                        if (is_number(&nameValueList->nameValue[i]
                                           .value[1])) { // Is the placeholder numbered? - Use the specific substitution
                                                         // value identified by list order
                             tpassIndex[placeholderCount] = atoi(&nameValueList->nameValue[i].value[1]) -
@@ -177,7 +177,7 @@ int uda::client_server::name_value_substitution(NAMEVALUELIST* nameValueList, ch
     free(tpassIndex);
     free(placeholderIndex);
     if (err != 0) {
-        freeNameValueList(&newNameValueList);
+        free_name_value_list(&newNameValueList);
         return err;
     }
 
@@ -206,7 +206,7 @@ int uda::client_server::name_value_substitution(NAMEVALUELIST* nameValueList, ch
         }
     }
 
-    freeNameValueList(&newNameValueList);
+    free_name_value_list(&newNameValueList);
 
     // Scan all values for embedded placeholders and substitute
 
@@ -244,7 +244,7 @@ void embedded_value_substitution(NAMEVALUELIST* nameValueList)
             continue;
         }
 
-        initNameValueList(&newNameValueList);
+        init_name_value_list(&newNameValueList);
 
         UDA_LOG(UDA_LOG_DEBUG, "Extracting Name Value Pairs from [%d]: %s\n", i, nameValueList->nameValue[i].value);
 
@@ -324,5 +324,5 @@ void embedded_value_substitution(NAMEVALUELIST* nameValueList)
             }
         }
     }
-    freeNameValueList(&newNameValueList);
+    free_name_value_list(&newNameValueList);
 }

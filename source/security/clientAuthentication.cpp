@@ -330,7 +330,7 @@ static int decryptServerToken(SERVER_BLOCK* server_block, CLIENT_BLOCK* client_b
 #endif
 
     UDA_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
-    printServerBlock(*server_block);
+    print_server_block(*server_block);
 
     // Protocol Version: Lower of the client and server version numbers
     // This defines the set of elements within data structures passed between client and server

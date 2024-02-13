@@ -41,7 +41,7 @@
 using namespace uda::client_server;
 using namespace uda::logging;
 
-void uda::client_server::setSelectParms(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time)
+void uda::client_server::set_select_params(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time)
 {
     FD_ZERO(rfds);    // Initialise the File Descriptor set
     FD_SET(fd, rfds); // Identify the Socket in the FD set
@@ -50,7 +50,7 @@ void uda::client_server::setSelectParms(int fd, fd_set* rfds, struct timeval* tv
     *server_tot_block_time = 0;
 }
 
-void uda::client_server::updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time)
+void uda::client_server::update_select_params(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time)
 {
     FD_ZERO(rfds);
     FD_SET(fd, rfds);
@@ -145,8 +145,8 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
                     // direction == XDR_RECEIVE && protocolVersion == 3 Means Client receiving data from a
                     // Version >= 3 Server (Type has to be passed first)
 
-                    if (protocolVersionTypeTest(protocolVersion, data_block->data_type) ||
-                        protocolVersionTypeTest(protocolVersion, data_block->error_type)) {
+                    if (protocol_version_type_test(protocolVersion, data_block->data_type) ||
+                        protocol_version_type_test(protocolVersion, data_block->error_type)) {
                         err = UDA_PROTOCOL_ERROR_9999;
                         break;
                     }
@@ -179,7 +179,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 
                     if (data_block->rank > 0) { // Check if there are Dimensional Data to Receive
                         for (unsigned int i = 0; i < data_block->rank; i++) {
-                            initDimBlock(&data_block->dims[i]);
+                            init_dim_block(&data_block->dims[i]);
                         }
 
                         if (!xdr_data_dim1(xdrs, data_block)) {
@@ -190,8 +190,8 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
                         if (protocolVersion < 3) {
                             for (unsigned int i = 0; i < data_block->rank; i++) {
                                 auto dim = &data_block->dims[i];
-                                if (protocolVersionTypeTest(protocolVersion, dim->data_type) ||
-                                    protocolVersionTypeTest(protocolVersion, dim->error_type)) {
+                                if (protocol_version_type_test(protocolVersion, dim->data_type) ||
+                                    protocol_version_type_test(protocolVersion, dim->error_type)) {
                                     err = UDA_PROTOCOL_ERROR_9999;
                                     break;
                                 }
@@ -235,8 +235,8 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
                     // direction == XDR_SEND && protocolVersion == 3 Means Server sending data to a Version 3 Client
                     // (Type is known)
 
-                    if (protocolVersionTypeTest(protocolVersion, data_block->data_type) ||
-                        protocolVersionTypeTest(protocolVersion, data_block->error_type)) {
+                    if (protocol_version_type_test(protocolVersion, data_block->data_type) ||
+                        protocol_version_type_test(protocolVersion, data_block->error_type)) {
                         err = UDA_PROTOCOL_ERROR_9999;
                         break;
                     }
@@ -277,8 +277,8 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
                         if (protocolVersion < 3) {
                             for (unsigned int i = 0; i < data_block->rank; i++) {
                                 auto dim = &data_block->dims[i];
-                                if (protocolVersionTypeTest(protocolVersion, dim->data_type) ||
-                                    protocolVersionTypeTest(protocolVersion, dim->error_type)) {
+                                if (protocol_version_type_test(protocolVersion, dim->data_type) ||
+                                    protocol_version_type_test(protocolVersion, dim->error_type)) {
                                     err = UDA_PROTOCOL_ERROR_9999;
                                     break;
                                 }
@@ -353,7 +353,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
 
                     for (unsigned int i = 0; i < blockCount; i++) { // Fetch multiple put blocks
 
-                        initPutDataBlock(&put_data);
+                        init_put_data_block(&put_data);
 
                         if (!xdr_putdata_block1(xdrs, &put_data)) {
                             err = UDA_PROTOCOL_ERROR_61;
@@ -361,7 +361,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
                             break;
                         }
 
-                        if (protocolVersionTypeTest(protocolVersion, put_data.data_type)) {
+                        if (protocol_version_type_test(protocolVersion, put_data.data_type)) {
                             err = UDA_PROTOCOL_ERROR_9999;
                             break;
                         }
@@ -402,7 +402,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
                             break;
                         }
 
-                        if (protocolVersionTypeTest(protocolVersion, put_data_block_list->putDataBlock[i].data_type)) {
+                        if (protocol_version_type_test(protocolVersion, put_data_block_list->putDataBlock[i].data_type)) {
                             err = UDA_PROTOCOL_ERROR_9999;
                             break;
                         }
@@ -838,7 +838,7 @@ int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int*
         // Hierarchical or Meta Data Structures
 
         if (protocol_id > UDA_PROTOCOL_OPAQUE_START && protocol_id < UDA_PROTOCOL_OPAQUE_STOP) {
-            err = protocolXML(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
+            err = protocol_xml(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
                               protocolVersion, log_struct_list, io_data, private_flags, malloc_source, nullptr);
         }
 

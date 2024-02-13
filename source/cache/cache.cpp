@@ -31,7 +31,7 @@ DATA_BLOCK* readCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYP
     xdrstdio_create(&xdrs, fp, XDR_DECODE);
 
     DATA_BLOCK_LIST data_block_list;
-    initDataBlockList(&data_block_list);
+    init_data_block_list(&data_block_list);
 
     int token;
     protocol2(&xdrs, UDA_PROTOCOL_DATA_BLOCK_LIST, XDR_RECEIVE, &token, logmalloclist, userdefinedtypelist,

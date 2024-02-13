@@ -154,7 +154,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
     //
     while (fgets(buffer, STRING_LENGTH, fh) != nullptr) {
 
-        LeftTrimString(TrimString(buffer));
+        left_trim_string(trim_string(buffer));
 
         do {
 
@@ -182,14 +182,14 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                 if ((p = strstr(defnames[defCount], "//")) != nullptr) {
                     p[0] = '\0'; // drop Comments
                 }
-                convertNonPrintable2(defnames[defCount]);
-                LeftTrimString(defnames[defCount]);
-                TrimString(defnames[defCount]);
+                convert_non_printable2(defnames[defCount]);
+                left_trim_string(defnames[defCount]);
+                trim_string(defnames[defCount]);
                 if ((p = strchr(defnames[defCount], ' ')) != nullptr) {
                     strcpy(buffer, &p[1]);
-                    LeftTrimString(buffer);
-                    TrimString(buffer);
-                    if (IsNumber(buffer)) {
+                    left_trim_string(buffer);
+                    trim_string(buffer);
+                    if (is_number(buffer)) {
                         defvalues[defCount] = atoi(buffer);
                         p[0] = '\0';
                         defCount++;
@@ -214,8 +214,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                     if ((p = strchr(name1, ';')) != nullptr) {
                         p[0] = '\0';
                     }
-                    LeftTrimString(name1);
-                    TrimString(name1);
+                    left_trim_string(name1);
+                    trim_string(name1);
                     strcpy(typeEnum[typeEnumCount++], name1); // type name
                     name1[0] = '\0';
                 } else {
@@ -226,8 +226,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
             if (!isEnum && STR_STARTSWITH(buffer, "typedef") &&
                 (strncmp(buffer, "typedef struct", 14) != 0)) { // Regular Type Definition
                 strcpy(name1, &buffer[7]);
-                LeftTrimString(name1);
-                TrimString(name1);
+                left_trim_string(name1);
+                trim_string(name1);
                 if ((p = strchr(name1, ' ')) != nullptr) {
                     p[0] = '\0';
                     strcpy(name2, &p[1]);
@@ -240,8 +240,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                     } else {
                         typeDefPtr[typeDefCount] = 0;
                     }
-                    LeftTrimString(name2);
-                    TrimString(name2);
+                    left_trim_string(name2);
+                    trim_string(name2);
                     strcpy(typeDefName[typeDefCount], name2); // type synonym
                     strcpy(typeDef[typeDefCount++], name1);   // actual type
                     name1[0] = '\0';
@@ -257,8 +257,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
             if (!isEnum && STR_STARTSWITH(buffer, "typedef struct") &&
                 (p = strchr(buffer, '{')) == nullptr) { // Type Definition
                 strcpy(name1, &buffer[14]);
-                LeftTrimString(name1);
-                TrimString(name1);
+                left_trim_string(name1);
+                trim_string(name1);
                 if ((p = strchr(name1, ' ')) != nullptr) {
                     p[0] = '\0';
                     strcpy(name2, &p[1]);
@@ -271,8 +271,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                     } else {
                         typeStrPtr[typeDefCount] = 0;
                     }
-                    LeftTrimString(name2);
-                    TrimString(name2);
+                    left_trim_string(name2);
+                    trim_string(name2);
                     strcpy(typeStrName[typeStrCount], name2);  // type synonym
                     strcpy(typeStruct[typeStrCount++], name1); // actual type
                     name1[0] = '\0';
@@ -317,9 +317,9 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                             if ((p = strchr(name, '{')) != nullptr) {
                                 p[0] = '\0';
                             }
-                            convertNonPrintable2(name);
-                            LeftTrimString(name);
-                            TrimString(name);
+                            convert_non_printable2(name);
+                            left_trim_string(name);
+                            trim_string(name);
                         } else {
                             name[0] = '\0';
                         }
@@ -350,8 +350,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                             strcpy(name1, name2);
                                             strcpy(name3, &p[1]);
                                             strcpy(name2, name3);
-                                            MidTrimString(name1);
-                                            MidTrimString(name2);
+                                            mid_trim_string(name1);
+                                            mid_trim_string(name2);
                                             if ((p = strchr(name2, ';')) != nullptr) {
                                                 p[0] = '\0';
                                             }
@@ -363,7 +363,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                             } else {
                                 if ((p = strchr(buffer, ' ')) != nullptr) {
                                     strcpy(name, &p[1]);
-                                    MidTrimString(name);
+                                    mid_trim_string(name);
                                     if ((p = strchr(name, ';')) != nullptr) {
                                         p[0] = '\0';
                                     }
@@ -457,8 +457,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                 udaExpandImage(buffer, defnames, defvalues, defCount, work);
                                 udaAddImage(&image, &imagecount, work);
 
-                                convertNonPrintable2(buffer);
-                                LeftTrimString(buffer);
+                                convert_non_printable2(buffer);
+                                left_trim_string(buffer);
 
                                 isStruct = 0;
                                 isConst = 0;
@@ -522,19 +522,19 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
 
                                     // Compact strings and remove unprintable characters and terminating ;
 
-                                    LeftTrimString(desc[itemCount]);
-                                    TrimString(desc[itemCount]);
+                                    left_trim_string(desc[itemCount]);
+                                    trim_string(desc[itemCount]);
 
-                                    LeftTrimString(type[itemCount]);
+                                    left_trim_string(type[itemCount]);
                                     if (!isConst && !isUnsigned && !isLong64) {
-                                        MidTrimString(type[itemCount]);
+                                        mid_trim_string(type[itemCount]);
                                     }
-                                    TrimString(type[itemCount]);
+                                    trim_string(type[itemCount]);
 
-                                    convertNonPrintable2(item[itemCount]);
-                                    LeftTrimString(item[itemCount]);
-                                    MidTrimString(item[itemCount]);
-                                    TrimString(item[itemCount]);
+                                    convert_non_printable2(item[itemCount]);
+                                    left_trim_string(item[itemCount]);
+                                    mid_trim_string(item[itemCount]);
+                                    trim_string(item[itemCount]);
                                     if ((p = strstr(item[itemCount], ";")) != nullptr) {
                                         p[0] = '\0';
                                     }
@@ -545,12 +545,12 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                     if (item[itemCount][0] == '*') {
                                         pointer[itemCount] = 1;
                                         item[itemCount][0] = ' ';
-                                        LeftTrimString(item[itemCount]);
+                                        left_trim_string(item[itemCount]);
                                     } else {
                                         if (type[itemCount][strlen(type[itemCount]) - 1] == '*') {
                                             pointer[itemCount] = 1;
                                             type[itemCount][strlen(type[itemCount]) - 1] = ' ';
-                                            TrimString(type[itemCount]);
+                                            trim_string(type[itemCount]);
                                         }
                                     }
 
@@ -635,7 +635,7 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                                                 buffer[lstr] = '\0';
                                                 shape[itemCount][rnk] = 0;
 
-                                                if (IsNumber(buffer)) { // hard coded size
+                                                if (is_number(buffer)) { // hard coded size
                                                     shape[itemCount][rnk] = atoi(buffer);
                                                     count[itemCount] = count[itemCount] + shape[itemCount][rnk++];
                                                 } else {

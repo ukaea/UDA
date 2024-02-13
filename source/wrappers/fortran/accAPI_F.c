@@ -51,10 +51,10 @@ extern void idamgetapi_(char* data_object, char* data_source, int* handle, int l
     }
     strncpy(object, data_object, ldata_object);
     object[ldata_object] = '\0';
-    TrimString(object);
+    trim_string(object);
     strncpy(source, data_source, ldata_source);
     source[ldata_source] = '\0';
-    TrimString(source);
+    trim_string(source);
     *handle = udaGetAPI(object, source);
     free( object);
     free( source);
@@ -76,7 +76,7 @@ extern void idamapi_(char* signal, int* pulno, int* handle, int lsignal)
     strncpy(sig, signal, lsignal);
     sig[lsignal] = '\0';
 
-    sig = TrimString(sig);
+    sig = trim_string(sig);
 
     if (idamGetLogLevel() == UDA_LOG_DEBUG) {
         errno = 0;
@@ -118,7 +118,7 @@ extern void idampassapi_(char* signal, int* pulno, int* pass, int* handle, int l
     strncpy(sig, signal, lsignal);
     sig[lsignal] = '\0';
 
-    sig = TrimString(sig);
+    sig = trim_string(sig);
 
     if (idamGetLogLevel() == UDA_LOG_DEBUG) {
         errno = 0;
@@ -161,7 +161,7 @@ extern void idamgenapi_(char* archive, char* device, char* signal, int* pulno, i
     strncpy(sig, signal, lsignal);
     sig[lsignal] = '\0';
 
-    sig = TrimString(sig);
+    sig = trim_string(sig);
 
     if (idamGetLogLevel() == UDA_LOG_DEBUG) {
         errno = 0;
@@ -203,9 +203,9 @@ extern void idamfileapi_(char* file, char* signal, char* format, int* handle,
     s[lsignal] = '\0';
     f[lformat] = '\0';
 
-    p = TrimString(p);
-    s = TrimString(s);
-    f = TrimString(f);
+    p = trim_string(p);
+    s = trim_string(s);
+    f = trim_string(f);
 
     *handle = udaClientFileAPI(p, s, f);
 
@@ -235,8 +235,8 @@ extern void idamida_(char* file, char* signal, int* pulno, int* pass, int* handl
     f[lfile] = '\0';
     s[lsignal] = '\0';
 
-    f = TrimString(f);
-    s = TrimString(s);
+    f = trim_string(f);
+    s = trim_string(s);
 
     if (idamGetLogLevel() == UDA_LOG_DEBUG) {
         errno = 0;
@@ -289,9 +289,9 @@ extern void idammds_(char* server, char* tree, char* node, int* treenum, int* ha
     t[ltree] = '\0';
     n[lnode] = '\0';
 
-    s = TrimString(s);
-    t = TrimString(t);
-    n = TrimString(n);
+    s = trim_string(s);
+    t = trim_string(t);
+    n = trim_string(n);
 
     if (idamGetLogLevel() == UDA_LOG_DEBUG) {
         errno = 0;
@@ -357,11 +357,11 @@ extern void idamlocalapi_(char* archive, char* owner, char* file, char* format, 
     f[lformat] = '\0';
     o[lowner] = '\0';
 
-    a = TrimString(a);
-    p = TrimString(p);
-    s = TrimString(s);
-    f = TrimString(f);
-    o = TrimString(o);
+    a = trim_string(a);
+    p = trim_string(p);
+    s = trim_string(s);
+    f = trim_string(f);
+    o = trim_string(o);
 
     if ((l = (int) strlen(a)) > 0) {
         sprintf(api_signal, "%s::%s", a, s);
@@ -408,7 +408,7 @@ extern void setidamproperty_(char* property, int lproperty)
     char* s = (char*) malloc((size_t) (lproperty + 1));
     strncpy(s, property, lproperty);
     s[lproperty] = '\0';
-    s = TrimString(s);
+    s = trim_string(s);
     udaSetProperty(s);
     free( s);
 }
@@ -418,7 +418,7 @@ extern void getidamproperty_(const char* property, int* value, int lproperty)
     char* s = (char*) malloc((size_t) (lproperty + 1));
     strncpy(s, property, lproperty);
     s[lproperty] = '\0';
-    s = TrimString(s);
+    s = trim_string(s);
     *value = udaGetProperty(s);
 }
 
@@ -427,7 +427,7 @@ extern void resetidamproperty_(char* property, int lproperty)
     char* s = (char*) malloc((size_t) (lproperty + 1));
     strncpy(s, property, lproperty);
     s[lproperty] = '\0';
-    s = TrimString(s);
+    s = trim_string(s);
     udaResetProperty(s);
     free( s);
 }
@@ -457,7 +457,7 @@ extern void putidamserver_(char* h, int* port, int lh)
     char* host = (char*) malloc((size_t) (lh + 1));
     strncpy(host, h, lh);
     host[lh] = '\0';
-    TrimString(host);
+    trim_string(host);
     udaPutServer(host, *port);
     free( host);
 }
@@ -467,7 +467,7 @@ extern void putidamserverhost_(char* h, int lh)
     char* host = (char*) malloc((size_t) (lh + 1));
     strncpy(host, h, lh);
     host[lh] = '\0';
-    TrimString(host);
+    trim_string(host);
     udaPutServerHost(host);
     free( host);
 }
@@ -656,7 +656,7 @@ extern void getidamdatatypeid_(char* t, int* id, int lt)
     char* type = (char*) malloc((size_t) (lt + 1));
     strncpy(type, t, lt);
     type[lt] = '\0';
-    TrimString(type);
+    trim_string(type);
     *id = udaGetDataTypeId(type);
     free( type);
 }
@@ -676,7 +676,7 @@ extern void getidamerrormodelid_(char* m, int* id, int lm)
     char* model = (char*) malloc((size_t) (lm + 1));
     strncpy(model, m, lm);
     model[lm] = '\0';
-    TrimString(model);
+    trim_string(model);
     *id = udaGetErrorModelId(model);
     free( model);
 }
@@ -1189,7 +1189,7 @@ extern void getidamenv_(char* str, int* rc, char* env, int lstr, int lenv)
 
     strncpy(s, str, lstr);
     s[lstr] = '\0';
-    s = TrimString(s);
+    s = trim_string(s);
 
     e = getenv(s);
     *rc = 0;

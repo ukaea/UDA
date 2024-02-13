@@ -2402,7 +2402,7 @@ int TestPlugin::testudt(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Return IDAM status
 
-    initDataBlock(data_block);
+    init_data_block(data_block);
 
     data_block->rank = 0;
     data_block->data_n = 1;

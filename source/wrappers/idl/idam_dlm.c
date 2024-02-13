@@ -743,10 +743,10 @@ IDL_VPTR IDL_CDECL idamputapi(int argc, IDL_VPTR argv[], char* argk)
     // Array?, data[]
 
     PUTDATA_BLOCK putData;
-    initPutDataBlock(&putData);
+    init_put_data_block(&putData);
 
     PUTDATA_BLOCK_LIST putDataBlockList;
-    initPutDataBlockList(&putDataBlockList);
+    init_put_data_block_list(&putDataBlockList);
 
     int rank = 0, count = 0;
     int type = IDL_TYP_UNDEF;
@@ -7629,7 +7629,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
         if (kw.debug) {
             fprintf(stdout, "Handle: %d\n", handle);
             fprintf(stdout, "Dim id: %d\n", dimid);
-            printDataBlock(*udaGetDataBlock(handle));
+            print_data_block(*udaGetDataBlock(handle));
         }
 
         IDL_KW_FREE;
@@ -7637,7 +7637,7 @@ getdomains(int argc, IDL_VPTR argv[], char* argk)
     }
 
     if (kw.debug) {
-        printDataBlock(*udaGetDataBlock(handle));
+        print_data_block(*udaGetDataBlock(handle));
     }
 
     //--------------------------------------------------------------------------

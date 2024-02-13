@@ -35,7 +35,7 @@ UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
     initPluginList(plugin_list, environment);
 
     auto request_data = (REQUEST_DATA*)calloc(1, sizeof(REQUEST_DATA));
-    makeRequestData(request_data, plugin_list, environment);
+    make_request_data(request_data, plugin_list, environment);
 
     auto user_defined_type_list = (USERDEFINEDTYPELIST*)calloc(1, sizeof(USERDEFINEDTYPELIST));
     auto log_malloc_list = (LOGMALLOCLIST*)calloc(1, sizeof(LOGMALLOCLIST));
@@ -81,7 +81,7 @@ template <typename T> int setReturnDataScalar(UDA_PLUGIN_INTERFACE* plugin_inter
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
     DATA_BLOCK* data_block = interface->data_block;
-    initDataBlock(data_block);
+    init_data_block(data_block);
 
     auto data = (T*)malloc(sizeof(T));
     data[0] = value;
@@ -105,7 +105,7 @@ int setReturnDataArray(UDA_PLUGIN_INTERFACE* plugin_interface, const T* values, 
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
     DATA_BLOCK* data_block = interface->data_block;
-    initDataBlock(data_block);
+    init_data_block(data_block);
 
     if (description != nullptr) {
         strncpy(data_block->data_desc, description, STRING_LENGTH);
@@ -118,7 +118,7 @@ int setReturnDataArray(UDA_PLUGIN_INTERFACE* plugin_interface, const T* values, 
     size_t len = 1;
 
     for (size_t i = 0; i < rank; ++i) {
-        initDimBlock(&data_block->dims[i]);
+        init_dim_block(&data_block->dims[i]);
 
         data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
         data_block->dims[i].dim_n = (int)shape[i];
@@ -169,7 +169,7 @@ int udaPluginReturnDataStringScalar(UDA_PLUGIN_INTERFACE* plugin_interface, cons
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
     DATA_BLOCK* data_block = interface->data_block;
-    initDataBlock(data_block);
+    init_data_block(data_block);
 
     data_block->data_type = UDA_TYPE_STRING;
     data_block->data = strdup(value);
@@ -178,7 +178,7 @@ int udaPluginReturnDataStringScalar(UDA_PLUGIN_INTERFACE* plugin_interface, cons
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
     for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
+        init_dim_block(&data_block->dims[i]);
     }
 
     if (description != nullptr) {
@@ -203,7 +203,7 @@ int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, siz
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
     DATA_BLOCK* data_block = interface->data_block;
-    initDataBlock(data_block);
+    init_data_block(data_block);
 
     data_block->data_type = type;
     data_block->data = (char*)malloc(size);
@@ -214,7 +214,7 @@ int udaPluginReturnData(UDA_PLUGIN_INTERFACE* plugin_interface, void* value, siz
     data_block->dims = (DIMS*)malloc(data_block->rank * sizeof(DIMS));
 
     for (unsigned int i = 0; i < data_block->rank; i++) {
-        initDimBlock(&data_block->dims[i]);
+        init_dim_block(&data_block->dims[i]);
     }
 
     if (description != nullptr) {
@@ -266,7 +266,7 @@ bool udaPluginFindStringArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const 
     auto interface = static_cast<const uda::plugins::UdaPluginInterface*>(plugin_interface);
     auto namevaluelist = &interface->request_data->nameValueList;
 
-    char** names = SplitString(name, "|");
+    char** names = split_string(name, "|");
     *value = nullptr;
 
     bool found = 0;
@@ -281,7 +281,7 @@ bool udaPluginFindStringArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const 
         }
     }
 
-    FreeSplitStringTokens(&names);
+    free_split_string_tokens(&names);
     return found;
 }
 
@@ -342,7 +342,7 @@ bool udaPluginFindArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const char* 
 {
     auto interface = static_cast<const uda::plugins::UdaPluginInterface*>(plugin_interface);
     auto namevaluelist = &interface->request_data->nameValueList;
-    char** names = SplitString(name, "|");
+    char** names = split_string(name, "|");
 
     bool found = false;
     for (int i = 0; i < namevaluelist->pairCount; i++) {
@@ -356,7 +356,7 @@ bool udaPluginFindArg(const UDA_PLUGIN_INTERFACE* plugin_interface, const char* 
         }
     }
 
-    FreeSplitStringTokens(&names);
+    free_split_string_tokens(&names);
     return found;
 }
 
@@ -375,7 +375,7 @@ int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, 
     strcpy(request_data.signal, request);
     strcpy(request_data.source, source);
 
-    makeRequestData(&request_data, interface->pluginList, interface->environment);
+    make_request_data(&request_data, interface->pluginList, interface->environment);
 
     request_data.request = findPluginRequestByFormat(request_data.format, interface->pluginList);
     if (request_data.request == REQUEST_READ_UNKNOWN) {
@@ -394,7 +394,7 @@ int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, 
     // Apply subsettinng
     if (request_data.datasubset.nbound > 0) {
         ACTION action = {};
-        initAction(&action);
+        init_action(&action);
         action.actionType = UDA_SUBSET_TYPE;
         action.subset = request_data.datasubset;
         err = serverSubsetData(new_plugin_interface.data_block, action, new_plugin_interface.logmalloclist);
@@ -408,7 +408,7 @@ int udaPluginReturnCompoundData(UDA_PLUGIN_INTERFACE* plugin_interface, char* da
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
     DATA_BLOCK* data_block = interface->data_block;
-    initDataBlock(data_block);
+    init_data_block(data_block);
 
     data_block->data_type = UDA_TYPE_COMPOUND;
     data_block->rank = 0;
@@ -436,7 +436,7 @@ int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE* plugin_interface, cha
 {
     auto interface = static_cast<uda::plugins::UdaPluginInterface*>(plugin_interface);
     DATA_BLOCK* data_block = interface->data_block;
-    initDataBlock(data_block);
+    init_data_block(data_block);
 
     int count = 1;
     for (int i = 0; i < rank; ++i) {
@@ -450,7 +450,7 @@ int udaPluginReturnCompoundArrayData(UDA_PLUGIN_INTERFACE* plugin_interface, cha
     data_block->dims = (DIMS*)malloc(rank * sizeof(DIMS));
 
     for (int i = 0; i < rank; ++i) {
-        initDimBlock(&data_block->dims[i]);
+        init_dim_block(&data_block->dims[i]);
 
         data_block->dims[i].data_type = UDA_TYPE_UNSIGNED_INT;
         data_block->dims[i].dim_n = (int)shape[i];

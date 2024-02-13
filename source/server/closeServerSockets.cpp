@@ -50,5 +50,5 @@ void uda::server::closeServerSockets(SOCKETLIST* socks)
     if (socks->sockets != nullptr) {
         free(socks->sockets);
     }
-    initSocketList(socks);
+    init_socket_list(socks);
 }

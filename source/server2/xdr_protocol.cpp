@@ -47,7 +47,7 @@ int server_read(void* iohandle, char* buf, int count)
 
     // Wait until there are data to be read from the socket
 
-    setSelectParms(serverSocket, &rfds, &tv, io_data->server_tot_block_time);
+    set_select_params(serverSocket, &rfds, &tv, io_data->server_tot_block_time);
     tvc = tv;
 
     while (select(serverSocket + 1, &rfds, nullptr, nullptr, &tvc) <= 0) {
@@ -58,7 +58,7 @@ int server_read(void* iohandle, char* buf, int count)
             return -1;
         }
 
-        updateSelectParms(serverSocket, &rfds, &tv, *io_data->server_tot_block_time); // Keep trying ...
+        update_select_params(serverSocket, &rfds, &tv, *io_data->server_tot_block_time); // Keep trying ...
         tvc = tv;
     }
 
@@ -91,7 +91,7 @@ int server_write(void* iohandle, char* buf, int count)
 
     // Block IO until the Socket is ready to write to Client
 
-    setSelectParms(serverSocket, &wfds, &tv, io_data->server_tot_block_time);
+    set_select_params(serverSocket, &wfds, &tv, io_data->server_tot_block_time);
 
     while (select(serverSocket + 1, nullptr, &wfds, nullptr, &tv) <= 0) {
         *io_data->server_tot_block_time += tv.tv_usec / 1000;
@@ -99,7 +99,7 @@ int server_write(void* iohandle, char* buf, int count)
             UDA_LOG(UDA_LOG_DEBUG, "Total Blocking Time: %d (ms)\n", *io_data->server_tot_block_time);
             return -1;
         }
-        updateSelectParms(serverSocket, &wfds, &tv, *io_data->server_tot_block_time);
+        update_select_params(serverSocket, &wfds, &tv, *io_data->server_tot_block_time);
     }
 
     // Write to socket, checking for EINTR, as happens if called from IDL
@@ -219,7 +219,7 @@ int uda::XdrProtocol::read_client_block(ClientBlock* client_block, LogMallocList
 
         if (err == 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Client Block received\n");
-            printClientBlock(*client_block);
+            print_client_block(*client_block);
         }
 
         // Test for an immediate CLOSEDOWN instruction
@@ -232,7 +232,7 @@ int uda::XdrProtocol::send_server_block(SERVER_BLOCK server_block, LogMallocList
                                         UserDefinedTypeList* user_defined_type_list)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Sending Server Block\n");
-    printServerBlock(server_block);
+    print_server_block(server_block);
 
     int protocol_id = UDA_PROTOCOL_SERVER_BLOCK; // Receive Server Block: Server Aknowledgement
 

@@ -10,14 +10,14 @@ namespace uda::client_server
 @param host The name of the client host workstation. The string is pre-allocated with length STRING_LENGTH
 @returns A pointer to the host string (Identical to the argument).
 */
-char* hostid(char* host);
+char* host_id(char* host);
 
 /*! Test a path is legitimate
 
 @param path The file path to be tested.
 @returns A pointer to the path argument. If a problem occurs, the path string is empty.
 */
-char* pathid(char* path);
+char* path_id(char* path);
 
 /*! Fully expand file directory paths to remove relative path or environment variable components.
 
@@ -39,7 +39,7 @@ char* pathid(char* path);
 @param path The file path to be resolved and expanded.
 @returns An integer Error Code: If non zero, a problem occured.
 */
-int expandFilePath(char* path, const ENVIRONMENT* environment);
+int expand_file_path(char* path, const ENVIRONMENT* environment);
 
 #ifndef NO_EXPAND_PATH
 
@@ -51,16 +51,16 @@ int expandFilePath(char* path, const ENVIRONMENT* environment);
 @param tokenList A Pointer to an array of token strings
 @param tokenCount The number of tokens in the list.
 */
-void freeTokenList(char*** tokenListArray, int* tokenCount);
+void free_token_list(char*** tokenListArray, int* tokenCount);
 
 /*! Generate a lists of path elements tokens.
 
 @param delims An array of character delimiters used to separate path elements
 @param input The list of path elements to be parsed into individual token strings.
-@param tokenList A pointer to an array of token strings. This must be freed using freeTokenList when no longer needed.
+@param tokenList A pointer to an array of token strings. This must be freed using free_token_list when no longer needed.
 returns A count of the tokens parsed from input.
 */
-int tokenList(const char* delims, char* input, char*** tokenListArray);
+int token_list(const char* delims, char* input, char*** tokenListArray);
 
 /*! Substitute/Replace file path name elements for server side name resolution.
 
@@ -90,9 +90,9 @@ If there are more wildcards in the substitute string than in the target string, 
 @param path The path to be tested for targeted name element replacement.
 @returns An integer Error Code: If non zero, a problem occured.
 */
-int pathReplacement(char* path, const ENVIRONMENT* environment);
+int path_replacement(char* path, const ENVIRONMENT* environment);
 
-int linkReplacement(char* path);
+int link_replacement(char* path);
 
 #endif // NO_EXPAND_PATH
 

@@ -21,7 +21,7 @@ using namespace uda::logging;
 
 static int recursiveDepthPut = 0; // Keep count of recursive calls
 
-int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* log_struct_list,
+int uda::client_server::xdr_user_defined_data_put(XDR* xdrs, LOGMALLOCLIST* logmalloclist, LOGSTRUCTLIST* log_struct_list,
                                               USERDEFINEDTYPELIST* userdefinedtypelist,
                                               USERDEFINEDTYPE* userdefinedtype, void** data, int datacount,
                                               int structRank, int* structShape, int index, NTREE** NTree,
@@ -899,7 +899,7 @@ int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmallo
                                         size = sizeof(char);
                                         type = userdefinedtype->compoundfield[j].type;
                                     }
-                                    convertNonPrintable2(d); // Remove obvious garbage (bug - non initialised...?)
+                                    convert_non_printable2(d); // Remove obvious garbage (bug - non initialised...?)
                                 }
                             }
                         }
@@ -932,7 +932,7 @@ int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmallo
                                 d[count - 1] = '\0'; // Terminate
                             }
                         }
-                        rc = rc && WrapXDRString(xdrs, d, count);
+                        rc = rc && wrap_xdr_string(xdrs, d, count);
                         isSOAP = 0;
                     } else {
                         rc = rc && xdr_vector(xdrs, d, count, sizeof(char), (xdrproc_t)xdr_char);
@@ -1014,12 +1014,12 @@ int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmallo
                     }
 
                     if (count > 0) {
-                        rc = rc && WrapXDRString(xdrs, d, count);
+                        rc = rc && wrap_xdr_string(xdrs, d, count);
                     }
 
                 } else {
                     if (userdefinedtype->compoundfield[j].rank == 1) { // Element is a Regular String
-                        rc = rc && WrapXDRString(xdrs, (char*)p, userdefinedtype->compoundfield[j].count);
+                        rc = rc && wrap_xdr_string(xdrs, (char*)p, userdefinedtype->compoundfield[j].count);
                     }
                 }
                 break;
@@ -1058,7 +1058,7 @@ int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmallo
                                     if (count > 0) {
                                         d = (char*)malloc(count * sizeof(char));
                                         udaAddMalloc(logmalloclist, (void*)d, count, sizeof(char), "char");
-                                        rc = rc && WrapXDRString(xdrs, d, count);
+                                        rc = rc && wrap_xdr_string(xdrs, d, count);
                                         str[istr] = d;
                                     }
                                 }
@@ -1088,7 +1088,7 @@ int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmallo
                                 rc = rc && xdr_int(xdrs, &count);
                                 strarr[istr] = (char*)malloc(count * sizeof(char));
                                 udaAddMalloc(logmalloclist, (void*)strarr[istr], count, sizeof(char), "STRING");
-                                rc = rc && WrapXDRString(xdrs, strarr[istr], count);
+                                rc = rc && wrap_xdr_string(xdrs, strarr[istr], count);
                                 if (rank == 0 && nstr == 1) {
                                     *p = (VOIDTYPE)strarr[0];
                                 }
@@ -1108,7 +1108,7 @@ int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmallo
                                     rc = rc && xdr_int(xdrs, &count);
                                     if (count > 0) {
                                         d = str[istr];
-                                        rc = rc && WrapXDRString(xdrs, d, count);
+                                        rc = rc && wrap_xdr_string(xdrs, d, count);
                                     }
                                 }
                             }
@@ -1151,14 +1151,14 @@ int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmallo
 
                         if (rank == 0) {
                             rc = rc && xdr_int(xdrs, &size); // This length of string
-                            rc = rc && WrapXDRString(xdrs, d, size);
+                            rc = rc && wrap_xdr_string(xdrs, d, size);
                         } else {
                             strarr = (char**)d;
                             for (istr = 0; istr < nstr;
                                  istr++) { // Send individual String lengths, then the string itself
                                 count = (int)strlen(strarr[istr]) + 1;
                                 rc = rc && xdr_int(xdrs, &count);
-                                rc = rc && WrapXDRString(xdrs, strarr[istr], count);
+                                rc = rc && wrap_xdr_string(xdrs, strarr[istr], count);
                             }
                         }
                     }
@@ -1167,7 +1167,7 @@ int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmallo
                         if (userdefinedtype->compoundfield[j].rank == 1 &&
                             strcmp(userdefinedtype->compoundfield[j].type, "STRING *") !=
                                 0) { // Element is a Single String
-                            rc = rc && WrapXDRString(xdrs, (char*)p, userdefinedtype->compoundfield[j].count);
+                            rc = rc && wrap_xdr_string(xdrs, (char*)p, userdefinedtype->compoundfield[j].count);
                         } else { // Element is a String Array: Treat as Rank 1 array
                             if (userdefinedtype->compoundfield[j].rank == 1 &&
                                 STR_EQUALS(userdefinedtype->compoundfield[j].type, "STRING *")) {
@@ -1179,7 +1179,7 @@ int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmallo
                                         if (count > 0) {
                                             d = (char*)malloc(count * sizeof(char));
                                             udaAddMalloc(logmalloclist, (void*)d, count, sizeof(char), "STRING");
-                                            rc = rc && WrapXDRString(xdrs, d, count);
+                                            rc = rc && wrap_xdr_string(xdrs, d, count);
                                             str[istr] = d;
                                         } // Save pointer: data will be written here
                                     } else {
@@ -1187,7 +1187,7 @@ int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmallo
                                         rc = rc && xdr_int(xdrs, &count);
                                         if (count > 0) {
                                             d = (char*)str[istr];
-                                            rc = rc && WrapXDRString(xdrs, d, count);
+                                            rc = rc && wrap_xdr_string(xdrs, d, count);
                                         }
                                     }
                                 }
@@ -1200,7 +1200,7 @@ int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmallo
                                                       .shape[istr]; // Number of strings to send/receive
                                 }
                                 for (istr = 0; istr < nstr; istr++) { // send/receive individual strings
-                                    rc = rc && WrapXDRString(xdrs, &str[istr * stride],
+                                    rc = rc && wrap_xdr_string(xdrs, &str[istr * stride],
                                                              userdefinedtype->compoundfield[j].count);
                                 }
                             }
@@ -1238,7 +1238,7 @@ int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmallo
                                 break;
                             }
                         }
-                        rc = rc && WrapXDRString(xdrs, d, count);
+                        rc = rc && wrap_xdr_string(xdrs, d, count);
                     }
                 }
                 break;
@@ -1316,10 +1316,10 @@ int uda::client_server::xdrUserDefinedDataPut(XDR* xdrs, LOGMALLOCLIST* logmallo
                     rc = rc && xdr_int(xdrs, &size); // Structure Size
 
                     if (xdrs->x_op == XDR_DECODE) {
-                        rc = rc && WrapXDRString(xdrs, (char*)rudtype, MAXELEMENTNAME - 1);
+                        rc = rc && wrap_xdr_string(xdrs, (char*)rudtype, MAXELEMENTNAME - 1);
                         type = rudtype;
                     } else {
-                        rc = rc && WrapXDRString(xdrs, (char*)type, MAXELEMENTNAME - 1);
+                        rc = rc && wrap_xdr_string(xdrs, (char*)type, MAXELEMENTNAME - 1);
                     }
 
                     if (protocolVersion >= 7) {
@@ -1485,11 +1485,11 @@ int udaXDRUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDE
 
         NTREE* dataNTree = nullptr;
 
-        rc = rc && xdr_userdefinedtype(xdrs, userdefinedtypelist,
+        rc = rc && xdr_user_defined_type(xdrs, userdefinedtypelist,
                                        userdefinedtype); // User Defined Type Definitions
 
         rc = rc &&
-             xdrUserDefinedDataPut(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1,
+             xdr_user_defined_data_put(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1,
                                    0, nullptr, 0, &dataNTree, protocolVersion, malloc_source); // Data within Structures
 
         udaSetFullNTree(dataNTree); // Copy to Global
@@ -1501,11 +1501,11 @@ int udaXDRUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDE
             return 0;
         }
 
-        rc = xdr_userdefinedtype(xdrs, userdefinedtypelist,
+        rc = xdr_user_defined_type(xdrs, userdefinedtypelist,
                                  userdefinedtype); // User Defined Type Definitions
 
         rc = rc &&
-             xdrUserDefinedDataPut(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1,
+             xdr_user_defined_data_put(xdrs, logmalloclist, log_struct_list, userdefinedtypelist, userdefinedtype, data, 1,
                                    0, nullptr, 0, nullptr, protocolVersion, malloc_source); // Data within Structures
         /*
               if(!XDRstdioFlag) rc = rc && xdrrec_endofrecord(xdrs, 1);
@@ -1517,7 +1517,7 @@ int udaXDRUserDefinedTypeDataPut(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDE
     return rc;
 }
 
-bool_t uda::client_server::xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPELIST* str)
+bool_t uda::client_server::xdr_user_defined_type_list_put(XDR* xdrs, USERDEFINEDTYPELIST* str)
 {
 
     // Send/Receive the list of userdefined types
@@ -1540,13 +1540,13 @@ bool_t uda::client_server::xdr_userdefinedtypelistPut(XDR* xdrs, USERDEFINEDTYPE
     }
 
     for (int i = 0; i < str->listCount; i++) {
-        rc = rc && xdr_userdefinedtype(xdrs, str, &str->userdefinedtype[i]);
+        rc = rc && xdr_user_defined_type(xdrs, str, &str->userdefinedtype[i]);
     }
 
     return rc;
 }
 
-int uda::client_server::protocolXML2Put(XDR* xdrs, int protocol_id, int direction, int* token,
+int uda::client_server::protocol_xml2_put(XDR* xdrs, int protocol_id, int direction, int* token,
                                         LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                                         void* str, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
                                         unsigned int private_flags, int malloc_source)
@@ -1612,7 +1612,7 @@ int uda::client_server::protocolXML2Put(XDR* xdrs, int protocol_id, int directio
                     // error - unknown root cause
 
                     rc = rc &&
-                         xdr_userdefinedtypelistPut(xdrs,
+                         xdr_user_defined_type_list_put(xdrs,
                                                     userdefinedtypelist); // send the full set of known named structures
 
                     UDA_LOG(UDA_LOG_DEBUG, "Structure Definitions sent: rc = %d\n", rc);
@@ -1667,7 +1667,7 @@ int uda::client_server::protocolXML2Put(XDR* xdrs, int protocol_id, int directio
 
                         initUserDefinedTypeList(userdefinedtypelist);
 
-                        rc = rc && xdr_userdefinedtypelistPut(
+                        rc = rc && xdr_user_defined_type_list_put(
                                        xdrs,
                                        userdefinedtypelist); // receive the full set of known named structures
 
@@ -1685,7 +1685,7 @@ int uda::client_server::protocolXML2Put(XDR* xdrs, int protocol_id, int directio
                         rc = rc && udaXDRUserDefinedTypeDataPut(xdrs, logmalloclist, userdefinedtypelist, udt_received,
                                                                 &data, protocolVersion, log_struct_list,
                                                                 malloc_source); // receive the Data
-                        // rc = rc && xdrUserDefinedTypeData(xdrs, udt_received, &data);        // receive the Data
+                        // rc = rc && xdr_user_defined_type_data(xdrs, udt_received, &data);        // receive the Data
 
                         UDA_LOG(UDA_LOG_DEBUG, "udaXDRUserDefinedTypeData received\n");
 

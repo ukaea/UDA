@@ -33,7 +33,7 @@ void copy_data_block(DATA_BLOCK* str, DATA_BLOCK* in)
     memcpy(str->data_label, in->data_label, STRING_LENGTH);
     memcpy(str->data_desc, in->data_desc, STRING_LENGTH);
     memcpy(str->error_msg, in->error_msg, STRING_LENGTH);
-    initClientBlock(&str->client_block, 0, "");
+    init_client_block(&str->client_block, 0, "");
 }
 
 void copy_client_block(CLIENT_BLOCK* str, const uda::client::ClientFlags* client_flags)
@@ -154,10 +154,10 @@ uda::client::Client::Client() : connection_{environment_}, protocol_version_{Cli
     cache_ = uda::cache::open_cache();
 
     char username[STRING_LENGTH];
-    userid(username);
+    user_id(username);
     client_username_ = username;
 
-    initClientBlock(&client_block_, ClientVersion, client_username_.c_str());
+    init_client_block(&client_block_, ClientVersion, client_username_.c_str());
 
     //----------------------------------------------------------------
     // Check if Output Requested
@@ -219,7 +219,7 @@ int uda::client::Client::fetch_meta()
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error (Data System)");
         return err;
     }
-    printDataSystem(*data_system);
+    print_data_system(*data_system);
 
     if ((err = protocol2(client_input_, UDA_PROTOCOL_SYSTEM_CONFIG, XDR_RECEIVE, nullptr, logmalloclist_,
                          userdefinedtypelist_, system_config, protocol_version_, &log_struct_list_, private_flags_,
@@ -227,7 +227,7 @@ int uda::client::Client::fetch_meta()
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (System Config)");
         return err;
     }
-    printSystemConfig(*system_config);
+    print_system_config(*system_config);
 
     if ((err = protocol2(client_input_, UDA_PROTOCOL_DATA_SOURCE, XDR_RECEIVE, nullptr, logmalloclist_,
                          userdefinedtypelist_, data_source, protocol_version_, &log_struct_list_, private_flags_,
@@ -235,14 +235,14 @@ int uda::client::Client::fetch_meta()
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error (Data Source)");
         return err;
     }
-    printDataSource(*data_source);
+    print_data_source(*data_source);
 
     if ((err = protocol2(client_input_, UDA_PROTOCOL_SIGNAL, XDR_RECEIVE, nullptr, logmalloclist_, userdefinedtypelist_,
                          signal_rec, protocol_version_, &log_struct_list_, private_flags_, malloc_source_)) != 0) {
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Signal)");
         return err;
     }
-    printSignal(*signal_rec);
+    print_signal(*signal_rec);
 
     if ((err = protocol2(client_input_, UDA_PROTOCOL_SIGNAL_DESC, XDR_RECEIVE, nullptr, logmalloclist_,
                          userdefinedtypelist_, signal_desc, protocol_version_, &log_struct_list_, private_flags_,
@@ -250,7 +250,7 @@ int uda::client::Client::fetch_meta()
         add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error (Signal Desc)");
         return err;
     }
-    printSignalDesc(*signal_desc);
+    print_signal_desc(*signal_desc);
 #endif
 
     return err;
@@ -330,7 +330,7 @@ int get_data_status(DATA_BLOCK* data_block)
 
 int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
 {
-    initServerBlock(&server_block_, 0);
+    init_server_block(&server_block_, 0);
     init_error_stack();
 
     time_t tv_server_start = 0;
@@ -394,7 +394,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
     }
 
     update_client_block(client_block_, client_flags_, private_flags_);
-    printClientBlock(client_block_);
+    print_client_block(client_block_);
 
     //-------------------------------------------------------------------------
     // Client and Server States at Startup only (1 RTT)
@@ -449,7 +449,7 @@ int uda::client::Client::get_requests(RequestBlock& request_block, int* indices)
         throw uda::exceptions::ClientError("Protocol 2 Error (Failure Receiving Data Block)");
     }
 
-    printDataBlockList(recv_data_block_list);
+    print_data_block_list(recv_data_block_list);
 
     bool data_received = false;
     std::vector<int> data_block_indices(request_block.num_requests);
@@ -597,7 +597,7 @@ int uda::client::Client::send_putdata(const RequestBlock& request_block)
 int uda::client::Client::get(std::string_view data_signal, std::string_view data_source)
 {
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    init_request_block(&request_block);
 
     auto signal_ptr = data_signal.data();
     auto source_ptr = data_source.data();
@@ -610,7 +610,7 @@ int uda::client::Client::get(std::string_view data_signal, std::string_view data
         throw uda::exceptions::ClientError("Error identifying the Data Source [%1%]", data_source);
     }
 
-    printRequestBlock(request_block);
+    print_request_block(request_block);
 
     std::vector<int> indices(request_block.num_requests);
     get_requests(request_block, indices.data());
@@ -621,7 +621,7 @@ int uda::client::Client::get(std::string_view data_signal, std::string_view data
 std::vector<int> uda::client::Client::get(std::vector<std::pair<std::string, std::string>>& requests)
 {
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    init_request_block(&request_block);
 
     std::vector<const char*> signals;
     std::transform(requests.begin(), requests.end(), std::back_inserter(signals),
@@ -639,7 +639,7 @@ std::vector<int> uda::client::Client::get(std::vector<std::pair<std::string, std
         throw uda::exceptions::ClientError("Error identifying the Data Source");
     }
 
-    printRequestBlock(request_block);
+    print_request_block(request_block);
 
     std::vector<int> indices(request_block.num_requests);
     get_requests(request_block, indices.data());
@@ -781,7 +781,7 @@ int uda::client::Client::perform_handshake()
 
     UDA_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
     UDA_LOG(UDA_LOG_DEBUG, "xdrrec_eof rc = %d [1 => no more input]\n", rc);
-    printServerBlock(server_block_);
+    print_server_block(server_block_);
 
     // Protocol Version: Lower of the client and server version numbers
     // This defines the set of elements within data structures passed between client and server
@@ -840,7 +840,7 @@ int uda::client::Client::receive_server_block()
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "Server Block Received\n");
-    printServerBlock(server_block_);
+    print_server_block(server_block_);
 
     return 0;
 }
@@ -922,13 +922,13 @@ void uda::client::Client::set_property(const char* property)
         if (property[0] == 't') {
             strncpy(name, property, 55);
             name[55] = '\0';
-            TrimString(name);
-            LeftTrimString(name);
-            MidTrimString(name);
+            trim_string(name);
+            left_trim_string(name);
+            mid_trim_string(name);
             strlwr(name);
             if ((value = strstr(name, "timeout=")) != nullptr) {
                 value = name + 8;
-                if (IsNumber(value)) {
+                if (is_number(value)) {
                     client_flags_.user_timeout = atoi(value);
                 }
             }
@@ -945,13 +945,13 @@ void uda::client::Client::set_property(const char* property)
             if (!strncasecmp(property, "altRank", 7)) {
                 strncpy(name, property, 55);
                 name[55] = '\0';
-                TrimString(name);
-                LeftTrimString(name);
-                MidTrimString(name);
+                trim_string(name);
+                left_trim_string(name);
+                mid_trim_string(name);
                 strlwr(name);
                 if ((value = strcasestr(name, "altRank=")) != nullptr) {
                     value = name + 8;
-                    if (IsNumber(value)) {
+                    if (is_number(value)) {
                         client_flags_.alt_rank = atoi(value);
                     }
                 }
@@ -1204,7 +1204,7 @@ void uda::client::Client::set_full_ntree(NTREE* full_ntree)
 int uda::client::Client::put(std::string_view put_instruction, uda::client_server::PutDataBlock* putdata_block)
 {
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    init_request_block(&request_block);
 
     auto signal_ptr = put_instruction.data();
     auto source_ptr = "";
@@ -1217,7 +1217,7 @@ int uda::client::Client::put(std::string_view put_instruction, uda::client_serve
         throw uda::exceptions::ClientError("Error identifying the Data Source");
     }
 
-    printRequestBlock(request_block);
+    print_request_block(request_block);
 
     request_block.requests[0].put = 1; // flags the direction of data (0 is default => get operation)
     add_put_data_block_list(putdata_block, &request_block.requests[0].putDataBlockList);
@@ -1233,7 +1233,7 @@ int uda::client::Client::put(std::string_view put_instruction, uda::client_serve
 int uda::client::Client::put(std::string_view put_instruction, uda::client_server::PutDataBlockList* putdata_block_list)
 {
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    init_request_block(&request_block);
 
     auto signal_ptr = put_instruction.data();
     auto source_ptr = "";
@@ -1246,7 +1246,7 @@ int uda::client::Client::put(std::string_view put_instruction, uda::client_serve
         throw uda::exceptions::ClientError("Error identifying the Data Source");
     }
 
-    printRequestBlock(request_block);
+    print_request_block(request_block);
 
     request_block.requests[0].put = 1; // flags the direction of data (0 is default => get operation)
     request_block.requests[0].putDataBlockList = *putdata_block_list;

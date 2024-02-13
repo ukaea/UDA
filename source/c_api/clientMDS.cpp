@@ -33,12 +33,12 @@ int udaClientMDS(const char* server, const char* tree, const char* node, int tre
     // Passed Args
 
     REQUEST_BLOCK request_block;
-    initRequestBlock(&request_block);
+    init_request_block(&request_block);
 
     request_block.num_requests = 1;
     request_block.requests = (REQUEST_DATA*)malloc(sizeof(REQUEST_DATA));
     auto request = &request_block.requests[0];
-    initRequestData(request);
+    init_request_data(request);
 
     request->request = REQUEST_READ_MDS;
     request->exp_number = treenum;

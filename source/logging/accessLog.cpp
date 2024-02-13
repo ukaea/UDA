@@ -149,8 +149,8 @@ void uda::logging::udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLO
                 host[HOSTNAMELENGTH - 1] = '\0';
             }
 #    endif
-            convertNonPrintable2(host);
-            TrimString(host);
+            convert_non_printable2(host);
+            trim_string(host);
             if (strlen(host) == 0) {
                 strcpy(host, "-");
             }
@@ -175,8 +175,8 @@ void uda::logging::udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLO
         asctime_s(accessdate, DATELENGTH, broken);
 #  endif
 
-        convertNonPrintable2(accessdate);
-        TrimString(accessdate);
+        convert_non_printable2(accessdate);
+        trim_string(accessdate);
 
         // Client Request: From the request_block structure
 

@@ -38,7 +38,7 @@ char* strcasestr(const char* haystack, const char* needle)
 
 // Reverse a String
 
-void uda::client_server::reverseString(const char* in, char* out)
+void uda::client_server::reverse_string(const char* in, char* out)
 {
     int lstr = (int)strlen(in);
     out[lstr] = '\0';
@@ -49,7 +49,7 @@ void uda::client_server::reverseString(const char* in, char* out)
 
 // Copy a String subject to a Maximum length constraint
 
-void uda::client_server::copyString(const char* in, char* out, int maxlength)
+void uda::client_server::copy_string(const char* in, char* out, int maxlength)
 {
     int lstr = (int)strlen(in);
     if (lstr < maxlength) {
@@ -60,7 +60,7 @@ void uda::client_server::copyString(const char* in, char* out, int maxlength)
     }
 }
 
-char* uda::client_server::FormatString(const char* fmt, ...)
+char* uda::client_server::format_string(const char* fmt, ...)
 {
     va_list vargs;
     va_start(vargs, fmt);
@@ -80,7 +80,7 @@ char* uda::client_server::FormatString(const char* fmt, ...)
 
 // Trim Trailing Space Characters from a String
 
-char* uda::client_server::TrimString(char* szSource)
+char* uda::client_server::trim_string(char* szSource)
 {
     char* pszEOS;
 
@@ -98,7 +98,7 @@ char* uda::client_server::TrimString(char* szSource)
 
 // Trim Leading Space Characters from a String
 
-char* uda::client_server::LeftTrimString(char* str)
+char* uda::client_server::left_trim_string(char* str)
 {
     int trim = 0, lstr;
 
@@ -119,7 +119,7 @@ char* uda::client_server::LeftTrimString(char* str)
     return str;
 }
 
-void uda::client_server::StringCopy(char* dest, const char* src, size_t len)
+void uda::client_server::string_copy(char* dest, const char* src, size_t len)
 {
     strncpy(dest, src, len);
     dest[len - 1] = '\0';
@@ -163,7 +163,7 @@ char* uda::client_server::strlwr(char* a)
 
 // Trim Internal Space Characters from a String
 
-char* uda::client_server::MidTrimString(char* str)
+char* uda::client_server::mid_trim_string(char* str)
 {
     int j = 0, lstr;
     lstr = (int)strlen(str);
@@ -178,7 +178,7 @@ char* uda::client_server::MidTrimString(char* str)
 
 // Is the String an Integer Number? (Simple but not exhaustive Check)
 
-int uda::client_server::IsNumber(const char* a)
+int uda::client_server::is_number(const char* a)
 {
     const char* wrk = a;
     while (*wrk != '\0') {
@@ -192,7 +192,7 @@ int uda::client_server::IsNumber(const char* a)
 
 // Is the String a Simple Float Number?
 
-int uda::client_server::IsFloat(char* a)
+int uda::client_server::is_float(char* a)
 {
     char* wrk = a;
     while (*wrk != '\0') {
@@ -206,7 +206,7 @@ int uda::client_server::IsFloat(char* a)
 
 // Is the String a Number List (#,#,#,#;#;#;#)?
 
-int uda::client_server::IsNumberList(char* a)
+int uda::client_server::is_number_list(char* a)
 {
     char* wrk = a;
     while (*wrk != '\0') {
@@ -222,7 +222,7 @@ int uda::client_server::IsNumberList(char* a)
     return 1;
 }
 
-char* uda::client_server::convertNonPrintable(char* str)
+char* uda::client_server::convert_non_printable(char* str)
 {
     // Remove CR & LF Characters from a Number List
 
@@ -236,7 +236,7 @@ char* uda::client_server::convertNonPrintable(char* str)
     return ret;
 }
 
-char* uda::client_server::convertNonPrintable2(char* str)
+char* uda::client_server::convert_non_printable2(char* str)
 {
     // Remove NonPrintable Characters from a String
 
@@ -250,7 +250,7 @@ char* uda::client_server::convertNonPrintable2(char* str)
     return ret;
 }
 
-int uda::client_server::IsLegalFilePath(const char* str)
+int uda::client_server::is_legal_file_path(const char* str)
 {
     // Basic check that the filename complies with good naming practice - some protection against malign embedded code!
     // Test against the Portable Filename Character Set A-Z, a-z, 0-9, <period>, <underscore> and <hyphen> and <plus>
@@ -317,7 +317,7 @@ int asprintf(char** strp, const char* fmt, ...) noexcept
  * Split a string using the given deliminator and return a list of the resultant tokens, with nullptr indicating the end
  * of the list.
  *
- * The returned list should be freed after use with FreeSplitStringTokens().
+ * The returned list should be freed after use with free_split_string_tokens().
  * @param string
  * @param delims
  * @return
@@ -327,7 +327,7 @@ int asprintf(char** strp, const char* fmt, ...) noexcept
 #  define strdup _strdup
 #endif
 
-char** uda::client_server::SplitString(const char* string, const char* delims)
+char** uda::client_server::split_string(const char* string, const char* delims)
 {
     char** names = nullptr;
     char* tokptr = nullptr;
@@ -350,7 +350,7 @@ char** uda::client_server::SplitString(const char* string, const char* delims)
     return names;
 }
 
-char* uda::client_server::StringReplaceAll(const char* string, const char* find, const char* replace)
+char* uda::client_server::string_replace_all(const char* string, const char* find, const char* replace)
 {
     char* prev_string = nullptr;
     char* new_string = strdup(string);
@@ -358,14 +358,14 @@ char* uda::client_server::StringReplaceAll(const char* string, const char* find,
     do {
         free(prev_string);
         prev_string = new_string;
-        new_string = StringReplace(prev_string, find, replace);
-    } while (!StringEquals(prev_string, new_string));
+        new_string = string_replace(prev_string, find, replace);
+    } while (!string_equals(prev_string, new_string));
 
     free(prev_string);
     return new_string;
 }
 
-char* uda::client_server::StringReplace(const char* string, const char* find, const char* replace)
+char* uda::client_server::string_replace(const char* string, const char* find, const char* replace)
 {
     if (find == nullptr || find[0] == '\0') {
         return strdup(string);
@@ -389,10 +389,10 @@ char* uda::client_server::StringReplace(const char* string, const char* find, co
 }
 
 /**
- * Free the token list generated by SplitString().
+ * Free the token list generated by split_string().
  * @param tokens
  */
-void uda::client_server::FreeSplitStringTokens(char*** tokens)
+void uda::client_server::free_split_string_tokens(char*** tokens)
 {
     size_t i = 0;
     while ((*tokens)[i] != nullptr) {
@@ -403,7 +403,7 @@ void uda::client_server::FreeSplitStringTokens(char*** tokens)
     *tokens = nullptr;
 }
 
-bool uda::client_server::StringEquals(const char* a, const char* b)
+bool uda::client_server::string_equals(const char* a, const char* b)
 {
     if (a == nullptr || b == nullptr) {
         return false;
@@ -420,7 +420,7 @@ bool uda::client_server::StringEquals(const char* a, const char* b)
     return *a == *b;
 }
 
-bool uda::client_server::StringIEquals(const char* a, const char* b)
+bool uda::client_server::string_iequals(const char* a, const char* b)
 {
     if (a == nullptr || b == nullptr) {
         return false;
@@ -437,7 +437,7 @@ bool uda::client_server::StringIEquals(const char* a, const char* b)
     return *a == *b;
 }
 
-bool uda::client_server::StringEndsWith(const char* str, const char* find)
+bool uda::client_server::string_ends_with(const char* str, const char* find)
 {
     if (str == nullptr || find == nullptr) {
         return false;

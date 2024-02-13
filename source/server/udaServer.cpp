@@ -150,10 +150,10 @@ int uda::server::uda_server(uda::client_server::CLIENT_BLOCK client_block)
     // Reinitialised after each logging action
 
     init_error_stack();
-    initServerBlock(&server_block, server_version);
-    initActions(&actions_desc); // There may be a Sequence of Actions to Apply
-    initActions(&actions_sig);
-    initRequestBlock(&request_block);
+    init_server_block(&server_block, server_version);
+    init_actions(&actions_desc); // There may be a Sequence of Actions to Apply
+    init_actions(&actions_sig);
+    init_request_block(&request_block);
 
     uda::cache::UdaCache* cache = uda::cache::open_cache();
 
@@ -210,7 +210,7 @@ int report_to_client(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_lis
 
     *total_datablock_size = countDataBlockListSize(data_block_list, client_block);
 
-    printServerBlock(*server_block);
+    print_server_block(*server_block);
 
     //------------------------------------------------------------------------------------------------
     // Send the server block and all data in a single (minimal number) tcp packet
@@ -317,7 +317,7 @@ int report_to_client(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_block_lis
     //----------------------------------------------------------------------------
     // Send the Data
 
-    printDataBlockList(*data_block_list);
+    print_data_block_list(*data_block_list);
     UDA_LOG(UDA_LOG_DEBUG, "Sending Data Block Structure to Client\n");
 
     if (protocol_version < 9) {
@@ -401,7 +401,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
 
     int err = 0;
 
-    initClientBlock(client_block, 0, "");
+    init_client_block(client_block, 0, "");
 
     UDA_LOG(UDA_LOG_DEBUG, "Waiting to receive Client Block\n");
 
@@ -500,9 +500,9 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
 
     UDA_LOG(UDA_LOG_DEBUG, "Request Block Received\n");
 
-    printClientBlock(*client_block);
-    printServerBlock(*server_block);
-    printRequestBlock(*request_block);
+    print_client_block(*client_block);
+    print_server_block(*server_block);
+    print_request_block(*request_block);
 
     data_block_list->count = request_block->num_requests;
     data_block_list->data = (DATA_BLOCK*)calloc(data_block_list->count, sizeof(DATA_BLOCK));
@@ -693,9 +693,9 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     //----------------------------------------------------------------------
     // Initialise Data Structures
 
-    initDataSource(&metadata_block->data_source);
-    initSignalDesc(&metadata_block->signal_desc);
-    initSignal(&metadata_block->signal_rec);
+    init_data_source(&metadata_block->data_source);
+    init_signal_desc(&metadata_block->signal_desc);
+    init_signal(&metadata_block->signal_rec);
 
     //----------------------------------------------------------------------------------------------
     // If this is a PUT request then receive the putData structure
@@ -703,7 +703,7 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     for (int i = 0; i < request_block->num_requests; ++i) {
         REQUEST_DATA* request = &request_block->requests[0];
 
-        initPutDataBlockList(&request->putDataBlockList);
+        init_put_data_block_list(&request->putDataBlockList);
 
         if (request->put) {
             if ((err = protocol2(server_input, UDA_PROTOCOL_PUTDATA_BLOCK_LIST, XDR_RECEIVE, nullptr, log_malloc_list,
@@ -783,11 +783,11 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
     UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source->exp_number);
     UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source->pass);
     //    UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
-    printRequestBlock(*request_block);
-    printDataSource(*data_source);
-    printSignal(metadata_block->signal_rec);
-    printSignalDesc(*signal_desc);
-    printDataBlockList(*data_block_list);
+    print_request_block(*request_block);
+    print_data_source(*data_source);
+    print_signal(metadata_block->signal_rec);
+    print_signal_desc(*signal_desc);
+    print_data_block_list(*data_block_list);
     print_error_stack();
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
@@ -819,8 +819,8 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
             data_block->data_type = UDA_TYPE_CHAR;
         }
 
-        if (data_block->data_n > 0 && (protocolVersionTypeTest(protocol_version, data_block->data_type) ||
-                                       protocolVersionTypeTest(protocol_version, data_block->error_type))) {
+        if (data_block->data_n > 0 && (protocol_version_type_test(protocol_version, data_block->data_type) ||
+                                       protocol_version_type_test(protocol_version, data_block->error_type))) {
             UDA_THROW_ERROR(
                 999,
                 "The Data has a type that cannot be passed to the Client: A newer client library version is required.");
@@ -830,8 +830,8 @@ int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SER
             DIMS dim;
             for (unsigned int j = 0; j < data_block->rank; j++) {
                 dim = data_block->dims[j];
-                if (protocolVersionTypeTest(protocol_version, dim.data_type) ||
-                    protocolVersionTypeTest(protocol_version, dim.error_type)) {
+                if (protocol_version_type_test(protocol_version, dim.data_type) ||
+                    protocol_version_type_test(protocol_version, dim.error_type)) {
                     UDA_THROW_ERROR(999, "A Coordinate Data has a numerical type that cannot be passed to the Client: "
                                          "A newer client library version is required.");
                 }
@@ -907,10 +907,10 @@ int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_lis
         freeDataBlockList(data_block_list);
 
         UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
-        freeActions(actions_desc);
+        free_actions(actions_desc);
 
         UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
-        freeActions(actions_sig);
+        free_actions(actions_sig);
 
         freeRequestBlock(request_block);
 
@@ -930,7 +930,7 @@ int do_server_loop(REQUEST_BLOCK* request_block, DATA_BLOCK_LIST* data_block_lis
         close_error();
 
         UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
-        initServerBlock(server_block, server_version);
+        init_server_block(server_block, server_version);
 
         //----------------------------------------------------------------------------
         // Server Wait Loop
@@ -1006,7 +1006,7 @@ int authenticateClient(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block)
 {
     static int authenticationNeeded = 1; // No data access until this is set TRUE
 
-    initClientBlock(client_block, 0, "");
+    init_client_block(client_block, 0, "");
 
     if (authenticationNeeded && protocolVersion >= UDA_SECURITY_VERSION) {
         // User or intermediate server Must Authenticate
@@ -1056,7 +1056,7 @@ int handshake_client(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int
 {
     // Exchange version details - once only
 
-    initClientBlock(client_block, 0, "");
+    init_client_block(client_block, 0, "");
 
     // Receive the client block, respecting earlier protocol versions
 
@@ -1080,7 +1080,7 @@ int handshake_client(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int
 
         if (err == 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Initial Client Block received\n");
-            printClientBlock(*client_block);
+            print_client_block(*client_block);
         }
 
         // Test for an immediate CLOSEDOWN instruction
@@ -1109,7 +1109,7 @@ int handshake_client(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int
     // Send the server block
 
     UDA_LOG(UDA_LOG_DEBUG, "Sending Initial Server Block \n");
-    printServerBlock(*server_block);
+    print_server_block(*server_block);
 
     int protocol_id = UDA_PROTOCOL_SERVER_BLOCK; // Receive Server Block: Server Aknowledgement
 
@@ -1181,7 +1181,7 @@ int startup_server(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_
     // Open and Initialise the Socket List (Once Only)
 
     if (!socket_list_initialised) {
-        initSocketList(&socket_list);
+        init_socket_list(&socket_list);
         socket_list_initialised = 1;
     }
 

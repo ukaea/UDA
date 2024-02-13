@@ -89,7 +89,7 @@ int uda::client::reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** c
 
     // Identify the current Socket connection in the Socket List
 
-    int socketId = getSocketRecordId(&client_socketlist, client_socket);
+    int socketId = get_socket_record_id(&client_socketlist, client_socket);
 
     // Instance a new server if the Client has changed the host and/or port number
 
@@ -97,7 +97,7 @@ int uda::client::reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** c
         // RC
         int status;
         int fh;
-        if (getSocket(&client_socketlist, TYPE_UDA_SERVER, &status, environment->server_host, environment->server_port,
+        if (get_socket(&client_socketlist, TYPE_UDA_SERVER, &status, environment->server_host, environment->server_port,
                       &fh) == 0) {
             environment->server_socket = fh;
             environment->server_change_socket = 1;
@@ -112,7 +112,7 @@ int uda::client::reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** c
 
     if (environment->server_change_socket) {
         int newsocketId;
-        if ((newsocketId = getSocketRecordId(&client_socketlist, environment->server_socket)) < 0) {
+        if ((newsocketId = get_socket_record_id(&client_socketlist, environment->server_socket)) < 0) {
             err = NO_SOCKET_CONNECTION;
             add_error(UDA_CODE_ERROR_TYPE, __func__, err, "The User Specified Socket Connection does not exist");
             return err;
@@ -554,12 +554,12 @@ int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t*
     }
 
     // Add New Socket to the Socket's List
-    addSocket(&client_socketlist, TYPE_UDA_SERVER, 1, environment->server_host, environment->server_port,
+    add_socket(&client_socketlist, TYPE_UDA_SERVER, 1, environment->server_host, environment->server_port,
               client_socket);
-    client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].Input = client_input;
-    client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].Output = client_output;
-    client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].user_timeout = user_timeout;
-    client_socketlist.sockets[getSocketRecordId(&client_socketlist, client_socket)].tv_server_start = *tv_server_start;
+    client_socketlist.sockets[get_socket_record_id(&client_socketlist, client_socket)].Input = client_input;
+    client_socketlist.sockets[get_socket_record_id(&client_socketlist, client_socket)].Output = client_output;
+    client_socketlist.sockets[get_socket_record_id(&client_socketlist, client_socket)].user_timeout = user_timeout;
+    client_socketlist.sockets[get_socket_record_id(&client_socketlist, client_socket)].tv_server_start = *tv_server_start;
     environment->server_reconnect = 0;
     environment->server_change_socket = 0;
     environment->server_socket = client_socket;
@@ -581,9 +581,9 @@ void udaCloseAllConnections()
 void uda::client::closeConnection(ClosedownType type)
 {
     if (client_socket >= 0 && type != ClosedownType::CLOSE_ALL) {
-        closeClientSocket(&client_socketlist, client_socket);
+        close_client_socket(&client_socketlist, client_socket);
     } else {
-        closeClientSockets(&client_socketlist);
+        close_client_sockets(&client_socketlist);
     }
 
     client_socket = -1;

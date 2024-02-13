@@ -16,7 +16,7 @@ int uda::server::makeServerRequestBlock(REQUEST_BLOCK* request_block, uda::plugi
 
 int uda::server::makeServerRequestData(REQUEST_DATA* request, uda::plugins::PluginList pluginList)
 {
-    return makeRequestData(request, &pluginList, getServerEnvironment());
+    return make_request_data(request, &pluginList, getServerEnvironment());
 }
 
 #endif

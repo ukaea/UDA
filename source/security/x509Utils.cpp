@@ -664,8 +664,8 @@ int testX509Dates(ksba_cert_t certificate)
     asctime_s(datetime, DATELENGTH, broken);
 #endif
 
-    convertNonPrintable2(datetime);
-    TrimString(datetime);
+    convert_non_printable2(datetime);
+    trim_string(datetime);
 
     // Year
 

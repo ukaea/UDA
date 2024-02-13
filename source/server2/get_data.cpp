@@ -283,13 +283,13 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
         if (STR_IEQUALS(request_data->archive, "SS") || STR_IEQUALS(request_data->archive, "SERVERSIDE")) {
             if (!strncasecmp(request_data->signal, "SUBSET(", 7)) {
                 serverside = 1;
-                initActions(&actions_serverside);
+                init_actions(&actions_serverside);
                 int rc;
                 if ((rc = serverParseServerSide(request_data, &actions_serverside, nullptr)) != 0) {
                     return rc;
                 }
                 // Erase original SUBSET request
-                copyString(TrimString(request_data->signal), metadata_block_.signal_desc.signal_name, MAXNAME);
+                copy_string(trim_string(request_data->signal), metadata_block_.signal_desc.signal_name, MAXNAME);
             }
         }
     } else if (STR_IEQUALS(request_data->function, "subset")) {
@@ -297,13 +297,13 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
         if (maybe_plugin) {
             if (STR_IEQUALS(maybe_plugin.get().symbol, "serverside")) {
                 serverside = 1;
-                initActions(&actions_serverside);
+                init_actions(&actions_serverside);
                 int rc;
                 if ((rc = serverParseServerSide(request_data, &actions_serverside, nullptr)) != 0) {
                     return rc;
                 }
                 // Erase original SUBSET request
-                copyString(TrimString(request_data->signal), metadata_block_.signal_desc.signal_name, MAXNAME);
+                copy_string(trim_string(request_data->signal), metadata_block_.signal_desc.signal_name, MAXNAME);
             }
         }
     }
@@ -352,8 +352,8 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
         // Allways Parse Signal XML to Identify the True Data Source for this Pulse Number - not subject to client
         // request: get_asis (First Valid Action Record found only - others ignored)
 
-        initActions(&actions_comp_desc);
-        initActions(&actions_comp_sig);
+        init_actions(&actions_comp_desc);
+        init_actions(&actions_comp_sig);
 
         UDA_LOG(UDA_LOG_DEBUG, "parsing XML for a COMPOSITE Signal\n");
 
@@ -362,8 +362,8 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
         UDA_LOG(UDA_LOG_DEBUG, "parsing XML RC? %d\n", rc);
 
         if (rc > 0) {
-            freeActions(&actions_comp_desc);
-            freeActions(&actions_comp_sig);
+            free_actions(&actions_comp_desc);
+            free_actions(&actions_comp_sig);
             (*depth)--;
             UDA_THROW_ERROR(8881, "Unable to Parse XML");
         }
@@ -435,8 +435,8 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
                         if ((strlen(actions_comp_desc.action[compId].composite.file) == 0 ||
                              strlen(actions_comp_desc.action[compId].composite.format) == 0) &&
                             request_block2.exp_number <= 0) {
-                            freeActions(&actions_comp_desc);
-                            freeActions(&actions_comp_sig);
+                            free_actions(&actions_comp_desc);
+                            free_actions(&actions_comp_sig);
                             (*depth)--;
                             UDA_THROW_ERROR(8888,
                                             "User Specified Composite Data Signal Not Fully Defined: Format?, File?");
@@ -455,8 +455,8 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
                                 request_block2.exp_number > 0) {
                                 request_block2.request = REQUEST_READ_GENERIC;
                             } else {
-                                freeActions(&actions_comp_desc);
-                                freeActions(&actions_comp_sig);
+                                free_actions(&actions_comp_desc);
+                                free_actions(&actions_comp_sig);
                                 (*depth)--;
                                 UDA_THROW_ERROR(8889,
                                                 "User Specified Composite Data Signal's File Format NOT Recognised");
@@ -465,9 +465,9 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
                         if (request_block2.request == REQUEST_READ_HDF5) {
                             strcpy(metadata_block_.data_source.path,
-                                   TrimString(request_block2.path)); // HDF5 File Location
+                                   trim_string(request_block2.path)); // HDF5 File Location
                             strcpy(metadata_block_.signal_desc.signal_name,
-                                   TrimString(request_block2.signal)); // HDF5 Variable Name
+                                   trim_string(request_block2.signal)); // HDF5 Variable Name
                         }
                     }
 
@@ -493,12 +493,12 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
                     rc = get_data(depth, &request_block2, data_block, 0);
 
-                    freeActions(&actions_desc_); // Added 06Nov2008
-                    freeActions(&actions_sig_);
+                    free_actions(&actions_desc_); // Added 06Nov2008
+                    free_actions(&actions_sig_);
 
                     if (rc != 0) { // Error
-                        freeActions(&actions_comp_desc);
-                        freeActions(&actions_comp_sig);
+                        free_actions(&actions_comp_desc);
+                        free_actions(&actions_comp_sig);
                         (*depth)--;
                         return rc;
                     }
@@ -510,8 +510,8 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
                     }
                 } else {
                     if (rc == -1 || rc == 1) {
-                        freeActions(&actions_comp_desc);
-                        freeActions(&actions_comp_sig);
+                        free_actions(&actions_comp_desc);
+                        free_actions(&actions_comp_sig);
                         (*depth)--;
                         UDA_THROW_ERROR(7770, "Composite Data Signal Not Available - No XML Document to define it!");
                     }
@@ -528,8 +528,8 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
     if (isDerived) {
         // All Actions are applicable to the Derived/Composite Data Structure
-        copyActions(&actions_desc_, &actions_comp_desc);
-        copyActions(&actions_sig_, &actions_comp_sig);
+        copy_actions(&actions_desc_, &actions_comp_desc);
+        copy_actions(&actions_sig_, &actions_comp_sig);
     } else {
         UDA_LOG(UDA_LOG_DEBUG, "parsing XML for a Regular Signal\n");
 
@@ -573,12 +573,12 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
             // Recursive Call for Error Data
 
-            initActions(&actions_comp_desc2);
-            initActions(&actions_comp_sig2);
-            initDataBlock(&data_block2);
-            initDataSource(&data_source2);
-            initSignal(&signal_rec2);
-            initSignalDesc(&signal_desc2);
+            init_actions(&actions_comp_desc2);
+            init_actions(&actions_comp_sig2);
+            init_data_block(&data_block2);
+            init_data_source(&data_source2);
+            init_signal(&signal_rec2);
+            init_signal_desc(&signal_desc2);
 
             // Check if the source file was originally defined in the client API?
 
@@ -590,8 +590,8 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
             rc = get_data(depth, request_data, data_block, 0);
 
-            freeActions(&actions_comp_desc2);
-            freeActions(&actions_comp_sig2);
+            free_actions(&actions_comp_desc2);
+            free_actions(&actions_comp_sig2);
 
             if (rc != 0) {
                 freeDataBlock(&data_block2);
@@ -620,9 +620,9 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
             // Recursive Call for Error Data
 
-            initActions(&actions_comp_desc2);
-            initActions(&actions_comp_sig2);
-            initDataBlock(&data_block2);
+            init_actions(&actions_comp_desc2);
+            init_actions(&actions_comp_sig2);
+            init_data_block(&data_block2);
 
             // Check if the source file was originally defined in the client API?
 
@@ -634,8 +634,8 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
             rc = get_data(depth, &request_block2, data_block, 0);
 
-            freeActions(&actions_comp_desc2);
-            freeActions(&actions_comp_sig2);
+            free_actions(&actions_comp_desc2);
+            free_actions(&actions_comp_sig2);
 
             if (rc != 0) {
                 freeDataBlock(&data_block2);
@@ -702,16 +702,16 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
                     // Recursive Call for Data
 
-                    initActions(&actions_comp_desc2);
-                    initActions(&actions_comp_sig2);
-                    initDataBlock(&data_block2);
-                    initSignalDesc(&signal_desc2); // Added 06Nov2008
+                    init_actions(&actions_comp_desc2);
+                    init_actions(&actions_comp_sig2);
+                    init_data_block(&data_block2);
+                    init_signal_desc(&signal_desc2); // Added 06Nov2008
 
                     // Check if the source file was originally defined in the client API?
 
                     strcpy(data_source2.format, request_block2.format);
                     strcpy(data_source2.path, request_block2.path);
-                    strcpy(signal_desc2.signal_name, TrimString(request_block2.signal));
+                    strcpy(signal_desc2.signal_name, trim_string(request_block2.signal));
 
                     auto maybe_plugin = plugins_.find_by_format(request_block2.format);
                     if (maybe_plugin) {
@@ -721,8 +721,8 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
                     }
 
                     if (request_block2.request == REQUEST_READ_UNKNOWN) {
-                        freeActions(&actions_comp_desc2);
-                        freeActions(&actions_comp_sig2);
+                        free_actions(&actions_comp_desc2);
+                        free_actions(&actions_comp_sig2);
                         (*depth)--;
                         UDA_THROW_ERROR(9999,
                                         "User Specified Composite Dimension Data Signal's File Format NOT Recognised");
@@ -741,8 +741,8 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
                     rc = get_data(depth, &request_block2, data_block, 0);
 
-                    freeActions(&actions_comp_desc2);
-                    freeActions(&actions_comp_sig2);
+                    free_actions(&actions_comp_desc2);
+                    free_actions(&actions_comp_sig2);
 
                     if (rc != 0) {
                         freeDataBlock(&data_block2);
@@ -773,9 +773,9 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
                     // Recursive Call for Data
 
-                    initActions(&actions_comp_desc2);
-                    initActions(&actions_comp_sig2);
-                    initDataBlock(&data_block2);
+                    init_actions(&actions_comp_desc2);
+                    init_actions(&actions_comp_sig2);
+                    init_data_block(&data_block2);
 
                     // Check if the source file was originally defined in the client API?
 
@@ -787,8 +787,8 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
                     rc = get_data(depth, &request_block2, data_block, 0);
 
-                    freeActions(&actions_comp_desc2);
-                    freeActions(&actions_comp_sig2);
+                    free_actions(&actions_comp_desc2);
+                    free_actions(&actions_comp_sig2);
 
                     if (rc != 0) {
                         freeDataBlock(&data_block2);
@@ -819,9 +819,9 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
                     // Recursive Call for Data
 
-                    initActions(&actions_comp_desc2);
-                    initActions(&actions_comp_sig2);
-                    initDataBlock(&data_block2);
+                    init_actions(&actions_comp_desc2);
+                    init_actions(&actions_comp_sig2);
+                    init_data_block(&data_block2);
 
                     // Check if the source file was originally defined in the client API?
 
@@ -833,8 +833,8 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
 
                     rc = get_data(depth, &request_block2, data_block, 0);
 
-                    freeActions(&actions_comp_desc2);
-                    freeActions(&actions_comp_sig2);
+                    free_actions(&actions_comp_desc2);
+                    free_actions(&actions_comp_sig2);
 
                     if (rc != 0) {
                         freeDataBlock(&data_block2);
@@ -862,7 +862,7 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
     // substituting)
 
     UDA_LOG(UDA_LOG_DEBUG, "#Timing Before XML\n");
-    printDataBlock(*data_block);
+    print_data_block(*data_block);
 
     if (!client_block_.get_asis) {
 
@@ -875,14 +875,14 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
     }
 
     UDA_LOG(UDA_LOG_DEBUG, "#Timing After XML\n");
-    printDataBlock(*data_block);
+    print_data_block(*data_block);
 
     //--------------------------------------------------------------------------------------------------------------------------
     // Subset Data or Map Data when all other actions have been applied
 
     if (isDerived && compId > -1) {
         UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Derived)  %d\n", *depth);
-        printDataBlock(*data_block);
+        print_data_block(*data_block);
 
         if ((rc = serverSubsetData(data_block, actions_desc_.action[compId], log_malloc_list_)) != 0) {
             (*depth)--;
@@ -897,7 +897,7 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
         for (int i = 0; i < actions_desc_.nactions; i++) {
             if (actions_desc_.action[i].actionType == UDA_SUBSET_TYPE) {
                 UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (SUBSET)   %d\n", *depth);
-                printDataBlock(*data_block);
+                print_data_block(*data_block);
 
                 if ((rc = serverSubsetData(data_block, actions_desc_.action[i], log_malloc_list_)) != 0) {
                     (*depth)--;
@@ -915,7 +915,7 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
             if (actions_serverside.action[i].actionType == UDA_SERVER_SIDE_TYPE) {
                 for (int j = 0; j < actions_serverside.action[i].serverside.nsubsets; j++) {
                     UDA_LOG(UDA_LOG_DEBUG, "Calling serverSubsetData (Serverside)   %d\n", *depth);
-                    printDataBlock(*data_block);
+                    print_data_block(*data_block);
 
                     if ((rc = serverSubsetData(data_block, actions_serverside.action[i], log_malloc_list_)) != 0) {
                         (*depth)--;
@@ -924,7 +924,7 @@ int uda::Server::get_data(int* depth, RequestData* request_data, DataBlock* data
                 }
             }
         }
-        freeActions(&actions_serverside);
+        free_actions(&actions_serverside);
     }
 
     //--------------------------------------------------------------------------------------------------------------------------
@@ -941,7 +941,7 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
 
     char mapping[MAXMETA] = "";
 
-    printRequestData(*request);
+    print_request_data(*request);
 
     //------------------------------------------------------------------------------
     // Test for Subsetting or Mapping XML: These require parsing First to identify the data signals needed.
@@ -1095,7 +1095,7 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
 
         // Initialise the Data Block
 
-        initDataBlock(data_block);
+        init_data_block(data_block);
 
         auto plugin_list = plugins_.as_plugin_list();
         plugin_interface.interfaceVersion = 1;
@@ -1250,7 +1250,7 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
     //----------------------------------------------------------------------------
     // Initialise the Data Block Structure
 
-    initDataBlock(data_block);
+    init_data_block(data_block);
 
     //----------------------------------------------------------------------------
     // Status values

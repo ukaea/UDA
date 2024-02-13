@@ -422,7 +422,7 @@ int uda::authentication::writeUdaServerSSL(void* iohandle, const char* buf, int 
 
     // Block till it's possible to write to the socket or timeout
 
-    setSelectParms(g_sslSocket, &wfds, &tv, io_data->server_tot_block_time);
+    set_select_params(g_sslSocket, &wfds, &tv, io_data->server_tot_block_time);
 
     while ((rc = select(g_sslSocket + 1, nullptr, &wfds, nullptr, &tv)) <= 0) {
 
@@ -453,7 +453,7 @@ int uda::authentication::writeUdaServerSSL(void* iohandle, const char* buf, int 
             return -1; // Timeout
         }
 
-        updateSelectParms(g_sslSocket, &wfds, &tv, *io_data->server_tot_block_time);
+        update_select_params(g_sslSocket, &wfds, &tv, *io_data->server_tot_block_time);
     }
 
     // set SSL_MODE_AUTO_RETRY flag of the SSL_CTX_set_mode to disable automatic renegotiation?
@@ -497,7 +497,7 @@ int uda::authentication::readUdaServerSSL(void* iohandle, char* buf, int count)
     // Set the blocking period before a timeout
     auto io_data = reinterpret_cast<uda::server::IoData*>(iohandle);
 
-    setSelectParms(g_sslSocket, &rfds, &tv, io_data->server_tot_block_time);
+    set_select_params(g_sslSocket, &rfds, &tv, io_data->server_tot_block_time);
     tvc = tv;
 
     // TODO: Use pselect to include a signal mask to force a timeout
@@ -531,7 +531,7 @@ int uda::authentication::readUdaServerSSL(void* iohandle, char* buf, int count)
         }
 #  endif
 
-        updateSelectParms(g_sslSocket, &rfds, &tv, *io_data->server_tot_block_time); // Keep blocking and wait for data
+        update_select_params(g_sslSocket, &rfds, &tv, *io_data->server_tot_block_time); // Keep blocking and wait for data
         tvc = tv;
     }
 

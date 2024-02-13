@@ -63,7 +63,7 @@ int uda::client_server::alloc_data(DATA_BLOCK* data_block)
             return ERROR_ALLOCATING_HEAP;
         }
         for (unsigned int i = 0; i < data_block->rank; i++) {
-            initDimBlock(&data_block->dims[i]);
+            init_dim_block(&data_block->dims[i]);
         }
     }
 

@@ -15,7 +15,7 @@
 using namespace uda::client_server;
 using namespace uda::logging;
 
-int uda::client_server::sendXDRFile(XDR* xdrs, const char* xdrfile)
+int uda::client_server::send_xdr_file(XDR* xdrs, const char* xdrfile)
 {
 
     int err = 0, rc = 1, nchar, bufsize, count;
@@ -103,7 +103,7 @@ int uda::client_server::sendXDRFile(XDR* xdrs, const char* xdrfile)
     return err;
 }
 
-int uda::client_server::receiveXDRFile(XDR* xdrs, const char* xdrfile)
+int uda::client_server::receive_xdr_file(XDR* xdrs, const char* xdrfile)
 {
     int err = 0, rc = 1, nchar, bufsize, count, doLoopLimit = 0;
     FILE* fh;

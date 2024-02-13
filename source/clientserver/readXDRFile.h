@@ -8,8 +8,8 @@
 namespace uda::client_server
 {
 
-int sendXDRFile(XDR* xdrs, const char* xdrfile);
+int send_xdr_file(XDR* xdrs, const char* xdrfile);
 
-int receiveXDRFile(XDR* xdrs, const char* xdrfile);
+int receive_xdr_file(XDR* xdrs, const char* xdrfile);
 
 } // namespace uda::client_server

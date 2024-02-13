@@ -118,7 +118,7 @@ int uda::client_server::protocol2(XDR* xdrs, int protocol_id, int direction, int
             break;
         default:
             if (protocol_id > UDA_PROTOCOL_OPAQUE_START && protocol_id < UDA_PROTOCOL_OPAQUE_STOP) {
-                err = protocolXML2(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
+                err = protocol_xml2(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist, str,
                                    protocolVersion, log_struct_list, private_flags, malloc_source);
             }
     }
@@ -135,14 +135,14 @@ static int handle_security_block(XDR* xdrs, int direction, const void* str)
 
     switch (direction) {
         case XDR_RECEIVE:
-            if (!xdr_securityBlock1(xdrs, security_block)) {
+            if (!xdr_security_block1(xdrs, security_block)) {
                 err = UDA_PROTOCOL_ERROR_23;
                 break;
             }
             break;
 
         case XDR_SEND:
-            if (!xdr_securityBlock1(xdrs, security_block)) {
+            if (!xdr_security_block1(xdrs, security_block)) {
                 err = UDA_PROTOCOL_ERROR_23;
                 break;
             }
@@ -180,14 +180,14 @@ static int handle_security_block(XDR* xdrs, int direction, const void* str)
 
     switch (direction) {
         case XDR_RECEIVE:
-            if (!xdr_securityBlock2(xdrs, security_block)) {
+            if (!xdr_security_block2(xdrs, security_block)) {
                 err = UDA_PROTOCOL_ERROR_24;
                 break;
             }
             break;
 
         case XDR_SEND:
-            if (!xdr_securityBlock2(xdrs, security_block)) {
+            if (!xdr_security_block2(xdrs, security_block)) {
                 err = UDA_PROTOCOL_ERROR_24;
                 break;
             }
@@ -559,7 +559,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                 // Fetch multiple put blocks
 
                 PutDataBlock put_data;
-                initPutDataBlock(&put_data);
+                init_put_data_block(&put_data);
 
                 if (!xdr_putdata_block1(xdrs, &put_data)) {
                     err = UDA_PROTOCOL_ERROR_61;
@@ -567,7 +567,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                     break;
                 }
 
-                if (protocolVersionTypeTest(protocolVersion, put_data.data_type)) {
+                if (protocol_version_type_test(protocolVersion, put_data.data_type)) {
                     err = UDA_PROTOCOL_ERROR_9999;
                     break;
                 }
@@ -597,13 +597,13 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
 
                     // *** Add to malloclog and test to ensure it is freed after use ***
 
-                    initDataBlock(data_block);
+                    init_data_block(data_block);
                     data_block->opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                     data_block->data_n = (int)put_data.count;         // This number (also rank and shape)
                     data_block->opaque_block = put_data.opaque_block; // User Defined Type
 
                     int protocol_id = UDA_PROTOCOL_STRUCTURES;
-                    if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist,
+                    if ((err = protocol_xml2_put(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist,
                                                data_block, protocolVersion, log_struct_list, private_flags,
                                                malloc_source)) != 0) {
                         // Fetch Structured data
@@ -636,7 +636,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                     break;
                 }
 
-                if (protocolVersionTypeTest(protocolVersion, putDataBlockList->putDataBlock[i].data_type)) {
+                if (protocol_version_type_test(protocolVersion, putDataBlockList->putDataBlock[i].data_type)) {
                     err = UDA_PROTOCOL_ERROR_9999;
                     break;
                 }
@@ -659,7 +659,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                     //   *** putdata.opaque_count is not used or needed - count is sufficient
 
                     DATA_BLOCK data_block;
-                    initDataBlock(&data_block);
+                    init_data_block(&data_block);
                     data_block.opaque_type = UDA_OPAQUE_TYPE_STRUCTURES;
                     data_block.data_n =
                         (int)putDataBlockList->putDataBlock[i].count; // This number (also rank and shape)
@@ -668,7 +668,7 @@ static int handle_putdata_block_list(XDR* xdrs, int direction, int* token, LOGMA
                         (char*)putDataBlockList->putDataBlock[i].data; // Compact memory block with structures
 
                     int protocol_id = UDA_PROTOCOL_STRUCTURES;
-                    if ((err = protocolXML2Put(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist,
+                    if ((err = protocol_xml2_put(xdrs, protocol_id, direction, token, logmalloclist, userdefinedtypelist,
                                                &data_block, protocolVersion, log_struct_list, private_flags,
                                                malloc_source)) != 0) {
                         // Send Structured data
@@ -704,8 +704,8 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
             // direction == XDR_RECEIVE && protocolVersion == 3 Means Client receiving data from a
             // Version >= 3 Server (Type has to be passed first)
 
-            if (protocolVersionTypeTest(protocolVersion, data_block->data_type) ||
-                protocolVersionTypeTest(protocolVersion, data_block->error_type)) {
+            if (protocol_version_type_test(protocolVersion, data_block->data_type) ||
+                protocol_version_type_test(protocolVersion, data_block->error_type)) {
                 err = UDA_PROTOCOL_ERROR_9999;
                 break;
             }
@@ -739,7 +739,7 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
             if (data_block->rank > 0) { // Check if there are Dimensional Data to Receive
 
                 for (unsigned int i = 0; i < data_block->rank; i++) {
-                    initDimBlock(&data_block->dims[i]);
+                    init_dim_block(&data_block->dims[i]);
                 }
 
                 if (!xdr_data_dim1(xdrs, data_block)) {
@@ -750,8 +750,8 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                 if (protocolVersion < 3) {
                     for (unsigned int i = 0; i < data_block->rank; i++) {
                         DIMS* dim = &data_block->dims[i];
-                        if (protocolVersionTypeTest(protocolVersion, dim->data_type) ||
-                            protocolVersionTypeTest(protocolVersion, dim->error_type)) {
+                        if (protocol_version_type_test(protocolVersion, dim->data_type) ||
+                            protocol_version_type_test(protocolVersion, dim->error_type)) {
                             err = UDA_PROTOCOL_ERROR_9999;
                             break;
                         }
@@ -796,10 +796,10 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
             // known)
 
             UDA_LOG(UDA_LOG_DEBUG, "#1 PROTOCOL: Send/Receive Data Block\n");
-            printDataBlock(*data_block);
+            print_data_block(*data_block);
 
-            if (protocolVersionTypeTest(protocolVersion, data_block->data_type) ||
-                protocolVersionTypeTest(protocolVersion, data_block->error_type)) {
+            if (protocol_version_type_test(protocolVersion, data_block->data_type) ||
+                protocol_version_type_test(protocolVersion, data_block->error_type)) {
                 err = UDA_PROTOCOL_ERROR_9999;
                 UDA_LOG(UDA_LOG_DEBUG, "PROTOCOL: protocolVersionTypeTest Failed\n");
 
@@ -840,8 +840,8 @@ static int handle_data_block(XDR* xdrs, int direction, const void* str, int prot
                 if (protocolVersion < 3) {
                     for (unsigned int i = 0; i < data_block->rank; i++) {
                         DIMS* dim = &data_block->dims[i];
-                        if (protocolVersionTypeTest(protocolVersion, dim->data_type) ||
-                            protocolVersionTypeTest(protocolVersion, dim->error_type)) {
+                        if (protocol_version_type_test(protocolVersion, dim->data_type) ||
+                            protocol_version_type_test(protocolVersion, dim->error_type)) {
                             err = UDA_PROTOCOL_ERROR_9999;
                             break;
                         }
@@ -901,7 +901,7 @@ static int handle_data_block_list(XDR* xdrs, int direction, const void* str, int
             data_block_list->data = (DATA_BLOCK*)malloc(data_block_list->count * sizeof(DATA_BLOCK));
             for (int i = 0; i < data_block_list->count; ++i) {
                 DATA_BLOCK* data_block = &data_block_list->data[i];
-                initDataBlock(data_block);
+                init_data_block(data_block);
                 err = handle_data_block(xdrs, XDR_RECEIVE, data_block, protocolVersion);
                 if (err != 0) {
                     err = UDA_PROTOCOL_ERROR_2;
@@ -955,7 +955,7 @@ static int handle_request_block(XDR* xdrs, int direction, const void* str, int p
             }
             request_block->requests = (REQUEST_DATA*)malloc(request_block->num_requests * sizeof(REQUEST_DATA));
             for (int i = 0; i < request_block->num_requests; ++i) {
-                initRequestData(&request_block->requests[i]);
+                init_request_data(&request_block->requests[i]);
                 if (!xdr_request_data(xdrs, &request_block->requests[i], protocolVersion)) {
                     err = UDA_PROTOCOL_ERROR_2;
                     break;

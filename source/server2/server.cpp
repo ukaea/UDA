@@ -50,17 +50,17 @@ void print_data_block_list(const std::vector<DATA_BLOCK>& data_blocks)
     int i = 0;
     for (auto& data_block : data_blocks) {
         UDA_LOG(UDA_LOG_DEBUG, "block number : %d\n", i);
-        printDataBlock(data_block);
+        print_data_block(data_block);
         ++i;
     }
 }
 
 uda::Server::Server() : error_stack_{}, environment_{}, sockets_{}
 {
-    initServerBlock(&server_block_, ServerVersion);
-    initActions(&actions_desc_); // There may be a Sequence of Actions to Apply
-    initActions(&actions_sig_);
-    initRequestBlock(&request_block_);
+    init_server_block(&server_block_, ServerVersion);
+    init_actions(&actions_desc_); // There may be a Sequence of Actions to Apply
+    init_actions(&actions_sig_);
+    init_request_block(&request_block_);
     cache_ = cache::open_cache();
 }
 
@@ -274,10 +274,10 @@ void uda::Server::loop()
         free_data_blocks(data_blocks_);
 
         UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
-        freeActions(&actions_desc_);
+        free_actions(&actions_desc_);
 
         UDA_LOG(UDA_LOG_DEBUG, "freeActions\n");
-        freeActions(&actions_sig_);
+        free_actions(&actions_sig_);
 
         freeRequestBlock(&request_block_);
 
@@ -297,7 +297,7 @@ void uda::Server::loop()
         close_error();
 
         UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
-        initServerBlock(&server_block_, ServerVersion);
+        init_server_block(&server_block_, ServerVersion);
 
         //----------------------------------------------------------------------------
         // Server Wait Loop
@@ -317,7 +317,7 @@ int uda::Server::handle_request()
 
     int err = 0;
 
-    initClientBlock(&client_block_, 0, "");
+    init_client_block(&client_block_, 0, "");
 
     err = protocol_.recv_client_block(server_block_, &client_block_, &fatal_error_, server_tot_block_time_,
                                       &server_timeout_, log_malloc_list_, user_defined_type_list_);
@@ -392,9 +392,9 @@ int uda::Server::handle_request()
         return err;
     }
 
-    printClientBlock(client_block_);
-    printServerBlock(server_block_);
-    printRequestBlock(request_block_);
+    print_client_block(client_block_);
+    print_server_block(server_block_);
+    print_request_block(request_block_);
 
     //------------------------------------------------------------------------------------------------------------------
     // Prepend Proxy Host to Source to redirect client request
@@ -584,9 +584,9 @@ int uda::Server::handle_request()
     //----------------------------------------------------------------------
     // Initialise Data Structures
 
-    initDataSource(&metadata_block_.data_source);
-    initSignalDesc(&metadata_block_.signal_desc);
-    initSignal(&metadata_block_.signal_rec);
+    init_data_source(&metadata_block_.data_source);
+    init_signal_desc(&metadata_block_.signal_desc);
+    init_signal(&metadata_block_.signal_rec);
 
     //----------------------------------------------------------------------------------------------
     // If this is a PUT request then receive the putData structure
@@ -594,7 +594,7 @@ int uda::Server::handle_request()
     for (int i = 0; i < request_block_.num_requests; ++i) {
         REQUEST_DATA* request = &request_block_.requests[0];
 
-        initPutDataBlockList(&request->putDataBlockList);
+        init_put_data_block_list(&request->putDataBlockList);
 
         if (request->put) {
             err = protocol_.recv_putdata_block_list(&request->putDataBlockList, log_malloc_list_,
@@ -664,10 +664,10 @@ int uda::Server::handle_request()
     UDA_LOG(UDA_LOG_DEBUG, "Pulse Number : %d \n", data_source->exp_number);
     UDA_LOG(UDA_LOG_DEBUG, "Pass Number  : %d \n", data_source->pass);
     UDA_LOG(UDA_LOG_DEBUG, "Recursive #  : %d \n", depth);
-    printRequestBlock(request_block_);
-    printDataSource(*data_source);
-    printSignal(metadata_block_.signal_rec);
-    printSignalDesc(*signal_desc);
+    print_request_block(request_block_);
+    print_data_source(*data_source);
+    print_signal(metadata_block_.signal_rec);
+    print_signal_desc(*signal_desc);
     print_data_block_list(data_blocks_);
     print_error_stack();
     UDA_LOG(UDA_LOG_DEBUG,
@@ -698,8 +698,8 @@ int uda::Server::handle_request()
             data_block.data_type = UDA_TYPE_CHAR;
         }
 
-        if (data_block.data_n > 0 && (protocolVersionTypeTest(protocol_version, data_block.data_type) ||
-                                      protocolVersionTypeTest(protocol_version, data_block.error_type))) {
+        if (data_block.data_n > 0 && (protocol_version_type_test(protocol_version, data_block.data_type) ||
+                                      protocol_version_type_test(protocol_version, data_block.error_type))) {
             UDA_THROW_ERROR(
                 999,
                 "The Data has a type that cannot be passed to the Client: A newer client library version is required.");
@@ -709,8 +709,8 @@ int uda::Server::handle_request()
             DIMS dim;
             for (unsigned int j = 0; j < data_block.rank; j++) {
                 dim = data_block.dims[j];
-                if (protocolVersionTypeTest(protocol_version, dim.data_type) ||
-                    protocolVersionTypeTest(protocol_version, dim.error_type)) {
+                if (protocol_version_type_test(protocol_version, dim.data_type) ||
+                    protocol_version_type_test(protocol_version, dim.error_type)) {
                     UDA_THROW_ERROR(999, "A Coordinate Data has a numerical type that cannot be passed to the Client: "
                                          "A newer client library version is required.");
                 }
@@ -742,7 +742,7 @@ void print_data_blocks(const std::vector<DataBlock>& data_blocks)
     int i = 0;
     for (const auto& data_block : data_blocks) {
         UDA_LOG(UDA_LOG_DEBUG, "block number : %d\n", i);
-        printDataBlock(data_block);
+        print_data_block(data_block);
         ++i;
     }
 }
@@ -768,7 +768,7 @@ int uda::Server::report_to_client()
 
     total_datablock_size_ = count_data_block_list_size(data_blocks_, &client_block_);
 
-    printServerBlock(server_block_);
+    print_server_block(server_block_);
 
     //------------------------------------------------------------------------------------------------
     // Send the server block and all data in a single (minimal number) tcp packet
@@ -832,7 +832,7 @@ void uda::Server::handshake_client()
 {
     // Exchange version details - once only
 
-    initClientBlock(&client_block_, 0, "");
+    init_client_block(&client_block_, 0, "");
 
     // Receive the client block, respecting earlier protocol versions
 

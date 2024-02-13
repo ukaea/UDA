@@ -738,12 +738,12 @@ inline const char* getIdamFileFormat(int handle)
 
 inline void initIdamDataBlock(DATA_BLOCK* str)
 {
-    return initDataBlock(str);
+    return init_data_block(str);
 }
 
 inline void initIdamRequestBlock(REQUEST_BLOCK* str)
 {
-    return initRequestBlock(str);
+    return init_request_block(str);
 }
 
 /*
