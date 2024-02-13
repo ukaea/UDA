@@ -29,8 +29,8 @@ using namespace uda::client;
 //--------------------------------------------------------------------------------------------------------------
 // Generate Error Data
 
-int uda::client::idamErrorModel(int model, int param_n, float* params, int data_n, float* data, int* asymmetry, float* errhi,
-                   float* errlo)
+int uda::client::idamErrorModel(int model, int param_n, float* params, int data_n, float* data, int* asymmetry,
+                                float* errhi, float* errlo)
 {
     *asymmetry = 0; // No Error Asymmetry for most models
 

@@ -26,8 +26,8 @@
 
 using namespace uda::client;
 
-int uda::client::closedown(ClosedownType type, uda::client_server::SOCKETLIST* socket_list, XDR* client_input, XDR* client_output,
-              bool* reopen_logs)
+int uda::client::closedown(ClosedownType type, uda::client_server::SOCKETLIST* socket_list, XDR* client_input,
+                           XDR* client_output, bool* reopen_logs)
 {
     int rc = 0;
 

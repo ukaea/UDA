@@ -8,8 +8,9 @@
 #  include <winsock.h>
 #endif
 
-namespace uda::authentication {
+namespace uda::authentication
+{
 
-void udaUpdateSelectParms(int fd, fd_set *rfds, struct timeval *tv);
+void udaUpdateSelectParms(int fd, fd_set* rfds, struct timeval* tv);
 
 }

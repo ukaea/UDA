@@ -8,13 +8,14 @@
 #  define putIdamClientEnvironment putIdamClientEnvironmentFat
 #endif
 
-namespace uda::client {
+namespace uda::client
+{
 
-void printIdamClientEnvironment(const uda::client_server::ENVIRONMENT *environment);
+void printIdamClientEnvironment(const uda::client_server::ENVIRONMENT* environment);
 
-uda::client_server::ENVIRONMENT *getIdamClientEnvironment();
+uda::client_server::ENVIRONMENT* getIdamClientEnvironment();
 
-void putIdamClientEnvironment(const uda::client_server::ENVIRONMENT *environment);
+void putIdamClientEnvironment(const uda::client_server::ENVIRONMENT* environment);
 
 bool udaGetEnvHost();
 
@@ -24,4 +25,4 @@ void udaSetEnvHost(bool env_host);
 
 void udaSetEnvPort(bool env_port);
 
-}
+} // namespace uda::client

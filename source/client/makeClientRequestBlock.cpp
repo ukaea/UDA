@@ -140,7 +140,8 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
     return 0;
 }
 
-int uda::client::makeClientRequestBlock(const char** signals, const char** sources, int count, REQUEST_BLOCK* request_block)
+int uda::client::makeClientRequestBlock(const char** signals, const char** sources, int count,
+                                        REQUEST_BLOCK* request_block)
 {
     request_block->num_requests = (int)count;
     request_block->requests = (REQUEST_DATA*)malloc(count * sizeof(REQUEST_DATA));

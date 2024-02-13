@@ -8,9 +8,9 @@
 #  include <time.h>
 
 #  include "client/udaClientHostList.h"
-#  include "updateSelectParms.h"
 #  include "clientserver/errorLog.h"
 #  include "logging/logging.h"
+#  include "updateSelectParms.h"
 
 using namespace uda::client_server;
 using namespace uda::client;

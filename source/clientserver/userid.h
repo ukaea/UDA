@@ -1,7 +1,8 @@
 #pragma once
 
-namespace uda::client_server {
+namespace uda::client_server
+{
 
-void userid(char *uid);
+void userid(char* uid);
 
 }

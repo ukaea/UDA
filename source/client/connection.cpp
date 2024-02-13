@@ -45,9 +45,9 @@
 #include "clientserver/manageSockets.h"
 #include "logging/logging.h"
 
+#include "authentication/updateSelectParms.h"
 #include "getEnvironment.h"
 #include "uda/client.h"
-#include "authentication/updateSelectParms.h"
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include <authentication/udaClientSSL.h>
@@ -74,7 +74,7 @@ int uda::client::connectionOpen()
 }
 
 int uda::client::reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output, time_t* tv_server_start,
-              int* user_timeout)
+                           int* user_timeout)
 {
     int err = 0;
 
