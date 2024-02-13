@@ -1,5 +1,4 @@
-#ifndef UDA_LOGGING_LOGGING_H
-#define UDA_LOGGING_LOGGING_H
+#pragma once
 
 #include <stdio.h>
 #include <string.h>
@@ -33,9 +32,8 @@
       } while (0)
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace uda::logging
+{
 
 typedef enum LogLevel {
     UDA_LOG_DEBUG = 1,
@@ -49,14 +47,15 @@ typedef enum LogLevel {
 typedef void (*logFunc)(FILE*);
 
 void udaSetLogLevel(LOG_LEVEL level);
+
 LOG_LEVEL udaGetLogLevel();
+
 void udaCloseLogging();
+
 void udaSetLogFile(LOG_LEVEL mode, FILE* file);
+
 void udaLogWithFunc(LOG_LEVEL mode, logFunc func);
+
 void udaLog(LOG_LEVEL mode, const char* fmt, ...);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif // UDA_LOGGING_LOGGING_H
+} // namespace uda::logging

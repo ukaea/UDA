@@ -68,6 +68,7 @@
 #endif
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 static unsigned int last_malloc_index = 0; // Malloc Log search index last value
 static unsigned int* last_malloc_index_value =

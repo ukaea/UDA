@@ -33,7 +33,7 @@
 
 using namespace uda::client_server;
 
-unsigned int countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block)
+unsigned int uda::logging::countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block)
 {
     unsigned int total = 0;
     for (int i = 0; i < data_block_list->count; ++i) {
@@ -42,7 +42,7 @@ unsigned int countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIE
     return total;
 }
 
-unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* client_block)
+unsigned int uda::logging::countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* client_block)
 {
     int factor;
     DIMS dim;
@@ -101,8 +101,8 @@ unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* clie
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
-void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, SERVER_BLOCK server_block,
-                  unsigned int total_datablock_size)
+void uda::logging::udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_block,
+                                SERVER_BLOCK server_block, unsigned int total_datablock_size)
 {
     int err = 0;
 

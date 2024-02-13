@@ -9,6 +9,7 @@
 
 using namespace uda::client_server;
 using namespace uda::plugins;
+using namespace uda::logging;
 
 /**
  * Return the function address for plugin data readers located in external shared libraries

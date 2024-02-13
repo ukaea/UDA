@@ -4,6 +4,8 @@
 
 #include "logging/logging.h"
 
+using namespace uda::logging;
+
 // 2019-07-04 Herve Ancher (CEA): Add prefix "g_" to avoid conflict with internal MinGW varaible
 static uda::client_server::Environment g_environ;
 

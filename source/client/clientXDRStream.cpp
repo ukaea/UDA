@@ -14,6 +14,8 @@
 using namespace uda::authentication;
 #endif
 
+using namespace uda::logging;
+
 std::pair<XDR*, XDR*> uda::client::clientCreateXDRStream()
 {
     static XDR client_input = {};

@@ -13,8 +13,9 @@
 #endif
 
 #include "client/udaClientHostList.h"
-#include "clientserver/stringUtils.h"
 #include "logging/logging.h"
+
+using namespace uda::logging;
 
 const uda::client_server::HostData* uda::client::HostList::find_by_alias(std::string_view alias) const
 {

@@ -11,6 +11,7 @@
 
 using namespace uda::client_server;
 using namespace uda::server;
+using namespace uda::logging;
 
 int uda::server::startup()
 {

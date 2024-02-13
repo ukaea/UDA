@@ -24,6 +24,7 @@
 
 using namespace uda::client_server;
 using namespace uda::server;
+using namespace uda::logging;
 
 static int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry);
 static int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2);

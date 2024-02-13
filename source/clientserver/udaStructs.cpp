@@ -4,6 +4,8 @@
 
 #include <uda/types.h>
 
+using namespace uda::logging;
+
 void uda::client_server::freePutDataBlockList(PutDataBlockList* putDataBlockList)
 {
     if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {

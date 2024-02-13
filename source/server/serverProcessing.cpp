@@ -3,7 +3,8 @@
 #include <cstdlib>
 
 #include "logging/logging.h"
-#include <uda/types.h>
+
+using namespace uda::logging;
 
 template <typename T> bool reduce_dim(uda::client_server::DIMS* ddim)
 {

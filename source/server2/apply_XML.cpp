@@ -21,6 +21,8 @@
 #include "logging/logging.h"
 #include <uda/types.h>
 
+using namespace uda::logging;
+
 int uda::server_parse_signal_XML(uda::client_server::DATA_SOURCE data_source, uda::client_server::SIGNAL signal,
                                  uda::client_server::SIGNAL_DESC signal_desc, uda::client_server::ACTIONS* actions_desc,
                                  uda::client_server::ACTIONS* actions_sig)

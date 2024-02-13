@@ -17,6 +17,7 @@
 #endif
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 static int recursiveDepthPut = 0; // Keep count of recursive calls
 

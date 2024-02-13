@@ -46,6 +46,7 @@ using namespace uda::authentication;
 
 using namespace uda::client_server;
 using namespace uda::server;
+using namespace uda::logging;
 
 //--------------------------------------------------------------------------------------
 // static globals

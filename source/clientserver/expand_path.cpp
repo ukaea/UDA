@@ -59,6 +59,7 @@ void expandFilePath(char* path)
 #  define MAXPATHSUBSLENGTH 256
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 /**
  * The workstation (client host) name is obtained using the operating system command 'hostname'.

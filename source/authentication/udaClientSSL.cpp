@@ -15,6 +15,7 @@
 using namespace uda::client_server;
 using namespace uda::client;
 using namespace uda::authentication;
+using namespace uda::logging;
 
 static bool g_sslDisabled = true; // Default state is not SSL authentication
 static int g_sslProtocol = 0;     // The default server host name has the SSL protocol name prefix or

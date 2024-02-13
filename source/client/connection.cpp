@@ -64,6 +64,7 @@
 using namespace uda::client_server;
 using namespace uda::client;
 using namespace uda::authentication;
+using namespace uda::logging;
 
 static int client_socket = -1;
 static SOCKETLIST client_socketlist; // List of open sockets

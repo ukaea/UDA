@@ -6,9 +6,9 @@
 
 #include "clientserver/errorLog.h"
 #include "logging/logging.h"
-#include <uda/types.h>
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 void uda::client_server::printRequestData(REQUEST_DATA str)
 {

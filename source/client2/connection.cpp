@@ -61,6 +61,7 @@ using namespace uda::authentication;
 #define PORT_STRING 64
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 int uda::client::Connection::open()
 {

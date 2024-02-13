@@ -21,6 +21,7 @@
 #include "structures/struct.h"
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 //-----------------------------------------------------------------------
 // Test version's type passing capability

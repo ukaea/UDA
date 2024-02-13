@@ -40,6 +40,7 @@
 #include "udaErrors.h"
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 static int handle_request_block(XDR* xdrs, int direction, const void* str, int protocolVersion);
 static int handle_data_block(XDR* xdrs, int direction, const void* str, int protocolVersion);

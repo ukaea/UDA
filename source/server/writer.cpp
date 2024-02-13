@@ -40,6 +40,7 @@ int serverSocket = 0;
 */
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 int uda::server::server_read(void* iohandle, char* buf, int count)
 {

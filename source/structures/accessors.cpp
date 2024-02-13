@@ -54,6 +54,8 @@
 #include "logging/logging.h"
 #include "struct.h"
 
+using namespace uda::logging;
+
 /** Find (search type A) the first Tree Node with a data structure type containing a named element/member.
  *
  * This is a private function with the whole sub-tree in scope.

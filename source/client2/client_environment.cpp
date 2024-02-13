@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <fmt/format.h>
 
+using namespace uda::logging;
+
 uda::client_server::Environment uda::client::load_environment(bool* env_host, bool* env_port)
 {
     char* env = nullptr;

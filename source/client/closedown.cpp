@@ -28,6 +28,7 @@ using namespace uda::authentication;
 #endif
 
 using namespace uda::client;
+using namespace uda::logging;
 
 int uda::client::closedown(ClosedownType type, uda::client_server::SOCKETLIST* socket_list, XDR* client_input,
                            XDR* client_output, bool* reopen_logs)

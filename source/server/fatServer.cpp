@@ -31,6 +31,7 @@ void ncclose(int fh) {}
 
 using namespace uda::client_server;
 using namespace uda::server;
+using namespace uda::logging;
 
 static uda::plugins::PluginList pluginList; // List of all data reader plugins (internal and external shared libraries)
 ENVIRONMENT environment;                    // Holds local environment variable values

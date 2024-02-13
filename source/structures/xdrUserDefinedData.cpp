@@ -10,6 +10,7 @@
 #include "logging/logging.h"
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 static int recursiveDepth = 0; // Keep count of recursive calls
 

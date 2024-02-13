@@ -15,6 +15,7 @@
 
 using namespace uda::client_server;
 using namespace uda::server;
+using namespace uda::logging;
 
 int uda::server::udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc)
 {

@@ -26,6 +26,7 @@
 
 using namespace uda::client_server;
 using namespace uda::client;
+using namespace uda::logging;
 
 int uda::client::udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_logs)
 {

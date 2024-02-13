@@ -72,6 +72,7 @@
 #include "xdrlib.h"
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 int uda::client_server::protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                                     USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,

@@ -34,6 +34,7 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 
 using namespace uda::client_server;
 using namespace uda::server;
+using namespace uda::logging;
 
 constexpr int server_version = 8;
 

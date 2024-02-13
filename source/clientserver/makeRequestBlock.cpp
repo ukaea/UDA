@@ -37,6 +37,7 @@
 #define MAXREQDEPTH 4  // Maximum number of Device Name to Server Protocol and Host substitution
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 static void extract_function_name(const char* str, REQUEST_DATA* request);
 

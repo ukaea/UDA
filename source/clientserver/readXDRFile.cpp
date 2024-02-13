@@ -13,6 +13,7 @@
 #define MAXDOLOOPLIMIT 500 // ~50MB file
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 int uda::client_server::sendXDRFile(XDR* xdrs, const char* xdrfile)
 {

@@ -6,6 +6,8 @@
 
 #include "logging/logging.h"
 
+using namespace uda::logging;
+
 void uda::server::Environment::print()
 {
     UDA_LOG(UDA_LOG_INFO, "Server Environment Variable values\n");

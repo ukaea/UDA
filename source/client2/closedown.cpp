@@ -10,6 +10,8 @@
 using namespace uda::authentication;
 #endif
 
+using namespace uda::logging;
+
 int uda::client::closedown(ClosedownType type, Connection* connection, XDR* client_input, XDR* client_output,
                            bool* reopen_logs, bool* env_host, bool* env_port)
 {

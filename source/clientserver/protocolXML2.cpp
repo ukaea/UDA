@@ -85,6 +85,7 @@
 #define PARTBLOCKOUTPUT 3
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 extern "C" {
 

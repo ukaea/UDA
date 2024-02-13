@@ -4,26 +4,28 @@
 #include <stdarg.h>
 #include <syslog.h>
 
+using namespace uda::logging;
+
 static LOG_LEVEL log_level = UDA_LOG_NONE;
 
 int reopen_logs = 0; // No need to Re-Open Logs
 
-void udaSetLogLevel(LOG_LEVEL level)
+void uda::logging::udaSetLogLevel(LOG_LEVEL level)
 {
     log_level = level;
 }
 
-LOG_LEVEL udaGetLogLevel()
+LOG_LEVEL uda::logging::udaGetLogLevel()
 {
     return log_level;
 }
 
-void udaCloseLogging()
+void uda::logging::udaCloseLogging()
 {
     closelog();
 }
 
-void udaSetLogFile(LOG_LEVEL mode, FILE* file)
+void uda::logging::udaSetLogFile(LOG_LEVEL mode, FILE* file)
 {
     openlog("uda", 0, 0);
 }
@@ -46,7 +48,7 @@ static int syslogPriority(LOG_LEVEL log_mode)
     }
 }
 
-void udaLogWithFunc(LOG_LEVEL mode, logFunc func)
+void uda::logging::udaLogWithFunc(LOG_LEVEL mode, logFunc func)
 {
     char tmpFileName[] = "UdaTempLogXXXXXX";
 
@@ -66,7 +68,7 @@ void udaLogWithFunc(LOG_LEVEL mode, logFunc func)
     fclose(tmpFile);
 }
 
-void udaLog(LOG_LEVEL mode, const char* fmt, ...)
+void uda::logging::udaLog(LOG_LEVEL mode, const char* fmt, ...)
 {
     if (mode >= log_level) {
         int priority = syslogPriority(mode);

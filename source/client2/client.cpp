@@ -20,6 +20,7 @@
 #include "uda/client.h"
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 namespace
 {

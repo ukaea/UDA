@@ -5,6 +5,8 @@
 
 #include "logging/logging.h"
 
+using namespace uda::logging;
+
 bool env_host = true; // User can change these before startup so flag to the getEnvironment function
 bool env_port = true;
 

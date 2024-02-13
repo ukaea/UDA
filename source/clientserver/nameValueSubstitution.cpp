@@ -17,6 +17,7 @@
 #include <fmt/format.h>
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 static void embedded_value_substitution(NAMEVALUELIST* nameValueList);
 

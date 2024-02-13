@@ -5,6 +5,8 @@
 #include "logging/logging.h"
 #include <uda/types.h>
 
+using namespace uda::logging;
+
 /**
  * UDA Server Side Data Processing
  *

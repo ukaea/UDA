@@ -23,6 +23,7 @@ using namespace uda::authentication;
 #endif
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 void free_data_blocks(std::vector<DataBlock>& data_blocks)
 {

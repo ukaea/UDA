@@ -25,7 +25,6 @@
 
 #include "logging/logging.h"
 #include <cstdlib>
-#include <uda/types.h>
 
 #include "allocData.h"
 #include "compressDim.h"
@@ -40,6 +39,7 @@
 #endif
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 void uda::client_server::setSelectParms(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time)
 {

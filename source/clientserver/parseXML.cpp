@@ -22,13 +22,13 @@
 #include "logging/logging.h"
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 #ifndef NOXMLPARSER
 
 #  include "clientserver/errorLog.h"
 #  include "clientserver/parseOperation.h"
 #  include "clientserver/stringUtils.h"
-#  include <uda/types.h>
 
 static double deScale(char* scale);
 static void parse_target_value(xmlDocPtr doc, xmlNodePtr cur, const char* target, double* value);

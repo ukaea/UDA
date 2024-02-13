@@ -14,6 +14,7 @@
 #include "server/udaServer.h"
 
 using namespace uda::client_server;
+using namespace uda::logging;
 
 int uda::server::sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmalloclist,
                              USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,

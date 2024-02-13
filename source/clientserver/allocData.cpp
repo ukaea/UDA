@@ -16,6 +16,8 @@
 #include "initStructs.h"
 #include "udaErrors.h"
 
+using namespace uda::logging;
+
 /**
  * Generic function to (Re)Allocate Memory for a typed Array
  * @param data_type

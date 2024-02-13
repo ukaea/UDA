@@ -33,6 +33,7 @@
 using namespace uda::client_server;
 using namespace uda::server;
 using namespace uda::plugins;
+using namespace uda::logging;
 
 /**
  * Find the Plugin identity: return the reference id or -1 if not found.

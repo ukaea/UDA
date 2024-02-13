@@ -33,6 +33,7 @@
 
 using namespace uda::client_server;
 using namespace uda::client;
+using namespace uda::logging;
 
 USERDEFINEDTYPE* udaGetUserDefinedType(int handle);
 USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle);

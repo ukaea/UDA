@@ -15,6 +15,8 @@
 #define UDA_PLUGIN_FILE_ALLOC 10
 #define MAX_OPEN_PLUGIN_FILE_DESC 50
 
+using namespace uda::logging;
+
 // Initialise the File List and allocate heap for the list
 
 void initIdamPluginFileList(UDA_PLUGIN_FILE_LIST* uda_files)

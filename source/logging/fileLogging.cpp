@@ -2,6 +2,8 @@
 
 #include <cstdarg>
 
+using namespace uda::logging;
+
 int reopen_logs = 0; // No need to Re-Open Logs
 
 static FILE* error_log = nullptr;
@@ -12,12 +14,12 @@ static FILE* access_log = nullptr;
 
 static LOG_LEVEL log_level = UDA_LOG_NONE;
 
-void udaSetLogLevel(LOG_LEVEL level)
+void uda::logging::udaSetLogLevel(LOG_LEVEL level)
 {
     log_level = level;
 }
 
-LOG_LEVEL udaGetLogLevel()
+LOG_LEVEL uda::logging::udaGetLogLevel()
 {
     return log_level;
 }
@@ -40,7 +42,7 @@ static FILE* idamGetLogFile(LOG_LEVEL mode)
     }
 }
 
-void udaSetLogFile(LOG_LEVEL mode, FILE* file)
+void uda::logging::udaSetLogFile(LOG_LEVEL mode, FILE* file)
 {
     switch (mode) {
         case UDA_LOG_ACCESS:
@@ -63,7 +65,7 @@ void udaSetLogFile(LOG_LEVEL mode, FILE* file)
     }
 }
 
-void udaLogWithFunc(LOG_LEVEL mode, logFunc func)
+void uda::logging::udaLogWithFunc(LOG_LEVEL mode, logFunc func)
 {
     FILE* log_file = idamGetLogFile(mode);
 
@@ -73,7 +75,7 @@ void udaLogWithFunc(LOG_LEVEL mode, logFunc func)
     }
 }
 
-void udaLog(LOG_LEVEL mode, const char* fmt, ...)
+void uda::logging::udaLog(LOG_LEVEL mode, const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -88,7 +90,7 @@ void udaLog(LOG_LEVEL mode, const char* fmt, ...)
     va_end(args);
 }
 
-void udaCloseLogging()
+void uda::logging::udaCloseLogging()
 {
     if (access_log != nullptr) {
         fclose(access_log);
