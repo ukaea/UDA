@@ -33,6 +33,7 @@
 #define REQUEST_PLUGIN_MSTEP 10   // Increase heap by 10 records once the maximum is exceeded
 
 using namespace uda::client_server;
+using namespace uda::plugins;
 
 int uda::serverRedirectStdStreams(int reset)
 {
@@ -251,7 +252,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
     // Identify the Provenance Gathering plugin (must be a function library type plugin)
 
     static bool initialised = false;
-    static boost::optional<PluginData> plugin = {};
+    static boost::optional<uda::plugins::PluginData> plugin = {};
     static int exec_method = 1; // The default method used to write efficiently to the backend SQL server
     char* env = nullptr;
 
@@ -326,7 +327,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
 
     int err, rc, reset;
     DataBlock data_block = {};
-    UdaPluginInterface plugin_interface = {};
+    uda::plugins::UdaPluginInterface plugin_interface = {};
 
     // Initialise the Data Block
 
@@ -373,7 +374,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
 
     UDA_LOG(UDA_LOG_DEBUG, "entering the provenance plugin\n");
 
-    err = plugin->idamPlugin(&plugin_interface);
+    err = plugin->idamPlugin(static_cast<UDA_PLUGIN_INTERFACE*>(&plugin_interface));
 
     UDA_LOG(UDA_LOG_DEBUG, "returned from the provenance plugin\n");
 
@@ -417,10 +418,11 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
 //------------------------------------------------------------------------------------------------
 // Identify the Plugin to use to resolve Generic Name mappings and return its ID
 
-boost::optional<PluginData> uda::find_metadata_plugin(const Plugins& plugins, const server::Environment& environment)
+boost::optional<uda::plugins::PluginData> uda::find_metadata_plugin(const Plugins& plugins,
+                                                                    const server::Environment& environment)
 {
     static bool no_plugin_registered = false;
-    static boost::optional<PluginData> plugin = {};
+    static boost::optional<uda::plugins::PluginData> plugin = {};
 
     UDA_LOG(UDA_LOG_DEBUG, "Entered: no_plugin_registered state = %d\n", no_plugin_registered);
 
@@ -471,12 +473,12 @@ boost::optional<PluginData> uda::find_metadata_plugin(const Plugins& plugins, co
 //------------------------------------------------------------------------------------------------
 // Execute the Generic Name mapping Plugin
 
-int uda::call_metadata_plugin(const PluginData& plugin, RequestData* request_block,
+int uda::call_metadata_plugin(const uda::plugins::PluginData& plugin, RequestData* request_block,
                               const server::Environment& environment, const uda::Plugins& plugins,
                               uda::MetadataBlock& metadata)
 {
     int err, reset, rc;
-    UdaPluginInterface plugin_interface = {};
+    uda::plugins::UdaPluginInterface plugin_interface = {};
 
     // Check the Interface Compliance
 

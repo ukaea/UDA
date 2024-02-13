@@ -222,7 +222,8 @@ int cast_data(uda::client_server::DATA_BLOCK* data_block, const uda::client_serv
  * @param data_block
  * @return 1 if an error occurred, otherwise 0
  */
-int serverProcessing(uda::client_server::CLIENT_BLOCK client_block, uda::client_server::DATA_BLOCK* data_block)
+int uda::server::serverProcessing(uda::client_server::CLIENT_BLOCK client_block,
+                                  uda::client_server::DATA_BLOCK* data_block)
 {
     int rc = 0;
 

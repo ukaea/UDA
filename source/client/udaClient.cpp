@@ -1122,7 +1122,7 @@ int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         DATA_BLOCK_LIST data_block_list0;
         initDataBlockList(&data_block_list0);
-        err = fat_server(client_block, &server_block, request_block, &data_block_list0);
+        err = uda::server::fat_server(client_block, &server_block, request_block, &data_block_list0);
 
         for (int i = 0; i < data_block_list0.count; ++i) {
             DATA_BLOCK* data_block0 = &data_block_list0.data[i];

@@ -21,9 +21,10 @@
 #include "logging/logging.h"
 #include <uda/types.h>
 
-int serverParseSignalXML(uda::client_server::DATA_SOURCE data_source, uda::client_server::SIGNAL signal,
-                         uda::client_server::SIGNAL_DESC signal_desc, uda::client_server::ACTIONS* actions_desc,
-                         uda::client_server::ACTIONS* actions_sig)
+int uda::server::serverParseSignalXML(uda::client_server::DATA_SOURCE data_source, uda::client_server::SIGNAL signal,
+                                      uda::client_server::SIGNAL_DESC signal_desc,
+                                      uda::client_server::ACTIONS* actions_desc,
+                                      uda::client_server::ACTIONS* actions_sig)
 {
 
     // return -1 if No Qualifying Actionable XML otherwise return 0
@@ -274,9 +275,10 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
     }
 }
 
-void serverApplySignalXML(uda::client_server::CLIENT_BLOCK client_block, uda::client_server::DATA_SOURCE* data_source,
-                          uda::client_server::SIGNAL* signal, uda::client_server::SIGNAL_DESC* signal_desc,
-                          uda::client_server::DATA_BLOCK* data_block, uda::client_server::ACTIONS actions)
+void uda::server::serverApplySignalXML(uda::client_server::CLIENT_BLOCK client_block,
+                                       uda::client_server::DATA_SOURCE* data_source, uda::client_server::SIGNAL* signal,
+                                       uda::client_server::SIGNAL_DESC* signal_desc,
+                                       uda::client_server::DATA_BLOCK* data_block, uda::client_server::ACTIONS actions)
 {
 
     int ndata, dimid;
@@ -1528,7 +1530,8 @@ void serverApplySignalXML(uda::client_server::CLIENT_BLOCK client_block, uda::cl
 
 // Combine the set of Actions from both sources with Signal XML having Priority of Signal_Desc XML
 
-void serverDeselectSignalXML(uda::client_server::ACTIONS* actions_desc, uda::client_server::ACTIONS* actions_sig)
+void uda::server::serverDeselectSignalXML(uda::client_server::ACTIONS* actions_desc,
+                                          uda::client_server::ACTIONS* actions_sig)
 {
 
     int type;

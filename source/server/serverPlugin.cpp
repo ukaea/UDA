@@ -31,6 +31,8 @@
 #define REQUEST_PLUGIN_MSTEP 10   // Increase heap by 10 records once the maximum is exceeded
 
 using namespace uda::client_server;
+using namespace uda::server;
+using namespace uda::plugins;
 
 /**
  * Find the Plugin identity: return the reference id or -1 if not found.
@@ -38,7 +40,7 @@ using namespace uda::client_server;
  * @param plugin_list
  * @return
  */
-int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list)
+int uda::server::findPluginIdByRequest(int request, const uda::plugins::PluginList* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
         if (plugin_list->plugin[i].request == request) {
@@ -54,7 +56,7 @@ int findPluginIdByRequest(int request, const PLUGINLIST* plugin_list)
  * @param plugin_list
  * @return
  */
-int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
+int uda::server::findPluginIdByFormat(const char* format, const uda::plugins::PluginList* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
         if (STR_IEQUALS(plugin_list->plugin[i].format, format)) {
@@ -70,7 +72,7 @@ int findPluginIdByFormat(const char* format, const PLUGINLIST* plugin_list)
  * @param plugin_list
  * @return
  */
-int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list)
+int uda::server::findPluginIdByDevice(const char* device, const uda::plugins::PluginList* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
         if (plugin_list->plugin[i].plugin_class == UDA_PLUGIN_CLASS_DEVICE &&
@@ -87,7 +89,7 @@ int findPluginIdByDevice(const char* device, const PLUGINLIST* plugin_list)
  * @param plugin_list
  * @return
  */
-int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list)
+int uda::server::findPluginRequestByFormat(const char* format, const uda::plugins::PluginList* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
         if (STR_IEQUALS(plugin_list->plugin[i].format, format)) {
@@ -103,7 +105,7 @@ int findPluginRequestByFormat(const char* format, const PLUGINLIST* plugin_list)
  * @param plugin_list
  * @return
  */
-int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin_list)
+int uda::server::findPluginRequestByExtension(const char* extension, const uda::plugins::PluginList* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
         if (STR_IEQUALS(plugin_list->plugin[i].extension, extension)) {
@@ -113,19 +115,19 @@ int findPluginRequestByExtension(const char* extension, const PLUGINLIST* plugin
     return REQUEST_READ_UNKNOWN;
 }
 
-void allocPluginList(int count, PLUGINLIST* plugin_list)
+void uda::server::allocPluginList(int count, uda::plugins::PluginList* plugin_list)
 {
     if (count >= plugin_list->mcount) {
         plugin_list->mcount = plugin_list->mcount + REQUEST_PLUGIN_MSTEP;
-        plugin_list->plugin =
-            (PLUGIN_DATA*)realloc((void*)plugin_list->plugin, plugin_list->mcount * sizeof(PLUGIN_DATA));
+        plugin_list->plugin = (uda::plugins::PluginData*)realloc(
+            (void*)plugin_list->plugin, plugin_list->mcount * sizeof(uda::plugins::PluginData));
     }
 }
 
-void resetPlugins(const PLUGINLIST* plugin_list)
+void resetPlugins(const uda::plugins::PluginList* plugin_list)
 {
     REQUEST_DATA request_block;
-    UDA_PLUGIN_INTERFACE plugin_interface;
+    uda::plugins::UdaPluginInterface plugin_interface;
     initRequestData(&request_block);
     strcpy(request_block.function, "reset");
 
@@ -134,12 +136,13 @@ void resetPlugins(const PLUGINLIST* plugin_list)
     plugin_interface.request_data = &request_block;
     for (int i = 0; i < plugin_list->count; i++) {
         if (plugin_list->plugin[i].pluginHandle != nullptr) {
-            plugin_list->plugin[i].idamPlugin(&plugin_interface); // Call the housekeeping method
+            plugin_list->plugin[i].idamPlugin(
+                static_cast<UDA_PLUGIN_INTERFACE*>(&plugin_interface)); // Call the housekeeping method
         }
     }
 }
 
-void freePluginList(PLUGINLIST* plugin_list)
+void uda::server::freePluginList(uda::plugins::PluginList* plugin_list)
 {
     resetPlugins(plugin_list);
     for (int i = 0; i < plugin_list->count; i++) {
@@ -153,7 +156,7 @@ void freePluginList(PLUGINLIST* plugin_list)
     plugin_list->mcount = 0;
 }
 
-void initPluginData(PLUGIN_DATA* plugin)
+void uda::server::initPluginData(uda::plugins::PluginData* plugin)
 {
     plugin->format[0] = '\0';
     plugin->library[0] = '\0';
@@ -176,7 +179,7 @@ void initPluginData(PLUGIN_DATA* plugin)
     plugin->idamPlugin = nullptr;
 }
 
-void printPluginList(FILE* fd, const PLUGINLIST* plugin_list)
+void printPluginList(FILE* fd, const uda::plugins::PluginList* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
         fprintf(fd, "Format     : %s\n", plugin_list->plugin[i].format);
@@ -198,7 +201,7 @@ void printPluginList(FILE* fd, const PLUGINLIST* plugin_list)
     }
 }
 
-int udaServerRedirectStdStreams(int reset)
+int uda::server::udaServerRedirectStdStreams(int reset)
 {
     // Any OS messages will corrupt xdr streams so re-divert IO from plugin libraries to a temporary file
 
@@ -334,8 +337,8 @@ int udaServerRedirectStdStreams(int reset)
 // 5. open the library
 // 6. get plugin function address
 // 7. close the file
-int udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
-                    const PLUGINLIST* plugin_list, const ENVIRONMENT* environment)
+int uda::server::udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
+                                 const uda::plugins::PluginList* plugin_list, const ENVIRONMENT* environment)
 {
     int err = 0;
 
@@ -402,9 +405,10 @@ int udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC
 // changePlugin option disabled in this context
 // private malloc log and userdefinedtypelist
 
-int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_request, DATA_SOURCE* data_source,
-                        SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list, const char* logRecord,
-                        const ENVIRONMENT* environment)
+int uda::server::udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_request,
+                                     DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
+                                     const uda::plugins::PluginList* plugin_list, const char* logRecord,
+                                     const ENVIRONMENT* environment)
 {
 
     if (STR_EQUALS(client_block->DOI, "")) {
@@ -490,7 +494,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
 
     int err, rc, reset;
     DATA_BLOCK data_block;
-    UDA_PLUGIN_INTERFACE plugin_interface;
+    UdaPluginInterface plugin_interface;
 
     // Initialise the Data Block
 
@@ -581,7 +585,7 @@ int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_reque
 //------------------------------------------------------------------------------------------------
 // Identify the Plugin to use to resolve Generic Name mappings and return its ID
 
-int udaServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* environment)
+int uda::server::udaServerMetaDataPluginId(const uda::plugins::PluginList* plugin_list, const ENVIRONMENT* environment)
 {
     static unsigned short noPluginRegistered = 0;
     static int plugin_id = -1;
@@ -639,12 +643,12 @@ int udaServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* 
 //------------------------------------------------------------------------------------------------
 // Execute the Generic Name mapping Plugin
 
-int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_DATA* request_block,
-                            SIGNAL_DESC* signal_desc, SIGNAL* signal_rec, DATA_SOURCE* data_source,
-                            const ENVIRONMENT* environment)
+int uda::server::udaServerMetaDataPlugin(const uda::plugins::PluginList* plugin_list, int plugin_id,
+                                         REQUEST_DATA* request_block, SIGNAL_DESC* signal_desc, SIGNAL* signal_rec,
+                                         DATA_SOURCE* data_source, const ENVIRONMENT* environment)
 {
     int err, reset, rc;
-    UDA_PLUGIN_INTERFACE plugin_interface;
+    UdaPluginInterface plugin_interface;
 
     // Check the Interface Compliance
 

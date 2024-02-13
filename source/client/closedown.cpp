@@ -15,6 +15,7 @@
 #ifdef FATCLIENT
 #  include "server/closeServerSockets.h"
 #  include "server/udaServer.h"
+using namespace uda::server;
 #else
 #  include "connection.h"
 #  include "getEnvironment.h"

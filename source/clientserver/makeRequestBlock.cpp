@@ -40,8 +40,8 @@ using namespace uda::client_server;
 
 static void extract_function_name(const char* str, REQUEST_DATA* request);
 
-static int source_file_format_test(const char* source, REQUEST_DATA* request, const PLUGINLIST* pluginList,
-                                   const ENVIRONMENT* environment);
+static int source_file_format_test(const char* source, REQUEST_DATA* request,
+                                   const uda::plugins::PluginList* pluginList, const ENVIRONMENT* environment);
 
 static int extract_archive(REQUEST_DATA* request, int reduceSignal, const ENVIRONMENT* environment);
 
@@ -60,7 +60,7 @@ struct NameValue {
 std::vector<uda::NameValue> name_value_pairs(std::string_view input, bool strip);
 } // namespace uda
 
-static int find_plugin_id_by_format(const char* format, const PLUGINLIST* plugin_list)
+static int find_plugin_id_by_format(const char* format, const uda::plugins::PluginList* plugin_list)
 {
     for (int i = 0; i < plugin_list->count; i++) {
         if (STR_IEQUALS(plugin_list->plugin[i].format, format)) {
@@ -70,7 +70,7 @@ static int find_plugin_id_by_format(const char* format, const PLUGINLIST* plugin
     return -1;
 }
 
-int uda::client_server::makeRequestData(REQUEST_DATA* request, const PLUGINLIST* pluginList,
+int uda::client_server::makeRequestData(REQUEST_DATA* request, const uda::plugins::PluginList* pluginList,
                                         const ENVIRONMENT* environment)
 {
     int ldelim;
@@ -336,15 +336,15 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const PLUGINLIST*
 
             for (int i = 0; i < pluginList->count; i++) {
                 if (STR_IEQUALS(work2, pluginList->plugin[i].format)) {
-                    if (pluginList->plugin[i].plugin_class != UDA_PLUGIN_CLASS_DEVICE) {
+                    if (pluginList->plugin[i].plugin_class != uda::plugins::UDA_PLUGIN_CLASS_DEVICE) {
                         request->request = pluginList->plugin[i].request; // Found
                         strcpy(request->format, pluginList->plugin[i].format);
                         if (pluginList->plugin[i].plugin_class !=
-                            UDA_PLUGIN_CLASS_FILE) { // The full file path fully resolved by the client
+                            uda::plugins::UDA_PLUGIN_CLASS_FILE) { // The full file path fully resolved by the client
                             strcpy(request->path,
                                    test + ldelim);     // Complete String following :: delimiter
                             strcpy(request->file, ""); // Clean the filename
-                            if (pluginList->plugin[i].plugin_class == UDA_PLUGIN_CLASS_FUNCTION) {
+                            if (pluginList->plugin[i].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_FUNCTION) {
                                 isFunction = true;
                                 extract_function_name(work, request);
                             }
@@ -357,8 +357,8 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const PLUGINLIST*
 #endif
                             strcpy(request->file, base); // Final token
                         }
-                        isFile = pluginList->plugin[i].plugin_class == UDA_PLUGIN_CLASS_FILE;
-                        isServer = pluginList->plugin[i].plugin_class == UDA_PLUGIN_CLASS_SERVER;
+                        isFile = pluginList->plugin[i].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_FILE;
+                        isServer = pluginList->plugin[i].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_SERVER;
                         break;
                     } else {
 
@@ -369,7 +369,7 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const PLUGINLIST*
                         static int depth = 0;
                         // int id = findPluginRequestByFormat(pluginList->plugin[i].deviceProtocol, &pluginList);
                         int id = find_plugin_id_by_format(pluginList->plugin[i].deviceProtocol, pluginList);
-                        if (id >= 0 && pluginList->plugin[id].plugin_class == UDA_PLUGIN_CLASS_SERVER) {
+                        if (id >= 0 && pluginList->plugin[id].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_SERVER) {
 
                             snprintf(work, MAXMETA, "%s%s%s", pluginList->plugin[i].deviceProtocol, request->api_delim,
                                      pluginList->plugin[i].deviceHost);
@@ -581,8 +581,8 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const PLUGINLIST*
                 if (STR_IEQUALS(request->archive, pluginList->plugin[i].format)) {
                     request->request = pluginList->plugin[i].request; // Found
                     strcpy(request->format, pluginList->plugin[i].format);
-                    isFunction =
-                        (pluginList->plugin[i].plugin_class == UDA_PLUGIN_CLASS_FUNCTION); // Must be a known Library
+                    isFunction = (pluginList->plugin[i].plugin_class ==
+                                  uda::plugins::UDA_PLUGIN_CLASS_FUNCTION); // Must be a known Library
                     break;
                 }
             }
@@ -620,7 +620,7 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const PLUGINLIST*
 
         if (isFunction && strcasecmp(request->archive, environment->api_archive) != 0) {
             int id = find_plugin_id_by_format(request->archive, pluginList);
-            if (id >= 0 && pluginList->plugin[id].plugin_class == UDA_PLUGIN_CLASS_FUNCTION &&
+            if (id >= 0 && pluginList->plugin[id].plugin_class == uda::plugins::UDA_PLUGIN_CLASS_FUNCTION &&
                 strcasecmp(pluginList->plugin[id].symbol, "serverside") != 0) {
                 if (request->request == REQUEST_READ_GENERIC || request->request == REQUEST_READ_UNKNOWN) {
                     request->request = pluginList->plugin[id].request; // Found
@@ -741,7 +741,7 @@ int uda::client_server::makeRequestData(REQUEST_DATA* request, const PLUGINLIST*
     return 0;
 }
 
-int uda::client_server::make_request_block(REQUEST_BLOCK* request_block, const PLUGINLIST* pluginList,
+int uda::client_server::make_request_block(REQUEST_BLOCK* request_block, const uda::plugins::PluginList* pluginList,
                                            const ENVIRONMENT* environment)
 {
     int rc = 0;
@@ -788,7 +788,7 @@ void extract_function_name(const char* str, REQUEST_DATA* request)
 /**
  * returns true if a format was identified, false otherwise.
  */
-int source_file_format_test(const char* source, REQUEST_DATA* request, const PLUGINLIST* pluginList,
+int source_file_format_test(const char* source, REQUEST_DATA* request, const uda::plugins::PluginList* pluginList,
                             const ENVIRONMENT* environment)
 {
     int rc = 0;
@@ -1029,8 +1029,8 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, const PLU
             UDA_LOG(UDA_LOG_DEBUG, "Format identified, selecting specific plugin for %s\n", request->format);
             request->request = pluginList->plugin[i].request; // Found
             if (pluginList->plugin[i].plugin_class !=
-                UDA_PLUGIN_CLASS_FILE) {   // The full file path fully resolved by the client
-                strcpy(request->file, ""); // Clean the filename
+                uda::plugins::UDA_PLUGIN_CLASS_FILE) { // The full file path fully resolved by the client
+                strcpy(request->file, "");             // Clean the filename
             } else {
 #ifndef __GNUC__
                 char base[1024] = {0};

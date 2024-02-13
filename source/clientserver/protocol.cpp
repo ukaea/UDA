@@ -41,6 +41,29 @@
 
 using namespace uda::client_server;
 
+void uda::client_server::setSelectParms(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time)
+{
+    FD_ZERO(rfds);    // Initialise the File Descriptor set
+    FD_SET(fd, rfds); // Identify the Socket in the FD set
+    tv->tv_sec = 0;
+    tv->tv_usec = MIN_BLOCK_TIME; // minimum wait microsecs (1ms)
+    *server_tot_block_time = 0;
+}
+
+void uda::client_server::updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time)
+{
+    FD_ZERO(rfds);
+    FD_SET(fd, rfds);
+    if (server_tot_block_time < MAXBLOCK) {
+        // (ms) For the First blocking period have rapid response (clientserver/udaDefines.h == 1000)
+        tv->tv_sec = 0;
+        tv->tv_usec = MIN_BLOCK_TIME; // minimum wait (1ms)
+    } else {
+        tv->tv_sec = 0;
+        tv->tv_usec = MAX_BLOCK_TIME; // maximum wait (10ms)
+    }
+}
+
 int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
                                  USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
                                  LOGSTRUCTLIST* log_struct_list, IoData* io_data, unsigned int private_flags,

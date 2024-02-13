@@ -11,14 +11,19 @@
 #include "structures/genStructs.h"
 #include "cache/memcache.hpp"
 #include "server_environment.hpp"
+#include "clientserver/protocol.h"
 
-struct IoData
+namespace uda {
+
+namespace server {
+
+struct IoData : uda::client_server::IoData
 {
     int* server_tot_block_time;
     int* server_timeout;
 };
 
-namespace uda {
+}
 
 struct MetadataBlock;
 
@@ -63,7 +68,7 @@ private:
     XDR server_output_;
     int server_tot_block_time_;
     int server_timeout_;
-    IoData io_data_;
+    uda::server::IoData io_data_;
     LogStructList log_struct_list_;
     int malloc_source_;
     int private_flags_;

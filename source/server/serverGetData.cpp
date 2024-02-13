@@ -23,19 +23,21 @@
 #include "uda/plugins.h"
 
 using namespace uda::client_server;
+using namespace uda::server;
 
 static int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry);
 static int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2);
 static int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
                                  int asymmetry);
 static int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data_block, DATA_SOURCE* data_source,
-                     SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, const PLUGINLIST* pluginlist,
+                     SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, const uda::plugins::PluginList* pluginlist,
                      LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist);
 
-int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block, DATA_BLOCK* data_block,
-               DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, ACTIONS* actions_desc,
-               ACTIONS* actions_sig, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-               USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list, int protocolVersion)
+int uda::server::udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block, DATA_BLOCK* data_block,
+                            DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc,
+                            ACTIONS* actions_desc, ACTIONS* actions_sig, const uda::plugins::PluginList* pluginlist,
+                            LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                            SOCKETLIST* socket_list, int protocolVersion)
 {
     int isDerived = 0, compId = -1, serverside = 0;
 
@@ -953,8 +955,8 @@ int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DAT
 }
 
 int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data_block, DATA_SOURCE* data_source,
-              SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-              USERDEFINEDTYPELIST* userdefinedtypelist)
+              SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, const uda::plugins::PluginList* pluginlist,
+              LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist)
 {
     // If err = 0 then standard signal data read
     // If err > 0 then an error occured
@@ -1114,7 +1116,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
     // Test for known File formats and Server protocols
 
     {
-        UDA_PLUGIN_INTERFACE plugin_interface;
+        uda::plugins::UdaPluginInterface plugin_interface;
 
         UDA_LOG(UDA_LOG_DEBUG, "creating the plugin interface structure\n");
 

@@ -2,4 +2,10 @@
 
 #include "serverPlugin.h"
 
-int getPluginAddress(void** pluginHandle, const char* library, const char* symbol, PLUGINFUNP* pluginfunp);
+namespace uda::server
+{
+
+int getPluginAddress(void** pluginHandle, const char* library, const char* symbol,
+                     uda::plugins::PLUGINFUNP* pluginfunp);
+
+}

@@ -15,29 +15,6 @@
 
 int serverSocket = 0;
 
-void setSelectParms(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time)
-{
-    FD_ZERO(rfds);    // Initialise the File Descriptor set
-    FD_SET(fd, rfds); // Identify the Socket in the FD set
-    tv->tv_sec = 0;
-    tv->tv_usec = MIN_BLOCK_TIME; // minimum wait microsecs (1ms)
-    *server_tot_block_time = 0;
-}
-
-void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time)
-{
-    FD_ZERO(rfds);
-    FD_SET(fd, rfds);
-    if (server_tot_block_time < MAXBLOCK) {
-        // (ms) For the First blocking period have rapid response (clientserver/udaDefines.h == 1000)
-        tv->tv_sec = 0;
-        tv->tv_usec = MIN_BLOCK_TIME; // minimum wait (1ms)
-    } else {
-        tv->tv_sec = 0;
-        tv->tv_usec = MAX_BLOCK_TIME; // maximum wait (10ms)
-    }
-}
-
 /*
 //-----------------------------------------------------------------------------------------
 // This routine is only called when the Server expects to Read something from the Client
@@ -62,14 +39,16 @@ void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_
 //-----------------------------------------------------------------------------------------
 */
 
-int server_read(void* iohandle, char* buf, int count)
+using namespace uda::client_server;
+
+int uda::server::server_read(void* iohandle, char* buf, int count)
 {
     int rc = 0;
     fd_set rfds; // File Descriptor Set for Reading from the Socket
     timeval tv = {};
     timeval tvc = {};
 
-    auto io_data = reinterpret_cast<IoData*>(iohandle);
+    auto io_data = reinterpret_cast<uda::server::IoData*>(iohandle);
 
     // Wait until there are data to be read from the socket
 
@@ -102,7 +81,7 @@ int server_read(void* iohandle, char* buf, int count)
     return rc;
 }
 
-int server_write(void* iohandle, char* buf, int count)
+int uda::server::server_write(void* iohandle, char* buf, int count)
 {
 
     // This routine is only called when there is something to write back to the Client
@@ -113,7 +92,7 @@ int server_write(void* iohandle, char* buf, int count)
     fd_set wfds; // File Descriptor Set for Writing to the Socket
     timeval tv = {};
 
-    auto io_data = reinterpret_cast<IoData*>(iohandle);
+    auto io_data = reinterpret_cast<uda::server::IoData*>(iohandle);
 
     // Block IO until the Socket is ready to write to Client
 

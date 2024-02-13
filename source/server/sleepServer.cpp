@@ -15,9 +15,10 @@
 
 using namespace uda::client_server;
 
-int sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmalloclist,
-                USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
-                int server_tot_block_time, int server_timeout, IoData* io_data, int private_flags, int malloc_source)
+int uda::server::sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmalloclist,
+                             USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion,
+                             LOGSTRUCTLIST* log_struct_list, int server_tot_block_time, int server_timeout,
+                             IoData* io_data, int private_flags, int malloc_source)
 {
     int protocol_id, next_protocol, err, rc;
 

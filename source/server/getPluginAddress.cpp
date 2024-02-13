@@ -8,6 +8,7 @@
 #include "logging/logging.h"
 
 using namespace uda::client_server;
+using namespace uda::plugins;
 
 /**
  * Return the function address for plugin data readers located in external shared libraries
@@ -18,7 +19,7 @@ using namespace uda::client_server;
  * @param pluginfunp the address of the library function
  * @return
  */
-int getPluginAddress(void** pluginHandle, const char* library, const char* symbol, PLUGINFUNP* pluginfunp)
+int uda::server::getPluginAddress(void** pluginHandle, const char* library, const char* symbol, PLUGINFUNP* pluginfunp)
 {
     *pluginfunp = (PLUGINFUNP) nullptr;
 

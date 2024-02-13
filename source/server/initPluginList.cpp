@@ -12,13 +12,14 @@
 #include "getPluginAddress.h"
 
 using namespace uda::client_server;
+using namespace uda::plugins;
 
-void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
+void uda::server::initPluginList(uda::plugins::PluginList* plugin_list, ENVIRONMENT* environment)
 {
     // initialise the Plugin List and Allocate heap for the list
 
     plugin_list->count = 0;
-    plugin_list->plugin = (PLUGIN_DATA*)malloc(REQUEST_PLUGIN_MCOUNT * sizeof(PLUGIN_DATA));
+    plugin_list->plugin = (uda::plugins::PluginData*)malloc(REQUEST_PLUGIN_MCOUNT * sizeof(uda::plugins::PluginData));
     plugin_list->mcount = REQUEST_PLUGIN_MCOUNT;
 
     for (int i = 0; i < plugin_list->mcount; i++) {

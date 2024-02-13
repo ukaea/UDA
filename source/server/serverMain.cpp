@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 
     uda::client_server::CLIENT_BLOCK client_block = {0};
 
-    int rc = uda_server(client_block);
+    int rc = uda::server::uda_server(client_block);
 
     return rc;
 }

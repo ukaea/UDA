@@ -32,6 +32,7 @@
 #include <uda/types.h>
 
 using namespace uda::client_server;
+using namespace uda::server;
 
 //----------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------
@@ -1371,7 +1372,7 @@ int apply_functions(SUBSET subset, DATA_BLOCK* data_block)
     UDA_THROW_ERROR(999, "Unknown function");
 }
 
-int serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST* logmalloclist)
+int uda::server::serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST* logmalloclist)
 {
     printAction(action);
     printDataBlock(*data_block);
@@ -1447,7 +1448,8 @@ int serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST
 // SS::SUBSET(\"xx\", [*, 3], member=\"name\", reform)
 // SS::SUBSET(\"xx\", [*, 3], member=\"name\", reform, function=\"minimum(dim_id=0)\" )
 
-int serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serverside, const PLUGINLIST* plugin_list)
+int uda::server::serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serverside,
+                                       const uda::plugins::PluginList* plugin_list)
 {
     ACTION* action = nullptr;
     SUBSET* subsets = nullptr;

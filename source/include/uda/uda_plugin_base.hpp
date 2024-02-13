@@ -54,14 +54,14 @@ protected:
 
     // Helper methods
     template <typename... Args>
-    void debug(UdaPluginInterface* plugin_interface, const std::string& message, Args... args)
+    void debug(UDA_PLUGIN_INTERFACE* plugin_interface, const std::string& message, Args... args)
     {
         auto msg = fmt::format(message, args...);
         udaPluginLog(plugin_interface, "%s", msg.c_str());
     }
 
     template <typename... Args>
-    void error(UdaPluginInterface* plugin_interface, const std::string& message, Args... args)
+    void error(UDA_PLUGIN_INTERFACE* plugin_interface, const std::string& message, Args... args)
     {
         auto msg = fmt::format(message, args...);
         udaPluginLog(plugin_interface, "%s", msg.c_str());

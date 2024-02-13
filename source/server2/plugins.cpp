@@ -15,11 +15,12 @@
 #define REQUEST_READ_START 1000
 
 using namespace uda::client_server;
+using namespace uda::plugins;
 
 namespace
 {
 
-void init_plugin_data(PluginData* plugin)
+void init_plugin_data(uda::plugins::PluginData* plugin)
 {
     plugin->format[0] = '\0';
     plugin->library[0] = '\0';
@@ -42,7 +43,7 @@ void init_plugin_data(PluginData* plugin)
     plugin->idamPlugin = nullptr;
 }
 
-int process_line(const std::string& line, PluginData& plugin)
+int process_line(const std::string& line, uda::plugins::PluginData& plugin)
 {
     std::vector<std::string> tokens;
     boost::split(tokens, line, boost::is_any_of(","), boost::token_compress_on);
@@ -266,7 +267,7 @@ void uda::Plugins::process_config_file(std::ifstream& conf_file)
     cachePermission and publicUse may use one of the following values: "Y|N,1|0,T|F,True|False"
     */
 
-    PluginData plugin = {};
+    uda::plugins::PluginData plugin = {};
 
     int rc = 0;
     static int offset = 0;
@@ -405,17 +406,17 @@ void uda::Plugins::close()
     plugins_.clear();
 }
 
-PLUGINLIST uda::Plugins::as_plugin_list() const
+uda::plugins::PluginList uda::Plugins::as_plugin_list() const
 {
-    PLUGINLIST plugin_list = {};
-    plugin_list.plugin = (PluginData*)plugins_.data();
+    uda::plugins::PluginList plugin_list = {};
+    plugin_list.plugin = (uda::plugins::PluginData*)plugins_.data();
     plugin_list.count = (int)plugins_.size();
     plugin_list.mcount = (int)plugins_.size();
 
     return plugin_list;
 }
 
-boost::optional<const PluginData&> uda::Plugins::find_by_format(const char* format) const
+boost::optional<const uda::plugins::PluginData&> uda::Plugins::find_by_format(const char* format) const
 {
     for (auto& plugin : plugins_) {
         if (STR_IEQUALS(plugin.format, format)) {
@@ -425,7 +426,7 @@ boost::optional<const PluginData&> uda::Plugins::find_by_format(const char* form
     return {};
 }
 
-boost::optional<const PluginData&> uda::Plugins::find_by_request(int request) const
+boost::optional<const uda::plugins::PluginData&> uda::Plugins::find_by_request(int request) const
 {
     for (auto& plugin : plugins_) {
         if (plugin.request == request) {

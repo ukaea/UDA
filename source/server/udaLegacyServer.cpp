@@ -33,14 +33,16 @@ int idamLegacyServer(CLIENT_BLOCK client_block)
 #else
 
 using namespace uda::client_server;
+using namespace uda::server;
 
 constexpr int server_version = 8;
 
 // Legacy Server Entry point
 
-int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-                 USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list, int protocolVersion,
-                 XDR* server_input, XDR* server_output, unsigned int private_flags, int malloc_source)
+int uda::server::legacyServer(CLIENT_BLOCK client_block, const uda::plugins::PluginList* pluginlist,
+                              LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                              SOCKETLIST* socket_list, int protocolVersion, XDR* server_input, XDR* server_output,
+                              unsigned int private_flags, int malloc_source)
 {
 
     int rc, err = 0, depth, fatal = 0;
@@ -68,7 +70,7 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
     int server_tot_block_time = 0;
     int server_timeout = TIMEOUT; // user specified Server Lifetime
 
-    IoData io_data = {};
+    uda::server::IoData io_data = {};
     io_data.server_tot_block_time = &server_tot_block_time;
     io_data.server_timeout = &server_timeout;
 
@@ -351,8 +353,8 @@ int legacyServer(CLIENT_BLOCK client_block, const PLUGINLIST* pluginlist, LOGMAL
             for (int i = 0; i < request_block.num_requests; ++i) {
                 auto request = &request_block.requests[i];
                 if (protocolVersion >= 6) {
-                    if ((err = udaServerPlugin(request, &data_source, &signal_desc, pluginlist,
-                                               getServerEnvironment())) != 0) {
+                    if ((err = uda::server::udaServerPlugin(request, &data_source, &signal_desc, pluginlist,
+                                                            getServerEnvironment())) != 0) {
                         break;
                     }
                 } else {

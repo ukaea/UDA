@@ -20,6 +20,7 @@
 #  define X509STRINGSIZE 256
 
 using namespace uda::client_server;
+using namespace uda::server;
 
 /*
 Note on initialisation:
@@ -416,7 +417,7 @@ int writeUdaServerSSL(void* iohandle, const char* buf, int count)
     fd_set wfds; // File Descriptor Set for Writing to the Socket
     struct timeval tv = {};
 
-    auto io_data = reinterpret_cast<IoData*>(iohandle);
+    auto io_data = reinterpret_cast<uda::server::IoData*>(iohandle);
 
     // Block till it's possible to write to the socket or timeout
 
@@ -493,7 +494,7 @@ int readUdaServerSSL(void* iohandle, char* buf, int count)
 
     // Wait till it's possible to read from the socket
     // Set the blocking period before a timeout
-    auto io_data = reinterpret_cast<IoData*>(iohandle);
+    auto io_data = reinterpret_cast<uda::server::IoData*>(iohandle);
 
     setSelectParms(g_sslSocket, &rfds, &tv, io_data->server_tot_block_time);
     tvc = tv;

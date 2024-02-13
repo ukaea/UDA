@@ -14,8 +14,9 @@
 #endif
 
 using namespace uda::client_server;
+using namespace uda::server;
 
-int udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc)
+int uda::server::udaServerLegacyPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc)
 {
     int err = 0;
     char* token = nullptr;

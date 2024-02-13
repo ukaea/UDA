@@ -1,3 +1,5 @@
+#include "udaServer.h"
+
 #include <cassert>
 #include <cerrno>
 #include <cstdio>
@@ -28,9 +30,10 @@ void ncclose(int fh) {}
 #endif
 
 using namespace uda::client_server;
+using namespace uda::server;
 
-static PLUGINLIST pluginList; // List of all data reader plugins (internal and external shared libraries)
-ENVIRONMENT environment;      // Holds local environment variable values
+static uda::plugins::PluginList pluginList; // List of all data reader plugins (internal and external shared libraries)
+ENVIRONMENT environment;                    // Holds local environment variable values
 
 static USERDEFINEDTYPELIST* user_defined_type_list = nullptr;
 static LOGMALLOCLIST* log_malloc_list = nullptr;
@@ -80,13 +83,13 @@ static int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* reque
 
 static int fat_client_return(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
                              REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
-                             LOGSTRUCTLIST* log_struct_list, IoData* io_data);
+                             LOGSTRUCTLIST* log_struct_list, uda::server::IoData* io_data);
 
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
-int fat_server(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0,
-               DATA_BLOCK_LIST* data_blocks0)
+int uda::server::fat_server(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BLOCK* request_block0,
+                            DATA_BLOCK_LIST* data_blocks0)
 {
     assert(data_blocks0 != nullptr);
 
@@ -176,7 +179,8 @@ int fat_server(CLIENT_BLOCK client_block, SERVER_BLOCK* server_block, REQUEST_BL
  * Client deletes stale files automatically on startup.
  * @return
  */
-static int process_hierarchical_data(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list, IoData* io_data)
+static int process_hierarchical_data(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_struct_list,
+                                     uda::server::IoData* io_data)
 {
     int err = 0;
 
@@ -250,7 +254,7 @@ static int process_hierarchical_data(DATA_BLOCK* data_block, LOGSTRUCTLIST* log_
 
 int fat_client_return(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, DATA_BLOCK_LIST* data_blocks0,
                       REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, METADATA_BLOCK* metadata_block,
-                      LOGSTRUCTLIST* log_struct_list, IoData* io_data)
+                      LOGSTRUCTLIST* log_struct_list, uda::server::IoData* io_data)
 {
     //----------------------------------------------------------------------------
     // Gather Server Error State

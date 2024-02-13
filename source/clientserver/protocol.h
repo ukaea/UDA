@@ -49,13 +49,21 @@
 #define UDA_PROTOCOL_LIMITER 113
 #define UDA_PROTOCOL_OPAQUE_STOP 200
 
-struct IoData;
+#define MIN_BLOCK_TIME 1000
+#define MAX_BLOCK_TIME 10000
 
 //---------------------------------------------------------------------------------------------------
 // Client Server XDR data Streams (DON'T CHANGE ORDER or Legacy client won't work!)
 
 namespace uda::client_server
 {
+
+struct IoData {
+};
+
+void setSelectParms(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time);
+
+void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time);
 
 int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
              USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, LOGSTRUCTLIST* log_struct_list,

@@ -16,6 +16,7 @@
 #include <uda/types.h>
 
 using namespace uda::client_server;
+using namespace uda::plugins;
 
 namespace
 {
@@ -1087,7 +1088,7 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
     // Test for known File formats and Server protocols
 
     {
-        UDA_PLUGIN_INTERFACE plugin_interface;
+        UdaPluginInterface plugin_interface;
 
         UDA_LOG(UDA_LOG_DEBUG, "creating the plugin interface structure\n");
 

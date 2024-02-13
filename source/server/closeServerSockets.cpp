@@ -28,7 +28,7 @@ void closeNamedServerSocket(SOCKETLIST* socks, char* host, int port)
     }
 }
 
-void closeServerSocket(SOCKETLIST* socks, int fh)
+void uda::server::closeServerSocket(SOCKETLIST* socks, int fh)
 {
     for (int i = 0; i < socks->nsocks; i++) {
         if (socks->sockets[i].fh == fh) {
@@ -42,7 +42,7 @@ void closeServerSocket(SOCKETLIST* socks, int fh)
     }
 }
 
-void closeServerSockets(SOCKETLIST* socks)
+void uda::server::closeServerSockets(SOCKETLIST* socks)
 {
     for (int i = 0; i < socks->nsocks; i++) {
         closeServerSocket(socks, socks->sockets[i].fh);

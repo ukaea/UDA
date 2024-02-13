@@ -1,6 +1,12 @@
 #pragma once
 
 #include "clientserver/udaStructs.h"
+#include "plugins/udaPlugin.h"
 #include "serverPlugin.h"
 
-void initPluginList(PLUGINLIST* plugin_list, uda::client_server::Environment* environment);
+namespace uda::server
+{
+
+void initPluginList(uda::plugins::PluginList* plugin_list, uda::client_server::Environment* environment);
+
+}

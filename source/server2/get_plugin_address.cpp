@@ -8,6 +8,7 @@
 #include "logging/logging.h"
 
 using namespace uda::client_server;
+using namespace uda::plugins;
 
 /**
  * Return the function address for plugin data readers located in external shared libraries

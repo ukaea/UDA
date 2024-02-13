@@ -1,3 +1,5 @@
+#include "udaServer.h"
+
 #include <cstdio>
 #include <fmt/format.h>
 #if defined(__GNUC__)
@@ -41,6 +43,7 @@
 #endif
 
 using namespace uda::client_server;
+using namespace uda::server;
 
 //--------------------------------------------------------------------------------------
 // static globals
@@ -69,8 +72,8 @@ USERDEFINEDTYPELIST parsed_user_defined_type_list; // Initial set of User Define
 
 // Total amount sent for the last data request
 
-static PLUGINLIST plugin_list; // List of all data reader plugins (internal and external shared libraries)
-ENVIRONMENT environment;       // Holds local environment variable values
+static uda::plugins::PluginList plugin_list; // List of all data reader plugins (internal and external shared libraries)
+ENVIRONMENT environment;                     // Holds local environment variable values
 
 static SOCKETLIST socket_list;
 
@@ -82,7 +85,8 @@ typedef struct MetadataBlock {
     DATA_SYSTEM data_system;
 } METADATA_BLOCK;
 
-static int startup_server(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output, IoData* io_data);
+static int startup_server(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output,
+                          uda::server::IoData* io_data);
 
 static int handle_request(REQUEST_BLOCK* request_block, CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block,
                           METADATA_BLOCK* metadata_block, ACTIONS* actions_desc, ACTIONS* actions_sig,
@@ -113,7 +117,7 @@ static int handshake_client(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_blo
 //--------------------------------------------------------------------------------------
 // Server Entry point
 
-int uda_server(CLIENT_BLOCK client_block)
+int uda::server::uda_server(uda::client_server::CLIENT_BLOCK client_block)
 {
     int err = 0;
     METADATA_BLOCK metadata_block;
@@ -1129,7 +1133,7 @@ int handshake_client(CLIENT_BLOCK* client_block, SERVER_BLOCK* server_block, int
     return err;
 }
 
-int startup_server(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output, IoData* io_data)
+int startup_server(SERVER_BLOCK* server_block, XDR*& server_input, XDR*& server_output, uda::server::IoData* io_data)
 {
     static int socket_list_initialised = 0;
     static int plugin_list_initialised = 0;

@@ -10,8 +10,9 @@
 #include "getServerEnvironment.h"
 
 using namespace uda::client_server;
+using namespace uda::server;
 
-int startup()
+int uda::server::startup()
 {
     //----------------------------------------------------------------
     // Read Environment Variable Values (Held in a Global Structure)

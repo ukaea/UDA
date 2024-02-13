@@ -106,7 +106,7 @@ typedef struct LogStructList LOGSTRUCTLIST;
 typedef struct CompoundField COMPOUNDFIELD;
 typedef struct UserDefinedType USERDEFINEDTYPE;
 typedef struct UserDefinedTypeList USERDEFINEDTYPELIST;
-typedef struct UdaPluginInterface UDA_PLUGIN_INTERFACE;
+typedef struct CUdaPluginInterface UDA_PLUGIN_INTERFACE;
 typedef struct CompoundField COMPOUNDFIELD;
 typedef struct UserDefinedType USERDEFINEDTYPE;
 

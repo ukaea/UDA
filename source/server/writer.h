@@ -1,24 +1,19 @@
 #pragma once
 
-#ifndef UDA_SERVER_WRITER_H
-#  define UDA_SERVER_WRITER_H
+#if defined(__GNUC__)
+#  include <unistd.h>
+#endif
+#include <fcntl.h>
 
-#  if defined(__GNUC__)
-#    include <unistd.h>
-#  endif
-#  include <fcntl.h>
+#ifdef _WIN32
+#  include <winsock2.h> // must be included before connection.h to avoid macro redefinition in rpc/types.h
+#else
+#  include <sys/select.h>
+#endif
 
-#  ifdef _WIN32
-#    include <winsock2.h> // must be included before connection.h to avoid macro redefinition in rpc/types.h
-#  else
-#    include <sys/select.h>
-#  endif
+namespace uda::server
+{
 
-#  define MIN_BLOCK_TIME 1000
-#  define MAX_BLOCK_TIME 10000
-
-void setSelectParms(int fd, fd_set* rfds, struct timeval* tv, int* server_tot_block_time);
-void updateSelectParms(int fd, fd_set* rfds, struct timeval* tv, int server_tot_block_time);
 int server_write(void* iohandle, char* buf, int count);
 
 /*
@@ -46,4 +41,4 @@ int server_write(void* iohandle, char* buf, int count);
 */
 int server_read(void* iohandle, char* buf, int count);
 
-#endif // UDA_SERVER_WRITER_H
+} // namespace uda::server

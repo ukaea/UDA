@@ -152,9 +152,10 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     int pathway = 0;
 
-    DATA_SOURCE* data_source = plugin_interface->data_source;
-    SIGNAL_DESC* signal_desc = plugin_interface->signal_desc;
-    REQUEST_DATA* request = plugin_interface->request_data;
+    auto interface = static_cast<::uda::plugins::UdaPluginInterface*>(plugin_interface);
+    DATA_SOURCE* data_source = interface->data_source;
+    SIGNAL_DESC* signal_desc = interface->signal_desc;
+    REQUEST_DATA* request = interface->request_data;
 
     if (data_source->source_id > 0 && signal_desc->signal_desc_id > 0) {
         pathway = 1;
@@ -186,7 +187,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
 
     // Set Properties
 
-    CLIENT_BLOCK* client_block = plugin_interface->client_block;
+    CLIENT_BLOCK* client_block = interface->client_block;
 
     if (client_block->get_nodimdata) {
         udaSetProperty("get_nodimdata");
@@ -504,7 +505,7 @@ int uda::plugins::uda::Plugin::get(UDA_PLUGIN_INTERFACE* plugin_interface)
     // Check the originals have no XML action definitions before replacement
     // Why should a plugin have this concern?
 
-    DATA_BLOCK* data_block = plugin_interface->data_block;
+    DATA_BLOCK* data_block = interface->data_block;
 
     if (udaGetClientVersion() >= 7) {
         // This should contain everything!

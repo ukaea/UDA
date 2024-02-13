@@ -7,7 +7,7 @@
 // 2019-07-04 Herve Ancher (CEA): Add prefix "g_" to avoid conflict with internal MinGW varaible
 static uda::client_server::Environment g_environ;
 
-void printServerEnvironment(const uda::client_server::Environment* environment)
+void uda::server::printServerEnvironment(const uda::client_server::Environment* environment)
 {
     UDA_LOG(UDA_LOG_INFO, "Server Environment Variable values\n");
     UDA_LOG(UDA_LOG_INFO, "Log Location    : %s\n", environment->logdir);
@@ -20,7 +20,7 @@ void printServerEnvironment(const uda::client_server::Environment* environment)
     UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environment->private_path_substitute);
 }
 
-uda::client_server::Environment* getServerEnvironment()
+uda::client_server::Environment* uda::server::getServerEnvironment()
 {
     char* env = nullptr;
 

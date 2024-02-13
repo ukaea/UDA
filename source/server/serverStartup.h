@@ -1,8 +1,8 @@
 #pragma once
 
-#ifndef UDA_SERVER_SERVERSTARTUP_H
-#  define UDA_SERVER_SERVERSTARTUP_H
+namespace uda::server
+{
 
 int startup();
 
-#endif // UDA_SERVER_SERVERSTARTUP_H
+}

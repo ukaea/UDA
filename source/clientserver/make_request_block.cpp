@@ -9,6 +9,7 @@
 #include <string>
 
 using namespace uda::client_server;
+using namespace uda::plugins;
 
 static const boost::regex SOURCE_RE(
     R"(^(?<device>(?:[a-z]+::)*)(((?<pulse>[0-9]+)(\/(?<pass>[0-9a-z]+))?)|(?<path>\/[a-z0-9\/\.]+)|((?<function>[a-z]+)\((?<args>.*)\)))$)",
