@@ -21,12 +21,12 @@
 
 static std::vector<uda::client_server::HostData> g_host_list = {};
 
-void udaClientFreeHostList()
+void uda::client::udaClientFreeHostList()
 {
     g_host_list.clear();
 }
 
-const uda::client_server::HostData* udaClientFindHostByAlias(const char* alias)
+const uda::client_server::HostData* uda::client::udaClientFindHostByAlias(const char* alias)
 {
     udaClientInitHostList();
 
@@ -38,7 +38,7 @@ const uda::client_server::HostData* udaClientFindHostByAlias(const char* alias)
     return nullptr;
 }
 
-const uda::client_server::HostData* udaClientFindHostByName(const char* name)
+const uda::client_server::HostData* uda::client::udaClientFindHostByName(const char* name)
 {
     udaClientInitHostList();
 
@@ -55,7 +55,7 @@ const uda::client_server::HostData* udaClientFindHostByName(const char* name)
     return nullptr;
 }
 
-void udaClientInitHostList()
+void uda::client::udaClientInitHostList()
 {
     static bool hostListInitialised = false;
 

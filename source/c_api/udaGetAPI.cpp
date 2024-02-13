@@ -35,6 +35,7 @@
 #  endif
 
 using namespace uda::client_server;
+using namespace uda::client;
 
 typedef struct {
     int id;     // Thread identifier assigned by the application

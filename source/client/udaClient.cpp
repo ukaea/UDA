@@ -34,6 +34,7 @@
 #endif
 
 using namespace uda::client_server;
+using namespace uda::client;
 
 //------------------------------------------------ Static Globals ------------------------------------------------------
 
@@ -70,19 +71,19 @@ int authentication_needed = 1; // Enable the mutual authentication conversation 
 
 #ifndef FATCLIENT
 
-void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist_in)
+void uda::client::setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist_in)
 {
     g_user_defined_type_list = userdefinedtypelist_in;
 }
 
-void setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
+void uda::client::setLogMallocList(LOGMALLOCLIST* logmalloclist_in)
 {
     g_log_malloc_list = logmalloclist_in;
 }
 
 #else
-void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist_in) {}
-void setLogMallocList(LOGMALLOCLIST* logmalloclist_in) {}
+void uda::client::setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist_in) {}
+void uda::client::setLogMallocList(LOGMALLOCLIST* logmalloclist_in) {}
 
 extern SOCKETLIST socket_list;
 #endif
@@ -163,7 +164,7 @@ int getNewDataHandle()
     return newHandleIndex;
 }
 
-DATA_BLOCK* getDataBlock(int handle)
+DATA_BLOCK* uda::client::getDataBlock(int handle)
 {
     if (handle < 0 || (unsigned int)handle >= data_blocks.size()) {
         return nullptr;
@@ -202,7 +203,7 @@ int newDataHandle()
     return newHandleIndex;
 }
 
-void updateClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags, unsigned int private_flags)
+void uda::client::updateClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags, unsigned int private_flags)
 {
     // other structure elements are set when the structure is initialised
 
@@ -224,6 +225,7 @@ void updateClientBlock(CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags, unsi
     str->get_nodimdata = client_flags->get_nodimdata;
     str->privateFlags = private_flags;
 }
+
 #ifndef NOLIBMEMCACHED
 /**
  * Check the local cache for the data (GET methods only - Note: some GET methods may disguise PUT methods!)
@@ -299,6 +301,7 @@ int check_mem_cache(uda::cache::UdaCache* cache, REQUEST_DATA* request_data, DAT
     return -1;
 }
 #endif
+
 void copyDataBlock(DATA_BLOCK* str, DATA_BLOCK* in)
 {
     *str = *in;
@@ -450,19 +453,19 @@ static int fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG*
     return err;
 }
 
-CLIENT_FLAGS* udaClientFlags()
+CLIENT_FLAGS* uda::client::udaClientFlags()
 {
     static CLIENT_FLAGS client_flags = {};
     return &client_flags;
 }
 
-unsigned int* udaPrivateFlags()
+unsigned int* uda::client::udaPrivateFlags()
 {
     static unsigned int private_flags = 0;
     return &private_flags;
 }
 
-int idamClient(REQUEST_BLOCK* request_block, int* indices)
+int uda::client::idamClient(REQUEST_BLOCK* request_block, int* indices)
 {
     // Efficient reduced (filled) tcp packet protocol for efficiency over large RTT fat pipes
     // This client version will only be able to communicate with a version 7+ server
@@ -1592,22 +1595,22 @@ void udaFreeAll()
 #endif
 }
 
-SERVER_BLOCK udaGetThreadServerBlock()
+SERVER_BLOCK uda::client::udaGetThreadServerBlock()
 {
     return server_block;
 }
 
-CLIENT_BLOCK udaGetThreadClientBlock()
+CLIENT_BLOCK uda::client::udaGetThreadClientBlock()
 {
     return client_block;
 }
 
-void udaPutThreadServerBlock(SERVER_BLOCK* str)
+void uda::client::udaPutThreadServerBlock(SERVER_BLOCK* str)
 {
     server_block = *str;
 }
 
-void udaPutThreadClientBlock(CLIENT_BLOCK* str)
+void uda::client::udaPutThreadClientBlock(CLIENT_BLOCK* str)
 {
     client_block = *str;
 }

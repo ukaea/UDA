@@ -15,7 +15,7 @@ endif()
 
 # Sources
 
-add_library( authentication-client-objects OBJECT udaClientSSL.cpp udaClientSSL.h udaServerSSL.h )
+add_library( authentication-client-objects OBJECT udaClientSSL.cpp updateSelectParms.cpp )
 target_link_libraries( authentication-client-objects ${LIBS} )
 
 target_include_directories( authentication-client-objects PRIVATE
@@ -24,7 +24,7 @@ target_include_directories( authentication-client-objects PRIVATE
 )
 
 if( NOT CLIENT_ONLY )
-  add_library( authentication-server-objects OBJECT udaServerSSL.cpp udaClientSSL.h )
+  add_library( authentication-server-objects OBJECT udaServerSSL.cpp updateSelectParms.cpp )
   target_compile_definitions( authentication-server-objects PRIVATE -DSERVERBUILD )
   target_link_libraries( authentication-server-objects ${LIBS} )
   target_include_directories( authentication-server-objects PRIVATE

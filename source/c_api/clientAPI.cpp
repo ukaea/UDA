@@ -15,6 +15,7 @@
 #include "client/startup.h"
 
 using namespace uda::client_server;
+using namespace uda::client;
 
 int udaClientAPI(const char* file, const char* signal, int pass, int exp_number)
 {

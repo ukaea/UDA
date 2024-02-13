@@ -1,5 +1,4 @@
-#ifndef UDA_CLIENT_STARTUP_H
-#define UDA_CLIENT_STARTUP_H
+#pragma once
 
 #ifdef FATCLIENT
 #  define idamStartup idamStartupFat
@@ -7,6 +6,8 @@
 
 #include "udaClient.h"
 
-int udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_logs);
+namespace uda::client {
 
-#endif // UDA_CLIENT_STARTUP_H
+int udaStartup(int reset, CLIENT_FLAGS *client_flags, bool *reopen_logs);
+
+}

@@ -10,12 +10,12 @@ bool env_port = true;
 
 static uda::client_server::ENVIRONMENT udaEnviron;
 
-void putIdamClientEnvironment(const uda::client_server::ENVIRONMENT* environment)
+void uda::client::putIdamClientEnvironment(const uda::client_server::ENVIRONMENT* environment)
 {
     udaEnviron = *environment;
 }
 
-void printIdamClientEnvironment(const uda::client_server::ENVIRONMENT* environment)
+void uda::client::printIdamClientEnvironment(const uda::client_server::ENVIRONMENT* environment)
 {
     UDA_LOG(UDA_LOG_INFO, "Client Environment Variable values\n");
     UDA_LOG(UDA_LOG_INFO, "Log Location    : %s\n", environment->logdir);
@@ -45,27 +45,27 @@ void printIdamClientEnvironment(const uda::client_server::ENVIRONMENT* environme
     UDA_LOG(UDA_LOG_INFO, "Private File Path Substitute: %s\n", environment->private_path_substitute);
 }
 
-bool udaGetEnvHost()
+bool uda::client::udaGetEnvHost()
 {
     return env_host;
 }
 
-bool udaGetEnvPort()
+bool uda::client::udaGetEnvPort()
 {
     return env_port;
 }
 
-void udaSetEnvHost(bool value)
+void uda::client::udaSetEnvHost(bool value)
 {
     env_host = value;
 }
 
-void udaSetEnvPort(bool value)
+void uda::client::udaSetEnvPort(bool value)
 {
     env_port = value;
 }
 
-uda::client_server::ENVIRONMENT* getIdamClientEnvironment()
+uda::client_server::ENVIRONMENT* uda::client::getIdamClientEnvironment()
 {
     char* env = nullptr;
 

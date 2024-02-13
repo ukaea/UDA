@@ -32,6 +32,7 @@ Interprets the API arguments and assembles a Request data structure.
 #include <fmt/format.h>
 
 using namespace uda::client_server;
+using namespace uda::client;
 
 int makeRequestData(const char* data_object, const char* data_source, REQUEST_DATA* request)
 {
@@ -139,7 +140,7 @@ int makeRequestData(const char* data_object, const char* data_source, REQUEST_DA
     return 0;
 }
 
-int makeClientRequestBlock(const char** signals, const char** sources, int count, REQUEST_BLOCK* request_block)
+int uda::client::makeClientRequestBlock(const char** signals, const char** sources, int count, REQUEST_BLOCK* request_block)
 {
     request_block->num_requests = (int)count;
     request_block->requests = (REQUEST_DATA*)malloc(count * sizeof(REQUEST_DATA));
@@ -156,7 +157,7 @@ int makeClientRequestBlock(const char** signals, const char** sources, int count
     return err;
 }
 
-void freeClientRequestBlock(REQUEST_BLOCK* request_block)
+void uda::client::freeClientRequestBlock(REQUEST_BLOCK* request_block)
 {
     if (request_block != nullptr && request_block->requests != nullptr) {
         for (int i = 0; i < request_block->num_requests; i++) {

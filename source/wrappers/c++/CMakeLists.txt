@@ -48,7 +48,6 @@ set( SRC_FILES
   signal.cpp
 )
 
-
 add_library( cpp-objects OBJECT ${SRC_FILES} )
 if( ITER_CI )
   target_compile_definitions( cpp-objects PRIVATE -D__USE_XOPEN2K8 )
@@ -97,6 +96,7 @@ if( NOT CLIENT_ONLY )
     cache-objects
     logging-server-objects
     plugins-objects
+    authentication-client-objects
   )
 
   add_library( fat${LIB_NAME}-static STATIC )

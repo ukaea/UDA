@@ -8,11 +8,13 @@
 #  include <time.h>
 
 #  include "client/udaClientHostList.h"
-#  include "client/updateSelectParms.h"
+#  include "updateSelectParms.h"
 #  include "clientserver/errorLog.h"
 #  include "logging/logging.h"
 
 using namespace uda::client_server;
+using namespace uda::client;
+using namespace uda::authentication;
 
 static bool g_sslDisabled = true; // Default state is not SSL authentication
 static int g_sslProtocol = 0;     // The default server host name has the SSL protocol name prefix or

@@ -45,7 +45,6 @@ set( SRC_FILES
   closedown.cpp
   connection.cpp
   clientXDRStream.cpp
-  updateSelectParms.cpp
   getEnvironment.cpp
   generateErrors.cpp
   makeClientRequestBlock.cpp
@@ -89,6 +88,7 @@ set( FATCLIENT_OBJS
   $<TARGET_OBJECTS:structures-server-objects>
   $<TARGET_OBJECTS:cache-objects>
   $<TARGET_OBJECTS:logging-server-objects>
+  $<TARGET_OBJECTS:authentication-client-objects>
 )
 
 add_library( client-static STATIC ${CLIENT_OBJS} )

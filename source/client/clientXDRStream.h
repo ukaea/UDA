@@ -1,9 +1,10 @@
-#ifndef UDA_CLIENT_CLIENTXDRSTREAM_H
-#define UDA_CLIENT_CLIENTXDRSTREAM_H
+#pragma once
 
 #include <rpc/rpc.h>
 #include <utility>
 
-std::pair<XDR*, XDR*> clientCreateXDRStream();
+namespace uda::client {
 
-#endif // UDA_CLIENT_CLIENTXDRSTREAM_H
+std::pair<XDR *, XDR *> clientCreateXDRStream();
+
+}

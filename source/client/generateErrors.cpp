@@ -24,11 +24,12 @@
 #endif
 
 using namespace uda::client_server;
+using namespace uda::client;
 
 //--------------------------------------------------------------------------------------------------------------
 // Generate Error Data
 
-int idamErrorModel(int model, int param_n, float* params, int data_n, float* data, int* asymmetry, float* errhi,
+int uda::client::idamErrorModel(int model, int param_n, float* params, int data_n, float* data, int* asymmetry, float* errhi,
                    float* errlo)
 {
     *asymmetry = 0; // No Error Asymmetry for most models
@@ -73,7 +74,7 @@ int idamErrorModel(int model, int param_n, float* params, int data_n, float* dat
 //    GSL_RNG_SEED    12345        for the seed value
 //    GSL_RNG_TYPE    mrg        for the name of the random number generator
 
-int idamSyntheticModel(int model, int param_n, float* params, int data_n, float* data)
+int uda::client::idamSyntheticModel(int model, int param_n, float* params, int data_n, float* data)
 {
 
 #ifdef NO_GSL_LIB
@@ -143,7 +144,7 @@ int idamSyntheticModel(int model, int param_n, float* params, int data_n, float*
 #endif
 }
 
-int generateIdamSyntheticData(int handle)
+int uda::client::generateIdamSyntheticData(int handle)
 {
     int err = 0;
 
@@ -279,7 +280,7 @@ int generateIdamSyntheticData(int handle)
     //--------------------------------------------------------------------------------------------------------------
     // Generate Synthetic Data
 
-    err = idamSyntheticModel(model, param_n, params, udaGetDataNum(handle), data);
+    err = uda::client::idamSyntheticModel(model, param_n, params, udaGetDataNum(handle), data);
 
     if (err != 0) {
         add_error(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticData", err, "Unable to Generate Synthetic Data");
@@ -394,7 +395,7 @@ int generateIdamSyntheticData(int handle)
     return 0;
 }
 
-int generateIdamSyntheticDimData(int handle, int ndim)
+int uda::client::generateIdamSyntheticDimData(int handle, int ndim)
 {
     int err = 0;
 
@@ -535,7 +536,7 @@ int generateIdamSyntheticDimData(int handle, int ndim)
     //--------------------------------------------------------------------------------------------------------------
     // Generate Model Data
 
-    err = idamSyntheticModel(model, param_n, params, udaGetDimNum(handle, ndim), data);
+    err = uda::client::idamSyntheticModel(model, param_n, params, udaGetDimNum(handle, ndim), data);
 
     if (err != 0) {
         add_error(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", err,
@@ -652,7 +653,7 @@ int generateIdamSyntheticDimData(int handle, int ndim)
     return 0;
 }
 
-int generateIdamDataError(int handle)
+int uda::client::generateIdamDataError(int handle)
 {
     int err = 0, asymmetry = 0;
 
@@ -965,7 +966,7 @@ int generateIdamDataError(int handle)
     return 0;
 }
 
-int generateIdamDimDataError(int handle, int ndim)
+int uda::client::generateIdamDimDataError(int handle, int ndim)
 {
 
     int err = 0, asymmetry = 0;

@@ -31,6 +31,7 @@
 /* #endif */
 
 using namespace uda::client_server;
+using namespace uda::client;
 
 int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlockList)
 {

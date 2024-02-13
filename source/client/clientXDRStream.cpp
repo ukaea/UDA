@@ -12,7 +12,7 @@
 #  include <authentication/udaClientSSL.h>
 #endif
 
-std::pair<XDR*, XDR*> clientCreateXDRStream()
+std::pair<XDR*, XDR*> uda::client::clientCreateXDRStream()
 {
     static XDR client_input = {};
     static XDR client_output = {};
@@ -27,12 +27,12 @@ std::pair<XDR*, XDR*> clientCreateXDRStream()
 
 #  if defined(__APPLE__) || defined(__TIRPC__)
         xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
-                      reinterpret_cast<int (*)(void*, void*, int)>(clientReadin),
-                      reinterpret_cast<int (*)(void*, void*, int)>(clientWriteout));
+                      reinterpret_cast<int (*)(void*, void*, int)>(uda::client::clientReadin),
+                      reinterpret_cast<int (*)(void*, void*, int)>(uda::client::clientWriteout));
 
         xdrrec_create(&client_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
-                      reinterpret_cast<int (*)(void*, void*, int)>(clientReadin),
-                      reinterpret_cast<int (*)(void*, void*, int)>(clientWriteout));
+                      reinterpret_cast<int (*)(void*, void*, int)>(uda::client::clientReadin),
+                      reinterpret_cast<int (*)(void*, void*, int)>(uda::client::clientWriteout));
 #  else
         xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
                       reinterpret_cast<int (*)(char*, char*, int)>(clientReadin),
@@ -65,20 +65,20 @@ std::pair<XDR*, XDR*> clientCreateXDRStream()
 
 #  if defined(__APPLE__) || defined(__TIRPC__)
     xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
-                  reinterpret_cast<int (*)(void*, void*, int)>(clientReadin),
-                  reinterpret_cast<int (*)(void*, void*, int)>(clientWriteout));
+                  reinterpret_cast<int (*)(void*, void*, int)>(uda::client::clientReadin),
+                  reinterpret_cast<int (*)(void*, void*, int)>(uda::client::clientWriteout));
 
     xdrrec_create(&client_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
-                  reinterpret_cast<int (*)(void*, void*, int)>(clientReadin),
-                  reinterpret_cast<int (*)(void*, void*, int)>(clientWriteout));
+                  reinterpret_cast<int (*)(void*, void*, int)>(uda::client::clientReadin),
+                  reinterpret_cast<int (*)(void*, void*, int)>(uda::client::clientWriteout));
 #  else
     xdrrec_create(&client_output, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
-                  reinterpret_cast<int (*)(char*, char*, int)>(clientReadin),
-                  reinterpret_cast<int (*)(char*, char*, int)>(clientWriteout));
+                  reinterpret_cast<int (*)(char*, char*, int)>(uda::client::clientReadin),
+                  reinterpret_cast<int (*)(char*, char*, int)>(uda::client::clientWriteout));
 
     xdrrec_create(&client_input, DB_READ_BLOCK_SIZE, DB_WRITE_BLOCK_SIZE, nullptr,
-                  reinterpret_cast<int (*)(char*, char*, int)>(clientReadin),
-                  reinterpret_cast<int (*)(char*, char*, int)>(clientWriteout));
+                  reinterpret_cast<int (*)(char*, char*, int)>(uda::client::clientReadin),
+                  reinterpret_cast<int (*)(char*, char*, int)>(uda::client::clientWriteout));
 #  endif
 
 #endif // SSLAUTHENTICATION

@@ -1,5 +1,4 @@
-#ifndef UDA_CLIENT_GETENVIRONMENT_H
-#define UDA_CLIENT_GETENVIRONMENT_H
+#pragma once
 
 #include "clientserver/udaStructs.h"
 
@@ -9,13 +8,20 @@
 #  define putIdamClientEnvironment putIdamClientEnvironmentFat
 #endif
 
-void printIdamClientEnvironment(const uda::client_server::ENVIRONMENT* environment);
-uda::client_server::ENVIRONMENT* getIdamClientEnvironment();
-void putIdamClientEnvironment(const uda::client_server::ENVIRONMENT* environment);
+namespace uda::client {
+
+void printIdamClientEnvironment(const uda::client_server::ENVIRONMENT *environment);
+
+uda::client_server::ENVIRONMENT *getIdamClientEnvironment();
+
+void putIdamClientEnvironment(const uda::client_server::ENVIRONMENT *environment);
 
 bool udaGetEnvHost();
+
 bool udaGetEnvPort();
+
 void udaSetEnvHost(bool env_host);
+
 void udaSetEnvPort(bool env_port);
 
-#endif // UDA_CLIENT_GETENVIRONMENT_H
+}

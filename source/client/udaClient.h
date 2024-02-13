@@ -1,10 +1,9 @@
 #pragma once
 
-#ifndef UDA_CLIENT_UDACLIENT_H
-#  define UDA_CLIENT_UDACLIENT_H
+#include "clientserver/udaStructs.h"
+#include "structures/genStructs.h"
 
-#  include "clientserver/udaStructs.h"
-#  include "structures/genStructs.h"
+namespace uda::client {
 
 typedef struct ClientFlags {
     int get_dimdble;  // (Server Side) Return Dimensional Data in Double Precision
@@ -28,27 +27,27 @@ typedef struct ClientFlags {
     int alt_rank;
 } CLIENT_FLAGS;
 
-uda::client_server::DATA_BLOCK* getDataBlock(int handle);
+uda::client_server::DATA_BLOCK *getDataBlock(int handle);
 
-void udaPutThreadServerBlock(uda::client_server::SERVER_BLOCK* str);
+void udaPutThreadServerBlock(uda::client_server::SERVER_BLOCK *str);
 
-void udaPutThreadClientBlock(uda::client_server::CLIENT_BLOCK* str);
+void udaPutThreadClientBlock(uda::client_server::CLIENT_BLOCK *str);
 
 uda::client_server::SERVER_BLOCK udaGetThreadServerBlock();
 
 uda::client_server::CLIENT_BLOCK udaGetThreadClientBlock();
 
-CLIENT_FLAGS* udaClientFlags();
+CLIENT_FLAGS *udaClientFlags();
 
-unsigned int* udaPrivateFlags();
+unsigned int *udaPrivateFlags();
 
-int idamClient(uda::client_server::REQUEST_BLOCK* request_block, int* indices);
+int idamClient(uda::client_server::REQUEST_BLOCK *request_block, int *indices);
 
-void updateClientBlock(uda::client_server::CLIENT_BLOCK* str, const CLIENT_FLAGS* client_flags,
+void updateClientBlock(uda::client_server::CLIENT_BLOCK *str, const CLIENT_FLAGS *client_flags,
                        unsigned int private_flags);
 
-void setUserDefinedTypeList(USERDEFINEDTYPELIST* userdefinedtypelist);
+void setUserDefinedTypeList(USERDEFINEDTYPELIST *userdefinedtypelist);
 
-void setLogMallocList(LOGMALLOCLIST* logmalloclist_in);
+void setLogMallocList(LOGMALLOCLIST *logmalloclist_in);
 
-#endif // UDA_CLIENT_UDACLIENT_H
+}

@@ -14,6 +14,7 @@
 #include <fmt/format.h>
 
 using namespace uda::client_server;
+using namespace uda::client;
 
 namespace uda::plugins::uda
 {

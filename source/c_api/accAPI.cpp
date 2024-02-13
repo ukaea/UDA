@@ -32,6 +32,7 @@
 #endif
 
 using namespace uda::client_server;
+using namespace uda::client;
 
 USERDEFINEDTYPE* udaGetUserDefinedType(int handle);
 USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle);

@@ -48,7 +48,6 @@ set( SRC_FILES
   generate_errors.cpp
   handle.cpp
   exceptions.cpp
-  updateSelectParms.cpp
 )
 
 add_library( client2-objects OBJECT ${SRC_FILES} )

@@ -5,6 +5,7 @@
 #include "logging/logging.h"
 
 using namespace uda::client_server;
+using namespace uda::client;
 
 /**
  * Reads the Requested Data

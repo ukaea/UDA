@@ -47,7 +47,7 @@
 
 #include "getEnvironment.h"
 #include "uda/client.h"
-#include "updateSelectParms.h"
+#include "authentication/updateSelectParms.h"
 
 #if defined(SSLAUTHENTICATION) && !defined(FATCLIENT)
 #  include <authentication/udaClientSSL.h>
@@ -62,16 +62,18 @@
 #define PORT_STRING 64
 
 using namespace uda::client_server;
+using namespace uda::client;
+using namespace uda::authentication;
 
 static int client_socket = -1;
 static SOCKETLIST client_socketlist; // List of open sockets
 
-int connectionOpen()
+int uda::client::connectionOpen()
 {
     return client_socket != -1;
 }
 
-int reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output, time_t* tv_server_start,
+int uda::client::reconnect(ENVIRONMENT* environment, XDR** client_input, XDR** client_output, time_t* tv_server_start,
               int* user_timeout)
 {
     int err = 0;
@@ -207,7 +209,7 @@ void setHints(struct addrinfo* hints, const char* hostname)
     }
 }
 
-int createConnection(XDR* client_input, XDR* client_output, time_t* tv_server_start, int user_timeout)
+int uda::client::createConnection(XDR* client_input, XDR* client_output, time_t* tv_server_start, int user_timeout)
 {
     int window_size = DB_READ_BLOCK_SIZE; // 128K
     int rc;
@@ -575,7 +577,7 @@ void udaCloseAllConnections()
     closeConnection(ClosedownType::CLOSE_ALL);
 }
 
-void closeConnection(ClosedownType type)
+void uda::client::closeConnection(ClosedownType type)
 {
     if (client_socket >= 0 && type != ClosedownType::CLOSE_ALL) {
         closeClientSocket(&client_socketlist, client_socket);
@@ -586,7 +588,7 @@ void closeConnection(ClosedownType type)
     client_socket = -1;
 }
 
-int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
+int uda::client::clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 {
 #ifndef _WIN32
     void (*OldSIGPIPEHandler)(int);
@@ -664,7 +666,7 @@ int clientWriteout(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
     return rc;
 }
 
-int clientReadin(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
+int uda::client::clientReadin(void* iohandle ALLOW_UNUSED_TYPE, char* buf, int count)
 {
     int rc;
     fd_set rfds;

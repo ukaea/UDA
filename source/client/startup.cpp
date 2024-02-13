@@ -25,8 +25,9 @@
 #include "udaClient.h"
 
 using namespace uda::client_server;
+using namespace uda::client;
 
-int udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_logs)
+int uda::client::udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_logs)
 {
     static int start_status = 0;
 
