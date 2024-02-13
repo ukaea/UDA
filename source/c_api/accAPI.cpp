@@ -31,6 +31,8 @@
 #  include <malloc.h>
 #endif
 
+using namespace uda::client_server;
+
 USERDEFINEDTYPE* udaGetUserDefinedType(int handle);
 USERDEFINEDTYPELIST* udaGetUserDefinedTypeList(int handle);
 LOGMALLOCLIST* udaGetLogMallocList(int handle);
@@ -1319,7 +1321,7 @@ char* udaGetAsymmetricError(int handle, int above)
             ndata = data_block->data_n;
             data_block->error_type = data_block->data_type; // Error Type is Unknown so Assume Data's Data Type
 
-            if (allocArray(data_block->error_type, ndata, &errhi) != 0) {
+            if (alloc_array(data_block->error_type, ndata, &errhi) != 0) {
                 // Allocate Heap for Regular Error Data
                 UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Data Errors\n");
                 data_block->errhi = nullptr;
@@ -1328,7 +1330,7 @@ char* udaGetAsymmetricError(int handle, int above)
             }
 
             if (data_block->errasymmetry) { // Allocate Heap for the Asymmetric Error Data
-                if (allocArray(data_block->error_type, ndata, &errlo) != 0) {
+                if (alloc_array(data_block->error_type, ndata, &errlo) != 0) {
                     UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Asymmetric Errors\n");
                     UDA_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
                     data_block->errlo = nullptr;
@@ -2860,7 +2862,7 @@ char* udaGetDimAsymmetricError(int handle, int ndim, int above)
             data_block->dims[ndim].error_type =
                 data_block->dims[ndim].data_type; // Error Type is Unknown so Assume Data's Data Type
 
-            if (allocArray(data_block->dims[ndim].error_type, ndata, &errhi) != 0) {
+            if (alloc_array(data_block->dims[ndim].error_type, ndata, &errhi) != 0) {
                 UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Data Errors\n");
                 data_block->dims[ndim].errhi = nullptr;
             } else {
@@ -2868,7 +2870,7 @@ char* udaGetDimAsymmetricError(int handle, int ndim, int above)
             }
 
             if (data_block->dims[ndim].errasymmetry) { // Allocate Heap for the Asymmetric Error Data
-                if (allocArray(data_block->dims[ndim].error_type, ndata, &errlo) != 0) {
+                if (alloc_array(data_block->dims[ndim].error_type, ndata, &errlo) != 0) {
                     UDA_LOG(UDA_LOG_ERROR, "Heap Allocation Problem with Dimensional Asymmetric Errors\n");
                     UDA_LOG(UDA_LOG_ERROR, "Switching Asymmetry Off!\n");
                     data_block->dims[ndim].errlo = errlo;
@@ -3544,9 +3546,9 @@ NTREE* udaGetDataTree(int handle)
     return (NTREE*)udaGetData(handle);
 }
 
-LIBRARY_API PUTDATA_BLOCK* udaNewPutDataBlock(UDA_TYPE data_type, int count, int rank, int* shape, const char* data)
+PUTDATA_BLOCK* udaNewPutDataBlock(UDA_TYPE data_type, int count, int rank, int* shape, const char* data)
 {
-    PUTDATA_BLOCK* put_data = (PUTDATA_BLOCK*)malloc(sizeof(PUTDATA_BLOCK));
+    PutDataBlock* put_data = (PutDataBlock*)malloc(sizeof(PutDataBlock));
     put_data->data_type = data_type;
     put_data->count = count;
     put_data->rank = rank;
@@ -3558,10 +3560,11 @@ LIBRARY_API PUTDATA_BLOCK* udaNewPutDataBlock(UDA_TYPE data_type, int count, int
     return put_data;
 }
 
-LIBRARY_API void udaFreePutDataBlock(PUTDATA_BLOCK* putdata_block)
+void udaFreePutDataBlock(PUTDATA_BLOCK* putdata_block)
 {
-    free(putdata_block->shape);
-    free(putdata_block);
+    PutDataBlock* put_data_block = (PutDataBlock*)putdata_block;
+    free(put_data_block->shape);
+    free(put_data_block);
 }
 
 // Return a user defined data structure definition

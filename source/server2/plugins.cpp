@@ -14,6 +14,8 @@
 
 #define REQUEST_READ_START 1000
 
+using namespace uda::client_server;
+
 namespace
 {
 
@@ -58,8 +60,8 @@ int process_line(const std::string& line, PluginData& plugin)
 
     int i = 0;
     for (auto& token : tokens) {
-        uda::rtrim(token);
-        uda::ltrim(token);
+        uda::client_server::rtrim(token);
+        uda::client_server::ltrim(token);
         auto ltoken = boost::to_lower_copy(token);
 
         switch (i) {

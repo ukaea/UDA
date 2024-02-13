@@ -4,6 +4,8 @@
 #include "clientserver/protocol.h"
 #include "clientserver/xdrlib.h"
 
+using namespace uda::client_server;
+
 void writeCacheData(FILE* fp, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
                     const DATA_BLOCK* data_block, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
                     unsigned int private_flags, int malloc_source)

@@ -20,17 +20,17 @@ typedef struct UdaPluginInterface {   // Standard Plugin interface
     unsigned short changePlugin;      // Use a different Plugin to access the data
     FILE* dbgout;
     FILE* errout;
-    DATA_BLOCK* data_block;
-    REQUEST_DATA* request_data;
-    CLIENT_BLOCK* client_block;
-    DATA_SOURCE* data_source;
-    SIGNAL_DESC* signal_desc;
-    const ENVIRONMENT* environment; // Server environment
+    uda::client_server::DATA_BLOCK* data_block;
+    uda::client_server::REQUEST_DATA* request_data;
+    uda::client_server::CLIENT_BLOCK* client_block;
+    uda::client_server::DATA_SOURCE* data_source;
+    uda::client_server::SIGNAL_DESC* signal_desc;
+    const uda::client_server::ENVIRONMENT* environment; // Server environment
     LOGMALLOCLIST* logmalloclist;
     USERDEFINEDTYPELIST* userdefinedtypelist;
     void* sqlConnection;          // Opaque structure
     const PLUGINLIST* pluginList; // List of data readers, filters, models, and servers
-    UDA_ERROR_STACK error_stack;
+    uda::client_server::UDA_ERROR_STACK error_stack;
 } UDA_PLUGIN_INTERFACE;
 
 struct PluginData;
@@ -48,14 +48,17 @@ class Environment;
 
 int serverRedirectStdStreams(int reset);
 
-int serverPlugin(RequestData* request, DataSource* data_source, SignalDesc* signal_desc, const Plugins& plugins,
-                 const Environment* environment);
+int serverPlugin(uda::client_server::RequestData* request, uda::client_server::DataSource* data_source,
+                 uda::client_server::SignalDesc* signal_desc, const Plugins& plugins,
+                 const uda::client_server::Environment* environment);
 
-int provenancePlugin(ClientBlock* client_block, RequestData* original_request, const Plugins& plugins,
-                     const char* logRecord, const server::Environment& environment, uda::MetadataBlock& metadata);
+int provenancePlugin(uda::client_server::ClientBlock* client_block, uda::client_server::RequestData* original_request,
+                     const Plugins& plugins, const char* logRecord, const server::Environment& environment,
+                     uda::MetadataBlock& metadata);
 
-int call_metadata_plugin(const PluginData& plugin, RequestData* request_block, const server::Environment& environment,
-                         const uda::Plugins& plugins, uda::MetadataBlock& metadata);
+int call_metadata_plugin(const PluginData& plugin, uda::client_server::RequestData* request_block,
+                         const server::Environment& environment, const uda::Plugins& plugins,
+                         uda::MetadataBlock& metadata);
 
 boost::optional<PluginData> find_metadata_plugin(const Plugins& plugins, const server::Environment& environment);
 

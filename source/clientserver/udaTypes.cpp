@@ -32,9 +32,9 @@ size_t getSizeOf(UDA_TYPE data_type)
         case UDA_TYPE_STRING:
             return sizeof(char);
         case UDA_TYPE_COMPLEX:
-            return sizeof(COMPLEX);
+            return sizeof(uda::client_server::COMPLEX);
         case UDA_TYPE_DCOMPLEX:
-            return sizeof(DCOMPLEX);
+            return sizeof(uda::client_server::DCOMPLEX);
         case UDA_TYPE_CAPNP:
             return sizeof(char);
         default:
@@ -72,9 +72,9 @@ size_t getPtrSizeOf(UDA_TYPE data_type)
         case UDA_TYPE_STRING:
             return sizeof(char*);
         case UDA_TYPE_COMPLEX:
-            return sizeof(COMPLEX*);
+            return sizeof(uda::client_server::COMPLEX*);
         case UDA_TYPE_DCOMPLEX:
-            return sizeof(DCOMPLEX*);
+            return sizeof(uda::client_server::DCOMPLEX*);
         default:
             return 0;
     }

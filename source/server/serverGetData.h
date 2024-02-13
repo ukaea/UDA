@@ -6,7 +6,10 @@
 #include "serverPlugin.h"
 #include "structures/genStructs.h"
 
-int udaGetData(int* depth, REQUEST_DATA* request_data, CLIENT_BLOCK client_block, DATA_BLOCK* data_block,
-               DATA_SOURCE* data_source, SIGNAL* signal_rec, SIGNAL_DESC* signal_desc, ACTIONS* actions_desc,
-               ACTIONS* actions_sig, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
-               USERDEFINEDTYPELIST* userdefinedtypelist, SOCKETLIST* socket_list, int protocolVersion);
+int udaGetData(int* depth, uda::client_server::REQUEST_DATA* request_data,
+               uda::client_server::CLIENT_BLOCK client_block, uda::client_server::DATA_BLOCK* data_block,
+               uda::client_server::DATA_SOURCE* data_source, uda::client_server::SIGNAL* signal_rec,
+               uda::client_server::SIGNAL_DESC* signal_desc, uda::client_server::ACTIONS* actions_desc,
+               uda::client_server::ACTIONS* actions_sig, const PLUGINLIST* pluginlist, LOGMALLOCLIST* logmalloclist,
+               USERDEFINEDTYPELIST* userdefinedtypelist, uda::client_server::SOCKETLIST* socket_list,
+               int protocolVersion);

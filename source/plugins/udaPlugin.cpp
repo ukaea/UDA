@@ -20,6 +20,8 @@
 #include "structures/accessors.h"
 #include "structures/struct.h"
 
+using namespace uda::client_server;
+
 UDA_PLUGIN_INTERFACE* udaCreatePluginInterface(const char* request)
 {
     auto plugin_interface = (UDA_PLUGIN_INTERFACE*)calloc(1, sizeof(UDA_PLUGIN_INTERFACE));
@@ -623,7 +625,7 @@ void udaAddPluginError(UDA_PLUGIN_INTERFACE* plugin_interface, const char* locat
     plugin_interface->error_stack.idamerror = (UDA_ERROR*)realloc(
         plugin_interface->error_stack.idamerror, plugin_interface->error_stack.nerrors * sizeof(UDA_ERROR));
     plugin_interface->error_stack.idamerror[plugin_interface->error_stack.nerrors - 1] =
-        udaCreateError(UDA_CODE_ERROR_TYPE, location, code, msg);
+        create_error(UDA_CODE_ERROR_TYPE, location, code, msg);
 }
 
 int udaPluginIsExternal(UDA_PLUGIN_INTERFACE* plugin_interface)

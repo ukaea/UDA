@@ -1,14 +1,14 @@
 #pragma once
 
-#ifndef UDA_CLIENTSERVER_SOCKETSTRUCTS_H
-#  define UDA_CLIENTSERVER_SOCKETSTRUCTS_H
+#include "udaDefines.h"
 
-#  include "udaDefines.h"
+#include <rpc/rpc.h>
+#include <time.h>
 
-#  include <rpc/rpc.h>
-#  include <time.h>
+#include <string>
 
-#  include <string>
+namespace uda::client_server
+{
 
 struct HostData {
     std::string host_alias;
@@ -23,9 +23,9 @@ struct HostData {
 //-------------------------------------------------------
 // Socket Types
 
-#  define TYPE_UNKNOWN_SERVER 0
-#  define TYPE_UDA_SERVER 1
-#  define TYPE_MDSPLUS_SERVER 2
+#define TYPE_UNKNOWN_SERVER 0
+#define TYPE_UDA_SERVER 1
+#define TYPE_MDSPLUS_SERVER 2
 
 //--------------------------------------------------------
 // Socket Management
@@ -47,4 +47,4 @@ typedef struct SocketList {
     SOCKETS* sockets; // Array of Socket Management Data
 } SOCKETLIST;
 
-#endif // UDA_CLIENTSERVER_SOCKETSTRUCTS_H
+} // namespace uda::client_server

@@ -1,9 +1,12 @@
-#ifndef UDA_CLIENTSERVER_COPYSTRUCTS_H
-#define UDA_CLIENTSERVER_COPYSTRUCTS_H
+#pragma once
 
 #include "udaStructs.h"
 
-void copyRequestData(REQUEST_DATA* out, REQUEST_DATA in);
-void copyRequestBlock(REQUEST_BLOCK* out, REQUEST_BLOCK in);
+namespace uda::client_server
+{
 
-#endif // UDA_CLIENTSERVER_COPYSTRUCTS_H
+void copy_request_data(REQUEST_DATA* out, REQUEST_DATA in);
+
+void copy_request_block(REQUEST_BLOCK* out, REQUEST_BLOCK in);
+
+} // namespace uda::client_server

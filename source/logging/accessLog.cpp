@@ -31,6 +31,8 @@
 #  include <sstream>
 #endif
 
+using namespace uda::client_server;
+
 unsigned int countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block)
 {
     unsigned int total = 0;

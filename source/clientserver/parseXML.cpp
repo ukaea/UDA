@@ -20,6 +20,9 @@
 #include <sstream>
 
 #include "logging/logging.h"
+
+using namespace uda::client_server;
+
 #ifndef NOXMLPARSER
 
 #  include "clientserver/errorLog.h"
@@ -1289,7 +1292,7 @@ void parse_subset(xmlDocPtr doc, xmlNodePtr cur, ACTIONS* actions)
     actions->action = str; // Array of Actions bounded by a Ranges
 }
 
-int parseDoc(char* docname, ACTIONS* actions)
+int uda::client_server::parseDoc(char* docname, ACTIONS* actions)
 {
     xmlDocPtr doc;
     xmlNodePtr cur;
@@ -1306,12 +1309,12 @@ int parseDoc(char* docname, ACTIONS* actions)
     if ((doc = xmlParseDoc((xmlChar*)docname)) == nullptr) {
         xmlFreeDoc(doc);
         xmlCleanupParser();
-        udaAddError(UDA_CODE_ERROR_TYPE, "parseDoc", 1, "XML Not Parsed");
+        add_error(UDA_CODE_ERROR_TYPE, "parseDoc", 1, "XML Not Parsed");
         return 1;
     }
 
     if ((cur = xmlDocGetRootElement(doc)) == nullptr) {
-        udaAddError(UDA_CODE_ERROR_TYPE, "parseDoc", 1, "Empty XML Document");
+        add_error(UDA_CODE_ERROR_TYPE, "parseDoc", 1, "Empty XML Document");
         xmlFreeDoc(doc);
         xmlCleanupParser();
         return 1;
@@ -1396,7 +1399,7 @@ void print_dimensions(int ndim, DIMENSION* dims)
     }
 }
 
-void printAction(ACTION action)
+void uda::client_server::printAction(ACTION action)
 {
     UDA_LOG(UDA_LOG_DEBUG, "Action XML Id    : %d\n", action.actionId);
     UDA_LOG(UDA_LOG_DEBUG, "Action Type      : %d\n", action.actionType);
@@ -1487,7 +1490,7 @@ void printAction(ACTION action)
     }
 }
 
-void printActions(ACTIONS actions)
+void uda::client_server::printActions(ACTIONS actions)
 {
     UDA_LOG(UDA_LOG_DEBUG, "No. Action Blocks: %d\n", actions.nactions);
     for (int i = 0; i < actions.nactions; i++) {
@@ -1583,7 +1586,7 @@ void init_composite(COMPOSITE* act)
     act->maps = nullptr;
 }
 
-void initServerside(SERVERSIDE* act)
+void uda::client_server::initServerside(SERVERSIDE* act)
 {
     act->nsubsets = 0;
     act->nmaps = 0;
@@ -1602,7 +1605,7 @@ void init_error_model(ERRORMODEL* act)
     act->dimensions = nullptr;
 }
 
-void initSubset(SUBSET* act)
+void uda::client_server::initSubset(SUBSET* act)
 {
     for (int i = 0; i < UDA_MAX_DATA_RANK; i++) {
         act->bound[i] = 0.0;                           // Subsetting Float Bounds
@@ -1623,7 +1626,7 @@ void initSubset(SUBSET* act)
 
 // Initialise an Action Structure
 
-void initAction(ACTION* act)
+void uda::client_server::initAction(ACTION* act)
 {
     act->actionType = 0;   // Action Range Type
     act->inRange = 0;      // Is this Action Record Applicable to the Current data Request?
@@ -1636,13 +1639,13 @@ void initAction(ACTION* act)
 
 // Initialise an Action Array Structure
 
-void initActions(ACTIONS* act)
+void uda::client_server::initActions(ACTIONS* act)
 {
     act->nactions = 0;     // Number of Action blocks
     act->action = nullptr; // Array of Action blocks
 }
 
-void freeActions(ACTIONS* actions)
+void uda::client_server::freeActions(ACTIONS* actions)
 {
     // Free Heap Memory From ACTION Structures
     void* cptr;
@@ -1743,7 +1746,7 @@ void freeActions(ACTIONS* actions)
 
 // Copy an Action Structure and Drop Pointers to ACTION & DIMENSION Structures (ensures a single Heap free later)
 
-void copyActions(ACTIONS* actions_out, ACTIONS* actions_in)
+void uda::client_server::copyActions(ACTIONS* actions_out, ACTIONS* actions_in)
 {
     *actions_out = *actions_in;
     actions_in->action = nullptr;

@@ -26,18 +26,20 @@ uda::cache::UdaCache* uda::cache::open_cache()
 
 void uda::cache::free_cache() {}
 
-int uda::cache::cache_write(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data, DATA_BLOCK* data_block,
-                            LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                            ENVIRONMENT environment, int protocolVersion, uint32_t flags,
-                            LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+int uda::cache::cache_write(uda::cache::UdaCache* cache, const uda::client_server::REQUEST_DATA* request_data,
+                            uda::client_server::DATA_BLOCK* data_block, LOGMALLOCLIST* logmalloclist,
+                            USERDEFINEDTYPELIST* userdefinedtypelist, uda::client_server::ENVIRONMENT environment,
+                            int protocolVersion, uint32_t flags, LOGSTRUCTLIST* log_struct_list,
+                            unsigned int private_flags, int malloc_source)
 {
     return 0;
 }
 
-DATA_BLOCK* uda::cache::cache_read(uda::cache::UdaCache* cache, const REQUEST_DATA* request_data,
-                                   LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                                   ENVIRONMENT environment, int protocolVersion, uint32_t flags,
-                                   LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
+uda::client_server::DATA_BLOCK*
+uda::cache::cache_read(uda::cache::UdaCache* cache, const uda::client_server::REQUEST_DATA* request_data,
+                       LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
+                       uda::client_server::ENVIRONMENT environment, int protocolVersion, uint32_t flags,
+                       LOGSTRUCTLIST* log_struct_list, unsigned int private_flags, int malloc_source)
 {
     return nullptr;
 }

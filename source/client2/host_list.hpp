@@ -18,11 +18,11 @@ class HostList
   public:
     HostList();
     ~HostList() = default;
-    [[nodiscard]] const HostData* find_by_alias(std::string_view alias) const;
-    [[nodiscard]] const HostData* find_by_name(std::string_view name) const;
+    [[nodiscard]] const uda::client_server::HostData* find_by_alias(std::string_view alias) const;
+    [[nodiscard]] const uda::client_server::HostData* find_by_name(std::string_view name) const;
 
   private:
-    std::vector<HostData> hosts_;
+    std::vector<uda::client_server::HostData> hosts_;
 };
 
 } // namespace client

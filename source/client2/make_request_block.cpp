@@ -10,6 +10,8 @@
 #include "clientserver/udaErrors.h"
 #include "logging/logging.h"
 
+using namespace uda::client_server;
+
 namespace
 {
 int make_request_data(const Environment* environment, const char* data_object, const char* data_source,

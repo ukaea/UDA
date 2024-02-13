@@ -14,6 +14,8 @@
 #include "client/makeClientRequestBlock.h"
 #include "client/startup.h"
 
+using namespace uda::client_server;
+
 int udaClientAPI(const char* file, const char* signal, int pass, int exp_number)
 {
     REQUEST_BLOCK request_block;
@@ -38,7 +40,7 @@ int udaClientAPI(const char* file, const char* signal, int pass, int exp_number)
     // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initErrorStack();
+        init_error_stack();
         startup = 0;
     }
 
@@ -57,10 +59,10 @@ int udaClientAPI(const char* file, const char* signal, int pass, int exp_number)
     }
 
     if ((err = makeClientRequestBlock(&signal, (const char**)&data_source, 1, &request_block)) != 0) {
-        udaCloseError();
+        close_error();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
     }
@@ -112,7 +114,7 @@ int udaClientFileAPI(const char* file, const char* signal, const char* format)
     // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initErrorStack();
+        init_error_stack();
         startup = 0;
     }
 
@@ -127,10 +129,10 @@ int udaClientFileAPI(const char* file, const char* signal, const char* format)
     }
 
     if ((err = makeClientRequestBlock(&signal, (const char**)&data_source, 1, &request_block)) != 0) {
-        udaCloseError();
+        close_error();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         return -err;
     }

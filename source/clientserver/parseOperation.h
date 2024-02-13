@@ -1,8 +1,10 @@
-#ifndef UDA_CLIENTSERVER_PARSEOPERATION_H
-#define UDA_CLIENTSERVER_PARSEOPERATION_H
+#pragma once
 
 #include "parseXML.h"
 
+namespace uda::client_server
+{
+
 int parseOperation(SUBSET* sub);
 
-#endif // UDA_CLIENTSERVER_PARSEOPERATION_H
+}

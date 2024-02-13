@@ -3,4 +3,4 @@
 #include "clientserver/udaStructs.h"
 #include "serverPlugin.h"
 
-void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment);
+void initPluginList(PLUGINLIST* plugin_list, uda::client_server::Environment* environment);

@@ -10,9 +10,12 @@
 namespace uda
 {
 
-int serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* logmalloclist);
+int serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::client_server::ACTION action,
+                     LOGMALLOCLIST* logmalloclist);
 
-int serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serverside, Environment* environment);
+int serverParseServerSide(uda::client_server::REQUEST_DATA* request_block,
+                          uda::client_server::ACTIONS* actions_serverside,
+                          uda::client_server::Environment* environment);
 
 } // namespace uda
 

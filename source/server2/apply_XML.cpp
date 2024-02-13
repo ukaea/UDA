@@ -21,8 +21,9 @@
 #include "logging/logging.h"
 #include <uda/types.h>
 
-int uda::server_parse_signal_XML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC signal_desc, ACTIONS* actions_desc,
-                                 ACTIONS* actions_sig)
+int uda::server_parse_signal_XML(uda::client_server::DATA_SOURCE data_source, uda::client_server::SIGNAL signal,
+                                 uda::client_server::SIGNAL_DESC signal_desc, uda::client_server::ACTIONS* actions_desc,
+                                 uda::client_server::ACTIONS* actions_sig)
 {
 
     // return -1 if No Qualifying Actionable XML otherwise return 0
@@ -278,8 +279,10 @@ void applyCalibration(int type, int ndata, double factor, double offset, int inv
 
 } // namespace
 
-void uda::server_apply_signal_XML(CLIENT_BLOCK client_block, DATA_SOURCE* data_source, SIGNAL* signal,
-                                  SIGNAL_DESC* signal_desc, DATA_BLOCK* data_block, ACTIONS actions)
+void uda::server_apply_signal_XML(uda::client_server::CLIENT_BLOCK client_block,
+                                  uda::client_server::DATA_SOURCE* data_source, uda::client_server::SIGNAL* signal,
+                                  uda::client_server::SIGNAL_DESC* signal_desc,
+                                  uda::client_server::DATA_BLOCK* data_block, uda::client_server::ACTIONS actions)
 {
 
     int ndata, dimid;
@@ -1531,7 +1534,8 @@ void uda::server_apply_signal_XML(CLIENT_BLOCK client_block, DATA_SOURCE* data_s
 
 // Combine the set of Actions from both sources with Signal XML having Priority of Signal_Desc XML
 
-void uda::server_deselect_signal_XML(ACTIONS* actions_desc, ACTIONS* actions_sig)
+void uda::server_deselect_signal_XML(uda::client_server::ACTIONS* actions_desc,
+                                     uda::client_server::ACTIONS* actions_sig)
 {
 
     int type;

@@ -11,11 +11,13 @@
 #include "stringUtils.h"
 #include "udaDefines.h"
 
+using namespace uda::client_server;
+
 /**
  * Request userid from OS
  * @param uid OUT
  */
-void userid(char* uid)
+void uda::client_server::userid(char* uid)
 {
 #ifdef _WIN32
     DWORD size = STRING_LENGTH - 1;

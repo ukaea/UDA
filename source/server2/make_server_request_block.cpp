@@ -8,6 +8,8 @@
 
 #if defined(SERVERBUILD) || defined(FATCLIENT)
 
+using namespace uda::client_server;
+
 int uda::makeServerRequestBlock(RequestBlock* request_block, const uda::Plugins& plugins,
                                 const server::Environment& environment)
 {

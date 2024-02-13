@@ -1,5 +1,4 @@
-#ifndef UDA_CLIENTSERVER_PARSEXML_H
-#define UDA_CLIENTSERVER_PARSEXML_H
+#pragma once
 
 #ifndef NOXMLPARSER
 #  include <libxml/parser.h>
@@ -10,6 +9,9 @@
 
 #include "udaDefines.h"
 #include "udaStructs.h"
+
+namespace uda::client_server
+{
 
 typedef struct Map {
     int nmap;                                             // the Number of Mapping Operations
@@ -141,15 +143,25 @@ typedef struct Actions {
 } ACTIONS;
 
 #ifndef NOXMLPARSER
+
 int parseDoc(char* docname, ACTIONS* actions);
+
 #endif
+
 void printAction(ACTION action);
+
 void printActions(ACTIONS actions);
+
 void initAction(ACTION* act);
+
 void initActions(ACTIONS* act);
+
 void freeActions(ACTIONS* actions);
+
 void copyActions(ACTIONS* actions_out, ACTIONS* actions_in);
+
 void initServerside(SERVERSIDE* act);
+
 void initSubset(SUBSET* act);
 
-#endif // UDA_CLIENTSERVER_PARSEXML_H
+} // namespace uda::client_server

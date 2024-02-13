@@ -19,7 +19,7 @@ template <typename T> T Precision<T>::precision = 0;
 template <> float Precision<float>::precision = FLT_EPSILON;
 template <> double Precision<double>::precision = DBL_EPSILON;
 
-template <typename T> int compress(DIMS* ddim)
+template <typename T> int compress(uda::client_server::DIMS* ddim)
 {
     T* dim_data = (T*)ddim->dim;
     if (dim_data == nullptr) {
@@ -61,7 +61,7 @@ template <typename T> int compress(DIMS* ddim)
     return 0;
 }
 
-template <typename T> int decompress(DIMS* ddim)
+template <typename T> int decompress(uda::client_server::DIMS* ddim)
 {
     int ndata = ddim->dim_n;
 
@@ -122,7 +122,7 @@ template <typename T> int decompress(DIMS* ddim)
  * Notes: If the dimensional data is regular it can be compressed into three numbers: A starting value, a step value
  * and the number of data points. The first two of these are cast as doubles to preserve the highest level of accuracy.
  */
-int compressDim(DIMS* ddim)
+int uda::client_server::compress_dim(DIMS* ddim)
 {
     if (!ddim || !ddim->dim || ddim->compressed) {
         // No Data or Already Compressed or Functionality disabled
@@ -173,7 +173,7 @@ int compressDim(DIMS* ddim)
  * Note: XML based data correction also uses the compression models: New models
  * must also have corrections applied.
  */
-int uncompressDim(DIMS* ddim)
+int uda::client_server::uncompress_dim(DIMS* ddim)
 {
     if (!ddim || ddim->compressed == 0) {
         return 0; // Nothing to Uncompress!

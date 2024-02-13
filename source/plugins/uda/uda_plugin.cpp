@@ -13,6 +13,8 @@
 #include <boost/filesystem.hpp>
 #include <fmt/format.h>
 
+using namespace uda::client_server;
+
 namespace uda::plugins::uda
 {
 

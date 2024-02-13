@@ -22,6 +22,8 @@
 #include "serverSubsetData.h"
 #include "uda/plugins.h"
 
+using namespace uda::client_server;
+
 static int swap_signal_error(DATA_BLOCK* data_block, DATA_BLOCK* data_block2, int asymmetry);
 static int swap_signal_dim(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2);
 static int swap_signal_dim_error(DIMCOMPOSITE dimcomposite, DATA_BLOCK* data_block, DATA_BLOCK* data_block2,
@@ -1082,7 +1084,7 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
             int serrno = errno;
             if (serrno != 0 || xmlfile == nullptr) {
                 if (serrno != 0) {
-                    udaAddError(UDA_SYSTEM_ERROR_TYPE, "idamserverReadData", serrno, "");
+                    add_error(UDA_SYSTEM_ERROR_TYPE, "idamserverReadData", serrno, "");
                 }
                 if (xmlfile != nullptr) {
                     fclose(xmlfile);
@@ -1183,9 +1185,9 @@ int read_data(REQUEST_DATA* request, CLIENT_BLOCK client_block, DATA_BLOCK* data
                 int err = pluginlist->plugin[id].idamPlugin(&plugin_interface);
                 for (unsigned int i = 0; i < plugin_interface.error_stack.nerrors; ++i) {
                     auto error = &plugin_interface.error_stack.idamerror[i];
-                    udaAddError(error->type, error->location, error->code, error->msg);
+                    add_error(error->type, error->location, error->code, error->msg);
                 }
-                udaFreeErrorStack(&plugin_interface.error_stack);
+                free_error_stack(&plugin_interface.error_stack);
 
 #ifndef FATCLIENT
                 // Reset Redirected Output

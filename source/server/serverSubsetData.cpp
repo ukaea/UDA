@@ -31,6 +31,8 @@
 #include <boost/algorithm/string.hpp>
 #include <uda/types.h>
 
+using namespace uda::client_server;
+
 //----------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------
 // Manage Array Subsetting
@@ -380,7 +382,7 @@ int process_subset_operation(int ii, SUBSET subset, DATA_BLOCK* data_block, LOGM
         auto dim = &(data_block->dims[dim_id]); // the original dimension to be subset
 
         if (dim->compressed) {
-            uncompressDim(dim);
+            uncompress_dim(dim);
             dim->compressed = 0; // Can't preserve this status after the subset has been applied
             dim->method = 0;
 

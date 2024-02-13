@@ -1,7 +1,9 @@
-#ifndef UDA_CLIENTSERVER_MANAGESOCKETS_H
-#define UDA_CLIENTSERVER_MANAGESOCKETS_H
+#pragma once
 
 #include "socketStructs.h"
+
+namespace uda::client_server
+{
 
 // Initialise
 void initSocketList(SOCKETLIST* socks);
@@ -19,4 +21,4 @@ void closeClientSockets(SOCKETLIST* socks);
 
 void closeClientSocket(SOCKETLIST* socks, int fh);
 
-#endif // UDA_CLIENTSERVER_MANAGESOCKETS_H
+} // namespace uda::client_server

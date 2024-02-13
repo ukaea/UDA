@@ -8,6 +8,8 @@
 #include <fmt/format.h>
 #include <string>
 
+using namespace uda::client_server;
+
 static const boost::regex SOURCE_RE(
     R"(^(?<device>(?:[a-z]+::)*)(((?<pulse>[0-9]+)(\/(?<pass>[0-9a-z]+))?)|(?<path>\/[a-z0-9\/\.]+)|((?<function>[a-z]+)\((?<args>.*)\)))$)",
     boost::regex::icase);
@@ -41,7 +43,7 @@ static int find_plugin_id_by_format(std::string_view format, const PluginList& p
     return -1;
 }
 
-std::string expand_environment_variables(const std::string& path);
+std::string udaExpandEnvironmentalVariables(const std::string& path);
 
 void write_int(int* out, long in)
 {
@@ -195,7 +197,7 @@ Subset parse_subsets(const std::vector<std::string>& subsets)
     return result;
 }
 
-std::string expand_environment_variables(const std::string& path)
+std::string udaExpandEnvironmentalVariables(const std::string& path)
 {
     std::string new_path = path;
 
@@ -329,7 +331,7 @@ void uda::parse_source(RequestData& result, const std::string& source)
     std::string path = source_match["path"];
     bool is_file = !path.empty();
 
-    path = expand_environment_variables(path);
+    path = udaExpandEnvironmentalVariables(path);
     write_string(result.path, path, STRING_LENGTH);
 
     std::string s_pulse = source_match["pulse"];

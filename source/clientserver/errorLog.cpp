@@ -7,7 +7,7 @@
 #include "logging/logging.h"
 #include "uda/client.h"
 
-static std::vector<UDA_ERROR> udaerrorstack;
+static std::vector<uda::client_server::UDA_ERROR> udaerrorstack;
 
 int udaNumErrors(void)
 {
@@ -30,7 +30,7 @@ const char* udaGetErrorLocation(int err_num)
     return "no error found";
 }
 
-void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERROR_STACK* error_stack)
+void uda::client_server::error_log(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, ErrorStack* error_stack)
 {
     UDA_ERROR* errors = nullptr;
     unsigned int nerrors;
@@ -78,12 +78,12 @@ void udaErrorLog(CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, UDA_ERR
 
 // Initialise the Error Stack
 
-void initErrorStack()
+void uda::client_server::init_error_stack()
 {
     udaerrorstack.clear();
 }
 
-void initErrorRecords(const UDA_ERROR_STACK* errorstack)
+void uda::client_server::init_error_records(const ErrorStack* errorstack)
 {
     for (unsigned int i = 0; i < errorstack->nerrors; i++) {
         errorstack->idamerror[i].type = 0;
@@ -93,7 +93,7 @@ void initErrorRecords(const UDA_ERROR_STACK* errorstack)
     }
 }
 
-void udaPrintErrorStack()
+void uda::client_server::print_error_stack()
 {
     if (udaerrorstack.empty()) {
         UDA_LOG(UDA_LOG_DEBUG, "Empty Error Stack\n");
@@ -112,7 +112,8 @@ void udaPrintErrorStack()
 //            1 => Code Error
 //            2 => Plugin Error
 
-UDA_ERROR udaCreateError(int type, const char* location, int code, const char* msg)
+uda::client_server::UDA_ERROR uda::client_server::create_error(int type, const char* location, int code,
+                                                               const char* msg)
 {
     UDA_ERROR error;
 
@@ -147,14 +148,14 @@ UDA_ERROR udaCreateError(int type, const char* location, int code, const char* m
     return error;
 }
 
-void udaAddError(int type, const char* location, int code, const char* msg)
+void uda::client_server::add_error(int type, const char* location, int code, const char* msg)
 {
-    udaerrorstack.push_back(udaCreateError(type, location, code, msg));
+    udaerrorstack.push_back(create_error(type, location, code, msg));
 }
 
 // Concatenate Error Stack structures
 
-void udaConcatError(UDA_ERROR_STACK* errorstackout)
+void uda::client_server::concat_error(ErrorStack* errorstackout)
 {
     if (udaerrorstack.empty()) {
         return;
@@ -171,7 +172,7 @@ void udaConcatError(UDA_ERROR_STACK* errorstackout)
     errorstackout->nerrors = inew;
 }
 
-void udaFreeErrorStack(UDA_ERROR_STACK* errorstack)
+void uda::client_server::free_error_stack(ErrorStack* errorstack)
 {
     // "FIX" : this is causing segfaults when using multiple clients (eg. get and put)
     //         apparently due to both trying to free the same memory. Needs fixing properly.
@@ -183,7 +184,7 @@ void udaFreeErrorStack(UDA_ERROR_STACK* errorstack)
 
 // Free Stack Heap
 
-void udaCloseError()
+void uda::client_server::close_error()
 {
-    initErrorStack();
+    init_error_stack();
 }

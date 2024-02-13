@@ -106,12 +106,13 @@ typedef struct LogStructList LOGSTRUCTLIST;
 typedef struct CompoundField COMPOUNDFIELD;
 typedef struct UserDefinedType USERDEFINEDTYPE;
 typedef struct UserDefinedTypeList USERDEFINEDTYPELIST;
-typedef struct UdaErrorStack UDA_ERROR_STACK;
 typedef struct UdaPluginInterface UDA_PLUGIN_INTERFACE;
 typedef struct CompoundField COMPOUNDFIELD;
 typedef struct UserDefinedType USERDEFINEDTYPE;
-typedef struct PutDataBlockList PUTDATA_BLOCK_LIST;
-typedef struct PutDataBlock PUTDATA_BLOCK;
+
+typedef struct CUdaErrorStack UDA_ERROR_STACK;
+typedef struct CPutDataBlockList PUTDATA_BLOCK_LIST;
+typedef struct CPutDataBlock PUTDATA_BLOCK;
 
 #ifdef __cplusplus
 }

@@ -27,6 +27,8 @@
 void ncclose(int fh) {}
 #endif
 
+using namespace uda::client_server;
+
 static PLUGINLIST pluginList; // List of all data reader plugins (internal and external shared libraries)
 ENVIRONMENT environment;      // Holds local environment variable values
 
@@ -254,8 +256,8 @@ int fat_client_return(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_blocks, 
     // Gather Server Error State
 
     // Update Server State with Error Stack
-    udaConcatError(&server_block->idamerrorstack);
-    udaCloseError();
+    concat_error(&server_block->idamerrorstack);
+    close_error();
 
     int err = 0;
 
@@ -282,7 +284,7 @@ int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_bloc
 {
     UDA_LOG(UDA_LOG_DEBUG, "Start of Server Error Trap #1 Loop\n");
 
-    copyRequestBlock(request_block, *request_block0);
+    copy_request_block(request_block, *request_block0);
 
     int err = 0;
 
@@ -357,7 +359,7 @@ int handle_request_fat(REQUEST_BLOCK* request_block, REQUEST_BLOCK* request_bloc
     printSignal(metadata_block->signal_rec);
     printSignalDesc(*signal_desc);
     printDataBlockList(*data_blocks);
-    udaPrintErrorStack();
+    print_error_stack();
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
 
@@ -397,8 +399,8 @@ int do_fat_server_closedown(SERVER_BLOCK* server_block, DATA_BLOCK_LIST* data_bl
 
     //----------------------------------------------------------------------------
 
-    udaConcatError(&server_block->idamerrorstack); // Update Server State with Global Error Stack
-    udaCloseError();
+    concat_error(&server_block->idamerrorstack); // Update Server State with Global Error Stack
+    close_error();
 
     *data_blocks0 = *data_blocks;
 

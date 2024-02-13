@@ -31,6 +31,8 @@
 #include "clientserver/udaDefines.h"
 #include "struct.h"
 
+using namespace uda::client_server;
+
 int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* header)
 {
     int lstr, rnk = 0, status = 0, err, model = 0, space, isStruct, isConst, isUnsigned, isLong64, isEnum = 0,
@@ -92,8 +94,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
     if (fh == nullptr || ferror(fh) || errno != 0) {
         err = 999;
         if (errno != 0) {
-            udaAddError(UDA_SYSTEM_ERROR_TYPE, "parseIncludeFile", errno,
-                        "Unable to Open Structure Definition Header file for Read Access!");
+            add_error(UDA_SYSTEM_ERROR_TYPE, "parseIncludeFile", errno,
+                      "Unable to Open Structure Definition Header file for Read Access!");
         }
         if (fh != nullptr) {
             fclose(fh);
@@ -245,8 +247,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                     name1[0] = '\0';
                     name2[0] = '\0';
                 } else {
-                    udaAddError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
-                                "typedef statement does not conform to syntax model!");
+                    add_error(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
+                              "typedef statement does not conform to syntax model!");
                 }
                 buffer[0] = '\0';
                 break;
@@ -276,8 +278,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                     name1[0] = '\0';
                     name2[0] = '\0';
                 } else {
-                    udaAddError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
-                                "typedef statement does not conform to syntax model!");
+                    add_error(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
+                              "typedef statement does not conform to syntax model!");
                 }
                 buffer[0] = '\0';
                 break;
@@ -440,8 +442,8 @@ int parseIncludeFile(USERDEFINEDTYPELIST* userdefinedtypelist, const char* heade
                             } else {
                                 // fprintf(stdout,"Names do Not Match: %s, %s, %s\n", name, name1, name2);
                                 err = 999;
-                                udaAddError(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
-                                            "typedef statement does not conform to syntax model!");
+                                add_error(UDA_CODE_ERROR_TYPE, "parseIncludeFile", 999,
+                                          "typedef statement does not conform to syntax model!");
                                 return err;
                             }
 

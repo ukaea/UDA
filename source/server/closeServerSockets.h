@@ -5,7 +5,7 @@
 
 #  include "clientserver/socketStructs.h"
 
-void closeServerSocket(SOCKETLIST* socks, int fh);
-void closeServerSockets(SOCKETLIST* socks);
+void closeServerSocket(uda::client_server::SOCKETLIST* socks, int fh);
+void closeServerSockets(uda::client_server::SOCKETLIST* socks);
 
 #endif // UDA_SERVER_CLOSESERVERSOCKETS_H

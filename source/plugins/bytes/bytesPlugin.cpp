@@ -1,12 +1,7 @@
 #include "bytesPlugin.h"
 
-#include "clientserver/errorLog.h"
-#include "clientserver/makeRequestBlock.h"
-#include "clientserver/stringUtils.h"
-#include "include/uda/uda_plugin_base.hpp"
-#include "logging/logging.h"
-
 #include <boost/filesystem.hpp>
+#include <uda/uda_plugin_base.hpp>
 
 #include "readBytesNonOptimally.h"
 
@@ -37,10 +32,11 @@ int BytesPlugin::read(UDA_PLUGIN_INTERFACE* plugin_interface)
 {
     auto path = find_required_arg<std::string>(plugin_interface, "path");
 
-    char c_path[MAXPATH];
-    StringCopy(c_path, path.c_str(), MAXPATH);
-    debug(plugin_interface, "expand_environment_variables!");
-    expand_environment_variables(c_path);
+    char c_path[UDA_MAX_PATH];
+    strncpy(c_path, path.c_str(), UDA_MAX_PATH);
+    c_path[UDA_MAX_PATH - 1] = '\0';
+    debug(plugin_interface, "udaExpandEnvironmentalVariables!");
+    udaExpandEnvironmentalVariables(c_path);
 
     return readBytes(c_path, plugin_interface);
 }

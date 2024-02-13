@@ -4,7 +4,7 @@
 
 #include <uda/types.h>
 
-void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
+void uda::client_server::freePutDataBlockList(PutDataBlockList* putDataBlockList)
 {
     if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {
         free(putDataBlockList->putDataBlock);
@@ -18,7 +18,7 @@ void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
 //     freePutDataBlockList(&request_data->putDataBlockList);
 // }
 
-void freeRequestBlock(REQUEST_BLOCK* request_block)
+void uda::client_server::freeRequestBlock(REQUEST_BLOCK* request_block)
 {
     //    for (int i = 0; i < request_block->num_requests; ++i) {
     //        freeRequestData(&request_block->requests[0]);
@@ -28,7 +28,7 @@ void freeRequestBlock(REQUEST_BLOCK* request_block)
     //    request_block->requests = nullptr;
 }
 
-void freeClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
+void uda::client_server::freeClientPutDataBlockList(PutDataBlockList* putDataBlockList)
 {
     if (putDataBlockList->putDataBlock != nullptr && putDataBlockList->blockListSize > 0) {
         free(putDataBlockList->putDataBlock);
@@ -36,7 +36,7 @@ void freeClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
     //    initPutDataBlockList(putDataBlockList);
 }
 
-void freeDataBlock(DATA_BLOCK* data_block)
+void uda::client_server::freeDataBlock(DATA_BLOCK* data_block)
 {
     // Free Heap Memory & Zero all Integer values
 
@@ -195,7 +195,7 @@ void freeDataBlock(DATA_BLOCK* data_block)
     UDA_LOG(UDA_LOG_DEBUG, "Exit\n");
 }
 
-void freeDataBlockList(DATA_BLOCK_LIST* data_block_list)
+void uda::client_server::freeDataBlockList(DATA_BLOCK_LIST* data_block_list)
 {
     for (int i = 0; i < data_block_list->count; ++i) {
         freeDataBlock(&data_block_list->data[i]);
@@ -206,7 +206,7 @@ void freeDataBlockList(DATA_BLOCK_LIST* data_block_list)
 }
 
 // Free Heap Memory & Zero all Integer values
-void freeReducedDataBlock(DATA_BLOCK* data_block)
+void uda::client_server::freeReducedDataBlock(DATA_BLOCK* data_block)
 {
 #ifdef FATCLIENT
     if (data_block == nullptr) {

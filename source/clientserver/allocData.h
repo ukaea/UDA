@@ -1,14 +1,20 @@
-#ifndef UDA_CLIENTSERVER_ALLOCDATA_H
-#define UDA_CLIENTSERVER_ALLOCDATA_H
+#pragma once
 
 #include "udaStructs.h"
 
 #include <stdlib.h>
 
-int allocArray(int data_type, size_t ndata, char** ap);
-int allocData(DATA_BLOCK* data_block);
-int allocDim(DATA_BLOCK* data_block);
-int allocPutData(PUTDATA_BLOCK* putData);
-void addIdamPutDataBlockList(PUTDATA_BLOCK* putDataBlock, PUTDATA_BLOCK_LIST* putDataBlockList);
+namespace uda::client_server
+{
 
-#endif // UDA_CLIENTSERVER_ALLOCDATA_H
+int alloc_array(int data_type, size_t ndata, char** ap);
+
+int alloc_data(DATA_BLOCK* data_block);
+
+int alloc_dim(DATA_BLOCK* data_block);
+
+int alloc_put_data(PutDataBlock* putData);
+
+void add_put_data_block_list(PutDataBlock* putDataBlock, PutDataBlockList* putDataBlockList);
+
+} // namespace uda::client_server

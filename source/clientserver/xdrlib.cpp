@@ -20,10 +20,12 @@
 #include "stringUtils.h"
 #include "structures/struct.h"
 
+using namespace uda::client_server;
+
 //-----------------------------------------------------------------------
 // Test version's type passing capability
 
-int protocolVersionTypeTest(int protocol_version, int type)
+int uda::client_server::protocolVersionTypeTest(int protocol_version, int type)
 {
     // If this client/server version cannot pass/receive a specific type, then return TRUE
 
@@ -59,12 +61,12 @@ int protocolVersionTypeTest(int protocol_version, int type)
 //-----------------------------------------------------------------------
 // Strings
 
-int wrap_string(XDR* xdrs, char* sp)
+int uda::client_server::wrap_string(XDR* xdrs, char* sp)
 {
     return xdr_string(xdrs, &sp, MAX_STRING_LENGTH);
 }
 
-int WrapXDRString(XDR* xdrs, const char* sp, int maxlen)
+int uda::client_server::WrapXDRString(XDR* xdrs, const char* sp, int maxlen)
 {
     return xdr_string(xdrs, (char**)&sp, (unsigned int)maxlen);
 }
@@ -72,7 +74,7 @@ int WrapXDRString(XDR* xdrs, const char* sp, int maxlen)
 //-----------------------------------------------------------------------
 // Meta Data
 
-bool_t xdr_meta(XDR* xdrs, DATA_BLOCK* str)
+bool_t uda::client_server::xdr_meta(XDR* xdrs, DATA_BLOCK* str)
 {
     int rc = WrapXDRString(xdrs, (char*)str->opaque_block, str->opaque_count + 1);
     return rc;
@@ -81,7 +83,7 @@ bool_t xdr_meta(XDR* xdrs, DATA_BLOCK* str)
 //-----------------------------------------------------------------------
 // Security block
 
-bool_t xdr_securityBlock1(XDR* xdrs, SECURITY_BLOCK* str)
+bool_t uda::client_server::xdr_securityBlock1(XDR* xdrs, SECURITY_BLOCK* str)
 {
     int rc = xdr_u_short(xdrs, &str->structVersion) && xdr_u_short(xdrs, &str->encryptionMethod) &&
              xdr_u_short(xdrs, &str->authenticationStep) && xdr_u_short(xdrs, &str->client_ciphertextLength) &&
@@ -90,7 +92,7 @@ bool_t xdr_securityBlock1(XDR* xdrs, SECURITY_BLOCK* str)
     return rc;
 }
 
-bool_t xdr_securityBlock2(XDR* xdrs, SECURITY_BLOCK* str)
+bool_t uda::client_server::xdr_securityBlock2(XDR* xdrs, SECURITY_BLOCK* str)
 {
     int rc = 1;
 
@@ -144,7 +146,7 @@ bool_t xdr_securityBlock2(XDR* xdrs, SECURITY_BLOCK* str)
 //        get_uncal
 //        get_notoff
 
-bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
+bool_t uda::client_server::xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
 {
     int rc = xdr_int(xdrs, &str->version) && xdr_int(xdrs, &str->pid) && xdr_int(xdrs, &str->timeout) &&
              WrapXDRString(xdrs, (char*)str->uid, STRING_LENGTH);
@@ -204,7 +206,7 @@ bool_t xdr_client(XDR* xdrs, CLIENT_BLOCK* str, int protocolVersion)
 //-----------------------------------------------------------------------
 // Server State Block
 
-bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str, int protocolVersion)
+bool_t uda::client_server::xdr_server1(XDR* xdrs, SERVER_BLOCK* str, int protocolVersion)
 {
 
     int rc = 0;
@@ -251,7 +253,7 @@ bool_t xdr_server1(XDR* xdrs, SERVER_BLOCK* str, int protocolVersion)
     return rc;
 }
 
-bool_t xdr_server2(XDR* xdrs, SERVER_BLOCK* str)
+bool_t uda::client_server::xdr_server2(XDR* xdrs, SERVER_BLOCK* str)
 {
     int rc = 1;
     for (unsigned int i = 0; i < str->idamerrorstack.nerrors; i++) {
@@ -268,7 +270,7 @@ bool_t xdr_server2(XDR* xdrs, SERVER_BLOCK* str)
     return rc;
 }
 
-bool_t xdr_server(XDR* xdrs, SERVER_BLOCK* str)
+bool_t uda::client_server::xdr_server(XDR* xdrs, SERVER_BLOCK* str)
 {
     return xdr_int(xdrs, &str->version) && xdr_int(xdrs, &str->error) &&
            WrapXDRString(xdrs, (char*)str->msg, STRING_LENGTH);
@@ -277,7 +279,7 @@ bool_t xdr_server(XDR* xdrs, SERVER_BLOCK* str)
 //-----------------------------------------------------------------------
 // Client Data Request Block
 
-bool_t xdr_request_data(XDR* xdrs, REQUEST_DATA* str, int protocolVersion)
+bool_t uda::client_server::xdr_request_data(XDR* xdrs, REQUEST_DATA* str, int protocolVersion)
 {
     int request = static_cast<int>(str->request);
     int rc = xdr_int(xdrs, &request);
@@ -306,7 +308,7 @@ bool_t xdr_request_data(XDR* xdrs, REQUEST_DATA* str, int protocolVersion)
     return rc;
 }
 
-bool_t xdr_request(XDR* xdrs, REQUEST_BLOCK* str, int protocolVersion)
+bool_t uda::client_server::xdr_request(XDR* xdrs, REQUEST_BLOCK* str, int protocolVersion)
 {
     int rc = 1;
 
@@ -320,7 +322,7 @@ bool_t xdr_request(XDR* xdrs, REQUEST_BLOCK* str, int protocolVersion)
     return rc;
 }
 
-bool_t xdr_data_block_list(XDR* xdrs, DATA_BLOCK_LIST* str, int protocolVersion)
+bool_t uda::client_server::xdr_data_block_list(XDR* xdrs, DATA_BLOCK_LIST* str, int protocolVersion)
 {
     int rc = 1;
 
@@ -337,13 +339,13 @@ bool_t xdr_data_block_list(XDR* xdrs, DATA_BLOCK_LIST* str, int protocolVersion)
 //-----------------------------------------------------------------------
 // Put Data
 
-bool_t xdr_putdatablocklist_block(XDR* xdrs, PUTDATA_BLOCK_LIST* str)
+bool_t uda::client_server::xdr_putdatablocklist_block(XDR* xdrs, PutDataBlockList* str)
 {
     int rc = xdr_u_int(xdrs, &str->blockCount);
     return rc;
 }
 
-bool_t xdr_putdata_block1(XDR* xdrs, PUTDATA_BLOCK* str)
+bool_t uda::client_server::xdr_putdata_block1(XDR* xdrs, PutDataBlock* str)
 {
     int rc = 1;
     rc = rc && xdr_u_int(xdrs, &str->rank) && xdr_u_int(xdrs, &str->count) && xdr_int(xdrs, &str->data_type) &&
@@ -352,7 +354,7 @@ bool_t xdr_putdata_block1(XDR* xdrs, PUTDATA_BLOCK* str)
     return rc;
 }
 
-bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str)
+bool_t uda::client_server::xdr_putdata_block2(XDR* xdrs, PutDataBlock* str)
 {
     int rc = 1;
     if (str->rank > 0) {
@@ -419,14 +421,14 @@ bool_t xdr_putdata_block2(XDR* xdrs, PUTDATA_BLOCK* str)
 //-----------------------------------------------------------------------
 // Data Objects
 
-bool_t xdr_data_object1(XDR* xdrs, DATA_OBJECT* str)
+bool_t uda::client_server::xdr_data_object1(XDR* xdrs, DATA_OBJECT* str)
 {
     int rc =
         xdr_u_short(xdrs, &str->objectType) && xdr_u_int(xdrs, &str->objectSize) && xdr_u_short(xdrs, &str->hashLength);
     return rc;
 }
 
-bool_t xdr_data_object2(XDR* xdrs, DATA_OBJECT* str)
+bool_t uda::client_server::xdr_data_object2(XDR* xdrs, DATA_OBJECT* str)
 {
     int rc = xdr_opaque(xdrs, str->object, (unsigned int)str->objectSize) &&
              xdr_vector(xdrs, str->md, str->hashLength, sizeof(char), (xdrproc_t)xdr_char);
@@ -452,8 +454,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         if (udt == nullptr || u == nullptr) {
             err = 999;
-            udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err,
-                        "nullptr User defined data Structure Definition");
+            add_error(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "nullptr User defined data Structure Definition");
             return 0;
         }
 
@@ -479,7 +480,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         if (!rc) {
             err = 999;
-            udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Bad Return Code passing data structures");
+            add_error(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Bad Return Code passing data structures");
             return 0;
         }
 
@@ -489,7 +490,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         if (packageType != UDA_PACKAGE_XDROBJECT) {
             err = 999;
-            udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolDataObject", err, "Incorrect package Type option");
+            add_error(UDA_SYSTEM_ERROR_TYPE, "protocolDataObject", err, "Incorrect package Type option");
             return 0;
         }
 
@@ -508,7 +509,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         if (!rc) {
             err = 999;
-            udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Failure receiving Structure Definitions");
+            add_error(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Failure receiving Structure Definitions");
             return 0;
         }
 
@@ -523,8 +524,8 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         if (!rc) {
             err = 999;
-            udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err,
-                        "Failure receiving Data and it's Structure Definition");
+            add_error(UDA_CODE_ERROR_TYPE, "protocolDataObject", err,
+                      "Failure receiving Data and it's Structure Definition");
             return 0;
         }
 
@@ -537,7 +538,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
             auto s = (SARRAY*)data;
             if (s->count != str->data_n) { // check for consistency
                 err = 999;
-                udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Inconsistent S Array Counts");
+                add_error(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Inconsistent S Array Counts");
                 return 0;
             }
             str->data = (char*)udaGetFullNTree(); // Global Root Node with the Carrier Structure containing data
@@ -549,7 +550,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 
         } else {
             err = 999;
-            udaAddError(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Name of Received Data Structure Incorrect");
+            add_error(UDA_CODE_ERROR_TYPE, "protocolDataObject", err, "Name of Received Data Structure Incorrect");
             return 0;
         }
     }
@@ -559,7 +560,7 @@ bool_t xdr_serialise_object(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINED
 //-----------------------------------------------------------------------
 // Data from File Source
 
-bool_t xdr_data_block1(XDR* xdrs, DATA_BLOCK* str, int protocolVersion)
+bool_t uda::client_server::xdr_data_block1(XDR* xdrs, DATA_BLOCK* str, int protocolVersion)
 {
     int rc = xdr_int(xdrs, &str->data_n);
     rc = rc && xdr_u_int(xdrs, &str->rank);
@@ -594,7 +595,7 @@ bool_t xdr_data_block1(XDR* xdrs, DATA_BLOCK* str, int protocolVersion)
     return rc;
 }
 
-bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str)
+bool_t uda::client_server::xdr_data_block2(XDR* xdrs, DATA_BLOCK* str)
 {
     switch (str->data_type) {
         case UDA_TYPE_FLOAT:
@@ -647,7 +648,7 @@ bool_t xdr_data_block2(XDR* xdrs, DATA_BLOCK* str)
     }
 }
 
-bool_t xdr_data_block3(XDR* xdrs, DATA_BLOCK* str)
+bool_t uda::client_server::xdr_data_block3(XDR* xdrs, DATA_BLOCK* str)
 {
 
     if (str->error_param_n > 0) {
@@ -694,7 +695,7 @@ bool_t xdr_data_block3(XDR* xdrs, DATA_BLOCK* str)
     }
 }
 
-bool_t xdr_data_block4(XDR* xdrs, DATA_BLOCK* str)
+bool_t uda::client_server::xdr_data_block4(XDR* xdrs, DATA_BLOCK* str)
 {
     if (!str->errasymmetry) {
         return 1; // Nothing New to Pass or Receive (same as errhi!)
@@ -740,7 +741,7 @@ bool_t xdr_data_block4(XDR* xdrs, DATA_BLOCK* str)
     }
 }
 
-bool_t xdr_data_dim1(XDR* xdrs, DATA_BLOCK* str)
+bool_t uda::client_server::xdr_data_dim1(XDR* xdrs, DATA_BLOCK* str)
 {
     int rc = 1;
     for (unsigned int i = 0; i < str->rank; i++) {
@@ -757,7 +758,7 @@ bool_t xdr_data_dim1(XDR* xdrs, DATA_BLOCK* str)
     return rc;
 }
 
-bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
+bool_t uda::client_server::xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
 {
     for (unsigned int i = 0; i < str->rank; i++) {
         if (str->dims[i].compressed == 0) {
@@ -1215,7 +1216,7 @@ bool_t xdr_data_dim2(XDR* xdrs, DATA_BLOCK* str)
     return 1;
 }
 
-bool_t xdr_data_dim3(XDR* xdrs, DATA_BLOCK* str)
+bool_t uda::client_server::xdr_data_dim3(XDR* xdrs, DATA_BLOCK* str)
 {
     int rc, arc = 1;
     for (unsigned int i = 0; i < str->rank; i++) {
@@ -1295,7 +1296,7 @@ bool_t xdr_data_dim3(XDR* xdrs, DATA_BLOCK* str)
     return 1;
 }
 
-bool_t xdr_data_dim4(XDR* xdrs, DATA_BLOCK* str)
+bool_t uda::client_server::xdr_data_dim4(XDR* xdrs, DATA_BLOCK* str)
 {
     int arc = 1, rc;
     for (unsigned int i = 0; i < str->rank; i++) {
@@ -1377,7 +1378,7 @@ bool_t xdr_data_dim4(XDR* xdrs, DATA_BLOCK* str)
 //-----------------------------------------------------------------------
 // From DATA_SYSTEM Table
 
-bool_t xdr_data_system(XDR* xdrs, DATA_SYSTEM* str)
+bool_t uda::client_server::xdr_data_system(XDR* xdrs, DATA_SYSTEM* str)
 {
     return xdr_int(xdrs, &str->system_id) && xdr_int(xdrs, &str->version) && xdr_int(xdrs, &str->meta_id) &&
            xdr_char(xdrs, &str->type) && WrapXDRString(xdrs, (char*)str->device_name, STRING_LENGTH) &&
@@ -1390,7 +1391,7 @@ bool_t xdr_data_system(XDR* xdrs, DATA_SYSTEM* str)
 //-----------------------------------------------------------------------
 // From SYSTEM_CONFIG Table
 
-bool_t xdr_system_config(XDR* xdrs, SYSTEM_CONFIG* str)
+bool_t uda::client_server::xdr_system_config(XDR* xdrs, SYSTEM_CONFIG* str)
 {
     return xdr_int(xdrs, &str->config_id) && xdr_int(xdrs, &str->system_id) && xdr_int(xdrs, &str->meta_id) &&
            WrapXDRString(xdrs, (char*)str->config_name, STRING_LENGTH) &&
@@ -1402,7 +1403,7 @@ bool_t xdr_system_config(XDR* xdrs, SYSTEM_CONFIG* str)
 //-----------------------------------------------------------------------
 // From DATA_SOURCE Table
 
-bool_t xdr_data_source(XDR* xdrs, DATA_SOURCE* str)
+bool_t uda::client_server::xdr_data_source(XDR* xdrs, DATA_SOURCE* str)
 {
     return xdr_int(xdrs, &str->source_id) && xdr_int(xdrs, &str->config_id) && xdr_int(xdrs, &str->reason_id) &&
            xdr_int(xdrs, &str->run_id) && xdr_int(xdrs, &str->meta_id) && xdr_int(xdrs, &str->status_desc_id) &&
@@ -1429,7 +1430,7 @@ bool_t xdr_data_source(XDR* xdrs, DATA_SOURCE* str)
 //-----------------------------------------------------------------------
 // From SIGNAL Table
 
-bool_t xdr_signal(XDR* xdrs, SIGNAL* str)
+bool_t uda::client_server::xdr_signal(XDR* xdrs, SIGNAL* str)
 {
     return xdr_int(xdrs, &str->source_id) && xdr_int(xdrs, &str->signal_desc_id) && xdr_int(xdrs, &str->meta_id) &&
            xdr_int(xdrs, &str->status_desc_id) && xdr_int(xdrs, &str->status) &&
@@ -1444,7 +1445,7 @@ bool_t xdr_signal(XDR* xdrs, SIGNAL* str)
 //-----------------------------------------------------------------------
 // From SIGNAL_DESC Table
 
-bool_t xdr_signal_desc(XDR* xdrs, SIGNAL_DESC* str)
+bool_t uda::client_server::xdr_signal_desc(XDR* xdrs, SIGNAL_DESC* str)
 {
     return xdr_int(xdrs, &str->signal_desc_id) && xdr_int(xdrs, &str->meta_id) && xdr_int(xdrs, &str->rank) &&
            xdr_int(xdrs, &str->range_start) && xdr_int(xdrs, &str->range_stop) && xdr_char(xdrs, &str->type) &&

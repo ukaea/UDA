@@ -21,7 +21,7 @@
 
 // Initialise
 
-void initSocketList(SOCKETLIST* socks)
+void uda::client_server::initSocketList(SOCKETLIST* socks)
 {
     socks->nsocks = 0;
     socks->sockets = nullptr;
@@ -29,7 +29,7 @@ void initSocketList(SOCKETLIST* socks)
 
 // Add a New Socket to the Socket List
 
-int addSocket(SOCKETLIST* socks, int type, int status, char* host, int port, int fh)
+int uda::client_server::addSocket(SOCKETLIST* socks, int type, int status, char* host, int port, int fh)
 {
     int old_fh = -1;
     if (!getSocket(socks, type, &status, host, port, &old_fh)) { // Is an Open Socket already listed?
@@ -54,7 +54,7 @@ int addSocket(SOCKETLIST* socks, int type, int status, char* host, int port, int
 
 // Search for an Open Socket in the Socket List
 
-int getSocket(SOCKETLIST* socks, int type, int* status, char* host, int port, int* fh)
+int uda::client_server::getSocket(SOCKETLIST* socks, int type, int* status, char* host, int port, int* fh)
 {
     for (int i = 0; i < socks->nsocks; i++) {
         if (STR_IEQUALS(host, socks->sockets[i].host) && socks->sockets[i].type == type &&
@@ -72,7 +72,7 @@ int getSocket(SOCKETLIST* socks, int type, int* status, char* host, int port, in
 
 // Search for an Open Socket in the Socket List
 
-int getSocketRecordId(SOCKETLIST* socks, int fh)
+int uda::client_server::getSocketRecordId(SOCKETLIST* socks, int fh)
 {
     for (int i = 0; i < socks->nsocks; i++) {
         if (socks->sockets[i].fh == fh) {
@@ -82,7 +82,7 @@ int getSocketRecordId(SOCKETLIST* socks, int fh)
     return -1; // Failed - No Socket
 }
 
-void closeClientSocket(SOCKETLIST* socks, int fh)
+void uda::client_server::closeClientSocket(SOCKETLIST* socks, int fh)
 {
     for (int i = 0; i < socks->nsocks; i++) {
         if (socks->sockets[i].fh == fh && socks->sockets[i].fh >= 0) {
@@ -100,7 +100,7 @@ void closeClientSocket(SOCKETLIST* socks, int fh)
     }
 }
 
-void closeClientSockets(SOCKETLIST* socks)
+void uda::client_server::closeClientSockets(SOCKETLIST* socks)
 {
     for (int i = 0; i < socks->nsocks; i++) {
         closeClientSocket(socks, socks->sockets[i].fh);

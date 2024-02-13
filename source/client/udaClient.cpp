@@ -25,16 +25,15 @@
 #  include "clientserver/compressDim.h"
 #  include "server/udaServer.h"
 #else
-#  include "cache/fileCache.h"
-#  include "cache/memcache.hpp"
 #  include "clientXDRStream.h"
 #  include "clientserver/xdrlib.h"
-#  include <cassert>
 
 #  ifdef SSLAUTHENTICATION
 #    include <authentication/udaClientSSL.h>
 #  endif
 #endif
+
+using namespace uda::client_server;
 
 //------------------------------------------------ Static Globals ------------------------------------------------------
 
@@ -369,7 +368,7 @@ static int fetchHierarchicalData(XDR* client_input, DATA_BLOCK* data_block, LOGS
         if ((err =
                  protocol2(client_input, protocol_id, XDR_RECEIVE, nullptr, g_log_malloc_list, g_user_defined_type_list,
                            data_block, protocol_version, log_struct_list, private_flags, malloc_source)) != 0) {
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Client Side Protocol Error (Opaque Structure Type)");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Client Side Protocol Error (Opaque Structure Type)");
             return err;
         }
     }
@@ -393,7 +392,7 @@ static int allocMeta(DATA_SYSTEM** data_system, SYSTEM_CONFIG** system_config, D
     if (*data_system == nullptr || *system_config == nullptr || *data_source == nullptr || *signal_rec == nullptr ||
         *signal_desc == nullptr) {
         err = ERROR_ALLOCATING_META_DATA_HEAP;
-        udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Error Allocating Heap for Meta Data");
+        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Error Allocating Heap for Meta Data");
         return err;
     }
 
@@ -410,7 +409,7 @@ static int fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG*
     if ((err = protocol2(client_input, UDA_PROTOCOL_DATA_SYSTEM, XDR_RECEIVE, nullptr, g_log_malloc_list,
                          g_user_defined_type_list, data_system, protocol_version, log_struct_list, private_flags,
                          malloc_source)) != 0) {
-        udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error (Data System)");
+        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 4 Error (Data System)");
         return err;
     }
     printDataSystem(*data_system);
@@ -418,7 +417,7 @@ static int fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG*
     if ((err = protocol2(client_input, UDA_PROTOCOL_SYSTEM_CONFIG, XDR_RECEIVE, nullptr, g_log_malloc_list,
                          g_user_defined_type_list, system_config, protocol_version, log_struct_list, private_flags,
                          malloc_source)) != 0) {
-        udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (System Config)");
+        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (System Config)");
         return err;
     }
     printSystemConfig(*system_config);
@@ -426,7 +425,7 @@ static int fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG*
     if ((err = protocol2(client_input, UDA_PROTOCOL_DATA_SOURCE, XDR_RECEIVE, nullptr, g_log_malloc_list,
                          g_user_defined_type_list, data_source, protocol_version, log_struct_list, private_flags,
                          malloc_source)) != 0) {
-        udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error (Data Source)");
+        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 6 Error (Data Source)");
         return err;
     }
     printDataSource(*data_source);
@@ -434,7 +433,7 @@ static int fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG*
     if ((err = protocol2(client_input, UDA_PROTOCOL_SIGNAL, XDR_RECEIVE, nullptr, g_log_malloc_list,
                          g_user_defined_type_list, signal_rec, protocol_version, log_struct_list, private_flags,
                          malloc_source)) != 0) {
-        udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Signal)");
+        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Signal)");
         return err;
     }
     printSignal(*signal_rec);
@@ -442,7 +441,7 @@ static int fetchMeta(XDR* client_input, DATA_SYSTEM* data_system, SYSTEM_CONFIG*
     if ((err = protocol2(client_input, UDA_PROTOCOL_SIGNAL_DESC, XDR_RECEIVE, nullptr, g_log_malloc_list,
                          g_user_defined_type_list, signal_desc, protocol_version, log_struct_list, private_flags,
                          malloc_source)) != 0) {
-        udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error (Signal Desc)");
+        add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 8 Error (Signal Desc)");
         return err;
     }
     printSignalDesc(*signal_desc);
@@ -519,11 +518,11 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
     // Initialise the Error Stack before Accessing Data
 
     if (tv_server_start != 0) {
-        udaFreeErrorStack(&server_block.idamerrorstack); // Free Previous Stack Heap
+        free_error_stack(&server_block.idamerrorstack); // Free Previous Stack Heap
     }
 
     initServerBlock(&server_block, 0); // Reset previous Error Messages from the Server & Free Heap
-    initErrorStack();
+    init_error_stack();
 
     //-------------------------------------------------------------------------
     // Initialise Protocol Timings (in Debug Mode only)
@@ -618,7 +617,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         } else if (connectionOpen()) {
             // Assume the Server is Still Alive
             if (client_output->x_ops == nullptr || client_input->x_ops == nullptr) {
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "XDR Streams are Closed!");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "XDR Streams are Closed!");
                 UDA_LOG(UDA_LOG_DEBUG, "XDR Streams are Closed!\n");
                 closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output, &reopen_logs);
                 initServer = true;
@@ -654,7 +653,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
             if ((createConnection(client_input, client_output, &tv_server_start, client_flags->user_timeout)) != 0) {
                 err = NO_SOCKET_CONNECTION;
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "No Socket Connection to Server");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "No Socket Connection to Server");
                 break;
             }
         }
@@ -748,7 +747,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             unsigned short authenticationStep = 1; // Client Certificate authenticated by server
 
             if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #1");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #1");
                 break;
             }
 
@@ -759,7 +758,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             authenticationStep = 5;
 
             if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #5");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #5");
                 break;
             }
 
@@ -769,7 +768,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             authenticationStep = 6;
 
             if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #6");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #6");
                 break;
             }
 
@@ -780,7 +779,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             authenticationStep = 8;
 
             if ((err = clientAuthentication(&client_block, &server_block, authenticationStep)) != 0) {
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #8");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Client or Server Authentication Failed #8");
                 break;
             }
 
@@ -802,14 +801,14 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             if ((err = protocol2(client_output, protocol_id, XDR_SEND, nullptr, g_log_malloc_list,
                                  g_user_defined_type_list, &client_block, protocol_version, &log_struct_list,
                                  *private_flags, malloc_source)) != 0) {
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
                 UDA_LOG(UDA_LOG_DEBUG, "Error Sending Client Block\n");
                 break;
             }
 
             if (!(xdrrec_endofrecord(client_output, 1))) { // Send data now
                 err = UDA_PROTOCOL_ERROR_7;
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Client Block)");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Client Block)");
                 UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_endofrecord after Client Block\n");
                 break;
             }
@@ -819,7 +818,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             // Wait for data, then position buffer reader to the start of a new record
             if (!(xdrrec_skiprecord(client_input))) {
                 err = UDA_PROTOCOL_ERROR_5;
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (Server Block)");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 5 Error (Server Block)");
                 UDA_LOG(UDA_LOG_DEBUG, "Error xdrrec_skiprecord prior to Server Block\n");
                 break;
             }
@@ -830,7 +829,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             if ((err = protocol2(client_input, protocol_id, XDR_RECEIVE, nullptr, g_log_malloc_list,
                                  g_user_defined_type_list, &server_block, protocol_version, &log_struct_list,
                                  *private_flags, malloc_source)) != 0) {
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Server Block #1)");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 11 Error (Server Block #1)");
                 // Assuming the server_block is corrupted, replace with a clean copy to avoid concatonation problems
                 server_block.idamerrorstack.nerrors = 0;
                 UDA_LOG(UDA_LOG_DEBUG, "Error receiving Server Block\n");
@@ -890,9 +889,9 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
             if (count > 0) { // Error if data is waiting
                 err = 999;
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                            "Data waiting in the input data buffer when none expected! Please contact the system "
-                            "administrator.");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, err,
+                          "Data waiting in the input data buffer when none expected! Please contact the system "
+                          "administrator.");
                 UDA_LOG(UDA_LOG_DEBUG, "[%d] excess data bytes waiting in input buffer!\n", count++);
                 break;
             }
@@ -907,8 +906,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
             if (!rc) {
                 err = 999;
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                            "Corrupted input data stream! Please contact the system administrator.");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, err,
+                          "Corrupted input data stream! Please contact the system administrator.");
                 UDA_LOG(UDA_LOG_DEBUG, "Unable to flush input buffer!!!\n");
                 break;
             }
@@ -923,7 +922,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         if ((err = protocol2(client_output, protocol_id, XDR_SEND, nullptr, g_log_malloc_list, g_user_defined_type_list,
                              &client_block, protocol_version, &log_struct_list, *private_flags, malloc_source)) != 0) {
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 10 Error (Client Block)");
             break;
         }
 
@@ -934,7 +933,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         if ((err = protocol2(client_output, protocol_id, XDR_SEND, nullptr, g_log_malloc_list, g_user_defined_type_list,
                              request_block, protocol_version, &log_struct_list, *private_flags, malloc_source)) != 0) {
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 1 Error (Request Block)");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 1 Error (Request Block)");
             break;
         }
 
@@ -950,8 +949,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                 if ((err = protocol2(client_output, protocol_id, XDR_SEND, nullptr, g_log_malloc_list,
                                      g_user_defined_type_list, &(request->putDataBlockList), protocol_version,
                                      &log_struct_list, *private_flags, malloc_source)) != 0) {
-                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, err,
-                                "Protocol 1 Error (sending putDataBlockList from Request Block)");
+                    add_error(UDA_CODE_ERROR_TYPE, __func__, err,
+                              "Protocol 1 Error (sending putDataBlockList from Request Block)");
                     break;
                 }
             }
@@ -962,7 +961,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         if (!(rc = xdrrec_endofrecord(client_output, 1))) {
             err = UDA_PROTOCOL_ERROR_7;
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Request Block & putDataBlockList)");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 7 Error (Request Block & putDataBlockList)");
             break;
         }
 
@@ -970,7 +969,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
         if (!xdrrec_skiprecord(client_input)) {
             err = UDA_PROTOCOL_ERROR_5;
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, " Protocol 5 Error (Server & Data Structures)");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, err, " Protocol 5 Error (Server & Data Structures)");
             break;
         }
 
@@ -986,7 +985,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                              g_user_defined_type_list, &server_block, protocol_version, &log_struct_list,
                              *private_flags, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Protocol 11 Error (Server Block #2) = %d\n", err);
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, " Protocol 11 Error (Server Block #2)");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, err, " Protocol 11 Error (Server Block #2)");
             // Assuming the server_block is corrupted, replace with a clean copy to avoid future concatonation problems
             server_block.idamerrorstack.nerrors = 0;
             break;
@@ -1039,7 +1038,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
                              *private_flags, malloc_source)) != 0) {
             UDA_LOG(UDA_LOG_DEBUG, "Protocol 2 Error (Failure Receiving Data Block)\n");
 
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 2 Error (Failure Receiving Data Block)");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Protocol 2 Error (Failure Receiving Data Block)");
             break;
         }
 
@@ -1140,9 +1139,9 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
 
             // Decompresss Dimensional Data
 
-            for (int i = 0; i < (int)data_block->rank; i++) { // Expand Compressed Regular Vector
-                err = uncompressDim(&(data_block->dims[i]));  // Allocate Heap as required
-                err = 0;                                      // Need to Test for Error Condition!
+            for (int i = 0; i < (int)data_block->rank; i++) {                     // Expand Compressed Regular Vector
+                err = uda::client_server::uncompress_dim(&(data_block->dims[i])); // Allocate Heap as required
+                err = 0;                                                          // Need to Test for Error Condition!
             }
 
             printDataBlock(*data_block);
@@ -1181,8 +1180,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         for (auto data_block_idx : data_block_indices) {
             if (err == 0 && (udaGetDataStatus(data_block_idx)) == MIN_STATUS && !client_flags->get_bad) {
                 // If Data are not usable, flag the client
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
-                            "Data Status is BAD ... Data are Not Usable!");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
+                          "Data Status is BAD ... Data are Not Usable!");
 
                 DATA_BLOCK* data_block = getDataBlock(data_block_idx);
                 if (data_block->errcode == 0) {
@@ -1196,9 +1195,9 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         //------------------------------------------------------------------------------
         // Concatenate Error Message Stacks & Write to the Error Log
 
-        udaConcatError(&server_block.idamerrorstack);
-        udaCloseError();
-        udaErrorLog(client_block, *request_block, &server_block.idamerrorstack);
+        concat_error(&server_block.idamerrorstack);
+        close_error();
+        error_log(client_block, *request_block, &server_block.idamerrorstack);
 
         //------------------------------------------------------------------------------
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
@@ -1236,9 +1235,9 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             closedown(ClosedownType::CLOSE_SOCKETS, nullptr, client_input, client_output, &reopen_logs);
         }
 
-        udaConcatError(&server_block.idamerrorstack);
-        udaCloseError();
-        udaErrorLog(client_block, *request_block, &server_block.idamerrorstack);
+        concat_error(&server_block.idamerrorstack);
+        close_error();
+        error_log(client_block, *request_block, &server_block.idamerrorstack);
 
         if (err == 0) {
             return ERROR_CONDITION_UNKNOWN;
@@ -1263,8 +1262,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         for (auto data_block_idx : data_block_indices) {
             if (err == 0 && (udaGetDataStatus(data_block_idx) == MIN_STATUS) && !client_flags->get_bad) {
                 // If Data are not usable, flag the client
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
-                            "Data Status is BAD ... Data are Not Usable!");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, DATA_STATUS_BAD,
+                          "Data Status is BAD ... Data are Not Usable!");
 
                 DATA_BLOCK* data_block = getDataBlock(data_block_idx);
                 if (data_block->errcode == 0) {
@@ -1279,7 +1278,7 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             DATA_BLOCK* data_block = getDataBlock(data_block_idx);
 
             if (err != 0 && data_block->errcode == 0) {
-                udaAddError(UDA_CODE_ERROR_TYPE, __func__, err, "Unknown Error");
+                add_error(UDA_CODE_ERROR_TYPE, __func__, err, "Unknown Error");
                 data_block->errcode = err;
             }
         }
@@ -1287,10 +1286,10 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
         //------------------------------------------------------------------------------
         // Concatenate Error Message Stacks & Write to the Error Log
 
-        udaConcatError(&server_block.idamerrorstack);
-        udaCloseError();
+        concat_error(&server_block.idamerrorstack);
+        close_error();
 
-        udaErrorLog(client_block, *request_block, &server_block.idamerrorstack);
+        error_log(client_block, *request_block, &server_block.idamerrorstack);
 
         //------------------------------------------------------------------------------
         // Copy Most Significant Error Stack Message to the Data Block if a Handle was Issued
@@ -1321,8 +1320,8 @@ int idamClient(REQUEST_BLOCK* request_block, int* indices)
             closedown(ClosedownType::CLOSE_SOCKETS, &socket_list, client_input, client_output, &reopen_logs);
         }
 
-        udaConcatError(&server_block.idamerrorstack);
-        udaErrorLog(client_block, *request_block, &server_block.idamerrorstack);
+        concat_error(&server_block.idamerrorstack);
+        error_log(client_block, *request_block, &server_block.idamerrorstack);
 
         if (err == 0) {
             return ERROR_CONDITION_UNKNOWN;
@@ -1531,7 +1530,7 @@ void udaFree(int handle)
     }
 
     // closeIdamError(&server_block.idamerrorstack);
-    udaFreeErrorStack(&server_block.idamerrorstack);
+    free_error_stack(&server_block.idamerrorstack);
     initDataBlock(data_block);
     data_block->handle = -1; // Flag this as ready for re-use
 }
@@ -1563,7 +1562,7 @@ void udaFreeAll()
     g_log_malloc_list = nullptr;
 #endif
 
-    udaCloseError();
+    close_error();
 
 #ifndef FATCLIENT // <========================== Client Server Code Only
 
@@ -1814,13 +1813,4 @@ const char* udaGetServerErrorStackRecordMsg(int record)
         return nullptr;
     }
     return server_block.idamerrorstack.idamerror[record].msg; // Server Error Stack Record Message
-}
-
-//! Return the Server error message stack data structure
-/**
-@return  the error message stack data structure
-*/
-UDA_ERROR_STACK* udaGetServerErrorStack()
-{
-    return &server_block.idamerrorstack; // Server Error Stack Structure
 }

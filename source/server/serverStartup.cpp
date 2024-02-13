@@ -9,6 +9,8 @@
 
 #include "getServerEnvironment.h"
 
+using namespace uda::client_server;
+
 int startup()
 {
     //----------------------------------------------------------------
@@ -33,7 +35,7 @@ int startup()
         FILE* accout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
-            udaAddError(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Access Log: ");
+            add_error(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Access Log: ");
             if (accout != nullptr) {
                 fclose(accout);
             }
@@ -48,7 +50,7 @@ int startup()
         FILE* errout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
-            udaAddError(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Error Log: ");
+            add_error(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Error Log: ");
             if (errout != nullptr) {
                 fclose(errout);
             }
@@ -63,7 +65,7 @@ int startup()
         FILE* dbgout = fopen(log_file.c_str(), environment->logmode);
 
         if (errno != 0) {
-            udaAddError(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Debug Log: ");
+            add_error(UDA_SYSTEM_ERROR_TYPE, "startup", errno, "Debug Log: ");
             if (dbgout != nullptr) {
                 fclose(dbgout);
             }

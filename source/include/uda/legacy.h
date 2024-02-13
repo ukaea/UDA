@@ -945,7 +945,7 @@ inline void printIdamErrorStack()
 
 inline void addIdamError(int type, const char* location, int code, const char* msg)
 {
-    return udaAddError(type, location, code, msg);
+    return add_error(type, location, code, msg);
 }
 
 inline void concatUdaError(UDA_ERROR_STACK* errorstackout)

@@ -31,6 +31,8 @@ Interprets the API arguments and assembles a Request data structure.
 #include "logging/logging.h"
 #include <fmt/format.h>
 
+using namespace uda::client_server;
+
 int makeRequestData(const char* data_object, const char* data_source, REQUEST_DATA* request)
 {
     //------------------------------------------------------------------------------------------------------------------

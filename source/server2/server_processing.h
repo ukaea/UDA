@@ -8,7 +8,7 @@
 namespace uda
 {
 
-int serverProcessing(ClientBlock client_block, DataBlock* data_block);
+int serverProcessing(uda::client_server::ClientBlock client_block, uda::client_server::DataBlock* data_block);
 
 } // namespace uda
 

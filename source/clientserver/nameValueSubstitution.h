@@ -1,8 +1,10 @@
-#ifndef UDA_CLIENTSERVER_NAMEVALUESUBSTITUTION_H
-#define UDA_CLIENTSERVER_NAMEVALUESUBSTITUTION_H
+#pragma once
 
 #include "udaStructs.h"
 
+namespace uda::client_server
+{
+
 int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass);
 
-#endif // UDA_CLIENTSERVER_NAMEVALUESUBSTITUTION_H
+}

@@ -8,8 +8,8 @@
 namespace uda {
 namespace client {
 
-Environment load_environment(bool* env_host, bool* env_port);
-void print_client_environment(const Environment& environment);
+uda::client_server::Environment load_environment(bool* env_host, bool* env_port);
+void print_client_environment(const uda::client_server::Environment& environment);
 
 } // namespace client
 } // namespace uda

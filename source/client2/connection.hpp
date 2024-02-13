@@ -21,7 +21,7 @@ struct IoData {
 
 class Connection {
 public:
-    explicit Connection(Environment& environment)
+    explicit Connection(uda::client_server::Environment& environment)
         : environment(environment)
         , socket_list()
     {}
@@ -33,8 +33,8 @@ public:
 
 private:
     int client_socket = -1;
-    Environment& environment;
-    std::vector<Sockets> socket_list; // List of open sockets
+    uda::client_server::Environment& environment;
+    std::vector<uda::client_server::Sockets> socket_list; // List of open sockets
 
     int find_socket(int fh);
     void close_socket(int fh);

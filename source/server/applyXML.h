@@ -6,12 +6,14 @@
 #  include "clientserver/parseXML.h"
 #  include "clientserver/udaStructs.h"
 
-int serverParseSignalXML(DATA_SOURCE data_source, SIGNAL signal, SIGNAL_DESC signal_desc, ACTIONS* actions_desc,
-                         ACTIONS* actions_sig);
+int serverParseSignalXML(uda::client_server::DATA_SOURCE data_source, uda::client_server::SIGNAL signal,
+                         uda::client_server::SIGNAL_DESC signal_desc, uda::client_server::ACTIONS* actions_desc,
+                         uda::client_server::ACTIONS* actions_sig);
 
-void serverApplySignalXML(CLIENT_BLOCK client_block, DATA_SOURCE* data_source, SIGNAL* signal, SIGNAL_DESC* signal_desc,
-                          DATA_BLOCK* data_block, ACTIONS actions);
+void serverApplySignalXML(uda::client_server::CLIENT_BLOCK client_block, uda::client_server::DATA_SOURCE* data_source,
+                          uda::client_server::SIGNAL* signal, uda::client_server::SIGNAL_DESC* signal_desc,
+                          uda::client_server::DATA_BLOCK* data_block, uda::client_server::ACTIONS actions);
 
-void serverDeselectSignalXML(ACTIONS* actions_desc, ACTIONS* actions_sig);
+void serverDeselectSignalXML(uda::client_server::ACTIONS* actions_desc, uda::client_server::ACTIONS* actions_sig);
 
 #endif // UDA_SERVER_APPLYXML_H

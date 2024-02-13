@@ -12,6 +12,8 @@
 #include "clientserver/manageSockets.h"
 #include "clientserver/stringUtils.h"
 
+using namespace uda::client_server;
+
 void closeNamedServerSocket(SOCKETLIST* socks, char* host, int port)
 {
     for (int i = 0; i < socks->nsocks; i++) {

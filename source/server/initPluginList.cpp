@@ -11,6 +11,8 @@
 
 #include "getPluginAddress.h"
 
+using namespace uda::client_server;
+
 void initPluginList(PLUGINLIST* plugin_list, ENVIRONMENT* environment)
 {
     // initialise the Plugin List and Allocate heap for the list

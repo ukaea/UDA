@@ -51,12 +51,6 @@ set( SRC_FILES
   #  utils.c
 )
 
-set( HIERARCHICAL_SRC_FILES
-  allocXMLData.cpp
-  xdrHData.cpp
-  initXMLStructs.cpp
-)
-
 if( APPLE )
   list( APPEND SRC_FILES memstream.cpp )
 endif()

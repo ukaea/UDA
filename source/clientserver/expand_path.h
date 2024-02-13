@@ -1,7 +1,9 @@
-#ifndef UDA_CLIENTSERVER_EXPAND_PATH_H
-#define UDA_CLIENTSERVER_EXPAND_PATH_H
+#pragma once
 
 #include "udaStructs.h"
+
+namespace uda::client_server
+{
 
 /*! The workstation (client host) name is obtained using the operating system command 'hostname'.
 
@@ -39,7 +41,7 @@ char* pathid(char* path);
 */
 int expandFilePath(char* path, const ENVIRONMENT* environment);
 
-#ifndef NOEXPANDPATH
+#ifndef NO_EXPAND_PATH
 
 #  define MAXPATHSUBS 10
 #  define MAXPATHSUBSLENGTH 256
@@ -92,6 +94,6 @@ int pathReplacement(char* path, const ENVIRONMENT* environment);
 
 int linkReplacement(char* path);
 
-#endif // NOEXPANDPATH
+#endif // NO_EXPAND_PATH
 
-#endif // UDA_CLIENTSERVER_EXPAND_PATH_H
+} // namespace uda::client_server

@@ -31,17 +31,17 @@ typedef struct UdaPluginInterface {   // Standard Plugin interface
     unsigned short changePlugin;      // Use a different Plugin to access the data
     FILE* dbgout;
     FILE* errout;
-    DATA_BLOCK* data_block;
-    REQUEST_DATA* request_data;
-    CLIENT_BLOCK* client_block;
-    DATA_SOURCE* data_source;
-    SIGNAL_DESC* signal_desc;
-    const ENVIRONMENT* environment; // Server environment
+    uda::client_server::DATA_BLOCK* data_block;
+    uda::client_server::REQUEST_DATA* request_data;
+    uda::client_server::CLIENT_BLOCK* client_block;
+    uda::client_server::DATA_SOURCE* data_source;
+    uda::client_server::SIGNAL_DESC* signal_desc;
+    const uda::client_server::ENVIRONMENT* environment; // Server environment
     LOGMALLOCLIST* logmalloclist;
     USERDEFINEDTYPELIST* userdefinedtypelist;
     void* sqlConnection;          // Opaque structure
     const PLUGINLIST* pluginList; // List of data readers, filters, models, and servers
-    UDA_ERROR_STACK error_stack;
+    uda::client_server::UDA_ERROR_STACK error_stack;
 } UDA_PLUGIN_INTERFACE;
 
 typedef int (*PLUGINFUNP)(UDA_PLUGIN_INTERFACE*); // Plugin function type
@@ -86,14 +86,19 @@ void allocPluginList(int count, PLUGINLIST* plugin_list);
 void freePluginList(PLUGINLIST* plugin_list);
 void initPluginData(PLUGIN_DATA* plugin);
 int udaServerRedirectStdStreams(int reset);
-int udaServerPlugin(REQUEST_DATA* request, DATA_SOURCE* data_source, SIGNAL_DESC* signal_desc,
-                    const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
-int udaProvenancePlugin(CLIENT_BLOCK* client_block, REQUEST_DATA* original_request, DATA_SOURCE* data_source,
-                        SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list, const char* logRecord,
-                        const ENVIRONMENT* environment);
-int udaServerMetaDataPluginId(const PLUGINLIST* plugin_list, const ENVIRONMENT* environment);
-int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id, REQUEST_DATA* request_block,
-                            SIGNAL_DESC* signal_desc, SIGNAL* signal_rec, DATA_SOURCE* data_source,
-                            const ENVIRONMENT* environment);
+int udaServerPlugin(uda::client_server::REQUEST_DATA* request, uda::client_server::DATA_SOURCE* data_source,
+                    uda::client_server::SIGNAL_DESC* signal_desc, const PLUGINLIST* plugin_list,
+                    const uda::client_server::ENVIRONMENT* environment);
+int udaProvenancePlugin(uda::client_server::CLIENT_BLOCK* client_block,
+                        uda::client_server::REQUEST_DATA* original_request,
+                        uda::client_server::DATA_SOURCE* data_source, uda::client_server::SIGNAL_DESC* signal_desc,
+                        const PLUGINLIST* plugin_list, const char* logRecord,
+                        const uda::client_server::ENVIRONMENT* environment);
+int udaServerMetaDataPluginId(const PLUGINLIST* plugin_list, const uda::client_server::ENVIRONMENT* environment);
+int udaServerMetaDataPlugin(const PLUGINLIST* plugin_list, int plugin_id,
+                            uda::client_server::REQUEST_DATA* request_block,
+                            uda::client_server::SIGNAL_DESC* signal_desc, uda::client_server::SIGNAL* signal_rec,
+                            uda::client_server::DATA_SOURCE* data_source,
+                            const uda::client_server::ENVIRONMENT* environment);
 
 #endif // UDA_SERVER_SERVERPLUGIN_H

@@ -14,14 +14,14 @@
 #include <cstring>
 #include <uda/types.h>
 
-void initNameValueList(NAMEVALUELIST* nameValueList)
+void uda::client_server::initNameValueList(NAMEVALUELIST* nameValueList)
 {
     nameValueList->pairCount = 0;
     nameValueList->listSize = 0;
     nameValueList->nameValue = nullptr;
 }
 
-void initRequestData(REQUEST_DATA* str)
+void uda::client_server::initRequestData(REQUEST_DATA* str)
 {
     str->request = 0;
     str->exp_number = 0;
@@ -45,7 +45,7 @@ void initRequestData(REQUEST_DATA* str)
     initPutDataBlockList(&str->putDataBlockList);
 }
 
-void initRequestBlock(REQUEST_BLOCK* str)
+void uda::client_server::initRequestBlock(REQUEST_BLOCK* str)
 {
     str->num_requests = 0;
     str->requests = nullptr;
@@ -55,7 +55,7 @@ void initRequestBlock(REQUEST_BLOCK* str)
 #  define getpid _getpid
 #endif
 
-void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname)
+void uda::client_server::initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname)
 {
     str->version = version;
     str->timeout = TIMEOUT;
@@ -89,7 +89,7 @@ void initClientBlock(CLIENT_BLOCK* str, int version, const char* clientname)
 #endif
 }
 
-void initServerBlock(SERVER_BLOCK* str, int version)
+void uda::client_server::initServerBlock(SERVER_BLOCK* str, int version)
 {
     str->version = version;
     str->error = 0;
@@ -105,13 +105,13 @@ void initServerBlock(SERVER_BLOCK* str, int version)
 #endif
 }
 
-void initDataBlockList(DATA_BLOCK_LIST* str)
+void uda::client_server::initDataBlockList(DATA_BLOCK_LIST* str)
 {
     str->count = 0;
     str->data = nullptr;
 }
 
-void initDataBlock(DATA_BLOCK* str)
+void uda::client_server::initDataBlock(DATA_BLOCK* str)
 {
     str->handle = 0;
     str->errcode = 0;
@@ -146,7 +146,7 @@ void initDataBlock(DATA_BLOCK* str)
     initClientBlock(&(str->client_block), 0, "");
 }
 
-void initDimBlock(DIMS* str)
+void uda::client_server::initDimBlock(DIMS* str)
 {
     str->dim = nullptr;
     str->synthetic = nullptr;
@@ -173,7 +173,7 @@ void initDimBlock(DIMS* str)
     str->dim_label[0] = '\0';
 }
 
-void initDataSystem(DATA_SYSTEM* str)
+void uda::client_server::initDataSystem(DATA_SYSTEM* str)
 {
     str->system_id = 0;
     str->version = 0;
@@ -187,7 +187,7 @@ void initDataSystem(DATA_SYSTEM* str)
     str->xml_creation[0] = '\0';
 }
 
-void initSystemConfig(SYSTEM_CONFIG* str)
+void uda::client_server::initSystemConfig(SYSTEM_CONFIG* str)
 {
     str->config_id = 0;
     str->system_id = 0;
@@ -199,7 +199,7 @@ void initSystemConfig(SYSTEM_CONFIG* str)
     str->xml_creation[0] = '\0';
 }
 
-void initDataSource(DATA_SOURCE* str)
+void uda::client_server::initDataSource(DATA_SOURCE* str)
 {
     str->source_id = 0;
     str->config_id = 0;
@@ -233,7 +233,7 @@ void initDataSource(DATA_SOURCE* str)
     str->xml_creation[0] = '\0';
 }
 
-void initSignal(SIGNAL* str)
+void uda::client_server::initSignal(SIGNAL* str)
 {
     str->source_id = 0;
     str->signal_desc_id = 0;
@@ -251,7 +251,7 @@ void initSignal(SIGNAL* str)
     str->xml_creation[0] = '\0';
 }
 
-void initSignalDesc(SIGNAL_DESC* str)
+void uda::client_server::initSignalDesc(SIGNAL_DESC* str)
 {
     str->signal_desc_id = 0;
     str->meta_id = 0;
@@ -274,7 +274,7 @@ void initSignalDesc(SIGNAL_DESC* str)
     str->xml_creation[0] = '\0';
 }
 
-void initPutDataBlock(PUTDATA_BLOCK* str)
+void uda::client_server::initPutDataBlock(PutDataBlock* str)
 {
     str->data_type = UDA_TYPE_UNKNOWN;
     str->rank = 0;
@@ -288,7 +288,7 @@ void initPutDataBlock(PUTDATA_BLOCK* str)
     str->blockName = nullptr;
 }
 
-void initPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList)
+void uda::client_server::initPutDataBlockList(PutDataBlockList* putDataBlockList)
 {
     putDataBlockList->putDataBlock = nullptr;
     putDataBlockList->blockCount = 0;

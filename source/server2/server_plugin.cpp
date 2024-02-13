@@ -32,6 +32,8 @@
 #define REQUEST_PLUGIN_MCOUNT 100 // Maximum initial number of plugins that can be registered
 #define REQUEST_PLUGIN_MSTEP 10   // Increase heap by 10 records once the maximum is exceeded
 
+using namespace uda::client_server;
+
 int uda::serverRedirectStdStreams(int reset)
 {
     // Any OS messages will corrupt xdr streams so re-divert IO from plugin libraries to a temporary file
@@ -395,7 +397,7 @@ int uda::provenancePlugin(ClientBlock* client_block, RequestData* original_reque
     reset = 1;
     if ((rc = uda::serverRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
         if (err != 0) {
             return err;
@@ -525,7 +527,7 @@ int uda::call_metadata_plugin(const PluginData& plugin, RequestData* request_blo
     reset = 1;
     if ((rc = uda::serverRedirectStdStreams(reset)) != 0 || err != 0) {
         if (rc != 0) {
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, rc, "Error Resetting Redirected Plugin Message Output");
         }
         if (err != 0) {
             return err;

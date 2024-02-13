@@ -1,5 +1,4 @@
-#ifndef UDA_CLIENTSERVER_UDASTRUCTS_H
-#define UDA_CLIENTSERVER_UDASTRUCTS_H
+#pragma once
 
 #ifdef __GNUC__
 #  include <sys/time.h>
@@ -7,7 +6,18 @@
 
 #include <stdbool.h>
 
+#include "uda/types.h"
 #include "udaDefines.h"
+
+typedef struct CUdaErrorStack {
+} UDA_ERROR_STACK;
+typedef struct CPutDataBlockList {
+} PUTDATA_BLOCK_LIST;
+typedef struct CPutDataBlock {
+} PUTDATA_BLOCK;
+
+namespace uda::client_server
+{
 
 //--------------------------------------------------------
 // Structure Definitions
@@ -277,7 +287,7 @@ typedef struct DataObject {
     char* object;
 } DATA_OBJECT;
 
-typedef struct PutDataBlock {
+struct PutDataBlock : PUTDATA_BLOCK {
     int data_type;
     unsigned int rank;
     unsigned int count;
@@ -288,13 +298,13 @@ typedef struct PutDataBlock {
     void* opaque_block;           // Opaque pointer to Hierarchical Data Structures
     unsigned int blockNameLength; // Size of the Name character string
     const char* blockName;        // Name of the Data Block
-} PUTDATA_BLOCK;
+};
 
-typedef struct PutDataBlockList {
-    unsigned int blockCount;     // Number of data blocks
-    unsigned int blockListSize;  // Number of data blocks allocated
-    PUTDATA_BLOCK* putDataBlock; // Array of data blocks
-} PUTDATA_BLOCK_LIST;
+struct PutDataBlockList : PUTDATA_BLOCK_LIST {
+    unsigned int blockCount;    // Number of data blocks
+    unsigned int blockListSize; // Number of data blocks allocated
+    PutDataBlock* putDataBlock; // Array of data blocks
+};
 
 typedef struct UdaError {
     int type;                     // Error Classification
@@ -303,7 +313,7 @@ typedef struct UdaError {
     char msg[STRING_LENGTH];      // Message
 } UDA_ERROR;
 
-typedef struct UdaErrorStack {
+typedef struct ErrorStack : UDA_ERROR_STACK {
     unsigned int nerrors; // Number of Errors
     UDA_ERROR* idamerror; // Array of Errors
 } UDA_ERROR_STACK;
@@ -313,7 +323,7 @@ typedef struct ServerBlock {
     int error;
     char msg[STRING_LENGTH];
     int pid; // Server Application process id
-    UDA_ERROR_STACK idamerrorstack;
+    ErrorStack idamerrorstack;
     char OSName[STRING_LENGTH]; // Name of the Server's Operating System, e.g. OSX
     char DOI[STRING_LENGTH];    // Server version/implementation DOI - to be logged with all data consumers
     SECURITY_BLOCK
@@ -400,8 +410,8 @@ typedef struct RequestData {
     SUBSET datasubset;               // Parsed subset instructions (Server Side)
     NAMEVALUELIST nameValueList;     // Set of Name-Value pairs (Server Side Function)
 
-    int put;                             // flag to set the server to a put state
-    PUTDATA_BLOCK_LIST putDataBlockList; // Data to be put on the server
+    int put;                           // flag to set the server to a put state
+    PutDataBlockList putDataBlockList; // Data to be put on the server
 } REQUEST_DATA;
 
 typedef struct RequestBlock {
@@ -429,8 +439,8 @@ typedef struct Environment {
     char server_host[MAXNAME];  // Principal UDA server host
     char server_host2[MAXNAME]; // Backup UDA server host
     char server_proxy[MAXNAME]; // host:port - Running as a Proxy UDA server: Prefix 'UDA::host:port/' to redirect
-                                // request
-    char server_this[MAXNAME];  // host:port - The current server. Used to trap potential infinite redirects
+    // request
+    char server_this[MAXNAME]; // host:port - The current server. Used to trap potential infinite redirects
     char sql_host[MAXNAME];
     char sql_dbname[MAXNAME];
     char sql_user[MAXNAME];
@@ -444,7 +454,7 @@ typedef struct Environment {
     char _padding[1];
 } ENVIRONMENT;
 
-void freeClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+void freeClientPutDataBlockList(PutDataBlockList* putDataBlockList);
 
 void freeDataBlock(DATA_BLOCK* data_block);
 
@@ -456,6 +466,6 @@ void freeRequestBlock(REQUEST_BLOCK* request_block);
 
 // void freeRequestData(REQUEST_DATA* request_data);
 
-void freePutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+void freePutDataBlockList(PutDataBlockList* putDataBlockList);
 
-#endif // UDA_CLIENTSERVER_UDASTRUCTS_H
+} // namespace uda::client_server

@@ -5,5 +5,7 @@
 #include "serverPlugin.h"
 #include "structures/genStructs.h"
 
-int serverSubsetData(DATA_BLOCK* data_block, const ACTION& action, LOGMALLOCLIST* logmalloclist);
-int serverParseServerSide(REQUEST_DATA* request_block, ACTIONS* actions_serverside, const PLUGINLIST* plugin_list);
+int serverSubsetData(uda::client_server::DATA_BLOCK* data_block, const uda::client_server::ACTION& action,
+                     LOGMALLOCLIST* logmalloclist);
+int serverParseServerSide(uda::client_server::REQUEST_DATA* request_block,
+                          uda::client_server::ACTIONS* actions_serverside, const PLUGINLIST* plugin_list);

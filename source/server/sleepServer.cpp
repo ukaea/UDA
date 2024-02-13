@@ -13,6 +13,8 @@
 #include "logging/logging.h"
 #include "server/udaServer.h"
 
+using namespace uda::client_server;
+
 int sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmalloclist,
                 USERDEFINEDTYPELIST* userdefinedtypelist, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
                 int server_tot_block_time, int server_timeout, IoData* io_data, int private_flags, int malloc_source)
@@ -32,7 +34,7 @@ int sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmallocl
         UDA_LOG(UDA_LOG_DEBUG, "Protocol 3 Error Listening for Wake-up %d\n", err);
 
         if (server_tot_block_time <= 1000 * server_timeout) {
-            udaAddError(UDA_CODE_ERROR_TYPE, "sleepServer", err, "Protocol 3 Error: Listening for Server Wake-up");
+            add_error(UDA_CODE_ERROR_TYPE, "sleepServer", err, "Protocol 3 Error: Listening for Server Wake-up");
         }
         return 0;
     }
@@ -47,7 +49,7 @@ int sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmallocl
     // Echo Next Protocol straight back to Client
     if ((err = protocol(server_output, protocol_id, XDR_SEND, &next_protocol, logmalloclist, userdefinedtypelist,
                         nullptr, protocolVersion, log_struct_list, io_data, private_flags, malloc_source)) != 0) {
-        udaAddError(UDA_CODE_ERROR_TYPE, "sleepServer", err, "Protocol 3 Error Echoing Next Protocol ID");
+        add_error(UDA_CODE_ERROR_TYPE, "sleepServer", err, "Protocol 3 Error Echoing Next Protocol ID");
         return 0;
     }
 #endif
@@ -59,7 +61,7 @@ int sleepServer(XDR* server_input, XDR* server_output, LOGMALLOCLIST* logmallocl
 
     if (next_protocol != UDA_PROTOCOL_WAKE_UP) {
         UDA_LOG(UDA_LOG_DEBUG, "Unknown Wakeup Request -> Server Shutting down\n");
-        udaAddError(UDA_CODE_ERROR_TYPE, "sleepServer", next_protocol, "Unknown Wakeup Request -> Server Shutdown");
+        add_error(UDA_CODE_ERROR_TYPE, "sleepServer", next_protocol, "Unknown Wakeup Request -> Server Shutdown");
         return 0;
     }
 

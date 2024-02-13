@@ -23,6 +23,8 @@
 #  include <gsl/gsl_randist.h>
 #endif
 
+using namespace uda::client_server;
+
 //--------------------------------------------------------------------------------------------------------------
 // Generate Error Data
 
@@ -76,8 +78,8 @@ int idamSyntheticModel(int model, int param_n, float* params, int data_n, float*
 
 #ifdef NO_GSL_LIB
     int err = 999;
-    udaAddError(UDA_CODE_ERROR_TYPE, "idamSyntheticModel", err,
-                "Random Number Generators from the GSL library required.");
+    add_error(UDA_CODE_ERROR_TYPE, "idamSyntheticModel", err,
+              "Random Number Generators from the GSL library required.");
     return 999;
 #else
 
@@ -173,8 +175,8 @@ int generateIdamSyntheticData(int handle)
 
     if (udaGetDataType(handle) == UDA_TYPE_DCOMPLEX || udaGetDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        udaAddError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticData", err,
-                    "Not configured to Generate Complex Type Synthetic Data");
+        add_error(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticData", err,
+                  "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
 
@@ -280,7 +282,7 @@ int generateIdamSyntheticData(int handle)
     err = idamSyntheticModel(model, param_n, params, udaGetDataNum(handle), data);
 
     if (err != 0) {
-        udaAddError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticData", err, "Unable to Generate Synthetic Data");
+        add_error(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticData", err, "Unable to Generate Synthetic Data");
         free(data);
         return err;
     }
@@ -289,9 +291,9 @@ int generateIdamSyntheticData(int handle)
     // Return the Synthetic Data
 
     if (udaGetSyntheticData(handle) == nullptr) {
-        if ((err = allocArray(udaGetDataType(handle), udaGetDataNum(handle), &synthetic))) {
-            udaAddError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticData", err,
-                        "Problem Allocating Heap Memory for Synthetic Data");
+        if ((err = alloc_array(udaGetDataType(handle), udaGetDataNum(handle), &synthetic))) {
+            add_error(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticData", err,
+                      "Problem Allocating Heap Memory for Synthetic Data");
             return err;
         }
         udaSetSyntheticData(handle, synthetic);
@@ -428,15 +430,15 @@ int generateIdamSyntheticDimData(int handle, int ndim)
 
     if (udaGetDataType(handle) == UDA_TYPE_DCOMPLEX || udaGetDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        udaAddError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", err,
-                    "Not configured to Generate Complex Type Synthetic Data");
+        add_error(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", err,
+                  "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
 
     float* data;
     if ((data = (float*)malloc(udaGetDimNum(handle, ndim) * sizeof(float))) == nullptr) {
-        udaAddError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", 1,
-                    "Problem Allocating Heap Memory for Synthetic Dimensional Data");
+        add_error(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", 1,
+                  "Problem Allocating Heap Memory for Synthetic Dimensional Data");
         return 1;
     }
 
@@ -536,8 +538,8 @@ int generateIdamSyntheticDimData(int handle, int ndim)
     err = idamSyntheticModel(model, param_n, params, udaGetDimNum(handle, ndim), data);
 
     if (err != 0) {
-        udaAddError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", err,
-                    "Unable to Generate Synthetic Dimensional Data");
+        add_error(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", err,
+                  "Unable to Generate Synthetic Dimensional Data");
         free(data);
         return err;
     }
@@ -546,9 +548,9 @@ int generateIdamSyntheticDimData(int handle, int ndim)
     // Return the Synthetic Data
 
     if (udaGetSyntheticDimData(handle, ndim) == nullptr) {
-        if ((err = allocArray(udaGetDimType(handle, ndim), udaGetDimNum(handle, ndim), &synthetic))) {
-            udaAddError(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", err,
-                        "Problem Allocating Heap Memory for Synthetic Dimensional Data");
+        if ((err = alloc_array(udaGetDimType(handle, ndim), udaGetDimNum(handle, ndim), &synthetic))) {
+            add_error(UDA_CODE_ERROR_TYPE, "generateIdamSyntheticDimData", err,
+                      "Problem Allocating Heap Memory for Synthetic Dimensional Data");
             return err;
         }
 
@@ -682,8 +684,8 @@ int generateIdamDataError(int handle)
 
     if (udaGetDataType(handle) == UDA_TYPE_DCOMPLEX || udaGetDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        udaAddError(UDA_CODE_ERROR_TYPE, "generateIdamDataError", err,
-                    "Not configured to Generate Complex Type Synthetic Data");
+        add_error(UDA_CODE_ERROR_TYPE, "generateIdamDataError", err,
+                  "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
 
@@ -812,7 +814,7 @@ int generateIdamDataError(int handle)
     udaSetDataErrAsymmetry(handle, asymmetry);
 
     if (asymmetry && udaGetDataErrLo(handle) == nullptr) {
-        if ((err = allocArray(udaGetDataType(handle), udaGetDataNum(handle), &perrlo))) {
+        if ((err = alloc_array(udaGetDataType(handle), udaGetDataNum(handle), &perrlo))) {
             return err;
         }
         udaSetDataErrLo(handle, perrlo);
@@ -1000,8 +1002,8 @@ int generateIdamDimDataError(int handle, int ndim)
 
     if (udaGetDataType(handle) == UDA_TYPE_DCOMPLEX || udaGetDataType(handle) == UDA_TYPE_COMPLEX) {
         err = 999;
-        udaAddError(UDA_CODE_ERROR_TYPE, "generateIdamDimDataError", err,
-                    "Not configured to Generate Complex Type Synthetic Data");
+        add_error(UDA_CODE_ERROR_TYPE, "generateIdamDimDataError", err,
+                  "Not configured to Generate Complex Type Synthetic Data");
         return 999;
     }
 
@@ -1131,7 +1133,7 @@ int generateIdamDimDataError(int handle, int ndim)
     udaSetDimErrAsymmetry(handle, ndim, asymmetry);
 
     if (udaGetDimErrAsymmetry(handle, ndim) && udaGetDimErrLo(handle, ndim) == nullptr) {
-        if ((err = allocArray(udaGetDimType(handle, ndim), udaGetDimNum(handle, ndim), &perrlo))) {
+        if ((err = alloc_array(udaGetDimType(handle, ndim), udaGetDimNum(handle, ndim), &perrlo))) {
             return err;
         }
         udaSetDimErrLo(handle, ndim, perrlo);

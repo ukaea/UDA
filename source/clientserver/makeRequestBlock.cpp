@@ -2,6 +2,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <cerrno>
+#include <uda/plugins.h>
 #include <vector>
 
 #if defined(__GNUC__)
@@ -35,6 +36,8 @@
 #define MAXMAPDEPTH 10 // Maximum number of chained signal name mappings (Recursive depth)
 #define MAXREQDEPTH 4  // Maximum number of Device Name to Server Protocol and Host substitution
 
+using namespace uda::client_server;
+
 static void extract_function_name(const char* str, REQUEST_DATA* request);
 
 static int source_file_format_test(const char* source, REQUEST_DATA* request, const PLUGINLIST* pluginList,
@@ -67,7 +70,8 @@ static int find_plugin_id_by_format(const char* format, const PLUGINLIST* plugin
     return -1;
 }
 
-int makeRequestData(REQUEST_DATA* request, const PLUGINLIST* pluginList, const ENVIRONMENT* environment)
+int uda::client_server::makeRequestData(REQUEST_DATA* request, const PLUGINLIST* pluginList,
+                                        const ENVIRONMENT* environment)
 {
     int ldelim;
     int err = 0;
@@ -243,8 +247,8 @@ int makeRequestData(REQUEST_DATA* request, const PLUGINLIST* pluginList, const E
 
                 if ((p0 != nullptr || p1 != nullptr) && (p != nullptr || p2 != nullptr)) {
                     err = 999;
-                    udaAddError(UDA_CODE_ERROR_TYPE, "makeServerRequestBlock", err,
-                                "Source syntax: path with parenthesis () is incorrect!");
+                    add_error(UDA_CODE_ERROR_TYPE, "makeServerRequestBlock", err,
+                              "Source syntax: path with parenthesis () is incorrect!");
                     return err;
                 }
 
@@ -275,7 +279,7 @@ int makeRequestData(REQUEST_DATA* request, const PLUGINLIST* pluginList, const E
                 }
 
                 // Resolve any Serverside environment variables
-                expand_environment_variables(request->path);
+                udaExpandEnvironmentalVariables(request->path);
 
                 UDA_LOG(UDA_LOG_DEBUG, "File Format identified from name extension!\n");
                 break;
@@ -422,7 +426,7 @@ int makeRequestData(REQUEST_DATA* request, const PLUGINLIST* pluginList, const E
 
             if (isFile) { // Resolve any Serverside environment variables
                 UDA_LOG(UDA_LOG_DEBUG, "File Format has been specified.\n");
-                expand_environment_variables(request->path);
+                udaExpandEnvironmentalVariables(request->path);
                 break;
             }
 
@@ -737,7 +741,8 @@ int makeRequestData(REQUEST_DATA* request, const PLUGINLIST* pluginList, const E
     return 0;
 }
 
-int make_request_block(REQUEST_BLOCK* request_block, const PLUGINLIST* pluginList, const ENVIRONMENT* environment)
+int uda::client_server::make_request_block(REQUEST_BLOCK* request_block, const PLUGINLIST* pluginList,
+                                           const ENVIRONMENT* environment)
 {
     int rc = 0;
 
@@ -835,9 +840,9 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, const PLU
         errno = 0;
         if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
             if (errno != 0) {
-                udaAddError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
+                add_error(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
             }
-            udaAddError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999, "Unable to Identify the File's Format");
+            add_error(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999, "Unable to Identify the File's Format");
             return -999;
         }
 
@@ -864,10 +869,10 @@ int source_file_format_test(const char* source, REQUEST_DATA* request, const PLU
                     errno = 0;
                     if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
                         if (errno != 0) {
-                            udaAddError(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
+                            add_error(UDA_SYSTEM_ERROR_TYPE, "sourceFileFormatTest", errno, "");
                         }
-                        udaAddError(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999,
-                                    "Unable to Identify the File's Format");
+                        add_error(UDA_CODE_ERROR_TYPE, "sourceFileFormatTest", 999,
+                                  "Unable to Identify the File's Format");
                         return -999;
                     }
 
@@ -1186,7 +1191,7 @@ int extract_archive(REQUEST_DATA* request, int reduceSignal, const ENVIRONMENT* 
 //------------------------------------------------------------------------------
 // Does the Path contain with an Environment variable
 
-void expand_environment_variables(char* path)
+void udaExpandEnvironmentalVariables(char* path)
 {
     size_t lcwd = STRING_LENGTH - 1;
     char work[STRING_LENGTH];
@@ -1437,7 +1442,7 @@ int extract_subset(REQUEST_DATA* request)
 //
 // The returned value is the count of the name value pairs. If an error occurs, the returned value of the
 // pair count is -1.
-void freeNameValueList(NAMEVALUELIST* nameValueList)
+void uda::client_server::freeNameValueList(NAMEVALUELIST* nameValueList)
 {
     if (nameValueList->nameValue != nullptr) {
         for (int i = 0; i < nameValueList->pairCount; i++) {
@@ -1583,7 +1588,7 @@ std::vector<uda::NameValue> uda::name_value_pairs(std::string_view input, bool s
     return name_values;
 }
 
-int name_value_pairs(const char* pairList, NAMEVALUELIST* nameValueList, unsigned short strip)
+int uda::client_server::name_value_pairs(const char* pairList, NAMEVALUELIST* nameValueList, unsigned short strip)
 {
     // Ignore delimiter in anything enclosed in single or double quotes
     // Recognise /name as name=TRUE

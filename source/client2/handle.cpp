@@ -6,6 +6,8 @@
 
 #include "thread_client.hpp"
 
+using namespace uda::client_server;
+
 void uda::client::free_handle(int handle)
 {
     // Free Heap Memory (Not the Data Blocks themselves: These will be re-used.)

@@ -7,7 +7,9 @@
 #include "errorLog.h"
 #include "stringUtils.h"
 
-int parseOperation(SUBSET* sub)
+using namespace uda::client_server;
+
+int uda::client_server::parseOperation(SUBSET* sub)
 {
     //-------------------------------------------------------------------------------------------------------------
     // Extract the Value Component from each separate Operation

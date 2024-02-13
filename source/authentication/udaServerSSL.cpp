@@ -19,6 +19,8 @@
 #  define VERIFY_DEPTH 4
 #  define X509STRINGSIZE 256
 
+using namespace uda::client_server;
+
 /*
 Note on initialisation:
 UDA Servers using plugins that connect to other UDA servers through the standard client API library
@@ -86,7 +88,7 @@ void reportServerSSLErrorCode(int rc)
             break;
     }
     err = 999;
-    udaAddError(UDA_CODE_ERROR_TYPE, "udaSSL", err, msg);
+    add_error(UDA_CODE_ERROR_TYPE, "udaSSL", err, msg);
     UDA_LOG(UDA_LOG_DEBUG, "Error - %s\n", msg);
     UDA_LOG(UDA_LOG_DEBUG, "Error - %s\n", ERR_error_string(ERR_get_error(), nullptr));
     UDA_LOG(UDA_LOG_DEBUG, "State - %s\n", SSL_state_string(g_ssl));

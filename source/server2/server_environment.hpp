@@ -14,13 +14,13 @@ public:
     Environment();
 
     void print();
-    [[nodiscard]] ::Environment* p_env() { return &environment_; }
-    [[nodiscard]] const ::Environment* p_env() const { return &environment_; }
-    ::Environment* operator->() { return &environment_; }
-    const ::Environment* operator->() const { return &environment_; }
+    [[nodiscard]] uda::client_server::Environment* p_env() { return &environment_; }
+    [[nodiscard]] const uda::client_server::Environment* p_env() const { return &environment_; }
+    uda::client_server::Environment* operator->() { return &environment_; }
+    const uda::client_server::Environment* operator->() const { return &environment_; }
 
 private:
-    ::Environment environment_ = {};
+    uda::client_server::Environment environment_ = {};
 };
 
 } // namespace server

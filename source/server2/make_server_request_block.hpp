@@ -6,10 +6,10 @@
 
 namespace uda {
 
-int makeServerRequestBlock(RequestBlock* request_block, const uda::Plugins& plugins,
+int makeServerRequestBlock(uda::client_server::RequestBlock* request_block, const uda::Plugins& plugins,
                            const server::Environment& environment);
 
-int makeServerRequestData(RequestData* request, const uda::Plugins& plugins,
+int makeServerRequestData(uda::client_server::RequestData* request, const uda::Plugins& plugins,
                           const uda::server::Environment& environment);
 
 } // namespace uda

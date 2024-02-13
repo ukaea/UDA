@@ -10,10 +10,13 @@
 extern "C" {
 #endif
 
-unsigned int countDataBlockListSize(const DATA_BLOCK_LIST* data_block_list, CLIENT_BLOCK* client_block);
-unsigned int countDataBlockSize(const DATA_BLOCK* data_block, CLIENT_BLOCK* client_block);
+unsigned int countDataBlockListSize(const uda::client_server::DATA_BLOCK_LIST* data_block_list,
+                                    uda::client_server::CLIENT_BLOCK* client_block);
+unsigned int countDataBlockSize(const uda::client_server::DATA_BLOCK* data_block,
+                                uda::client_server::CLIENT_BLOCK* client_block);
 
-void udaAccessLog(int init, CLIENT_BLOCK client_block, REQUEST_BLOCK request_block, SERVER_BLOCK server_block,
+void udaAccessLog(int init, uda::client_server::CLIENT_BLOCK client_block,
+                  uda::client_server::REQUEST_BLOCK request_block, uda::client_server::SERVER_BLOCK server_block,
                   unsigned int total_datablock_size);
 
 #ifdef __cplusplus

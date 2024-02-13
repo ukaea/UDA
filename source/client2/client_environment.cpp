@@ -3,10 +3,10 @@
 #include <cstdlib>
 #include <fmt/format.h>
 
-Environment uda::client::load_environment(bool* env_host, bool* env_port)
+uda::client_server::Environment uda::client::load_environment(bool* env_host, bool* env_port)
 {
     char* env = nullptr;
-    Environment environment = {};
+    uda::client_server::Environment environment = {};
 
     if (environment.initialised) {
         return environment;
@@ -208,7 +208,7 @@ Environment uda::client::load_environment(bool* env_host, bool* env_port)
     return environment;
 }
 
-void uda::client::print_client_environment(const Environment& environment)
+void uda::client::print_client_environment(const uda::client_server::Environment& environment)
 {
     UDA_LOG(UDA_LOG_INFO, "Client Environment Variable values\n");
     UDA_LOG(UDA_LOG_INFO, "Log Location    : %s\n", environment.logdir);

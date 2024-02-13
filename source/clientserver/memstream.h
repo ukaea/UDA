@@ -1,8 +1,9 @@
-#ifndef UDA_CLIENTSERVER_MAC_MEMSTREAM_H
-#define UDA_CLIENTSERVER_MAC_MEMSTREAM_H
+#pragma once
 
 #include <stdio.h>
 
+#if defined(__APPLE__) && __DARWIN_C_LEVEL < 200809L
+
 FILE* open_memstream(char** cp, size_t* lenp);
 
-#endif // UDA_CLIENTSERVER_MAC_MEMSTREAM_H
+#endif

@@ -39,6 +39,7 @@
 #include "struct.h"
 
 #include "accessors.h"
+#include "clientserver/protocolXML2.h"
 #include "genStructs.h"
 
 #include <cstdlib>
@@ -65,6 +66,8 @@
 #if defined(SERVERBUILD)
 #  include "server/udaServer.h"
 #endif
+
+using namespace uda::client_server;
 
 static unsigned int last_malloc_index = 0; // Malloc Log search index last value
 static unsigned int* last_malloc_index_value =
@@ -2087,9 +2090,10 @@ int xdrAtomicData(LOGMALLOCLIST* logmalloclist, XDR* xdrs, const char* type, int
 
 // Send/Receive Array of Structures
 
-int xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDTYPELIST* userdefinedtypelist,
-                           USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion, bool xdr_stdio_flag,
-                           LOGSTRUCTLIST* log_struct_list, int malloc_source)
+int uda::client_server::xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist,
+                                               USERDEFINEDTYPELIST* userdefinedtypelist,
+                                               USERDEFINEDTYPE* userdefinedtype, void** data, int protocolVersion,
+                                               bool xdr_stdio_flag, LOGSTRUCTLIST* log_struct_list, int malloc_source)
 {
     int rc;
 
@@ -2114,8 +2118,8 @@ int xdrUserDefinedTypeData(XDR* xdrs, LOGMALLOCLIST* logmalloclist, USERDEFINEDT
     } else {
 
         if (userdefinedtype == nullptr) {
-            udaAddError(UDA_CODE_ERROR_TYPE, "udaXDRUserDefinedTypeData", 999,
-                        "No User Defined Type passed - cannot send!");
+            add_error(UDA_CODE_ERROR_TYPE, "udaXDRUserDefinedTypeData", 999,
+                      "No User Defined Type passed - cannot send!");
             return 0;
         }
 
@@ -2267,7 +2271,8 @@ bool_t xdr_compoundfield(XDR* xdrs, COMPOUNDFIELD* str)
     return rc;
 }
 
-bool_t xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist, USERDEFINEDTYPE* str)
+bool_t uda::client_server::xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist,
+                                               USERDEFINEDTYPE* str)
 {
     // Send/Receive a single user defined type
 
@@ -2385,7 +2390,7 @@ bool_t xdr_userdefinedtype(XDR* xdrs, USERDEFINEDTYPELIST* userdefinedtypelist, 
     return rc;
 }
 
-bool_t xdr_userdefinedtypelist(XDR* xdrs, USERDEFINEDTYPELIST* str, bool xdr_stdio_flag)
+bool_t uda::client_server::xdr_userdefinedtypelist(XDR* xdrs, USERDEFINEDTYPELIST* str, bool xdr_stdio_flag)
 {
     // Send/Receive the list of userdefined types
 
@@ -2854,15 +2859,15 @@ void* udaGetNodeStructureArrayData(LOGMALLOCLIST* logmalloclist, NTREE* ntree, i
 {
     char* p;
     if (index < 0) {
-        udaAddError(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureArrayData", 999, "The Tree Node array index < 0");
+        add_error(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureArrayData", 999, "The Tree Node array index < 0");
         return nullptr;
     }
     if (ntree == nullptr) {
         ntree = udaGetFullNTree();
     }
     if (udaGetNodeStructureDataCount(logmalloclist, ntree) < (index + 1)) {
-        udaAddError(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureArrayData", 999,
-                    "The Tree Node array index > allocated array dimension");
+        add_error(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureArrayData", 999,
+                  "The Tree Node array index > allocated array dimension");
         return nullptr;
     }
     p = (char*)ntree->data;
@@ -2885,12 +2890,12 @@ void* udaGetNodeStructureComponentArrayData(LOGMALLOCLIST* logmalloclist, NTREE*
     char* pp;
     const char* type;
     if (structureindex < 0) {
-        udaAddError(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureComponentArrayData", 999,
-                    "The Tree Node Structure array index < 0");
+        add_error(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureComponentArrayData", 999,
+                  "The Tree Node Structure array index < 0");
     }
     if (componentindex < 0) {
-        udaAddError(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureComponentArrayData", 999,
-                    "The Tree Node Structure Component array index < 0");
+        add_error(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureComponentArrayData", 999,
+                  "The Tree Node Structure Component array index < 0");
         return nullptr;
     }
     if (ntree == nullptr) {
@@ -2916,15 +2921,15 @@ void* udaGetNodeStructureComponentArrayData(LOGMALLOCLIST* logmalloclist, NTREE*
                 return nullptr;
             }
             if (count <= componentindex) {
-                udaAddError(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureComponentArrayData", 999,
-                            "The Tree Node Structure Component array index > allocated array dimension");
+                add_error(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureComponentArrayData", 999,
+                          "The Tree Node Structure Component array index > allocated array dimension");
                 return nullptr;
             }
             return (void*)&p[componentindex * size];
         }
     }
-    udaAddError(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureComponentArrayData", 999,
-                "The named Tree Node Structure Component array is not a member of the Data structure");
+    add_error(UDA_CODE_ERROR_TYPE, "udaGetNodeStructureComponentArrayData", 999,
+              "The named Tree Node Structure Component array is not a member of the Data structure");
     return nullptr;
 }
 
@@ -3987,8 +3992,7 @@ void udaPrintNodeStructure(LOGMALLOCLIST* logmalloclist, NTREE* ntree)
                 }
             }
             if (node == nullptr) {
-                udaAddError(UDA_CODE_ERROR_TYPE, "udaPrintNodeStructure", 999,
-                            "Structure Array element Node not Found!");
+                add_error(UDA_CODE_ERROR_TYPE, "udaPrintNodeStructure", 999, "Structure Array element Node not Found!");
                 return;
             }
         }

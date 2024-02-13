@@ -7,8 +7,8 @@
 #  include <string>
 
 void udaClientFreeHostList();
-const HostData* udaClientFindHostByAlias(const char* alias);
-const HostData* udaClientFindHostByName(const char* name);
+const uda::client_server::HostData* udaClientFindHostByAlias(const char* alias);
+const uda::client_server::HostData* udaClientFindHostByName(const char* name);
 void udaClientInitHostList();
 
 #endif // UDA_CLIENT_HOSTLIST_H

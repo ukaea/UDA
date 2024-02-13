@@ -12,18 +12,12 @@
  * @param data_block
  * @return 1 if an error occurred, otherwise 0
  */
-int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
+int uda::serverProcessing(uda::client_server::ClientBlock client_block, uda::client_server::DataBlock* data_block)
 {
-    DIMS* ddim = nullptr;
+    uda::client_server::DIMS* ddim = nullptr;
     double *newoffs = nullptr, *newints = nullptr;
 
     int reduce = 0;
-    short ss;
-    int si;
-    unsigned su;
-    long sl;
-    float sf;
-    double sd;
 
     //--------------------------------------------------------------------------------------------------
     // If the Rank is 1 and the dimensional data are compressed with zero values, then reduce the
@@ -40,8 +34,8 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
             } else {
                 switch (ddim->data_type) {
 
-                    case UDA_TYPE_FLOAT:
-                        sf = (float)0.0;
+                    case UDA_TYPE_FLOAT: {
+                        float sf = (float)0.0;
                         switch (ddim->method) {
                             case 1:
                                 for (unsigned int i = 0; i < ddim->udoms; i++) {
@@ -74,9 +68,10 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                 break;
                         }
                         break;
+                    }
 
-                    case UDA_TYPE_DOUBLE:
-                        sd = (double)0.0;
+                    case UDA_TYPE_DOUBLE: {
+                        double sd = (double)0.0;
                         switch (ddim->method) {
                             case 1:
                                 for (unsigned int i = 0; i < ddim->udoms; i++) {
@@ -109,6 +104,7 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                 break;
                         }
                         break;
+                    }
 
                     case UDA_TYPE_CHAR: {
                         char sc = (char)0;
@@ -146,8 +142,8 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                         break;
                     }
 
-                    case UDA_TYPE_SHORT:
-                        ss = (short)0;
+                    case UDA_TYPE_SHORT: {
+                        short ss = (short)0;
                         switch (ddim->method) {
                             case 1:
                                 for (unsigned int i = 0; i < ddim->udoms; i++) {
@@ -180,9 +176,10 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                 break;
                         }
                         break;
+                    }
 
-                    case UDA_TYPE_INT:
-                        si = (int)0;
+                    case UDA_TYPE_INT: {
+                        int si = (int)0;
                         switch (ddim->method) {
                             case 1:
                                 for (unsigned int i = 0; i < ddim->udoms; i++) {
@@ -215,9 +212,10 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                 break;
                         }
                         break;
+                    }
 
-                    case UDA_TYPE_LONG:
-                        sl = (long)0;
+                    case UDA_TYPE_LONG: {
+                        long sl = (long)0;
                         switch (ddim->method) {
                             case 1:
                                 for (unsigned int i = 0; i < ddim->udoms; i++) {
@@ -250,6 +248,7 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                 break;
                         }
                         break;
+                    }
 
                     case UDA_TYPE_UNSIGNED_CHAR: {
                         unsigned char sc = (unsigned char)0;
@@ -327,8 +326,8 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                         break;
                     }
 
-                    case UDA_TYPE_UNSIGNED_INT:
-                        su = (unsigned int)0;
+                    case UDA_TYPE_UNSIGNED_INT: {
+                        unsigned int su = (unsigned int)0;
                         switch (ddim->method) {
                             case 1:
                                 for (unsigned int i = 0; i < ddim->udoms; i++) {
@@ -363,6 +362,7 @@ int uda::serverProcessing(ClientBlock client_block, DataBlock* data_block)
                                 break;
                         }
                         break;
+                    }
 
                     case UDA_TYPE_UNSIGNED_LONG: {
                         unsigned long sl = (unsigned long)0;

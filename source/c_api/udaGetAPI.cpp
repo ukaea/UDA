@@ -34,6 +34,8 @@
 #    include <Windows.h>
 #  endif
 
+using namespace uda::client_server;
+
 typedef struct {
     int id;     // Thread identifier assigned by the application
     int socket; // Either a shared or private server socket connection
@@ -394,14 +396,14 @@ int udaGetAPIWithHost(const char* data_object, const char* data_source, const ch
     // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initErrorStack();
+        init_error_stack();
         startup = false;
     }
 
     if ((err = makeClientRequestBlock(&data_object, &data_source, 1, &request_block)) != 0) {
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error identifying the Data Source [%s]\n", data_source);
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         udaUnlockThread();
         return -err;
@@ -508,14 +510,14 @@ int udaGetBatchAPIWithHost(const char** signals, const char** sources, int count
     // Build the Request Data Block (Version and API dependent)
 
     if (startup) {
-        initErrorStack();
+        init_error_stack();
         startup = false;
     }
 
     int err = 0;
     if ((err = makeClientRequestBlock(signals, sources, count, &request_block)) != 0) {
         if (udaNumErrors() == 0) {
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error identifying the Data Source");
         }
         udaUnlockThread();
         return -err;

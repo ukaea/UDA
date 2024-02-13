@@ -22,6 +22,10 @@ typedef void (*ADDIDAMERRORFUNP)(UDA_ERROR_STACK*, int, char*, int, char*); // W
 
 // Prototypes
 
+#define UDA_MAX_PATH 1024 // Same as STRING_LENGTH
+
+LIBRARY_API void udaExpandEnvironmentalVariables(char* path);
+
 LIBRARY_API int udaCallPlugin(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request);
 LIBRARY_API int udaCallPlugin2(UDA_PLUGIN_INTERFACE* plugin_interface, const char* request, const char* source);
 

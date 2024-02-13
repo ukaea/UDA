@@ -1,9 +1,11 @@
-#ifndef UDA_CLIENTSERVER_COMPRESSDIM_H
-#define UDA_CLIENTSERVER_COMPRESSDIM_H
+#pragma once
 
 #include "udaStructs.h"
 
-int compressDim(DIMS* ddim);
+namespace uda::client_server
+{
+
+int compress_dim(DIMS* ddim);
 
 /*---------------------------------------------------------------
  * UDA Dimensional Data Uncompressor
@@ -20,6 +22,6 @@ int compressDim(DIMS* ddim);
  * must also have corrections applied.
  *
  *--------------------------------------------------------------*/
-int uncompressDim(DIMS* ddim);
+int uncompress_dim(DIMS* ddim);
 
-#endif // UDA_CLIENTSERVER_COMPRESSDIM_H
+} // namespace uda::client_server

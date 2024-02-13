@@ -39,9 +39,12 @@
 #  include "server/serverStartup.h"
 #endif
 
-int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-             USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion, LOGSTRUCTLIST* log_struct_list,
-             IoData* io_data, unsigned int private_flags, int malloc_source)
+using namespace uda::client_server;
+
+int uda::client_server::protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+                                 USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
+                                 LOGSTRUCTLIST* log_struct_list, IoData* io_data, unsigned int private_flags,
+                                 int malloc_source)
 {
     int err = 0;
 
@@ -129,7 +132,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         break; // No Data to Receive!
                     }
 
-                    if ((err = allocData(data_block)) != 0) {
+                    if ((err = alloc_data(data_block)) != 0) {
                         break; // Allocate Heap Memory
                     }
 
@@ -175,7 +178,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                             break;
                         }
 
-                        if ((err = allocDim(data_block)) != 0) {
+                        if ((err = alloc_dim(data_block)) != 0) {
                             break; // Allocate Heap Memory
                         }
 
@@ -185,7 +188,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         }
 
                         for (unsigned int i = 0; i < data_block->rank; i++) { // Expand Compressed Regular Vector
-                            err = uncompressDim(&(data_block->dims[i]));      // Allocate Heap as required
+                            err = uncompress_dim(&(data_block->dims[i]));     // Allocate Heap as required
                             err = 0;                                          // Need to Test for Error Condition!
                         }
 
@@ -260,7 +263,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         }
 
                         for (unsigned int i = 0; i < data_block->rank; i++) {
-                            compressDim(&(data_block->dims[i])); // Minimise Data Transfer if Regular
+                            compress_dim(&(data_block->dims[i])); // Minimise Data Transfer if Regular
                         }
 
                         if (!xdr_data_dim1(xdrs, data_block)) {
@@ -303,8 +306,8 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
         if (protocol_id == UDA_PROTOCOL_PUTDATA_BLOCK_LIST) {
 
-            auto putDataBlockList = (PUTDATA_BLOCK_LIST*)str;
-            PUTDATA_BLOCK putData;
+            auto put_data_block_list = (PutDataBlockList*)str;
+            PutDataBlock put_data;
 
             switch (direction) {
 
@@ -327,31 +330,31 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                     for (unsigned int i = 0; i < blockCount; i++) { // Fetch multiple put blocks
 
-                        initPutDataBlock(&putData);
+                        initPutDataBlock(&put_data);
 
-                        if (!xdr_putdata_block1(xdrs, &putData)) {
+                        if (!xdr_putdata_block1(xdrs, &put_data)) {
                             err = UDA_PROTOCOL_ERROR_61;
                             UDA_LOG(UDA_LOG_DEBUG, "xdr_putdata_block1 Error (61)\n");
                             break;
                         }
 
-                        if (protocolVersionTypeTest(protocolVersion, putData.data_type)) {
+                        if (protocolVersionTypeTest(protocolVersion, put_data.data_type)) {
                             err = UDA_PROTOCOL_ERROR_9999;
                             break;
                         }
 
-                        if (putData.count > 0 || putData.blockNameLength > 0) {
+                        if (put_data.count > 0 || put_data.blockNameLength > 0) {
 
-                            if ((err = allocPutData(&putData)) != 0) {
+                            if ((err = alloc_put_data(&put_data)) != 0) {
                                 break; // Allocate Heap Memory
                             }
 
-                            if (!xdr_putdata_block2(xdrs, &putData)) { // Fetch data
+                            if (!xdr_putdata_block2(xdrs, &put_data)) { // Fetch data
                                 err = UDA_PROTOCOL_ERROR_62;
                                 break;
                             }
 
-                            addIdamPutDataBlockList(&putData, putDataBlockList); // Add to the growing list
+                            add_put_data_block_list(&put_data, put_data_block_list); // Add to the growing list
                         }
                     }
 
@@ -360,31 +363,31 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                 case XDR_SEND: {
 
-                    UDA_LOG(UDA_LOG_DEBUG, "send: putDataBlockList Count: %d\n", putDataBlockList->blockCount);
+                    UDA_LOG(UDA_LOG_DEBUG, "send: putDataBlockList Count: %d\n", put_data_block_list->blockCount);
 
-                    int rc = xdr_u_int(xdrs, &(putDataBlockList->blockCount));
+                    int rc = xdr_u_int(xdrs, &(put_data_block_list->blockCount));
 
                     if (!rc) {
                         err = UDA_PROTOCOL_ERROR_61;
                         break;
                     }
 
-                    for (unsigned int i = 0; i < putDataBlockList->blockCount; i++) { // Send multiple put blocks
+                    for (unsigned int i = 0; i < put_data_block_list->blockCount; i++) { // Send multiple put blocks
 
-                        if (!xdr_putdata_block1(xdrs, &(putDataBlockList->putDataBlock[i]))) {
+                        if (!xdr_putdata_block1(xdrs, &(put_data_block_list->putDataBlock[i]))) {
                             err = UDA_PROTOCOL_ERROR_61;
                             break;
                         }
 
-                        if (protocolVersionTypeTest(protocolVersion, putDataBlockList->putDataBlock[i].data_type)) {
+                        if (protocolVersionTypeTest(protocolVersion, put_data_block_list->putDataBlock[i].data_type)) {
                             err = UDA_PROTOCOL_ERROR_9999;
                             break;
                         }
 
-                        if (putDataBlockList->putDataBlock[i].count > 0 ||
-                            putDataBlockList->putDataBlock[i].blockNameLength > 0) { // Data to Send?
+                        if (put_data_block_list->putDataBlock[i].count > 0 ||
+                            put_data_block_list->putDataBlock[i].blockNameLength > 0) { // Data to Send?
 
-                            if (!xdr_putdata_block2(xdrs, &(putDataBlockList->putDataBlock[i]))) {
+                            if (!xdr_putdata_block2(xdrs, &(put_data_block_list->putDataBlock[i]))) {
                                 err = UDA_PROTOCOL_ERROR_62;
                                 break;
                             }
@@ -752,7 +755,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
                         break;
                     }
 
-                    udaCloseError(); // Free Heap associated with Previous Data Access
+                    close_error(); // Free Heap associated with Previous Data Access
 
                     if (!xdr_server1(xdrs, server_block, protocolVersion)) {
                         err = UDA_PROTOCOL_ERROR_22;
@@ -763,7 +766,7 @@ int protocol(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIS
 
                         server_block->idamerrorstack.idamerror =
                             (UDA_ERROR*)malloc(server_block->idamerrorstack.nerrors * sizeof(UDA_ERROR));
-                        initErrorRecords(&server_block->idamerrorstack);
+                        init_error_records(&server_block->idamerrorstack);
 
                         if (!xdr_server2(xdrs, server_block)) {
                             err = UDA_PROTOCOL_ERROR_22;

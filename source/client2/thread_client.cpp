@@ -92,7 +92,7 @@ char* get_data(int handle)
     }
 }
 
-DATA_BLOCK* get_data_block(int handle)
+uda::client_server::DATA_BLOCK* get_data_block(int handle)
 {
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);
@@ -103,7 +103,7 @@ DATA_BLOCK* get_data_block(int handle)
     return data_block;
 }
 
-DATA_BLOCK* uda::client::get_data_block(int handle)
+uda::client_server::DATA_BLOCK* uda::client::get_data_block(int handle)
 {
     auto& instance = uda::client::ThreadClient::instance();
     auto data_block = instance.data_block(handle);

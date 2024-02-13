@@ -24,6 +24,8 @@
 #include "getEnvironment.h"
 #include "udaClient.h"
 
+using namespace uda::client_server;
+
 int udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_logs)
 {
     static int start_status = 0;
@@ -93,7 +95,7 @@ int udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_logs)
     udaSetLogFile(UDA_LOG_INFO, file);
 
     if (errno != 0) {
-        udaAddError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "failed to open debug log");
+        add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "failed to open debug log");
         udaCloseLogging();
         return -1;
     }
@@ -106,7 +108,7 @@ int udaStartup(int reset, CLIENT_FLAGS* client_flags, bool* reopen_logs)
     }
 
     if (errno != 0) {
-        udaAddError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "failed to open error log");
+        add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "failed to open error log");
         udaCloseLogging();
         return -1;
     }

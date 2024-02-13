@@ -23,7 +23,7 @@
  * @param ap
  * @return
  */
-int allocArray(int data_type, size_t n_data, char** ap)
+int uda::client_server::alloc_array(int data_type, size_t n_data, char** ap)
 {
     if (n_data == 0) {
         return 0; // Insufficient Data to Allocate!
@@ -50,7 +50,7 @@ int allocArray(int data_type, size_t n_data, char** ap)
  * @param data_block
  * @return
  */
-int allocData(DATA_BLOCK* data_block)
+int uda::client_server::alloc_data(DATA_BLOCK* data_block)
 {
     //------------------------------------------------------------------------
     // Allocate Memory for data Dimensions
@@ -125,7 +125,7 @@ int allocData(DATA_BLOCK* data_block)
     return 0;
 }
 
-int allocDim(DATA_BLOCK* data_block)
+int uda::client_server::alloc_dim(DATA_BLOCK* data_block)
 {
     // This routine is only called by the Client if data
     // are NOT in a compressed form, when Heap is
@@ -208,7 +208,7 @@ int allocDim(DATA_BLOCK* data_block)
  * @param putData
  * @return
  */
-int allocPutData(PUTDATA_BLOCK* putData)
+int uda::client_server::alloc_put_data(PutDataBlock* putData)
 {
     unsigned int count;
     char* db = nullptr;
@@ -257,13 +257,13 @@ int allocPutData(PUTDATA_BLOCK* putData)
     return 0;
 }
 
-void addIdamPutDataBlockList(PUTDATA_BLOCK* putDataBlock, PUTDATA_BLOCK_LIST* putDataBlockList)
+void uda::client_server::add_put_data_block_list(PutDataBlock* putDataBlock, PutDataBlockList* putDataBlockList)
 {
     if (putDataBlockList->putDataBlock == nullptr ||
         putDataBlockList->blockCount + 1 >= putDataBlockList->blockListSize) {
         putDataBlockList->putDataBlock =
-            (PUTDATA_BLOCK*)realloc((void*)putDataBlockList->putDataBlock,
-                                    (putDataBlockList->blockListSize + GROWPUTDATABLOCKLIST) * sizeof(PUTDATA_BLOCK));
+            (PutDataBlock*)realloc((void*)putDataBlockList->putDataBlock,
+                                   (putDataBlockList->blockListSize + GROWPUTDATABLOCKLIST) * sizeof(PutDataBlock));
         putDataBlockList->blockListSize = putDataBlockList->blockListSize + GROWPUTDATABLOCKLIST;
     }
     putDataBlockList->putDataBlock[putDataBlockList->blockCount++] = *putDataBlock;

@@ -35,7 +35,7 @@ int initUdaClientSSL();
 int startUdaClientSSL();
 int readUdaClientSSL(void* iohandle, char* buf, int count);
 int writeUdaClientSSL(void* iohandle, char* buf, int count);
-void putClientHost(const HostData* host);
+void putClientHost(const uda::client_server::HostData* host);
 
 #  endif // SSLAUTHENTICATION
 

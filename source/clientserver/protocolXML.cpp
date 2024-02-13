@@ -71,32 +71,14 @@
 #include "udaErrors.h"
 #include "xdrlib.h"
 
-#ifdef HIERARCHICAL_DATA
-#  include "allocXMLData.h"
-#  include "xdrHData.h"
-#  include "xmlStructs.h"
-#endif
+using namespace uda::client_server;
 
-int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
-                USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
-                LOGSTRUCTLIST* log_struct_list, IoData* io_data, unsigned int private_flags, int malloc_source,
-                CreateXDRStreams create_xdr_streams)
+int uda::client_server::protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOCLIST* logmalloclist,
+                                    USERDEFINEDTYPELIST* userdefinedtypelist, void* str, int protocolVersion,
+                                    LOGSTRUCTLIST* log_struct_list, IoData* io_data, unsigned int private_flags,
+                                    int malloc_source, CreateXDRStreams create_xdr_streams)
 {
     DATA_BLOCK* data_block;
-
-#ifdef HIERARCHICAL_DATA
-    PFCOILS* pfcoils;
-    PFPASSIVE* pfpassive;
-    PFSUPPLIES* pfsupplies;
-    FLUXLOOP* fluxloop;
-    MAGPROBE* magprobe;
-    PFCIRCUIT* pfcircuit;
-    PLASMACURRENT* plasmacurrent;
-    DIAMAGNETIC* diamagnetic;
-    TOROIDALFIELD* toroidalfield;
-    LIMITER* limiter;
-    EFIT* efit;
-#endif
 
     int rc;
     int err = 0;
@@ -154,8 +136,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         err = 999;
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: nullptr SARRAY User defined data Structure Definition\n");
                         printUserDefinedTypeListTable(*userdefinedtypelist);
-                        udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                    "nullptr User defined data Structure Definition");
+                        add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                                  "nullptr User defined data Structure Definition");
                         break;
                     }
 
@@ -204,14 +186,14 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             if (errno != 0) {
                                 err = errno;
                             }
-                            udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                        "Unable to Obtain a Temporary/Cache File Name");
+                            add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                                      "Unable to Obtain a Temporary/Cache File Name");
                             break;
                         }
                         if ((xdrfile = fopen(temp_file.c_str(), "wb")) == nullptr) {
                             err = 999;
-                            udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                        "Unable to Open a Temporary/Cache XDR File for Writing");
+                            add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                                      "Unable to Open a Temporary/Cache XDR File for Writing");
                             break;
                         }
 
@@ -249,7 +231,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                     if (!rc) {
                         err = 999;
-                        udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Bad Return Code passing data structures");
+                        add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Bad Return Code passing data structures");
                         break;
                     }
 
@@ -336,7 +318,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                     if (option == 4) {
                         err = 999;
-                        udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err, "Unknown package Type control option");
+                        add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err, "Unknown package Type control option");
                         break;
                     }
 
@@ -355,10 +337,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             if (errno != 0) {
                                 err = errno;
                             }
-                            udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                        "Unable to Obtain a Temporary File Name [3]");
+                            add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                                      "Unable to Obtain a Temporary File Name [3]");
                             err = 998;
-                            udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
+                            add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
                             UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [3], tempFile=[%s]\n",
                                     tempFile);
                             break;
@@ -403,10 +385,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                 if (errno != 0) {
                                     err = errno;
                                 }
-                                udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                            " Unable to Obtain a Temporary File Name [2]");
+                                add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                                          " Unable to Obtain a Temporary File Name [2]");
                                 err = 997;
-                                udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
+                                add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
                                 UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name [2], tempFile=[%s]\n",
                                         tempFile);
                                 break;
@@ -418,8 +400,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             if ((xdrfile = fopen(tempFile, "rb")) == nullptr) { // Read temporary file
                                 err = 999;
-                                udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                            " Unable to Open a Temporary XDR File for Writing");
+                                add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                                          " Unable to Open a Temporary XDR File for Writing");
                                 break;
                             }
 
@@ -436,8 +418,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                         if (!rc) {
                             err = 999;
-                            udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                        "Failure receiving Structure Definitions");
+                            add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                                      "Failure receiving Structure Definitions");
                             break;
                         }
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXDRUserDefinedTypeData #A\n");
@@ -450,8 +432,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                         UDA_LOG(UDA_LOG_DEBUG, "protocolXML: udaXDRUserDefinedTypeData #B\n");
                         if (!rc) {
                             err = 999;
-                            udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                        "Failure receiving Data and Structure Definition");
+                            add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                                      "Failure receiving Data and Structure Definition");
                             break;
                         }
 
@@ -484,7 +466,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             auto s = (SARRAY*)data;
                             if (s->count != data_block->data_n) { // check for consistency
                                 err = 999;
-                                udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Inconsistent S Array Counts");
+                                add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Inconsistent S Array Counts");
                                 break;
                             }
                             data_block->data =
@@ -497,8 +479,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                         } else {
                             err = 999;
-                            udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                        "Name of Received Data Structure Incorrect");
+                            add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                                      "Name of Received Data Structure Incorrect");
                             break;
                         }
                     }
@@ -508,7 +490,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
             } else {
                 err = 999;
-                udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Unknown Opaque type");
+                add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Unknown Opaque type");
                 break;
             }
         }
@@ -540,10 +522,10 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                             if (errno != 0) {
                                 err = errno;
                             }
-                            udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                        " Unable to Obtain a Temporary File Name");
+                            add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                                      " Unable to Obtain a Temporary File Name");
                             err = 996;
-                            udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
+                            add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, tempFile);
                             UDA_LOG(UDA_LOG_DEBUG, "Unable to Obtain a Temporary File Name, tempFile=[%s]\n", tempFile);
                             break;
                         }
@@ -579,8 +561,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             if ((xdrfile = fopen(tempFile, "rb")) == nullptr) { // Read temporary file
                                 err = 999;
-                                udaAddError(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
-                                            " Unable to Open a Temporary XDR File for Writing");
+                                add_error(UDA_SYSTEM_ERROR_TYPE, "protocolXML", err,
+                                          " Unable to Open a Temporary XDR File for Writing");
                                 break;
                             }
 
@@ -594,8 +576,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             if (!rc) {
                                 err = 999;
-                                udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                            "Failure receiving Structure Definitions");
+                                add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                                          "Failure receiving Structure Definitions");
                                 break;
                             }
 
@@ -607,8 +589,8 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             if (!rc) {
                                 err = 999;
-                                udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                            "Failure receiving Data and Structure Definition");
+                                add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                                          "Failure receiving Data and Structure Definition");
                                 break;
                             }
 
@@ -635,7 +617,7 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
                                 auto s = (SARRAY*)data;
                                 if (s->count != data_block->data_n) { // check for consistency
                                     err = 999;
-                                    udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Inconsistent S Array Counts");
+                                    add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Inconsistent S Array Counts");
                                     break;
                                 }
                                 data_block->data = (char*)
@@ -649,15 +631,15 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
 
                             } else {
                                 err = 999;
-                                udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err,
-                                            "Name of Received Data Structure Incorrect");
+                                add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err,
+                                          "Name of Received Data Structure Incorrect");
                                 break;
                             }
                         }
                     }
                 } else {
                     err = 999;
-                    udaAddError(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Unknown Opaque type");
+                    add_error(UDA_CODE_ERROR_TYPE, "protocolXML", err, "Unknown Opaque type");
                     break;
                 }
             }
@@ -713,778 +695,6 @@ int protocolXML(XDR* xdrs, int protocol_id, int direction, int* token, LOGMALLOC
             }
         }
 
-#  ifdef HIERARCHICAL_DATA
-        //----------------------------------------------------------------------------
-        // EFIT (Uses recursion)
-
-        if (protocol_id == UDA_PROTOCOL_EFIT) {
-
-            data_block = (DATA_BLOCK*)str;
-
-            switch (direction) {
-
-                case XDR_RECEIVE:
-
-                    if ((efit = (EFIT*)malloc(sizeof(EFIT))) == nullptr) {
-                        err = UDA_PROTOCOL_ERROR_1001;
-                        break;
-                    }
-
-                    if (!(rc = xdrrec_skiprecord(xdrs))) {
-                        err = UDA_PROTOCOL_ERROR_5;
-                        break;
-                    }
-                    if (!(rc = xdr_efit(xdrs, efit))) {
-                        err = UDA_PROTOCOL_ERROR_1001;
-                        break;
-                    }
-
-                    if ((err = alloc_efit(efit)) != 0) {
-                        break; // Allocate Heap Memory
-                    }
-
-                    for (int i = 0; i < efit->npfcoils; i++) {
-                        pfcoils = efit->pfcoils + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFCOILS, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfcoils)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->npfpassive; i++) {
-                        pfpassive = efit->pfpassive + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFPASSIVE, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfpassive)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->npfsupplies; i++) {
-                        pfsupplies = efit->pfsupplies + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFSUPPLIES, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfsupplies)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->nfluxloops; i++) {
-                        fluxloop = efit->fluxloop + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_FLUXLOOP, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)fluxloop)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->nmagprobes; i++) {
-                        magprobe = efit->magprobe + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_MAGPROBE, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)magprobe)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->npfcircuits; i++) {
-                        pfcircuit = efit->pfcircuit + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFCIRCUIT, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfcircuit)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->nplasmacurrent; i++) {
-                        plasmacurrent = efit->plasmacurrent + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_PLASMACURRENT, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)plasmacurrent)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->ndiamagnetic; i++) {
-                        diamagnetic = efit->diamagnetic + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_DIAMAGNETIC, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)diamagnetic)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->ntoroidalfield; i++) {
-                        toroidalfield = efit->toroidalfield + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_TOROIDALFIELD, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)toroidalfield)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->nlimiter; i++) {
-                        limiter = efit->limiter + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_LIMITER, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)limiter)) != 0) {
-                            break;
-                        }
-                    }
-
-                    data_block->opaque_block = (void*)efit;
-
-                    break;
-
-                case XDR_SEND:
-
-                    efit = (EFIT*)data_block->opaque_block;
-
-                    if (!(rc = xdr_efit(xdrs, efit))) {
-                        err = UDA_PROTOCOL_ERROR_1001;
-                        break;
-                    }
-
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
-                        err = UDA_PROTOCOL_ERROR_7;
-                    }
-
-                    for (int i = 0; i < efit->npfcoils; i++) {
-                        pfcoils = efit->pfcoils + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFCOILS, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfcoils)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->npfpassive; i++) {
-                        pfpassive = efit->pfpassive + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFPASSIVE, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfpassive)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->npfsupplies; i++) {
-                        pfsupplies = efit->pfsupplies + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFSUPPLIES, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfsupplies)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->nfluxloops; i++) {
-                        fluxloop = efit->fluxloop + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_FLUXLOOP, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)fluxloop)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->nmagprobes; i++) {
-                        magprobe = efit->magprobe + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_MAGPROBE, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)magprobe)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->npfcircuits; i++) {
-                        pfcircuit = efit->pfcircuit + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_PFCIRCUIT, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)pfcircuit)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->nplasmacurrent; i++) {
-                        plasmacurrent = efit->plasmacurrent + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_PLASMACURRENT, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)plasmacurrent)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->ndiamagnetic; i++) {
-                        diamagnetic = efit->diamagnetic + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_DIAMAGNETIC, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)diamagnetic)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->ntoroidalfield; i++) {
-                        toroidalfield = efit->toroidalfield + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_TOROIDALFIELD, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)toroidalfield)) != 0) {
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < efit->nlimiter; i++) {
-                        limiter = efit->limiter + i;
-                        if ((err = protocolXML(xdrs, UDA_PROTOCOL_LIMITER, direction, token, logmalloclist,
-                                               userdefinedtypelist, (void*)limiter)) != 0) {
-                            break;
-                        }
-                    }
-
-                    break;
-
-                case XDR_FREE_HEAP:
-                    break;
-
-                default:
-                    err = UDA_PROTOCOL_ERROR_4;
-                    break;
-            }
-
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // PF Coils
-
-        if (protocol_id == UDA_PROTOCOL_PFCOILS) {
-
-            pfcoils = (PFCOILS*)str;
-
-            switch (direction) {
-
-                case XDR_RECEIVE:
-
-                    if (!(rc = xdrrec_skiprecord(xdrs))) {
-                        err = UDA_PROTOCOL_ERROR_5;
-                        break;
-                    }
-                    if (!(rc = xdr_pfcoils1(xdrs, pfcoils))) {
-                        err = UDA_PROTOCOL_ERROR_1011;
-                        break;
-                    }
-
-                    if (pfcoils->nco == 0) {
-                        break; // No Data to Receive!
-                    }
-
-                    if ((err = alloc_pfcoils(pfcoils)) != 0) {
-                        break; // Allocate Heap Memory
-                    }
-
-                    if (!(rc = xdr_pfcoils2(xdrs, pfcoils))) {
-                        err = UDA_PROTOCOL_ERROR_1012;
-                        break;
-                    }
-
-                    break;
-
-                case XDR_SEND:
-
-                    if (!(rc = xdr_pfcoils1(xdrs, pfcoils))) {
-                        err = UDA_PROTOCOL_ERROR_1011;
-                        break;
-                    }
-
-                    if (pfcoils->nco == 0) {
-                        break; // No Data to Send!
-                    }
-
-                    if (!(rc = xdr_pfcoils2(xdrs, pfcoils))) {
-                        err = UDA_PROTOCOL_ERROR_1012;
-                        break;
-                    }
-
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
-                        err = UDA_PROTOCOL_ERROR_7;
-                    }
-
-                    break;
-
-                case XDR_FREE_HEAP:
-                    break;
-
-                default:
-                    err = UDA_PROTOCOL_ERROR_4;
-                    break;
-            }
-
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // PF Passive
-
-        if (protocol_id == UDA_PROTOCOL_PFPASSIVE) {
-
-            pfpassive = (PFPASSIVE*)str;
-
-            switch (direction) {
-
-                case XDR_RECEIVE:
-
-                    if (!(rc = xdrrec_skiprecord(xdrs))) {
-                        err = UDA_PROTOCOL_ERROR_5;
-                        break;
-                    }
-                    if (!(rc = xdr_pfpassive1(xdrs, pfpassive))) {
-                        err = UDA_PROTOCOL_ERROR_1021;
-                        break;
-                    }
-
-                    if (pfpassive->nco == 0) {
-                        break; // No Data to Receive!
-                    }
-
-                    if ((err = alloc_pfpassive(pfpassive)) != 0) {
-                        break; // Allocate Heap Memory
-                    }
-
-                    if (!(rc = xdr_pfpassive2(xdrs, pfpassive))) {
-                        err = UDA_PROTOCOL_ERROR_1022;
-                        break;
-                    }
-
-                    break;
-
-                case XDR_SEND:
-
-                    if (!(rc = xdr_pfpassive1(xdrs, pfpassive))) {
-                        err = UDA_PROTOCOL_ERROR_1021;
-                        break;
-                    }
-
-                    if (pfpassive->nco == 0) {
-                        break; // No Data to Send!
-                    }
-
-                    if (!(rc = xdr_pfpassive2(xdrs, pfpassive))) {
-                        err = UDA_PROTOCOL_ERROR_1022;
-                        break;
-                    }
-
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
-                        err = UDA_PROTOCOL_ERROR_7;
-                    }
-
-                    break;
-
-                case XDR_FREE_HEAP:
-                    break;
-
-                default:
-                    err = UDA_PROTOCOL_ERROR_4;
-                    break;
-            }
-
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // PF Supplies
-
-        if (protocol_id == UDA_PROTOCOL_PFSUPPLIES) {
-
-            pfsupplies = (PFSUPPLIES*)str;
-
-            switch (direction) {
-
-                case XDR_RECEIVE:
-
-                    if (!(rc = xdrrec_skiprecord(xdrs))) {
-                        err = UDA_PROTOCOL_ERROR_5;
-                        break;
-                    }
-                    if (!(rc = xdr_pfsupplies(xdrs, pfsupplies))) {
-                        err = UDA_PROTOCOL_ERROR_1031;
-                        break;
-                    }
-
-                    break;
-
-                case XDR_SEND:
-
-                    if (!(rc = xdr_pfsupplies(xdrs, pfsupplies))) {
-                        err = UDA_PROTOCOL_ERROR_1031;
-                        break;
-                    }
-
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
-                        err = UDA_PROTOCOL_ERROR_7;
-                    }
-
-                    break;
-
-                case XDR_FREE_HEAP:
-                    break;
-
-                default:
-                    err = UDA_PROTOCOL_ERROR_4;
-                    break;
-            }
-
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // Flux Loops
-
-        if (protocol_id == UDA_PROTOCOL_FLUXLOOP) {
-
-            fluxloop = (FLUXLOOP*)str;
-
-            switch (direction) {
-
-                case XDR_RECEIVE:
-
-                    if (!(rc = xdrrec_skiprecord(xdrs))) {
-                        err = UDA_PROTOCOL_ERROR_5;
-                        break;
-                    }
-                    if (!(rc = xdr_fluxloop1(xdrs, fluxloop))) {
-                        err = UDA_PROTOCOL_ERROR_1041;
-                        break;
-                    }
-
-                    if (fluxloop->nco == 0) {
-                        break; // No Data to Receive!
-                    }
-
-                    if ((err = alloc_fluxloop(fluxloop)) != 0) {
-                        break; // Allocate Heap Memory
-                    }
-
-                    if (!(rc = xdr_fluxloop2(xdrs, fluxloop))) {
-                        err = UDA_PROTOCOL_ERROR_1042;
-                        break;
-                    }
-
-                    break;
-
-                case XDR_SEND:
-
-                    if (!(rc = xdr_fluxloop1(xdrs, fluxloop))) {
-                        err = UDA_PROTOCOL_ERROR_1041;
-                        break;
-                    }
-
-                    if (fluxloop->nco == 0) {
-                        break;
-                    }
-
-                    if (!(rc = xdr_fluxloop2(xdrs, fluxloop))) {
-                        err = UDA_PROTOCOL_ERROR_1042;
-                        break;
-                    }
-
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
-                        err = UDA_PROTOCOL_ERROR_7;
-                    }
-
-                    break;
-
-                case XDR_FREE_HEAP:
-                    break;
-
-                default:
-                    err = UDA_PROTOCOL_ERROR_4;
-                    break;
-            }
-
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // Magnetic Probe
-
-        if (protocol_id == UDA_PROTOCOL_MAGPROBE) {
-
-            magprobe = (MAGPROBE*)str;
-
-            switch (direction) {
-
-                case XDR_RECEIVE:
-
-                    if (!(rc = xdrrec_skiprecord(xdrs))) {
-                        err = UDA_PROTOCOL_ERROR_5;
-                        break;
-                    }
-                    if (!(rc = xdr_magprobe(xdrs, magprobe))) {
-                        err = UDA_PROTOCOL_ERROR_1051;
-                        break;
-                    }
-
-                    break;
-
-                case XDR_SEND:
-
-                    if (!(rc = xdr_magprobe(xdrs, magprobe))) {
-                        err = UDA_PROTOCOL_ERROR_1051;
-                        break;
-                    }
-
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
-                        err = UDA_PROTOCOL_ERROR_7;
-                    }
-
-                    break;
-
-                case XDR_FREE_HEAP:
-                    break;
-
-                default:
-                    err = UDA_PROTOCOL_ERROR_4;
-                    break;
-            }
-
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // PF Circuit
-
-        if (protocol_id == UDA_PROTOCOL_PFCIRCUIT) {
-
-            pfcircuit = (PFCIRCUIT*)str;
-
-            switch (direction) {
-
-                case XDR_RECEIVE:
-
-                    if (!(rc = xdrrec_skiprecord(xdrs))) {
-                        err = UDA_PROTOCOL_ERROR_5;
-                        break;
-                    }
-                    if (!(rc = xdr_pfcircuit1(xdrs, pfcircuit))) {
-                        err = UDA_PROTOCOL_ERROR_1061;
-                        break;
-                    }
-
-                    if (pfcircuit->nco == 0) {
-                        break; // No Data to Receive!
-                    }
-
-                    if ((err = alloc_pfcircuit(pfcircuit)) != 0) {
-                        break; // Allocate Heap Memory
-                    }
-
-                    if (!(rc = xdr_pfcircuit2(xdrs, pfcircuit))) {
-                        err = UDA_PROTOCOL_ERROR_1062;
-                        break;
-                    }
-
-                    break;
-
-                case XDR_SEND:
-
-                    if (!(rc = xdr_pfcircuit1(xdrs, pfcircuit))) {
-                        err = UDA_PROTOCOL_ERROR_1061;
-                        break;
-                    }
-
-                    if (pfcircuit->nco == 0) {
-                        break; // No Data to Send!
-                    }
-
-                    if (!(rc = xdr_pfcircuit2(xdrs, pfcircuit))) {
-                        err = UDA_PROTOCOL_ERROR_1062;
-                        break;
-                    }
-
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
-                        err = UDA_PROTOCOL_ERROR_7;
-                    }
-
-                    break;
-
-                case XDR_FREE_HEAP:
-                    break;
-
-                default:
-                    err = UDA_PROTOCOL_ERROR_4;
-                    break;
-            }
-
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // Plasma Current
-
-        if (protocol_id == UDA_PROTOCOL_PLASMACURRENT) {
-
-            plasmacurrent = (PLASMACURRENT*)str;
-
-            switch (direction) {
-
-                case XDR_RECEIVE:
-
-                    if (!(rc = xdrrec_skiprecord(xdrs))) {
-                        err = UDA_PROTOCOL_ERROR_5;
-                        break;
-                    }
-                    if (!(rc = xdr_plasmacurrent(xdrs, plasmacurrent))) {
-                        err = UDA_PROTOCOL_ERROR_1071;
-                        break;
-                    }
-
-                    break;
-
-                case XDR_SEND:
-
-                    if (!(rc = xdr_plasmacurrent(xdrs, plasmacurrent))) {
-                        err = UDA_PROTOCOL_ERROR_1071;
-                        break;
-                    }
-
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
-                        err = UDA_PROTOCOL_ERROR_7;
-                    }
-
-                    break;
-
-                case XDR_FREE_HEAP:
-                    break;
-
-                default:
-                    err = UDA_PROTOCOL_ERROR_4;
-                    break;
-            }
-
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // Diamagnetic Flux
-
-        if (protocol_id == UDA_PROTOCOL_DIAMAGNETIC) {
-
-            diamagnetic = (DIAMAGNETIC*)str;
-
-            switch (direction) {
-
-                case XDR_RECEIVE:
-
-                    if (!(rc = xdrrec_skiprecord(xdrs))) {
-                        err = UDA_PROTOCOL_ERROR_5;
-                        break;
-                    }
-                    if (!(rc = xdr_diamagnetic(xdrs, diamagnetic))) {
-                        err = UDA_PROTOCOL_ERROR_1071;
-                        break;
-                    }
-
-                    break;
-
-                case XDR_SEND:
-
-                    if (!(rc = xdr_diamagnetic(xdrs, diamagnetic))) {
-                        err = UDA_PROTOCOL_ERROR_1071;
-                        break;
-                    }
-
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
-                        err = UDA_PROTOCOL_ERROR_7;
-                    }
-
-                    break;
-
-                case XDR_FREE_HEAP:
-                    break;
-
-                default:
-                    err = UDA_PROTOCOL_ERROR_4;
-                    break;
-            }
-
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // Toroidal Magnetic Field
-
-        if (protocol_id == UDA_PROTOCOL_TOROIDALFIELD) {
-
-            toroidalfield = (TOROIDALFIELD*)str;
-
-            switch (direction) {
-
-                case XDR_RECEIVE:
-
-                    if (!(rc = xdrrec_skiprecord(xdrs))) {
-                        err = UDA_PROTOCOL_ERROR_5;
-                        break;
-                    }
-                    if (!(rc = xdr_toroidalfield(xdrs, toroidalfield))) {
-                        err = UDA_PROTOCOL_ERROR_1081;
-                        break;
-                    }
-
-                    break;
-
-                case XDR_SEND:
-
-                    if (!(rc = xdr_toroidalfield(xdrs, toroidalfield))) {
-                        err = UDA_PROTOCOL_ERROR_1081;
-                        break;
-                    }
-
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
-                        err = UDA_PROTOCOL_ERROR_7;
-                    }
-
-                    break;
-
-                case XDR_FREE_HEAP:
-                    break;
-
-                default:
-                    err = UDA_PROTOCOL_ERROR_4;
-                    break;
-            }
-
-            break;
-        }
-
-        //----------------------------------------------------------------------------
-        // Limiters
-
-        if (protocol_id == UDA_PROTOCOL_LIMITER) {
-
-            limiter = (LIMITER*)str;
-
-            switch (direction) {
-
-                case XDR_RECEIVE:
-
-                    if (!(rc = xdrrec_skiprecord(xdrs))) {
-                        err = UDA_PROTOCOL_ERROR_5;
-                        break;
-                    }
-                    if (!(rc = xdr_limiter1(xdrs, limiter))) {
-                        err = UDA_PROTOCOL_ERROR_1091;
-                        break;
-                    }
-
-                    if (limiter->nco == 0) {
-                        break; // No Data to Receive!
-                    }
-
-                    if ((err = alloc_limiter(limiter)) != 0) {
-                        break; // Allocate Heap Memory
-                    }
-
-                    if (!(rc = xdr_limiter2(xdrs, limiter))) {
-                        err = UDA_PROTOCOL_ERROR_1092;
-                        break;
-                    }
-
-                    break;
-
-                case XDR_SEND:
-
-                    if (!(rc = xdr_limiter1(xdrs, limiter))) {
-                        err = UDA_PROTOCOL_ERROR_1091;
-                        break;
-                    }
-
-                    if (limiter->nco == 0) {
-                        break; // No Data to Send!
-                    }
-
-                    if (!(rc = xdr_limiter2(xdrs, limiter))) {
-                        err = UDA_PROTOCOL_ERROR_1092;
-                        break;
-                    }
-
-                    if (!(rc = xdrrec_endofrecord(xdrs, 1))) {
-                        err = UDA_PROTOCOL_ERROR_7;
-                    }
-
-                    break;
-
-                case XDR_FREE_HEAP:
-                    break;
-
-                default:
-                    err = UDA_PROTOCOL_ERROR_4;
-                    break;
-            }
-
-            break;
-        }
-#  endif
 #endif // !FATCLIENT
        //----------------------------------------------------------------------------
        // End of Error Trap Loop

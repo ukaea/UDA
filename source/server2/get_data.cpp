@@ -15,6 +15,8 @@
 #include "uda/plugins.h"
 #include <uda/types.h>
 
+using namespace uda::client_server;
+
 namespace
 {
 
@@ -1057,7 +1059,7 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
             int serrno = errno;
             if (serrno != 0 || xmlfile == nullptr) {
                 if (serrno != 0) {
-                    udaAddError(UDA_SYSTEM_ERROR_TYPE, "idamserverReadData", serrno, "");
+                    add_error(UDA_SYSTEM_ERROR_TYPE, "idamserverReadData", serrno, "");
                 }
                 if (xmlfile != nullptr) {
                     fclose(xmlfile);
@@ -1160,9 +1162,9 @@ int uda::Server::read_data(RequestData* request, DATA_BLOCK* data_block)
                 int err = maybe_plugin.get().idamPlugin(&plugin_interface);
                 for (unsigned int i = 0; i < plugin_interface.error_stack.nerrors; ++i) {
                     auto error = &plugin_interface.error_stack.idamerror[i];
-                    udaAddError(error->type, error->location, error->code, error->msg);
+                    add_error(error->type, error->location, error->code, error->msg);
                 }
-                udaFreeErrorStack(&plugin_interface.error_stack);
+                free_error_stack(&plugin_interface.error_stack);
 
 #ifndef FATCLIENT
                 // Reset Redirected Output

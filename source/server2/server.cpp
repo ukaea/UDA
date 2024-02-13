@@ -21,6 +21,8 @@
 #  include "authentication/udaServerSSL.h"
 #endif
 
+using namespace uda::client_server;
+
 void free_data_blocks(std::vector<DataBlock>& data_blocks)
 {
     for (auto& data_block : data_blocks) {
@@ -65,7 +67,7 @@ void uda::Server::start_logs()
     if (environment_->loglevel <= UDA_LOG_ACCESS) {
         std::string cmd = fmt::format("mkdir -p {} 2>/dev/null", environment_->logdir);
         if (system(cmd.c_str()) != 0) {
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "mkdir command failed");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "mkdir command failed");
             throw uda::server::StartupException("mkdir command failed");
         }
 
@@ -74,8 +76,8 @@ void uda::Server::start_logs()
         FILE* accout = fopen(log_file.c_str(), environment_->logmode);
 
         if (errno != 0) {
-            udaAddError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Access Log: ");
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open access log");
+            add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Access Log: ");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open access log");
             if (accout != nullptr) {
                 fclose(accout);
             }
@@ -90,8 +92,8 @@ void uda::Server::start_logs()
         FILE* errout = fopen(log_file.c_str(), environment_->logmode);
 
         if (errno != 0) {
-            udaAddError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Error Log: ");
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open error log");
+            add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Error Log: ");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Failed to open error log");
             if (errout != nullptr) {
                 fclose(errout);
             }
@@ -106,7 +108,7 @@ void uda::Server::start_logs()
         FILE* dbgout = fopen(log_file.c_str(), environment_->logmode);
 
         if (errno != 0) {
-            udaAddError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Debug Log: ");
+            add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "Debug Log: ");
             if (dbgout != nullptr) {
                 fclose(dbgout);
             }
@@ -177,8 +179,8 @@ void uda::Server::close()
     //----------------------------------------------------------------------------
     // Write the Error Log Record & Free Error Stack Heap
 
-    udaErrorLog(client_block_, request_block_, nullptr);
-    udaCloseError();
+    error_log(client_block_, request_block_, nullptr);
+    close_error();
 
     //----------------------------------------------------------------------------
     // Free Data Block Heap Memory in case by-passed
@@ -280,17 +282,17 @@ void uda::Server::loop()
         //----------------------------------------------------------------------------
         // Write the Error Log Record & Free Error Stack Heap
 
-        UDA_LOG(UDA_LOG_DEBUG, "udaConcatError\n");
-        udaConcatError(&server_block_.idamerrorstack); // Update Server State with Error Stack
+        UDA_LOG(UDA_LOG_DEBUG, "concat_error\n");
+        concat_error(&server_block_.idamerrorstack); // Update Server State with Error Stack
 
-        UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
-        udaCloseError();
+        UDA_LOG(UDA_LOG_DEBUG, "close_error\n");
+        close_error();
 
-        UDA_LOG(UDA_LOG_DEBUG, "udaErrorLog\n");
-        udaErrorLog(client_block_, request_block_, &server_block_.idamerrorstack);
+        UDA_LOG(UDA_LOG_DEBUG, "error_log\n");
+        error_log(client_block_, request_block_, &server_block_.idamerrorstack);
 
-        UDA_LOG(UDA_LOG_DEBUG, "udaCloseError\n");
-        udaCloseError();
+        UDA_LOG(UDA_LOG_DEBUG, "close_error\n");
+        close_error();
 
         UDA_LOG(UDA_LOG_DEBUG, "initServerBlock\n");
         initServerBlock(&server_block_, ServerVersion);
@@ -665,7 +667,7 @@ int uda::Server::handle_request()
     printSignal(metadata_block_.signal_rec);
     printSignalDesc(*signal_desc);
     print_data_block_list(data_blocks_);
-    udaPrintErrorStack();
+    print_error_stack();
     UDA_LOG(UDA_LOG_DEBUG,
             "======================== ******************** ==========================================\n");
 
@@ -749,8 +751,8 @@ int uda::Server::report_to_client()
     // Gather Server Error State
 
     // Update Server State with Error Stack
-    udaConcatError(&server_block_.idamerrorstack);
-    udaCloseError();
+    concat_error(&server_block_.idamerrorstack);
+    close_error();
 
     int err = 0;
 

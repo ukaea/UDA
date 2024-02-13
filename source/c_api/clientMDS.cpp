@@ -4,6 +4,8 @@
 #include "clientserver/initStructs.h"
 #include "logging/logging.h"
 
+using namespace uda::client_server;
+
 /**
  * Reads the Requested Data
  *

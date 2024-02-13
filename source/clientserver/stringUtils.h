@@ -1,21 +1,17 @@
 #pragma once
 
-#ifndef UDA_CLIENTSERVER_STRINGUTILS_H
-#  define UDA_CLIENTSERVER_STRINGUTILS_H
+#include <algorithm>
+#include <ctype.h>
+#include <stdbool.h>
+#include <string.h>
+#include <string>
 
-#  include <algorithm>
-#  include <ctype.h>
-#  include <stdbool.h>
-#  include <string.h>
-#  include <string>
+#ifndef _WIN32
+#  include <strings.h>
+#endif
 
-#  ifndef _WIN32
-#    include <strings.h>
-#  endif
-
-#  if !defined(_GNU_SOURCE) && !defined(strcasestr)
-char* strcasestr(const char* haystack, const char* needle);
-#  endif
+namespace uda::client_server
+{
 
 // Reverse a String
 void reverseString(const char* in, char* out);
@@ -39,13 +35,15 @@ char* LeftTrimString(char* str);
 
 void StringCopy(char* dest, const char* src, size_t len);
 
-#  ifdef __GNUC__
+#ifdef __GNUC__
+
 // Convert all LowerCase Characters to Upper Case
 char* strupr(char* a);
 
 // Convert all UpperCase Characters to Lower Case
 char* strlwr(char* a);
-#  endif
+
+#endif
 
 // Trim Internal Space Characters from a String
 char* MidTrimString(char* str);
@@ -71,13 +69,15 @@ char* convertNonPrintable2(char* str);
 
 int IsLegalFilePath(const char* str);
 
-#  if !defined(asprintf)
-#    if defined(__cplusplus) && !defined(__APPLE__)
+#if !defined(asprintf)
+#  if defined(__cplusplus) && !defined(__APPLE__)
 int asprintf(char** strp, const char* fmt, ...) noexcept;
-#    else
+#  else
+
 int asprintf(char** strp, const char* fmt, ...);
-#    endif
+
 #  endif
+#endif
 
 char** SplitString(const char* string, const char* delim);
 
@@ -89,14 +89,12 @@ bool StringIEquals(const char* a, const char* b);
 
 bool StringEndsWith(const char* str, const char* find);
 
-#  define STR_STARTSWITH(X, Y) !strncmp(X, Y, strlen(Y))
-#  define STR_ISTARTSWITH(X, Y) !strncasecmp(X, Y, strlen(Y))
+#define STR_STARTSWITH(X, Y) !strncmp(X, Y, strlen(Y))
+#define STR_ISTARTSWITH(X, Y) !strncasecmp(X, Y, strlen(Y))
 
-#  define STR_EQUALS(X, Y) StringEquals(X, Y)
-#  define STR_IEQUALS(X, Y) StringIEquals(X, Y)
+#define STR_EQUALS(X, Y) uda::client_server::StringEquals(X, Y)
+#define STR_IEQUALS(X, Y) uda::client_server::StringIEquals(X, Y)
 
-namespace uda
-{
 // remove non printable characters
 static inline void convert_non_printable(std::string& str)
 {
@@ -115,6 +113,5 @@ static inline void rtrim(std::string& s)
 {
     s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), s.end());
 }
-} // namespace uda
 
-#endif // UDA_CLIENTSERVER_STRINGUTILS_H
+} // namespace uda::client_server

@@ -30,19 +30,21 @@
 /* static unsigned short udaGetAPICalledOnce = 0; */
 /* #endif */
 
+using namespace uda::client_server;
+
 int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlockList)
 {
 
     int err = 0;
     REQUEST_BLOCK request_block;
-    PUTDATA_BLOCK_LIST emptyPutDataBlockList;
-    PUTDATA_BLOCK_LIST* putDataBlockList = nullptr;
+    PutDataBlockList emptyPutDataBlockList;
+    PutDataBlockList* putDataBlockList = nullptr;
 
     //-------------------------------------------------------------------------
     // Pass an empty structure rather than nullptr (Caller is responsible for freeing)
 
     if (inPutDataBlockList != nullptr) {
-        putDataBlockList = inPutDataBlockList;
+        putDataBlockList = (PutDataBlockList*)inPutDataBlockList;
     } else {
         putDataBlockList = &emptyPutDataBlockList;
         initPutDataBlockList(putDataBlockList);
@@ -79,10 +81,10 @@ int udaPutListAPI(const char* putInstruction, PUTDATA_BLOCK_LIST* inPutDataBlock
 
     const char* source = "";
     if ((err = makeClientRequestBlock(&putInstruction, &source, 1, &request_block)) != 0) {
-        udaCloseError();
+        close_error();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;
     }
@@ -113,14 +115,14 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 {
     int err = 0;
     REQUEST_BLOCK request_block;
-    PUTDATA_BLOCK emptyPutDataBlock;
-    PUTDATA_BLOCK* putData = nullptr;
+    PutDataBlock emptyPutDataBlock;
+    PutDataBlock* putData = nullptr;
 
     //-------------------------------------------------------------------------
     // Pass an empty structure rather than nullptr (Caller is responsible for freeing)
 
     if (inPutData != nullptr) {
-        putData = inPutData;
+        putData = (PutDataBlock*)inPutData;
     } else {
         putData = &emptyPutDataBlock;
         initPutDataBlock(putData);
@@ -158,10 +160,10 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 
     const char* source = "";
     if ((err = makeClientRequestBlock(&putInstruction, &source, 1, &request_block)) != 0) {
-        udaCloseError();
+        close_error();
         if (udaNumErrors() == 0) {
             UDA_LOG(UDA_LOG_ERROR, "Error processing the put instruction [%s]\n", putInstruction);
-            udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
+            add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "Error processing the put instruction");
         }
         return -err;
     }
@@ -173,7 +175,7 @@ int udaPutAPI(const char* putInstruction, PUTDATA_BLOCK* inPutData)
 
     request_block.requests[0].put = 1; // flags the direction of data (0 is default => get operation)
 
-    addIdamPutDataBlockList(putData, &request_block.requests[0].putDataBlockList);
+    add_put_data_block_list(putData, &request_block.requests[0].putDataBlockList);
 
     int handle;
     err = idamClient(&request_block, &handle);

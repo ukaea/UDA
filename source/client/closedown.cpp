@@ -24,7 +24,8 @@
 #  include <authentication/udaClientSSL.h>
 #endif
 
-int closedown(ClosedownType type, SOCKETLIST* socket_list, XDR* client_input, XDR* client_output, bool* reopen_logs)
+int closedown(ClosedownType type, uda::client_server::SOCKETLIST* socket_list, XDR* client_input, XDR* client_output,
+              bool* reopen_logs)
 {
     int rc = 0;
 

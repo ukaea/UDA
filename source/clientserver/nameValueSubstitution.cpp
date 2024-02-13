@@ -16,6 +16,8 @@
 #include "udaErrors.h"
 #include <fmt/format.h>
 
+using namespace uda::client_server;
+
 static void embedded_value_substitution(NAMEVALUELIST* nameValueList);
 
 // Deconstruct the text pass parameter (tpass) for name value placeholder substitution values
@@ -25,7 +27,7 @@ static void embedded_value_substitution(NAMEVALUELIST* nameValueList);
 // shot/tpass data source pattern: "12345/a,b,c, name=value, name=value, d, e, delimiter=',', placeholder='$'"
 //
 
-int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
+int uda::client_server::name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
 {
     int err = 0;
 
@@ -45,7 +47,7 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
     unsigned short strip = 0; // Do Not Remove enclosing quotes from name value pairs
     if (name_value_pairs(tpass, &newNameValueList, strip) == -1) {
         err = 999;
-        udaAddError(UDA_CODE_ERROR_TYPE, "nameValueSubstitution", err, "Name Value pair syntax is incorrect!");
+        add_error(UDA_CODE_ERROR_TYPE, "nameValueSubstitution", err, "Name Value pair syntax is incorrect!");
         return err;
     }
 
@@ -123,8 +125,8 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
                 // Too many placeholders for the available substitutions
                 UDA_LOG(UDA_LOG_DEBUG, "Inconsistent count of placeholders and available substitutions!\n");
                 err = 999;
-                udaAddError(UDA_CODE_ERROR_TYPE, "nameValueSubstitution", err,
-                            "Inconsistent count of placeholders and available substitutions!");
+                add_error(UDA_CODE_ERROR_TYPE, "nameValueSubstitution", err,
+                          "Inconsistent count of placeholders and available substitutions!");
                 break;
             }
 
@@ -136,8 +138,8 @@ int name_value_substitution(NAMEVALUELIST* nameValueList, char* tpass)
                     UDA_LOG(UDA_LOG_DEBUG, "Placeholder numbering is Inconsistent with Placeholder Count!\n");
                     UDA_LOG(UDA_LOG_DEBUG, "tpassIndex[%d] = %d  (%d)\n", i, tpassIndex[i], placeholderCount);
                     err = 999;
-                    udaAddError(UDA_CODE_ERROR_TYPE, "nameValueSubstitution", err,
-                                "Placeholder numbering is Inconsistent with Placeholder Count!");
+                    add_error(UDA_CODE_ERROR_TYPE, "nameValueSubstitution", err,
+                              "Placeholder numbering is Inconsistent with Placeholder Count!");
                     break;
                 }
 

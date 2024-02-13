@@ -1,8 +1,7 @@
 #pragma once
 
-#ifndef UDA_CLIENTSERVER_USERID_H
-#  define UDA_CLIENTSERVER_USERID_H
+namespace uda::client_server {
 
-void userid(char* uid);
+void userid(char *uid);
 
-#endif // UDA_CLIENTSERVER_USERID_H
+}

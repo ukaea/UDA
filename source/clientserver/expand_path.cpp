@@ -58,13 +58,15 @@ void expandFilePath(char* path)
 #  define MAXPATHSUBS 10
 #  define MAXPATHSUBSLENGTH 256
 
+using namespace uda::client_server;
+
 /**
  * The workstation (client host) name is obtained using the operating system command 'hostname'.
  *
  * @param host The name of the client host workstation. The string is pre-allocated with length STRING_LENGTH
  * @return A pointer to the host string (Identical to the argument).
  */
-char* hostid(char* host)
+char* uda::client_server::hostid(char* host)
 {
 
 #  ifdef _WIN32
@@ -102,7 +104,7 @@ char* hostid(char* host)
 #    endif
 
     if (host[0] == '\0') {
-        udaAddError(UDA_CODE_ERROR_TYPE, "hostid", 999, "Unable to Identify the Host Name");
+        add_error(UDA_CODE_ERROR_TYPE, "hostid", 999, "Unable to Identify the Host Name");
     }
     return host;
 
@@ -139,7 +141,7 @@ If there are more wildcards in the substitute string than in the target string, 
 @param path The path to be tested for targeted name element replacement.
 @returns An integer Error Code: If non zero, a problem occurred.
 */
-int pathReplacement(char* path, const ENVIRONMENT* environment)
+int uda::client_server::pathReplacement(char* path, const ENVIRONMENT* environment)
 {
     //----------------------------------------------------------------------------------------------
     // Does the Path contain hierarchical components not seen by the server? If so make a substitution.
@@ -286,7 +288,7 @@ int pathReplacement(char* path, const ENVIRONMENT* environment)
 
 #  ifndef SERVERBUILD
 
-int linkReplacement(char* path)
+int uda::client_server::linkReplacement(char* path)
 {
 
     //----------------------------------------------------------------------------------------------
@@ -312,10 +314,10 @@ int linkReplacement(char* path)
     errno = 0;
     if ((ph = popen(cmd.c_str(), "r")) == nullptr) {
         if (errno != 0) {
-            udaAddError(UDA_SYSTEM_ERROR_TYPE, "linkReplacement", errno, "");
+            add_error(UDA_SYSTEM_ERROR_TYPE, "linkReplacement", errno, "");
         }
         err = 1;
-        udaAddError(UDA_CODE_ERROR_TYPE, "linkReplacement", err, "Unable to Dereference Symbolic links");
+        add_error(UDA_CODE_ERROR_TYPE, "linkReplacement", err, "Unable to Dereference Symbolic links");
         path[0] = '\0';
         return err;
     }
@@ -346,7 +348,7 @@ int linkReplacement(char* path)
 }
 
 #  else
-int linkReplacement(char* path)
+int uda::client_server::linkReplacement(char* path)
 {
     // Links are resolved client side only
     return 0;
@@ -376,7 +378,7 @@ int linkReplacement(char* path)
 @returns An integer Error Code: If non zero, a problem occured.
 */
 
-int expandFilePath(char* path, const ENVIRONMENT* environment)
+int uda::client_server::expandFilePath(char* path, const ENVIRONMENT* environment)
 {
 
 #  ifdef _WIN32
@@ -411,7 +413,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
     if (!IsLegalFilePath(path)) {
         err = 999;
-        udaAddError(UDA_CODE_ERROR_TYPE, "expandFilePath", err, "The Source contains a Syntax Error!");
+        add_error(UDA_CODE_ERROR_TYPE, "expandFilePath", err, "The Source contains a Syntax Error!");
         return err;
     }
 
@@ -535,8 +537,8 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         if (errno != 0) {
             err = 999;
-            udaAddError(UDA_SYSTEM_ERROR_TYPE, "expand_path", errno, "Cannot resolve the Current Working Directory!");
-            udaAddError(UDA_CODE_ERROR_TYPE, "expand_path", err, "Unable to resolve full file names.");
+            add_error(UDA_SYSTEM_ERROR_TYPE, "expand_path", errno, "Cannot resolve the Current Working Directory!");
+            add_error(UDA_CODE_ERROR_TYPE, "expand_path", err, "Unable to resolve full file names.");
             return err;
         }
 
@@ -653,8 +655,8 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         if (errno != 0) {
             err = 998;
-            udaAddError(UDA_SYSTEM_ERROR_TYPE, "expand_path", errno, "Cannot resolve the Current Working Directory!");
-            udaAddError(UDA_CODE_ERROR_TYPE, "expand_path", err, "Unable to resolve full file names.");
+            add_error(UDA_SYSTEM_ERROR_TYPE, "expand_path", errno, "Cannot resolve the Current Working Directory!");
+            add_error(UDA_CODE_ERROR_TYPE, "expand_path", err, "Unable to resolve full file names.");
             return err;
         }
 
@@ -668,8 +670,8 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 
         if (chdir(ocwd) != 0) {
             err = 999;
-            udaAddError(UDA_SYSTEM_ERROR_TYPE, "expand_path", errno, "Unable to Return to the Working Directory!");
-            udaAddError(UDA_CODE_ERROR_TYPE, "expand_path", err, "Unable to resolve full file names.");
+            add_error(UDA_SYSTEM_ERROR_TYPE, "expand_path", errno, "Unable to Return to the Working Directory!");
+            add_error(UDA_CODE_ERROR_TYPE, "expand_path", err, "Unable to resolve full file names.");
             return err;
         }
 
@@ -745,7 +747,7 @@ int expandFilePath(char* path, const ENVIRONMENT* environment)
 @returns A pointer to the path argument. If a problem occurs, the path string is empty.
 */
 
-char* pathid(char* path)
+char* uda::client_server::pathid(char* path)
 {
 
 #  ifdef _WIN32
@@ -761,7 +763,7 @@ char* pathid(char* path)
     // basic check
 
     if (!IsLegalFilePath(path)) {
-        udaAddError(UDA_CODE_ERROR_TYPE, "pathid", 999, "The directory path has incorrect syntax");
+        add_error(UDA_CODE_ERROR_TYPE, "pathid", 999, "The directory path has incorrect syntax");
         path[0] = '\0';
         return path;
     }
@@ -772,8 +774,8 @@ char* pathid(char* path)
             if ((p = getcwd(pwd, STRING_LENGTH - 1)) != nullptr) {
                 strcpy(path, p);
                 if (chdir(pwd) != 0) {
-                    udaAddError(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
-                    udaAddError(UDA_CODE_ERROR_TYPE, __func__, 999, "The directory path is not available");
+                    add_error(UDA_SYSTEM_ERROR_TYPE, __func__, errno, "");
+                    add_error(UDA_CODE_ERROR_TYPE, __func__, 999, "The directory path is not available");
                 }
                 TrimString(path);
                 LeftTrimString(path);
@@ -781,11 +783,11 @@ char* pathid(char* path)
             }
         } else {
             if (errno == EACCES) {
-                udaAddError(UDA_SYSTEM_ERROR_TYPE, "pathid", errno, "");
-                udaAddError(UDA_CODE_ERROR_TYPE, "pathid", 999, "The directory path is not available");
+                add_error(UDA_SYSTEM_ERROR_TYPE, "pathid", errno, "");
+                add_error(UDA_CODE_ERROR_TYPE, "pathid", 999, "The directory path is not available");
             } else if (errno == ENOENT || errno == ENOTDIR) {
-                udaAddError(UDA_SYSTEM_ERROR_TYPE, "pathid", errno, "");
-                udaAddError(UDA_CODE_ERROR_TYPE, "pathid", 999, "The directory path does not exist");
+                add_error(UDA_SYSTEM_ERROR_TYPE, "pathid", errno, "");
+                add_error(UDA_CODE_ERROR_TYPE, "pathid", 999, "The directory path does not exist");
             }
         }
     }

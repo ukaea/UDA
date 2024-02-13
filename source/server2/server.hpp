@@ -18,11 +18,11 @@
 namespace uda {
 
 struct MetadataBlock {
-    DataSource data_source;
-    Signal signal_rec;
-    SignalDesc signal_desc;
-    SystemConfig system_config;
-    DataSystem data_system;
+    uda::client_server::DataSource data_source;
+    uda::client_server::Signal signal_rec;
+    uda::client_server::SignalDesc signal_desc;
+    uda::client_server::SystemConfig system_config;
+    uda::client_server::DataSystem data_system;
 };
 
 class Server {
@@ -41,23 +41,23 @@ private:
     int report_to_client();
     void handshake_client();
     void start_logs();
-    int get_data(int* depth, RequestData* request_data, DataBlock* data_block, int protocol_version);
-    int read_data(RequestData* request, DATA_BLOCK* data_block);
+    int get_data(int* depth, uda::client_server::RequestData* request_data, uda::client_server::DataBlock* data_block, int protocol_version);
+    int read_data(uda::client_server::RequestData* request, uda::client_server::DATA_BLOCK* data_block);
 
-    std::vector<UDA_ERROR> error_stack_;
-    RequestBlock request_block_;
-    ServerBlock server_block_;
-    ClientBlock client_block_;
-    Actions actions_desc_;
-    Actions actions_sig_;
+    std::vector<uda::client_server::UDA_ERROR> error_stack_;
+    uda::client_server::RequestBlock request_block_;
+    uda::client_server::ServerBlock server_block_;
+    uda::client_server::ClientBlock client_block_;
+    uda::client_server::Actions actions_desc_;
+    uda::client_server::Actions actions_sig_;
     cache::UdaCache* cache_;
     server::Environment environment_;
     XdrProtocol protocol_;
-    std::vector<Sockets> sockets_;
+    std::vector<uda::client_server::Sockets> sockets_;
     Plugins plugins_;
     bool server_closedown_ = false;
     int malloc_source_ = UDA_MALLOC_SOURCE_NONE;
-    std::vector<DATA_BLOCK> data_blocks_;
+    std::vector<uda::client_server::DATA_BLOCK> data_blocks_;
     size_t total_datablock_size_;
     MetadataBlock metadata_block_;
     int server_timeout_ = TIMEOUT;

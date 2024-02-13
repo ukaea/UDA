@@ -43,6 +43,8 @@
 // todo:
 //
 
+using namespace uda::client_server;
+
 namespace
 {
 
@@ -53,7 +55,8 @@ int serverNewDataArray2(DIMS* dims, int rank, int dimid, char* data, int ndata, 
 
 } // namespace
 
-int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* logmalloclist)
+int uda::serverSubsetData(uda::client_server::DATA_BLOCK* data_block, uda::client_server::ACTION action,
+                          LOGMALLOCLIST* logmalloclist)
 {
     DIMS* dim;
     DIMS newdim;
@@ -419,7 +422,7 @@ int uda::serverSubsetData(DATA_BLOCK* data_block, ACTION action, LOGMALLOCLIST* 
             dim = &(data_block->dims[dimid]); // the original dimension to be subset
 
             if (dim->compressed) {
-                uncompressDim(dim);
+                uncompress_dim(dim);
                 dim->compressed = 0; // Can't preserve this status after the subset has been applied
                 dim->method = 0;
 

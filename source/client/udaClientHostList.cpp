@@ -19,14 +19,14 @@
 #include "clientserver/stringUtils.h"
 #include "logging/logging.h"
 
-static std::vector<HostData> g_host_list = {};
+static std::vector<uda::client_server::HostData> g_host_list = {};
 
 void udaClientFreeHostList()
 {
     g_host_list.clear();
 }
 
-const HostData* udaClientFindHostByAlias(const char* alias)
+const uda::client_server::HostData* udaClientFindHostByAlias(const char* alias)
 {
     udaClientInitHostList();
 
@@ -38,7 +38,7 @@ const HostData* udaClientFindHostByAlias(const char* alias)
     return nullptr;
 }
 
-const HostData* udaClientFindHostByName(const char* name)
+const uda::client_server::HostData* udaClientFindHostByName(const char* name)
 {
     udaClientInitHostList();
 
@@ -112,7 +112,7 @@ void udaClientInitHostList()
     // if the certificates and private key are defined, the isSSL bool set true
 
     bool newHost = false;
-    HostData new_data = {};
+    uda::client_server::HostData new_data = {};
 
     std::string line;
     while (std::getline(conf, line)) {

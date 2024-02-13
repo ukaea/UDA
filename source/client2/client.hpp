@@ -24,11 +24,11 @@ namespace client {
 constexpr int ClientVersion = 8;
 
 struct MetadataBlock {
-    DATA_SOURCE data_source;
-    SIGNAL signal_rec;
-    SIGNAL_DESC signal_desc;
-    SYSTEM_CONFIG system_config;
-    DATA_SYSTEM data_system;
+    uda::client_server::DATA_SOURCE data_source;
+    uda::client_server::SIGNAL signal_rec;
+    uda::client_server::SIGNAL_DESC signal_desc;
+    uda::client_server::SYSTEM_CONFIG system_config;
+    uda::client_server::DATA_SYSTEM data_system;
 };
 
 typedef struct ClientFlags {
@@ -61,14 +61,14 @@ public:
     int get(std::string_view data_signal, std::string_view data_source);
     std::vector<int> get(std::vector<std::pair<std::string, std::string>>& requests);
 
-    int put(std::string_view put_instruction, PUTDATA_BLOCK* putdata_block);
-    int put(std::string_view put_instruction, PUTDATA_BLOCK_LIST* putdata_block_list);
+    int put(std::string_view put_instruction, uda::client_server::PutDataBlock* putdata_block);
+    int put(std::string_view put_instruction, uda::client_server::PutDataBlockList* putdata_block_list);
 
     void set_host(std::string_view host);
     void set_port(int port);
     void clear();
-    DATA_BLOCK* current_data_block();
-    DATA_BLOCK* data_block(int handle);
+    uda::client_server::DATA_BLOCK* current_data_block();
+    uda::client_server::DATA_BLOCK* data_block(int handle);
     int new_handle();
     void set_flag(unsigned int flag, bool private_flag=false);
     void reset_flag(unsigned int flag, bool private_flag=false);
@@ -76,10 +76,10 @@ public:
     int get_property(const char* property);
     void reset_property(const char* property);
     void reset_properties();
-    const CLIENT_BLOCK* client_block(int handle);
+    const uda::client_server::CLIENT_BLOCK* client_block(int handle);
     const CLIENT_FLAGS* client_flags();
-    const SERVER_BLOCK* server_block();
-    ENVIRONMENT* environment();
+    const uda::client_server::SERVER_BLOCK* server_block();
+    uda::client_server::ENVIRONMENT* environment();
     void set_user_defined_type_list(USERDEFINEDTYPELIST* userdefinedtypelist);
     void set_log_malloc_list(LOGMALLOCLIST* logmalloclist);
     void set_full_ntree(NTREE* full_ntree);
@@ -88,8 +88,8 @@ public:
     Client& operator=(const Client&) = delete;
 
 private:
-    int get_requests(RequestBlock& request_block, int* indices);
-    void concat_errors(UDA_ERROR_STACK* error_stack);
+    int get_requests(uda::client_server::RequestBlock& request_block, int* indices);
+    void concat_errors(uda::client_server::ErrorStack* error_stack);
     const char* get_server_error_stack_record_msg(int record);
     int get_server_error_stack_record_code(int record);
 
@@ -97,14 +97,14 @@ private:
     int port_ = 0;
     uint32_t flags_ = 0;
     int alt_rank_ = 0;
-    ENVIRONMENT environment_ = {};
+    uda::client_server::ENVIRONMENT environment_ = {};
     ClientFlags client_flags_ = {};
     uint32_t private_flags_ = 0;
-    ClientBlock client_block_ = {};
-    ServerBlock server_block_ = {};
-    std::vector<DataBlock> data_blocks_ = {};
+    uda::client_server::ClientBlock client_block_ = {};
+    uda::client_server::ServerBlock server_block_ = {};
+    std::vector<uda::client_server::DataBlock> data_blocks_ = {};
     uda::cache::UdaCache* cache_ = nullptr;
-    std::vector<UDA_ERROR> error_stack_ = {};
+    std::vector<uda::client_server::UDA_ERROR> error_stack_ = {};
     XDR* client_input_ = nullptr;
     XDR* client_output_ = nullptr;
     Connection connection_;
@@ -122,15 +122,15 @@ private:
     int malloc_source_ = UDA_MALLOC_SOURCE_NONE;
     MetadataBlock metadata_ = {};
 
-    int send_putdata(const RequestBlock& request_block);
-    int send_request_block(RequestBlock& request_block);
+    int send_putdata(const uda::client_server::RequestBlock& request_block);
+    int send_request_block(uda::client_server::RequestBlock& request_block);
     int send_client_block();
     int test_connection();
     int perform_handshake();
     int flush_sockets();
     int receive_server_block();
     int fetch_meta();
-    int fetch_hierarchical_data(DATA_BLOCK* data_block);
+    int fetch_hierarchical_data(uda::client_server::DATA_BLOCK* data_block);
 };
 
 } // namespace client
